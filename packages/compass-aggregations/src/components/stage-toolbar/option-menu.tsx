@@ -21,7 +21,7 @@ const menuItemStyles = css({
   gap: spacing[2],
 });
 
-const OptionMenu = ({
+export const OptionMenu = ({
   index,
   onAddStageClick,
   onDeleteStageClick,

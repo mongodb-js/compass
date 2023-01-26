@@ -80,7 +80,6 @@ const rightStyles = css({
 });
 
 type StageToolbarProps = {
-  stageOperator?: string | null;
   index: number;
   isAutoPreviewing?: boolean;
   hasSyntaxError?: boolean;
@@ -94,8 +93,7 @@ const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
 const COLLAPSED_TEXT =
   'A sample of the aggregated results from this stage will be shown below.';
 
-function StageToolbar({
-  stageOperator,
+export function StageToolbar({
   index,
   hasSyntaxError,
   hasServerError,
@@ -119,7 +117,7 @@ function StageToolbar({
     >
       <div className={leftStyles}>
         <StageCollapser index={index} />
-        {stageOperator && <Body weight="medium">Stage {index + 1}</Body>}
+        <Body weight="medium">Stage {index + 1}</Body>
         <StageOperatorSelect index={index} />
         <ToggleStage index={index} />
       </div>
@@ -145,7 +143,6 @@ export default connect(
   (state: RootState, ownProps: { index: number }) => {
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
     return {
-      stageOperator: stage.stageOperator,
       isAutoPreviewing: !!state.autoPreview,
       hasSyntaxError: hasSyntaxError(stage),
       hasServerError: !!stage.serverError,
