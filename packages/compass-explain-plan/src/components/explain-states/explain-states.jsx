@@ -158,7 +158,6 @@ class ExplainStates extends Component {
   render() {
     return (
       <WorkspaceContainer
-        className="boys-2"
         toolbar={
           <ExplainToolbar
             explainErrorMessage={this.props.explain.error?.message}
