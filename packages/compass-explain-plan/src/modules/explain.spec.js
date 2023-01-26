@@ -65,29 +65,31 @@ describe('explain module', function () {
         [explainStates.INITIAL]: {
           type: EXPLAIN_STATE_CHANGED,
           explainState: explainStates.INITIAL,
-          abortController: null
+          abortController: null,
         },
         [explainStates.REQUESTED]: {
           type: EXPLAIN_STATE_CHANGED,
           explainState: explainStates.REQUESTED,
-          abortController: new AbortController()
+          abortController: new AbortController(),
         },
         [explainStates.EXECUTED]: {
           type: EXPLAIN_STATE_CHANGED,
           explainState: explainStates.EXECUTED,
-          abortController: null
+          abortController: null,
         },
         [explainStates.OUTDATED]: {
           type: EXPLAIN_STATE_CHANGED,
           explainState: explainStates.OUTDATED,
-          abortController: null
-        }
+          abortController: null,
+        },
       };
 
       Object.keys(expectedActions).forEach((state) => {
         const expectedAction = expectedActions[state];
-        expect(explainStateChanged(state, expectedAction.abortController)).to.deep.equal(expectedAction);
-      })
+        expect(
+          explainStateChanged(state, expectedAction.abortController)
+        ).to.deep.equal(expectedAction);
+      });
     });
   });
 
@@ -204,7 +206,12 @@ describe('explain module', function () {
 
     context('when the action is explainStateChanged', function () {
       it('returns the new state', function () {
-        const possibleExplainStates = ['initial', 'requested', 'executed', 'outdated'];
+        const possibleExplainStates = [
+          'initial',
+          'requested',
+          'executed',
+          'outdated',
+        ];
         possibleExplainStates.forEach((state) => {
           const explain = reducer(undefined, explainStateChanged(state));
           expect(explain.explainState).to.equal(state);

@@ -39,21 +39,22 @@ describe('ExplainStates [Component]', function () {
   const queryExecuted = sinon.spy();
   const query = {};
 
-  const mountExplainStates = (props) => mount(
-    <ExplainStates
-      explain={explain}
-      fetchExplainPlan={fetchExplainPlanSpy}
-      startExplainPlan={startExplainPlan}
-      cancelExplainPlan={cancelExplainPlan}
-      switchToTreeView={switchToTreeViewSpy}
-      switchToJSONView={switchToJSONViewSpy}
-      query={query}
-      appRegistry={{ localAppRegistry: appRegistry }}
-      isEditable={isEditable}
-      queryExecuted={queryExecuted}
-      {...props}
-    />
-  );
+  const mountExplainStates = (props) =>
+    mount(
+      <ExplainStates
+        explain={explain}
+        fetchExplainPlan={fetchExplainPlanSpy}
+        startExplainPlan={startExplainPlan}
+        cancelExplainPlan={cancelExplainPlan}
+        switchToTreeView={switchToTreeViewSpy}
+        switchToJSONView={switchToJSONViewSpy}
+        query={query}
+        appRegistry={{ localAppRegistry: appRegistry }}
+        isEditable={isEditable}
+        queryExecuted={queryExecuted}
+        {...props}
+      />
+    );
 
   beforeEach(function () {
     appRegistry.registerRole('Query.QueryBar', {
@@ -81,8 +82,8 @@ describe('ExplainStates [Component]', function () {
     component = mountExplainStates({
       explain: {
         ...explain,
-        isEditable: true
-      }
+        isEditable: true,
+      },
     });
     expect(component.find(EmptyContent)).to.be.present();
   });
@@ -92,10 +93,12 @@ describe('ExplainStates [Component]', function () {
       explain: {
         ...explain,
         isEditable: true,
-        explainState: 'requested'
-      }
+        explainState: 'requested',
+      },
     });
-    expect(component.find(`[data-testid="query-explain-cancel"]`)).to.be.present();
+    expect(
+      component.find(`[data-testid="query-explain-cancel"]`)
+    ).to.be.present();
   });
 
   it('renders a explain body post execution of explain plan', function () {
@@ -125,7 +128,7 @@ describe('ExplainStates [Component]', function () {
         usedIndexes: [],
         viewType: 'tree',
       },
-      isEditable: true
+      isEditable: true,
     });
     expect(component.find(ExplainBody)).to.be.present();
   });

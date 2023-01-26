@@ -93,7 +93,7 @@ const doChangeExplainPlanState = (state, action) => {
   return {
     ...state,
     explainState: action.explainState,
-    abortController: action.abortController
+    abortController: action.abortController,
   };
 };
 
@@ -161,7 +161,7 @@ export const switchToJSONView = () => ({
 export const explainStateChanged = (explainState, abortController = null) => ({
   type: EXPLAIN_STATE_CHANGED,
   explainState,
-  abortController
+  abortController,
 });
 
 /**
@@ -330,7 +330,7 @@ export const fetchExplainPlan = (query) => {
         : 'allPlansExecution';
       const data = await dataService.explainFind(namespace, filter, options, {
         explainVerbosity,
-        abortSignal
+        abortSignal,
       });
       // Reset the error.
       explain.error = null;
@@ -398,11 +398,11 @@ export const fetchExplainPlan = (query) => {
       // to keep the behavior post cancellation consistent with
       // other tabs (e.g. Schema analysis) which is to show
       // the user a welcome page for the feature itself
-      dispatch(changeExplainPlanState(
-        abortSignal.aborted
-          ? EXPLAIN_STATES.INITIAL
-          : EXPLAIN_STATES.EXECUTED
-      ));
+      dispatch(
+        changeExplainPlanState(
+          abortSignal.aborted ? EXPLAIN_STATES.INITIAL : EXPLAIN_STATES.EXECUTED
+        )
+      );
     }
   };
 };
@@ -426,17 +426,19 @@ export const changeExplainPlanState = (explainState) => {
 export const startExplainPlan = () => {
   return (dispatch) => {
     const abortController = new AbortController();
-    return dispatch(explainStateChanged(EXPLAIN_STATES.REQUESTED, abortController));
+    return dispatch(
+      explainStateChanged(EXPLAIN_STATES.REQUESTED, abortController)
+    );
   };
 };
 
 export const cancelExplainPlan = () => {
   return (dispatch, getStore) => {
     getStore().explain.abortController?.abort(
-      new Error("Explain cancelled by user")
+      new Error('Explain cancelled by user')
     );
-  }
-}
+  };
+};
 
 function resultId() {
   return Math.floor(Math.random() * 2 ** 53);

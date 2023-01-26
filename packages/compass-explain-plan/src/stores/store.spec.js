@@ -112,9 +112,8 @@ describe('Explain Plan Store', function () {
       });
 
       context('when the action is EXPLAIN_STATE_CHANGED', function () {
-
         it('marks the start of explain plan"', function (done) {
-          const explainState = explainStates.REQUESTED
+          const explainState = explainStates.REQUESTED;
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(store.getState().explain.explainState).to.equal(
@@ -145,7 +144,8 @@ describe('Explain Plan Store', function () {
           const unsubscribe = store.subscribe(async () => {
             setTimeout(() => {
               unsubscribe();
-              expect(store.getState().explain.abortController.signal.aborted).to.be.true;
+              expect(store.getState().explain.abortController.signal.aborted).to
+                .be.true;
               done();
             });
           });
