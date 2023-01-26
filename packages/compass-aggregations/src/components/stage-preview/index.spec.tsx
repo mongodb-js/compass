@@ -25,6 +25,7 @@ const renderStagePreview = (
         documents={[]}
         index={1}
         isLoading={false}
+        isDisabled={false}
         isMissingAtlasOnlyStageSupport={false}
         stageOperator=""
         shouldRenderStage={false}
@@ -35,6 +36,12 @@ const renderStagePreview = (
 };
 
 describe('StagePreview', function () {
+  it('renders empty content when stage is disabled', function () {
+    renderStagePreview({
+      isDisabled: true,
+    });
+    expect(screen.getByTestId('stage-preview-empty')).to.exist;
+  });
   it('renders no preview documents when stage can not be previewed', function () {
     renderStagePreview({
       shouldRenderStage: false,

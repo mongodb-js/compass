@@ -68,6 +68,8 @@ const textStyles = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  // align with the text on stage preview header
+  paddingLeft: spacing[2],
 });
 
 const rightStyles = css({

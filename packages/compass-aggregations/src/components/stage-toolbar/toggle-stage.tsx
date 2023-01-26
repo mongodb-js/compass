@@ -1,5 +1,5 @@
 import React from 'react';
-import { Toggle, css, spacing } from '@mongodb-js/compass-components';
+import { Toggle } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';

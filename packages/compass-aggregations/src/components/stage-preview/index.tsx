@@ -51,7 +51,10 @@ function EmptyIcon() {
   return (
     <div className={centeredContent}>
       <div
-        className={cx(emptyStyles, darkMode ? emptyStylesDark : emptyStylesLight)}
+        className={cx(
+          emptyStyles,
+          darkMode ? emptyStylesDark : emptyStylesLight
+        )}
       >
         <Body>
           <span data-testid="stage-preview-empty">No Preview Documents</span>
