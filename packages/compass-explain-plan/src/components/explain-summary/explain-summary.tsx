@@ -103,7 +103,7 @@ const SummaryIndexStat: React.FC<{
   );
 };
 
-const SummaryStat: React.FC<{
+const SummaryStat: React.FunctionComponent<{
   dataTestId?: string;
   label: string;
   value: any;
