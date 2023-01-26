@@ -27,7 +27,7 @@ describe('analyzeCSVFields', function () {
         progressCallback,
       });
 
-      const resultPath = filepath.replace(/.csv$/, '.analyzed.json');
+      const resultPath = filepath.replace(/\.csv$/, '.analyzed.json');
       let text;
       try {
         text = await fs.promises.readFile(resultPath, 'utf8');
