@@ -23,8 +23,19 @@ const SAMPLE_DEFINITION = [
  * The Sample Documents editor component.
  */
 
-const sampleDocumentsStyles = css({
+const sampleDocumentsSectionStyles = css({
   marginTop: spacing[4],
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[2]
+});
+
+const sampleDocumentsHeaderStyles = css({
+  fontSize: 16,
+  fontWeight: 'bold'
+});
+
+const sampleDocumentsStyles = css({
   display: 'flex',
   gap: spacing[3],
 });
@@ -98,11 +109,9 @@ class SampleDocuments extends Component {
     return (
       <div className={sampleDocumentStyles} data-testid="matching-documents">
         <div className={cx(documentHeadingStyles, matchingStyles)}>
-          <Icon glyph="InfoWithCircle" size="small" />
+          <Icon glyph="CheckmarkWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>
-            <InlineDefinition definition={SAMPLE_DEFINITION}>
-              Sample document
-            </InlineDefinition>  that passed validation
+            Passed validation
           </Body>
         </div>
         <DocumentPreview
@@ -132,9 +141,7 @@ class SampleDocuments extends Component {
         <div className={cx(documentHeadingStyles, notMatchingStyles)}>
           <Icon glyph="XWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>
-            <InlineDefinition definition={SAMPLE_DEFINITION}>
-              Sample document
-            </InlineDefinition>  that failed validation
+            Failed validation
           </Body>
         </div>
         <DocumentPreview
@@ -153,9 +160,16 @@ class SampleDocuments extends Component {
    */
   render() {
     return (
-      <div className={sampleDocumentsStyles}>
-        {this.renderMatchingDocuments()}
-        {this.renderNotMatchingDocuments()}
+      <div className={sampleDocumentsSectionStyles}>
+        <Body className={sampleDocumentsHeaderStyles}>
+          <InlineDefinition definition={SAMPLE_DEFINITION}>
+            Sample documents
+          </InlineDefinition>
+        </Body>
+        <div className={sampleDocumentsStyles}>
+          {this.renderMatchingDocuments()}
+          {this.renderNotMatchingDocuments()}
+        </div>
       </div>
     );
   }
