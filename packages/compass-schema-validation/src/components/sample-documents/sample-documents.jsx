@@ -11,12 +11,15 @@ import {
   palette,
   InlineDefinition,
 } from '@mongodb-js/compass-components';
-import { DOCUMENT_LOADING_STATES as DOCUMENT_LOADING_STATES_MAP, SAMPLE_SIZE } from '../../modules/sample-documents';
+import {
+  DOCUMENT_LOADING_STATES as DOCUMENT_LOADING_STATES_MAP,
+  SAMPLE_SIZE,
+} from '../../modules/sample-documents';
 
 const SAMPLE_DEFINITION = [
   'A sample is fetched from a sample-space of',
   SAMPLE_SIZE,
-  'randomly selected documents'
+  'randomly selected documents',
 ].join(' ');
 
 const DOCUMENT_LOADING_STATES = Object.values(DOCUMENT_LOADING_STATES_MAP);
@@ -29,12 +32,12 @@ const sampleDocumentsSectionStyles = css({
   marginTop: spacing[4],
   display: 'flex',
   flexDirection: 'column',
-  gap: spacing[2]
+  gap: spacing[2],
 });
 
 const sampleDocumentsHeaderStyles = css({
   fontSize: 16,
-  fontWeight: 'bold'
+  fontWeight: 'bold',
 });
 
 const sampleDocumentsStyles = css({
@@ -76,7 +79,7 @@ class SampleDocuments extends Component {
       invalidDocumentState: PropTypes.oneOf(DOCUMENT_LOADING_STATES),
     }),
     fetchValidDocument: PropTypes.func,
-    fetchInvalidDocument: PropTypes.func
+    fetchInvalidDocument: PropTypes.func,
   };
 
   /**
@@ -89,10 +92,12 @@ class SampleDocuments extends Component {
   shouldComponentUpdate(nextProps) {
     const { sampleDocuments: prevDocs } = this.props;
     const { sampleDocuments: nextDocs } = nextProps;
-    return prevDocs.validDocumentState !== nextDocs.validDocumentState
-      || prevDocs.invalidDocumentState !== nextDocs.invalidDocumentState
-      || prevDocs.validDocument !== nextDocs.validDocument
-      || prevDocs.invalidDocument !== nextDocs.invalidDocument;
+    return (
+      prevDocs.validDocumentState !== nextDocs.validDocumentState ||
+      prevDocs.invalidDocumentState !== nextDocs.invalidDocumentState ||
+      prevDocs.validDocument !== nextDocs.validDocument ||
+      prevDocs.invalidDocument !== nextDocs.invalidDocument
+    );
   }
 
   /**
@@ -102,19 +107,14 @@ class SampleDocuments extends Component {
    */
   renderMatchingDocuments() {
     const {
-      sampleDocuments: {
-        validDocument,
-        validDocumentState
-      }
+      sampleDocuments: { validDocument, validDocumentState },
     } = this.props;
 
     return (
       <div className={sampleDocumentStyles} data-testid="matching-documents">
         <div className={cx(documentHeadingStyles, matchingStyles)}>
           <Icon glyph="CheckmarkWithCircle" size="small" />
-          <Body className={documentHeadingTextStyles}>
-            Passed validation
-          </Body>
+          <Body className={documentHeadingTextStyles}>Passed validation</Body>
         </div>
         <DocumentPreview
           document={validDocument}
@@ -132,19 +132,14 @@ class SampleDocuments extends Component {
    */
   renderNotMatchingDocuments() {
     const {
-      sampleDocuments: {
-        invalidDocument,
-        invalidDocumentState
-      }
+      sampleDocuments: { invalidDocument, invalidDocumentState },
     } = this.props;
 
     return (
       <div className={sampleDocumentStyles} data-testid="notmatching-documents">
         <div className={cx(documentHeadingStyles, notMatchingStyles)}>
           <Icon glyph="XWithCircle" size="small" />
-          <Body className={documentHeadingTextStyles}>
-            Failed validation
-          </Body>
+          <Body className={documentHeadingTextStyles}>Failed validation</Body>
         </div>
         <DocumentPreview
           document={invalidDocument}

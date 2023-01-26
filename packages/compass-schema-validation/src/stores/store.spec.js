@@ -183,10 +183,14 @@ describe('Schema Validation Store', function () {
 
     context('when the action is fetch valid sample documents', function () {
       it('updates the sample document loading in state', function (done) {
-        expect(store.getState().sampleDocuments.validDocumentState).to.equal(DOCUMENT_LOADING_STATES.INITIAL);
+        expect(store.getState().sampleDocuments.validDocumentState).to.equal(
+          DOCUMENT_LOADING_STATES.INITIAL
+        );
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().sampleDocuments.validDocumentState).to.equal(DOCUMENT_LOADING_STATES.LOADING);
+          expect(store.getState().sampleDocuments.validDocumentState).to.equal(
+            DOCUMENT_LOADING_STATES.LOADING
+          );
           done();
         });
         store.dispatch(fetchValidDocument());
@@ -195,10 +199,14 @@ describe('Schema Validation Store', function () {
 
     context('when the action is fetch invalid sample documents', function () {
       it('updates the sample document loading in state', function (done) {
-        expect(store.getState().sampleDocuments.invalidDocumentState).to.equal(DOCUMENT_LOADING_STATES.INITIAL);
+        expect(store.getState().sampleDocuments.invalidDocumentState).to.equal(
+          DOCUMENT_LOADING_STATES.INITIAL
+        );
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().sampleDocuments.invalidDocumentState).to.equal(DOCUMENT_LOADING_STATES.LOADING);
+          expect(
+            store.getState().sampleDocuments.invalidDocumentState
+          ).to.equal(DOCUMENT_LOADING_STATES.LOADING);
           done();
         });
         store.dispatch(fetchInvalidDocument());

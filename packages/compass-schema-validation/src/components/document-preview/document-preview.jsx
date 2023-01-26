@@ -28,7 +28,7 @@ const noPreviewStyles = css({
 
 const loadSampleStyles = css({
   width: '100%',
-  textAlign: 'center'
+  textAlign: 'center',
 });
 
 const noPreviewTextStyles = css({
@@ -47,7 +47,7 @@ class DocumentPreview extends Component {
   static propTypes = {
     document: PropTypes.object,
     loadingState: PropTypes.oneOf(Object.values(DOCUMENT_LOADING_STATES)),
-    onLoadSampleClick: PropTypes.func
+    onLoadSampleClick: PropTypes.func,
   };
 
   /**
@@ -64,18 +64,27 @@ class DocumentPreview extends Component {
         )}
         data-testid="document-preview"
       >
-        {(this.props.loadingState === DOCUMENT_LOADING_STATES.INITIAL) ? (
-          <Body as='div' className={loadSampleStyles}>
-            <Button data-testid='load-sample-document' size="small" onClick={this.props.onLoadSampleClick}>
+        {this.props.loadingState === DOCUMENT_LOADING_STATES.INITIAL ? (
+          <Body as="div" className={loadSampleStyles}>
+            <Button
+              data-testid="load-sample-document"
+              size="small"
+              onClick={this.props.onLoadSampleClick}
+            >
               Load document
             </Button>
           </Body>
-        ) : (this.props.loadingState === DOCUMENT_LOADING_STATES.LOADING) ? (
+        ) : this.props.loadingState === DOCUMENT_LOADING_STATES.LOADING ? (
           <LoadingOverlay />
-        ) : (this.props.document) ? (
+        ) : this.props.document ? (
           <Document doc={this.props.document} editable={false} />
         ) : (
-          <Body data-testid="load-sample-no-preview" className={noPreviewTextStyles}>No Preview Documents</Body>
+          <Body
+            data-testid="load-sample-no-preview"
+            className={noPreviewTextStyles}
+          >
+            No Preview Documents
+          </Body>
         )}
       </KeylineCard>
     );

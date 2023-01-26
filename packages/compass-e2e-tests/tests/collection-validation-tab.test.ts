@@ -5,9 +5,10 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
-const LOAD_SAMPLE_DOCUMENT = 'Load document'
+const LOAD_SAMPLE_DOCUMENT = 'Load document';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';
-const FAILING_VALIDATOR = '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
+const FAILING_VALIDATOR =
+  '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
 
 describe('Collection validation tab', function () {
   let compass: Compass;
@@ -63,7 +64,9 @@ describe('Collection validation tab', function () {
     it('supports rules in JSON schema', async function () {
       await addValidation(FAILING_VALIDATOR);
       await browser.clickVisible(Selectors.ValidationLoadMatchingDocumentsBtn);
-      await browser.clickVisible(Selectors.ValidationLoadNotMatchingDocumentsBtn);
+      await browser.clickVisible(
+        Selectors.ValidationLoadNotMatchingDocumentsBtn
+      );
 
       // nothing passed, everything failed
       await browser.waitUntil(async () => {
@@ -80,14 +83,16 @@ describe('Collection validation tab', function () {
           notMatchingText !== NO_PREVIEW_DOCUMENTS
         );
       });
-  
+
       // Reset the validation again to make everything valid for future tests
-  
+
       // the automatic indentation and brackets makes multi-line values very fiddly here
       await browser.setValidation(PASSING_VALIDATOR);
       await browser.clickVisible(Selectors.ValidationLoadMatchingDocumentsBtn);
-      await browser.clickVisible(Selectors.ValidationLoadNotMatchingDocumentsBtn);
-  
+      await browser.clickVisible(
+        Selectors.ValidationLoadNotMatchingDocumentsBtn
+      );
+
       // nothing failed, everything passed
       await browser.waitUntil(async () => {
         const matchTextElement = await browser.$(

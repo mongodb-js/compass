@@ -11,15 +11,15 @@ export const DOCUMENT_LOADING_STATES = {
   INITIAL: 'initial',
   LOADING: 'loading',
   SUCCESS: 'success',
-  ERROR: 'error'
-}
+  ERROR: 'error',
+};
 
 export const INITIAL_STATE = {
   validDocumentState: DOCUMENT_LOADING_STATES.INITIAL,
   validDocument: undefined,
 
   invalidDocumentState: DOCUMENT_LOADING_STATES.INITIAL,
-  invalidDocument: undefined
+  invalidDocument: undefined,
 };
 
 /**
@@ -47,39 +47,38 @@ export const FETCHED_INVALID_DOCUMENT =
 export const FETCHING_INVALID_DOCUMENT_FAILED =
   'validation/namespace/FETCHING_INVALID_DOCUMENT_FAILED';
 
-
 /**
  * Action creators
  */
 
 export const clearSampleDocuments = () => ({
-  type: CLEAR_SAMPLE_DOCUMENTS
-})
+  type: CLEAR_SAMPLE_DOCUMENTS,
+});
 
 export const fetchingValidDocument = () => ({
-  type: FETCHING_VALID_DOCUMENT
+  type: FETCHING_VALID_DOCUMENT,
 });
 
 export const fetchingInvalidDocument = () => ({
-  type: FETCHING_INVALID_DOCUMENT
+  type: FETCHING_INVALID_DOCUMENT,
 });
 
 export const fetchedValidDocument = (document) => ({
   type: FETCHED_VALID_DOCUMENT,
-  document
+  document,
 });
 
 export const fetchedInvalidDocument = (document) => ({
   type: FETCHED_INVALID_DOCUMENT,
-  document
+  document,
 });
 
 export const fetchingValidDocumentFailed = () => ({
-  type: FETCHING_VALID_DOCUMENT_FAILED
+  type: FETCHING_VALID_DOCUMENT_FAILED,
 });
 
 export const fetchingInvalidDocumentFailed = () => ({
-  type: FETCHING_INVALID_DOCUMENT_FAILED
+  type: FETCHING_INVALID_DOCUMENT_FAILED,
 });
 
 /**
@@ -90,36 +89,36 @@ export const clearingSampleDocuments = () => INITIAL_STATE;
 
 export const startFetchingValidDocument = (state) => ({
   ...state,
-  validDocumentState: DOCUMENT_LOADING_STATES.LOADING
+  validDocumentState: DOCUMENT_LOADING_STATES.LOADING,
 });
 
 export const startFetchingInvalidDocument = (state) => ({
   ...state,
-  invalidDocumentState: DOCUMENT_LOADING_STATES.LOADING
+  invalidDocumentState: DOCUMENT_LOADING_STATES.LOADING,
 });
 
 export const updateStateWithFetchedValidDocument = (state, action) => ({
   ...state,
   validDocumentState: DOCUMENT_LOADING_STATES.SUCCESS,
-  validDocument: action.document
+  validDocument: action.document,
 });
 
 export const updateStateWithFetchedInvalidDocument = (state, action) => ({
   ...state,
   invalidDocumentState: DOCUMENT_LOADING_STATES.SUCCESS,
-  invalidDocument: action.document
+  invalidDocument: action.document,
 });
 
 export const validDocumentFetchErrored = (state) => ({
   ...state,
   validDocumentState: DOCUMENT_LOADING_STATES.ERROR,
-  validDocument: undefined
+  validDocument: undefined,
 });
 
 export const invalidDocumentFetchErrored = (state) => ({
   ...state,
   invalidDocumentState: DOCUMENT_LOADING_STATES.ERROR,
-  invalidDocument: undefined
+  invalidDocument: undefined,
 });
 
 const ACTION_TO_REDUCER_MAPPINGS = {
@@ -129,8 +128,8 @@ const ACTION_TO_REDUCER_MAPPINGS = {
   [FETCHING_VALID_DOCUMENT_FAILED]: validDocumentFetchErrored,
   [FETCHING_INVALID_DOCUMENT]: startFetchingInvalidDocument,
   [FETCHED_INVALID_DOCUMENT]: updateStateWithFetchedInvalidDocument,
-  [FETCHING_INVALID_DOCUMENT_FAILED]: invalidDocumentFetchErrored
-}
+  [FETCHING_INVALID_DOCUMENT_FAILED]: invalidDocumentFetchErrored,
+};
 
 export default function (state = INITIAL_STATE, action) {
   const fn = ACTION_TO_REDUCER_MAPPINGS[action.type];
@@ -170,21 +169,21 @@ export const fetchValidDocument = () => {
     }
 
     try {
+      const valid = (
+        await getSampleDocuments({
+          namespace,
+          dataService,
+          pipeline: [{ $match: query }, { $limit: 1 }],
+        })
+      )[0];
 
-      const valid = (await getSampleDocuments({
-        namespace,
-        dataService,
-        pipeline: [{ $match: query }, { $limit: 1 }],
-      }))[0];
-
-      dispatch(fetchedValidDocument(valid))
-      
+      dispatch(fetchedValidDocument(valid));
     } catch (e) {
-      dispatch(fetchingValidDocumentFailed())
+      dispatch(fetchingValidDocumentFailed());
       dispatch(syntaxErrorOccurred(e));
     }
-  }
-}
+  };
+};
 
 export const fetchInvalidDocument = () => {
   return async (dispatch, getState) => {
@@ -203,18 +202,18 @@ export const fetchInvalidDocument = () => {
     }
 
     try {
+      const invalid = (
+        await getSampleDocuments({
+          namespace,
+          dataService,
+          pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
+        })
+      )[0];
 
-      const invalid = (await getSampleDocuments({
-        namespace,
-        dataService,
-        pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
-      }))[0];
-
-      dispatch(fetchedInvalidDocument(invalid))
-      
+      dispatch(fetchedInvalidDocument(invalid));
     } catch (e) {
-      dispatch(fetchingInvalidDocumentFailed())
+      dispatch(fetchingInvalidDocumentFailed());
       dispatch(syntaxErrorOccurred(e));
     }
-  }
-}
+  };
+};

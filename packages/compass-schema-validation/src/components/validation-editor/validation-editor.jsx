@@ -162,10 +162,7 @@ class ValidationEditor extends Component {
    * @returns {Boolean} True if there is an error.
    */
   hasErrors() {
-    return !!(
-      this.props.validation.error
-      || this.props.validation.syntaxError
-    );
+    return !!(this.props.validation.error || this.props.validation.syntaxError);
   }
 
   /**

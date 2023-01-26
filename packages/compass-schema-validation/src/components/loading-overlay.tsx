@@ -35,7 +35,7 @@ function LoadingOverlay() {
 
   return (
     <div
-      data-testid='load-sample-spinner'
+      data-testid="load-sample-spinner"
       className={cx(
         loadingOverlayStyles,
         darkMode ? loadingOverlayStylesDark : loadingOverlayStylesLight
