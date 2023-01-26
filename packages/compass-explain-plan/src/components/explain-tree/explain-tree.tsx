@@ -34,7 +34,7 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
   const darkMode = useDarkMode();
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !links || !nodes) return;
     const svgElement = svgRef.current;
 
     // Right angle links between nodes
