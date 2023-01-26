@@ -7,17 +7,27 @@ export const SAMPLE_SIZE = 10000;
  * Initial state
  */
 
-export const INITIAL_STATE = {
-  validDocumentLoading: false,
-  validDocument: null, // Possible states - null (yet to fetch), undefined (no document/s), document/s
+export const DOCUMENT_LOADING_STATES = {
+  INITIAL: 'initial',
+  LOADING: 'loading',
+  SUCCESS: 'success',
+  ERROR: 'error'
+}
 
-  invalidDocumentLoading: false,
-  invalidDocument: null // Possible states - null (yet to fetch), undefined (no document/s), document/s
+export const INITIAL_STATE = {
+  validDocumentState: DOCUMENT_LOADING_STATES.INITIAL,
+  validDocument: undefined,
+
+  invalidDocumentState: DOCUMENT_LOADING_STATES.INITIAL,
+  invalidDocument: undefined
 };
 
 /**
  * Action names
  */
+
+export const CLEAR_SAMPLE_DOCUMENTS =
+  'validation/namespace/CLEAR_SAMPLE_DOCUMENTS';
 
 export const FETCHING_VALID_DOCUMENT =
   'validation/namespace/FETCHING_VALID_DOCUMENT';
@@ -25,16 +35,26 @@ export const FETCHING_VALID_DOCUMENT =
 export const FETCHED_VALID_DOCUMENT =
   'validation/namespace/FETCHED_VALID_DOCUMENT';
 
+export const FETCHING_VALID_DOCUMENT_FAILED =
+  'validation/namespace/FETCHING_VALID_DOCUMENT_FAILED';
+
 export const FETCHING_INVALID_DOCUMENT =
   'validation/namespace/FETCHING_INVALID_DOCUMENT';
 
 export const FETCHED_INVALID_DOCUMENT =
   'validation/namespace/FETCHED_INVALID_DOCUMENT';
 
+export const FETCHING_INVALID_DOCUMENT_FAILED =
+  'validation/namespace/FETCHING_INVALID_DOCUMENT_FAILED';
+
 
 /**
  * Action creators
  */
+
+export const clearSampleDocuments = () => ({
+  type: CLEAR_SAMPLE_DOCUMENTS
+})
 
 export const fetchingValidDocument = () => ({
   type: FETCHING_VALID_DOCUMENT
@@ -54,37 +74,62 @@ export const fetchedInvalidDocument = (document) => ({
   document
 });
 
+export const fetchingValidDocumentFailed = () => ({
+  type: FETCHING_VALID_DOCUMENT_FAILED
+});
+
+export const fetchingInvalidDocumentFailed = () => ({
+  type: FETCHING_INVALID_DOCUMENT_FAILED
+});
+
 /**
  * State reducers
  */
 
+export const clearingSampleDocuments = () => INITIAL_STATE;
+
 export const startFetchingValidDocument = (state) => ({
   ...state,
-  validDocumentLoading: true
+  validDocumentState: DOCUMENT_LOADING_STATES.LOADING
 });
 
 export const startFetchingInvalidDocument = (state) => ({
   ...state,
-  invalidDocumentLoading: true
+  invalidDocumentState: DOCUMENT_LOADING_STATES.LOADING
 });
 
 export const updateStateWithFetchedValidDocument = (state, action) => ({
   ...state,
-  validDocumentLoading: false,
+  validDocumentState: DOCUMENT_LOADING_STATES.SUCCESS,
   validDocument: action.document
 });
 
 export const updateStateWithFetchedInvalidDocument = (state, action) => ({
   ...state,
-  invalidDocumentLoading: false,
+  invalidDocumentState: DOCUMENT_LOADING_STATES.SUCCESS,
   invalidDocument: action.document
 });
 
+export const validDocumentFetchErrored = (state) => ({
+  ...state,
+  validDocumentState: DOCUMENT_LOADING_STATES.ERROR,
+  validDocument: undefined
+});
+
+export const invalidDocumentFetchErrored = (state) => ({
+  ...state,
+  invalidDocumentState: DOCUMENT_LOADING_STATES.ERROR,
+  invalidDocument: undefined
+});
+
 const ACTION_TO_REDUCER_MAPPINGS = {
+  [CLEAR_SAMPLE_DOCUMENTS]: clearingSampleDocuments,
   [FETCHING_VALID_DOCUMENT]: startFetchingValidDocument,
   [FETCHED_VALID_DOCUMENT]: updateStateWithFetchedValidDocument,
+  [FETCHING_VALID_DOCUMENT_FAILED]: validDocumentFetchErrored,
   [FETCHING_INVALID_DOCUMENT]: startFetchingInvalidDocument,
-  [FETCHED_INVALID_DOCUMENT]: updateStateWithFetchedInvalidDocument
+  [FETCHED_INVALID_DOCUMENT]: updateStateWithFetchedInvalidDocument,
+  [FETCHING_INVALID_DOCUMENT_FAILED]: invalidDocumentFetchErrored
 }
 
 export default function (state = INITIAL_STATE, action) {
@@ -135,7 +180,7 @@ export const fetchValidDocument = () => {
       dispatch(fetchedValidDocument(valid))
       
     } catch (e) {
-      dispatch(fetchedValidDocument());
+      dispatch(fetchingValidDocumentFailed())
       dispatch(syntaxErrorOccurred(e));
     }
   }
@@ -168,14 +213,8 @@ export const fetchInvalidDocument = () => {
       dispatch(fetchedInvalidDocument(invalid))
       
     } catch (e) {
-      dispatch(fetchedInvalidDocument());
+      dispatch(fetchingInvalidDocumentFailed())
       dispatch(syntaxErrorOccurred(e));
     }
   }
 }
-
-export const clearSampleDocuments = () =>
-  (dispatch) => {
-    dispatch(fetchedValidDocument(null));
-    dispatch(fetchedInvalidDocument(null));
-  }

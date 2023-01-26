@@ -4,16 +4,12 @@ import { mount } from 'enzyme';
 import { expect } from 'chai';
 
 import SampleDocuments from '../sample-documents';
+import { INITIAL_STATE } from '../../modules/sample-documents';
 
 
 describe('SampleDocuments [Component]', function () {
   const mountComponent = (props) => {
-    const sampleDocuments = {
-      validDocument: {},
-      validDocumentLoading: false,
-      invalidDocument: {},
-      invalidDocumentLoading: false,
-    };
+    const sampleDocuments = INITIAL_STATE
     const fetchValidDocument = sinon.spy();
     const fetchInvalidDocument = sinon.spy();
 

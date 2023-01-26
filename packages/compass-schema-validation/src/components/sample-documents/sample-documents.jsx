@@ -11,13 +11,15 @@ import {
   palette,
   InlineDefinition,
 } from '@mongodb-js/compass-components';
-import { SAMPLE_SIZE } from '../../modules/sample-documents';
+import { DOCUMENT_LOADING_STATES as DOCUMENT_LOADING_STATES_MAP, SAMPLE_SIZE } from '../../modules/sample-documents';
 
 const SAMPLE_DEFINITION = [
   'A sample is fetched from a sample-space of',
   SAMPLE_SIZE,
   'randomly selected documents'
 ].join(' ');
+
+const DOCUMENT_LOADING_STATES = Object.values(DOCUMENT_LOADING_STATES_MAP);
 
 /**
  * The Sample Documents editor component.
@@ -69,9 +71,9 @@ class SampleDocuments extends Component {
   static propTypes = {
     sampleDocuments: PropTypes.shape({
       validDocument: PropTypes.object,
-      validDocumentLoading: PropTypes.bool,
+      validDocumentState: PropTypes.oneOf(DOCUMENT_LOADING_STATES),
       invalidDocument: PropTypes.object,
-      invalidDocumentLoading: PropTypes.bool,
+      invalidDocumentState: PropTypes.oneOf(DOCUMENT_LOADING_STATES),
     }),
     fetchValidDocument: PropTypes.func,
     fetchInvalidDocument: PropTypes.func
@@ -87,8 +89,8 @@ class SampleDocuments extends Component {
   shouldComponentUpdate(nextProps) {
     const { sampleDocuments: prevDocs } = this.props;
     const { sampleDocuments: nextDocs } = nextProps;
-    return prevDocs.validDocumentLoading !== nextDocs.validDocumentLoading
-      || prevDocs.invalidDocumentLoading !== nextDocs.invalidDocumentLoading
+    return prevDocs.validDocumentState !== nextDocs.validDocumentState
+      || prevDocs.invalidDocumentState !== nextDocs.invalidDocumentState
       || prevDocs.validDocument !== nextDocs.validDocument
       || prevDocs.invalidDocument !== nextDocs.invalidDocument;
   }
@@ -102,7 +104,7 @@ class SampleDocuments extends Component {
     const {
       sampleDocuments: {
         validDocument,
-        validDocumentLoading
+        validDocumentState
       }
     } = this.props;
 
@@ -116,8 +118,8 @@ class SampleDocuments extends Component {
         </div>
         <DocumentPreview
           document={validDocument}
-          isLoading={validDocumentLoading}
-          loadSampleDocument={this.props.fetchValidDocument}
+          loadingState={validDocumentState}
+          onLoadSampleClick={this.props.fetchValidDocument}
         />
       </div>
     );
@@ -132,7 +134,7 @@ class SampleDocuments extends Component {
     const {
       sampleDocuments: {
         invalidDocument,
-        invalidDocumentLoading
+        invalidDocumentState
       }
     } = this.props;
 
@@ -146,8 +148,8 @@ class SampleDocuments extends Component {
         </div>
         <DocumentPreview
           document={invalidDocument}
-          isLoading={invalidDocumentLoading}
-          loadSampleDocument={this.props.fetchInvalidDocument}
+          loadingState={invalidDocumentState}
+          onLoadSampleClick={this.props.fetchInvalidDocument}
         />
       </div>
     );

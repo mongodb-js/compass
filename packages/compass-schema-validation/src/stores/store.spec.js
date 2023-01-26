@@ -12,6 +12,7 @@ import {
 import {
   fetchValidDocument,
   fetchInvalidDocument,
+  DOCUMENT_LOADING_STATES,
 } from '../modules/sample-documents';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import configureStore from './';
@@ -182,10 +183,10 @@ describe('Schema Validation Store', function () {
 
     context('when the action is fetch valid sample documents', function () {
       it('updates the sample document loading in state', function (done) {
-        expect(store.getState().sampleDocuments.validDocumentLoading).to.equal(false);
+        expect(store.getState().sampleDocuments.validDocumentState).to.equal(DOCUMENT_LOADING_STATES.INITIAL);
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().sampleDocuments.validDocumentLoading).to.equal(true);
+          expect(store.getState().sampleDocuments.validDocumentState).to.equal(DOCUMENT_LOADING_STATES.LOADING);
           done();
         });
         store.dispatch(fetchValidDocument());
@@ -194,10 +195,10 @@ describe('Schema Validation Store', function () {
 
     context('when the action is fetch invalid sample documents', function () {
       it('updates the sample document loading in state', function (done) {
-        expect(store.getState().sampleDocuments.invalidDocumentLoading).to.equal(false);
+        expect(store.getState().sampleDocuments.invalidDocumentState).to.equal(DOCUMENT_LOADING_STATES.INITIAL);
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().sampleDocuments.invalidDocumentLoading).to.equal(true);
+          expect(store.getState().sampleDocuments.invalidDocumentState).to.equal(DOCUMENT_LOADING_STATES.LOADING);
           done();
         });
         store.dispatch(fetchInvalidDocument());
