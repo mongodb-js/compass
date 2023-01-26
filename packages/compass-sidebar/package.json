@@ -78,8 +78,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.3",
     "compass-preferences-model": "^2.4.0",
     "mongodb-data-service": "^22.3.0",
-    "mongodb-instance-model": "^12.3.0",
-    "react": "^17.0.2"
+    "mongodb-instance-model": "^12.3.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.1",
@@ -108,6 +107,7 @@
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "prop-types": "^15.7.2",
+    "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",
     "redux": "^4.2.0",
