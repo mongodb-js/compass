@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 
 import { createDebug } from '../utils/logger';
 import type { Delimiter } from '../utils/constants';
+import { csvHeaderNameToFieldName } from '../utils/csv-header';
 
 const debug = createDebug('list-csv-fields');
 
@@ -35,9 +36,7 @@ export async function listCSVFields({
         // remove array indexes so that foo[0], foo[1] becomes foo
         // and bar[0].a, bar[1].a becomes bar.a
         // ie. the whole array counts as one field
-        const flattened = results.data.map((name) => {
-          return name.replace(/\[\d+\]/, '');
-        });
+        const flattened = results.data.map(csvHeaderNameToFieldName);
 
         // make sure that each array field is only included once
         for (const name of flattened) {
