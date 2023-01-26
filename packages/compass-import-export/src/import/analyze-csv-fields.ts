@@ -81,7 +81,7 @@ function detectFieldType(value: string): CSVFieldType {
     // first separate floating point numbers from integers
 
     // 1.0 should be double
-    if (value.includes('.') || /[Ee][+-]/.test(value)) {
+    if (value.includes('.') || /[Ee][+-]?/.test(value)) {
       return 'double';
     }
 
