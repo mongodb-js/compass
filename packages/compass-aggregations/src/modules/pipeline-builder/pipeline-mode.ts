@@ -79,7 +79,7 @@ export const changePipelineMode = (
 
     track('Editor Type Changed', {
       num_stages,
-      editor_view_type: mapPipelineModeToEditorViewType(newMode),
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
 
     dispatch(updatePipelinePreview());

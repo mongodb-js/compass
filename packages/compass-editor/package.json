@@ -45,6 +45,9 @@
     "test-ci": "npm run test-cov",
     "reformat": "npm run prettier -- --write ."
   },
+  "peerDependencies": {
+    "react": "^17.0.2"
+  },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.1",
     "@mongodb-js/mocha-config-compass": "^1.0.1",
@@ -76,7 +79,6 @@
     "@mongodb-js/mongodb-constants": "^0.1.5",
     "ace-builds": "^1.11.2",
     "polished": "^4.2.2",
-    "react": "^17.0.2",
     "react-ace": "^9.5.0",
     "semver": "^7.3.8"
   }

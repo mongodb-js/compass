@@ -1,5 +1,34 @@
 import path from 'path';
 
+function getCSVByType(): Record<string, string> {
+  return [
+    'array',
+    'binData',
+    'boolean',
+    'date',
+    'decimal',
+    'double',
+    'int',
+    'javascript',
+    'javascriptWithScope',
+    'long',
+    'maxKey',
+    'minKey',
+    'null',
+    'object',
+    'objectId',
+    'regex',
+    'string',
+    'symbol',
+    'timestamp',
+    'number', // actually a mix of all number types
+    'mixed', // mix of a bunch of different types
+  ].reduce((memo: Record<string, string>, type: string) => {
+    memo[type] = path.join(__dirname, 'csv', 'types', `${type}.csv`);
+    return memo;
+  }, {});
+}
+
 const fixtures = {
   // other
   other: {
@@ -48,32 +77,7 @@ const fixtures = {
   JSONL: path.join(__dirname, 'jsonl.jsonl'),
 
   // CSV files by BSON type
-  csvByType: [
-    'array',
-    'binData',
-    'boolean',
-    'date',
-    'decimal',
-    'double',
-    'int',
-    'javascript',
-    'javascriptWithScope',
-    'long',
-    'maxKey',
-    'minKey',
-    'null',
-    'object',
-    'objectId',
-    'regex',
-    'string',
-    'symbol',
-    'timestamp',
-    'number', // actually a mix of all number types
-    'mixed', // mix of a bunch of different types
-  ].reduce((memo, type) => {
-    memo[type] = path.join(__dirname, 'csv', 'types', `${type}.csv`);
-    return memo;
-  }, {}),
+  csvByType: getCSVByType(),
 };
 
 export { fixtures };

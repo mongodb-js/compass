@@ -68,8 +68,7 @@
     "@mongodb-js/compass-components": "^1.4.0",
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/compass-query-history": "^9.4.0",
-    "bson": "^4.7.1",
-    "react": "^17.0.2"
+    "bson": "^4.7.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.1",

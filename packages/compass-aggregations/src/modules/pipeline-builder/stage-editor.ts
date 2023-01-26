@@ -20,6 +20,7 @@ import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isOutputStage } from '../../utils/stage';
+import { mapPipelineModeToEditorViewType } from './builder-helpers';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
@@ -385,7 +386,7 @@ export const changeStageOperator = (
       stage_action: 'stage_renamed',
       stage_name: stage.operator,
       stage_index: id + 1,
-      editor_view_type: 'stage',
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
 
@@ -440,7 +441,7 @@ export const addStage = (
       num_stages: getState().pipelineBuilder.stageEditor.stages.length,
       stage_action: 'stage_added',
       stage_index: stage.id + 1,
-      editor_view_type: 'stage',
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
     dispatch({ type: StageEditorActionTypes.StageAdded, after, stage });
   };
@@ -457,7 +458,7 @@ export const removeStage = (
       stage_action: 'stage_deleted',
       stage_name: stage.operator,
       stage_index: at + 1,
-      editor_view_type: 'stage',
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
     dispatch(loadPreviewForStagesFrom(at));
@@ -478,7 +479,7 @@ export const moveStage = (
       stage_action: 'stage_reordered',
       stage_name: pipeline[from].stageOperator,
       stage_index: from + 1,
-      editor_view_type: 'stage',
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
     pipelineBuilder.moveStage(from, to);
     dispatch({ type: StageEditorActionTypes.StageMoved, from, to });

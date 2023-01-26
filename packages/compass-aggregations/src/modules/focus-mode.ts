@@ -2,6 +2,9 @@ import type { AnyAction } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import { addStage } from './pipeline-builder/stage-editor';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 enum ActionTypes {
   FocusModeEnabled = 'compass-aggregations/focusModeEnabled',
@@ -26,11 +29,13 @@ type SelectFocusModeStageAction = {
 type State = {
   isEnabled: boolean;
   stageIndex: number;
+  openedAt: number | null;
 };
 
 export const INITIAL_STATE: State = {
   isEnabled: false,
   stageIndex: -1,
+  openedAt: null,
 };
 
 export default function reducer(
@@ -41,12 +46,14 @@ export default function reducer(
     return {
       isEnabled: true,
       stageIndex: action.stageIndex,
+      openedAt: Date.now(),
     };
   }
   if (action.type === ActionTypes.FocusModeDisabled) {
     return {
       isEnabled: false,
       stageIndex: -1,
+      openedAt: null,
     };
   }
   if (
@@ -65,14 +72,33 @@ export default function reducer(
 
 export const enableFocusMode = (
   stageIndex: number
-): FocusModeEnabledAction => ({
-  type: ActionTypes.FocusModeEnabled,
-  stageIndex,
-});
+): PipelineBuilderThunkAction<void, FocusModeEnabledAction> => {
+  return (dispatch, getState) => {
+    track('Focus Mode Opened', {
+      num_stages: getState().pipelineBuilder.stageEditor.stages.length,
+    });
+    dispatch({
+      type: ActionTypes.FocusModeEnabled,
+      stageIndex,
+    });
+  };
+};
 
-export const disableFocusMode = (): FocusModeDisabledAction => ({
-  type: ActionTypes.FocusModeDisabled,
-});
+export const disableFocusMode = (): PipelineBuilderThunkAction<
+  void,
+  FocusModeDisabledAction
+> => {
+  return (dispatch, getState) => {
+    const state = getState();
+    track('Focus Mode Closed', {
+      num_stages: state.pipelineBuilder.stageEditor.stages.length,
+      duration: Number(
+        (Date.now() - (state.focusMode.openedAt ?? 0)).toFixed(1)
+      ),
+    });
+    dispatch({ type: ActionTypes.FocusModeDisabled });
+  };
+};
 
 export const selectFocusModeStage = (index: number) => {
   return {

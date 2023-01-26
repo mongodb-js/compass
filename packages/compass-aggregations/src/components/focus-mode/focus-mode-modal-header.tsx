@@ -23,7 +23,7 @@ type FocusModeModalHeaderProps = {
   isEnabled: boolean;
   stages: (string | null)[];
   onStageSelect: (index: number) => void;
-  onStageToggleClick: (index: number, newVal: boolean) => void;
+  onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;
 };
 
@@ -53,7 +53,7 @@ const menuItemStyles = css({
   },
 });
 
-const FocusModeModalHeader: React.FunctionComponent<
+export const FocusModeModalHeader: React.FunctionComponent<
   FocusModeModalHeaderProps
 > = ({
   stageIndex,
@@ -61,7 +61,7 @@ const FocusModeModalHeader: React.FunctionComponent<
   stages,
   onAddStageClick,
   onStageSelect,
-  onStageToggleClick,
+  onStageDisabledToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const isFirst = stageIndex === 0;
@@ -144,7 +144,7 @@ const FocusModeModalHeader: React.FunctionComponent<
           aria-label={isEnabled ? 'Disable stage' : 'Enable stage'}
           checked={isEnabled}
           onChange={(checked) => {
-            onStageToggleClick(stageIndex, !checked);
+            onStageDisabledToggleClick(stageIndex, !checked);
           }}
         />
       </div>
@@ -224,7 +224,7 @@ export default connect(
   },
   {
     onStageSelect: selectFocusModeStage,
-    onStageToggleClick: changeStageDisabled,
+    onStageDisabledToggleClick: changeStageDisabled,
     onAddStageClick: addStageInFocusMode,
   }
 )(FocusModeModalHeader);

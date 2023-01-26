@@ -202,6 +202,7 @@ const MultilineEditor: React.FunctionComponent<EditorProps> = ({
     return [
       copyable && (
         <ActionButton
+          key="Copy"
           label="Copy"
           icon="Copy"
           onClick={() => {
@@ -212,6 +213,7 @@ const MultilineEditor: React.FunctionComponent<EditorProps> = ({
       ),
       formattable && (
         <ActionButton
+          key="Format"
           label="Format"
           icon={
             <FormatIcon
