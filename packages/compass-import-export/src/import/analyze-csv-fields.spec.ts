@@ -40,7 +40,7 @@ describe('analyzeCSVFields', function () {
       }
 
       const expectedResult = JSON.parse(text);
-      expect(result, basename.replace(/.csv$/, '.analyzed.json')).to.deep.equal(
+      expect(result, basename.replace(/\.csv$/, '.analyzed.json')).to.deep.equal(
         expectedResult
       );
       expect(progressCallback.callCount).to.equal(result.totalRows);
