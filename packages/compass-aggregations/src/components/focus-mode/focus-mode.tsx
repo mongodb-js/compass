@@ -80,6 +80,39 @@ type FocusModeProps = {
   onCloseModal: () => void;
 };
 
+const FocusModeContent = ({
+  isAutoPreviewEnabled,
+}: {
+  isAutoPreviewEnabled: boolean;
+}) => {
+  if (!isAutoPreviewEnabled) {
+    <div className={bodyStyles}>
+      <div
+        className={cx(
+          editorAreaStyles,
+          editorAreaExpanded
+        )}
+        data-testid="stage-editor"
+      >
+        <FocusModeStageEditor />
+      </div>
+    </div>
+  }
+  return (
+    <div className={bodyStyles}>
+      <div className={previewAreaStyles} data-testid="stage-input">
+        <FocusModeStageInput />
+      </div>
+      <div className={editorAreaStyles} data-testid="stage-editor">
+        <FocusModeStageEditor />
+      </div>
+      <div className={previewAreaStyles} data-testid="stage-output">
+        <FocusModeStageOutput />
+      </div>
+    </div>
+  );
+};
+
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
   isAutoPreviewEnabled,
@@ -96,27 +129,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
         <div className={headerStyles}>
           <FocusModeModalHeader></FocusModeModalHeader>
         </div>
-        <div className={bodyStyles}>
-          {isAutoPreviewEnabled && (
-            <div className={previewAreaStyles} data-testid="stage-input">
-              <FocusModeStageInput />
-            </div>
-          )}
-          <div
-            className={cx(
-              editorAreaStyles,
-              !isAutoPreviewEnabled && editorAreaExpanded
-            )}
-            data-testid="stage-editor"
-          >
-            <FocusModeStageEditor />
-          </div>
-          {isAutoPreviewEnabled && (
-            <div className={previewAreaStyles} data-testid="stage-output">
-              <FocusModeStageOutput />
-            </div>
-          )}
-        </div>
+        <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
       </div>
     </Modal>
   );
