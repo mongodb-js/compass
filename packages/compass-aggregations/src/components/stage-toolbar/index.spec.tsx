@@ -54,13 +54,19 @@ describe('StageToolbar', function () {
   context('renders stage text', function () {
     it('when stage is disabled', function () {
       renderStageToolbar({ isDisabled: true });
-      expect(screen.getByText('Stage disabled. Results not passed in the pipeline.')).to.exist;
+      expect(
+        screen.getByText('Stage disabled. Results not passed in the pipeline.')
+      ).to.exist;
     });
     it('when stage is collapsed', function () {
       renderStageToolbar({ isCollapsed: true });
-      expect(screen.getByText('A sample of the aggregated results from this stage will be shown below.')).to.exist;
+      expect(
+        screen.getByText(
+          'A sample of the aggregated results from this stage will be shown below.'
+        )
+      ).to.exist;
     });
-  })
+  });
   it('renders option menu', function () {
     renderStageToolbar();
     expect(screen.getByLabelText('More options')).to.exist;

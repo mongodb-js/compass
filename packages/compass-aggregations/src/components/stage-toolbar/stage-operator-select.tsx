@@ -40,6 +40,7 @@ type StageOperatorSelectProps = {
   onChange: (index: number, name: string | null) => void;
   index: number;
   selectedStage: string | null;
+  isDisabled: boolean;
   stages: {
     name: string;
     env: string;
@@ -52,6 +53,7 @@ export const StageOperatorSelect = ({
   onChange,
   index,
   selectedStage,
+  isDisabled,
   stages,
 }: StageOperatorSelectProps) => {
   const onStageOperatorSelected = useCallback(
@@ -64,6 +66,7 @@ export const StageOperatorSelect = ({
   return (
     <Combobox
       value={selectedStage}
+      disabled={isDisabled}
       aria-label="Select a stage operator"
       onChange={onStageOperatorSelected}
       size="default"
@@ -138,6 +141,7 @@ function EnvAwareStageOperatorSelect({
       index={index}
       stages={stages}
       selectedStage={stage.stageOperator}
+      isDisabled={stage.disabled}
       onChange={onChangeFilter}
     />
   );
