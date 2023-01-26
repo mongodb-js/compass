@@ -23,7 +23,7 @@ function getCSVByType(): Record<string, string> {
     'timestamp',
     'number', // actually a mix of all number types
     'mixed', // mix of a bunch of different types
-  ].reduce((memo, type) => {
+  ].reduce((memo: Record<string, string>, type: string) => {
     memo[type] = path.join(__dirname, 'csv', 'types', `${type}.csv`);
     return memo;
   }, {});
