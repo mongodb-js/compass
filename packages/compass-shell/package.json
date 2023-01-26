@@ -60,8 +60,7 @@
     "@mongodb-js/compass-utils": "^0.1.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.3",
     "@mongosh/node-runtime-worker-thread": "^1.6.2",
-    "compass-preferences-model": "^2.4.0",
-    "react": "^17.0.2"
+    "compass-preferences-model": "^2.4.0"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
@@ -82,7 +81,7 @@
     "@mongosh/logging": "^1.6.2",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
+    "electron": "^22.0.2",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app-registry": "9.0.2",

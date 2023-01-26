@@ -140,7 +140,6 @@ export const explainAggregation = (): PipelineBuilderThunkAction<
       dataService: { dataService },
       indexes: collectionIndexes,
       collationString: { value: collation },
-      pipelineBuilder: { pipelineMode },
     } = getState();
 
     if (!dataService) {
@@ -200,7 +199,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<
         track('Aggregation Explained', {
           num_stages: pipeline.length,
           index_used: explain.stats?.indexes?.length ?? 0,
-          editor_view_type: mapPipelineModeToEditorViewType(pipelineMode),
+          editor_view_type: mapPipelineModeToEditorViewType(getState()),
         });
         // If parsing fails, we still show raw explain json.
         dispatch({

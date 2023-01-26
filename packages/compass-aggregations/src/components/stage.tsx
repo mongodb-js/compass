@@ -24,10 +24,6 @@ import { hasSyntaxError } from '../utils/stage';
 
 const stageStyles = css({
   position: 'relative',
-  marginLeft: spacing[3],
-  marginRight: spacing[3],
-  marginTop: spacing[2],
-  marginBottom: spacing[2],
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'stretch',
@@ -154,10 +150,13 @@ function Stage({
   isAutoPreviewing,
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
-  const { setNodeRef, transform, transition } = useSortable({ id: id + 1 });
+  const { setNodeRef, transform, transition, isDragging } = useSortable({
+    id: id + 1,
+  });
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
+    zIndex: isDragging ? 1 : 0,
   };
 
   return (

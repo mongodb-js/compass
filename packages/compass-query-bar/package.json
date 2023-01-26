@@ -75,7 +75,7 @@
     "chai": "^4.2.0",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
+    "electron": "^22.0.2",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.2",
@@ -87,6 +87,7 @@
     "nyc": "^15.1.0",
     "object-diff": "0.0.4",
     "prop-types": "^15.7.2",
+    "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
@@ -99,7 +100,6 @@
     "@mongodb-js/compass-editor": "^0.3.0",
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-constants": "^0.1.5",
-    "compass-preferences-model": "^2.4.0",
-    "react": "^17.0.2"
+    "compass-preferences-model": "^2.4.0"
   }
 }

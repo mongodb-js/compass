@@ -67,14 +67,12 @@ function printCompassEnv() {
     pathsToPrepend.unshift(`${newPWD}/.deps/bin`);
   }
 
-  if (process.env.IS_RHEL === 'true') {
-    // To build node modules on RHEL post electron 13 we need
+  if (process.env.PLATFORM === 'linux') {
+    // To build node modules on linux post electron 13 we need
     // a newer c++ compiler version, this adds it.
     // https://jira.mongodb.org/browse/COMPASS-5150
     pathsToPrepend.unshift('/opt/mongodbtoolchain/v3/bin');
-  }
 
-  if (process.env.PLATFORM === 'linux') {
     // Make sure that linux is using python 3.6 (node-gyp requirement)
     pathsToPrepend.unshift('/opt/python/3.6/bin');
   }

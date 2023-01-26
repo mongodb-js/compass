@@ -6,18 +6,17 @@ import {
   css,
   spacing,
   Link,
-  palette,
 } from '@mongodb-js/compass-components';
 
 const iconContainerStyles = css({
   textAlign: 'center',
-  marginTop: spacing[2],
-  marginBottom: spacing[2],
+  marginTop: spacing[1] / 2,
+  marginBottom: spacing[1] / 2,
 });
 
 const buttonContainerStyles = css({
   textAlign: 'center',
-  marginTop: spacing[3],
+  marginTop: spacing[4],
   marginBottom: spacing[3],
 });
 
@@ -25,11 +24,6 @@ const linkContainerStyles = css({
   textAlign: 'center',
   marginTop: spacing[2],
   marginBottom: spacing[2],
-});
-
-const iconButtonStyles = css({
-  backgroundColor: palette.gray.light1,
-  color: palette.white,
 });
 
 type AddStageProps = {
@@ -42,13 +36,12 @@ export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
     return (
       <div className={iconContainerStyles}>
         <IconButton
-          className={iconButtonStyles}
           aria-label="Add stage"
           title="Add stage"
           data-testid="add-stage-icon-button"
           onClick={() => onAddStage()}
         >
-          <Icon glyph="Plus"></Icon>
+          <Icon glyph="PlusWithCircle"></Icon>
         </IconButton>
       </div>
     );

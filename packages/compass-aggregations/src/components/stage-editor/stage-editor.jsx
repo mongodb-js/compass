@@ -20,6 +20,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
+import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -68,6 +69,7 @@ class UnthemedStageEditor extends PureComponent {
     syntaxError: PropTypes.object,
     serverError: PropTypes.object,
     num_stages: PropTypes.number.isRequired,
+    editor_view_type: PropTypes.string.isRequired,
     className: PropTypes.string,
   };
 
@@ -148,7 +150,7 @@ class UnthemedStageEditor extends PureComponent {
         stage_index: this.props.index + 1,
         stage_action: 'stage_content_changed',
         stage_name: this.props.stageOperator,
-        editor_view_type: 'stage',
+        editor_view_type: this.props.editor_view_type,
       });
       this.initialValue = value;
     }
@@ -247,6 +249,7 @@ export default connect(
       serverVersion: state.serverVersion,
       autocompleteFields: state.fields,
       num_stages,
+      editor_view_type: mapPipelineModeToEditorViewType(state),
     };
   },
   { onChange: changeStageValue }

@@ -160,9 +160,7 @@ export const SavedPipelines = ({
   );
 };
 const mapState = (state: RootState) => ({
-  editor_view_type: mapPipelineModeToEditorViewType(
-    state.pipelineBuilder.pipelineMode
-  ),
+  editor_view_type: mapPipelineModeToEditorViewType(state),
   namespace: state.namespace,
   savedPipelines: state.savedPipeline.pipelines,
 });
