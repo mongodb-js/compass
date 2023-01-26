@@ -9,11 +9,6 @@ import Button from '@leafygreen-ui/button';
 import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
 import LeafyGreenCode, { Language } from '@leafygreen-ui/code';
-import {
-  Combobox,
-  ComboboxOption,
-  ComboboxGroup,
-} from '@leafygreen-ui/combobox';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
@@ -152,7 +147,4 @@ export {
   Label,
   Link,
   Description,
-  Combobox,
-  ComboboxOption,
-  ComboboxGroup,
 };
