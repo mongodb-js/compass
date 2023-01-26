@@ -5,8 +5,8 @@ import React from 'react';
 import ExplainTree from '.';
 
 describe('ExplainTree [Component]', function () {
-  const nodes = [];
-  const links = [];
+  const nodes: any[] = [];
+  const links: any[] = [];
   const width = 100;
   const height = 100;
 

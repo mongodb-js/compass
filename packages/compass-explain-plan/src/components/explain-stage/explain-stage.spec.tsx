@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import ExplainStage from '.';
 
 describe('ExplainStage [Component]', function () {
-  let component;
+  let component: ReturnType<typeof render>;
   const name = '';
   const nReturned = 1;
   const highlights = {};
