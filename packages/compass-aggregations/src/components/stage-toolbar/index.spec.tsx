@@ -69,6 +69,6 @@ describe('StageToolbar', function () {
   });
   it('renders option menu', function () {
     renderStageToolbar();
-    expect(screen.getByLabelText('More options')).to.exist;
+    expect(screen.getByTestId('stage-option-menu-button')).to.exist;
   });
 });

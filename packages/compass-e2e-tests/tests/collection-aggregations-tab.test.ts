@@ -166,6 +166,16 @@ async function saveAggregation(
   await createButton.click();
 }
 
+async function deleteStage(
+  browser: CompassBrowser,
+  index: number
+): Promise<void> {
+  await browser.clickVisible(Selectors.stageMoreOptions(index));
+  const menuElement = await browser.$(Selectors.StageMoreOptionsContent);
+  await menuElement.waitForDisplayed();
+  await browser.clickVisible(Selectors.StageDelete);
+}
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -350,7 +360,7 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(1, '$project');
 
     // delete it
-    await browser.clickVisible(Selectors.stageDelete(1));
+    await deleteStage(browser, 1);
 
     // add a $project
     await browser.clickVisible(Selectors.AddStageButton);
@@ -585,7 +595,7 @@ describe('Collection aggregations tab', function () {
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
     // delete the stage after $out
-    await browser.clickVisible(Selectors.stageDelete(1));
+    await deleteStage(browser, 1);
 
     // run the $out stage
     await browser.clickVisible(Selectors.RunPipelineButton);
@@ -632,7 +642,7 @@ describe('Collection aggregations tab', function () {
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
     // delete the stage after $out
-    await browser.clickVisible(Selectors.stageDelete(1));
+    await deleteStage(browser, 1);
 
     // run the $merge stage
     await browser.clickVisible(Selectors.RunPipelineButton);
