@@ -8,31 +8,26 @@ import {
   Button,
   SpinLoader,
 } from '@mongodb-js/compass-components';
-import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
-import { viewOutResults } from '../modules/out-results-fn';
-import { runStage } from '../modules/pipeline-builder/stage-editor';
+import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
+import { viewOutResults } from '../../modules/out-results-fn';
+import { runStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getDestinationNamespaceFromStage,
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
-} from '../utils/stage';
-import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
+} from '../../utils/stage';
+import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
 const stagePreviewOutStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  width: '100%',
-  paddingTop: spacing[5],
-  paddingLeft: spacing[1],
-  paddingRight: spacing[1],
-  paddingBottom: spacing[2],
+  justifyContent: 'center',
+  gap: spacing[2],
 });
 
 const stagePreviewOutTextStyles = css({
-  padding: `0 ${spacing[3]}px ${spacing[1]}px ${spacing[3]}px`,
   textAlign: 'center',
-  marginBottom: spacing[2],
 });
 
 const stagePreviewOutLinkStyles = css({

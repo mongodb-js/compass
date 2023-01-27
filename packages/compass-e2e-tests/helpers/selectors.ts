@@ -784,9 +784,13 @@ export const stageAdd = (stageIndex: number): string => {
 export const stageToggle = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
 };
-export const stageDelete = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="delete-stage"]`;
+export const stageMoreOptions = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-option-menu-button"]`;
 };
+export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
+
+export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
+
 export const stageOutSaveButton = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="save-out-documents"]`;
 };

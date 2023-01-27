@@ -4,13 +4,13 @@ import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
-import configureStore from '../stores/store';
+import configureStore from '../../stores/store';
 
-import { StagePreview } from './stage-preview';
+import { StagePreview } from './';
 import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
-} from '../utils/stage';
+} from '../../utils/stage';
 
 const renderStagePreview = (
   props: Partial<ComponentProps<typeof StagePreview>> = {}
@@ -25,6 +25,7 @@ const renderStagePreview = (
         documents={[]}
         index={1}
         isLoading={false}
+        isDisabled={false}
         isMissingAtlasOnlyStageSupport={false}
         stageOperator=""
         shouldRenderStage={false}
@@ -35,6 +36,12 @@ const renderStagePreview = (
 };
 
 describe('StagePreview', function () {
+  it('renders empty content when stage is disabled', function () {
+    renderStagePreview({
+      isDisabled: true,
+    });
+    expect(screen.getByTestId('stage-preview-empty')).to.exist;
+  });
   it('renders no preview documents when stage can not be previewed', function () {
     renderStagePreview({
       shouldRenderStage: false,
