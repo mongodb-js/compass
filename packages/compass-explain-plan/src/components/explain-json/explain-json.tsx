@@ -34,6 +34,4 @@ const ExplainJSON: FunctionComponent<ExplainJSONProps> = ({
   );
 };
 
-ExplainJSON.displayName = 'ExplainJSONComponent';
-
 export default ExplainJSON;
