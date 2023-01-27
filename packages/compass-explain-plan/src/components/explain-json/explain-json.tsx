@@ -17,16 +17,11 @@ const ExplainJSON: FunctionComponent<ExplainJSONProps> = ({
     void navigator.clipboard.writeText(JSON.stringify(originalExplainData));
   }, [originalExplainData]);
 
-  const doc = useMemo(
-    () => new HadronDocument(originalExplainData),
-    [originalExplainData]
-  );
-
   return (
     <KeylineCard data-testid="explain-json" className={cardStyles}>
       <Document
         copyToClipboard={copyToClipboard}
-        doc={doc}
+        doc={originalExplainData}
         editable={false}
         isExpanded={false}
       />

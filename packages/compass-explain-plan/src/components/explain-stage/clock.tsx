@@ -2,6 +2,65 @@ import { palette, css, cx, useDarkMode } from '@mongodb-js/compass-components';
 import d3 from 'd3';
 import React, { useEffect, useMemo, useRef } from 'react';
 
+const lightModeColors = {
+  clockBackgroundColor: palette.white,
+  clockFaceColor: palette.gray.light1,
+  textColor: palette.gray.dark1,
+  msColor: palette.blue.light1,
+  previusElapsedArcColor: palette.gray.light1,
+  currentElapsedArcColor: palette.blue.light1,
+};
+
+const darkModeColors = {
+  clockBackgroundColor: palette.black,
+  clockFaceColor: palette.gray.dark1,
+  textColor: palette.gray.dark1,
+  msColor: palette.blue.light1,
+  previusElapsedArcColor: palette.gray.dark1,
+  currentElapsedArcColor: palette.blue.light1,
+};
+
+const containerStyles = css({
+  fontWeight: 'normal',
+  fontSize: '10px',
+  textAlign: 'center',
+});
+
+const containerStylesLightMode = css({
+  color: lightModeColors.textColor,
+});
+
+const containerStylesDarkMode = css({
+  color: darkModeColors.textColor,
+});
+
+const faceContainerStyle = css({
+  position: 'relative',
+});
+
+const executionTimeStyles = css({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+});
+
+const msecsStyles = css({
+  display: 'block',
+  fontSize: '14px',
+  fontWeight: 'bold',
+  paddingTop: '11px',
+});
+
+const msecsStylesLightMode = css({
+  color: lightModeColors.msColor,
+});
+
+const msecsStylesDarkMode = css({
+  color: darkModeColors.msColor,
+});
+
+const svgStyles = css({ position: 'absolute', top: 0, left: 0 });
+
 function drawElapsedTimes({
   svgElement,
   strokeWidth,
@@ -161,80 +220,11 @@ const Clock: React.FunctionComponent<ClockProps> = ({
   const {
     clockFaceColor,
     clockBackgroundColor,
-    textColor,
-    msColor,
     previusElapsedArcColor,
     currentElapsedArcColor,
   } = useMemo(() => {
-    const lightModeColors = {
-      clockBackgroundColor: palette.white,
-      clockFaceColor: palette.gray.light1,
-      textColor: palette.gray.dark1,
-      msColor: palette.blue.light1,
-      previusElapsedArcColor: palette.gray.light1,
-      currentElapsedArcColor: palette.blue.light1,
-    };
-
-    const darkModeColors = {
-      clockBackgroundColor: palette.black,
-      clockFaceColor: palette.gray.dark1,
-      textColor: palette.gray.dark1,
-      msColor: palette.blue.light1,
-      previusElapsedArcColor: palette.gray.dark1,
-      currentElapsedArcColor: palette.blue.light1,
-    };
-
     return darkmode ? darkModeColors : lightModeColors;
   }, [darkmode]);
-
-  const {
-    containerStyles,
-    faceContainerStyle,
-    executionTimeStyles,
-    msecsStyles,
-    svgStyles,
-  } = useMemo(() => {
-    const containerStyles = css({
-      fontWeight: 'normal',
-      fontSize: '10px',
-      textAlign: 'center',
-      color: textColor,
-      height,
-      width,
-    });
-
-    const faceContainerStyle = css({
-      position: 'relative',
-      height,
-      width,
-    });
-
-    const executionTimeStyles = css({
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      height,
-      width,
-    });
-
-    const msecsStyles = css({
-      display: 'block',
-      fontSize: '14px',
-      fontWeight: 'bold',
-      paddingTop: '11px',
-      color: msColor,
-    });
-
-    const svgStyles = css({ position: 'absolute', top: 0, left: 0 });
-
-    return {
-      containerStyles,
-      faceContainerStyle,
-      executionTimeStyles,
-      msecsStyles,
-      svgStyles,
-    };
-  }, [width, height, textColor, msColor]);
 
   useEffect(() => {
     if (!svgRef.current) {
@@ -283,16 +273,30 @@ const Clock: React.FunctionComponent<ClockProps> = ({
   ]);
 
   return (
-    <div className={cx(className, containerStyles)}>
-      <div className={faceContainerStyle}>
+    <div
+      className={cx(
+        className,
+        containerStyles,
+        darkmode ? containerStylesDarkMode : containerStylesLightMode
+      )}
+      style={{ width, height }}
+    >
+      <div className={faceContainerStyle} style={{ width, height }}>
         <svg
           width={width}
           height={height}
           ref={svgRef}
           className={svgStyles}
         ></svg>
-        <div className={executionTimeStyles}>
-          <span className={msecsStyles}>{deltaExecTime}</span>
+        <div className={executionTimeStyles} style={{ width, height }}>
+          <span
+            className={cx(
+              msecsStyles,
+              darkmode ? msecsStylesDarkMode : msecsStylesLightMode
+            )}
+          >
+            {deltaExecTime}
+          </span>
           ms
         </div>
       </div>

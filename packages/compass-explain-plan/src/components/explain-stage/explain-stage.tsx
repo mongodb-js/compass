@@ -4,7 +4,6 @@ import {
   Button,
   Code,
   css,
-  cx,
   KeylineCard,
   palette,
   rgba,
@@ -197,21 +196,18 @@ const ExplainStage: React.FunctionComponent<ExplainStageProps> = ({
     setDetailsOpen(!detailsOpen);
   }, [detailsOpen]);
 
-  const dynamicContainerStyles = useMemo(() => {
-    return css({
-      zIndex: detailsOpen ? getNewZIndex() : 'initial',
-      top: y + yoffset,
-      left: x + xoffset,
-      boxShadow: detailsOpen
-        ? `0px 2px 4px -1px ${rgba(palette.black, 0.15)}`
-        : '',
-    });
-  }, [detailsOpen, x, y, yoffset, xoffset]);
-
   return (
     <KeylineCard
       data-testid="explain-stage"
-      className={cx(cardStyles, dynamicContainerStyles)}
+      className={cardStyles}
+      style={{
+        zIndex: detailsOpen ? getNewZIndex() : 1,
+        top: y + yoffset,
+        left: x + xoffset,
+        boxShadow: detailsOpen
+          ? `0px 2px 4px -1px ${rgba(palette.black, 0.15)}`
+          : '',
+      }}
     >
       <div className={contentStyles}>
         {isShard ? (
