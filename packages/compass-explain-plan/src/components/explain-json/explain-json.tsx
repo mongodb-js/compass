@@ -1,7 +1,6 @@
 import type { FunctionComponent } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import React from 'react';
-import HadronDocument from 'hadron-document';
 import { Document } from '@mongodb-js/compass-crud';
 import { css, KeylineCard, spacing } from '@mongodb-js/compass-components';
 
