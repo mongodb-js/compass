@@ -68,13 +68,16 @@ const previewAreaStyles = css({
   height: '100%',
 });
 
-const editorAreaStyles = css({
+const editorAreaBaseStyles = css({
   flex: 1,
+  paddingTop: spacing[4],
+  backgroundColor: palette.gray.light3,
+});
+
+const editorAreaWithPreviewStyles = css({
   width: '50%',
   minWidth: '20%',
   maxWidth: '70%',
-  paddingTop: spacing[4],
-  backgroundColor: palette.gray.light3,
 });
 
 const editorAreaExpanded = css({
@@ -94,9 +97,12 @@ const INPUT_RESIZER_PROPS = {
   },
   minWidth: '15%',
   maxWidth: '40%',
-  className: cx(resizerStyles, css({
-    paddingRight: spacing[2],
-  })),
+  className: cx(
+    resizerStyles,
+    css({
+      paddingRight: spacing[2],
+    })
+  ),
   enable: {
     right: true,
   },
@@ -107,7 +113,7 @@ const INPUT_RESIZER_PROPS = {
     right: {
       right: '-9px', // default -5px
     },
-  }
+  },
 };
 
 const OUTPUT_RESIZER_PROPS = {
@@ -117,9 +123,12 @@ const OUTPUT_RESIZER_PROPS = {
   },
   minWidth: '15%',
   maxWidth: '40%',
-  className: cx(resizerStyles, css({
-    paddingLeft: spacing[2],
-  })),
+  className: cx(
+    resizerStyles,
+    css({
+      paddingLeft: spacing[2],
+    })
+  ),
   enable: {
     left: true,
   },
@@ -130,7 +139,7 @@ const OUTPUT_RESIZER_PROPS = {
     left: {
       left: '-1px', // default -5px
     },
-  }
+  },
 };
 
 const FocusModeContent = ({
@@ -139,26 +148,28 @@ const FocusModeContent = ({
   isAutoPreviewEnabled: boolean;
 }) => {
   if (!isAutoPreviewEnabled) {
-    <div className={bodyStyles}>
-      <div
-        className={cx(
-          editorAreaStyles,
-          editorAreaExpanded
-        )}
-        data-testid="stage-editor"
-      >
-        <FocusModeStageEditor />
+    return (
+      <div className={bodyStyles}>
+        <div
+          className={cx(editorAreaBaseStyles, editorAreaExpanded)}
+          data-testid="stage-editor"
+        >
+          <FocusModeStageEditor />
+        </div>
       </div>
-    </div>
+    );
   }
   return (
     <div className={bodyStyles}>
-      <Resizable {...INPUT_RESIZER_PROPS} >
+      <Resizable {...INPUT_RESIZER_PROPS}>
         <div className={previewAreaStyles} data-testid="stage-input">
           <FocusModeStageInput />
         </div>
       </Resizable>
-      <div className={editorAreaStyles} data-testid="stage-editor">
+      <div
+        className={cx(editorAreaBaseStyles, editorAreaWithPreviewStyles)}
+        data-testid="stage-editor"
+      >
         <FocusModeStageEditor />
       </div>
       <Resizable {...OUTPUT_RESIZER_PROPS}>

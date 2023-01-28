@@ -47,7 +47,12 @@ export const FocusModeStageEditor = ({
       <div className={headerStyles}>
         <StageOperatorSelect index={index} />
         {link && (
-          <Link className={linkStyles} hideExternalIcon={false} href={link} target="_blank">
+          <Link
+            className={linkStyles}
+            hideExternalIcon={false}
+            href={link}
+            target="_blank"
+          >
             Open docs
           </Link>
         )}
