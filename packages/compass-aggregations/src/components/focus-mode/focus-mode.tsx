@@ -16,6 +16,8 @@ import {
   FocusModeStageOutput,
 } from './focus-mode-stage-preview';
 import FocusModeModalHeader from './focus-mode-modal-header';
+import ResizeHandle from '../resize-handle';
+import { Resizable } from 're-resizable';
 
 // These styles make the modal occupy the whole screen,
 // with 18px of padding - because that's the
@@ -54,18 +56,23 @@ const headerStyles = css({
 
 const bodyStyles = css({
   display: 'flex',
-  gap: spacing[2],
   height: '100%',
   overflow: 'hidden',
 });
 
-const previewAreaStyles = css({
-  width: '25%',
+const resizerStyles = css({
   paddingTop: spacing[4],
 });
 
+const previewAreaStyles = css({
+  height: '100%',
+});
+
 const editorAreaStyles = css({
+  flex: 1,
   width: '50%',
+  minWidth: '20%',
+  maxWidth: '70%',
   paddingTop: spacing[4],
   backgroundColor: palette.gray.light3,
 });
@@ -78,6 +85,52 @@ type FocusModeProps = {
   isModalOpen: boolean;
   isAutoPreviewEnabled: boolean;
   onCloseModal: () => void;
+};
+
+const INPUT_RESIZER_PROPS = {
+  defaultSize: {
+    width: '25%',
+    height: 'auto',
+  },
+  minWidth: '15%',
+  maxWidth: '40%',
+  className: cx(resizerStyles, css({
+    paddingRight: spacing[2],
+  })),
+  enable: {
+    right: true,
+  },
+  handleComponent: {
+    right: <ResizeHandle />,
+  },
+  handleStyles: {
+    right: {
+      right: '-9px', // default -5px
+    },
+  }
+};
+
+const OUTPUT_RESIZER_PROPS = {
+  defaultSize: {
+    width: '25%',
+    height: 'auto',
+  },
+  minWidth: '15%',
+  maxWidth: '40%',
+  className: cx(resizerStyles, css({
+    paddingLeft: spacing[2],
+  })),
+  enable: {
+    left: true,
+  },
+  handleComponent: {
+    left: <ResizeHandle />,
+  },
+  handleStyles: {
+    left: {
+      left: '-1px', // default -5px
+    },
+  }
 };
 
 const FocusModeContent = ({
@@ -100,15 +153,19 @@ const FocusModeContent = ({
   }
   return (
     <div className={bodyStyles}>
-      <div className={previewAreaStyles} data-testid="stage-input">
-        <FocusModeStageInput />
-      </div>
+      <Resizable {...INPUT_RESIZER_PROPS} >
+        <div className={previewAreaStyles} data-testid="stage-input">
+          <FocusModeStageInput />
+        </div>
+      </Resizable>
       <div className={editorAreaStyles} data-testid="stage-editor">
         <FocusModeStageEditor />
       </div>
-      <div className={previewAreaStyles} data-testid="stage-output">
-        <FocusModeStageOutput />
-      </div>
+      <Resizable {...OUTPUT_RESIZER_PROPS}>
+        <div className={previewAreaStyles} data-testid="stage-output">
+          <FocusModeStageOutput />
+        </div>
+      </Resizable>
     </div>
   );
 };
