@@ -77,10 +77,7 @@ type ResizableEditorProps = {
 
 function ResizableEditor({ index, isAutoPreviewing }: ResizableEditorProps) {
   const editor = (
-    <>
-      {/* @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted. */}
-      <StageEditor index={index} className={stageEditorContainerStyles} />
-    </>
+    <StageEditor index={index} className={stageEditorContainerStyles} />
   );
 
   if (!isAutoPreviewing) {

@@ -12,6 +12,7 @@ const containerStyles = css({
   gridTemplateRows: 'min-content 1fr',
   gridTemplateColumns: '1fr',
   gap: spacing[3],
+  height: '100%',
 });
 
 const headerStyles = css({
