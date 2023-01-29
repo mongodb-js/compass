@@ -119,7 +119,7 @@ const UnthemedStageEditor = ({
 
   useEffect(() => {
     editorRef.current?.focus();
-  }, [stageOperator, editorRef]);
+  }, [stageOperator]);
 
   useEffect(() => {
     let annotations: AceAnnotation[] = [];
