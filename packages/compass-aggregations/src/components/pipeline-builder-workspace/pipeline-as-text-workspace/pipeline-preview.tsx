@@ -210,11 +210,12 @@ const mapState = (state: RootState) => {
   const lastStage = stageOperators[stageOperators.length - 1] ?? '';
   const { isLoading, previewDocs, serverError, isPreviewStale } =
     state.pipelineBuilder.textEditor.pipeline;
+  const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   const isMissingAtlasSupport = isMissingAtlasStageSupport(
     state.env,
+    atlasOperator,
     serverError
   );
-  const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   return {
     isLoading,
     previewDocs,

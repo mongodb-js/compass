@@ -249,19 +249,22 @@ export const isLastStageOutputStage = (pipeline) => {
 };
 
 /**
- * @param {string} env
- * @param {import('mongodb').MongoServerError | null} serverError
+ * @param {string | null | undefined} env
+ * @param {string | null | undefined} operator
+ * @param {import('mongodb').MongoServerError | null | undefined} serverError
  */
-export const isMissingAtlasStageSupport = (env, serverError) => {
-  return !!(
+export const isMissingAtlasStageSupport = (env, operator, serverError) => {
+  return (
     ![ADL, ATLAS].includes(env) &&
-    serverError &&
+    ATLAS_ONLY_OPERATOR_NAMES.has(operator) &&
     [
       // Unrecognized pipeline stage name
       40324,
       // The full-text search stage is not enabled
       31082,
-    ].includes(Number(serverError.code))
+      // "Search stages are only allowed on MongoDB Atlas"
+      6047400, 6047401,
+    ].includes(Number(serverError?.code ?? -1))
   );
 };
 

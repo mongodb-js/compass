@@ -36,12 +36,12 @@ export const OptionMenu = ({
     <Menu
       open={menuOpen}
       setOpen={setMenuOpen}
-      data-testId="stage-option-menu-content"
+      data-testid="stage-option-menu-content"
       trigger={({ onClick, children }: any) => {
         return (
           <>
             <IconButton
-              data-testId="stage-option-menu-button"
+              data-testid="stage-option-menu-button"
               onClick={onClick}
               aria-label="More options"
             >
