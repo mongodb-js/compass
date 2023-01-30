@@ -751,11 +751,11 @@ export const stageOperatorOptions = (stageIndex: number): string => {
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };
+export const stagePreview = (stageIndex: number): string => {
+  return `[data-testid="stage-preview-${stageIndex}"]`;
+};
 export const stagePreviewToolbarTooltip = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-toolbar-tooltip"]`;
-};
-export const atlasOnlyStagePreviewSection = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-missing-search-support"]`;
 };
 export const stagePreviewEmpty = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-empty"]`;
@@ -791,18 +791,6 @@ export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"
 
 export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
 
-export const stageOutSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="save-out-documents"]`;
-};
-export const stageOutCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-out-collection"]`;
-};
-export const stageMergeSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="save-merge-documents"]`;
-};
-export const stageMergeCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-merge-collection"]`;
-};
 export const stageEditorErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
 };

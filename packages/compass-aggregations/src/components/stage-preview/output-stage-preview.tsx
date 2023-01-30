@@ -18,7 +18,7 @@ import {
 } from '../../utils/stage';
 import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
-const stagePreviewOutStyles = css({
+const stagePreviewStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -26,11 +26,11 @@ const stagePreviewOutStyles = css({
   gap: spacing[2],
 });
 
-const stagePreviewOutTextStyles = css({
+const stagePreviewTextStyles = css({
   textAlign: 'center',
 });
 
-const stagePreviewOutLinkStyles = css({
+const stagePreviewLinkStyles = css({
   border: 'none',
   padding: 0,
   margin: 0,
@@ -44,6 +44,7 @@ const loaderStyles = css({
 });
 
 type OutputStageProps = {
+  operator: '$merge' | '$out';
   isLoading: boolean;
   hasServerError: boolean;
   isFinishedPersistingDocuments: boolean;
@@ -66,7 +67,7 @@ const Loader = ({
   destinationNamespace: string | null;
 }) => {
   return (
-    <div className={stagePreviewOutStyles}>
+    <div className={stagePreviewStyles}>
       <div className={loaderStyles}>
         <SpinLoader />
         Persisting Documents{' '}
@@ -76,7 +77,8 @@ const Loader = ({
   );
 };
 
-export const MergeStage = ({
+export const OutputStage = ({
+  operator,
   isLoading,
   hasServerError,
   isFinishedPersistingDocuments,
@@ -96,14 +98,14 @@ export const MergeStage = ({
 
   if (isFinishedPersistingDocuments) {
     return (
-      <div className={stagePreviewOutStyles}>
-        <Body className={stagePreviewOutTextStyles}>
+      <div className={stagePreviewStyles}>
+        <Body className={stagePreviewTextStyles}>
           {documentsPersistedText(destinationNamespace)}
         </Body>
         <Link
-          data-testid="go-to-merge-collection"
+          data-testid="goto-output-collection"
           as="button"
-          className={stagePreviewOutLinkStyles}
+          className={stagePreviewLinkStyles}
           onClick={onGoToOutputResults}
         >
           Go to collection.
@@ -113,74 +115,22 @@ export const MergeStage = ({
   }
 
   return (
-    <div className={stagePreviewOutStyles}>
-      <div className={stagePreviewOutTextStyles}>
-        {MERGE_STAGE_PREVIEW_TEXT}
+    <div className={stagePreviewStyles}>
+      <div className={stagePreviewTextStyles}>
+        {operator === '$merge'
+          ? MERGE_STAGE_PREVIEW_TEXT
+          : OUT_STAGE_PREVIEW_TEXT}
       </div>
       {isAtlasDeployed && (
         <Button
           variant="primary"
-          data-testid="save-merge-documents"
+          data-testid="save-output-documents"
           onClick={onRunOutputStage}
         >
-          Merge documents
+          {operator === '$merge' ? 'Merge Documents' : 'Save Documents'}
         </Button>
       )}
     </div>
-  );
-};
-
-export const OutStage = ({
-  isLoading,
-  hasServerError,
-  isFinishedPersistingDocuments,
-  isAtlasDeployed,
-  destinationNamespace,
-  onRunOutputStage,
-  onGoToOutputResults,
-}: OutputStageProps) => {
-  if (isLoading) {
-    return <Loader destinationNamespace={destinationNamespace} />;
-  }
-
-  // Stage editor show the error message.
-  if (hasServerError) {
-    return null;
-  }
-
-  if (isFinishedPersistingDocuments) {
-    return (
-      <div className={stagePreviewOutStyles}>
-        <Body className={stagePreviewOutTextStyles}>
-          {documentsPersistedText(destinationNamespace)}
-        </Body>
-        <Link
-          data-testid="go-to-out-collection"
-          as="button"
-          className={stagePreviewOutLinkStyles}
-          onClick={onGoToOutputResults}
-        >
-          Go to collection.
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <Body as="div" className={stagePreviewOutStyles}>
-      <Body className={stagePreviewOutTextStyles}>
-        {OUT_STAGE_PREVIEW_TEXT}
-      </Body>
-      {isAtlasDeployed && (
-        <Button
-          variant="primary"
-          data-testid="save-out-documents"
-          onClick={onRunOutputStage}
-        >
-          Save documents
-        </Button>
-      )}
-    </Body>
   );
 };
 
@@ -203,6 +153,7 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
     isFinishedPersistingDocuments: Boolean(stage.previewDocs),
     isAtlasDeployed: state.isAtlasDeployed,
     destinationNamespace,
+    operator: stage.stageOperator as '$merge' | '$out',
   };
 };
 
@@ -214,6 +165,6 @@ const mapDispatch = (
   onGoToOutputResults: () => dispatch(viewOutResults(ownProps.index)),
 });
 
-export const MergeStagePreivew = connect(mapState, mapDispatch)(MergeStage);
+export const MergeStagePreivew = connect(mapState, mapDispatch)(OutputStage);
 
-export const OutStagePreivew = connect(mapState, mapDispatch)(OutStage);
+export const OutStagePreivew = connect(mapState, mapDispatch)(OutputStage);

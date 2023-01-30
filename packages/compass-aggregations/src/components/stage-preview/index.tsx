@@ -184,7 +184,10 @@ export function StagePreview(props: StagePreviewProps) {
     );
   }
   return (
-    <div className={containerStyles}>
+    <div
+      className={containerStyles}
+      data-testid={`stage-preview-${props.index}`}
+    >
       <StagePreviewHeader index={props.index} />
       <div className={stagePreviewStyles}>
         <StagePreviewBody {...props} />

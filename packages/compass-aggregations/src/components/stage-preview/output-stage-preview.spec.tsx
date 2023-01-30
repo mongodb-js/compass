@@ -5,14 +5,14 @@ import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
 import configureStore from '../../stores/store';
-import { MergeStage, OutStage } from './output-stage-preview';
+import { OutputStage } from './output-stage-preview';
 import {
   OUT_STAGE_PREVIEW_TEXT,
   MERGE_STAGE_PREVIEW_TEXT,
 } from '../../utils/stage';
 
 const renderOutStage = (
-  props: Partial<ComponentProps<typeof OutStage>> = {}
+  props: Partial<ComponentProps<typeof OutputStage>> = {}
 ) => {
   render(
     <Provider
@@ -24,7 +24,8 @@ const renderOutStage = (
         ],
       })}
     >
-      <OutStage
+      <OutputStage
+        operator="$out"
         isLoading={false}
         isFinishedPersistingDocuments={false}
         destinationNamespace=""
@@ -39,7 +40,7 @@ const renderOutStage = (
 };
 
 const renderMergeStage = (
-  props: Partial<ComponentProps<typeof MergeStage>> = {}
+  props: Partial<ComponentProps<typeof OutputStage>> = {}
 ) => {
   render(
     <Provider
@@ -51,7 +52,8 @@ const renderMergeStage = (
         ],
       })}
     >
-      <MergeStage
+      <OutputStage
+        operator="$merge"
         isLoading={false}
         isFinishedPersistingDocuments={false}
         destinationNamespace=""
@@ -106,7 +108,7 @@ describe('OutputStagePreview', function () {
 
       it('renders go to collection button', function () {
         renderOutStage({ isFinishedPersistingDocuments: true });
-        expect(screen.getByTestId('go-to-out-collection')).to.exist;
+        expect(screen.getByTestId('goto-output-collection')).to.exist;
       });
     });
 
@@ -117,7 +119,7 @@ describe('OutputStagePreview', function () {
       });
       it('renders save documents button on atlas', function () {
         renderOutStage({ isAtlasDeployed: true });
-        expect(screen.getByTestId('save-out-documents')).to.exist;
+        expect(screen.getByTestId('save-output-documents')).to.exist;
       });
     });
   });
@@ -165,7 +167,7 @@ describe('OutputStagePreview', function () {
 
       it('renders go to collection button', function () {
         renderMergeStage({ isFinishedPersistingDocuments: true });
-        expect(screen.getByTestId('go-to-merge-collection')).to.exist;
+        expect(screen.getByTestId('goto-output-collection')).to.exist;
       });
     });
 
@@ -176,7 +178,7 @@ describe('OutputStagePreview', function () {
       });
       it('renders save documents button on atlas', function () {
         renderMergeStage({ isAtlasDeployed: true });
-        expect(screen.getByTestId('save-merge-documents')).to.exist;
+        expect(screen.getByTestId('save-output-documents')).to.exist;
       });
     });
   });
