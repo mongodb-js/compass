@@ -131,7 +131,9 @@ export class WritableCollectionStream extends Writable {
 
     if (this.batch.length === 0) {
       debug('%d docs written', this.docsWritten);
-      this.printJobStats();
+      if (debug.enabled) {
+        this.printJobStats();
+      }
       return callback();
     }
 
@@ -207,7 +209,9 @@ export class WritableCollectionStream extends Writable {
     this.docsProcessed += documents.length;
     this._batchCounter++;
 
-    this.printJobStats();
+    if (debug.enabled) {
+      this.printJobStats();
+    }
 
     const progressStats: CollectionStreamProgress = {
       docsWritten: this.docsWritten,

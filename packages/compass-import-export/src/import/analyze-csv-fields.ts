@@ -40,7 +40,7 @@ type CSVFieldTypeInfo = {
 };
 
 // the subset of bson types that we can detect
-type CSVFieldType =
+export type CSVFieldType =
   | 'int'
   | 'long'
   | 'double'

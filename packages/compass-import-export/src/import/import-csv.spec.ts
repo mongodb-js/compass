@@ -1,19 +1,20 @@
 import assert from 'assert';
-import path from 'path';
-import { expect } from 'chai';
-import { DataServiceImpl } from 'mongodb-data-service';
 import fs from 'fs';
-import sinon from 'sinon';
-import chai from 'chai';
+import path from 'path';
 import { promisify } from 'util';
 import { Readable } from 'stream';
+import chai from 'chai';
+import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
-chai.use(sinonChai);
+import { DataServiceImpl } from 'mongodb-data-service';
 
 import { guessFileType } from './guess-filetype';
 import { importCSV } from './import-csv';
 import { fixtures } from '../../test/fixtures';
+
+const { expect } = chai;
+chai.use(sinonChai);
 
 describe.only('importCSV', function () {
   const dataService = new DataServiceImpl({
@@ -27,7 +28,6 @@ describe.only('importCSV', function () {
   const createCollection = promisify(dataService.createCollection.bind(
     dataService
   ));
-
 
   beforeEach(async function () {
     await dataService.connect();
@@ -71,6 +71,7 @@ describe.only('importCSV', function () {
       });
 
       const totalRows = 0; // TODO: get this from analyzeCSVFields()
+
 
       expect(stats).to.deep.equal({
         nInserted: totalRows,

@@ -4,24 +4,13 @@ import Papa from 'papaparse';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 
+import type { CSVFieldType } from './analyze-csv-fields';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import type { CollectionStreamStats } from  '../utils/collection-stream';
 import type { Delimiter } from '../utils/constants';
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('import-csv');
-
-// TODO: remove this once we merge analyzeCSVFields()
-// the subset of bson types that we can detect
-type CSVFieldType =
-  | 'int'
-  | 'long'
-  | 'double'
-  | 'boolean'
-  | 'date'
-  | 'string'
-  | 'null'
-  | 'mixed';
 
 type ImportCSVOptions = {
   dataService: DataService;
