@@ -4,12 +4,12 @@ import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
-import configureStore from '../stores/store';
+import configureStore from '../../stores/store';
 import { MergeStage, OutStage } from './output-stage-preview';
 import {
   OUT_STAGE_PREVIEW_TEXT,
   MERGE_STAGE_PREVIEW_TEXT,
-} from '../utils/stage';
+} from '../../utils/stage';
 
 const renderOutStage = (
   props: Partial<ComponentProps<typeof OutStage>> = {}

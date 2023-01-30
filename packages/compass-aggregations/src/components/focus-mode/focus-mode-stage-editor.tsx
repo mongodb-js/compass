@@ -5,7 +5,7 @@ import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import { connect } from 'react-redux';
-import StageOperatorSelect from '../stage-editor-toolbar/stage-operator-select';
+import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
 
 const containerStyles = css({
   display: 'grid',
