@@ -69,6 +69,7 @@ const documentsStyles = css({
   display: 'flex',
   alignItems: 'stretch',
   width: '100%',
+  height: '100%',
   overflowX: 'auto',
 });
 
