@@ -12,8 +12,11 @@ import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import { OutStagePreivew, MergeStagePreivew } from '../output-stage-preview';
-import { AtlasStagePreview } from '../atlas-stage-preview';
+import {
+  OutStagePreivew,
+  MergeStagePreivew,
+} from '../stage-preview/output-stage-preview';
+import { AtlasStagePreview } from '../stage-preview/atlas-stage-preview';
 import { isMissingAtlasStageSupport } from '../../utils/stage';
 
 const containerStyles = css({
@@ -209,6 +212,7 @@ export const FocusModeStageInput = connect(
       stageOperator: previousStage.stageOperator,
       isMissingAtlasOnlyStageSupport: isMissingAtlasStageSupport(
         env,
+        previousStage.stageOperator,
         previousStage.serverError
       ),
     };
@@ -229,6 +233,7 @@ export const FocusModeStageOutput = connect(
     const stage = stages[stageIndex];
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
       env,
+      stage.stageOperator,
       stage.serverError
     );
     return {
