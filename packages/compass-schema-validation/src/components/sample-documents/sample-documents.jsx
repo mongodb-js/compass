@@ -16,11 +16,7 @@ import {
   SAMPLE_SIZE,
 } from '../../modules/sample-documents';
 
-const SAMPLE_DEFINITION = [
-  'A sample is fetched from a sample-space of',
-  SAMPLE_SIZE,
-  'randomly selected documents',
-].join(' ');
+const SAMPLE_DEFINITION = `A sample is fetched from a sample-space of ${SAMPLE_SIZE} randomly selected documents`;
 
 const DOCUMENT_LOADING_STATES = Object.values(DOCUMENT_LOADING_STATES_MAP);
 
