@@ -1,5 +1,5 @@
 import preferences from 'compass-preferences-model';
-import { checkValidator, syntaxErrorOccurred } from './validation';
+import { checkValidator } from './validation';
 
 export const SAMPLE_SIZE = 10000;
 
@@ -180,7 +180,6 @@ export const fetchValidDocument = () => {
       dispatch(fetchedValidDocument(valid));
     } catch (e) {
       dispatch(fetchingValidDocumentFailed());
-      dispatch(syntaxErrorOccurred(e));
     }
   };
 };
@@ -213,7 +212,6 @@ export const fetchInvalidDocument = () => {
       dispatch(fetchedInvalidDocument(invalid));
     } catch (e) {
       dispatch(fetchingInvalidDocumentFailed());
-      dispatch(syntaxErrorOccurred(e));
     }
   };
 };
