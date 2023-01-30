@@ -9,13 +9,14 @@ import {
   IndexKeysBadge,
   palette,
   spacing,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 interface IndexModel {
   fields: {
     serialize: () => {
       field: string;
-      value: any;
+      value: unknown;
     }[];
   };
 }
@@ -37,6 +38,11 @@ const SummaryIndexStat: React.FC<{
   index?: IndexModel;
   className?: string;
 }> = ({ indexType, index, className }) => {
+  const darkMode = useDarkMode();
+
+  const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
+  const successColor = darkMode ? palette.green.base : palette.green.dark2;
+
   const indexMessageText = useMemo(() => {
     const typeToMessage = {
       COLLSCAN: 'No index available for this query.',
@@ -49,50 +55,34 @@ const SummaryIndexStat: React.FC<{
   }, [indexType]);
 
   const indexMessageIcon = useMemo(() => {
-    const greenCheckMark = (
-      <Icon
-        glyph="CheckmarkWithCircle"
-        style={{ color: palette.green.dark2 }}
-        size="small"
-      />
-    );
-    const yellowWarning = (
-      <Icon
-        glyph="Warning"
-        style={{ color: palette.yellow.base }}
-        size="small"
-      />
-    );
+    const checkMarkIcon = <Icon glyph="CheckmarkWithCircle" size="small" />;
+    const warningIcon = <Icon glyph="Warning" size="small" />;
     const typeToIcon = {
-      COLLSCAN: yellowWarning,
-      COVERED: greenCheckMark,
-      MULTIPLE: yellowWarning,
+      COLLSCAN: warningIcon,
+      COVERED: checkMarkIcon,
+      MULTIPLE: warningIcon,
       INDEX: null,
       UNAVAILABLE: null,
     };
     return typeToIcon[indexType];
   }, [indexType]);
 
-  const indexMessageColorStyles = useMemo(() => {
-    const typeToColor = {
-      COLLSCAN: palette.yellow.dark2,
-      COVERED: palette.green.dark2,
-      MULTIPLE: palette.yellow.dark2,
-      INDEX: null,
-      UNAVAILABLE: null,
-    };
-    return css(typeToColor[indexType]);
-  }, [indexType]);
+  const typeToColor = {
+    COLLSCAN: warningColor,
+    COVERED: successColor,
+    MULTIPLE: warningColor,
+    INDEX: undefined,
+    UNAVAILABLE: undefined,
+  };
 
   return (
-    <div className={className} data-testid="summary-index-stat">
+    <div
+      className={className}
+      data-testid="summary-index-stat"
+      style={{ color: typeToColor[indexType] }}
+    >
       {indexMessageIcon}{' '}
-      <span
-        data-testid="summary-index-stat-message"
-        className={indexMessageColorStyles}
-      >
-        {indexMessageText}
-      </span>{' '}
+      <span data-testid="summary-index-stat-message">{indexMessageText}</span>{' '}
       {index ? (
         <IndexKeysBadge
           data-testid="summary-index-stat-badge"
@@ -104,11 +94,11 @@ const SummaryIndexStat: React.FC<{
 };
 
 const SummaryStat: React.FunctionComponent<{
-  dataTestId?: string;
+  'data-testid'?: string;
   label: string;
-  value: any;
+  value: unknown;
   className?: string;
-}> = ({ dataTestId, label, value, className }) => (
+}> = ({ 'data-testid': dataTestId, label, value, className }) => (
   <Body className={className} data-testid={dataTestId}>
     <span data-testid={dataTestId ? `${dataTestId}-label` : ''}>{label}</span>{' '}
     <b data-testid={dataTestId ? `${dataTestId}-value` : ''}>{value}</b>
@@ -143,19 +133,19 @@ const ExplainSummary: React.FC<ExplainSummaryProps> = ({
         <div>
           <SummaryStat
             className={rowStyles}
-            dataTestId="nReturned-summary"
+            data-testid="nReturned-summary"
             label="Documents Returned:"
             value={nReturned}
           />
           <SummaryStat
             className={rowStyles}
-            dataTestId="totalKeysExamined-summary"
+            data-testid="totalKeysExamined-summary"
             label="Index Keys Examined:"
             value={totalKeysExamined}
           />
           <SummaryStat
             className={rowStyles}
-            dataTestId="totalDocsExamined-summary"
+            data-testid="totalDocsExamined-summary"
             label="Documents Examined:"
             value={totalDocsExamined}
           />
@@ -163,14 +153,14 @@ const ExplainSummary: React.FC<ExplainSummaryProps> = ({
         <div>
           <SummaryStat
             className={rowStyles}
-            dataTestId="executionTimeMillis-summary"
+            data-testid="executionTimeMillis-summary"
             label="Actual Query Execution Time (ms):"
             value={executionTimeMillis}
           />
           <SummaryStat
             className={rowStyles}
             label="Sorted in Memory:"
-            dataTestId="inMemorySort-summary"
+            data-testid="inMemorySort-summary"
             value={inMemorySortValue}
           />
           <SummaryIndexStat
