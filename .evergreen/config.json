@@ -113,13 +113,13 @@
         {
           "name": "60x-community",
           "vars": {
-            "mongodb_version": "6.x.x"
+            "mongodb_version": "6.0.x"
           }
         },
         {
           "name": "60x-enterprise",
           "vars": {
-            "mongodb_version": "6.x.x",
+            "mongodb_version": "6.0.x",
             "mongodb_use_enterprise": "yes"
           }
         }
