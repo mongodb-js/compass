@@ -38,7 +38,7 @@ describe('FLE2', function () {
 
     before(async function () {
       if (
-        serverSatisfies('< 4.2.20', true) ||
+        !serverSatisfies('>= 4.2.20', true) ||
         // TODO(COMPASS-5911): Saved connections are not being displayed after disconnect on Linux CI.
         process.platform === 'linux'
       ) {
@@ -144,7 +144,7 @@ describe('FLE2', function () {
 
   describe('server version gte 6.0.0', function () {
     before(function () {
-      if (serverSatisfies('< 6.0.0', true)) {
+      if (!serverSatisfies('>= 6.0.0', true)) {
         return this.skip();
       }
     });
