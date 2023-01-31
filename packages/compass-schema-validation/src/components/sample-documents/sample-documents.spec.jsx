@@ -1,29 +1,15 @@
 import React from 'react';
-import sinon from 'sinon';
-import { mount } from 'enzyme';
+import { mount } from 'enzyme'
+import SampleDocuments from '../sample-documents';
 import { expect } from 'chai';
 
-import SampleDocuments from '../sample-documents';
-import { INITIAL_STATE } from '../../modules/sample-documents';
-
 describe('SampleDocuments [Component]', function () {
-  const mountComponent = (props) => {
-    const sampleDocuments = INITIAL_STATE;
-    const fetchValidDocument = sinon.spy();
-    const fetchInvalidDocument = sinon.spy();
+  it('renders a valid and invalid document preview', function () {
+    const component = mount(<SampleDocuments
+      renderValidDocument={() => <>Valid</>}
+      renderInvalidDocument={() => <>Invalid</>}
+    />);
 
-    return mount(
-      <SampleDocuments
-        sampleDocuments={sampleDocuments}
-        fetchValidDocument={fetchValidDocument}
-        fetchInvalidDocument={fetchInvalidDocument}
-        {...props}
-      />
-    );
-  };
-
-  it('renders matching and non-matching documents', function () {
-    const component = mountComponent();
     expect(
       component.find('[data-testid="matching-documents"]')
     ).to.be.present();

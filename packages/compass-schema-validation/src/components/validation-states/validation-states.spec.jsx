@@ -12,10 +12,23 @@ import ValidationStates from '../validation-states';
 import ValidationEditor from '../validation-editor';
 
 import styles from './validation-states.module.less';
+import SampleDocuments from '../sample-documents';
 
 describe('ValidationStates [Component]', function () {
   let props;
   let component;
+  let sandbox;
+
+  before(function () {
+    sandbox = sinon.createSandbox();
+    /** These props render connected components so we stub them here */
+    sinon.stub(SampleDocuments.defaultProps, 'renderValidDocument').callsFake(() => <>Valid</>);
+    sinon.stub(SampleDocuments.defaultProps, 'renderInvalidDocument').callsFake(() => <>Invalid</>);
+  });
+
+  after(function () {
+    sandbox.restore();
+  });
 
   beforeEach(function () {
     props = {
