@@ -1,12 +1,11 @@
 import chai from 'chai';
-import semver from 'semver';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  MONGODB_VERSION,
   beforeTests,
   afterTests,
   afterTest,
+  serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -113,7 +112,7 @@ describe('Collection indexes tab', function () {
 
   describe('server version 4.2.0', function () {
     it('supports creating a wildcard index', async function () {
-      if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+      if (serverSatisfies('< 4.2.0')) {
         return this.skip();
       }
 
@@ -183,7 +182,7 @@ describe('Collection indexes tab', function () {
 
   describe('server version 7.0.0', function () {
     it('supports creating a columnstore index', async function () {
-      if (semver.lt(MONGODB_VERSION, '7.0.0-alpha0')) {
+      if (serverSatisfies('< 7.0.0-alpha0')) {
         return this.skip();
       }
 
