@@ -44,7 +44,7 @@ const loaderStyles = css({
 });
 
 type OutputStageProps = {
-  operator: '$merge' | '$out';
+  operator: string | null;
   isLoading: boolean;
   hasServerError: boolean;
   isFinishedPersistingDocuments: boolean;
@@ -87,6 +87,10 @@ export const OutputStage = ({
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
+  if (!['$out', '$merge'].includes(operator || '')) {
+    return null;
+  }
+
   if (isLoading) {
     return <Loader destinationNamespace={destinationNamespace} />;
   }
@@ -116,7 +120,7 @@ export const OutputStage = ({
 
   return (
     <div className={stagePreviewStyles}>
-      <div className={stagePreviewTextStyles}>
+      <div className={stagePreviewTextStyles} data-testid="output-stage-text">
         {operator === '$merge'
           ? MERGE_STAGE_PREVIEW_TEXT
           : OUT_STAGE_PREVIEW_TEXT}
@@ -153,7 +157,7 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
     isFinishedPersistingDocuments: Boolean(stage.previewDocs),
     isAtlasDeployed: state.isAtlasDeployed,
     destinationNamespace,
-    operator: stage.stageOperator as '$merge' | '$out',
+    operator: stage.stageOperator,
   };
 };
 
