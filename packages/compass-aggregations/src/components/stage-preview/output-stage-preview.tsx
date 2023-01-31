@@ -88,7 +88,7 @@ export const OutputStage = ({
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
-  if (isOutputStage(operator ?? '')) {
+  if (!isOutputStage(operator ?? '')) {
     return null;
   }
 
