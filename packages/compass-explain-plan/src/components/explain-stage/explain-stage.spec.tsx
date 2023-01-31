@@ -14,10 +14,6 @@ describe('ExplainStage [Component]', function () {
   const totalExecTimeMS = 3;
   const isShard = false;
   const details = {};
-  const x = 0;
-  const y = 0;
-  const xoffset = 0;
-  const yoffset = 0;
 
   beforeEach(function () {
     component = render(
@@ -30,10 +26,8 @@ describe('ExplainStage [Component]', function () {
         totalExecTimeMS={totalExecTimeMS}
         isShard={isShard}
         details={details}
-        x={x}
-        y={y}
-        xoffset={xoffset}
-        yoffset={yoffset}
+        toggleDetails={() => {}}
+        detailsOpen={false}
       />
     );
   });
