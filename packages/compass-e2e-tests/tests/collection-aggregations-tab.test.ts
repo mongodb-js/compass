@@ -315,7 +315,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows $merge stage preview', async function () {
-    // $merge operator is supported from 4.4
+    // $merge operator is supported from 4.2.0
     if (semver.lt(MONGODB_VERSION, '4.2.0')) {
       return this.skip();
     }

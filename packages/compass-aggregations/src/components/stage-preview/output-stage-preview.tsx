@@ -13,6 +13,7 @@ import { viewOutResults } from '../../modules/out-results-fn';
 import { runStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getDestinationNamespaceFromStage,
+  isOutputStage,
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../utils/stage';
@@ -87,7 +88,7 @@ export const OutputStage = ({
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
-  if (!['$out', '$merge'].includes(operator || '')) {
+  if (isOutputStage(operator ?? '')) {
     return null;
   }
 
@@ -169,6 +170,4 @@ const mapDispatch = (
   onGoToOutputResults: () => dispatch(viewOutResults(ownProps.index)),
 });
 
-export const MergeStagePreivew = connect(mapState, mapDispatch)(OutputStage);
-
-export const OutStagePreivew = connect(mapState, mapDispatch)(OutputStage);
+export default connect(mapState, mapDispatch)(OutputStage);
