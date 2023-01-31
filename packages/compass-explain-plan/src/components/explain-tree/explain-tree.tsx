@@ -1,6 +1,4 @@
-import React, { useRef, useEffect } from 'react';
-import { map } from 'lodash';
-import d3 from 'd3';
+import React, { useState, useMemo } from 'react';
 import { ExplainStage } from '../explain-stage';
 import {
   css,
@@ -9,83 +7,89 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
-import STAGE_CARD_PROPERTIES from '../../constants/stage-card-properties';
+import type { ExplainTreeNodeData } from './explain-tree-data';
+import { executionStatsToTreeData } from './explain-tree-data';
+import type { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import TreeLayout from './tree-layout';
+import {
+  defaultCardHeight,
+  defaultCardWidth,
+  highlightFieldHeight,
+  shardCardHeight,
+} from '../explain-stage/explain-stage';
 
 interface ExplainTreeProps {
-  nodes: any[];
-  links: any[];
-  width: number;
-  height: number;
+  executionStats: ExplainPlan['executionStats'];
 }
 
 const explainTreeStyles = css({
-  position: 'relative',
-  zIndex: 0,
-  margin: `${spacing[5]}px auto`,
+  zIndex: 1,
+  margin: 'auto',
+  marginTop: spacing[5],
 });
 
+const getNodeSize = (node: ExplainTreeNodeData): [number, number] => {
+  // Note: these values must match the actual styles of the explain stage card:
+
+  const highlightsHeight =
+    Object.keys(node.highlights).length * highlightFieldHeight;
+
+  const notShardHeight = defaultCardHeight + highlightsHeight;
+  const height = node.isShard ? shardCardHeight : notShardHeight;
+
+  return [defaultCardWidth, height];
+};
+
+const getNodeKey = (node: ExplainTreeNodeData) => node.id;
+
 const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
-  nodes,
-  links,
-  width,
-  height,
+  executionStats,
 }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
   const darkMode = useDarkMode();
+  const [detailsOpen, setDetailsOpen] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!svgRef.current || !links || !nodes) return;
-    const svgElement = svgRef.current;
+  const root = useMemo(
+    () => executionStatsToTreeData(executionStats),
+    [executionStats]
+  );
 
-    // Right angle links between nodes
-    const elbow = (d: {
-      source: { x: number; y: number; x_size: number };
-      target: { y: number; x: number; key: string };
-    }): string => {
-      return `M${d.source.x + d.source.x_size / 2},${d.source.y}
-        V${d.target.y - STAGE_CARD_PROPERTIES.VERTICAL_PADDING / 2}
-        H${d.target.x + STAGE_CARD_PROPERTIES.DEFAULT_CARD_WIDTH / 2}
-        V${d.target.y}`;
-    };
-    const svg = d3.select(svgElement);
-
-    // Links are svg elements
-    const svgLinks = svg
-      .selectAll('path')
-      .data(links, (d) => d.target.key)
-      .attr('d', elbow);
-
-    svgLinks
-      .enter()
-      .append('path')
-      .style({
-        fill: 'none',
-        stroke: darkMode ? palette.gray.base : palette.gray.light2,
-        'stroke-width': '6px',
-      })
-      .attr('d', elbow);
-
-    svgLinks.exit().remove();
-
-    return () => {
-      // make sure to clean up the elements from the previous hook execution
-      d3.select(svgElement).selectAll('*').remove();
-    };
-  }, [nodes, links, darkMode]);
-
-  const getStages = () => {
-    return map(nodes, (stage) => <ExplainStage {...stage} />);
-  };
+  if (!root) return null;
 
   return (
-    <div
+    <TreeLayout<ExplainTreeNodeData>
       data-testid="explain-tree"
+      data={root}
+      getNodeSize={getNodeSize}
+      getNodeKey={getNodeKey}
+      linkColor={darkMode ? palette.gray.base : palette.gray.light2}
+      linkWidth={6}
+      horizontalSpacing={spacing[6]}
+      verticalSpacing={spacing[6]}
       className={explainTreeStyles}
-      style={{ height, width }}
     >
-      {getStages()}
-      <svg width="100%" height="100%" ref={svgRef}></svg>
-    </div>
+      {(node) => {
+        const key = getNodeKey(node);
+        return (
+          <div
+            style={{
+              position: 'relative',
+              zIndex: detailsOpen === key ? 2 : 1,
+            }}
+          >
+            <ExplainStage
+              detailsOpen={detailsOpen === key}
+              toggleDetails={() => {
+                detailsOpen === key
+                  ? setDetailsOpen(null)
+                  : setDetailsOpen(key);
+              }}
+              {...node}
+              totalExecTimeMS={root.curStageExecTimeMS}
+            ></ExplainStage>
+          </div>
+        );
+      }}
+    </TreeLayout>
   );
 };
 

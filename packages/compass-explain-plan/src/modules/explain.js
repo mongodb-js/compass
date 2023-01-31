@@ -1,6 +1,5 @@
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { find, groupBy, isEqual } from 'lodash';
-import { treeStagesChanged } from './tree-stages';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -358,7 +357,6 @@ export const fetchExplainPlan = (query) => {
       explain.resultId = resultId();
 
       dispatch(explainPlanFetched(explain));
-      dispatch(treeStagesChanged(explain));
 
       const trackEvent = {
         with_filter: Object.entries(filter).length > 0,
