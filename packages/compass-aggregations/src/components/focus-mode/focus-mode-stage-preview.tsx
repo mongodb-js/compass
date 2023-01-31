@@ -31,11 +31,13 @@ const headerStyles = css({
   flexDirection: 'row',
   alignItems: 'flex-start',
   marginBottom: spacing[2],
+  flexWrap: 'wrap',
 });
 
 const titleStyles = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 const centerStyles = css({

@@ -63,6 +63,11 @@ const leftStyles = css({
   width: '388px', // default width of the stage editor
 });
 
+const selectStyles = css({
+  marginLeft: spacing[1],
+  marginRight: spacing[2],
+});
+
 const textStyles = css({
   flex: 1,
   whiteSpace: 'nowrap',
@@ -118,7 +123,9 @@ export function StageToolbar({
       <div className={leftStyles}>
         <StageCollapser index={index} />
         <Body weight="medium">Stage {index + 1}</Body>
-        <StageOperatorSelect index={index} />
+        <div className={selectStyles}>
+          <StageOperatorSelect index={index} />
+        </div>
         <ToggleStage index={index} />
       </div>
       <div className={textStyles}>
