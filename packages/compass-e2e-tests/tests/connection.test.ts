@@ -727,7 +727,7 @@ describe('FLE2', function () {
   });
 
   it('can connect using local KMS', async function () {
-    if (serverSatisfies('< 6.0.0', true)) {
+    if (!serverSatisfies('>= 6.0.0', true)) {
       return this.skip();
     }
 
