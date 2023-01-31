@@ -832,7 +832,7 @@ export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
 export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
-  '[data-testid="documents-returned-summary"]';
+  '[data-testid="nReturned-summary"]';
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';

@@ -207,6 +207,7 @@ export const FocusModeStageInput = connect(
       stageOperator: previousStage.stageOperator,
       isMissingAtlasOnlyStageSupport: isMissingAtlasStageSupport(
         env,
+        previousStage.stageOperator,
         previousStage.serverError
       ),
     };
@@ -227,6 +228,7 @@ export const FocusModeStageOutput = connect(
     const stage = stages[stageIndex];
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
       env,
+      stage.stageOperator,
       stage.serverError
     );
     return {
