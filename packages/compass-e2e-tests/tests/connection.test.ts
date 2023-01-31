@@ -6,12 +6,15 @@ import { expect } from 'chai';
 import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  serverSatisfies,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
-import semver from 'semver';
-import { MONGODB_VERSION } from '../helpers/compass';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -724,10 +727,7 @@ describe('FLE2', function () {
   });
 
   it('can connect using local KMS', async function () {
-    if (
-      semver.lt(MONGODB_VERSION, '6.0.0') ||
-      process.env.MONGODB_USE_ENTERPRISE !== 'yes'
-    ) {
+    if (!serverSatisfies('>= 6.0.0', true)) {
       return this.skip();
     }
 
