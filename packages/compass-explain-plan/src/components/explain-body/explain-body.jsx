@@ -30,7 +30,7 @@ class ExplainBody extends Component {
       viewType: PropTypes.string.isRequired,
       originalExplainData: PropTypes.object.isRequired,
       executionStats: PropTypes.object.isRequired,
-    })
+    }),
   };
 
   /**
