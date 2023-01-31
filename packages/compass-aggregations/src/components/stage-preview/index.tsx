@@ -196,10 +196,11 @@ export function StagePreview(props: StagePreviewProps) {
 
 export default connect((state: RootState, ownProps: { index: number }) => {
   const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-  const isMissingAtlasOnlyStageSupport =
-    state.env &&
-    stage.serverError &&
-    isMissingAtlasStageSupport(state.env, stage.serverError);
+  const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
+    state.env,
+    stage.stageOperator,
+    stage.serverError
+  );
 
   const shouldRenderStage = Boolean(
     !stage.disabled && !stage.syntaxError && !stage.syntaxError && stage.value

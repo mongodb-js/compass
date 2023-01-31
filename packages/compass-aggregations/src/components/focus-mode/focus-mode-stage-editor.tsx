@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
 
 const containerStyles = css({
+  height: '100%',
   display: 'grid',
   gridTemplateRows: 'min-content 1fr',
   gridTemplateColumns: '1fr',
@@ -25,6 +26,7 @@ const headerStyles = css({
 const editorStyles = css({
   height: '100%',
   overflowY: 'auto',
+  paddingBottom: spacing[3],
 });
 
 export const FocusModeStageEditor = ({

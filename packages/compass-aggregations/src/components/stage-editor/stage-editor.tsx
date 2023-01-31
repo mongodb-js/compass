@@ -36,6 +36,7 @@ const editorContainerStyles = css({
 });
 
 const editorStyles = css({
+  flex: 1,
   flexShrink: 0,
   margin: 0,
   width: '100%',
@@ -55,7 +56,10 @@ const aceEditorStyles = css({
 });
 
 const bannerStyles = css({
-  margin: spacing[2],
+  flex: 'none',
+  marginTop: spacing[2],
+  marginLeft: spacing[2],
+  marginRight: spacing[2],
   textAlign: 'left',
 });
 
