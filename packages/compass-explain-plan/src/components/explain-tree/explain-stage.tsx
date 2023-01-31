@@ -224,4 +224,4 @@ const ExplainStage: React.FunctionComponent<ExplainStageProps> = ({
   );
 };
 
-export default ExplainStage;
+export { ExplainStage };

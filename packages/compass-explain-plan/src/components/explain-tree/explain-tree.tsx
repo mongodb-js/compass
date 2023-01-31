@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { ExplainStage } from '../explain-stage';
 import {
   css,
   palette,
@@ -16,7 +15,8 @@ import {
   defaultCardWidth,
   highlightFieldHeight,
   shardCardHeight,
-} from '../explain-stage/explain-stage';
+  ExplainStage,
+} from './explain-stage';
 
 interface ExplainTreeProps {
   executionStats: ExplainPlan['executionStats'];

@@ -39,39 +39,36 @@ function LinkPath<T>({
   linkColor: string;
   linkWidth: number;
 }) {
-  const source = link.source as FlextreeNode<T>;
-  const target = link.target as FlextreeNode<T>;
-  const sourceX = translateX + source.x;
-  const targetX = translateX + target.x;
-  const sourceY = source.y;
-  const targetY = target.y;
-  const actualSourceYSize = source.ySize - gapY;
-  const actualTargetYSize = target.ySize - gapY;
+  const pathDef = useMemo(() => {
+    const source = link.source as FlextreeNode<T>;
+    const target = link.target as FlextreeNode<T>;
+    const sourceX = translateX + source.x;
+    const targetX = translateX + target.x;
+    const sourceY = source.y;
+    const targetY = target.y;
+    const actualSourceYSize = source.ySize - gapY;
+    const linkStartX = sourceX;
+    const linkStartY = sourceY + actualSourceYSize / 2;
+    const linkEndX = targetX;
+    const linkEndY = targetY;
 
-  const linkStartX = sourceX;
-  const linkStartY = sourceY + actualSourceYSize / 2;
-  const linkEndX = targetX;
-  const linkEndY = targetY + actualTargetYSize / 2;
+    // same X:
+    // we draw as straight line between the nodes.
+    if (sourceX === targetX) {
+      return `M ${linkStartX} ${linkStartY} V ${linkEndY}`;
+    }
 
-  // same X:
-  // we draw as straight line between the nodes.
-  if (sourceX === targetX) {
-    return <path d={`M ${linkStartX} ${linkStartY} V ${linkEndY}`} />;
-  }
+    // different X:
+    // we draw an elbow half way through the bottom of the source node
+    // and the top of the target.
+    const sourceBottomY = sourceY + actualSourceYSize;
+    const elbowY = sourceBottomY + (targetY - sourceBottomY) / 2;
 
-  // different X:
-  // we draw an elbow half way through the bottom of the source node
-  // and the top of the target.
-  const sourceBottomY = sourceY + actualSourceYSize;
-  const elbowY = sourceBottomY + (targetY - sourceBottomY) / 2;
+    return `M ${linkStartX} ${linkStartY} V ${elbowY} H ${linkEndX} V ${linkEndY}`;
+  }, [gapY, link.source, link.target, translateX]);
 
   return (
-    <path
-      fill="none"
-      stroke={linkColor}
-      strokeWidth={linkWidth}
-      d={`M ${linkStartX} ${linkStartY} V ${elbowY} H ${linkEndX} V ${linkEndY}`}
-    />
+    <path fill="none" stroke={linkColor} strokeWidth={linkWidth} d={pathDef} />
   );
 }
 

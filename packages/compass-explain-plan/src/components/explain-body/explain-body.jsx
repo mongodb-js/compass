@@ -29,6 +29,7 @@ class ExplainBody extends Component {
       index: PropTypes.object,
       viewType: PropTypes.string.isRequired,
       originalExplainData: PropTypes.object.isRequired,
+      executionStats: PropTypes.object.isRequired,
     })
   };
 
@@ -60,7 +61,7 @@ class ExplainBody extends Component {
       );
     }
 
-    return <ExplainTree executionStats={this.props.explain} />;
+    return <ExplainTree executionStats={this.props.explain?.executionStats} />;
   }
 
   /**

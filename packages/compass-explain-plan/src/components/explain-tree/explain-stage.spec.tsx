@@ -2,7 +2,7 @@ import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 
-import ExplainStage from '.';
+import { ExplainStage } from './explain-stage';
 
 describe('ExplainStage [Component]', function () {
   let component: ReturnType<typeof render>;
