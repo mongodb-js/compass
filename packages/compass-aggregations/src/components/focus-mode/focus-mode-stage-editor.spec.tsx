@@ -44,7 +44,7 @@ describe('FocusMode', function () {
       });
     });
 
-    it.skip('renders stage dropdown', function () {
+    it('renders stage dropdown', function () {
       const dropdown = screen.getByTestId('stage-operator-combobox');
       expect(dropdown).to.exist;
     });
@@ -64,7 +64,7 @@ describe('FocusMode', function () {
       });
     });
 
-    it.skip('renders stage dropdown', function () {
+    it('renders stage dropdown', function () {
       const dropdown = screen.getByTestId('stage-operator-combobox');
       expect(dropdown).to.exist;
     });
