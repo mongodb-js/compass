@@ -113,14 +113,25 @@
         {
           "name": "60x-community",
           "vars": {
-            "mongodb_version": "6.x.x"
+            "mongodb_version": "6.0.x"
           }
         },
         {
           "name": "60x-enterprise",
           "vars": {
-            "mongodb_version": "6.x.x",
+            "mongodb_version": "6.0.x",
             "mongodb_use_enterprise": "yes"
+          }
+        },
+        {
+          "name": "latest",
+          "vars": {
+            "mongodb_version": "latest-alpha",
+            "mongodb_use_enterprise": "yes"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"],
+          "run_on_override": {
+            "rhel76-large": "rhel80-large"
           }
         }
       ]
