@@ -2,7 +2,7 @@ import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 
-import { ExplainStage } from './explain-stage';
+import { ExplainTreeStage } from './explain-tree-stage';
 
 describe('ExplainStage [Component]', function () {
   let component: ReturnType<typeof render>;
@@ -17,7 +17,7 @@ describe('ExplainStage [Component]', function () {
 
   beforeEach(function () {
     component = render(
-      <ExplainStage
+      <ExplainTreeStage
         name={name}
         nReturned={nReturned}
         highlights={highlights}

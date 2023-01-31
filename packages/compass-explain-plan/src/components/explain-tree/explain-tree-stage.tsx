@@ -14,7 +14,7 @@ import {
 
 import { Clock } from './clock';
 
-interface ExplainStageProps {
+interface ExplainTreeStageProps {
   name: string;
   nReturned: number;
   highlights: Record<string, string | boolean>;
@@ -181,7 +181,7 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
   );
 };
 
-const ExplainStage: React.FunctionComponent<ExplainStageProps> = ({
+const ExplainTreeStage: React.FunctionComponent<ExplainTreeStageProps> = ({
   name = '',
   nReturned = 0,
   isShard = false,
@@ -224,4 +224,4 @@ const ExplainStage: React.FunctionComponent<ExplainStageProps> = ({
   );
 };
 
-export { ExplainStage };
+export { ExplainTreeStage };

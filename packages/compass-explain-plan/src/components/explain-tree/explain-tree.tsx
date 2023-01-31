@@ -15,8 +15,8 @@ import {
   defaultCardWidth,
   highlightFieldHeight,
   shardCardHeight,
-  ExplainStage,
-} from './explain-stage';
+  ExplainTreeStage,
+} from './explain-tree-stage';
 
 interface ExplainTreeProps {
   executionStats: ExplainPlan['executionStats'];
@@ -76,7 +76,7 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
               zIndex: detailsOpen === key ? 2 : 1,
             }}
           >
-            <ExplainStage
+            <ExplainTreeStage
               detailsOpen={detailsOpen === key}
               toggleDetails={() => {
                 detailsOpen === key
@@ -85,7 +85,7 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
               }}
               {...node}
               totalExecTimeMS={root.curStageExecTimeMS}
-            ></ExplainStage>
+            ></ExplainTreeStage>
           </div>
         );
       }}
