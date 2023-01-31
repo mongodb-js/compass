@@ -315,6 +315,11 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows $merge stage preview', async function () {
+    // $merge operator is supported from 4.4
+    if (!semver.gte(MONGODB_VERSION, '4.2.0')) {
+      return this.skip();
+    }
+
     await browser.selectStageOperator(0, '$merge');
     await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
 
