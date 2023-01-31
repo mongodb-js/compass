@@ -1,9 +1,12 @@
 import { expect } from 'chai';
-import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  serverSatisfies,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
@@ -35,8 +38,7 @@ describe('FLE2', function () {
 
     before(async function () {
       if (
-        semver.lt(MONGODB_VERSION, '4.2.20') ||
-        process.env.MONGODB_USE_ENTERPRISE !== 'yes' ||
+        serverSatisfies('< 4.2.20', true) ||
         // TODO(COMPASS-5911): Saved connections are not being displayed after disconnect on Linux CI.
         process.platform === 'linux'
       ) {
@@ -142,10 +144,7 @@ describe('FLE2', function () {
 
   describe('server version gte 6.0.0', function () {
     before(function () {
-      if (
-        semver.lt(MONGODB_VERSION, '6.0.0') ||
-        process.env.MONGODB_USE_ENTERPRISE !== 'yes'
-      ) {
+      if (serverSatisfies('< 6.0.0', true)) {
         return this.skip();
       }
     });
