@@ -261,9 +261,11 @@ const transformPackageJson = async(CONFIG, done) => {
   const Arborist = require('@npmcli/arborist');
   const tree = new Arborist({ path: monorepoRoot });
   await tree.loadActual();
-  const packageNode = tree.actualTree.inventory.get(
-    path.relative(monorepoRoot, CONFIG.dir)
-  );
+  const packageInventoryPath = path
+    .relative(monorepoRoot, CONFIG.dir)
+    // Normalize separator for cygwin
+    .replaceAll(path.sep, path.posix.sep);
+  const packageNode = tree.actualTree.inventory.get(packageInventoryPath);
 
   if (!packageNode) {
     throw new Error("Couldn't find package node in arborist tree");
