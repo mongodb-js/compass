@@ -64,7 +64,6 @@ const leftStyles = css({
 });
 
 const selectStyles = css({
-  marginLeft: spacing[1],
   marginRight: spacing[2],
 });
 
