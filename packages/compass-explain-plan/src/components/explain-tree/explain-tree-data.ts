@@ -36,9 +36,9 @@ const parseExplainTree = (
 
   const isShard = !!node.shardName;
 
-  // TODO: if there are children we pick the max time, this assume that the children
+  // NOTE: if there are children we pick the max time, this assume that the children
   // are executed in parallel (for example with shards). It may make sense to
-  //  double check if this is a correct assumption
+  // double check if this is a correct assumption also for other types of explain plans
   // and if we won't need to sum the previous times in some instances instead.
   const inputStagesExecTime = parsedChildren.length
     ? Math.max(...parsedChildren.map((c) => c.curStageExecTimeMS))
