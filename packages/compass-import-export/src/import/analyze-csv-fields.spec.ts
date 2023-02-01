@@ -25,6 +25,7 @@ describe('analyzeCSVFields', function () {
         delimiter: csvDelimiter,
         abortSignal: abortController.signal,
         progressCallback,
+        ignoreEmptyStrings: true,
       });
 
       const resultPath = filepath.replace(/\.csv$/, '.analyzed.json');
@@ -76,6 +77,14 @@ describe('analyzeCSVFields', function () {
     let expectedTypes = [type];
     let expectedDetected = type;
 
+    if (type === 'null') {
+      // the null test file contains an example of what mongoexport does which
+      // is to turn null into a blank string, but to us that means either
+      // undefined or blank string depending on the value of ignoreEmptyStrings
+      expectedTypes = ['null', 'undefined'];
+      expectedDetected = 'null';
+    }
+
     if (type === 'number') {
       expectedTypes = ['int', 'double', 'long'];
       expectedDetected = 'mixed';
@@ -94,6 +103,7 @@ describe('analyzeCSVFields', function () {
         delimiter: ',',
         abortSignal: abortController.signal,
         progressCallback,
+        ignoreEmptyStrings: true,
       });
 
       for (const [fieldName, field] of Object.entries(result.fields)) {
@@ -125,6 +135,7 @@ describe('analyzeCSVFields', function () {
       delimiter: ',',
       abortSignal: abortController.signal,
       progressCallback,
+      ignoreEmptyStrings: true,
     });
 
     // only looked at the first row because we aborted before even starting
@@ -133,4 +144,6 @@ describe('analyzeCSVFields', function () {
     // signals that it was aborted and the results are therefore incomplete
     expect(result.aborted).to.equal(true);
   });
+
+  // TODO: some tests for ignoreEmptyStrings: false
 });

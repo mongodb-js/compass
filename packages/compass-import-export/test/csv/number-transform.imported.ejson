@@ -1,0 +1,93 @@
+[
+  {
+    "BOROUGH": "QUEENS",
+    "Bin_#": {
+      "$numberInt": "4297149"
+    },
+    "House_#": {
+      "$numberInt": "17"
+    },
+    "Street_Name": "WEST 16 ROAD",
+    "Job_#": {
+      "$numberInt": "440325738"
+    },
+    "Job_doc_#": {
+      "$numberInt": "1"
+    },
+    "Job_Type": "A2",
+    "Self_Cert": "N",
+    "Block": {
+      "$numberInt": "15320"
+    },
+    "Lot": {
+      "$numberInt": "48"
+    },
+    "Community_Board": {
+      "$numberInt": "414"
+    },
+    "Zip_Code": {
+      "$numberInt": "11693"
+    },
+    "Bldg_Type": {
+      "$numberInt": "1"
+    },
+    "Residential": "YES",
+    "Work_Type": "OT",
+    "Permit_Status": "ISSUED",
+    "Filing_Status": "RENEWAL",
+    "Permit_Type": "EW",
+    "Permit_Sequence_#": {
+      "$numberInt": "4"
+    },
+    "Permit_Subtype": "OT",
+    "Site_Fill": "NOT APPLICABLE",
+    "Filing_Date": "05/21/2018 12:00:00 AM",
+    "Issuance_Date": "05/21/2018 12:00:00 AM",
+    "Expiration_Date": "05/15/2019 12:00:00 AM",
+    "Job_Start_Date": "04/07/2017 12:00:00 AM",
+    "Permittee's_First_Name": "DONALD",
+    "Permittee's_Last_Name": "O'SULLIVAN",
+    "Permittee's_Business_Name": "NAVILLUS TILE INC",
+    "Permittee's_Phone_#": {
+      "$numberInt": "2127501808"
+    },
+    "Permittee's_License_Type": "GC",
+    "Permittee's_License_#": {
+      "$numberInt": "15163"
+    },
+    "Owner's_Business_Type": "INDIVIDUAL",
+    "Non-Profit": "N",
+    "Owner's_Business_Name": "TERENCE HAIRSTON ARCHITECT, PLLC",
+    "Owner's_First_Name": "TERENCE",
+    "Owner's_Last_Name": "HAIRSTON",
+    "Owner's_House_#": {
+      "$numberInt": "16"
+    },
+    "Owner's_House_Street_Name": "WEST 36TH STREET",
+    "Owner’s_House_City": "NEW YORK",
+    "Owner’s_House_State": "NY",
+    "Owner’s_House_Zip_Code": {
+      "$numberInt": "10018"
+    },
+    "Owner's_Phone_#": {
+      "$numberLong": "9176924778"
+    },
+    "DOBRunDate": "05/22/2018 12:00:00 AM",
+    "PERMIT_SI_NO": {
+      "$numberInt": "3463269"
+    },
+    "LATITUDE": {
+      "$numberDouble": "40.601732"
+    },
+    "LONGITUDE": {
+      "$numberDouble": "-73.821199"
+    },
+    "COUNCIL_DISTRICT": {
+      "$numberInt": "32"
+    },
+    "CENSUS_TRACT": {
+      "$numberInt": "107201"
+    },
+    "NTA_NAME": "Breezy Point-Belle Harbor-Rockaway Park-Broad Channel"
+  }
+]

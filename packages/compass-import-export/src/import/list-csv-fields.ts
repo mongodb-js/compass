@@ -2,8 +2,8 @@ import type { Readable } from 'stream';
 import Papa from 'papaparse';
 
 import { createDebug } from '../utils/logger';
-import type { Delimiter } from '../utils/constants';
-import { csvHeaderNameToFieldName } from '../utils/csv-header';
+import type { Delimiter } from '../utils/csv';
+import { csvHeaderNameToFieldName } from '../utils/csv';
 
 const debug = createDebug('list-csv-fields');
 

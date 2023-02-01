@@ -4,8 +4,8 @@ import Papa from 'papaparse';
 import StreamJSON from 'stream-json';
 
 import { createDebug } from '../utils/logger';
-import { supportedDelimiters } from '../utils/constants';
-import type { Delimiter } from '../utils/constants';
+import { supportedDelimiters } from '../utils/csv';
+import type { Delimiter } from '../utils/csv';
 
 const debug = createDebug('import-guess-filetype');
 
@@ -44,7 +44,16 @@ function detectJSON(input: Readable): Promise<'json' | 'jsonl' | null> {
   });
 }
 
-function hasDelimiterError({ errors }: { errors: { code?: string }[] }) {
+function hasDelimiterError({
+  data,
+  errors,
+}: {
+  data: string[];
+  errors: { code?: string }[];
+}) {
+  if (data.length < 2) {
+    return true;
+  }
   return (
     errors.find((error) => error.code === 'UndetectableDelimiter') !== undefined
   );

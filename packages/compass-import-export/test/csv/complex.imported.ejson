@@ -1,0 +1,36 @@
+[
+  {
+    "foo": {
+      "$numberInt": "1"
+    },
+    "notes": "simple value"
+  },
+  {
+    "foo": [
+      {
+        "$numberInt": "1"
+      }
+    ],
+    "notes": "single element array"
+  },
+  {
+    "foo": [
+      {
+        "$numberInt": "1"
+      },
+      {
+        "bar": {
+          "$numberInt": "1"
+        }
+      },
+      {
+        "bar": {
+          "baz": {
+            "$numberInt": "1"
+          }
+        }
+      }
+    ],
+    "notes": "three element array where first value is simple; second value is object with one field; third value is object with object with one field"
+  }
+]

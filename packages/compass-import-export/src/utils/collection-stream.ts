@@ -73,7 +73,7 @@ export type CollectionStreamStats = {
   nUpserted: number;
   writeErrors: WriteCollectionStreamProgressError[];
   writeConcernErrors: WriteCollectionStreamProgressError[];
-}
+};
 export class WritableCollectionStream extends Writable {
   dataService: DataService;
   ns: string;

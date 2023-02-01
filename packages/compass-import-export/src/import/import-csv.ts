@@ -4,10 +4,10 @@ import Papa from 'papaparse';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 
-import type { CSVFieldType } from './analyze-csv-fields';
 import { createCollectionWriteStream } from '../utils/collection-stream';
-import type { CollectionStreamStats } from  '../utils/collection-stream';
-import type { Delimiter } from '../utils/constants';
+import type { CollectionStreamStats } from '../utils/collection-stream';
+import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
+import { makeDoc, parseHeaderName } from '../utils/csv';
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('import-csv');
@@ -16,13 +16,15 @@ type ImportCSVOptions = {
   dataService: DataService;
   ns: string;
   input: Readable;
-  abortSignal: AbortSignal;
-  progressCallback: (index: number) => void;
-  delimiter: Delimiter;
+  abortSignal?: AbortSignal;
+  progressCallback?: (index: number) => void;
+  delimiter?: Delimiter;
   ignoreEmptyStrings?: boolean;
   stopOnErrors?: boolean;
-  fields: Record<string, CSVFieldType>; // the type chosen by the user to make each field
+  fields: IncludedFields; // the type chosen by the user to make each field
 };
+
+type ImportCSVResult = CollectionStreamStats & { aborted?: boolean };
 
 export function importCSV({
   dataService,
@@ -30,28 +32,57 @@ export function importCSV({
   input,
   abortSignal,
   progressCallback,
-  delimiter,
+  delimiter = ',',
   ignoreEmptyStrings,
   stopOnErrors,
   fields,
-}: ImportCSVOptions): Promise<CollectionStreamStats> {
+}: ImportCSVOptions): Promise<ImportCSVResult> {
   debug('importCSV()', { ns: toNS(ns) });
 
   let numProcessed = 0;
   const headerFields: string[] = []; // will be filled via transformHeader callback below
+  let parsedHeader: Record<string, PathPart[]>;
 
   const docStream = new Transform({
     objectMode: true,
-    transform: function (chunk, encoding, callback) {
+    transform: function (chunk: Record<string, string>, encoding, callback) {
       ++numProcessed;
-      debug('importCSV:transform', numProcessed, { headerFields, chunk, fields, ignoreEmptyStrings, encoding });
-      const doc = {}; // TODO
-      if (abortSignal.aborted) {
+
+      debug('importCSV:transform', numProcessed, {
+        headerFields,
+        chunk,
+        fields,
+        ignoreEmptyStrings,
+        encoding,
+      });
+
+      if (abortSignal?.aborted) {
         docStream.destroy();
       }
-      progressCallback(numProcessed);
-      callback(null, doc)
-    }
+
+      if (!parsedHeader) {
+        parsedHeader = {};
+        for (const name of headerFields) {
+          parsedHeader[name] = parseHeaderName(name);
+        }
+      }
+
+      try {
+        const doc = makeDoc(chunk, headerFields, parsedHeader, fields, {
+          ignoreEmptyStrings,
+        });
+        debug('transform', doc);
+        progressCallback && progressCallback(numProcessed);
+        callback(null, doc);
+      } catch (err: unknown) {
+        // rethrow with the row index appended to aid debugging
+        (err as Error).message = `${
+          (err as Error).message
+        }[Row ${numProcessed}]`;
+        debug('transform error', (err as Error).message);
+        callback(err as Error);
+      }
+    },
   });
 
   const collectionStream = createCollectionWriteStream(
@@ -63,8 +94,7 @@ export function importCSV({
   const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, {
     delimiter,
     header: true,
-    dynamicTyping: true,
-    transformHeader: function(header: string, index: number): string {
+    transformHeader: function (header: string, index: number): string {
       debug('importCSV:transformHeader', header, index);
       headerFields.push(header);
       return header;
@@ -72,17 +102,21 @@ export function importCSV({
   });
 
   return new Promise((resolve, reject) => {
-    pipeline(
-      input,
-      parseStream,
-      docStream,
-      collectionStream,
-      function (err) {
-        if (err) {
-          reject(err);
+    pipeline(input, parseStream, docStream, collectionStream, function (err) {
+      if (err) {
+        if (err.code === 'ERR_STREAM_PREMATURE_CLOSE') {
+          const result = {
+            ...collectionStream.getStats(),
+            aborted: true,
+          };
+          resolve(result);
+          return;
         }
+        reject(err);
+        return;
+      }
 
-        resolve(collectionStream.getStats());
-      });
+      resolve(collectionStream.getStats());
+    });
   });
 }
