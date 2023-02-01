@@ -179,7 +179,11 @@ describe('importCSV', function () {
       const totalRows = analyzeResult.totalRows;
       const fields = _.mapValues(
         analyzeResult.fields,
-        (field) => field.detected
+        // For the date.csv file the date field is (correctly) detected as
+        // "mixed" due to the mix of an iso date string and an int64 format
+        // date. In that case the user would have to explicitly select Date to
+        // make it a date which is what we're testing here.
+        (field) => (type === 'date' ? 'date' : field.detected)
       );
 
       const stats = await importCSV({

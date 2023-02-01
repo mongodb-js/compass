@@ -215,13 +215,17 @@ export function parseValue(value: string, type: CSVFieldType): CSVValue {
   if (type === 'boolean') {
     if (value === 'true' || value === 'TRUE') {
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   if (type === 'date') {
-    return new Date(value);
+    if (ISO_DATE.test(value)) {
+      // iso string
+      return new Date(value);
+    }
+    // fall back to assuming it is an int64 value
+    return new Date(+value);
   }
 
   if (type === 'null') {

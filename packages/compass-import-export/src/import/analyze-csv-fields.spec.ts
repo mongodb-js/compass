@@ -85,6 +85,15 @@ describe('analyzeCSVFields', function () {
       expectedDetected = 'null';
     }
 
+    if (type === 'date') {
+      // the date test file contains an example of a date as an iso string and
+      // an example of a date as an int64 value. Obviously with no other context
+      // the number is detected as a long, so in that case it will be up to the
+      // user to explicitly select Date as the column's type when importing.
+      expectedTypes = ['date', 'long'];
+      expectedDetected = 'mixed';
+    }
+
     if (type === 'number') {
       expectedTypes = ['int', 'double', 'long'];
       expectedDetected = 'mixed';

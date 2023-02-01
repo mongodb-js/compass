@@ -1,4 +1,5 @@
-import { Transform, pipeline } from 'stream';
+import { Transform } from 'stream';
+import { pipeline } from 'stream/promises';
 import type { Readable } from 'stream';
 import Papa from 'papaparse';
 import toNS from 'mongodb-ns';
@@ -26,7 +27,7 @@ type ImportCSVOptions = {
 
 type ImportCSVResult = CollectionStreamStats & { aborted?: boolean };
 
-export function importCSV({
+export async function importCSV({
   dataService,
   ns,
   input,
@@ -56,10 +57,6 @@ export function importCSV({
         encoding,
       });
 
-      if (abortSignal?.aborted) {
-        docStream.destroy();
-      }
-
       if (!parsedHeader) {
         parsedHeader = {};
         for (const name of headerFields) {
@@ -72,7 +69,7 @@ export function importCSV({
           ignoreEmptyStrings,
         });
         debug('transform', doc);
-        progressCallback && progressCallback(numProcessed);
+        progressCallback?.(numProcessed);
         callback(null, doc);
       } catch (err: unknown) {
         // rethrow with the row index appended to aid debugging
@@ -101,22 +98,25 @@ export function importCSV({
     },
   });
 
-  return new Promise((resolve, reject) => {
-    pipeline(input, parseStream, docStream, collectionStream, function (err) {
-      if (err) {
-        if (err.code === 'ERR_STREAM_PREMATURE_CLOSE') {
-          const result = {
-            ...collectionStream.getStats(),
-            aborted: true,
-          };
-          resolve(result);
-          return;
-        }
-        reject(err);
-        return;
-      }
+  const params = [
+    input,
+    parseStream,
+    docStream,
+    collectionStream,
+    ...(abortSignal ? [{ signal: abortSignal }] : []),
+  ] as const;
 
-      resolve(collectionStream.getStats());
-    });
-  });
+  try {
+    await pipeline(...params);
+  } catch (err: any) {
+    if (err.code === 'ABORT_ERR') {
+      return {
+        ...collectionStream.getStats(),
+        aborted: true,
+      };
+    }
+    throw err;
+  }
+
+  return collectionStream.getStats();
 }
