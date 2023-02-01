@@ -60,8 +60,15 @@ const bodyStyles = css({
   overflow: 'hidden',
 });
 
-const resizerStyles = css({
+
+const inputResizerStyles = css({
   paddingTop: spacing[4],
+  paddingRight: spacing[2],
+});
+
+const outputResizerStyles = css({
+  paddingTop: spacing[4],
+  paddingLeft: spacing[2],
 });
 
 const previewAreaStyles = css({
@@ -90,58 +97,6 @@ type FocusModeProps = {
   onCloseModal: () => void;
 };
 
-const INPUT_RESIZER_PROPS = {
-  defaultSize: {
-    width: '25%',
-    height: 'auto',
-  },
-  minWidth: '15%',
-  maxWidth: '40%',
-  className: cx(
-    resizerStyles,
-    css({
-      paddingRight: spacing[2],
-    })
-  ),
-  enable: {
-    right: true,
-  },
-  handleComponent: {
-    right: <ResizeHandle />,
-  },
-  handleStyles: {
-    right: {
-      right: '-9px', // default -5px
-    },
-  },
-};
-
-const OUTPUT_RESIZER_PROPS = {
-  defaultSize: {
-    width: '25%',
-    height: 'auto',
-  },
-  minWidth: '15%',
-  maxWidth: '40%',
-  className: cx(
-    resizerStyles,
-    css({
-      paddingLeft: spacing[2],
-    })
-  ),
-  enable: {
-    left: true,
-  },
-  handleComponent: {
-    left: <ResizeHandle />,
-  },
-  handleStyles: {
-    left: {
-      left: '-1px', // default -5px
-    },
-  },
-};
-
 const FocusModeContent = ({
   isAutoPreviewEnabled,
 }: {
@@ -161,7 +116,25 @@ const FocusModeContent = ({
   }
   return (
     <div className={bodyStyles}>
-      <Resizable {...INPUT_RESIZER_PROPS}>
+      <Resizable
+        defaultSize={{
+          width: '25%',
+          height: 'auto',
+        }}
+        minWidth={'15%'}
+        maxWidth={'40%'}
+        className={inputResizerStyles}
+        enable={{
+          right: true,
+        }}
+        handleComponent={{
+          right: <ResizeHandle />,
+        }}
+        handleStyles={{
+          right: {
+            right: '-9px', // default -5px
+          },
+        }}>
         <div className={previewAreaStyles} data-testid="stage-input">
           <FocusModeStageInput />
         </div>
@@ -172,7 +145,26 @@ const FocusModeContent = ({
       >
         <FocusModeStageEditor />
       </div>
-      <Resizable {...OUTPUT_RESIZER_PROPS}>
+      <Resizable
+        defaultSize= {{
+          width: '25%',
+          height: 'auto',
+        }}
+        minWidth={'15%'}
+        maxWidth={'45%'}
+        className={outputResizerStyles}
+        enable= {{
+          left: true,
+        }}
+        handleComponent={{
+          left: <ResizeHandle />,
+        }}
+        handleStyles={{
+          left: {
+            left: '-1px', // default -5px
+          },
+        }}
+      >
         <div className={previewAreaStyles} data-testid="stage-output">
           <FocusModeStageOutput />
         </div>
