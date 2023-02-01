@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
+import type { Document } from 'mongodb';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
@@ -12,13 +13,16 @@ import {
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../utils/stage';
 
+const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
+
 const renderStagePreview = (
-  props: Partial<ComponentProps<typeof StagePreview>> = {}
+  props: Partial<ComponentProps<typeof StagePreview>> = {},
+  sourcePipeline = DEFAULT_PIPELINE
 ) => {
   render(
     <Provider
       store={configureStore({
-        sourcePipeline: [{ $match: { _id: 1 } }, { $limit: 10 }],
+        sourcePipeline,
       })}
     >
       <StagePreview
@@ -57,17 +61,25 @@ describe('StagePreview', function () {
     expect(screen.getByTestId('atlas-only-stage-preview')).to.exist;
   });
   it('renders out preivew when operator is $out', function () {
-    renderStagePreview({
-      shouldRenderStage: true,
-      stageOperator: '$out',
-    });
+    renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$out',
+        index: 1,
+      },
+      [{ $match: { _id: 1 } }, { $out: 'test' }]
+    );
     expect(screen.getByText(OUT_STAGE_PREVIEW_TEXT)).to.exist;
   });
   it('renders merge preview when operator is $merge', function () {
-    renderStagePreview({
-      shouldRenderStage: true,
-      stageOperator: '$merge',
-    });
+    renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$merge',
+        index: 1,
+      },
+      [{ $match: { _id: 1 } }, { $merge: 'test' }]
+    );
     expect(screen.getByText(MERGE_STAGE_PREVIEW_TEXT)).to.exist;
   });
   it('renders loading preview docs', function () {
