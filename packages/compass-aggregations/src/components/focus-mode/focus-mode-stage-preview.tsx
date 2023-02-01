@@ -12,12 +12,9 @@ import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import {
-  OutStagePreivew,
-  MergeStagePreivew,
-} from '../stage-preview/output-stage-preview';
+import OutputStagePreview from '../stage-preview/output-stage-preview';
 import { AtlasStagePreview } from '../stage-preview/atlas-stage-preview';
-import { isMissingAtlasStageSupport } from '../../utils/stage';
+import { isMissingAtlasStageSupport, isOutputStage } from '../../utils/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -90,16 +87,10 @@ export const FocusModePreview = ({
 
   let content = null;
 
-  if (stageOperator === '$out') {
+  if (isOutputStage(stageOperator ?? '')) {
     content = (
       <div className={centerStyles}>
-        <OutStagePreivew index={stageIndex} />
-      </div>
-    );
-  } else if (stageOperator === '$merge') {
-    content = (
-      <div className={centerStyles}>
-        <MergeStagePreivew index={stageIndex} />
+        <OutputStagePreview index={stageIndex} />
       </div>
     );
   } else if (isMissingAtlasOnlyStageSupport) {

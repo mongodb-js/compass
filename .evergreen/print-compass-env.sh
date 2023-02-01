@@ -2,7 +2,7 @@
 
 set -e
 
-export MONGODB_DEFAULT_VERSION=6.x.x
+export MONGODB_DEFAULT_VERSION=6.0.x
 
 if [[ $OSTYPE == "cygwin" ]]; then
     export PLATFORM='win32'
