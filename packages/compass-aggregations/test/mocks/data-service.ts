@@ -12,14 +12,12 @@ export const mockDataService = function (
     },
     aggregate() {
       return Promise.resolve(
-        typeof options.data === 'function'
-          ? options.data()
-          : options.data
+        typeof options.data === 'function' ? options.data() : options.data
       );
     },
     killSessions() {
       // noop
-    }
+    },
   } as unknown as DataService;
 
   Sinon.spy(dataService);

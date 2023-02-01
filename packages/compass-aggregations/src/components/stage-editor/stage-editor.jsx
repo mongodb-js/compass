@@ -5,29 +5,40 @@ import {
   Editor,
   EditorVariant,
   EditorTextCompleter,
-  StageAutoCompleter
+  StageAutoCompleter,
 } from '@mongodb-js/compass-editor';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-import { css, cx, spacing, palette, Banner, withDarkMode } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  palette,
+  Banner,
+  withDarkMode,
+} from '@mongodb-js/compass-components';
 
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
+import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const editorContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
   position: 'relative',
   textAlign: 'center',
   overflow: 'hidden',
+  height: '100%',
 });
 
 const editorStyles = css({
+  flex: 1,
   flexShrink: 0,
   margin: 0,
-  padding: `${spacing[2]}px 0 ${spacing[2]}px 0`,
   width: '100%',
-  minHeight: '200px'
+  minHeight: '200px',
 });
 
 const editorContainerStylesDark = css({
@@ -39,12 +50,15 @@ const editorContainerStylesLight = css({
 });
 
 const aceEditorStyles = css({
-  minHeight: '160px'
+  minHeight: '160px',
 });
 
 const bannerStyles = css({
-  margin: spacing[2],
-  textAlign: 'left'
+  flex: 'none',
+  marginTop: spacing[2],
+  marginLeft: spacing[2],
+  marginRight: spacing[2],
+  textAlign: 'left',
 });
 
 /**
@@ -62,10 +76,12 @@ class UnthemedStageEditor extends PureComponent {
     syntaxError: PropTypes.object,
     serverError: PropTypes.object,
     num_stages: PropTypes.number.isRequired,
+    editor_view_type: PropTypes.string.isRequired,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
-    autocompleteFields: []
+    autocompleteFields: [],
   };
 
   /**
@@ -111,8 +127,8 @@ class UnthemedStageEditor extends PureComponent {
           row: row - 1,
           column,
           text: this.props.syntaxError.message,
-          type: 'error'
-        }
+          type: 'error',
+        },
       ]);
     } else {
       this.editor?.getSession().setAnnotations([]);
@@ -141,7 +157,7 @@ class UnthemedStageEditor extends PureComponent {
         stage_index: this.props.index + 1,
         stage_action: 'stage_content_changed',
         stage_name: this.props.stageOperator,
-        editor_view_type: 'stage',
+        editor_view_type: this.props.editor_view_type,
       });
       this.initialValue = value;
     }
@@ -181,7 +197,7 @@ class UnthemedStageEditor extends PureComponent {
             : !this.props.stageValue
             ? 'Stage value can not be empty'
             : this.props.syntaxError.message}
-          </Banner>
+        </Banner>
       );
     }
   }
@@ -193,7 +209,15 @@ class UnthemedStageEditor extends PureComponent {
    */
   render() {
     return (
-      <div className={cx(editorContainerStyles, this.props.darkMode ? editorContainerStylesDark : editorContainerStylesLight)}>
+      <div
+        className={cx(
+          editorContainerStyles,
+          this.props.darkMode
+            ? editorContainerStylesDark
+            : editorContainerStylesLight,
+          this.props.className
+        )}
+      >
         <div className={editorStyles}>
           <Editor
             text={this.props.stageValue}
@@ -227,11 +251,12 @@ export default connect(
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
-      syntaxError: !stage.empty ? (stage.syntaxError ?? null) : null,
-      serverError: !stage.empty ? (stage.serverError ?? null) : null,
+      syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
+      serverError: !stage.empty ? stage.serverError ?? null : null,
       serverVersion: state.serverVersion,
       autocompleteFields: state.fields,
       num_stages,
+      editor_view_type: mapPipelineModeToEditorViewType(state),
     };
   },
   { onChange: changeStageValue }

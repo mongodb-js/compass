@@ -1,0 +1,54 @@
+{
+  "totalRows": 2,
+  "aborted": false,
+  "fields": {
+    "1": {
+      "types": {
+        "int": {
+          "count": 2,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 0,
+          "firstValue": "3"
+        }
+      },
+      "columnIndexes": [0],
+      "detected": "int"
+    },
+    "2": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 1,
+          "firstValue": "5\".4"
+        },
+        "int": {
+          "count": 1,
+          "firstRowIndex": 1,
+          "firstColumnIndex": 1,
+          "firstValue": "6"
+        }
+      },
+      "columnIndexes": [1],
+      "detected": "mixed"
+    },
+    "3": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 2,
+          "firstValue": "string"
+        },
+        "int": {
+          "count": 1,
+          "firstRowIndex": 1,
+          "firstColumnIndex": 2,
+          "firstValue": "6"
+        }
+      },
+      "columnIndexes": [2],
+      "detected": "mixed"
+    }
+  }
+}

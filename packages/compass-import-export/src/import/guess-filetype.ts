@@ -4,11 +4,10 @@ import Papa from 'papaparse';
 import StreamJSON from 'stream-json';
 
 import { createDebug } from '../utils/logger';
+import { supportedDelimiters } from '../utils/constants';
+import type { Delimiter } from '../utils/constants';
 
 const debug = createDebug('import-guess-filetype');
-
-const supportedDelimiters = [',', '\t', ';', ' '];
-type Delimiter = typeof supportedDelimiters[number];
 
 function detectJSON(input: Readable): Promise<'json' | 'jsonl' | null> {
   let jsonVariant: 'json' | 'jsonl' | null = null;

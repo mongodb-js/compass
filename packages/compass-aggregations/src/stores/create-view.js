@@ -22,12 +22,12 @@ const configureStore = (options = {}) => {
     {
       appRegistry: {
         localAppRegistry: options.localAppRegistry ?? null,
-        globalAppRegistry: options.globalAppRegistry ?? null
+        globalAppRegistry: options.globalAppRegistry ?? null,
       },
       dataService: {
         error: options.dataProvider.error,
-        dataService: options.dataProvider.dataProvider
-      }
+        dataService: options.dataProvider.dataProvider,
+      },
     },
     applyMiddleware(thunk)
   );

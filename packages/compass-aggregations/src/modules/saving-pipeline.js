@@ -2,7 +2,8 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
-export const SAVING_PIPELINE_NAME_CHANGED = 'aggregations/saving-pipeline/NAME_CHANGED';
+export const SAVING_PIPELINE_NAME_CHANGED =
+  'aggregations/saving-pipeline/NAME_CHANGED';
 
 export const SAVING_PIPELINE_APPLY = 'aggregations/saving-pipeline/APPLY';
 
@@ -16,7 +17,7 @@ export const SAVING_PIPELINE_OPEN = 'aggregations/saving-pipeline/OPEN';
 export const INITIAL_STATE = {
   isOpen: false,
   name: '',
-  isSaveAs: false
+  isSaveAs: false,
 };
 
 /**
@@ -31,7 +32,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SAVING_PIPELINE_NAME_CHANGED) {
     return {
       ...state,
-      name: action.name
+      name: action.name,
     };
   }
 
@@ -40,7 +41,7 @@ export default function reducer(state = INITIAL_STATE, action) {
       ...state,
       isOpen: true,
       isSaveAs: action.isSaveAs,
-      name: action.name
+      name: action.name,
     };
   }
 
@@ -48,11 +49,14 @@ export default function reducer(state = INITIAL_STATE, action) {
     return {
       ...state,
       name: '',
-      isOpen: false
+      isOpen: false,
     };
   }
 
-  if (action.type === SAVING_PIPELINE_APPLY || action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
+  if (
+    action.type === SAVING_PIPELINE_APPLY ||
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+  ) {
     return { ...INITIAL_STATE };
   }
 
@@ -68,9 +72,8 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const savingPipelineNameChanged = (name) => ({
   type: SAVING_PIPELINE_NAME_CHANGED,
-  name: name
+  name: name,
 });
-
 
 /**
  * Action creator for apply name events handled in root reducer.
@@ -80,12 +83,12 @@ export const savingPipelineNameChanged = (name) => ({
 export const savingPipelineApply = () => (dispatch, getState) => {
   const {
     name: currentName,
-    savingPipeline: { name }
+    savingPipeline: { name },
   } = getState();
 
   dispatch({
     type: SAVING_PIPELINE_APPLY,
-    name: currentName === name ? `${name} (copy)` : name
+    name: currentName === name ? `${name} (copy)` : name,
   });
 };
 
@@ -94,7 +97,7 @@ export const savingPipelineApply = () => (dispatch, getState) => {
  * @returns {Object} The name changed action.
  */
 export const savingPipelineCancel = () => ({
-  type: SAVING_PIPELINE_CANCEL
+  type: SAVING_PIPELINE_CANCEL,
 });
 
 /**
@@ -102,11 +105,11 @@ export const savingPipelineCancel = () => ({
  *
  * @returns {import("redux").AnyAction} The name changed action.
  */
-export const savingPipelineOpen = ({name = '', isSaveAs = false} = {}) => {
+export const savingPipelineOpen = ({ name = '', isSaveAs = false } = {}) => {
   return {
     type: SAVING_PIPELINE_OPEN,
     isSaveAs: isSaveAs,
-    name: name
+    name: name,
   };
 };
 
@@ -127,7 +130,7 @@ export const openCreateView = () => {
 
     const meta = {
       source: sourceNs,
-      pipeline: sourcePipeline
+      pipeline: sourcePipeline,
     };
 
     dispatch(localAppRegistryEmit('open-create-view', meta));

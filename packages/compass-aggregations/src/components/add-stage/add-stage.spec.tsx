@@ -7,16 +7,10 @@ import { render, screen, within } from '@testing-library/react';
 const renderAddStage = (
   props: Partial<ComponentProps<typeof AddStage>> = {}
 ) => {
-  render(
-    <AddStage
-      onAddStage={() => {}}
-      variant="button"
-      {...props}
-    />
-  );
+  render(<AddStage onAddStage={() => {}} variant="button" {...props} />);
 };
 
-describe('AddStage', function() {
+describe('AddStage', function () {
   context('add stage icon button', function () {
     it('renders icon button', function () {
       renderAddStage({ variant: 'icon' });
@@ -34,7 +28,6 @@ describe('AddStage', function() {
       button.click();
       expect(onAddStage).to.have.been.calledOnce;
     });
-
   });
 
   context('add stage button with link', function () {
@@ -46,7 +39,9 @@ describe('AddStage', function() {
 
     it('renders help link when stage is not last', function () {
       renderAddStage();
-      expect(screen.getByText('Learn more about aggregation pipeline stages')).to.exist;
+      expect(
+        screen.getByText('Learn more about aggregation pipeline stages')
+      ).to.exist;
     });
 
     it('calls onAddStage with index when clicked', function () {

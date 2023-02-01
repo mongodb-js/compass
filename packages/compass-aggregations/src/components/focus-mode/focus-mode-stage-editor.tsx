@@ -5,12 +5,14 @@ import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import { connect } from 'react-redux';
+import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
 
 const containerStyles = css({
+  height: '100%',
   display: 'grid',
   gridTemplateRows: 'min-content 1fr',
   gridTemplateColumns: '1fr',
-  gap: spacing[4],
+  gap: spacing[3],
 });
 
 const headerStyles = css({
@@ -23,11 +25,12 @@ const headerStyles = css({
 const editorStyles = css({
   height: '100%',
   overflowY: 'auto',
+  paddingBottom: spacing[3],
 });
 
 export const FocusModeStageEditor = ({
   index,
-  operator
+  operator,
 }: {
   index: number;
   operator: string | null;
@@ -39,13 +42,9 @@ export const FocusModeStageEditor = ({
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
-        {operator ? `Stage: ${operator}` : `Add a stage from builder UI`}
+        <StageOperatorSelect index={index} />
         {link && (
-          <Link
-            hideExternalIcon={false}
-            href={link}
-            target="_blank"
-          >
+          <Link hideExternalIcon={false} href={link} target="_blank">
             Open docs
           </Link>
         )}
@@ -61,10 +60,8 @@ export const FocusModeStageEditor = ({
 const mapState = ({
   focusMode: { stageIndex },
   pipelineBuilder: {
-    stageEditor: {
-      stages,
-    }
-  }
+    stageEditor: { stages },
+  },
 }: RootState) => {
   const currentStage = stages[stageIndex];
   return {

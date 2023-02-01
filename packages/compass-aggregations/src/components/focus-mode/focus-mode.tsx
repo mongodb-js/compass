@@ -1,17 +1,21 @@
 import React from 'react';
 import {
   Modal,
-  Body,
   css,
   spacing,
   palette,
+  cx,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import type { RootState } from '../../modules';
-import { focusModeDisabled } from '../../modules/focus-mode';
+import { disableFocusMode } from '../../modules/focus-mode';
 import FocusModeStageEditor from './focus-mode-stage-editor';
-import { FocusModeStageInput, FocusModeStageOutput } from './focus-mode-stage-preview';
+import {
+  FocusModeStageInput,
+  FocusModeStageOutput,
+} from './focus-mode-stage-preview';
+import FocusModeModalHeader from './focus-mode-modal-header';
 
 // These styles make the modal occupy the whole screen,
 // with 18px of padding - because that's the
@@ -26,10 +30,10 @@ const modalStyles = css({
     height: '100%',
     // LG sets maxHeight to calc(100% - 64px). This enables modal
     // to occupy the whole screen.
-    maxHeight: '100%', 
+    maxHeight: '100%',
     '> div': {
       height: '100%',
-    }
+    },
   },
 });
 
@@ -45,6 +49,7 @@ const containerStyles = css({
 
 const headerStyles = css({
   borderBottom: `1px solid ${palette.gray.light2}`,
+  paddingBottom: spacing[2],
 });
 
 const bodyStyles = css({
@@ -65,13 +70,19 @@ const editorAreaStyles = css({
   backgroundColor: palette.gray.light3,
 });
 
+const editorAreaExpanded = css({
+  width: '100%',
+});
+
 type FocusModeProps = {
   isModalOpen: boolean;
+  isAutoPreviewEnabled: boolean;
   onCloseModal: () => void;
 };
 
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
+  isAutoPreviewEnabled,
   onCloseModal,
 }) => {
   return (
@@ -79,35 +90,44 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
       className={modalStyles}
       setOpen={onCloseModal}
       open={isModalOpen}
-      data-testid={"focus-mode-modal"}
+      data-testid={'focus-mode-modal'}
     >
       <div className={containerStyles}>
         <div className={headerStyles}>
-          <Body>Focus Mode (in progress feature)</Body>
+          <FocusModeModalHeader></FocusModeModalHeader>
         </div>
         <div className={bodyStyles}>
-          <div className={previewAreaStyles} data-testid="stage-input">
-            <FocusModeStageInput />
-          </div>
-          <div className={editorAreaStyles} data-testid="stage-editor">
+          {isAutoPreviewEnabled && (
+            <div className={previewAreaStyles} data-testid="stage-input">
+              <FocusModeStageInput />
+            </div>
+          )}
+          <div
+            className={cx(
+              editorAreaStyles,
+              !isAutoPreviewEnabled && editorAreaExpanded
+            )}
+            data-testid="stage-editor"
+          >
             <FocusModeStageEditor />
           </div>
-          <div className={previewAreaStyles} data-testid="stage-output">
-            <FocusModeStageOutput />
-          </div>
+          {isAutoPreviewEnabled && (
+            <div className={previewAreaStyles} data-testid="stage-output">
+              <FocusModeStageOutput />
+            </div>
+          )}
         </div>
       </div>
     </Modal>
   );
 };
 
-const mapState = ({
-  focusMode: { isEnabled },
-}: RootState) => ({
+const mapState = ({ focusMode: { isEnabled }, autoPreview }: RootState) => ({
   isModalOpen: isEnabled,
+  isAutoPreviewEnabled: autoPreview,
 });
 
 const mapDispatch = {
-  onCloseModal: focusModeDisabled
+  onCloseModal: disableFocusMode,
 };
 export default connect(mapState, mapDispatch)(FocusMode);

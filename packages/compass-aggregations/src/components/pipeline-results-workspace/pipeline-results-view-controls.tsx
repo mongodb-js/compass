@@ -44,8 +44,16 @@ const PipelineResultsViewControls: React.FunctionComponent<{
         value={value}
         onChange={onChange as (newValue: string) => void}
       >
-        <SegmentedControlOption aria-label="Document list" value="document" glyph={<Icon glyph="Menu"></Icon>} />
-        <SegmentedControlOption aria-label="JSON list" value="json" glyph={<Icon glyph="CurlyBraces"></Icon>} />
+        <SegmentedControlOption
+          aria-label="Document list"
+          value="document"
+          glyph={<Icon glyph="Menu"></Icon>}
+        />
+        <SegmentedControlOption
+          aria-label="JSON list"
+          value="json"
+          glyph={<Icon glyph="CurlyBraces"></Icon>}
+        />
       </SegmentedControl>
     </div>
   );

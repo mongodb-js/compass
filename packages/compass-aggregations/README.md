@@ -8,9 +8,9 @@
 
 - `src/components/aggregations` The primary export is connected component
 - `src/modules/` is where action happens
-    - action creators components call
-    - reducers that call dataService, window.open, emit to other plugins, etc.
-    - follows the `ducks` pattern
+  - action creators components call
+  - reducers that call dataService, window.open, emit to other plugins, etc.
+  - follows the `ducks` pattern
 - `src/stores/store` is where plugin listens+responds to events of interest from other plugins
 - store is global state instantiated via `configureStore()`
 - All tests are local to their module e.g. `src/*/<module>.spec.js`
@@ -59,8 +59,9 @@ to initialise the store instance, which decorates it with various methods to
 conveniently set any values it uses.
 
 This is for:
-  - `@mongodb-js/compass-aggregations 4.0.0-beta.11`
-  - `@mongodb-js/compass-export-to-language 4.0.2`
+
+- `@mongodb-js/compass-aggregations 4.0.0-beta.11`
+- `@mongodb-js/compass-export-to-language 4.0.2`
 
 ### Browser
 
@@ -119,15 +120,15 @@ const store = configureStore({
   localAppRegistry: localAppRegistry,
   dataProvider: {
     error: null,
-    dataProvider: dataProvider
+    dataProvider: dataProvider,
   },
   env: 'on-prem',
   namespace: 'db.coll',
   serverVersion: '4.2.0',
-  fields: []
+  fields: [],
 });
 
-<Plugin store={store} />
+<Plugin store={store} />;
 ```
 
 ### Fields
@@ -165,36 +166,38 @@ provider.aggregate(namespace, pipeline, options, callback);
 ```
 
 ### App Registry Events Emmitted
+
 Various actions within this plugin will emit events for other parts of the
 application can be listened to via [hadron-app-registry][hadron-app-registry].
 `Local` events are scoped to a `Tab`.
 `Global` events are scoped to the whole Compass application.
 
 #### Global
+
 - **'open-create-view'**: Indicated `Create View` is to be opened.
 - **'compass:export-to-language:opened', source**: Indicates
   `export-to-language` was opened. `source` refers to the module it is opened
-from, in this case `Aggregations`.
+  from, in this case `Aggregations`.
 - **'compass:aggregations:pipeline-imported'**: Indicates a pipeline ws
   imported, either from pasting the pipeline in, or from using the import
-functionality. Sends data to metrics.
+  functionality. Sends data to metrics.
 - **'compass:aggregations:create-view', numOfStages**: Indicates `Create View` was
   successful. `numOfStages` refers to pipeline length. Sends data to metrics.
 - **'compass:aggregations:pipeline-opened'**: Indicates a saved pipeline was
   opened. Sends pipeline data to metrics.
 - **'open-namespace-in-new-tab'**: Indicates current pipeline's namespace is to
   be opened in a new tab. Called when `Create View` is successful, when
-`$merge` are to be shown, when `$out` results are to be shown.
+  `$merge` are to be shown, when `$out` results are to be shown.
 - **'compass:aggregations:update-view', numOfStages**: Indicates a pipeline view
   was updated. `numOfStages` refers to the length of the pipeline. Sends data to
-metrics.
+  metrics.
 - **'compass:aggregations:settings-applied', settings**: Indicates pipeline
   settings are to be applied. `settings` include: `isExpanded`, `isCommentMode`,
-`isDirty`, `sampleSize`, `maxTimeMS`, `limit`.
+  `isDirty`, `sampleSize`, `maxTimeMS`, `limit`.
 - **'refresh-data'**: Indicates a data refresh is required within Compass.
 - **'select-namespace', metadata**: Indicates a namespace is being selected.
   Emitted when updating a collection. `metadata` refers to information about the
-pipeline.
+  pipeline.
 - **'agg-pipeline-deleted'**: Indicates a pipeline was deleted. Sends pipeline
   data to metrics.
 - **'agg-pipeline-saved', pipelineName**: Indicates a pipeline was saved
@@ -205,28 +208,31 @@ pipeline.
   with a `$out`. Sends pipeline data to metrics.
 
 #### Local
+
 - **'open-aggregation-export-to-language', pipeline**: Indicates
   `export-to-language` plugin is to opened. `pipeline` refers to the pipeline to
-be exported.
-- **'open-create-view', { meta: { source, pipeline }}**: Indicates `Create
-  View` is being opened.
+  be exported.
+- **'open-create-view', { meta: { source, pipeline }}**: Indicates `Create View` is being opened.
 
 ### App Registry Events Received
+
 #### Local
+
 - **'import-finished'**: When import data was successful, refresh plugin's input
   data.
 - **'fields-changed', fields**: Received when schema fields change. Updates
   plugin's fields.
 - **'refresh-data'**: Received when Compass data was refreshed. Refreshes input
   data in the plugin.
-- **'open-create-view', { meta: { source, pipeline }}**: Received when `Create
-  View` is to be opened. Opens a Create View modal.
+- **'open-create-view', { meta: { source, pipeline }}**: Received when `Create View` is to be opened. Opens a Create View modal.
 
 #### Global
+
 - **'refresh-data'**: Received when Input data is to be refreshed on Compass
   level. Refreshes plugin's input.
 
 ### Metrics Events
+
 - `refresh-data`
 - `open-create-view`
 - `agg-pipeline-saved`
@@ -260,6 +266,7 @@ npm run analyze
 ```
 
 ## Install
+
 ```shell
 npm i -S @mongodb-js/compass-aggregations
 ```

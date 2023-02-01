@@ -1,5 +1,11 @@
 import React from 'react';
-import { css, cx, palette, spacing, useDarkMode } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   position: 'absolute',
@@ -30,7 +36,14 @@ const containerStylesLight = css({
 
 const ResizeHandle = function () {
   const darkMode = useDarkMode();
-  return <div className={cx(containerStyles, darkMode ? containerStylesDark : containerStylesLight)} />;
+  return (
+    <div
+      className={cx(
+        containerStyles,
+        darkMode ? containerStylesDark : containerStylesLight
+      )}
+    />
+  );
 };
 
 export default ResizeHandle;

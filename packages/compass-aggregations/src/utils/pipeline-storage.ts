@@ -21,7 +21,11 @@ export type StoredPipeline = {
   lastModified: number;
 };
 
-function stageToString(operator: string, value: string, disabled: boolean): string {
+function stageToString(
+  operator: string,
+  value: string,
+  disabled: boolean
+): string {
   const str = `{
   ${operator}: ${value}
 }`;
@@ -30,15 +34,17 @@ function stageToString(operator: string, value: string, disabled: boolean): stri
     return str;
   }
 
-  return str.split('\n')
+  return str
+    .split('\n')
     .map((line) => `// ${line}`)
     .join('\n');
 }
 
 function savedPipelineToText(pipeline: StoredPipeline['pipeline']): string {
-  const stages = pipeline?.map(({ stageOperator, isEnabled, stage }) =>
-    stageToString(stageOperator, stage, !isEnabled)
-  ) ?? [];
+  const stages =
+    pipeline?.map(({ stageOperator, isEnabled, stage }) =>
+      stageToString(stageOperator, stage, !isEnabled)
+    ) ?? [];
 
   const source = `[\n${stages.join(',\n')}\n]`;
 
@@ -79,7 +85,7 @@ export class PipelineStorage {
     try {
       const [data, stats] = await Promise.all([
         this._getFileData(filePath),
-        fs.stat(filePath)
+        fs.stat(filePath),
       ]);
       if (!hasAllRequiredKeys(data)) {
         return null;
@@ -87,8 +93,7 @@ export class PipelineStorage {
       return {
         ...data,
         lastModified: stats.mtimeMs,
-        pipelineText:
-          data.pipelineText ?? savedPipelineToText(data.pipeline)
+        pipelineText: data.pipelineText ?? savedPipelineToText(data.pipeline),
       };
     } catch (err) {
       debug(`Failed to load pipeline ${path.basename(filePath)}`, err);
@@ -104,10 +109,7 @@ export class PipelineStorage {
   /**
    * Updates attributes of an pipeline.
    */
-  async updateAttributes(
-    id: string,
-    attributes: Partial<StoredPipeline>
-  ) {
+  async updateAttributes(id: string, attributes: Partial<StoredPipeline>) {
     if (!id) {
       throw new Error('pipelineId is required');
     }
@@ -121,7 +123,7 @@ export class PipelineStorage {
     const { lastModified, ...data } = (await this._loadOne(filePath)) ?? {};
     const updated = {
       ...data,
-      ...attributes
+      ...attributes,
     };
     await fs.writeFile(
       filePath,

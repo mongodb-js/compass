@@ -16,11 +16,13 @@ import {
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 
 const aggregationCommentModeId = 'aggregation-comment-mode';
-const aggregationCommentModeDescriptionId = 'aggregation-settings-comment-mode-description';
+const aggregationCommentModeDescriptionId =
+  'aggregation-settings-comment-mode-description';
 const aggregationCommentModeLabelId = 'aggregation-settings-comment-mode-label';
 
 const aggregationSampleSizeId = 'aggregation-sample-size';
-const aggregationSampleSizeDescriptionId = 'aggregation-settings-sample-size-description';
+const aggregationSampleSizeDescriptionId =
+  'aggregation-settings-sample-size-description';
 const aggregationSampleSizeLabelId = 'aggregation-settings-sample-size-label';
 
 const aggregationLimitId = 'aggregation-limit';
@@ -33,7 +35,7 @@ const headerStyles = css({
   alignItems: 'center',
   justifyContent: 'space-between',
   borderBottom: `1px solid ${palette.gray.light2}`,
-  boxShadow: `1px 1px 1px ${palette.gray.light2}`
+  boxShadow: `1px 1px 1px ${palette.gray.light2}`,
 });
 
 const headerDarkStyles = css({
@@ -121,13 +123,19 @@ function Settings({
   toggleSettingsIsExpanded,
 }: SettingsProps) {
   const darkMode = useDarkMode();
-  const onSampleSizeChanged = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    setSettingsSampleSize(parseInt(evt.currentTarget.value, 10));
-  }, [ setSettingsSampleSize ]);
+  const onSampleSizeChanged = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      setSettingsSampleSize(parseInt(evt.currentTarget.value, 10));
+    },
+    [setSettingsSampleSize]
+  );
 
-  const onLimitChanged = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    setSettingsLimit(parseInt(evt.currentTarget.value, 10));
-  }, [ setSettingsLimit ]);
+  const onLimitChanged = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      setSettingsLimit(parseInt(evt.currentTarget.value, 10));
+    },
+    [setSettingsLimit]
+  );
 
   const onApplyClicked = useCallback(() => {
     // Update the settings in the state.
@@ -135,16 +143,19 @@ function Settings({
 
     // Hide the settings panel.
     toggleSettingsIsExpanded();
-  }, [ applySettings, toggleSettingsIsExpanded ]);
+  }, [applySettings, toggleSettingsIsExpanded]);
 
   const aggregationLimit = useMemo(
-    () => settings.isDirty ? settings.limit : largeLimit, [ settings, largeLimit ]
+    () => (settings.isDirty ? settings.limit : largeLimit),
+    [settings, largeLimit]
   );
   const commentModeChecked = useMemo(
-    () => settings.isDirty ? settings.isCommentMode : isCommenting, [ settings, isCommenting ]
+    () => (settings.isDirty ? settings.isCommentMode : isCommenting),
+    [settings, isCommenting]
   );
   const sampleSize = useMemo(
-    () => settings.isDirty ? settings.sampleSize : limit, [ settings, limit ]
+    () => (settings.isDirty ? settings.sampleSize : limit),
+    [settings, limit]
   );
 
   if (!isExpanded) {
@@ -160,13 +171,17 @@ function Settings({
             id="aggregations-settings-cancel"
             size="xsmall"
             onClick={toggleSettingsIsExpanded}
-          >Cancel</Button>
+          >
+            Cancel
+          </Button>
           <Button
             id="aggregation-settings-apply"
             size="xsmall"
             variant="primary"
             onClick={onApplyClicked}
-          >Apply</Button>
+          >
+            Apply
+          </Button>
         </div>
       </div>
       <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
@@ -174,7 +189,9 @@ function Settings({
           <Label
             htmlFor={aggregationCommentModeId}
             id={aggregationCommentModeLabelId}
-          >Comment Mode</Label>
+          >
+            Comment Mode
+          </Label>
           <Description id={aggregationCommentModeDescriptionId}>
             When enabled, adds helper comments to each stage. Only applies to
             new stages.
@@ -196,8 +213,12 @@ function Settings({
           <Label
             htmlFor={aggregationSampleSizeId}
             id={aggregationSampleSizeLabelId}
-          >Number of Preview Documents</Label>
-          <Description id={aggregationSampleSizeDescriptionId}>Specify the number of documents to show in the preview.</Description>
+          >
+            Number of Preview Documents
+          </Label>
+          <Description id={aggregationSampleSizeDescriptionId}>
+            Specify the number of documents to show in the preview.
+          </Description>
         </div>
         <div className={inputControlStyles}>
           <TextInput
@@ -215,10 +236,9 @@ function Settings({
       {!isAtlasDeployed && (
         <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
           <div className={inputMetaStyles}>
-            <Label
-              htmlFor={aggregationLimitId}
-              id={aggregationLimitLabelId}
-            >Limit</Label>
+            <Label htmlFor={aggregationLimitId} id={aggregationLimitLabelId}>
+              Limit
+            </Label>
             <div id={aggregationLimitDescriptionId}>
               <Description>
                 Limits input documents before $group, $bucket, and $bucketAuto

@@ -2,7 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
-import { KeylineCard, css, cx, spacing, palette } from '@mongodb-js/compass-components';
+import {
+  KeylineCard,
+  css,
+  cx,
+  spacing,
+  palette,
+} from '@mongodb-js/compass-components';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
@@ -10,34 +16,33 @@ import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import type { RootState } from '../modules';
 
 import ResizeHandle from './resize-handle';
-import StageEditorToolbar from './stage-editor-toolbar';
+import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
 import StagePreview from './stage-preview';
-import StagePreviewToolbar from './stage-preview-toolbar';
 import { hasSyntaxError } from '../utils/stage';
 
 const stageStyles = css({
   position: 'relative',
-  marginLeft: spacing[3],
-  marginRight: spacing[3],
-  marginTop: spacing[2],
-  marginBottom: spacing[2],
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   alignItems: 'stretch',
-  overflow: 'hidden' // this is so that the top left red border corner does not get cut off when there's a server error
+  overflow: 'hidden', // this is so that the top left red border corner does not get cut off when there's a server error
 });
 
 const stageWarningStyles = css({
-  borderColor: palette.yellow.base
+  borderColor: palette.yellow.base,
 });
 
 const stageErrorStyles = css({
-  borderColor: palette.red.base
+  borderColor: palette.red.base,
+});
+
+const stageContentStyles = css({
+  display: 'flex',
 });
 
 const stageEditorNoPreviewStyles = css({
-  width: '100%'
+  width: '100%',
 });
 
 const stagePreviewContainerStyles = css({
@@ -45,7 +50,12 @@ const stagePreviewContainerStyles = css({
   position: 'relative',
   flexDirection: 'column',
   width: '100%',
-  overflow: 'auto'
+  overflow: 'auto',
+});
+
+const stageEditorContainerStyles = css({
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
 });
 
 const RESIZABLE_DIRECTIONS = {
@@ -56,28 +66,19 @@ const RESIZABLE_DIRECTIONS = {
   topRight: false,
   bottomRight: false,
   bottomLeft: false,
-  topLeft: false
+  topLeft: false,
 };
 
 type ResizableEditorProps = {
   id: number;
-  index: number,
-  isExpanded: boolean,
-  isAutoPreviewing: boolean,
+  index: number;
+  isAutoPreviewing: boolean;
 };
 
-function ResizableEditor({ id, index, isExpanded, isAutoPreviewing, ...props }: ResizableEditorProps) {
-  const { listeners } = useSortable({ id: id + 1 });
+function ResizableEditor({ index, isAutoPreviewing }: ResizableEditorProps) {
   const editor = (
-    <>
-      <div {...listeners}>
-        <StageEditorToolbar index={index} {...props}></StageEditorToolbar>
-      </div>
-      {isExpanded && (
-        // @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted.
-        <StageEditor index={index} />
-      )}
-    </>
+    // @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted.
+    <StageEditor index={index} className={stageEditorContainerStyles} />
   );
 
   if (!isAutoPreviewing) {
@@ -106,8 +107,8 @@ function ResizableEditor({ id, index, isExpanded, isAutoPreviewing, ...props }: 
           // If this ever needs to be tweaked, the easiest way is to give the
           // editor and preview toolbars different background colours and add a
           // transparent background here.
-          right: '-9px' // default -5px
-        }
+          right: '-9px', // default -5px
+        },
       }}
     >
       {editor}
@@ -119,13 +120,13 @@ const DEFAULT_OPACITY = 0.6;
 
 export type StageProps = {
   id: number;
-  index: number,
-  isEnabled: boolean,
-  isExpanded: boolean,
-  hasSyntaxError: boolean,
-  hasServerError: boolean,
-  isAutoPreviewing: boolean
-}
+  index: number;
+  isEnabled: boolean;
+  isExpanded: boolean;
+  hasSyntaxError: boolean;
+  hasServerError: boolean;
+  isAutoPreviewing: boolean;
+};
 
 function Stage({
   id,
@@ -134,21 +135,21 @@ function Stage({
   isExpanded,
   hasSyntaxError,
   hasServerError,
-  isAutoPreviewing
+  isAutoPreviewing,
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
-  const { setNodeRef, transform, transition } =
-    useSortable({ id: id + 1 });
+  const { setNodeRef, transform, transition, listeners, isDragging } =
+    useSortable({
+      id: id + 1,
+    });
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
+    zIndex: isDragging ? 1 : 0,
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-    >
+    <div ref={setNodeRef} style={style}>
       <KeylineCard
         data-testid="stage-card"
         data-stage-index={index}
@@ -157,33 +158,41 @@ function Stage({
           hasSyntaxError && stageWarningStyles,
           hasServerError && stageErrorStyles
         )}
-        style={{ opacity }}
       >
-        <ResizableEditor id={id} index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
-        {isAutoPreviewing && (<div className={stagePreviewContainerStyles}>
-          <StagePreviewToolbar index={index} />
-          {isExpanded && (
-            <StagePreview index={index} />
-          )}
-        </div>)}
+        <div {...listeners}>
+          <StageToolbar index={index} />
+        </div>
+        {isExpanded && (
+          <div style={{ opacity }} className={stageContentStyles}>
+            <ResizableEditor
+              id={id}
+              index={index}
+              isAutoPreviewing={isAutoPreviewing}
+            />
+            {isAutoPreviewing && (
+              <div className={stagePreviewContainerStyles}>
+                <StagePreview index={index} />
+              </div>
+            )}
+          </div>
+        )}
       </KeylineCard>
     </div>
   );
 }
 
-
 type StageOwnProps = {
-  index: number
+  index: number;
 };
 
 export default connect((state: RootState, ownProps: StageOwnProps) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index]
+  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
   return {
     id: stage.id,
     isEnabled: !stage.disabled,
     isExpanded: !stage.collapsed,
     hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
-    isAutoPreviewing: state.autoPreview
+    isAutoPreviewing: state.autoPreview,
   };
 })(Stage);
