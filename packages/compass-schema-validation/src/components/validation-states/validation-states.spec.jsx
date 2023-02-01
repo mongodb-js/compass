@@ -7,32 +7,25 @@ import {
   EmptyContent,
   WarningSummary,
 } from '@mongodb-js/compass-components';
+import { Provider } from 'react-redux';
 
 import ValidationStates from '../validation-states';
 import ValidationEditor from '../validation-editor';
 
 import styles from './validation-states.module.less';
-import SampleDocuments from '../sample-documents';
+import configureStore from '../../stores';
 
 describe('ValidationStates [Component]', function () {
   let props;
   let component;
-  let sandbox;
 
-  before(function () {
-    sandbox = sinon.createSandbox();
-    /** These props render connected components so we stub them here */
-    sinon
-      .stub(SampleDocuments.defaultProps, 'renderValidDocument')
-      .callsFake(() => <>Valid</>);
-    sinon
-      .stub(SampleDocuments.defaultProps, 'renderInvalidDocument')
-      .callsFake(() => <>Invalid</>);
-  });
-
-  after(function () {
-    sandbox.restore();
-  });
+  const mountComponent = (props) => {
+    return mount(
+      <Provider store={configureStore()}>
+        <ValidationStates {...props} />
+      </Provider>
+    )
+  }
 
   beforeEach(function () {
     props = {
@@ -78,7 +71,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.1.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('renders the wrapper div', function () {
@@ -113,7 +106,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('renders the collection time-series banner', function () {
@@ -148,7 +141,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('renders the collection read-only banner', function () {
@@ -187,7 +180,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('does not render a warning banner', function () {
@@ -209,7 +202,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('does not render a warning banner', function () {
@@ -231,7 +224,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('renders the writable banner', function () {
@@ -270,7 +263,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('does not render the zero state', function () {
@@ -291,7 +284,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = true;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('renders the zero state', function () {
@@ -312,7 +305,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('does not render the content', function () {
@@ -333,7 +326,7 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = true;
       props.serverVersion = '3.2.0';
 
-      component = mount(<ValidationStates {...props} />);
+      component = mountComponent(props);
     });
 
     it('renders the content', function () {

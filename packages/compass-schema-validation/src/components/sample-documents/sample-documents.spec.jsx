@@ -1,15 +1,16 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import SampleDocuments from '../sample-documents';
 import { expect } from 'chai';
+import configureStore from '../../stores'
+import SampleDocuments from '../sample-documents';
+import { Provider } from 'react-redux';
 
 describe('SampleDocuments [Component]', function () {
   it('renders a valid and invalid document preview', function () {
     const component = mount(
-      <SampleDocuments
-        renderValidDocument={() => <>Valid</>}
-        renderInvalidDocument={() => <>Invalid</>}
-      />
+      <Provider store={configureStore()}>
+        <SampleDocuments />
+      </Provider>
     );
 
     expect(

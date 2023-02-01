@@ -60,22 +60,6 @@ const documentHeadingTextStyles = css({
 class SampleDocuments extends Component {
   static displayName = 'SampleDocuments';
 
-  static propTypes = {
-    renderValidDocument: PropTypes.func,
-    renderInvalidDocument: PropTypes.func,
-  };
-
-  /**
-   * Instead of directly rendering these preview components
-   * we inject them via props so this and other parent components
-   * can easily be tested without worrying about the underlying
-   * connected components by simply stubbing these props.
-   */
-  static defaultProps = {
-    renderValidDocument: () => <ValidDocumentPreview />,
-    renderInvalidDocument: () => <InvalidDocumentPreview />,
-  };
-
   /**
    * Render matching documents.
    *
@@ -88,7 +72,7 @@ class SampleDocuments extends Component {
           <Icon glyph="CheckmarkWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>Passed validation</Body>
         </div>
-        {this.props.renderValidDocument()}
+        <ValidDocumentPreview />
       </div>
     );
   }
@@ -105,7 +89,7 @@ class SampleDocuments extends Component {
           <Icon glyph="XWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>Failed validation</Body>
         </div>
-        {this.props.renderInvalidDocument()}
+        <InvalidDocumentPreview />
       </div>
     );
   }
