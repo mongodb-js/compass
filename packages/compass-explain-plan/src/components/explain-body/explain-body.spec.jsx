@@ -25,9 +25,7 @@ describe('ExplainBody [Component]', function () {
     };
 
     beforeEach(function () {
-      component = mount(
-        <ExplainBody explain={explain} />
-      );
+      component = mount(<ExplainBody explain={explain} />);
     });
 
     afterEach(function () {
@@ -53,9 +51,7 @@ describe('ExplainBody [Component]', function () {
     };
 
     beforeEach(function () {
-      component = mount(
-        <ExplainBody explain={explain} />
-      );
+      component = mount(<ExplainBody explain={explain} />);
     });
 
     afterEach(function () {
@@ -85,9 +81,7 @@ describe('ExplainBody [Component]', function () {
     };
 
     beforeEach(function () {
-      component = mount(
-        <ExplainBody explain={explain} />
-      );
+      component = mount(<ExplainBody explain={explain} />);
     });
 
     afterEach(function () {
