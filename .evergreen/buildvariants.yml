@@ -75,6 +75,9 @@ buildvariants:
       - name: test-packaged-app-60x-enterprise
         depends_on: package-compass
 
+      - name: test-packaged-app-latest
+        depends_on: package-compass
+
   - name: windows
     display_name: Windows 10 (Test and Package)
     run_on: windows-vsCurrent-large
@@ -121,6 +124,9 @@ buildvariants:
       - name: test-packaged-app-60x-enterprise
         depends_on: package-compass
 
+      - name: test-packaged-app-latest
+        depends_on: package-compass
+
   - name: rhel
     display_name: RHEL 7.6 (Test and Package)
     run_on: rhel76-large
@@ -165,6 +171,10 @@ buildvariants:
         depends_on: package-compass
 
       - name: test-packaged-app-60x-enterprise
+        depends_on: package-compass
+
+      - name: test-packaged-app-latest
+        run_on: rhel80-large
         depends_on: package-compass
 
   - name: macos
