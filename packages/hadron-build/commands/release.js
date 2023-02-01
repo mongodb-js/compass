@@ -223,7 +223,7 @@ const writeVersionFile = (CONFIG, done) => {
  * @param {Function} done
  * @api public
  */
-const transformPackageJson = (CONFIG, done) => {
+const transformPackageJson = async(CONFIG, done) => {
   const PACKAGE_JSON_DEST = path.join(CONFIG.resourcesAppDir, 'package.json');
   const packageKeysToRemove = [
     'devDependencies',
@@ -250,11 +250,51 @@ const transformPackageJson = (CONFIG, done) => {
     productName: CONFIG.productName
   });
   distributions[contents.distribution].productName = CONFIG.productName;
-  distributions[contents.distribution].metrics_intercom_app_id = process.env.HADRON_METRICS_INTERCOM_APP_ID;
+  distributions[contents.distribution].metrics_intercom_app_id =
+    process.env.HADRON_METRICS_INTERCOM_APP_ID;
 
-  fs.writeFile(PACKAGE_JSON_DEST, JSON.stringify(contents, null, 2), done);
+  // As we are inside the monorepo, the package lock will not apply to the
+  // Compass dependencies, to make sure we are installing exactly what is in the
+  // package-lock, we will override package.json dependency versions to match
+  // exact versions from package-lock
+  const monorepoRoot = path.resolve(CONFIG.dir, '..', '..');
+  const Arborist = require('@npmcli/arborist');
+  const tree = new Arborist({ path: monorepoRoot });
+  await tree.loadActual();
+  const packageNode = tree.actualTree.inventory.get(
+    path.relative(monorepoRoot, CONFIG.dir)
+  );
 
-  cli.debug(JSON.stringify(contents, null, 2));
+  if (!packageNode) {
+    throw new Error("Couldn't find package node in arborist tree");
+  }
+
+  for (const depType of [
+    'dependencies',
+    'peerDependencies',
+    'optionalDependencies'
+  ]) {
+    for (const depName of Object.keys(contents[depType] || {})) {
+      const depEdge = packageNode.edgesOut.get(depName);
+      if (!depEdge.to && !depEdge.optional) {
+        throw new Error(
+          `Couldn\'t find node for package ${depName} in arborist tree`
+        );
+      }
+      if (depEdge.to) {
+        contents[depType][depName] = depEdge.to.version;
+      }
+    }
+  }
+
+  fs.writeFile(
+    PACKAGE_JSON_DEST,
+    JSON.stringify(contents, null, 2),
+    (...args) => {
+      cli.debug(JSON.stringify(contents, null, 2));
+      done(...args);
+    }
+  );
 };
 
 /**
