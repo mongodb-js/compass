@@ -20,7 +20,6 @@ import {
   isOutputStage,
 } from '../../utils/stage';
 
-
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
