@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-import configureStore from '../../stores'
+import configureStore from '../../stores';
 import SampleDocuments from '../sample-documents';
 import { Provider } from 'react-redux';
 

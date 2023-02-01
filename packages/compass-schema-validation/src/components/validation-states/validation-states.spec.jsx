@@ -24,8 +24,8 @@ describe('ValidationStates [Component]', function () {
       <Provider store={configureStore()}>
         <ValidationStates {...props} />
       </Provider>
-    )
-  }
+    );
+  };
 
   beforeEach(function () {
     props = {
