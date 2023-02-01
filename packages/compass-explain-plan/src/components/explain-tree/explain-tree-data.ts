@@ -11,11 +11,10 @@ export type ExplainTreeNodeData = {
   id: string;
   name: string;
   nReturned: number;
-  /* Amount of time that wast spent on this stage */
+  /* Amount of time spent on this stage */
   curStageExecTimeMS: number;
-  /* Execution time spent on all the input stages of this stage.
-   * NOTE: the input stages are the children stages, so the prev exec time
-   * has to be calculated and must be interpreted as being "bottom-up". */
+  /* Execution time spent on all the input stages of this stage, this is the
+   * max of the execution times of the children. */
   prevStageExecTimeMS: number;
   isShard: boolean;
   /* ExplainTreeNodeData for the input stages */
