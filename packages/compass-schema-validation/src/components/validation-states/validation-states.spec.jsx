@@ -22,8 +22,12 @@ describe('ValidationStates [Component]', function () {
   before(function () {
     sandbox = sinon.createSandbox();
     /** These props render connected components so we stub them here */
-    sinon.stub(SampleDocuments.defaultProps, 'renderValidDocument').callsFake(() => <>Valid</>);
-    sinon.stub(SampleDocuments.defaultProps, 'renderInvalidDocument').callsFake(() => <>Invalid</>);
+    sinon
+      .stub(SampleDocuments.defaultProps, 'renderValidDocument')
+      .callsFake(() => <>Valid</>);
+    sinon
+      .stub(SampleDocuments.defaultProps, 'renderInvalidDocument')
+      .callsFake(() => <>Invalid</>);
   });
 
   after(function () {

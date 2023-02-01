@@ -63,7 +63,7 @@ class SampleDocuments extends Component {
   static propTypes = {
     renderValidDocument: PropTypes.func,
     renderInvalidDocument: PropTypes.func,
-  }
+  };
 
   /**
    * Instead of directly rendering these preview components
@@ -73,8 +73,8 @@ class SampleDocuments extends Component {
    */
   static defaultProps = {
     renderValidDocument: () => <ValidDocumentPreview />,
-    renderInvalidDocument: () => <InvalidDocumentPreview />
-  }
+    renderInvalidDocument: () => <InvalidDocumentPreview />,
+  };
 
   /**
    * Render matching documents.
@@ -88,7 +88,7 @@ class SampleDocuments extends Component {
           <Icon glyph="CheckmarkWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>Passed validation</Body>
         </div>
-        { this.props.renderValidDocument() }
+        {this.props.renderValidDocument()}
       </div>
     );
   }
@@ -105,7 +105,7 @@ class SampleDocuments extends Component {
           <Icon glyph="XWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>Failed validation</Body>
         </div>
-        { this.props.renderInvalidDocument() }
+        {this.props.renderInvalidDocument()}
       </div>
     );
   }
