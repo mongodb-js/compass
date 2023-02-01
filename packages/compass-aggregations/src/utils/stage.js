@@ -185,6 +185,15 @@ export function isOutputStage(stageOperator) {
   return OUT_OPERATOR_NAMES.has(stageOperator);
 }
 
+/**
+ *
+ * @param {string} stageOperator
+ * @returns {boolean}
+ */
+export function isAtlasOnlyStage(stageOperator) {
+  return ATLAS_ONLY_OPERATOR_NAMES.has(stageOperator);
+}
+
 const STAGE_OPERATOS_MAP = new Map(
   STAGE_OPERATORS.map((stage) => [stage.value, stage])
 );
@@ -256,7 +265,7 @@ export const isLastStageOutputStage = (pipeline) => {
 export const isMissingAtlasStageSupport = (env, operator, serverError) => {
   return (
     ![ADL, ATLAS].includes(env) &&
-    ATLAS_ONLY_OPERATOR_NAMES.has(operator) &&
+    isAtlasOnlyStage(operator) &&
     [
       // Unrecognized pipeline stage name
       40324,
@@ -273,7 +282,7 @@ export const isMissingAtlasStageSupport = (env, operator, serverError) => {
  * @param {string[]} operators
  */
 export const findAtlasOperator = (operators) => {
-  return operators.find((operator) => ATLAS_ONLY_OPERATOR_NAMES.has(operator));
+  return operators.find((operator) => isAtlasOnlyStage(operator));
 };
 
 export function hasSyntaxError(stage) {
