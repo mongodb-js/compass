@@ -14,7 +14,11 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import OutputStagePreview from '../stage-preview/output-stage-preview';
 import { AtlasStagePreview } from '../stage-preview/atlas-stage-preview';
-import { isMissingAtlasStageSupport, isOutputStage } from '../../utils/stage';
+import {
+  isAtlasOnlyStage,
+  isMissingAtlasStageSupport,
+  isOutputStage,
+} from '../../utils/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -191,16 +195,29 @@ export const FocusModeStageInput = connect(
     }
 
     const previousStage = stages[previousStageIndex];
+    const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
+      env,
+      previousStage.stageOperator,
+      previousStage.serverError
+    );
+
+    // If previous stage is an output stage or an atlas only stage
+    // with missing atlas support, we don't show its corresponding
+    // input preview. Instead we show `No Preivew Documents` message.
+    if (
+      isOutputStage(previousStage.stageOperator || '') ||
+      (isAtlasOnlyStage(previousStage.stageOperator || '') &&
+        isMissingAtlasOnlyStageSupport)
+    ) {
+      return null;
+    }
+
     return {
       isLoading: previousStage.loading,
       documents: previousStage.previewDocs,
       stageIndex: previousStageIndex,
       stageOperator: previousStage.stageOperator,
-      isMissingAtlasOnlyStageSupport: isMissingAtlasStageSupport(
-        env,
-        previousStage.stageOperator,
-        previousStage.serverError
-      ),
+      isMissingAtlasOnlyStageSupport,
     };
   }
 )(InputPreview);
