@@ -121,6 +121,14 @@ const UnthemedStageEditor = ({
     stageOperator
   );
 
+  // When the index changes and the value is different from the editor value,
+  // update the editor value.
+  useEffect(() => {
+    if (editorRef.current?.getValue() !== stageValue) {
+      editorRef.current?.setValue(stageValue ?? '');
+    }
+  }, [index]);
+
   useEffect(() => {
     editorRef.current?.focus();
   }, [stageOperator]);
