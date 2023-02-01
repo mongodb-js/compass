@@ -173,10 +173,6 @@ buildvariants:
       - name: test-packaged-app-60x-enterprise
         depends_on: package-compass
 
-      - name: test-packaged-app-latest
-        run_on: rhel80-large
-        depends_on: package-compass
-
   - name: macos
     display_name: MacOS x64 11.00 (Test and Package)
     run_on: macos-1100

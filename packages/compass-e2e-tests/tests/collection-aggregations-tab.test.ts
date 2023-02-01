@@ -292,14 +292,43 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(0, '$search');
 
     await browser.waitUntil(async function () {
-      const textElement = await browser.$(
-        Selectors.atlasOnlyStagePreviewSection(0)
-      );
+      const textElement = await browser.$(Selectors.stagePreview(0));
       const text = await textElement.getText();
       return text.includes(
         'The $search stage is only available with MongoDB Atlas.'
       );
     });
+  });
+
+  it('shows $out stage preview', async function () {
+    await browser.selectStageOperator(0, '$out');
+    await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
+
+    const preview = await browser.$(Selectors.stagePreview(0));
+    const text = await preview.getText();
+
+    expect(text).to.include('Documents will be saved to test.listings.');
+    expect(text).to.include(
+      'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.'
+    );
+  });
+
+  it('shows $merge stage preview', async function () {
+    // $merge operator is supported from 4.2.0
+    if (serverSatisfies('< 4.2.0')) {
+      return this.skip();
+    }
+
+    await browser.selectStageOperator(0, '$merge');
+    await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
+
+    const preview = await browser.$(Selectors.stagePreview(0));
+    const text = await preview.getText();
+
+    expect(text).to.include('Documents will be saved to test.listings.');
+    expect(text).to.include(
+      'The $merge operator will cause the pipeline to persist the results to the specified location.'
+    );
   });
 
   it('shows empty preview', async function () {

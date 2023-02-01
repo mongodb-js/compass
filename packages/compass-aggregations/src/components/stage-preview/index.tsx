@@ -13,11 +13,11 @@ import {
 import { Document } from '@mongodb-js/compass-crud';
 
 import type { RootState } from '../../modules';
-import { isMissingAtlasStageSupport } from '../../utils/stage';
+import { isMissingAtlasStageSupport, isOutputStage } from '../../utils/stage';
 
 import LoadingOverlay from '../loading-overlay';
 import { AtlasStagePreview } from './atlas-stage-preview';
-import { OutStagePreivew, MergeStagePreivew } from './output-stage-preview';
+import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
 
 const centeredContent = css({
@@ -94,7 +94,7 @@ type StagePreviewProps = {
   isLoading: boolean;
   isDisabled: boolean;
   isMissingAtlasOnlyStageSupport: boolean;
-  stageOperator: string;
+  stageOperator: string | null;
   documents: DocumentType[] | null;
   shouldRenderStage: boolean;
 };
@@ -114,24 +114,16 @@ function StagePreviewBody({
   if (isMissingAtlasOnlyStageSupport) {
     return (
       <div className={centeredContent}>
-        <AtlasStagePreview stageOperator={stageOperator} />
+        <AtlasStagePreview stageOperator={stageOperator ?? ''} />
       </div>
     );
   }
 
-  // $out renders its own loader
-  if (stageOperator === '$out') {
+  // $out/$merge renders its own loader
+  if (isOutputStage(stageOperator ?? '')) {
     return (
       <div className={centeredContent}>
-        <OutStagePreivew index={index} />
-      </div>
-    );
-  }
-  // $merge renders its own loader
-  if (stageOperator === '$merge') {
-    return (
-      <div className={centeredContent}>
-        <MergeStagePreivew index={index} />
+        <OutputStagePreivew index={index} />
       </div>
     );
   }
@@ -184,7 +176,10 @@ export function StagePreview(props: StagePreviewProps) {
     );
   }
   return (
-    <div className={containerStyles}>
+    <div
+      className={containerStyles}
+      data-testid={`stage-preview-${props.index}`}
+    >
       <StagePreviewHeader index={props.index} />
       <div className={stagePreviewStyles}>
         <StagePreviewBody {...props} />
@@ -208,7 +203,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
   return {
     isLoading: stage.loading,
     isDisabled: stage.disabled,
-    stageOperator: stage.stageOperator as string,
+    stageOperator: stage.stageOperator,
     shouldRenderStage,
     documents: stage.previewDocs,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
