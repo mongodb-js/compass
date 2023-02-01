@@ -24,7 +24,7 @@ interface ExplainTreeStageProps {
   isShard: boolean;
   details: Record<string, unknown>;
   detailsOpen: boolean;
-  toggleDetails: () => void;
+  onToggleDetailsClick: () => void;
 }
 
 interface ShardViewProps {
@@ -38,7 +38,7 @@ interface StageViewProps {
   curStageExecTimeMS: number;
   prevStageExecTimeMS: number;
   totalExecTimeMS: number;
-  toggleDetails: () => void;
+  onToggleDetailsClick: () => void;
   details: Record<string, unknown>;
   detailsOpen: boolean;
 }
@@ -166,7 +166,7 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
         type="button"
         size="xsmall"
         variant="default"
-        onClick={() => props.toggleDetails()}
+        onClick={() => props.onToggleDetailsClick()}
       >
         Details
       </Button>
@@ -191,7 +191,7 @@ const ExplainTreeStage: React.FunctionComponent<ExplainTreeStageProps> = ({
   highlights = {},
   details = {},
   detailsOpen = false,
-  toggleDetails = () => undefined,
+  onToggleDetailsClick = () => undefined,
 }) => {
   return (
     <KeylineCard
@@ -214,7 +214,7 @@ const ExplainTreeStage: React.FunctionComponent<ExplainTreeStageProps> = ({
             curStageExecTimeMS={curStageExecTimeMS}
             prevStageExecTimeMS={prevStageExecTimeMS}
             totalExecTimeMS={totalExecTimeMS}
-            toggleDetails={toggleDetails}
+            onToggleDetailsClick={onToggleDetailsClick}
             detailsOpen={detailsOpen}
             details={details}
           />

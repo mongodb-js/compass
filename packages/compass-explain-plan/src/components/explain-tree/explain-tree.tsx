@@ -78,7 +78,7 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
           >
             <ExplainTreeStage
               detailsOpen={detailsOpen === key}
-              toggleDetails={() => {
+              onToggleDetailsClick={() => {
                 detailsOpen === key
                   ? setDetailsOpen(null)
                   : setDetailsOpen(key);

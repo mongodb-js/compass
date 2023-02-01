@@ -26,7 +26,7 @@ describe('ExplainStage [Component]', function () {
         totalExecTimeMS={totalExecTimeMS}
         isShard={isShard}
         details={details}
-        toggleDetails={() => {}}
+        onToggleDetailsClick={() => {}}
         detailsOpen={false}
       />
     );

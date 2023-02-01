@@ -76,8 +76,6 @@ const parseExplainTree = (
 };
 
 const extractHighlights = (stage: Omit<ExplainTreeNodeData, 'highlights'>) => {
-  console.log(stage);
-
   switch (stage.name) {
     case 'IXSCAN':
       return {
