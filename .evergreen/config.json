@@ -129,10 +129,7 @@
             "mongodb_version": "latest-alpha",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64"],
-          "run_on_override": {
-            "rhel76-large": "rhel80-large"
-          }
+          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large"]
         }
       ]
     }
