@@ -5,14 +5,19 @@ import React from 'react';
 import ExplainTree from '.';
 
 describe('ExplainTree [Component]', function () {
-  const nodes: any[] = [];
-  const links: any[] = [];
-  const width = 100;
-  const height = 100;
-
   beforeEach(function () {
     render(
-      <ExplainTree nodes={nodes} links={links} width={width} height={height} />
+      <ExplainTree
+        executionStats={{
+          executionSuccess: true,
+          nReturned: 0,
+          executionTimeMillis: 100,
+          totalKeysExamined: 100,
+          totalDocsExamined: 100,
+          executionStages: { stage: 'IXSCAN' } as any,
+          allPlansExecution: [],
+        }}
+      />
     );
   });
 
