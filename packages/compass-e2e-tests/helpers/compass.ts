@@ -21,6 +21,7 @@ import * as Commands from './commands';
 import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
+import semver from 'semver';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -47,6 +48,31 @@ export const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
   // HACK: comparisons don't allow X-Ranges and 5.x or 5.x.x installs 5.2.1 so
   // we can't just map it to 5.0.0
   .replace(/x/g, '999');
+
+export const MONGODB_USE_ENTERPRISE =
+  process.env.MONGODB_USE_ENTERPRISE ?? 'no';
+
+// This will just match any latest available release. We will need to update it
+// when next major version will start rolling out (this is not just something
+// like 999.999.999 because we are checking for `< 7.0.0-alpha` in one test)
+const LATEST_ALPHA = '6.999.999';
+
+export const serverSatisfies = (
+  semverCondition: string,
+  enterpriseExact?: boolean
+) => {
+  return (
+    semver.satisfies(
+      MONGODB_VERSION === 'latest-alpha' ? LATEST_ALPHA : MONGODB_VERSION,
+      semverCondition,
+      { includePrerelease: true }
+    ) &&
+    (typeof enterpriseExact === 'boolean'
+      ? (enterpriseExact && MONGODB_USE_ENTERPRISE === 'yes') ||
+        (!enterpriseExact && MONGODB_USE_ENTERPRISE !== 'yes')
+      : true)
+  );
+};
 
 // For the user data dirs
 let i = 0;

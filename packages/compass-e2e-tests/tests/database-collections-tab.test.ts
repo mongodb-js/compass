@@ -1,9 +1,12 @@
 import { expect } from 'chai';
-import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  serverSatisfies,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
   createDummyCollections,
@@ -203,7 +206,7 @@ describe('Database collections tab', function () {
   });
 
   it('can create a time series collection', async function () {
-    if (semver.lt(MONGODB_VERSION, '5.0.0')) {
+    if (serverSatisfies('< 5.0.0')) {
       return this.skip();
     }
 
@@ -242,7 +245,7 @@ describe('Database collections tab', function () {
   });
 
   it('can create a clustered collection', async function () {
-    if (semver.lt(MONGODB_VERSION, '5.3.0')) {
+    if (serverSatisfies('< 5.3.0')) {
       return this.skip();
     }
 

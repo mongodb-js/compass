@@ -370,7 +370,13 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           source .evergreen/start-docker-envs.sh
 
-          echo "Running tests against packaged app at $COMPASS_APP_PATH..."
+          MONGODB_TYPE="community";
+
+          if [[ "$MONGODB_USE_ENTERPRISE" == "yes" ]]; then
+            MONGODB_TYPE="enterprise"
+          fi
+
+          echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION ($MONGODB_TYPE)..."
 
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/BUILD-14458)"

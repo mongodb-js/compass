@@ -1,5 +1,4 @@
 import chai from 'chai';
-import semver from 'semver';
 import type { Element } from 'webdriverio';
 import { promises as fs } from 'fs';
 import type { CompassBrowser } from '../helpers/compass-browser';
@@ -8,9 +7,9 @@ import {
   afterTests,
   afterTest,
   outputFilename,
+  serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { getStageOperators } from '../helpers/read-stage-operators';
@@ -244,25 +243,25 @@ describe('Collection aggregations tab', function () {
       '$unwind',
     ];
 
-    if (semver.gte(MONGODB_VERSION, '4.1.11')) {
+    if (serverSatisfies('>= 4.1.11')) {
       expectedAggregations.push('$search');
     }
-    if (semver.gte(MONGODB_VERSION, '4.2.0')) {
+    if (serverSatisfies('>= 4.2.0')) {
       expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
     }
-    if (semver.gte(MONGODB_VERSION, '4.4.0')) {
+    if (serverSatisfies('>= 4.4.0')) {
       expectedAggregations.push('$unionWith');
     }
-    if (semver.gte(MONGODB_VERSION, '4.4.9')) {
+    if (serverSatisfies('>= 4.4.9')) {
       expectedAggregations.push('$searchMeta');
     }
-    if (semver.gte(MONGODB_VERSION, '5.0.0')) {
+    if (serverSatisfies('>= 5.0.0')) {
       expectedAggregations.push('$setWindowFields');
     }
-    if (semver.gte(MONGODB_VERSION, '5.1.0')) {
+    if (serverSatisfies('>= 5.1.0')) {
       expectedAggregations.push('$densify');
     }
-    if (semver.gte(MONGODB_VERSION, '5.3.0')) {
+    if (serverSatisfies('>= 5.3.0')) {
       expectedAggregations.push('$fill');
     }
 
@@ -286,21 +285,50 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.1.11')) {
+    if (serverSatisfies('< 4.1.11')) {
       this.skip();
     }
 
     await browser.selectStageOperator(0, '$search');
 
     await browser.waitUntil(async function () {
-      const textElement = await browser.$(
-        Selectors.atlasOnlyStagePreviewSection(0)
-      );
+      const textElement = await browser.$(Selectors.stagePreview(0));
       const text = await textElement.getText();
       return text.includes(
         'The $search stage is only available with MongoDB Atlas.'
       );
     });
+  });
+
+  it('shows $out stage preview', async function () {
+    await browser.selectStageOperator(0, '$out');
+    await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
+
+    const preview = await browser.$(Selectors.stagePreview(0));
+    const text = await preview.getText();
+
+    expect(text).to.include('Documents will be saved to test.listings.');
+    expect(text).to.include(
+      'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.'
+    );
+  });
+
+  it('shows $merge stage preview', async function () {
+    // $merge operator is supported from 4.2.0
+    if (serverSatisfies('< 4.2.0')) {
+      return this.skip();
+    }
+
+    await browser.selectStageOperator(0, '$merge');
+    await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
+
+    const preview = await browser.$(Selectors.stagePreview(0));
+    const text = await preview.getText();
+
+    expect(text).to.include('Documents will be saved to test.listings.');
+    expect(text).to.include(
+      'The $merge operator will cause the pipeline to persist the results to the specified location.'
+    );
   });
 
   it('shows empty preview', async function () {
@@ -619,7 +647,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports $merge as the last stage', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+    if (serverSatisfies('< 4.2.0')) {
       return this.skip();
     }
 
@@ -738,7 +766,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.4.0')) {
+    if (serverSatisfies('< 4.4.0')) {
       // $function expression that we use to simulate slow aggregation is only
       // supported since server 4.4
       this.skip();
