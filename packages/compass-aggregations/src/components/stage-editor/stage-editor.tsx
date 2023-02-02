@@ -6,6 +6,8 @@ import {
   EditorVariant,
   EditorTextCompleter,
   StageAutoCompleter,
+} from '@mongodb-js/compass-editor';
+import type {
   AceEditor,
   CompletionWithServerInfo,
   AceAnnotation,
