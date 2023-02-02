@@ -61,13 +61,13 @@ const menuItemStyles = css({
   },
 });
 
-const directionTooltipStyles = css({
+const tooltipContentStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[3],
   '> *': {
     flexShrink: 0,
-  }
+  },
 });
 
 export const FocusModeModalHeader: React.FunctionComponent<
@@ -163,7 +163,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
                 disabled={isFirst}
                 onClick={onPreviousStage}
                 aria-label="Edit previous stage"
-                >
+              >
                 <Icon
                   size="xsmall"
                   title={null}
@@ -174,7 +174,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
             </span>
           )}
         >
-          <Body className={directionTooltipStyles}>
+          <Body className={tooltipContentStyles}>
             <span>Goto Previous Stage</span>
             <span>Ctrl + Shift + 9</span>
           </Body>
@@ -217,10 +217,10 @@ export const FocusModeModalHeader: React.FunctionComponent<
                   glyph="ChevronRight"
                 ></Icon>
               </Button>
-              </span>
+            </span>
           )}
         >
-          <Body className={directionTooltipStyles}>
+          <Body className={tooltipContentStyles}>
             <span>Goto Next Stage</span>
             <span>Ctrl + Shift + 0</span>
           </Body>
