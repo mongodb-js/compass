@@ -23,13 +23,8 @@ const headerStyles = css({
   flexWrap: 'wrap',
 });
 
-const linkStyles = css({
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-});
-
 const editorStyles = css({
-  height: '100%',
+  flex: 1,
   overflowY: 'auto',
   paddingBottom: spacing[3],
 });
@@ -51,7 +46,6 @@ export const FocusModeStageEditor = ({
         <StageOperatorSelect index={index} />
         {link && (
           <Link
-            className={linkStyles}
             hideExternalIcon={false}
             href={link}
             target="_blank"
