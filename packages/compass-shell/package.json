@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "Compass Shell Plugin",
   "author": {
     "name": "MongoDB Inc",
@@ -55,28 +55,28 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.4.0",
-    "@mongodb-js/compass-logging": "^1.1.1",
-    "@mongodb-js/compass-utils": "^0.1.2",
-    "@mongodb-js/mongodb-redux-common": "^2.0.3",
+    "@mongodb-js/compass-components": "^1.5.0",
+    "@mongodb-js/compass-logging": "^1.1.2",
+    "@mongodb-js/compass-utils": "^0.2.0",
+    "@mongodb-js/mongodb-redux-common": "^2.0.4",
     "@mongosh/node-runtime-worker-thread": "^1.6.2",
-    "compass-preferences-model": "^2.4.0"
+    "compass-preferences-model": "^2.5.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.4.0",
-    "@mongodb-js/compass-logging": "^1.1.1",
-    "@mongodb-js/compass-utils": "^0.1.2",
-    "@mongodb-js/mongodb-redux-common": "^2.0.3",
+    "@mongodb-js/compass-components": "^1.5.0",
+    "@mongodb-js/compass-logging": "^1.1.2",
+    "@mongodb-js/compass-utils": "^0.2.0",
+    "@mongodb-js/mongodb-redux-common": "^2.0.4",
     "@mongosh/node-runtime-worker-thread": "^1.6.2",
-    "compass-preferences-model": "^2.4.0",
+    "compass-preferences-model": "^2.5.0",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.1",
-    "@mongodb-js/mocha-config-compass": "^1.0.1",
+    "@mongodb-js/eslint-config-compass": "^1.0.2",
+    "@mongodb-js/mocha-config-compass": "^1.0.2",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.4",
+    "@mongodb-js/webpack-config-compass": "^1.0.5",
     "@mongosh/browser-repl": "^1.6.2",
     "@mongosh/logging": "^1.6.2",
     "chai": "^4.2.0",
@@ -84,8 +84,8 @@
     "electron": "^22.0.2",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "9.0.2",
-    "hadron-ipc": "^3.1.0",
+    "hadron-app-registry": "9.0.3",
+    "hadron-ipc": "^3.1.1",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
