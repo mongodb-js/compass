@@ -78,7 +78,6 @@ type StageEditorProps = {
   onChange: (index: number, value: string) => void;
 };
 
-
 function useStageCompleter(
   ...args: ConstructorParameters<typeof StageAutoCompleter>
 ): StageAutoCompleter {
@@ -153,15 +152,20 @@ const UnthemedStageEditor = ({
       });
       editorInitialValueRef.current = value;
     }
-  }, [editorRef, editorInitialValueRef, num_stages, index, stageOperator, editor_view_type]);
+  }, [
+    editorRef,
+    editorInitialValueRef,
+    num_stages,
+    index,
+    stageOperator,
+    editor_view_type,
+  ]);
 
   return (
     <div
       className={cx(
         editorContainerStyles,
-        darkMode
-          ? editorContainerStylesDark
-          : editorContainerStylesLight,
+        darkMode ? editorContainerStylesDark : editorContainerStylesLight,
         className
       )}
     >
