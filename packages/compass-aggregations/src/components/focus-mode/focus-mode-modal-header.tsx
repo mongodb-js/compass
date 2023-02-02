@@ -49,9 +49,15 @@ const fakeToggleLabelStyles = css({
   )}ch`,
 });
 
+const menuStyles = css({
+  width: '240px',
+});
+
 const menuItemStyles = css({
   '&:after': {
     content: 'attr(data-hotkey)',
+    position: 'absolute',
+    right: 20, // LG has 20px padding on the right
   },
 });
 
@@ -59,7 +65,9 @@ const directionTooltipStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[3],
-
+  '> *': {
+    flexShrink: 0,
+  }
 });
 
 export const FocusModeModalHeader: React.FunctionComponent<
@@ -147,9 +155,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
       <div className={controlContainerStyles}>
         <Tooltip
           isDisabled={isFirst}
-          className={css({
-            whiteSpace: 'nowrap',
-          })}
           trigger={({ children, ...props }) => (
             <span {...props}>
               {children}
@@ -237,6 +242,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
       </div>
 
       <Menu
+        className={menuStyles}
         open={menuOpen}
         setOpen={setMenuOpen}
         trigger={({ onClick, children }: any) => {
@@ -269,15 +275,15 @@ export const FocusModeModalHeader: React.FunctionComponent<
       >
         <MenuItem
           className={menuItemStyles}
-          data-hotkey="Ctrl + Shift + A"
           onClick={onAddStageAfter}
+          data-hotkey="Ctrl + Shift + A"
         >
           Add stage after
         </MenuItem>
         <MenuItem
           className={menuItemStyles}
-          data-hotkey="Ctrl + Shift + B"
           onClick={onAddStageBefore}
+          data-hotkey="Ctrl + Shift + B"
         >
           Add stage before
         </MenuItem>
