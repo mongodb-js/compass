@@ -62,7 +62,6 @@
     "eslint": "^7.25.0",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
-    "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "typescript": "^4.8.3"
   },
@@ -79,6 +78,7 @@
     "@mongodb-js/mongodb-constants": "^0.1.5",
     "ace-builds": "^1.11.2",
     "polished": "^4.2.2",
+    "prettier": "^2.7.1",
     "react-ace": "^9.5.0",
     "semver": "^7.3.8"
   }
