@@ -1,9 +1,4 @@
-import type {
-  MongoClient,
-  AbstractCursor,
-  Document,
-  AutoEncryptionOptions,
-} from 'mongodb';
+import type { MongoClient, Document, AutoEncryptionOptions } from 'mongodb';
 import type { ClientEncryptionEncryptOptions } from 'mongodb-client-encryption';
 import type { DataService } from './data-service';
 import type {
@@ -410,32 +405,26 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
         return {
           listCollections: (filter: Document, opts: ListCollectionsOptions) => {
             return {
-              toArray: (callback: Parameters<AbstractCursor['toArray']>[0]) => {
-                wrappedClient
+              toArray: async () => {
+                const collectionInfos = await wrappedClient
                   .db(dbName)
                   .listCollections(filter, opts)
-                  .toArray((err, collectionInfos) => {
-                    if (!err) {
-                      err = this._checkListCollectionsForLibmongocryptResult(
-                        dbName,
-                        filter,
-                        (collectionInfos ?? []) as CollectionInfo[]
-                      );
-                      if (err) {
-                        log.error(
-                          mongoLogId(1_001_000_122),
-                          'CSFLECollectionTracker',
-                          'Rejecting listCollections in hooked metaDataClient',
-                          { error: err.message }
-                        );
-                      }
-                    }
-                    if (err) {
-                      callback(err);
-                      return;
-                    }
-                    callback(err, collectionInfos);
-                  });
+                  .toArray();
+                const err = this._checkListCollectionsForLibmongocryptResult(
+                  dbName,
+                  filter,
+                  (collectionInfos ?? []) as CollectionInfo[]
+                );
+                if (err) {
+                  log.error(
+                    mongoLogId(1_001_000_122),
+                    'CSFLECollectionTracker',
+                    'Rejecting listCollections in hooked metaDataClient',
+                    { error: err.message }
+                  );
+                  throw err;
+                }
+                return collectionInfos;
               },
             };
           },
