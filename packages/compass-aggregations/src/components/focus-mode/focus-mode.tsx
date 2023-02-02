@@ -60,7 +60,6 @@ const bodyStyles = css({
   overflow: 'hidden',
 });
 
-
 const inputResizerStyles = css({
   paddingTop: spacing[4],
   paddingRight: spacing[2],
@@ -134,7 +133,8 @@ const FocusModeContent = ({
           right: {
             right: '-9px', // default -5px
           },
-        }}>
+        }}
+      >
         <div className={previewAreaStyles} data-testid="stage-input">
           <FocusModeStageInput />
         </div>
@@ -146,14 +146,14 @@ const FocusModeContent = ({
         <FocusModeStageEditor />
       </div>
       <Resizable
-        defaultSize= {{
+        defaultSize={{
           width: '25%',
           height: 'auto',
         }}
         minWidth={'15%'}
         maxWidth={'40%'}
         className={outputResizerStyles}
-        enable= {{
+        enable={{
           left: true,
         }}
         handleComponent={{
