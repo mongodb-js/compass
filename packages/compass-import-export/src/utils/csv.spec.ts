@@ -197,7 +197,7 @@ describe('placeValue', function () {
 });
 
 function parseHeader(header: string[]): Record<string, PathPart[]> {
-  const parsed = {};
+  const parsed: Record<string, PathPart[]> = {};
   for (const name of header) {
     parsed[name] = parseHeaderName(name);
   }

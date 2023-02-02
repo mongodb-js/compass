@@ -24,7 +24,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('importCSV', function () {
-  let dataService;
+  let dataService: DataServiceImpl;
   let dropCollection;
   let createCollection;
 
@@ -46,7 +46,7 @@ describe('importCSV', function () {
     } catch (err) {
       // ignore
     }
-    await createCollection('db.col');
+    await createCollection('db.col', {});
   });
 
   afterEach(async function () {
@@ -216,7 +216,7 @@ describe('importCSV', function () {
 
       for (const doc of docs) {
         for (const [key, value] of Object.entries(doc)) {
-          if (key === '_id' && (value as any)._bsontype === 'ObjectID') {
+          if (key === '_id' && value._bsontype === 'ObjectID') {
             continue;
           }
           if (['something', 'something_else', 'notes'].includes(key)) {
