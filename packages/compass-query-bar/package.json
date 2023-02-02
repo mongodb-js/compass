@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "8.5.0",
+  "version": "8.5.2",
   "description": "Renders a component for executing MongoDB queries through a GUI",
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
@@ -58,7 +58,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-editor": "^0.4.0",
+    "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/mongodb-constants": "^0.1.5",
     "compass-preferences-model": "^2.5.0",
@@ -97,7 +97,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-editor": "^0.4.0",
+    "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/mongodb-constants": "^0.1.5",
     "compass-preferences-model": "^2.5.0"

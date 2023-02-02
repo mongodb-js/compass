@@ -35,7 +35,6 @@ describe('ExplainStates [Component]', function () {
   const switchToJSONViewSpy = sinon.spy();
   const queryExecuted = sinon.spy();
   const query = {};
-  const treeStages = {};
 
   beforeEach(function () {
     appRegistry.registerRole('Query.QueryBar', {
@@ -53,7 +52,6 @@ describe('ExplainStates [Component]', function () {
         query={query}
         appRegistry={{ localAppRegistry: appRegistry }}
         isEditable={isEditable}
-        treeStages={treeStages}
         queryExecuted={queryExecuted}
       />
     );

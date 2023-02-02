@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-aggregations",
   "productName": "Aggregations plugin",
-  "version": "9.5.0",
+  "version": "9.5.2",
   "apiVersion": "3.0.0",
   "description": "Compass Aggregation Pipeline Builder",
   "main": "dist/index.js",
@@ -40,8 +40,8 @@
   "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-crud": "^13.5.0",
-    "@mongodb-js/compass-editor": "^0.4.0",
+    "@mongodb-js/compass-crud": "^13.5.2",
+    "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/compass-utils": "^0.2.0",
     "@mongodb-js/explain-plan-helper": "^1.0.2",
@@ -99,8 +99,8 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-crud": "^13.5.0",
-    "@mongodb-js/compass-editor": "^0.4.0",
+    "@mongodb-js/compass-crud": "^13.5.2",
+    "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/compass-utils": "^0.2.0",
     "@mongodb-js/explain-plan-helper": "^1.0.2",

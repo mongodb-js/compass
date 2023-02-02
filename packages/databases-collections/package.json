@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-databases-collections",
   "productName": "Compass Databases and Collections Plugin",
   "description": "Plugin for viewing the list of, creating, and dropping databases and collections",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "license": "SSPL",
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
@@ -49,7 +49,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-editor": "^0.4.0",
+    "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/databases-collections-list": "^1.5.0",
     "compass-preferences-model": "^2.5.0",
@@ -91,7 +91,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-editor": "^0.4.0",
+    "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/databases-collections-list": "^1.5.0",
     "compass-preferences-model": "^2.5.0"

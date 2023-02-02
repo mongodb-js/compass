@@ -12,6 +12,8 @@
  * - [ ] inline mode (disabled gutter extensions and adjusted theme)
  * - [ ] autocomplete
  * - [ ] lint annotations (for agg. builder)
+ *
+ * https://jira.mongodb.org/browse/COMPASS-6481
  */
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import type { Command } from '@codemirror/view';
@@ -58,10 +60,10 @@ import {
   useEffectOnChange,
   codePalette,
 } from '@mongodb-js/compass-components';
-import { javascript } from '@codemirror/lang-javascript';
+import { javascriptLanguage } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import { Compartment, EditorState } from '@codemirror/state';
-import type { LanguageSupport } from '@codemirror/language';
+import { LanguageSupport } from '@codemirror/language';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
@@ -263,8 +265,8 @@ type EditorProps = {
   onChangeText?: (text: string, event?: any) => void;
   onLoad?: (editor: EditorView) => void;
   darkMode?: boolean;
-  inline?: boolean;
   showLineNumbers?: boolean;
+  showFoldGutter?: boolean;
   readOnly?: boolean;
   className?: string;
   'data-testid'?: string;
@@ -273,9 +275,31 @@ type EditorProps = {
   | { text?: never; initialText: string }
 );
 
+function createFoldGutterExtension() {
+  return foldGutter({
+    markerDOM(open) {
+      const marker = document.createElement('span');
+      marker.className = `foldMarker foldMarker${open ? 'Open' : 'Closed'}`;
+      marker.ariaHidden = 'true';
+      marker.title = open ? 'Fold code block' : 'Unfold code block';
+      marker.innerHTML = open
+        ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8.679 10.796a.554.554 0 0 1-.858 0L4.64 6.976C4.32 6.594 4.582 6 5.069 6h6.362c.487 0 .748.594.43.976l-3.182 3.82z"/></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M10.796 7.321a.554.554 0 0 1 0 .858l-3.82 3.181c-.382.319-.976.058-.976-.429V4.57c0-.487.594-.748.976-.43l3.82 3.182z"/></svg>`;
+      return marker;
+    },
+  });
+}
+
+const javascriptExpression = javascriptLanguage.configure({
+  // We always use editor to edit single expressions in Compass
+  top: 'SingleExpression',
+});
+
 const languages: Record<EditorLanguage, () => LanguageSupport> = {
   json: json,
-  javascript: javascript,
+  javascript() {
+    return new LanguageSupport(javascriptExpression);
+  },
 };
 
 const BaseEditor: React.FunctionComponent<EditorProps> & {
@@ -289,6 +313,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   },
   language = 'json',
   showLineNumbers = true,
+  showFoldGutter = true,
   darkMode: _darkMode,
   className,
   // TODO: Should disable gutter extensions
@@ -308,11 +333,13 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   const initialLanguage = useRef(language);
   const initialDarkMode = useRef(darkMode);
   const initialShowLineNumbers = useRef(showLineNumbers);
+  const initialShowFoldGutter = useRef(showFoldGutter);
   const containerRef = useRef<HTMLDivElement>(null);
   const languageConfigRef = useRef<Compartment>();
   const readOnlyConfigRef = useRef<Compartment>();
   const themeConfigRef = useRef<Compartment>();
   const showLineNumbersConfigRef = useRef<Compartment>();
+  const showFoldGutterConfigRef = useRef<Compartment>();
   const editorViewRef = useRef<EditorView>();
 
   // Always keep the latest reference of the callbacks
@@ -324,12 +351,15 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       throw new Error("Can't mount editor: DOM node is missing");
     }
 
+    const domNode = containerRef.current;
+
     // Dynamic configuration is an opt-in that requires some special handling
     // https://codemirror.net/examples/config/#dynamic-configuration
     languageConfigRef.current = new Compartment();
     readOnlyConfigRef.current = new Compartment();
     themeConfigRef.current = new Compartment();
     showLineNumbersConfigRef.current = new Compartment();
+    showFoldGutterConfigRef.current = new Compartment();
 
     const editor = (editorViewRef.current = new EditorView({
       doc: initialText.current,
@@ -342,20 +372,9 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           initialShowLineNumbers.current ? lineNumbers() : []
         ),
         history(),
-        foldGutter({
-          markerDOM(open) {
-            const marker = document.createElement('span');
-            marker.className = `foldMarker foldMarker${
-              open ? 'Open' : 'Closed'
-            }`;
-            marker.ariaHidden = 'true';
-            marker.title = open ? 'Fold code block' : 'Unfold code block';
-            marker.innerHTML = open
-              ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8.679 10.796a.554.554 0 0 1-.858 0L4.64 6.976C4.32 6.594 4.582 6 5.069 6h6.362c.487 0 .748.594.43.976l-3.182 3.82z"/></svg>`
-              : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M10.796 7.321a.554.554 0 0 1 0 .858l-3.82 3.181c-.382.319-.976.058-.976-.429V4.57c0-.487.594-.748.976-.43l3.82 3.182z"/></svg>`;
-            return marker;
-          },
-        }),
+        showFoldGutterConfigRef.current.of(
+          initialShowFoldGutter.current ? createFoldGutterExtension() : []
+        ),
         drawSelection(),
         indentOnInput(),
         bracketMatching(),
@@ -364,8 +383,6 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         // autocompletion(),
         // TODO: https://codemirror.net/docs/ref/#lint.lintGutter
         // lintGutter(),
-        highlightActiveLine(),
-        highlightActiveLineGutter(),
         languageConfigRef.current.of(languages[initialLanguage.current]()),
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
@@ -383,7 +400,11 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           // TODO: "Prettify" and "Copy all" commands
         ]),
         readOnlyConfigRef.current.of(
-          EditorState.readOnly.of(initialReadOnly.current)
+          [EditorState.readOnly.of(initialReadOnly.current)].concat(
+            initialReadOnly.current
+              ? []
+              : [highlightActiveLine(), highlightActiveLineGutter()]
+          )
         ),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
@@ -392,11 +413,11 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           }
         }),
       ],
-      parent: containerRef.current,
+      parent: domNode,
     }));
 
     // For debugging / e2e tests purposes
-    (containerRef.current as any)._cm = editor;
+    (domNode as any)._cm = editor;
 
     onLoadRef.current(editor);
 
@@ -424,6 +445,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     }
 
     return () => {
+      delete (domNode as any)._cm;
       editor.destroy();
     };
   }, []);
@@ -437,7 +459,9 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   useEffectOnChange(() => {
     editorViewRef.current?.dispatch({
       effects: readOnlyConfigRef.current?.reconfigure(
-        EditorState.readOnly.of(readOnly)
+        [EditorState.readOnly.of(readOnly)].concat(
+          readOnly ? [] : [highlightActiveLine(), highlightActiveLineGutter()]
+        )
       ),
     });
   }, readOnly);
@@ -457,6 +481,14 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       ),
     });
   }, showLineNumbers);
+
+  useEffectOnChange(() => {
+    editorViewRef.current?.dispatch({
+      effects: showFoldGutterConfigRef.current?.reconfigure(
+        showFoldGutter ? createFoldGutterExtension() : []
+      ),
+    });
+  }, showFoldGutter);
 
   useEffect(() => {
     // Ignore changes to `text` prop if `initialText` was provided
