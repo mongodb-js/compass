@@ -151,7 +151,7 @@ const FocusModeContent = ({
           height: 'auto',
         }}
         minWidth={'15%'}
-        maxWidth={'45%'}
+        maxWidth={'40%'}
         className={outputResizerStyles}
         enable= {{
           left: true,
