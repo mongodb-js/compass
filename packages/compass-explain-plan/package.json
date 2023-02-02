@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-explain-plan",
   "productName": "Explain Plan plugin",
   "description": "Evaluate the performance of your query",
-  "version": "6.5.1",
+  "version": "6.5.2",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -58,7 +58,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-crud": "^13.5.1",
+    "@mongodb-js/compass-crud": "^13.5.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/explain-plan-helper": "^1.0.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
@@ -101,7 +101,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-crud": "^13.5.1",
+    "@mongodb-js/compass-crud": "^13.5.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/explain-plan-helper": "^1.0.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
