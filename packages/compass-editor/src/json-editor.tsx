@@ -60,10 +60,10 @@ import {
   useEffectOnChange,
   codePalette,
 } from '@mongodb-js/compass-components';
-import { javascript } from '@codemirror/lang-javascript';
+import { javascriptLanguage } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import { Compartment, EditorState } from '@codemirror/state';
-import type { LanguageSupport } from '@codemirror/language';
+import { LanguageSupport } from '@codemirror/language';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
@@ -290,9 +290,16 @@ function createFoldGutterExtension() {
   });
 }
 
+const javascriptExpression = javascriptLanguage.configure({
+  // We always use editor to edit single expressions in Compass
+  top: 'SingleExpression',
+});
+
 const languages: Record<EditorLanguage, () => LanguageSupport> = {
   json: json,
-  javascript: javascript,
+  javascript() {
+    return new LanguageSupport(javascriptExpression);
+  },
 };
 
 const BaseEditor: React.FunctionComponent<EditorProps> & {
