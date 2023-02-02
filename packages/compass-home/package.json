@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-home",
   "productName": "Home plugin",
-  "version": "6.6.0",
+  "version": "6.6.1",
   "apiVersion": "3.0.0",
   "description": "Home",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
   "license": "SSPL",
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-connections": "^1.6.0",
+    "@mongodb-js/compass-connections": "^1.6.1",
     "@mongodb-js/compass-settings": "^0.7.0",
     "@mongodb-js/compass-welcome": "^0.4.0",
     "compass-preferences-model": "^2.5.0",
@@ -49,7 +49,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-connections": "^1.6.0",
+    "@mongodb-js/compass-connections": "^1.6.1",
     "@mongodb-js/compass-settings": "^0.7.0",
     "@mongodb-js/compass-welcome": "^0.4.0",
     "compass-preferences-model": "^2.5.0",
