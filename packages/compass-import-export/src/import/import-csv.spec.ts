@@ -8,6 +8,7 @@ import { Readable } from 'stream';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
+import chaiAsPromised from 'chai-as-promised';
 
 import { DataServiceImpl } from 'mongodb-data-service';
 
@@ -20,6 +21,7 @@ import type { PathPart } from '../utils/csv';
 
 const { expect } = chai;
 chai.use(sinonChai);
+chai.use(chaiAsPromised);
 
 describe('importCSV', function () {
   let dataService;
@@ -415,6 +417,7 @@ describe('importCSV', function () {
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      stopOnErrors: true,
     });
 
     await expect(promise).to.be.rejectedWith(
@@ -437,6 +440,7 @@ describe('importCSV', function () {
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      stopOnErrors: true,
     });
 
     await expect(promise).to.be.rejectedWith(

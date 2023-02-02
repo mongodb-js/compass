@@ -47,7 +47,33 @@ export async function importCSV({
   const docStream = new Transform({
     objectMode: true,
     transform: function (chunk: Record<string, string>, encoding, callback) {
+      if (!parsedHeader) {
+        parsedHeader = {};
+        for (const [index, name] of headerFields.entries()) {
+          try {
+            parsedHeader[name] = parseHeaderName(name);
+          } catch (err: unknown) {
+            // rethrow with the row and column indexes appended to aid debugging
+            // TODO: this needs a test
+            (err as Error).message = `${
+              (err as Error).message
+            }[Row 0][Col ${index}]`;
+            debug('parseHeaderName error', (err as Error).message);
+
+            // If this fails, the whole file will stop processing regardless of
+            // the value of stopOnErrors because it is not recoverable if we
+            // can't make sense of the header row.
+            return callback(err as Error);
+          }
+        }
+      }
+
+      // Call progress and increase the number processed even if it errors
+      // below. The collection write stream stats at the end stores how many
+      // got written. This way progress updates continue even if every row
+      // fails to parse.
       ++numProcessed;
+      progressCallback?.(numProcessed);
 
       debug('importCSV:transform', numProcessed, {
         headerFields,
@@ -57,27 +83,25 @@ export async function importCSV({
         encoding,
       });
 
-      if (!parsedHeader) {
-        parsedHeader = {};
-        for (const name of headerFields) {
-          parsedHeader[name] = parseHeaderName(name);
-        }
-      }
-
       try {
         const doc = makeDoc(chunk, headerFields, parsedHeader, fields, {
           ignoreEmptyStrings,
         });
         debug('transform', doc);
-        progressCallback?.(numProcessed);
         callback(null, doc);
       } catch (err: unknown) {
         // rethrow with the row index appended to aid debugging
         (err as Error).message = `${
           (err as Error).message
         }[Row ${numProcessed}]`;
-        debug('transform error', (err as Error).message);
-        callback(err as Error);
+
+        if (stopOnErrors) {
+          callback(err as Error);
+        } else {
+          // TODO: keep the error somewhere
+          debug('transform error', (err as Error).message);
+          callback();
+        }
       }
     },
   });

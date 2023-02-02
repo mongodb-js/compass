@@ -1,13 +1,23 @@
 import _ from 'lodash';
 import assert from 'assert';
 import type { Document } from 'mongodb';
-import { Double, Int32, Long } from 'bson';
+import {
+  Double,
+  Int32,
+  Long,
+  Binary,
+  BSONRegExp,
+  ObjectId,
+  Timestamp,
+  Decimal128,
+  UUID,
+} from 'bson';
 
 export const supportedDelimiters = [',', '\t', ';', ' '];
 export type Delimiter = typeof supportedDelimiters[number];
 
 // the subset of bson types that we can detect
-export type CSVFieldType =
+export type CSVDetectableFieldType =
   | 'int'
   | 'long'
   | 'double'
@@ -17,9 +27,35 @@ export type CSVFieldType =
   | 'null'
   | 'undefined';
 
-export type IncludedFields = Record<string, CSVFieldType | 'mixed'>;
+// the subset of bson types that we can parse
+export type CSVParsableFieldType =
+  | CSVDetectableFieldType
+  | 'objectId'
+  | 'binData'
+  | 'uuid'
+  | 'md5'
+  | 'timestamp'
+  | 'decimal'
+  | 'regex'
+  | 'number'
+  | 'mixed';
 
-export type CSVValue = Double | Int32 | Long | Date | boolean | string | null;
+export type IncludedFields = Record<string, CSVParsableFieldType>;
+
+export type CSVValue =
+  | Double
+  | Int32
+  | Long
+  | Date
+  | boolean
+  | string
+  | null
+  | Binary
+  | Timestamp
+  | ObjectId
+  | BSONRegExp
+  | Decimal128
+  | UUID;
 
 export function csvHeaderNameToFieldName(name: string) {
   return name.replace(/\[\d+\]/g, '');
@@ -48,19 +84,21 @@ const FLOAT = /^\s*-?(\d+\.?|\.\d+|\d+\.\d+)([eE][-+]?\d+)?\s*$/;
 // from papaparse: https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1025
 const ISO_DATE =
   /^((\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)))$/;
+const TRUTHY_STRINGS = ['true', 'TRUE', 'True'];
+const FALSY_STRINGS = ['false', 'FALSE', 'False'];
+const NULL_STRINGS = ['Null', 'NULL', 'null'];
 
 export function detectFieldType(
   value: string,
   ignoreEmptyStrings?: boolean
-): CSVFieldType {
-  // mongoexport and existing compass style nulls
-  if (value === '' || value === undefined) {
+): CSVDetectableFieldType {
+  if (value === '') {
     return ignoreEmptyStrings ? 'undefined' : 'string';
-  } else if (value === 'Null') {
+  } else if (NULL_STRINGS.includes(value)) {
     return 'null';
-  } else if (value === 'true' || value === 'TRUE') {
+  } else if (TRUTHY_STRINGS.includes(value)) {
     return 'boolean';
-  } else if (value === 'false' || value === 'FALSE') {
+  } else if (FALSY_STRINGS.includes(value)) {
     return 'boolean';
   } else if (FLOAT.test(value)) {
     // first separate floating point numbers from integers
@@ -123,7 +161,9 @@ export function placeValue(
     // (Also checking _bsontype because `new Int32()` also results in an object,
     // but that's not what we mean.)
     assert(
-      _.isObject(parent) && !(parent as Document)._bsontype,
+      _.isObject(parent) &&
+        !(parent as Document)._bsontype &&
+        !Array.isArray(parent),
       'parent must be an object'
     );
 
@@ -182,6 +222,14 @@ export function makeDoc(
     if (type === 'mixed') {
       type = detectFieldType(original, ignoreEmptyStrings);
     }
+    if (type === 'number') {
+      type = detectFieldType(original, ignoreEmptyStrings);
+      if (!['int', 'long', 'double'].includes(type)) {
+        throw new Error(
+          `"${original}" is not a number (found "${type}") [Col ${index}]`
+        );
+      }
+    }
 
     const path = parsedHeader[name];
 
@@ -199,39 +247,110 @@ export function makeDoc(
   return doc;
 }
 
-export function parseValue(value: string, type: CSVFieldType): CSVValue {
+export function parseValue(
+  value: string,
+  type: CSVParsableFieldType
+): CSVValue {
   if (type === 'int') {
+    if (isNaN(+value)) {
+      throw new Error(`"${value}" is not a number`);
+    }
+
     return new Int32(value);
   }
 
   if (type === 'long') {
+    if (isNaN(+value)) {
+      throw new Error(`"${value}" is not a number`);
+    }
+
     return new Long(value);
   }
 
   if (type === 'double') {
+    if (isNaN(+value)) {
+      throw new Error(`"${value}" is not a number`);
+    }
+
     return new Double(parseFloat(value));
   }
 
   if (type === 'boolean') {
-    if (value === 'true' || value === 'TRUE') {
+    // only using '1' and '0' when explicitly parsing, not when detecting so that those are left as ints
+    if (TRUTHY_STRINGS.includes(value) || value === '1') {
       return true;
     }
-    return false;
+
+    if (FALSY_STRINGS.includes(value) || value === '0') {
+      return false;
+    }
+
+    return Boolean(value);
   }
 
   if (type === 'date') {
+    let date;
     if (ISO_DATE.test(value)) {
       // iso string
-      return new Date(value);
+      date = new Date(value);
+    } else {
+      // fall back to assuming it is an int64 value
+      // NOTE: this won't be detected as date, so the user can only get here by
+      // explicitly selecting date
+      date = new Date(+value);
     }
-    // fall back to assuming it is an int64 value
-    return new Date(+value);
+
+    if (date.toString() === 'Invalid Date') {
+      throw new Error(`"${value}" is not a date`);
+    }
+
+    return date;
   }
 
   if (type === 'null') {
-    // This will only match an explicit 'Null' in the CSV file because empty
-    // strings are handled separately already.
+    // At the time of writing the only way to get here is if the user selects
+    // mixed and it detects the type as null. Null is not an option in the
+    // dropdown.
     return null;
+  }
+
+  // The rest (other than the string fallback at the bottom) can't be detected
+  // at the the time of writing, so the user will have to explicitly select it
+  // from the dropdown.
+
+  if (type === 'objectId') {
+    // NOTE: this can throw
+    return new ObjectId(value);
+  }
+
+  if (type === 'binData') {
+    return new Binary(Buffer.from(value), Binary.SUBTYPE_DEFAULT);
+  }
+
+  if (type === 'uuid') {
+    // NOTE: this can throw
+    return new UUID(value);
+  }
+
+  if (type === 'md5') {
+    return new Binary(Buffer.from(value), Binary.SUBTYPE_MD5);
+  }
+
+  if (type === 'timestamp') {
+    if (isNaN(+value)) {
+      throw new Error(`"${value}" is not a number`);
+    }
+
+    return Timestamp.fromString(value, 10);
+  }
+
+  if (type === 'decimal') {
+    // NOTE: this can throw
+    return Decimal128.fromString(value);
+  }
+
+  if (type === 'regex') {
+    return new BSONRegExp(value);
   }
 
   // By default leave it as a string
@@ -249,7 +368,7 @@ export function parseHeaderName(value: string): PathPart[] {
     if (type === 'field') {
       if (char === '[') {
         // this snippet length check is for:
-        // 1. nested arrays (because closing an array default to type field)
+        // 1. nested arrays (because closing an array defaults to type field)
         // 2. top-level array paths like [0].foo
         if (snippet.length) {
           parts.push({ type: 'field', name: snippet.join('') });
@@ -280,7 +399,11 @@ export function parseHeaderName(value: string): PathPart[] {
       }
     } else {
       if (char === ']') {
-        parts.push({ type: 'index', index: parseInt(snippet.join(''), 10) });
+        const index = +snippet.join('');
+        if (isNaN(index)) {
+          throw new Error(`"${snippet.join('')}" is not a number`);
+        }
+        parts.push({ type: 'index', index });
         previousType = type;
         type = 'field';
         snippet = [];
@@ -298,13 +421,17 @@ export function parseHeaderName(value: string): PathPart[] {
     if (type === 'index') {
       // shouldn't be possible unless the path is broken in a way where it ends
       // after [ but before ].
-      parts.push({ type: 'index', index: parseInt(snippet.join(''), 10) });
+      const index = +snippet.join('');
+      if (isNaN(index)) {
+        throw new Error(`"${snippet.join('')}" is not a number`);
+      }
+      parts.push({ type: 'index', index });
     }
   } else if (
     parts.length === 0 ||
     (value.length > 0 && value[value.length - 1] === '.')
   ) {
-    // this supports the edge case where te field name is a blank string (either
+    // this supports the edge case where the field name is a blank string (either
     // the whole field is a blank string or the last object field was a blank
     // string)
     parts.push({ type: 'field', name: '' });

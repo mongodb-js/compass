@@ -2,7 +2,11 @@ import type { Readable } from 'stream';
 import Papa from 'papaparse';
 
 import { createDebug } from '../utils/logger';
-import type { Delimiter, CSVFieldType } from '../utils/csv';
+import type {
+  Delimiter,
+  CSVDetectableFieldType,
+  CSVParsableFieldType,
+} from '../utils/csv';
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
 
 const debug = createDebug('analyze-csv-fields');
@@ -38,9 +42,9 @@ rows once it becomes field foo and so does foo[0].bar,foo[1].bar once it becomes
 foo.bar.
 */
 type CSVField = {
-  types: Record<CSVFieldType, CSVFieldTypeInfo>;
+  types: Record<CSVDetectableFieldType, CSVFieldTypeInfo>;
   columnIndexes: number[];
-  detected: CSVFieldType | 'mixed';
+  detected: CSVParsableFieldType;
 };
 
 type AnalyzeCSVFieldsResult = {
@@ -98,12 +102,12 @@ function addRowToResult(
   }
 }
 
-function pickFieldType(field: CSVField): CSVFieldType | 'mixed' {
+function pickFieldType(field: CSVField): CSVParsableFieldType {
   const types = Object.keys(field.types);
 
   if (types.length === 1) {
     // If there's only one detected type, go with that.
-    return types[0] as CSVFieldType;
+    return types[0] as CSVDetectableFieldType;
   }
 
   if (types.length === 2) {
@@ -112,7 +116,7 @@ function pickFieldType(field: CSVField): CSVFieldType | 'mixed' {
       // If there are two detected types and one is undefined (ie. an ignored
       // empty string), go with the non-undefined one because undefined values
       // are special-cased during import.
-      return filtered[0] as CSVFieldType;
+      return filtered[0] as CSVDetectableFieldType;
     }
   }
 
