@@ -7,31 +7,41 @@ export async function selectStageOperator(
   index: number,
   stageOperator: string
 ): Promise<void> {
-  const comboboxSelector = Selectors.stagePickerComboboxInput(index);
-  const textareaSelector = Selectors.stageTextarea(index);
-
-  await focusStageOperator(browser, index);
-
-  await browser.setValueVisible(comboboxSelector, stageOperator);
-
-  await browser.keys(['Enter']);
-
-  // the "select" should now blur and the ace textarea become focused
+  // The ComboBox auto scrolls when other stages' preview documents load.
+  // As a result we sometimes need to re-select a stage when the
+  // scrolling selection on the ComboBox reset and mis-clicked.
   await browser.waitUntil(async () => {
-    const inputElement = await browser.$(comboboxSelector);
-    const isFocused = await inputElement.isFocused();
-    return isFocused === false;
-  });
+    const comboboxSelector = Selectors.stagePickerComboboxInput(index);
+    const textareaSelector = Selectors.stageTextarea(index);
 
-  const stageSelectorListBoxElement = await browser.$(
-    Selectors.stagePickerListBox(index)
-  );
+    await focusStageOperator(browser, index);
 
-  await stageSelectorListBoxElement.waitForDisplayed({ reverse: true });
+    await browser.setValueVisible(comboboxSelector, stageOperator);
 
-  await browser.waitUntil(async () => {
-    const textareaElement = await browser.$(textareaSelector);
-    const isFocused = await textareaElement.isFocused();
-    return isFocused === true;
+    await browser.keys(['Enter']);
+
+    // the "select" should now blur and the ace textarea become focused
+    await browser.waitUntil(async () => {
+      const inputElement = await browser.$(comboboxSelector);
+      const isFocused = await inputElement.isFocused();
+      return isFocused === false;
+    });
+
+    const stageSelectorListBoxElement = await browser.$(
+      Selectors.stagePickerListBox(index)
+    );
+
+    await stageSelectorListBoxElement.waitForDisplayed({ reverse: true });
+
+    await browser.waitUntil(async () => {
+      const textareaElement = await browser.$(textareaSelector);
+      const isFocused = await textareaElement.isFocused();
+      return isFocused === true;
+    });
+
+    const textareaElement = await browser.$(comboboxSelector);
+    const text = await textareaElement.getValue();
+
+    return text === stageOperator;
   });
 }
