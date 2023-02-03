@@ -440,6 +440,18 @@ export function parseHeaderName(value: string): PathPart[] {
   return parts;
 }
 
+export function formatHeaderName(path: PathPart[]): string {
+  return path
+    .map((part, index) => {
+      if (part.type === 'field') {
+        return `${index === 0 ? '' : '.'}${part.name}`;
+      } else {
+        return `[${part.index}]`;
+      }
+    })
+    .join('');
+}
+
 export type ErrorJSON = {
   name: string;
   message: string;

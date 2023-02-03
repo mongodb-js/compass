@@ -22,6 +22,7 @@ import { fixtures } from '../../test/fixtures';
 import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
 import { importCSV } from './import-csv';
+import { formatHeaderName } from '../utils/csv';
 import type { PathPart, ErrorJSON } from '../utils/csv';
 
 const { expect } = chai;
@@ -689,7 +690,7 @@ function checkType(path: PathPart[], value: any, type: string) {
     return;
   }
 
-  const joinedPath = joinPath(path);
+  const joinedPath = formatHeaderName(path);
 
   switch (type) {
     case 'boolean':
@@ -755,20 +756,6 @@ function checkType(path: PathPart[], value: any, type: string) {
       );
       throw new Error(`No check for ${type} at ${joinedPath}.`);
   }
-}
-
-// TODO: Move to csv.ts as the inverse of parseHeaderName(). We'll need it again
-// when exporting CSV.
-function joinPath(path: PathPart[]) {
-  return path
-    .map((part, index) => {
-      if (part.type === 'field') {
-        return `${index === 0 ? '' : '.'}${part.name}`;
-      } else {
-        return `[${part.index}]`;
-      }
-    })
-    .join('');
 }
 
 function formatErrorLines(errors: ErrorJSON[]) {
