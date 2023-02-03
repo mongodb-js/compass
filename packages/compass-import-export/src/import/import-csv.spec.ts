@@ -1,6 +1,8 @@
+import os from 'os';
 import _ from 'lodash';
 import assert from 'assert';
 import { EJSON } from 'bson';
+import type { Document } from 'bson';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -9,6 +11,9 @@ import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
+import temp from 'temp';
+
+temp.track();
 
 import { DataServiceImpl } from 'mongodb-data-service';
 
@@ -17,7 +22,7 @@ import { fixtures } from '../../test/fixtures';
 import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
 import { importCSV } from './import-csv';
-import type { PathPart } from '../utils/csv';
+import type { PathPart, ErrorJSON } from '../utils/csv';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -27,6 +32,7 @@ describe('importCSV', function () {
   let dataService: DataServiceImpl;
   let dropCollection;
   let createCollection;
+  let updateCollection: (ns: string, options: any) => Promise<Document>;
 
   beforeEach(async function () {
     dataService = new DataServiceImpl({
@@ -37,6 +43,10 @@ describe('importCSV', function () {
 
     createCollection = promisify(
       dataService.createCollection.bind(dataService)
+    );
+
+    updateCollection = promisify(
+      dataService.updateCollection.bind(dataService)
     );
 
     await dataService.connect();
@@ -80,11 +90,14 @@ describe('importCSV', function () {
         (field) => field.detected
       );
 
+      const output = temp.createWriteStream();
+
       const stats = await importCSV({
         dataService,
         ns,
         fields,
         input: fs.createReadStream(filepath),
+        output,
         delimiter: csvDelimiter,
         abortSignal: abortController.signal,
         progressCallback,
@@ -188,11 +201,14 @@ describe('importCSV', function () {
         (field) => (type === 'date' ? 'date' : field.detected)
       );
 
+      const output = temp.createWriteStream();
+
       const stats = await importCSV({
         dataService,
         ns,
         fields,
         input: fs.createReadStream(filepath),
+        output,
         delimiter: csvDelimiter,
         abortSignal: abortController.signal,
         progressCallback,
@@ -245,11 +261,14 @@ describe('importCSV', function () {
       b: 'int',
     } as const;
 
+    const output = temp.createWriteStream();
+
     const stats = await importCSV({
       dataService,
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      output,
       progressCallback,
     });
 
@@ -289,11 +308,14 @@ describe('importCSV', function () {
       'foo..bar': 'int',
     } as const;
 
+    const output = temp.createWriteStream();
+
     await importCSV({
       dataService,
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      output,
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -326,11 +348,14 @@ describe('importCSV', function () {
       'b.c': 'int',
     } as const;
 
+    const output = temp.createWriteStream();
+
     await importCSV({
       dataService,
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      output,
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -355,11 +380,14 @@ describe('importCSV', function () {
       '': 'int',
     } as const;
 
+    const output = temp.createWriteStream();
+
     await importCSV({
       dataService,
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      output,
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -382,11 +410,14 @@ describe('importCSV', function () {
       '.b': 'int',
     } as const;
 
+    const output = temp.createWriteStream();
+
     await importCSV({
       dataService,
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      output,
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -402,7 +433,7 @@ describe('importCSV', function () {
     });
   });
 
-  it('errors when a field is simultaneously a simple value and an object', async function () {
+  it('errors when a field is simultaneously a simple value and an object (stopOnErrors=true)', async function () {
     const lines = ['a,a.b', '1,2'];
 
     const ns = 'db.col';
@@ -412,11 +443,14 @@ describe('importCSV', function () {
       'a.b': 'int',
     } as const;
 
+    const output = temp.createWriteStream();
+
     const promise = importCSV({
       dataService,
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      output,
       stopOnErrors: true,
     });
 
@@ -426,7 +460,7 @@ describe('importCSV', function () {
     );
   });
 
-  it('errors when a field is simultaneously a simple value and an array', async function () {
+  it('errors when a field is simultaneously a simple value and an array (stopOnErrors=true)', async function () {
     const lines = ['a,a[0]', '1,2'];
 
     const ns = 'db.col';
@@ -435,11 +469,14 @@ describe('importCSV', function () {
       a: 'int',
     } as const;
 
+    const output = temp.createWriteStream();
+
     const promise = importCSV({
       dataService,
       ns,
       fields,
       input: Readable.from(lines.join('\n')),
+      output,
       stopOnErrors: true,
     });
 
@@ -447,6 +484,133 @@ describe('importCSV', function () {
       assert.AssertionError,
       'parent must be an array [Col 1][Row 1]'
     );
+  });
+
+  it('reports and writes parse errors (stopOnErrors=false)', async function () {
+    const lines = [
+      'a,b',
+      '1,2',
+      'a,3', // a is not an int
+      '4,b', // b is not an int
+    ];
+
+    const ns = 'db.col';
+
+    const fields = {
+      a: 'int',
+      b: 'int',
+    } as const;
+
+    const output = temp.createWriteStream();
+    const progressCallback = sinon.spy();
+    const errorCallback = sinon.spy();
+
+    const stats = await importCSV({
+      dataService,
+      ns,
+      fields,
+      input: Readable.from(lines.join('\n')),
+      output,
+      stopOnErrors: false,
+      progressCallback,
+      errorCallback,
+    });
+
+    expect(stats.nInserted).to.equal(1);
+
+    expect(progressCallback.callCount).to.equal(3);
+    expect(errorCallback.callCount).to.equal(2);
+
+    const expectedErrors = [
+      {
+        name: 'Error',
+        message: '"a" is not a number [Col 0][Row 2]',
+      },
+      {
+        name: 'Error',
+        message: '"b" is not a number [Col 1][Row 3]',
+      },
+    ];
+
+    const errors = errorCallback.args.map((args) => args[0]);
+
+    expect(errors).to.deep.equal(expectedErrors);
+
+    const errorsText = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorsText).to.equal(formatErrorLines(expectedErrors));
+  });
+
+  it('reports and writes database errors (stopOnErrors=false)', async function () {
+    const lines = ['a,b', '1,2', '3,4', '5,6'];
+
+    const ns = 'db.col';
+
+    const fields = {
+      a: 'int',
+      b: 'int',
+    } as const;
+
+    const output = temp.createWriteStream();
+    const progressCallback = sinon.spy();
+    const errorCallback = sinon.spy();
+
+    await updateCollection(ns, {
+      validator: {
+        $jsonSchema: {
+          required: ['xxx'],
+        },
+      },
+    });
+
+    const stats = await importCSV({
+      dataService,
+      ns,
+      fields,
+      input: Readable.from(lines.join('\n')),
+      output,
+      stopOnErrors: false,
+      progressCallback,
+      errorCallback,
+    });
+
+    expect(stats.nInserted).to.equal(0);
+
+    expect(progressCallback.callCount).to.equal(3);
+    expect(errorCallback.callCount).to.equal(4); // yes one more MongoBulkWriteError than items in the batch
+
+    const expectedErrors = [
+      {
+        // first one speems to relate to the batch as there's no index
+        name: 'MongoBulkWriteError',
+        message: 'Document failed validation',
+        code: 121,
+      },
+      {
+        name: 'WriteConcernError',
+        message: 'Document failed validation',
+        index: 0,
+        code: 121,
+      },
+      {
+        name: 'WriteConcernError',
+        message: 'Document failed validation',
+        index: 1,
+        code: 121,
+      },
+      {
+        name: 'WriteConcernError',
+        message: 'Document failed validation',
+        index: 2,
+        code: 121,
+      },
+    ];
+
+    const errors = errorCallback.args.map((args) => args[0]);
+
+    expect(errors).to.deep.equal(expectedErrors);
+
+    const errorsText = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorsText).to.equal(formatErrorLines(expectedErrors));
   });
 
   it('responds to abortSignal.aborted', async function () {
@@ -457,11 +621,14 @@ describe('importCSV', function () {
     const ns = 'db.col';
     const fields = {};
 
+    const output = temp.createWriteStream();
+
     const stats = await importCSV({
       dataService,
       ns,
       fields,
       input: fs.createReadStream(fixtures.csv.complex),
+      output,
       abortSignal: abortController.signal,
     });
 
@@ -575,4 +742,8 @@ function joinPath(path: PathPart[]) {
       }
     })
     .join('');
+}
+
+function formatErrorLines(errors: ErrorJSON[]) {
+  return errors.map((err) => JSON.stringify(err)).join(os.EOL) + os.EOL;
 }

@@ -1,14 +1,20 @@
+import os from 'os';
 import { Transform } from 'stream';
 import { pipeline } from 'stream/promises';
-import type { Readable } from 'stream';
+import type { Readable, Writable } from 'stream';
 import Papa from 'papaparse';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import type { CollectionStreamStats } from '../utils/collection-stream';
-import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
-import { makeDoc, parseHeaderName } from '../utils/csv';
+import { makeDoc, parseHeaderName, errorToJSON } from '../utils/csv';
+import type {
+  Delimiter,
+  IncludedFields,
+  PathPart,
+  ErrorJSON,
+} from '../utils/csv';
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('import-csv');
@@ -17,8 +23,10 @@ type ImportCSVOptions = {
   dataService: DataService;
   ns: string;
   input: Readable;
+  output: Writable;
   abortSignal?: AbortSignal;
   progressCallback?: (index: number) => void;
+  errorCallback?: (error: ErrorJSON) => void;
   delimiter?: Delimiter;
   ignoreEmptyStrings?: boolean;
   stopOnErrors?: boolean;
@@ -31,8 +39,10 @@ export async function importCSV({
   dataService,
   ns,
   input,
+  output,
   abortSignal,
   progressCallback,
+  errorCallback,
   delimiter = ',',
   ignoreEmptyStrings,
   stopOnErrors,
@@ -98,9 +108,12 @@ export async function importCSV({
         if (stopOnErrors) {
           callback(err as Error);
         } else {
-          // TODO: keep the error somewhere
-          debug('transform error', (err as Error).message);
-          callback();
+          const transformedError = errorToJSON(err);
+          debug('transform error', transformedError);
+          errorCallback?.(transformedError);
+          output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
+            callback()
+          );
         }
       }
     },
@@ -130,10 +143,32 @@ export async function importCSV({
     ...(abortSignal ? [{ signal: abortSignal }] : []),
   ] as const;
 
+  // This is temporary until we change WritableCollectionStream so it can pipe
+  // us its errors as they occur.
+  async function processWriteStreamErrors() {
+    const errors = collectionStream.getErrors();
+    const stats = collectionStream.getStats();
+    const allErrors = errors
+      .concat(stats.writeErrors)
+      .concat(stats.writeConcernErrors);
+
+    for (const error of allErrors) {
+      const transformedError = errorToJSON(error);
+      debug('write error', transformedError);
+      errorCallback?.(transformedError);
+      await new Promise<void>((resolve) => {
+        output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
+          resolve()
+        );
+      });
+    }
+  }
+
   try {
     await pipeline(...params);
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
+      await processWriteStreamErrors();
       return {
         ...collectionStream.getStats(),
         aborted: true,
@@ -142,5 +177,6 @@ export async function importCSV({
     throw err;
   }
 
+  await processWriteStreamErrors();
   return collectionStream.getStats();
 }

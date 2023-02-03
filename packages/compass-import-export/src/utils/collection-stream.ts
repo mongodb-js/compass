@@ -242,6 +242,10 @@ export class WritableCollectionStream extends Writable {
     );
   }
 
+  getErrors() {
+    return this._errors;
+  }
+
   getStats() {
     return this._stats;
   }

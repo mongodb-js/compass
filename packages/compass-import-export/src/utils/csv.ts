@@ -439,3 +439,35 @@ export function parseHeaderName(value: string): PathPart[] {
 
   return parts;
 }
+
+export type ErrorJSON = {
+  name: string;
+  message: string;
+  index?: number;
+  code?: string | number;
+  op?: any;
+  errorInfo?: Document;
+  /*
+  e.index = index;
+  e.code = code;
+  e.op = op;
+  e.errInfo = errInfo;
+  // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/#mongodb-data-BulkWriteResult.writeErrors
+  e.name = index && op ? 'WriteError' : 'WriteConcernError';
+*/
+};
+
+export function errorToJSON(error: any): ErrorJSON {
+  const obj: ErrorJSON = {
+    name: error.name,
+    message: error.message,
+  };
+
+  for (const key of ['index', 'code', 'op', 'errorInfo'] as const) {
+    if (error[key] !== undefined) {
+      obj[key] = error[key];
+    }
+  }
+
+  return obj;
+}
