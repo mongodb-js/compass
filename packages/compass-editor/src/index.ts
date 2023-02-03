@@ -13,3 +13,4 @@ export type { FormatOptions } from './prettify';
 export { Editor } from './multiline-editor';
 export { JSONEditor } from './json-editor';
 export type { EditorView } from './json-editor';
+export { SyntaxHighlight } from './syntax-highlight';
