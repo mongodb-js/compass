@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Thu Feb 02 2023.
+This document was automatically generated on Fri Feb 03 2023.
 
 ## List of dependencies
 
@@ -45,7 +45,7 @@ Package|Version|License
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
 **[minimist](#837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d)**|1.2.6|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb-client-encryption](#4321ebf384404400e1d788d41b9cf9cd6d10069e850727f601eab73d6f9baa0f)**|2.3.0|Apache-2.0
+**[mongodb-client-encryption](#cdf8e70b5734ec3b78ed8ca9973c660cdc125af146379fc4587b3681bc895b11)**|2.4.0|Apache-2.0
 **[mongodb-compass](#83bc011aa472d9fe55460f83c3fcfc98ca134ed763686df7a4bc080171ccb917)**|0.0.1-dev.0|SSPL
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
@@ -1997,8 +1997,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="4321ebf384404400e1d788d41b9cf9cd6d10069e850727f601eab73d6f9baa0f"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.3.0)
+<a id="cdf8e70b5734ec3b78ed8ca9973c660cdc125af146379fc4587b3681bc895b11"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.4.0)
 <!-- initially found at node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
