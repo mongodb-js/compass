@@ -162,7 +162,7 @@ export function analyzeCSVFields({
 
         ++result.totalRows;
 
-        progressCallback && progressCallback(result.totalRows);
+        progressCallback?.(result.totalRows);
       },
       complete: function () {
         debug('analyzeCSVFields:complete');
