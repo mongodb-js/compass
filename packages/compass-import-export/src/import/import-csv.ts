@@ -110,8 +110,13 @@ export async function importCSV({
           const transformedError = errorToJSON(err);
           debug('transform error', transformedError);
           errorCallback?.(transformedError);
-          output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
-            callback()
+          output.write(
+            JSON.stringify(transformedError) + os.EOL,
+            'utf8',
+            (err: any) => {
+              debug('error while writing error', err);
+              callback();
+            }
           );
         }
       }
@@ -155,11 +160,15 @@ export async function importCSV({
       const transformedError = errorToJSON(error);
       debug('write error', transformedError);
       errorCallback?.(transformedError);
-      await new Promise<void>((resolve) => {
-        output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
-          resolve()
-        );
-      });
+      try {
+        await new Promise<void>((resolve) => {
+          output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
+            resolve()
+          );
+        });
+      } catch (err: any) {
+        debug('error while writing error', err);
+      }
     }
   }
 
