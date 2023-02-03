@@ -67,7 +67,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
   const isFirst = stageIndex === 0;
   const isLast = stages.length - 1 === stageIndex;
   const stageSelectLabels = stages.map((stageName, index) => {
-    return `Stage ${index + 1}: ${stageName ?? 'empty'}`;
+    return `Stage ${index + 1}: ${stageName ?? 'select'}`;
   });
   const stageSelectStyle = {
     width: `calc(${String(
