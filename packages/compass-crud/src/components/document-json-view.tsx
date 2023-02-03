@@ -81,7 +81,10 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
    */
   render() {
     return (
-      <ol className={cx(LIST_CLASS, this.props.className)}>
+      <ol
+        className={cx(LIST_CLASS, this.props.className)}
+        data-testid="document-json-list"
+      >
         {this.renderDocuments()}
       </ol>
     );

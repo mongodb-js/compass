@@ -506,6 +506,7 @@ export const InsertDocumentOption =
 export const ImportFileOption =
   '[data-testid="crud-add-data-import-file-action"]';
 export const DocumentListEntry = '[data-testid="editable-document"]';
+export const DocumentJSONList = '[data-testid="document-json-list"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
 export const SelectTableView = '[data-testid="toolbar-view-table"]';

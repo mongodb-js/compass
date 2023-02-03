@@ -50,6 +50,9 @@ async function getDocuments(browser: CompassBrowser) {
   // Switch to JSON view so it's easier to get document value
   await browser.clickVisible(Selectors.AggregationResultsJSONListSwitchButton);
 
+  const document = await browser.$(Selectors.DocumentJSONList);
+  await document.waitForDisplayed();
+
   const documents = await browser.getCodemirrorEditorTextAll(
     Selectors.DocumentJSONEntry
   );
