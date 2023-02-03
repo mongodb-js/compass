@@ -65,9 +65,10 @@ const tooltipContentStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[3],
-  '> *': {
-    flexShrink: 0,
-  },
+});
+
+const tooltipContentItemStyles = css({
+  flexShrink: 0,
 });
 
 export const FocusModeModalHeader: React.FunctionComponent<
@@ -81,13 +82,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onStageDisabledToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    window.addEventListener('keydown', keyEventListener);
-    return () => {
-      window.removeEventListener('keydown', keyEventListener);
-    };
-  }, [stageIndex]);
 
   const keyEventListener = (e: KeyboardEvent) => {
     const isShiftKey = e.shiftKey;
@@ -109,6 +103,13 @@ export const FocusModeModalHeader: React.FunctionComponent<
         return;
     }
   };
+
+  useEffect(() => {
+    window.addEventListener('keydown', keyEventListener);
+    return () => {
+      window.removeEventListener('keydown', keyEventListener);
+    };
+  }, [keyEventListener]);
 
   const isFirst = stageIndex === 0;
   const isLast = stages.length - 1 === stageIndex;
@@ -175,17 +176,19 @@ export const FocusModeModalHeader: React.FunctionComponent<
           )}
         >
           <Body className={tooltipContentStyles}>
-            <span>Go to previous stage</span>
-            <span>Ctrl + Shift + 9</span>
+            <span className={tooltipContentItemStyles}>
+              Go to previous stage
+            </span>
+            <span className={tooltipContentItemStyles}>Ctrl + Shift + 9</span>
           </Body>
         </Tooltip>
-
+        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           allowDeselect={false}
           style={stageSelectStyle}
           size="xsmall"
           value={String(stageIndex)}
-          aria-labelledby="Select stage to edit"
+          aria-label="Select stage to edit"
           onChange={(newVal: string) => {
             onStageSelect(Number(newVal));
           }}
