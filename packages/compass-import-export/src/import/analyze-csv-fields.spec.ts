@@ -104,7 +104,7 @@ describe('analyzeCSVFields', function () {
       expectedDetected = 'mixed';
     }
 
-    it(`detects ${expectedDetected} for ${basename}`, async function () {
+    it(`detects ${expectedDetected} for ${basename} with ignoreEmptyStrings=true`, async function () {
       const abortController = new AbortController();
       const progressCallback = sinon.spy();
       const result = await analyzeCSVFields({
@@ -133,6 +133,33 @@ describe('analyzeCSVFields', function () {
     });
   }
 
+  it(`detects mixed for null.csv with ignoreEmptyStrings=false`, async function () {
+    const abortController = new AbortController();
+    const progressCallback = sinon.spy();
+    const result = await analyzeCSVFields({
+      input: fs.createReadStream(fixtures.csvByType.null),
+      delimiter: ',',
+      abortSignal: abortController.signal,
+      progressCallback,
+      ignoreEmptyStrings: false,
+    });
+
+    for (const [fieldName, field] of Object.entries(result.fields)) {
+      // ignore note / padding fields
+      if (['something', 'something_else', 'notes'].includes(fieldName)) {
+        continue;
+      }
+
+      expect(Object.keys(field.types), `${fieldName} types`).to.deep.equal([
+        'null',
+        'string',
+      ]);
+      expect(field.detected, `${fieldName} detected`).to.equal('mixed');
+    }
+
+    expect(progressCallback.callCount).to.equal(result.totalRows);
+  });
+
   it('responds to abortSignal.aborted', async function () {
     const abortController = new AbortController();
     const progressCallback = sinon.spy();
@@ -153,6 +180,4 @@ describe('analyzeCSVFields', function () {
     // signals that it was aborted and the results are therefore incomplete
     expect(result.aborted).to.equal(true);
   });
-
-  // TODO: some tests for ignoreEmptyStrings: false
 });

@@ -146,8 +146,6 @@ describe('importCSV', function () {
         expectedResult
       );
     });
-
-    // TODO: the equivalent test for ignoreEmptyStrings: false
   }
 
   for (const [type, filepath] of Object.entries(fixtures.csvByType)) {
@@ -174,7 +172,7 @@ describe('importCSV', function () {
       continue;
     }
 
-    it(`correctly imports ${type}`, async function () {
+    it(`correctly imports ${type} (ignoreEmptyStrings=true)`, async function () {
       const typeResult = await guessFileType({
         input: fs.createReadStream(filepath),
       });
@@ -246,6 +244,74 @@ describe('importCSV', function () {
       expect(progressCallback.callCount).to.equal(totalRows);
     });
   }
+
+  it(`correctly imports null (ignoreEmptyStrings=false)`, async function () {
+    const typeResult = await guessFileType({
+      input: fs.createReadStream(fixtures.csvByType.null),
+    });
+    assert(typeResult.type === 'csv');
+    const csvDelimiter = typeResult.csvDelimiter;
+
+    const analyzeResult = await analyzeCSVFields({
+      input: fs.createReadStream(fixtures.csvByType.null),
+      delimiter: csvDelimiter,
+      ignoreEmptyStrings: false,
+    });
+
+    const abortController = new AbortController();
+    const progressCallback = sinon.spy();
+
+    const ns = 'db.col';
+
+    const totalRows = analyzeResult.totalRows;
+    const fields = _.mapValues(analyzeResult.fields, (field) => field.detected);
+
+    const output = temp.createWriteStream();
+
+    const stats = await importCSV({
+      dataService,
+      ns,
+      fields,
+      input: fs.createReadStream(fixtures.csvByType.null),
+      output,
+      delimiter: csvDelimiter,
+      abortSignal: abortController.signal,
+      progressCallback,
+      ignoreEmptyStrings: false,
+    });
+
+    expect(stats).to.deep.equal({
+      nInserted: totalRows,
+      nMatched: 0,
+      nModified: 0,
+      nRemoved: 0,
+      nUpserted: 0,
+      ok: Math.ceil(totalRows / 1000),
+      writeConcernErrors: [],
+      writeErrors: [],
+    });
+
+    const docs = await dataService.find(ns, {}, { promoteValues: false });
+
+    expect(docs).to.have.length(totalRows);
+
+    for (const doc of docs) {
+      delete doc._id;
+    }
+
+    expect(docs).to.deep.equal([
+      {
+        null: null, // interpreted as null
+        notes: 'compass export writes the string Null',
+      },
+      {
+        null: '', // interpreted as a blank string due to ignoreEmptyStrings: false
+        notes: 'mongoexport writes a blank string',
+      },
+    ]);
+
+    expect(progressCallback.callCount).to.equal(totalRows);
+  });
 
   it('imports a file containing multiple batches', async function () {
     const lines = ['a,b'];
