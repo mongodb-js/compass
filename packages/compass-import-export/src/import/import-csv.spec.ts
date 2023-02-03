@@ -245,7 +245,7 @@ describe('importCSV', function () {
     });
   }
 
-  it(`correctly imports null (ignoreEmptyStrings=false)`, async function () {
+  it('correctly imports null (ignoreEmptyStrings=false)', async function () {
     const typeResult = await guessFileType({
       input: fs.createReadStream(fixtures.csvByType.null),
     });
