@@ -80,12 +80,15 @@ export async function createDummyCollections(): Promise<void> {
   await Promise.all(promises);
 }
 
-export async function createNumbersCollection(name?: string): Promise<void> {
+export async function createNumbersCollection(
+  name = 'numbers',
+  numberOfRecords = 1000
+): Promise<void> {
   const db = client.db('test');
 
   await db
-    .collection(name || 'numbers')
-    .insertMany([...Array(1000).keys()].map((i) => ({ i, j: 0 })));
+    .collection(name)
+    .insertMany([...Array(numberOfRecords).keys()].map((i) => ({ i, j: 0 })));
 }
 
 export async function createGeospatialCollection(): Promise<void> {
