@@ -64,10 +64,9 @@ export async function importCSV({
             parsedHeader[name] = parseHeaderName(name);
           } catch (err: unknown) {
             // rethrow with the row and column indexes appended to aid debugging
-            // TODO: this needs a test
             (err as Error).message = `${
               (err as Error).message
-            }[Row 0][Col ${index}]`;
+            } [Col ${index}][Row 0]`;
             debug('parseHeaderName error', (err as Error).message);
 
             // If this fails, the whole file will stop processing regardless of
