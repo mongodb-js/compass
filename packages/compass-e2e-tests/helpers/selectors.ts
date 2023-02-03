@@ -796,14 +796,16 @@ export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text
 
 // Focus Mode
 export const FocusModeModal = '[data-testid="focus-mode-modal"]';
+export const FocusModeStageInput = `${FocusModeModal} [data-testid="stage-input"]`;
+export const FocusModeStageEditor = `${FocusModeModal} [data-testid="stage-editor"]`;
+export const FocusModeStageOutput = `${FocusModeModal} [data-testid="stage-output"]`;
 export const FocusModeCloseModalButton = `${FocusModeModal} [aria-label="Close modal"]`;
 export const FocusModePreviousStageButton = `${FocusModeModal} [data-testid="previous-stage-button"]`;
 export const FocusModeNextStageButton = `${FocusModeModal} [data-testid="next-stage-button"]`;
 export const FocusModeActiveStageLabel = `${FocusModeModal} [data-testid="stage-select"]`;
-
 export const FocusModeAddStageMenuButton = `${FocusModeModal} [data-testid="add-stage-menu-button"]`;
-export const FocusModeAddStageBeforeMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage after"]`;
-export const FocusModeAddStageAfterMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage before"]`;
+export const FocusModeAddStageBeforeMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage before"]`;
+export const FocusModeAddStageAfterMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage after"]`;
 
 export const stageEditorErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;

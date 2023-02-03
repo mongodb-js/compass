@@ -16,6 +16,11 @@ import { getStageOperators } from '../helpers/read-stage-operators';
 
 const { expect } = chai;
 
+const OUT_STAGE_PREVIEW_TEXT =
+  'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.';
+const MERGE_STAGE_PREVIEW_TEXT =
+  'The $merge operator will cause the pipeline to persist the results to the specified location.';
+
 async function waitForAnyText(
   browser: CompassBrowser,
   element: Element<'async'>
@@ -310,9 +315,7 @@ describe('Collection aggregations tab', function () {
     const text = await preview.getText();
 
     expect(text).to.include('Documents will be saved to test.listings.');
-    expect(text).to.include(
-      'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.'
-    );
+    expect(text).to.include(OUT_STAGE_PREVIEW_TEXT);
   });
 
   it('shows $merge stage preview', async function () {
@@ -328,9 +331,7 @@ describe('Collection aggregations tab', function () {
     const text = await preview.getText();
 
     expect(text).to.include('Documents will be saved to test.listings.');
-    expect(text).to.include(
-      'The $merge operator will cause the pipeline to persist the results to the specified location.'
-    );
+    expect(text).to.include(MERGE_STAGE_PREVIEW_TEXT);
   });
 
   it('shows empty preview', async function () {
@@ -1095,17 +1096,17 @@ describe('Collection aggregations tab', function () {
     });
   });
 
-  describe.only('focus mode', function() {
-    // tests to add for focus mode:
-    // - when auto preview is disabled, it should not show the preview
-    // - it should show the stage input and output preview
-    // - it should handle preview for output stage and atlas only stage operators
-    it('opens and closes the modal', async function() {
+  describe('focus mode', function () {
+    it('opens and closes the modal', async function () {
       await browser.selectStageOperator(0, '$match');
       await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
+
+      await browser.$(Selectors.FocusModeStageInput).waitForDisplayed();
+      await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();
+      await browser.$(Selectors.FocusModeStageOutput).waitForDisplayed();
 
       const closeButton = await browser.$(Selectors.FocusModeCloseModalButton);
       await closeButton.click();
@@ -1113,7 +1114,7 @@ describe('Collection aggregations tab', function () {
       await modal.waitForDisplayed({ reverse: true });
     });
 
-    it('navigates between stages', async function() {
+    it('navigates between stages', async function () {
       await browser.selectStageOperator(0, '$match');
       await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
@@ -1130,9 +1131,11 @@ describe('Collection aggregations tab', function () {
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
-      
+
       const nextButton = await browser.$(Selectors.FocusModeNextStageButton);
-      const previousButton = await browser.$(Selectors.FocusModePreviousStageButton);
+      const previousButton = await browser.$(
+        Selectors.FocusModePreviousStageButton
+      );
 
       await nextButton.waitForDisplayed();
       await previousButton.waitForDisplayed();
@@ -1140,34 +1143,44 @@ describe('Collection aggregations tab', function () {
       expect(await previousButton.isEnabled()).to.equal(false);
 
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
-        return await activeStage.getText() === 'Stage 1: $match';
-      });
-      
-      await nextButton.click();
-      await browser.waitUntil(async () => {
-        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
-        return await activeStage.getText() === 'Stage 2: $limit';
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 1: $match';
       });
 
       await nextButton.click();
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
-        return await activeStage.getText() === 'Stage 3: $sort';
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 2: $limit';
+      });
+
+      await nextButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 3: $sort';
       });
 
       expect(await nextButton.isEnabled()).to.equal(false);
-      
+
       await previousButton.click();
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
-        return await activeStage.getText() === 'Stage 2: $limit';
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 2: $limit';
       });
 
       await previousButton.click();
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
-        return await activeStage.getText() === 'Stage 1: $match';
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 1: $match';
       });
 
       expect(await previousButton.isEnabled()).to.equal(false);
@@ -1176,7 +1189,7 @@ describe('Collection aggregations tab', function () {
       await modal.waitForDisplayed({ reverse: true });
     });
 
-    it.only('adds a new stage before/after current stage', async function() {
+    it('adds a new stage before or after current stage', async function () {
       await browser.selectStageOperator(0, '$match');
       await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
@@ -1185,40 +1198,123 @@ describe('Collection aggregations tab', function () {
       await modal.waitForDisplayed();
 
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
-        return await activeStage.getText() === 'Stage 1: $match';
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 1: $match';
       });
-      
-      const addStageMenu = await browser.$(Selectors.FocusModeAddStageMenuButton);
-      await addStageMenu.waitForDisplayed();
 
+      const addStageMenu = await browser.$(
+        Selectors.FocusModeAddStageMenuButton
+      );
+      await addStageMenu.waitForDisplayed();
 
       // Add a stage before the current stage.
       await addStageMenu.click();
 
-      const addStageBeforeButton = await browser.$(Selectors.FocusModeAddStageBeforeMenuItem);
+      const addStageBeforeButton = await browser.$(
+        Selectors.FocusModeAddStageBeforeMenuItem
+      );
       await addStageBeforeButton.waitForDisplayed();
       await addStageBeforeButton.click();
 
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
-        return await activeStage.getText() === 'Stage 1: select';
+        const labelElem = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return (await labelElem.getText()) === 'Stage 1: select';
       });
 
       // Add a stage after the current stage.
       await addStageMenu.click();
 
-      const addStageAfterButton = await browser.$(Selectors.FocusModeAddStageAfterMenuItem);
+      const addStageAfterButton = await browser.$(
+        Selectors.FocusModeAddStageAfterMenuItem
+      );
       await addStageAfterButton.waitForDisplayed();
       await addStageAfterButton.click();
 
       await browser.waitUntil(async () => {
-        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
-        return await activeStage.getText() === 'Stage 2: select';
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 2: select';
       });
 
       await browser.keys('Escape');
       await modal.waitForDisplayed({ reverse: true });
+    });
+
+    it('hides stage input and output when preview is disabled', async function () {
+      await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
+
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser
+        .$(Selectors.FocusModeStageInput)
+        .waitForDisplayed({ reverse: true });
+      await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();
+      await browser
+        .$(Selectors.FocusModeStageOutput)
+        .waitForDisplayed({ reverse: true });
+    });
+
+    it('handles $out stage operators', async function () {
+      await browser.selectStageOperator(0, '$out');
+      await browser.setAceValue(Selectors.stageEditor(0), '"test"');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.waitUntil(async () => {
+        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const text = await outputElem.getText();
+        return text.includes(OUT_STAGE_PREVIEW_TEXT);
+      });
+    });
+
+    it('handles $merge stage operators', async function () {
+      if (serverSatisfies('< 4.2.0')) {
+        return this.skip();
+      }
+
+      await browser.selectStageOperator(0, '$merge');
+      await browser.setAceValue(Selectors.stageEditor(0), '"test"');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.waitUntil(async () => {
+        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const text = await outputElem.getText();
+        return text.includes(MERGE_STAGE_PREVIEW_TEXT);
+      });
+    });
+
+    it('handles atlas only operator', async function () {
+      if (serverSatisfies('< 4.1.11')) {
+        this.skip();
+      }
+
+      await browser.selectStageOperator(0, '$search');
+      await browser.setAceValue(Selectors.stageEditor(0), '{}');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.waitUntil(async () => {
+        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const text = await outputElem.getText();
+        return text.includes(
+          'The $search stage is only available with MongoDB Atlas.'
+        );
+      });
     });
   });
 
