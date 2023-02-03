@@ -1,23 +1,22 @@
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import { getStageOperator } from '../../utils/stage';
 import type { PipelineBuilder } from './pipeline-builder';
-import type { PipelineMode } from './pipeline-mode';
 import { loadPreviewForStagesFrom } from './stage-editor';
 import { loadPreviewForPipeline } from './text-editor-pipeline';
 
 export const updatePipelinePreview =
   (): PipelineBuilderThunkAction<void> =>
-    (dispatch, getState, { pipelineBuilder }) => {
-      // Stop unconditionally (we might not start again based on the autoPreview
-      // state and stages validity)
-      pipelineBuilder.stopPreview();
+  (dispatch, getState, { pipelineBuilder }) => {
+    // Stop unconditionally (we might not start again based on the autoPreview
+    // state and stages validity)
+    pipelineBuilder.stopPreview();
 
-      if (getState().pipelineBuilder.pipelineMode === 'builder-ui') {
-        dispatch(loadPreviewForStagesFrom(0));
-      } else {
-        void dispatch(loadPreviewForPipeline());
-      }
-    };
+    if (getState().pipelineBuilder.pipelineMode === 'builder-ui') {
+      dispatch(loadPreviewForStagesFrom(0));
+    } else {
+      void dispatch(loadPreviewForPipeline());
+    }
+  };
 
 export function getStagesFromBuilderState(
   state: RootState,
@@ -54,7 +53,7 @@ export function getPipelineStringFromBuilderState(
 
 export function getPipelineStageOperatorsFromBuilderState(
   state: RootState,
-  filterEmptyStageOperators?: true,
+  filterEmptyStageOperators?: true
 ): string[];
 export function getPipelineStageOperatorsFromBuilderState(
   state: RootState,
@@ -64,21 +63,21 @@ export function getPipelineStageOperatorsFromBuilderState(
   state: RootState,
   filterEmptyStageOperators = true
 ): (string | null)[] | string[] {
-  const stages = state.pipelineBuilder.pipelineMode === 'builder-ui'
-    ? state.pipelineBuilder.stageEditor.stages
-      .filter((stage) => !stage.disabled)
-      .map((stage) => stage.stageOperator)
-    : state.pipelineBuilder.textEditor.pipeline.pipeline
-      .map((stage) => {
-        return getStageOperator(stage) ?? null;
-      });
+  const stages =
+    state.pipelineBuilder.pipelineMode === 'builder-ui'
+      ? state.pipelineBuilder.stageEditor.stages
+          .filter((stage) => !stage.disabled)
+          .map((stage) => stage.stageOperator)
+      : state.pipelineBuilder.textEditor.pipeline.pipeline.map((stage) => {
+          return getStageOperator(stage) ?? null;
+        });
 
   return filterEmptyStageOperators ? stages.filter(Boolean) : stages;
 }
 
 export function getIsPipelineInvalidFromBuilderState(
   state: RootState,
-  includeServerErrors = true,
+  includeServerErrors = true
 ): boolean {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages.some(
@@ -88,11 +87,21 @@ export function getIsPipelineInvalidFromBuilderState(
         (stage.syntaxError || (stage.serverError && includeServerErrors))
     );
   }
-  const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor.pipeline;
-  return Boolean((serverError && includeServerErrors) || syntaxErrors.length > 0);
+  const { serverError, syntaxErrors } =
+    state.pipelineBuilder.textEditor.pipeline;
+  return Boolean(
+    (serverError && includeServerErrors) || syntaxErrors.length > 0
+  );
 }
 
-export type EditorViewType = 'stage' | 'text';
-export function mapPipelineModeToEditorViewType(mode: PipelineMode): EditorViewType {
-  return mode === 'builder-ui' ? 'stage' : 'text';
+export type EditorViewType = 'stage' | 'text' | 'focus';
+
+export function mapPipelineModeToEditorViewType(
+  state: RootState
+): EditorViewType {
+  return state.focusMode.isEnabled
+    ? 'focus'
+    : state.pipelineBuilder.pipelineMode === 'builder-ui'
+    ? 'stage'
+    : 'text';
 }

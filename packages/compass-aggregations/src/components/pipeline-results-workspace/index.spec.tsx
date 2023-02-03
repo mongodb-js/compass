@@ -58,7 +58,7 @@ describe('PipelineResultsWorkspace', function () {
     const container = screen.getByTestId('pipeline-results-workspace');
     expect(container).to.exist;
     userEvent.click(within(container).getByText('Stop'), undefined, {
-      skipPointerEventsCheck: true
+      skipPointerEventsCheck: true,
     });
     expect(onCancelSpy.calledOnce).to.be.true;
   });
@@ -68,11 +68,11 @@ describe('PipelineResultsWorkspace', function () {
     renderPipelineResultsWorkspace({
       isError: true,
       error: 'Something bad happened',
-      onRetry
+      onRetry,
     });
     expect(screen.getByText('Something bad happened')).to.exist;
     userEvent.click(screen.getByText('Retry'), undefined, {
-      skipPointerEventsCheck: true
+      skipPointerEventsCheck: true,
     });
     expect(onRetry).to.be.calledOnce;
   });
@@ -82,11 +82,11 @@ describe('PipelineResultsWorkspace', function () {
     renderPipelineResultsWorkspace({
       isMergeOrOutPipeline: true,
       mergeOrOutDestination: 'foo.bar',
-      onOutClick
+      onOutClick,
     });
     expect(screen.getByText('Results persisted in foo.bar namespace')).to.exist;
     userEvent.click(screen.getByText('Go to collection'), undefined, {
-      skipPointerEventsCheck: true
+      skipPointerEventsCheck: true,
     });
     expect(onOutClick).to.be.calledOnce;
   });

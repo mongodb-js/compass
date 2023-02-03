@@ -41,5 +41,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  * @returns {{ type: string }} The create id action.
  */
 export const createId = () => ({
-  type: CREATE_ID
+  type: CREATE_ID,
 });

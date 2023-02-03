@@ -5,7 +5,7 @@ import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   DEFAULT_PREVIEW_LIMIT,
-  DEFAULT_SAMPLE_SIZE
+  DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
 import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
@@ -21,7 +21,7 @@ export const enum EditorActionTypes {
   EditorPreviewFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchSuccess',
   EditorPreviewFetchError = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchError',
   EditorValueChange = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorValueChange',
-};
+}
 
 export type EditorValueChangeAction = {
   type: EditorActionTypes.EditorValueChange;
@@ -120,7 +120,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       serverError: null,
-      isLoading: false
+      isLoading: false,
     };
   }
 
@@ -172,18 +172,17 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
 
 export function canRunPipeline(
   autoPreview: boolean,
-  syntaxErrors: PipelineParserError[],
+  syntaxErrors: PipelineParserError[]
 ) {
   return autoPreview && syntaxErrors.length === 0;
-};
+}
 
-export const loadPreviewForPipeline = (
-): PipelineBuilderThunkAction<
+export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
   Promise<void>,
-  EditorPreviewFetchAction |
-  EditorPreviewFetchSuccessAction |
-  EditorPreviewFetchErrorAction |
-  EditorPreviewFetchSkippedAction
+  | EditorPreviewFetchAction
+  | EditorPreviewFetchSuccessAction
+  | EditorPreviewFetchErrorAction
+  | EditorPreviewFetchSkippedAction
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
@@ -197,9 +196,9 @@ export const loadPreviewForPipeline = (
       dataService,
       pipelineBuilder: {
         textEditor: {
-          pipeline: { pipeline }
-        }
-      }
+          pipeline: { pipeline },
+        },
+      },
     } = getState();
 
     if (pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
@@ -211,8 +210,8 @@ export const loadPreviewForPipeline = (
 
     if (!canRunPipeline(autoPreview, pipelineBuilder.syntaxError)) {
       dispatch({
-        type: EditorActionTypes.EditorPreviewFetchSkipped
-      })
+        type: EditorActionTypes.EditorPreviewFetchSkipped,
+      });
 
       return;
     }
@@ -223,7 +222,9 @@ export const loadPreviewForPipeline = (
       });
 
       const options: PreviewOptions = {
-        maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS ?? DEFAULT_MAX_TIME_MS),
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+          maxTimeMS ?? DEFAULT_MAX_TIME_MS
+        ),
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
@@ -233,12 +234,12 @@ export const loadPreviewForPipeline = (
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
         namespace,
         options,
-        true, // Filter output stage
+        true // Filter output stage
       );
 
       dispatch({
         type: EditorActionTypes.EditorPreviewFetchSuccess,
-        previewDocs
+        previewDocs,
       });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
@@ -246,7 +247,7 @@ export const loadPreviewForPipeline = (
       }
       dispatch({
         type: EditorActionTypes.EditorPreviewFetchError,
-        serverError: err as MongoServerError
+        serverError: err as MongoServerError,
       });
     }
   };
@@ -259,9 +260,9 @@ export const changeEditorValue = (
     const {
       pipelineBuilder: {
         textEditor: {
-          pipeline: { pipelineText }
-        }
-      }
+          pipeline: { pipelineText },
+        },
+      },
     } = getState();
 
     if (pipelineText === newValue) {
@@ -274,7 +275,7 @@ export const changeEditorValue = (
       type: EditorActionTypes.EditorValueChange,
       pipelineText: newValue,
       pipeline: pipelineBuilder.pipeline,
-      syntaxErrors: pipelineBuilder.syntaxError
+      syntaxErrors: pipelineBuilder.syntaxError,
     });
 
     void dispatch(loadPreviewForPipeline());

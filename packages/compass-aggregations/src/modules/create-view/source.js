@@ -18,5 +18,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const setViewSource = (source) => ({
   type: SET_VIEW_SOURCE,
-  source: source
+  source: source,
 });

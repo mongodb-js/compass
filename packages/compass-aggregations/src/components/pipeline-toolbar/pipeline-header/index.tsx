@@ -6,7 +6,7 @@ import {
   cx,
   focusRing,
   spacing,
-  InteractivePopover
+  InteractivePopover,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
@@ -86,8 +86,8 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
     return [
       '[data-id="open-pipeline-confirmation-modal"]',
       '[data-id="delete-pipeline-confirmation-modal"]',
-    ]
-  }, [])
+    ];
+  }, []);
 
   return (
     <div className={containerStyles} data-testid="pipeline-header">
@@ -101,7 +101,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
             <div
               data-testid="saved-pipelines-popover"
               className={pipelineTextAndOpenStyles}
-              >
+            >
               <Body weight="medium">Pipeline</Body>
               <button
                 data-testid="pipeline-toolbar-open-pipelines-button"
@@ -149,6 +149,6 @@ export default connect(
     };
   },
   {
-    onToggleSavedPipelines: setShowSavedPipelines
+    onToggleSavedPipelines: setShowSavedPipelines,
   }
 )(PipelineHeader);

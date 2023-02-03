@@ -121,6 +121,16 @@ describe('Instance sidebar', function () {
     await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
 
     await browser.addDatabase(dbName, collectionName);
+
+    // the app should land on the collection's documents tab
+    const headerSelector = Selectors.collectionHeaderTitle(
+      dbName,
+      collectionName
+    );
+    await browser.$(headerSelector).waitForDisplayed();
+    const tabSelectedSelector = Selectors.collectionTab('Documents', true);
+    await browser.$(tabSelectedSelector).waitForDisplayed();
+
     await browser.clickVisible(Selectors.sidebarDatabase(dbName));
 
     // wait for it to appear
@@ -159,6 +169,15 @@ describe('Instance sidebar', function () {
     await browser.clickVisible(Selectors.CreateCollectionButton);
 
     await browser.addCollection(collectionName);
+
+    // the app should land on the collection's documents tab
+    const headerSelector = Selectors.collectionHeaderTitle(
+      dbName,
+      collectionName
+    );
+    await browser.$(headerSelector).waitForDisplayed();
+    const tabSelectedSelector = Selectors.collectionTab('Documents', true);
+    await browser.$(tabSelectedSelector).waitForDisplayed();
 
     const collectionSelector = Selectors.sidebarCollection(
       dbName,

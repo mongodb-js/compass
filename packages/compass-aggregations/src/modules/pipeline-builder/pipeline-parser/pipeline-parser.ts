@@ -4,7 +4,7 @@ import type Stage from '../stage';
 import StageParser, {
   stageToAstComments,
   assertStageNode,
-  setNodeDisabled
+  setNodeDisabled,
 } from './stage-parser';
 import { generate } from './utils';
 import { PipelineParserError } from './utils';
@@ -45,15 +45,15 @@ function extractStagesFromComments(
   for (const group of groups) {
     const lines: Line[] = Array.isArray(group)
       ? group.map((comment) => {
-        // Line comments usually have one space at the beginning, normalizing it
-        // here makes it easier to better format the code later
-        return { value: comment.value.replace(/^\s/, ''), node: comment };
-      })
+          // Line comments usually have one space at the beginning, normalizing it
+          // here makes it easier to better format the code later
+          return { value: comment.value.replace(/^\s/, ''), node: comment };
+        })
       : group.value.split('\n').map((line) => {
-        // Block comments usually have every line prepended by a *, we will
-        // try to account for that
-        return { value: line.replace(/^\s*\*/, ''), node: group };
-      });
+          // Block comments usually have every line prepended by a *, we will
+          // try to account for that
+          return { value: line.replace(/^\s*\*/, ''), node: group };
+        });
     const parser = new StageParser();
     let seenComments: t.Comment[] = [];
     for (const line of lines) {
@@ -107,13 +107,11 @@ export default class PipelineParser {
     // elements in the array, in our case it might mean that all stages
     // are disabled
     if (root.elements.length === 0 && root.innerComments?.length) {
-      const [visited, _stages] = extractStagesFromComments(
-        root.innerComments
-      );
+      const [visited, _stages] = extractStagesFromComments(root.innerComments);
       if (_stages.length !== 0) {
         const lastStage = _stages[_stages.length - 1];
         // Attach all leftover comments to the last stage
-        lastStage.trailingComments = root.innerComments.filter(node => {
+        lastStage.trailingComments = root.innerComments.filter((node) => {
           return !visited.has(node);
         });
         adjustAllStagesLoc(_stages);
@@ -131,7 +129,9 @@ export default class PipelineParser {
   static _parseStringToRoot(source: string): t.ArrayExpression {
     const root = babelParser.parseExpression(source);
     if (root.type !== 'ArrayExpression') {
-      throw new PipelineParserError('Pipeline must be an array of aggregation stages');
+      throw new PipelineParserError(
+        'Pipeline must be an array of aggregation stages'
+      );
     }
     return root;
   }
@@ -143,7 +143,7 @@ export default class PipelineParser {
     const errors: PipelineParserError[] = [];
     try {
       root = PipelineParser._parseStringToRoot(source);
-      root.elements.forEach(stage => {
+      root.elements.forEach((stage) => {
         try {
           assertStageNode(stage as t.Expression);
         } catch (e) {
@@ -158,9 +158,11 @@ export default class PipelineParser {
 
   // Generate source from stages
   static generate(root: t.ArrayExpression, stages: Stage[]): string {
-    const isAllDisabled = stages.length && stages.every((stage) => {
-      return stage.disabled;
-    });
+    const isAllDisabled =
+      stages.length &&
+      stages.every((stage) => {
+        return stage.disabled;
+      });
     // Special case where all stages should be added as inner comments to the
     // array expression
     if (isAllDisabled) {
@@ -193,7 +195,7 @@ export default class PipelineParser {
       if (unusedComments.length) {
         stageNode.leadingComments = [
           ...unusedComments,
-          ...(stageNode.leadingComments ?? [])
+          ...(stageNode.leadingComments ?? []),
         ];
         unusedComments = [];
       }
@@ -219,7 +221,7 @@ export default class PipelineParser {
     if (lastStage && unusedComments.length > 0) {
       lastStage.trailingComments = [
         ...(lastStage.trailingComments ?? []),
-        ...unusedComments
+        ...unusedComments,
       ];
       const firstComment = lastStage.trailingComments[0];
       // Special handling for last element: now that all the comments are added,

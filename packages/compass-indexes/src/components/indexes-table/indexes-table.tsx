@@ -8,6 +8,7 @@ import {
   cx,
   spacing,
   palette,
+  IndexKeysBadge,
 } from '@mongodb-js/compass-components';
 
 import TypeField from './type-field';
@@ -20,7 +21,6 @@ import type {
   SortDirection,
 } from '../../modules/indexes';
 import IndexActions from './index-actions';
-import KeyList from './key-list';
 
 // When row is hovered, we show the delete button
 const rowStyles = css({
@@ -180,7 +180,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
                 className={cx(nestedRowCellStyles, cellStyles)}
                 colSpan={canDeleteIndex ? 6 : 5}
               >
-                <KeyList keys={index.fields.serialize()} />
+                <IndexKeysBadge keys={index.fields.serialize()} />
               </Cell>
             </Row>
           </Row>

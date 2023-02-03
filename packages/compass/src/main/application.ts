@@ -181,6 +181,11 @@ class CompassApplication {
       // directly with Electron binary which causes user dirs to be just
       // `Electron` instead of app name that we want here
       app.setPath('userData', path.join(app.getPath('appData'), appName));
+
+      // @ts-expect-error this seems to work but not exposed as public path and
+      // so is not available in d.ts files. As this is a dev-only path and
+      // seemingly nothing is using this path anyway, we probably can ignore an
+      // error here
       app.setPath('userCache', path.join(app.getPath('cache'), appName));
     }
   }

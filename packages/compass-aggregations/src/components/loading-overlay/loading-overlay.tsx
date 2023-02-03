@@ -7,7 +7,7 @@ import {
   spacing,
   Body,
   palette,
-  useDarkMode
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 const loadingOverlayStyles = css({
@@ -31,7 +31,7 @@ const loadingOverlayStylesLight = css({
 });
 
 const textStyles = css({
-  marginLeft: spacing[2]
+  marginLeft: spacing[2],
 });
 
 type LoadingOverlayProps = {

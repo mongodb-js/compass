@@ -1,0 +1,4 @@
+null,notes
+Null,compass export writes the string Null
+,mongoexport writes a blank string
+

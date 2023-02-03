@@ -1,5 +1,8 @@
 import type { AnyAction, Reducer } from 'redux';
-import { ActionTypes as AggregationActionTypes, cancelAggregation } from './aggregation';
+import {
+  ActionTypes as AggregationActionTypes,
+  cancelAggregation,
+} from './aggregation';
 import type { PipelineBuilderThunkAction } from '.';
 import { cancelCount } from './count-documents';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';

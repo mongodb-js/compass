@@ -1,0 +1,15 @@
+double,notes
+1.0
+1.2
+-1.0
+-1.2
+"1.0"
+"1.2"
+1e0
+1e-15,a very small number close to 0
+1.0000000000000002,the smallest number > 1
+4.940656458412465E-324,Smallest subnormal double
+1.7976931348623157e+308,Max. Double
+-1.0000000000000002
+-4.940656458412465E-324
+-1.7976931348623157e+308

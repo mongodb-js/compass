@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const fieldsChanged = (fields) => ({
   type: FIELDS_CHANGED,
-  fields: fields
+  fields: fields,
 });

@@ -9,14 +9,17 @@ import {
   ErrorSummary,
   Subtitle,
   Button,
-  palette
+  palette,
 } from '@mongodb-js/compass-components';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { RootState } from '../../modules';
 import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
 import PipelineResultsList from './pipeline-results-list';
 import PipelineEmptyResults from './pipeline-empty-results';
-import { getDestinationNamespaceFromStage, isOutputStage } from '../../utils/stage';
+import {
+  getDestinationNamespaceFromStage,
+  isOutputStage,
+} from '../../utils/stage';
 import { getStageOperator } from '../../utils/stage';
 
 const containerStyles = css({
@@ -31,27 +34,27 @@ const resultsStyles = css({
   overflowY: 'auto',
   '&:not(:first-child)': {
     height: `calc(100% - ${spacing[3]}px)`,
-    marginTop: spacing[3]
-  }
+    marginTop: spacing[3],
+  },
 });
 
 const results = css({
   display: 'flex',
   alignItems: 'flex-start',
   paddingLeft: spacing[3] + spacing[1],
-  paddingRight: spacing[5] + spacing[1]
+  paddingRight: spacing[5] + spacing[1],
 });
 
 const centered = css({
   width: '100%',
   height: '100%',
   paddingTop: spacing[6] * 2,
-  justifyContent: 'center'
+  justifyContent: 'center',
 });
 
 const ResultsContainer: React.FunctionComponent<{ center?: boolean }> = ({
   children,
-  center
+  center,
 }) => {
   return <div className={cx(results, center && centered)}>{children}</div>;
 };
@@ -63,12 +66,12 @@ const outResult = css({
   gap: spacing[2],
   maxWidth: spacing[6] * 8,
   marginTop: spacing[2],
-  marginBottom: spacing[2]
+  marginBottom: spacing[2],
 });
 
 const outResultText = css({
   color: palette.green.dark2,
-  textAlign: 'center'
+  textAlign: 'center',
 });
 
 const OutResultBanner: React.FunctionComponent<{
@@ -109,82 +112,85 @@ type PipelineResultsWorkspaceProps = {
   onRetry: () => void;
 };
 
-export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWorkspaceProps> =
-  ({
-    documents,
-    isLoading,
-    allDocsExpanded,
-    error,
-    isError,
-    isEmpty,
-    isMergeOrOutPipeline,
-    mergeOrOutDestination,
-    resultsViewType,
-    onOutClick,
-    onRetry,
-    onCancel
-  }) => {
-    let results: React.ReactElement | null = null;
+export const PipelineResultsWorkspace: React.FunctionComponent<
+  PipelineResultsWorkspaceProps
+> = ({
+  documents,
+  isLoading,
+  allDocsExpanded,
+  error,
+  isError,
+  isEmpty,
+  isMergeOrOutPipeline,
+  mergeOrOutDestination,
+  resultsViewType,
+  onOutClick,
+  onRetry,
+  onCancel,
+}) => {
+  let results: React.ReactElement | null = null;
 
-    if (isError && error) {
-      results = (
-        <ResultsContainer>
-          <ErrorSummary
-            data-testid="pipeline-results-error"
-            errors={error}
-            onAction={onRetry}
-            actionText="Retry"
-          />
-        </ResultsContainer>
-      );
-    } else if (isLoading) {
-      results = (
-        <ResultsContainer center>
-          <CancelLoader
-            data-testid="pipeline-results-loader"
-            progressText={
-              isMergeOrOutPipeline
-                ? `Persisting documents${
-                    mergeOrOutDestination
-                      ? ` to ${mergeOrOutDestination} namespace`
-                      : ''
-                  }`
-                : 'Running aggregation'
-            }
-            cancelText="Stop"
-            onCancel={onCancel}
-          />
-        </ResultsContainer>
-      );
-    } else if (isMergeOrOutPipeline) {
-      results = (
-        <ResultsContainer center>
-          <OutResultBanner
-            namespace={mergeOrOutDestination}
-            onClick={() => {
-              if (mergeOrOutDestination) {
-                onOutClick?.(mergeOrOutDestination);
-              }
-            }}
-          ></OutResultBanner>
-        </ResultsContainer>
-      );
-    } else if (isEmpty) {
-      results = (
-        <PipelineEmptyResults />
-      );
-    } else {
-      results = (
-        <PipelineResultsList documents={documents} allDocsExpanded={allDocsExpanded} view={resultsViewType} />
-      );
-    }
-
-    return (
-      <div data-testid="pipeline-results-workspace" className={containerStyles}>
-        <div className={resultsStyles}>{results}</div>
-      </div>
+  if (isError && error) {
+    results = (
+      <ResultsContainer>
+        <ErrorSummary
+          data-testid="pipeline-results-error"
+          errors={error}
+          onAction={onRetry}
+          actionText="Retry"
+        />
+      </ResultsContainer>
     );
-  };
+  } else if (isLoading) {
+    results = (
+      <ResultsContainer center>
+        <CancelLoader
+          data-testid="pipeline-results-loader"
+          progressText={
+            isMergeOrOutPipeline
+              ? `Persisting documents${
+                  mergeOrOutDestination
+                    ? ` to ${mergeOrOutDestination} namespace`
+                    : ''
+                }`
+              : 'Running aggregation'
+          }
+          cancelText="Stop"
+          onCancel={onCancel}
+        />
+      </ResultsContainer>
+    );
+  } else if (isMergeOrOutPipeline) {
+    results = (
+      <ResultsContainer center>
+        <OutResultBanner
+          namespace={mergeOrOutDestination}
+          onClick={() => {
+            if (mergeOrOutDestination) {
+              onOutClick?.(mergeOrOutDestination);
+            }
+          }}
+        ></OutResultBanner>
+      </ResultsContainer>
+    );
+  } else if (isEmpty) {
+    results = <PipelineEmptyResults />;
+  } else {
+    results = (
+      <PipelineResultsList
+        documents={documents}
+        allDocsExpanded={allDocsExpanded}
+        view={resultsViewType}
+      />
+    );
+  }
+
+  return (
+    <div data-testid="pipeline-results-workspace" className={containerStyles}>
+      <div className={resultsStyles}>{results}</div>
+    </div>
+  );
+};
 
 const mapState = (state: RootState) => {
   const {
@@ -205,7 +211,7 @@ const mapState = (state: RootState) => {
     mergeOrOutDestination: getDestinationNamespaceFromStage(
       namespace,
       lastStage
-    )
+    ),
   };
 };
 
@@ -217,7 +223,7 @@ const mapDispatch = {
       'aggregations-open-result-namespace',
       namespace
     );
-  }
+  },
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsWorkspace);

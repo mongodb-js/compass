@@ -9,5 +9,5 @@ export const RESET = 'aggregations/create-view/reset';
  * @return {Object} The action creator.
  */
 export const reset = () => ({
-  type: RESET
+  type: RESET,
 });

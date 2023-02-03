@@ -42,10 +42,7 @@ export const INITIAL_STATE: State = {
   loading: false,
 };
 
-const reducer: Reducer<State, AnyAction> = (
-  state = INITIAL_STATE,
-  action
-) => {
+const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
     case ConfirmNewPipelineActions.NewPipelineConfirmed:
@@ -76,7 +73,7 @@ const reducer: Reducer<State, AnyAction> = (
 export const cancelCount = (): PipelineBuilderThunkAction<void> => {
   return (_dispatch, getState) => {
     const {
-      countDocuments: { abortController }
+      countDocuments: { abortController },
     } = getState();
     abortController?.abort();
   };
@@ -88,7 +85,7 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
       namespace,
       maxTimeMS,
       dataService: { dataService },
-      collationString: { value: collation }
+      collationString: { value: collation },
     } = getState();
 
     if (!dataService) {

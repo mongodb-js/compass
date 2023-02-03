@@ -259,8 +259,10 @@ store.onActivated = (appRegistry) => {
     store.refreshNamespaceStats(ns);
   });
 
-  appRegistry.on('collection-created', (ns) => {
-    store.refreshNamespace(ns);
+  appRegistry.on('collection-created', async({ ns, database }) => {
+    store.refreshNamespace({ ns, database });
+    const metadata = await store.fetchCollectionMetadata(ns);
+    appRegistry.emit('select-namespace', metadata);
   });
 
   appRegistry.on('collections-list-select-collection', async({ ns }) => {

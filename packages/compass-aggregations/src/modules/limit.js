@@ -6,7 +6,7 @@ export const INITIAL_STATE = DEFAULT_SAMPLE_SIZE;
 
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === APPLY_SETTINGS) {
-    return action.settings.sampleSize ?? state
+    return action.settings.sampleSize ?? state;
   }
   if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return INITIAL_STATE;

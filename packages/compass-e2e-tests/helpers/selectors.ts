@@ -746,16 +746,16 @@ export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="option"]`;
+  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="option"]`;
 };
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };
+export const stagePreview = (stageIndex: number): string => {
+  return `[data-testid="stage-preview-${stageIndex}"]`;
+};
 export const stagePreviewToolbarTooltip = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-toolbar-tooltip"]`;
-};
-export const atlasOnlyStagePreviewSection = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-missing-search-support"]`;
 };
 export const stagePreviewEmpty = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-empty"]`;
@@ -770,7 +770,7 @@ export const stagePickerComboboxInput = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
 };
 export const stagePickerListBox = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="listbox"]`;
+  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="listbox"]`;
 };
 export const stageTextarea = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] .ace_editor textarea`; // .ace_text-input
@@ -784,21 +784,13 @@ export const stageAdd = (stageIndex: number): string => {
 export const stageToggle = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
 };
-export const stageDelete = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="delete-stage"]`;
+export const stageMoreOptions = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-option-menu-button"]`;
 };
-export const stageOutSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="save-out-documents"]`;
-};
-export const stageOutCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-out-collection"]`;
-};
-export const stageMergeSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="save-merge-documents"]`;
-};
-export const stageMergeCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-merge-collection"]`;
-};
+export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
+
+export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
+
 export const stageEditorErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
 };
@@ -840,7 +832,7 @@ export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
 export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
-  '[data-testid="documents-returned-summary"]';
+  '[data-testid="nReturned-summary"]';
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';

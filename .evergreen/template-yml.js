@@ -35,6 +35,7 @@ function template(input) {
 function generateBuildVariantTask(
   taskName,
   taskOptions,
+  variantOptions,
   defaultRunOn,
   runOnOptions
 ) {
@@ -45,6 +46,9 @@ function generateBuildVariantTask(
   }
   if (taskOptions.gui && guiMachine !== defaultRunOn) {
     task.run_on = guiMachine;
+  }
+  if (variantOptions.run_on_override?.[task.run_on ?? defaultRunOn]) {
+    task.run_on = variantOptions.run_on_override[task.run_on ?? defaultRunOn];
   }
   return task;
 }
@@ -79,6 +83,7 @@ function generateBuildVariants() {
               return generateBuildVariantTask(
                 `${taskName}-${variantOptions.name}`,
                 taskOptions,
+                variantOptions,
                 runOnName,
                 runOnOptions
               );
@@ -88,6 +93,7 @@ function generateBuildVariants() {
         return generateBuildVariantTask(
           taskName,
           taskOptions,
+          {},
           runOnName,
           runOnOptions
         );

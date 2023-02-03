@@ -1,0 +1,78 @@
+{
+  "totalRows": 1,
+  "aborted": false,
+  "fields": {
+    "a": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 0,
+          "firstValue": "a"
+        }
+      },
+      "columnIndexes": [0],
+      "detected": "string"
+    },
+    "foo.bar": {
+      "types": {
+        "double": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 1,
+          "firstValue": "1.1"
+        }
+      },
+      "columnIndexes": [1],
+      "detected": "double"
+    },
+    "foo.baz.qux": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 2,
+          "firstValue": "1.2.1"
+        }
+      },
+      "columnIndexes": [2],
+      "detected": "string"
+    },
+    "foo.baz.quux": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 3,
+          "firstValue": "1.2.1"
+        }
+      },
+      "columnIndexes": [3],
+      "detected": "string"
+    },
+    "z": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 4,
+          "firstValue": "1.2.2"
+        }
+      },
+      "columnIndexes": [4],
+      "detected": "string"
+    },
+    "notes": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 5,
+          "firstValue": "z"
+        }
+      },
+      "columnIndexes": [5],
+      "detected": "string"
+    }
+  }
+}
