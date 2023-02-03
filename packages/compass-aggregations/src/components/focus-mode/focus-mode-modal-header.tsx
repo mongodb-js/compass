@@ -175,7 +175,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
           )}
         >
           <Body className={tooltipContentStyles}>
-            <span>Goto Previous Stage</span>
+            <span>Go to previous stage</span>
             <span>Ctrl + Shift + 9</span>
           </Body>
         </Tooltip>
