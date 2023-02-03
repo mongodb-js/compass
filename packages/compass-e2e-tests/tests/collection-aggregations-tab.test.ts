@@ -180,7 +180,9 @@ describe('Collection aggregations tab', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await beforeTests({
+      extraSpawnArgs: ['--show-focus-mode'],
+    });
     browser = compass.browser;
   });
 
@@ -1090,6 +1092,133 @@ describe('Collection aggregations tab', function () {
 
       await deleteButton.click();
       await confirmDeleteModal.waitForDisplayed({ reverse: true });
+    });
+  });
+
+  describe.only('focus mode', function() {
+    // tests to add for focus mode:
+    // - when auto preview is disabled, it should not show the preview
+    // - it should show the stage input and output preview
+    // - it should handle preview for output stage and atlas only stage operators
+    it('opens and closes the modal', async function() {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      const closeButton = await browser.$(Selectors.FocusModeCloseModalButton);
+      await closeButton.click();
+
+      await modal.waitForDisplayed({ reverse: true });
+    });
+
+    it('navigates between stages', async function() {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+      await browser.clickVisible(Selectors.AddStageButton);
+      await browser.$(Selectors.stageEditor(1)).waitForDisplayed();
+      await browser.selectStageOperator(1, '$limit');
+      await browser.setAceValue(Selectors.stageEditor(1), '10');
+
+      await browser.clickVisible(Selectors.AddStageButton);
+      await browser.$(Selectors.stageEditor(2)).waitForDisplayed();
+      await browser.selectStageOperator(2, '$sort');
+      await browser.setAceValue(Selectors.stageEditor(2), '{ i: -1 }');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+      
+      const nextButton = await browser.$(Selectors.FocusModeNextStageButton);
+      const previousButton = await browser.$(Selectors.FocusModePreviousStageButton);
+
+      await nextButton.waitForDisplayed();
+      await previousButton.waitForDisplayed();
+
+      expect(await previousButton.isEnabled()).to.equal(false);
+
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return await activeStage.getText() === 'Stage 1: $match';
+      });
+      
+      await nextButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return await activeStage.getText() === 'Stage 2: $limit';
+      });
+
+      await nextButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return await activeStage.getText() === 'Stage 3: $sort';
+      });
+
+      expect(await nextButton.isEnabled()).to.equal(false);
+      
+      await previousButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return await activeStage.getText() === 'Stage 2: $limit';
+      });
+
+      await previousButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return await activeStage.getText() === 'Stage 1: $match';
+      });
+
+      expect(await previousButton.isEnabled()).to.equal(false);
+
+      await browser.keys('Escape');
+      await modal.waitForDisplayed({ reverse: true });
+    });
+
+    it.only('adds a new stage before/after current stage', async function() {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return await activeStage.getText() === 'Stage 1: $match';
+      });
+      
+      const addStageMenu = await browser.$(Selectors.FocusModeAddStageMenuButton);
+      await addStageMenu.waitForDisplayed();
+
+
+      // Add a stage before the current stage.
+      await addStageMenu.click();
+
+      const addStageBeforeButton = await browser.$(Selectors.FocusModeAddStageBeforeMenuItem);
+      await addStageBeforeButton.waitForDisplayed();
+      await addStageBeforeButton.click();
+
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return await activeStage.getText() === 'Stage 1: select';
+      });
+
+      // Add a stage after the current stage.
+      await addStageMenu.click();
+
+      const addStageAfterButton = await browser.$(Selectors.FocusModeAddStageAfterMenuItem);
+      await addStageAfterButton.waitForDisplayed();
+      await addStageAfterButton.click();
+
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return await activeStage.getText() === 'Stage 2: select';
+      });
+
+      await browser.keys('Escape');
+      await modal.waitForDisplayed({ reverse: true });
     });
   });
 

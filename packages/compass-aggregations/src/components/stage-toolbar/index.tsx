@@ -129,6 +129,7 @@ export function StageToolbar({
           <IconButton
             onClick={() => onFocusModeEnableClick(index)}
             aria-label="Open stage in focus mode"
+            data-testid="focus-mode-button"
           >
             <Icon glyph="FullScreenEnter" size="small"></Icon>
           </IconButton>

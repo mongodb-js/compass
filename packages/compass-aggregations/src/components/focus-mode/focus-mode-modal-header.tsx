@@ -88,6 +88,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
           onClick={() => {
             onStageSelect(stageIndex - 1);
           }}
+          data-testid="previous-stage-button"
           aria-label="Edit previous stage"
         >
           <Icon
@@ -100,6 +101,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
+          data-testid="stage-select"
           allowDeselect={false}
           style={stageSelectStyle}
           size="xsmall"
@@ -125,6 +127,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
             onStageSelect(stageIndex + 1);
           }}
           aria-label="Edit next stage"
+          data-testid="next-stage-button"
         >
           <Icon
             size="xsmall"
@@ -150,12 +153,14 @@ export const FocusModeModalHeader: React.FunctionComponent<
       </div>
 
       <Menu
+        data-testid="add-stage-menu-content"
         open={menuOpen}
         setOpen={setMenuOpen}
         trigger={({ onClick, children }: any) => {
           return (
             <div className={controlContainerStyles}>
               <Button
+                data-testid="add-stage-menu-button"
                 size="xsmall"
                 leftGlyph={
                   <Icon
