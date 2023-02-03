@@ -35,6 +35,11 @@ export const EXPLAIN_STATE_CHANGED = `${PREFIX}/EXPLAIN_STATE_CHANGED`;
 export const EXPLAIN_PLAN_FETCHED = `${PREFIX}/EXPLAIN_PLAN_FETCHED`;
 
 /**
+ * The explain plan aborted action name.
+ */
+export const EXPLAIN_PLAN_ABORTED = `${PREFIX}/EXPLAIN_PLAN_ABORTED`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
@@ -42,6 +47,7 @@ export const INITIAL_STATE = {
   viewType: EXPLAIN_VIEWS.tree,
   abortController: null,
   error: null,
+  oldExplain: null,
   errorParsing: false,
   executionSuccess: false,
   executionTimeMillis: 0,
@@ -94,6 +100,7 @@ const doChangeExplainPlanState = (state, action) => {
     ...state,
     explainState: action.explainState,
     abortController: action.abortController,
+    oldExplain: action.oldExplain,
   };
 };
 
@@ -105,7 +112,19 @@ const doChangeExplainPlanState = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const executeExplainPlan = (state, action) => ({ ...state, ...action.explain });
+const executeExplainPlan = (state, action) => ({
+  ...state,
+  ...action.explain,
+  explainState: EXPLAIN_STATES.EXECUTED,
+});
+
+/**
+ * Restores old explain plan when
+ * request is aborted
+ * @param {*} state
+ * @returns
+ */
+const restoreOldExplainPlan = (state) => state.oldExplain ?? INITIAL_STATE;
 
 /**
  * To not have a huge switch statement in the reducer.
@@ -115,6 +134,7 @@ const MAPPINGS = {
   [SWITCHED_TO_JSON_VIEW]: switchViewType,
   [EXPLAIN_STATE_CHANGED]: doChangeExplainPlanState,
   [EXPLAIN_PLAN_FETCHED]: executeExplainPlan,
+  [EXPLAIN_PLAN_ABORTED]: restoreOldExplainPlan,
 };
 
 /**
@@ -158,10 +178,15 @@ export const switchToJSONView = () => ({
  *
  * @returns {Object} The explainState changed action.
  */
-export const explainStateChanged = (explainState, abortController = null) => ({
+export const explainStateChanged = (
+  explainState,
+  abortController = null,
+  oldExplain = null
+) => ({
   type: EXPLAIN_STATE_CHANGED,
   explainState,
   abortController,
+  oldExplain,
 });
 
 /**
@@ -314,7 +339,6 @@ export const fetchExplainPlan = (query) => {
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
     };
     let explain = state.explain;
-    const abortSignal = explain.abortController?.signal;
 
     if (query.collation) {
       options.collation = query.collation;
@@ -323,6 +347,11 @@ export const fetchExplainPlan = (query) => {
     if (!dataService) {
       return;
     }
+
+    const abortController = new AbortController();
+    const abortSignal = abortController.signal;
+    const oldExplain = { ...explain };
+    dispatch(startExplainPlan(abortController, oldExplain));
 
     try {
       const explainVerbosity = state.isDataLake
@@ -334,6 +363,9 @@ export const fetchExplainPlan = (query) => {
       });
       // Reset the error.
       explain.error = null;
+
+      // Reset the abortController
+      explain.abortController = null;
 
       if (isAggregationExplainOutput(data)) {
         // Queries against time series collections are run against
@@ -389,20 +421,13 @@ export const fetchExplainPlan = (query) => {
         })
       );
     } catch (error) {
+      if (abortSignal.aborted) {
+        return;
+      }
+
       explain.resultId = resultId();
       explain.error = error;
       dispatch(explainPlanFetched(explain));
-    } finally {
-      // This state change will also reset the abort controller
-      // The reason we dispatch an initial state on aborted is
-      // to keep the behavior post cancellation consistent with
-      // other tabs (e.g. Schema analysis) which is to show
-      // the user a welcome page for the feature itself
-      dispatch(
-        changeExplainPlanState(
-          abortSignal.aborted ? EXPLAIN_STATES.INITIAL : EXPLAIN_STATES.EXECUTED
-        )
-      );
     }
   };
 };
@@ -423,20 +448,21 @@ export const changeExplainPlanState = (explainState) => {
 /**
  * Sets the explain plan state to `requested`
  */
-export const startExplainPlan = () => {
+export const startExplainPlan = (abortController, oldExplain) => {
   return (dispatch) => {
-    const abortController = new AbortController();
     return dispatch(
-      explainStateChanged(EXPLAIN_STATES.REQUESTED, abortController)
+      explainStateChanged(EXPLAIN_STATES.REQUESTED, abortController, oldExplain)
     );
   };
 };
 
 export const cancelExplainPlan = () => {
   return (dispatch, getStore) => {
-    getStore().explain.abortController?.abort(
-      new Error('Explain cancelled by user')
-    );
+    const { abortController } = getStore().explain;
+    if (abortController) {
+      abortController.abort(new Error('Explain cancelled by user'));
+      dispatch({ type: EXPLAIN_PLAN_ABORTED });
+    }
   };
 };
 

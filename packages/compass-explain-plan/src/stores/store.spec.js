@@ -114,17 +114,22 @@ describe('Explain Plan Store', function () {
       context('when the action is EXPLAIN_STATE_CHANGED', function () {
         it('marks the start of explain plan"', function (done) {
           const explainState = explainStates.REQUESTED;
+          const abortController = new AbortController();
+          const oldExplain = null;
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(store.getState().explain.explainState).to.equal(
               explainState
             );
-            expect(store.getState().explain.abortController).to.be.instanceOf(
-              AbortController
+            expect(store.getState().explain.abortController).to.equal(
+              abortController
+            );
+            expect(store.getState().explain.oldExplain).to.deep.equal(
+              oldExplain
             );
             done();
           });
-          store.dispatch(startExplainPlan());
+          store.dispatch(startExplainPlan(abortController, oldExplain));
         });
 
         it('marks the completion of explain plan', function (done) {
@@ -135,21 +140,28 @@ describe('Explain Plan Store', function () {
               explainState
             );
             expect(store.getState().explain.abortController).to.be.null;
+            expect(store.getState().explain.oldExplain).to.be.null;
             done();
           });
           store.dispatch(explainStateChanged(explainState));
         });
 
         it('cancels the ongoing request to explain plan', function (done) {
+          const abortController = new AbortController();
+          const oldExplain = {
+            explainState: 'initial',
+          };
+          let timeout;
           const unsubscribe = store.subscribe(async () => {
-            setTimeout(() => {
+            if (timeout) return;
+            timeout = setTimeout(() => {
               unsubscribe();
-              expect(store.getState().explain.abortController.signal.aborted).to
-                .be.true;
+              expect(abortController.signal.aborted).to.be.true;
+              expect(store.getState().explain).to.deep.equal(oldExplain);
               done();
             });
           });
-          store.dispatch(startExplainPlan());
+          store.dispatch(startExplainPlan(abortController, oldExplain));
           store.dispatch(cancelExplainPlan());
         });
       });
@@ -159,6 +171,7 @@ describe('Explain Plan Store', function () {
           error: null,
           errorParsing: false,
           abortController: null,
+          oldExplain: null,
           executionSuccess: true,
           executionTimeMillis: 6,
           explainState: 'executed',

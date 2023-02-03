@@ -32,7 +32,6 @@ describe('ExplainStates [Component]', function () {
     explainState: 'initial',
   };
   const fetchExplainPlanSpy = sinon.spy();
-  const startExplainPlan = sinon.spy();
   const cancelExplainPlan = sinon.spy();
   const switchToTreeViewSpy = sinon.spy();
   const switchToJSONViewSpy = sinon.spy();
@@ -44,7 +43,6 @@ describe('ExplainStates [Component]', function () {
       <ExplainStates
         explain={explain}
         fetchExplainPlan={fetchExplainPlanSpy}
-        startExplainPlan={startExplainPlan}
         cancelExplainPlan={cancelExplainPlan}
         switchToTreeView={switchToTreeViewSpy}
         switchToJSONView={switchToJSONViewSpy}

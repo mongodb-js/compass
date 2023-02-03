@@ -53,7 +53,6 @@ class ExplainStates extends Component {
       resultId: PropTypes.number.isRequired,
     }),
     fetchExplainPlan: PropTypes.func.isRequired,
-    startExplainPlan: PropTypes.func.isRequired,
     cancelExplainPlan: PropTypes.func.isRequired,
     switchToTreeView: PropTypes.func.isRequired,
     switchToJSONView: PropTypes.func.isRequired,
@@ -77,7 +76,6 @@ class ExplainStates extends Component {
    * Executes the explain plan.
    */
   onExecuteExplainClicked() {
-    this.props.startExplainPlan();
     this.props.fetchExplainPlan(this.queryBarStore.state);
   }
 
@@ -167,7 +165,9 @@ class ExplainStates extends Component {
               this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
             }
             resultId={this.props.explain.resultId}
-            hasExplainResults={!this.checkIfZeroState()}
+            hasExplainResults={
+              !(this.checkIfZeroState() || this.checkIfExplainIsLoading())
+            }
             showReadonlyWarning={!this.props.isEditable}
             switchToTreeView={this.props.switchToTreeView}
             switchToJSONView={this.props.switchToJSONView}
