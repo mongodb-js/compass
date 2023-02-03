@@ -51,6 +51,9 @@ function hasDelimiterError({
   data: string[];
   errors: { code?: string }[];
 }) {
+  // papaparse gets weird when there's only one header field. It might find a
+  // space in the second line and go with that. So rather go with our own
+  // delimiter detection code in this case.
   if (data.length < 2) {
     return true;
   }
