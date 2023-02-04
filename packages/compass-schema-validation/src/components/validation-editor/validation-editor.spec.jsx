@@ -15,7 +15,7 @@ describe('ValidationEditor [Component]', function () {
     const setValidationLevelChangedSpy = sinon.spy();
     const setCancelValidationSpy = sinon.spy();
     const saveValidationSpy = sinon.spy();
-    const fetchSampleDocumentsSpy = sinon.spy();
+    const clearSampleDocumentsSpy = sinon.spy();
     const serverVersion = '3.6.0';
     const fields = [];
     const validation = {
@@ -42,7 +42,7 @@ describe('ValidationEditor [Component]', function () {
           validationLevelChanged={setValidationLevelChangedSpy}
           cancelValidation={setCancelValidationSpy}
           saveValidation={saveValidationSpy}
-          fetchSampleDocuments={fetchSampleDocumentsSpy}
+          clearSampleDocuments={clearSampleDocumentsSpy}
           serverVersion={serverVersion}
           fields={fields}
           validation={validation}
@@ -68,7 +68,7 @@ describe('ValidationEditor [Component]', function () {
     const setValidationLevelChangedSpy = sinon.spy();
     const setCancelValidationSpy = sinon.spy();
     const saveValidationSpy = sinon.spy();
-    const fetchSampleDocumentsSpy = sinon.spy();
+    const clearSampleDocumentsSpy = sinon.spy();
     const serverVersion = '3.6.0';
     const fields = [];
     const validation = {
@@ -95,7 +95,7 @@ describe('ValidationEditor [Component]', function () {
           validationLevelChanged={setValidationLevelChangedSpy}
           cancelValidation={setCancelValidationSpy}
           saveValidation={saveValidationSpy}
-          fetchSampleDocuments={fetchSampleDocumentsSpy}
+          clearSampleDocuments={clearSampleDocumentsSpy}
           serverVersion={serverVersion}
           fields={fields}
           validation={validation}
