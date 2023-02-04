@@ -57,7 +57,7 @@ const menuItemStyles = css({
   '&:after': {
     content: 'attr(data-hotkey)',
     position: 'absolute',
-    right: 20, // LG has 20px padding on the right
+    whiteSpace: 'nowrap',
   },
 });
 
