@@ -5,6 +5,8 @@ import {
   spacing,
   palette,
   cx,
+  useDarkMode,
+  HorizontalRule,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
@@ -50,7 +52,6 @@ const containerStyles = css({
 });
 
 const headerStyles = css({
-  borderBottom: `1px solid ${palette.gray.light2}`,
   paddingBottom: spacing[2],
 });
 
@@ -77,6 +78,13 @@ const previewAreaStyles = css({
 const editorAreaBaseStyles = css({
   flex: 1,
   paddingTop: spacing[4],
+});
+
+const editorAreaDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
+});
+
+const editorAreaLightStyles = css({
   backgroundColor: palette.gray.light3,
 });
 
@@ -101,11 +109,16 @@ const FocusModeContent = ({
 }: {
   isAutoPreviewEnabled: boolean;
 }) => {
+  const darkMode = useDarkMode();
   if (!isAutoPreviewEnabled) {
     return (
       <div className={bodyStyles}>
         <div
-          className={cx(editorAreaBaseStyles, editorAreaExpanded)}
+          className={cx(
+            editorAreaBaseStyles,
+            editorAreaExpanded,
+            darkMode ? editorAreaDarkStyles : editorAreaLightStyles
+          )}
           data-testid="stage-editor"
         >
           <FocusModeStageEditor />
@@ -140,7 +153,11 @@ const FocusModeContent = ({
         </div>
       </Resizable>
       <div
-        className={cx(editorAreaBaseStyles, editorAreaWithPreviewStyles)}
+        className={cx(
+          editorAreaBaseStyles,
+          editorAreaWithPreviewStyles,
+          darkMode ? editorAreaDarkStyles : editorAreaLightStyles
+        )}
         data-testid="stage-editor"
       >
         <FocusModeStageEditor />
@@ -189,6 +206,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
         <div className={headerStyles}>
           <FocusModeModalHeader></FocusModeModalHeader>
         </div>
+        <HorizontalRule />
         <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
       </div>
     </Modal>
