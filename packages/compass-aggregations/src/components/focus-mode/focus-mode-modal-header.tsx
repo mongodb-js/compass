@@ -56,7 +56,6 @@ const menuStyles = css({
 const menuItemStyles = css({
   '&:after': {
     content: 'attr(data-hotkey)',
-    position: 'absolute',
     whiteSpace: 'nowrap',
   },
 });
