@@ -124,7 +124,7 @@ function SidebarTitle({
 
     actions.push({
       action: 'refresh-data',
-      label: 'Reload Data',
+      label: 'Reload data',
       icon: 'Refresh',
     });
 
