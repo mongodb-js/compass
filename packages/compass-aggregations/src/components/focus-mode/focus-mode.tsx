@@ -16,6 +16,8 @@ import {
   FocusModeStageOutput,
 } from './focus-mode-stage-preview';
 import FocusModeModalHeader from './focus-mode-modal-header';
+import ResizeHandle from '../resize-handle';
+import { Resizable } from 're-resizable';
 
 // These styles make the modal occupy the whole screen,
 // with 18px of padding - because that's the
@@ -54,20 +56,34 @@ const headerStyles = css({
 
 const bodyStyles = css({
   display: 'flex',
-  gap: spacing[2],
   height: '100%',
   overflow: 'hidden',
 });
 
-const previewAreaStyles = css({
-  width: '25%',
+const inputResizerStyles = css({
   paddingTop: spacing[4],
+  paddingRight: spacing[2],
 });
 
-const editorAreaStyles = css({
-  width: '50%',
+const outputResizerStyles = css({
+  paddingTop: spacing[4],
+  paddingLeft: spacing[2],
+});
+
+const previewAreaStyles = css({
+  height: '100%',
+});
+
+const editorAreaBaseStyles = css({
+  flex: 1,
   paddingTop: spacing[4],
   backgroundColor: palette.gray.light3,
+});
+
+const editorAreaWithPreviewStyles = css({
+  width: '50%',
+  minWidth: '20%',
+  maxWidth: '70%',
 });
 
 const editorAreaExpanded = css({
@@ -78,6 +94,83 @@ type FocusModeProps = {
   isModalOpen: boolean;
   isAutoPreviewEnabled: boolean;
   onCloseModal: () => void;
+};
+
+const FocusModeContent = ({
+  isAutoPreviewEnabled,
+}: {
+  isAutoPreviewEnabled: boolean;
+}) => {
+  if (!isAutoPreviewEnabled) {
+    return (
+      <div className={bodyStyles}>
+        <div
+          className={cx(editorAreaBaseStyles, editorAreaExpanded)}
+          data-testid="stage-editor"
+        >
+          <FocusModeStageEditor />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className={bodyStyles}>
+      <Resizable
+        defaultSize={{
+          width: '25%',
+          height: 'auto',
+        }}
+        minWidth={'15%'}
+        maxWidth={'40%'}
+        className={inputResizerStyles}
+        enable={{
+          right: true,
+        }}
+        handleComponent={{
+          right: <ResizeHandle />,
+        }}
+        handleStyles={{
+          right: {
+            right: '-9px', // default -5px
+          },
+        }}
+      >
+        <div className={previewAreaStyles} data-testid="stage-input">
+          <FocusModeStageInput />
+        </div>
+      </Resizable>
+      <div
+        className={cx(editorAreaBaseStyles, editorAreaWithPreviewStyles)}
+        data-testid="stage-editor"
+      >
+        <FocusModeStageEditor />
+      </div>
+      <Resizable
+        defaultSize={{
+          width: '25%',
+          height: 'auto',
+        }}
+        minWidth={'15%'}
+        maxWidth={'40%'}
+        className={outputResizerStyles}
+        enable={{
+          left: true,
+        }}
+        handleComponent={{
+          left: <ResizeHandle />,
+        }}
+        handleStyles={{
+          left: {
+            left: '-1px', // default -5px
+          },
+        }}
+      >
+        <div className={previewAreaStyles} data-testid="stage-output">
+          <FocusModeStageOutput />
+        </div>
+      </Resizable>
+    </div>
+  );
 };
 
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
@@ -96,27 +189,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
         <div className={headerStyles}>
           <FocusModeModalHeader></FocusModeModalHeader>
         </div>
-        <div className={bodyStyles}>
-          {isAutoPreviewEnabled && (
-            <div className={previewAreaStyles} data-testid="stage-input">
-              <FocusModeStageInput />
-            </div>
-          )}
-          <div
-            className={cx(
-              editorAreaStyles,
-              !isAutoPreviewEnabled && editorAreaExpanded
-            )}
-            data-testid="stage-editor"
-          >
-            <FocusModeStageEditor />
-          </div>
-          {isAutoPreviewEnabled && (
-            <div className={previewAreaStyles} data-testid="stage-output">
-              <FocusModeStageOutput />
-            </div>
-          )}
-        </div>
+        <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
       </div>
     </Modal>
   );

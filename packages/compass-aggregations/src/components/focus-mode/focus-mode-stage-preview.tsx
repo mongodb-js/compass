@@ -32,6 +32,13 @@ const headerStyles = css({
   flexDirection: 'row',
   alignItems: 'flex-start',
   marginBottom: spacing[2],
+  flexWrap: 'wrap',
+});
+
+const titleStyles = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 const centerStyles = css({
@@ -46,7 +53,7 @@ const centerStyles = css({
 const messageStyles = css({ marginTop: spacing[3] });
 
 const documentListStyles = css({
-  overflowY: 'scroll',
+  overflowY: 'auto',
 });
 
 const pipelineOutputMenuStyles = css({
@@ -136,7 +143,7 @@ export const FocusModePreview = ({
   return (
     <div className={containerStyles} data-testid="focus-mode-stage-preview">
       <div className={headerStyles}>
-        <div>
+        <div className={titleStyles}>
           <Overline>{title}</Overline>
           {shouldShowCount && (
             <Body>
