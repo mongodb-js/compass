@@ -456,6 +456,7 @@ describe('store', function () {
         },
         actions: actions,
         namespace: 'compass-crud.test',
+        noRefreshOnConfigure: true,
       });
     });
 

@@ -539,17 +539,10 @@ class CrudStoreImpl
           this.globalAppRegistry.emit('document-deleted', payload);
           const index = this.findDocumentIndex(doc);
           this.state.docs?.splice(index, 1);
-          if (this.state.count === null) {
-            this.setState({
-              count: null,
-              end: Math.max(this.state.end - 1, 0),
-            });
-          } else {
-            this.setState({
-              count: this.state.count - 1,
-              end: Math.max(this.state.end - 1, 0),
-            });
-          }
+          this.setState({
+            count: this.state.count === null ? null : this.state.count - 1,
+            end: Math.max(this.state.end - 1, 0),
+          });
         }
       });
     } else {
