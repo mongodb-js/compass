@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -53,14 +53,14 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
     "hadron-ipc": "^3.1.1",
-    "mongodb-data-service": "^22.4.0",
+    "mongodb-data-service": "^22.4.1",
     "react": "^17.0.2"
   },
   "dependencies": {
     "@electron/remote": "^2.0.9",
     "@mongodb-js/compass-components": "^1.5.0",
     "hadron-ipc": "^3.1.1",
-    "mongodb-data-service": "^22.4.0"
+    "mongodb-data-service": "^22.4.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.2",
@@ -76,7 +76,7 @@
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
-    "compass-preferences-model": "^2.5.0",
+    "compass-preferences-model": "^2.5.1",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",
