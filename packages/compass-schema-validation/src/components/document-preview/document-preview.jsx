@@ -7,10 +7,12 @@ import {
   css,
   cx,
   spacing,
+  Button,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
 import { LoadingOverlay } from '../loading-overlay';
+import { DOCUMENT_LOADING_STATES } from '../../modules/sample-documents';
 
 const previewStyles = css({
   display: 'flex',
@@ -22,6 +24,11 @@ const previewStyles = css({
 
 const noPreviewStyles = css({
   alignItems: 'center',
+});
+
+const loadSampleStyles = css({
+  width: '100%',
+  textAlign: 'center',
 });
 
 const noPreviewTextStyles = css({
@@ -39,7 +46,8 @@ class DocumentPreview extends Component {
 
   static propTypes = {
     document: PropTypes.object,
-    isLoading: PropTypes.bool,
+    loadingState: PropTypes.oneOf(Object.values(DOCUMENT_LOADING_STATES)),
+    onLoadSampleClick: PropTypes.func,
   };
 
   /**
@@ -56,12 +64,27 @@ class DocumentPreview extends Component {
         )}
         data-testid="document-preview"
       >
-        {this.props.isLoading ? (
+        {this.props.loadingState === DOCUMENT_LOADING_STATES.INITIAL ? (
+          <Body as="div" className={loadSampleStyles}>
+            <Button
+              data-testid="load-sample-document"
+              size="small"
+              onClick={this.props.onLoadSampleClick}
+            >
+              Load document
+            </Button>
+          </Body>
+        ) : this.props.loadingState === DOCUMENT_LOADING_STATES.LOADING ? (
           <LoadingOverlay />
         ) : this.props.document ? (
           <Document doc={this.props.document} editable={false} />
         ) : (
-          <Body className={noPreviewTextStyles}>No Preview Documents</Body>
+          <Body
+            data-testid="load-sample-no-preview"
+            className={noPreviewTextStyles}
+          >
+            No Preview Documents
+          </Body>
         )}
       </KeylineCard>
     );

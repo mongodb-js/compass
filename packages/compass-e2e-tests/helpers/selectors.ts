@@ -751,11 +751,11 @@ export const stageOperatorOptions = (stageIndex: number): string => {
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };
+export const stagePreview = (stageIndex: number): string => {
+  return `[data-testid="stage-preview-${stageIndex}"]`;
+};
 export const stagePreviewToolbarTooltip = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-toolbar-tooltip"]`;
-};
-export const atlasOnlyStagePreviewSection = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-missing-search-support"]`;
 };
 export const stagePreviewEmpty = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-empty"]`;
@@ -765,6 +765,9 @@ export const stageCollapseButton = (stageIndex: number): string => {
 };
 export const stageExpandButton = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
+};
+export const stageFocusModeButton = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="focus-mode-button"]`;
 };
 export const stagePickerComboboxInput = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
@@ -791,18 +794,19 @@ export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"
 
 export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
 
-export const stageOutSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="save-out-documents"]`;
-};
-export const stageOutCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-out-collection"]`;
-};
-export const stageMergeSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="save-merge-documents"]`;
-};
-export const stageMergeCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-merge-collection"]`;
-};
+// Focus Mode
+export const FocusModeModal = '[data-testid="focus-mode-modal"]';
+export const FocusModeStageInput = `${FocusModeModal} [data-testid="stage-input"]`;
+export const FocusModeStageEditor = `${FocusModeModal} [data-testid="stage-editor"]`;
+export const FocusModeStageOutput = `${FocusModeModal} [data-testid="stage-output"]`;
+export const FocusModeCloseModalButton = `${FocusModeModal} [aria-label="Close modal"]`;
+export const FocusModePreviousStageButton = `${FocusModeModal} [data-testid="previous-stage-button"]`;
+export const FocusModeNextStageButton = `${FocusModeModal} [data-testid="next-stage-button"]`;
+export const FocusModeActiveStageLabel = `${FocusModeModal} [data-testid="stage-select"]`;
+export const FocusModeAddStageMenuButton = `${FocusModeModal} [data-testid="add-stage-menu-button"]`;
+export const FocusModeAddStageBeforeMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage before"]`;
+export const FocusModeAddStageAfterMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage after"]`;
+
 export const stageEditorErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
 };
@@ -896,8 +900,10 @@ export const UpdateValidationButton =
   '[data-testid="update-validation-button"]';
 export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
+export const ValidationLoadMatchingDocumentsBtn = `${ValidationMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
+export const ValidationLoadNotMatchingDocumentsBtn = `${ValidationNotMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
 export const ValidationActionSelector =
   '[data-testid="validation-action-selector"]';
 export const ValidationLevelSelector =

@@ -27,7 +27,6 @@
     "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",
     "release": "npm run release --workspace mongodb-compass --",
     "reformat": "lerna run reformat --stream --no-bail",
-    "reformat-changed": "lerna run reformat --stream --no-bail --since origin/HEAD --exclude-dependents",
     "package-compass": "npm run package-compass --workspace=mongodb-compass --",
     "prestart": "npm run compile --workspace=@mongodb-js/webpack-config-compass",
     "start": "npm run start --workspace=mongodb-compass",
@@ -43,7 +42,9 @@
     "where": "node ./scripts/monorepo/where.js",
     "create-workspace": "node ./scripts/create-workspace.js",
     "update-evergreen-config": "node .evergreen/template-yml.js",
-    "publish-packages-next": "npx lerna publish \"0.0.0-next-$(git rev-parse HEAD)\" --force-publish --exact --no-git-tag-version --no-private --dist-tag next --pre-dist-tag next --no-verify-access --no-git-reset --yes"
+    "publish-packages-next": "npx lerna publish \"0.0.0-next-$(git rev-parse HEAD)\" --force-publish --exact --no-git-tag-version --no-private --dist-tag next --pre-dist-tag next --no-verify-access --no-git-reset --yes",
+    "prepare": "husky install",
+    "precommit": "compass-scripts precommit"
   },
   "repository": {
     "type": "git",
@@ -57,6 +58,7 @@
     "@testing-library/dom": "^8.11.1",
     "@webpack-cli/serve": "^0.2.0",
     "babel-loader": "^7.1.5",
+    "husky": "^8.0.3",
     "lerna": "^4.0.0",
     "node-gyp": "^8.4.1"
   },

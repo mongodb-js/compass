@@ -10,7 +10,6 @@ import {
   explainStateChanged,
   explainPlanFetched,
 } from '../modules/explain';
-import { treeStagesChanged } from '../modules/tree-stages';
 
 describe('Explain Plan Store', function () {
   let store;
@@ -159,47 +158,6 @@ describe('Explain Plan Store', function () {
             done();
           });
           store.dispatch(explainPlanFetched(explain));
-        });
-      });
-    });
-
-    context('when it is the tree-stages module', function () {
-      context('when the action is TREE_STAGES_CHANGED', function () {
-        const explain = {
-          error: null,
-          executionSuccess: true,
-          executionTimeMillis: 6,
-          explainState: 'executed',
-          inMemorySort: false,
-          index: null,
-          indexType: 'COLLSCAN',
-          isCollectionScan: true,
-          isCovered: false,
-          isMultiKey: false,
-          isSharded: false,
-          nReturned: 18801,
-          namespace: 'db.coll',
-          numShards: 0,
-          parsedQuery: {},
-          executionStats: {},
-          totalDocsExamined: 18801,
-          totalKeysExamined: 0,
-          usedIndexes: [],
-          viewType: 'tree',
-        };
-
-        it('updates the treeStages in state', function (done) {
-          const unsubscribe = store.subscribe(() => {
-            unsubscribe();
-            expect(store.getState().treeStages).to.deep.equal({
-              nodes: [],
-              links: [],
-              width: 0,
-              height: 0,
-            });
-            done();
-          });
-          store.dispatch(treeStagesChanged(explain));
         });
       });
     });

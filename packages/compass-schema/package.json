@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-schema",
   "productName": "Compass Schema plugin",
   "description": "Compass Schema Tab Plugin",
-  "version": "6.5.0",
+  "version": "6.6.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -57,20 +57,20 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.4.0",
-    "@mongodb-js/compass-logging": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.5.0",
+    "@mongodb-js/compass-logging": "^1.1.2",
     "bson": "^4.4.1",
-    "compass-preferences-model": "^2.4.0",
-    "hadron-document": "^8.0.2",
-    "hadron-ipc": "^3.1.0",
+    "compass-preferences-model": "^2.5.0",
+    "hadron-document": "^8.1.0",
+    "hadron-ipc": "^3.1.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.1",
-    "@mongodb-js/mocha-config-compass": "^1.0.1",
+    "@mongodb-js/eslint-config-compass": "^1.0.2",
+    "@mongodb-js/mocha-config-compass": "^1.0.2",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.4",
+    "@mongodb-js/webpack-config-compass": "^1.0.5",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -83,7 +83,7 @@
     "debug": "^3.0.1",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.2",
+    "hadron-app-registry": "^9.0.3",
     "jquery": "^2.1.4",
     "leaflet": "^1.5.1",
     "leaflet-defaulticon-compatibility": "^0.1.1",
@@ -130,11 +130,11 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.4.0",
-    "@mongodb-js/compass-logging": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.5.0",
+    "@mongodb-js/compass-logging": "^1.1.2",
     "bson": "^4.4.1",
-    "compass-preferences-model": "^2.4.0",
-    "hadron-document": "^8.0.2",
-    "hadron-ipc": "^3.1.0"
+    "compass-preferences-model": "^2.5.0",
+    "hadron-document": "^8.1.0",
+    "hadron-ipc": "^3.1.1"
   }
 }

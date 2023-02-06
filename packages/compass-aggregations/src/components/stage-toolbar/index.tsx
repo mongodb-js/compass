@@ -63,6 +63,10 @@ const leftStyles = css({
   width: '388px', // default width of the stage editor
 });
 
+const selectStyles = css({
+  marginRight: spacing[2],
+});
+
 const textStyles = css({
   flex: 1,
   whiteSpace: 'nowrap',
@@ -118,7 +122,9 @@ export function StageToolbar({
       <div className={leftStyles}>
         <StageCollapser index={index} />
         <Body weight="medium">Stage {index + 1}</Body>
-        <StageOperatorSelect index={index} />
+        <div className={selectStyles}>
+          <StageOperatorSelect index={index} />
+        </div>
         <ToggleStage index={index} />
       </div>
       <div className={textStyles}>
@@ -129,6 +135,7 @@ export function StageToolbar({
           <IconButton
             onClick={() => onFocusModeEnableClick(index)}
             aria-label="Open stage in focus mode"
+            data-testid="focus-mode-button"
           >
             <Icon glyph="FullScreenEnter" size="small"></Icon>
           </IconButton>

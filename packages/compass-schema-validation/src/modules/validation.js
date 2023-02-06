@@ -2,7 +2,7 @@ import { EJSON } from 'bson';
 import queryParser from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { fetchSampleDocuments } from './sample-documents';
+import { clearSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
@@ -420,7 +420,6 @@ export const fetchValidation = (namespace) => {
 
         validation.validator = EJSON.stringify(validation.validator, null, 2);
 
-        dispatch(fetchSampleDocuments(validation.validator));
         dispatch(validationFetched(validation));
         dispatch(zeroStateChanged(false));
         dispatch(isLoadedChanged(true));
@@ -520,7 +519,7 @@ export const cancelValidation = () => {
         error: null,
       })
     );
-    dispatch(fetchSampleDocuments(prevValidation.validator));
+    dispatch(clearSampleDocuments());
 
     return;
   };

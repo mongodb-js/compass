@@ -48,7 +48,6 @@ class ExplainStates extends Component {
     switchToTreeView: PropTypes.func.isRequired,
     switchToJSONView: PropTypes.func.isRequired,
     query: PropTypes.any,
-    treeStages: PropTypes.object.isRequired,
     appRegistry: PropTypes.object.isRequired,
     queryExecuted: PropTypes.func.isRequired,
   };
