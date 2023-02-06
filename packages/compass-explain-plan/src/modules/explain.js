@@ -436,19 +436,6 @@ export const fetchExplainPlan = (query) => {
 };
 
 /**
- * Changes the explain plan state.
- *
- * @param {String} explainState - The explain plan state.
- *
- * @returns {Function} The function.
- */
-export const changeExplainPlanState = (explainState) => {
-  return (dispatch) => {
-    return dispatch(explainStateChanged(explainState));
-  };
-};
-
-/**
  * Sets the explain plan state to `requested`
  */
 export const startExplainPlan = (abortController, oldExplain) => {
