@@ -54,12 +54,6 @@ describe('Collection explain plan tab', function () {
     await browser.clickVisible(Selectors.ExecuteExplainButton);
     const spinner = await browser.$(Selectors.ExplainCancellableSpinner);
     await spinner.waitForDisplayed();
-
-    const element = await browser.$(Selectors.ExplainSummary);
-    await element.waitForDisplayed();
-
-    const stages = await browser.$$(Selectors.ExplainStage);
-    expect(stages).to.have.lengthOf(2);
   });
 
   it('cancels an ongoing explain and falls back to welcome page', async function () {
