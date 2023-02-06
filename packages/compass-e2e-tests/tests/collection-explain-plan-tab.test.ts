@@ -4,7 +4,6 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
-import { expandOptions, setLimit, setSort } from '../helpers/commands';
 
 const { expect } = chai;
 
@@ -48,8 +47,8 @@ describe('Collection explain plan tab', function () {
   it('shows a loading state while explain is running', async function () {
     // Popuplate existing collection with some more data
     await createNumbersCollection(collectionName, 10_00_000);
-    await expandOptions(browser, tabName);
-    await setSort(browser, tabName, '{ i: -1 }');
+    await browser.expandOptions(tabName);
+    await browser.setSort(tabName, '{ i: -1 }');
 
     await browser.clickVisible(Selectors.ExecuteExplainButton);
     const spinner = await browser.$(Selectors.ExplainCancellableSpinner);
@@ -59,8 +58,8 @@ describe('Collection explain plan tab', function () {
   it('cancels an ongoing explain and falls back to welcome page', async function () {
     // Popuplate existing collection with some more data
     await createNumbersCollection(collectionName, 10_00_000);
-    await expandOptions(browser, tabName);
-    await setSort(browser, tabName, '{ i: -1 }');
+    await browser.expandOptions(tabName);
+    await browser.setSort(tabName, '{ i: -1 }');
 
     await browser.clickVisible(Selectors.ExecuteExplainButton);
     await browser.clickVisible(Selectors.ExplainCancelButton);
@@ -74,9 +73,9 @@ describe('Collection explain plan tab', function () {
   it('cancels an ongoing explain and falls back to old explain output', async function () {
     // Popuplate existing collection with some more data
     await createNumbersCollection(collectionName, 10_00_000);
-    await expandOptions(browser, tabName);
-    await setSort(browser, tabName, '{ i: -1 }');
-    await setLimit(browser, tabName, '10000');
+    await browser.expandOptions(tabName);
+    await browser.setSort(tabName, '{ i: -1 }');
+    await browser.setLimit(tabName, '10000');
 
     // Run explain
     await browser.clickVisible(Selectors.ExecuteExplainButton);
@@ -87,7 +86,7 @@ describe('Collection explain plan tab', function () {
     const totalStages = (await browser.$$(Selectors.ExplainStage)).length;
 
     // Run explain again without the limit and cancel
-    await setLimit(browser, tabName, '');
+    await browser.setLimit(tabName, '');
     await browser.clickVisible(Selectors.queryBarApplyFilterButton(tabName));
     await browser.clickVisible(Selectors.ExplainCancelButton);
 

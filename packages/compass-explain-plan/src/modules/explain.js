@@ -348,6 +348,9 @@ export const fetchExplainPlan = (query) => {
       return;
     }
 
+    // Cancel previous run of aggregation if there is any
+    explain.abortController?.abort();
+
     const abortController = new AbortController();
     const abortSignal = abortController.signal;
     const oldExplain = { ...explain };
