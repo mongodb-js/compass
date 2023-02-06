@@ -90,6 +90,7 @@ describe('Collection explain plan tab', function () {
     // Ensure the results are shown
     let summaryElement = await browser.$(Selectors.ExplainSummary);
     await summaryElement.waitForDisplayed();
+    const totalStages = (await browser.$$(Selectors.ExplainStage)).length;
 
     // Run explain again without the limit and cancel
     await setLimit(browser, tabName, '');
@@ -100,6 +101,6 @@ describe('Collection explain plan tab', function () {
     await summaryElement.waitForDisplayed();
 
     const stages = await browser.$$(Selectors.ExplainStage);
-    expect(stages).to.have.lengthOf(2);
+    expect(stages).to.have.lengthOf(totalStages);
   });
 });
