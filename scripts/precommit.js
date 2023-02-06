@@ -42,6 +42,8 @@ async function main(fileList) {
     'prettier',
     '--config',
     require.resolve('@mongodb-js/prettier-config-compass/.prettierrc.json'),
+    // Silently ignore files that are of format that is not supported by prettier
+    '--ignore-unknown',
     '--write',
     ...filesToPrettify,
   ]);
