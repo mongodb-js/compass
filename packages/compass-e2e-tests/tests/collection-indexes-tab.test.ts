@@ -180,9 +180,9 @@ describe('Collection indexes tab', function () {
     });
   });
 
-  describe('server version 7.0.0', function () {
+  describe('server version 6.3.0', function () {
     it('supports creating a columnstore index', async function () {
-      if (serverSatisfies('< 7.0.0-alpha0')) {
+      if (serverSatisfies('< 6.3.0-alpha0')) {
         return this.skip();
       }
 
