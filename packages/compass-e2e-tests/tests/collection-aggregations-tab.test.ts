@@ -1325,7 +1325,7 @@ describe('Collection aggregations tab', function () {
       await guideCue.waitForDisplayed({ reverse: true });
 
       // Now remove the stage and then add a new stage again.
-      // The guide cue should be shown again.
+      // The guide cue should not be shown again.
       await deleteStage(browser, 0);
 
       await browser.clickVisible(Selectors.AddStageButton);
