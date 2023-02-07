@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -9,6 +9,7 @@ import {
   palette,
   useDarkMode,
   IconButton,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
@@ -18,6 +19,10 @@ import { hasSyntaxError } from '../../utils/stage';
 import { usePreference } from 'compass-preferences-model';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
+import {
+  setHasSeenFocusModeGuideCue,
+  hasSeenFocusModeGuideCue,
+} from '../../utils/local-storage';
 
 const toolbarStyles = css({
   width: '100%',
@@ -97,6 +102,8 @@ const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
 const COLLAPSED_TEXT =
   'A sample of the aggregated results from this stage will be shown below.';
 
+const GUIDE_CUE_DELAY = 700;
+
 export function StageToolbar({
   index,
   hasSyntaxError,
@@ -107,6 +114,23 @@ export function StageToolbar({
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
   const showFocusMode = usePreference('showFocusMode', React);
+
+  const focusModeButton = React.useRef<HTMLButtonElement>(null);
+  const [isGuideCueVisible, setIsGuideCueVisible] = React.useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!hasSeenFocusModeGuideCue() && index === 0) {
+        setIsGuideCueVisible(true);
+      }
+    }, GUIDE_CUE_DELAY);
+    return () => clearTimeout(timeout);
+  }, [setIsGuideCueVisible]);
+
+  const setGuideCueVisited = () => {
+    setIsGuideCueVisible(false);
+    setHasSeenFocusModeGuideCue();
+  };
 
   return (
     <div
@@ -132,13 +156,29 @@ export function StageToolbar({
       </div>
       <div className={rightStyles}>
         {showFocusMode && (
-          <IconButton
-            onClick={() => onFocusModeEnableClick(index)}
-            aria-label="Open stage in focus mode"
-            data-testid="focus-mode-button"
-          >
-            <Icon glyph="FullScreenEnter" size="small"></Icon>
-          </IconButton>
+          <>
+            <GuideCue
+              data-testid="focus-mode-guide-cue"
+              open={isGuideCueVisible}
+              setOpen={() => setGuideCueVisited()}
+              refEl={focusModeButton}
+              numberOfSteps={1}
+              title="Focus Mode"
+            >
+              Stage Focus Mode allows you to focus on a single stage in the
+              pipeline. You can use it to see the results of a stage in
+              isolation, or to edit the stage without being distracted by the
+              rest of the pipeline.
+            </GuideCue>
+            <IconButton
+              ref={focusModeButton}
+              onClick={() => onFocusModeEnableClick(index)}
+              aria-label="Open stage in focus mode"
+              data-testid="focus-mode-button"
+            >
+              <Icon glyph="FullScreenEnter" size="small"></Icon>
+            </IconButton>
+          </>
         )}
         <OptionMenu index={index} />
       </div>

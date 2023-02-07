@@ -62,6 +62,7 @@ export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
+export { GuideCue } from '@leafygreen-ui/guide-cue';
 
 export {
   useToast,

@@ -1316,6 +1316,25 @@ describe('Collection aggregations tab', function () {
         );
       });
     });
+
+    it('shows guide cue for the first stage', async function () {
+      const guideCue = await browser.$(Selectors.FocusModeGuideCue);
+      await guideCue.waitForDisplayed();
+
+      await browser.keys('Escape');
+      await guideCue.waitForDisplayed({ reverse: true });
+
+      // Now remove the stage and then add a new stage again.
+      // The guide cue should be shown again.
+      await deleteStage(browser, 0);
+
+      await browser.clickVisible(Selectors.AddStageButton);
+      await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+      await browser.selectStageOperator(0, '$limit');
+      await browser.setAceValue(Selectors.stageEditor(0), '10');
+
+      await guideCue.waitForDisplayed({ reverse: true });
+    });
   });
 
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them

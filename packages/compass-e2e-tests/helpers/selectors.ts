@@ -795,6 +795,7 @@ export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"
 export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
 
 // Focus Mode
+export const FocusModeGuideCue = '[data-testid="focus-mode-guide-cue"]';
 export const FocusModeModal = '[data-testid="focus-mode-modal"]';
 export const FocusModeStageInput = `${FocusModeModal} [data-testid="stage-input"]`;
 export const FocusModeStageEditor = `${FocusModeModal} [data-testid="stage-editor"]`;
