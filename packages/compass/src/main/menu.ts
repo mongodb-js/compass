@@ -235,6 +235,15 @@ function helpWindowItem(): MenuItemConstructorOptions {
   };
 }
 
+function sourceCodeLink(): MenuItemConstructorOptions {
+  return {
+    label: `&View Source Code on GitHub`,
+    click() {
+      void shell.openExternal('https://github.com/mongodb-js/compass');
+    },
+  };
+}
+
 function license(): MenuItemConstructorOptions {
   return {
     label: '&License',
@@ -269,6 +278,8 @@ function helpSubMenu(
   subMenu.push(settingsDialogItem());
 
   subMenu.push(license());
+
+  subMenu.push(sourceCodeLink());
   subMenu.push(logFile(app));
 
   if (process.platform !== 'darwin') {

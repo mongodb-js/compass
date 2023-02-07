@@ -419,6 +419,9 @@ describe('CompassMenu', function () {
             label: '&License',
           },
           {
+            label: `&View Source Code on GitHub`,
+          },
+          {
             label: '&Open Log File',
           },
           {
