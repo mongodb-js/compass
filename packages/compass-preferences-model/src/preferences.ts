@@ -263,7 +263,7 @@ const featureFlagsProps: Required<{
   showFocusMode: {
     type: 'boolean',
     required: false,
-    default: false,
+    default: true,
     ui: true,
     cli: true,
     global: true,
