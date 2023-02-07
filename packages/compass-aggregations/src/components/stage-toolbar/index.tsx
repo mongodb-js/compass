@@ -125,7 +125,7 @@ export function StageToolbar({
       }
     }, GUIDE_CUE_DELAY);
     return () => clearTimeout(timeout);
-  }, [setIsGuideCueVisible]);
+  }, [setIsGuideCueVisible, index]);
 
   const setGuideCueVisited = () => {
     setIsGuideCueVisible(false);
