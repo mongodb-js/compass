@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "22.4.0",
+  "version": "22.4.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -57,14 +57,14 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.1.2",
-    "@mongodb-js/compass-utils": "^0.2.0",
+    "@mongodb-js/compass-utils": "^0.2.1",
     "@mongodb-js/devtools-connect": "^1.4.3",
     "@mongodb-js/ssh-tunnel": "^2.0.2",
     "async": "^3.2.0",
     "debug": "^4.2.0",
     "lodash": "^4.17.20",
     "mongodb-build-info": "^1.5.0",
-    "mongodb-connection-model": "^22.2.0",
+    "mongodb-connection-model": "^22.2.1",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-index-model": "^4.1.1",
     "mongodb-ns": "^2.4.0",
