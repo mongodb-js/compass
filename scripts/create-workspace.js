@@ -215,6 +215,7 @@ async function createWorkspace({
   isConfig,
   dependants,
   depType,
+  allowJs,
 }) {
   const pkgJson = {
     name: dirToScopedPackageName(workspaceName, scope),
@@ -377,6 +378,7 @@ async function createWorkspace({
       },
       include: ['src/**/*'],
       exclude: ['./src/**/*.spec.*'],
+      allowJs: allowJs === true ? true : undefined,
     },
     null,
     2
