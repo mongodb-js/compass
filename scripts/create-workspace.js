@@ -15,8 +15,12 @@ function packageNameToDir(pkgName) {
   return pkgName ? pkgName.replace(/^@mongodb-js\//, '') : pkgName;
 }
 
-function dirToScopedPackageName(dir) {
-  return dir.startsWith('@mongodb-js/') ? dir : `@mongodb-js/${dir}`;
+function dirToScopedPackageName(dir, scope) {
+  if (!scope) {
+    return dir;
+  }
+
+  return dir.startsWith(`${scope}/`) ? dir : `${scope}/${dir}`;
 }
 
 async function main(argv) {
@@ -184,9 +188,37 @@ async function main(argv) {
 
   console.log();
 
+  await createWorkspace({
+    name,
+    scope: '@mongodb-js',
+    description,
+    isPublic,
+    isPlugin,
+    isReact,
+    workspacesMeta,
+    isConfig,
+    dependants,
+    depType,
+  });
+}
+
+const BestMatchCache = new Map();
+
+async function createWorkspace({
+  name: workspaceName,
+  scope,
+  description,
+  isPublic,
+  isPlugin,
+  isReact,
+  workspacesMeta,
+  isConfig,
+  dependants,
+  depType,
+}) {
   const pkgJson = {
-    name: dirToScopedPackageName(name),
-    productName: `${name} Plugin`,
+    name: dirToScopedPackageName(workspaceName, scope),
+    productName: `${workspaceName} Plugin`,
     ...(description && { description }),
     author: {
       name: 'MongoDB Inc',
@@ -305,7 +337,7 @@ async function main(argv) {
     __dirname,
     '..',
     isConfig ? 'configs' : 'packages',
-    packageNameToDir(name)
+    packageNameToDir(workspaceName)
   );
 
   const packageJsonPath = path.join(packagePath, 'package.json');
@@ -452,7 +484,8 @@ describe('Compass Plugin', function() {
           if (!pkgJson[depType]) {
             pkgJson[depType] = {};
           }
-          pkgJson[depType][dirToScopedPackageName(name)] = '^0.1.0';
+          pkgJson[depType][dirToScopedPackageName(workspaceName, scope)] =
+            '^0.1.0';
           sortDepsByName(pkgJson, [depType]);
           return pkgJson;
         });
@@ -463,7 +496,7 @@ describe('Compass Plugin', function() {
   await withProgress(
     'Updating package-lock and prettifying workspace source',
     async () => {
-      await runInDir('npm install');
+      // await runInDir('npm install');
       await runInDir('npm run reformat', packagePath);
     }
   );
@@ -474,9 +507,9 @@ describe('Compass Plugin', function() {
     path.relative(process.cwd(), packagePath)
   );
   console.log();
-}
 
-const BestMatchCache = new Map();
+  return packagePath;
+}
 
 async function resolveLatestVersionFromRegistry(
   depName,
@@ -533,4 +566,8 @@ process.on('unhandledRejection', (err) => {
   process.exitCode = 1;
 });
 
-main(process.argv.slice(2));
+if (require.main === module) {
+  main(process.argv.slice(2));
+}
+
+module.exports = { createWorkspace };
