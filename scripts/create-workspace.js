@@ -498,7 +498,7 @@ describe('Compass Plugin', function() {
   await withProgress(
     'Updating package-lock and prettifying workspace source',
     async () => {
-      // await runInDir('npm install');
+      await runInDir('npm install');
       await runInDir('npm run reformat', packagePath);
     }
   );
