@@ -40,11 +40,11 @@ describe('Collection indexes tab', function () {
     const element = await browser.$(Selectors.IndexList);
     await element.waitForDisplayed();
 
-    const indexes = await browser.$$(Selectors.IndexComponent('_id_'));
+    const indexes = await browser.$$(Selectors.indexComponent('_id_'));
     expect(indexes).to.have.lengthOf(1);
 
     const indexFieldNameElement = await browser.$(
-      `${Selectors.IndexComponent('_id_')} ${Selectors.IndexFieldName}`
+      `${Selectors.indexComponent('_id_')} ${Selectors.IndexFieldName}`
     );
     expect(await indexFieldNameElement.getText()).to.equal('_id_');
   });
@@ -84,7 +84,7 @@ describe('Collection indexes tab', function () {
 
     await createModal.waitForDisplayed({ reverse: true });
 
-    const indexComponentSelector = Selectors.IndexComponent('i_text');
+    const indexComponentSelector = Selectors.indexComponent('i_text');
 
     const indexComponent = await browser.$(indexComponentSelector);
     await indexComponent.waitForDisplayed();
@@ -169,10 +169,10 @@ describe('Collection indexes tab', function () {
 
       await createModal.waitForDisplayed({ reverse: true });
 
-      const indexComponent = await browser.$(Selectors.IndexComponent('$**_1'));
+      const indexComponent = await browser.$(Selectors.indexComponent('$**_1'));
       await indexComponent.waitForDisplayed();
 
-      const indexFieldTypeSelector = `${Selectors.IndexComponent('$**_1')} ${
+      const indexFieldTypeSelector = `${Selectors.indexComponent('$**_1')} ${
         Selectors.IndexFieldType
       }`;
       const indexFieldTypeElement = await browser.$(indexFieldTypeSelector);
@@ -226,12 +226,12 @@ describe('Collection indexes tab', function () {
       await createModal.waitForDisplayed({ reverse: true });
 
       const indexComponent = await browser.$(
-        Selectors.IndexComponent('columnstore')
+        Selectors.indexComponent('$**_columnstore')
       );
       await indexComponent.waitForDisplayed();
 
       await browser.clickVisible(
-        `${Selectors.IndexComponent('columnstore')} ${
+        `${Selectors.indexComponent('$**_columnstore')} ${
           Selectors.DropIndexButton
         }`
       );
@@ -241,7 +241,7 @@ describe('Collection indexes tab', function () {
 
       const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
       await confirmInput.waitForDisplayed();
-      await confirmInput.setValue('columnstore');
+      await confirmInput.setValue('$**_columnstore');
 
       await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
 

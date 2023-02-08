@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { hasColumnstoreIndexesSupport } from '../utils/has-columnstore-indexes-support';
+import { hasColumnstoreIndexesSupport } from '../utils/columnstore-indexes';
 
 import {
   Combobox,
