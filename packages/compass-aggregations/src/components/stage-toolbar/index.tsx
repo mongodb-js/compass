@@ -121,8 +121,8 @@ export function StageToolbar({
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!hasSeenFocusModeGuideCue() && index === 0) {
-        setIsGuideCueVisible(true);
+      if (!hasSeenFocusModeGuideCue()) {
+        setIsGuideCueVisible(index === 0);
       }
     }, GUIDE_CUE_DELAY);
     return () => clearTimeout(timeout);
@@ -179,7 +179,7 @@ export function StageToolbar({
               tooltipAlign="bottom"
             >
               Stage Focus Mode allows you to focus on a single stage in the
-              pipeline. You can use it to edit or see the results if a stage in
+              pipeline. You can use it to edit or see the results of a stage in
               isolation.
             </GuideCue>
             <IconButton
