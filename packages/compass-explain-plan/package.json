@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-explain-plan",
   "productName": "Explain Plan plugin",
   "description": "Evaluate the performance of your query",
-  "version": "6.5.2",
+  "version": "6.5.3",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -58,15 +58,15 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-crud": "^13.5.2",
+    "@mongodb-js/compass-crud": "^13.5.3",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/explain-plan-helper": "^1.0.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
-    "compass-preferences-model": "^2.5.0",
+    "compass-preferences-model": "^2.5.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/compass-field-store": "^8.1.5",
+    "@mongodb-js/compass-field-store": "^8.1.6",
     "@mongodb-js/eslint-config-compass": "^1.0.2",
     "@mongodb-js/mocha-config-compass": "^1.0.2",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
@@ -101,10 +101,10 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-crud": "^13.5.2",
+    "@mongodb-js/compass-crud": "^13.5.3",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/explain-plan-helper": "^1.0.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
-    "compass-preferences-model": "^2.5.0"
+    "compass-preferences-model": "^2.5.1"
   }
 }
