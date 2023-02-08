@@ -44,8 +44,9 @@ const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 let MONGODB_VERSION = '';
 
 export async function updateMongoDBVersion() {
+  let client;
   try {
-    const client = await new MongoClient(
+    client = await new MongoClient(
       `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}`
     ).connect();
     const { version } = await client.db('admin').command({ buildInfo: 1 });
@@ -55,6 +56,8 @@ export async function updateMongoDBVersion() {
       'Failed trying to get the version of MongoDB:\n\n' +
       (err as Error).message;
     throw err;
+  } finally {
+    await client?.close();
   }
 }
 
