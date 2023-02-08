@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -115,8 +115,9 @@ export function StageToolbar({
   const darkMode = useDarkMode();
   const showFocusMode = usePreference('showFocusMode', React);
 
-  const focusModeButton = React.useRef<HTMLButtonElement>(null);
-  const [isGuideCueVisible, setIsGuideCueVisible] = React.useState(false);
+  const focusModeButtonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isGuideCueVisible, setIsGuideCueVisible] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -132,20 +133,16 @@ export function StageToolbar({
     setHasSeenFocusModeGuideCue();
   };
 
-  // The LG GuideCue does not hide itself when the user clicks outside of it.
-  // We need to manually hide it when the user clicks outside of it.
-  useEffect(() => {
+  const onOpenFocusMode = () => {
+    onFocusModeEnableClick(index);
     if (isGuideCueVisible) {
-      const eventHandler = () => setGuideCueVisited();
-      window.addEventListener('mousedown', eventHandler);
-      return () => {
-        window.removeEventListener('mousedown', eventHandler);
-      };
+      setGuideCueVisited();
     }
-  }, [isGuideCueVisible, setGuideCueVisited]);
+  };
 
   return (
     <div
+      ref={containerRef}
       className={cx(
         'stage-editor-toolbar',
         toolbarStyles,
@@ -173,17 +170,21 @@ export function StageToolbar({
               data-testid="focus-mode-guide-cue"
               open={isGuideCueVisible}
               setOpen={() => setGuideCueVisited()}
-              refEl={focusModeButton}
+              refEl={focusModeButtonRef}
               numberOfSteps={1}
+              popoverZIndex={2}
+              scrollContainer={containerRef.current}
+              portalContainer={containerRef.current}
               title="Focus Mode"
+              tooltipAlign="bottom"
             >
               Stage Focus Mode allows you to focus on a single stage in the
               pipeline. You can use it to edit or see the results if a stage in
               isolation.
             </GuideCue>
             <IconButton
-              ref={focusModeButton}
-              onClick={() => onFocusModeEnableClick(index)}
+              ref={focusModeButtonRef}
+              onClick={onOpenFocusMode}
               aria-label="Open stage in focus mode"
               data-testid="focus-mode-button"
             >
