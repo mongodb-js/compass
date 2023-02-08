@@ -138,13 +138,13 @@ function connectSubMenu(
     disconnectItem(),
     separator(),
     {
-      label: '&Import saved connections',
+      label: '&Import Saved Connections',
       click() {
         ipcMain.broadcastFocused('compass:open-import-connections');
       },
     },
     {
-      label: '&Export saved connections',
+      label: '&Export Saved Connections',
       click() {
         ipcMain.broadcastFocused('compass:open-export-connections');
       },

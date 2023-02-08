@@ -9,9 +9,8 @@ import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
 
 const containerStyles = css({
   height: '100%',
-  display: 'grid',
-  gridTemplateRows: 'min-content 1fr',
-  gridTemplateColumns: '1fr',
+  display: 'flex',
+  flexDirection: 'column',
   gap: spacing[3],
 });
 
@@ -20,10 +19,12 @@ const headerStyles = css({
   justifyContent: 'flex-start',
   gap: spacing[2],
   marginLeft: spacing[2],
+  marginRight: spacing[2],
+  flexWrap: 'wrap',
 });
 
 const editorStyles = css({
-  height: '100%',
+  flex: 1,
   overflowY: 'auto',
   paddingBottom: spacing[3],
 });

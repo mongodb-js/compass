@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { omit } from 'lodash';
+import explainStates from '../constants/explain-states';
 
 import reducer, {
   isAggregationExplainOutput,
@@ -11,11 +12,15 @@ import reducer, {
   SWITCHED_TO_JSON_VIEW,
   EXPLAIN_STATE_CHANGED,
   EXPLAIN_PLAN_FETCHED,
+  INITIAL_STATE,
+  EXPLAIN_PLAN_ABORTED,
 } from './explain';
 
 const explainExample = {
   error: null,
   errorParsing: false,
+  abortController: null,
+  oldExplain: null,
   executionSuccess: true,
   executionTimeMillis: 6,
   explainState: 'executed',
@@ -59,9 +64,42 @@ describe('explain module', function () {
 
   describe('#explainStateChanged', function () {
     it('returns the EXPLAIN_STATE_CHANGED action', function () {
-      expect(explainStateChanged('executed')).to.deep.equal({
-        type: EXPLAIN_STATE_CHANGED,
-        explainState: 'executed',
+      const expectedActions = {
+        [explainStates.INITIAL]: {
+          type: EXPLAIN_STATE_CHANGED,
+          explainState: explainStates.INITIAL,
+          abortController: null,
+          oldExplain: null,
+        },
+        [explainStates.REQUESTED]: {
+          type: EXPLAIN_STATE_CHANGED,
+          explainState: explainStates.REQUESTED,
+          abortController: new AbortController(),
+          oldExplain: { ...explainExample, explainState: 'initial' },
+        },
+        [explainStates.EXECUTED]: {
+          type: EXPLAIN_STATE_CHANGED,
+          explainState: explainStates.EXECUTED,
+          abortController: null,
+          oldExplain: { ...explainExample, explainState: 'initial' },
+        },
+        [explainStates.OUTDATED]: {
+          type: EXPLAIN_STATE_CHANGED,
+          explainState: explainStates.OUTDATED,
+          abortController: null,
+          oldExplain: { ...explainExample, explainState: 'initial' },
+        },
+      };
+
+      Object.keys(expectedActions).forEach((state) => {
+        const expectedAction = expectedActions[state];
+        expect(
+          explainStateChanged(
+            state,
+            expectedAction.abortController,
+            expectedAction.oldExplain
+          )
+        ).to.deep.equal(expectedAction);
       });
     });
   });
@@ -135,7 +173,9 @@ describe('explain module', function () {
           expect(omit(result, 'resultId')).to.deep.equal({
             explainState: 'initial',
             viewType: 'tree',
+            abortController: null,
             error: null,
+            oldExplain: null,
             errorParsing: false,
             executionSuccess: false,
             executionTimeMillis: 0,
@@ -178,9 +218,16 @@ describe('explain module', function () {
 
     context('when the action is explainStateChanged', function () {
       it('returns the new state', function () {
-        const explain = reducer(undefined, explainStateChanged('initial'));
-
-        expect(explain.explainState).to.equal('initial');
+        const possibleExplainStates = [
+          'initial',
+          'requested',
+          'executed',
+          'outdated',
+        ];
+        possibleExplainStates.forEach((state) => {
+          const explain = reducer(undefined, explainStateChanged(state));
+          expect(explain.explainState).to.equal(state);
+        });
       });
     });
 
@@ -190,6 +237,40 @@ describe('explain module', function () {
 
         expect(omit(explain, 'resultId')).to.deep.equal(explainExample);
       });
+    });
+
+    context('when the action is explainPlanAborted', function () {
+      context(
+        'and when it was aborted for very first explain execution',
+        function () {
+          it('returns the initial state', function () {
+            const explain = reducer(INITIAL_STATE, {
+              type: EXPLAIN_PLAN_ABORTED,
+            });
+            expect(explain).to.deep.equal(INITIAL_STATE);
+          });
+        }
+      );
+
+      context(
+        'and when it was aborted for subsequent explain execution',
+        function () {
+          it('returns the previous explain plan state', function () {
+            const exampleOldExplain = {
+              ...explainExample,
+              explainState: 'initial',
+            };
+            const currentExplainState = {
+              ...explainExample,
+              oldExplain: exampleOldExplain,
+            };
+            const explain = reducer(currentExplainState, {
+              type: EXPLAIN_PLAN_ABORTED,
+            });
+            expect(explain).to.deep.equal(exampleOldExplain);
+          });
+        }
+      );
     });
   });
 });

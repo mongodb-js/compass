@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "22.2.0",
+  "version": "22.2.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -33,7 +33,7 @@
     "mongodb": "^4.13.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-utils": "^0.2.0",
+    "@mongodb-js/compass-utils": "^0.2.1",
     "@mongodb-js/ssh-tunnel": "^2.0.2",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
