@@ -855,7 +855,7 @@ export const ExplainDocumentsReturnedSummary =
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
-export const IndexComponent = (name: string): string => {
+export const indexComponent = (name: string): string => {
   return `[data-testid="index-row-${name}"]`;
 };
 export const IndexFieldName = '[data-testid="index-name-field"]';
@@ -863,9 +863,9 @@ export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
 export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-use-wildcard"] [data-testid="create-index-modal-use-wildcard-label"]';
+  '[data-testid="create-index-modal-wildcardProjection"] [data-testid="create-index-modal-wildcardProjection-label"]';
 export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-use-wildcard"] .ace_editor';
+  '[data-testid="create-index-modal-wildcardProjection"] .ace_editor';
 
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
