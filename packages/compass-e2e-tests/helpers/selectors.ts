@@ -846,6 +846,9 @@ export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
 // Explain Plan tab
 export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
+export const ExplainCancellableSpinner = '[data-testid="query-explain-cancel"]';
+export const ExplainCancelButton =
+  '[data-testid="query-explain-cancel-button"]';
 export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =

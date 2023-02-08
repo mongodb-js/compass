@@ -23,7 +23,7 @@ async function setProject(
   );
 }
 
-async function setSort(
+export async function setSort(
   browser: CompassBrowser,
   tabName: string,
   value: string
@@ -62,7 +62,7 @@ async function setSkip(
   await browser.setOrClearValue(selector, value);
 }
 
-async function setLimit(
+export async function setLimit(
   browser: CompassBrowser,
   tabName: string,
   value: string
@@ -143,7 +143,7 @@ async function waitUntilExpanded(browser: CompassBrowser, tabName: string) {
   await queryBarOptionInputProjectElement.waitForDisplayed();
 }
 
-async function expandOptions(browser: CompassBrowser, tabName: string) {
+export async function expandOptions(browser: CompassBrowser, tabName: string) {
   if (await isOptionsExpanded(browser, tabName)) {
     return;
   }
