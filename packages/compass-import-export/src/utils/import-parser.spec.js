@@ -56,8 +56,8 @@ describe('import-parser', function () {
           BSON_DOCS.push.apply(BSON_DOCS, docs);
         });
       });
-      it('should have bson ObjectID for _id', function () {
-        expect(BSON_DOCS[0]._id._bsontype).to.equal('ObjectID');
+      it('should have bson ObjectId for _id', function () {
+        expect(BSON_DOCS[0]._id._bsontype).to.equal('ObjectId');
       });
     });
     describe('errors', function () {

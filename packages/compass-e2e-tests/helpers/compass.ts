@@ -606,7 +606,7 @@ async function getCompassLog(logPath: string): Promise<any> {
   let lastName = logNames[0];
   for (const name of logNames.slice(1)) {
     const id = name.slice(0, name.indexOf('_'));
-    const time = new ObjectId(id).generationTime;
+    const time = new ObjectId(id).getTimestamp().valueOf();
     if (time > latest) {
       latest = time;
       lastName = name;

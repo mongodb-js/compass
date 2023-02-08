@@ -189,9 +189,7 @@ export class WritableCollectionStream extends Writable {
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
         // result can still be accessed on the error instance
-        result =
-          (bulkWriteError as MongoBulkWriteError).result &&
-          (bulkWriteError as MongoBulkWriteError).result.result;
+        result = (bulkWriteError as MongoBulkWriteError).result;
         this._errors.push(bulkWriteError);
       }
     }

@@ -53,12 +53,12 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "mongodb": "^4.13.0"
+    "mongodb": "^5.0.0"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/compass-utils": "^0.2.1",
-    "@mongodb-js/devtools-connect": "^1.4.3",
+    "@mongodb-js/devtools-connect": "^1.4.4",
     "@mongodb-js/ssh-tunnel": "^2.0.2",
     "async": "^3.2.0",
     "debug": "^4.2.0",
@@ -81,13 +81,13 @@
     "@types/lodash": "^4.14.172",
     "@types/uuid": "^8.3.1",
     "@types/whatwg-url": "^8.2.1",
-    "bson": "^4.4.1",
+    "bson": "^5.0.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "kerberos": "^2.0.0",
     "mocha": "^8.4.0",
-    "mongodb": "^4.13.0",
+    "mongodb": "^5.0.0",
     "mongodb-runner": "^4.10.0",
     "nyc": "^15.0.0",
     "prettier": "^2.7.1",

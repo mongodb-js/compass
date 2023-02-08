@@ -660,7 +660,7 @@ describe('Collection import', function () {
     });
 
     // pick an incompatible type
-    await selectFieldType(browser, 'id', 'ObjectID');
+    await selectFieldType(browser, 'id', 'ObjectId');
 
     // confirm
     await browser.clickVisible(Selectors.ImportConfirm);

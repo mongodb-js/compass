@@ -525,26 +525,31 @@ class CrudStoreImpl
     const id = doc.getId();
     if (id !== undefined) {
       doc.emit('remove-start');
-      this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
-        if (error) {
-          // emit on the document(list view) and success state(json view)
-          doc.emit('remove-error', error.message);
-          this.trigger(this.state);
-        } else {
-          // emit on the document(list view) and success state(json view)
-          doc.emit('remove-success');
+      this.dataService.deleteOne(
+        this.state.ns,
+        { _id: id } as any,
+        {},
+        (error) => {
+          if (error) {
+            // emit on the document(list view) and success state(json view)
+            doc.emit('remove-error', error.message);
+            this.trigger(this.state);
+          } else {
+            // emit on the document(list view) and success state(json view)
+            doc.emit('remove-success');
 
-          const payload = { view: this.state.view, ns: this.state.ns };
-          this.localAppRegistry.emit('document-deleted', payload);
-          this.globalAppRegistry.emit('document-deleted', payload);
-          const index = this.findDocumentIndex(doc);
-          this.state.docs?.splice(index, 1);
-          this.setState({
-            count: this.state.count === null ? null : this.state.count - 1,
-            end: Math.max(this.state.end - 1, 0),
-          });
+            const payload = { view: this.state.view, ns: this.state.ns };
+            this.localAppRegistry.emit('document-deleted', payload);
+            this.globalAppRegistry.emit('document-deleted', payload);
+            const index = this.findDocumentIndex(doc);
+            this.state.docs?.splice(index, 1);
+            this.setState({
+              count: this.state.count === null ? null : this.state.count - 1,
+              end: Math.max(this.state.end - 1, 0),
+            });
+          }
         }
-      });
+      );
     } else {
       doc.emit('remove-error', DELETE_ERROR);
       this.trigger(this.state);
@@ -1566,7 +1571,7 @@ export async function findAndModifyWithFLEFallback(
     if (!error) {
       let docs;
       try {
-        docs = await ds.find(ns, { _id: d!._id }, fallbackOpts);
+        docs = await ds.find(ns, { _id: d!._id } as any, fallbackOpts);
       } catch (e) {
         error = e as Error;
       }

@@ -18,7 +18,7 @@ const cloudSupportedBrowserslistConfig =
   'last 2 Chrome versions, last 2 Safari versions, last 2 Firefox versions';
 
 export const javascriptLoader = (args: ConfigArgs, web = false) => ({
-  test: /\.(mjs|jsx?|tsx?)$/,
+  test: /\.(mjs|c?jsx?|tsx?)$/,
   exclude: [
     /\bnode_modules\b/,
     // Otherwise core-js will polyfill itself with core-js and this doesn't work

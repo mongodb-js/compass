@@ -11,6 +11,7 @@
   "scripts": {
     "bootstrap": "npm install && lerna run bootstrap --stream",
     "bootstrap-ci": "npm ci && lerna run bootstrap",
+    "postinstall": "node scripts/fixup-bson5-packagejson.js",
     "precheck": "npm run depcheck && npm run check-logids && npm run check-leafygreen-dependency-usage",
     "changed": "node ./scripts/changed.js",
     "check": "lerna run check --stream",
