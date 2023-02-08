@@ -1,10 +1,10 @@
 /* eslint complexity: [2, 12] */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { palette } from '@mongodb-js/compass-components';
-import Actions from '../actions';
-import d3 from 'd3';
-import { realTimeLineChart as chartFn } from '../d3/';
+const React = require('react');
+const PropTypes = require('prop-types');
+const { palette } = require('@mongodb-js/compass-components');
+const Actions = require('../actions');
+const d3 = require('d3');
+const chartFn = require('../d3/').realTimeLineChart;
 
 // const debug = require('debug')('mongodb-compass:server-stats:chart-component');
 
@@ -145,4 +145,4 @@ ChartComponent.propTypes = {
 
 ChartComponent.displayName = 'ChartComponent';
 
-export default ChartComponent;
+module.exports = ChartComponent;
