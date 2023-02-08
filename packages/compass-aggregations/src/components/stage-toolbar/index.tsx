@@ -132,6 +132,18 @@ export function StageToolbar({
     setHasSeenFocusModeGuideCue();
   };
 
+  // The LG GuideCue does not hide itself when the user clicks outside of it.
+  // We need to manually hide it when the user clicks outside of it.
+  useEffect(() => {
+    if (isGuideCueVisible) {
+      const eventHandler = () => setGuideCueVisited();
+      window.addEventListener('mousedown', eventHandler);
+      return () => {
+        window.removeEventListener('mousedown', eventHandler);
+      };
+    }
+  }, [isGuideCueVisible, setGuideCueVisited]);
+
   return (
     <div
       className={cx(
@@ -166,9 +178,8 @@ export function StageToolbar({
               title="Focus Mode"
             >
               Stage Focus Mode allows you to focus on a single stage in the
-              pipeline. You can use it to see the results of a stage in
-              isolation, or to edit the stage without being distracted by the
-              rest of the pipeline.
+              pipeline. You can use it to edit or see the results if a stage in
+              isolation.
             </GuideCue>
             <IconButton
               ref={focusModeButton}
