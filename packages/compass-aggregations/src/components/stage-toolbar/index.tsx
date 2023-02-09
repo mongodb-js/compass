@@ -12,6 +12,7 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
+import { type AceEditor } from '@mongodb-js/compass-editor';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
@@ -96,6 +97,7 @@ type StageToolbarProps = {
   isCollapsed?: boolean;
   isDisabled?: boolean;
   onFocusModeEnableClick: (index: number) => void;
+  editorRef: React.RefObject<AceEditor | undefined>;
 };
 
 const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
@@ -109,6 +111,7 @@ export function StageToolbar({
   isCollapsed,
   isDisabled,
   onFocusModeEnableClick,
+  editorRef,
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
   const showFocusMode = usePreference('showFocusMode', React);
@@ -171,7 +174,7 @@ export function StageToolbar({
         <StageCollapser index={index} />
         <Body weight="medium">Stage {index + 1}</Body>
         <div className={selectStyles}>
-          <StageOperatorSelect index={index} />
+          <StageOperatorSelect editorRef={editorRef} index={index} />
         </div>
         <ToggleStage index={index} />
       </div>

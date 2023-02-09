@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { css, spacing, Link } from '@mongodb-js/compass-components';
+import { type AceEditor } from '@mongodb-js/compass-editor';
 
 import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
@@ -36,6 +37,7 @@ export const FocusModeStageEditor = ({
   index: number;
   operator: string | null;
 }) => {
+  const editorRef = useRef<AceEditor | undefined>(undefined);
   if (index === -1) {
     return null;
   }
@@ -43,7 +45,7 @@ export const FocusModeStageEditor = ({
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
-        <StageOperatorSelect index={index} />
+        <StageOperatorSelect editorRef={editorRef} index={index} />
         {link && (
           <Link hideExternalIcon={false} href={link} target="_blank">
             Open docs
@@ -51,8 +53,12 @@ export const FocusModeStageEditor = ({
         )}
       </div>
       <div className={editorStyles}>
-        {/* @ts-expect-error requires stage-editor.jsx to be converted */}
-        <StageEditor index={index} />
+        <StageEditor
+          onLoad={(editor) => {
+            editorRef.current = editor;
+          }}
+          index={index}
+        />
       </div>
     </div>
   );

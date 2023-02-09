@@ -75,8 +75,9 @@ type StageEditorProps = {
   serverError: MongoServerError | null;
   num_stages: number;
   editor_view_type: string;
-  className: string;
+  className?: string;
   onChange: (index: number, value: string) => void;
+  onLoad?: (editor: AceEditor) => void;
 };
 
 function useStageCompleter(
@@ -110,6 +111,7 @@ const StageEditor = ({
   serverVersion,
   num_stages,
   editor_view_type,
+  onLoad,
 }: StageEditorProps) => {
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
@@ -120,10 +122,6 @@ const StageEditor = ({
     autocompleteFields,
     stageOperator
   );
-
-  useEffect(() => {
-    editorRef.current?.focus();
-  }, [stageOperator]);
 
   useEffect(() => {
     let annotations: AceAnnotation[] = [];
@@ -181,6 +179,7 @@ const StageEditor = ({
           completer={completer}
           onLoad={(editor) => {
             editorRef.current = editor;
+            onLoad?.(editor);
           }}
           onBlur={onBlurEditor}
         />

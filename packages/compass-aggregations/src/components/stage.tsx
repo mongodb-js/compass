@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
@@ -9,6 +9,7 @@ import {
   spacing,
   palette,
 } from '@mongodb-js/compass-components';
+import { type AceEditor } from '@mongodb-js/compass-editor';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
@@ -70,14 +71,22 @@ const RESIZABLE_DIRECTIONS = {
 };
 
 type ResizableEditorProps = {
-  id: number;
   index: number;
   isAutoPreviewing: boolean;
+  onLoad: (editor: AceEditor) => void;
 };
 
-function ResizableEditor({ index, isAutoPreviewing }: ResizableEditorProps) {
+function ResizableEditor({
+  index,
+  isAutoPreviewing,
+  onLoad,
+}: ResizableEditorProps) {
   const editor = (
-    <StageEditor index={index} className={stageEditorContainerStyles} />
+    <StageEditor
+      onLoad={onLoad}
+      index={index}
+      className={stageEditorContainerStyles}
+    />
   );
 
   if (!isAutoPreviewing) {
@@ -136,6 +145,7 @@ function Stage({
   hasServerError,
   isAutoPreviewing,
 }: StageProps) {
+  const editorRef = useRef<AceEditor | undefined>(undefined);
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
   const { setNodeRef, transform, transition, listeners, isDragging } =
     useSortable({
@@ -159,14 +169,16 @@ function Stage({
         )}
       >
         <div {...listeners}>
-          <StageToolbar index={index} />
+          <StageToolbar editorRef={editorRef} index={index} />
         </div>
         {isExpanded && (
           <div style={{ opacity }} className={stageContentStyles}>
             <ResizableEditor
-              id={id}
               index={index}
               isAutoPreviewing={isAutoPreviewing}
+              onLoad={(editor) => {
+                editorRef.current = editor;
+              }}
             />
             {isAutoPreviewing && (
               <div className={stagePreviewContainerStyles}>
