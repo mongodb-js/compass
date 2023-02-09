@@ -184,24 +184,22 @@ export function StageToolbar({
       <div className={rightStyles}>
         {showFocusMode && (
           <>
-            {isGuideCueIntersecting && (
-              <GuideCue
-                data-testid="focus-mode-guide-cue"
-                open={isGuideCueVisible}
-                setOpen={() => setGuideCueVisited()}
-                refEl={focusModeButtonRef}
-                numberOfSteps={1}
-                popoverZIndex={2}
-                scrollContainer={containerRef.current}
-                portalContainer={containerRef.current}
-                title="Focus Mode"
-                tooltipAlign="bottom"
-              >
-                Stage Focus Mode allows you to focus on a single stage in the
-                pipeline. You can use it to edit or see the results of a stage
-                in isolation.
-              </GuideCue>
-            )}
+            <GuideCue
+              data-testid="focus-mode-guide-cue"
+              open={isGuideCueIntersecting && isGuideCueVisible}
+              setOpen={() => setGuideCueVisited()}
+              refEl={focusModeButtonRef}
+              numberOfSteps={1}
+              popoverZIndex={2}
+              scrollContainer={containerRef.current}
+              portalContainer={containerRef.current}
+              title="Focus Mode"
+              tooltipAlign="bottom"
+            >
+              Stage Focus Mode allows you to focus on a single stage in the
+              pipeline. You can use it to edit or see the results of a stage in
+              isolation.
+            </GuideCue>
             <IconButton
               ref={focusModeButtonRef}
               onClick={onOpenFocusMode}
