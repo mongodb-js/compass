@@ -22,7 +22,7 @@ describe('Instance databases tab', function () {
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     await browser.navigateToInstanceTab('Databases');
   });
 

@@ -1,7 +1,5 @@
 import { MongoError } from 'mongodb';
 import type { AnyError } from 'mongodb';
-import { RESET_FORM } from './reset-form';
-import type { AnyAction } from 'redux';
 
 export type IndexesError = AnyError | string | null | undefined;
 
@@ -24,17 +22,10 @@ export type Actions = HandleErrorAction | ClearErrorAction;
 type State = string | null;
 export const INITIAL_STATE: State = null;
 
-export default function reducer(
-  state: State = INITIAL_STATE,
-  action: AnyAction
-) {
+export default function reducer(state: State = INITIAL_STATE, action: Actions) {
   if (action.type === ActionTypes.HandleError) {
-    return _parseError(action.error as Error);
-  }
-  if (action.type === ActionTypes.ClearError) {
-    return INITIAL_STATE;
-  }
-  if (action.type === RESET_FORM) {
+    return _parseError(action.error);
+  } else if (action.type === ActionTypes.ClearError) {
     return INITIAL_STATE;
   }
   return state;

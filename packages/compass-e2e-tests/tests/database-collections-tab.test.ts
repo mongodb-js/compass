@@ -29,7 +29,7 @@ describe('Database collections tab', function () {
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
@@ -283,7 +283,7 @@ describe('Database collections tab', function () {
 
     await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
 
-    const typeElementSelector = `${Selectors.indexComponent(indexName)} ${
+    const typeElementSelector = `${Selectors.IndexComponent(indexName)} ${
       Selectors.IndexFieldType
     }`;
     const typeElement = await browser.$(typeElementSelector);

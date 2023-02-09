@@ -22,7 +22,6 @@ import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
-import { MongoClient } from 'mongodb';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -41,39 +40,33 @@ const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
 const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
 // mongodb-runner defaults to stable if the env var isn't there
-let MONGODB_VERSION = '';
+export const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
+  // semver interprets these suffixes like a prerelease (ie. alpha or rc) and it
+  // is irrelevant for our version comparisons anyway
+  .replace('-community', '')
+  .replace('>', '')
+  // HACK: comparisons don't allow X-Ranges and 5.x or 5.x.x installs 5.2.1 so
+  // we can't just map it to 5.0.0
+  .replace(/x/g, '999');
 
-export async function updateMongoDBVersion() {
-  let client;
-  try {
-    client = await new MongoClient(
-      `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}`
-    ).connect();
-    const { version } = await client.db('admin').command({ buildInfo: 1 });
-    MONGODB_VERSION = version;
-  } catch (err) {
-    (err as Error).message =
-      'Failed trying to get the version of MongoDB:\n\n' +
-      (err as Error).message;
-    throw err;
-  } finally {
-    await client?.close();
-  }
-}
+export const MONGODB_USE_ENTERPRISE =
+  process.env.MONGODB_USE_ENTERPRISE ?? 'no';
 
-const MONGODB_USE_ENTERPRISE = process.env.MONGODB_USE_ENTERPRISE ?? 'no';
-
-export const MONGODB_TEST_SERVER_PORT =
-  process.env.MONGODB_TEST_SERVER_PORT ?? 27091;
+// This will just match any latest available release. We will need to update it
+// when next major version will start rolling out (this is not just something
+// like 999.999.999 because we are checking for `< 7.0.0-alpha` in one test)
+const LATEST_ALPHA = '6.999.999';
 
 export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
 ) => {
   return (
-    semver.satisfies(MONGODB_VERSION, semverCondition, {
-      includePrerelease: true,
-    }) &&
+    semver.satisfies(
+      MONGODB_VERSION === 'latest-alpha' ? LATEST_ALPHA : MONGODB_VERSION,
+      semverCondition,
+      { includePrerelease: true }
+    ) &&
     (typeof enterpriseExact === 'boolean'
       ? (enterpriseExact && MONGODB_USE_ENTERPRISE === 'yes') ||
         (!enterpriseExact && MONGODB_USE_ENTERPRISE !== 'yes')

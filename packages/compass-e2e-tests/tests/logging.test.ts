@@ -15,7 +15,9 @@ describe('Logging and Telemetry integration', function () {
       const { browser } = compass;
 
       try {
-        await browser.connectWithConnectionString();
+        await browser.connectWithConnectionString(
+          'mongodb://localhost:27091/test'
+        );
         await browser.shellEval('use test');
         await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
       } finally {
