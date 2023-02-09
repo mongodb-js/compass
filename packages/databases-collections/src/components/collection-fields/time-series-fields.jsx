@@ -37,6 +37,23 @@ const GRANULARITY_DESCRIPTION =
 
 const GRANULARITY_OPTIONS = ['seconds', 'minutes', 'hours'];
 
+const BUCKET_MAX_SPAN_SECONDS_DESCRIPTION =
+  'The maximum time span between measurements in a bucket. ' +
+  "This value should be same as that of 'bucketRoundingSeconds'. " +
+  '*Should not be set alongside granularity.';
+
+const BUCKET_ROUNDING_SECONDS_DESCRIPTION =
+  'The time interval that determines the starting timestamp for a new bucket. ' +
+  "This value should be same as that of 'bucketMaxSpanSeconds'. " +
+  '*Should not be set alongside granularity.';
+
+// Cannot be a negative number and cannot be more than a year
+// REF: https://jira.mongodb.org/browse/DOCS-15776
+const DEFAULT_MIN_BUCKET_MAX_SPAN_SECONDS = 0;
+const DEFAULT_MAX_BUCKET_MAX_SPAN_SECONDS = 31536000;
+const DEFAULT_MIN_ROUNDING_SECONDS = 0;
+const DEFAULT_MAX_ROUNDING_SECONDS = 31536000;
+
 function TimeSeriesFields({
   isCapped,
   isTimeSeries,
@@ -46,8 +63,15 @@ function TimeSeriesFields({
   onChangeField,
   timeSeries,
   expireAfterSeconds,
+  supportsFlexibleBucketConfiguration,
 }) {
-  const { granularity, metaField, timeField } = timeSeries;
+  const {
+    granularity,
+    metaField,
+    timeField,
+    bucketMaxSpanSeconds,
+    bucketRoundingSeconds,
+  } = timeSeries;
 
   const onInputChange = useCallback(
     (e) => {
@@ -101,7 +125,7 @@ function TimeSeriesFields({
           description={GRANULARITY_DESCRIPTION}
           onChange={(val) => onChangeField('timeSeries.granularity', val)}
           usePortal={false}
-          allowDeselect={false}
+          allowDeselect={true}
           value={granularity}
         >
           {GRANULARITY_OPTIONS.map((granularityOption) => (
@@ -111,6 +135,40 @@ function TimeSeriesFields({
           ))}
         </Select>
       </FormFieldContainer>
+
+      {supportsFlexibleBucketConfiguration && (
+        <>
+          <FormFieldContainer>
+            <TextInput
+              value={bucketMaxSpanSeconds}
+              label="bucketMaxSpanSeconds"
+              name="timeSeries.bucketMaxSpanSeconds"
+              description={BUCKET_MAX_SPAN_SECONDS_DESCRIPTION}
+              optional
+              type="number"
+              min={DEFAULT_MIN_BUCKET_MAX_SPAN_SECONDS}
+              max={DEFAULT_MAX_BUCKET_MAX_SPAN_SECONDS}
+              onChange={onInputChange}
+              spellCheck={false}
+            />
+          </FormFieldContainer>
+
+          <FormFieldContainer>
+            <TextInput
+              value={bucketRoundingSeconds}
+              label="bucketRoundingSeconds"
+              name="timeSeries.bucketRoundingSeconds"
+              description={BUCKET_ROUNDING_SECONDS_DESCRIPTION}
+              optional
+              type="number"
+              min={DEFAULT_MIN_ROUNDING_SECONDS}
+              max={DEFAULT_MAX_ROUNDING_SECONDS}
+              onChange={onInputChange}
+              spellCheck={false}
+            />
+          </FormFieldContainer>
+        </>
+      )}
 
       <FormFieldContainer>
         <TextInput
@@ -137,6 +195,7 @@ TimeSeriesFields.propTypes = {
   onChangeField: PropTypes.func.isRequired,
   timeSeries: PropTypes.object.isRequired,
   expireAfterSeconds: PropTypes.string.isRequired,
+  supportsFlexibleBucketConfiguration: PropTypes.bool.isRequired,
 };
 
 export default TimeSeriesFields;
