@@ -43,13 +43,6 @@ const BUCKET_MAX_SPAN_SECONDS_DESCRIPTION =
 const BUCKET_ROUNDING_SECONDS_DESCRIPTION =
   'The time interval that determines the starting timestamp for a new bucket.';
 
-// Cannot be a negative number and cannot be more than a year
-// REF: https://jira.mongodb.org/browse/DOCS-15776
-const DEFAULT_MIN_BUCKET_MAX_SPAN_SECONDS = 0;
-const DEFAULT_MAX_BUCKET_MAX_SPAN_SECONDS = 31536000;
-const DEFAULT_MIN_ROUNDING_SECONDS = 0;
-const DEFAULT_MAX_ROUNDING_SECONDS = 31536000;
-
 function TimeSeriesFields({
   isCapped,
   isTimeSeries,
@@ -143,8 +136,6 @@ function TimeSeriesFields({
               description={BUCKET_MAX_SPAN_SECONDS_DESCRIPTION}
               optional
               type="number"
-              min={DEFAULT_MIN_BUCKET_MAX_SPAN_SECONDS}
-              max={DEFAULT_MAX_BUCKET_MAX_SPAN_SECONDS}
               onChange={onInputChange}
               spellCheck={false}
               disabled={!!granularity}
@@ -159,8 +150,6 @@ function TimeSeriesFields({
               description={BUCKET_ROUNDING_SECONDS_DESCRIPTION}
               optional
               type="number"
-              min={DEFAULT_MIN_ROUNDING_SECONDS}
-              max={DEFAULT_MAX_ROUNDING_SECONDS}
               onChange={onInputChange}
               spellCheck={false}
               disabled={!!granularity}
