@@ -126,13 +126,16 @@ export function StageToolbar({
 
   useEffect(() => {
     if (focusModeButtonRef.current) {
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          setIsGuideCueIntersecting(true);
-        } else {
-          setIsGuideCueIntersecting(false);
-        }
-      });
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setIsGuideCueIntersecting(true);
+          } else {
+            setIsGuideCueIntersecting(false);
+          }
+        },
+        { threshold: 1 }
+      );
       observer.observe(focusModeButtonRef.current);
       return () => {
         observer.disconnect();
