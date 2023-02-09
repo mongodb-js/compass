@@ -102,8 +102,6 @@ const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
 const COLLAPSED_TEXT =
   'A sample of the aggregated results from this stage will be shown below.';
 
-const GUIDE_CUE_DELAY = 700;
-
 export function StageToolbar({
   index,
   hasSyntaxError,
@@ -118,15 +116,29 @@ export function StageToolbar({
   const focusModeButtonRef = useRef<HTMLButtonElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isGuideCueVisible, setIsGuideCueVisible] = useState(false);
+  const [isGuideCueIntersecting, setIsGuideCueIntersecting] = useState(false);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!hasSeenFocusModeGuideCue()) {
-        setIsGuideCueVisible(index === 0);
-      }
-    }, GUIDE_CUE_DELAY);
-    return () => clearTimeout(timeout);
+    if (!hasSeenFocusModeGuideCue()) {
+      setIsGuideCueVisible(index === 0);
+    }
   }, [setIsGuideCueVisible, index]);
+
+  useEffect(() => {
+    if (focusModeButtonRef.current) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setIsGuideCueIntersecting(true);
+        } else {
+          setIsGuideCueIntersecting(false);
+        }
+      });
+      observer.observe(focusModeButtonRef.current);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [focusModeButtonRef, setIsGuideCueIntersecting]);
 
   const setGuideCueVisited = () => {
     setIsGuideCueVisible(false);
@@ -166,22 +178,24 @@ export function StageToolbar({
       <div className={rightStyles}>
         {showFocusMode && (
           <>
-            <GuideCue
-              data-testid="focus-mode-guide-cue"
-              open={isGuideCueVisible}
-              setOpen={() => setGuideCueVisited()}
-              refEl={focusModeButtonRef}
-              numberOfSteps={1}
-              popoverZIndex={2}
-              scrollContainer={containerRef.current}
-              portalContainer={containerRef.current}
-              title="Focus Mode"
-              tooltipAlign="bottom"
-            >
-              Stage Focus Mode allows you to focus on a single stage in the
-              pipeline. You can use it to edit or see the results of a stage in
-              isolation.
-            </GuideCue>
+            {isGuideCueIntersecting && (
+              <GuideCue
+                data-testid="focus-mode-guide-cue"
+                open={isGuideCueVisible}
+                setOpen={() => setGuideCueVisited()}
+                refEl={focusModeButtonRef}
+                numberOfSteps={1}
+                popoverZIndex={2}
+                scrollContainer={containerRef.current}
+                portalContainer={containerRef.current}
+                title="Focus Mode"
+                tooltipAlign="bottom"
+              >
+                Stage Focus Mode allows you to focus on a single stage in the
+                pipeline. You can use it to edit or see the results of a stage
+                in isolation.
+              </GuideCue>
+            )}
             <IconButton
               ref={focusModeButtonRef}
               onClick={onOpenFocusMode}
