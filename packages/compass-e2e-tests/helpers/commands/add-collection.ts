@@ -135,7 +135,7 @@ export async function addCollection(
 
     if (collectionOptions.timeseries.bucketRoundingSeconds) {
       const bucketMaxRoundingSecondsField = await browser.$(
-        Selectors.CreateCollectionTimeseriesBucketMaxSpanSeconds
+        Selectors.CreateCollectionTimeseriesBucketRoundingSeconds
       );
       await bucketMaxRoundingSecondsField.waitForDisplayed();
       await bucketMaxRoundingSecondsField.setValue(
