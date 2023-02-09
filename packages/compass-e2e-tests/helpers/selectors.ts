@@ -862,17 +862,23 @@ export const IndexFieldName = '[data-testid="index-name-field"]';
 export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
-export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-wildcardProjection"] [data-testid="create-index-modal-wildcardProjection-label"]';
-export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-wildcardProjection"] .ace_editor';
-
-export const CreateIndexButton =
-  '[data-testid="open-create-index-modal-button"]';
+export const indexToggleOption = (fieldName: string) => {
+  return `[data-testid="create-index-modal-${fieldName}-label"]`;
+};
+export const indexOptionInput = (
+  fieldName: string,
+  type: 'code' | 'text' | 'number' | 'checkbox' = 'text'
+) => {
+  if (type === 'code') {
+    return `[data-testid="create-index-modal-${fieldName}-code"] .ace_editor`;
+  }
+  return `input[data-testid="create-index-modal-${fieldName}-${type}"]`;
+};
 
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
-
+export const CreateIndexButton =
+  '[data-testid="open-create-index-modal-button"]';
 export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };

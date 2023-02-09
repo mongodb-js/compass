@@ -147,19 +147,14 @@ describe('Collection indexes tab', function () {
       await fieldTypeSelectSpan.waitForDisplayed();
       await fieldTypeSelectSpan.click();
 
-      const indexToggleOptions = await browser.$(Selectors.IndexToggleOptions);
-      await indexToggleOptions.click();
-
-      const indexToggleIsWildcard = await browser.$(
-        Selectors.IndexToggleIsWildcard
+      await browser.clickVisible(Selectors.IndexToggleOptions);
+      await browser.clickVisible(
+        Selectors.indexToggleOption('wildcardProjection')
       );
-
-      await indexToggleIsWildcard.waitForDisplayed();
-      await browser.clickVisible(Selectors.IndexToggleIsWildcard);
 
       // set the text in the editor
       await browser.setAceValue(
-        Selectors.IndexWildcardProjectionEditor,
+        Selectors.indexOptionInput('wildcardProjection', 'code'),
         '{ "fieldA": 1, "fieldB.fieldC": 1 }'
       );
 
@@ -219,6 +214,14 @@ describe('Collection indexes tab', function () {
       await fieldTypeSelectSpan.waitForDisplayed();
       await fieldTypeSelectSpan.click();
 
+      await browser.clickVisible(Selectors.IndexToggleOptions);
+      await browser.clickVisible(Selectors.indexToggleOption('name'));
+
+      await browser.setValueVisible(
+        Selectors.indexOptionInput('name'),
+        'columnstore'
+      );
+
       await browser.screenshot('create-index-modal-columnstore.png');
 
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
@@ -226,12 +229,13 @@ describe('Collection indexes tab', function () {
       await createModal.waitForDisplayed({ reverse: true });
 
       const indexComponent = await browser.$(
-        Selectors.indexComponent('$**_columnstore')
+        Selectors.indexComponent('columnstore')
       );
       await indexComponent.waitForDisplayed();
+      await browser.hover(Selectors.indexComponent('columnstore'));
 
       await browser.clickVisible(
-        `${Selectors.indexComponent('$**_columnstore')} ${
+        `${Selectors.indexComponent('columnstore')} ${
           Selectors.DropIndexButton
         }`
       );
@@ -241,8 +245,7 @@ describe('Collection indexes tab', function () {
 
       const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
       await confirmInput.waitForDisplayed();
-      await confirmInput.setValue('$**_columnstore');
-
+      await confirmInput.setValue('columnstore');
       await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
 
       await dropModal.waitForDisplayed({ reverse: true });
