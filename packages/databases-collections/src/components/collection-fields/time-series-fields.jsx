@@ -38,14 +38,10 @@ const GRANULARITY_DESCRIPTION =
 const GRANULARITY_OPTIONS = ['seconds', 'minutes', 'hours'];
 
 const BUCKET_MAX_SPAN_SECONDS_DESCRIPTION =
-  'The maximum time span between measurements in a bucket. ' +
-  "This value should be same as that of 'bucketRoundingSeconds'. " +
-  '*Should not be set alongside granularity.';
+  'The maximum time span between measurements in a bucket.';
 
 const BUCKET_ROUNDING_SECONDS_DESCRIPTION =
-  'The time interval that determines the starting timestamp for a new bucket. ' +
-  "This value should be same as that of 'bucketMaxSpanSeconds'. " +
-  '*Should not be set alongside granularity.';
+  'The time interval that determines the starting timestamp for a new bucket.';
 
 // Cannot be a negative number and cannot be more than a year
 // REF: https://jira.mongodb.org/browse/DOCS-15776
@@ -127,6 +123,7 @@ function TimeSeriesFields({
           usePortal={false}
           allowDeselect={true}
           value={granularity}
+          disabled={!!(bucketMaxSpanSeconds || bucketRoundingSeconds)}
         >
           {GRANULARITY_OPTIONS.map((granularityOption) => (
             <Option key={granularityOption} value={granularityOption}>
@@ -150,6 +147,7 @@ function TimeSeriesFields({
               max={DEFAULT_MAX_BUCKET_MAX_SPAN_SECONDS}
               onChange={onInputChange}
               spellCheck={false}
+              disabled={!!granularity}
             />
           </FormFieldContainer>
 
@@ -165,6 +163,7 @@ function TimeSeriesFields({
               max={DEFAULT_MAX_ROUNDING_SECONDS}
               onChange={onInputChange}
               spellCheck={false}
+              disabled={!!granularity}
             />
           </FormFieldContainer>
         </>
