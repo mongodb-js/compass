@@ -24,7 +24,7 @@ describe('Collection indexes tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
   });
 
@@ -40,11 +40,11 @@ describe('Collection indexes tab', function () {
     const element = await browser.$(Selectors.IndexList);
     await element.waitForDisplayed();
 
-    const indexes = await browser.$$(Selectors.indexComponent('_id_'));
+    const indexes = await browser.$$(Selectors.IndexComponent('_id_'));
     expect(indexes).to.have.lengthOf(1);
 
     const indexFieldNameElement = await browser.$(
-      `${Selectors.indexComponent('_id_')} ${Selectors.IndexFieldName}`
+      `${Selectors.IndexComponent('_id_')} ${Selectors.IndexFieldName}`
     );
     expect(await indexFieldNameElement.getText()).to.equal('_id_');
   });
@@ -84,7 +84,7 @@ describe('Collection indexes tab', function () {
 
     await createModal.waitForDisplayed({ reverse: true });
 
-    const indexComponentSelector = Selectors.indexComponent('i_text');
+    const indexComponentSelector = Selectors.IndexComponent('i_text');
 
     const indexComponent = await browser.$(indexComponentSelector);
     await indexComponent.waitForDisplayed();
@@ -147,14 +147,19 @@ describe('Collection indexes tab', function () {
       await fieldTypeSelectSpan.waitForDisplayed();
       await fieldTypeSelectSpan.click();
 
-      await browser.clickVisible(Selectors.IndexToggleOptions);
-      await browser.clickVisible(
-        Selectors.indexToggleOption('wildcardProjection')
+      const indexToggleOptions = await browser.$(Selectors.IndexToggleOptions);
+      await indexToggleOptions.click();
+
+      const indexToggleIsWildcard = await browser.$(
+        Selectors.IndexToggleIsWildcard
       );
+
+      await indexToggleIsWildcard.waitForDisplayed();
+      await browser.clickVisible(Selectors.IndexToggleIsWildcard);
 
       // set the text in the editor
       await browser.setAceValue(
-        Selectors.indexOptionInput('wildcardProjection', 'code'),
+        Selectors.IndexWildcardProjectionEditor,
         '{ "fieldA": 1, "fieldB.fieldC": 1 }'
       );
 
@@ -164,10 +169,10 @@ describe('Collection indexes tab', function () {
 
       await createModal.waitForDisplayed({ reverse: true });
 
-      const indexComponent = await browser.$(Selectors.indexComponent('$**_1'));
+      const indexComponent = await browser.$(Selectors.IndexComponent('$**_1'));
       await indexComponent.waitForDisplayed();
 
-      const indexFieldTypeSelector = `${Selectors.indexComponent('$**_1')} ${
+      const indexFieldTypeSelector = `${Selectors.IndexComponent('$**_1')} ${
         Selectors.IndexFieldType
       }`;
       const indexFieldTypeElement = await browser.$(indexFieldTypeSelector);
@@ -175,9 +180,9 @@ describe('Collection indexes tab', function () {
     });
   });
 
-  describe('server version 6.3.0', function () {
+  describe('server version 7.0.0', function () {
     it('supports creating a columnstore index', async function () {
-      if (serverSatisfies('< 6.3.0-alpha0')) {
+      if (serverSatisfies('< 7.0.0-alpha0')) {
         return this.skip();
       }
 
@@ -214,14 +219,6 @@ describe('Collection indexes tab', function () {
       await fieldTypeSelectSpan.waitForDisplayed();
       await fieldTypeSelectSpan.click();
 
-      await browser.clickVisible(Selectors.IndexToggleOptions);
-      await browser.clickVisible(Selectors.indexToggleOption('name'));
-
-      await browser.setValueVisible(
-        Selectors.indexOptionInput('name'),
-        'columnstore'
-      );
-
       await browser.screenshot('create-index-modal-columnstore.png');
 
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
@@ -229,13 +226,12 @@ describe('Collection indexes tab', function () {
       await createModal.waitForDisplayed({ reverse: true });
 
       const indexComponent = await browser.$(
-        Selectors.indexComponent('columnstore')
+        Selectors.IndexComponent('columnstore')
       );
       await indexComponent.waitForDisplayed();
-      await browser.hover(Selectors.indexComponent('columnstore'));
 
       await browser.clickVisible(
-        `${Selectors.indexComponent('columnstore')} ${
+        `${Selectors.IndexComponent('columnstore')} ${
           Selectors.DropIndexButton
         }`
       );
@@ -246,6 +242,7 @@ describe('Collection indexes tab', function () {
       const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
       await confirmInput.waitForDisplayed();
       await confirmInput.setValue('columnstore');
+
       await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
 
       await dropModal.waitForDisplayed({ reverse: true });

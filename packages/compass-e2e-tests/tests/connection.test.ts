@@ -268,7 +268,7 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection string', async function () {
-    await browser.connectWithConnectionString();
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true

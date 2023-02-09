@@ -1,5 +1,4 @@
 import type { AnyAction } from 'redux';
-import { RESET_FORM } from '../reset-form';
 
 /**
  * The initial state of the new index field.
@@ -28,9 +27,6 @@ export default function reducer(
   }
   if (action.type === ActionTypes.clearNewIndexField) {
     return null;
-  }
-  if (action.type === RESET_FORM) {
-    return INITIAL_STATE;
   }
   return state;
 }

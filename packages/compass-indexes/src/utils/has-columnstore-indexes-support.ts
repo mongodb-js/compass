@@ -1,11 +1,6 @@
 import semver from 'semver';
-import type { IndexField } from '../modules/create-index/fields';
 
-export const MIN_COLUMNSTORE_INDEXES_SERVER_VERSION = '6.3.0-alpha0';
-
-export function hasColumnstoreIndex(fields: IndexField[]) {
-  return fields.some((field: IndexField) => field.type === 'columnstore');
-}
+const MIN_COLUMNSTORE_INDEXES_SERVER_VERSION = '7.0.0-alpha0';
 
 export function hasColumnstoreIndexesSupport(
   serverVersion: string | undefined | null

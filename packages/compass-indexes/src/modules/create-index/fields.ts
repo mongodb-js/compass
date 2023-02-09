@@ -6,7 +6,6 @@ import { clearNewIndexField } from '../create-index/new-index-field';
 import { handleError } from '../error';
 
 import type { RootState } from '../create-index';
-import { RESET_FORM } from '../reset-form';
 
 export const ADD_FIELD = 'indexes/create-index/fields/ADD_FIELD';
 export const UPDATE_FIELD_TYPE =
@@ -52,9 +51,6 @@ export default function reducer(
   }
   if (action.type === CHANGE_FIELDS) {
     return action.fields;
-  }
-  if (action.type === RESET_FORM) {
-    return INITIAL_STATE;
   }
   return state;
 }

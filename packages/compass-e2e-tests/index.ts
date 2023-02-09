@@ -14,8 +14,6 @@ import {
   COMPASS_PATH,
   LOG_PATH,
   removeUserDataDir,
-  MONGODB_TEST_SERVER_PORT,
-  updateMongoDBVersion,
 } from './helpers/compass';
 import { createUnlockedKeychain } from './helpers/keychain';
 import ResultLogger from './helpers/result-logger';
@@ -56,11 +54,7 @@ async function setup() {
   // When working on the tests it is faster to just keep the server running.
   if (!disableStartStop) {
     debug('Starting MongoDB server');
-    crossSpawn.sync(
-      'npm',
-      ['run', 'start-server', '--', '--port', String(MONGODB_TEST_SERVER_PORT)],
-      { stdio: 'inherit' }
-    );
+    crossSpawn.sync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   }
 
   try {
@@ -71,8 +65,6 @@ async function setup() {
   }
 
   fs.mkdirSync(LOG_PATH, { recursive: true });
-
-  await updateMongoDBVersion();
 }
 
 function cleanup() {
@@ -85,23 +77,13 @@ function cleanup() {
   if (!disableStartStop) {
     debug('Stopping MongoDB server and cleaning up server data');
     try {
-      crossSpawn.sync(
-        'npm',
-        [
-          'run',
-          'stop-server',
-          '--',
-          '--port',
-          String(MONGODB_TEST_SERVER_PORT),
-        ],
-        {
-          // If it's taking too long we might as well kill the process and move on,
-          // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
-          // take care of additional clean up anyway
-          timeout: 30_000,
-          stdio: 'inherit',
-        }
-      );
+      crossSpawn.sync('npm', ['run', 'stop-server'], {
+        // If it's taking too long we might as well kill the process and move on,
+        // mongodb-runer is flaky sometimes and in ci `posttest-ci` script will
+        // take care of additional clean up anyway
+        timeout: 30_000,
+        stdio: 'inherit',
+      });
     } catch (e) {
       debug('Failed to stop MongoDB Server', e);
     }

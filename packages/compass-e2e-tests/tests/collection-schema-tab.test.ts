@@ -22,7 +22,7 @@ describe('Collection schema tab', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await createGeospatialCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
 
   after(async function () {
