@@ -29,6 +29,6 @@ describe('StageEditor [Component]', function () {
   });
 
   it('renders the wrapper div', function () {
-    expect(component.find('UnthemedStageEditor')).to.be.present();
+    expect(component.find('StageEditor')).to.be.present();
   });
 });

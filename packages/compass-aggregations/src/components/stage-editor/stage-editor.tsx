@@ -99,7 +99,7 @@ function useStageCompleter(
   return completer.current;
 }
 
-const StageEditor = ({
+export const StageEditor = ({
   stageValue,
   stageOperator,
   index,
