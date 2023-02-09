@@ -14,9 +14,11 @@ import { runStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
+} from '../../utils/stage';
+import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
-} from '../../utils/stage';
+} from '../../constants';
 import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
 const stagePreviewStyles = css({

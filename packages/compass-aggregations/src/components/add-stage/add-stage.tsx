@@ -7,6 +7,7 @@ import {
   spacing,
   Link,
 } from '@mongodb-js/compass-components';
+import { PIPELINE_HELP_URI } from '../../constants';
 
 const iconContainerStyles = css({
   textAlign: 'center',
@@ -59,7 +60,7 @@ export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
       </Button>
 
       <div className={linkContainerStyles}>
-        <Link href="https://www.mongodb.com/docs/manual/reference/operator/aggregation-pipeline/">
+        <Link href={PIPELINE_HELP_URI}>
           Learn more about aggregation pipeline stages
         </Link>
       </div>
