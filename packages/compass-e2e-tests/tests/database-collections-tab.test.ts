@@ -283,7 +283,7 @@ describe('Database collections tab', function () {
 
     await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
 
-    const typeElementSelector = `${Selectors.IndexComponent(indexName)} ${
+    const typeElementSelector = `${Selectors.indexComponent(indexName)} ${
       Selectors.IndexFieldType
     }`;
     const typeElement = await browser.$(typeElementSelector);

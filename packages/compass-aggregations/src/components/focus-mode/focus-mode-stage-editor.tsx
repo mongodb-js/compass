@@ -7,6 +7,7 @@ import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import { connect } from 'react-redux';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
+import { PIPELINE_HELP_URI } from '../../constants';
 
 const containerStyles = css({
   height: '100%',
@@ -41,16 +42,14 @@ export const FocusModeStageEditor = ({
   if (index === -1) {
     return null;
   }
-  const link = getStageHelpLink(operator);
+  const link = getStageHelpLink(operator) || PIPELINE_HELP_URI;
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
         <StageOperatorSelect editorRef={editorRef} index={index} />
-        {link && (
-          <Link hideExternalIcon={false} href={link} target="_blank">
-            Open docs
-          </Link>
-        )}
+        <Link hideExternalIcon={false} href={link} target="_blank">
+          Open docs
+        </Link>
       </div>
       <div className={editorStyles}>
         <StageEditor

@@ -11,7 +11,7 @@ import { StagePreview } from './';
 import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
-} from '../../utils/stage';
+} from '../../constants';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
