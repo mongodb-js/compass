@@ -445,7 +445,7 @@ describe('CSFLE / QE', function () {
         ['unindexed', collectionNameUnindexed],
         ['range', collectionNameRange],
       ] as const) {
-        it.only(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
+        it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
           if (mode === 'range' && !hasRangeSupport) {
             return this.skip();
           }
