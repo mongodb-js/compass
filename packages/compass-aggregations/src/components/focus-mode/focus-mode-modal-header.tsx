@@ -1,4 +1,5 @@
 import {
+  Body,
   Button,
   css,
   Icon,
@@ -8,8 +9,9 @@ import {
   Select,
   spacing,
   Toggle,
+  Tooltip,
 } from '@mongodb-js/compass-components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
@@ -47,10 +49,25 @@ const fakeToggleLabelStyles = css({
   )}ch`,
 });
 
+const menuStyles = css({
+  width: '240px',
+});
+
 const menuItemStyles = css({
   '&:after': {
     content: 'attr(data-hotkey)',
+    whiteSpace: 'nowrap',
   },
+});
+
+const tooltipContentStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[3],
+});
+
+const tooltipContentItemStyles = css({
+  flexShrink: 0,
 });
 
 export const FocusModeModalHeader: React.FunctionComponent<
@@ -64,8 +81,62 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onStageDisabledToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const keyEventListener = (e: KeyboardEvent) => {
+    const isShiftKey = e.shiftKey;
+    const isCtrlOrMetaKey = e.ctrlKey || e.metaKey;
+    if (!isShiftKey || !isCtrlOrMetaKey) {
+      return;
+    }
+
+    switch (e.key) {
+      case '9':
+        return onPreviousStage();
+      case '0':
+        return onNextStage();
+      case 'a':
+        return onAddStageAfter();
+      case 'b':
+        return onAddStageBefore();
+      default:
+        return;
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', keyEventListener);
+    return () => {
+      window.removeEventListener('keydown', keyEventListener);
+    };
+  }, [keyEventListener]);
+
   const isFirst = stageIndex === 0;
   const isLast = stages.length - 1 === stageIndex;
+
+  const onPreviousStage = () => {
+    if (isFirst) {
+      return;
+    }
+    onStageSelect(stageIndex - 1);
+  };
+
+  const onNextStage = () => {
+    if (isLast) {
+      return;
+    }
+    onStageSelect(stageIndex + 1);
+  };
+
+  const onAddStageBefore = () => {
+    onAddStageClick(stageIndex - 1);
+    setMenuOpen(false);
+  };
+
+  const onAddStageAfter = () => {
+    onAddStageClick(stageIndex);
+    setMenuOpen(false);
+  };
+
   const stageSelectLabels = stages.map((stageName, index) => {
     return `Stage ${index + 1}: ${stageName ?? 'select'}`;
   });
@@ -82,24 +153,38 @@ export const FocusModeModalHeader: React.FunctionComponent<
   return (
     <div className={controlsContainerStyles}>
       <div className={controlContainerStyles}>
-        <Button
-          size="xsmall"
-          disabled={isFirst}
-          onClick={() => {
-            onStageSelect(stageIndex - 1);
-          }}
-          aria-label="Edit previous stage"
+        <Tooltip
+          isDisabled={isFirst}
+          trigger={({ children, ...props }) => (
+            <span {...props}>
+              {children}
+              <Button
+                size="xsmall"
+                disabled={isFirst}
+                onClick={onPreviousStage}
+                data-testid="previous-stage-button"
+                aria-label="Edit previous stage"
+              >
+                <Icon
+                  size="xsmall"
+                  title={null}
+                  role="presentation"
+                  glyph="ChevronLeft"
+                ></Icon>
+              </Button>
+            </span>
+          )}
         >
-          <Icon
-            size="xsmall"
-            title={null}
-            role="presentation"
-            glyph="ChevronLeft"
-          ></Icon>
-        </Button>
-
+          <Body className={tooltipContentStyles}>
+            <span className={tooltipContentItemStyles}>
+              Go to previous stage
+            </span>
+            <span className={tooltipContentItemStyles}>Ctrl + Shift + 9</span>
+          </Body>
+        </Tooltip>
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
+          data-testid="stage-select"
           allowDeselect={false}
           style={stageSelectStyle}
           size="xsmall"
@@ -118,21 +203,33 @@ export const FocusModeModalHeader: React.FunctionComponent<
           })}
         </Select>
 
-        <Button
-          size="xsmall"
-          disabled={isLast}
-          onClick={() => {
-            onStageSelect(stageIndex + 1);
-          }}
-          aria-label="Edit next stage"
+        <Tooltip
+          isDisabled={isLast}
+          trigger={({ children, ...props }) => (
+            <span {...props}>
+              {children}
+              <Button
+                size="xsmall"
+                disabled={isLast}
+                onClick={onNextStage}
+                aria-label="Edit next stage"
+                data-testid="next-stage-button"
+              >
+                <Icon
+                  size="xsmall"
+                  title={null}
+                  role="presentation"
+                  glyph="ChevronRight"
+                ></Icon>
+              </Button>
+            </span>
+          )}
         >
-          <Icon
-            size="xsmall"
-            title={null}
-            role="presentation"
-            glyph="ChevronRight"
-          ></Icon>
-        </Button>
+          <Body className={tooltipContentStyles}>
+            <span>Go to next stage</span>
+            <span>Ctrl + Shift + 0</span>
+          </Body>
+        </Tooltip>
       </div>
 
       <div className={controlContainerStyles}>
@@ -150,12 +247,15 @@ export const FocusModeModalHeader: React.FunctionComponent<
       </div>
 
       <Menu
+        data-testid="add-stage-menu-content"
+        className={menuStyles}
         open={menuOpen}
         setOpen={setMenuOpen}
         trigger={({ onClick, children }: any) => {
           return (
             <div className={controlContainerStyles}>
               <Button
+                data-testid="add-stage-menu-button"
                 size="xsmall"
                 leftGlyph={
                   <Icon
@@ -182,21 +282,15 @@ export const FocusModeModalHeader: React.FunctionComponent<
       >
         <MenuItem
           className={menuItemStyles}
-          data-hotkey="A+"
-          onClick={() => {
-            onAddStageClick(stageIndex);
-            setMenuOpen(false);
-          }}
+          onClick={onAddStageAfter}
+          data-hotkey="Ctrl + Shift + A"
         >
           Add stage after
         </MenuItem>
         <MenuItem
           className={menuItemStyles}
-          data-hotkey="B+"
-          onClick={() => {
-            onAddStageClick(stageIndex - 1);
-            setMenuOpen(false);
-          }}
+          onClick={onAddStageBefore}
+          data-hotkey="Ctrl + Shift + B"
         >
           Add stage before
         </MenuItem>

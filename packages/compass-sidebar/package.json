@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "5.5.0",
+  "version": "5.5.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -61,24 +61,24 @@
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-databases-navigation": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.3.0",
-    "@mongodb-js/connection-form": "^1.5.0",
+    "@mongodb-js/compass-maybe-protect-connection-string": "^0.3.1",
+    "@mongodb-js/connection-form": "^1.5.3",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
-    "compass-preferences-model": "^2.5.0",
-    "mongodb-data-service": "^22.4.0",
-    "mongodb-instance-model": "^12.4.0",
+    "compass-preferences-model": "^2.5.1",
+    "mongodb-data-service": "^22.4.1",
+    "mongodb-instance-model": "^12.4.1",
     "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-databases-navigation": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.3.0",
-    "@mongodb-js/connection-form": "^1.5.0",
+    "@mongodb-js/compass-maybe-protect-connection-string": "^0.3.1",
+    "@mongodb-js/connection-form": "^1.5.3",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
-    "compass-preferences-model": "^2.5.0",
-    "mongodb-data-service": "^22.4.0",
-    "mongodb-instance-model": "^12.4.0"
+    "compass-preferences-model": "^2.5.1",
+    "mongodb-data-service": "^22.4.1",
+    "mongodb-instance-model": "^12.4.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.2",
@@ -98,7 +98,7 @@
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.4.0",
+    "hadron-app": "^5.4.1",
     "hadron-app-registry": "^9.0.3",
     "lodash": "^4.17.21",
     "mocha": "^8.4.0",

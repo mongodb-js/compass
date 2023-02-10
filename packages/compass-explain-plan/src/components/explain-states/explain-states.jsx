@@ -6,6 +6,8 @@ import {
   EmptyContent,
   Link,
   WorkspaceContainer,
+  css,
+  CancelLoader,
 } from '@mongodb-js/compass-components';
 import { ZeroGraphic } from '../zero-graphic';
 import { ExplainBody } from '../explain-body';
@@ -20,6 +22,13 @@ import { ExplainToolbar } from '../explain-toolbar/explain-toolbar';
  */
 const DOCUMENTATION_LINK =
   'https://docs.mongodb.com/compass/master/query-plan/';
+
+const loaderBackdropStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100%',
+});
 
 /**
  * The ExplainStates component.
@@ -44,11 +53,10 @@ class ExplainStates extends Component {
       resultId: PropTypes.number.isRequired,
     }),
     fetchExplainPlan: PropTypes.func.isRequired,
-    changeExplainPlanState: PropTypes.func.isRequired,
+    cancelExplainPlan: PropTypes.func.isRequired,
     switchToTreeView: PropTypes.func.isRequired,
     switchToJSONView: PropTypes.func.isRequired,
     query: PropTypes.any,
-    treeStages: PropTypes.object.isRequired,
     appRegistry: PropTypes.object.isRequired,
     queryExecuted: PropTypes.func.isRequired,
   };
@@ -68,7 +76,6 @@ class ExplainStates extends Component {
    * Executes the explain plan.
    */
   onExecuteExplainClicked() {
-    this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
     this.props.fetchExplainPlan(this.queryBarStore.state);
   }
 
@@ -84,16 +91,16 @@ class ExplainStates extends Component {
     );
   }
 
+  checkIfExplainIsLoading() {
+    return this.props.explain.explainState === EXPLAIN_STATES.REQUESTED;
+  }
+
   /**
    * Render the schema validation component zero state.
    *
    * @returns {React.Component} The component.
    */
   renderZeroState() {
-    if (!this.checkIfZeroState()) {
-      return null;
-    }
-
     return (
       <EmptyContent
         icon={ZeroGraphic}
@@ -125,9 +132,20 @@ class ExplainStates extends Component {
    * @returns {React.Component} The component.
    */
   renderContent() {
-    if (!this.checkIfZeroState()) {
-      return <ExplainBody key="explain-body" {...this.props} />;
-    }
+    return <ExplainBody key="explain-body" {...this.props} />;
+  }
+
+  renderCancellableSpinner() {
+    return (
+      <div className={loaderBackdropStyles}>
+        <CancelLoader
+          data-testid="query-explain-cancel"
+          cancelText="Cancel"
+          onCancel={() => this.props.cancelExplainPlan()}
+          progressText="Running explain"
+        />
+      </div>
+    );
   }
 
   /**
@@ -147,7 +165,9 @@ class ExplainStates extends Component {
               this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
             }
             resultId={this.props.explain.resultId}
-            hasExplainResults={!this.checkIfZeroState()}
+            hasExplainResults={
+              !(this.checkIfZeroState() || this.checkIfExplainIsLoading())
+            }
             showReadonlyWarning={!this.props.isEditable}
             switchToTreeView={this.props.switchToTreeView}
             switchToJSONView={this.props.switchToJSONView}
@@ -155,8 +175,11 @@ class ExplainStates extends Component {
           />
         }
       >
-        {this.renderZeroState()}
-        {this.renderContent()}
+        {this.checkIfExplainIsLoading()
+          ? this.renderCancellableSpinner()
+          : this.checkIfZeroState()
+          ? this.renderZeroState()
+          : this.renderContent()}
       </WorkspaceContainer>
     );
   }

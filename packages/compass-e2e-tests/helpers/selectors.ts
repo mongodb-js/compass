@@ -328,6 +328,10 @@ export const CreateCollectionTimeseriesGranularityButton =
   '[data-testid="time-series-fields"] [name="timeSeries.granularity"]';
 export const CreateCollectionTimeseriesGranularityMenu =
   '[data-testid="time-series-fields"] #timeSeries-granularity-menu';
+export const CreateCollectionTimeseriesBucketMaxSpanSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketMaxSpanSeconds"]';
+export const CreateCollectionTimeseriesBucketRoundingSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketRoundingSeconds"]';
 export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
 
@@ -766,6 +770,9 @@ export const stageCollapseButton = (stageIndex: number): string => {
 export const stageExpandButton = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
 };
+export const stageFocusModeButton = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="focus-mode-button"]`;
+};
 export const stagePickerComboboxInput = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
 };
@@ -790,6 +797,19 @@ export const stageMoreOptions = (stageIndex: number): string => {
 export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
 
 export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
+
+// Focus Mode
+export const FocusModeModal = '[data-testid="focus-mode-modal"]';
+export const FocusModeStageInput = `${FocusModeModal} [data-testid="stage-input"]`;
+export const FocusModeStageEditor = `${FocusModeModal} [data-testid="stage-editor"]`;
+export const FocusModeStageOutput = `${FocusModeModal} [data-testid="stage-output"]`;
+export const FocusModeCloseModalButton = `${FocusModeModal} [aria-label="Close modal"]`;
+export const FocusModePreviousStageButton = `${FocusModeModal} [data-testid="previous-stage-button"]`;
+export const FocusModeNextStageButton = `${FocusModeModal} [data-testid="next-stage-button"]`;
+export const FocusModeActiveStageLabel = `${FocusModeModal} [data-testid="stage-select"]`;
+export const FocusModeAddStageMenuButton = `${FocusModeModal} [data-testid="add-stage-menu-button"]`;
+export const FocusModeAddStageBeforeMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage before"]`;
+export const FocusModeAddStageAfterMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage after"]`;
 
 export const stageEditorErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
@@ -829,6 +849,9 @@ export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
 // Explain Plan tab
 export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
+export const ExplainCancellableSpinner = '[data-testid="query-explain-cancel"]';
+export const ExplainCancelButton =
+  '[data-testid="query-explain-cancel-button"]';
 export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
@@ -836,24 +859,30 @@ export const ExplainDocumentsReturnedSummary =
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
-export const IndexComponent = (name: string): string => {
+export const indexComponent = (name: string): string => {
   return `[data-testid="index-row-${name}"]`;
 };
 export const IndexFieldName = '[data-testid="index-name-field"]';
 export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
-export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-use-wildcard"] [data-testid="create-index-modal-use-wildcard-label"]';
-export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-use-wildcard"] .ace_editor';
-
-export const CreateIndexButton =
-  '[data-testid="open-create-index-modal-button"]';
+export const indexToggleOption = (fieldName: string) => {
+  return `[data-testid="create-index-modal-${fieldName}-label"]`;
+};
+export const indexOptionInput = (
+  fieldName: string,
+  type: 'code' | 'text' | 'number' | 'checkbox' = 'text'
+) => {
+  if (type === 'code') {
+    return `[data-testid="create-index-modal-${fieldName}-code"] .ace_editor`;
+  }
+  return `input[data-testid="create-index-modal-${fieldName}-${type}"]`;
+};
 
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
-
+export const CreateIndexButton =
+  '[data-testid="open-create-index-modal-button"]';
 export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
@@ -884,8 +913,10 @@ export const UpdateValidationButton =
   '[data-testid="update-validation-button"]';
 export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
+export const ValidationLoadMatchingDocumentsBtn = `${ValidationMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
+export const ValidationLoadNotMatchingDocumentsBtn = `${ValidationNotMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
 export const ValidationActionSelector =
   '[data-testid="validation-action-selector"]';
 export const ValidationLevelSelector =

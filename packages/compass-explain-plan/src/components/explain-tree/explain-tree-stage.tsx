@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import {
   Badge,
   Button,
@@ -14,7 +14,7 @@ import {
 
 import { Clock } from './clock';
 
-interface ExplainStageProps {
+interface ExplainTreeStageProps {
   name: string;
   nReturned: number;
   highlights: Record<string, string | boolean>;
@@ -22,11 +22,9 @@ interface ExplainStageProps {
   prevStageExecTimeMS: number;
   totalExecTimeMS: number;
   isShard: boolean;
-  details: Record<string, any>;
-  x: number;
-  y: number;
-  xoffset: number;
-  yoffset: number;
+  details: Record<string, unknown>;
+  detailsOpen: boolean;
+  onToggleDetailsClick: () => void;
 }
 
 interface ShardViewProps {
@@ -40,10 +38,17 @@ interface StageViewProps {
   curStageExecTimeMS: number;
   prevStageExecTimeMS: number;
   totalExecTimeMS: number;
-  toggleDetails: () => void;
-  details: Record<string, any>;
+  onToggleDetailsClick: () => void;
+  details: Record<string, unknown>;
   detailsOpen: boolean;
 }
+
+// NOTE: these values are used to layout the tree and must match
+// the actual size of the elements.
+export const defaultCardWidth = 264;
+export const defaultCardHeight = 118;
+export const shardCardHeight = 42;
+export const highlightFieldHeight = 36;
 
 interface ExecutionstatsProps {
   nReturned: number;
@@ -52,14 +57,9 @@ interface ExecutionstatsProps {
   totalExecTimeMS: number;
 }
 
-let zIndexCounter = 100;
-function getNewZIndex() {
-  return zIndexCounter++;
-}
-
 const cardStyles = css({
   position: 'absolute',
-  width: '276px',
+  width: defaultCardWidth,
   padding: spacing[2],
 });
 
@@ -75,8 +75,13 @@ const clockStyles = css({
   right: -(30 + spacing[2]),
 });
 
-const codeStyles = css({
+const codeContainerStyles = css({
   marginTop: spacing[2],
+});
+
+const codeStyles = css({
+  maxHeight: spacing[5] * 10,
+  overflow: 'scroll',
 });
 
 const executionStatsStyle = css({
@@ -161,13 +166,13 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
         type="button"
         size="xsmall"
         variant="default"
-        onClick={() => props.toggleDetails()}
+        onClick={() => props.onToggleDetailsClick()}
       >
         Details
       </Button>
       {props.detailsOpen && (
-        <div className={codeStyles}>
-          <Code copyable={false} language="json">
+        <div className={codeContainerStyles}>
+          <Code copyable={false} language="json" className={codeStyles}>
             {JSON.stringify(props.details, null, ' ') || '{}'}
           </Code>
         </div>
@@ -176,34 +181,23 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
   );
 };
 
-const ExplainStage: React.FunctionComponent<ExplainStageProps> = ({
+const ExplainTreeStage: React.FunctionComponent<ExplainTreeStageProps> = ({
   name = '',
   nReturned = 0,
   isShard = false,
   totalExecTimeMS = 1,
   curStageExecTimeMS = 0,
   prevStageExecTimeMS = 0,
-  x = 0,
-  y = 0,
-  xoffset = 0,
-  yoffset = 0,
   highlights = {},
   details = {},
+  detailsOpen = false,
+  onToggleDetailsClick = () => undefined,
 }) => {
-  const [detailsOpen, setDetailsOpen] = useState(false);
-
-  const detailsButtonClicked = useCallback(() => {
-    setDetailsOpen(!detailsOpen);
-  }, [detailsOpen]);
-
   return (
     <KeylineCard
       data-testid="explain-stage"
       className={cardStyles}
       style={{
-        zIndex: detailsOpen ? getNewZIndex() : 1,
-        top: y + yoffset,
-        left: x + xoffset,
         boxShadow: detailsOpen
           ? `0px 2px 4px -1px ${rgba(palette.black, 0.15)}`
           : '',
@@ -220,7 +214,7 @@ const ExplainStage: React.FunctionComponent<ExplainStageProps> = ({
             curStageExecTimeMS={curStageExecTimeMS}
             prevStageExecTimeMS={prevStageExecTimeMS}
             totalExecTimeMS={totalExecTimeMS}
-            toggleDetails={detailsButtonClicked}
+            onToggleDetailsClick={onToggleDetailsClick}
             detailsOpen={detailsOpen}
             details={details}
           />
@@ -230,4 +224,4 @@ const ExplainStage: React.FunctionComponent<ExplainStageProps> = ({
   );
 };
 
-export default ExplainStage;
+export { ExplainTreeStage };

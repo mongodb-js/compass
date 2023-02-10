@@ -1,6 +1,5 @@
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { find, groupBy, isEqual } from 'lodash';
-import { treeStagesChanged } from './tree-stages';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -36,12 +35,19 @@ export const EXPLAIN_STATE_CHANGED = `${PREFIX}/EXPLAIN_STATE_CHANGED`;
 export const EXPLAIN_PLAN_FETCHED = `${PREFIX}/EXPLAIN_PLAN_FETCHED`;
 
 /**
+ * The explain plan aborted action name.
+ */
+export const EXPLAIN_PLAN_ABORTED = `${PREFIX}/EXPLAIN_PLAN_ABORTED`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
   explainState: EXPLAIN_STATES.INITIAL,
   viewType: EXPLAIN_VIEWS.tree,
+  abortController: null,
   error: null,
+  oldExplain: null,
   errorParsing: false,
   executionSuccess: false,
   executionTimeMillis: 0,
@@ -86,15 +92,16 @@ const switchViewType = (state, action) => ({
  * @returns {Object} The new state.
  */
 const doChangeExplainPlanState = (state, action) => {
-  let explainState = '';
-
   if (action.explainState === EXPLAIN_STATES.INITIAL) {
     return INITIAL_STATE;
   }
 
-  explainState = action.explainState;
-
-  return { ...state, explainState };
+  return {
+    ...state,
+    explainState: action.explainState,
+    abortController: action.abortController,
+    oldExplain: action.oldExplain,
+  };
 };
 
 /**
@@ -105,7 +112,19 @@ const doChangeExplainPlanState = (state, action) => {
  *
  * @returns {Object} The new state.
  */
-const executeExplainPlan = (state, action) => ({ ...state, ...action.explain });
+const executeExplainPlan = (state, action) => ({
+  ...state,
+  ...action.explain,
+  explainState: EXPLAIN_STATES.EXECUTED,
+});
+
+/**
+ * Restores old explain plan when
+ * request is aborted
+ * @param {*} state
+ * @returns
+ */
+const restoreOldExplainPlan = (state) => state.oldExplain ?? INITIAL_STATE;
 
 /**
  * To not have a huge switch statement in the reducer.
@@ -115,6 +134,7 @@ const MAPPINGS = {
   [SWITCHED_TO_JSON_VIEW]: switchViewType,
   [EXPLAIN_STATE_CHANGED]: doChangeExplainPlanState,
   [EXPLAIN_PLAN_FETCHED]: executeExplainPlan,
+  [EXPLAIN_PLAN_ABORTED]: restoreOldExplainPlan,
 };
 
 /**
@@ -158,9 +178,15 @@ export const switchToJSONView = () => ({
  *
  * @returns {Object} The explainState changed action.
  */
-export const explainStateChanged = (explainState) => ({
+export const explainStateChanged = (
+  explainState,
+  abortController = null,
+  oldExplain = null
+) => ({
   type: EXPLAIN_STATE_CHANGED,
   explainState,
+  abortController,
+  oldExplain,
 });
 
 /**
@@ -292,6 +318,7 @@ export function isAggregationExplainOutput(explainOutput) {
 
 /**
  * Fetches the explain plan.
+ * TODO: Declutter this middleware as it is getting difficult to read
  *
  * @param {Object} query - The query.
  *
@@ -321,15 +348,27 @@ export const fetchExplainPlan = (query) => {
       return;
     }
 
+    // Cancel previous run of aggregation if there is any
+    explain.abortController?.abort();
+
+    const abortController = new AbortController();
+    const abortSignal = abortController.signal;
+    const oldExplain = { ...explain };
+    dispatch(startExplainPlan(abortController, oldExplain));
+
     try {
       const explainVerbosity = state.isDataLake
         ? 'queryPlannerExtended'
         : 'allPlansExecution';
       const data = await dataService.explainFind(namespace, filter, options, {
         explainVerbosity,
+        abortSignal,
       });
       // Reset the error.
       explain.error = null;
+
+      // Reset the abortController
+      explain.abortController = null;
 
       if (isAggregationExplainOutput(data)) {
         // Queries against time series collections are run against
@@ -358,7 +397,6 @@ export const fetchExplainPlan = (query) => {
       explain.resultId = resultId();
 
       dispatch(explainPlanFetched(explain));
-      dispatch(treeStagesChanged(explain));
 
       const trackEvent = {
         with_filter: Object.entries(filter).length > 0,
@@ -386,6 +424,10 @@ export const fetchExplainPlan = (query) => {
         })
       );
     } catch (error) {
+      if (abortSignal.aborted) {
+        return;
+      }
+
       explain.resultId = resultId();
       explain.error = error;
       dispatch(explainPlanFetched(explain));
@@ -394,15 +436,23 @@ export const fetchExplainPlan = (query) => {
 };
 
 /**
- * Changes the explain plan state.
- *
- * @param {String} explainState - The explain plan state.
- *
- * @returns {Function} The function.
+ * Sets the explain plan state to `requested`
  */
-export const changeExplainPlanState = (explainState) => {
+export const startExplainPlan = (abortController, oldExplain) => {
   return (dispatch) => {
-    return dispatch(explainStateChanged(explainState));
+    return dispatch(
+      explainStateChanged(EXPLAIN_STATES.REQUESTED, abortController, oldExplain)
+    );
+  };
+};
+
+export const cancelExplainPlan = () => {
+  return (dispatch, getStore) => {
+    const { abortController } = getStore().explain;
+    if (abortController) {
+      abortController.abort(new Error('Explain cancelled by user'));
+      dispatch({ type: EXPLAIN_PLAN_ABORTED });
+    }
   };
 };
 

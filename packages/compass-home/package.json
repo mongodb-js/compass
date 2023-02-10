@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-home",
   "productName": "Home plugin",
-  "version": "6.6.0",
+  "version": "6.6.3",
   "apiVersion": "3.0.0",
   "description": "Home",
   "main": "dist/index.js",
@@ -39,23 +39,23 @@
   "license": "SSPL",
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-connections": "^1.6.0",
-    "@mongodb-js/compass-settings": "^0.7.0",
-    "@mongodb-js/compass-welcome": "^0.4.0",
-    "compass-preferences-model": "^2.5.0",
+    "@mongodb-js/compass-connections": "^1.6.3",
+    "@mongodb-js/compass-settings": "^0.7.1",
+    "@mongodb-js/compass-welcome": "^0.4.1",
+    "compass-preferences-model": "^2.5.1",
     "hadron-app-registry": "^9.0.3",
     "hadron-ipc": "^3.1.1",
-    "mongodb-data-service": "^22.4.0"
+    "mongodb-data-service": "^22.4.1"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-connections": "^1.6.0",
-    "@mongodb-js/compass-settings": "^0.7.0",
-    "@mongodb-js/compass-welcome": "^0.4.0",
-    "compass-preferences-model": "^2.5.0",
+    "@mongodb-js/compass-connections": "^1.6.3",
+    "@mongodb-js/compass-settings": "^0.7.1",
+    "@mongodb-js/compass-welcome": "^0.4.1",
+    "compass-preferences-model": "^2.5.1",
     "hadron-app-registry": "^9.0.3",
     "hadron-ipc": "^3.1.1",
-    "mongodb-data-service": "^22.4.0",
+    "mongodb-data-service": "^22.4.1",
     "react": "^17.0.2"
   },
   "devDependencies": {

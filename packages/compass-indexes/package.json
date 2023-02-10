@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-indexes",
   "productName": "Compass Indexes plugin",
   "description": "Collection index management for Compass",
-  "version": "5.5.0",
+  "version": "5.5.3",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -58,11 +58,11 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-editor": "^0.4.0",
+    "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
     "bson": "^4.4.1",
-    "compass-preferences-model": "^2.5.0",
+    "compass-preferences-model": "^2.5.1",
     "mongodb-index-model": "^4.1.1",
     "react": "^17.0.2"
   },
@@ -80,13 +80,12 @@
     "electron": "^22.0.2",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.4.0",
     "hadron-app-registry": "^9.0.3",
     "lodash.clonedeep": "^4.5.0",
     "lodash.contains": "^2.4.3",
     "mocha": "^8.4.0",
     "mongodb": "^4.13.0",
-    "mongodb-data-service": "^22.4.0",
+    "mongodb-data-service": "^22.4.1",
     "mongodb-query-parser": "^2.4.6",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
@@ -104,11 +103,11 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-editor": "^0.4.0",
+    "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
     "bson": "^4.4.1",
-    "compass-preferences-model": "^2.5.0",
+    "compass-preferences-model": "^2.5.1",
     "mongodb-index-model": "^4.1.1"
   }
 }
