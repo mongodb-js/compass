@@ -245,7 +245,7 @@ describe('Database collections tab', function () {
   });
 
   it('can create a time series collection with flexible bucket configuration', async function () {
-    if (serverSatisfies('< 6.3.0')) {
+    if (serverSatisfies('< 6.3.0-alpha0')) {
       return this.skip();
     }
 
