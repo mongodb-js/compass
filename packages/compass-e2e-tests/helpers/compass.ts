@@ -22,7 +22,7 @@ import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
-import { MongoClient } from 'mongodb';
+import crossSpawn from 'cross-spawn';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -40,31 +40,44 @@ const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
 const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
-// mongodb-runner defaults to stable if the env var isn't there
 let MONGODB_VERSION = '';
+let MONGODB_USE_ENTERPRISE = process.env.MONGODB_USE_ENTERPRISE ?? 'no';
 
-export async function updateMongoDBVersion() {
-  let client;
+export const MONGODB_TEST_SERVER_PORT = Number(
+  process.env.MONGODB_TEST_SERVER_PORT ?? 27091
+);
+
+export function updateMongoDBServerInfo() {
   try {
-    client = await new MongoClient(
-      `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}`
-    ).connect();
-    const { version } = await client.db('admin').command({ buildInfo: 1 });
+    const { stdout, stderr } = crossSpawn.sync(
+      'npm',
+      [
+        'run',
+        '--silent',
+        'server-info',
+        '--',
+        '--connectionString',
+        `mongodb://localhost:${String(MONGODB_TEST_SERVER_PORT)}`,
+      ],
+      { encoding: 'utf-8' }
+    );
+    if (stderr?.length) {
+      throw new Error(stderr);
+    }
+    const { version, enterprise } = JSON.parse(stdout);
     MONGODB_VERSION = version;
+    MONGODB_USE_ENTERPRISE = enterprise ? 'yes' : 'no';
+    debug(
+      `Got server info: v${String(version)} (${
+        enterprise ? 'enterprise' : 'community'
+      })`
+    );
   } catch (err) {
     (err as Error).message =
-      'Failed trying to get the version of MongoDB:\n\n' +
-      (err as Error).message;
+      'Failed trying to get MongoDB server info:\n\n' + (err as Error).message;
     throw err;
-  } finally {
-    await client?.close();
   }
 }
-
-const MONGODB_USE_ENTERPRISE = process.env.MONGODB_USE_ENTERPRISE ?? 'no';
-
-export const MONGODB_TEST_SERVER_PORT =
-  process.env.MONGODB_TEST_SERVER_PORT ?? 27091;
 
 export const serverSatisfies = (
   semverCondition: string,

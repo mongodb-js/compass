@@ -15,7 +15,7 @@ import {
   LOG_PATH,
   removeUserDataDir,
   MONGODB_TEST_SERVER_PORT,
-  updateMongoDBVersion,
+  updateMongoDBServerInfo,
 } from './helpers/compass';
 import { createUnlockedKeychain } from './helpers/keychain';
 import ResultLogger from './helpers/result-logger';
@@ -72,7 +72,7 @@ async function setup() {
 
   fs.mkdirSync(LOG_PATH, { recursive: true });
 
-  await updateMongoDBVersion();
+  await updateMongoDBServerInfo();
 }
 
 function cleanup() {
