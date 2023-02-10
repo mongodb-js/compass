@@ -11,6 +11,7 @@ import {
   IconButton,
   GuideCue,
 } from '@mongodb-js/compass-components';
+import { useInView } from 'react-intersection-observer';
 import type { RootState } from '../../modules';
 import { type AceEditor } from '@mongodb-js/compass-editor';
 import ToggleStage from './toggle-stage';
@@ -117,34 +118,17 @@ export function StageToolbar({
   const showFocusMode = usePreference('showFocusMode', React);
 
   const focusModeButtonRef = useRef<HTMLButtonElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [isGuideCueVisible, setIsGuideCueVisible] = useState(false);
-  const [isGuideCueIntersecting, setIsGuideCueIntersecting] = useState(false);
+  const [setIntersectingRef, isIntersecting] = useInView({
+    threshold: 0.5,
+  });
 
   useEffect(() => {
     if (!hasSeenFocusModeGuideCue()) {
       setIsGuideCueVisible(index === 0);
     }
   }, [setIsGuideCueVisible, index]);
-
-  useEffect(() => {
-    if (focusModeButtonRef.current) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            setIsGuideCueIntersecting(true);
-          } else {
-            setIsGuideCueIntersecting(false);
-          }
-        },
-        { threshold: 1 }
-      );
-      observer.observe(focusModeButtonRef.current);
-      return () => {
-        observer.disconnect();
-      };
-    }
-  }, [focusModeButtonRef, setIsGuideCueIntersecting]);
 
   const setGuideCueVisited = () => {
     setIsGuideCueVisible(false);
@@ -160,7 +144,10 @@ export function StageToolbar({
 
   return (
     <div
-      ref={containerRef}
+      ref={(ref) => {
+        containerRef.current = ref;
+        setIntersectingRef(ref);
+      }}
       className={cx(
         'stage-editor-toolbar',
         toolbarStyles,
@@ -186,7 +173,7 @@ export function StageToolbar({
           <>
             <GuideCue
               data-testid="focus-mode-guide-cue"
-              open={isGuideCueIntersecting && isGuideCueVisible}
+              open={isIntersecting && isGuideCueVisible}
               setOpen={() => setGuideCueVisited()}
               refEl={focusModeButtonRef}
               numberOfSteps={1}
