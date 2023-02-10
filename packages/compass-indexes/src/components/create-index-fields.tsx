@@ -70,9 +70,9 @@ function CreateIndexFields({
   const [indexTypes, selectorWidth] = useMemo(() => {
     const serverSupportsColumnStoreIndex =
       hasColumnstoreIndexesSupport(serverVersion);
-    const indexTypes = serverSupportsColumnStoreIndex
-      ? INDEX_TYPES
-      : INDEX_TYPES.filter((type) => type !== 'columnstore');
+    const indexTypes = INDEX_TYPES.filter(
+      (type) => serverSupportsColumnStoreIndex || type !== 'columnstore'
+    );
     const longestLabel = Math.max(...INDEX_TYPES.map((type) => type.length));
     const additionalSpacing =
       spacing[6] +
