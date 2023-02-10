@@ -87,7 +87,7 @@
     "mocha": "^8.4.0",
     "mongodb": "^5.0.0",
     "mongodb-data-service": "^22.4.1",
-    "mongodb-query-parser": "^2.4.7",
+    "mongodb-query-parser": "^2.4.8",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",

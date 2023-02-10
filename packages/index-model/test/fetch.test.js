@@ -24,19 +24,19 @@ describe('fetch()', function() {
     var collection;
 
     // connect and create collection with index
-    before(async function() {
-      client = await MongoClient.connect(
-        'mongodb://localhost:27017/test',
-        { useUnifiedTopology: true });
-
-      collection = client.db('test').collection('_test_index_fetch');
-      await collection.createIndex({ loc: '2d' }, { w: 1 });
+    before(function() {
+      return MongoClient.connect(
+        'mongodb://localhost:27017/test')
+        .then(_client => {
+          client = _client;
+          collection = client.db('test').collection('_test_index_fetch');
+          return collection.createIndex({ loc: '2d' }, { w: 1 });
+        });
     });
 
     // drop collection and close db
-    after(async function() {
-      await collection.drop();
-      await client.close();
+    after(function() {
+      return collection.drop().then(() => client.close());
     });
 
     it('should connect to `localhost:27017` and get indexes', function(done) {

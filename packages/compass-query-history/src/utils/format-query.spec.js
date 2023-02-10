@@ -93,9 +93,9 @@ describe('formatQuery [Utils]', function () {
   });
 
   describe('when the property has a Timestamp', function () {
-    const value = new bson.Timestamp(1000);
+    const value = new bson.Timestamp({ t: 1000, i: 0 });
     const filter = { field: value };
-    const expected = '{\n field: Timestamp(1000, 0)\n}';
+    const expected = '{\n field: Timestamp({ t: 1000, i: 0 })\n}';
 
     it('returns the shell syntax string', function () {
       expect(formatQuery(filter)).to.equal(expected);

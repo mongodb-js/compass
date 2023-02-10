@@ -43,14 +43,18 @@ describe('export [module]', function () {
       beforeEach(async function () {
         await dataService.connect();
 
-        await createCollection(TEST_COLLECTION_NAME);
-        await insertMany(TEST_COLLECTION_NAME, [
-          {
-            _id: 'foo',
-            first_name: 'John',
-            last_name: 'Appleseed',
-          },
-        ]);
+        await createCollection(TEST_COLLECTION_NAME, {});
+        await insertMany(
+          TEST_COLLECTION_NAME,
+          [
+            {
+              _id: 'foo',
+              first_name: 'John',
+              last_name: 'Appleseed',
+            },
+          ],
+          {}
+        );
 
         store.dispatch(dataServiceConnected(null, dataService));
         store.dispatch(globalAppRegistryActivated(globalAppRegistry));

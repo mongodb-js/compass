@@ -59,7 +59,7 @@
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.5.0",
     "mongodb-connection-string-url": "^2.6.0",
-    "mongodb-query-parser": "^2.4.7"
+    "mongodb-query-parser": "^2.4.8"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.2",
