@@ -95,7 +95,8 @@
     "rimraf": "^3.0.0",
     "semver": "^5.7.1",
     "sinon": "^9.2.3",
-    "xvfb-maybe": "^0.2.1"
+    "xvfb-maybe": "^0.2.1",
+    "react-intersection-observer": "^8.34.0"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
