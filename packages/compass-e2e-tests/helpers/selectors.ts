@@ -328,6 +328,10 @@ export const CreateCollectionTimeseriesGranularityButton =
   '[data-testid="time-series-fields"] [name="timeSeries.granularity"]';
 export const CreateCollectionTimeseriesGranularityMenu =
   '[data-testid="time-series-fields"] #timeSeries-granularity-menu';
+export const CreateCollectionTimeseriesBucketMaxSpanSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketMaxSpanSeconds"]';
+export const CreateCollectionTimeseriesBucketRoundingSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketRoundingSeconds"]';
 export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
 
