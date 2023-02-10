@@ -54,6 +54,13 @@ export function updateMongoDBServerInfo() {
       [
         'run',
         '--silent',
+        /**
+         * The server info update is done through a separate script and not by
+         * using a MongoClient directly because doing so causes an unexplainable
+         * segfault crash in e2e-coverage task in evergreen CI. Moving this
+         * logic to a separate script seems to solve this problem, but if at any
+         * point the issue returns, feel free to revert this whole change
+         **/
         'server-info',
         '--',
         '--connectionString',
