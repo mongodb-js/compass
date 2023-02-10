@@ -72,7 +72,7 @@ async function setup() {
 
   fs.mkdirSync(LOG_PATH, { recursive: true });
 
-  await updateMongoDBServerInfo();
+  updateMongoDBServerInfo();
 }
 
 function cleanup() {
