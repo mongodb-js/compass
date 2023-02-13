@@ -1,0 +1,28 @@
+[
+  {
+    "a": "a",
+    "foo": [
+      {
+        "$numberInt": "1"
+      },
+      {
+        "$numberInt": "2"
+      },
+      {
+        "$numberInt": "3"
+      }
+    ],
+    "z": "z",
+    "notes": "foo is an array of simple values"
+  },
+  {
+    "a": "a",
+    "foo": [
+      {
+        "$numberInt": "1"
+      }
+    ],
+    "z": "z",
+    "notes": "foo is not always of the same length"
+  }
+]

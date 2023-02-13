@@ -25,6 +25,7 @@ describe('analyzeCSVFields', function () {
         delimiter: csvDelimiter,
         abortSignal: abortController.signal,
         progressCallback,
+        ignoreEmptyStrings: true,
       });
 
       const resultPath = filepath.replace(/\.csv$/, '.analyzed.json');
@@ -76,6 +77,23 @@ describe('analyzeCSVFields', function () {
     let expectedTypes = [type];
     let expectedDetected = type;
 
+    if (type === 'null') {
+      // the null test file contains an example of what mongoexport does which
+      // is to turn null into a blank string, but to us that means either
+      // undefined or blank string depending on the value of ignoreEmptyStrings
+      expectedTypes = ['null', 'undefined'];
+      expectedDetected = 'null';
+    }
+
+    if (type === 'date') {
+      // the date test file contains an example of a date as an iso string and
+      // an example of a date as an int64 value. Obviously with no other context
+      // the number is detected as a long, so in that case it will be up to the
+      // user to explicitly select Date as the column's type when importing.
+      expectedTypes = ['date', 'long'];
+      expectedDetected = 'mixed';
+    }
+
     if (type === 'number') {
       expectedTypes = ['int', 'double', 'long'];
       expectedDetected = 'mixed';
@@ -86,7 +104,7 @@ describe('analyzeCSVFields', function () {
       expectedDetected = 'mixed';
     }
 
-    it(`detects ${expectedDetected} for ${basename}`, async function () {
+    it(`detects ${expectedDetected} for ${basename} with ignoreEmptyStrings=true`, async function () {
       const abortController = new AbortController();
       const progressCallback = sinon.spy();
       const result = await analyzeCSVFields({
@@ -94,6 +112,7 @@ describe('analyzeCSVFields', function () {
         delimiter: ',',
         abortSignal: abortController.signal,
         progressCallback,
+        ignoreEmptyStrings: true,
       });
 
       for (const [fieldName, field] of Object.entries(result.fields)) {
@@ -114,6 +133,33 @@ describe('analyzeCSVFields', function () {
     });
   }
 
+  it(`detects mixed for null.csv with ignoreEmptyStrings=false`, async function () {
+    const abortController = new AbortController();
+    const progressCallback = sinon.spy();
+    const result = await analyzeCSVFields({
+      input: fs.createReadStream(fixtures.csvByType.null),
+      delimiter: ',',
+      abortSignal: abortController.signal,
+      progressCallback,
+      ignoreEmptyStrings: false,
+    });
+
+    for (const [fieldName, field] of Object.entries(result.fields)) {
+      // ignore note / padding fields
+      if (['something', 'something_else', 'notes'].includes(fieldName)) {
+        continue;
+      }
+
+      expect(Object.keys(field.types), `${fieldName} types`).to.deep.equal([
+        'null',
+        'string',
+      ]);
+      expect(field.detected, `${fieldName} detected`).to.equal('mixed');
+    }
+
+    expect(progressCallback.callCount).to.equal(result.totalRows);
+  });
+
   it('responds to abortSignal.aborted', async function () {
     const abortController = new AbortController();
     const progressCallback = sinon.spy();
@@ -125,6 +171,7 @@ describe('analyzeCSVFields', function () {
       delimiter: ',',
       abortSignal: abortController.signal,
       progressCallback,
+      ignoreEmptyStrings: true,
     });
 
     // only looked at the first row because we aborted before even starting

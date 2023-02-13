@@ -22,7 +22,7 @@
           "firstColumnIndex": 1,
           "firstValue": "1"
         },
-        "null": {
+        "undefined": {
           "count": 2,
           "firstRowIndex": 1,
           "firstColumnIndex": 2,
@@ -34,9 +34,9 @@
     },
     "bar": {
       "columnIndexes": [4, 5],
-      "detected": "null",
+      "detected": "undefined",
       "types": {
-        "null": {
+        "undefined": {
           "count": 4,
           "firstColumnIndex": 4,
           "firstRowIndex": 0,

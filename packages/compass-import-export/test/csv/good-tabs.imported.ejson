@@ -1,0 +1,21 @@
+[
+  {
+    "_id": {
+      "$numberInt": "1"
+    },
+    "value": "some string"
+  },
+  {
+    "_id": {
+      "$numberInt": "2"
+    },
+    "value": {
+      "$numberInt": "1234"
+    }
+  },
+  {
+    "_id": {
+      "$numberInt": "3"
+    }
+  }
+]
