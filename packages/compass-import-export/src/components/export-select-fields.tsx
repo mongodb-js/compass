@@ -35,18 +35,14 @@ const tableContainerStyles = css({
 });
 
 const checkboxContainerStyle = css({
-  display: 'flex',
+  // display: 'flex',
 });
 
-const cellContainerStyles = css({
-  padding: `${spacing[1]}px ${spacing[2]}px`,
+const inputCellContainerStyles = css({
+  // verticalAlign: 'middle',
 });
 
-const inputCellContainerStyles = css(cellContainerStyles, {
-  verticalAlign: 'middle',
-});
-
-const smallCellContainerStyle = css(cellContainerStyles, {
+const smallCellContainerStyle = css({
   width: spacing[5],
   margin: '0 auto',
 });
@@ -221,7 +217,7 @@ function ExportSelectFields({
                     />
                   </div>
                 </Cell>
-                <Cell className={cellContainerStyles}>
+                <Cell>
                   <Body>{field.field}</Body>
                 </Cell>
               </Row>

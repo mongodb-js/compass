@@ -57,7 +57,7 @@ const tabsContainerLightStyles = css({
 });
 
 const tabsContainerDarkStyles = css({
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.black,
   borderBottomColor: palette.gray.dark2,
   '::-webkit-scrollbar-thumb': {
     backgroundColor: scrollbarThumbDarkTheme,

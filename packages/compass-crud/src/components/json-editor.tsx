@@ -28,10 +28,10 @@ const editorStyles = css({
 
 const editorDarkModeStyles = css({
   '& .cm-editor': {
-    backgroundColor: `${palette.gray.dark3} !important`,
+    backgroundColor: `${palette.gray.dark4} !important`,
   },
   '& .cm-gutters': {
-    backgroundColor: `${palette.gray.dark3} !important`,
+    backgroundColor: `${palette.gray.dark4} !important`,
   },
 });
 

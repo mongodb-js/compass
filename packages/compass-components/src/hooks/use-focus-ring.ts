@@ -2,6 +2,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { useMemo } from 'react';
+import { useDarkMode } from './use-theme';
 
 const focusRingStyles = css({
   position: 'relative',
@@ -28,12 +29,15 @@ const focusRingVisibleStyles = css({
   },
 });
 
-const focusRingHoverVisibleStyles = css({
-  '&::after': {
-    boxShadow: `0 0 0 3px ${palette.gray.light2}`,
-    transitionTimingFunction: 'ease-out',
-  },
-});
+const focusRingHoverVisibleStyles = (darkMode: boolean) =>
+  css({
+    '&::after': {
+      boxShadow: `0 0 0 3px ${
+        darkMode ? palette.gray.dark2 : palette.gray.light2
+      }`,
+      transitionTimingFunction: 'ease-out',
+    },
+  });
 
 /**
  * Default focus ring styles. Can be used for simple cases where we want the
@@ -62,9 +66,10 @@ const focusRingWithin = css({
   '&:focus-within': focusRingVisibleStyles,
 });
 
-const focusRingHover = css({
-  '&:hover': focusRingHoverVisibleStyles,
-});
+const focusRingHover = (darkMode: boolean) =>
+  css({
+    '&:hover': focusRingHoverVisibleStyles(darkMode),
+  });
 
 /**
  * Provides focus ring styles with a few additional options allowing to override
@@ -92,6 +97,7 @@ export function useFocusRing({
   /** focus ring radius (default: 4px or spacing[1] from leafygreen) */
   radius?: number;
 } = {}) {
+  const darkMode = useDarkMode();
   const outerClass = useMemo(() => {
     return outer && focusRingOuter;
   }, [outer]);
@@ -112,8 +118,8 @@ export function useFocusRing({
   }, [focusWithin]);
 
   const hoverClass = useMemo(() => {
-    return hover && focusRingHover;
-  }, [hover]);
+    return hover && focusRingHover(!!darkMode);
+  }, [hover, darkMode]);
 
   return {
     className: cx(

@@ -31,7 +31,7 @@ const workspaceContainerStyles = css({
 });
 
 const workspaceBackgroundStyles = css({
-  background: palette.gray.dark2,
+  background: palette.black,
   overflow: 'hidden',
 });
 
