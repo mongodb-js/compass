@@ -6,20 +6,7 @@ import { guessFileType } from './guess-filetype';
 import { listCSVFields } from './list-csv-fields';
 import { fixtures } from '../../test/fixtures';
 
-const expectedFieldsByFile = {
-  'bad.csv': {},
-  'good-commas.csv': {},
-  'good-tabs.csv': {},
-  'number-transform.csv': {},
-  'sparse.csv': {},
-  'semicolons.csv': {},
-  'spaces.csv': {},
-  'array.csv': {},
-  'object.csv': {},
-  'complex.csv': {},
-} as const;
-
-describe('listCSVFields', function () {
+describe.only('listCSVFields', function () {
   for (const filepath of Object.values(fixtures.csv)) {
     const basename = path.basename(filepath);
     it(`detects correct fields for ${basename}`, async function () {

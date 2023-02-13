@@ -540,7 +540,7 @@ class CrudStoreImpl
           const index = this.findDocumentIndex(doc);
           this.state.docs?.splice(index, 1);
           this.setState({
-            count: (this.state.count ?? 1) - 1,
+            count: this.state.count === null ? null : this.state.count - 1,
             end: Math.max(this.state.end - 1, 0),
           });
         }
@@ -1392,7 +1392,7 @@ class CrudStoreImpl
   cancelOperation() {
     // As we use same controller for all operations
     // (find, count and shardingKeys), aborting will stop all.
-    this.state.abortController?.abort();
+    this.state.abortController?.abort(new Error('This operation was aborted'));
     this.setState({ abortController: null });
   }
 

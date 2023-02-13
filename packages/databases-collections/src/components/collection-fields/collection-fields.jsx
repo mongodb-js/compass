@@ -12,6 +12,7 @@ import TimeSeriesFields from './time-series-fields';
 import hasClusteredCollectionSupport from './has-clustered-collection-support';
 import ClusteredCollectionFields from './clustered-collection-fields';
 import hasFLE2Support from './has-fle2-support';
+import hasFlexibleBucketConfigSupport from './has-flexible-bucket-config-support';
 import FLE2Fields, { ENCRYPTED_FIELDS_PLACEHOLDER } from './fle2-fields';
 import Collation from './collation';
 
@@ -108,7 +109,15 @@ export default class CollectionFields extends PureComponent {
 
     const timeSeriesOptions = isTimeSeries
       ? {
-          timeseries: fields.timeSeries,
+          timeseries: {
+            ...fields.timeSeries,
+            bucketMaxSpanSeconds: asNumber(
+              fields.timeSeries.bucketMaxSpanSeconds
+            ),
+            bucketRoundingSeconds: asNumber(
+              fields.timeSeries.bucketRoundingSeconds
+            ),
+          },
           expireAfterSeconds: asNumber(fields.expireAfterSeconds),
         }
       : {};
@@ -227,6 +236,9 @@ export default class CollectionFields extends PureComponent {
                 }
                 timeSeries={timeSeries}
                 expireAfterSeconds={expireAfterSeconds}
+                supportsFlexibleBucketConfiguration={hasFlexibleBucketConfigSupport(
+                  serverVersion
+                )}
               />
             )}
             {hasClusteredCollectionSupport(serverVersion) && (

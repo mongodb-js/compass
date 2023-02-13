@@ -5,11 +5,13 @@ import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import { connect } from 'react-redux';
+import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
+import { PIPELINE_HELP_URI } from '../../constants';
 
 const containerStyles = css({
-  display: 'grid',
-  gridTemplateRows: 'min-content 1fr',
-  gridTemplateColumns: '1fr',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
   gap: spacing[3],
 });
 
@@ -18,11 +20,14 @@ const headerStyles = css({
   justifyContent: 'flex-start',
   gap: spacing[2],
   marginLeft: spacing[2],
+  marginRight: spacing[2],
+  flexWrap: 'wrap',
 });
 
 const editorStyles = css({
-  height: '100%',
+  flex: 1,
   overflowY: 'auto',
+  paddingBottom: spacing[3],
 });
 
 export const FocusModeStageEditor = ({
@@ -35,16 +40,14 @@ export const FocusModeStageEditor = ({
   if (index === -1) {
     return null;
   }
-  const link = getStageHelpLink(operator);
+  const link = getStageHelpLink(operator) || PIPELINE_HELP_URI;
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
-        {operator ? `Stage: ${operator}` : `Add a stage from builder UI`}
-        {link && (
-          <Link hideExternalIcon={false} href={link} target="_blank">
-            Open docs
-          </Link>
-        )}
+        <StageOperatorSelect index={index} />
+        <Link hideExternalIcon={false} href={link} target="_blank">
+          Open docs
+        </Link>
       </div>
       <div className={editorStyles}>
         {/* @ts-expect-error requires stage-editor.jsx to be converted */}

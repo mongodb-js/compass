@@ -26,6 +26,7 @@ describe('large-limit module', function () {
       updateCollectionFake = sinon.fake.yields(null);
       stateMock = {
         pipelineBuilder: { pipelineMode: 'builder-ui' },
+        focusMode: { isEnabled: false },
         namespace: 'aa.bb',
         editViewName: 'aa.bb',
         dataService: {

@@ -89,9 +89,7 @@ export const updateView = () => {
         dispatch(globalAppRegistryEmit('refresh-data'));
         track('View Updated', {
           num_stages: viewPipeline.length,
-          editor_view_type: mapPipelineModeToEditorViewType(
-            state.pipelineBuilder.pipelineMode
-          ),
+          editor_view_type: mapPipelineModeToEditorViewType(state),
         });
         dispatch(
           globalAppRegistryEmit('compass:aggregations:update-view', {

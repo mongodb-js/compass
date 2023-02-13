@@ -1,0 +1,726 @@
+{
+  "totalRows": 1,
+  "aborted": false,
+  "fields": {
+    "BOROUGH": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 0,
+          "firstValue": "QUEENS"
+        }
+      },
+      "columnIndexes": [0],
+      "detected": "string"
+    },
+    "Bin_#": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 1,
+          "firstValue": "4297149"
+        }
+      },
+      "columnIndexes": [1],
+      "detected": "int"
+    },
+    "House_#": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 2,
+          "firstValue": "17"
+        }
+      },
+      "columnIndexes": [2],
+      "detected": "int"
+    },
+    "Street_Name": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 3,
+          "firstValue": "WEST 16 ROAD"
+        }
+      },
+      "columnIndexes": [3],
+      "detected": "string"
+    },
+    "Job_#": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 4,
+          "firstValue": "440325738"
+        }
+      },
+      "columnIndexes": [4],
+      "detected": "int"
+    },
+    "Job_doc_#": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 5,
+          "firstValue": "01"
+        }
+      },
+      "columnIndexes": [5],
+      "detected": "int"
+    },
+    "Job_Type": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 6,
+          "firstValue": "A2"
+        }
+      },
+      "columnIndexes": [6],
+      "detected": "string"
+    },
+    "Self_Cert": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 7,
+          "firstValue": "N"
+        }
+      },
+      "columnIndexes": [7],
+      "detected": "string"
+    },
+    "Block": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 8,
+          "firstValue": "15320"
+        }
+      },
+      "columnIndexes": [8],
+      "detected": "int"
+    },
+    "Lot": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 9,
+          "firstValue": "00048"
+        }
+      },
+      "columnIndexes": [9],
+      "detected": "int"
+    },
+    "Community_Board": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 10,
+          "firstValue": "414"
+        }
+      },
+      "columnIndexes": [10],
+      "detected": "int"
+    },
+    "Zip_Code": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 11,
+          "firstValue": "11693"
+        }
+      },
+      "columnIndexes": [11],
+      "detected": "int"
+    },
+    "Bldg_Type": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 12,
+          "firstValue": "1"
+        }
+      },
+      "columnIndexes": [12],
+      "detected": "int"
+    },
+    "Residential": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 13,
+          "firstValue": "YES"
+        }
+      },
+      "columnIndexes": [13],
+      "detected": "string"
+    },
+    "Special_District_1": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 14,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [14],
+      "detected": "undefined"
+    },
+    "Special_District_2": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 15,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [15],
+      "detected": "undefined"
+    },
+    "Work_Type": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 16,
+          "firstValue": "OT"
+        }
+      },
+      "columnIndexes": [16],
+      "detected": "string"
+    },
+    "Permit_Status": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 17,
+          "firstValue": "ISSUED"
+        }
+      },
+      "columnIndexes": [17],
+      "detected": "string"
+    },
+    "Filing_Status": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 18,
+          "firstValue": "RENEWAL"
+        }
+      },
+      "columnIndexes": [18],
+      "detected": "string"
+    },
+    "Permit_Type": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 19,
+          "firstValue": "EW"
+        }
+      },
+      "columnIndexes": [19],
+      "detected": "string"
+    },
+    "Permit_Sequence_#": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 20,
+          "firstValue": "04"
+        }
+      },
+      "columnIndexes": [20],
+      "detected": "int"
+    },
+    "Permit_Subtype": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 21,
+          "firstValue": "OT"
+        }
+      },
+      "columnIndexes": [21],
+      "detected": "string"
+    },
+    "Oil_Gas": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 22,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [22],
+      "detected": "undefined"
+    },
+    "Site_Fill": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 23,
+          "firstValue": "NOT APPLICABLE"
+        }
+      },
+      "columnIndexes": [23],
+      "detected": "string"
+    },
+    "Filing_Date": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 24,
+          "firstValue": "05/21/2018 12:00:00 AM"
+        }
+      },
+      "columnIndexes": [24],
+      "detected": "string"
+    },
+    "Issuance_Date": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 25,
+          "firstValue": "05/21/2018 12:00:00 AM"
+        }
+      },
+      "columnIndexes": [25],
+      "detected": "string"
+    },
+    "Expiration_Date": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 26,
+          "firstValue": "05/15/2019 12:00:00 AM"
+        }
+      },
+      "columnIndexes": [26],
+      "detected": "string"
+    },
+    "Job_Start_Date": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 27,
+          "firstValue": "04/07/2017 12:00:00 AM"
+        }
+      },
+      "columnIndexes": [27],
+      "detected": "string"
+    },
+    "Permittee's_First_Name": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 28,
+          "firstValue": "DONALD"
+        }
+      },
+      "columnIndexes": [28],
+      "detected": "string"
+    },
+    "Permittee's_Last_Name": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 29,
+          "firstValue": "O'SULLIVAN"
+        }
+      },
+      "columnIndexes": [29],
+      "detected": "string"
+    },
+    "Permittee's_Business_Name": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 30,
+          "firstValue": "NAVILLUS TILE INC"
+        }
+      },
+      "columnIndexes": [30],
+      "detected": "string"
+    },
+    "Permittee's_Phone_#": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 31,
+          "firstValue": "2127501808"
+        }
+      },
+      "columnIndexes": [31],
+      "detected": "int"
+    },
+    "Permittee's_License_Type": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 32,
+          "firstValue": "GC"
+        }
+      },
+      "columnIndexes": [32],
+      "detected": "string"
+    },
+    "Permittee's_License_#": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 33,
+          "firstValue": "0015163"
+        }
+      },
+      "columnIndexes": [33],
+      "detected": "int"
+    },
+    "Act_as_Superintendent": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 34,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [34],
+      "detected": "undefined"
+    },
+    "Permittee's_Other_Title": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 35,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [35],
+      "detected": "undefined"
+    },
+    "HIC_License": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 36,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [36],
+      "detected": "undefined"
+    },
+    "Site_Safety_Mgr's_First_Name": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 37,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [37],
+      "detected": "undefined"
+    },
+    "Site_Safety_Mgr's_Last_Name": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 38,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [38],
+      "detected": "undefined"
+    },
+    "Site_Safety_Mgr_Business_Name": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 39,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [39],
+      "detected": "undefined"
+    },
+    "Superintendent_First_&_Last_Name": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 40,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [40],
+      "detected": "undefined"
+    },
+    "Superintendent_Business_Name": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 41,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [41],
+      "detected": "undefined"
+    },
+    "Owner's_Business_Type": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 42,
+          "firstValue": "INDIVIDUAL"
+        }
+      },
+      "columnIndexes": [42],
+      "detected": "string"
+    },
+    "Non-Profit": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 43,
+          "firstValue": "N"
+        }
+      },
+      "columnIndexes": [43],
+      "detected": "string"
+    },
+    "Owner's_Business_Name": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 44,
+          "firstValue": "TERENCE HAIRSTON ARCHITECT, PLLC"
+        }
+      },
+      "columnIndexes": [44],
+      "detected": "string"
+    },
+    "Owner's_First_Name": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 45,
+          "firstValue": "TERENCE"
+        }
+      },
+      "columnIndexes": [45],
+      "detected": "string"
+    },
+    "Owner's_Last_Name": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 46,
+          "firstValue": "HAIRSTON"
+        }
+      },
+      "columnIndexes": [46],
+      "detected": "string"
+    },
+    "Owner's_House_#": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 47,
+          "firstValue": "16"
+        }
+      },
+      "columnIndexes": [47],
+      "detected": "int"
+    },
+    "Owner's_House_Street_Name": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 48,
+          "firstValue": "WEST 36TH STREET"
+        }
+      },
+      "columnIndexes": [48],
+      "detected": "string"
+    },
+    "Owner’s_House_City": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 49,
+          "firstValue": "NEW YORK"
+        }
+      },
+      "columnIndexes": [49],
+      "detected": "string"
+    },
+    "Owner’s_House_State": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 50,
+          "firstValue": "NY"
+        }
+      },
+      "columnIndexes": [50],
+      "detected": "string"
+    },
+    "Owner’s_House_Zip_Code": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 51,
+          "firstValue": "10018"
+        }
+      },
+      "columnIndexes": [51],
+      "detected": "int"
+    },
+    "Owner's_Phone_#": {
+      "types": {
+        "long": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 52,
+          "firstValue": "9176924778"
+        }
+      },
+      "columnIndexes": [52],
+      "detected": "long"
+    },
+    "DOBRunDate": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 53,
+          "firstValue": "05/22/2018 12:00:00 AM"
+        }
+      },
+      "columnIndexes": [53],
+      "detected": "string"
+    },
+    "PERMIT_SI_NO": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 54,
+          "firstValue": "3463269"
+        }
+      },
+      "columnIndexes": [54],
+      "detected": "int"
+    },
+    "LATITUDE": {
+      "types": {
+        "double": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 55,
+          "firstValue": "40.601732"
+        }
+      },
+      "columnIndexes": [55],
+      "detected": "double"
+    },
+    "LONGITUDE": {
+      "types": {
+        "double": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 56,
+          "firstValue": "-73.821199"
+        }
+      },
+      "columnIndexes": [56],
+      "detected": "double"
+    },
+    "COUNCIL_DISTRICT": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 57,
+          "firstValue": "32"
+        }
+      },
+      "columnIndexes": [57],
+      "detected": "int"
+    },
+    "CENSUS_TRACT": {
+      "types": {
+        "int": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 58,
+          "firstValue": "107201"
+        }
+      },
+      "columnIndexes": [58],
+      "detected": "int"
+    },
+    "NTA_NAME": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 59,
+          "firstValue": "Breezy Point-Belle Harbor-Rockaway Park-Broad Channel"
+        }
+      },
+      "columnIndexes": [59],
+      "detected": "string"
+    }
+  }
+}

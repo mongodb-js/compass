@@ -328,6 +328,10 @@ export const CreateCollectionTimeseriesGranularityButton =
   '[data-testid="time-series-fields"] [name="timeSeries.granularity"]';
 export const CreateCollectionTimeseriesGranularityMenu =
   '[data-testid="time-series-fields"] #timeSeries-granularity-menu';
+export const CreateCollectionTimeseriesBucketMaxSpanSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketMaxSpanSeconds"]';
+export const CreateCollectionTimeseriesBucketRoundingSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketRoundingSeconds"]';
 export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
 
@@ -746,16 +750,16 @@ export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="option"]`;
+  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="option"]`;
 };
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };
+export const stagePreview = (stageIndex: number): string => {
+  return `[data-testid="stage-preview-${stageIndex}"]`;
+};
 export const stagePreviewToolbarTooltip = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-toolbar-tooltip"]`;
-};
-export const atlasOnlyStagePreviewSection = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-missing-search-support"]`;
 };
 export const stagePreviewEmpty = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-empty"]`;
@@ -766,11 +770,14 @@ export const stageCollapseButton = (stageIndex: number): string => {
 export const stageExpandButton = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
 };
+export const stageFocusModeButton = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="focus-mode-button"]`;
+};
 export const stagePickerComboboxInput = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
 };
 export const stagePickerListBox = (stageIndex: number): string => {
-  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="listbox"]`;
+  return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="listbox"]`;
 };
 export const stageTextarea = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] .ace_editor textarea`; // .ace_text-input
@@ -784,21 +791,26 @@ export const stageAdd = (stageIndex: number): string => {
 export const stageToggle = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
 };
-export const stageDelete = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="delete-stage"]`;
+export const stageMoreOptions = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-option-menu-button"]`;
 };
-export const stageOutSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="save-out-documents"]`;
-};
-export const stageOutCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-out-collection"]`;
-};
-export const stageMergeSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="save-merge-documents"]`;
-};
-export const stageMergeCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-merge-collection"]`;
-};
+export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"]`;
+
+export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
+
+// Focus Mode
+export const FocusModeModal = '[data-testid="focus-mode-modal"]';
+export const FocusModeStageInput = `${FocusModeModal} [data-testid="stage-input"]`;
+export const FocusModeStageEditor = `${FocusModeModal} [data-testid="stage-editor"]`;
+export const FocusModeStageOutput = `${FocusModeModal} [data-testid="stage-output"]`;
+export const FocusModeCloseModalButton = `${FocusModeModal} [aria-label="Close modal"]`;
+export const FocusModePreviousStageButton = `${FocusModeModal} [data-testid="previous-stage-button"]`;
+export const FocusModeNextStageButton = `${FocusModeModal} [data-testid="next-stage-button"]`;
+export const FocusModeActiveStageLabel = `${FocusModeModal} [data-testid="stage-select"]`;
+export const FocusModeAddStageMenuButton = `${FocusModeModal} [data-testid="add-stage-menu-button"]`;
+export const FocusModeAddStageBeforeMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage before"]`;
+export const FocusModeAddStageAfterMenuItem = `[data-testid="add-stage-menu-content"] [data-text="Add stage after"]`;
+
 export const stageEditorErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
 };
@@ -837,31 +849,40 @@ export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
 // Explain Plan tab
 export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
+export const ExplainCancellableSpinner = '[data-testid="query-explain-cancel"]';
+export const ExplainCancelButton =
+  '[data-testid="query-explain-cancel-button"]';
 export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
-  '[data-testid="documents-returned-summary"]';
+  '[data-testid="nReturned-summary"]';
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
-export const IndexComponent = (name: string): string => {
+export const indexComponent = (name: string): string => {
   return `[data-testid="index-row-${name}"]`;
 };
 export const IndexFieldName = '[data-testid="index-name-field"]';
 export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
-export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-use-wildcard"] [data-testid="create-index-modal-use-wildcard-label"]';
-export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-use-wildcard"] .ace_editor';
-
-export const CreateIndexButton =
-  '[data-testid="open-create-index-modal-button"]';
+export const indexToggleOption = (fieldName: string) => {
+  return `[data-testid="create-index-modal-${fieldName}-label"]`;
+};
+export const indexOptionInput = (
+  fieldName: string,
+  type: 'code' | 'text' | 'number' | 'checkbox' = 'text'
+) => {
+  if (type === 'code') {
+    return `[data-testid="create-index-modal-${fieldName}-code"] .ace_editor`;
+  }
+  return `input[data-testid="create-index-modal-${fieldName}-${type}"]`;
+};
 
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
-
+export const CreateIndexButton =
+  '[data-testid="open-create-index-modal-button"]';
 export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
@@ -892,8 +913,10 @@ export const UpdateValidationButton =
   '[data-testid="update-validation-button"]';
 export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
+export const ValidationLoadMatchingDocumentsBtn = `${ValidationMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
+export const ValidationLoadNotMatchingDocumentsBtn = `${ValidationNotMatchingDocumentsPreview} [data-testid="load-sample-document"]`;
 export const ValidationActionSelector =
   '[data-testid="validation-action-selector"]';
 export const ValidationLevelSelector =

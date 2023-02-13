@@ -1,0 +1,72 @@
+{
+  "totalRows": 2,
+  "aborted": false,
+  "fields": {
+    "a": {
+      "types": {
+        "string": {
+          "count": 2,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 0,
+          "firstValue": "a"
+        }
+      },
+      "columnIndexes": [0],
+      "detected": "string"
+    },
+    "foo": {
+      "types": {
+        "int": {
+          "count": 4,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 1,
+          "firstValue": "1"
+        },
+        "undefined": {
+          "count": 2,
+          "firstRowIndex": 1,
+          "firstColumnIndex": 2,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [1, 2, 3],
+      "detected": "int"
+    },
+    "bar": {
+      "columnIndexes": [4, 5],
+      "detected": "undefined",
+      "types": {
+        "undefined": {
+          "count": 4,
+          "firstColumnIndex": 4,
+          "firstRowIndex": 0,
+          "firstValue": ""
+        }
+      }
+    },
+    "z": {
+      "types": {
+        "string": {
+          "count": 2,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 6,
+          "firstValue": "z"
+        }
+      },
+      "columnIndexes": [6],
+      "detected": "string"
+    },
+    "notes": {
+      "types": {
+        "string": {
+          "count": 2,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 7,
+          "firstValue": "foo is an array of simple values"
+        }
+      },
+      "columnIndexes": [7],
+      "detected": "string"
+    }
+  }
+}

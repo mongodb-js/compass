@@ -1,4 +1,5 @@
 import React, { type ComponentProps } from 'react';
+import type { Document } from 'mongodb';
 import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
@@ -10,21 +11,20 @@ import {
 import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
-} from '../../utils/stage';
+} from '../../constants';
 
 import configureStore from '../../stores/store';
 
+const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
+
 const renderFocusModePreview = (
-  props: Partial<ComponentProps<typeof FocusModePreview>> = {}
+  props: Partial<ComponentProps<typeof FocusModePreview>> = {},
+  sourcePipeline = DEFAULT_PIPELINE
 ) => {
   render(
     <Provider
       store={configureStore({
-        sourcePipeline: [
-          { $match: { _id: 1 } },
-          { $limit: 10 },
-          { $out: 'out' },
-        ],
+        sourcePipeline,
       })}
     >
       <FocusModePreview
@@ -83,18 +83,24 @@ describe('FocusModeStagePreview', function () {
       expect(within(preview).getByText(/no preview documents/i)).to.exist;
     });
     it('renders $out stage preview', function () {
-      renderFocusModePreview({
-        stageOperator: '$out',
-        stageIndex: 2,
-      });
+      renderFocusModePreview(
+        {
+          stageOperator: '$out',
+          stageIndex: 1,
+        },
+        [{ $match: { _id: 1 } }, { $out: { into: 'somewhere-out' } }]
+      );
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(OUT_STAGE_PREVIEW_TEXT)).to.exist;
     });
     it('renders $merge stage preview', function () {
-      renderFocusModePreview({
-        stageOperator: '$merge',
-        stageIndex: 2,
-      });
+      renderFocusModePreview(
+        {
+          stageOperator: '$merge',
+          stageIndex: 1,
+        },
+        [{ $match: { _id: 1 } }, { $merge: { into: 'somewhere-merge' } }]
+      );
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(MERGE_STAGE_PREVIEW_TEXT)).to.exist;
     });

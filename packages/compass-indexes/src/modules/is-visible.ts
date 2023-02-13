@@ -1,4 +1,5 @@
 import type { AnyAction } from 'redux';
+import { RESET_FORM } from './reset-form';
 
 /**
  * The prefix.
@@ -26,6 +27,9 @@ export const INITIAL_STATE = false;
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === TOGGLE_IS_VISIBLE) {
     return action.isVisible;
+  }
+  if (action.type === RESET_FORM) {
+    return INITIAL_STATE;
   }
   return state;
 }

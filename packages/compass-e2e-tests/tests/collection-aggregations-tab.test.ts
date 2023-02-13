@@ -1,5 +1,4 @@
 import chai from 'chai';
-import semver from 'semver';
 import type { Element } from 'webdriverio';
 import { promises as fs } from 'fs';
 import type { CompassBrowser } from '../helpers/compass-browser';
@@ -8,13 +7,19 @@ import {
   afterTests,
   afterTest,
   outputFilename,
+  serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { getStageOperators } from '../helpers/read-stage-operators';
 
 const { expect } = chai;
+
+const OUT_STAGE_PREVIEW_TEXT =
+  'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.';
+const MERGE_STAGE_PREVIEW_TEXT =
+  'The $merge operator will cause the pipeline to persist the results to the specified location.';
 
 async function waitForAnyText(
   browser: CompassBrowser,
@@ -165,12 +170,24 @@ async function saveAggregation(
   await createButton.click();
 }
 
+async function deleteStage(
+  browser: CompassBrowser,
+  index: number
+): Promise<void> {
+  await browser.clickVisible(Selectors.stageMoreOptions(index));
+  const menuElement = await browser.$(Selectors.StageMoreOptionsContent);
+  await menuElement.waitForDisplayed();
+  await browser.clickVisible(Selectors.StageDelete);
+}
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
   before(async function () {
-    compass = await beforeTests();
+    compass = await beforeTests({
+      extraSpawnArgs: ['--show-focus-mode'],
+    });
     browser = compass.browser;
   });
 
@@ -206,16 +223,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
-    await browser.focusStageOperator(0);
-
-    const stageOperatorOptionsElements = await browser.$$(
-      Selectors.stageOperatorOptions(0)
-    );
-    const options = await Promise.all(
-      stageOperatorOptionsElements.map((element) => element.getText())
-    );
-
-    options.sort();
+    const options = await getStageOperators(browser, 0);
 
     const expectedAggregations = [
       '$addFields',
@@ -242,25 +250,25 @@ describe('Collection aggregations tab', function () {
       '$unwind',
     ];
 
-    if (semver.gte(MONGODB_VERSION, '4.1.11')) {
+    if (serverSatisfies('>= 4.1.11')) {
       expectedAggregations.push('$search');
     }
-    if (semver.gte(MONGODB_VERSION, '4.2.0')) {
+    if (serverSatisfies('>= 4.2.0')) {
       expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
     }
-    if (semver.gte(MONGODB_VERSION, '4.4.0')) {
+    if (serverSatisfies('>= 4.4.0')) {
       expectedAggregations.push('$unionWith');
     }
-    if (semver.gte(MONGODB_VERSION, '4.4.9')) {
+    if (serverSatisfies('>= 4.4.9')) {
       expectedAggregations.push('$searchMeta');
     }
-    if (semver.gte(MONGODB_VERSION, '5.0.0')) {
+    if (serverSatisfies('>= 5.0.0')) {
       expectedAggregations.push('$setWindowFields');
     }
-    if (semver.gte(MONGODB_VERSION, '5.1.0')) {
+    if (serverSatisfies('>= 5.1.0')) {
       expectedAggregations.push('$densify');
     }
-    if (semver.gte(MONGODB_VERSION, '5.3.0')) {
+    if (serverSatisfies('>= 5.3.0')) {
       expectedAggregations.push('$fill');
     }
 
@@ -284,21 +292,46 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.1.11')) {
+    if (serverSatisfies('< 4.1.11')) {
       this.skip();
     }
 
     await browser.selectStageOperator(0, '$search');
 
     await browser.waitUntil(async function () {
-      const textElement = await browser.$(
-        Selectors.atlasOnlyStagePreviewSection(0)
-      );
+      const textElement = await browser.$(Selectors.stagePreview(0));
       const text = await textElement.getText();
       return text.includes(
         'The $search stage is only available with MongoDB Atlas.'
       );
     });
+  });
+
+  it('shows $out stage preview', async function () {
+    await browser.selectStageOperator(0, '$out');
+    await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
+
+    const preview = await browser.$(Selectors.stagePreview(0));
+    const text = await preview.getText();
+
+    expect(text).to.include('Documents will be saved to test.listings.');
+    expect(text).to.include(OUT_STAGE_PREVIEW_TEXT);
+  });
+
+  it('shows $merge stage preview', async function () {
+    // $merge operator is supported from 4.2.0
+    if (serverSatisfies('< 4.2.0')) {
+      return this.skip();
+    }
+
+    await browser.selectStageOperator(0, '$merge');
+    await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
+
+    const preview = await browser.$(Selectors.stagePreview(0));
+    const text = await preview.getText();
+
+    expect(text).to.include('Documents will be saved to test.listings.');
+    expect(text).to.include(MERGE_STAGE_PREVIEW_TEXT);
   });
 
   it('shows empty preview', async function () {
@@ -358,7 +391,7 @@ describe('Collection aggregations tab', function () {
     await browser.selectStageOperator(1, '$project');
 
     // delete it
-    await browser.clickVisible(Selectors.stageDelete(1));
+    await deleteStage(browser, 1);
 
     // add a $project
     await browser.clickVisible(Selectors.AddStageButton);
@@ -593,7 +626,7 @@ describe('Collection aggregations tab', function () {
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
     // delete the stage after $out
-    await browser.clickVisible(Selectors.stageDelete(1));
+    await deleteStage(browser, 1);
 
     // run the $out stage
     await browser.clickVisible(Selectors.RunPipelineButton);
@@ -617,7 +650,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports $merge as the last stage', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+    if (serverSatisfies('< 4.2.0')) {
       return this.skip();
     }
 
@@ -640,7 +673,7 @@ describe('Collection aggregations tab', function () {
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
     // delete the stage after $out
-    await browser.clickVisible(Selectors.stageDelete(1));
+    await deleteStage(browser, 1);
 
     // run the $merge stage
     await browser.clickVisible(Selectors.RunPipelineButton);
@@ -736,7 +769,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.4.0')) {
+    if (serverSatisfies('< 4.4.0')) {
       // $function expression that we use to simulate slow aggregation is only
       // supported since server 4.4
       this.skip();
@@ -1060,6 +1093,228 @@ describe('Collection aggregations tab', function () {
 
       await deleteButton.click();
       await confirmDeleteModal.waitForDisplayed({ reverse: true });
+    });
+  });
+
+  describe('focus mode', function () {
+    it('opens and closes the modal', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.$(Selectors.FocusModeStageInput).waitForDisplayed();
+      await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();
+      await browser.$(Selectors.FocusModeStageOutput).waitForDisplayed();
+
+      const closeButton = await browser.$(Selectors.FocusModeCloseModalButton);
+      await closeButton.click();
+
+      await modal.waitForDisplayed({ reverse: true });
+    });
+
+    it('navigates between stages', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+      await browser.clickVisible(Selectors.AddStageButton);
+      await browser.$(Selectors.stageEditor(1)).waitForDisplayed();
+      await browser.selectStageOperator(1, '$limit');
+      await browser.setAceValue(Selectors.stageEditor(1), '10');
+
+      await browser.clickVisible(Selectors.AddStageButton);
+      await browser.$(Selectors.stageEditor(2)).waitForDisplayed();
+      await browser.selectStageOperator(2, '$sort');
+      await browser.setAceValue(Selectors.stageEditor(2), '{ i: -1 }');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      const nextButton = await browser.$(Selectors.FocusModeNextStageButton);
+      const previousButton = await browser.$(
+        Selectors.FocusModePreviousStageButton
+      );
+
+      await nextButton.waitForDisplayed();
+      await previousButton.waitForDisplayed();
+
+      expect(await previousButton.isEnabled()).to.equal(false);
+
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 1: $match';
+      });
+
+      await nextButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 2: $limit';
+      });
+
+      await nextButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 3: $sort';
+      });
+
+      expect(await nextButton.isEnabled()).to.equal(false);
+
+      await previousButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 2: $limit';
+      });
+
+      await previousButton.click();
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 1: $match';
+      });
+
+      expect(await previousButton.isEnabled()).to.equal(false);
+
+      await browser.keys('Escape');
+      await modal.waitForDisplayed({ reverse: true });
+    });
+
+    it('adds a new stage before or after current stage', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 1: $match';
+      });
+
+      const addStageMenu = await browser.$(
+        Selectors.FocusModeAddStageMenuButton
+      );
+      await addStageMenu.waitForDisplayed();
+
+      // Add a stage before the current stage.
+      await addStageMenu.click();
+
+      const addStageBeforeButton = await browser.$(
+        Selectors.FocusModeAddStageBeforeMenuItem
+      );
+      await addStageBeforeButton.waitForDisplayed();
+      await addStageBeforeButton.click();
+
+      await browser.waitUntil(async () => {
+        const labelElem = await browser.$(Selectors.FocusModeActiveStageLabel);
+        return (await labelElem.getText()) === 'Stage 1: select';
+      });
+
+      // Add a stage after the current stage.
+      await addStageMenu.click();
+
+      const addStageAfterButton = await browser.$(
+        Selectors.FocusModeAddStageAfterMenuItem
+      );
+      await addStageAfterButton.waitForDisplayed();
+      await addStageAfterButton.click();
+
+      await browser.waitUntil(async () => {
+        const activeStage = await browser.$(
+          Selectors.FocusModeActiveStageLabel
+        );
+        return (await activeStage.getText()) === 'Stage 2: select';
+      });
+
+      await browser.keys('Escape');
+      await modal.waitForDisplayed({ reverse: true });
+    });
+
+    it('hides stage input and output when preview is disabled', async function () {
+      await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
+
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser
+        .$(Selectors.FocusModeStageInput)
+        .waitForDisplayed({ reverse: true });
+      await browser.$(Selectors.FocusModeStageEditor).waitForDisplayed();
+      await browser
+        .$(Selectors.FocusModeStageOutput)
+        .waitForDisplayed({ reverse: true });
+    });
+
+    it('handles $out stage operators', async function () {
+      await browser.selectStageOperator(0, '$out');
+      await browser.setAceValue(Selectors.stageEditor(0), '"test"');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.waitUntil(async () => {
+        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const text = await outputElem.getText();
+        return text.includes(OUT_STAGE_PREVIEW_TEXT);
+      });
+    });
+
+    it('handles $merge stage operators', async function () {
+      if (serverSatisfies('< 4.2.0')) {
+        return this.skip();
+      }
+
+      await browser.selectStageOperator(0, '$merge');
+      await browser.setAceValue(Selectors.stageEditor(0), '"test"');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.waitUntil(async () => {
+        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const text = await outputElem.getText();
+        return text.includes(MERGE_STAGE_PREVIEW_TEXT);
+      });
+    });
+
+    it('handles atlas only operator', async function () {
+      if (serverSatisfies('< 4.1.11')) {
+        this.skip();
+      }
+
+      await browser.selectStageOperator(0, '$search');
+      await browser.setAceValue(Selectors.stageEditor(0), '{}');
+
+      await browser.clickVisible(Selectors.stageFocusModeButton(0));
+      const modal = await browser.$(Selectors.FocusModeModal);
+      await modal.waitForDisplayed();
+
+      await browser.waitUntil(async () => {
+        const outputElem = await browser.$(Selectors.FocusModeStageOutput);
+        const text = await outputElem.getText();
+        return text.includes(
+          'The $search stage is only available with MongoDB Atlas.'
+        );
+      });
     });
   });
 

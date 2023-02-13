@@ -17,7 +17,7 @@ import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { OutputStageBanner } from './pipeline-stages-preview';
-import { AtlasStagePreview } from './../../atlas-stage-preview';
+import { AtlasStagePreview } from '../../stage-preview/atlas-stage-preview';
 import {
   isMissingAtlasStageSupport,
   findAtlasOperator,
@@ -210,11 +210,12 @@ const mapState = (state: RootState) => {
   const lastStage = stageOperators[stageOperators.length - 1] ?? '';
   const { isLoading, previewDocs, serverError, isPreviewStale } =
     state.pipelineBuilder.textEditor.pipeline;
+  const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   const isMissingAtlasSupport = isMissingAtlasStageSupport(
     state.env,
+    atlasOperator,
     serverError
   );
-  const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   return {
     isLoading,
     previewDocs,

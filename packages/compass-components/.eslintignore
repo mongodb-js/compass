@@ -1,1 +1,3 @@
 lib/
+# Ignore LG combobox clone.
+src/components/combobox

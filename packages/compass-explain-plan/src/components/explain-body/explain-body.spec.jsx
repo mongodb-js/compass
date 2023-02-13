@@ -23,12 +23,9 @@ describe('ExplainBody [Component]', function () {
       index: null,
       errorParsing: true,
     };
-    const treeStages = {};
 
     beforeEach(function () {
-      component = mount(
-        <ExplainBody explain={explain} treeStages={treeStages} />
-      );
+      component = mount(<ExplainBody explain={explain} />);
     });
 
     afterEach(function () {
@@ -52,12 +49,9 @@ describe('ExplainBody [Component]', function () {
       indexType: 'UNAVAILABLE',
       index: null,
     };
-    const treeStages = {};
 
     beforeEach(function () {
-      component = mount(
-        <ExplainBody explain={explain} treeStages={treeStages} />
-      );
+      component = mount(<ExplainBody explain={explain} />);
     });
 
     afterEach(function () {
@@ -85,12 +79,9 @@ describe('ExplainBody [Component]', function () {
       indexType: 'UNAVAILABLE',
       index: null,
     };
-    const treeStages = {};
 
     beforeEach(function () {
-      component = mount(
-        <ExplainBody explain={explain} treeStages={treeStages} />
-      );
+      component = mount(<ExplainBody explain={explain} />);
     });
 
     afterEach(function () {

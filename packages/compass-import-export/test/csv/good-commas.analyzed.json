@@ -1,0 +1,42 @@
+{
+  "totalRows": 3,
+  "aborted": false,
+  "fields": {
+    "_id": {
+      "types": {
+        "int": {
+          "count": 3,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 0,
+          "firstValue": "1"
+        }
+      },
+      "columnIndexes": [0],
+      "detected": "int"
+    },
+    "value": {
+      "types": {
+        "string": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 1,
+          "firstValue": "some string"
+        },
+        "int": {
+          "count": 1,
+          "firstRowIndex": 1,
+          "firstColumnIndex": 1,
+          "firstValue": "1234"
+        },
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 2,
+          "firstColumnIndex": 1,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [1],
+      "detected": "mixed"
+    }
+  }
+}

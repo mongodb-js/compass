@@ -10,15 +10,7 @@ import {
   OUT_STAGES,
 } from '@mongodb-js/mongodb-constants';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
-
-export const OUT_STAGE_PREVIEW_TEXT =
-  'The $out operator will cause the pipeline to persist ' +
-  'the results to the specified location (collection, S3, or Atlas). ' +
-  'If the collection exists it will be replaced.';
-
-export const MERGE_STAGE_PREVIEW_TEXT =
-  'The $merge operator will cause the pipeline to persist the results to ' +
-  'the specified location.';
+import { STAGE_HELP_BASE_URL } from '../constants';
 
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
@@ -185,6 +177,15 @@ export function isOutputStage(stageOperator) {
   return OUT_OPERATOR_NAMES.has(stageOperator);
 }
 
+/**
+ *
+ * @param {string} stageOperator
+ * @returns {boolean}
+ */
+export function isAtlasOnlyStage(stageOperator) {
+  return ATLAS_ONLY_OPERATOR_NAMES.has(stageOperator);
+}
+
 const STAGE_OPERATOS_MAP = new Map(
   STAGE_OPERATORS.map((stage) => [stage.value, stage])
 );
@@ -193,9 +194,7 @@ export const getStageHelpLink = (stageOperator) => {
   if (!stageOperator) {
     return null;
   }
-  const BASE_URL =
-    'https://www.mongodb.com/docs/manual/reference/operator/aggregation';
-  return `${BASE_URL}/${stageOperator.replace(/^\$/, '')}`;
+  return `${STAGE_HELP_BASE_URL}/${stageOperator.replace(/^\$/, '')}`;
 };
 
 /**
@@ -249,19 +248,22 @@ export const isLastStageOutputStage = (pipeline) => {
 };
 
 /**
- * @param {string} env
- * @param {import('mongodb').MongoServerError | null} serverError
+ * @param {string | null | undefined} env
+ * @param {string | null | undefined} operator
+ * @param {import('mongodb').MongoServerError | null | undefined} serverError
  */
-export const isMissingAtlasStageSupport = (env, serverError) => {
-  return !!(
+export const isMissingAtlasStageSupport = (env, operator, serverError) => {
+  return (
     ![ADL, ATLAS].includes(env) &&
-    serverError &&
+    isAtlasOnlyStage(operator) &&
     [
       // Unrecognized pipeline stage name
       40324,
       // The full-text search stage is not enabled
       31082,
-    ].includes(Number(serverError.code))
+      // "Search stages are only allowed on MongoDB Atlas"
+      6047400, 6047401,
+    ].includes(Number(serverError?.code ?? -1))
   );
 };
 
@@ -270,7 +272,7 @@ export const isMissingAtlasStageSupport = (env, serverError) => {
  * @param {string[]} operators
  */
 export const findAtlasOperator = (operators) => {
-  return operators.find((operator) => ATLAS_ONLY_OPERATOR_NAMES.has(operator));
+  return operators.find((operator) => isAtlasOnlyStage(operator));
 };
 
 export function hasSyntaxError(stage) {
