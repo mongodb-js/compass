@@ -12,7 +12,7 @@ import {
   Decimal128,
   UUID,
 } from 'bson';
-import { BSONTypeError } from 'bson';
+import { BSONError } from 'bson';
 
 import {
   detectFieldType,
@@ -397,7 +397,7 @@ describe('parseValue', function () {
   });
 
   it('parses objectId', function () {
-    expect(() => parseValue('1', 'objectId')).to.throw(BSONTypeError);
+    expect(() => parseValue('1', 'objectId')).to.throw(BSONError);
     expect(parseValue('63dbc32d12a39d2a72941813', 'objectId')).to.deep.equal(
       new ObjectId('63dbc32d12a39d2a72941813')
     );
@@ -417,7 +417,7 @@ describe('parseValue', function () {
   });
 
   it('parses decimal', function () {
-    expect(() => parseValue('e+02', 'decimal')).to.throw(BSONTypeError);
+    expect(() => parseValue('e+02', 'decimal')).to.throw(BSONError);
     expect(
       parseValue('9.999999999999999999999999999999999E+6144', 'decimal')
     ).to.deep.equal(
