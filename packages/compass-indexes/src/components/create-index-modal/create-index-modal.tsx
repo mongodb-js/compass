@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import {
   Modal,
   ModalFooter,
@@ -26,8 +26,6 @@ import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import type { RootState } from '../../modules/create-index';
 
-const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
-
 function CreateIndexModal({
   isVisible,
   namespace,
@@ -50,18 +48,27 @@ function CreateIndexModal({
     (open) => {
       if (!open) {
         closeCreateIndexModal();
-      } else {
-        track('Screen', { name: 'create_index_modal' });
       }
     },
     [closeCreateIndexModal]
   );
 
+  useTrackOnChange(
+    'COMPASS-INDEXES-UI',
+    isVisible,
+    (track) => {
+      if (isVisible) {
+        track('Screen', { name: 'create_index_modal' });
+      }
+    },
+    undefined,
+    React
+  );
+
   return (
     <Modal
-      setOpen={onSetOpen}
       open={isVisible}
-      trackingId="create_index_modal"
+      setOpen={onSetOpen}
       data-testid="create-index-modal"
     >
       <ModalHeader title="Create Index" subtitle={namespace} />

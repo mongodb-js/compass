@@ -69,7 +69,6 @@
     "@leafygreen-ui/tokens": "^1.4.1",
     "@leafygreen-ui/tooltip": "^9.0.2",
     "@leafygreen-ui/typography": "^15.2.0",
-    "@mongodb-js/compass-logging": "^1.1.2",
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/tooltip": "^3.2.1",
     "@react-aria/utils": "^3.13.1",

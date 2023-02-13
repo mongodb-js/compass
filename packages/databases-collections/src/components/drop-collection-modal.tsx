@@ -14,6 +14,7 @@ import {
 import { dropCollection } from '../modules/drop-collection/drop-collection';
 import { toggleIsVisible } from '../modules/is-visible';
 import type { RootState } from '../modules/drop-collection/drop-collection';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -56,6 +57,18 @@ function DropCollectionModal({
     }
   }, [name, nameConfirmation, dropCollection]);
 
+  useTrackOnChange(
+    'COMPASS-DATABASES-COLLECTIONS-UI',
+    isVisible,
+    (track) => {
+      if (isVisible) {
+        track('Screen', { name: 'drop_collection_modal' });
+      }
+    },
+    undefined,
+    React
+  );
+
   return (
     <FormModal
       title="Drop Collection"
@@ -65,7 +78,6 @@ function DropCollectionModal({
       submitButtonText="Drop Collection"
       variant="danger"
       submitDisabled={name !== nameConfirmation || isRunning}
-      trackingId="drop_collection_modal"
       data-testid="drop-collection-modal"
     >
       <FormFieldContainer>

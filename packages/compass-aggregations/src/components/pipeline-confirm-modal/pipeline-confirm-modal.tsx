@@ -7,6 +7,7 @@ import {
   toggleNewPipelineModal,
   confirmNewPipeline,
 } from '../../modules/is-new-pipeline-confirm';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const QUESTION = 'Are you sure you want to create a new pipeline?';
 
@@ -19,6 +20,18 @@ type PipelineConfirmModalProps = {
 export const PipelineConfirmModal: React.FunctionComponent<
   PipelineConfirmModalProps
 > = ({ isModalOpen, onCloseModal, onConfirmNewPipeline }) => {
+  useTrackOnChange(
+    'COMPASS-AGGREGATIONS-UI',
+    isModalOpen,
+    (track) => {
+      if (isModalOpen) {
+        track('Screen', { name: 'confirm_new_pipeline_modal' });
+      }
+    },
+    undefined,
+    React
+  );
+
   return (
     <ConfirmationModal
       title={QUESTION}
@@ -26,7 +39,6 @@ export const PipelineConfirmModal: React.FunctionComponent<
       onConfirm={onConfirmNewPipeline}
       onCancel={onCloseModal}
       buttonText="Confirm"
-      trackingId="confirm_new_pipeline_modal"
       data-testid="confirm-new-pipeline-modal"
     >
       Creating this pipeline will abandon unsaved changes to the current

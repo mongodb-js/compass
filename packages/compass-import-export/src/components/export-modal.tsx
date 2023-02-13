@@ -40,6 +40,7 @@ import {
 import type { ExportQueryType } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
 import { getQueryAsShellJSString } from '../utils/get-shell-js';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const optionRadioStyles = css({
   // Override LeafyGreen's radio group default width.
@@ -313,13 +314,21 @@ function ExportModal({
   const closeButtonText =
     status === COMPLETED && exportStep === FILETYPE ? 'Close' : 'Cancel';
   const entityToExport = isAggregation ? 'Aggregation from' : 'Collection';
+
+  useTrackOnChange(
+    'COMPASS-IMPORT-EXPORT-UI',
+    open,
+    (track) => {
+      if (open) {
+        track('Screen', { name: 'export_modal' });
+      }
+    },
+    undefined,
+    React
+  );
+
   return (
-    <Modal
-      open={open}
-      setOpen={handleClose}
-      data-testid="export-modal"
-      trackingId="export_modal"
-    >
+    <Modal open={open} setOpen={handleClose} data-testid="export-modal">
       <ModalHeader title="Export" subtitle={`${entityToExport} ${ns}`} />
       <ModalBody>
         {exportStep === QUERY && (
