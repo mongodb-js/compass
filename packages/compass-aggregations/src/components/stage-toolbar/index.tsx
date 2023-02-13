@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -9,9 +9,7 @@ import {
   palette,
   useDarkMode,
   IconButton,
-  GuideCue,
 } from '@mongodb-js/compass-components';
-import { useInView } from 'react-intersection-observer';
 import type { RootState } from '../../modules';
 import { type AceEditor } from '@mongodb-js/compass-editor';
 import ToggleStage from './toggle-stage';
@@ -21,10 +19,6 @@ import { hasSyntaxError } from '../../utils/stage';
 import { usePreference } from 'compass-preferences-model';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
-import {
-  setHasSeenFocusModeGuideCue,
-  hasSeenFocusModeGuideCue,
-} from '../../utils/local-storage';
 
 const toolbarStyles = css({
   width: '100%',
@@ -97,6 +91,7 @@ type StageToolbarProps = {
   hasServerError?: boolean;
   isCollapsed?: boolean;
   isDisabled?: boolean;
+  onGuideCueVisited: () => void;
   onFocusModeEnableClick: (index: number) => void;
   editorRef: React.RefObject<AceEditor | undefined>;
 };
@@ -112,42 +107,19 @@ export function StageToolbar({
   isCollapsed,
   isDisabled,
   onFocusModeEnableClick,
+  onGuideCueVisited,
   editorRef,
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
   const showFocusMode = usePreference('showFocusMode', React);
 
-  const focusModeButtonRef = useRef<HTMLButtonElement>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isGuideCueVisible, setIsGuideCueVisible] = useState(false);
-  const [setIntersectingRef, isIntersecting] = useInView({
-    threshold: 0.5,
-  });
-
-  useEffect(() => {
-    if (!hasSeenFocusModeGuideCue()) {
-      setIsGuideCueVisible(index === 0);
-    }
-  }, [setIsGuideCueVisible, index]);
-
-  const setGuideCueVisited = () => {
-    setIsGuideCueVisible(false);
-    setHasSeenFocusModeGuideCue();
-  };
-
   const onOpenFocusMode = () => {
     onFocusModeEnableClick(index);
-    if (isGuideCueVisible) {
-      setGuideCueVisited();
-    }
+    onGuideCueVisited();
   };
 
   return (
     <div
-      ref={(ref) => {
-        containerRef.current = ref;
-        setIntersectingRef(ref);
-      }}
       className={cx(
         'stage-editor-toolbar',
         toolbarStyles,
@@ -170,32 +142,14 @@ export function StageToolbar({
       </div>
       <div className={rightStyles}>
         {showFocusMode && (
-          <>
-            <GuideCue
-              data-testid="focus-mode-guide-cue"
-              open={isIntersecting && isGuideCueVisible}
-              setOpen={() => setGuideCueVisited()}
-              refEl={focusModeButtonRef}
-              numberOfSteps={1}
-              popoverZIndex={2}
-              scrollContainer={containerRef.current}
-              portalContainer={containerRef.current}
-              title="Focus Mode"
-              tooltipAlign="bottom"
-            >
-              Stage Focus Mode allows you to focus on a single stage in the
-              pipeline. You can use it to edit or see the results of a stage in
-              isolation.
-            </GuideCue>
-            <IconButton
-              ref={focusModeButtonRef}
-              onClick={onOpenFocusMode}
-              aria-label="Open stage in focus mode"
-              data-testid="focus-mode-button"
-            >
-              <Icon glyph="FullScreenEnter" size="small"></Icon>
-            </IconButton>
-          </>
+          <IconButton
+            onClick={onOpenFocusMode}
+            aria-label="Open stage in focus mode"
+            data-testid="focus-mode-button"
+            data-guide-cue-ref="focus-mode-button"
+          >
+            <Icon glyph="FullScreenEnter" size="small"></Icon>
+          </IconButton>
         )}
         <OptionMenu index={index} />
       </div>
