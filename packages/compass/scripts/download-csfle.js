@@ -61,6 +61,7 @@ const download = async (url, destDir) => {
   const downloadOptions = {
     enterprise: true,
     crypt_shared: true,
+    version: 'continuous',
   };
   if (process.platform === 'linux') {
     // The CSFLE shared library is built for different distros,
@@ -69,18 +70,7 @@ const download = async (url, destDir) => {
     // such as RHEL7.
     downloadOptions.distro = 'rhel70';
   }
-  let artifactInfo;
-  // Try getting the latest stable csfle library, if none exists
-  // (which is the case at the time of writing), fall back to
-  // a 6.0 rc candidate. We can remove this try/catch after 6.0.0.
-  try {
-    artifactInfo = await getDownloadURL(downloadOptions);
-  } catch {
-    artifactInfo = await getDownloadURL({
-      ...downloadOptions,
-      version: '>= 6.0.0',
-    });
-  }
+  const artifactInfo = await getDownloadURL(downloadOptions);
 
   console.log(
     'Downloading csfle artifact',

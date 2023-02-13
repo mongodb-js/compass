@@ -1,0 +1,58 @@
+[
+  {
+    "foo": {
+      "$numberInt": "1"
+    }
+  },
+  {
+    "foo": {
+      "$numberInt": "1"
+    },
+    "bar": {
+      "$numberInt": "2"
+    }
+  },
+  {
+    "foo": {
+      "$numberInt": "1"
+    },
+    "bar": {
+      "$numberInt": "2"
+    },
+    "baz": {
+      "$numberInt": "3"
+    }
+  },
+  {
+    "baz": {
+      "$numberInt": "3"
+    }
+  },
+  {},
+  {
+    "bar": {
+      "$numberInt": "2"
+    }
+  },
+  {
+    "baz": {
+      "$numberInt": "3"
+    }
+  },
+  {
+    "bar": {
+      "$numberInt": "2"
+    }
+  },
+  {
+    "foo": {
+      "$numberInt": "1"
+    },
+    "bar": {
+      "$numberInt": "2"
+    },
+    "baz": {
+      "$numberInt": "3"
+    }
+  }
+]

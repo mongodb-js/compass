@@ -10,15 +10,7 @@ import {
   OUT_STAGES,
 } from '@mongodb-js/mongodb-constants';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
-
-export const OUT_STAGE_PREVIEW_TEXT =
-  'The $out operator will cause the pipeline to persist ' +
-  'the results to the specified location (collection, S3, or Atlas). ' +
-  'If the collection exists it will be replaced.';
-
-export const MERGE_STAGE_PREVIEW_TEXT =
-  'The $merge operator will cause the pipeline to persist the results to ' +
-  'the specified location.';
+import { STAGE_HELP_BASE_URL } from '../constants';
 
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
@@ -202,9 +194,7 @@ export const getStageHelpLink = (stageOperator) => {
   if (!stageOperator) {
     return null;
   }
-  const BASE_URL =
-    'https://www.mongodb.com/docs/manual/reference/operator/aggregation';
-  return `${BASE_URL}/${stageOperator.replace(/^\$/, '')}`;
+  return `${STAGE_HELP_BASE_URL}/${stageOperator.replace(/^\$/, '')}`;
 };
 
 /**

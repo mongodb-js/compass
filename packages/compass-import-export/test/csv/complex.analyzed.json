@@ -10,7 +10,7 @@
           "firstColumnIndex": 0,
           "firstValue": "1"
         },
-        "null": {
+        "undefined": {
           "count": 3,
           "firstRowIndex": 0,
           "firstColumnIndex": 1,
@@ -22,7 +22,7 @@
     },
     "foo.bar": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 2,
           "firstRowIndex": 0,
           "firstColumnIndex": 2,
@@ -40,7 +40,7 @@
     },
     "foo.bar.baz": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 2,
           "firstRowIndex": 0,
           "firstColumnIndex": 3,

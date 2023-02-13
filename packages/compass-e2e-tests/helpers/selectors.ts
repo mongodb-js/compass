@@ -328,6 +328,10 @@ export const CreateCollectionTimeseriesGranularityButton =
   '[data-testid="time-series-fields"] [name="timeSeries.granularity"]';
 export const CreateCollectionTimeseriesGranularityMenu =
   '[data-testid="time-series-fields"] #timeSeries-granularity-menu';
+export const CreateCollectionTimeseriesBucketMaxSpanSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketMaxSpanSeconds"]';
+export const CreateCollectionTimeseriesBucketRoundingSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketRoundingSeconds"]';
 export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
 
@@ -362,7 +366,8 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
-export const ShellOutput = '[data-testid="shell-content"] pre[class]';
+export const ShellOutput =
+  '[data-testid="shell-content"] [data-codemirror="true"]';
 
 // Query bar (Find, Schema, Explain Plan)
 export const QueryBarMenuActions = '#query-bar-menu-actions';
@@ -855,24 +860,30 @@ export const ExplainDocumentsReturnedSummary =
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
-export const IndexComponent = (name: string): string => {
+export const indexComponent = (name: string): string => {
   return `[data-testid="index-row-${name}"]`;
 };
 export const IndexFieldName = '[data-testid="index-name-field"]';
 export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
-export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-use-wildcard"] [data-testid="create-index-modal-use-wildcard-label"]';
-export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-use-wildcard"] .ace_editor';
-
-export const CreateIndexButton =
-  '[data-testid="open-create-index-modal-button"]';
+export const indexToggleOption = (fieldName: string) => {
+  return `[data-testid="create-index-modal-${fieldName}-label"]`;
+};
+export const indexOptionInput = (
+  fieldName: string,
+  type: 'code' | 'text' | 'number' | 'checkbox' = 'text'
+) => {
+  if (type === 'code') {
+    return `[data-testid="create-index-modal-${fieldName}-code"] .ace_editor`;
+  }
+  return `input[data-testid="create-index-modal-${fieldName}-${type}"]`;
+};
 
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
-
+export const CreateIndexButton =
+  '[data-testid="open-create-index-modal-button"]';
 export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
