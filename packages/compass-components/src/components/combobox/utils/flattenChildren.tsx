@@ -15,7 +15,7 @@ import { getNameAndValue } from './getNameAndValue';
  * @internal
  */
 export const flattenChildren = (
-  _children: React.ReactNode,
+  _children: React.ReactNode
 ): Array<OptionObject> => {
   // TS doesn't like .reduce
   // @ts-expect-error
@@ -23,7 +23,7 @@ export const flattenChildren = (
     // @ts-expect-error
     (
       acc: Array<OptionObject>,
-      child: React.ReactNode,
+      child: React.ReactNode
     ): Array<OptionObject> | undefined => {
       if (isComponentType(child, 'ComboboxOption')) {
         const { value, displayName } = getNameAndValue(child.props);
@@ -47,6 +47,6 @@ export const flattenChildren = (
         }
       }
     },
-    [] as Array<OptionObject>,
+    [] as Array<OptionObject>
   );
 };

@@ -240,7 +240,7 @@ export const Chip = React.forwardRef<HTMLSpanElement, ChipProps>(
           chipWrapperSizeStyle[size],
           {
             [disabledChipWrapperStyle[theme]]: disabled,
-          },
+          }
         )}
         onClick={handleChipClick}
         onKeyDown={handleKeyDown}
@@ -270,7 +270,7 @@ export const Chip = React.forwardRef<HTMLSpanElement, ChipProps>(
             chipButtonSizeStyle[size],
             {
               [chipButtonDisabledStyle[theme]]: disabled,
-            },
+            }
           )}
           onClick={handleButtonClick}
         >
@@ -278,6 +278,6 @@ export const Chip = React.forwardRef<HTMLSpanElement, ChipProps>(
         </button>
       </span>
     );
-  },
+  }
 );
 Chip.displayName = 'Chip';
