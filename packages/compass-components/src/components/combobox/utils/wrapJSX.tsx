@@ -16,7 +16,7 @@ import escapeRegExp from 'lodash/escapeRegExp';
 export const wrapJSX = (
   str: string,
   wrap?: string,
-  element?: keyof HTMLElementTagNameMap,
+  element?: keyof HTMLElementTagNameMap
 ): JSX.Element => {
   if (wrap && element) {
     const cleanWrap = escapeRegExp(wrap);

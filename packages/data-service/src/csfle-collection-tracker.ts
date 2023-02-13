@@ -177,8 +177,8 @@ function extractEncryptedFieldsFromEncryptedFieldsConfig(
     const queries: any[] = Array.isArray(field.queries)
       ? field.queries
       : [field.queries ?? {}];
-    const equalityQueryable = queries.some(
-      ({ queryType }) => queryType === 'equality' || queryType === 'range'
+    const equalityQueryable = queries.some(({ queryType }) =>
+      ['equality', 'range', 'rangePreview'].includes(queryType)
     );
     ret.addField(field.path.split('.'), equalityQueryable);
   }

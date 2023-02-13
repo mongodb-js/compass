@@ -16,7 +16,7 @@ const fieldsetStyles = css({
 export type CollapsibleFieldSetProps = {
   ['data-testid']?: string;
   children?: React.ReactElement;
-  label: string;
+  label: React.ReactElement | string;
   description?: React.ReactElement | string;
   disabled?: boolean;
   helpUrl?: string;
@@ -58,6 +58,7 @@ export const CollapsibleFieldSet = ({
                 <>
                   {description}
                   {!!helpUrl && (
+                    // @ts-expect-error leafygreen doesn't allow non-string descriptions
                     <Link
                       className={infoLinkStyles}
                       href={helpUrl}

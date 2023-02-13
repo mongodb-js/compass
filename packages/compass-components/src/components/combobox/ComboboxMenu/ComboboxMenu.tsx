@@ -53,7 +53,7 @@ export const ComboboxMenu = React.forwardRef<HTMLDivElement, ComboboxMenuProps>(
       className,
       ...popoverProps
     }: ComboboxMenuProps,
-    forwardedRef,
+    forwardedRef
   ) => {
     const { disabled, darkMode, theme, size, isOpen, searchState } =
       useContext(ComboboxContext);
@@ -73,7 +73,7 @@ export const ComboboxMenu = React.forwardRef<HTMLDivElement, ComboboxMenuProps>(
       const messageStyles = cx(
         menuMessageBaseStyle,
         menuMessageThemeStyle[theme],
-        menuMessageSizeStyle[size],
+        menuMessageSizeStyle[size]
       );
 
       switch (searchState) {
@@ -149,15 +149,15 @@ export const ComboboxMenu = React.forwardRef<HTMLDivElement, ComboboxMenuProps>(
             menuThemeStyle[theme],
             css`
               max-height: ${maxHeightValue};
-            `,
+            `
           )}
-          onMouseDownCapture={e => e.preventDefault()}
+          onMouseDownCapture={(e) => e.preventDefault()}
         >
           {renderedMenuContents}
         </div>
       </Popover>
     );
-  },
+  }
 );
 
 ComboboxMenu.displayName = 'ComboboxMenu';

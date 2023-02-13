@@ -28,7 +28,7 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
 
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
@@ -64,7 +64,7 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
 
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 

@@ -28,7 +28,7 @@
           "firstColumnIndex": 1,
           "firstValue": "1234"
         },
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 2,
           "firstColumnIndex": 1,

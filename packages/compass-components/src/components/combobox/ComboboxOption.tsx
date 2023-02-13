@@ -194,10 +194,17 @@ const InternalComboboxOption = React.forwardRef<
       className,
       description,
     }: InternalComboboxOptionProps,
-    forwardedRef,
+    forwardedRef
   ) => {
-    const { multiselect, darkMode, theme, withIcons, inputValue, size, searchInputSize } =
-      useContext(ComboboxContext);
+    const {
+      multiselect,
+      darkMode,
+      theme,
+      withIcons,
+      inputValue,
+      size,
+      searchInputSize,
+    } = useContext(ComboboxContext);
     const optionTextId = useIdAllocator({ prefix: 'combobox-option-text' });
     const optionRef = useForwardedRef(forwardedRef, null);
 
@@ -212,7 +219,7 @@ const InternalComboboxOption = React.forwardRef<
           setSelected();
         }
       },
-      [disabled, optionRef, setSelected],
+      [disabled, optionRef, setSelected]
     );
 
     const renderedIcon = useMemo(() => {
@@ -222,7 +229,7 @@ const InternalComboboxOption = React.forwardRef<
         }
         console.error(
           '`ComboboxOption` instance did not render icon because it is not a known glyph element.',
-          glyph,
+          glyph
         );
       }
     }, [glyph]);
@@ -252,7 +259,10 @@ const InternalComboboxOption = React.forwardRef<
             <span className={optionNameStyles(searchInputSize)}>
               <span className={cx(flexSpan, disallowPointer)}>
                 {withIcons ? renderedIcon : checkbox}
-                <span id={optionTextId} className={displayNameStyle(isSelected)}>
+                <span
+                  id={optionTextId}
+                  className={displayNameStyle(isSelected)}
+                >
                   {wrapJSX(displayName, inputValue, 'strong')}
                 </span>
               </span>
@@ -312,7 +322,7 @@ const InternalComboboxOption = React.forwardRef<
             [comboboxOptionActiveStyle[theme]]: isFocused,
             [comboboxOptionDisabledStyle[theme]]: disabled,
           },
-          className,
+          className
         )}
         onClick={handleOptionClick}
         onKeyDown={handleOptionClick}
@@ -320,7 +330,7 @@ const InternalComboboxOption = React.forwardRef<
         {renderedChildren}
       </li>
     );
-  },
+  }
 );
 InternalComboboxOption.displayName = 'ComboboxOption';
 

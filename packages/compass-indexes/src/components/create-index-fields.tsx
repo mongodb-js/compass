@@ -9,6 +9,7 @@ import {
   spacing,
   css,
   ListEditor,
+  Badge,
 } from '@mongodb-js/compass-components';
 
 import type { IndexField } from '../modules/create-index/fields';
@@ -38,7 +39,6 @@ const createIndexFieldsNameStyles = css({
 });
 
 const createIndexFieldsTypeStyles = css({
-  width: spacing[6] * 2,
   textTransform: 'none',
   whiteSpace: 'nowrap',
 });
@@ -67,10 +67,21 @@ function CreateIndexFields({
   updateFieldName,
   updateFieldType,
 }: CreateIndexFieldsProps): React.ReactElement {
-  const serverHasColumnstoreIndexesSupport = useMemo(
-    () => hasColumnstoreIndexesSupport(serverVersion),
-    [serverVersion]
-  );
+  const [indexTypes, selectorWidth] = useMemo(() => {
+    const serverSupportsColumnStoreIndex =
+      hasColumnstoreIndexesSupport(serverVersion);
+    const indexTypes = INDEX_TYPES.filter(
+      (type) => serverSupportsColumnStoreIndex || type !== 'columnstore'
+    );
+    const longestLabel = Math.max(...INDEX_TYPES.map((type) => type.length));
+    const additionalSpacing =
+      spacing[6] +
+      // For the preview badge
+      (serverSupportsColumnStoreIndex ? spacing[6] : 0);
+
+    const selectorWidth = `calc(${longestLabel}ch + ${additionalSpacing}px)`;
+    return [indexTypes, selectorWidth];
+  }, [serverVersion]);
 
   const onSelectFieldName = useCallback(
     (index: number, name: string | null) => {
@@ -140,13 +151,16 @@ function CreateIndexFields({
               value={field.type}
               popoverZIndex={999999}
               aria-labelledby="Field type"
+              style={{ width: selectorWidth }}
             >
-              {(serverHasColumnstoreIndexesSupport
-                ? INDEX_TYPES
-                : INDEX_TYPES.filter((elem) => elem !== 'columnstore')
-              ).map((elem) => (
-                <Option key={elem} value={`${elem}`}>
-                  {elem}
+              {indexTypes.map((type) => (
+                <Option key={type} value={type}>
+                  {type}
+                  {type === 'columnstore' && (
+                    <>
+                      &nbsp;<Badge>Preview</Badge>
+                    </>
+                  )}
                 </Option>
               ))}
             </Select>
