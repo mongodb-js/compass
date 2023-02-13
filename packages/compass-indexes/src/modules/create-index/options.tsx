@@ -1,3 +1,5 @@
+import { Badge } from '@mongodb-js/compass-components';
+import React from 'react';
 import type { AnyAction, Reducer } from 'redux';
 import { RESET_FORM } from '../reset-form';
 
@@ -55,7 +57,11 @@ export const OPTIONS = {
   },
   columnstoreProjection: {
     type: 'code',
-    label: 'Columnstore Projection',
+    label: (
+      <>
+        Columnstore Projection&nbsp;<Badge>Preview</Badge>
+      </>
+    ),
     description:
       'Columnstore indexes support queries against unknown or arbitrary fields.',
     units: undefined,
