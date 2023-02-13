@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
@@ -158,6 +158,7 @@ function Stage({
   isAutoPreviewing,
 }: StageProps) {
   const editorRef = useRef<AceEditor | undefined>(undefined);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Focus Mode Guide Cue
   const [isGuideCueVisible, setIsGuideCueVisible] = useState(false);
@@ -187,17 +188,26 @@ function Stage({
     zIndex: isDragging ? 1 : 0,
   };
 
+  const setContainerRef = useCallback(
+    (ref: HTMLDivElement) => {
+      setNodeRef(ref);
+      containerRef.current = ref;
+    },
+    [containerRef, setNodeRef]
+  );
+
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setContainerRef} style={style}>
       <div className={focusModeGuideCueStyles}>
         <GuideCue
           data-testid="focus-mode-guide-cue"
           open={isIntersecting && isGuideCueVisible}
           setOpen={() => setGuideCueVisited()}
           refEl={{
-            current: document.querySelector(
-              '[data-guide-cue-ref="focus-mode-button"]'
-            ),
+            current:
+              containerRef.current?.querySelector(
+                '[data-guide-cue-ref="focus-mode-button"]'
+              ) || null,
           }}
           numberOfSteps={1}
           popoverZIndex={2}
@@ -221,7 +231,7 @@ function Stage({
       >
         <div {...listeners} ref={setIntersectingRef}>
           <StageToolbar
-            onGuideCueVisited={setGuideCueVisited}
+            markGuideCueVisited={setGuideCueVisited}
             editorRef={editorRef}
             index={index}
           />

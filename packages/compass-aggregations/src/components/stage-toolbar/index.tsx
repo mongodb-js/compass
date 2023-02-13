@@ -10,7 +10,7 @@ import {
   useDarkMode,
   IconButton,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../modules';
+import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
 import { type AceEditor } from '@mongodb-js/compass-editor';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -91,8 +91,8 @@ type StageToolbarProps = {
   hasServerError?: boolean;
   isCollapsed?: boolean;
   isDisabled?: boolean;
-  onGuideCueVisited: () => void;
-  onFocusModeEnableClick: (index: number) => void;
+  markGuideCueVisited: () => void;
+  onOpenFocusMode: () => void;
   editorRef: React.RefObject<AceEditor | undefined>;
 };
 
@@ -106,17 +106,11 @@ export function StageToolbar({
   hasServerError,
   isCollapsed,
   isDisabled,
-  onFocusModeEnableClick,
-  onGuideCueVisited,
+  onOpenFocusMode,
   editorRef,
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
   const showFocusMode = usePreference('showFocusMode', React);
-
-  const onOpenFocusMode = () => {
-    onFocusModeEnableClick(index);
-    onGuideCueVisited();
-  };
 
   return (
     <div
@@ -157,8 +151,13 @@ export function StageToolbar({
   );
 }
 
+type StageToolbarOwnProps = Pick<
+  StageToolbarProps,
+  'index' | 'markGuideCueVisited'
+>;
+
 export default connect(
-  (state: RootState, ownProps: { index: number }) => {
+  (state: RootState, ownProps: StageToolbarOwnProps) => {
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
     return {
       isAutoPreviewing: !!state.autoPreview,
@@ -168,5 +167,10 @@ export default connect(
       isDisabled: stage.disabled,
     };
   },
-  { onFocusModeEnableClick: enableFocusMode }
+  (dispatch: PipelineBuilderThunkDispatch, ownProps: StageToolbarOwnProps) => ({
+    onOpenFocusMode: () => {
+      dispatch(enableFocusMode(ownProps.index));
+      ownProps.markGuideCueVisited();
+    },
+  })
 )(StageToolbar);

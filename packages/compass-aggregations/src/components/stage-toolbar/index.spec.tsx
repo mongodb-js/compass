@@ -21,13 +21,14 @@ const renderStageToolbar = (
       })}
     >
       <StageToolbar
+        markGuideCueVisited={() => {}}
         hasServerError={false}
         hasSyntaxError={false}
         index={0}
         isAutoPreviewing={false}
         isCollapsed={false}
         isDisabled={false}
-        onFocusModeEnableClick={() => {}}
+        onOpenFocusMode={() => {}}
         editorRef={React.createRef()}
         {...props}
       />
