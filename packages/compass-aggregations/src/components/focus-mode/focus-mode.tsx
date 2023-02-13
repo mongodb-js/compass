@@ -203,10 +203,12 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
       data-testid={'focus-mode-modal'}
     >
       <div className={containerStyles}>
-        <div className={headerStyles}>
-          <FocusModeModalHeader></FocusModeModalHeader>
+        <div>
+          <div className={headerStyles}>
+            <FocusModeModalHeader></FocusModeModalHeader>
+          </div>
+          <HorizontalRule />
         </div>
-        <HorizontalRule />
         <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
       </div>
     </Modal>
