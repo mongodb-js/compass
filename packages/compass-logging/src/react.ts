@@ -37,7 +37,7 @@ export function withLoggerAndTelemetry<T = any>(
   component: string,
   React: any
 ): T {
-  const WithLoggerAndTelemetry = (...props: any) => {
+  const WithLoggerAndTelemetry = (props: any) => {
     const logger = useLoggerAndTelemetry(component, React);
     return React.createElement(ReactComponent, { ...props, logger });
   };
