@@ -6,7 +6,7 @@ import { guessFileType } from './guess-filetype';
 import { listCSVFields } from './list-csv-fields';
 import { fixtures } from '../../test/fixtures';
 
-describe.only('listCSVFields', function () {
+describe('listCSVFields', function () {
   for (const filepath of Object.values(fixtures.csv)) {
     const basename = path.basename(filepath);
     it(`detects correct fields for ${basename}`, async function () {
