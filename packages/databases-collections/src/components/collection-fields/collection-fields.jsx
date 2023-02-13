@@ -212,6 +212,7 @@ export default class CollectionFields extends PureComponent {
         <Accordion
           data-testid="additional-collection-preferences"
           text="Additional preferences"
+          hintText="(e.g. Custom collation, Capped, Clustered collections)"
         >
           <div className={advancedCollectionOptionsContainerStyles}>
             <CappedCollectionFields
