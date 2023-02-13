@@ -42,7 +42,7 @@ describe('Instance my queries tab', function () {
   });
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
   });
   after(async function () {
     await afterTests(compass, this.currentTest);

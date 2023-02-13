@@ -1,9 +1,10 @@
+import { MONGODB_TEST_SERVER_PORT } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 export async function connectWithConnectionString(
   browser: CompassBrowser,
-  connectionString: string,
+  connectionString = `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
   connectionStatus: 'success' | 'failure' | 'either' = 'success',
   timeout?: number
 ): Promise<void> {

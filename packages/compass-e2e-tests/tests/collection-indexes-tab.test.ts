@@ -24,7 +24,7 @@ describe('Collection indexes tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
   });
 
