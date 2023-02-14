@@ -2,7 +2,15 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Body, FormModal, SpinLoader, css, spacing, Banner, TextInput } from '@mongodb-js/compass-components';
+import {
+  Body,
+  FormModal,
+  SpinLoader,
+  css,
+  spacing,
+  Banner,
+  TextInput,
+} from '@mongodb-js/compass-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
@@ -31,7 +39,7 @@ class DuplicateViewModal extends PureComponent {
     source: PropTypes.string.isRequired,
     pipeline: PropTypes.array.isRequired,
     isRunning: PropTypes.bool.isRequired,
-    error: PropTypes.object
+    error: PropTypes.object,
   };
 
   static defaultProps = {
@@ -39,7 +47,7 @@ class DuplicateViewModal extends PureComponent {
     source: '',
     pipeline: [],
     isRunning: false,
-    isVisible: false
+    isVisible: false,
   };
 
   onNameChange = (evt) => {
@@ -74,11 +82,7 @@ class DuplicateViewModal extends PureComponent {
           name="name"
         />
         {this.props.error ? (
-          <Banner
-            variant='danger'
-          >
-            {this.props.error.message}
-          </Banner>
+          <Banner variant="danger">{this.props.error.message}</Banner>
         ) : null}
         {this.props.isRunning ? (
           <Body className={progressContainerStyles}>
@@ -104,21 +108,18 @@ const mapStateToProps = (state) => ({
   name: state.name,
   error: state.error,
   source: state.source,
-  pipeline: state.pipeline
+  pipeline: state.pipeline,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedDuplicateViewModal = connect(
-  mapStateToProps,
-  {
-    createView,
-    changeViewName,
-    toggleIsVisible
-  }
-)(DuplicateViewModal);
+const MappedDuplicateViewModal = connect(mapStateToProps, {
+  createView,
+  changeViewName,
+  toggleIsVisible,
+})(DuplicateViewModal);
 
 export default MappedDuplicateViewModal;
 export { DuplicateViewModal };

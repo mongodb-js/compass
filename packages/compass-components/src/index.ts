@@ -62,6 +62,7 @@ export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
+export { GuideCue } from '@leafygreen-ui/guide-cue';
 
 export {
   useToast,
@@ -153,3 +154,6 @@ export * as DocumentList from './components/document-list';
 export { KeylineCard } from './components/keyline-card';
 export { variantColors as codePalette } from '@leafygreen-ui/code';
 export { useEffectOnChange } from './hooks/use-effect-on-change';
+export { HorizontalRule } from './components/horizontal-rule';
+export { IndexKeysBadge } from './components/index-keys-badge';
+export { Combobox, ComboboxOption, ComboboxGroup } from './components/combobox';

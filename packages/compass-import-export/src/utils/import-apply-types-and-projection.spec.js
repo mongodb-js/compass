@@ -5,7 +5,7 @@ import apply, {
 } from './import-apply-types-and-projection';
 
 import stream from 'stream';
-import bson, { ObjectID } from 'bson';
+import bson, { ObjectId } from 'bson';
 
 describe('import-apply-types-and-projection', function () {
   it('should include all fields by default', function () {
@@ -155,12 +155,12 @@ describe('import-apply-types-and-projection', function () {
     });
   });
   describe('bson', function () {
-    it('should preserve an ObjectID to an ObjectID', function () {
+    it('should preserve an ObjectId to an ObjectId', function () {
       const res = apply({
-        _id: new bson.ObjectID('5e739e27a4c96922d4435c59'),
+        _id: new bson.ObjectId('5e739e27a4c96922d4435c59'),
       });
       expect(res).to.deep.equal({
-        _id: new bson.ObjectID('5e739e27a4c96922d4435c59'),
+        _id: new bson.ObjectId('5e739e27a4c96922d4435c59'),
       });
     });
     it('should preserve a Date', function () {
@@ -518,17 +518,17 @@ describe('import-apply-types-and-projection', function () {
       });
       expect(result).to.deep.equal({ _id: 1 });
     });
-    it('should not convert ObjectID to Object', function () {
+    it('should not convert ObjectId to Object', function () {
       const source = {
-        _id: new ObjectID('5e74f99c182d2e9e6572c388'),
+        _id: new ObjectId('5e74f99c182d2e9e6572c388'),
         empty: '',
       };
       const result = apply(source, {
-        transform: ['_id', 'ObjectID'],
+        transform: ['_id', 'ObjectId'],
         ignoreBlanks: true,
       });
       expect(result).to.deep.equal({
-        _id: new ObjectID('5e74f99c182d2e9e6572c388'),
+        _id: new ObjectId('5e74f99c182d2e9e6572c388'),
       });
     });
 

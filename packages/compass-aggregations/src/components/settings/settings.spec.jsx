@@ -6,7 +6,7 @@ import { expect } from 'chai';
 import Settings from './settings';
 import { INITIAL_STATE } from '../../modules/settings';
 
-describe('Settings [Component]', function() {
+describe('Settings [Component]', function () {
   let state;
   let component;
   let applySettingsSpy;
@@ -16,8 +16,8 @@ describe('Settings [Component]', function() {
   let setSettingsLimitSpy;
   let runStageSpy;
 
-  context('when the component is not atlas deployed', function() {
-    beforeEach(function() {
+  context('when the component is not atlas deployed', function () {
+    beforeEach(function () {
       applySettingsSpy = sinon.spy();
       toggleSettingsIsExpandedSpy = sinon.spy();
       toggleSettingsIsCommentModeSpy = sinon.spy();
@@ -38,11 +38,11 @@ describe('Settings [Component]', function() {
         largeLimit: INITIAL_STATE.limit,
         maxTimeMS: INITIAL_STATE.maxTimeMS,
         runStage: runStageSpy,
-        settings: INITIAL_STATE
+        settings: INITIAL_STATE,
       };
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
       state = null;
       toggleSettingsIsExpandedSpy = null;
@@ -52,19 +52,19 @@ describe('Settings [Component]', function() {
       runStageSpy = null;
     });
 
-    it('is hidden by default', function() {
+    it('is hidden by default', function () {
       component = mount(<Settings {...state} />);
       expect(Object.keys(component).length).to.equal(0);
     });
 
-    it('is rendered when isExpanded=true', function() {
+    it('is rendered when isExpanded=true', function () {
       const props = { ...state, isExpanded: true };
       component = mount(<Settings {...props} />);
       expect(component.text()).to.contain('Settings');
     });
 
-    describe('When opened', function() {
-      it('should close when Cancel is clicked', function() {
+    describe('When opened', function () {
+      it('should close when Cancel is clicked', function () {
         const props = { ...state, isExpanded: true };
         component = mount(<Settings {...props} />);
         component
@@ -74,7 +74,7 @@ describe('Settings [Component]', function() {
         expect(toggleSettingsIsExpandedSpy.calledOnce).to.equal(true);
       });
 
-      it('should update the settings, re-run the pipeline, and Close', function() {
+      it('should update the settings, re-run the pipeline, and Close', function () {
         const props = { ...state, isExpanded: true };
 
         component = mount(<Settings {...props} />);
@@ -89,8 +89,8 @@ describe('Settings [Component]', function() {
     });
   });
 
-  context('when the component is atlas deployed', function() {
-    beforeEach(function() {
+  context('when the component is atlas deployed', function () {
+    beforeEach(function () {
       applySettingsSpy = sinon.spy();
       toggleSettingsIsExpandedSpy = sinon.spy();
       toggleSettingsIsCommentModeSpy = sinon.spy();
@@ -110,11 +110,11 @@ describe('Settings [Component]', function() {
         largeLimit: INITIAL_STATE.limit,
         maxTimeMS: INITIAL_STATE.maxTimeMS,
         runStage: runStageSpy,
-        settings: INITIAL_STATE
+        settings: INITIAL_STATE,
       };
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
       state = null;
       toggleSettingsIsExpandedSpy = null;
@@ -124,7 +124,7 @@ describe('Settings [Component]', function() {
       runStageSpy = null;
     });
 
-    it('hides the large limit option', function() {
+    it('hides the large limit option', function () {
       const props = { ...state, isAtlasDeployed: true };
       component = mount(<Settings {...props} />);
       expect(component.find('label[innerText="Limit"]')).to.not.be.present();

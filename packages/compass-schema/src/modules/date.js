@@ -26,7 +26,7 @@ function generateDefaults(n) {
 }
 
 function extractTimestamp(d) {
-  return d._bsontype === 'ObjectID' ? d.getTimestamp() : d;
+  return d._bsontype === 'ObjectId' ? d.getTimestamp() : d;
 }
 
 const minicharts_d3fns_date = (appRegistry) => {

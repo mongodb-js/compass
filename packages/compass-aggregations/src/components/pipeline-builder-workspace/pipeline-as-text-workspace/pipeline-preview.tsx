@@ -17,7 +17,7 @@ import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { OutputStageBanner } from './pipeline-stages-preview';
-import { AtlasStagePreview } from './../../atlas-stage-preview';
+import { AtlasStagePreview } from '../../stage-preview/atlas-stage-preview';
 import {
   isMissingAtlasStageSupport,
   findAtlasOperator,
@@ -89,9 +89,10 @@ const PreviewResults = ({
   atlasOperator: string;
   isPreviewStale: boolean;
 }) => {
-  const listProps: Omit<React.ComponentProps<typeof DocumentListView>,
-  'isExpanded' |
-  'className'> = useMemo(
+  const listProps: Omit<
+    React.ComponentProps<typeof DocumentListView>,
+    'isExpanded' | 'className'
+  > = useMemo(
     () => ({
       docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
       isEditable: false,
@@ -143,9 +144,7 @@ const PreviewResults = ({
   return (
     <>
       {isPreviewStale && (
-        <WarningSummary
-          warnings={["Output outdated and no longer in sync."]}
-        />
+        <WarningSummary warnings={['Output outdated and no longer in sync.']} />
       )}
       <DocumentListView
         {...listProps}
@@ -211,11 +210,12 @@ const mapState = (state: RootState) => {
   const lastStage = stageOperators[stageOperators.length - 1] ?? '';
   const { isLoading, previewDocs, serverError, isPreviewStale } =
     state.pipelineBuilder.textEditor.pipeline;
+  const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   const isMissingAtlasSupport = isMissingAtlasStageSupport(
     state.env,
+    atlasOperator,
     serverError
   );
-  const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   return {
     isLoading,
     previewDocs,

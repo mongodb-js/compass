@@ -7,18 +7,10 @@ import {
   TIME_SERIES,
   VIEW,
   COLLECTION,
-  OUT_STAGES
+  OUT_STAGES,
 } from '@mongodb-js/mongodb-constants';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
-
-export const OUT_STAGE_PREVIEW_TEXT =
-  'The $out operator will cause the pipeline to persist ' +
-  'the results to the specified location (collection, S3, or Atlas). ' +
-  'If the collection exists it will be replaced.';
-
-export const MERGE_STAGE_PREVIEW_TEXT =
-  'The $merge operator will cause the pipeline to persist the results to ' +
-  'the specified location.';
+import { STAGE_HELP_BASE_URL } from '../constants';
 
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
@@ -34,7 +26,7 @@ function supportsEnv(operator, env) {
 }
 
 export function isAtlasOnly(operatorEnv) {
-  return operatorEnv?.every(env => env === ATLAS);
+  return operatorEnv?.every((env) => env === ATLAS);
 }
 
 function disallowOutputStagesOnCompassReadonly(operator, preferencesReadOnly) {
@@ -56,25 +48,34 @@ function disallowOutputStagesOnCompassReadonly(operator, preferencesReadOnly) {
  *
  * @returns {Array} Stage operators supported by the current version of the server.
  */
-export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceName, preferencesReadOnly }) => {
-  const namespaceType =
-    isTimeSeries ? TIME_SERIES :
-
-    // we identify a view looking for a source
+export const filterStageOperators = ({
+  serverVersion,
+  env,
+  isTimeSeries,
+  sourceName,
+  preferencesReadOnly,
+}) => {
+  const namespaceType = isTimeSeries
+    ? TIME_SERIES
+    : // we identify a view looking for a source
     // namespace (sourceName) in collstats
-    sourceName ? VIEW :
-    COLLECTION;
+    sourceName
+    ? VIEW
+    : COLLECTION;
 
-  return STAGE_OPERATORS
-    .filter((op) => disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly))
-    .filter((op) => supportsVersion(op, serverVersion))
-    .filter((op) => supportsNamespace(op, namespaceType))
+  return (
+    STAGE_OPERATORS.filter((op) =>
+      disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly)
+    )
+      .filter((op) => supportsVersion(op, serverVersion))
+      .filter((op) => supportsNamespace(op, namespaceType))
 
-    // we want to display Atlas-only stages
-    // also when connected to on-prem / localhost
-    // in order to improve their discoverability:
-    .filter((op) => isAtlasOnly(op.env) || supportsEnv(op, env))
-    .map(obj => ({ ...obj }))
+      // we want to display Atlas-only stages
+      // also when connected to on-prem / localhost
+      // in order to improve their discoverability:
+      .filter((op) => isAtlasOnly(op.env) || supportsEnv(op, env))
+      .map((obj) => ({ ...obj }))
+  );
 };
 
 /**
@@ -97,7 +98,7 @@ export function getStageOperator(stage) {
  * @param {import('mongodb').Document} stage
  * @returns {string}
  */
- export function getDestinationNamespaceFromStage(namespace, stage) {
+export function getDestinationNamespaceFromStage(namespace, stage) {
   if (!stage) {
     return null;
   }
@@ -161,12 +162,12 @@ function getDestinationNamespaceFromOutStage(namespace, stageValue) {
   return null;
 }
 
-const OUT_OPERATOR_NAMES = new Set(OUT_STAGES.map(stage => stage.value));
+const OUT_OPERATOR_NAMES = new Set(OUT_STAGES.map((stage) => stage.value));
 const ATLAS_ONLY_OPERATOR_NAMES = new Set(
-  STAGE_OPERATORS
-    .filter((stage) => isAtlasOnly(stage.env))
-    .map((stage) => stage.value)
-  );
+  STAGE_OPERATORS.filter((stage) => isAtlasOnly(stage.env)).map(
+    (stage) => stage.value
+  )
+);
 
 /**
  * @param {string} stageOperator
@@ -176,9 +177,25 @@ export function isOutputStage(stageOperator) {
   return OUT_OPERATOR_NAMES.has(stageOperator);
 }
 
+/**
+ *
+ * @param {string} stageOperator
+ * @returns {boolean}
+ */
+export function isAtlasOnlyStage(stageOperator) {
+  return ATLAS_ONLY_OPERATOR_NAMES.has(stageOperator);
+}
+
 const STAGE_OPERATOS_MAP = new Map(
   STAGE_OPERATORS.map((stage) => [stage.value, stage])
 );
+
+export const getStageHelpLink = (stageOperator) => {
+  if (!stageOperator) {
+    return null;
+  }
+  return `${STAGE_HELP_BASE_URL}/${stageOperator.replace(/^\$/, '')}`;
+};
 
 /**
  * @param {string} namespace
@@ -190,12 +207,7 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
   const stage = STAGE_OPERATOS_MAP.get(stageOperator);
   return {
     description: stage?.description,
-    link: stageOperator
-      ? `https://www.mongodb.com/docs/manual/reference/operator/aggregation/${stageOperator.replace(
-          /^\$/,
-          ''
-        )}`
-      : null,
+    link: getStageHelpLink(stageOperator),
     destination: isOutputStage(stageOperator)
       ? (() => {
           try {
@@ -214,7 +226,7 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
             return null;
           }
         })()
-      : null
+      : null,
   };
 }
 
@@ -222,9 +234,9 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
  * @param {import('mongodb').Document[]} pipeline
  * @returns {string}
  */
- export const getLastStageOperator = (pipeline) => {
+export const getLastStageOperator = (pipeline) => {
   const lastStage = pipeline[pipeline.length - 1];
-  return getStageOperator(lastStage) ?? ''
+  return getStageOperator(lastStage) ?? '';
 };
 
 /**
@@ -236,19 +248,22 @@ export const isLastStageOutputStage = (pipeline) => {
 };
 
 /**
- * @param {string} env
- * @param {import('mongodb').MongoServerError | null} serverError
+ * @param {string | null | undefined} env
+ * @param {string | null | undefined} operator
+ * @param {import('mongodb').MongoServerError | null | undefined} serverError
  */
- export const isMissingAtlasStageSupport = (env, serverError) => {
-  return !!(
+export const isMissingAtlasStageSupport = (env, operator, serverError) => {
+  return (
     ![ADL, ATLAS].includes(env) &&
-    serverError &&
+    isAtlasOnlyStage(operator) &&
     [
       // Unrecognized pipeline stage name
       40324,
       // The full-text search stage is not enabled
       31082,
-    ].includes(Number(serverError.code))
+      // "Search stages are only allowed on MongoDB Atlas"
+      6047400, 6047401,
+    ].includes(Number(serverError?.code ?? -1))
   );
 };
 
@@ -257,9 +272,9 @@ export const isLastStageOutputStage = (pipeline) => {
  * @param {string[]} operators
  */
 export const findAtlasOperator = (operators) => {
-  return operators.find((operator) => ATLAS_ONLY_OPERATOR_NAMES.has(operator));
+  return operators.find((operator) => isAtlasOnlyStage(operator));
 };
 
 export function hasSyntaxError(stage) {
-  return !!stage.syntaxError && !!stage.stageOperator && !!stage.value
-};
+  return !!stage.syntaxError && !!stage.stageOperator && !!stage.value;
+}

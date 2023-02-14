@@ -1,4 +1,4 @@
-import { promisify } from 'util';
+import { promisify, callbackify } from 'util';
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -768,6 +768,14 @@ export interface DataService {
   getCSFLECollectionTracker(): CSFLECollectionTracker;
 }
 
+// Make arguments of a function mandatory for TS; This makes working
+// with util.callbackify easier.
+function allArgumentsMandatory<F extends (...args: any[]) => any>(
+  fn: F
+): F extends (...args: infer A) => infer R ? (...args: Required<A>) => R : F {
+  return fn as any;
+}
+
 export class DataServiceImpl extends EventEmitter implements DataService {
   private readonly _connectionOptions: Readonly<ConnectionOptions>;
   private _isConnecting = false;
@@ -908,17 +916,20 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
     // we can switch this over to using the CRUD client instead.
     const db = this._initializedClient('META').db(databaseName);
-    db.command({ collStats: collectionName, verbose: true }, (error, data) => {
-      logop(error);
-      if (error && !error.message.includes('is a view, not a collection')) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    callbackify(db.command.bind(db))(
+      { collStats: collectionName, verbose: true },
+      (error, data) => {
+        logop(error);
+        if (error && !error.message.includes('is a view, not a collection')) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(
+          null,
+          this._buildCollectionStats(databaseName, collectionName, data || {})
+        );
       }
-      callback(
-        null,
-        this._buildCollectionStats(databaseName, collectionName, data || {})
-      );
-    });
+    );
   }
 
   async collectionInfo(
@@ -939,12 +950,12 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     callback: Callback<Document>
   ): void {
     const db = this._initializedClient('META').db(databaseName);
-    db.command(comm, (error, result) => {
+    callbackify(db.command.bind(db))(comm, (error, result) => {
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
-      callback(null, result!);
+      callback(null, result);
     });
   }
 
@@ -1328,14 +1339,18 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       { ns, options }
     );
 
-    db.createCollection(collectionName, options, (error, result) => {
-      logop(error);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    callbackify(allArgumentsMandatory(db.createCollection.bind(db)))(
+      collectionName,
+      options,
+      (error: any, result: any) => {
+        logop(error);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result);
       }
-      callback(null, result!);
-    });
+    );
   }
 
   createIndex(
@@ -1349,14 +1364,19 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running createIndex',
       { ns, spec, options }
     );
-    this._collection(ns, 'CRUD').createIndex(spec, options, (error, result) => {
-      logop(error);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.createIndex.bind(coll)))(
+      spec,
+      options,
+      (error, result) => {
+        logop(error);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result);
       }
-      callback(null, result!);
-    });
+    );
   }
 
   database(name: string, options: unknown, callback: Callback<Document>): void {
@@ -1384,14 +1404,19 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running deleteOne',
       { ns }
     );
-    this._collection(ns, 'CRUD').deleteOne(filter, options, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.deleteOne.bind(coll)))(
+      filter,
+      options,
+      (error, result) => {
+        logop(error, result);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result);
       }
-      callback(null, result!);
-    });
+    );
   }
 
   deleteMany(
@@ -1405,7 +1430,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running deleteMany',
       { ns }
     );
-    this._collection(ns, 'CRUD').deleteMany(
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.deleteMany.bind(coll)))(
       filter,
       options,
       (error, result) => {
@@ -1414,7 +1440,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
         }
-        callback(null, result!);
+        callback(null, result);
       }
     );
   }
@@ -1453,23 +1479,25 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     const collName = this._collectionName(ns);
     const coll = db.collection(collName);
 
-    db.listCollections({ name: collName }, { nameOnly: false }).toArray(
-      (_errIgnore, result) => {
-        const options: DropCollectionOptions = {};
-        const encryptedFieldsInfo = result?.[0]?.options?.encryptedFields;
-        if (encryptedFieldsInfo) {
-          options.encryptedFields = encryptedFieldsInfo;
-        }
-        coll.drop(options, (error, result) => {
+    const cursor = db.listCollections({ name: collName }, { nameOnly: false });
+    callbackify(cursor.toArray.bind(cursor))((_errIgnore, result) => {
+      const options: DropCollectionOptions = {};
+      const encryptedFieldsInfo = result?.[0]?.options?.encryptedFields;
+      if (encryptedFieldsInfo) {
+        options.encryptedFields = encryptedFieldsInfo;
+      }
+      callbackify(allArgumentsMandatory(coll.drop.bind(coll)))(
+        options,
+        (error, result) => {
           logop(error, result);
           if (error) {
             // @ts-expect-error Callback without result...
             return callback(this._translateMessage(error));
           }
-          callback(null, result!);
-        });
-      }
-    );
+          callback(null, result);
+        }
+      );
+    });
   }
 
   dropDatabase(name: string, callback: Callback<boolean>): void {
@@ -1478,16 +1506,15 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running dropDatabase',
       { db: name }
     );
-    this._initializedClient('CRUD')
-      .db(this._databaseName(name))
-      .dropDatabase((error, result) => {
-        logop(error, result);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
-        callback(null, result!);
-      });
+    const db = this._initializedClient('CRUD').db(this._databaseName(name));
+    callbackify(db.dropDatabase.bind(db))((error, result) => {
+      logop(error, result);
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
   }
 
   dropIndex(ns: string, name: string, callback: Callback<Document>): void {
@@ -1496,13 +1523,14 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running dropIndex',
       { ns, name }
     );
-    this._collection(ns, 'CRUD').dropIndex(name, (error, result) => {
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(coll.dropIndex.bind(coll))(name, (error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
-      callback(null, result!);
+      callback(null, result);
     });
   }
 
@@ -1578,7 +1606,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running findOneAndReplace',
       { ns }
     );
-    this._collection(ns, 'CRUD').findOneAndReplace(
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.findOneAndReplace.bind(coll)))(
       filter,
       replacement,
       options,
@@ -1588,7 +1617,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
         }
-        callback(null, result!.value!);
+        callback(null, result.value!);
       }
     );
   }
@@ -1605,7 +1634,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running findOneAndUpdate',
       { ns }
     );
-    this._collection(ns, 'CRUD').findOneAndUpdate(
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.findOneAndUpdate.bind(coll)))(
       filter,
       update,
       options,
@@ -1615,7 +1645,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
         }
-        callback(null, result!.value!);
+        callback(null, result.value!);
       }
     );
   }
@@ -1737,14 +1767,19 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running insertOne',
       { ns }
     );
-    this._collection(ns, 'CRUD').insertOne(doc, options, (error, result) => {
-      logop(error, { acknowledged: result?.acknowledged });
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.insertOne.bind(coll)))(
+      doc,
+      options,
+      (error, result) => {
+        logop(error, { acknowledged: result?.acknowledged });
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result);
       }
-      callback(null, result!);
-    });
+    );
   }
 
   insertMany(
@@ -1758,17 +1793,22 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running insertMany',
       { ns }
     );
-    this._collection(ns, 'CRUD').insertMany(docs, options, (error, result) => {
-      logop(error, {
-        acknowledged: result?.acknowledged,
-        insertedCount: result?.insertedCount,
-      });
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.insertMany.bind(coll)))(
+      docs,
+      options,
+      (error, result) => {
+        logop(error, {
+          acknowledged: result?.acknowledged,
+          insertedCount: result?.insertedCount,
+        });
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateMessage(error));
+        }
+        callback(null, result);
       }
-      callback(null, result!);
-    });
+    );
   }
 
   putMany(
@@ -1800,7 +1840,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       collMod: collectionName,
       ...flags,
     };
-    db.command(command, (error, result) => {
+    callbackify(db.command.bind(db))(command, (error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
@@ -1810,7 +1850,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       // any collection metadata caches that might still be active.
       this._resetCRUDClient().then(
         () => {
-          callback(null, result!);
+          callback(null, result);
         },
         (error: any) => {
           // @ts-expect-error Callback without result...
@@ -1832,7 +1872,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running updateOne',
       { ns }
     );
-    this._collection(ns, 'CRUD').updateOne(
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.updateOne.bind(coll)))(
       filter,
       update,
       options,
@@ -1842,7 +1883,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
         }
-        callback(null, result!);
+        callback(null, result);
       }
     );
   }
@@ -1859,7 +1900,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running updateMany',
       { ns }
     );
-    this._collection(ns, 'CRUD').updateMany(
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.updateMany.bind(coll)))(
       filter,
       update,
       options,
@@ -1869,7 +1911,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
         }
-        callback(null, result!);
+        callback(null, result);
       }
     );
   }
@@ -1887,30 +1929,34 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       mongoLogId(1_001_000_053),
       'Running currentOp'
     );
-    this._initializedClient('META')
-      .db('admin')
-      .command({ currentOp: 1, $all: includeAll }, (error, result) => {
+    const db = this._initializedClient('META').db('admin');
+
+    callbackify(db.command.bind(db))(
+      { currentOp: 1, $all: includeAll },
+      (error, result) => {
         logop(error);
         if (error) {
           const logop = this._startLogOp(
             mongoLogId(1_001_000_054),
             'Searching $cmd.sys.inprog manually'
           );
-          this._initializedClient('META')
-            .db('admin')
-            .collection('$cmd.sys.inprog')
-            .findOne({ $all: includeAll }, (error2, result2) => {
-              logop(error2);
-              if (error2) {
-                // @ts-expect-error Callback without result...
-                return callback(this._translateMessage(error2));
-              }
-              callback(null, result2!);
-            });
+          const coll = db.collection('$cmd.sys.inprog');
+
+          callbackify(
+            (coll.findOne as (filter: Document) => Promise<Document>).bind(coll)
+          )({ $all: includeAll }, (error2, result2) => {
+            logop(error2);
+            if (error2) {
+              // @ts-expect-error Callback without result...
+              return callback(this._translateMessage(error2));
+            }
+            callback(null, result2);
+          });
           return;
         }
-        callback(null, result!);
-      });
+        callback(null, result);
+      }
+    );
   }
 
   getLastSeenTopology(): null | TopologyDescription {
@@ -1923,33 +1969,30 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       'Running serverStats'
     );
 
-    this._initializedClient('META')
-      .db()
-      .admin()
-      .serverStatus((error, result) => {
-        logop(error);
+    const admin = this._initializedClient('META').db().admin();
+    callbackify(admin.serverStatus.bind(admin))((error, result) => {
+      logop(error);
 
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
-        callback(null, result!);
-      });
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
   }
 
   top(callback: Callback<Document>): void {
     const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
-    this._initializedClient('META')
-      .db()
-      .admin()
-      .command({ top: 1 }, (error, result) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
-        callback(null, result!);
-      });
+    const admin = this._initializedClient('META').db().admin();
+
+    callbackify(admin.command.bind(admin))({ top: 1 }, (error, result) => {
+      logop(error);
+      if (error) {
+        // @ts-expect-error Callback without result...
+        return callback(this._translateMessage(error));
+      }
+      callback(null, result);
+    });
   }
 
   createView(
@@ -1973,16 +2016,20 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       }
     );
 
-    this._initializedClient('CRUD')
-      .db(this._databaseName(sourceNs))
-      .createCollection(name, options, (error, result) => {
+    const db = this._initializedClient('CRUD').db(this._databaseName(sourceNs));
+
+    callbackify(allArgumentsMandatory(db.createCollection.bind(db)))(
+      name,
+      options,
+      (error, result) => {
         logop(error, result);
         if (error) {
           // @ts-expect-error Callback without result...
           return callback(this._translateMessage(error));
         }
-        callback(null, result!);
-      });
+        callback(null, result);
+      }
+    );
   }
 
   updateView(
@@ -2011,13 +2058,13 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         options,
       }
     );
-    db.command(command, (error, result) => {
+    callbackify(db.command.bind(db))(command, (error, result) => {
       logop(error, result);
       if (error) {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
-      callback(null, result!);
+      callback(null, result);
     });
   }
 

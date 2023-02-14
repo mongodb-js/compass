@@ -6,8 +6,8 @@
       "count": 4,
       "types": [
         {
-          "name": "ObjectID",
-          "bsonType": "ObjectID",
+          "name": "ObjectId",
+          "bsonType": "ObjectId",
           "path": "_id",
           "count": 4,
           "values": [
@@ -31,7 +31,7 @@
         }
       ],
       "total_count": 4,
-      "type": "ObjectID",
+      "type": "ObjectId",
       "has_duplicates": false,
       "probability": 1
     },

@@ -5,7 +5,11 @@ import type { AnyAction } from 'redux';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
 import type { StoredPipeline } from '../utils/pipeline-storage';
-import { getPipelineFromBuilderState, getPipelineStringFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
+import {
+  getPipelineFromBuilderState,
+  getPipelineStringFromBuilderState,
+  mapPipelineModeToEditorViewType,
+} from './pipeline-builder/builder-helpers';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -25,7 +29,7 @@ export type SavedPipelineState = {
 export const INITIAL_STATE: SavedPipelineState = {
   pipelines: [],
   isLoaded: false,
-  isListVisible: false
+  isListVisible: false,
 };
 
 const setShowSavedPipelinesList = (
@@ -46,7 +50,7 @@ const doRestoreSavedPipeline = (state: SavedPipelineState) => {
 const MAPPINGS = {
   [SET_SHOW_SAVED_PIPELINES]: setShowSavedPipelinesList,
   [SAVED_PIPELINE_ADD]: addSavedPipeline,
-  [RESTORE_PIPELINE]: doRestoreSavedPipeline
+  [RESTORE_PIPELINE]: doRestoreSavedPipeline,
 };
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
@@ -62,17 +66,17 @@ export const setShowSavedPipelines =
     }
     dispatch({
       type: SET_SHOW_SAVED_PIPELINES,
-      show
+      show,
     });
   };
 
 export const savedPipelineAdd = (pipelines: StoredPipeline[]) => ({
   type: SAVED_PIPELINE_ADD,
-  pipelines
+  pipelines,
 });
 
-export const getSavedPipelines = (): PipelineBuilderThunkAction<void> => 
-  (dispatch, getState) => {
+export const getSavedPipelines =
+  (): PipelineBuilderThunkAction<void> => (dispatch, getState) => {
     if (!getState().savedPipeline.isLoaded) {
       dispatch(updatePipelineList());
     }
@@ -81,18 +85,22 @@ export const getSavedPipelines = (): PipelineBuilderThunkAction<void> =>
 /**
  * Update the pipeline list.
  */
-export const updatePipelineList = (): PipelineBuilderThunkAction<void> =>
+export const updatePipelineList =
+  (): PipelineBuilderThunkAction<void> =>
   (dispatch, getState, { pipelineStorage }) => {
     const state = getState();
-    pipelineStorage.loadAll()
+    pipelineStorage
+      .loadAll()
       .then((pipelines: StoredPipeline[]) => {
         const thisNamespacePipelines = pipelines.filter(
           ({ namespace }) => namespace === state.namespace
         );
         dispatch(savedPipelineAdd(thisNamespacePipelines));
-        dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
+        dispatch(
+          globalAppRegistryEmit('agg-pipeline-saved', { name: state.name })
+        );
       })
-      .catch(err => {
+      .catch((err) => {
         debug('Failed to load pipelines', err);
       });
   };
@@ -128,7 +136,7 @@ export const openPipelineById = (
         pipelineText: pipelineBuilder.source,
         pipeline: pipelineBuilder.pipeline,
         syntaxErrors: pipelineBuilder.syntaxError,
-        restoreState: data
+        restoreState: data,
       });
       dispatch(updatePipelinePreview());
       if (pipelineBuilder.syntaxError.length > 0) {
@@ -137,10 +145,10 @@ export const openPipelineById = (
           shortName += '…';
         }
         openToast('restore-pipeline-with-errors', {
-          title: 'Can\'t parse pipeline source to stages',
+          title: "Can't parse pipeline source to stages",
           body: `Loaded pipeline "${shortName}" contains syntax errors`,
           variant: ToastVariant.Warning,
-          timeout: 10000
+          timeout: 10000,
         });
       }
     } catch (e: unknown) {
@@ -152,54 +160,54 @@ export const openPipelineById = (
 /**
  * Save the current state of your pipeline
  */
-export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async (
-  dispatch, getState, { pipelineBuilder, pipelineStorage }
-) => {
-  if (getState().id === '') {
-    dispatch(createId());
-  }
-
-  const {
-    id,
-    name,
-    namespace,
-    comments,
-    autoPreview,
-    collationString: { text },
-    dataService
-  } = getState();
-
-  const savedPipeline = {
-    id,
-    name,
-    namespace,
-    comments,
-    autoPreview,
-    collationString: text,
-    pipelineText: getPipelineStringFromBuilderState(
-      getState(),
-      pipelineBuilder
-    ),
-    host:
-      dataService.dataService?.getConnectionString().hosts.join(',') ?? null
-  };
-
-  await pipelineStorage.updateAttributes(savedPipeline.id, savedPipeline);
-
-  const stagesLength = (() => {
-    try {
-      return getPipelineFromBuilderState(getState(), pipelineBuilder).length;
-    } catch {
-      // For the case where pipeline contains syntax errors
-      return undefined;
+export const saveCurrentPipeline =
+  (): PipelineBuilderThunkAction<void> =>
+  async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
+    if (getState().id === '') {
+      dispatch(createId());
     }
-  })();
 
-  track('Aggregation Saved', {
-    id: savedPipeline.id,
-    num_stages: stagesLength,
-    editor_view_type: mapPipelineModeToEditorViewType(getState().pipelineBuilder.pipelineMode)
-  });
+    const {
+      id,
+      name,
+      namespace,
+      comments,
+      autoPreview,
+      collationString: { text },
+      dataService,
+    } = getState();
 
-  dispatch(updatePipelineList());
-};
+    const savedPipeline = {
+      id,
+      name,
+      namespace,
+      comments,
+      autoPreview,
+      collationString: text,
+      pipelineText: getPipelineStringFromBuilderState(
+        getState(),
+        pipelineBuilder
+      ),
+      host:
+        dataService.dataService?.getConnectionString().hosts.join(',') ?? null,
+    };
+
+    await pipelineStorage.updateAttributes(savedPipeline.id, savedPipeline);
+
+    const stagesLength = (() => {
+      try {
+        return getPipelineFromBuilderState(getState(), pipelineBuilder).length;
+      } catch {
+        // For the case where pipeline contains syntax errors
+        return undefined;
+      }
+    })();
+
+    track('Aggregation Saved', {
+      id: savedPipeline.id,
+      num_stages: stagesLength,
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
+    });
+
+    dispatch(updatePipelineList());
+  };

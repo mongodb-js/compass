@@ -1,0 +1,5 @@
+{
+  "uniqueFields": ["a", "b", "c", "d"],
+  "headerFields": ["a", "b", "c", "d"],
+  "preview": [["1", "2", "3", "4"]]
+}

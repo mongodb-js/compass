@@ -21,7 +21,7 @@ const ROLE = {
     // noop
   },
   storeName: 'Aggregations.Store',
-  actionName: 'Aggregations.Actions'
+  actionName: 'Aggregations.Actions',
 };
 
 /**
@@ -35,7 +35,7 @@ const CREATE_ROLE = {
   configureActions: () => {
     // noop
   },
-  actionName: 'Aggregations.Actions'
+  actionName: 'Aggregations.Actions',
 };
 
 /**
@@ -43,7 +43,7 @@ const CREATE_ROLE = {
  */
 const DUPLICATE_ROLE = {
   name: 'Duplicate View',
-  component: DuplicateViewPlugin
+  component: DuplicateViewPlugin,
 };
 
 /**
@@ -55,7 +55,10 @@ const activate = (appRegistry: AppRegistry) => {
   appRegistry.registerRole('Collection.Tab', ROLE);
   appRegistry.registerRole('Collection.ScopedModal', CREATE_ROLE);
   appRegistry.registerRole('Global.Modal', DUPLICATE_ROLE);
-  appRegistry.registerStore('Aggregations.DuplicateViewStore', duplicateViewStore);
+  appRegistry.registerStore(
+    'Aggregations.DuplicateViewStore',
+    duplicateViewStore
+  );
 };
 
 /**

@@ -70,7 +70,7 @@ class ValidationEditor extends Component {
   static displayName = 'ValidationEditor';
 
   static propTypes = {
-    fetchSampleDocuments: PropTypes.func.isRequired,
+    clearSampleDocuments: PropTypes.func.isRequired,
     validatorChanged: PropTypes.func.isRequired,
     validationActionChanged: PropTypes.func.isRequired,
     validationLevelChanged: PropTypes.func.isRequired,
@@ -102,8 +102,8 @@ class ValidationEditor extends Component {
       EditorTextCompleter,
       props.fields
     );
-    this.debounceValidatorChanged = debounce((validator, hasErrors) => {
-      this.props.fetchSampleDocuments(validator, hasErrors);
+    this.debounceValidatorChanged = debounce((validator) => {
+      this.props.clearSampleDocuments();
       this.trackValidator(validator);
     }, 750);
   }
@@ -162,7 +162,7 @@ class ValidationEditor extends Component {
    * @returns {Boolean} True if there is an error.
    */
   hasErrors() {
-    return this.props.validation.error || this.props.validation.syntaxError;
+    return !!(this.props.validation.error || this.props.validation.syntaxError);
   }
 
   /**

@@ -43,5 +43,3 @@ export const DeletePipelineConfirmationModal: React.FunctionComponent<{
     </ConfirmationModal>
   );
 };
-
-

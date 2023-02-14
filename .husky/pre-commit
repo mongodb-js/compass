@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# listings staged files only
+fileList=$(git diff --diff-filter=AM --cached --name-only)
+
+npm run precommit $fileList

@@ -69,19 +69,18 @@ export const PipelineResultsHeader: React.FunctionComponent<
 
 const mapState = (state: RootState) => {
   const {
-    aggregation: { resultsViewType, pipeline }
+    aggregation: { resultsViewType, pipeline },
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
   const stageOperator = getStageOperator(lastStage) ?? '';
   return {
     resultsViewType,
-    isMergeOrOutPipeline: isOutputStage(stageOperator)
+    isMergeOrOutPipeline: isOutputStage(stageOperator),
   };
 };
 
 const mapDispatch = {
-  onChangeResultsView: changeViewType
+  onChangeResultsView: changeViewType,
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsHeader);
-

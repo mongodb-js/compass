@@ -22,8 +22,9 @@ const TO_BSON_CONVERSIONS = {
   Long: (value) => bson.Long.fromNumber(value),
   Decimal128: (value) => bson.Decimal128.fromString(value),
   Date: (value) => new Date(value),
-  ObjectID: (value) => bson.ObjectId.createFromHexString(value),
+  ObjectId: (value) => bson.ObjectId.createFromHexString(value),
 };
+TO_BSON_CONVERSIONS.ObjectID = TO_BSON_CONVERSIONS.ObjectId; // unnecessary legacy alias?
 
 /**
  * Default conversion.

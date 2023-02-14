@@ -1,0 +1,3 @@
+timestamp,notes
+{ "$timestamp": { "t": 1672849392, "i": 1 } },mongoexport
+1672849392|1,proposed compass way

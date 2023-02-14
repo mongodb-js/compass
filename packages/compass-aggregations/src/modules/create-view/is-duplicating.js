@@ -1,7 +1,8 @@
 /**
  * Toggle is duplicating action name.
  */
-export const TOGGLE_IS_DUPLICATING = 'aggregations/create-view/is-duplicating/TOGGLE_IS_DUPLICATING';
+export const TOGGLE_IS_DUPLICATING =
+  'aggregations/create-view/is-duplicating/TOGGLE_IS_DUPLICATING';
 
 export const INITIAL_STATE = false;
 
@@ -21,5 +22,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsDuplicating = (isDuplicating) => ({
   type: TOGGLE_IS_DUPLICATING,
-  isDuplicating: isDuplicating
+  isDuplicating: isDuplicating,
 });

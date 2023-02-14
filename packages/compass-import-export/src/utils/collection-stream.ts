@@ -18,6 +18,10 @@ const debug = createDebug('collection-stream');
 
 type CollectionStreamProgressError = Error | WriteError | WriteConcernError;
 
+type CollectionStreamError = Error & {
+  cause?: CollectionStreamProgressError;
+};
+
 type WriteCollectionStreamProgressError = Error & {
   index: number;
   code: MongoServerError['code'];
@@ -31,7 +35,10 @@ function mongodbServerErrorToJSError({
   errmsg,
   op,
   errInfo,
-}: MongoServerError): WriteCollectionStreamProgressError {
+}: Pick<MongoServerError, 'code' | 'errInfo'> &
+  Partial<
+    Pick<MongoServerError, 'index' | 'errmsg' | 'op'>
+  >): WriteCollectionStreamProgressError {
   const e: WriteCollectionStreamProgressError = new Error(errmsg) as any;
   e.index = index;
   e.code = code;
@@ -64,6 +71,16 @@ export type CollectionStreamProgress = {
   errors: CollectionStreamProgressError[];
 };
 
+export type CollectionStreamStats = {
+  ok: number;
+  nInserted: number;
+  nMatched: number;
+  nModified: number;
+  nRemoved: number;
+  nUpserted: number;
+  writeErrors: WriteCollectionStreamProgressError[];
+  writeConcernErrors: WriteCollectionStreamProgressError[];
+};
 export class WritableCollectionStream extends Writable {
   dataService: DataService;
   ns: string;
@@ -73,16 +90,7 @@ export class WritableCollectionStream extends Writable {
   stopOnErrors: boolean;
   batch: Document[];
   _batchCounter: number;
-  _stats: {
-    ok: number;
-    nInserted: number;
-    nMatched: number;
-    nModified: number;
-    nRemoved: number;
-    nUpserted: number;
-    writeErrors: WriteCollectionStreamProgressError[];
-    writeConcernErrors: WriteCollectionStreamProgressError[];
-  };
+  _stats: CollectionStreamStats;
   _errors: CollectionStreamProgressError[];
 
   constructor(dataService: DataService, ns: string, stopOnErrors: boolean) {
@@ -130,7 +138,9 @@ export class WritableCollectionStream extends Writable {
 
     if (this.batch.length === 0) {
       debug('%d docs written', this.docsWritten);
-      this.printJobStats();
+      if (debug.enabled) {
+        this.printJobStats();
+      }
       return callback();
     }
 
@@ -144,7 +154,7 @@ export class WritableCollectionStream extends Writable {
 
     this.batch = [];
 
-    let result: BulkOpResult;
+    let result: BulkOpResult & Partial<BulkWriteResult>;
 
     try {
       result = await this.dataService.bulkWrite(
@@ -189,9 +199,7 @@ export class WritableCollectionStream extends Writable {
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
         // result can still be accessed on the error instance
-        result =
-          (bulkWriteError as MongoBulkWriteError).result &&
-          (bulkWriteError as MongoBulkWriteError).result.result;
+        result = (bulkWriteError as MongoBulkWriteError).result;
         this._errors.push(bulkWriteError);
       }
     }
@@ -206,7 +214,9 @@ export class WritableCollectionStream extends Writable {
     this.docsProcessed += documents.length;
     this._batchCounter++;
 
-    this.printJobStats();
+    if (debug.enabled) {
+      this.printJobStats();
+    }
 
     const progressStats: CollectionStreamProgress = {
       docsWritten: this.docsWritten,
@@ -218,28 +228,52 @@ export class WritableCollectionStream extends Writable {
 
     this.emit('progress', progressStats);
 
-    return callback();
+    return callback(this._makeStreamError());
   }
 
-  _mergeBulkOpResult(result: BulkWriteResult | Record<string, number> = {}) {
+  _makeStreamError(): CollectionStreamError | undefined {
+    if (this.stopOnErrors && this._errors.length) {
+      const error = this._errors[0];
+      if (Object.prototype.toString.call(error) === '[object Error]') {
+        return error as Error;
+      }
+      return {
+        name: 'CollectionStreamError',
+        message: 'Something went wrong while writing data to a collection',
+        cause: error,
+      };
+    }
+    return undefined;
+  }
+
+  _mergeBulkOpResult(result: BulkOpResult & Partial<BulkWriteResult> = {}) {
     numKeys.forEach((key) => {
       this._stats[key] += result[key] || 0;
     });
 
     this._stats.writeErrors.push(
-      ...((result as any).writeErrors || []).map(mongodbServerErrorToJSError)
+      ...(result?.getWriteErrors?.() || []).map(mongodbServerErrorToJSError)
     );
 
-    this._stats.writeConcernErrors.push(
-      ...((result as any).writeConcernErrors || []).map(
-        mongodbServerErrorToJSError
-      )
-    );
+    const writeConcernError = result?.getWriteConcernError?.();
+    if (writeConcernError) {
+      this._stats.writeConcernErrors.push(
+        mongodbServerErrorToJSError(writeConcernError)
+      );
+    }
+  }
+
+  getErrors() {
+    return this._errors;
+  }
+
+  getStats() {
+    return this._stats;
   }
 
   printJobStats() {
     console.group('Import Info');
-    console.table(this._stats);
+    console.table(this.getStats());
     console.log('Errors Seen');
     console.log(
       this._errors

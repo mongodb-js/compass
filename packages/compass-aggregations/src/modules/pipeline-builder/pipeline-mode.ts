@@ -2,7 +2,11 @@ import type { Reducer } from 'redux';
 import type { Document } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { isAction } from '../../utils/is-action';
-import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType, updatePipelinePreview } from './builder-helpers';
+import {
+  getPipelineFromBuilderState,
+  mapPipelineModeToEditorViewType,
+  updatePipelinePreview,
+} from './builder-helpers';
 import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -30,10 +34,9 @@ type State = PipelineMode;
 export const INITIAL_STATE: State = 'builder-ui';
 
 const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
-  if (isAction<PipelineModeToggledAction>(
-    action,
-    ActionTypes.PipelineModeToggled
-  )) {
+  if (
+    isAction<PipelineModeToggledAction>(action, ActionTypes.PipelineModeToggled)
+  ) {
     return action.mode;
   }
   if (action.type === RESTORE_PIPELINE) {
@@ -76,7 +79,7 @@ export const changePipelineMode = (
 
     track('Editor Type Changed', {
       num_stages,
-      editor_view_type: mapPipelineModeToEditorViewType(newMode)
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
 
     dispatch(updatePipelinePreview());

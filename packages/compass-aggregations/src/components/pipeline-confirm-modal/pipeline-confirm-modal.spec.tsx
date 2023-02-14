@@ -20,14 +20,19 @@ const renderPipelineConfirmModal = (
   );
 };
 
-describe('PipelineConfirmModal [Component]', function() {
-  it('renders correct text', function() {
+describe('PipelineConfirmModal [Component]', function () {
+  it('renders correct text', function () {
     renderPipelineConfirmModal();
-    expect(screen.findByText('Are you sure you want to create a new pipeline?')).to.exist;
-    expect(screen.findByText('Creating this pipeline will abandon unsaved changes to the current pipeline.')).to.exist;
+    expect(screen.findByText('Are you sure you want to create a new pipeline?'))
+      .to.exist;
+    expect(
+      screen.findByText(
+        'Creating this pipeline will abandon unsaved changes to the current pipeline.'
+      )
+    ).to.exist;
   });
 
-  it('calls onCancel when clicking the cancel button', function() {
+  it('calls onCancel when clicking the cancel button', function () {
     const onCancelSpy = sinon.spy();
     renderPipelineConfirmModal({
       onCloseModal: onCancelSpy,
@@ -41,7 +46,7 @@ describe('PipelineConfirmModal [Component]', function() {
     expect(onCancelSpy.callCount).to.equal(1);
   });
 
-  it('calls onConfirmNewPipeline when clicking the confirm button', function() {
+  it('calls onConfirmNewPipeline when clicking the confirm button', function () {
     const onConfirmNewPipelineSpy = sinon.spy();
     renderPipelineConfirmModal({
       onConfirmNewPipeline: onConfirmNewPipelineSpy,

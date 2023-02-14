@@ -14,19 +14,16 @@ export const SET_LIMIT = `${PREFIX}/SET_LIMIT`;
 
 export const APPLY_SETTINGS = `${PREFIX}/APPLY_SETTINGS`;
 
-import {
-  DEFAULT_SAMPLE_SIZE,
-  DEFAULT_LARGE_LIMIT
-} from '../constants';
+import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../constants';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 type State = {
-  isExpanded: boolean,
-  isCommentMode: boolean,
-  isDirty: boolean,
-  sampleSize: number,
-  limit: number
+  isExpanded: boolean;
+  isCommentMode: boolean;
+  isDirty: boolean;
+  sampleSize: number;
+  limit: number;
 };
 
 export const INITIAL_STATE: State = {
@@ -34,7 +31,7 @@ export const INITIAL_STATE: State = {
   isCommentMode: true,
   isDirty: false,
   sampleSize: DEFAULT_SAMPLE_SIZE, // limit
-  limit: DEFAULT_LARGE_LIMIT // largeLimit
+  limit: DEFAULT_LARGE_LIMIT, // largeLimit
 };
 
 const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
@@ -45,7 +42,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
     }
     return {
       ...state,
-      isExpanded: !state.isExpanded
+      isExpanded: !state.isExpanded,
     };
   }
 
@@ -53,7 +50,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       isCommentMode: !state.isCommentMode,
-      isDirty: true
+      isDirty: true,
     };
   }
 
@@ -61,7 +58,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       sampleSize: action.value,
-      isDirty: true
+      isDirty: true,
     };
   }
 
@@ -69,7 +66,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       limit: action.value,
-      isDirty: true
+      isDirty: true,
     };
   }
 
@@ -82,24 +79,24 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   }
 
   return state;
-}
+};
 
 export const toggleSettingsIsExpanded = () => ({
-  type: TOGGLE_IS_EXPANDED
+  type: TOGGLE_IS_EXPANDED,
 });
 
 export const toggleSettingsIsCommentMode = () => ({
-  type: TOGGLE_COMMENT_MODE
+  type: TOGGLE_COMMENT_MODE,
 });
 
 export const setSettingsSampleSize = (value: number) => ({
   type: SET_SAMPLE_SIZE,
-  value: value
+  value: value,
 });
 
 export const setSettingsLimit = (value: number) => ({
   type: SET_LIMIT,
-  value: value
+  value: value,
 });
 
 const doApplySettings = (settings: State) => ({
@@ -114,7 +111,7 @@ export const applySettings = (): PipelineBuilderThunkAction<void> => {
     dispatch(updatePipelinePreview());
     dispatch(
       globalAppRegistryEmit('compass:aggregations:settings-applied', {
-        settings
+        settings,
       })
     );
   };

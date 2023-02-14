@@ -16,12 +16,13 @@ const fieldsetStyles = css({
 export type CollapsibleFieldSetProps = {
   ['data-testid']?: string;
   children?: React.ReactElement;
-  label: string;
+  label: React.ReactElement | string;
   description?: React.ReactElement | string;
   disabled?: boolean;
   helpUrl?: string;
   onToggle: (checked: boolean) => void;
   toggled?: boolean;
+  id?: string;
 };
 
 export const CollapsibleFieldSet = ({
@@ -32,24 +33,21 @@ export const CollapsibleFieldSet = ({
   onToggle,
   toggled,
   children,
-  ...props
+  'data-testid': testId,
+  id: _id,
 }: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
   const checkboxId = useId();
+  const id = _id ?? checkboxId;
   return (
-    <FormFieldContainer data-testid={props['data-testid']}>
+    <FormFieldContainer data-testid={testId}>
       <Checkbox
-        data-testid={props['data-testid'] && `${props['data-testid']}-checkbox`}
+        data-testid={testId && `${testId}-checkbox`}
         onChange={(event) => {
           onToggle(event.target.checked);
         }}
         disabled={disabled}
         label={
-          <Label
-            htmlFor={checkboxId}
-            data-testid={
-              props['data-testid'] && `${props['data-testid']}-label`
-            }
-          >
+          <Label htmlFor={id} data-testid={testId && `${testId}-label`}>
             {label}
           </Label>
         }
@@ -60,6 +58,7 @@ export const CollapsibleFieldSet = ({
                 <>
                   {description}
                   {!!helpUrl && (
+                    // @ts-expect-error leafygreen doesn't allow non-string descriptions
                     <Link
                       className={infoLinkStyles}
                       href={helpUrl}
@@ -72,7 +71,7 @@ export const CollapsibleFieldSet = ({
               ) as any) // LG Checkbox expects a string description, but we use Description component to include helpUrl.
         }
         checked={toggled}
-        id={checkboxId}
+        id={id}
       />
       {toggled && <fieldset className={fieldsetStyles}>{children}</fieldset>}
     </FormFieldContainer>
