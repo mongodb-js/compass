@@ -187,10 +187,32 @@ export default class CollectionFields extends PureComponent {
             this.setField('collectionName', newCollectionName)
           }
         />
+        {hasTimeSeriesSupport(serverVersion) && (
+          <TimeSeriesFields
+            isCapped={isCapped}
+            isTimeSeries={isTimeSeries}
+            isClustered={isClustered}
+            isFLE2={isFLE2}
+            onChangeIsTimeSeries={(newIsTimeSeries) =>
+              this.setState(
+                { isTimeSeries: newIsTimeSeries, expireAfterSeconds: '' },
+                this.updateOptions
+              )
+            }
+            onChangeField={(fieldName, value) =>
+              this.setField(fieldName, value)
+            }
+            timeSeries={timeSeries}
+            expireAfterSeconds={expireAfterSeconds}
+            supportsFlexibleBucketConfiguration={hasFlexibleBucketConfigSupport(
+              serverVersion
+            )}
+          />
+        )}
         <Accordion
-          data-testid="advanced-collection-options"
-          text="Advanced Collection Options"
-          hintText="(e.g. Time-Series, Capped, Clustered collections)"
+          data-testid="additional-collection-preferences"
+          text="Additional preferences"
+          hintText="(e.g. Custom collation, Capped, Clustered collections)"
         >
           <div className={advancedCollectionOptionsContainerStyles}>
             <CappedCollectionFields
@@ -219,28 +241,6 @@ export default class CollectionFields extends PureComponent {
               }
               isCustomCollation={isCustomCollation}
             />
-            {hasTimeSeriesSupport(serverVersion) && (
-              <TimeSeriesFields
-                isCapped={isCapped}
-                isTimeSeries={isTimeSeries}
-                isClustered={isClustered}
-                isFLE2={isFLE2}
-                onChangeIsTimeSeries={(newIsTimeSeries) =>
-                  this.setState(
-                    { isTimeSeries: newIsTimeSeries, expireAfterSeconds: '' },
-                    this.updateOptions
-                  )
-                }
-                onChangeField={(fieldName, value) =>
-                  this.setField(fieldName, value)
-                }
-                timeSeries={timeSeries}
-                expireAfterSeconds={expireAfterSeconds}
-                supportsFlexibleBucketConfiguration={hasFlexibleBucketConfigSupport(
-                  serverVersion
-                )}
-              />
-            )}
             {hasClusteredCollectionSupport(serverVersion) && (
               <ClusteredCollectionFields
                 isCapped={isCapped}

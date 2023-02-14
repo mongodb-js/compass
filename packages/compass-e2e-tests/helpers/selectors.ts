@@ -307,7 +307,7 @@ export const CreateCollectionCappedCheckboxLabel =
 export const CreateCollectionCappedSizeInput =
   '[data-testid="capped-collection-fields"] [data-testid="capped-size"]';
 export const CreateCollectionCollectionOptionsAccordion =
-  '[data-testid="create-collection-modal"] [data-testid="advanced-collection-options"]';
+  '[data-testid="create-collection-modal"] [data-testid="additional-collection-preferences"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
   '[data-testid="use-custom-collation-fields"] [data-testid="use-custom-collation-fields-label"]';
 
