@@ -19,7 +19,7 @@ const debug = createDebug('collection-stream');
 type CollectionStreamProgressError = Error | WriteError | WriteConcernError;
 
 type CollectionStreamError = Error & {
-  original?: CollectionStreamProgressError;
+  cause?: CollectionStreamProgressError;
 };
 
 type WriteCollectionStreamProgressError = Error & {
@@ -239,7 +239,7 @@ export class WritableCollectionStream extends Writable {
       return {
         name: 'CollectionStreamError',
         message: 'Something went wrong while writing data to a collection',
-        original: error,
+        cause: error,
       };
     }
     return undefined;
