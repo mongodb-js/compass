@@ -233,8 +233,8 @@ export class WritableCollectionStream extends Writable {
   _makeStreamError(): CollectionStreamError | undefined {
     if (this.stopOnErrors && this._errors.length) {
       const error = this._errors[0];
-      if (error instanceof Error) {
-        return error;
+      if (Object.prototype.toString.call(error) === '[object Error]') {
+        return error as Error;
       }
       return {
         name: 'CollectionStreamError',
