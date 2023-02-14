@@ -124,7 +124,7 @@ describe('importCSV', function () {
 
       // these won't match when we compare below
       for (const doc of docs) {
-        if (doc._id && doc._id._bsontype === 'ObjectID') {
+        if (doc._id && doc._id._bsontype === 'ObjectId') {
           delete doc._id;
         }
       }
@@ -231,7 +231,7 @@ describe('importCSV', function () {
 
       for (const doc of docs) {
         for (const [key, value] of Object.entries(doc)) {
-          if (key === '_id' && value._bsontype === 'ObjectID') {
+          if (key === '_id' && value._bsontype === 'ObjectId') {
             continue;
           }
           if (['something', 'something_else', 'notes'].includes(key)) {

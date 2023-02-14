@@ -4,7 +4,7 @@
       "name": "_id",
       "path": "_id",
       "count": 4,
-      "type": "ObjectID",
+      "type": "ObjectId",
       "probability": 1
     },
     "review": {

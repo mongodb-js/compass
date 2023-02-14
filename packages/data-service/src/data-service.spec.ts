@@ -315,19 +315,15 @@ describe('DataService', function () {
     });
 
     describe('#dropIndex', function () {
-      beforeEach(function (done) {
-        mongoClient
+      beforeEach(async function () {
+        await mongoClient
           .db(testDatabaseName)
           .collection(testCollectionName)
           .createIndex(
             {
               a: 1,
             },
-            {},
-            function (error) {
-              assert.equal(null, error);
-              done();
-            }
+            {}
           );
       });
 
@@ -382,24 +378,18 @@ describe('DataService', function () {
     });
 
     describe('#aggregateCursor', function () {
-      it('returns a cursor for the documents', function (done) {
+      it('returns a cursor for the documents', async function () {
         let count = 0;
-        dataService
+        await dataService
           .aggregateCursor(
             testNamespace,
             [{ $match: {} }, { $group: { _id: '$a', total: { $sum: '$a' } } }],
             { cursor: { batchSize: 10000 } }
           )
-          .forEach(
-            function () {
-              count++;
-            },
-            function (err) {
-              assert.equal(null, err);
-              expect(count).to.equal(2);
-              done();
-            }
-          );
+          .forEach(function () {
+            count++;
+          });
+        expect(count).to.equal(2);
       });
     });
 
@@ -783,13 +773,8 @@ describe('DataService', function () {
     });
 
     describe('#createCollection', function () {
-      afterEach(function (done) {
-        mongoClient
-          .db(testDatabaseName)
-          .dropCollection('foo', {}, function (error) {
-            assert.equal(null, error);
-            done();
-          });
+      afterEach(async function () {
+        await mongoClient.db(testDatabaseName).dropCollection('foo');
       });
 
       it('creates a new collection', function (done) {

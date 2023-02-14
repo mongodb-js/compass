@@ -61,7 +61,7 @@
     "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
-    "bson": "^4.4.1",
+    "bson": "^5.0.0",
     "compass-preferences-model": "^2.5.1",
     "mongodb-index-model": "^4.1.1",
     "react": "^17.0.2"
@@ -84,9 +84,9 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.contains": "^2.4.3",
     "mocha": "^8.4.0",
-    "mongodb": "^4.13.0",
+    "mongodb": "^5.0.0",
     "mongodb-data-service": "^22.4.1",
-    "mongodb-query-parser": "^2.4.6",
+    "mongodb-query-parser": "^2.4.8",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
@@ -106,7 +106,7 @@
     "@mongodb-js/compass-editor": "^0.4.2",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
-    "bson": "^4.4.1",
+    "bson": "^5.0.0",
     "compass-preferences-model": "^2.5.1",
     "mongodb-index-model": "^4.1.1"
   }

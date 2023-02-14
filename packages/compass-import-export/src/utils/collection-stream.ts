@@ -31,7 +31,10 @@ function mongodbServerErrorToJSError({
   errmsg,
   op,
   errInfo,
-}: MongoServerError): WriteCollectionStreamProgressError {
+}: Pick<MongoServerError, 'code' | 'errInfo'> &
+  Partial<
+    Pick<MongoServerError, 'index' | 'errmsg' | 'op'>
+  >): WriteCollectionStreamProgressError {
   const e: WriteCollectionStreamProgressError = new Error(errmsg) as any;
   e.index = index;
   e.code = code;
@@ -147,7 +150,7 @@ export class WritableCollectionStream extends Writable {
 
     this.batch = [];
 
-    let result: BulkOpResult;
+    let result: BulkOpResult & Partial<BulkWriteResult>;
 
     try {
       result = await this.dataService.bulkWrite(
@@ -192,9 +195,7 @@ export class WritableCollectionStream extends Writable {
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
         // result can still be accessed on the error instance
-        result =
-          (bulkWriteError as MongoBulkWriteError).result &&
-          (bulkWriteError as MongoBulkWriteError).result.result;
+        result = (bulkWriteError as MongoBulkWriteError).result;
         this._errors.push(bulkWriteError);
       }
     }
@@ -226,20 +227,21 @@ export class WritableCollectionStream extends Writable {
     return callback();
   }
 
-  _mergeBulkOpResult(result: BulkWriteResult | Record<string, number> = {}) {
+  _mergeBulkOpResult(result: BulkOpResult & Partial<BulkWriteResult> = {}) {
     numKeys.forEach((key) => {
       this._stats[key] += result[key] || 0;
     });
 
     this._stats.writeErrors.push(
-      ...((result as any).writeErrors || []).map(mongodbServerErrorToJSError)
+      ...(result?.getWriteErrors?.() || []).map(mongodbServerErrorToJSError)
     );
 
-    this._stats.writeConcernErrors.push(
-      ...((result as any).writeConcernErrors || []).map(
-        mongodbServerErrorToJSError
-      )
-    );
+    const writeConcernError = result?.getWriteConcernError?.();
+    if (writeConcernError) {
+      this._stats.writeConcernErrors.push(
+        mongodbServerErrorToJSError(writeConcernError)
+      );
+    }
   }
 
   getErrors() {

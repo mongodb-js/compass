@@ -516,8 +516,8 @@ export const toggleIncludeField = (path: string) => ({
  * @param {String} bsonType A bson type identifier.
  * @example
  * ```javascript
- * //  Cast string _id from a csv to a bson.ObjectID
- * setFieldType('_id', 'ObjectID');
+ * //  Cast string _id from a csv to a bson.ObjectId
+ * setFieldType('_id', 'ObjectId');
  * // Cast `{stats: {flufiness: "100"}}` to
  * // `{stats: {flufiness: 100}}`
  * setFieldType('stats.flufiness', 'Int32');

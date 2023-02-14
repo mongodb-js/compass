@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 import app from 'hadron-app';
-import { ObjectID as ObjectId } from 'bson';
+import { ObjectId } from 'bson';
 import { expect } from 'chai';
 
 import {

@@ -60,14 +60,14 @@ const casters = {
       return new Date('' + s);
     },
   },
-  ObjectID: {
+  ObjectId: {
     fromString: function (s) {
       const { isBSON } = getTypeDescriptorForValue(s);
       if (isBSON) {
         // EJSON being imported
         return s;
       }
-      return new bson.ObjectID(s);
+      return new bson.ObjectId(s);
     },
   },
   Long: {
@@ -167,7 +167,7 @@ const TYPE_FOR_TO_STRING = new Map([
 export function getBSONTypeForValue(value) {
   const type = value && value._bsontype;
   if (type === 'ObjectId') {
-    return 'ObjectID';
+    return 'ObjectId';
   }
 
   if (type) {
@@ -289,7 +289,7 @@ export const valueToString = function (value) {
        */
       return `/${value.pattern}/${value.options}`;
     }
-    if (type === 'ObjectID') {
+    if (type === 'ObjectId') {
       return value.toString('hex');
     }
     if (type === 'Binary') {
