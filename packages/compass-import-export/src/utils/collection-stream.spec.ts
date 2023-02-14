@@ -40,7 +40,12 @@ function getDataService({
       });
     },
 
-    insertOne: (ns: string, doc: any, options: any, callback) => {
+    insertOne: (
+      ns: string,
+      doc: any,
+      options: any,
+      callback: (err: Error | null, result?: any) => void
+    ) => {
       if (throwErrors) {
         const error = new Error('fake insertOne error');
         delete error.stack; // slows down tests due to excess output
@@ -62,7 +67,7 @@ async function insertDocs(dest: Writable, docs: any) {
     }
 
     return new Promise<void>((resolve, reject) => {
-      dest.end((err) => (err ? reject(err) : resolve()));
+      dest.end((err?: Error) => (err ? reject(err) : resolve()));
     });
   } catch (err) {
     // we'll get here if stopOnErrors is true, because dest.write will throw
@@ -128,8 +133,8 @@ describe('collection-stream', function () {
         false
       );
 
-      let resolveWrite;
-      const writePromise = new Promise((resolve) => {
+      let resolveWrite: () => void;
+      const writePromise = new Promise<void>((resolve) => {
         resolveWrite = resolve;
       });
 
@@ -187,8 +192,8 @@ describe('collection-stream', function () {
           stopOnErrors
         );
 
-        let resolveWrite;
-        const writePromise = new Promise((resolve) => {
+        let resolveWrite: () => void;
+        const writePromise = new Promise<void>((resolve) => {
           resolveWrite = resolve;
         });
 
@@ -196,8 +201,8 @@ describe('collection-stream', function () {
         let totalDocs = 0;
         const errors: Error[] = [];
 
-        let rejectError;
-        const errorPromise = new Promise((resolve, reject) => {
+        let rejectError: (err: Error) => void;
+        const errorPromise = new Promise<void>((resolve, reject) => {
           rejectError = reject;
         });
 
