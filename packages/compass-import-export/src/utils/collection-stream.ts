@@ -18,6 +18,10 @@ const debug = createDebug('collection-stream');
 
 type CollectionStreamProgressError = Error | WriteError | WriteConcernError;
 
+type CollectionStreamError = Error & {
+  cause?: CollectionStreamProgressError;
+};
+
 type WriteCollectionStreamProgressError = Error & {
   index: number;
   code: MongoServerError['code'];
@@ -224,7 +228,22 @@ export class WritableCollectionStream extends Writable {
 
     this.emit('progress', progressStats);
 
-    return callback();
+    return callback(this._makeStreamError());
+  }
+
+  _makeStreamError(): CollectionStreamError | undefined {
+    if (this.stopOnErrors && this._errors.length) {
+      const error = this._errors[0];
+      if (Object.prototype.toString.call(error) === '[object Error]') {
+        return error as Error;
+      }
+      return {
+        name: 'CollectionStreamError',
+        message: 'Something went wrong while writing data to a collection',
+        cause: error,
+      };
+    }
+    return undefined;
   }
 
   _mergeBulkOpResult(result: BulkOpResult & Partial<BulkWriteResult> = {}) {
