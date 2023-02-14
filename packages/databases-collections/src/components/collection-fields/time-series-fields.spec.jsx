@@ -16,6 +16,8 @@ describe('TimeSeriesFields [Component]', function () {
           isTimeSeries
           isCapped={false}
           isClustered={false}
+          isFLE2={false}
+          supportsFlexibleBucketConfiguration={false}
           onChangeIsTimeSeries={() => {}}
           onChangeField={() => {}}
           timeSeries={{}}
@@ -43,6 +45,7 @@ describe('TimeSeriesFields [Component]', function () {
           isCapped={false}
           isClustered={false}
           isFLE2={false}
+          supportsFlexibleBucketConfiguration={false}
           onChangeIsTimeSeries={() => {}}
           onChangeField={() => {}}
           timeSeries={{}}
@@ -75,6 +78,8 @@ describe('TimeSeriesFields [Component]', function () {
           isTimeSeries={false}
           isCapped={false}
           isClustered={false}
+          isFLE2={false}
+          supportsFlexibleBucketConfiguration={false}
           onChangeIsTimeSeries={onChangeSpy}
           onChangeField={() => {}}
           timeSeries={{}}
@@ -108,6 +113,8 @@ describe('TimeSeriesFields [Component]', function () {
           isTimeSeries={false}
           isCapped
           isClustered={false}
+          isFLE2={false}
+          supportsFlexibleBucketConfiguration={false}
           onChangeIsTimeSeries={() => {}}
           onChangeField={() => {}}
           timeSeries={{}}
@@ -125,6 +132,30 @@ describe('TimeSeriesFields [Component]', function () {
     });
   });
 
+  describe('when supportsFlexibleBucketConfiguration is true', function () {
+    it('renders flexible bucketing options', function () {
+      const component = mount(
+        <TimeSeriesFields
+          isTimeSeries={true}
+          isCapped={false}
+          isClustered={false}
+          isFLE2={false}
+          supportsFlexibleBucketConfiguration={true}
+          onChangeIsTimeSeries={() => {}}
+          onChangeField={() => {}}
+          timeSeries={{}}
+          expireAfterSeconds=""
+        />
+      );
+      expect(
+        component.find('input[name="timeSeries.bucketMaxSpanSeconds"]')
+      ).to.have.lengthOf(1);
+      expect(
+        component.find('input[name="timeSeries.bucketRoundingSeconds"]')
+      ).to.have.lengthOf(1);
+    });
+  });
+
   context('when rendered', function () {
     let component;
     let onChangeSpy;
@@ -139,6 +170,8 @@ describe('TimeSeriesFields [Component]', function () {
           isTimeSeries
           isCapped={false}
           isClustered={false}
+          isFLE2={false}
+          supportsFlexibleBucketConfiguration={false}
           onChangeIsTimeSeries={onChangeSpy}
           onChangeField={onChangeFieldSpy}
           timeSeries={{}}

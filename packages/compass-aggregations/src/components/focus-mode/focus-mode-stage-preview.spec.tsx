@@ -11,7 +11,7 @@ import {
 import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
-} from '../../utils/stage';
+} from '../../constants';
 
 import configureStore from '../../stores/store';
 

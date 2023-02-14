@@ -29,7 +29,7 @@ async function refresh(browser: CompassBrowser) {
   await browser.clickVisible(Selectors.SidebarActionRefresh);
 }
 
-describe('FLE2', function () {
+describe('CSFLE / QE', function () {
   describe('server version gte 4.2.20 and not a linux platform', function () {
     const databaseName = 'fle-test';
     const collectionName = 'my-another-collection';
@@ -230,13 +230,16 @@ describe('FLE2', function () {
       const databaseName = 'fle-test';
       const collectionName = 'my-another-collection';
       const collectionNameUnindexed = 'my-another-collection2';
+      const collectionNameRange = 'my-range-collection';
       let compass: Compass;
       let browser: CompassBrowser;
       let plainMongo: MongoClient;
+      let hasRangeSupport = false;
 
       before(async function () {
         compass = await beforeTests();
         browser = compass.browser;
+        hasRangeSupport = serverSatisfies('>= 6.2.0', true);
       });
 
       beforeEach(async function () {
@@ -263,6 +266,28 @@ describe('FLE2', function () {
                   bsonType: 'string'
                 }
               ]
+            }
+            ${
+              hasRangeSupport
+                ? `
+            , '${databaseName}.${collectionNameRange}': {
+              fields: [
+                {
+                  path: 'date',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'date',
+                  queries: [{
+                    queryType: 'rangePreview',
+                    contention: 4,
+                    sparsity: 1,
+                    min: new Date('1970'),
+                    max: new Date('2100')
+                  }]
+                }
+              ]
+            }
+            `
+                : ``
             }
           }`,
         });
@@ -418,13 +443,31 @@ describe('FLE2', function () {
       for (const [mode, coll] of [
         ['indexed', collectionName],
         ['unindexed', collectionNameUnindexed],
-      ]) {
+        ['range', collectionNameRange],
+      ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
+          if (mode === 'range' && !hasRangeSupport) {
+            return this.skip();
+          }
+
+          const [field, oldValue, newValue] =
+            mode !== 'range'
+              ? ['phoneNumber', '"30303030"', '"10101010"']
+              : [
+                  'date',
+                  'new Date("1999-01-01T00:00:00.000Z")',
+                  'new Date("2023-02-10T11:08:34.456Z")',
+                ];
+          const oldValueJS = eval(oldValue);
+          const newValueJS = eval(newValue);
+          const toString = (v: any) =>
+            v?.toISOString?.()?.replace(/Z$/, '+00:00') ?? JSON.stringify(v);
+
           await browser.shellEval(`db.createCollection('${coll}')`);
           await browser.shellEval(
             `db[${JSON.stringify(
               coll
-            )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+            )}].insertOne({ "${field}": ${oldValue}, "name": "Person X" })`
           );
           await refresh(browser);
 
@@ -435,18 +478,20 @@ describe('FLE2', function () {
           );
 
           const result = await getFirstListDocument(browser);
-          expect(result.phoneNumber).to.be.equal('"30303030"');
+          expect(result[field]).to.be.equal(toString(oldValueJS));
 
           const document = await browser.$(Selectors.DocumentListEntry);
           const value = await document.$(
-            `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
+            `${Selectors.HadronDocumentElement}[data-field="${field}"] ${Selectors.HadronDocumentClickableValue}`
           );
           await value.doubleClick();
 
           const input = await document.$(
-            `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
+            `${Selectors.HadronDocumentElement}[data-field="${field}"] ${Selectors.HadronDocumentValueEditor}`
           );
-          await input.setValue('10101010');
+          await input.setValue(
+            typeof newValueJS === 'string' ? newValueJS : toString(newValueJS)
+          );
 
           const footer = await document.$(Selectors.DocumentFooterMessage);
           expect(await footer.getText()).to.equal('Document modified.');
@@ -475,11 +520,11 @@ describe('FLE2', function () {
             // supported, so we use document _id instead
             mode === 'unindexed'
               ? `{ _id: ${result._id} }`
-              : "{ phoneNumber: '10101010' }"
+              : `{ ${field}: ${newValue} }`
           );
 
           const modifiedResult = await getFirstListDocument(browser);
-          expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
+          expect(modifiedResult[field]).to.be.equal(toString(newValueJS));
           expect(modifiedResult._id).to.be.equal(result._id);
         });
       }

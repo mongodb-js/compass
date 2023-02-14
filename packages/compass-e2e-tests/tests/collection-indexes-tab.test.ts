@@ -73,10 +73,7 @@ describe('Collection indexes tab', function () {
     );
     await fieldTypeSelectMenu.waitForDisplayed();
 
-    const fieldTypeSelectSpan = await fieldTypeSelectMenu.$('span=text');
-
-    await fieldTypeSelectSpan.waitForDisplayed();
-    await fieldTypeSelectSpan.click();
+    await browser.clickVisible('li[value="text"]');
 
     await browser.screenshot('create-index-modal-basic.png');
 
@@ -142,10 +139,7 @@ describe('Collection indexes tab', function () {
       );
       await fieldTypeSelectMenu.waitForDisplayed();
 
-      const fieldTypeSelectSpan = await fieldTypeSelectMenu.$('span=1 (asc)');
-
-      await fieldTypeSelectSpan.waitForDisplayed();
-      await fieldTypeSelectSpan.click();
+      await browser.clickVisible('li[value="1 (asc)"]');
 
       await browser.clickVisible(Selectors.IndexToggleOptions);
       await browser.clickVisible(
@@ -207,12 +201,7 @@ describe('Collection indexes tab', function () {
       );
       await fieldTypeSelectMenu.waitForDisplayed();
 
-      const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(
-        'span=columnstore'
-      );
-
-      await fieldTypeSelectSpan.waitForDisplayed();
-      await fieldTypeSelectSpan.click();
+      await browser.clickVisible(`li[value="columnstore"]`);
 
       await browser.clickVisible(Selectors.IndexToggleOptions);
       await browser.clickVisible(Selectors.indexToggleOption('name'));

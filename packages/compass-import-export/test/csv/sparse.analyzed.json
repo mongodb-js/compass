@@ -9,7 +9,7 @@
           "firstColumnIndex": 0,
           "firstValue": "1"
         },
-        "null": {
+        "undefined": {
           "count": 5,
           "firstRowIndex": 3,
           "firstColumnIndex": 0,
@@ -21,7 +21,7 @@
     },
     "bar": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 4,
           "firstRowIndex": 0,
           "firstColumnIndex": 1,
@@ -39,7 +39,7 @@
     },
     "baz": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 5,
           "firstRowIndex": 0,
           "firstColumnIndex": 2,
