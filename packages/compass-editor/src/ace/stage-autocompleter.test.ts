@@ -228,7 +228,7 @@ describe('StageAutoCompleter', function () {
 
           context('when the prefix begins with $', function () {
             context('when the latest version of server', function () {
-              const latestServer = '5.2.0';
+              const latestServer = '7.0.0';
 
               context('when the token is on the same line', function () {
                 const { getCompletions } = setupStageCompleter('{ $', {
