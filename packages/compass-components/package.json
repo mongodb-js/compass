@@ -42,6 +42,7 @@
     "@leafygreen-ui/code": "^14.1.0",
     "@leafygreen-ui/confirmation-modal": "^4.0.1",
     "@leafygreen-ui/emotion": "^4.0.3",
+    "@leafygreen-ui/guide-cue": "^4.0.0",
     "@leafygreen-ui/hooks": "^7.3.3",
     "@leafygreen-ui/icon": "^11.12.3",
     "@leafygreen-ui/icon-button": "^15.0.3",

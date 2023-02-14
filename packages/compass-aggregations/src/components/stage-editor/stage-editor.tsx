@@ -19,7 +19,7 @@ import {
   spacing,
   palette,
   Banner,
-  withDarkMode,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
@@ -66,7 +66,6 @@ const bannerStyles = css({
 });
 
 type StageEditorProps = {
-  darkMode?: boolean;
   index: number;
   stageOperator: string | null;
   stageValue: string | null;
@@ -76,8 +75,9 @@ type StageEditorProps = {
   serverError: MongoServerError | null;
   num_stages: number;
   editor_view_type: string;
-  className: string;
+  className?: string;
   onChange: (index: number, value: string) => void;
+  onLoad?: (editor: AceEditor) => void;
 };
 
 function useStageCompleter(
@@ -99,20 +99,21 @@ function useStageCompleter(
   return completer.current;
 }
 
-const UnthemedStageEditor = ({
+export const StageEditor = ({
   stageValue,
   stageOperator,
   index,
   onChange,
   serverError,
   syntaxError,
-  darkMode,
   className,
   autocompleteFields,
   serverVersion,
   num_stages,
   editor_view_type,
+  onLoad,
 }: StageEditorProps) => {
+  const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
   const editorRef = useRef<AceEditor | undefined>(undefined);
   const completer = useStageCompleter(
@@ -121,10 +122,6 @@ const UnthemedStageEditor = ({
     autocompleteFields,
     stageOperator
   );
-
-  useEffect(() => {
-    editorRef.current?.focus();
-  }, [stageOperator]);
 
   useEffect(() => {
     let annotations: AceAnnotation[] = [];
@@ -182,6 +179,7 @@ const UnthemedStageEditor = ({
           completer={completer}
           onLoad={(editor) => {
             editorRef.current = editor;
+            onLoad?.(editor);
           }}
           onBlur={onBlurEditor}
         />
@@ -213,9 +211,6 @@ const UnthemedStageEditor = ({
     </div>
   );
 };
-
-// exported for tests
-export const StageEditor = withDarkMode(UnthemedStageEditor);
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {

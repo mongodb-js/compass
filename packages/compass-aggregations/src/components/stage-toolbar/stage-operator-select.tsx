@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React, { useCallback, useMemo } from 'react';
 import { usePreference } from 'compass-preferences-model';
 import { connect } from 'react-redux';
+import { type AceEditor } from '@mongodb-js/compass-editor';
 
 import {
   Combobox,
@@ -103,12 +104,14 @@ type EnvAwareStageOperatorSelectProps = {
   };
   onChange: (index: number, name: string) => void;
   index: number;
+  editorRef: React.RefObject<AceEditor | undefined>;
 };
 function EnvAwareStageOperatorSelect({
   envInfo: { serverVersion, env, isTimeSeries, isReadonly, sourceName },
   stage,
   onChange,
   index,
+  editorRef,
 }: EnvAwareStageOperatorSelectProps) {
   const preferencesReadOnly = usePreference('readOnly', React);
   const stages = useMemo(() => {
@@ -131,6 +134,7 @@ function EnvAwareStageOperatorSelect({
   const onChangeFilter = (index: number, name: string | null) => {
     if (name) {
       onChange(index, name);
+      editorRef.current?.focus();
     }
   };
 
