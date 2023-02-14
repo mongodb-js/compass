@@ -12,7 +12,7 @@ export const OpenPipelineConfirmationModal: React.FunctionComponent<{
     isOpen,
     (track) => {
       if (isOpen) {
-        track('Srceen', { name: 'restore_pipeline_modal' });
+        track('Screen', { name: 'restore_pipeline_modal' });
       }
     },
     undefined,
