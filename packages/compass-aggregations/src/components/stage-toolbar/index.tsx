@@ -91,7 +91,7 @@ type StageToolbarProps = {
   hasServerError?: boolean;
   isCollapsed?: boolean;
   isDisabled?: boolean;
-  markGuideCueVisited: () => void;
+  onFocusModeClicked: () => void;
   onOpenFocusMode: () => void;
   editorRef: React.RefObject<AceEditor | undefined>;
 };
@@ -153,7 +153,7 @@ export function StageToolbar({
 
 type StageToolbarOwnProps = Pick<
   StageToolbarProps,
-  'index' | 'markGuideCueVisited'
+  'index' | 'onFocusModeClicked'
 >;
 
 export default connect(
@@ -170,7 +170,7 @@ export default connect(
   (dispatch: PipelineBuilderThunkDispatch, ownProps: StageToolbarOwnProps) => ({
     onOpenFocusMode: () => {
       dispatch(enableFocusMode(ownProps.index));
-      ownProps.markGuideCueVisited();
+      ownProps.onFocusModeClicked();
     },
   })
 )(StageToolbar);

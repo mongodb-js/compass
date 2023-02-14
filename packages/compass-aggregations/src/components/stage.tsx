@@ -231,7 +231,7 @@ function Stage({
       >
         <div {...listeners} ref={setIntersectingRef}>
           <StageToolbar
-            markGuideCueVisited={setGuideCueVisited}
+            onFocusModeClicked={setGuideCueVisited}
             editorRef={editorRef}
             index={index}
           />

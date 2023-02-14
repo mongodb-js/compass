@@ -21,7 +21,7 @@ const renderStageToolbar = (
       })}
     >
       <StageToolbar
-        markGuideCueVisited={() => {}}
+        onFocusModeClicked={() => {}}
         hasServerError={false}
         hasSyntaxError={false}
         index={0}
