@@ -11,12 +11,11 @@ const devFeatureFlagFields = [
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
   'lgDarkmode',
-  'showFocusMode',
   'useNewImportBackend',
   'useNewExportBackend',
 ] as const;
 
-export const publicFeatureFlagFields = [] as const;
+export const publicFeatureFlagFields = ['showFocusMode'] as const;
 
 const featureFlagFields = [
   ...publicFeatureFlagFields,
