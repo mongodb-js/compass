@@ -1,6 +1,6 @@
 import { EJSON, ObjectId } from 'bson';
 import { combineReducers } from 'redux';
-import type { AnyAction, Dispatch } from 'redux';
+import type { Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import queryParser from 'mongodb-query-parser';
 import type { CreateIndexesOptions, IndexSpecification } from 'mongodb';
@@ -9,72 +9,21 @@ import dataService from '../data-service';
 import appRegistry, {
   localAppRegistryEmit,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-import error, {
-  clearError,
-  handleError,
-  INITIAL_STATE as ERROR_INITIAL_STATE,
-} from '../error';
-import inProgress, {
-  toggleInProgress,
-  INITIAL_STATE as IN_PROGRESS_INITIAL_STATE,
-} from '../in-progress';
-import useCustomCollation, {
-  INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE,
-} from '../create-index/use-custom-collation';
-import useIndexName, {
-  INITIAL_STATE as HAS_INDEX_NAME_INITIAL_STATE,
-} from '../create-index/use-index-name';
-import isVisible, {
-  toggleIsVisible,
-  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
-} from '../is-visible';
-import collationString, {
-  INITIAL_STATE as COLLATION_INITIAL_STATE,
-} from '../create-index/collation-string';
-import fields, {
-  INITIAL_STATE as FIELDS_INITIAL_STATE,
-} from '../create-index/fields';
+import error, { clearError, handleError } from '../error';
+import inProgress, { toggleInProgress } from '../in-progress';
+import isVisible, { toggleIsVisible } from '../is-visible';
+import fields from '../create-index/fields';
 import type { IndexField } from '../create-index/fields';
-import isUnique, {
-  INITIAL_STATE as IS_UNIQUE_INITIAL_STATE,
-} from '../create-index/is-unique';
-import useTtl, {
-  INITIAL_STATE as IS_TTL_INITIAL_STATE,
-} from '../create-index/use-ttl';
-import useWildcardProjection, {
-  INITIAL_STATE as HAS_WILDCARD_PROJECTION_INITIAL_STATE,
-} from './use-wildcard-projection';
-import useColumnstoreProjection, {
-  INITIAL_STATE as HAS_COLUMNSTORE_PROJECTION_INITIAL_STATE,
-} from '../create-index/use-columnstore-projection';
-import usePartialFilterExpression, {
-  INITIAL_STATE as IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
-} from '../create-index/use-partial-filter-expression';
-import ttl, { INITIAL_STATE as TTL_INITIAL_STATE } from '../create-index/ttl';
-import wildcardProjection, {
-  INITIAL_STATE as WILDCARD_PROJECTION_INITIAL_STATE,
-} from '../create-index/wildcard-projection';
-import columnstoreProjection, {
-  INITIAL_STATE as COLUMNSTORE_PROJECTION_INITIAL_STATE,
-} from '../create-index/columnstore-projection';
-import partialFilterExpression, {
-  INITIAL_STATE as PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
-} from '../create-index/partial-filter-expression';
-import name, {
-  INITIAL_STATE as NAME_INITIAL_STATE,
-} from '../create-index/name';
 import namespace from '../namespace';
 import serverVersion from '../server-version';
-import isSparse, {
-  INITIAL_STATE as IS_SPARSE_INITIAL_STATE,
-} from './is-sparse';
 import type { InProgressIndex } from '../in-progress-indexes';
 
 import schemaFields from '../create-index/schema-fields';
-import newIndexField, {
-  INITIAL_STATE as NEW_INDEX_FIELD_INITIAL_STATE,
-} from '../create-index/new-index-field';
-import { RESET_FORM, resetForm } from '../reset-form';
+import newIndexField from '../create-index/new-index-field';
+import { resetForm } from '../reset-form';
+
+import options from './options';
+import { hasColumnstoreIndex } from '../../utils/columnstore-indexes';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
@@ -82,30 +31,26 @@ const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
  * The main reducer.
  */
 const reducer = combineReducers({
+  // global stuff
   dataService,
   appRegistry,
-  collationString,
-  fields,
-  inProgress,
-  useCustomCollation,
-  useIndexName,
-  schemaFields,
-  newIndexField,
-  isVisible,
-  error,
-  isUnique,
-  useTtl,
-  useWildcardProjection,
-  useColumnstoreProjection,
-  usePartialFilterExpression,
-  ttl,
-  wildcardProjection,
-  columnstoreProjection,
-  partialFilterExpression,
-  name,
   namespace,
   serverVersion,
-  isSparse,
+
+  // modal state
+  inProgress,
+  isVisible,
+
+  // fields realted
+  fields,
+  newIndexField,
+  schemaFields,
+
+  // validation
+  error,
+
+  // index options
+  options,
 });
 
 export type RootState = ReturnType<typeof reducer>;
@@ -114,43 +59,7 @@ export type CreateIndexSpec = {
   [key: string]: string | number;
 };
 
-/**
- * The root reducer.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const rootReducer = (state: RootState, action: AnyAction): RootState => {
-  if (action.type === RESET_FORM) {
-    return {
-      ...state,
-      newIndexField: NEW_INDEX_FIELD_INITIAL_STATE,
-      collationString: COLLATION_INITIAL_STATE,
-      fields: FIELDS_INITIAL_STATE,
-      inProgress: IN_PROGRESS_INITIAL_STATE,
-      useCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
-      useIndexName: HAS_INDEX_NAME_INITIAL_STATE,
-      isVisible: IS_VISIBLE_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE,
-      isUnique: IS_UNIQUE_INITIAL_STATE,
-      useTtl: IS_TTL_INITIAL_STATE,
-      useWildcardProjection: HAS_WILDCARD_PROJECTION_INITIAL_STATE,
-      useColumnstoreProjection: HAS_COLUMNSTORE_PROJECTION_INITIAL_STATE,
-      usePartialFilterExpression: IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
-      ttl: TTL_INITIAL_STATE,
-      columnstoreProjection: COLUMNSTORE_PROJECTION_INITIAL_STATE,
-      wildcardProjection: WILDCARD_PROJECTION_INITIAL_STATE,
-      partialFilterExpression: PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
-      name: NAME_INITIAL_STATE,
-      isSparse: IS_SPARSE_INITIAL_STATE,
-    };
-  }
-  return reducer(state, action);
-};
-
-export default rootReducer;
+export default reducer;
 
 export const closeCreateIndexModal = () => {
   return (dispatch: Dispatch) => {
@@ -214,13 +123,7 @@ export const createIndex = () => {
       return;
     }
 
-    // Check for collaction errors.
-    const collation =
-      queryParser.isCollationValid(state.collationString) || undefined;
-    if (state.useCustomCollation && !collation) {
-      dispatch(handleError('You must provide a valid collation object'));
-      return;
-    }
+    const stateOptions = state.options;
 
     state.fields.forEach((field: IndexField) => {
       let type: string | number = field.type;
@@ -230,26 +133,52 @@ export const createIndex = () => {
     });
 
     const options: CreateIndexesOptions = {};
-    options.unique = state.isUnique;
-    options.sparse = state.isSparse;
-    // The server will generate a name when we don't provide one.
-    if (state.name !== '') {
-      options.name = state.name;
+
+    // Check for collaction errors.
+    const collation =
+      queryParser.isCollationValid(stateOptions.collation.value ?? '') ||
+      undefined;
+
+    if (stateOptions.collation.enabled && !collation) {
+      dispatch(handleError('You must provide a valid collation object'));
+      return;
     }
-    if (state.useCustomCollation) {
+
+    if (stateOptions.collation.enabled) {
       options.collation = collation;
     }
-    if (state.useTtl) {
-      options.expireAfterSeconds = Number(state.ttl);
+
+    if (stateOptions.unique.enabled) {
+      options.unique = stateOptions.unique.value;
+    }
+
+    if (stateOptions.sparse.enabled) {
+      options.sparse = stateOptions.sparse.value;
+    }
+
+    // The server will generate a name when we don't provide one.
+    if (stateOptions.name.enabled && stateOptions.name.value) {
+      options.name = stateOptions.name.value;
+    }
+
+    if (stateOptions.expireAfterSeconds.enabled) {
+      options.expireAfterSeconds = Number(
+        stateOptions.expireAfterSeconds.value
+      );
       if (isNaN(options.expireAfterSeconds)) {
-        dispatch(handleError(`Bad TTL: "${String(state.ttl)}"`));
+        dispatch(
+          handleError(
+            `Bad TTL: "${String(stateOptions.expireAfterSeconds.value)}"`
+          )
+        );
         return;
       }
     }
-    if (state.useWildcardProjection) {
+
+    if (stateOptions.wildcardProjection.enabled) {
       try {
         options.wildcardProjection = EJSON.parse(
-          state.wildcardProjection
+          stateOptions.wildcardProjection.value ?? ''
         ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad WildcardProjection: ${String(err)}`));
@@ -257,33 +186,40 @@ export const createIndex = () => {
       }
     }
 
-    const hasColumnstoreIndex = state.fields.some(
-      (field: IndexField) => field.type === 'columnstore'
-    );
-    if (hasColumnstoreIndex) {
-      // Index type 'columnstore' does not support the 'unique' option.
-      delete options.unique;
-    }
-
-    if (state.useColumnstoreProjection) {
+    if (stateOptions.columnstoreProjection.enabled) {
       try {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
         options.columnstoreProjection = EJSON.parse(
-          state.columnstoreProjection
+          stateOptions.columnstoreProjection.value ?? ''
         ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad ColumnstoreProjection: ${String(err)}`));
         return;
       }
     }
-    if (state.usePartialFilterExpression) {
+
+    if (stateOptions.partialFilterExpression.enabled) {
       try {
         options.partialFilterExpression = EJSON.parse(
-          state.partialFilterExpression
+          state.options.partialFilterExpression.value ?? ''
         ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad PartialFilterExpression: ${String(err)}`));
         return;
+      }
+    }
+
+    // Based on current form field value clean up default values from options.
+    // This makes a index creation request cleaner and allows to avoid issues in
+    // cases where options like `sparse` or `unique` set by the user to `false`
+    // explicitly can lead to the server errors for some index types that don't
+    // support them (even though technically user is not enabling them)
+    for (const optionName of Object.keys(
+      stateOptions
+    ) as (keyof typeof stateOptions)[]) {
+      if ([false, ''].includes(stateOptions[optionName].value)) {
+        // @ts-expect-error because columnstoreProjection is not supported yet
+        delete options[optionName];
       }
     }
 
@@ -296,6 +232,18 @@ export const createIndex = () => {
     dispatch(
       localAppRegistryEmit('in-progress-indexes-added', inProgressIndex)
     );
+
+    const trackEvent = {
+      unique: options.unique,
+      ttl: stateOptions.expireAfterSeconds.enabled,
+      columnstore_index: hasColumnstoreIndex(state.fields),
+      has_columnstore_projection: stateOptions.columnstoreProjection.enabled,
+      has_wildcard_projection: stateOptions.wildcardProjection.enabled,
+      custom_collation: stateOptions.collation.enabled,
+      geo:
+        state.fields.filter(({ type }: { type: string }) => type === '2dsphere')
+          .length > 0,
+    };
 
     state.dataService?.createIndex(
       ns,
@@ -314,18 +262,6 @@ export const createIndex = () => {
           return;
         }
 
-        const trackEvent = {
-          unique: state.isUnique,
-          ttl: state.useTtl,
-          columnstore_index: hasColumnstoreIndex,
-          has_columnstore_projection: state.useColumnstoreProjection,
-          has_wildcard_projection: state.useWildcardProjection,
-          custom_collation: state.useCustomCollation,
-          geo:
-            state.fields.filter(
-              ({ type }: { type: string }) => type === '2dsphere'
-            ).length > 0,
-        };
         track('Index Created', trackEvent);
         dispatch(resetForm());
         dispatch(toggleInProgress(false));

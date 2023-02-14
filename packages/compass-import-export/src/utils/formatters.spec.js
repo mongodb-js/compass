@@ -1,6 +1,6 @@
 import { createJSONFormatter, createCSVFormatter } from './formatters';
 import stream from 'stream';
-import { EJSON, ObjectID, Binary, Long } from 'bson';
+import { EJSON, ObjectId, Binary, Long } from 'bson';
 import { createCSVParser } from './import-parser';
 import fs from 'fs';
 import { promisify } from 'util';
@@ -23,7 +23,7 @@ describe('formatters', function () {
   describe('json', function () {
     it('should format a single document in an array', function () {
       const source = stream.Readable.from([
-        { _id: new ObjectID('5e5ea7558d35931a05eafec0') },
+        { _id: new ObjectId('5e5ea7558d35931a05eafec0') },
       ]);
       const formatter = createJSONFormatter({ brackets: true });
       const dest = fs.createWriteStream(fixtures.JSON_SINGLE_DOC);
@@ -33,16 +33,16 @@ describe('formatters', function () {
         .then((contents) => {
           const parsed = EJSON.parse(contents);
           expect(parsed).to.deep.equal([
-            { _id: new ObjectID('5e5ea7558d35931a05eafec0') },
+            { _id: new ObjectId('5e5ea7558d35931a05eafec0') },
           ]);
         })
         .then(() => rm(fixtures.JSON_SINGLE_DOC));
     });
     it('should format more than 2 documents in an array', function () {
       const docs = [
-        { _id: new ObjectID('5e5ea7558d35931a05eafec0') },
-        { _id: new ObjectID('5e6bafc438e060f695591713') },
-        { _id: new ObjectID('5e6facaa9777ff687c946d6c') },
+        { _id: new ObjectId('5e5ea7558d35931a05eafec0') },
+        { _id: new ObjectId('5e6bafc438e060f695591713') },
+        { _id: new ObjectId('5e6facaa9777ff687c946d6c') },
       ];
       const source = stream.Readable.from(docs);
       const formatter = createJSONFormatter({ brackets: true });
@@ -73,7 +73,7 @@ describe('formatters', function () {
 
         const docs = [
           {
-            _id: new ObjectID('5e5ea7558d35931a05eafec0'),
+            _id: new ObjectId('5e5ea7558d35931a05eafec0'),
             test: binary,
           },
         ];
@@ -104,7 +104,7 @@ describe('formatters', function () {
 
       const docs = [
         {
-          _id: new ObjectID('5e5ea7558d35931a05eafec0'),
+          _id: new ObjectId('5e5ea7558d35931a05eafec0'),
           test: long,
         },
       ];
@@ -123,9 +123,9 @@ describe('formatters', function () {
   describe('jsonl', function () {
     it('should support newline delimited ejson', function () {
       const docs = [
-        { _id: new ObjectID('5e5ea7558d35931a05eafec0') },
-        { _id: new ObjectID('5e6bafc438e060f695591713') },
-        { _id: new ObjectID('5e6facaa9777ff687c946d6c') },
+        { _id: new ObjectId('5e5ea7558d35931a05eafec0') },
+        { _id: new ObjectId('5e6bafc438e060f695591713') },
+        { _id: new ObjectId('5e6facaa9777ff687c946d6c') },
       ];
       const source = stream.Readable.from(docs);
       const formatter = createJSONFormatter({ brackets: false });
@@ -176,7 +176,7 @@ describe('formatters', function () {
      * TODO: figure out how make `flat` in dotnotation bson aware to fix this test.
      */
     it('should not flatten bson props as nested headers', function () {
-      const docs = [{ _id: new ObjectID('5e5ea7558d35931a05eafec0') }];
+      const docs = [{ _id: new ObjectId('5e5ea7558d35931a05eafec0') }];
       const source = stream.Readable.from(docs);
       const formatter = createCSVFormatter({ columns: ['_id'] });
       const dest = fs.createWriteStream(fixtures.CSV_FLAT_HEADERS);

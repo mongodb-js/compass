@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.5.0",
+  "version": "7.5.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -62,16 +62,16 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
-    "bson": "^4.4.1",
-    "compass-preferences-model": "^2.5.0",
+    "bson": "^5.0.0",
+    "compass-preferences-model": "^2.5.1",
     "hadron-document": "^8.1.0",
     "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
-    "bson": "^4.4.1",
-    "compass-preferences-model": "^2.5.0",
+    "bson": "^5.0.0",
+    "compass-preferences-model": "^2.5.1",
     "hadron-document": "^8.1.0"
   },
   "devDependencies": {
@@ -93,6 +93,7 @@
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
     "@types/stream-json": "^1.7.3",
+    "@types/temp": "^0.9.1",
     "ansi-to-html": "^0.6.11",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
@@ -111,10 +112,10 @@
     "marky": "^1.2.1",
     "mime-types": "^2.1.35",
     "mocha": "^8.4.0",
-    "mongodb": "^4.13.0",
-    "mongodb-data-service": "^22.4.0",
+    "mongodb": "^5.0.0",
+    "mongodb-data-service": "^22.4.1",
     "mongodb-ns": "^2.4.0",
-    "mongodb-query-parser": "^2.4.6",
+    "mongodb-query-parser": "^2.4.8",
     "nyc": "^15.1.0",
     "object-sizeof": "^1.5.1",
     "papaparse": "^5.3.2",
@@ -131,8 +132,10 @@
     "redux-thunk": "^2.3.0",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
+    "sinon-chai": "^3.7.0",
     "stream-json": "^1.7.5",
     "strip-bom-stream": "^4.0.0",
+    "temp": "^0.9.4",
     "xvfb-maybe": "^0.2.1"
   }
 }

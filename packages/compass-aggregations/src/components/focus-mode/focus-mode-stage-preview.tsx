@@ -184,7 +184,7 @@ export const FocusModeStageInput = connect(
     },
   }: RootState) => {
     if (stageIndex === -1) {
-      return null;
+      return {};
     }
 
     const previousStageIndex =
@@ -216,7 +216,7 @@ export const FocusModeStageInput = connect(
       (isAtlasOnlyStage(previousStage.stageOperator || '') &&
         isMissingAtlasOnlyStageSupport)
     ) {
-      return null;
+      return {};
     }
 
     return {
@@ -238,7 +238,7 @@ export const FocusModeStageOutput = connect(
     },
   }: RootState) => {
     if (stageIndex === -1) {
-      return null;
+      return {};
     }
     const stage = stages[stageIndex];
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(

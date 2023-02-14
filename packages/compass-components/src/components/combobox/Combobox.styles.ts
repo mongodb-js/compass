@@ -287,7 +287,7 @@ export const inputElementTransitionStyles = (isOpen: boolean) => css`
 /** Should only be applied to a multiselect */
 export const multiselectInputElementStyle = (
   size: Size,
-  inputValue?: string,
+  inputValue?: string
 ) => {
   const inputLength = inputValue?.length ?? 0;
   return css`

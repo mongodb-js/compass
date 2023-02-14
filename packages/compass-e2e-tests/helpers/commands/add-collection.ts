@@ -18,9 +18,11 @@ export type AddCollectionOptions = {
   };
   timeseries?: {
     timeField: string;
-    metaField: string;
-    granularity: string;
-    expireAfterSeconds: number;
+    metaField?: string;
+    granularity?: string;
+    bucketMaxSpanSeconds?: number;
+    bucketRoundingSeconds?: number;
+    expireAfterSeconds?: number;
   };
   clustered?: {
     name: string;
@@ -98,32 +100,58 @@ export async function addCollection(
     await timeField.waitForDisplayed();
     await timeField.setValue(collectionOptions.timeseries.timeField);
 
-    const metaField = await browser.$(
-      Selectors.CreateCollectionTimeseriesMetaField
-    );
-    await metaField.waitForDisplayed();
-    await metaField.setValue(collectionOptions.timeseries.metaField);
+    if (collectionOptions.timeseries.metaField) {
+      const metaField = await browser.$(
+        Selectors.CreateCollectionTimeseriesMetaField
+      );
+      await metaField.waitForDisplayed();
+      await metaField.setValue(collectionOptions.timeseries.metaField);
+    }
 
-    await browser.clickVisible(
-      Selectors.CreateCollectionTimeseriesGranularityButton
-    );
-    const menu = await browser.$(
-      Selectors.CreateCollectionTimeseriesGranularityMenu
-    );
-    await menu.waitForDisplayed();
-    const span = await menu.$(
-      `span=${collectionOptions.timeseries.granularity}`
-    );
-    await span.waitForDisplayed();
-    await span.click();
+    if (collectionOptions.timeseries.granularity) {
+      await browser.clickVisible(
+        Selectors.CreateCollectionTimeseriesGranularityButton
+      );
+      const menu = await browser.$(
+        Selectors.CreateCollectionTimeseriesGranularityMenu
+      );
+      await menu.waitForDisplayed();
+      const span = await menu.$(
+        `span=${collectionOptions.timeseries.granularity}`
+      );
+      await span.waitForDisplayed();
+      await span.click();
+    }
 
-    const expireField = await browser.$(
-      Selectors.CreateCollectionTimeseriesExpireAfterSeconds
-    );
-    await expireField.waitForDisplayed();
-    await expireField.setValue(
-      collectionOptions.timeseries.expireAfterSeconds.toString()
-    );
+    if (collectionOptions.timeseries.bucketMaxSpanSeconds) {
+      const bucketMaxSpanSecondsField = await browser.$(
+        Selectors.CreateCollectionTimeseriesBucketMaxSpanSeconds
+      );
+      await bucketMaxSpanSecondsField.waitForDisplayed();
+      await bucketMaxSpanSecondsField.setValue(
+        collectionOptions.timeseries.bucketMaxSpanSeconds.toString()
+      );
+    }
+
+    if (collectionOptions.timeseries.bucketRoundingSeconds) {
+      const bucketMaxRoundingSecondsField = await browser.$(
+        Selectors.CreateCollectionTimeseriesBucketRoundingSeconds
+      );
+      await bucketMaxRoundingSecondsField.waitForDisplayed();
+      await bucketMaxRoundingSecondsField.setValue(
+        collectionOptions.timeseries.bucketRoundingSeconds.toString()
+      );
+    }
+
+    if (collectionOptions.timeseries.expireAfterSeconds) {
+      const expireField = await browser.$(
+        Selectors.CreateCollectionTimeseriesExpireAfterSeconds
+      );
+      await expireField.waitForDisplayed();
+      await expireField.setValue(
+        collectionOptions.timeseries.expireAfterSeconds.toString()
+      );
+    }
   }
 
   if (collectionOptions && collectionOptions.clustered) {

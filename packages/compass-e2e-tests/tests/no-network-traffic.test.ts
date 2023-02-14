@@ -62,9 +62,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     }
 
     try {
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
     } finally {
       await afterTests(compass, this.currentTest);
     }

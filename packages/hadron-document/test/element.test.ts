@@ -681,7 +681,7 @@ describe('Element', function () {
       });
 
       context('when the type is a timestamp', function () {
-        const element = new Element('name', new Timestamp(0, 0));
+        const element = new Element('name', new Timestamp({ t: 0, i: 0 }));
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);

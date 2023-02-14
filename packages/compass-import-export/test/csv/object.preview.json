@@ -1,0 +1,7 @@
+{
+  "uniqueFields": ["a", "foo.bar", "foo.baz.qux", "foo.baz.quux", "z", "notes"],
+  "headerFields": ["a", "foo.bar", "foo.baz.qux", "foo.baz.quux", "z", "notes"],
+  "preview": [
+    ["a", "1.1", "1.2.1", "1.2.1", "1.2.2", "z", "foo is a sparse object"]
+  ]
+}

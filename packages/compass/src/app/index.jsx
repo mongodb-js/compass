@@ -1,7 +1,7 @@
-const ipc = require('hadron-ipc');
-const remote = require('@electron/remote');
+import ipc from 'hadron-ipc';
+import * as remote from '@electron/remote';
 
-const { preferencesAccess: preferences } = require('compass-preferences-model');
+import preferences from 'compass-preferences-model';
 
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
@@ -14,12 +14,12 @@ window.addEventListener('error', (event) => {
   );
 });
 
-require('./index.less');
-require('../setup-hadron-distribution');
-require('source-code-pro/source-code-pro.css');
+import './index.less';
+import '../setup-hadron-distribution';
+import 'source-code-pro/source-code-pro.css';
 
-const marky = require('marky');
-const EventEmitter = require('events');
+import * as marky from 'marky';
+import EventEmitter from 'events';
 marky.mark('Time to Connect rendered');
 marky.mark('Time to user can Click Connect');
 
@@ -31,7 +31,7 @@ document.addEventListener('drop', (evt) => evt.preventDefault());
 /**
  * Set hadron-app as a global so plugins can use it.
  */
-const app = require('hadron-app');
+import app from 'hadron-app';
 global.hadronApp = app;
 
 /**
@@ -39,29 +39,28 @@ global.hadronApp = app;
  */
 const APP_VERSION = remote.app.getVersion() || '';
 
-const View = require('ampersand-view');
-const async = require('async');
-const webvitals = require('web-vitals');
+import View from 'ampersand-view';
+import async from 'async';
+import * as webvitals from 'web-vitals';
 
-const User = require('compass-user-model');
+import User from 'compass-user-model';
 
-require('./menu-renderer');
+import './menu-renderer';
 marky.mark('Migrations');
-const migrateApp = require('./migrations');
+import migrateApp from './migrations';
 marky.stop('Migrations');
 
-const React = require('react');
-const ReactDOM = require('react-dom');
-const { Action } = require('@mongodb-js/hadron-plugin-manager');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Action } from '@mongodb-js/hadron-plugin-manager';
 
-const { setupTheme } = require('./theme');
+import { setupTheme } from './theme';
 
-const { setupIntercom } = require('./intercom');
+import { setupIntercom } from './intercom';
 
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId, debug, track } =
-  require('@mongodb-js/compass-logging').createLoggerAndTelemetry(
-    'COMPASS-APP'
-  );
+  createLoggerAndTelemetry('COMPASS-APP');
 
 /**
  * The top-level application singleton that brings everything together!
@@ -315,5 +314,5 @@ Object.defineProperty(app, 'state', {
   },
 });
 
-require('./reflux-listen-to-external-store');
+import './reflux-listen-to-external-store';
 app.init();

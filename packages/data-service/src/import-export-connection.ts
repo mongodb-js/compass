@@ -123,7 +123,7 @@ export async function importConnections(
 
   let connections: ConnectionInfo[];
   try {
-    const parsed = EJSON.parse(connectionList) as any;
+    const parsed = EJSON.parse(connectionList);
     if (
       typeof parsed !== 'object' ||
       !parsed ||
@@ -171,8 +171,7 @@ export async function importConnections(
           }
           decrypter ??= new Decrypter(passphrase);
           const { secrets } =
-            (EJSON.parse(await decrypter.decrypt(connectionSecrets)) as any) ??
-            {};
+            EJSON.parse(await decrypter.decrypt(connectionSecrets)) ?? {};
           if (!secrets) {
             throw new CompassImportError(
               'Input file contained invalid encrypted data'

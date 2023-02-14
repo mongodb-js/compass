@@ -18,6 +18,8 @@ export type FeatureFlags = {
   lgDarkmode?: boolean;
   debugUseCsfleSchemaMap?: boolean;
   showFocusMode?: boolean;
+  useNewImportBackend?: boolean;
+  useNewExportBackend?: boolean;
 };
 
 export type UserConfigurablePreferences = FeatureFlags & {
@@ -261,13 +263,47 @@ const featureFlagsProps: Required<{
   showFocusMode: {
     type: 'boolean',
     required: false,
-    default: false,
+    default: true,
     ui: true,
     cli: true,
     global: true,
     description: {
       short: 'Focus Mode in Stage Editor',
       long: 'Use focus mode to compose aggregation pipeline stage.',
+    },
+  },
+
+  /**
+   * Feature flag for enabling the use of the new backend api for
+   * importing documents. Epic: COMPASS-5576
+   */
+  useNewImportBackend: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'New Import Backend',
+      long: 'Use the new backend api for importing documents.',
+    },
+  },
+
+  /**
+   * Feature flag for enabling the use of the new backend api for
+   * exporting documents. Epic: COMPASS-5576
+   */
+  useNewExportBackend: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'New Export Backend',
+      long: 'Use the new backend api for exporting documents.',
     },
   },
 };

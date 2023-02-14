@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-schema",
   "productName": "Compass Schema plugin",
   "description": "Compass Schema Tab Plugin",
-  "version": "6.6.0",
+  "version": "6.6.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -59,8 +59,8 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
-    "bson": "^4.4.1",
-    "compass-preferences-model": "^2.5.0",
+    "bson": "^5.0.0",
+    "compass-preferences-model": "^2.5.1",
     "hadron-document": "^8.1.0",
     "hadron-ipc": "^3.1.1",
     "react": "^17.0.2"
@@ -109,7 +109,7 @@
     "mapbox-gl": "^1.2.0",
     "mocha": "^8.4.0",
     "moment": "^2.27.0",
-    "mongodb": "^4.13.0",
+    "mongodb": "^5.0.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-util": "^0.0.3",
     "mongodb-schema": "^8.2.5",
@@ -132,8 +132,8 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
-    "bson": "^4.4.1",
-    "compass-preferences-model": "^2.5.0",
+    "bson": "^5.0.0",
+    "compass-preferences-model": "^2.5.1",
     "hadron-document": "^8.1.0",
     "hadron-ipc": "^3.1.1"
   }

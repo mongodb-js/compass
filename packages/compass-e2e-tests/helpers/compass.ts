@@ -22,6 +22,7 @@ import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
+import crossSpawn from 'cross-spawn';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -39,34 +40,60 @@ const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
 const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
-// mongodb-runner defaults to stable if the env var isn't there
-export const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
-  // semver interprets these suffixes like a prerelease (ie. alpha or rc) and it
-  // is irrelevant for our version comparisons anyway
-  .replace('-community', '')
-  .replace('>', '')
-  // HACK: comparisons don't allow X-Ranges and 5.x or 5.x.x installs 5.2.1 so
-  // we can't just map it to 5.0.0
-  .replace(/x/g, '999');
+let MONGODB_VERSION = '';
+let MONGODB_USE_ENTERPRISE = process.env.MONGODB_USE_ENTERPRISE ?? 'no';
 
-export const MONGODB_USE_ENTERPRISE =
-  process.env.MONGODB_USE_ENTERPRISE ?? 'no';
+export const MONGODB_TEST_SERVER_PORT = Number(
+  process.env.MONGODB_TEST_SERVER_PORT ?? 27091
+);
 
-// This will just match any latest available release. We will need to update it
-// when next major version will start rolling out (this is not just something
-// like 999.999.999 because we are checking for `< 7.0.0-alpha` in one test)
-const LATEST_ALPHA = '6.999.999';
+export function updateMongoDBServerInfo() {
+  try {
+    const { stdout, stderr } = crossSpawn.sync(
+      'npm',
+      [
+        'run',
+        '--silent',
+        /**
+         * The server info update is done through a separate script and not by
+         * using a MongoClient directly because doing so causes an unexplainable
+         * segfault crash in e2e-coverage task in evergreen CI. Moving this
+         * logic to a separate script seems to solve this problem, but if at any
+         * point the issue returns, feel free to revert this whole change
+         **/
+        'server-info',
+        '--',
+        '--connectionString',
+        `mongodb://localhost:${String(MONGODB_TEST_SERVER_PORT)}`,
+      ],
+      { encoding: 'utf-8' }
+    );
+    if (stderr?.length) {
+      throw new Error(stderr);
+    }
+    const { version, enterprise } = JSON.parse(stdout);
+    MONGODB_VERSION = version;
+    MONGODB_USE_ENTERPRISE = enterprise ? 'yes' : 'no';
+    debug(
+      `Got server info: v${String(version)} (${
+        enterprise ? 'enterprise' : 'community'
+      })`
+    );
+  } catch (err) {
+    (err as Error).message =
+      'Failed trying to get MongoDB server info:\n\n' + (err as Error).message;
+    throw err;
+  }
+}
 
 export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
 ) => {
   return (
-    semver.satisfies(
-      MONGODB_VERSION === 'latest-alpha' ? LATEST_ALPHA : MONGODB_VERSION,
-      semverCondition,
-      { includePrerelease: true }
-    ) &&
+    semver.satisfies(MONGODB_VERSION, semverCondition, {
+      includePrerelease: true,
+    }) &&
     (typeof enterpriseExact === 'boolean'
       ? (enterpriseExact && MONGODB_USE_ENTERPRISE === 'yes') ||
         (!enterpriseExact && MONGODB_USE_ENTERPRISE !== 'yes')
@@ -606,7 +633,7 @@ async function getCompassLog(logPath: string): Promise<any> {
   let lastName = logNames[0];
   for (const name of logNames.slice(1)) {
     const id = name.slice(0, name.indexOf('_'));
-    const time = new ObjectId(id).generationTime;
+    const time = new ObjectId(id).getTimestamp().valueOf();
     if (time > latest) {
       latest = time;
       lastName = name;

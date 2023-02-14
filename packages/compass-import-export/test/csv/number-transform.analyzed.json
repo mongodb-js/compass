@@ -172,7 +172,7 @@
     },
     "Special_District_1": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 14,
@@ -180,11 +180,11 @@
         }
       },
       "columnIndexes": [14],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Special_District_2": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 15,
@@ -192,7 +192,7 @@
         }
       },
       "columnIndexes": [15],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Work_Type": {
       "types": {
@@ -268,7 +268,7 @@
     },
     "Oil_Gas": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 22,
@@ -276,7 +276,7 @@
         }
       },
       "columnIndexes": [22],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Site_Fill": {
       "types": {
@@ -412,7 +412,7 @@
     },
     "Act_as_Superintendent": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 34,
@@ -420,11 +420,11 @@
         }
       },
       "columnIndexes": [34],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Permittee's_Other_Title": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 35,
@@ -432,11 +432,11 @@
         }
       },
       "columnIndexes": [35],
-      "detected": "null"
+      "detected": "undefined"
     },
     "HIC_License": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 36,
@@ -444,11 +444,11 @@
         }
       },
       "columnIndexes": [36],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Site_Safety_Mgr's_First_Name": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 37,
@@ -456,11 +456,11 @@
         }
       },
       "columnIndexes": [37],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Site_Safety_Mgr's_Last_Name": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 38,
@@ -468,11 +468,11 @@
         }
       },
       "columnIndexes": [38],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Site_Safety_Mgr_Business_Name": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 39,
@@ -480,11 +480,11 @@
         }
       },
       "columnIndexes": [39],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Superintendent_First_&_Last_Name": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 40,
@@ -492,11 +492,11 @@
         }
       },
       "columnIndexes": [40],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Superintendent_Business_Name": {
       "types": {
-        "null": {
+        "undefined": {
           "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 41,
@@ -504,7 +504,7 @@
         }
       },
       "columnIndexes": [41],
-      "detected": "null"
+      "detected": "undefined"
     },
     "Owner's_Business_Type": {
       "types": {

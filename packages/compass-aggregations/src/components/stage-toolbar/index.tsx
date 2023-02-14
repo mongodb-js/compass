@@ -10,7 +10,8 @@ import {
   useDarkMode,
   IconButton,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../modules';
+import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
+import { type AceEditor } from '@mongodb-js/compass-editor';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
@@ -90,7 +91,9 @@ type StageToolbarProps = {
   hasServerError?: boolean;
   isCollapsed?: boolean;
   isDisabled?: boolean;
-  onFocusModeEnableClick: (index: number) => void;
+  onFocusModeClicked: () => void;
+  onOpenFocusMode: () => void;
+  editorRef: React.RefObject<AceEditor | undefined>;
 };
 
 const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
@@ -103,7 +106,8 @@ export function StageToolbar({
   hasServerError,
   isCollapsed,
   isDisabled,
-  onFocusModeEnableClick,
+  onOpenFocusMode,
+  editorRef,
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
   const showFocusMode = usePreference('showFocusMode', React);
@@ -123,7 +127,7 @@ export function StageToolbar({
         <StageCollapser index={index} />
         <Body weight="medium">Stage {index + 1}</Body>
         <div className={selectStyles}>
-          <StageOperatorSelect index={index} />
+          <StageOperatorSelect editorRef={editorRef} index={index} />
         </div>
         <ToggleStage index={index} />
       </div>
@@ -133,9 +137,10 @@ export function StageToolbar({
       <div className={rightStyles}>
         {showFocusMode && (
           <IconButton
-            onClick={() => onFocusModeEnableClick(index)}
+            onClick={onOpenFocusMode}
             aria-label="Open stage in focus mode"
             data-testid="focus-mode-button"
+            data-guide-cue-ref="focus-mode-button"
           >
             <Icon glyph="FullScreenEnter" size="small"></Icon>
           </IconButton>
@@ -146,8 +151,13 @@ export function StageToolbar({
   );
 }
 
+type StageToolbarOwnProps = Pick<
+  StageToolbarProps,
+  'index' | 'onFocusModeClicked'
+>;
+
 export default connect(
-  (state: RootState, ownProps: { index: number }) => {
+  (state: RootState, ownProps: StageToolbarOwnProps) => {
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
     return {
       isAutoPreviewing: !!state.autoPreview,
@@ -157,5 +167,10 @@ export default connect(
       isDisabled: stage.disabled,
     };
   },
-  { onFocusModeEnableClick: enableFocusMode }
+  (dispatch: PipelineBuilderThunkDispatch, ownProps: StageToolbarOwnProps) => ({
+    onOpenFocusMode: () => {
+      dispatch(enableFocusMode(ownProps.index));
+      ownProps.onFocusModeClicked();
+    },
+  })
 )(StageToolbar);
