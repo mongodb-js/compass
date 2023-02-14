@@ -55,12 +55,12 @@ function CreateIndexModal({
 
   useTrackOnChange(
     'COMPASS-INDEXES-UI',
-    isVisible,
     (track) => {
       if (isVisible) {
         track('Screen', { name: 'create_index_modal' });
       }
     },
+    [isVisible],
     undefined,
     React
   );

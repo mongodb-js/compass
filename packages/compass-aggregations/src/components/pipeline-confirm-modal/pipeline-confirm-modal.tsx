@@ -22,12 +22,12 @@ export const PipelineConfirmModal: React.FunctionComponent<
 > = ({ isModalOpen, onCloseModal, onConfirmNewPipeline }) => {
   useTrackOnChange(
     'COMPASS-AGGREGATIONS-UI',
-    isModalOpen,
     (track) => {
       if (isModalOpen) {
         track('Screen', { name: 'confirm_new_pipeline_modal' });
       }
     },
+    [isModalOpen],
     undefined,
     React
   );

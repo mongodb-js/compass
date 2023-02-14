@@ -317,12 +317,12 @@ function ExportModal({
 
   useTrackOnChange(
     'COMPASS-IMPORT-EXPORT-UI',
-    open,
     (track) => {
       if (open) {
         track('Screen', { name: 'export_modal' });
       }
     },
+    [open],
     undefined,
     React
   );

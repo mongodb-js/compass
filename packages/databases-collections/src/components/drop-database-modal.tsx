@@ -62,12 +62,12 @@ function DropDatabaseModal({
 
   useTrackOnChange(
     'COMPASS-DATABASES-COLLECTIONS-UI',
-    isVisible,
     (track) => {
       if (isVisible) {
         track('Screen', { name: 'drop_database_modal' });
       }
     },
+    [isVisible],
     undefined,
     React
   );

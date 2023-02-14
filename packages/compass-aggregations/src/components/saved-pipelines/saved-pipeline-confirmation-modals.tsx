@@ -9,12 +9,12 @@ export const OpenPipelineConfirmationModal: React.FunctionComponent<{
 }> = ({ isOpen, onCancel, onConfirm }) => {
   useTrackOnChange(
     'COMPASS-AGGREGATIONS-UI',
-    isOpen,
     (track) => {
       if (isOpen) {
         track('Screen', { name: 'restore_pipeline_modal' });
       }
     },
+    [isOpen],
     undefined,
     React
   );
@@ -42,12 +42,12 @@ export const DeletePipelineConfirmationModal: React.FunctionComponent<{
 }> = ({ isOpen, onCancel, onConfirm }) => {
   useTrackOnChange(
     'COMPASS-AGGREGATIONS-UI',
-    isOpen,
     (track) => {
       if (isOpen) {
         track('Screen', { name: 'delete_pipeline_modal' });
       }
     },
+    [isOpen],
     undefined,
     React
   );

@@ -174,12 +174,12 @@ function ImportModal({
 
   useTrackOnChange(
     'COMPASS-IMPORT-EXPORT-UI',
-    isOpen,
     (track) => {
       if (isOpen) {
         track('Screen', { name: 'import_modal' });
       }
     },
+    [isOpen],
     undefined,
     React
   );

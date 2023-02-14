@@ -51,12 +51,12 @@ export default function CSFLEConnectionModal({
 
   useTrackOnChange(
     'COMPASS-SIDEBAR-UI',
-    open,
     (track) => {
       if (open) {
         track('Screen', { name: 'csfle_connection_modal' });
       }
     },
+    [open],
     undefined,
     React
   );

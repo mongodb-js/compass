@@ -14,8 +14,8 @@ export function useLoggerAndTelemetry(
 
 export function useTrackOnChange(
   component: string,
-  value: unknown,
   onChange: (track: LoggerAndTelemetry['track']) => void,
+  dependencies: unknown[],
   options: { skipOnMount: boolean } = { skipOnMount: false },
   React: { useRef: any; useEffect: any }
 ) {
@@ -29,17 +29,31 @@ export function useTrackOnChange(
       return;
     }
     onChangeRef.current(track);
-  }, [value, track]);
+  }, [...dependencies, track]);
 }
+
+type ComponentProps<T> = T extends (props: infer P) => any
+  ? P
+  : T extends { new (props: infer P): any }
+  ? P
+  : never;
+
+type ComponentReturnType<T> = T extends (...args: any[]) => infer R
+  ? R
+  : T extends { new (...args: any[]): { render(...args: any[]): infer R } }
+  ? R
+  : never;
 
 export function withLoggerAndTelemetry<T = any>(
   ReactComponent: T,
   component: string,
   React: any
-): T {
-  const WithLoggerAndTelemetry = (props: any) => {
+) {
+  const WithLoggerAndTelemetry = (
+    props: Omit<ComponentProps<T>, 'logger'>
+  ): ComponentReturnType<T> => {
     const logger = useLoggerAndTelemetry(component, React);
     return React.createElement(ReactComponent, { ...props, logger });
   };
-  return WithLoggerAndTelemetry as T;
+  return WithLoggerAndTelemetry;
 }

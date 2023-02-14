@@ -37,12 +37,12 @@ function NonGenuineWarningModal({
 
   useTrackOnChange(
     'COMPASS-SIDEBAR-UI',
-    isVisible,
     (track) => {
       if (isVisible) {
         track('Screen', { name: 'non_genuine_mongodb_modal' });
       }
     },
+    [isVisible],
     undefined,
     React
   );

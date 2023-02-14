@@ -121,12 +121,12 @@ export function DropIndexModal({
 
   useTrackOnChange(
     'COMPASS-INDEXES-UI',
-    isVisible,
     (track) => {
       if (isVisible) {
         track('Screen', { name: 'drop_index_modal' });
       }
     },
+    [isVisible],
     undefined,
     React
   );
