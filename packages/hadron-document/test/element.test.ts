@@ -1760,6 +1760,22 @@ describe('Element', function () {
         });
       });
     });
+
+    context('when the element parent is not defined', function () {
+      it('when element is new addition', function () {
+        const element = new Element('name', undefined, undefined, true);
+        expect(() => element.revert()).to.not.throw();
+        expect(element.key).to.equal('name');
+        expect(element.value).to.equal(undefined);
+      });
+
+      it('when element is not new addition', function () {
+        const element = new Element('name', undefined, undefined, false);
+        expect(() => element.revert()).to.not.throw();
+        expect(element.key).to.equal('name');
+        expect(element.value).to.equal(undefined);
+      });
+    });
   });
 
   describe('modifying arrays', function () {
