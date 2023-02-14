@@ -194,7 +194,7 @@ describe('Collection aggregations tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
     // set guide cue to not show up
     await browser.execute((key) => {
       localStorage.setItem(key, 'true');

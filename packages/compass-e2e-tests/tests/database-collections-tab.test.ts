@@ -29,7 +29,7 @@ describe('Database collections tab', function () {
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
     await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
@@ -222,6 +222,46 @@ describe('Database collections tab', function () {
           timeField: 'time',
           metaField: 'meta',
           granularity: 'minutes',
+          expireAfterSeconds: 60,
+        },
+      },
+      'add-collection-modal-timeseries.png'
+    );
+
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    await collectionCard
+      .$('[data-testid="collection-badge-timeseries"]')
+      .waitForDisplayed();
+  });
+
+  it('can create a time series collection with flexible bucket configuration', async function () {
+    if (serverSatisfies('< 6.3.0-alpha0')) {
+      return this.skip();
+    }
+
+    const collectionName = 'my-timeseries-collection';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(
+      collectionName,
+      {
+        timeseries: {
+          timeField: 'time',
+          metaField: 'meta',
+          bucketMaxSpanSeconds: 60,
+          bucketRoundingSeconds: 60,
           expireAfterSeconds: 60,
         },
       },

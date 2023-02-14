@@ -1,6 +1,6 @@
 import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { IconButton, Icon } from './leafygreen';
 
 const listEditorStyles = css({
@@ -16,8 +16,6 @@ const listItemStyles = css({
 });
 
 const itemContentStyles = css({
-  display: 'inline-block',
-  maxWidth: spacing[7] * 5,
   flexGrow: 1,
 });
 
@@ -44,6 +42,7 @@ type ListEditorProps<ItemType> = {
   onRemoveItem: (index: number) => void;
   addButtonTestId?: string;
   removeButtonTestId?: string;
+  className?: string;
 };
 
 function ListEditor<ItemType>({
@@ -55,9 +54,10 @@ function ListEditor<ItemType>({
   onRemoveItem,
   addButtonTestId,
   removeButtonTestId,
+  className,
 }: ListEditorProps<ItemType>): React.ReactElement {
   return (
-    <div className={listEditorStyles}>
+    <div className={cx(listEditorStyles, className)}>
       {items.map((item, itemIndex) => (
         <div className={listItemStyles} key={itemIndex}>
           <div className={itemContentStyles}>{renderItem(item, itemIndex)}</div>

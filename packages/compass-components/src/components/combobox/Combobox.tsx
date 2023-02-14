@@ -88,7 +88,7 @@ const popoverMenuStyles = (width: number, containsDescription: boolean) => {
   const dropdownWidth = width + descriptionWidth;
   return css`
     width: ${dropdownWidth}px;
-    margin-left: ${(dropdownWidth / 2) - (width / 2)}px;
+    margin-left: ${dropdownWidth / 2 - width / 2}px;
   `;
 };
 
@@ -149,7 +149,7 @@ export function Combobox<M extends boolean>({
   const [isOpen, setOpen] = useState(false);
   const wasOpen = usePrevious(isOpen);
   const [highlightedOption, setHighlightedOption] = useState<string | null>(
-    null,
+    null
   );
   const [selection, setSelection] = useState<SelectValueType<M> | null>(null);
   const prevSelection = usePrevious(selection);
@@ -174,7 +174,7 @@ export function Combobox<M extends boolean>({
    */
   const allOptions: Array<OptionObject> = useMemo(
     () => flattenChildren(children),
-    [children],
+    [children]
   );
 
   /**
@@ -184,17 +184,17 @@ export function Combobox<M extends boolean>({
     <T extends string>(val?: Array<T> | T | null): val is Array<T> => {
       if (multiselect && (typeof val == 'string' || typeof val == 'number')) {
         consoleOnce.error(
-          `Error in Combobox: multiselect is set to \`true\`, but received a ${typeof val} value: "${val}"`,
+          `Error in Combobox: multiselect is set to \`true\`, but received a ${typeof val} value: "${val}"`
         );
       } else if (!multiselect && isArray(val)) {
         consoleOnce.error(
-          'Error in Combobox: multiselect is set to `false`, but received an Array value',
+          'Error in Combobox: multiselect is set to `false`, but received an Array value'
         );
       }
 
       return multiselect && isArray(val);
     },
-    [multiselect],
+    [multiselect]
   );
 
   /**
@@ -210,7 +210,7 @@ export function Combobox<M extends boolean>({
         }
       }
     },
-    [disabled],
+    [disabled]
   );
 
   /**
@@ -239,17 +239,17 @@ export function Combobox<M extends boolean>({
         }
         setSelection(newSelection as SelectValueType<M>);
         (onChange as onChangeType<true>)?.(
-          newSelection as SelectValueType<true>,
+          newSelection as SelectValueType<true>
         );
       } else {
         const newSelection: SelectValueType<M> = value as SelectValueType<M>;
         setSelection(newSelection);
         (onChange as onChangeType<false>)?.(
-          newSelection as SelectValueType<false>,
+          newSelection as SelectValueType<false>
         );
       }
     },
-    [isMultiselect, onChange, selection],
+    [isMultiselect, onChange, selection]
   );
 
   /**
@@ -262,7 +262,7 @@ export function Combobox<M extends boolean>({
         ? selection.includes(value)
         : value === selection;
     },
-    [isMultiselect, selection],
+    [isMultiselect, selection]
   );
 
   /**
@@ -275,7 +275,7 @@ export function Combobox<M extends boolean>({
       const value = getValueForDisplayName(text, allOptions);
       return isValueCurrentSelection(value);
     },
-    [allOptions, isValueCurrentSelection],
+    [allOptions, isValueCurrentSelection]
   );
 
   /**
@@ -323,7 +323,7 @@ export function Combobox<M extends boolean>({
 
       return isValueInDisplayName;
     },
-    [filteredOptions, isTextCurrentSelection, inputValue, allOptions],
+    [filteredOptions, isTextCurrentSelection, inputValue, allOptions]
   );
 
   /**
@@ -331,7 +331,7 @@ export function Combobox<M extends boolean>({
    */
   const visibleOptions: Array<OptionObject> = useMemo(
     () => allOptions.filter(shouldOptionBeVisible),
-    [allOptions, shouldOptionBeVisible],
+    [allOptions, shouldOptionBeVisible]
   );
 
   /**
@@ -340,9 +340,9 @@ export function Combobox<M extends boolean>({
    */
   const isValueValid = useCallback(
     (value: string | null): boolean => {
-      return value ? !!allOptions.find(opt => opt.value === value) : false;
+      return value ? !!allOptions.find((opt) => opt.value === value) : false;
     },
-    [allOptions],
+    [allOptions]
   );
 
   /**
@@ -352,10 +352,10 @@ export function Combobox<M extends boolean>({
   const getIndexOfValue = useCallback(
     (value: string | null): number => {
       return visibleOptions
-        ? visibleOptions.findIndex(option => option.value === value)
+        ? visibleOptions.findIndex((option) => option.value === value)
         : -1;
     },
-    [visibleOptions],
+    [visibleOptions]
   );
 
   /**
@@ -369,7 +369,7 @@ export function Combobox<M extends boolean>({
         return option ? option.value : undefined;
       }
     },
-    [visibleOptions],
+    [visibleOptions]
   );
 
   /**
@@ -378,11 +378,11 @@ export function Combobox<M extends boolean>({
   const getActiveChipIndex = useCallback(
     () =>
       isMultiselect(selection)
-        ? selection.findIndex(value =>
-            getChipRef(value)?.current?.contains(document.activeElement),
+        ? selection.findIndex((value) =>
+            getChipRef(value)?.current?.contains(document.activeElement)
           )
         : -1,
-    [getChipRef, isMultiselect, selection],
+    [getChipRef, isMultiselect, selection]
   );
 
   /**
@@ -456,7 +456,7 @@ export function Combobox<M extends boolean>({
       isOpen,
       setInputFocus,
       visibleOptions?.length,
-    ],
+    ]
   );
 
   /**
@@ -510,7 +510,7 @@ export function Combobox<M extends boolean>({
         }
       }
     },
-    [getActiveChipIndex, isMultiselect, selection],
+    [getActiveChipIndex, isMultiselect, selection]
   );
 
   /**
@@ -601,7 +601,7 @@ export function Combobox<M extends boolean>({
       selection,
       setInputFocus,
       updateFocusedChip,
-    ],
+    ]
   );
 
   // When the input value changes (or when the menu opens)
@@ -628,7 +628,7 @@ export function Combobox<M extends boolean>({
       }
     }
   }, [highlightedOption, getOptionRef]);
-    
+
   /**
    * Rendering
    */
@@ -643,7 +643,7 @@ export function Combobox<M extends boolean>({
 
         if (shouldOptionBeVisible(value)) {
           const { className, glyph, disabled } = child.props;
-          const index = allOptions.findIndex(opt => opt.value === value);
+          const index = allOptions.findIndex((opt) => opt.value === value);
 
           const isFocused = highlightedOption === value;
           const isSelected = isMultiselect(selection)
@@ -681,7 +681,7 @@ export function Combobox<M extends boolean>({
       } else if (isComponentType(child, 'ComboboxGroup')) {
         const nestedChildren = React.Children.map(
           child.props.children,
-          renderOption,
+          renderOption
         );
 
         if (nestedChildren && nestedChildren?.length > 0) {
@@ -705,7 +705,7 @@ export function Combobox<M extends boolean>({
       setInputFocus,
       shouldOptionBeVisible,
       updateSelection,
-    ],
+    ]
   );
 
   /**
@@ -713,7 +713,7 @@ export function Combobox<M extends boolean>({
    */
   const renderedOptionsJSX = useMemo(
     () => React.Children.map(children, renderOption),
-    [children, renderOption],
+    [children, renderOption]
   );
 
   /**
@@ -771,7 +771,7 @@ export function Combobox<M extends boolean>({
    */
   const renderedInputIcons = useMemo(() => {
     const handleClearButtonClick = (
-      e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+      e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
       if (!disabled) {
         updateSelection(null);
@@ -827,8 +827,8 @@ export function Combobox<M extends boolean>({
    * Flag to determine whether the rendered options have icons
    */
   const withIcons = useMemo(
-    () => allOptions.some(opt => opt.hasGlyph),
-    [allOptions],
+    () => allOptions.some((opt) => opt.hasGlyph),
+    [allOptions]
   );
 
   /**
@@ -841,8 +841,8 @@ export function Combobox<M extends boolean>({
     // Single select, and no change to selection
     if (!isMultiselect(selection) && selection === prevSelection) {
       const exactMatchedOption = visibleOptions.find(
-        option =>
-          option.displayName === inputValue || option.value === inputValue,
+        (option) =>
+          option.displayName === inputValue || option.value === inputValue
       );
 
       // check if inputValue is matches a valid option
@@ -854,7 +854,7 @@ export function Combobox<M extends boolean>({
         const displayName =
           getDisplayNameForValue(
             selection as SelectValueType<false>,
-            allOptions,
+            allOptions
           ) ?? '';
         setInputValue(displayName);
       }
@@ -879,7 +879,7 @@ export function Combobox<M extends boolean>({
         const displayName =
           getDisplayNameForValue(
             selection as SelectValueType<false>,
-            allOptions,
+            allOptions
           ) ?? '';
         setInputValue(displayName);
         closeMenu();
@@ -895,7 +895,7 @@ export function Combobox<M extends boolean>({
       if (isArray(initialValue)) {
         // Ensure the values we set are real options
         const filteredValue =
-          initialValue.filter(value => isValueValid(value)) ?? [];
+          initialValue.filter((value) => isValueValid(value)) ?? [];
         setSelection(filteredValue as SelectValueType<M>);
       } else {
         if (isValueValid(initialValue as string)) {
@@ -919,7 +919,7 @@ export function Combobox<M extends boolean>({
         setSelection(newSelection);
       } else {
         setSelection(
-          isValueValid(value as SelectValueType<false>) ? value : null,
+          isValueValid(value as SelectValueType<false>) ? value : null
         );
       }
     }
@@ -1016,7 +1016,7 @@ export function Combobox<M extends boolean>({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     const isFocusInMenu = menuRef.current?.contains(document.activeElement);
     const isFocusOnCombobox = comboboxRef.current?.contains(
-      document.activeElement,
+      document.activeElement
     );
 
     const isFocusInComponent = isFocusOnCombobox || isFocusInMenu;
@@ -1179,7 +1179,7 @@ export function Combobox<M extends boolean>({
     },
     {
       enabled: isOpen,
-    },
+    }
   );
   useEventListener(
     'click',
@@ -1192,7 +1192,7 @@ export function Combobox<M extends boolean>({
     {
       options: { capture: true },
       enabled: isOpen,
-    },
+    }
   );
 
   const popoverProps = {
@@ -1209,10 +1209,9 @@ export function Combobox<M extends boolean>({
 
   const isAnyOptionWithDescription = useMemo(() => {
     const numberOfOptionsWithDescriptions = React.Children.map(
-      children, 
-      (child: any) => 
-        child?.props?.description
-    )?.filter(Boolean)?.length
+      children,
+      (child: any) => child?.props?.description
+    )?.filter(Boolean)?.length;
     return (numberOfOptionsWithDescriptions || 0) > 0;
   }, [children]);
 
@@ -1277,9 +1276,9 @@ export function Combobox<M extends boolean>({
               [comboboxDisabledStyles[theme]]: disabled,
               [comboboxErrorStyles[theme]]: state === State.error,
               [comboboxFocusStyle[theme]]: isElementFocused(
-                ComboboxElement.Input,
+                ComboboxElement.Input
               ),
-            },
+            }
           )}
         >
           <div
@@ -1305,7 +1304,7 @@ export function Combobox<M extends boolean>({
                 {
                   [multiselectInputElementStyle(size, inputValue)]:
                     isMultiselect(selection),
-                },
+                }
               )}
               placeholder={placeholderValue}
               disabled={disabled ?? undefined}
@@ -1321,7 +1320,7 @@ export function Combobox<M extends boolean>({
           <div
             className={cx(
               errorMessageThemeStyle[theme],
-              errorMessageSizeStyle[size],
+              errorMessageSizeStyle[size]
             )}
           >
             {errorMessage}
@@ -1339,7 +1338,7 @@ export function Combobox<M extends boolean>({
           ref={menuRef}
           className={cx(
             popoverMenuStyles(popoverMenuWidth, isAnyOptionWithDescription),
-            popoverClassName,
+            popoverClassName
           )}
           searchLoadingMessage={searchLoadingMessage}
           searchErrorMessage={searchErrorMessage}
@@ -1381,7 +1380,7 @@ export function Combobox<M extends boolean>({
    * Returns the provided element as a ComboboxElement string
    */
   function getNameFromElement(
-    element?: Element | null,
+    element?: Element | null
   ): ComboboxElement | undefined {
     if (!element) return;
     if (inputRef.current?.contains(element)) return ComboboxElement.Input;
@@ -1389,8 +1388,8 @@ export function Combobox<M extends boolean>({
       return ComboboxElement.ClearButton;
 
     const activeChipIndex = isMultiselect(selection)
-      ? selection.findIndex(value =>
-          getChipRef(value)?.current?.contains(element),
+      ? selection.findIndex((value) =>
+          getChipRef(value)?.current?.contains(element)
         )
       : -1;
 
