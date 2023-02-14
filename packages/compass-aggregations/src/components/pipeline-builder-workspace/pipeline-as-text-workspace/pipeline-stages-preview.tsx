@@ -19,7 +19,7 @@ import {
 import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
-} from '../../../utils/stage';
+} from '../../../constants';
 
 const bannerStyles = css({
   alignItems: 'center',

@@ -13,8 +13,8 @@ import {
 type CollapsibleInputProps = {
   name: InputOptions;
   type: 'text' | 'code' | 'number';
-  label: string;
-  description: string;
+  label: React.ReactElement | string;
+  description: React.ReactElement | string;
   disabled?: boolean;
   optional?: boolean;
   units?: string;
