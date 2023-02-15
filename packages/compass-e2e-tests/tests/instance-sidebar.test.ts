@@ -140,16 +140,7 @@ describe('Instance sidebar', function () {
     );
     await collectionElement.waitForDisplayed();
 
-    // open the drop database modal from the sidebar
-    await browser.hover(Selectors.sidebarDatabase(dbName));
-
-    await browser.clickVisible(Selectors.DropDatabaseButton);
-
-    await browser.dropDatabase(dbName);
-
-    // wait for it to be gone
-    const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
-    await dbElement.waitForExist({ reverse: true });
+    await browser.dropDatabaseFromSidebar(dbName);
 
     // the app should land back on the instance Databases tab because it was
     // still on the collection Documents tab
@@ -186,31 +177,7 @@ describe('Instance sidebar', function () {
     const tabSelectedSelector = Selectors.collectionTab('Documents', true);
     await browser.$(tabSelectedSelector).waitForDisplayed();
 
-    const collectionSelector = Selectors.sidebarCollection(
-      dbName,
-      collectionName
-    );
-
-    await browser.scrollToVirtualItem(
-      Selectors.SidebarDatabaseAndCollectionList,
-      collectionSelector,
-      'tree'
-    );
-
-    const collectionElement = await browser.$(collectionSelector);
-    await collectionElement.waitForDisplayed();
-
-    // open the drop collection modal from the sidebar
-    await browser.hover(collectionSelector);
-
-    // NOTE: if the menu was already open for another collection this could get confusing
-    await browser.clickVisible(Selectors.CollectionShowActionsButton);
-    await browser.clickVisible(Selectors.DropCollectionButton);
-
-    await browser.dropCollection(collectionName);
-
-    // wait for it to be gone
-    await collectionElement.waitForExist({ reverse: true });
+    await browser.dropCollectionFromSidebar(dbName, collectionName);
 
     // the app should have redirected to the the database Collections tab
     // because we were on the collection Documents tab and the database has
