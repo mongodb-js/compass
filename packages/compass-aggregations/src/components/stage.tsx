@@ -11,6 +11,7 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import { type AceEditor } from '@mongodb-js/compass-editor';
+import { usePreference } from 'compass-preferences-model';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
@@ -148,6 +149,33 @@ export type StageProps = {
   isAutoPreviewing: boolean;
 };
 
+const useFocusModeGuideCue = (stageIndex: number) => {
+  const [isGuideCueVisible, setIsGuideCueVisible] = useState(false);
+  const [setGuideCueIntersectingRef, isIntersecting] = useInView({
+    threshold: 0.5,
+  });
+  const showFocusMode = usePreference('showFocusMode', React);
+
+  useEffect(() => {
+    if (!hasSeenFocusModeGuideCue()) {
+      setIsGuideCueVisible(
+        Boolean(stageIndex === 0 && showFocusMode && isIntersecting)
+      );
+    }
+  }, [setIsGuideCueVisible, showFocusMode, stageIndex, isIntersecting]);
+
+  const setGuideCueVisited = () => {
+    setIsGuideCueVisible(false);
+    setHasSeenFocusModeGuideCue();
+  };
+
+  return {
+    isGuideCueVisible,
+    setGuideCueIntersectingRef,
+    setGuideCueVisited,
+  };
+};
+
 function Stage({
   id,
   index,
@@ -161,21 +189,8 @@ function Stage({
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Focus Mode Guide Cue
-  const [isGuideCueVisible, setIsGuideCueVisible] = useState(false);
-  const [setIntersectingRef, isIntersecting] = useInView({
-    threshold: 0.5,
-  });
-
-  useEffect(() => {
-    if (!hasSeenFocusModeGuideCue()) {
-      setIsGuideCueVisible(index === 0);
-    }
-  }, [setIsGuideCueVisible, index]);
-
-  const setGuideCueVisited = () => {
-    setIsGuideCueVisible(false);
-    setHasSeenFocusModeGuideCue();
-  };
+  const { isGuideCueVisible, setGuideCueVisited, setGuideCueIntersectingRef } =
+    useFocusModeGuideCue(index);
 
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
   const { setNodeRef, transform, transition, listeners, isDragging } =
@@ -201,7 +216,7 @@ function Stage({
       <div className={focusModeGuideCueStyles}>
         <GuideCue
           data-testid="focus-mode-guide-cue"
-          open={isIntersecting && isGuideCueVisible}
+          open={isGuideCueVisible}
           setOpen={() => setGuideCueVisited()}
           refEl={{
             current:
@@ -229,7 +244,7 @@ function Stage({
           hasServerError && stageErrorStyles
         )}
       >
-        <div {...listeners} ref={setIntersectingRef}>
+        <div {...listeners} ref={setGuideCueIntersectingRef}>
           <StageToolbar
             onFocusModeClicked={setGuideCueVisited}
             editorRef={editorRef}
