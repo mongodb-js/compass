@@ -17,7 +17,9 @@ type HostInformation = {
   public_cloud_name?: string;
 };
 
-async function getHostInformation(host: string | null): Promise<HostInformation> {
+async function getHostInformation(
+  host: string | null
+): Promise<HostInformation> {
   if (!host) {
     return {
       is_do_url: false,
