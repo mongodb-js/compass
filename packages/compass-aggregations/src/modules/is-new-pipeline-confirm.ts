@@ -50,3 +50,13 @@ export const confirmNewPipeline =
     });
     dispatch(updatePipelinePreview());
   };
+
+export const createNewPipeline =
+  (): PipelineBuilderThunkAction<void> => (dispatch, getState) => {
+    const isPipelineModified = getState().isModified;
+    if (isPipelineModified) {
+      dispatch(toggleNewPipelineModal(true));
+    } else {
+      dispatch(confirmNewPipeline());
+    }
+  };
