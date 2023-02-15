@@ -19,11 +19,15 @@ const PREFIX = 'aggregations/saved-pipeline';
 export const SET_SHOW_SAVED_PIPELINES = `${PREFIX}/SET_SHOW`;
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE`;
+export const SET_OPEN_PIPELINE_ID = `${PREFIX}/SET_OPEN_PIPELINE_ID`;
+export const SET_DELETE_PIPELINE_ID = `${PREFIX}/SET_DELETE_PIPELINE_ID`;
 
 export type SavedPipelineState = {
   pipelines: StoredPipeline[];
   isLoaded: boolean;
   isListVisible: boolean;
+  openPipelineId?: string;
+  deletePipelineId?: string;
 };
 
 export const INITIAL_STATE: SavedPipelineState = {
@@ -47,10 +51,22 @@ const doRestoreSavedPipeline = (state: SavedPipelineState) => {
   return { ...state, isListVisible: false };
 };
 
+const setOpenPipelineId = (state: SavedPipelineState, action: AnyAction) => ({
+  ...state,
+  openPipelineId: action.id,
+});
+
+const setDeletePipelineId = (state: SavedPipelineState, action: AnyAction) => ({
+  ...state,
+  deletePipelineId: action.id,
+});
+
 const MAPPINGS = {
   [SET_SHOW_SAVED_PIPELINES]: setShowSavedPipelinesList,
   [SAVED_PIPELINE_ADD]: addSavedPipeline,
   [RESTORE_PIPELINE]: doRestoreSavedPipeline,
+  [SET_OPEN_PIPELINE_ID]: setOpenPipelineId,
+  [SET_DELETE_PIPELINE_ID]: setDeletePipelineId,
 };
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
@@ -112,8 +128,14 @@ export const deletePipelineById = (
   pipelineId: string
 ): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState, { pipelineStorage }) => {
+    track('Aggregation Deleted', {
+      id: pipelineId,
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      screen: 'aggregations',
+    });
     await pipelineStorage.delete(pipelineId);
     dispatch(updatePipelineList());
+    dispatch(closeDeletePipeline());
   };
 };
 
@@ -125,6 +147,12 @@ export const openPipelineById = (
 ): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
     try {
+      track('Aggregation Opened', {
+        id,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+        screen: 'aggregations',
+      });
+
       const data = await pipelineStorage.load(id);
       if (!data) {
         throw new Error(`Pipeline with id ${id} not found`);
@@ -153,6 +181,8 @@ export const openPipelineById = (
       }
     } catch (e: unknown) {
       debug(e);
+    } finally {
+      dispatch(closeOpenPipeline());
     }
   };
 };
@@ -211,3 +241,30 @@ export const saveCurrentPipeline =
 
     dispatch(updatePipelineList());
   };
+
+export const openPipeline = (id: string): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const isPipelineModified = getState().isModified;
+    if (isPipelineModified) {
+      dispatch({
+        type: SET_OPEN_PIPELINE_ID,
+        id,
+      });
+    } else {
+      dispatch(openPipelineById(id));
+    }
+  };
+};
+
+export const closeOpenPipeline = () => ({
+  type: SET_OPEN_PIPELINE_ID,
+});
+
+export const deletePipeline = (id: string) => ({
+  type: SET_DELETE_PIPELINE_ID,
+  id,
+});
+
+export const closeDeletePipeline = () => ({
+  type: SET_DELETE_PIPELINE_ID,
+});

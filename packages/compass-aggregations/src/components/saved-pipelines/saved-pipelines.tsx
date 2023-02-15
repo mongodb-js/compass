@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import {
   css,
   spacing,
@@ -7,7 +7,6 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { SavePipelineCard } from './saved-pipeline-card';
 import {
@@ -15,16 +14,14 @@ import {
   DeletePipelineConfirmationModal,
 } from './saved-pipeline-confirmation-modals';
 import {
+  openPipeline,
+  closeOpenPipeline,
   openPipelineById,
+  deletePipeline,
+  closeDeletePipeline,
   deletePipelineById,
 } from '../../modules/saved-pipeline';
-import {
-  type EditorViewType,
-  mapPipelineModeToEditorViewType,
-} from '../../modules/pipeline-builder/builder-helpers';
 import { type RootState } from '../../modules';
-
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const savedPipelinesStyles = css({
   width: '400px',
@@ -69,60 +66,29 @@ const emptyMessageStyles = css({
 type SavedPipelinesProps = {
   namespace: string;
   savedPipelines: { id: string; name: string }[];
-  shouldConfirmBeforeOpen: boolean;
-  editor_view_type: EditorViewType;
+  openPipelineId?: string;
+  deletePipelineId?: string;
   onOpenPipeline: (pipelineId: string) => void;
+  onCancelOpenPipeline: () => void;
+  onConfirmOpen: (pipelineId: string) => void;
   onDeletePipeline: (pipelineId: string) => void;
+  onCancelDeletePipeline: () => void;
+  onConfirmDelete: (pipelineId: string) => void;
 };
 
 export const SavedPipelines = ({
   namespace,
   savedPipelines,
-  shouldConfirmBeforeOpen,
-  editor_view_type,
+  openPipelineId,
+  deletePipelineId,
   onOpenPipeline,
+  onCancelOpenPipeline,
+  onConfirmOpen,
   onDeletePipeline,
+  onCancelDeletePipeline,
+  onConfirmDelete,
 }: SavedPipelinesProps) => {
   const darkMode = useDarkMode();
-  const [deletePipelineId, setDeletePipelineId] = useState<string | null>(null);
-  const [openPipelineId, setOpenPipelineId] = useState<string | null>(null);
-
-  const onOpenConfirm = useCallback(
-    (id: string) => {
-      track('Aggregation Opened', {
-        id,
-        editor_view_type,
-        screen: 'aggregations',
-      });
-      onOpenPipeline(id);
-    },
-    [editor_view_type, onOpenPipeline]
-  );
-
-  const onDeleteConfirm = useCallback(
-    (id: string) => {
-      track('Aggregation Deleted', {
-        id,
-        editor_view_type,
-        screen: 'aggregations',
-      });
-      onDeletePipeline(id);
-      setDeletePipelineId(null);
-    },
-    [editor_view_type, onDeletePipeline, setDeletePipelineId]
-  );
-
-  const onOpenPipelineClick = useCallback(
-    (id: string) => {
-      if (shouldConfirmBeforeOpen) {
-        setOpenPipelineId(id);
-      } else {
-        onOpenConfirm(id);
-      }
-    },
-    [shouldConfirmBeforeOpen]
-  );
-
   return (
     <div className={savedPipelinesStyles} data-testid="saved-pipelines">
       <div className={toolbarContentStyles}>
@@ -146,8 +112,8 @@ export const SavedPipelines = ({
             key={pipeline.id}
             name={pipeline.name ?? ''}
             id={pipeline.id}
-            onOpenPipeline={() => onOpenPipelineClick(pipeline.id)}
-            onDeletePipeline={() => setDeletePipelineId(pipeline.id)}
+            onOpenPipeline={() => onOpenPipeline(pipeline.id)}
+            onDeletePipeline={() => onDeletePipeline(pipeline.id)}
           />
         ))}
         {savedPipelines.length === 0 && (
@@ -161,27 +127,31 @@ export const SavedPipelines = ({
       </div>
       <OpenPipelineConfirmationModal
         isOpen={!!openPipelineId}
-        onCancel={() => setOpenPipelineId(null)}
-        onConfirm={() => onOpenConfirm(openPipelineId as string)}
+        onCancel={() => onCancelOpenPipeline()}
+        onConfirm={() => onConfirmOpen(openPipelineId as string)}
       />
       <DeletePipelineConfirmationModal
         isOpen={!!deletePipelineId}
-        onCancel={() => setDeletePipelineId(null)}
-        onConfirm={() => onDeleteConfirm(deletePipelineId as string)}
+        onCancel={() => onCancelDeletePipeline()}
+        onConfirm={() => onConfirmDelete(deletePipelineId as string)}
       />
     </div>
   );
 };
 const mapState = (state: RootState) => ({
-  editor_view_type: mapPipelineModeToEditorViewType(state),
   namespace: state.namespace,
   savedPipelines: state.savedPipeline.pipelines,
-  shouldConfirmBeforeOpen: state.isModified,
+  openPipelineId: state.savedPipeline.openPipelineId,
+  deletePipelineId: state.savedPipeline.deletePipelineId,
 });
 
 const mapDispatch = {
-  onOpenPipeline: openPipelineById,
-  onDeletePipeline: deletePipelineById,
+  onOpenPipeline: openPipeline,
+  onCancelOpenPipeline: closeOpenPipeline,
+  onConfirmOpen: openPipelineById,
+  onDeletePipeline: deletePipeline,
+  onCancelDeletePipeline: closeDeletePipeline,
+  onConfirmDelete: deletePipelineById,
 };
 
 export default connect(mapState, mapDispatch)(SavedPipelines);
