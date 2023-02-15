@@ -69,6 +69,7 @@ const emptyMessageStyles = css({
 type SavedPipelinesProps = {
   namespace: string;
   savedPipelines: { id: string; name: string }[];
+  shouldConfirmBeforeOpen: boolean;
   editor_view_type: EditorViewType;
   onOpenPipeline: (pipelineId: string) => void;
   onDeletePipeline: (pipelineId: string) => void;
@@ -77,6 +78,7 @@ type SavedPipelinesProps = {
 export const SavedPipelines = ({
   namespace,
   savedPipelines,
+  shouldConfirmBeforeOpen,
   editor_view_type,
   onOpenPipeline,
   onDeletePipeline,
@@ -110,6 +112,17 @@ export const SavedPipelines = ({
     [editor_view_type, onDeletePipeline, setDeletePipelineId]
   );
 
+  const onOpenPipelineClick = useCallback(
+    (id: string) => {
+      if (shouldConfirmBeforeOpen) {
+        setOpenPipelineId(id);
+      } else {
+        onOpenConfirm(id);
+      }
+    },
+    [shouldConfirmBeforeOpen]
+  );
+
   return (
     <div className={savedPipelinesStyles} data-testid="saved-pipelines">
       <div className={toolbarContentStyles}>
@@ -133,7 +146,7 @@ export const SavedPipelines = ({
             key={pipeline.id}
             name={pipeline.name ?? ''}
             id={pipeline.id}
-            onOpenPipeline={() => setOpenPipelineId(pipeline.id)}
+            onOpenPipeline={() => onOpenPipelineClick(pipeline.id)}
             onDeletePipeline={() => setDeletePipelineId(pipeline.id)}
           />
         ))}
@@ -163,6 +176,7 @@ const mapState = (state: RootState) => ({
   editor_view_type: mapPipelineModeToEditorViewType(state),
   namespace: state.namespace,
   savedPipelines: state.savedPipeline.pipelines,
+  shouldConfirmBeforeOpen: state.isModified,
 });
 
 const mapDispatch = {

@@ -7,7 +7,10 @@ import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
-import { toggleNewPipelineModal } from '../../../modules/is-new-pipeline-confirm';
+import {
+  confirmNewPipeline,
+  toggleNewPipelineModal,
+} from '../../../modules/is-new-pipeline-confirm';
 
 const containerStyles = css({
   display: 'grid',
@@ -33,8 +36,9 @@ type PipelineSettingsProps = {
   isSavePipelineDisplayed?: boolean;
   isCreatePipelineDisplayed?: boolean;
   isExportToLanguageEnabled?: boolean;
+  shouldConfirmBeforeCreate: boolean;
   onExportToLanguage: () => void;
-  onCreateNewPipeline: () => void;
+  onCreateNewPipeline: (shouldConfirmBeforeCreate: boolean) => void;
 };
 
 export const PipelineSettings: React.FunctionComponent<
@@ -43,6 +47,7 @@ export const PipelineSettings: React.FunctionComponent<
   isSavePipelineDisplayed,
   isCreatePipelineDisplayed,
   isExportToLanguageEnabled,
+  shouldConfirmBeforeCreate,
   onExportToLanguage,
   onCreateNewPipeline,
 }) => {
@@ -60,7 +65,7 @@ export const PipelineSettings: React.FunctionComponent<
             size="xsmall"
             variant="primary"
             leftGlyph={<Icon glyph="Plus" />}
-            onClick={onCreateNewPipeline}
+            onClick={() => onCreateNewPipeline(shouldConfirmBeforeCreate)}
             data-testid="pipeline-toolbar-create-new-button"
           >
             Create new
@@ -91,10 +96,15 @@ export default connect(
       isSavePipelineDisplayed: !state.editViewName && !state.isAtlasDeployed,
       isCreatePipelineDisplayed: !state.editViewName,
       isExportToLanguageEnabled: !hasSyntaxErrors,
+      shouldConfirmBeforeCreate: state.isModified,
     };
   },
   {
     onExportToLanguage: exportToLanguage,
-    onCreateNewPipeline: () => toggleNewPipelineModal(true),
+    onCreateNewPipeline: (shouldConfirm: boolean) => {
+      return shouldConfirm
+        ? toggleNewPipelineModal(true)
+        : confirmNewPipeline();
+    },
   }
 )(PipelineSettings);
