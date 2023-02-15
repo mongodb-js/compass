@@ -1,7 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-UI');
 
 import { Body, Modal as LeafyGreenModal } from '../leafygreen';
 import { useScrollbars } from '../../hooks/use-scrollbars';
@@ -13,14 +11,11 @@ const contentStyles = css({
 });
 
 function Modal({
-  trackingId,
   className,
   contentClassName,
   children,
   ...props
-}: React.ComponentProps<typeof LeafyGreenModal> & {
-  trackingId?: string;
-}): React.ReactElement {
+}: React.ComponentProps<typeof LeafyGreenModal>): React.ReactElement {
   // NOTE: We supply scrollbar styles to the `Modal` content as
   // there is currently a bug in `LeafyGreen` with the portal providers
   // where our top level `portalContainer` we supply to the `LeafyGreenProvider`
@@ -28,11 +23,6 @@ function Modal({
   // Once this issue is fixed we can remove these styles here.
   const { className: scrollbarStyles } = useScrollbars();
 
-  useEffect(() => {
-    if (props.open && trackingId) {
-      track('Screen', { name: trackingId });
-    }
-  }, [props.open, trackingId]);
   return (
     <LeafyGreenModal
       className={cx(scrollbarStyles, className)}

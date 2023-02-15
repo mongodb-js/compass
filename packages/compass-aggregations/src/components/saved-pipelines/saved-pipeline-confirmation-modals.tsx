@@ -1,11 +1,24 @@
 import React from 'react';
 import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 export const OpenPipelineConfirmationModal: React.FunctionComponent<{
   isOpen: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }> = ({ isOpen, onCancel, onConfirm }) => {
+  useTrackOnChange(
+    'COMPASS-AGGREGATIONS-UI',
+    (track) => {
+      if (isOpen) {
+        track('Screen', { name: 'restore_pipeline_modal' });
+      }
+    },
+    [isOpen],
+    undefined,
+    React
+  );
+
   return (
     <ConfirmationModal
       data-id="open-pipeline-confirmation-modal"
@@ -14,7 +27,6 @@ export const OpenPipelineConfirmationModal: React.FunctionComponent<{
       onConfirm={onConfirm}
       onCancel={onCancel}
       buttonText="Open Pipeline"
-      trackingId="restore_pipeline_modal"
       data-testid="restore-pipeline-modal"
     >
       Opening this project will abandon <b>unsaved</b> changes to the current
@@ -28,6 +40,18 @@ export const DeletePipelineConfirmationModal: React.FunctionComponent<{
   onCancel: () => void;
   onConfirm: () => void;
 }> = ({ isOpen, onCancel, onConfirm }) => {
+  useTrackOnChange(
+    'COMPASS-AGGREGATIONS-UI',
+    (track) => {
+      if (isOpen) {
+        track('Screen', { name: 'delete_pipeline_modal' });
+      }
+    },
+    [isOpen],
+    undefined,
+    React
+  );
+
   return (
     <ConfirmationModal
       data-id="delete-pipeline-confirmation-modal"
@@ -36,7 +60,6 @@ export const DeletePipelineConfirmationModal: React.FunctionComponent<{
       onConfirm={onConfirm}
       onCancel={onCancel}
       buttonText="Delete Pipeline"
-      trackingId="delete_pipeline_modal"
       data-testid="delete-pipeline-modal"
     >
       Deleting this pipeline will remove it from your saved pipelines.
