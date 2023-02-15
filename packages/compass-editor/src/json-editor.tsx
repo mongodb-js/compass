@@ -112,6 +112,8 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         backgroundColor: editorPalette[theme].backgroundColor,
       },
       '& .cm-scroller': {
+        fontSize: '13px',
+        fontFamily: fontFamilies.code,
         lineHeight: `${spacing[3]}px`,
       },
       '&.cm-editor.cm-focused': {
