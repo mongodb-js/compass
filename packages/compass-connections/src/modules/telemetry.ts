@@ -122,7 +122,6 @@ async function getConnectionData({
   const connectionStringData = new ConnectionString(connectionString, {
     looseValidation: true,
   });
-  //const hostName = connectionStringData.hosts[0];
   const searchParams =
     connectionStringData.typedSearchParams<MongoClientOptions>();
 
