@@ -14,6 +14,7 @@ import {
   cx,
   spacing,
   Code,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import ExportSelectOutput from './export-select-output';
@@ -39,6 +40,7 @@ import {
 import type { ExportQueryType } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
 import { getQueryAsShellJSString } from '../utils/get-shell-js';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const optionRadioStyles = css({
   // Override LeafyGreen's radio group default width.
@@ -94,12 +96,19 @@ function ExportOptions({
     [ns, query]
   );
 
+  // TODO(LG-2741): Once we update the `radio-group` package we can remove this explicit theme fetch.
+  // In the LeafyGreen package `@leafygreen-ui/radio-group` version `10.0.3` the
+  // radio component doesn't listen to the `darkMode` that the `LeafyGreenProvider` provides.
+  // So for now we are setting it ourselves here.
+  const darkMode = useDarkMode();
+
   return (
     <FormFieldContainer>
       <RadioGroup
         data-testid="export-option-filters"
         onChange={handleExportOptionSelect}
         className={optionRadioStyles}
+        darkMode={darkMode}
       >
         <Radio value="filter" checked={!isFullCollection}>
           Export query with filters{resultsSummary} (Recommended)
@@ -305,13 +314,21 @@ function ExportModal({
   const closeButtonText =
     status === COMPLETED && exportStep === FILETYPE ? 'Close' : 'Cancel';
   const entityToExport = isAggregation ? 'Aggregation from' : 'Collection';
+
+  useTrackOnChange(
+    'COMPASS-IMPORT-EXPORT-UI',
+    (track) => {
+      if (open) {
+        track('Screen', { name: 'export_modal' });
+      }
+    },
+    [open],
+    undefined,
+    React
+  );
+
   return (
-    <Modal
-      open={open}
-      setOpen={handleClose}
-      data-testid="export-modal"
-      trackingId="export_modal"
-    >
+    <Modal open={open} setOpen={handleClose} data-testid="export-modal">
       <ModalHeader title="Export" subtitle={`${entityToExport} ${ns}`} />
       <ModalBody>
         {exportStep === QUERY && (

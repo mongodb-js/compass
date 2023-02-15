@@ -1,5 +1,30 @@
 import { EJSON } from 'bson';
+import TypeChecker from 'hadron-type-checker';
 import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
+
+const UNCASTED_EMPTY_TYPE_VALUE: {
+  [T in TypeCastTypes]: unknown;
+} = {
+  Array: [],
+  Object: {},
+  Decimal128: 0,
+  Int32: 0,
+  Int64: 0,
+  Double: 0,
+  MaxKey: 0,
+  MinKey: 0,
+  Timestamp: 0,
+  Date: 0,
+  String: '',
+  Code: '',
+  Binary: '',
+  ObjectId: '',
+  BSONRegExp: '',
+  BSONSymbol: '',
+  Boolean: false,
+  Undefined: undefined,
+  Null: null,
+};
 
 const maxFourYearDate = new Date('9999-12-31T23:59:59.999Z').valueOf();
 
@@ -36,7 +61,7 @@ export interface HadronEJSONOptions {
  * @returns A serialized, human-readable and human-editable string.
  */
 export function objectToIdiomaticEJSON(
-  value: Readonly<EJSON.SerializableTypes>,
+  value: any,
   options: HadronEJSONOptions = {}
 ): string {
   const serialized = EJSON.serialize(value, {
@@ -52,17 +77,17 @@ export function objectToIdiomaticEJSON(
   );
 }
 
-function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
+function makeEJSONIdiomatic(value: any): void {
   if (!value || typeof value !== 'object') return;
 
   for (const key of Object.keys(value)) {
-    const entry = (value as any)[key];
+    const entry = value[key];
     // We are only interested in object-like values, skip everything else
     if (typeof entry !== 'object' || entry === null) {
       continue;
     }
     if (entry.$numberInt) {
-      (value as any)[key] = +entry.$numberInt;
+      value[key] = +entry.$numberInt;
       continue;
     }
     if (entry.$numberDouble) {
@@ -72,7 +97,7 @@ function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
       ) {
         // EJSON can represent +/-Infinity or NaN values but JSON can't
         // (and -0 can be parsed from JSON but not serialized by JSON.stringify).
-        (value as any)[key] = +entry.$numberDouble;
+        value[key] = +entry.$numberDouble;
       }
       continue;
     }
@@ -84,4 +109,11 @@ function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
     }
     makeEJSONIdiomatic(entry);
   }
+}
+
+/**
+ * Returns a default value for the BSON type passed in.
+ */
+export function getDefaultValueForType(type: keyof TypeCastMap) {
+  return TypeChecker.cast(UNCASTED_EMPTY_TYPE_VALUE[type], type);
 }

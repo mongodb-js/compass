@@ -20,6 +20,7 @@ import { dropIndex } from '../../modules/drop-index';
 import { resetForm } from '../../modules/reset-form';
 
 import type { RootState } from '../../modules/drop-index';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const messageStyles = css({
   display: 'flex',
@@ -118,6 +119,18 @@ export function DropIndexModal({
     );
   };
 
+  useTrackOnChange(
+    'COMPASS-INDEXES-UI',
+    (track) => {
+      if (isVisible) {
+        track('Screen', { name: 'drop_index_modal' });
+      }
+    },
+    [isVisible],
+    undefined,
+    React
+  );
+
   return (
     <ConfirmationModal
       title="Drop Index"
@@ -127,7 +140,6 @@ export function DropIndexModal({
       buttonText="Drop"
       variant="danger"
       submitDisabled={confirmName !== name}
-      trackingId="drop_index_modal"
       data-testid="drop-index-modal"
     >
       <div className={messageStyles}>

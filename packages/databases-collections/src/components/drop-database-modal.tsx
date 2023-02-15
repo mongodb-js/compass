@@ -14,6 +14,7 @@ import {
 import { dropDatabase } from '../modules/drop-database/drop-database';
 import { toggleIsVisible } from '../modules/is-visible';
 import type { RootState } from '../modules/drop-database/drop-database';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -59,6 +60,18 @@ function DropDatabaseModal({
     }
   }, [name, nameConfirmation, dropDatabase]);
 
+  useTrackOnChange(
+    'COMPASS-DATABASES-COLLECTIONS-UI',
+    (track) => {
+      if (isVisible) {
+        track('Screen', { name: 'drop_database_modal' });
+      }
+    },
+    [isVisible],
+    undefined,
+    React
+  );
+
   return (
     <FormModal
       title="Drop Database"
@@ -68,7 +81,6 @@ function DropDatabaseModal({
       submitButtonText="Drop Database"
       variant="danger"
       submitDisabled={name !== nameConfirmation || isRunning}
-      trackingId="drop_database_modal"
       data-testid="drop-database-modal"
     >
       <FormFieldContainer>

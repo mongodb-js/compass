@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ObjectID as ObjectId } from 'bson';
+import { ObjectId } from 'bson';
 import {
   Button,
   CancelLoader,

@@ -35,47 +35,48 @@ const paginationStyles = css({
   alignItems: 'baseline',
 });
 
-export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps> =
-  ({
-    showingFrom,
-    showingTo,
-    isCountDisabled,
-    isPrevDisabled,
-    isNextDisabled,
-    onPrev,
-    onNext,
-  }) => {
-    return (
-      <div className={containerStyles} data-testid="pipeline-pagination">
-        {!isCountDisabled && (
-          <div className={paginationStyles}>
-            <Body data-testid="pipeline-pagination-desc">
-              Showing {showingFrom} – {showingTo}
-            </Body>
-            <PipelinePaginationCount />
-          </div>
-        )}
-        <div>
-          <IconButton
-            data-testid="pipeline-pagination-prev-action"
-            aria-label="Previous page"
-            disabled={isPrevDisabled}
-            onClick={() => onPrev()}
-          >
-            <Icon glyph="ChevronLeft" />
-          </IconButton>
-          <IconButton
-            data-testid="pipeline-pagination-next-action"
-            aria-label="Next page"
-            disabled={isNextDisabled}
-            onClick={() => onNext()}
-          >
-            <Icon glyph="ChevronRight" />
-          </IconButton>
+export const PipelinePagination: React.FunctionComponent<
+  PipelinePaginationProps
+> = ({
+  showingFrom,
+  showingTo,
+  isCountDisabled,
+  isPrevDisabled,
+  isNextDisabled,
+  onPrev,
+  onNext,
+}) => {
+  return (
+    <div className={containerStyles} data-testid="pipeline-pagination">
+      {!isCountDisabled && (
+        <div className={paginationStyles}>
+          <Body data-testid="pipeline-pagination-desc">
+            Showing {showingFrom} – {showingTo}
+          </Body>
+          <PipelinePaginationCount />
         </div>
+      )}
+      <div>
+        <IconButton
+          data-testid="pipeline-pagination-prev-action"
+          aria-label="Previous page"
+          disabled={isPrevDisabled}
+          onClick={() => onPrev()}
+        >
+          <Icon glyph="ChevronLeft" />
+        </IconButton>
+        <IconButton
+          data-testid="pipeline-pagination-next-action"
+          aria-label="Next page"
+          disabled={isNextDisabled}
+          onClick={() => onNext()}
+        >
+          <Icon glyph="ChevronRight" />
+        </IconButton>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 export const calculateShowingFrom = ({
   limit,

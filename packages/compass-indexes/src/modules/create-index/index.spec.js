@@ -6,6 +6,18 @@ import { ActionTypes as ErrorActionTypes } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET_FORM } from '../reset-form';
+import { INITIAL_STATE as OPTIONS_INITIAL_STATE } from './options';
+
+function createOptions(options) {
+  return {
+    ...OPTIONS_INITIAL_STATE,
+    ...Object.fromEntries(
+      Object.keys(options).map((name) => {
+        return [name, { enabled: true, value: options[name] }];
+      })
+    ),
+  };
+}
 
 describe('create index module', function () {
   let errorSpy;
@@ -55,25 +67,22 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        useTtl: true,
-        ttl: 'abc',
+        options: createOptions({ expireAfterSeconds: 'abc' }),
       });
       createIndex()(dispatch, state);
       expect(errorSpy.calledOnce).to.equal(true);
     });
     it('errors if PFE is not JSON', function () {
       const dispatch = (res) => {
-        expect(res).to.deep.equal({
-          type: ErrorActionTypes.HandleError,
-          error:
-            'Bad PartialFilterExpression: SyntaxError: Unexpected token a in JSON at position 0',
-        });
+        expect(res).to.have.property('type', ErrorActionTypes.HandleError);
+        expect(res)
+          .to.have.property('error')
+          .match(/Bad PartialFilterExpression: SyntaxError/);
         errorSpy();
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        usePartialFilterExpression: true,
-        partialFilterExpression: 'abc',
+        options: createOptions({ partialFilterExpression: 'abc' }),
       });
       createIndex()(dispatch, state);
       expect(errorSpy.calledOnce).to.equal(true);
@@ -104,15 +113,14 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        usePartialFilterExpression: true,
-        partialFilterExpression: '{"a": 1}',
-        isUnique: true,
-        isSparse: true,
-        name: 'test name',
-        useCustomCollation: true,
-        collationString: "{locale: 'en'}",
-        useTtl: true,
-        ttl: 100,
+        options: createOptions({
+          partialFilterExpression: '{"a": 1}',
+          unique: true,
+          sparse: true,
+          name: 'test name',
+          collation: "{locale: 'en'}",
+          expireAfterSeconds: 100,
+        }),
         appRegistry: {
           emit: emitSpy,
         },
@@ -174,15 +182,12 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        usePartialFilterExpression: true,
-        partialFilterExpression: '{"a": 1}',
-        isUnique: true,
-        isSparse: false,
-        name: '',
-        useCustomCollation: true,
-        collationString: "{locale: 'en'}",
-        useTtl: true,
-        ttl: 100,
+        options: createOptions({
+          partialFilterExpression: '{"a": 1}',
+          unique: true,
+          collation: "{locale: 'en'}",
+          expireAfterSeconds: 100,
+        }),
         namespace: 'db.coll',
         appRegistry: {
           emit: emitSpy,
@@ -198,7 +203,6 @@ describe('create index module', function () {
               expireAfterSeconds: 100,
               partialFilterExpression: { a: 1 },
               unique: true,
-              sparse: false,
             });
             cb(null);
           },
@@ -244,11 +248,11 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        usePartialFilterExpression: false,
-        useTtl: false,
-        isUnique: false,
-        isSparse: false,
-        name: 'test name',
+        options: createOptions({
+          name: 'test name',
+          unique: false,
+          sparse: false,
+        }),
         namespace: 'db.coll',
         appRegistry: {},
         dataService: {
@@ -257,8 +261,6 @@ describe('create index module', function () {
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
               name: 'test name',
-              unique: false,
-              sparse: false,
             });
             cb({ message: 'test err' });
           },

@@ -1,10 +1,11 @@
 import toNS from 'mongodb-ns';
-import {
-  globalAppRegistryEmit
-} from '@mongodb-js/mongodb-redux-common/app-registry';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
+import {
+  getPipelineFromBuilderState,
+  mapPipelineModeToEditorViewType,
+} from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -14,10 +15,12 @@ const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 export const INITIAL_STATE = null;
 
 // Action for when an error occurs when updating a view.
-export const ERROR_UPDATING_VIEW = 'aggregations/update-view/ERROR_UPDATING_VIEW';
+export const ERROR_UPDATING_VIEW =
+  'aggregations/update-view/ERROR_UPDATING_VIEW';
 
 // Action for dismissing the error that occured when updating a view.
-export const DISMISS_VIEW_UPDATE_ERROR = 'aggregations/update-view/DISMISS_VIEW_UPDATE_ERROR';
+export const DISMISS_VIEW_UPDATE_ERROR =
+  'aggregations/update-view/DISMISS_VIEW_UPDATE_ERROR';
 
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === ERROR_UPDATING_VIEW) {
@@ -41,7 +44,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const updateViewErrorOccured = (error) => ({
   type: ERROR_UPDATING_VIEW,
-  error: `${error}`
+  error: `${error}`,
 });
 
 /**
@@ -50,7 +53,7 @@ export const updateViewErrorOccured = (error) => ({
  * @returns {Object} The action.
  */
 export const dismissViewError = () => ({
-  type: DISMISS_VIEW_UPDATE_ERROR
+  type: DISMISS_VIEW_UPDATE_ERROR,
 });
 
 /**
@@ -71,7 +74,7 @@ export const updateView = () => {
     );
     const options = {
       viewOn: toNS(state.namespace).collection,
-      pipeline: viewPipeline
+      pipeline: viewPipeline,
     };
 
     try {
@@ -86,13 +89,12 @@ export const updateView = () => {
         dispatch(globalAppRegistryEmit('refresh-data'));
         track('View Updated', {
           num_stages: viewPipeline.length,
-          editor_view_type: mapPipelineModeToEditorViewType(state.pipelineBuilder.pipelineMode),
+          editor_view_type: mapPipelineModeToEditorViewType(state),
         });
         dispatch(
-          globalAppRegistryEmit(
-            'compass:aggregations:update-view',
-            { numStages: viewPipeline.length }
-          )
+          globalAppRegistryEmit('compass:aggregations:update-view', {
+            numStages: viewPipeline.length,
+          })
         );
         const metadata = {
           namespace: viewNamespace,
@@ -101,7 +103,7 @@ export const updateView = () => {
           editViewName: null,
           sourceReadonly: state.isReadonly,
           sourceViewOn: state.sourceName,
-          sourcePipeline: viewPipeline
+          sourcePipeline: viewPipeline,
         };
         debug('selecting namespace', metadata);
         dispatch(globalAppRegistryEmit('select-namespace', metadata));

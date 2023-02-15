@@ -1,60 +1,226 @@
 import React from 'react';
 import {
-  InfoModal,
-  Body,
+  Modal,
+  css,
+  spacing,
+  palette,
+  cx,
+  useDarkMode,
+  HorizontalRule,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import type { RootState } from '../../modules';
-import { focusModeDisabled } from '../../modules/focus-mode';
+import { disableFocusMode } from '../../modules/focus-mode';
+import FocusModeStageEditor from './focus-mode-stage-editor';
+import {
+  FocusModeStageInput,
+  FocusModeStageOutput,
+} from './focus-mode-stage-preview';
+import FocusModeModalHeader from './focus-mode-modal-header';
+import ResizeHandle from '../resize-handle';
+import { Resizable } from 're-resizable';
 
+// These styles make the modal occupy the whole screen,
+// with 18px of padding - because that's the
+// default padding for the modal (left and right).
+const modalStyles = css({
+  '> div': {
+    height: '100%',
+    padding: '18px',
+  },
+  '[role="dialog"]': {
+    width: '100%',
+    height: '100%',
+    // LG sets maxHeight to calc(100% - 64px). This enables modal
+    // to occupy the whole screen.
+    maxHeight: '100%',
+    '> div': {
+      height: '100%',
+    },
+  },
+});
+
+const containerStyles = css({
+  display: 'grid',
+  gridTemplateRows: 'min-content 1fr',
+  gridTemplateColumns: '1fr',
+  overflow: 'hidden',
+  padding: spacing[5],
+  paddingBottom: 0,
+  height: '100%',
+});
+
+const headerStyles = css({
+  paddingBottom: spacing[2],
+});
+
+const bodyStyles = css({
+  display: 'flex',
+  height: '100%',
+  overflow: 'hidden',
+});
+
+const inputResizerStyles = css({
+  paddingTop: spacing[4],
+  paddingRight: spacing[2],
+});
+
+const outputResizerStyles = css({
+  paddingTop: spacing[4],
+  paddingLeft: spacing[2],
+});
+
+const previewAreaStyles = css({
+  height: '100%',
+});
+
+const editorAreaBaseStyles = css({
+  flex: 1,
+  paddingTop: spacing[4],
+});
+
+const editorAreaDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
+});
+
+const editorAreaLightStyles = css({
+  backgroundColor: palette.gray.light3,
+});
+
+const editorAreaWithPreviewStyles = css({
+  width: '50%',
+  minWidth: '20%',
+  maxWidth: '70%',
+});
+
+const editorAreaExpanded = css({
+  width: '100%',
+});
 
 type FocusModeProps = {
   isModalOpen: boolean;
-  stageIndex: number;
-  stage: any;
+  isAutoPreviewEnabled: boolean;
   onCloseModal: () => void;
+};
+
+const FocusModeContent = ({
+  isAutoPreviewEnabled,
+}: {
+  isAutoPreviewEnabled: boolean;
+}) => {
+  const darkMode = useDarkMode();
+  if (!isAutoPreviewEnabled) {
+    return (
+      <div className={bodyStyles}>
+        <div
+          className={cx(
+            editorAreaBaseStyles,
+            editorAreaExpanded,
+            darkMode ? editorAreaDarkStyles : editorAreaLightStyles
+          )}
+          data-testid="stage-editor"
+        >
+          <FocusModeStageEditor />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className={bodyStyles}>
+      <Resizable
+        defaultSize={{
+          width: '25%',
+          height: 'auto',
+        }}
+        minWidth={'15%'}
+        maxWidth={'40%'}
+        className={inputResizerStyles}
+        enable={{
+          right: true,
+        }}
+        handleComponent={{
+          right: <ResizeHandle />,
+        }}
+        handleStyles={{
+          right: {
+            right: '-9px', // default -5px
+          },
+        }}
+      >
+        <div className={previewAreaStyles} data-testid="stage-input">
+          <FocusModeStageInput />
+        </div>
+      </Resizable>
+      <div
+        className={cx(
+          editorAreaBaseStyles,
+          editorAreaWithPreviewStyles,
+          darkMode ? editorAreaDarkStyles : editorAreaLightStyles
+        )}
+        data-testid="stage-editor"
+      >
+        <FocusModeStageEditor />
+      </div>
+      <Resizable
+        defaultSize={{
+          width: '25%',
+          height: 'auto',
+        }}
+        minWidth={'15%'}
+        maxWidth={'40%'}
+        className={outputResizerStyles}
+        enable={{
+          left: true,
+        }}
+        handleComponent={{
+          left: <ResizeHandle />,
+        }}
+        handleStyles={{
+          left: {
+            left: '-1px', // default -5px
+          },
+        }}
+      >
+        <div className={previewAreaStyles} data-testid="stage-output">
+          <FocusModeStageOutput />
+        </div>
+      </Resizable>
+    </div>
+  );
 };
 
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
-  stageIndex,
-  stage,
+  isAutoPreviewEnabled,
   onCloseModal,
 }) => {
-  if (!isModalOpen) return null;
   return (
-    <InfoModal
-      showCloseButton={false}
-      title="Focus Mode"
-      size={'large'}
-      onClose={onCloseModal}
+    <Modal
+      className={modalStyles}
+      setOpen={onCloseModal}
       open={isModalOpen}
-      data-testid={`focus-mode-modal-${stageIndex}`}
+      data-testid={'focus-mode-modal'}
     >
-      <Body>In progress feature.</Body>
-      <Body>Focus mode for stage {stage.stageOperator}.</Body>
-    </InfoModal>
+      <div className={containerStyles}>
+        <div>
+          <div className={headerStyles}>
+            <FocusModeModalHeader></FocusModeModalHeader>
+          </div>
+          <HorizontalRule />
+        </div>
+        <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
+      </div>
+    </Modal>
   );
 };
 
-const mapState = ({
-  focusMode: { isEnabled, stageIndex },
-  pipelineBuilder: {
-    stageEditor: {
-      stages,
-    }
-  }
-}: RootState) => {
-  const stage = stages[stageIndex];
-  return {
-    isModalOpen: isEnabled,
-    stageIndex,
-    stage,
-  };
-};
+const mapState = ({ focusMode: { isEnabled }, autoPreview }: RootState) => ({
+  isModalOpen: isEnabled,
+  isAutoPreviewEnabled: autoPreview,
+});
 
 const mapDispatch = {
-  onCloseModal: focusModeDisabled
+  onCloseModal: disableFocusMode,
 };
 export default connect(mapState, mapDispatch)(FocusMode);

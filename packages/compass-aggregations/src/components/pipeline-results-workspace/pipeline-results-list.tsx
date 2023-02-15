@@ -35,11 +35,11 @@ const PipelineResultsList: React.FunctionComponent<{
     view === 'document' ? DocumentListView : DocumentJsonView;
 
   return (
-      <DocumentView
-        {...listProps}
-        isExpanded={!!allDocsExpanded}
-        className={containerStyles}
-      />
+    <DocumentView
+      {...listProps}
+      isExpanded={!!allDocsExpanded}
+      className={containerStyles}
+    />
   );
 };
 

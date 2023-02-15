@@ -90,7 +90,7 @@ describe('Collection import', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await createDummyCollections();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
   });
 
   after(async function () {
@@ -437,7 +437,7 @@ describe('Collection import', function () {
     const errorElement = await browser.$(Selectors.ImportErrorBox);
     await errorElement.waitForDisplayed();
     const errorText = await errorElement.getText();
-    expect(errorText).to.contain('Unexpected token "i"');
+    expect(errorText).to.match(/Unexpected token ("|')i\1/);
 
     // click the cancel button
     await browser.clickVisible(Selectors.ImportCancel);
@@ -660,7 +660,7 @@ describe('Collection import', function () {
     });
 
     // pick an incompatible type
-    await selectFieldType(browser, 'id', 'ObjectID');
+    await selectFieldType(browser, 'id', 'ObjectId');
 
     // confirm
     await browser.clickVisible(Selectors.ImportConfirm);

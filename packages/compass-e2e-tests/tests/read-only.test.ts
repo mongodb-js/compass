@@ -5,6 +5,7 @@ import os from 'os';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { getStageOperators } from '../helpers/read-stage-operators';
 
 describe('readOnly: true / Read-Only Edition', function () {
   let tmpdir: string;
@@ -27,9 +28,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', true);
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
 
       let sidebarCreateDatabaseButton = await browser.$(
         Selectors.SidebarCreateDatabaseButton
@@ -68,9 +67,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     try {
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
 
       const dbName = 'test'; // existing db
       await browser.clickVisible(Selectors.SidebarFilterInput);
@@ -118,9 +115,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     const browser = compass.browser;
     try {
       await browser.setFeature('readOnly', false);
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
 
       await browser.navigateToInstanceTab('Databases');
 
@@ -161,9 +156,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     try {
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
 
       await browser.navigateToDatabaseTab('test', 'Collections');
 
@@ -204,9 +197,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     try {
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
 
       await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
@@ -241,9 +232,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     try {
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
 
       // Some tests navigate away from the numbers collection aggregations tab
       await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
@@ -255,14 +244,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       const stageContainers = await browser.$$(Selectors.StageCard);
       expect(stageContainers).to.have.lengthOf(1);
 
-      await browser.focusStageOperator(0);
-
-      let stageOperatorOptionsElements = await browser.$$(
-        Selectors.stageOperatorOptions(0)
-      );
-      let options = await Promise.all(
-        stageOperatorOptionsElements.map((element) => element.getText())
-      );
+      let options = await getStageOperators(browser, 0);
 
       expect(options).to.include('$match');
       expect(options).to.include('$out');
@@ -291,12 +273,7 @@ describe('readOnly: true / Read-Only Edition', function () {
 
       await browser.focusStageOperator(0);
 
-      stageOperatorOptionsElements = await browser.$$(
-        Selectors.stageOperatorOptions(0)
-      );
-      options = await Promise.all(
-        stageOperatorOptionsElements.map((element) => element.getText())
-      );
+      options = await getStageOperators(browser, 0);
 
       expect(options).to.include('$match');
       expect(options).to.not.include('$out');
@@ -312,9 +289,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     const browser = compass.browser;
     try {
       await createNumbersCollection();
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
 
       await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
 
@@ -353,9 +328,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     try {
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
+      await browser.connectWithConnectionString();
 
       await browser.navigateToCollectionTab('test', 'numbers', 'Validation');
       await browser.clickVisible(Selectors.AddRuleButton);

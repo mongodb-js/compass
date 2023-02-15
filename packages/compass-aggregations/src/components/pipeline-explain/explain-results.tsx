@@ -59,7 +59,10 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
           />
         </div>
       )}
-      <KeylineCard className={cardStyles} data-testid="pipeline-explain-results-json">
+      <KeylineCard
+        className={cardStyles}
+        data-testid="pipeline-explain-results-json"
+      >
         <Document
           doc={plan}
           editable={false}

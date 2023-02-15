@@ -9,8 +9,10 @@ import {
   switchToJSONView,
   explainStateChanged,
   explainPlanFetched,
+  startExplainPlan,
+  cancelExplainPlan,
 } from '../modules/explain';
-import { treeStagesChanged } from '../modules/tree-stages';
+import explainStates from '../constants/explain-states';
 
 describe('Explain Plan Store', function () {
   let store;
@@ -110,17 +112,57 @@ describe('Explain Plan Store', function () {
       });
 
       context('when the action is EXPLAIN_STATE_CHANGED', function () {
-        const explainState = 'executed';
-
-        it('updates the view type in state to "json"', function (done) {
+        it('marks the start of explain plan"', function (done) {
+          const explainState = explainStates.REQUESTED;
+          const abortController = new AbortController();
+          const oldExplain = null;
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(store.getState().explain.explainState).to.equal(
               explainState
             );
+            expect(store.getState().explain.abortController).to.equal(
+              abortController
+            );
+            expect(store.getState().explain.oldExplain).to.deep.equal(
+              oldExplain
+            );
+            done();
+          });
+          store.dispatch(startExplainPlan(abortController, oldExplain));
+        });
+
+        it('marks the completion of explain plan', function (done) {
+          const explainState = explainStates.EXECUTED;
+          const unsubscribe = store.subscribe(() => {
+            unsubscribe();
+            expect(store.getState().explain.explainState).to.equal(
+              explainState
+            );
+            expect(store.getState().explain.abortController).to.be.null;
+            expect(store.getState().explain.oldExplain).to.be.null;
             done();
           });
           store.dispatch(explainStateChanged(explainState));
+        });
+
+        it('cancels the ongoing request to explain plan', function (done) {
+          const abortController = new AbortController();
+          const oldExplain = {
+            explainState: 'initial',
+          };
+          let timeout;
+          const unsubscribe = store.subscribe(async () => {
+            if (timeout) return;
+            timeout = setTimeout(() => {
+              unsubscribe();
+              expect(abortController.signal.aborted).to.be.true;
+              expect(store.getState().explain).to.deep.equal(oldExplain);
+              done();
+            });
+          });
+          store.dispatch(startExplainPlan(abortController, oldExplain));
+          store.dispatch(cancelExplainPlan());
         });
       });
 
@@ -128,6 +170,8 @@ describe('Explain Plan Store', function () {
         const explain = {
           error: null,
           errorParsing: false,
+          abortController: null,
+          oldExplain: null,
           executionSuccess: true,
           executionTimeMillis: 6,
           explainState: 'executed',
@@ -159,47 +203,6 @@ describe('Explain Plan Store', function () {
             done();
           });
           store.dispatch(explainPlanFetched(explain));
-        });
-      });
-    });
-
-    context('when it is the tree-stages module', function () {
-      context('when the action is TREE_STAGES_CHANGED', function () {
-        const explain = {
-          error: null,
-          executionSuccess: true,
-          executionTimeMillis: 6,
-          explainState: 'executed',
-          inMemorySort: false,
-          index: null,
-          indexType: 'COLLSCAN',
-          isCollectionScan: true,
-          isCovered: false,
-          isMultiKey: false,
-          isSharded: false,
-          nReturned: 18801,
-          namespace: 'db.coll',
-          numShards: 0,
-          parsedQuery: {},
-          executionStats: {},
-          totalDocsExamined: 18801,
-          totalKeysExamined: 0,
-          usedIndexes: [],
-          viewType: 'tree',
-        };
-
-        it('updates the treeStages in state', function (done) {
-          const unsubscribe = store.subscribe(() => {
-            unsubscribe();
-            expect(store.getState().treeStages).to.deep.equal({
-              nodes: [],
-              links: [],
-              width: 0,
-              height: 0,
-            });
-            done();
-          });
-          store.dispatch(treeStagesChanged(explain));
         });
       });
     });

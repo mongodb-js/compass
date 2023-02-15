@@ -1,9 +1,12 @@
 import { expect } from 'chai';
-import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  serverSatisfies,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
   createDummyCollections,
@@ -26,7 +29,7 @@ describe('Database collections tab', function () {
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
     await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
@@ -97,6 +100,8 @@ describe('Database collections tab', function () {
       'add-collection-modal-basic.png'
     );
 
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
       Selectors.CollectionsGrid,
@@ -128,6 +133,12 @@ describe('Database collections tab', function () {
 
     // wait for it to be gone
     await collectionCard.waitForExist({ reverse: true });
+
+    // the app should still be on the database Collections tab because there are
+    // other collections in this database
+    await browser
+      .$(Selectors.databaseTab('Collections', true))
+      .waitForDisplayed();
   });
 
   it('can create a capped collection', async function () {
@@ -145,6 +156,8 @@ describe('Database collections tab', function () {
       },
       'add-collection-modal-capped.png'
     );
+
+    await browser.navigateToDatabaseTab('test', 'Collections');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -182,6 +195,8 @@ describe('Database collections tab', function () {
       'add-collection-modal-custom-collation.png'
     );
 
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
       Selectors.CollectionsGrid,
@@ -197,7 +212,7 @@ describe('Database collections tab', function () {
   });
 
   it('can create a time series collection', async function () {
-    if (semver.lt(MONGODB_VERSION, '5.0.0')) {
+    if (serverSatisfies('< 5.0.0')) {
       return this.skip();
     }
 
@@ -219,6 +234,48 @@ describe('Database collections tab', function () {
       'add-collection-modal-timeseries.png'
     );
 
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    await collectionCard
+      .$('[data-testid="collection-badge-timeseries"]')
+      .waitForDisplayed();
+  });
+
+  it('can create a time series collection with flexible bucket configuration', async function () {
+    if (serverSatisfies('< 6.3.0-alpha0')) {
+      return this.skip();
+    }
+
+    const collectionName = 'my-timeseries-collection';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(
+      collectionName,
+      {
+        timeseries: {
+          timeField: 'time',
+          metaField: 'meta',
+          bucketMaxSpanSeconds: 60,
+          bucketRoundingSeconds: 60,
+          expireAfterSeconds: 60,
+        },
+      },
+      'add-collection-modal-timeseries.png'
+    );
+
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
       Selectors.CollectionsGrid,
@@ -234,7 +291,7 @@ describe('Database collections tab', function () {
   });
 
   it('can create a clustered collection', async function () {
-    if (semver.lt(MONGODB_VERSION, '5.3.0')) {
+    if (serverSatisfies('< 5.3.0')) {
       return this.skip();
     }
 
@@ -255,6 +312,8 @@ describe('Database collections tab', function () {
       'add-collection-modal-clustered.png'
     );
 
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
       Selectors.CollectionsGrid,
@@ -270,7 +329,7 @@ describe('Database collections tab', function () {
 
     await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
 
-    const typeElementSelector = `${Selectors.IndexComponent(indexName)} ${
+    const typeElementSelector = `${Selectors.indexComponent(indexName)} ${
       Selectors.IndexFieldType
     }`;
     const typeElement = await browser.$(typeElementSelector);

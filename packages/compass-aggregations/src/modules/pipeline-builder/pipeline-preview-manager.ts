@@ -2,10 +2,14 @@ import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '@mongodb-js/compass-utils';
-import { getStageOperator, getLastStageOperator, isLastStageOutputStage } from '../../utils/stage';
+import {
+  getStageOperator,
+  getLastStageOperator,
+  isLastStageOutputStage,
+} from '../../utils/stage';
 import {
   FULL_SCAN_STAGES,
-  REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE
+  REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE,
 } from '@mongodb-js/mongodb-constants';
 import isEqual from 'lodash/isEqual';
 
@@ -31,7 +35,7 @@ export interface PreviewOptions extends AggregateOptions {
   totalDocumentCount?: number;
   sampleSize?: number;
   previewSize?: number;
-};
+}
 
 export function createPreviewAggregation(
   pipeline: Document[],
@@ -49,7 +53,7 @@ export function createPreviewAggregation(
     if (
       (!options.totalDocumentCount ||
         options.totalDocumentCount >
-        (options.sampleSize ?? DEFAULT_SAMPLE_SIZE)) &&
+          (options.sampleSize ?? DEFAULT_SAMPLE_SIZE)) &&
       // If stage can cause a full scan on the collection, prepend it with a
       // $limit
       FULL_SCAN_OPS.includes(getStageOperator(stage) ?? '')
@@ -61,9 +65,7 @@ export function createPreviewAggregation(
   if (
     // TODO: super unsure what this is doing, half of these are not even
     // selectable stage operators in UI
-    !REQUIRED_AS_FIRST_STAGE.includes(
-      getLastStageOperator(stages)
-    )
+    !REQUIRED_AS_FIRST_STAGE.includes(getLastStageOperator(stages))
   ) {
     stages.push({ $limit: options.previewSize ?? DEFAULT_PREVIEW_LIMIT });
   }
@@ -104,9 +106,9 @@ export class PipelinePreviewManager {
       pipeline: createPreviewAggregation(pipeline, {
         sampleSize,
         previewSize,
-        totalDocumentCount
+        totalDocumentCount,
       }),
-      options
+      options,
     });
     this.queue.delete(idx);
     return result;

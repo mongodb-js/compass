@@ -40,8 +40,8 @@ const executeJavascript = (input) => {
     Map: bson.Map,
     MaxKey: bson.MaxKey,
     MinKey: bson.MinKey,
-    ObjectID: bson.ObjectID,
-    ObjectId: bson.ObjectID,
+    ObjectID: bson.ObjectId,
+    ObjectId: bson.ObjectId,
     BSONSymbol: bson.BSONSymbol,
     Timestamp: bson.Timestamp,
     Code: function(c, s) {

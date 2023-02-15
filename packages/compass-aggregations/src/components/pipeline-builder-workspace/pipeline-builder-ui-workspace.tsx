@@ -5,9 +5,12 @@ import type { StageProps } from '../stage';
 import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
-import { addStage, moveStage } from '../../modules/pipeline-builder/stage-editor';
+import {
+  addStage,
+  moveStage,
+} from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
-import { css } from '@mongodb-js/compass-components';
+import { css, spacing } from '@mongodb-js/compass-components';
 
 import {
   DndContext,
@@ -15,7 +18,7 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
- } from '@dnd-kit/core';
+} from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -32,14 +35,13 @@ const pipelineWorkspaceStyles = css({
   flexDirection: 'column',
   width: '100%',
   flexGrow: 1,
+  paddingRight: spacing[3],
+  paddingLeft: spacing[3],
 });
 
 const stageContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  '&.dragging .add-stage-button': {
-    visibility: 'hidden',
-  }
 });
 
 type PipelineBuilderUIWorkspaceProps = {
@@ -61,13 +63,16 @@ type SortableListProps = {
   onStageAddAfterEnd: (after?: number) => void;
 };
 
-const SortableItem = ({ idx, isLastStage, onStageAddAfter, ...props }: SortableItemProps) => {
+const SortableItem = ({
+  idx,
+  isLastStage,
+  onStageAddAfter,
+  ...props
+}: SortableItemProps) => {
   return (
     <div className={stageContainerStyles}>
       <Stage index={idx} {...props}></Stage>
-      {!isLastStage && <div className='add-stage-button'>
-        <AddStage onAddStage={onStageAddAfter} variant='icon' />
-      </div>}
+      {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
     </div>
   );
 };
@@ -103,8 +108,8 @@ const SortableList = ({
 
   const onSortEnd = useCallback(
     ({ oldIndex, newIndex }) => {
-      const from = stageIds.findIndex((id) => (id + 1) === oldIndex);
-      const to = stageIds.findIndex((id) =>  (id + 1) === newIndex);
+      const from = stageIds.findIndex((id) => id + 1 === oldIndex);
+      const to = stageIds.findIndex((id) => id + 1 === newIndex);
       onStageMoveEnd(from, to);
     },
     [onStageMoveEnd, stageIds]
@@ -126,47 +131,46 @@ const SortableList = ({
             key={`stage-${id}`}
             idx={index}
             isLastStage={index === stageIds.length - 1}
-            onStageAddAfter={() => onStageAddAfterEnd(index)} />
+            onStageAddAfter={() => onStageAddAfterEnd(index)}
+          />
         ))}
       </SortableContext>
     </DndContext>
   );
 };
 
-export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilderUIWorkspaceProps> = ({
-  stageIds,
-  editViewName,
-  onStageMoveEnd,
-  onStageAddAfterEnd,
-}) => {
+export const PipelineBuilderUIWorkspace: React.FunctionComponent<
+  PipelineBuilderUIWorkspaceProps
+> = ({ stageIds, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
   return (
-    <div
-      data-testid="pipeline-builder-ui-workspace"
-    >
+    <div data-testid="pipeline-builder-ui-workspace">
       <div className={pipelineWorkspaceContainerStyles}>
         <div className={pipelineWorkspaceStyles}>
-          {editViewName && (
-            <ModifySourceBanner editViewName={editViewName} />
-          )}
+          {editViewName && <ModifySourceBanner editViewName={editViewName} />}
           <PipelineBuilderInputDocuments />
-          {stageIds.length !== 0 && <AddStage onAddStage={() => onStageAddAfterEnd(-1)} variant='icon' />}
+          {stageIds.length !== 0 && (
+            <AddStage
+              onAddStage={() => onStageAddAfterEnd(-1)}
+              variant="icon"
+            />
+          )}
           <SortableList
             stageIds={stageIds}
             onStageMoveEnd={onStageMoveEnd}
             onStageAddAfterEnd={onStageAddAfterEnd}
           />
-          <AddStage onAddStage={onStageAddAfterEnd} variant='button' />
+          <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
         </div>
       </div>
     </div>
   );
-}
+};
 
 const mapState = (state: RootState) => {
   return {
     stageIds: state.pipelineBuilder.stageEditor.stageIds,
-    editViewName: state.editViewName
-  }
+    editViewName: state.editViewName,
+  };
 };
 
 const mapDispatch = {

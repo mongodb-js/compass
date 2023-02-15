@@ -10,6 +10,7 @@ import {
   Toggle,
   InfoModal,
 } from '@mongodb-js/compass-components';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const toggleStyles = css({
   marginTop: spacing[3],
@@ -48,12 +49,23 @@ export default function CSFLEConnectionModal({
     setOpen(false);
   }, [setOpen]);
 
+  useTrackOnChange(
+    'COMPASS-SIDEBAR-UI',
+    (track) => {
+      if (open) {
+        track('Screen', { name: 'csfle_connection_modal' });
+      }
+    },
+    [open],
+    undefined,
+    React
+  );
+
   return (
     <InfoModal
       title="In-Use Encryption Connection Options"
       open={open}
       onClose={onClose}
-      trackingId="csfle_connection_modal"
       data-testid="csfle-connection-modal"
     >
       <Body>This connection is configured with In-Use Encryption enabled.</Body>

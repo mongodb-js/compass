@@ -14,11 +14,11 @@ const pipelines = [
     pipeline: [
       {
         stage: {
-          $unwind: 'users'
+          $unwind: 'users',
         },
-        disabled: false
-      }
-    ]
+        disabled: false,
+      },
+    ],
   },
   {
     usecase: 'all stages disabled',
@@ -34,17 +34,17 @@ const pipelines = [
     pipeline: [
       {
         stage: {
-          $unwind: 'users'
+          $unwind: 'users',
         },
-        disabled: true
+        disabled: true,
       },
       {
         stage: {
-          $limit: 20
+          $limit: 20,
         },
-        disabled: true
-      }
-    ]
+        disabled: true,
+      },
+    ],
   },
   {
     usecase: 'enabled first and last stage',
@@ -66,25 +66,25 @@ const pipelines = [
     pipeline: [
       {
         stage: {
-          $unwind: 'users'
+          $unwind: 'users',
         },
-        disabled: false
+        disabled: false,
       },
       {
         stage: {
-          $limit: 20
+          $limit: 20,
         },
-        disabled: true
+        disabled: true,
       },
       {
         stage: {
           $sort: {
-            name: -1
-          }
+            name: -1,
+          },
         },
-        disabled: false
-      }
-    ]
+        disabled: false,
+      },
+    ],
   },
   {
     usecase: 'last stage disabled',
@@ -105,25 +105,25 @@ const pipelines = [
     pipeline: [
       {
         stage: {
-          $unwind: 'users'
+          $unwind: 'users',
         },
-        disabled: false
+        disabled: false,
       },
       {
         stage: {
-          $limit: 20
+          $limit: 20,
         },
-        disabled: false
+        disabled: false,
       },
       {
         stage: {
           $sort: {
-            name: -1
-          }
+            name: -1,
+          },
         },
-        disabled: true
-      }
-    ]
+        disabled: true,
+      },
+    ],
   },
   {
     usecase: 'only last stage enabled',
@@ -142,23 +142,23 @@ const pipelines = [
     pipeline: [
       {
         stage: {
-          $match: {}
+          $match: {},
         },
-        disabled: true
+        disabled: true,
       },
       {
         stage: {
-          $unwind: 'users'
+          $unwind: 'users',
         },
-        disabled: true
+        disabled: true,
       },
       {
         stage: {
-          $limit: 20
+          $limit: 20,
         },
-        disabled: false
-      }
-    ]
+        disabled: false,
+      },
+    ],
   },
   {
     usecase: 'pipeline with no stage and only comments',
@@ -166,7 +166,7 @@ const pipelines = [
     output: `[
   // $match filters data
 ]`,
-    pipeline: []
+    pipeline: [],
   },
   {
     usecase:
@@ -252,48 +252,48 @@ const pipelines = [
         stage: {
           $match: {
             name: {
-              $in: [/ber/i, /bas/i]
+              $in: [/ber/i, /bas/i],
             },
             bathrooms: {
-              $gte: 2
-            }
-          }
+              $gte: 2,
+            },
+          },
         },
-        disabled: true
+        disabled: true,
       },
       {
         stage: {
           $project: {
             _id: 1,
             name: 1,
-            bathrooms: 1
-          }
+            bathrooms: 1,
+          },
         },
-        disabled: false
+        disabled: false,
       },
       {
         stage: {
           // Fixed the bug
           $sort: {
-            bathrooms: -1
-          }
+            bathrooms: -1,
+          },
         },
-        disabled: false
+        disabled: false,
       },
       {
         stage: {
-          $skip: 1
+          $skip: 1,
         },
-        disabled: false
+        disabled: false,
       },
       {
         stage: {
           // This should not go away!
-          $limit: 8
+          $limit: 8,
         },
-        disabled: false
-      }
-    ]
+        disabled: false,
+      },
+    ],
   },
   {
     usecase:
@@ -379,55 +379,55 @@ const pipelines = [
         stage: {
           $match: {
             name: {
-              $in: [/ber/i, /bas/i]
+              $in: [/ber/i, /bas/i],
             },
             bathrooms: {
-              $gte: 2
-            }
-          }
+              $gte: 2,
+            },
+          },
         },
-        disabled: true
+        disabled: true,
       },
       {
         stage: {
           $project: {
             _id: 1,
             name: 1,
-            bathrooms: 1
-          }
+            bathrooms: 1,
+          },
         },
-        disabled: true
+        disabled: true,
       },
       {
         stage: {
           // Fixed the bug
           $sort: {
-            bathrooms: -1
-          }
+            bathrooms: -1,
+          },
         },
-        disabled: false
+        disabled: false,
       },
       {
         stage: {
-          $skip: 1
+          $skip: 1,
         },
-        disabled: false
+        disabled: false,
       },
       {
         stage: {
           // This should not go away!
-          $limit: 8
+          $limit: 8,
         },
-        disabled: false
-      }
-    ]
-  }
+        disabled: false,
+      },
+    ],
+  },
 ];
 
 describe('PipelineParser', function () {
   describe('parses text', function () {
     it('throws if pipeline is not a valid array', function () {
-      [``, '{}', 'hello', '20'].forEach(expression => {
+      [``, '{}', 'hello', '20'].forEach((expression) => {
         expect(() => {
           PipelineParser.parse(expression);
         }).to.throw;
@@ -458,7 +458,7 @@ describe('PipelineParser', function () {
   });
   describe('validates text', function () {
     it('throws if pipeline is not a valid array', function () {
-      [``, '{}', 'hello', '20'].forEach(expression => {
+      [``, '{}', 'hello', '20'].forEach((expression) => {
         const { errors } = PipelineParser.validate(expression);
         expect(errors[0]).to.be.instanceOf(SyntaxError);
       });
@@ -472,14 +472,14 @@ describe('PipelineParser', function () {
 
       const { errors } = PipelineParser.validate(pipeline);
       expect(errors.length).to.equal(2);
-      errors.forEach(x => expect(x).to.be.instanceOf(SyntaxError));
+      errors.forEach((x) => expect(x).to.be.instanceOf(SyntaxError));
     });
   });
   describe('generates pipeline string', function () {
     pipelines.forEach(({ input, output, pipeline, usecase }) => {
       it(usecase, function () {
         const { root, stages: nodes } = PipelineParser.parse(input);
-        const stages = nodes.map(node => new Stage(node));
+        const stages = nodes.map((node) => new Stage(node));
         expect(stages).to.have.lengthOf(pipeline.length);
         stages.forEach((stage, index) => {
           expect(
@@ -499,14 +499,13 @@ describe('PipelineParser', function () {
   });
   describe('parses and generates pipeline with disabled stages - COMPASS-6313', function () {
     it('when another stage is added', function () {
-
       const pipeline = `[
         // { $match: { name: /berlin/i } },
         // { $unwind: "users" },
       ]`;
 
       const { root, stages: nodes } = PipelineParser.parse(pipeline);
-      const stages = nodes.map(node => new Stage(node));
+      const stages = nodes.map((node) => new Stage(node));
       stages.push(new Stage());
       stages[2].changeOperator('$limit');
       stages[2].changeValue('20');
@@ -527,14 +526,13 @@ describe('PipelineParser', function () {
 ]`);
     });
     it('stage with leading comments', function () {
-
       const pipeline = `[
         // Some comment that should be preserved.
         // { $match: { name: /berlin/i } },
       ]`;
 
       const { root, stages: nodes } = PipelineParser.parse(pipeline);
-      const stages = nodes.map(node => new Stage(node));
+      const stages = nodes.map((node) => new Stage(node));
       stages.push(new Stage());
       stages[1].changeOperator('$skip');
       stages[1].changeValue('10');
@@ -553,7 +551,6 @@ describe('PipelineParser', function () {
 ]`);
     });
     it('stage with trailing comments', function () {
-
       const pipeline = `[
         // { $match: { name: /berlin/i } },
         // Some comment that should be preserved.
@@ -562,7 +559,7 @@ describe('PipelineParser', function () {
       ]`;
 
       const { root, stages: nodes } = PipelineParser.parse(pipeline);
-      const stages = nodes.map(node => new Stage(node));
+      const stages = nodes.map((node) => new Stage(node));
       stages.push(new Stage());
       stages[1].changeOperator('$skip');
       stages[1].changeValue('10');
@@ -583,7 +580,6 @@ describe('PipelineParser', function () {
 ]`);
     });
     it('stage with leading and trailing comments', function () {
-
       const pipeline = `[
         // Some comment that should be preserved.
         // { $match: { name: /berlin/i } },
@@ -592,7 +588,7 @@ describe('PipelineParser', function () {
       ]`;
 
       const { root, stages: nodes } = PipelineParser.parse(pipeline);
-      const stages = nodes.map(node => new Stage(node));
+      const stages = nodes.map((node) => new Stage(node));
       stages.push(new Stage());
       stages[1].changeOperator('$skip');
       stages[1].changeValue('10');
@@ -613,7 +609,6 @@ describe('PipelineParser', function () {
 ]`);
     });
     it('stages with leading and trailing comments', function () {
-
       const pipeline = `[
         // Some comment that should be preserved.
         // { $match: { name: /berlin/i } },
@@ -623,7 +618,7 @@ describe('PipelineParser', function () {
       ]`;
 
       const { root, stages: nodes } = PipelineParser.parse(pipeline);
-      const stages = nodes.map(node => new Stage(node));
+      const stages = nodes.map((node) => new Stage(node));
       stages.push(new Stage());
       stages[2].changeOperator('$skip');
       stages[2].changeValue('10');

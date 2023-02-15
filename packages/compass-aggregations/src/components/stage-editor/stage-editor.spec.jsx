@@ -5,13 +5,13 @@ import { expect } from 'chai';
 
 import { StageEditor } from './stage-editor';
 
-describe('StageEditor [Component]', function() {
+describe('StageEditor [Component]', function () {
   let component;
   const spy = sinon.spy();
   const stage = '{ name: "testing" }';
   const stageOperator = '$match';
 
-  beforeEach(function() {
+  beforeEach(function () {
     component = mount(
       <StageEditor
         stageValue={stage}
@@ -24,11 +24,11 @@ describe('StageEditor [Component]', function() {
     );
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the wrapper div', function() {
-    expect(component.find('UnthemedStageEditor')).to.be.present();
+  it('renders the wrapper div', function () {
+    expect(component.find('StageEditor')).to.be.present();
   });
 });

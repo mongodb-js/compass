@@ -1,11 +1,10 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Fri Jan 13 2023.
+This document was automatically generated on Fri Feb 03 2023.
 
 ## List of dependencies
 
 Package|Version|License
 -------|-------|-------
-**[@mongodb-js/get-os-info](#4415919ac9fa59068594e395345de97f22b5d917ecd1a9b925da8cf163243547)**|0.3.13|Apache-2.0
 **[@mongosh/node-runtime-worker-thread](#49a86805b1edc11db9e097ee9356ddb349147d1c561b1a4491a93191d1462abf)**|1.6.2|Apache-2.0
 **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
 **[ansi-regex](#f4a8a360dfe3cdd0cbb8fcfa0cff23bb22eafa4225343577912ddf831d670411)**|3.0.0|MIT
@@ -20,12 +19,10 @@ Package|Version|License
 **[core-util-is](#ab5cbd313ac7ce6a02ce0c800c05b4e77771c80c411d95438946ce15408bbd4f)**|1.0.2|MIT
 **[debug](#f9ec34d64c9fa14faae00f8f6f1b768e0e2ccadbeb4bc9414e1786213dab82ed)**|4.3.3|MIT
 **[decompress-response](#64c777c1b9075eb1d4fc1a0e1ea86130393649a9a01a8e42c16eb14c59b5b8da)**|6.0.0|MIT
-**[decompress-response](#a6cd6a055b9fb5f987ff8afad14fe0f248586487482a709c00f121ef5decdbbb)**|4.2.1|MIT
 **[deep-extend](#654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf)**|0.6.0|MIT
 **[delegate](#bc2c0cfa061f5865ffa83a2bf2c0f3e29dc3a2056113b1ce3e9acd33709e7606)**|3.2.0|MIT
 **[delegates](#8ac2167c6a2c6f3786fad50a7d9495e4a01fa0fda57deb6ba96a2b682c19085e)**|1.0.0|MIT
 **[detect-libc](#75227d1b1c09630ea361abee4d27101e350832bbeab9640a013c82662408b467)**|2.0.1|Apache-2.0
-**[detect-libc](#b333f3855f39aa2e155d1719cc7e259e162221a57ab82807ab01a138b6213594)**|1.0.3|Apache-2.0
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
 **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**|2.0.3|(MIT OR WTFPL)
 **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**|1.0.0|MIT
@@ -43,29 +40,23 @@ Package|Version|License
 **[is-fullwidth-code-point](#37e66573b7442d1313698f6e836d77c2b42ea4625ea9f6da41c091c6e5a8f30d)**|2.0.0|MIT
 **[isarray](#dd5060a7691a8157c413dadfba4ff4c1de7480dcfd6d34af69a9696558358cec)**|1.0.0|MIT
 **[kerberos](#480754bb9f65a90c52364d80a4e368d121a9f2c9b83269a9d10ce84cad3addbe)**|2.0.0|Apache-2.0
-**[keytar](#2777399d4579e44d68390c73dd209918f2092a61a8bc0d13d950da49ab4863a6)**|7.7.0|MIT
+**[keytar](#752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7)**|7.9.0|MIT
 **[lru-cache](#938513411a6603ce29334db15563fb94b7d52f839d32b9bd78c18f5d3f98aa5a)**|6.0.0|ISC
 **[mimic-response](#3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f)**|3.1.0|MIT
-**[mimic-response](#0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e)**|2.1.0|MIT
 **[minimist](#837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d)**|1.2.6|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb-client-encryption](#4321ebf384404400e1d788d41b9cf9cd6d10069e850727f601eab73d6f9baa0f)**|2.3.0|Apache-2.0
+**[mongodb-client-encryption](#cdf8e70b5734ec3b78ed8ca9973c660cdc125af146379fc4587b3681bc895b11)**|2.4.0|Apache-2.0
 **[mongodb-compass](#83bc011aa472d9fe55460f83c3fcfc98ca134ed763686df7a4bc080171ccb917)**|0.0.1-dev.0|SSPL
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
-**[node-abi](#d6c15009ff9bc5d151ef2cba39c1bda47f6a2ce4c3094b909f1ef57ca3e39fb0)**|3.8.0|MIT
-**[node-abi](#f58336e4167ecab0de6a7705e16bcc62344dc373d082eb2f438dd6c515380b37)**|2.30.0|MIT
-**[node-abi](#2af3a2340ce9d14d5a920d81e4553e9c844889f244b3b310ea23621cf9622a2b)**|3.22.0|MIT
+**[node-abi](#1aa26b37082c2acf30fa9dfa5538388ad97e6cdba41f132c7227cedcafd5d675)**|3.31.0|MIT
 **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**|4.3.0|MIT
-**[node-addon-api](#29f3bd2e2ca7a2f4abf4ebfbffe6fa9fc1a33b2fb001d918f92a15ffd7dd7507)**|3.2.1|MIT
-**[noop-logger](#3801357bd6e8fba8c0ba570c6fe0f1a09fb837f9355340046f36983ee98fafab)**|0.1.1|MIT
 **[npmlog](#ee61305241ab0f8e87a6dc2160efc46973e046400e72fe10858cc36309d51f9b)**|4.1.2|ISC
 **[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
 **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**|4.1.1|MIT
 **[once](#d0d1303998dfae04e4f898f477380aac35568f4d6679f4ea913c2441cf9ebb0b)**|1.4.0|ISC
 **[os-dns-native](#ccaac4b6b7b65be11aed2a61b109713be87bd047a65d3f552022671ab10b4872)**|1.2.0|MIT
 **[prebuild-install](#e755204a5da2a0c525c1c306c36568e122273f24c0cac31a68cd274b9401771f)**|7.0.1|MIT
-**[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
 **[prebuild-install](#b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d)**|7.1.1|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
@@ -76,12 +67,10 @@ Package|Version|License
 **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**|1.1.2|MIT
 **[semver](#4bed5cd5bcb541cb0c5c45e33f4b082818b19f6e916d1badfad14f9d3fb5132d)**|7.3.7|ISC
-**[semver](#e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d)**|5.7.1|ISC
 **[set-blocking](#d10823126ec31b1e665e321d110e1fde8413f70e2df17b24b0c71c43fe2c0558)**|2.0.0|ISC
 **[signal-exit](#5ad551060d44370794e770309e198719e94f939e46a3ea537b776c9c4fdad9e4)**|3.0.7|ISC
 **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**|1.0.1|MIT
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
-**[simple-get](#ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da)**|3.1.0|MIT
 **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**|4.2.0|MIT
 **[socks](#16837d081453b731932951f203fc17778642c71f7cdc0c4557bc2dbd68a6fd1d)**|2.7.1|MIT
 **[string-width](#b0725207ba4a78809dec9436283671608c6a6c89b5f5cc66db6ce6da7bfb0cc0)**|1.0.2|MIT
@@ -100,223 +89,6 @@ Package|Version|License
 **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**|4.0.0|ISC
 
 ## Package details
-
-<a id="4415919ac9fa59068594e395345de97f22b5d917ecd1a9b925da8cf163243547"></a>
-### [@mongodb-js/get-os-info](https://www.npmjs.com/package/@mongodb-js/get-os-info) (version 0.3.13)
-<!-- initially found at node_modules/@mongodb-js/get-os-info -->
-> Get os info for telemetry
-
-License tags: Apache-2.0
-
-License files:
-* LICENSE:
-
-      Apache License
-      Version 2.0, January 2004
-      http://www.apache.org/licenses/
-      
-      TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-      
-      1. Definitions.
-      
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
-      
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
-      
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
-      
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
-      
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
-      
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
-      
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
-      
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
-      
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
-      
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
-      
-      2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
-      
-      3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
-      
-      4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
-      
-      (a) You must give any other recipients of the Work or
-      Derivative Works a copy of this License; and
-      
-      (b) You must cause any modified files to carry prominent notices
-      stating that You changed the files; and
-      
-      (c) You must retain, in the Source form of any Derivative Works
-      that You distribute, all copyright, patent, trademark, and
-      attribution notices from the Source form of the Work,
-      excluding those notices that do not pertain to any part of
-      the Derivative Works; and
-      
-      (d) If the Work includes a "NOTICE" text file as part of its
-      distribution, then any Derivative Works that You distribute must
-      include a readable copy of the attribution notices contained
-      within such NOTICE file, excluding those notices that do not
-      pertain to any part of the Derivative Works, in at least one
-      of the following places: within a NOTICE text file distributed
-      as part of the Derivative Works; within the Source form or
-      documentation, if provided along with the Derivative Works; or,
-      within a display generated by the Derivative Works, if and
-      wherever such third-party notices normally appear. The contents
-      of the NOTICE file are for informational purposes only and
-      do not modify the License. You may add Your own attribution
-      notices within Derivative Works that You distribute, alongside
-      or as an addendum to the NOTICE text from the Work, provided
-      that such additional attribution notices cannot be construed
-      as modifying the License.
-      
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
-      
-      5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
-      
-      6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
-      
-      7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
-      
-      8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
-      
-      9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
-      
-      END OF TERMS AND CONDITIONS
-      
-      APPENDIX: How to apply the Apache License to your work.
-      
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "{}"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
-      
-      Copyright {yyyy} {name of copyright owner}
-      
-      Licensed under the Apache License, Version 2.0 (the "License");
-      you may not use this file except in compliance with the License.
-      You may obtain a copy of the License at
-      
-      http://www.apache.org/licenses/LICENSE-2.0
-      
-      Unless required by applicable law or agreed to in writing, software
-      distributed under the License is distributed on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-      See the License for the specific language governing permissions and
-      limitations under the License.
-      
-
-Authors:
-* MongoDB Inc <[compass@mongodb.com](nomail)>
-
 
 <a id="49a86805b1edc11db9e097ee9356ddb349147d1c561b1a4491a93191d1462abf"></a>
 ### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.6.2)
@@ -907,7 +679,7 @@ Authors:
 
 <a id="64c777c1b9075eb1d4fc1a0e1ea86130393649a9a01a8e42c16eb14c59b5b8da"></a>
 ### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 6.0.0)
-<!-- initially found at node_modules/kerberos/node_modules/decompress-response -->
+<!-- initially found at node_modules/simple-get/node_modules/decompress-response -->
 > Decompress a HTTP response if needed
 
 License tags: MIT
@@ -928,31 +700,6 @@ License files:
 
 Authors:
 * Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (https://sindresorhus.com)
-
-
-<a id="a6cd6a055b9fb5f987ff8afad14fe0f248586487482a709c00f121ef5decdbbb"></a>
-### [decompress-response](https://www.npmjs.com/package/decompress-response) (version 4.2.1)
-<!-- initially found at node_modules/simple-get/node_modules/decompress-response -->
-> Decompress a HTTP response if needed
-
-License tags: MIT
-
-License files:
-* license:
-
-      MIT License
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (sindresorhus.com)
 
 
 <a id="654bd7d00073c2195bca924a07d93393b2aaf5cacbb6f52a383877f6f33dbfbf"></a>
@@ -1038,224 +785,6 @@ License files:
 
 <a id="75227d1b1c09630ea361abee4d27101e350832bbeab9640a013c82662408b467"></a>
 ### [detect-libc](https://www.npmjs.com/package/detect-libc) (version 2.0.1)
-<!-- initially found at node_modules/kerberos/node_modules/detect-libc -->
-> Node.js module to detect the C standard library (libc) implementation family and version
-
-License tags: Apache-2.0
-
-License files:
-* LICENSE:
-
-                                       Apache License
-                                 Version 2.0, January 2004
-                              http://www.apache.org/licenses/
-      
-         TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-      
-         1. Definitions.
-      
-            "License" shall mean the terms and conditions for use, reproduction,
-            and distribution as defined by Sections 1 through 9 of this document.
-      
-            "Licensor" shall mean the copyright owner or entity authorized by
-            the copyright owner that is granting the License.
-      
-            "Legal Entity" shall mean the union of the acting entity and all
-            other entities that control, are controlled by, or are under common
-            control with that entity. For the purposes of this definition,
-            "control" means (i) the power, direct or indirect, to cause the
-            direction or management of such entity, whether by contract or
-            otherwise, or (ii) ownership of fifty percent (50%) or more of the
-            outstanding shares, or (iii) beneficial ownership of such entity.
-      
-            "You" (or "Your") shall mean an individual or Legal Entity
-            exercising permissions granted by this License.
-      
-            "Source" form shall mean the preferred form for making modifications,
-            including but not limited to software source code, documentation
-            source, and configuration files.
-      
-            "Object" form shall mean any form resulting from mechanical
-            transformation or translation of a Source form, including but
-            not limited to compiled object code, generated documentation,
-            and conversions to other media types.
-      
-            "Work" shall mean the work of authorship, whether in Source or
-            Object form, made available under the License, as indicated by a
-            copyright notice that is included in or attached to the work
-            (an example is provided in the Appendix below).
-      
-            "Derivative Works" shall mean any work, whether in Source or Object
-            form, that is based on (or derived from) the Work and for which the
-            editorial revisions, annotations, elaborations, or other modifications
-            represent, as a whole, an original work of authorship. For the purposes
-            of this License, Derivative Works shall not include works that remain
-            separable from, or merely link (or bind by name) to the interfaces of,
-            the Work and Derivative Works thereof.
-      
-            "Contribution" shall mean any work of authorship, including
-            the original version of the Work and any modifications or additions
-            to that Work or Derivative Works thereof, that is intentionally
-            submitted to Licensor for inclusion in the Work by the copyright owner
-            or by an individual or Legal Entity authorized to submit on behalf of
-            the copyright owner. For the purposes of this definition, "submitted"
-            means any form of electronic, verbal, or written communication sent
-            to the Licensor or its representatives, including but not limited to
-            communication on electronic mailing lists, source code control systems,
-            and issue tracking systems that are managed by, or on behalf of, the
-            Licensor for the purpose of discussing and improving the Work, but
-            excluding communication that is conspicuously marked or otherwise
-            designated in writing by the copyright owner as "Not a Contribution."
-      
-            "Contributor" shall mean Licensor and any individual or Legal Entity
-            on behalf of whom a Contribution has been received by Licensor and
-            subsequently incorporated within the Work.
-      
-         2. Grant of Copyright License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            copyright license to reproduce, prepare Derivative Works of,
-            publicly display, publicly perform, sublicense, and distribute the
-            Work and such Derivative Works in Source or Object form.
-      
-         3. Grant of Patent License. Subject to the terms and conditions of
-            this License, each Contributor hereby grants to You a perpetual,
-            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-            (except as stated in this section) patent license to make, have made,
-            use, offer to sell, sell, import, and otherwise transfer the Work,
-            where such license applies only to those patent claims licensable
-            by such Contributor that are necessarily infringed by their
-            Contribution(s) alone or by combination of their Contribution(s)
-            with the Work to which such Contribution(s) was submitted. If You
-            institute patent litigation against any entity (including a
-            cross-claim or counterclaim in a lawsuit) alleging that the Work
-            or a Contribution incorporated within the Work constitutes direct
-            or contributory patent infringement, then any patent licenses
-            granted to You under this License for that Work shall terminate
-            as of the date such litigation is filed.
-      
-         4. Redistribution. You may reproduce and distribute copies of the
-            Work or Derivative Works thereof in any medium, with or without
-            modifications, and in Source or Object form, provided that You
-            meet the following conditions:
-      
-            (a) You must give any other recipients of the Work or
-                Derivative Works a copy of this License; and
-      
-            (b) You must cause any modified files to carry prominent notices
-                stating that You changed the files; and
-      
-            (c) You must retain, in the Source form of any Derivative Works
-                that You distribute, all copyright, patent, trademark, and
-                attribution notices from the Source form of the Work,
-                excluding those notices that do not pertain to any part of
-                the Derivative Works; and
-      
-            (d) If the Work includes a "NOTICE" text file as part of its
-                distribution, then any Derivative Works that You distribute must
-                include a readable copy of the attribution notices contained
-                within such NOTICE file, excluding those notices that do not
-                pertain to any part of the Derivative Works, in at least one
-                of the following places: within a NOTICE text file distributed
-                as part of the Derivative Works; within the Source form or
-                documentation, if provided along with the Derivative Works; or,
-                within a display generated by the Derivative Works, if and
-                wherever such third-party notices normally appear. The contents
-                of the NOTICE file are for informational purposes only and
-                do not modify the License. You may add Your own attribution
-                notices within Derivative Works that You distribute, alongside
-                or as an addendum to the NOTICE text from the Work, provided
-                that such additional attribution notices cannot be construed
-                as modifying the License.
-      
-            You may add Your own copyright statement to Your modifications and
-            may provide additional or different license terms and conditions
-            for use, reproduction, or distribution of Your modifications, or
-            for any such Derivative Works as a whole, provided Your use,
-            reproduction, and distribution of the Work otherwise complies with
-            the conditions stated in this License.
-      
-         5. Submission of Contributions. Unless You explicitly state otherwise,
-            any Contribution intentionally submitted for inclusion in the Work
-            by You to the Licensor shall be under the terms and conditions of
-            this License, without any additional terms or conditions.
-            Notwithstanding the above, nothing herein shall supersede or modify
-            the terms of any separate license agreement you may have executed
-            with Licensor regarding such Contributions.
-      
-         6. Trademarks. This License does not grant permission to use the trade
-            names, trademarks, service marks, or product names of the Licensor,
-            except as required for reasonable and customary use in describing the
-            origin of the Work and reproducing the content of the NOTICE file.
-      
-         7. Disclaimer of Warranty. Unless required by applicable law or
-            agreed to in writing, Licensor provides the Work (and each
-            Contributor provides its Contributions) on an "AS IS" BASIS,
-            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-            implied, including, without limitation, any warranties or conditions
-            of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-            PARTICULAR PURPOSE. You are solely responsible for determining the
-            appropriateness of using or redistributing the Work and assume any
-            risks associated with Your exercise of permissions under this License.
-      
-         8. Limitation of Liability. In no event and under no legal theory,
-            whether in tort (including negligence), contract, or otherwise,
-            unless required by applicable law (such as deliberate and grossly
-            negligent acts) or agreed to in writing, shall any Contributor be
-            liable to You for damages, including any direct, indirect, special,
-            incidental, or consequential damages of any character arising as a
-            result of this License or out of the use or inability to use the
-            Work (including but not limited to damages for loss of goodwill,
-            work stoppage, computer failure or malfunction, or any and all
-            other commercial damages or losses), even if such Contributor
-            has been advised of the possibility of such damages.
-      
-         9. Accepting Warranty or Additional Liability. While redistributing
-            the Work or Derivative Works thereof, You may choose to offer,
-            and charge a fee for, acceptance of support, warranty, indemnity,
-            or other liability obligations and/or rights consistent with this
-            License. However, in accepting such obligations, You may act only
-            on Your own behalf and on Your sole responsibility, not on behalf
-            of any other Contributor, and only if You agree to indemnify,
-            defend, and hold each Contributor harmless for any liability
-            incurred by, or claims asserted against, such Contributor by reason
-            of your accepting any such warranty or additional liability.
-      
-         END OF TERMS AND CONDITIONS
-      
-         APPENDIX: How to apply the Apache License to your work.
-      
-            To apply the Apache License to your work, attach the following
-            boilerplate notice, with the fields enclosed by brackets "{}"
-            replaced with your own identifying information. (Don't include
-            the brackets!)  The text should be enclosed in the appropriate
-            comment syntax for the file format. We also recommend that a
-            file or class name and description of purpose be included on the
-            same "printed page" as the copyright notice for easier
-            identification within third-party archives.
-      
-         Copyright {yyyy} {name of copyright owner}
-      
-         Licensed under the Apache License, Version 2.0 (the "License");
-         you may not use this file except in compliance with the License.
-         You may obtain a copy of the License at
-      
-             http://www.apache.org/licenses/LICENSE-2.0
-      
-         Unless required by applicable law or agreed to in writing, software
-         distributed under the License is distributed on an "AS IS" BASIS,
-         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-         See the License for the specific language governing permissions and
-         limitations under the License.
-      
-
-Authors:
-* Lovell Fuller <npm@lovell.info>
-* Niklas Salmoukas <niklas@salmoukas.com>
-
-
-<a id="b333f3855f39aa2e155d1719cc7e259e162221a57ab82807ab01a138b6213594"></a>
-### [detect-libc](https://www.npmjs.com/package/detect-libc) (version 1.0.3)
 <!-- initially found at node_modules/detect-libc -->
 > Node.js module to detect the C standard library (libc) implementation family and version
 
@@ -2308,8 +1837,8 @@ Authors:
 * The MongoDB NodeJS Team <[dbx-node@mongodb.com](nomail)>
 
 
-<a id="2777399d4579e44d68390c73dd209918f2092a61a8bc0d13d950da49ab4863a6"></a>
-### [keytar](https://www.npmjs.com/package/keytar) (version 7.7.0)
+<a id="752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7"></a>
+### [keytar](https://www.npmjs.com/package/keytar) (version 7.9.0)
 <!-- initially found at node_modules/keytar -->
 > Bindings to native Mac/Linux/Windows password APIs
 
@@ -2374,32 +1903,7 @@ Authors:
 
 <a id="3a8c7e8eed886630dd878b11cbb7ef72840b3bab1f8d4251956ca4f9fa40925f"></a>
 ### [mimic-response](https://www.npmjs.com/package/mimic-response) (version 3.1.0)
-<!-- initially found at node_modules/kerberos/node_modules/mimic-response -->
-> Mimic a Node.js HTTP response stream
-
-License tags: MIT
-
-License files:
-* license:
-
-      MIT License
-      
-      Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Sindre Sorhus <[sindresorhus@gmail.com](nomail)> (https://sindresorhus.com)
-
-
-<a id="0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e"></a>
-### [mimic-response](https://www.npmjs.com/package/mimic-response) (version 2.1.0)
-<!-- initially found at node_modules/mimic-response -->
+<!-- initially found at node_modules/simple-get/node_modules/mimic-response -->
 > Mimic a Node.js HTTP response stream
 
 License tags: MIT
@@ -2493,8 +1997,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="4321ebf384404400e1d788d41b9cf9cd6d10069e850727f601eab73d6f9baa0f"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.3.0)
+<a id="cdf8e70b5734ec3b78ed8ca9973c660cdc125af146379fc4587b3681bc895b11"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.4.0)
 <!-- initially found at node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
@@ -3357,83 +2861,9 @@ Authors:
 * Jim Schlight
 
 
-<a id="d6c15009ff9bc5d151ef2cba39c1bda47f6a2ce4c3094b909f1ef57ca3e39fb0"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.8.0)
-<!-- initially found at node_modules/kerberos/node_modules/node-abi -->
-> Get the Node ABI for a given target and runtime, and vice versa.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2016 Lukas Geiger
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Lukas Geiger
-
-
-<a id="f58336e4167ecab0de6a7705e16bcc62344dc373d082eb2f438dd6c515380b37"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 2.30.0)
+<a id="1aa26b37082c2acf30fa9dfa5538388ad97e6cdba41f132c7227cedcafd5d675"></a>
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.31.0)
 <!-- initially found at node_modules/node-abi -->
-> Get the Node ABI for a given target and runtime, and vice versa.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      MIT License
-      
-      Copyright (c) 2016 Lukas Geiger
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-Authors:
-* Lukas Geiger
-
-
-<a id="2af3a2340ce9d14d5a920d81e4553e9c844889f244b3b310ea23621cf9622a2b"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.22.0)
-<!-- initially found at node_modules/mongodb-client-encryption/node_modules/node-abi -->
 > Get the Node ABI for a given target and runtime, and vice versa.
 
 License tags: MIT
@@ -3576,118 +3006,6 @@ Authors:
 * Yohei Kishimoto (https://github.com/morokosi)
 * Yulong Wang (https://github.com/fs-eire)
 * Ziqiu Zhao (https://github.com/ZzqiZQute)
-
-
-<a id="29f3bd2e2ca7a2f4abf4ebfbffe6fa9fc1a33b2fb001d918f92a15ffd7dd7507"></a>
-### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 3.2.1)
-<!-- initially found at node_modules/keytar/node_modules/node-addon-api -->
-> Node.js API (Node-API)
-
-License tags: MIT
-
-License files:
-* LICENSE.md:
-
-      The MIT License (MIT)
-      =====================
-      
-      Copyright (c) 2017 Node.js API collaborators
-      -----------------------------------
-      
-      *Node.js API collaborators listed at <https://github.com/nodejs/node-addon-api#collaborators>*
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-Authors:
-* Abhishek Kumar Singh (https://github.com/abhi11210646)
-* Alba Mendez (https://github.com/jmendeth)
-* András Timár, Dr (https://github.com/timarandras)
-* Andrew Petersen (https://github.com/kirbysayshi)
-* Anisha Rohra (https://github.com/anisha-rohra)
-* Anna Henningsen (https://github.com/addaleax)
-* Arnaud Botella (https://github.com/BotellaA)
-* Arunesh Chandra (https://github.com/aruneshchandra)
-* Azlan Mukhtar (https://github.com/azlan)
-* Ben Berman (https://github.com/rivertam)
-* Benjamin Byholm (https://github.com/kkoopa)
-* Bill Gallafent (https://github.com/gallafent)
-* blagoev (https://github.com/blagoev)
-* Bruce A. MacNaughton (https://github.com/bmacnaughton)
-* Cory Mickelson (https://github.com/corymickelson)
-* Daniel Bevenius (https://github.com/danbev)
-* Darshan Sen (https://github.com/RaisinTen)
-* David Halls (https://github.com/davedoesdev)
-* Dmitry Ashkadov (https://github.com/dmitryash)
-* Dongjin Na (https://github.com/nadongguri)
-* Ferdinand Holzer (https://github.com/fholzer)
-* Eric Bickle (https://github.com/ebickle)
-* Gabriel Schulhof (https://github.com/gabrielschulhof)
-* Guenter Sandner (https://github.com/gms1)
-* Gus Caplan (https://github.com/devsnek)
-* Helio Frota (https://github.com/helio-frota)
-* Hitesh Kanwathirtha (https://github.com/digitalinfinity)
-* ikokostya (https://github.com/ikokostya)
-* Jack Xia (https://github.com/JckXia)
-* Jake Barnes (https://github.com/DuBistKomisch)
-* Jake Yoon (https://github.com/yjaeseok)
-* Jason Ginchereau (https://github.com/jasongin)
-* Jeroen Janssen (https://github.com/japj)
-* Jim Schlight (https://github.com/jschlight)
-* Jinho Bang (https://github.com/romandev)
-* José Expósito (https://github.com/JoseExposito)
-* joshgarde (https://github.com/joshgarde)
-* Kasumi Hanazuki (https://github.com/hanazuki)
-* Kelvin (https://github.com/kelvinhammond)
-* Kevin Eady (https://github.com/KevinEady)
-* Kévin VOYER (https://github.com/kecsou)
-* kidneysolo (https://github.com/kidneysolo)
-* Koki Nishihara (https://github.com/Nishikoh)
-* Konstantin Tarkus (https://github.com/koistya)
-* Kyle Farnung (https://github.com/kfarnung)
-* legendecas (https://github.com/legendecas)
-* LongYinan (https://github.com/Brooooooklyn)
-* Lovell Fuller (https://github.com/lovell)
-* Luciano Martorella (https://github.com/lmartorella)
-* mastergberry (https://github.com/mastergberry)
-* Mathias Küsel (https://github.com/mathiask88)
-* Matteo Collina (https://github.com/mcollina)
-* Michael Dawson (https://github.com/mhdawson)
-* Michael Price (https://github.com/mikepricedev)
-* Michele Campus (https://github.com/kYroL01)
-* Mikhail Cheshkov (https://github.com/mcheshkov)
-* nempoBu4 (https://github.com/nempoBu4)
-* Nicola Del Gobbo (https://github.com/NickNaso)
-* Nick Soggin (https://github.com/iSkore)
-* Nikolai Vavilov (https://github.com/seishun)
-* Nurbol Alpysbayev (https://github.com/anurbol)
-* pacop (https://github.com/pacop)
-* Philipp Renoth (https://github.com/DaAitch)
-* Rolf Timmermans (https://github.com/rolftimmermans)
-* Ross Weir (https://github.com/ross-weir)
-* Ryuichi Okumura (https://github.com/okuryu)
-* Sampson Gao (https://github.com/sampsongao)
-* Sam Roberts (https://github.com/sam-github)
-* Taylor Woll (https://github.com/boingoing)
-* Thomas Gentilhomme (https://github.com/fraxken)
-* Tim Rach (https://github.com/timrach)
-* Tobias Nießen (https://github.com/tniessen)
-* Tux3 (https://github.com/tux3)
-* Vlad Velmisov (https://github.com/Velmisov)
-* Yohei Kishimoto (https://github.com/morokosi)
-* Yulong Wang (https://github.com/fs-eire)
-* Ziqiu Zhao (https://github.com/ZzqiZQute)
-
-
-<a id="3801357bd6e8fba8c0ba570c6fe0f1a09fb837f9355340046f36983ee98fafab"></a>
-### [noop-logger](https://www.npmjs.com/package/noop-logger) (version 0.1.1)
-<!-- initially found at node_modules/noop-logger -->
-> A logger that does exactly nothing.
-
-License tags: MIT
 
 
 <a id="ee61305241ab0f8e87a6dc2160efc46973e046400e72fe10858cc36309d51f9b"></a>
@@ -3908,53 +3226,9 @@ Authors:
 * Lukas Geiger <lukas.geiger94@gmail.com> (https://github.com/lgeiger)
 
 
-<a id="a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 6.1.2)
-<!-- initially found at node_modules/prebuild-install -->
-> A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) 2015 Mathias Buus
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-      
-
-Authors:
-* Mathias Buus (@mafintosh)
-* Julian Gruber <julian@juliangruber.com> (https://github.com/juliangruber)
-* Brett Lawson <brett19@gmail.com> (https://github.com/brett19)
-* Pieter Hintjens <ph@imatix.com> (https://github.com/hintjens)
-* Lars-Magnus Skog <ralphtheninja@riseup.net> (https://github.com/ralphtheninja)
-* Jesús Leganés Combarro <piranna@gmail.com> (https://github.com/piranna)
-* Mathias Küsel <mathiask@hotmail.de> (https://github.com/mathiask88)
-* Lukas Geiger <lukas.geiger94@gmail.com> (https://github.com/lgeiger)
-
-
 <a id="b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d"></a>
 ### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.1)
-<!-- initially found at node_modules/mongodb-client-encryption/node_modules/prebuild-install -->
+<!-- initially found at node_modules/prebuild-install -->
 > A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
 
 License tags: MIT
@@ -4386,34 +3660,6 @@ Authors:
 * GitHub Inc.
 
 
-<a id="e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d"></a>
-### [semver](https://www.npmjs.com/package/semver) (version 5.7.1)
-<!-- initially found at node_modules/node-abi/node_modules/semver -->
-> The semantic version parser used by npm.
-
-License tags: ISC
-
-License files:
-* LICENSE:
-
-      The ISC License
-      
-      Copyright (c) Isaac Z. Schlueter and Contributors
-      
-      Permission to use, copy, modify, and/or distribute this software for any
-      purpose with or without fee is hereby granted, provided that the above
-      copyright notice and this permission notice appear in all copies.
-      
-      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-      
-
-
 <a id="d10823126ec31b1e665e321d110e1fde8413f70e2df17b24b0c71c43fe2c0558"></a>
 ### [set-blocking](https://www.npmjs.com/package/set-blocking) (version 2.0.0)
 <!-- initially found at node_modules/set-blocking -->
@@ -4514,42 +3760,6 @@ Authors:
 
 <a id="c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829"></a>
 ### [simple-get](https://www.npmjs.com/package/simple-get) (version 4.0.1)
-<!-- initially found at node_modules/kerberos/node_modules/simple-get -->
-> Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in < 100 lines.
-
-License tags: MIT
-
-License files:
-* LICENSE:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Feross Aboukhadijeh
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy of
-      this software and associated documentation files (the "Software"), to deal in
-      the Software without restriction, including without limitation the rights to
-      use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-      the Software, and to permit persons to whom the Software is furnished to do so,
-      subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-      FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-      COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-      IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-      CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-Authors:
-* Feross Aboukhadijeh <[feross@feross.org](nomail)> (https://feross.org)
-
-
-<a id="ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da"></a>
-### [simple-get](https://www.npmjs.com/package/simple-get) (version 3.1.0)
 <!-- initially found at node_modules/simple-get -->
 > Simplest way to make http get requests. Supports HTTPS, redirects, gzip/deflate, streams in < 100 lines.
 
@@ -4581,7 +3791,7 @@ License files:
       
 
 Authors:
-* Feross Aboukhadijeh <[feross@feross.org](nomail)> (http://feross.org/)
+* Feross Aboukhadijeh <[feross@feross.org](nomail)> (https://feross.org)
 
 
 <a id="bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875"></a>

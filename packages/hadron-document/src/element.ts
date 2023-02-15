@@ -15,6 +15,7 @@ import type Document from './document';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import type { ObjectId } from 'bson';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
+import { getDefaultValueForType } from './utils';
 import { ElementEvents } from '.';
 
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
@@ -327,11 +328,25 @@ export class Element extends EventEmitter {
    * @returns The placeholder element.
    */
   insertPlaceholder(): Element {
-    return this.insertEnd('', '');
+    // When adding a placeholder value to an array we default to the type
+    // of the last value currently in the array. Otherwise empty string.
+    const placeholderValue: BSONValue =
+      this.currentType === 'Array' && this.elements?.lastElement
+        ? getDefaultValueForType(this.elements?.lastElement.currentType)
+        : '';
+
+    return this.insertEnd('', placeholderValue);
   }
 
   insertSiblingPlaceholder(): Element {
-    return this.parent!.insertAfter(this, '', '')!;
+    // When adding a sibling placeholder value to an array we default the
+    // new values' type to the preceding element's type to hopefully make
+    // it so folks don't have to change the type later. Otherwise empty string.
+    const placeholderValue: BSONValue =
+      this.parent?.currentType === 'Array'
+        ? getDefaultValueForType(this.currentType)
+        : '';
+    return this.parent!.insertAfter(this, '', placeholderValue)!;
   }
 
   /**

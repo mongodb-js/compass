@@ -665,7 +665,7 @@ describe('TypeChecker', function() {
     });
 
     context('when the object is a timestamp', function() {
-      var timestamp = new Timestamp(0, 100);
+      var timestamp = new Timestamp({ t: 0, i: 100 });
 
       it('returns Timestamp', function() {
         expect(TypeChecker.type(timestamp)).to.equal('Timestamp');

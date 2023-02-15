@@ -1,6 +1,5 @@
 import { pull } from 'lodash';
 import React from 'react';
-import PropTypes from 'prop-types';
 import type Document from 'hadron-document';
 import { Element } from 'hadron-document';
 import {
@@ -17,6 +16,8 @@ import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banne
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 /**
  * The insert invalid message.
@@ -48,7 +49,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   insertMany: () => void;
   isOpen: boolean;
   message: string;
-  mode: 'progress' | 'error';
+  mode: 'modifying' | 'error';
   version: string;
   updateJsonDoc: (value: string | null) => void;
   jsonDoc: string;
@@ -58,11 +59,11 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   tz: string;
   isCommentNeeded: boolean;
   updateComment: (isCommentNeeded: boolean) => void;
+  logger?: LoggerAndTelemetry;
 };
 
 type InsertDocumentDialogState = {
-  message: string;
-  mode: 'progress' | 'error';
+  insertInProgress: boolean;
 };
 
 /**
@@ -81,39 +82,35 @@ class InsertDocumentDialog extends React.PureComponent<
    */
   constructor(props: InsertDocumentDialogProps) {
     super(props);
-    this.state = { message: this.props.message, mode: this.props.mode };
+    this.state = { insertInProgress: false };
     this.invalidElements = [];
   }
 
   /**
-   * Handle the property updates and subscriptions to the document.
+   * Handle subscriptions to the document.
    *
-   * @param {Object} nextProps - The new properties.
+   * @param {Object} prevProps - The previous properties.
    */
-  // TODO: COMPASS-5847 Remove deprecated react function usage.
-  UNSAFE_componentWillReceiveProps(nextProps: InsertDocumentDialogProps) {
-    const isMany = this.hasManyDocuments();
+  componentDidUpdate(
+    prevProps: InsertDocumentDialogProps,
+    state: InsertDocumentDialogState
+  ) {
+    if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
+      this.props.logger?.track('Screen', { name: 'insert_document_modal' });
+    }
 
-    if (!isMany) {
-      // When switching to Hadron Document View - reset the invalid elements list, which contains the
-      // uuids of each element that current has BSON type cast errors.
-      //
-      // Subscribe to the validation errors for BSON types on the document.
-      if (nextProps.isOpen && this.props.jsonView && !nextProps.jsonView) {
+    if (this.props.isOpen && !this.hasManyDocuments()) {
+      if (prevProps.jsonView && !this.props.jsonView) {
+        // When switching to Hadron Document View.
+        // Reset the invalid elements list, which contains the
+        // uuids of each element that has BSON type cast errors.
         this.invalidElements = [];
-        nextProps.doc.on(Element.Events.Invalid, this.handleInvalid);
-        nextProps.doc.on(Element.Events.Valid, this.handleValid);
-        // Closing the modal or switching back to jsonView.
-        //
-        // Remove the listeners to the BSON type validation errors in order to
-        // clean up properly.
-      } else if (
-        (!nextProps.isOpen && this.props.isOpen && !this.props.jsonView) ||
-        (nextProps.isOpen &&
-          this.props.isOpen &&
-          !this.props.jsonView &&
-          nextProps.jsonView)
-      ) {
+        // Subscribe to the validation errors for BSON types on the document.
+        this.props.doc.on(Element.Events.Invalid, this.handleInvalid);
+        this.props.doc.on(Element.Events.Valid, this.handleValid);
+      } else {
+        // When switching to JSON View.
+        // Remove the listeners to the BSON type validation errors in order to clean up properly.
         this.props.doc.removeListener(
           Element.Events.Invalid,
           this.handleInvalid
@@ -121,7 +118,19 @@ class InsertDocumentDialog extends React.PureComponent<
         this.props.doc.removeListener(Element.Events.Valid, this.handleValid);
       }
     }
-    this.setState({ message: nextProps.message, mode: nextProps.mode });
+
+    if (state.insertInProgress) {
+      this.setState({ insertInProgress: false });
+    }
+  }
+
+  componentWillUnount() {
+    if (!this.hasManyDocuments()) {
+      // When closing the modal.
+      // Remove the listeners to the BSON type validation errors in order to clean up properly.
+      this.props.doc.removeListener(Element.Events.Invalid, this.handleInvalid);
+      this.props.doc.removeListener(Element.Events.Valid, this.handleValid);
+    }
   }
 
   /**
@@ -152,7 +161,7 @@ class InsertDocumentDialog extends React.PureComponent<
    * Handle the insert.
    */
   handleInsert() {
-    this.setState({ message: 'Inserting Document', mode: 'progress' });
+    this.setState({ insertInProgress: true });
     if (this.hasManyDocuments()) {
       this.props.insertMany();
     } else {
@@ -254,11 +263,17 @@ class InsertDocumentDialog extends React.PureComponent<
    */
   render() {
     const currentView = this.props.jsonView ? 'JSON' : 'List';
+    const variant = this.state.insertInProgress ? 'info' : 'danger';
 
-    const message = this.hasErrors()
-      ? INSERT_INVALID_MESSAGE
-      : this.state.message;
-    const variant = this.state.mode === 'progress' ? 'info' : 'danger';
+    let message = this.props.message;
+
+    if (this.hasErrors()) {
+      message = INSERT_INVALID_MESSAGE;
+    }
+
+    if (this.state.insertInProgress) {
+      message = 'Inserting Document';
+    }
 
     return (
       <FormModal
@@ -270,7 +285,6 @@ class InsertDocumentDialog extends React.PureComponent<
         onCancel={this.props.closeInsertDocumentDialog}
         submitButtonText="Insert"
         submitDisabled={this.hasErrors()}
-        trackingId="insert_document_modal"
         data-testid="insert-document-modal"
         minBodyHeight={spacing[6] * 2} // make sure there is enough space for the menu
       >
@@ -326,29 +340,10 @@ class InsertDocumentDialog extends React.PureComponent<
       </FormModal>
     );
   }
-
-  static displayName = 'InsertDocumentDialog';
-
-  static propTypes = {
-    closeInsertDocumentDialog: PropTypes.func.isRequired,
-    toggleInsertDocumentView: PropTypes.func.isRequired,
-    toggleInsertDocument: PropTypes.func.isRequired,
-    insertDocument: PropTypes.func.isRequired,
-    insertMany: PropTypes.func.isRequired,
-    isOpen: PropTypes.bool.isRequired,
-    message: PropTypes.string.isRequired,
-    csfleState: PropTypes.object.isRequired,
-    mode: PropTypes.string.isRequired,
-    version: PropTypes.string.isRequired,
-    updateJsonDoc: PropTypes.func.isRequired,
-    jsonDoc: PropTypes.string,
-    jsonView: PropTypes.bool,
-    doc: PropTypes.object,
-    ns: PropTypes.string,
-    tz: PropTypes.string,
-    isCommentNeeded: PropTypes.bool,
-    updateComment: PropTypes.func.isRequired,
-  };
 }
 
-export default InsertDocumentDialog;
+export default withLoggerAndTelemetry(
+  InsertDocumentDialog,
+  'COMPASS-CRUD-UI',
+  React
+);

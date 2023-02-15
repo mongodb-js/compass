@@ -52,3 +52,5 @@ export * from './show-shell';
 export * from './hide-shell';
 export * from './select-option';
 export * from './codemirror';
+export * from './drop-collection-from-sidebar';
+export * from './drop-database-from-sidebar';
