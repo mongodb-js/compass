@@ -270,7 +270,6 @@ async function createWorkspace({
         prewebpack: 'rimraf ./dist',
         webpack: 'webpack-compass',
         postcompile: 'tsc --emitDeclarationOnly',
-        start: 'npm run webpack serve -- --mode development',
         analyze: 'npm run webpack -- --mode production --analyze',
       }),
       typecheck: 'tsc -p tsconfig-lint.json --noEmit',
