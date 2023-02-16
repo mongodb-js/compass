@@ -74,21 +74,25 @@ export async function importJSON({
     stopOnErrors ?? false
   );
 
+  const parserStreams = [];
+  if (jsonVariant === 'jsonl') {
+    parserStreams.push(
+      Parser.parser({ jsonStreaming: true }),
+      StreamValues.streamValues()
+    );
+  } else {
+    parserStreams.push(Parser.parser(), StreamArray.streamArray());
+  }
+
   const params = [
     input,
-    ...(jsonVariant === 'jsonl'
-      ? [Parser.parser({ jsonStreaming: true }), StreamValues.streamValues()]
-      : []),
-    ...(jsonVariant === 'json'
-      ? [Parser.parser(), StreamArray.streamArray()]
-      : []),
+    ...parserStreams,
     docStream,
     collectionStream,
-    ...(abortSignal ? [{ signal: abortSignal }] : []),
   ] as const;
 
   try {
-    await pipeline(...params);
+    await pipeline(params, ...(abortSignal ? [{ signal: abortSignal }] : []));
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
       await processWriteStreamErrors({
