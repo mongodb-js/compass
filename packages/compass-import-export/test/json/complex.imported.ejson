@@ -1,0 +1,2715 @@
+[
+  {
+    "author": "arnold-j",
+    "content": "Message-ID: <17334447.1075857585446.JavaMail.evans@thyme>\r\nDate: Thu, 16 Nov 2000 09:30:00 -0800 (PST)\r\nFrom: msagel@home.com\r\nTo: jarnold@enron.com\r\nSubject: Status\r\nMime-Version: 1.0\r\nContent-Type: text/plain; charset=ANSI_X3.4-1968\r\nContent-Transfer-Encoding: 7bit\r\nX-From: \"Mark Sagel\" <msagel@home.com>\r\nX-To: \"John Arnold\" <jarnold@enron.com>\r\nX-cc: \r\nX-bcc: \r\nX-Folder: \\John_Arnold_Dec2000\\Notes Folders\\Notes inbox\r\nX-Origin: Arnold-J\r\nX-FileName: Jarnold.nsf\r\n\r\nJohn:\n?\nI'm not really sure what happened between us.? I was  under the impression \nafter my visit to Houston that we were about to enter into  a trial agreement \nfor my advisory work.? Somehow,?this never  occurred.? Did I say or do \nsomething wrong to screw this  up???\n?\nI don't know if you've blown this whole thing off, but I still  hope you are \ninterested in trying?to create an arrangement.? As a  courtesy, here is my \nreport from this past weekend.? If you are no longer  interested in my work, \nplease tell me so.??Best wishes,\n?\nMark Sagel\nPsytech Analytics\n(410)308-0245? \n - energy2000-1112.doc",
+    "date": {
+      "$date": {
+        "$numberLong": "974395800000"
+      }
+    },
+    "emailData": {
+      "bcc": [],
+      "cc": [],
+      "dateSent": {
+        "$date": {
+          "$numberLong": "974395800000"
+        }
+      },
+      "folderPath": "notes_inbox",
+      "from": "msagel@home.com",
+      "relativeFilePath": "arnold-j/notes_inbox/36.",
+      "subject": "Status",
+      "to": [
+        "jarnold@enron.com"
+      ],
+      "username": "arnold-j"
+    },
+    "name": "Status",
+    "dataset": "Enron Email Corpus",
+    "analysis": {
+      "comprehend": {
+        "entities": [
+          {
+            "beginOffset": {
+              "$numberInt": "2"
+            },
+            "endOffset": {
+              "$numberInt": "6"
+            },
+            "score": {
+              "$numberDouble": "0.9987344145774841"
+            },
+            "text": "John",
+            "type": "PERSON"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "104"
+            },
+            "endOffset": {
+              "$numberInt": "111"
+            },
+            "score": {
+              "$numberDouble": "0.9976434111595154"
+            },
+            "text": "Houston",
+            "type": "LOCATION"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "447"
+            },
+            "endOffset": {
+              "$numberInt": "459"
+            },
+            "score": {
+              "$numberDouble": "0.7936486601829529"
+            },
+            "text": "past weekend",
+            "type": "DATE"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "543"
+            },
+            "endOffset": {
+              "$numberInt": "553"
+            },
+            "score": {
+              "$numberDouble": "0.9522615075111389"
+            },
+            "text": "Mark Sagel",
+            "type": "PERSON"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "572"
+            },
+            "endOffset": {
+              "$numberInt": "585"
+            },
+            "score": {
+              "$numberDouble": "0.9994582533836365"
+            },
+            "text": "(410)308-0245",
+            "type": "OTHER"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "597"
+            },
+            "endOffset": {
+              "$numberInt": "601"
+            },
+            "score": {
+              "$numberDouble": "0.9032418727874756"
+            },
+            "text": "2000",
+            "type": "DATE"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "602"
+            },
+            "endOffset": {
+              "$numberInt": "606"
+            },
+            "score": {
+              "$numberDouble": "0.22362956404685974"
+            },
+            "text": "1112",
+            "type": "DATE"
+          }
+        ],
+        "keyPhrases": [
+          {
+            "beginOffset": {
+              "$numberInt": "2"
+            },
+            "endOffset": {
+              "$numberInt": "6"
+            },
+            "score": {
+              "$numberDouble": "0.9499476552009583"
+            },
+            "text": "John"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "70"
+            },
+            "endOffset": {
+              "$numberInt": "84"
+            },
+            "score": {
+              "$numberDouble": "0.9996883273124695"
+            },
+            "text": "the impression"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "92"
+            },
+            "endOffset": {
+              "$numberInt": "100"
+            },
+            "score": {
+              "$numberDouble": "0.9987359046936035"
+            },
+            "text": "my visit"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "104"
+            },
+            "endOffset": {
+              "$numberInt": "111"
+            },
+            "score": {
+              "$numberDouble": "0.9993475079536438"
+            },
+            "text": "Houston"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "146"
+            },
+            "endOffset": {
+              "$numberInt": "163"
+            },
+            "score": {
+              "$numberDouble": "0.9991152882575989"
+            },
+            "text": "a trial agreement"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "169"
+            },
+            "endOffset": {
+              "$numberInt": "185"
+            },
+            "score": {
+              "$numberDouble": "0.9814292788505554"
+            },
+            "text": "my advisory work"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "305"
+            },
+            "endOffset": {
+              "$numberInt": "321"
+            },
+            "score": {
+              "$numberDouble": "0.9986149668693542"
+            },
+            "text": "this whole thing"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "385"
+            },
+            "endOffset": {
+              "$numberInt": "399"
+            },
+            "score": {
+              "$numberDouble": "0.9977430701255798"
+            },
+            "text": "an arrangement"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "405"
+            },
+            "endOffset": {
+              "$numberInt": "416"
+            },
+            "score": {
+              "$numberDouble": "0.9976465702056885"
+            },
+            "text": "a  courtesy"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "426"
+            },
+            "endOffset": {
+              "$numberInt": "436"
+            },
+            "score": {
+              "$numberDouble": "0.9997645616531372"
+            },
+            "text": "my  report"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "442"
+            },
+            "endOffset": {
+              "$numberInt": "459"
+            },
+            "score": {
+              "$numberDouble": "0.9910672307014465"
+            },
+            "text": "this past weekend"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "498"
+            },
+            "endOffset": {
+              "$numberInt": "505"
+            },
+            "score": {
+              "$numberDouble": "0.9992434978485107"
+            },
+            "text": "my work"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "543"
+            },
+            "endOffset": {
+              "$numberInt": "571"
+            },
+            "score": {
+              "$numberDouble": "0.9586864709854126"
+            },
+            "text": "Mark Sagel Psytech Analytics"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "573"
+            },
+            "endOffset": {
+              "$numberInt": "576"
+            },
+            "score": {
+              "$numberDouble": "0.7257869243621826"
+            },
+            "text": "410"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "577"
+            },
+            "endOffset": {
+              "$numberInt": "585"
+            },
+            "score": {
+              "$numberDouble": "0.8736790418624878"
+            },
+            "text": "308-0245"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "591"
+            },
+            "endOffset": {
+              "$numberInt": "606"
+            },
+            "score": {
+              "$numberDouble": "0.779948890209198"
+            },
+            "text": "energy2000-1112"
+          }
+        ],
+        "sentiment": {
+          "sentimantScore": {
+            "mixed": {
+              "$numberDouble": "0.000026624027668731287"
+            },
+            "negative": {
+              "$numberDouble": "0.6725568175315857"
+            },
+            "neutral": {
+              "$numberDouble": "0.30917948484420776"
+            },
+            "positive": {
+              "$numberDouble": "0.018237130716443062"
+            }
+          },
+          "sentiment": "NEGATIVE"
+        },
+        "syntaxTokens": [
+          {
+            "beginOffset": {
+              "$numberInt": "2"
+            },
+            "endOffset": {
+              "$numberInt": "6"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9993151426315308"
+              },
+              "tag": "PROPN"
+            },
+            "text": "John",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "6"
+            },
+            "endOffset": {
+              "$numberInt": "7"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9608364701271057"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ":",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "8"
+            },
+            "endOffset": {
+              "$numberInt": "9"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999634027481079"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "10"
+            },
+            "endOffset": {
+              "$numberInt": "11"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9998838901519775"
+              },
+              "tag": "PRON"
+            },
+            "text": "I",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "11"
+            },
+            "endOffset": {
+              "$numberInt": "13"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.998358428478241"
+              },
+              "tag": "VERB"
+            },
+            "text": "'m",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "14"
+            },
+            "endOffset": {
+              "$numberInt": "17"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9903079867362976"
+              },
+              "tag": "PART"
+            },
+            "text": "not",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "18"
+            },
+            "endOffset": {
+              "$numberInt": "24"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999790191650391"
+              },
+              "tag": "ADV"
+            },
+            "text": "really",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "25"
+            },
+            "endOffset": {
+              "$numberInt": "29"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9907991290092468"
+              },
+              "tag": "ADJ"
+            },
+            "text": "sure",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "30"
+            },
+            "endOffset": {
+              "$numberInt": "34"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9902618527412415"
+              },
+              "tag": "PRON"
+            },
+            "text": "what",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "35"
+            },
+            "endOffset": {
+              "$numberInt": "43"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9988589286804199"
+              },
+              "tag": "VERB"
+            },
+            "text": "happened",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "44"
+            },
+            "endOffset": {
+              "$numberInt": "51"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999954700469971"
+              },
+              "tag": "ADP"
+            },
+            "text": "between",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "52"
+            },
+            "endOffset": {
+              "$numberInt": "54"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999550580978394"
+              },
+              "tag": "PRON"
+            },
+            "text": "us",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "54"
+            },
+            "endOffset": {
+              "$numberInt": "55"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9593459367752075"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ".",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "55"
+            },
+            "endOffset": {
+              "$numberInt": "56"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999407529830933"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "57"
+            },
+            "endOffset": {
+              "$numberInt": "58"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999170303344727"
+              },
+              "tag": "PRON"
+            },
+            "text": "I",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "59"
+            },
+            "endOffset": {
+              "$numberInt": "62"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9888989329338074"
+              },
+              "tag": "VERB"
+            },
+            "text": "was",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "64"
+            },
+            "endOffset": {
+              "$numberInt": "69"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9976589679718018"
+              },
+              "tag": "ADP"
+            },
+            "text": "under",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "70"
+            },
+            "endOffset": {
+              "$numberInt": "73"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999970197677612"
+              },
+              "tag": "DET"
+            },
+            "text": "the",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "74"
+            },
+            "endOffset": {
+              "$numberInt": "84"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9998947381973267"
+              },
+              "tag": "NOUN"
+            },
+            "text": "impression",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "86"
+            },
+            "endOffset": {
+              "$numberInt": "91"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.6967777609825134"
+              },
+              "tag": "ADP"
+            },
+            "text": "after",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "92"
+            },
+            "endOffset": {
+              "$numberInt": "94"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999760389328003"
+              },
+              "tag": "PRON"
+            },
+            "text": "my",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "95"
+            },
+            "endOffset": {
+              "$numberInt": "100"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999186992645264"
+              },
+              "tag": "NOUN"
+            },
+            "text": "visit",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "101"
+            },
+            "endOffset": {
+              "$numberInt": "103"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9962862730026245"
+              },
+              "tag": "ADP"
+            },
+            "text": "to",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "104"
+            },
+            "endOffset": {
+              "$numberInt": "111"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9955008625984192"
+              },
+              "tag": "PROPN"
+            },
+            "text": "Houston",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "112"
+            },
+            "endOffset": {
+              "$numberInt": "116"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.8923232555389404"
+              },
+              "tag": "SCONJ"
+            },
+            "text": "that",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "117"
+            },
+            "endOffset": {
+              "$numberInt": "119"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999977350234985"
+              },
+              "tag": "PRON"
+            },
+            "text": "we",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "120"
+            },
+            "endOffset": {
+              "$numberInt": "124"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9773836135864258"
+              },
+              "tag": "VERB"
+            },
+            "text": "were",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "125"
+            },
+            "endOffset": {
+              "$numberInt": "130"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.7878772020339966"
+              },
+              "tag": "ADJ"
+            },
+            "text": "about",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "131"
+            },
+            "endOffset": {
+              "$numberInt": "133"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999080896377563"
+              },
+              "tag": "PART"
+            },
+            "text": "to",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "134"
+            },
+            "endOffset": {
+              "$numberInt": "139"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999887943267822"
+              },
+              "tag": "VERB"
+            },
+            "text": "enter",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "140"
+            },
+            "endOffset": {
+              "$numberInt": "144"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9998596906661987"
+              },
+              "tag": "ADP"
+            },
+            "text": "into",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "146"
+            },
+            "endOffset": {
+              "$numberInt": "147"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999982118606567"
+              },
+              "tag": "DET"
+            },
+            "text": "a",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "148"
+            },
+            "endOffset": {
+              "$numberInt": "153"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9092907309532166"
+              },
+              "tag": "NOUN"
+            },
+            "text": "trial",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "154"
+            },
+            "endOffset": {
+              "$numberInt": "163"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999922513961792"
+              },
+              "tag": "NOUN"
+            },
+            "text": "agreement",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "165"
+            },
+            "endOffset": {
+              "$numberInt": "168"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9745634198188782"
+              },
+              "tag": "ADP"
+            },
+            "text": "for",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "169"
+            },
+            "endOffset": {
+              "$numberInt": "171"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999758005142212"
+              },
+              "tag": "PRON"
+            },
+            "text": "my",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "172"
+            },
+            "endOffset": {
+              "$numberInt": "180"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.940173864364624"
+              },
+              "tag": "ADJ"
+            },
+            "text": "advisory",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "181"
+            },
+            "endOffset": {
+              "$numberInt": "185"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9996391534805298"
+              },
+              "tag": "NOUN"
+            },
+            "text": "work",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "185"
+            },
+            "endOffset": {
+              "$numberInt": "186"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.8073498010635376"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ".",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "186"
+            },
+            "endOffset": {
+              "$numberInt": "187"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999561309814453"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "188"
+            },
+            "endOffset": {
+              "$numberInt": "195"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9928920269012451"
+              },
+              "tag": "ADV"
+            },
+            "text": "Somehow",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "195"
+            },
+            "endOffset": {
+              "$numberInt": "196"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9997883439064026"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ",",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "196"
+            },
+            "endOffset": {
+              "$numberInt": "197"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999872446060181"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "197"
+            },
+            "endOffset": {
+              "$numberInt": "201"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9389022588729858"
+              },
+              "tag": "PRON"
+            },
+            "text": "this",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "202"
+            },
+            "endOffset": {
+              "$numberInt": "207"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999493360519409"
+              },
+              "tag": "ADV"
+            },
+            "text": "never",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "209"
+            },
+            "endOffset": {
+              "$numberInt": "217"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9975433349609375"
+              },
+              "tag": "VERB"
+            },
+            "text": "occurred",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "217"
+            },
+            "endOffset": {
+              "$numberInt": "218"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9278809428215027"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ".",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "218"
+            },
+            "endOffset": {
+              "$numberInt": "219"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999544620513916"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "220"
+            },
+            "endOffset": {
+              "$numberInt": "223"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9995167255401611"
+              },
+              "tag": "AUX"
+            },
+            "text": "Did",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "224"
+            },
+            "endOffset": {
+              "$numberInt": "225"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999974250793457"
+              },
+              "tag": "PRON"
+            },
+            "text": "I",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "226"
+            },
+            "endOffset": {
+              "$numberInt": "229"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999843955039978"
+              },
+              "tag": "VERB"
+            },
+            "text": "say",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "230"
+            },
+            "endOffset": {
+              "$numberInt": "232"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999942779541016"
+              },
+              "tag": "CONJ"
+            },
+            "text": "or",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "233"
+            },
+            "endOffset": {
+              "$numberInt": "235"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9889937043190002"
+              },
+              "tag": "VERB"
+            },
+            "text": "do",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "237"
+            },
+            "endOffset": {
+              "$numberInt": "246"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999997615814209"
+              },
+              "tag": "PRON"
+            },
+            "text": "something",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "247"
+            },
+            "endOffset": {
+              "$numberInt": "252"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9584900140762329"
+              },
+              "tag": "ADJ"
+            },
+            "text": "wrong",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "253"
+            },
+            "endOffset": {
+              "$numberInt": "255"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9989270567893982"
+              },
+              "tag": "PART"
+            },
+            "text": "to",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "256"
+            },
+            "endOffset": {
+              "$numberInt": "261"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999959468841553"
+              },
+              "tag": "VERB"
+            },
+            "text": "screw",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "262"
+            },
+            "endOffset": {
+              "$numberInt": "266"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9916868805885315"
+              },
+              "tag": "PRON"
+            },
+            "text": "this",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "268"
+            },
+            "endOffset": {
+              "$numberInt": "270"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9642959237098694"
+              },
+              "tag": "ADP"
+            },
+            "text": "up",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "270"
+            },
+            "endOffset": {
+              "$numberInt": "271"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9884172081947327"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "274"
+            },
+            "endOffset": {
+              "$numberInt": "275"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9998161196708679"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "276"
+            },
+            "endOffset": {
+              "$numberInt": "277"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999886155128479"
+              },
+              "tag": "PRON"
+            },
+            "text": "I",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "278"
+            },
+            "endOffset": {
+              "$numberInt": "280"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9991577863693237"
+              },
+              "tag": "AUX"
+            },
+            "text": "do",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "280"
+            },
+            "endOffset": {
+              "$numberInt": "283"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999948740005493"
+              },
+              "tag": "PART"
+            },
+            "text": "n't",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "284"
+            },
+            "endOffset": {
+              "$numberInt": "288"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999920129776001"
+              },
+              "tag": "VERB"
+            },
+            "text": "know",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "289"
+            },
+            "endOffset": {
+              "$numberInt": "291"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9993143081665039"
+              },
+              "tag": "SCONJ"
+            },
+            "text": "if",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "292"
+            },
+            "endOffset": {
+              "$numberInt": "295"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999996423721313"
+              },
+              "tag": "PRON"
+            },
+            "text": "you",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "295"
+            },
+            "endOffset": {
+              "$numberInt": "298"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9997405409812927"
+              },
+              "tag": "AUX"
+            },
+            "text": "'ve",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "299"
+            },
+            "endOffset": {
+              "$numberInt": "304"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999943971633911"
+              },
+              "tag": "VERB"
+            },
+            "text": "blown",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "305"
+            },
+            "endOffset": {
+              "$numberInt": "309"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9962259531021118"
+              },
+              "tag": "DET"
+            },
+            "text": "this",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "310"
+            },
+            "endOffset": {
+              "$numberInt": "315"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9985326528549194"
+              },
+              "tag": "ADJ"
+            },
+            "text": "whole",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "316"
+            },
+            "endOffset": {
+              "$numberInt": "321"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9998987913131714"
+              },
+              "tag": "NOUN"
+            },
+            "text": "thing",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "322"
+            },
+            "endOffset": {
+              "$numberInt": "325"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.7032639980316162"
+              },
+              "tag": "ADP"
+            },
+            "text": "off",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "325"
+            },
+            "endOffset": {
+              "$numberInt": "326"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999997615814209"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ",",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "327"
+            },
+            "endOffset": {
+              "$numberInt": "330"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9989771842956543"
+              },
+              "tag": "CONJ"
+            },
+            "text": "but",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "331"
+            },
+            "endOffset": {
+              "$numberInt": "332"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999730587005615"
+              },
+              "tag": "PRON"
+            },
+            "text": "I",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "333"
+            },
+            "endOffset": {
+              "$numberInt": "338"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999127388000488"
+              },
+              "tag": "ADV"
+            },
+            "text": "still",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "340"
+            },
+            "endOffset": {
+              "$numberInt": "344"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999220371246338"
+              },
+              "tag": "VERB"
+            },
+            "text": "hope",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "345"
+            },
+            "endOffset": {
+              "$numberInt": "348"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999959468841553"
+              },
+              "tag": "PRON"
+            },
+            "text": "you",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "349"
+            },
+            "endOffset": {
+              "$numberInt": "352"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9481900334358215"
+              },
+              "tag": "VERB"
+            },
+            "text": "are",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "354"
+            },
+            "endOffset": {
+              "$numberInt": "364"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.993514895439148"
+              },
+              "tag": "ADJ"
+            },
+            "text": "interested",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "365"
+            },
+            "endOffset": {
+              "$numberInt": "367"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.993202805519104"
+              },
+              "tag": "SCONJ"
+            },
+            "text": "in",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "368"
+            },
+            "endOffset": {
+              "$numberInt": "374"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9990272521972656"
+              },
+              "tag": "VERB"
+            },
+            "text": "trying",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "374"
+            },
+            "endOffset": {
+              "$numberInt": "375"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999880790710449"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "375"
+            },
+            "endOffset": {
+              "$numberInt": "377"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999479055404663"
+              },
+              "tag": "PART"
+            },
+            "text": "to",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "378"
+            },
+            "endOffset": {
+              "$numberInt": "384"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999922513961792"
+              },
+              "tag": "VERB"
+            },
+            "text": "create",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "385"
+            },
+            "endOffset": {
+              "$numberInt": "387"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999936819076538"
+              },
+              "tag": "DET"
+            },
+            "text": "an",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "388"
+            },
+            "endOffset": {
+              "$numberInt": "399"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999097585678101"
+              },
+              "tag": "NOUN"
+            },
+            "text": "arrangement",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "399"
+            },
+            "endOffset": {
+              "$numberInt": "400"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.7678917646408081"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ".",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "400"
+            },
+            "endOffset": {
+              "$numberInt": "401"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999620914459229"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "402"
+            },
+            "endOffset": {
+              "$numberInt": "404"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9910451769828796"
+              },
+              "tag": "ADP"
+            },
+            "text": "As",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "405"
+            },
+            "endOffset": {
+              "$numberInt": "406"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999926090240479"
+              },
+              "tag": "DET"
+            },
+            "text": "a",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "408"
+            },
+            "endOffset": {
+              "$numberInt": "416"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9975197911262512"
+              },
+              "tag": "NOUN"
+            },
+            "text": "courtesy",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "416"
+            },
+            "endOffset": {
+              "$numberInt": "417"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999997615814209"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ",",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "418"
+            },
+            "endOffset": {
+              "$numberInt": "422"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9990612864494324"
+              },
+              "tag": "ADV"
+            },
+            "text": "here",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "423"
+            },
+            "endOffset": {
+              "$numberInt": "425"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.976850152015686"
+              },
+              "tag": "VERB"
+            },
+            "text": "is",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "426"
+            },
+            "endOffset": {
+              "$numberInt": "428"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999970197677612"
+              },
+              "tag": "PRON"
+            },
+            "text": "my",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "430"
+            },
+            "endOffset": {
+              "$numberInt": "436"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9998100399971008"
+              },
+              "tag": "NOUN"
+            },
+            "text": "report",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "437"
+            },
+            "endOffset": {
+              "$numberInt": "441"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9998053908348083"
+              },
+              "tag": "ADP"
+            },
+            "text": "from",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "442"
+            },
+            "endOffset": {
+              "$numberInt": "446"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.997323751449585"
+              },
+              "tag": "DET"
+            },
+            "text": "this",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "447"
+            },
+            "endOffset": {
+              "$numberInt": "451"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9461769461631775"
+              },
+              "tag": "ADJ"
+            },
+            "text": "past",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "452"
+            },
+            "endOffset": {
+              "$numberInt": "459"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999944806098938"
+              },
+              "tag": "NOUN"
+            },
+            "text": "weekend",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "459"
+            },
+            "endOffset": {
+              "$numberInt": "460"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9279398918151855"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ".",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "460"
+            },
+            "endOffset": {
+              "$numberInt": "461"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999809265136719"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "462"
+            },
+            "endOffset": {
+              "$numberInt": "464"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999690055847168"
+              },
+              "tag": "SCONJ"
+            },
+            "text": "If",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "465"
+            },
+            "endOffset": {
+              "$numberInt": "468"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999990463256836"
+              },
+              "tag": "PRON"
+            },
+            "text": "you",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "469"
+            },
+            "endOffset": {
+              "$numberInt": "472"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9857193827629089"
+              },
+              "tag": "VERB"
+            },
+            "text": "are",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "473"
+            },
+            "endOffset": {
+              "$numberInt": "475"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.7767362594604492"
+              },
+              "tag": "ADV"
+            },
+            "text": "no",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "476"
+            },
+            "endOffset": {
+              "$numberInt": "482"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9875138401985168"
+              },
+              "tag": "ADV"
+            },
+            "text": "longer",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "484"
+            },
+            "endOffset": {
+              "$numberInt": "494"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9958863854408264"
+              },
+              "tag": "ADJ"
+            },
+            "text": "interested",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "495"
+            },
+            "endOffset": {
+              "$numberInt": "497"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9992986917495728"
+              },
+              "tag": "ADP"
+            },
+            "text": "in",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "498"
+            },
+            "endOffset": {
+              "$numberInt": "500"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999929666519165"
+              },
+              "tag": "PRON"
+            },
+            "text": "my",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "501"
+            },
+            "endOffset": {
+              "$numberInt": "505"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999889612197876"
+              },
+              "tag": "NOUN"
+            },
+            "text": "work",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "505"
+            },
+            "endOffset": {
+              "$numberInt": "506"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999997615814209"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ",",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "508"
+            },
+            "endOffset": {
+              "$numberInt": "514"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999339580535889"
+              },
+              "tag": "INTJ"
+            },
+            "text": "please",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "515"
+            },
+            "endOffset": {
+              "$numberInt": "519"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999991655349731"
+              },
+              "tag": "VERB"
+            },
+            "text": "tell",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "520"
+            },
+            "endOffset": {
+              "$numberInt": "522"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999969005584717"
+              },
+              "tag": "PRON"
+            },
+            "text": "me",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "523"
+            },
+            "endOffset": {
+              "$numberInt": "525"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9157543182373047"
+              },
+              "tag": "ADV"
+            },
+            "text": "so",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "525"
+            },
+            "endOffset": {
+              "$numberInt": "526"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.8211070895195007"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ".",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "528"
+            },
+            "endOffset": {
+              "$numberInt": "532"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.8910939693450928"
+              },
+              "tag": "ADJ"
+            },
+            "text": "Best",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "533"
+            },
+            "endOffset": {
+              "$numberInt": "539"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9790193438529968"
+              },
+              "tag": "NOUN"
+            },
+            "text": "wishes",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "539"
+            },
+            "endOffset": {
+              "$numberInt": "540"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9987887740135193"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ",",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "541"
+            },
+            "endOffset": {
+              "$numberInt": "542"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9999805688858032"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "543"
+            },
+            "endOffset": {
+              "$numberInt": "547"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9986588954925537"
+              },
+              "tag": "PROPN"
+            },
+            "text": "Mark",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "548"
+            },
+            "endOffset": {
+              "$numberInt": "553"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9986234903335571"
+              },
+              "tag": "PROPN"
+            },
+            "text": "Sagel",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "554"
+            },
+            "endOffset": {
+              "$numberInt": "561"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9995265007019043"
+              },
+              "tag": "PROPN"
+            },
+            "text": "Psytech",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "562"
+            },
+            "endOffset": {
+              "$numberInt": "571"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9984520673751831"
+              },
+              "tag": "PROPN"
+            },
+            "text": "Analytics",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "572"
+            },
+            "endOffset": {
+              "$numberInt": "573"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999930739402771"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "(",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "573"
+            },
+            "endOffset": {
+              "$numberInt": "576"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9930847883224487"
+              },
+              "tag": "NUM"
+            },
+            "text": "410",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "576"
+            },
+            "endOffset": {
+              "$numberInt": "577"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9998072981834412"
+              },
+              "tag": "PUNCT"
+            },
+            "text": ")",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "577"
+            },
+            "endOffset": {
+              "$numberInt": "585"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.997962474822998"
+              },
+              "tag": "NUM"
+            },
+            "text": "308-0245",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "585"
+            },
+            "endOffset": {
+              "$numberInt": "586"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.999991774559021"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "?",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "589"
+            },
+            "endOffset": {
+              "$numberInt": "590"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.9997060894966125"
+              },
+              "tag": "PUNCT"
+            },
+            "text": "-",
+            "tokenId": null
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "591"
+            },
+            "endOffset": {
+              "$numberInt": "610"
+            },
+            "partOfSpeech": {
+              "score": {
+                "$numberDouble": "0.7187439799308777"
+              },
+              "tag": "PROPN"
+            },
+            "text": "energy2000-1112.doc",
+            "tokenId": null
+          }
+        ]
+      }
+    }
+  },
+  {
+    "author": "arnold-j",
+    "content": "Message-ID: <19171686.1075857585034.JavaMail.evans@thyme>\r\nDate: Fri, 8 Dec 2000 05:05:00 -0800 (PST)\r\nFrom: slafontaine@globalp.com\r\nTo: john.arnold@enron.com\r\nSubject: re:summer inverses\r\nMime-Version: 1.0\r\nContent-Type: text/plain; charset=us-ascii\r\nContent-Transfer-Encoding: 7bit\r\nX-From: slafontaine@globalp.com\r\nX-To: John.Arnold@enron.com\r\nX-cc: \r\nX-bcc: \r\nX-Folder: \\John_Arnold_Dec2000\\Notes Folders\\Notes inbox\r\nX-Origin: Arnold-J\r\nX-FileName: Jarnold.nsf\r\n\r\ni suck-hope youve made more money in natgas last 3 weeks than i have. mkt shud\nbe getting bearish feb forward-cuz we already have the weather upon us-fuel\nswitching and the rest shud invert the whole curve not just dec cash to jan \nand\nfeb forward???? have a good weekend john\n",
+    "date": {
+      "$date": {
+        "$numberLong": "976280700000"
+      }
+    },
+    "emailData": {
+      "bcc": [],
+      "cc": [],
+      "dateSent": {
+        "$date": {
+          "$numberLong": "976280700000"
+        }
+      },
+      "folderPath": "notes_inbox",
+      "from": "slafontaine@globalp.com",
+      "relativeFilePath": "arnold-j/notes_inbox/19.",
+      "subject": "re:summer inverses",
+      "to": [
+        "john.arnold@enron.com"
+      ],
+      "username": "arnold-j"
+    },
+    "name": "re:summer inverses",
+    "dataset": "Enron Email Corpus",
+    "analysis": {
+      "comprehend": {
+        "entities": [
+          {
+            "beginOffset": {
+              "$numberInt": "46"
+            },
+            "endOffset": {
+              "$numberInt": "58"
+            },
+            "score": {
+              "$numberDouble": "0.8958866596221924"
+            },
+            "text": "last 3 weeks",
+            "type": "DATE"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "229"
+            },
+            "endOffset": {
+              "$numberInt": "232"
+            },
+            "score": {
+              "$numberDouble": "0.63105309009552"
+            },
+            "text": "jan",
+            "type": "PERSON"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "274"
+            },
+            "endOffset": {
+              "$numberInt": "278"
+            },
+            "score": {
+              "$numberDouble": "0.967898428440094"
+            },
+            "text": "john",
+            "type": "PERSON"
+          }
+        ],
+        "keyPhrases": [
+          {
+            "beginOffset": {
+              "$numberInt": "9"
+            },
+            "endOffset": {
+              "$numberInt": "19"
+            },
+            "score": {
+              "$numberDouble": "0.6691960692405701"
+            },
+            "text": "hope youve"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "25"
+            },
+            "endOffset": {
+              "$numberInt": "35"
+            },
+            "score": {
+              "$numberDouble": "0.995799720287323"
+            },
+            "text": "more money"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "39"
+            },
+            "endOffset": {
+              "$numberInt": "45"
+            },
+            "score": {
+              "$numberDouble": "0.8161398768424988"
+            },
+            "text": "natgas"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "46"
+            },
+            "endOffset": {
+              "$numberInt": "58"
+            },
+            "score": {
+              "$numberDouble": "0.9770849347114563"
+            },
+            "text": "last 3 weeks"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "72"
+            },
+            "endOffset": {
+              "$numberInt": "80"
+            },
+            "score": {
+              "$numberDouble": "0.8758374452590942"
+            },
+            "text": "mkt shud"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "92"
+            },
+            "endOffset": {
+              "$numberInt": "115"
+            },
+            "score": {
+              "$numberDouble": "0.8442162871360779"
+            },
+            "text": "bearish feb forward-cuz"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "132"
+            },
+            "endOffset": {
+              "$numberInt": "143"
+            },
+            "score": {
+              "$numberDouble": "0.9977573156356812"
+            },
+            "text": "the weather"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "152"
+            },
+            "endOffset": {
+              "$numberInt": "166"
+            },
+            "score": {
+              "$numberDouble": "0.7999271154403687"
+            },
+            "text": "fuel switching"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "171"
+            },
+            "endOffset": {
+              "$numberInt": "179"
+            },
+            "score": {
+              "$numberDouble": "0.8595290780067444"
+            },
+            "text": "the rest"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "192"
+            },
+            "endOffset": {
+              "$numberInt": "207"
+            },
+            "score": {
+              "$numberDouble": "0.996555745601654"
+            },
+            "text": "the whole curve"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "208"
+            },
+            "endOffset": {
+              "$numberInt": "216"
+            },
+            "score": {
+              "$numberDouble": "0.48152488470077515"
+            },
+            "text": "not just"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "221"
+            },
+            "endOffset": {
+              "$numberInt": "225"
+            },
+            "score": {
+              "$numberDouble": "0.9664506316184998"
+            },
+            "text": "cash"
+          },
+          {
+            "beginOffset": {
+              "$numberInt": "229"
+            },
+            "endOffset": {
+              "$numberInt": "232"
+            },
+            "score": {
+              "$numberDouble": "0.771001935005188"
+            },
+            "text": "jan"
+          }
+        ]
+      }
+    }
+  }
+]

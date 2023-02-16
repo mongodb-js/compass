@@ -1,4 +1,3 @@
-import os from 'os';
 import { Transform } from 'stream';
 import { pipeline } from 'stream/promises';
 import type { Readable, Writable } from 'stream';
@@ -8,13 +7,10 @@ import type { DataService } from 'mongodb-data-service';
 
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import type { CollectionStreamStats } from '../utils/collection-stream';
-import { makeDoc, parseHeaderName, errorToJSON } from '../utils/csv';
-import type {
-  Delimiter,
-  IncludedFields,
-  PathPart,
-  ErrorJSON,
-} from '../utils/csv';
+import { makeDoc, parseHeaderName } from '../utils/csv';
+import { processParseError, processWriteStreamErrors } from '../utils/import';
+import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
+import type { ErrorJSON } from '../utils/import';
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('import-csv');
@@ -99,26 +95,14 @@ export async function importCSV({
         debug('transform', doc);
         callback(null, doc);
       } catch (err: unknown) {
-        // rethrow with the row index appended to aid debugging
-        (err as Error).message = `${
-          (err as Error).message
-        }[Row ${numProcessed}]`;
-
-        if (stopOnErrors) {
-          callback(err as Error);
-        } else {
-          const transformedError = errorToJSON(err);
-          debug('transform error', transformedError);
-          errorCallback?.(transformedError);
-          output.write(
-            JSON.stringify(transformedError) + os.EOL,
-            'utf8',
-            (err: any) => {
-              debug('error while writing error', err);
-              callback();
-            }
-          );
-        }
+        processParseError({
+          numProcessed,
+          stopOnErrors,
+          err,
+          output,
+          errorCallback,
+          callback,
+        });
       }
     },
   });
@@ -147,44 +131,30 @@ export async function importCSV({
     ...(abortSignal ? [{ signal: abortSignal }] : []),
   ] as const;
 
-  // This is temporary until we change WritableCollectionStream so it can pipe
-  // us its errors as they occur.
-  async function processWriteStreamErrors() {
-    const errors = collectionStream.getErrors();
-    const stats = collectionStream.getStats();
-    const allErrors = errors
-      .concat(stats.writeErrors)
-      .concat(stats.writeConcernErrors);
-
-    for (const error of allErrors) {
-      const transformedError = errorToJSON(error);
-      debug('write error', transformedError);
-      errorCallback?.(transformedError);
-      try {
-        await new Promise<void>((resolve) => {
-          output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
-            resolve()
-          );
-        });
-      } catch (err: any) {
-        debug('error while writing error', err);
-      }
-    }
-  }
-
   try {
     await pipeline(...params);
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
-      await processWriteStreamErrors();
+      await processWriteStreamErrors({
+        collectionStream,
+        output,
+        errorCallback,
+      });
+
       return {
         ...collectionStream.getStats(),
         aborted: true,
       };
     }
+
     throw err;
   }
 
-  await processWriteStreamErrors();
+  await processWriteStreamErrors({
+    collectionStream,
+    output,
+    errorCallback,
+  });
+
   return collectionStream.getStats();
 }

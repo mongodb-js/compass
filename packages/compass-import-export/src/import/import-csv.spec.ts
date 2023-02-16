@@ -23,7 +23,8 @@ import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
 import { importCSV } from './import-csv';
 import { formatHeaderName } from '../utils/csv';
-import type { PathPart, ErrorJSON } from '../utils/csv';
+import type { PathPart } from '../utils/csv';
+import type { ErrorJSON } from '../utils/import';
 
 const { expect } = chai;
 chai.use(sinonChai);
