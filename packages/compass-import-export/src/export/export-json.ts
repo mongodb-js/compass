@@ -18,6 +18,7 @@ type ExportQuery = {
   filter: BSONObject;
   limit?: number;
   skip?: number;
+  projection?: BSONObject;
 };
 
 type ExportJSONOptions = {
@@ -26,9 +27,6 @@ type ExportJSONOptions = {
   output: Writable;
   abortSignal: AbortSignal;
   query?: ExportQuery;
-  // filter?: BSONObject; // TODO: Agg?
-  // limit?: number;
-  // skip?: number;
   aggregation?: BSONObject[];
   progressCallback: (index: number) => void;
   variant: 'default' | 'relaxed' | 'canonical';
@@ -51,7 +49,7 @@ function getEJSONOptionsForVariant(
     ? {
         relaxed: false, // canonical
       }
-    : undefined; // Default
+    : undefined; // default
 }
 
 export async function exportJSON({
@@ -63,8 +61,8 @@ export async function exportJSON({
   progressCallback,
   aggregation,
   variant,
-}: // fields,
-ExportJSONOptions): Promise<ExportJSONResult> {
+  fields,
+}: ExportJSONOptions): Promise<ExportJSONResult> {
   debug('exportJSON()', { ns: toNS(ns) });
 
   await new Promise((resolve) => setTimeout(resolve, 100));
@@ -90,15 +88,16 @@ ExportJSONOptions): Promise<ExportJSONResult> {
     },
   });
 
+  // TODO: pass abort signal here also
+  // Should we make this function into two that then use this with a passed in readable?
+  // promoteValues ?
   const collectionStream = createReadableCollectionStream({
     dataService,
     ns,
     query,
     aggregation,
-    // TODO: projection
+    // TODO: projection + fields
   });
-
-  // TODO: Or aggregation
 
   const params = [
     collectionStream,
@@ -110,6 +109,8 @@ ExportJSONOptions): Promise<ExportJSONResult> {
   try {
     await pipeline(...params);
   } catch (err: any) {
+    //  || dataService.isCancelError(err) or?
+
     if (err.code === 'ABORT_ERR') {
       return {
         docsWritten,

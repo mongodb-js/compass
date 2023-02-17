@@ -72,7 +72,8 @@
     "@mongodb-js/compass-logging": "^1.1.2",
     "bson": "^5.0.0",
     "compass-preferences-model": "^2.5.1",
-    "hadron-document": "^8.1.0"
+    "hadron-document": "^8.1.0",
+    "mongodb-schema": "^8.2.5"
   },
   "devDependencies": {
     "@electron/remote": "^2.0.9",

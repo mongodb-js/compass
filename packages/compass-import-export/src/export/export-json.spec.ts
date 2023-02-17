@@ -26,14 +26,13 @@ chai.use(chaiAsPromised);
 
 const testNS = 'export-json-test.test-col';
 
-describe.only('exportJSON', function () {
+describe('exportJSON', function () {
   let dataService: DataServiceImpl;
   let dropCollection;
   let createCollection;
   let insertOne;
-  // let updateCollection: (ns: string, options: any) => Promise<Document>;
 
-  // As we're only exporting we insert documents once for all of the tests.
+  // Insert documents once for all of the tests.
   before(async function () {
     dataService = new DataServiceImpl({
       connectionString: 'mongodb://localhost:27018/local',
@@ -47,10 +46,6 @@ describe.only('exportJSON', function () {
 
     insertOne = promisify(dataService.insertOne.bind(dataService));
 
-    // updateCollection = promisify(
-    //   dataService.updateCollection.bind(dataService)
-    // );
-
     await dataService.connect();
 
     try {
@@ -60,7 +55,7 @@ describe.only('exportJSON', function () {
     }
     await createCollection(testNS, {});
 
-    // TODO: insert docs
+    // TODO: more tests, more docs
     await insertOne(
       testNS,
       {
@@ -84,7 +79,7 @@ describe.only('exportJSON', function () {
       dataService,
       ns,
       fields: [],
-      // input: collection,// TODO: collection stream
+      // input: collection,// TODO: collection stream instead of passing query/agg?
       // aggregation: false,
       output: temp.createWriteStream(),
       variant: 'default',
@@ -126,10 +121,15 @@ describe.only('exportJSON', function () {
   // TODO: It export nested arrays
 
   // TODO: It exports different json formats (ejson etc)
-  // TODO: It exports an empty collection
+  // TODO: It exports/handles an empty collection
 
-  // todo: it exports aggregations
+  // TODO: it exports aggregations
+
+  // TODO: When data service errors.e
+  // TODO: When write file errors.
 
   // TODO: It reports database errors
   // TODO: it responds to abortSignal.aborted
+
+  // TODO: EOF
 });
