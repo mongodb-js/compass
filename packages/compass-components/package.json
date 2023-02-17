@@ -28,7 +28,7 @@
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.7",
@@ -75,7 +75,7 @@
     "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",
     "@react-stately/tooltip": "^3.0.5",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "focus-trap-react": "^8.4.2",
     "hadron-document": "^8.1.0",
     "hadron-type-checker": "^7.0.0",

@@ -41,7 +41,7 @@
     "test-check-ci": "npm run check && npm test",
     "test": "mocha",
     "test-ci": "npm run test",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.1.2",
@@ -50,7 +50,7 @@
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-state": "5.0.3",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "storage-mixin": "^5.1.1",

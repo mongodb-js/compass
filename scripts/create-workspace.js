@@ -291,7 +291,7 @@ async function createWorkspace({
       'test-watch': 'npm run test -- --watch',
       'test-ci': 'npm run test-cov',
       ...(isPlugin && { 'test-ci-electron': 'npm run test-electron' }),
-      reformat: 'npm run prettier -- --write .',
+      reformat: 'npm run prettier -- --write . && npm run eslint . --fix',
     },
     ...(isReact && { peerDependencies: { react: '*', 'react-dom': '*' } }),
     ...(isReact && { dependencies: { react: '*', 'react-dom': '*' } }),

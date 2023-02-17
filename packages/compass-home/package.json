@@ -34,7 +34,7 @@
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "bootstrap": "npm run compile",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "license": "SSPL",
   "dependencies": {

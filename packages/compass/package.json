@@ -156,7 +156,7 @@
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "repository": {
     "type": "git",
@@ -215,7 +215,7 @@
     "analytics-node": "^5.1.2",
     "app-migrations": "^3.1.2",
     "async": "^3.2.0",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "chai": "^4.3.4",
     "chalk": "^4.1.1",
     "clean-stack": "^2.0.0",

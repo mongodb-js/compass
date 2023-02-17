@@ -54,20 +54,20 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/compass-utils": "^0.2.1",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "storage-mixin": "^5.1.1"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
     "@mongodb-js/compass-utils": "^0.2.1",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "react": "^17.0.2",
     "storage-mixin": "^5.1.1"
   },

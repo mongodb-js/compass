@@ -50,7 +50,7 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
     "mongodb": "^5.0.0"
@@ -81,7 +81,7 @@
     "@types/lodash": "^4.14.172",
     "@types/uuid": "^8.3.1",
     "@types/whatwg-url": "^8.2.1",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
