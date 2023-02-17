@@ -47,7 +47,7 @@
     "@mongodb-js/explain-plan-helper": "^1.0.2",
     "@mongodb-js/mongodb-constants": "^0.2.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "compass-preferences-model": "^2.5.1",
     "hadron-document": "^8.1.0",
     "react": "^17.0.2"
@@ -107,7 +107,7 @@
     "@mongodb-js/explain-plan-helper": "^1.0.2",
     "@mongodb-js/mongodb-constants": "^0.2.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.4",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "compass-preferences-model": "^2.5.1",
     "hadron-document": "^8.1.0"
   },

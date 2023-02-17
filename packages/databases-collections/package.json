@@ -63,7 +63,7 @@
     "@mongodb-js/webpack-config-compass": "^1.0.5",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
-    "bson": "^5.0.0",
+    "bson": "^5.0.1",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "enzyme": "^3.11.0",
