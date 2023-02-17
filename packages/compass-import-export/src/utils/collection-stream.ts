@@ -11,6 +11,7 @@ import type {
 } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import { promisify } from 'util';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 import { createDebug } from './logger';
 
@@ -292,23 +293,36 @@ export const createCollectionWriteStream = function (
   return new WritableCollectionStream(dataService, ns, stopOnErrors);
 };
 
-export const createReadableCollectionStream = function (
-  dataService: DataService,
-  ns: string,
-  spec: {
+type ReadableCollectionStreamOptions = {
+  dataService: DataService;
+  ns: string;
+  query: {
     filter: Document;
     limit?: number;
     skip?: number;
-  } = { filter: {} },
-  projection = {}
-) {
-  const { limit, skip } = spec;
+  };
+  projection?: any; // todo
+  aggregation?: any; // todo
+};
+
+export const createReadableCollectionStream = function ({
+  dataService,
+  ns,
+  query,
+  projection,
+  aggregation,
+}: ReadableCollectionStreamOptions) {
+  if (aggregation) {
+    const { stages, options } = aggregation;
+    options.maxTimeMS = capMaxTimeMSAtPreferenceLimit(options.maxTimeMS);
+    return dataService.aggregateCursor(ns, stages, options);
+  }
 
   return dataService
-    .findCursor(ns, spec.filter || {}, {
+    .findCursor(ns, query.filter ?? {}, {
       projection,
-      limit,
-      skip,
+      limit: query.limit,
+      skip: query.skip,
     })
     .stream();
 };
