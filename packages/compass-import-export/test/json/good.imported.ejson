@@ -1,0 +1,29 @@
+[
+  {
+    "uuid": {
+      "$binary": {
+        "base64": "ACY24RDNTIuppwG3v9OJnA==",
+        "subType": "04"
+      }
+    },
+    "name": "Arlo"
+  },
+  {
+    "uuid": {
+      "$binary": {
+        "base64": "ADH2ysDsTLCmbB/hTKKcGA==",
+        "subType": "04"
+      }
+    },
+    "name": "Basil"
+  },
+  {
+    "uuid": {
+      "$binary": {
+        "base64": "ADVkMBdRSZauRXdnZILiEA==",
+        "subType": "04"
+      }
+    },
+    "name": "Kochka"
+  }
+]
