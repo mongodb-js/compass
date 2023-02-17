@@ -147,12 +147,6 @@ export const openPipelineById = (
 ): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
     try {
-      track('Aggregation Opened', {
-        id,
-        editor_view_type: mapPipelineModeToEditorViewType(getState()),
-        screen: 'aggregations',
-      });
-
       const data = await pipelineStorage.load(id);
       if (!data) {
         throw new Error(`Pipeline with id ${id} not found`);
@@ -251,7 +245,7 @@ export const openPipeline = (id: string): PipelineBuilderThunkAction<void> => {
         id,
       });
     } else {
-      dispatch(openPipelineById(id));
+      dispatch(confirmOpenPipeline(id));
     }
   };
 };
@@ -268,3 +262,16 @@ export const deletePipeline = (id: string) => ({
 export const closeDeletePipeline = () => ({
   type: SET_DELETE_PIPELINE_ID,
 });
+
+export const confirmOpenPipeline = (
+  id: string
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    dispatch(openPipelineById(id));
+    track('Aggregation Opened', {
+      id,
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      screen: 'aggregations',
+    });
+  };
+};

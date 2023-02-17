@@ -16,7 +16,7 @@ import {
 import {
   openPipeline,
   closeOpenPipeline,
-  openPipelineById,
+  confirmOpenPipeline,
   deletePipeline,
   closeDeletePipeline,
   deletePipelineById,
@@ -148,7 +148,7 @@ const mapState = (state: RootState) => ({
 const mapDispatch = {
   onOpenPipeline: openPipeline,
   onCancelOpenPipeline: closeOpenPipeline,
-  onConfirmOpen: openPipelineById,
+  onConfirmOpen: confirmOpenPipeline,
   onDeletePipeline: deletePipeline,
   onCancelDeletePipeline: closeDeletePipeline,
   onConfirmDelete: deletePipelineById,
