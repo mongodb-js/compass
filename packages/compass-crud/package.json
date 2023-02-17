@@ -61,7 +61,7 @@
     "test-ci": "npm run test-cov",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
