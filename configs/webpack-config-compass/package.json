@@ -42,7 +42,7 @@
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.2",

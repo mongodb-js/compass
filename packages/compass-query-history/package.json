@@ -54,7 +54,7 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.5.0",
