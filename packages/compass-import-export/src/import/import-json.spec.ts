@@ -1,8 +1,8 @@
 import os from 'os';
-import _ from 'lodash';
 import assert from 'assert';
-import { EJSON } from 'bson';
+import { BSONError, EJSON } from 'bson';
 import type { Document } from 'bson';
+import { MongoBulkWriteError } from 'mongodb';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -19,19 +19,20 @@ import { DataServiceImpl } from 'mongodb-data-service';
 
 import { fixtures } from '../../test/fixtures';
 
+import type { ErrorJSON } from '../utils/import';
+
 import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';
-//import type { ErrorJSON } from '../utils/import'
 
 const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe.only('importJSON', function () {
+describe('importJSON', function () {
   let dataService: DataServiceImpl;
   let dropCollection;
   let createCollection;
-  //let updateCollection: (ns: string, options: any) => Promise<Document>;
+  let updateCollection: (ns: string, options: any) => Promise<Document>;
 
   beforeEach(async function () {
     dataService = new DataServiceImpl({
@@ -44,11 +45,9 @@ describe.only('importJSON', function () {
       dataService.createCollection.bind(dataService)
     );
 
-    /*
     updateCollection = promisify(
       dataService.updateCollection.bind(dataService)
     );
-    */
 
     await dataService.connect();
 
@@ -141,8 +140,405 @@ describe.only('importJSON', function () {
     }
   }
 
-  it('imports a file containing multiple batches');
-  it('reports and writes parse errors (stopOnErrors=false)');
-  it('reports and writes database errors (stopOnErrors=false)');
-  it('responds to abortSignal.aborted');
+  it('imports a file containing multiple batches', async function () {
+    const lines: string[] = [];
+    for (let i = 0; i < 2000; i++) {
+      lines.push(JSON.stringify({ i }));
+    }
+
+    const progressCallback = sinon.spy();
+
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const stats = await importJSON({
+      dataService,
+      ns,
+      input: Readable.from(lines.join('\n')),
+      output,
+      progressCallback,
+      jsonVariant: 'jsonl',
+    });
+
+    expect(stats).to.deep.equal({
+      nInserted: 2000,
+      nMatched: 0,
+      nModified: 0,
+      nRemoved: 0,
+      nUpserted: 0,
+      ok: 2, // expected two batches
+      writeConcernErrors: [],
+      writeErrors: [],
+    });
+
+    const docs: any[] = await dataService.find(ns, {});
+
+    expect(docs).to.have.length(2000);
+
+    for (const [i, doc] of docs.entries()) {
+      delete doc._id;
+      expect(doc).to.deep.equal({ i });
+    }
+
+    expect(progressCallback.callCount).to.equal(2000);
+  });
+
+  it('errors if a json file does not parse', async function () {
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const promise = importJSON({
+      dataService,
+      ns,
+      input: Readable.from('x'),
+      output,
+      // should fail regardless of stopOnErrors because the whole file doesn't parse
+      stopOnErrors: false,
+      jsonVariant: 'json',
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      Error,
+      'Parser cannot parse input: expected a value'
+    );
+  });
+
+  it('errors if a jsonl file does not parse', async function () {
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const promise = importJSON({
+      dataService,
+      ns,
+      input: Readable.from('x'),
+      output,
+      // should fail regardless of stopOnErrors because the whole file doesn't parse
+      stopOnErrors: false,
+      jsonVariant: 'jsonl',
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      Error,
+      'Parser cannot parse input: expected a value'
+    );
+  });
+
+  it('errors if a json file is passed as jsonl', async function () {
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const promise = importJSON({
+      dataService,
+      ns,
+      input: Readable.from('[{"a": 1}]'),
+      output,
+      stopOnErrors: true,
+      jsonVariant: 'jsonl',
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      Error,
+      'Value is not an object [Index 0]'
+    );
+  });
+
+  it('errors if a jsonl file is passed as json', async function () {
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const promise = importJSON({
+      dataService,
+      ns,
+      input: Readable.from('{"a": 1}'),
+      output,
+      // should fail regardless of stopOnErrors because the whole file doesn't parse
+      stopOnErrors: false,
+      jsonVariant: 'json',
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      Error,
+      'Top-level object should be an array'
+    );
+  });
+
+  it('errors if a json file contains things that are not arrays', async function () {
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const promise = importJSON({
+      dataService,
+      ns,
+      input: Readable.from('5'),
+      output,
+      // should fail regardless of stopOnErrors because the whole file doesn't parse
+      stopOnErrors: false,
+      jsonVariant: 'json',
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      Error,
+      'Top-level object should be an array'
+    );
+  });
+
+  it('errors if a jsonl file contains things that are not objects', async function () {
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const promise = importJSON({
+      dataService,
+      ns,
+      input: Readable.from('{ "a": 1}\n5'),
+      output,
+      stopOnErrors: true,
+      jsonVariant: 'jsonl',
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      Error,
+      'Value is not an object [Index 1]' // only the second one failed. First one passed.
+    );
+  });
+
+  it('errors if there are parse errors (stopOnErrors=true', async function () {
+    const lines: string[] = [];
+
+    lines.push(
+      JSON.stringify({
+        date: {
+          $date: {
+            $numberLong: '', // broken extended json
+          },
+        },
+      })
+    );
+
+    lines.push(
+      JSON.stringify({
+        date: {
+          $date: {
+            $numberLong: '974395800000',
+          },
+        },
+      })
+    );
+
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const promise = importJSON({
+      dataService,
+      ns,
+      input: Readable.from(lines.join('\n')),
+      output,
+      stopOnErrors: true,
+      jsonVariant: 'jsonl',
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      BSONError,
+      '$numberLong string "" is in an invalid format [Index 0]'
+    );
+  });
+
+  it('reports and writes parse errors (stopOnErrors=false)', async function () {
+    const lines: string[] = [];
+
+    lines.push(
+      JSON.stringify({
+        date: {
+          $date: {
+            $numberLong: '', // broken extended json
+          },
+        },
+      })
+    );
+
+    lines.push(
+      JSON.stringify({
+        date: {
+          $date: {
+            $numberLong: '974395800000',
+          },
+        },
+      })
+    );
+
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+    const progressCallback = sinon.spy();
+    const errorCallback = sinon.spy();
+
+    const stats = await importJSON({
+      dataService,
+      ns,
+      input: Readable.from(lines.join('\n')),
+      output,
+      stopOnErrors: false,
+      jsonVariant: 'jsonl',
+      progressCallback,
+      errorCallback,
+    });
+
+    expect(stats.nInserted).to.equal(1);
+
+    expect(progressCallback.callCount).to.equal(2);
+    expect(errorCallback.callCount).to.equal(1);
+
+    const expectedErrors = [
+      {
+        name: 'BSONError',
+        message: '$numberLong string "" is in an invalid format [Index 0]',
+      },
+    ];
+
+    const errors = errorCallback.args.map((args) => args[0]);
+
+    expect(errors).to.deep.equal(expectedErrors);
+
+    const errorsText = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorsText).to.equal(formatErrorLines(expectedErrors));
+  });
+
+  it('errors if there are database errors (stopOnErrors=true)', async function () {
+    const lines = [{ i: 0 }, { i: 1 }].map((doc) => JSON.stringify(doc));
+
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+    const progressCallback = sinon.spy();
+    const errorCallback = sinon.spy();
+
+    await updateCollection(ns, {
+      validator: {
+        $jsonSchema: {
+          required: ['xxx'],
+        },
+      },
+    });
+
+    const promise = importJSON({
+      dataService,
+      ns,
+      input: Readable.from(lines.join('\n')),
+      output,
+      stopOnErrors: true,
+      jsonVariant: 'jsonl',
+      progressCallback,
+      errorCallback,
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      MongoBulkWriteError,
+      'Document failed validation'
+    );
+  });
+
+  it('reports and writes database errors (stopOnErrors=false)', async function () {
+    const lines = [{ i: 0 }, { i: 1 }].map((doc) => JSON.stringify(doc));
+
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+    const progressCallback = sinon.spy();
+    const errorCallback = sinon.spy();
+
+    await updateCollection(ns, {
+      validator: {
+        $jsonSchema: {
+          required: ['xxx'],
+        },
+      },
+    });
+
+    const stats = await importJSON({
+      dataService,
+      ns,
+      input: Readable.from(lines.join('\n')),
+      output,
+      stopOnErrors: false,
+      jsonVariant: 'jsonl',
+      progressCallback,
+      errorCallback,
+    });
+
+    expect(stats.nInserted).to.equal(0);
+
+    expect(progressCallback.callCount).to.equal(2);
+    expect(errorCallback.callCount).to.equal(3); // yes one more MongoBulkWriteError than items in the batch
+
+    const expectedErrors = [
+      {
+        // first one speems to relate to the batch as there's no index
+        name: 'MongoBulkWriteError',
+        message: 'Document failed validation',
+        code: 121,
+      },
+      {
+        name: 'WriteConcernError',
+        message: 'Document failed validation',
+        index: 0,
+        code: 121,
+      },
+      {
+        name: 'WriteConcernError',
+        message: 'Document failed validation',
+        index: 1,
+        code: 121,
+      },
+    ];
+
+    const errors = errorCallback.args.map((args) => args[0]);
+
+    expect(errors).to.deep.equal(expectedErrors);
+
+    const errorsText = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorsText).to.equal(formatErrorLines(expectedErrors));
+  });
+
+  it('responds to abortSignal.aborted', async function () {
+    const abortController = new AbortController();
+
+    abortController.abort();
+
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const stats = await importJSON({
+      dataService,
+      ns,
+      input: fs.createReadStream(fixtures.csv.complex),
+      output,
+      abortSignal: abortController.signal,
+      jsonVariant: 'jsonl',
+    });
+
+    // only looked at the first row because we aborted before even starting
+    expect(stats).to.deep.equal({
+      aborted: true,
+      nInserted: 0,
+      nMatched: 0,
+      nModified: 0,
+      nRemoved: 0,
+      nUpserted: 0,
+      ok: 0,
+      writeConcernErrors: [],
+      writeErrors: [],
+    });
+  });
 });
+
+function formatErrorLines(errors: ErrorJSON[]) {
+  return errors.map((err) => JSON.stringify(err)).join(os.EOL) + os.EOL;
+}

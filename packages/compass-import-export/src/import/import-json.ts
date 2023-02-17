@@ -52,12 +52,19 @@ export async function importJSON({
       ++numProcessed;
       progressCallback?.(numProcessed);
       try {
+        // make sure files parsed as jsonl only contain objects with no arrays and simple values
+        // (this will either stop the entire import and throw or just skip this
+        // one value depending on the value of stopOnErrors)
+        if (Object.prototype.toString.call(chunk.value) !== '[object Object]') {
+          throw new Error('Value is not an object');
+        }
+
         const doc = EJSON.deserialize(chunk.value);
         debug('transform', doc);
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({
-          numProcessed,
+          annotation: ` [Index ${numProcessed - 1}]`,
           stopOnErrors,
           err,
           output,
@@ -84,15 +91,11 @@ export async function importJSON({
     parserStreams.push(Parser.parser(), StreamArray.streamArray());
   }
 
-  const params = [
-    input,
-    ...parserStreams,
-    docStream,
-    collectionStream,
-  ] as const;
-
   try {
-    await pipeline(params, ...(abortSignal ? [{ signal: abortSignal }] : []));
+    await pipeline(
+      [input, ...parserStreams, docStream, collectionStream],
+      ...(abortSignal ? [{ signal: abortSignal }] : [])
+    );
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
       await processWriteStreamErrors({

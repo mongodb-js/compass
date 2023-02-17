@@ -96,7 +96,7 @@ export async function importCSV({
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({
-          numProcessed,
+          annotation: `[Row ${numProcessed}]`,
           stopOnErrors,
           err,
           output,

@@ -3,6 +3,7 @@ import _ from 'lodash';
 import assert from 'assert';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
+import { MongoBulkWriteError } from 'mongodb';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -633,6 +634,45 @@ describe('importCSV', function () {
 
     const errorsText = await fs.promises.readFile(output.path, 'utf8');
     expect(errorsText).to.equal(formatErrorLines(expectedErrors));
+  });
+
+  it('errors when there are database errors (stopOnErrors=true)', async function () {
+    const lines = ['a,b', '1,2', '3,4', '5,6'];
+
+    const ns = 'db.col';
+
+    const fields = {
+      a: 'int',
+      b: 'int',
+    } as const;
+
+    const output = temp.createWriteStream();
+    const progressCallback = sinon.spy();
+    const errorCallback = sinon.spy();
+
+    await updateCollection(ns, {
+      validator: {
+        $jsonSchema: {
+          required: ['xxx'],
+        },
+      },
+    });
+
+    const promise = importCSV({
+      dataService,
+      ns,
+      fields,
+      input: Readable.from(lines.join('\n')),
+      output,
+      stopOnErrors: true,
+      progressCallback,
+      errorCallback,
+    });
+
+    await expect(promise).to.be.rejectedWith(
+      MongoBulkWriteError,
+      'Document failed validation'
+    );
   });
 
   it('reports and writes database errors (stopOnErrors=false)', async function () {

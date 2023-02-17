@@ -72,14 +72,14 @@ export async function processWriteStreamErrors({
 }
 
 export function processParseError({
-  numProcessed,
+  annotation,
   stopOnErrors,
   err,
   output,
   errorCallback,
   callback,
 }: {
-  numProcessed: number;
+  annotation: string;
   stopOnErrors?: boolean;
   err: unknown;
   output: Writable;
@@ -87,7 +87,7 @@ export function processParseError({
   callback: (err?: any) => void;
 }) {
   // rethrow with the line number / array index appended to aid debugging
-  (err as Error).message = `${(err as Error).message}[Row ${numProcessed}]`;
+  (err as Error).message = `${(err as Error).message}${annotation}`;
 
   if (stopOnErrors) {
     callback(err as Error);
