@@ -20,7 +20,7 @@ import { setupProtocolHandlers } from './protocol-handling';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
-type ExitHandler = () => Promise<unknown>;
+type ExitHandler = () => unknown | Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
 
 const getContext = () => {
