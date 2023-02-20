@@ -34,14 +34,6 @@ const tableContainerStyles = css({
   overflow: 'auto',
 });
 
-const checkboxContainerStyle = css({
-  // display: 'flex',
-});
-
-const inputCellContainerStyles = css({
-  // verticalAlign: 'middle',
-});
-
 const smallCellContainerStyle = css({
   width: spacing[5],
   margin: '0 auto',
@@ -203,7 +195,7 @@ function ExportSelectFields({
             <>
               <Row key={field.field}>
                 <Cell className={smallCellContainerStyle}>
-                  <div className={checkboxContainerStyle}>
+                  <div>
                     <Checkbox
                       title={`${field.checked ? 'Exclude' : 'Include'} ${
                         field.field
@@ -226,7 +218,7 @@ function ExportSelectFields({
                   <Cell className={smallCellContainerStyle}>
                     <div />
                   </Cell>
-                  <Cell className={inputCellContainerStyles}>
+                  <Cell>
                     <TextInput
                       // NOTE: Leafygreen gives an error with only aria-label for a text input.
                       aria-labelledby=""
