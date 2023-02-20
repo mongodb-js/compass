@@ -534,13 +534,9 @@ class CompassAutoUpdateManager {
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
   ): void {
-    compassApp.addExitHandler(async () => {
+    compassApp.addExitHandler(() => {
       this.stop();
-      try {
-        await this.currentStateTransition;
-      } catch {
-        // We don't care if something failed here
-      }
+      return Promise.resolve();
     });
 
     log.info(mongoLogId(1001000130), 'AutoUpdateManager', 'Initializing');
