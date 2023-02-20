@@ -274,12 +274,13 @@ export class WritableCollectionStream extends Writable {
   printJobStats() {
     console.group('Import Info');
     console.table(this.getStats());
-    console.log('Errors Seen');
-    console.log(
-      this._errors
-        .concat(this._stats.writeErrors)
-        .concat(this._stats.writeConcernErrors)
-    );
+    const errors = this._errors
+      .concat(this._stats.writeErrors)
+      .concat(this._stats.writeConcernErrors);
+    if (errors.length) {
+      console.log('Errors Seen');
+      console.log(errors);
+    }
     console.groupEnd();
   }
 }

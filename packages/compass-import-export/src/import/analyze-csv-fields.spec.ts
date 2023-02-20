@@ -1,7 +1,9 @@
 import assert from 'assert';
+import buffer from 'buffer';
 import path from 'path';
 import { expect } from 'chai';
 import fs from 'fs';
+import { Readable } from 'stream';
 import sinon from 'sinon';
 import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
@@ -179,5 +181,41 @@ describe('analyzeCSVFields', function () {
 
     // signals that it was aborted and the results are therefore incomplete
     expect(result.aborted).to.equal(true);
+  });
+
+  it('does not mind windows style line breaks', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from(text.replace(/\n/g, '\r\n'));
+
+    const result = await analyzeCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
+  });
+
+  it('does not mind if a file is not valid utf8', async function () {
+    const latin1Buffer = buffer.transcode(
+      Buffer.from('ê,foo\n1,2'),
+      'utf8',
+      'latin1'
+    );
+    const input = Readable.from(latin1Buffer);
+
+    const result = await analyzeCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(Object.keys(result.fields)).to.deep.equal(['�', 'foo']);
+  });
+
+  it('strips the BOM character', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from('\uFEFF' + text);
+    const result = await analyzeCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
   });
 });

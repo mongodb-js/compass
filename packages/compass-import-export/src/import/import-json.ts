@@ -7,6 +7,7 @@ import type { DataService } from 'mongodb-data-service';
 import Parser from 'stream-json/Parser';
 import StreamArray from 'stream-json/streamers/StreamArray';
 import StreamValues from 'stream-json/streamers/StreamValues';
+import stripBomStream from 'strip-bom-stream';
 
 import { processParseError, processWriteStreamErrors } from '../utils/import';
 import type { ErrorJSON } from '../utils/import';
@@ -93,7 +94,7 @@ export async function importJSON({
 
   try {
     await pipeline(
-      [input, ...parserStreams, docStream, collectionStream],
+      [input, stripBomStream(), ...parserStreams, docStream, collectionStream],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
   } catch (err: any) {

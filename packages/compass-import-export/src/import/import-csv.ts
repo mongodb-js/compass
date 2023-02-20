@@ -4,6 +4,7 @@ import type { Readable, Writable } from 'stream';
 import Papa from 'papaparse';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
+import stripBomStream from 'strip-bom-stream';
 
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import type { CollectionStreamStats } from '../utils/collection-stream';
@@ -54,6 +55,16 @@ export async function importCSV({
     objectMode: true,
     transform: function (chunk: Record<string, string>, encoding, callback) {
       if (!parsedHeader) {
+        // There's a quirk in papaparse where it calls transformHeader()
+        // before it finishes auto-detecting the line endings. We could pass
+        // in a line ending that we previously detected (in guessFileType(),
+        // perhaps?) or we can just strip the extra \r from the final header
+        // name if it exists.
+        if (headerFields.length) {
+          const lastName = headerFields[headerFields.length - 1];
+          headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
+        }
+
         parsedHeader = {};
         for (const [index, name] of headerFields.entries()) {
           try {
@@ -125,6 +136,7 @@ export async function importCSV({
 
   const params = [
     input,
+    stripBomStream(),
     parseStream,
     docStream,
     collectionStream,

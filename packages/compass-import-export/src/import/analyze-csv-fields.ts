@@ -155,6 +155,10 @@ export function analyzeCSVFields({
 
         if (!headerFields) {
           headerFields = results.meta.fields ?? [];
+          if (headerFields.length) {
+            // if the file contained a BOM it will be included at the start of the first field
+            headerFields[0] = headerFields[0].replace(/^\ufeff/, '');
+          }
           initResultFields(result, headerFields);
         }
 

@@ -3,6 +3,7 @@ import _ from 'lodash';
 import assert from 'assert';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
+import buffer from 'buffer';
 import { MongoBulkWriteError } from 'mongodb';
 import fs from 'fs';
 import path from 'path';
@@ -779,6 +780,101 @@ describe('importCSV', function () {
       writeConcernErrors: [],
       writeErrors: [],
     });
+  });
+
+  it('does not mind windows style line breaks', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const replaced = text.replace(/\n/g, '\r\n');
+    const input = Readable.from(replaced);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+    const fields = {
+      _id: 'string',
+      value: 'mixed',
+    } as const;
+
+    await importCSV({
+      dataService,
+      ns,
+      fields,
+      input,
+      output,
+      delimiter: ',',
+    });
+
+    const docs = await dataService.find(ns, {}, { promoteValues: false });
+
+    expect(docs).to.have.length(3);
+
+    for (const doc of docs) {
+      expect(Object.keys(doc)).to.deep.equal(['_id', 'value']);
+    }
+  });
+
+  it('does not mind if a file is not valid utf8', async function () {
+    const latin1Buffer = buffer.transcode(
+      Buffer.from('ê,foo\n1,2'),
+      'utf8',
+      'latin1'
+    );
+    const input = Readable.from(latin1Buffer);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+    const fields = {
+      '�': 'string',
+      foo: 'string',
+    } as const;
+
+    await importCSV({
+      dataService,
+      ns,
+      fields,
+      input,
+      output,
+      delimiter: ',',
+    });
+
+    const docs = await dataService.find(ns, {}, { promoteValues: false });
+
+    expect(docs).to.have.length(1);
+
+    for (const doc of docs) {
+      expect(Object.keys(doc)).to.deep.equal(['_id', '�', 'foo']);
+    }
+  });
+
+  it('strips the BOM character', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from('\uFEFF' + text);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+    const fields = {
+      _id: 'string',
+      value: 'mixed',
+    } as const;
+
+    await importCSV({
+      dataService,
+      ns,
+      fields,
+      input,
+      output,
+      delimiter: ',',
+    });
+
+    const docs = await dataService.find(ns, {}, { promoteValues: false });
+
+    expect(docs).to.have.length(3);
+
+    for (const doc of docs) {
+      expect(Object.keys(doc)).to.deep.equal(['_id', 'value']);
+    }
   });
 });
 
