@@ -34,8 +34,10 @@ function setStateAndWaitForUpdate(
       if (newState === expected) {
         resolved = true;
         CompassAutoUpdateManager.off('new-state', resolveWhenState);
-        CompassAutoUpdateManager['currentActionAbortController'].abort();
-        resolve(true);
+        CompassAutoUpdateManager['currentStateTransition']?.finally(() => {
+          CompassAutoUpdateManager['currentActionAbortController'].abort();
+          resolve(true);
+        });
       }
     }
     CompassAutoUpdateManager['state'] = initial;
@@ -61,6 +63,9 @@ describe('CompassAutoUpdateManager', function () {
   afterEach(function () {
     sandbox.restore();
     CompassAutoUpdateManager['state'] = AutoUpdateManagerState.Initial;
+    CompassAutoUpdateManager['currentStateTransition'] = undefined;
+    CompassAutoUpdateManager['currentActionAbortController'] =
+      new AbortController();
   });
 
   it('should not allow undefined state transitions', function () {
