@@ -42,8 +42,9 @@ async function setupLogging(compassApp: typeof CompassApplication) {
         writer.on('error', (err) => {
           // Multiple async sources can be trying to write logs in compass
           // application across multiple threads, which makes guaranteeing that
-          // nothing will write logs after we closed the log stream. To handle
-          // that we will ignore `ERR_STREAM_WRITE_AFTER_END` types of errors
+          // nothing will write logs after we closed the log stream tricky. To
+          // handle that we will ignore `ERR_STREAM_WRITE_AFTER_END` types of
+          // errors
           if (
             (err as { code?: string }).code === 'ERR_STREAM_WRITE_AFTER_END'
           ) {
