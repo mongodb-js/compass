@@ -7,12 +7,14 @@ import type { DataService } from 'mongodb-data-service';
 import Parser from 'stream-json/Parser';
 import StreamArray from 'stream-json/streamers/StreamArray';
 import StreamValues from 'stream-json/streamers/StreamValues';
+import stripBomStream from 'strip-bom-stream';
 
 import { processParseError, processWriteStreamErrors } from '../utils/import';
 import type { ErrorJSON } from '../utils/import';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import type { CollectionStreamStats } from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
+import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('import-json');
 
@@ -93,7 +95,14 @@ export async function importJSON({
 
   try {
     await pipeline(
-      [input, ...parserStreams, docStream, collectionStream],
+      [
+        input,
+        new Utf8Validator(),
+        stripBomStream(),
+        ...parserStreams,
+        docStream,
+        collectionStream,
+      ],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
   } catch (err: any) {

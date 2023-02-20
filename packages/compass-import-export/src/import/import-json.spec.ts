@@ -537,6 +537,85 @@ describe('importJSON', function () {
       writeErrors: [],
     });
   });
+
+  it('does not mind windows style line breaks', async function () {
+    const text = await fs.promises.readFile(fixtures.json.good, 'utf8');
+    const replaced = text.replace(/\n/g, '\r\n');
+    const input = Readable.from(replaced);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+
+    await importJSON({
+      dataService,
+      ns,
+      input,
+      output,
+      jsonVariant: 'json',
+    });
+
+    const docs = await dataService.find(ns, {}, { promoteValues: false });
+
+    expect(docs).to.have.length(3);
+
+    for (const doc of docs) {
+      expect(Object.keys(doc)).to.deep.equal(['_id', 'uuid', 'name']);
+    }
+  });
+
+  it('errors if a file is not valid utf8', async function () {
+    const testDocs = [
+      {
+        ê: 1,
+        foo: 2,
+      },
+    ];
+    const latin1Buffer = Buffer.from(JSON.stringify(testDocs), 'latin1');
+    const input = Readable.from(latin1Buffer);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+
+    await expect(
+      importJSON({
+        dataService,
+        ns,
+        input,
+        output,
+        jsonVariant: 'json',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
+  it('strips the BOM character', async function () {
+    const text = await fs.promises.readFile(fixtures.json.good, 'utf8');
+    const input = Readable.from('\uFEFF' + text);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+
+    await importJSON({
+      dataService,
+      ns,
+      input,
+      output,
+      jsonVariant: 'json',
+    });
+
+    const docs = await dataService.find(ns, {}, { promoteValues: false });
+
+    expect(docs).to.have.length(3);
+
+    for (const doc of docs) {
+      expect(Object.keys(doc)).to.deep.equal(['_id', 'uuid', 'name']);
+    }
+  });
 });
 
 function formatErrorLines(errors: ErrorJSON[]) {
