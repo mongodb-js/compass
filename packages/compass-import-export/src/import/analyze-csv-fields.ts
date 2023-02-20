@@ -9,6 +9,7 @@ import type {
 } from '../utils/csv';
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
 import { Utf8Validator } from '../utils/utf8-validator';
+import stripBomStream from 'strip-bom-stream';
 
 const debug = createDebug('analyze-csv-fields');
 
@@ -132,7 +133,7 @@ export function analyzeCSVFields({
   progressCallback,
   ignoreEmptyStrings,
 }: AnalyzeCSVFieldsOptions): Promise<AnalyzeCSVFieldsResult> {
-  input = input.pipe(new Utf8Validator());
+  input = input.pipe(stripBomStream()).pipe(new Utf8Validator());
 
   const result: AnalyzeCSVFieldsResult = {
     totalRows: 0,
@@ -158,10 +159,16 @@ export function analyzeCSVFields({
 
         if (!headerFields) {
           headerFields = results.meta.fields ?? [];
+          // There's a quirk in papaparse where it extracts header fields before
+          // it finishes auto-detecting the line endings. We could pass in a
+          // line ending that we previously detected (in guessFileType(),
+          // perhaps?) or we can just strip the extra \r from the final header
+          // name if it exists.
           if (headerFields.length) {
-            // if the file contained a BOM it will be included at the start of the first field
-            headerFields[0] = headerFields[0].replace(/^\ufeff/, '');
+            const lastName = headerFields[headerFields.length - 1];
+            headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
           }
+
           initResultFields(result, headerFields);
         }
 
