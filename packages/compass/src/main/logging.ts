@@ -8,6 +8,7 @@ import createDebug from 'debug';
 import zlib from 'zlib';
 import { app, shell, dialog, clipboard } from 'electron';
 import { ipcMain } from 'hadron-ipc';
+import type { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId, MongoLogManager } from 'mongodb-log-writer';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
@@ -37,7 +38,20 @@ async function setupLogging(compassApp: typeof CompassApplication) {
     const [writer, osReleaseInfo] = await Promise.all([
       (async () => {
         await fs.mkdir(directory, { recursive: true });
-        return await manager.createLogWriter();
+        const writer = await manager.createLogWriter();
+        writer.on('error', (err) => {
+          // Multiple async sources can be trying to write logs in compass
+          // application across multiple threads, which makes guaranteeing that
+          // nothing will write logs after we closed the log stream. To handle
+          // that we will ignore `ERR_STREAM_WRITE_AFTER_END` types of errors
+          if (
+            (err as { code?: string }).code === 'ERR_STREAM_WRITE_AFTER_END'
+          ) {
+            return;
+          }
+          throw err;
+        });
+        return writer;
       })(),
       (async () => {
         let osRelease = '';
@@ -139,7 +153,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
 
     await manager.cleanupOldLogfiles();
 
-    return writer.logFilePath;
+    return writer;
   } catch (err) {
     debug('Failure setting up logging!', err);
   }
@@ -229,18 +243,21 @@ class CompassLogging {
 
   private static initPromise: Promise<void> | null = null;
 
-  private static async _init(app: typeof CompassApplication) {
-    const logFilePath = await setupLogging(app);
+  private static writer: MongoLogWriter | undefined;
 
-    if (logFilePath) {
-      app.on('show-log-file-dialog', () => {
+  private static async _init(compassApp: typeof CompassApplication) {
+    this.writer = await setupLogging(compassApp);
+
+    if (this.writer?.logFilePath) {
+      const { logFilePath } = this.writer;
+      compassApp.on('show-log-file-dialog', () => {
         void showLogFileDialog(logFilePath);
       });
     }
   }
 
-  static init(app: typeof CompassApplication): Promise<void> {
-    return (this.initPromise ??= this._init(app));
+  static init(compassApp: typeof CompassApplication): Promise<void> {
+    return (this.initPromise ??= this._init(compassApp));
   }
 }
 
