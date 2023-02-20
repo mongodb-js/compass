@@ -1,13 +1,13 @@
-// import os from 'os';
+import os from 'os';
 // import assert from 'assert';
-// import { EJSON } from 'bson';
+import { EJSON } from 'bson';
 // import type { Document } from 'bson';
-// import fs from 'fs';
-// import path from 'path';
+import fs from 'fs';
+import path from 'path';
 import { promisify } from 'util';
 // import { Readable } from 'stream';
 import chai from 'chai';
-// import sinon from 'sinon';
+import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
@@ -16,7 +16,7 @@ temp.track();
 
 import { DataServiceImpl } from 'mongodb-data-service';
 
-// import { fixtures } from '../../test/fixtures';
+import { fixtures } from '../../test/fixtures';
 
 import { exportJSON } from './export-json';
 
@@ -31,9 +31,18 @@ describe('exportJSON', function () {
   let dropCollection;
   let createCollection;
   let insertOne;
+  let insertMany;
+  let tmpdir: string;
 
   // Insert documents once for all of the tests.
-  before(async function () {
+  beforeEach(async function () {
+    tmpdir = path.join(
+      os.tmpdir(),
+      'compass-export-json-test',
+      `test-${Date.now()}`
+    );
+    await fs.promises.mkdir(tmpdir, { recursive: true });
+
     dataService = new DataServiceImpl({
       connectionString: 'mongodb://localhost:27018/local',
     });
@@ -45,6 +54,7 @@ describe('exportJSON', function () {
     );
 
     insertOne = promisify(dataService.insertOne.bind(dataService));
+    insertMany = promisify(dataService.insertMany.bind(dataService));
 
     await dataService.connect();
 
@@ -65,15 +75,19 @@ describe('exportJSON', function () {
     );
   });
 
-  after(async function () {
+  afterEach(async function () {
+    await fs.promises.rm(tmpdir, { recursive: true });
+
     await dataService.disconnect();
   });
 
   it('exports', async function () {
-    const fileName = 'test.json';
+    // const fileName = 'test.json';
 
     const ns = testNS;
     const abortController = new AbortController();
+
+    const tempWriteStream = temp.createWriteStream();
 
     const result = await exportJSON({
       dataService,
@@ -81,20 +95,115 @@ describe('exportJSON', function () {
       fields: [],
       // input: collection,// TODO: collection stream instead of passing query/agg?
       // aggregation: false,
-      output: temp.createWriteStream(),
+      output: tempWriteStream,
       variant: 'default',
       abortSignal: abortController.signal,
       progressCallback: () => {},
     });
 
+    expect(tempWriteStream.bytesWritten).to.equal(60);
     expect(result.docsWritten).to.equal(1);
     expect(result.aborted).to.be.false;
-
-    console.log('export json result', result);
   });
 
+  for (const fixtureType of ['json', 'jsonl'] as const) {
+    for (const filepath of Object.values(fixtures[fixtureType])) {
+      const basename = path.basename(filepath);
+
+      it(`exports ${basename}`, async function () {
+        const abortController = new AbortController();
+        const progressCallback = sinon.spy();
+
+        let importedText;
+        let ejsonToInsert;
+        const docsPath = filepath.replace(
+          /\.((jsonl?)|(csv))$/,
+          '.imported.ejson'
+        );
+
+        const resultPath = path.join(
+          tmpdir,
+          basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
+        );
+        // const output = temp.createWriteStream();
+        const output = fs.createWriteStream(
+          resultPath
+          // Buffer.from('H4sIAAAAAAAAA8pIzcnJVyjPL8pJUQQAAAD//w==', 'base64')
+        );
+
+        try {
+          importedText = await fs.promises.readFile(docsPath, 'utf8');
+          ejsonToInsert = EJSON.parse(importedText);
+        } catch (err) {
+          // This helps to tell you which file is missing and what the expected
+          // content is which helps when adding a new fixture.
+          console.log(docsPath);
+          console.log(importedText);
+          throw err;
+        }
+        await insertMany(testNS, ejsonToInsert, {});
+
+        const stats = await exportJSON({
+          dataService,
+          ns: testNS,
+          // tempWriteStream
+          // input: fs.createReadStream(filepath),
+          output,
+          abortSignal: abortController.signal,
+          progressCallback,
+          variant: 'default', // TODO: Test all 3.
+          // variant: fixtureType,
+        });
+
+        expect(progressCallback.callCount).to.be.gt(0);
+
+        const docsExported = progressCallback.callCount;
+
+        expect(stats).to.deep.equal({
+          aborted: false,
+          docsWritten: docsExported,
+        });
+
+        const docs = await dataService.find(testNS, {});
+
+        // console.log('docs in', JSON.stringify(docs));
+
+        expect(docs).to.have.length.greaterThan(0);
+        expect(docs).to.have.length(docsExported);
+
+        // Remove _id's as they won't match when we compare below.
+        for (const doc of docs) {
+          if (doc._id && doc._id._bsontype === 'ObjectId') {
+            delete doc._id;
+          }
+        }
+
+        let resultText;
+        try {
+          resultText = await fs.promises.readFile(resultPath, 'utf8');
+        } catch (err) {
+          console.log(resultPath);
+          throw err;
+        }
+
+        console.log(resultPath);
+        console.log('resultText\n\n', resultText, '\n\n');
+
+        const expectedResult = EJSON.parse(resultText);
+        expect(
+          docs,
+          basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
+        ).to.deep.equal(expectedResult);
+        expect(
+          resultText,
+          basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
+        ).to.deep.equal(importedText);
+      });
+    }
+  }
+
   it('responds to abortSignal.aborted', async function () {
-    const fileName = 'aborted-signal-test-output.json';
+    // const fileName = 'aborted-signal-test-output.json';
 
     const ns = testNS;
     const abortController = new AbortController();

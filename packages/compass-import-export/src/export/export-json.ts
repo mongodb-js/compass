@@ -61,15 +61,17 @@ export async function exportJSON({
   progressCallback,
   aggregation,
   variant,
-  fields,
-}: ExportJSONOptions): Promise<ExportJSONResult> {
+}: // fields,
+ExportJSONOptions): Promise<ExportJSONResult> {
   debug('exportJSON()', { ns: toNS(ns) });
-
-  await new Promise((resolve) => setTimeout(resolve, 100));
 
   let docsWritten = 0;
 
   const ejsonOptions = getEJSONOptionsForVariant(variant);
+
+  if (!abortSignal.aborted) {
+    output.write('[');
+  }
 
   const docStream = new Transform({
     objectMode: true,
@@ -77,14 +79,29 @@ export async function exportJSON({
       ++docsWritten; // TODO: is numProcessed not number written.
       progressCallback?.(docsWritten);
       try {
-        const doc = EJSON.stringify(chunk.value, ejsonOptions);
+        const doc = `${
+          (docsWritten > 1 ? ',\n' : '') + EJSON.stringify(chunk, ejsonOptions)
+        }`;
         // TODO: maybe doc should be different. JSON.parse
 
+        if (docStream.writableFinished) {
+          console.log('done deone    edone', docStream);
+        }
+
         debug('transform', doc);
+        console.log('write doc', doc);
         callback(null, doc);
       } catch (err: unknown) {
         // TODO
       }
+    },
+    final: function (callback) {
+      // if (brackets) {
+      this.push(']');
+      // }
+      console.log('final final');
+      // callback(null, ']');
+      callback(null);
     },
   });
 
@@ -108,10 +125,19 @@ export async function exportJSON({
 
   try {
     await pipeline(...params);
+
+    console.log('doneone', abortSignal.aborted);
+    if (!abortSignal.aborted) {
+      output.write(']\n', 'utf8');
+      // output.write(']\n', 'utf8');
+    }
+    console.log('waaa');
   } catch (err: any) {
     //  || dataService.isCancelError(err) or?
 
     if (err.code === 'ABORT_ERR') {
+      console.log('b hchxcrerer', abortSignal.aborted);
+
       return {
         docsWritten,
         aborted: true,

@@ -127,7 +127,7 @@ export async function gatherFields({
   ns,
   abortSignal,
   filter,
-  progressCallback,
+  // progressCallback,
   sampleSize,
 }: GatherFieldsOptions): Promise<SchemaPath[]> {
   const schema = await analyzeSchema({
@@ -138,14 +138,14 @@ export async function gatherFields({
     sampleSize,
   });
 
-  console.log(
-    dataService,
-    ns,
-    abortSignal,
-    filter,
-    progressCallback,
-    sampleSize
-  );
+  // console.log(
+  //   dataService,
+  //   ns,
+  //   abortSignal,
+  //   filter,
+  //   progressCallback,
+  //   sampleSize
+  // );
 
   // console.dir(schema, { depth: Infinity });
 

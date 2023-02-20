@@ -482,7 +482,7 @@ describe('gatherFields', function () {
     await dataService.disconnect();
   });
 
-  it.only('returns the schema for a more complex example', async function () {
+  it('returns the schema for a more complex example', async function () {
     const abortController = new AbortController();
     const abortSignal = abortController.signal;
 
@@ -494,7 +494,7 @@ describe('gatherFields', function () {
       sampleSize: 1000,
       dataService,
     });
-    console.dir(paths, { depth: Infinity });
+    // console.dir(paths, { depth: Infinity });
 
     const expectedPaths = [
       ['_id'],
