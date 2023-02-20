@@ -8,6 +8,7 @@ import type {
   CSVParsableFieldType,
 } from '../utils/csv';
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
+import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('analyze-csv-fields');
 
@@ -131,6 +132,8 @@ export function analyzeCSVFields({
   progressCallback,
   ignoreEmptyStrings,
 }: AnalyzeCSVFieldsOptions): Promise<AnalyzeCSVFieldsResult> {
+  input = input.pipe(new Utf8Validator());
+
   const result: AnalyzeCSVFieldsResult = {
     totalRows: 0,
     fields: {},

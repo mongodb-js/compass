@@ -6,6 +6,7 @@ import StreamJSON from 'stream-json';
 import { createDebug } from '../utils/logger';
 import { supportedDelimiters } from '../utils/csv';
 import type { Delimiter } from '../utils/csv';
+import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('import-guess-filetype');
 
@@ -121,27 +122,39 @@ type GuessFileTypeResult =
       csvDelimiter: Delimiter;
     };
 
-export async function guessFileType({
+export function guessFileType({
   input,
 }: GuessFileTypeOptions): Promise<GuessFileTypeResult> {
-  const jsStream = input.pipe(new PassThrough());
-  const csvStream = input.pipe(new PassThrough());
+  return new Promise<GuessFileTypeResult>((resolve, reject) => {
+    void (async () => {
+      input = input.pipe(new Utf8Validator());
 
-  const [jsonVariant, csvDelimiter] = await Promise.all([
-    detectJSON(jsStream),
-    detectCSV(csvStream),
-  ]);
+      input.once('error', function (err) {
+        reject(err);
+      });
 
-  debug('guessFileType', jsonVariant, csvDelimiter);
+      const jsStream = input.pipe(new PassThrough());
+      const csvStream = input.pipe(new PassThrough());
 
-  // check JSON first because practically anything will parse as CSV
-  if (jsonVariant) {
-    return { type: jsonVariant };
-  }
+      const [jsonVariant, csvDelimiter] = await Promise.all([
+        detectJSON(jsStream),
+        detectCSV(csvStream),
+      ]);
 
-  if (csvDelimiter) {
-    return { type: 'csv', csvDelimiter };
-  }
+      debug('guessFileType', jsonVariant, csvDelimiter);
 
-  return { type: 'unknown' };
+      // check JSON first because practically anything will parse as CSV
+      if (jsonVariant) {
+        resolve({ type: jsonVariant });
+        return;
+      }
+
+      if (csvDelimiter) {
+        resolve({ type: 'csv', csvDelimiter });
+        return;
+      }
+
+      resolve({ type: 'unknown' });
+    })();
+  });
 }

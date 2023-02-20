@@ -1,5 +1,4 @@
 import assert from 'assert';
-import buffer from 'buffer';
 import path from 'path';
 import { expect } from 'chai';
 import fs from 'fs';
@@ -194,19 +193,19 @@ describe('analyzeCSVFields', function () {
     expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
   });
 
-  it('does not mind if a file is not valid utf8', async function () {
-    const latin1Buffer = buffer.transcode(
-      Buffer.from('ê,foo\n1,2'),
-      'utf8',
-      'latin1'
-    );
+  it('errors if a file is not valid utf8', async function () {
+    const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
     const input = Readable.from(latin1Buffer);
 
-    const result = await analyzeCSVFields({
-      input,
-      delimiter: ',',
-    });
-    expect(Object.keys(result.fields)).to.deep.equal(['�', 'foo']);
+    await expect(
+      analyzeCSVFields({
+        input,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
   });
 
   it('strips the BOM character', async function () {

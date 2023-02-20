@@ -14,6 +14,7 @@ import type { ErrorJSON } from '../utils/import';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import type { CollectionStreamStats } from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
+import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('import-json');
 
@@ -94,7 +95,14 @@ export async function importJSON({
 
   try {
     await pipeline(
-      [input, stripBomStream(), ...parserStreams, docStream, collectionStream],
+      [
+        input,
+        new Utf8Validator(),
+        stripBomStream(),
+        ...parserStreams,
+        docStream,
+        collectionStream,
+      ],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
   } catch (err: any) {

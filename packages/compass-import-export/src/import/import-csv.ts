@@ -13,6 +13,7 @@ import { processParseError, processWriteStreamErrors } from '../utils/import';
 import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
 import type { ErrorJSON } from '../utils/import';
 import { createDebug } from '../utils/logger';
+import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('import-csv');
 
@@ -136,6 +137,7 @@ export async function importCSV({
 
   const params = [
     input,
+    new Utf8Validator(),
     stripBomStream(),
     parseStream,
     docStream,

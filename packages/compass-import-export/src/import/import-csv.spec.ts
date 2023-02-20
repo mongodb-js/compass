@@ -3,7 +3,6 @@ import _ from 'lodash';
 import assert from 'assert';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
-import buffer from 'buffer';
 import { MongoBulkWriteError } from 'mongodb';
 import fs from 'fs';
 import path from 'path';
@@ -813,38 +812,30 @@ describe('importCSV', function () {
     }
   });
 
-  it('does not mind if a file is not valid utf8', async function () {
-    const latin1Buffer = buffer.transcode(
-      Buffer.from('ê,foo\n1,2'),
-      'utf8',
-      'latin1'
-    );
+  it('errors if a file is not valid utf8', async function () {
+    const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
     const input = Readable.from(latin1Buffer);
 
     const output = temp.createWriteStream();
 
     const ns = 'db.col';
     const fields = {
-      '�': 'string',
-      foo: 'string',
+      // irrelevant what we put here
     } as const;
 
-    await importCSV({
-      dataService,
-      ns,
-      fields,
-      input,
-      output,
-      delimiter: ',',
-    });
-
-    const docs = await dataService.find(ns, {}, { promoteValues: false });
-
-    expect(docs).to.have.length(1);
-
-    for (const doc of docs) {
-      expect(Object.keys(doc)).to.deep.equal(['_id', '�', 'foo']);
-    }
+    await expect(
+      importCSV({
+        dataService,
+        ns,
+        fields,
+        input,
+        output,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
   });
 
   it('strips the BOM character', async function () {
