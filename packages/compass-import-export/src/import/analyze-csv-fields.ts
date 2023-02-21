@@ -9,6 +9,7 @@ import type {
 } from '../utils/csv';
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
 import { Utf8Validator } from '../utils/utf8-validator';
+import { ByteCounter } from '../utils/byte-counter';
 import stripBomStream from 'strip-bom-stream';
 
 const debug = createDebug('analyze-csv-fields');
@@ -17,7 +18,7 @@ type AnalyzeCSVFieldsOptions = {
   input: Readable;
   delimiter: Delimiter;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number) => void;
+  progressCallback?: (index: number, bytes: number) => void;
   ignoreEmptyStrings?: boolean;
 };
 
@@ -133,7 +134,12 @@ export function analyzeCSVFields({
   progressCallback,
   ignoreEmptyStrings,
 }: AnalyzeCSVFieldsOptions): Promise<AnalyzeCSVFieldsResult> {
-  input = input.pipe(stripBomStream()).pipe(new Utf8Validator());
+  const byteCounter = new ByteCounter();
+
+  input = input
+    .pipe(new Utf8Validator())
+    .pipe(byteCounter)
+    .pipe(stripBomStream());
 
   const result: AnalyzeCSVFieldsResult = {
     totalRows: 0,
@@ -176,7 +182,7 @@ export function analyzeCSVFields({
 
         ++result.totalRows;
 
-        progressCallback?.(result.totalRows);
+        progressCallback?.(result.totalRows, byteCounter.total);
       },
       complete: function () {
         debug('analyzeCSVFields:complete');
