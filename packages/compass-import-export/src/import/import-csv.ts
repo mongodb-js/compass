@@ -14,6 +14,7 @@ import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
 import type { ErrorJSON } from '../utils/import';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
+import { ByteCounter } from '../utils/byte-counter';
 
 const debug = createDebug('import-csv');
 
@@ -23,7 +24,7 @@ type ImportCSVOptions = {
   input: Readable;
   output: Writable;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number) => void;
+  progressCallback?: (index: number, bytes: number) => void;
   errorCallback?: (error: ErrorJSON) => void;
   delimiter?: Delimiter;
   ignoreEmptyStrings?: boolean;
@@ -47,6 +48,8 @@ export async function importCSV({
   fields,
 }: ImportCSVOptions): Promise<ImportCSVResult> {
   debug('importCSV()', { ns: toNS(ns) });
+
+  const byteCounter = new ByteCounter();
 
   let numProcessed = 0;
   const headerFields: string[] = []; // will be filled via transformHeader callback below
@@ -90,7 +93,7 @@ export async function importCSV({
       // got written. This way progress updates continue even if every row
       // fails to parse.
       ++numProcessed;
-      progressCallback?.(numProcessed);
+      progressCallback?.(numProcessed, byteCounter.total);
 
       debug('importCSV:transform', numProcessed, {
         headerFields,
@@ -138,6 +141,7 @@ export async function importCSV({
   const params = [
     input,
     new Utf8Validator(),
+    byteCounter,
     stripBomStream(),
     parseStream,
     docStream,
