@@ -1,7 +1,8 @@
 import { Transform } from 'stream';
+import util from 'util';
 
 export class Utf8Validator extends Transform {
-  decoder = new TextDecoder('utf8', { fatal: true, ignoreBOM: true });
+  decoder = new util.TextDecoder('utf8', { fatal: true, ignoreBOM: true });
 
   _transform(
     chunk: Buffer,
