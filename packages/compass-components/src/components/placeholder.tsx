@@ -41,7 +41,7 @@ const placeholder = css({
 
 const placeholderDarkMode = css({
   '--gradient-start': palette.gray.dark2,
-  '--gradient-end': palette.gray.dark3,
+  '--gradient-end': palette.gray.dark4,
 });
 
 function getBoundRandom(min: number, max: number) {
