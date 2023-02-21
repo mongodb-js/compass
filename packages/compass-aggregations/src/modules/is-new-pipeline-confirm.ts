@@ -1,45 +1,34 @@
-import type { AnyAction } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
+import { showConfirmation } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS');
 
 export enum ActionTypes {
-  ToggleConfirmNewPipeline = 'compass-aggregations/is-new-pipeline-confirm/toggleConfirmNewPipeline',
   NewPipelineConfirmed = 'compass-aggregations/is-new-pipeline-confirm/newPipelineConfirmed',
 }
 
-type SetConfirmNewPipelineAction = {
-  type: ActionTypes.ToggleConfirmNewPipeline;
-  confirm: boolean;
-};
-
 export const INITIAL_STATE = false;
 
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
-  if (action.type === ActionTypes.ToggleConfirmNewPipeline) {
-    return action.confirm;
-  }
-  if (action.type === ActionTypes.NewPipelineConfirmed) {
-    return INITIAL_STATE;
-  }
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }
-
-/**
- * Action creator for set isNewPipelineConfirm events.
- */
-export const toggleNewPipelineModal = (
-  confirm: boolean
-): SetConfirmNewPipelineAction => ({
-  type: ActionTypes.ToggleConfirmNewPipeline,
-  confirm,
-});
 
 /**
  * Confirm new pipeline action
  */
 export const confirmNewPipeline =
   (): PipelineBuilderThunkAction<void> =>
-  (dispatch, _getState, { pipelineBuilder }) => {
+  async (dispatch, _getState, { pipelineBuilder }) => {
+    track('Screen', { name: 'confirm_new_pipeline_modal' });
+    const confirmed = await showConfirmation({
+      title: 'Are you sure you want to create a new pipeline?',
+      description:
+        'Creating this pipeline will abandon unsaved changes to the current pipeline.',
+    });
+    if (!confirmed) {
+      return;
+    }
     pipelineBuilder.reset();
     dispatch({
       type: ActionTypes.NewPipelineConfirmed,
