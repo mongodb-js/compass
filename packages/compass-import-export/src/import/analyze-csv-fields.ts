@@ -134,23 +134,26 @@ export function analyzeCSVFields({
   progressCallback,
   ignoreEmptyStrings,
 }: AnalyzeCSVFieldsOptions): Promise<AnalyzeCSVFieldsResult> {
-  const byteCounter = new ByteCounter();
-
-  input = input
-    .pipe(new Utf8Validator())
-    .pipe(byteCounter)
-    .pipe(stripBomStream());
-
-  const result: AnalyzeCSVFieldsResult = {
-    totalRows: 0,
-    fields: {},
-    aborted: false,
-  };
-
-  let aborted = false;
-  let headerFields: string[];
-
   return new Promise(function (resolve, reject) {
+    const byteCounter = new ByteCounter();
+
+    const result: AnalyzeCSVFieldsResult = {
+      totalRows: 0,
+      fields: {},
+      aborted: false,
+    };
+
+    let aborted = false;
+    let headerFields: string[];
+
+    const validator = new Utf8Validator();
+
+    validator.once('error', function (err: any) {
+      reject(err);
+    });
+
+    input = input.pipe(validator).pipe(byteCounter).pipe(stripBomStream());
+
     Papa.parse(input, {
       delimiter,
       header: true,
