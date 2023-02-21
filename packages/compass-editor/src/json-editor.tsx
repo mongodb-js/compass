@@ -63,11 +63,15 @@ import {
 import { javascriptLanguage } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension } from '@codemirror/state';
-import { Compartment, EditorState } from '@codemirror/state';
-import { LanguageSupport } from '@codemirror/language';
-import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
+import { Facet, Compartment, EditorState } from '@codemirror/state';
+import {
+  LanguageSupport,
+  syntaxHighlighting,
+  HighlightStyle,
+} from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
+import { prettify as _prettify } from './prettify';
 
 const editorStyle = css({
   fontSize: 13,
@@ -305,6 +309,8 @@ const languages: Record<EditorLanguage, () => LanguageSupport> = {
   },
 };
 
+const languageName = Facet.define<EditorLanguage>({});
+
 /**
  * https://codemirror.net/examples/config/#dynamic-configuration
  * @param fn
@@ -338,6 +344,8 @@ function useCodemirrorExtensionCompartment<T>(
 const BaseEditor: React.FunctionComponent<EditorProps> & {
   foldAll: typeof foldAll;
   unfoldAll: typeof unfoldAll;
+  copyAll: typeof copyAll;
+  prettify: typeof prettify;
 } = ({
   initialText: _initialText,
   text,
@@ -372,7 +380,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
 
   const languageExtension = useCodemirrorExtensionCompartment(
     () => {
-      return languages[language]();
+      return [languages[language](), languageName.of(language)];
     },
     language,
     editorViewRef
@@ -442,6 +450,14 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         syntaxHighlighting(highlightStyles['dark']),
         themeConfigExtension,
         keymap.of([
+          {
+            key: 'Ctrl-Shift-b',
+            run: prettify,
+          },
+          {
+            key: 'Ctrl-Shift-c',
+            run: copyAll,
+          },
           ...defaultKeymap,
           ...closeBracketsKeymap,
           ...historyKeymap,
@@ -449,20 +465,6 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           // Breaks keyboard navigation out of the editor, but we want that
           // https://codemirror.net/examples/tab/
           indentWithTab,
-          {
-            key: 'Ctrl-Shift-B',
-            run(editorView) {
-              console.log('Ctrl-Shift-B', editorView);
-              return true;
-            },
-          },
-          {
-            key: 'Ctrl-Shift-C',
-            run(editorView) {
-              console.log('Ctrl-Shift-C', editorView);
-              return true;
-            },
-          },
         ]),
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
@@ -597,9 +599,44 @@ const foldAll: Command = (editor) => {
   return !!foldableProperties.length;
 };
 
-BaseEditor.foldAll = foldAll;
+const copyAll: Command = (editorView) => {
+  void navigator.clipboard.writeText(editorView.state.sliceDoc());
+  return true;
+};
 
+const prettify: Command = (editorView) => {
+  // Can't prettify a read-only document
+  if (editorView.state.facet(EditorState.readOnly)) {
+    return false;
+  }
+
+  const language = editorView.state.facet(languageName)[0];
+  const doc = editorView.state.sliceDoc();
+  try {
+    const formatted = _prettify(
+      doc,
+      language === 'json' ? 'json' : 'javascript-expression'
+    );
+    if (formatted !== doc) {
+      editorView.dispatch({
+        changes: {
+          from: 0,
+          to: editorView.state.doc.length,
+          insert: formatted,
+        },
+      });
+      return true;
+    }
+  } catch {
+    // failed to parse, do nothing
+  }
+  return false;
+};
+
+BaseEditor.foldAll = foldAll;
 BaseEditor.unfoldAll = unfoldAll;
+BaseEditor.copyAll = copyAll;
+BaseEditor.prettify = prettify;
 
 export type { EditorView };
 
