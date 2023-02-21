@@ -62,6 +62,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { javascriptLanguage } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
+import type { Extension } from '@codemirror/state';
 import { Compartment, EditorState } from '@codemirror/state';
 import { LanguageSupport } from '@codemirror/language';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
@@ -304,6 +305,36 @@ const languages: Record<EditorLanguage, () => LanguageSupport> = {
   },
 };
 
+/**
+ * https://codemirror.net/examples/config/#dynamic-configuration
+ * @param fn
+ * @param editorViewRef
+ * @param value
+ * @returns
+ */
+function useCodemirrorExtensionCompartment<T>(
+  fn: () => Extension | Extension[],
+  value: T,
+  editorViewRef: React.RefObject<EditorView | undefined>
+): Extension {
+  const extensionCreatorRef = useRef<typeof fn>();
+  extensionCreatorRef.current = fn;
+  const compartmentRef = useRef<Compartment>();
+  compartmentRef.current ??= new Compartment();
+  const initialExtensionRef = useRef<Extension>();
+  initialExtensionRef.current ??= compartmentRef.current.of(
+    extensionCreatorRef.current()
+  );
+  useEffectOnChange(() => {
+    editorViewRef.current?.dispatch({
+      effects: compartmentRef.current?.reconfigure(
+        extensionCreatorRef.current!()
+      ),
+    });
+  }, value);
+  return initialExtensionRef.current;
+}
+
 const BaseEditor: React.FunctionComponent<EditorProps> & {
   foldAll: typeof foldAll;
   unfoldAll: typeof unfoldAll;
@@ -329,24 +360,57 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
   const onLoadRef = useRef(onLoad);
-  const initialReadOnly = useRef(readOnly);
   const initialTextProvided = useRef(!!_initialText);
   const initialText = useRef(_initialText ?? text);
   const initialLanguage = useRef(language);
-  const initialDarkMode = useRef(darkMode);
-  const initialShowLineNumbers = useRef(showLineNumbers);
-  const initialShowFoldGutter = useRef(showFoldGutter);
   const containerRef = useRef<HTMLDivElement>(null);
-  const languageConfigRef = useRef<Compartment>();
-  const readOnlyConfigRef = useRef<Compartment>();
-  const themeConfigRef = useRef<Compartment>();
-  const showLineNumbersConfigRef = useRef<Compartment>();
-  const showFoldGutterConfigRef = useRef<Compartment>();
   const editorViewRef = useRef<EditorView>();
 
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
+
+  const languageExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return languages[language]();
+    },
+    language,
+    editorViewRef
+  );
+
+  const readOnlyExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return [EditorState.readOnly.of(readOnly)].concat(
+        readOnly ? [] : [highlightActiveLine(), highlightActiveLineGutter()]
+      );
+    },
+    readOnly,
+    editorViewRef
+  );
+
+  const themeConfigExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return themeStyles[darkMode ? 'dark' : 'light'];
+    },
+    darkMode,
+    editorViewRef
+  );
+
+  const lineNumbersExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return showLineNumbers ? lineNumbers() : [];
+    },
+    showLineNumbers,
+    editorViewRef
+  );
+
+  const foldGutterExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return showFoldGutter ? createFoldGutterExtension() : [];
+    },
+    showFoldGutter,
+    editorViewRef
+  );
 
   useLayoutEffect(() => {
     if (!containerRef.current) {
@@ -355,14 +419,6 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
 
     const domNode = containerRef.current;
 
-    // Dynamic configuration is an opt-in that requires some special handling
-    // https://codemirror.net/examples/config/#dynamic-configuration
-    languageConfigRef.current = new Compartment();
-    readOnlyConfigRef.current = new Compartment();
-    themeConfigRef.current = new Compartment();
-    showLineNumbersConfigRef.current = new Compartment();
-    showFoldGutterConfigRef.current = new Compartment();
-
     const editor = (editorViewRef.current = new EditorView({
       doc: initialText.current,
       // Cherry-picked from codemirror basicSetup extensions to match the ones
@@ -370,13 +426,9 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       // but this is good as a starting point
       // https://github.com/codemirror/basic-setup/blob/5b4dafdb3b02271bd3fd507d86982208457d8c5b/src/codemirror.ts#L12-L49
       extensions: [
-        showLineNumbersConfigRef.current.of(
-          initialShowLineNumbers.current ? lineNumbers() : []
-        ),
+        lineNumbersExtension,
         history(),
-        showFoldGutterConfigRef.current.of(
-          initialShowFoldGutter.current ? createFoldGutterExtension() : []
-        ),
+        foldGutterExtension,
         drawSelection(),
         indentOnInput(),
         bracketMatching(),
@@ -385,12 +437,10 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         // autocompletion(),
         // TODO: https://codemirror.net/docs/ref/#lint.lintGutter
         // lintGutter(),
-        languageConfigRef.current.of(languages[initialLanguage.current]()),
+        languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
-        themeConfigRef.current.of(
-          themeStyles[initialDarkMode.current ? 'dark' : 'light']
-        ),
+        themeConfigExtension,
         keymap.of([
           ...defaultKeymap,
           ...closeBracketsKeymap,
@@ -399,15 +449,22 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           // Breaks keyboard navigation out of the editor, but we want that
           // https://codemirror.net/examples/tab/
           indentWithTab,
-          // TODO: "Prettify" and "Copy all" commands
+          {
+            key: 'Ctrl-Shift-B',
+            run(editorView) {
+              console.log('Ctrl-Shift-B', editorView);
+              return true;
+            },
+          },
+          {
+            key: 'Ctrl-Shift-C',
+            run(editorView) {
+              console.log('Ctrl-Shift-C', editorView);
+              return true;
+            },
+          },
         ]),
-        readOnlyConfigRef.current.of(
-          [EditorState.readOnly.of(initialReadOnly.current)].concat(
-            initialReadOnly.current
-              ? []
-              : [highlightActiveLine(), highlightActiveLineGutter()]
-          )
-        ),
+        readOnlyExtension,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const text = editorViewRef.current?.state.sliceDoc() ?? '';
@@ -450,47 +507,19 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       delete (domNode as any)._cm;
       editor.destroy();
     };
-  }, []);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: languageConfigRef.current?.reconfigure(languages[language]()),
-    });
-  }, language);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: readOnlyConfigRef.current?.reconfigure(
-        [EditorState.readOnly.of(readOnly)].concat(
-          readOnly ? [] : [highlightActiveLine(), highlightActiveLineGutter()]
-        )
-      ),
-    });
-  }, readOnly);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: themeConfigRef.current?.reconfigure(
-        themeStyles[darkMode ? 'dark' : 'light']
-      ),
-    });
-  }, darkMode);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: showLineNumbersConfigRef.current?.reconfigure(
-        showLineNumbers ? lineNumbers() : []
-      ),
-    });
-  }, showLineNumbers);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: showFoldGutterConfigRef.current?.reconfigure(
-        showFoldGutter ? createFoldGutterExtension() : []
-      ),
-    });
-  }, showFoldGutter);
+  }, [
+    // Make sure that this effect is never updated as this will cause the whole
+    // editor to re-mount causing weird behavior and possible performance
+    // bottlenecks
+    //
+    // All the following values are refs which will not change value after
+    // initial mount and so will not re-trigger this effect
+    foldGutterExtension,
+    languageExtension,
+    lineNumbersExtension,
+    readOnlyExtension,
+    themeConfigExtension,
+  ]);
 
   useEffect(() => {
     // Ignore changes to `text` prop if `initialText` was provided
