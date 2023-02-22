@@ -9,6 +9,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 
 import ConnectionStringInput, {
   hidePasswordInConnectionString,
@@ -180,13 +181,17 @@ describe('ConnectionStringInput Component', function () {
   describe('with a connection string with a password and editing disabled', function () {
     beforeEach(function () {
       render(
-        <ConnectionStringInput
-          connectionString="mongodb+srv://turtles:pineapples@localhost/"
-          enableEditingConnectionString={false}
-          onSubmit={() => {}}
-          setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
-          updateConnectionFormField={updateConnectionFormFieldSpy}
-        />
+        <ConfirmationModalArea>
+          <ConnectionStringInput
+            connectionString="mongodb+srv://turtles:pineapples@localhost/"
+            enableEditingConnectionString={false}
+            onSubmit={() => {}}
+            setEnableEditingConnectionString={
+              setEnableEditingConnectionStringSpy
+            }
+            updateConnectionFormField={updateConnectionFormFieldSpy}
+          />
+        </ConfirmationModalArea>
       );
     });
 
