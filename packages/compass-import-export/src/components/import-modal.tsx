@@ -44,6 +44,7 @@ import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { usePreference } from 'compass-preferences-model';
 
 /**
  * Progress messages.
@@ -64,7 +65,7 @@ const closeButtonStyles = css({
 type ImportModalProps = {
   isOpen: boolean;
   ns: string;
-  startImport: () => void;
+  startImport: (useNewImportBackend?: boolean) => void;
   cancelImport: () => void;
   closeImport: () => void;
   errors: Error[];
@@ -150,9 +151,11 @@ function ImportModal({
     closeImport();
   }, [closeImport, handleCancel]);
 
+  const useNewImportBackend = usePreference('useNewImportBackend', React);
+
   const handleImportBtnClicked = useCallback(() => {
-    startImport();
-  }, [startImport]);
+    startImport(useNewImportBackend);
+  }, [startImport, useNewImportBackend]);
 
   // docsTotal is set to actual value only at the very end of processing a
   // stream of documents
@@ -164,7 +167,7 @@ function ImportModal({
   );
 
   useEffect(() => {
-    // When the errors change and there are now errors, we auto scroll
+    // When the errors change and there are new errors, we auto scroll
     // to the end of the modal body to ensure folks see the new errors.
     if (isOpen && errors && modalBodyRef.current) {
       const contentDiv = modalBodyRef.current;

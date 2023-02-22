@@ -7,11 +7,14 @@ import type { DataService } from 'mongodb-data-service';
 import stripBomStream from 'strip-bom-stream';
 
 import { createCollectionWriteStream } from '../utils/collection-stream';
-import type { CollectionStreamStats } from '../utils/collection-stream';
 import { makeDoc, parseHeaderName } from '../utils/csv';
-import { processParseError, processWriteStreamErrors } from '../utils/import';
+import {
+  processParseError,
+  processWriteStreamErrors,
+  makeImportResult,
+} from '../utils/import';
 import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
-import type { ErrorJSON } from '../utils/import';
+import type { ErrorJSON, ImportResult } from '../utils/import';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
@@ -22,7 +25,7 @@ type ImportCSVOptions = {
   dataService: DataService;
   ns: string;
   input: Readable;
-  output: Writable;
+  output?: Writable;
   abortSignal?: AbortSignal;
   progressCallback?: (index: number, bytes: number) => void;
   errorCallback?: (error: ErrorJSON) => void;
@@ -31,8 +34,6 @@ type ImportCSVOptions = {
   stopOnErrors?: boolean;
   fields: IncludedFields; // the type chosen by the user to make each field
 };
-
-type ImportCSVResult = CollectionStreamStats & { aborted?: boolean };
 
 export async function importCSV({
   dataService,
@@ -46,7 +47,7 @@ export async function importCSV({
   ignoreEmptyStrings,
   stopOnErrors,
   fields,
-}: ImportCSVOptions): Promise<ImportCSVResult> {
+}: ImportCSVOptions): Promise<ImportResult> {
   debug('importCSV()', { ns: toNS(ns) });
 
   const byteCounter = new ByteCounter();
@@ -95,19 +96,10 @@ export async function importCSV({
       ++numProcessed;
       progressCallback?.(numProcessed, byteCounter.total);
 
-      debug('importCSV:transform', numProcessed, {
-        headerFields,
-        chunk,
-        fields,
-        ignoreEmptyStrings,
-        encoding,
-      });
-
       try {
         const doc = makeDoc(chunk, headerFields, parsedHeader, fields, {
           ignoreEmptyStrings,
         });
-        debug('transform', doc);
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({
@@ -159,11 +151,11 @@ export async function importCSV({
         errorCallback,
       });
 
-      return {
-        ...collectionStream.getStats(),
-        aborted: true,
-      };
+      return makeImportResult(collectionStream, numProcessed, true);
     }
+
+    // stick the result onto the error so that we can tell how far it got
+    err.result = makeImportResult(collectionStream, numProcessed);
 
     throw err;
   }
@@ -174,5 +166,5 @@ export async function importCSV({
     errorCallback,
   });
 
-  return collectionStream.getStats();
+  return makeImportResult(collectionStream, numProcessed);
 }

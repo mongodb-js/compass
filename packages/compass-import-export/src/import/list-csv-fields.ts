@@ -32,6 +32,8 @@ export async function listCSVFields({
     preview: [],
   };
 
+  // TODO: deal with BOM and utf-8 validation here too
+
   return new Promise(function (resolve, reject) {
     Papa.parse(input, {
       delimiter,

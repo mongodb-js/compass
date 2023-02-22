@@ -22,7 +22,7 @@
  * action or not. Not great, but it has saved me a considerable amount of time vs.
  * larger scale refactoring/frameworks.
  */
-
+import _ from 'lodash';
 import { promisify } from 'util';
 import fs from 'fs';
 
@@ -57,7 +57,12 @@ import type {
   WritableCollectionStream,
 } from '../utils/collection-stream';
 
+import type { CSVParsableFieldType } from '../utils/csv';
+import type { ErrorJSON } from '../utils/import';
+
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { importCSV } from '../import/import-csv';
+import { importJSON } from '../import/import-json';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -186,6 +191,7 @@ export const onGuesstimatedProgress = (
   guesstimatedDocsTotal: docsTotal,
 });
 
+// TODO: take CollectionStreamProgress or { numDocs, numBytes }
 export const onProgress = ({
   docsWritten,
   docsProcessed,
@@ -202,8 +208,9 @@ export const onStarted = (
   dest: WritableCollectionStream
 ) => ({
   type: STARTED,
+  // TODO: we need a variant of this that takes an AbortController
   source: source,
-  dest: dest,
+  dest: dest, // TODO: pretty sure dest is not used. To confirm.
 });
 
 export const onFinished = (docsWritten: number, docsTotal: number) => ({
@@ -212,12 +219,41 @@ export const onFinished = (docsWritten: number, docsTotal: number) => ({
   docsTotal,
 });
 
-export const onFailed = (error: Error) => ({ type: FAILED, error });
+export const onFailed = (error: Error) => ({
+  type: FAILED,
+  error,
+});
 
 export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal: number) => ({
   type: SET_GUESSTIMATED_TOTAL,
   guesstimatedDocsTotal: guesstimatedDocsTotal,
 });
+
+const fieldTypeMap: Record<string, CSVParsableFieldType> = {
+  String: 'string',
+  Number: 'number',
+  Boolean: 'boolean',
+  Date: 'date',
+  ObjectId: 'objectId',
+  Long: 'long',
+  RegExpr: 'regex',
+  Binary: 'binData',
+  UUID: 'uuid',
+  MD5: 'md5',
+  Timestamp: 'timestamp',
+  Double: 'double',
+  Int32: 'int',
+  Decimal128: 'decimal',
+};
+
+function typeToCSVParsableFieldType(type: string): CSVParsableFieldType {
+  // this is temporary until the select options' values are updated
+  if (type === 'mixed') {
+    return 'mixed';
+  }
+
+  return fieldTypeMap[type];
+}
 
 /**
  * Sets up a streaming based pipeline to execute the import
@@ -226,17 +262,16 @@ export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal: number) => ({
  * All of the exciting bits happen in `../utils/` :)
  * @api public
  */
-export const startImport = () => {
+export const startImport = (useNewImportBackend?: boolean) => {
   return (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
     const state = getState();
-    const {
-      ns,
-      dataService: { dataService },
-      importData,
-    } = state;
+    const { ns, importData } = state;
+
+    const dataService = state.dataService.dataService!;
+
     const {
       fileName,
       fileType,
@@ -268,142 +303,278 @@ export const startImport = () => {
         transform,
       }
     );
+
+    const fields: Record<string, CSVParsableFieldType> = {};
+    for (const [name, type] of transform) {
+      if (exclude.includes(name)) {
+        continue;
+      }
+      fields[name] = typeToCSVParsableFieldType(type || 'mixed');
+    }
+
     const source = fs.createReadStream(fileName, 'utf8');
 
-    const stripBOM = stripBomStream();
+    if (useNewImportBackend) {
+      let promise;
 
-    const parser = createParser({
-      fileName,
-      fileType,
-      delimiter,
-      fileIsMultilineJSON,
-    });
+      // TODO: log file, but probably only useful once we have the toast
+      //const logPath = path.join(app.getPath('logs'), path.basename(fileName) + '.log');
+      //const output = fs.createWriteStream(logPath);
 
-    const applyTypes = transformProjectedTypesStream({
-      exclude,
-      transform,
-      ignoreBlanks,
-    });
+      // TODO: abort controller, not source and dest
+      dispatch({ type: STARTED });
 
-    const dest = createCollectionWriteStream(dataService!, ns, stopOnErrors);
+      const errors: ErrorJSON[] = [];
+      const errorCallback = (err: ErrorJSON) => {
+        errors.push(err);
+      };
 
-    dest.on('progress', (stats: CollectionStreamProgress) => {
-      dispatch(onProgress(stats));
-    });
-
-    const progress = createProgressStream(
-      fileSize,
-      function (
-        err: Error | undefined,
-        info: {
-          percentage: number;
-          transferred: number;
-          length: number;
-          remaining: number;
-          eta: number;
-          runtime: number;
-          delta: number;
-          speed: number;
-        }
+      const progressCallback = _.throttle(function (
+        numDocs: number,
+        numBytes: number
       ) {
-        if (err) return;
-        dispatch(onGuesstimatedProgress(info.transferred, info.length));
-      }
-    );
+        console.log('progress', numDocs, errors.length);
 
-    const importSizeGuesstimator = createImportSizeGuesstimator(
-      source,
-      fileSize,
-      function (err: Error | undefined, guesstimatedTotalDocs: number) {
-        if (err) return;
-        progress.setLength(guesstimatedTotalDocs);
-        dispatch(onGuesstimatedDocsTotal(guesstimatedTotalDocs));
-      }
-    );
+        // for now, call onGuesstimatedDocsTotal() so that the existing progress bar worlks
+        const guessedTotal = Math.max(numDocs, Math.ceil(fileSize / numBytes));
+        dispatch(onGuesstimatedDocsTotal(guessedTotal));
 
-    console.time('import');
-    console.group('import:start');
+        dispatch(onGuesstimatedProgress(numDocs, guessedTotal));
 
-    console.group('Import Options:');
-    console.table({
-      fileName,
-      fileType,
-      fileIsMultilineJSON,
-      fileSize,
-      delimiter,
-      ignoreBlanks,
-      stopOnErrors,
-    });
+        dispatch(
+          onProgress({
+            docsWritten: numDocs, // TODO: this is a lie
+            docsProcessed: numDocs,
+            errors: errors.slice(), // make sure it is not the same variable
+          })
+        );
+      },
+      1000);
 
-    console.log('Exclude');
-    console.table(exclude);
-
-    console.log('Transform');
-    console.table(transform);
-
-    console.log('Running import...');
-
-    dispatch(onStarted(source, dest));
-
-    stream.pipeline(
-      source,
-      stripBOM,
-      parser,
-      applyTypes,
-      importSizeGuesstimator,
-      progress,
-      dest,
-      function onStreamEnd(err) {
-        console.timeEnd('import');
-        track('Import Completed', {
-          file_type: fileType,
-          all_fields: exclude.length === 0,
-          stop_on_error_selected: stopOnErrors,
-          number_of_docs: dest.docsWritten,
-          success: !err,
+      if (fileType === 'csv') {
+        promise = importCSV({
+          dataService,
+          ns,
+          input: source,
+          //output,
+          fields,
+          progressCallback,
+          errorCallback,
         });
-        /**
-         * TODO: lucas: Decorate with a codeframe if not already
-         * json parsing errors already are.
-         */
-        if (err) {
+      } else {
+        promise = importJSON({
+          dataService: dataService,
+          ns,
+          input: source,
+          //output,
+          stopOnErrors,
+          jsonVariant: fileIsMultilineJSON ? 'jsonl' : 'json',
+          progressCallback,
+          errorCallback,
+        });
+      }
+
+      promise
+        .finally(() => {
+          console.log('flush');
+          progressCallback.flush();
+        })
+        .then((result) => {
+          // TODO: measure time, include in tracking and logs
+
+          track('Import Completed', {
+            file_type: fileType,
+            all_fields: exclude.length === 0,
+            stop_on_error_selected: stopOnErrors,
+            number_of_docs: result.docsWritten,
+            success: true,
+          });
+
+          // eslint-disable-next-line @mongodb-js/compass/unique-mongodb-log-id
+          log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
+            ns,
+            docsWritten: result.docsWritten,
+            docsProcessed: result.docsProcessed,
+          });
+
+          console.log('progress done', result);
+          dispatch(onFinished(result.docsWritten, result.docsProcessed));
+
+          const payload = {
+            ns,
+            size: fileSize,
+            fileType,
+            docsWritten: result.docsWritten,
+            fileIsMultilineJSON, // TODO: change to one new fileType or keep this?
+            delimiter,
+            ignoreBlanks,
+            stopOnErrors,
+            // TODO: change this to use the new fields
+            hasExcluded: exclude.length > 0,
+            hasTransformed: transform.length > 0,
+          };
+          dispatch(globalAppRegistryEmit('import-finished', payload));
+        })
+        .catch((err) => {
+          // TODO: measure time, include in tracking and logs
+
+          track('Import Completed', {
+            file_type: fileType,
+            all_fields: exclude.length === 0,
+            stop_on_error_selected: stopOnErrors,
+            number_of_docs: err.result.docsWritten,
+            success: !err,
+          });
+
+          // eslint-disable-next-line @mongodb-js/compass/unique-mongodb-log-id
           log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
             ns,
-            docsWritten: dest.docsWritten,
+            docsWritten: err.result.docsWritten,
             error: err.message,
           });
           debug('Error while importing:', err.stack);
 
-          console.groupEnd();
-          console.groupEnd();
-
           return dispatch(onFailed(err));
-        }
-        log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
-          ns,
-          docsWritten: dest.docsWritten,
-          docsProcessed: dest.docsProcessed,
         });
+    } else {
+      // legacy import:
 
-        dispatch(onFinished(dest.docsWritten, dest.docsProcessed));
+      console.time('import');
+      console.group('import:start');
 
-        const payload = {
-          ns,
-          size: fileSize,
-          fileType,
-          docsWritten: dest.docsWritten,
-          fileIsMultilineJSON,
-          delimiter,
-          ignoreBlanks,
-          stopOnErrors,
-          hasExcluded: exclude.length > 0,
-          hasTransformed: transform.length > 0,
-        };
-        dispatch(globalAppRegistryEmit('import-finished', payload));
-        console.groupEnd();
-        console.groupEnd();
-      }
-    );
+      console.group('Import Options:');
+      console.table({
+        fileName,
+        fileType,
+        fileIsMultilineJSON,
+        fileSize,
+        delimiter,
+        ignoreBlanks,
+        stopOnErrors,
+      });
+
+      console.log('Exclude');
+      console.table(exclude);
+
+      console.log('Transform');
+      console.table(transform);
+
+      console.log('Running import...');
+      const stripBOM = stripBomStream();
+
+      const parser = createParser({
+        fileName,
+        fileType,
+        delimiter,
+        fileIsMultilineJSON,
+      });
+
+      const applyTypes = transformProjectedTypesStream({
+        exclude,
+        transform,
+        ignoreBlanks,
+      });
+
+      const dest = createCollectionWriteStream(dataService, ns, stopOnErrors);
+
+      dest.on('progress', (stats: CollectionStreamProgress) => {
+        dispatch(onProgress(stats));
+      });
+
+      const progress = createProgressStream(
+        fileSize,
+        function (
+          err: Error | undefined,
+          info: {
+            percentage: number;
+            transferred: number;
+            length: number;
+            remaining: number;
+            eta: number;
+            runtime: number;
+            delta: number;
+            speed: number;
+          }
+        ) {
+          if (err) return;
+          dispatch(onGuesstimatedProgress(info.transferred, info.length));
+        }
+      );
+
+      const importSizeGuesstimator = createImportSizeGuesstimator(
+        source,
+        fileSize,
+        function (err: Error | undefined, guesstimatedTotalDocs: number) {
+          if (err) return;
+          progress.setLength(guesstimatedTotalDocs);
+          dispatch(onGuesstimatedDocsTotal(guesstimatedTotalDocs));
+        }
+      );
+
+      dispatch(onStarted(source, dest));
+
+      stream.pipeline(
+        source,
+        stripBOM,
+        parser,
+        applyTypes,
+        importSizeGuesstimator,
+        progress,
+        dest,
+        function onStreamEnd(err) {
+          console.timeEnd('import');
+          track('Import Completed', {
+            file_type: fileType,
+            all_fields: exclude.length === 0,
+            stop_on_error_selected: stopOnErrors,
+            number_of_docs: dest.docsWritten,
+            success: !err,
+          });
+          /**
+           * TODO: lucas: Decorate with a codeframe if not already
+           * json parsing errors already are.
+           */
+          if (err) {
+            // eslint-disable-next-line @mongodb-js/compass/unique-mongodb-log-id
+            log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
+              ns,
+              docsWritten: dest.docsWritten,
+              error: err.message,
+            });
+            debug('Error while importing:', err.stack);
+
+            console.groupEnd();
+            console.groupEnd();
+
+            return dispatch(onFailed(err));
+          }
+          // eslint-disable-next-line @mongodb-js/compass/unique-mongodb-log-id
+          log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
+            ns,
+            docsWritten: dest.docsWritten,
+            docsProcessed: dest.docsProcessed,
+          });
+
+          dispatch(onFinished(dest.docsWritten, dest.docsProcessed));
+
+          const payload = {
+            ns,
+            size: fileSize,
+            fileType,
+            docsWritten: dest.docsWritten,
+            fileIsMultilineJSON,
+            delimiter,
+            ignoreBlanks,
+            stopOnErrors,
+            hasExcluded: exclude.length > 0,
+            hasTransformed: transform.length > 0,
+          };
+          dispatch(globalAppRegistryEmit('import-finished', payload));
+          console.groupEnd();
+          console.groupEnd();
+        }
+      );
+    }
   };
 };
 
@@ -420,6 +591,7 @@ export const cancelImport = () => {
     const { importData } = getState();
     const { source, dest } = importData;
 
+    // TODO: switch to abortController
     if (!source || !dest) {
       debug('no active import to cancel.');
       return;
@@ -445,6 +617,10 @@ const loadPreviewDocs = (
   delimiter: CSVDelimiter,
   fileIsMultilineJSON: boolean
 ): ThunkAction<void, RootImportState, void, AnyAction> => {
+  // TODO: replace this with listCSVFields()
+  // TODO: also call analyzeCSVFields() at some point
+  // TODO: we'll need loading indicator state while it figures out the
+
   return (dispatch: Dispatch): void => {
     debug('loading preview', {
       fileName,
@@ -552,6 +728,7 @@ export const selectImportFileName = (fileName: string) => {
         ...stats,
         type: mime.lookup(fileName),
       };
+      // TODO: replace this with the new guessFileType()
       const detected = (await promisify(detectImportFile)(fileName)) as {
         fileName: string;
         fileIsMultilineJSON: boolean;
