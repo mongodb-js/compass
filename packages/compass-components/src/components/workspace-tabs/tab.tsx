@@ -53,7 +53,7 @@ const tabLightThemeStyles = css({
 });
 
 const tabDarkThemeStyles = css({
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.black,
   borderColor: palette.gray.dark2,
   '&:hover': {
     borderColor: palette.gray.dark1,

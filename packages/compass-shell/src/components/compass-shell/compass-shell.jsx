@@ -19,7 +19,7 @@ import ShellHeader from '../shell-header';
 
 const compassShellStyles = css(
   {
-    backgroundColor: palette.gray.dark3,
+    backgroundColor: palette.gray.dark4,
     display: 'flex',
     flexBasis: 'auto',
     position: 'relative',

@@ -47,6 +47,14 @@ describe('analyzeCSVFields', function () {
         basename.replace(/\.csv$/, '.analyzed.json')
       ).to.deep.equal(expectedResult);
       expect(progressCallback.callCount).to.equal(result.totalRows);
+
+      expect(progressCallback.firstCall.args[0]).to.equal(1);
+      expect(progressCallback.firstCall.args[1]).to.be.gt(0);
+
+      const fileStat = await fs.promises.stat(filepath);
+
+      expect(progressCallback.lastCall.args[0]).to.equal(result.totalRows);
+      expect(progressCallback.lastCall.args[1]).to.be.equal(fileStat.size);
     });
   }
 

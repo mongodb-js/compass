@@ -37,7 +37,6 @@ const titleStyle = css({
 
 const titleStyleDark = css({
   fontWeight: 'bold',
-  lineHeight: '25px',
   color: uiColors.gray.light2,
 });
 
@@ -58,6 +57,10 @@ const warningIconStyles = css({
   },
 });
 
+const warningIconStylesDark = css({
+  background: `${palette.red.dark2}`,
+});
+
 type ModalHeaderProps = {
   title: string;
   subtitle?: string;
@@ -74,8 +77,14 @@ function ModalHeader({
   return (
     <div className={cx(headerStyle, variantStyle[variant])}>
       {variant === Variant.Danger && (
-        <div className={cx(warningIconStyles)}>
-          <Icon glyph="Warning" fill={palette.red.base} role="presentation" />
+        <div
+          className={cx(warningIconStyles, darkMode && warningIconStylesDark)}
+        >
+          <Icon
+            glyph="Warning"
+            fill={darkMode ? palette.red.light3 : palette.red.base}
+            role="presentation"
+          />
         </div>
       )}
       <h1

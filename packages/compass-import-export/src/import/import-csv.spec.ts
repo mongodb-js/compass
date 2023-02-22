@@ -120,6 +120,14 @@ describe('importCSV', function () {
 
       expect(progressCallback.callCount).to.equal(totalRows);
 
+      expect(progressCallback.firstCall.args[0]).to.equal(1);
+      expect(progressCallback.firstCall.args[1]).to.be.gt(0);
+
+      const fileStat = await fs.promises.stat(filepath);
+
+      expect(progressCallback.lastCall.args[0]).to.equal(totalRows);
+      expect(progressCallback.lastCall.args[1]).to.be.equal(fileStat.size);
+
       const docs = await dataService.find(ns, {});
 
       expect(docs).to.have.length(totalRows);

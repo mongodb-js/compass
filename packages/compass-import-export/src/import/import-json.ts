@@ -15,6 +15,7 @@ import { createCollectionWriteStream } from '../utils/collection-stream';
 import type { CollectionStreamStats } from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
+import { ByteCounter } from '../utils/byte-counter';
 
 const debug = createDebug('import-json');
 
@@ -26,7 +27,7 @@ type ImportJSONOptions = {
   input: Readable;
   output: Writable;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number) => void;
+  progressCallback?: (index: number, bytes: number) => void;
   errorCallback?: (error: ErrorJSON) => void;
   stopOnErrors?: boolean;
   jsonVariant: JSONVariant;
@@ -46,13 +47,16 @@ export async function importJSON({
   jsonVariant,
 }: ImportJSONOptions): Promise<ImportJSONResult> {
   debug('importJSON()', { ns: toNS(ns) });
+
+  const byteCounter = new ByteCounter();
+
   let numProcessed = 0;
 
   const docStream = new Transform({
     objectMode: true,
     transform: function (chunk: any, encoding, callback) {
       ++numProcessed;
-      progressCallback?.(numProcessed);
+      progressCallback?.(numProcessed, byteCounter.total);
       try {
         // make sure files parsed as jsonl only contain objects with no arrays and simple values
         // (this will either stop the entire import and throw or just skip this
@@ -98,6 +102,7 @@ export async function importJSON({
       [
         input,
         new Utf8Validator(),
+        byteCounter,
         stripBomStream(),
         ...parserStreams,
         docStream,
