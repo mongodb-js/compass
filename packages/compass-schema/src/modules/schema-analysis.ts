@@ -1,15 +1,14 @@
-import util from 'util';
 import { isInternalFieldPath } from 'hadron-document';
+import type { AggregateOptions, Filter, Document } from 'mongodb';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import type { DataService } from 'mongodb-data-service';
+import mongodbSchema from 'mongodb-schema';
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-SCHEMA');
 
-import mongodbSchema from 'mongodb-schema';
-const analyzeDocuments = util.promisify(mongodbSchema);
-
 // hack for driver 3.6 not promoting error codes and
 // attributes from ejson when promoteValue is false.
-function promoteMongoErrorCode(err) {
+function promoteMongoErrorCode(err?: Error & { code?: unknown }) {
   if (!err) {
     return new Error('Unknown error');
   }
@@ -22,11 +21,17 @@ function promoteMongoErrorCode(err) {
 }
 
 export const analyzeSchema = async (
-  dataService,
-  abortSignal,
-  ns,
-  query,
-  aggregateOptions
+  dataService: DataService,
+  abortSignal: AbortSignal,
+  ns: string,
+  query:
+    | {
+        query?: Filter<Document>;
+        size?: number;
+        fields?: Document;
+      }
+    | undefined,
+  aggregateOptions: AggregateOptions
 ) => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
@@ -44,7 +49,7 @@ export const analyzeSchema = async (
         abortSignal,
       }
     );
-    const schemaData = await analyzeDocuments(docs);
+    const schemaData = await mongodbSchema(docs);
     schemaData.fields = schemaData.fields.filter(
       ({ path }) => !isInternalFieldPath(path)
     );
@@ -52,7 +57,7 @@ export const analyzeSchema = async (
       ns,
     });
     return schemaData;
-  } catch (err) {
+  } catch (err: any) {
     log.error(mongoLogId(1001000091), 'Schema', 'Schema analysis failed', {
       ns,
       error: err.message,

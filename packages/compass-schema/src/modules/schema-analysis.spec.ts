@@ -1,18 +1,30 @@
 import sinon from 'sinon';
 import bson from 'bson';
 import { expect } from 'chai';
+import { DataServiceImpl } from 'mongodb-data-service';
+
 import { analyzeSchema } from './schema-analysis';
 
 describe('schema-analyis', function () {
+  let dataService: DataServiceImpl;
+
+  beforeEach(function () {
+    dataService = new DataServiceImpl({
+      connectionString: 'mongodb://localhost:27017',
+    });
+  });
+
+  afterEach(function () {
+    sinon.restore();
+  });
+
   describe('getResult', function () {
     it('returns the schema', async function () {
-      const dataService = {
-        sample: () =>
-          Promise.resolve([
-            { x: 1 },
-            { y: 2, __safeContent__: [new bson.Binary('aaaa')] },
-          ]),
-      };
+      const sampleMock = sinon.stub(dataService, 'sample');
+      sampleMock.resolves([
+        { x: 1 },
+        { y: 2, __safeContent__: [new bson.Binary('aaaa')] },
+      ]);
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
@@ -99,16 +111,15 @@ describe('schema-analyis', function () {
     });
 
     it('adds promoteValues: false so the analyzer can report more accurate types', async function () {
-      const dataService = {
-        sample: sinon.spy(() => Promise.resolve([])),
-      };
+      const sampleMock = sinon.stub(dataService, 'sample');
+      sampleMock.resolves([]);
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
       await analyzeSchema(dataService, abortSignal, 'db.coll', {}, {});
 
-      expect(dataService.sample).to.have.been.calledWith(
+      expect(sampleMock).to.have.been.calledWith(
         'db.coll',
         {},
         { promoteValues: false }
@@ -116,17 +127,16 @@ describe('schema-analyis', function () {
     });
 
     it('returns null if is cancelled', async function () {
-      const dataService = {
-        sample: () => {
-          throw new Error();
-        },
-        isCancelError: () => true,
-      };
+      const sampleMock = sinon.stub(dataService, 'sample');
+      sampleMock.rejects(new Error('test error'));
+
+      const isCancelErrorMock = sinon.stub(dataService, 'isCancelError');
+      isCancelErrorMock.returns(true);
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
-      const getResultPromise = analyzeSchema(
+      const result = await analyzeSchema(
         dataService,
         abortSignal,
         'db.coll',
@@ -134,40 +144,33 @@ describe('schema-analyis', function () {
         {}
       );
 
-      expect(await getResultPromise).to.equal(null);
+      expect(result).to.equal(null);
     });
 
     it('throws if sample throws', async function () {
-      let rejectOnSample;
-      const dataService = {
-        sample: () =>
-          new Promise((_, _reject) => {
-            rejectOnSample = _reject;
-          }),
-        isCancelError: () => false,
-      };
+      const sampleMock = sinon.stub(dataService, 'sample');
+      const error: Error & {
+        code?: any;
+      } = new Error('should have been thrown');
+      error.name = 'MongoError';
+      error.code = new bson.Int32(1000);
+
+      sampleMock.rejects(error);
+
+      const isCancelErrorMock = sinon.stub(dataService, 'isCancelError');
+      isCancelErrorMock.returns(false);
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
-      const getResultPromise = analyzeSchema(
-        dataService,
-        abortSignal,
-        'db.coll',
-        {},
-        {}
-      ).catch((err) => err);
-
-      const error = new Error('should have been thrown');
-      error.name = 'MongoError';
-      error.code = new bson.Int32(1000);
-
-      rejectOnSample(error);
-
-      expect((await getResultPromise).message).to.equal(
-        'should have been thrown'
-      );
-      expect((await getResultPromise).code).to.equal(1000);
+      try {
+        await analyzeSchema(dataService, abortSignal, 'db.coll', {}, {});
+      } catch (err: any) {
+        expect(err.message).to.equal('should have been thrown');
+        expect(err.code).to.equal(1000);
+        return;
+      }
+      throw new Error('expected error to be thrown');
     });
   });
 });

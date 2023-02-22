@@ -79,7 +79,7 @@
     "mocha-webpack": "^2.0.0-beta.0",
     "mock-require": "^3.0.3",
     "mongodb-connection-model": "^22.2.1",
-    "mongodb-schema": "^8.2.5",
+    "mongodb-schema": "^10.0.0",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
