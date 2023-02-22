@@ -214,6 +214,7 @@ export const confirmOpenPipeline =
         title: 'Are you sure you want to open this pipeline?',
         description:
           'Opening this project will abandon unsaved changes to the current pipeline you are building.',
+        buttonText: 'Open Pipeline',
       });
       if (!confirmed) {
         return;
@@ -235,6 +236,7 @@ export const confirmDeletePipeline =
       title: 'Are you sure you want to delete this pipeline?',
       description:
         'Deleting this pipeline will remove it from your saved pipelines.',
+      buttonText: 'Delete Pipeline',
       variant: ConfirmationModalVariant.Danger,
     });
     if (!confirmed) {
