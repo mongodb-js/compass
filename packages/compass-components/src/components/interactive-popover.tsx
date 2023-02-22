@@ -31,7 +31,7 @@ const contentContainerStylesLight = css({
 
 const contentContainerStylesDark = css({
   borderColor: palette.gray.dark2,
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.black,
   color: palette.white,
 });
 

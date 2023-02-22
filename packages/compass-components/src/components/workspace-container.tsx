@@ -91,7 +91,7 @@ const lightThemeStyles = css({
 });
 
 const darkThemeStyles = css({
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.black,
   color: palette.white,
 });
 

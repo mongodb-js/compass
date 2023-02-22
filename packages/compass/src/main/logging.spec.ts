@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import { extractPartialLogFile } from './logging';
+import { CompassLogging, extractPartialLogFile } from './logging';
 
 describe('extractPartialLogFile', function () {
   let tmpdir: string;
@@ -32,5 +32,17 @@ describe('extractPartialLogFile', function () {
       path.join(tmpdir, 'compass_logs', 'compass_xyz.txt')
     );
     expect(content).to.eq('hello world!');
+  });
+
+  it('should not throw when writing logs after end', async function () {
+    const compassApp = {
+      addExitHandler() {},
+      on() {},
+    };
+
+    await CompassLogging.init(compassApp as any);
+
+    CompassLogging['writer']?.end();
+    CompassLogging['writer']?.write('hi');
   });
 });

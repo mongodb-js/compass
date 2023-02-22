@@ -29,7 +29,7 @@ const titleLightStyles = css({
   color: palette.green.dark2,
 });
 const titleDarkStyles = css({
-  color: palette.green.light2,
+  color: palette.green.light1,
 });
 const subTitleStyles = css({
   marginTop: spacing[2],

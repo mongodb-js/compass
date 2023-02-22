@@ -93,7 +93,7 @@ const editorPalette = {
     color: codePalette.dark[3],
     backgroundColor: codePalette.dark[0],
     gutterColor: palette.gray.light3,
-    gutterBackgroundColor: palette.gray.dark3,
+    gutterBackgroundColor: palette.gray.dark4,
     gutterActiveLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
     gutterFoldButtonColor: palette.white,
     cursorColor: palette.green.base,

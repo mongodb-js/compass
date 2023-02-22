@@ -30,7 +30,7 @@ const containerLightThemeStyles = css({
 });
 
 const containerDarkThemeStyles = css({
-  background: palette.gray.dark2,
+  background: palette.black,
   borderColor: palette.gray.dark1,
 });
 

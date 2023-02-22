@@ -88,7 +88,7 @@ const collectionHeaderLightStyles = css({
 });
 
 const collectionHeaderDarkStyles = css({
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.black,
 });
 
 const collectionHeaderTitleCollectionLightStyles = css({

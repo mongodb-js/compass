@@ -40,7 +40,7 @@ const headerAndOptionsRowStyles = css({
 
 const headerAndOptionsRowDarkStyles = css({
   borderColor: palette.gray.dark2,
-  background: palette.gray.dark3,
+  background: palette.black,
 });
 
 const settingsRowStyles = css({

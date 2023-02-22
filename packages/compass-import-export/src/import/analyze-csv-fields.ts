@@ -9,6 +9,7 @@ import type {
 } from '../utils/csv';
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
 import { Utf8Validator } from '../utils/utf8-validator';
+import { ByteCounter } from '../utils/byte-counter';
 import stripBomStream from 'strip-bom-stream';
 
 const debug = createDebug('analyze-csv-fields');
@@ -17,7 +18,7 @@ type AnalyzeCSVFieldsOptions = {
   input: Readable;
   delimiter: Delimiter;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number) => void;
+  progressCallback?: (index: number, bytes: number) => void;
   ignoreEmptyStrings?: boolean;
 };
 
@@ -133,18 +134,26 @@ export function analyzeCSVFields({
   progressCallback,
   ignoreEmptyStrings,
 }: AnalyzeCSVFieldsOptions): Promise<AnalyzeCSVFieldsResult> {
-  input = input.pipe(stripBomStream()).pipe(new Utf8Validator());
-
-  const result: AnalyzeCSVFieldsResult = {
-    totalRows: 0,
-    fields: {},
-    aborted: false,
-  };
-
-  let aborted = false;
-  let headerFields: string[];
-
   return new Promise(function (resolve, reject) {
+    const byteCounter = new ByteCounter();
+
+    const result: AnalyzeCSVFieldsResult = {
+      totalRows: 0,
+      fields: {},
+      aborted: false,
+    };
+
+    let aborted = false;
+    let headerFields: string[];
+
+    const validator = new Utf8Validator();
+
+    validator.once('error', function (err: any) {
+      reject(err);
+    });
+
+    input = input.pipe(validator).pipe(byteCounter).pipe(stripBomStream());
+
     Papa.parse(input, {
       delimiter,
       header: true,
@@ -176,7 +185,7 @@ export function analyzeCSVFields({
 
         ++result.totalRows;
 
-        progressCallback?.(result.totalRows);
+        progressCallback?.(result.totalRows, byteCounter.total);
       },
       complete: function () {
         debug('analyzeCSVFields:complete');

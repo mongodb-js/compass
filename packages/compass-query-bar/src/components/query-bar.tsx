@@ -37,7 +37,7 @@ const queryBarFormStyles = css({
 });
 
 const queryBarFormDarkStyles = css({
-  background: palette.gray.dark3,
+  background: palette.black,
   borderColor: palette.gray.dark2,
 });
 

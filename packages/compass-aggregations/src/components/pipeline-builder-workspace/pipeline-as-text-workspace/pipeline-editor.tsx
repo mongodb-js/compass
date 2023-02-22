@@ -37,7 +37,7 @@ const containerStyles = css({
 });
 
 const containerDarkStyles = css({
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.gray.dark4,
 });
 
 const editorContainerStyles = css({
