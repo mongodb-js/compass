@@ -98,7 +98,7 @@ div.minichart.unique {
   height: 20px;
   circle {
     fill: ${mcFg};
-    stroke: ${palette.white}
+    stroke: ${palette.white};
     stroke-width: 1.5px;
     &.selected {
       fill: ${mcFgSelected};
@@ -245,7 +245,7 @@ svg.minichart {
     padding: 5px 8px;
     border-radius: 3px;
     cursor: pointer;
-    border: 1px solid ${palette.gray.dark4}
+    border: 1px solid ${palette.gray.dark4};
   }
   #circle.active {
     background-color: ${rgba(palette.white, 0.9)};
@@ -443,21 +443,12 @@ const Schema: React.FunctionComponent<{
           <AnalyzingScreen onCancelClicked={onCancelClicked} />
         )}
         {analysisState === ANALYSIS_STATE_COMPLETE && (
-          <div
-            className={cx(
-              schemaStyles,
-              darkMode ? minichartStylesDark : minichartStylesLight
-            )}
-          >
-            <div data-testid="schema-field-list">
-              <FieldList
-                schema={schema}
-                analysisState={analysisState}
-                actions={actions}
-                store={store}
-              />
-            </div>
-          </div>
+          <FieldList
+            schema={schema}
+            analysisState={analysisState}
+            actions={actions}
+            store={store}
+          />
         )}
       </WorkspaceContainer>
     </div>
