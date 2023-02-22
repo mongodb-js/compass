@@ -15,7 +15,6 @@ import {
   useConfirmationModal,
 } from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
-
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const textAreaContainerStyle = css({
@@ -91,7 +90,7 @@ function ConnectionStringInput({
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
     useState(connectionString);
-  const showConfirmation = useConfirmationModal();
+  const { showConfirmation } = useConfirmationModal();
 
   useEffect(() => {
     // If the user isn't actively editing the connection string and it
@@ -188,7 +187,7 @@ function ConnectionStringInput({
               size="xsmall"
               type="button"
               checked={enableEditingConnectionString}
-              onChange={handleEditConnectionCheckbox}
+              onChange={(value) => void handleEditConnectionCheckbox(value)}
             />
           </div>
         )}

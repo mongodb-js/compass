@@ -159,7 +159,7 @@ export { IndexKeysBadge } from './components/index-keys-badge';
 export { Combobox, ComboboxOption, ComboboxGroup } from './components/combobox';
 export {
   useConfirmationModal,
-  ModalVariant,
+  ConfirmationModalVariant,
   ConfirmationModalArea,
   showConfirmation,
 } from './hooks/use-confirmation';

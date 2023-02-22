@@ -2,16 +2,16 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import {
   default as ConfirmationModal,
-  Variant as ModalVariant,
+  Variant as ConfirmationModalVariant,
 } from '@leafygreen-ui/confirmation-modal';
 
-export { ModalVariant };
+export { ConfirmationModalVariant };
 
 type ConfirmationProperties = {
   title: string;
   description: string;
   buttonText?: string;
-  variant?: ModalVariant;
+  variant?: ConfirmationModalVariant;
 };
 type ConfirmationCallback = (value: boolean) => void;
 
@@ -32,7 +32,7 @@ class ShowConfirmationEvent extends Event {
     public props: ConfirmationProperties,
     public callback: ConfirmationCallback
   ) {
-    super('show');
+    super('show-confirmation');
   }
 }
 class GlobalConfirmation extends EventTarget {
@@ -68,9 +68,15 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     const listener = ({ props, callback }: ShowConfirmationEvent) => {
       showConfirmation(props, callback);
     };
-    globalConfirmation.addEventListener('show', listener);
+    globalConfirmation.addEventListener(
+      'show-confirmation',
+      listener as EventListener
+    );
     return () => {
-      globalConfirmation.removeEventListener('show', listener);
+      globalConfirmation.removeEventListener(
+        'show-confirmation',
+        listener as EventListener
+      );
     };
   }, []);
 
@@ -106,7 +112,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
         data-testid="confirmation-modal"
         open={confirmationProps.open}
         title={confirmationProps.title}
-        variant={confirmationProps.variant ?? ModalVariant.Default}
+        variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
         buttonText={confirmationProps.buttonText ?? 'Confirm'}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
@@ -118,8 +124,15 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
 };
 
 export const useConfirmationModal = () => {
-  const { showConfirmation } = useContext(ConfirmationModalContext);
-  return (props: ConfirmationProperties) => {
-    return new Promise<boolean>((resolve) => showConfirmation(props, resolve));
+  const { showConfirmation: requestConfirmation } = useContext(
+    ConfirmationModalContext
+  );
+  const showConfirmation = (props: ConfirmationProperties) => {
+    return new Promise<boolean>((resolve) =>
+      requestConfirmation(props, resolve)
+    );
+  };
+  return {
+    showConfirmation,
   };
 };

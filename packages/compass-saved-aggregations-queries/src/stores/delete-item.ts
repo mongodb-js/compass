@@ -3,7 +3,10 @@ import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { showConfirmation } from '@mongodb-js/compass-components';
+import {
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
 
 const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
@@ -39,7 +42,7 @@ export const confirmDeleteItem = (
     const confirmed = await showConfirmation({
       title,
       description: 'This action can not be undone.',
-      variant: 'danger',
+      variant: ConfirmationModalVariant.Danger,
       buttonText: 'Delete',
     });
     if (!confirmed) {

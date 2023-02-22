@@ -11,7 +11,10 @@ import {
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
-import { showConfirmation, ModalVariant } from '@mongodb-js/compass-components';
+import {
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -232,7 +235,7 @@ export const confirmDeletePipeline =
       title: 'Are you sure you want to delete this pipeline?',
       description:
         'Deleting this pipeline will remove it from your saved pipelines.',
-      variant: ModalVariant.Danger,
+      variant: ConfirmationModalVariant.Danger,
     });
     if (!confirmed) {
       return;

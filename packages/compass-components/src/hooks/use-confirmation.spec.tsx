@@ -15,13 +15,13 @@ import {
   showConfirmation,
 } from './use-confirmation';
 
-const OpenConfirmationModalButton = ({}) => {
-  const showConfirmation = useConfirmationModal();
+const OpenConfirmationModalButton = () => {
+  const { showConfirmation } = useConfirmationModal();
   return (
     <button
       type="button"
       onClick={() =>
-        showConfirmation({
+        void showConfirmation({
           title: 'Are you sure?',
           description: 'This action can not be undone.',
           buttonText: 'Yes',
@@ -50,7 +50,7 @@ describe('use-confirmation', function () {
       expect(modal).to.exist;
     });
 
-    it('renders modal contents', async function () {
+    it('renders modal contents', function () {
       expect(within(modal).getByText('Are you sure?')).to.exist;
       expect(
         within(modal).getByText('This action can not be undone.')
@@ -92,7 +92,7 @@ describe('use-confirmation', function () {
       expect(modal).to.exist;
     });
 
-    it('renders modal contents', async function () {
+    it('renders modal contents', function () {
       expect(within(modal).getByText('Are you sure?')).to.exist;
       expect(
         within(modal).getByText('This action can not be undone.')
