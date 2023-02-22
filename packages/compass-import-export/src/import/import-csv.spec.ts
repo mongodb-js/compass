@@ -847,8 +847,11 @@ describe('importCSV', function () {
   });
 
   it('errors if a file is truncated utf8', async function () {
-    const latin1Buffer = Buffer.from('a,foo\n1,🏳️‍🌈', 'utf8').subarray(0, -1);
-    const input = Readable.from(latin1Buffer);
+    const truncatedUtf8Buffer = Buffer.from('a,foo\n1,🏳️‍🌈', 'utf8').subarray(
+      0,
+      -1
+    );
+    const input = Readable.from(truncatedUtf8Buffer);
 
     const output = temp.createWriteStream();
 
