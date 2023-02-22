@@ -103,6 +103,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     <ConfirmationModalContext.Provider value={{ showConfirmation }}>
       {children}
       <ConfirmationModal
+        data-testid="confirmation-modal"
         open={confirmationProps.open}
         title={confirmationProps.title}
         variant={confirmationProps.variant ?? ModalVariant.Default}
