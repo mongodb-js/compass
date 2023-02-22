@@ -400,8 +400,6 @@ const Schema: React.FunctionComponent<{
   schema,
   resultId,
 }) => {
-  const darkMode = useDarkMode();
-
   useEffect(() => {
     if (isActiveTab) {
       actions.resizeMiniCharts();
