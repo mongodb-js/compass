@@ -20,12 +20,13 @@ interface ConfirmationModalContextData {
     props: ConfirmationProperties,
     callback: ConfirmationCallback
   ) => void;
+  isMounted: boolean;
 }
 
 const ConfirmationModalContext =
-  React.createContext<ConfirmationModalContextData>(
-    {} as ConfirmationModalContextData
-  );
+  React.createContext<ConfirmationModalContextData>({
+    isMounted: false,
+  } as ConfirmationModalContextData);
 
 class ShowConfirmationEvent extends Event {
   constructor(
@@ -52,6 +53,8 @@ type ConfirmationModalAreaProps = ConfirmationProperties & {
 };
 
 export const ConfirmationModalArea: React.FC = ({ children }) => {
+  const hasParentContext = useContext(ConfirmationModalContext).isMounted;
+
   const [confirmationProps, setConfirmationProps] = useState({
     open: false,
   } as ConfirmationModalAreaProps);
@@ -105,8 +108,14 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     callbackRef.current = undefined;
   };
 
+  if (hasParentContext) {
+    return <>{children}</>;
+  }
+
   return (
-    <ConfirmationModalContext.Provider value={{ showConfirmation }}>
+    <ConfirmationModalContext.Provider
+      value={{ showConfirmation, isMounted: true }}
+    >
       {children}
       <ConfirmationModal
         data-testid="confirmation-modal"
