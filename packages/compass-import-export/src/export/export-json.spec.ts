@@ -1,11 +1,8 @@
 import os from 'os';
-// import assert from 'assert';
 import { EJSON } from 'bson';
-// import type { Document } from 'bson';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
-// import { Readable } from 'stream';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -64,15 +61,6 @@ describe('exportJSON', function () {
       // ignore
     }
     await createCollection(testNS, {});
-
-    // TODO: more tests, more docs
-    await insertOne(
-      testNS,
-      {
-        testDoc: true,
-      },
-      {}
-    );
   });
 
   afterEach(async function () {
@@ -81,28 +69,24 @@ describe('exportJSON', function () {
     await dataService.disconnect();
   });
 
-  it('exports', async function () {
-    // const fileName = 'test.json';
+  it('exports to the output stream', async function () {
+    await insertOne(testNS, { testDoc: true }, {});
 
-    const ns = testNS;
     const abortController = new AbortController();
-
     const tempWriteStream = temp.createWriteStream();
 
     const result = await exportJSON({
       dataService,
-      ns,
+      ns: testNS,
       fields: [],
-      // input: collection,// TODO: collection stream instead of passing query/agg?
-      // aggregation: false,
       output: tempWriteStream,
       variant: 'default',
       abortSignal: abortController.signal,
       progressCallback: () => {},
     });
 
-    expect(tempWriteStream.bytesWritten).to.equal(60);
     expect(result.docsWritten).to.equal(1);
+    expect(tempWriteStream.bytesWritten).to.equal(78);
     expect(result.aborted).to.be.false;
   });
 
@@ -114,8 +98,6 @@ describe('exportJSON', function () {
         const abortController = new AbortController();
         const progressCallback = sinon.spy();
 
-        let importedText;
-        let ejsonToInsert;
         const docsPath = filepath.replace(
           /\.((jsonl?)|(csv))$/,
           '.imported.ejson'
@@ -125,15 +107,15 @@ describe('exportJSON', function () {
           tmpdir,
           basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
         );
-        // const output = temp.createWriteStream();
-        const output = fs.createWriteStream(
-          resultPath
-          // Buffer.from('H4sIAAAAAAAAA8pIzcnJVyjPL8pJUQQAAAD//w==', 'base64')
-        );
 
+        let importedText;
+        let ejsonToInsert;
+        let ejsonToInsertWithout_id; // insertMany mutates and adds _id to added docs when missing.
         try {
           importedText = await fs.promises.readFile(docsPath, 'utf8');
           ejsonToInsert = EJSON.parse(importedText);
+          ejsonToInsertWithout_id = EJSON.parse(importedText);
+          expect(ejsonToInsert).to.have.length.greaterThan(0);
         } catch (err) {
           // This helps to tell you which file is missing and what the expected
           // content is which helps when adding a new fixture.
@@ -143,78 +125,94 @@ describe('exportJSON', function () {
         }
         await insertMany(testNS, ejsonToInsert, {});
 
+        const output = fs.createWriteStream(resultPath);
         const stats = await exportJSON({
           dataService,
           ns: testNS,
-          // tempWriteStream
-          // input: fs.createReadStream(filepath),
           output,
           abortSignal: abortController.signal,
           progressCallback,
-          variant: 'default', // TODO: Test all 3.
-          // variant: fixtureType,
+          query: {
+            filter: {},
+          },
+          variant: 'default',
         });
 
         expect(progressCallback.callCount).to.be.gt(0);
-
         const docsExported = progressCallback.callCount;
-
         expect(stats).to.deep.equal({
           aborted: false,
           docsWritten: docsExported,
         });
 
         const docs = await dataService.find(testNS, {});
-
-        // console.log('docs in', JSON.stringify(docs));
-
         expect(docs).to.have.length.greaterThan(0);
         expect(docs).to.have.length(docsExported);
 
-        // Remove _id's as they won't match when we compare below.
-        for (const doc of docs) {
-          if (doc._id && doc._id._bsontype === 'ObjectId') {
-            delete doc._id;
-          }
-        }
-
         let resultText;
+        let writtenResultDocs;
         try {
           resultText = await fs.promises.readFile(resultPath, 'utf8');
+          writtenResultDocs = EJSON.parse(resultText);
         } catch (err) {
           console.log(resultPath);
           throw err;
         }
 
-        console.log(resultPath);
-        console.log('resultText\n\n', resultText, '\n\n');
+        const expectedResultsPath = filepath.replace(
+          /\.((jsonl?)|(csv))$/,
+          '.exported.ejson'
+        );
 
-        const expectedResult = EJSON.parse(resultText);
+        let expectedText;
+        try {
+          expectedText = await fs.promises.readFile(
+            expectedResultsPath,
+            'utf8'
+          );
+        } catch (err) {
+          console.log(expectedResultsPath);
+          throw err;
+        }
+
+        // Remove newly created _id's as they won't match when we compare below.
+        if (!ejsonToInsertWithout_id[0]._id) {
+          for (const doc of writtenResultDocs) {
+            if (doc._id && doc._id._bsontype === 'ObjectId') {
+              delete doc._id;
+            }
+          }
+          for (const doc of ejsonToInsertWithout_id) {
+            if (doc._id && doc._id._bsontype === 'ObjectId') {
+              delete doc._id;
+            }
+          }
+
+          expectedText = expectedText.replace(/^ +"\$oid": ".*$/gm, 'ObjectId');
+          resultText = resultText.replace(/^ +"\$oid": ".*$/gm, 'ObjectId');
+        }
+
         expect(
-          docs,
+          writtenResultDocs,
           basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
-        ).to.deep.equal(expectedResult);
+        ).to.deep.equal(ejsonToInsertWithout_id);
+
         expect(
           resultText,
           basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
-        ).to.deep.equal(importedText);
+        ).to.deep.equal(expectedText);
       });
     }
   }
 
   it('responds to abortSignal.aborted', async function () {
-    // const fileName = 'aborted-signal-test-output.json';
-
-    const ns = testNS;
     const abortController = new AbortController();
     abortController.abort();
 
     const result = await exportJSON({
       dataService,
-      ns,
+      ns: testNS,
       fields: [],
-      // input: collection,// TODO: collection stream
-      // aggregation: false,
       output: temp.createWriteStream(),
       variant: 'default',
       abortSignal: abortController.signal,
@@ -225,20 +223,87 @@ describe('exportJSON', function () {
     expect(result.aborted).to.be.true;
   });
 
-  // TODO: It export different types
-  // TODO: It exports nested docs
-  // TODO: It export nested arrays
+  it('exports aggregations', async function () {
+    const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
+      (name, index) => ({
+        counter: index,
+        name,
+      })
+    );
+    await insertMany(testNS, docs, {});
 
-  // TODO: It exports different json formats (ejson etc)
+    const abortController = new AbortController();
+    const resultPath = path.join(tmpdir, 'test-aggregations.exported.json');
+    const output = fs.createWriteStream(resultPath);
+
+    const result = await exportJSON({
+      dataService,
+      ns: testNS,
+      aggregation: {
+        stages: [
+          {
+            $match: {
+              counter: {
+                $lte: 2,
+              },
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              doubleName: '$name',
+              _id: 0,
+            },
+          },
+        ],
+        options: {},
+      },
+      output,
+      variant: 'default',
+      abortSignal: abortController.signal,
+      progressCallback: () => {},
+    });
+
+    expect(result.docsWritten).to.equal(3);
+    expect(result.aborted).to.be.false;
+
+    let resultText;
+    let writtenResultDocs;
+    try {
+      resultText = await fs.promises.readFile(resultPath, 'utf8');
+      writtenResultDocs = EJSON.parse(resultText);
+    } catch (err) {
+      console.log(resultPath);
+      throw err;
+    }
+
+    const expectedText = `[{
+  "name": "pineapple",
+  "doubleName": "pineapple"
+},
+{
+  "name": "apple",
+  "doubleName": "apple"
+},
+{
+  "name": "orange",
+  "doubleName": "orange"
+}]`;
+
+    expect(writtenResultDocs).to.deep.equal(
+      ['pineapple', 'apple', 'orange'].map((name) => ({
+        name,
+        doubleName: name,
+      }))
+    );
+    expect(resultText).to.deep.equal(expectedText);
+  });
+
+  // TODO: It exports different json variant formats
   // TODO: It exports/handles an empty collection
-
-  // TODO: it exports aggregations
 
   // TODO: When data service errors.e
   // TODO: When write file errors.
 
   // TODO: It reports database errors
-  // TODO: it responds to abortSignal.aborted
-
-  // TODO: EOF
 });

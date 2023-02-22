@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { Writable } from 'stream';
 import type {
+  AggregateOptions,
   MongoServerError,
   Document,
   MongoBulkWriteError,
@@ -12,6 +13,7 @@ import type {
 import type { DataService } from 'mongodb-data-service';
 import { promisify } from 'util';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { TypeCastMap } from 'hadron-type-checker';
 
 import { createDebug } from './logger';
 
@@ -293,19 +295,33 @@ export const createCollectionWriteStream = function (
   return new WritableCollectionStream(dataService, ns, stopOnErrors);
 };
 
+type BSONObject = TypeCastMap['Object'];
+
+export type ExportAggregation = {
+  stages: Document[];
+  options: AggregateOptions;
+};
+
+export type ExportQuery = {
+  filter: BSONObject;
+  limit?: number;
+  skip?: number;
+  projection?: BSONObject;
+};
+
 type ReadableCollectionStreamOptions = {
   dataService: DataService;
   ns: string;
   query: {
-    filter: Document;
+    filter: BSONObject;
     limit?: number;
     skip?: number;
   };
-  projection?: any; // todo
-  aggregation?: any; // todo
+  projection?: BSONObject;
+  aggregation?: ExportAggregation;
 };
 
-export const createReadableCollectionStream = function ({
+export const createReadableCollectionCursor = function ({
   dataService,
   ns,
   query,
@@ -318,11 +334,9 @@ export const createReadableCollectionStream = function ({
     return dataService.aggregateCursor(ns, stages, options);
   }
 
-  return dataService
-    .findCursor(ns, query.filter ?? {}, {
-      projection,
-      limit: query.limit,
-      skip: query.skip,
-    })
-    .stream();
+  return dataService.findCursor(ns, query.filter ?? {}, {
+    projection,
+    limit: query.limit,
+    skip: query.skip,
+  });
 };

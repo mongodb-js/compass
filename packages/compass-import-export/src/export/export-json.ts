@@ -4,22 +4,16 @@ import { EJSON } from 'bson';
 import type { Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
-import type { TypeCastMap } from 'hadron-type-checker';
 
-import { createReadableCollectionStream } from '../utils/collection-stream';
+import { createReadableCollectionCursor } from '../utils/collection-stream';
+import type {
+  ExportQuery,
+  ExportAggregation,
+} from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
 import type { SchemaPath } from './gather-fields';
 
-type BSONObject = TypeCastMap['Object'];
-
 const debug = createDebug('export-json');
-
-type ExportQuery = {
-  filter: BSONObject;
-  limit?: number;
-  skip?: number;
-  projection?: BSONObject;
-};
 
 type ExportJSONOptions = {
   dataService: DataService;
@@ -27,7 +21,7 @@ type ExportJSONOptions = {
   output: Writable;
   abortSignal: AbortSignal;
   query?: ExportQuery;
-  aggregation?: BSONObject[];
+  aggregation?: ExportAggregation;
   progressCallback: (index: number) => void;
   variant: 'default' | 'relaxed' | 'canonical';
   fields?: SchemaPath[];
@@ -80,41 +74,31 @@ ExportJSONOptions): Promise<ExportJSONResult> {
       progressCallback?.(docsWritten);
       try {
         const doc = `${
-          (docsWritten > 1 ? ',\n' : '') + EJSON.stringify(chunk, ejsonOptions)
+          (docsWritten > 1 ? ',\n' : '') +
+          EJSON.stringify(chunk, ejsonOptions, 2)
         }`;
-        // TODO: maybe doc should be different. JSON.parse
-
-        if (docStream.writableFinished) {
-          console.log('done deone    edone', docStream);
-        }
 
         debug('transform', doc);
-        console.log('write doc', doc);
         callback(null, doc);
       } catch (err: unknown) {
         // TODO
       }
     },
     final: function (callback) {
-      // if (brackets) {
       this.push(']');
-      // }
-      console.log('final final');
-      // callback(null, ']');
       callback(null);
     },
   });
 
-  // TODO: pass abort signal here also
-  // Should we make this function into two that then use this with a passed in readable?
-  // promoteValues ?
-  const collectionStream = createReadableCollectionStream({
+  // todo: promoteValues ?
+  const collectionCursor = createReadableCollectionCursor({
     dataService,
     ns,
     query,
     aggregation,
     // TODO: projection + fields
   });
+  const collectionStream = collectionCursor.stream();
 
   const params = [
     collectionStream,
@@ -126,25 +110,19 @@ ExportJSONOptions): Promise<ExportJSONResult> {
   try {
     await pipeline(...params);
 
-    console.log('doneone', abortSignal.aborted);
-    if (!abortSignal.aborted) {
+    if (abortSignal.aborted) {
+      void collectionCursor.close();
+    } else {
       output.write(']\n', 'utf8');
-      // output.write(']\n', 'utf8');
     }
-    console.log('waaa');
   } catch (err: any) {
-    //  || dataService.isCancelError(err) or?
-
     if (err.code === 'ABORT_ERR') {
-      console.log('b hchxcrerer', abortSignal.aborted);
-
+      void collectionCursor.close();
       return {
         docsWritten,
         aborted: true,
       };
     }
-
-    // TODO? any error catch here?
 
     throw err;
   }

@@ -1,0 +1,36 @@
+[{
+  "_id": {
+    "$oid": "63f656c128ff7868ed701ca3"
+  },
+  "uuid": {
+    "$binary": {
+      "base64": "ACY24RDNTIuppwG3v9OJnA==",
+      "subType": "04"
+    }
+  },
+  "name": "Arlo"
+},
+{
+  "_id": {
+    "$oid": "63f656c128ff7868ed701ca4"
+  },
+  "uuid": {
+    "$binary": {
+      "base64": "ADH2ysDsTLCmbB/hTKKcGA==",
+      "subType": "04"
+    }
+  },
+  "name": "Basil"
+},
+{
+  "_id": {
+    "$oid": "63f656c128ff7868ed701ca5"
+  },
+  "uuid": {
+    "$binary": {
+      "base64": "ADVkMBdRSZauRXdnZILiEA==",
+      "subType": "04"
+    }
+  },
+  "name": "Kochka"
+}]
