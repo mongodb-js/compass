@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import {
   default as ConfirmationModal,
@@ -13,9 +13,13 @@ type ConfirmationProperties = {
   buttonText?: string;
   variant?: ModalVariant;
 };
+type ConfirmationCallback = (value: boolean) => void;
 
 interface ConfirmationModalContextData {
-  showConfirmation: (props: ConfirmationProperties) => Promise<boolean>;
+  showConfirmation: (
+    props: ConfirmationProperties,
+    callback: ConfirmationCallback
+  ) => void;
 }
 
 const ConfirmationModalContext =
@@ -26,7 +30,7 @@ const ConfirmationModalContext =
 class ShowConfirmationEvent extends Event {
   constructor(
     public props: ConfirmationProperties,
-    public callback: (value: boolean) => void = () => {}
+    public callback: ConfirmationCallback
   ) {
     super('show');
   }
@@ -43,66 +47,70 @@ const globalConfirmation = new GlobalConfirmation();
 export const showConfirmation =
   globalConfirmation.showConfirmation.bind(globalConfirmation);
 
+type ConfirmationModalAreaProps = ConfirmationProperties & {
+  open: boolean;
+};
+
 export const ConfirmationModalArea: React.FC = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState({} as ConfirmationProperties);
-  const [callback, setCallback] = useState<(value: boolean) => void>(() => {});
+  const [confirmationProps, setConfirmationProps] = useState({
+    open: false,
+  } as ConfirmationModalAreaProps);
+  const callbackRef = useRef<(value: boolean) => void>();
 
   useEffect(() => {
     return () => {
-      setIsOpen(false);
-      setData({} as ConfirmationProperties);
-      setCallback(() => {});
+      callbackRef.current?.(false);
     };
   }, []);
 
   // Event listener to use confirmation modal outside of react
   useEffect(() => {
-    const listener = (event: ShowConfirmationEvent) => {
-      showConfirmation(event.props).then(event.callback);
+    const listener = ({ props, callback }: ShowConfirmationEvent) => {
+      showConfirmation(props, callback);
     };
-
     globalConfirmation.addEventListener('show', listener);
-
     return () => {
       globalConfirmation.removeEventListener('show', listener);
     };
   }, []);
 
-  const showConfirmation = (props: ConfirmationProperties) => {
-    return new Promise<boolean>((resolve, reject) => {
-      if (isOpen) {
-        reject(new Error('Confirmation modal is already open'));
-      } else {
-        setData(props);
-        setIsOpen(true);
-        setCallback(() => resolve);
-      }
-    });
+  const showConfirmation = (
+    props: ConfirmationProperties,
+    callback: ConfirmationCallback
+  ) => {
+    if (confirmationProps.open) {
+      throw new Error('Confirmation modal is already open');
+    }
+    setConfirmationProps({ open: true, ...props });
+    callbackRef.current = callback;
   };
 
   const handleConfirm = () => {
-    setIsOpen(false);
-    callback(true);
+    onUserAction(true);
   };
 
   const handleCancel = () => {
-    setIsOpen(false);
-    callback(false);
+    onUserAction(false);
+  };
+
+  const onUserAction = (value: boolean) => {
+    setConfirmationProps((state) => ({ ...state, open: false }));
+    callbackRef.current?.(value);
+    callbackRef.current = undefined;
   };
 
   return (
     <ConfirmationModalContext.Provider value={{ showConfirmation }}>
       {children}
       <ConfirmationModal
-        open={isOpen}
-        title={data.title}
-        variant={data.variant ?? ModalVariant.Default}
-        buttonText={data.buttonText ?? 'Confirm'}
+        open={confirmationProps.open}
+        title={confirmationProps.title}
+        variant={confirmationProps.variant ?? ModalVariant.Default}
+        buttonText={confirmationProps.buttonText ?? 'Confirm'}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       >
-        {data.description}
+        {confirmationProps.description}
       </ConfirmationModal>
     </ConfirmationModalContext.Provider>
   );
@@ -110,5 +118,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
 
 export const useConfirmationModal = () => {
   const { showConfirmation } = useContext(ConfirmationModalContext);
-  return showConfirmation;
+  return (props: ConfirmationProperties) => {
+    return new Promise<boolean>((resolve) => showConfirmation(props, resolve));
+  };
 };

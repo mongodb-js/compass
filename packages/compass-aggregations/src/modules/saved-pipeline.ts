@@ -11,6 +11,7 @@ import {
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
+import { showConfirmation, ModalVariant } from '@mongodb-js/compass-components';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -106,18 +107,6 @@ export const updatePipelineList =
   };
 
 /**
- * Get the delete action.
- */
-export const deletePipelineById = (
-  pipelineId: string
-): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineStorage }) => {
-    await pipelineStorage.delete(pipelineId);
-    dispatch(updatePipelineList());
-  };
-};
-
-/**
  * Restore pipeline by an ID
  */
 export const openPipelineById = (
@@ -209,5 +198,50 @@ export const saveCurrentPipeline =
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
 
+    dispatch(updatePipelineList());
+  };
+
+export const confirmOpenPipeline =
+  (pipelineId: string): PipelineBuilderThunkAction<void> =>
+  async (dispatch, getState) => {
+    const isModified = getState().isModified;
+    if (isModified) {
+      track('Screen', { name: 'restore_pipeline_modal' });
+      const confirmed = await showConfirmation({
+        title: 'Are you sure you want to open this pipeline?',
+        description:
+          'Opening this project will abandon unsaved changes to the current pipeline you are building.',
+      });
+      if (!confirmed) {
+        return;
+      }
+    }
+    track('Aggregation Opened', {
+      id: pipelineId,
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      screen: 'aggregations',
+    });
+    void dispatch(openPipelineById(pipelineId));
+  };
+
+export const confirmDeletePipeline =
+  (pipelineId: string): PipelineBuilderThunkAction<void> =>
+  async (dispatch, getState, { pipelineStorage }) => {
+    track('Screen', { name: 'delete_pipeline_modal' });
+    const confirmed = await showConfirmation({
+      title: 'Are you sure you want to delete this pipeline?',
+      description:
+        'Deleting this pipeline will remove it from your saved pipelines.',
+      variant: ModalVariant.Danger,
+    });
+    if (!confirmed) {
+      return;
+    }
+    track('Aggregation Deleted', {
+      id: pipelineId,
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      screen: 'aggregations',
+    });
+    await pipelineStorage.delete(pipelineId);
     dispatch(updatePipelineList());
   };

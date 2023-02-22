@@ -18,10 +18,9 @@ import type { Action } from './saved-item-card';
 import { NoSavedItems, NoSearchResults } from './empty-list-items';
 import OpenItemModal from './open-item-modal';
 import EditItemModal from './edit-item-modal';
-import DeleteItemModal from './delete-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 import { editItem } from '../stores/edit-item';
-import { deleteItem } from '../stores/delete-item';
+import { confirmDeleteItem } from '../stores/delete-item';
 import { copyToClipboard } from '../stores/copy-to-clipboard';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -136,7 +135,7 @@ const AggregationsQueriesList = ({
           onEditItem(id);
           return;
         case 'delete':
-          onDeleteItem(id);
+          void onDeleteItem(id);
           return;
         case 'copy':
           void onCopyToClipboard(id);
@@ -205,7 +204,6 @@ const AggregationsQueriesList = ({
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
       <EditItemModal></EditItemModal>
-      <DeleteItemModal></DeleteItemModal>
     </ControlsContext.Provider>
   );
 };
@@ -219,7 +217,7 @@ const mapDispatch = {
   onMount: fetchItems,
   onOpenItem: openSavedItem,
   onEditItem: editItem,
-  onDeleteItem: deleteItem,
+  onDeleteItem: confirmDeleteItem,
   onCopyToClipboard: copyToClipboard,
 };
 

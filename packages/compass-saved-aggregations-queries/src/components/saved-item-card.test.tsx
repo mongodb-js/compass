@@ -65,4 +65,38 @@ describe('SavedItemCard', function () {
       ['123', 'open'],
     ]);
   });
+
+  it('should emit a "delete" action on delete', function () {
+    const onAction = Sinon.spy();
+
+    render(
+      <SavedItemCard
+        id="123"
+        name="My Awesome Query"
+        type="query"
+        database="sample_airbnb"
+        collection="listingsAndReviews"
+        onAction={onAction}
+        lastModified={now}
+        tabIndex={0}
+      ></SavedItemCard>
+    );
+
+    userEvent.hover(screen.getByText('My Awesome Query'));
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /show actions/i,
+      })
+    );
+    userEvent.click(
+      screen.getByRole('menuitem', {
+        name: /delete/i,
+      })
+    );
+
+    expect(onAction).to.have.callCount(1);
+    expect(onAction.getCalls().map((call) => call.args)).to.deep.eq([
+      ['123', 'delete'],
+    ]);
+  });
 });
