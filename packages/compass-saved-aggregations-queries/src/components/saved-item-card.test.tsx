@@ -88,11 +88,7 @@ describe('SavedItemCard', function () {
         name: /show actions/i,
       })
     );
-    userEvent.click(
-      screen.getByRole('menuitem', {
-        name: /delete/i,
-      })
-    );
+    userEvent.click(screen.getByText('Delete'));
 
     expect(onAction).to.have.callCount(1);
     expect(onAction.getCalls().map((call) => call.args)).to.deep.eq([
