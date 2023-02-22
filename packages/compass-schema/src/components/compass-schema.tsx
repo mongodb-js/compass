@@ -23,9 +23,9 @@ import {
   spacing,
   useDarkMode,
   WorkspaceContainer,
+  lighten,
+  rgba,
 } from '@mongodb-js/compass-components';
-
-import { lighten, rgba } from 'polished';
 
 const mcBlue0 = palette.blue.light1;
 const mcBlue1 = lighten(0.075, mcBlue0);
