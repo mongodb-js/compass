@@ -846,6 +846,32 @@ describe('importCSV', function () {
     );
   });
 
+  it('errors if a file is truncated utf8', async function () {
+    const latin1Buffer = Buffer.from('a,foo\n1,🏳️‍🌈', 'utf8').subarray(0, -1);
+    const input = Readable.from(latin1Buffer);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+    const fields = {
+      // irrelevant what we put here
+    } as const;
+
+    await expect(
+      importCSV({
+        dataService,
+        ns,
+        fields,
+        input,
+        output,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
   it('strips the BOM character', async function () {
     const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
     const input = Readable.from('\uFEFF' + text);

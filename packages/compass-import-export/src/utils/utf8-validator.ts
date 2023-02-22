@@ -17,4 +17,14 @@ export class Utf8Validator extends Transform {
     }
     cb(null, chunk);
   }
+
+  _flush(cb: (err: null | Error, chunk?: Buffer) => void) {
+    try {
+      this.decoder.decode(new Uint8Array());
+    } catch (err: any) {
+      cb(err);
+      return;
+    }
+    cb(null);
+  }
 }
