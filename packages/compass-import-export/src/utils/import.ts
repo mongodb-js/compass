@@ -1,9 +1,43 @@
 import os from 'os';
 import type { Writable } from 'stream';
-import type { WritableCollectionStream } from './collection-stream';
+import type {
+  CollectionStreamStats,
+  CollectionStreamProgressError,
+  WritableCollectionStream,
+} from '../utils/collection-stream';
 import { createDebug } from './logger';
 
 const debug = createDebug('import');
+
+export type ImportResult = {
+  aborted?: boolean;
+  dbErrors: CollectionStreamProgressError[];
+  dbStats: CollectionStreamStats;
+  docsWritten: number;
+  docsProcessed: number;
+};
+
+export function makeImportResult(
+  collectionStream: WritableCollectionStream,
+  numProcessed: number,
+  aborted?: boolean
+): ImportResult {
+  const result: ImportResult = {
+    dbErrors: collectionStream.getErrors(),
+    dbStats: collectionStream.getStats(),
+    docsWritten: collectionStream.docsWritten,
+    // docsProcessed is not on collectionStream so that it includes docs that
+    // produced parse errors and therefore never made it to the collection
+    // stream.
+    docsProcessed: numProcessed,
+  };
+
+  if (aborted) {
+    result.aborted = aborted;
+  }
+
+  return result;
+}
 
 export type ErrorJSON = {
   name: string;
