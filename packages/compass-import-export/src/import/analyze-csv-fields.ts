@@ -1,5 +1,6 @@
 import type { Readable } from 'stream';
 import Papa from 'papaparse';
+import stripBomStream from 'strip-bom-stream';
 
 import { createDebug } from '../utils/logger';
 import type {
@@ -10,7 +11,6 @@ import type {
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
-import stripBomStream from 'strip-bom-stream';
 
 const debug = createDebug('analyze-csv-fields');
 
