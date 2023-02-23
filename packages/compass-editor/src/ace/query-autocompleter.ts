@@ -1,6 +1,6 @@
 import type { Ace } from 'ace-builds';
+import { completer, wrapField } from '../autocompleter';
 import type { CompletionWithServerInfo } from '../types';
-import { filter, MATCH_COMPLETIONS } from './util';
 
 /**
  * Adds autocomplete suggestions for queries.
@@ -39,10 +39,27 @@ class QueryAutoCompleter implements Ace.Completer {
         done
       );
     }
-    // If the current token is not a string, then we proceed as normal to suggest
-    // operators to the user.
-    const expressions = MATCH_COMPLETIONS.concat(this.fields);
-    done(null, filter(this.version, expressions, prefix));
+    done(
+      null,
+      completer(prefix, {
+        serverVersion: this.version,
+        fields: this.fields
+          .filter(
+            (field): field is CompletionWithServerInfo & { name: string } =>
+              !!field.name
+          )
+          .map((field) => field.name),
+        meta: ['query', 'bson', 'field:identifier'],
+      }).map((completion) => {
+        if (completion.meta === 'field:identifier') {
+          return {
+            ...completion,
+            value: wrapField(completion.value),
+          };
+        }
+        return completion;
+      })
+    );
   };
 }
 
