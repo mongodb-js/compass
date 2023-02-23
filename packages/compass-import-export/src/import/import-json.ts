@@ -10,7 +10,7 @@ import StreamValues from 'stream-json/streamers/StreamValues';
 import stripBomStream from 'strip-bom-stream';
 
 import { processParseError, processWriteStreamErrors } from '../utils/import';
-import type { ErrorJSON } from '../utils/import';
+import type { ErrorJSON, ImportProgress } from '../utils/import';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import type { CollectionStreamStats } from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
@@ -27,7 +27,7 @@ type ImportJSONOptions = {
   input: Readable;
   output?: Writable;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number, bytes: number) => void;
+  progressCallback?: (progress: ImportProgress) => void;
   errorCallback?: (error: ErrorJSON) => void;
   stopOnErrors?: boolean;
   jsonVariant: JSONVariant;
@@ -56,7 +56,11 @@ export async function importJSON({
     objectMode: true,
     transform: function (chunk: any, encoding, callback) {
       ++numProcessed;
-      progressCallback?.(numProcessed, byteCounter.total);
+      progressCallback?.({
+        bytesProcessed: byteCounter.total,
+        docsProcessed: numProcessed,
+        docsWritten: collectionStream.docsWritten,
+      });
       try {
         // make sure files parsed as jsonl only contain objects with no arrays and simple values
         // (this will either stop the entire import and throw or just skip this

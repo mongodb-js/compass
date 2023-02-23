@@ -37,6 +37,12 @@ export function errorToJSON(error: any): ErrorJSON {
   return obj;
 }
 
+export type ImportProgress = {
+  bytesProcessed: number;
+  docsProcessed: number;
+  docsWritten: number;
+};
+
 export async function processWriteStreamErrors({
   collectionStream,
   output,

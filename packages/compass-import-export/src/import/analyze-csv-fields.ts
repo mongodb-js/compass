@@ -14,11 +14,16 @@ import { ByteCounter } from '../utils/byte-counter';
 
 const debug = createDebug('analyze-csv-fields');
 
+type AnalyzeProgress = {
+  bytesProcessed: number;
+  docsProcessed: number;
+};
+
 type AnalyzeCSVFieldsOptions = {
   input: Readable;
   delimiter: Delimiter;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number, bytes: number) => void;
+  progressCallback?: (progress: AnalyzeProgress) => void;
   ignoreEmptyStrings?: boolean;
 };
 
@@ -185,7 +190,10 @@ export function analyzeCSVFields({
 
         ++result.totalRows;
 
-        progressCallback?.(result.totalRows, byteCounter.total);
+        progressCallback?.({
+          bytesProcessed: byteCounter.total,
+          docsProcessed: result.totalRows,
+        });
       },
       complete: function () {
         debug('analyzeCSVFields:complete');
