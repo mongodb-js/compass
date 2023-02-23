@@ -7,11 +7,14 @@ import type { DataService } from 'mongodb-data-service';
 import stripBomStream from 'strip-bom-stream';
 
 import { createCollectionWriteStream } from '../utils/collection-stream';
-import type { CollectionStreamStats } from '../utils/collection-stream';
 import { makeDoc, parseHeaderName } from '../utils/csv';
-import { processParseError, processWriteStreamErrors } from '../utils/import';
+import {
+  makeImportResult,
+  processParseError,
+  processWriteStreamErrors,
+} from '../utils/import';
 import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
-import type { ErrorJSON, ImportProgress } from '../utils/import';
+import type { ImportResult, ErrorJSON, ImportProgress } from '../utils/import';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
@@ -32,8 +35,6 @@ type ImportCSVOptions = {
   fields: IncludedFields; // the type chosen by the user to make each field
 };
 
-type ImportCSVResult = CollectionStreamStats & { aborted?: boolean };
-
 export async function importCSV({
   dataService,
   ns,
@@ -46,7 +47,7 @@ export async function importCSV({
   ignoreEmptyStrings,
   stopOnErrors,
   fields,
-}: ImportCSVOptions): Promise<ImportCSVResult> {
+}: ImportCSVOptions): Promise<ImportResult> {
   debug('importCSV()', { ns: toNS(ns) });
 
   const byteCounter = new ByteCounter();
@@ -163,10 +164,7 @@ export async function importCSV({
         errorCallback,
       });
 
-      return {
-        ...collectionStream.getStats(),
-        aborted: true,
-      };
+      return makeImportResult(collectionStream, numProcessed, true);
     }
 
     throw err;
@@ -178,5 +176,5 @@ export async function importCSV({
     errorCallback,
   });
 
-  return collectionStream.getStats();
+  return makeImportResult(collectionStream, numProcessed);
 }

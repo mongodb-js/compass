@@ -9,10 +9,13 @@ import StreamArray from 'stream-json/streamers/StreamArray';
 import StreamValues from 'stream-json/streamers/StreamValues';
 import stripBomStream from 'strip-bom-stream';
 
-import { processParseError, processWriteStreamErrors } from '../utils/import';
-import type { ErrorJSON, ImportProgress } from '../utils/import';
+import {
+  makeImportResult,
+  processParseError,
+  processWriteStreamErrors,
+} from '../utils/import';
+import type { ImportResult, ErrorJSON, ImportProgress } from '../utils/import';
 import { createCollectionWriteStream } from '../utils/collection-stream';
-import type { CollectionStreamStats } from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
@@ -33,8 +36,6 @@ type ImportJSONOptions = {
   jsonVariant: JSONVariant;
 };
 
-type ImportJSONResult = CollectionStreamStats & { aborted?: boolean };
-
 export async function importJSON({
   dataService,
   ns,
@@ -45,7 +46,7 @@ export async function importJSON({
   errorCallback,
   stopOnErrors,
   jsonVariant,
-}: ImportJSONOptions): Promise<ImportJSONResult> {
+}: ImportJSONOptions): Promise<ImportResult> {
   debug('importJSON()', { ns: toNS(ns) });
 
   const byteCounter = new ByteCounter();
@@ -121,11 +122,10 @@ export async function importJSON({
         output,
         errorCallback,
       });
-      return {
-        ...collectionStream.getStats(),
-        aborted: true,
-      };
+
+      return makeImportResult(collectionStream, numProcessed, true);
     }
+
     throw err;
   }
 
@@ -135,5 +135,5 @@ export async function importJSON({
     errorCallback,
   });
 
-  return collectionStream.getStats();
+  return makeImportResult(collectionStream, numProcessed);
 }
