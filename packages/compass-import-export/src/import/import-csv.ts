@@ -11,7 +11,7 @@ import type { CollectionStreamStats } from '../utils/collection-stream';
 import { makeDoc, parseHeaderName } from '../utils/csv';
 import { processParseError, processWriteStreamErrors } from '../utils/import';
 import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
-import type { ErrorJSON } from '../utils/import';
+import type { ErrorJSON, ImportProgress } from '../utils/import';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
@@ -24,7 +24,7 @@ type ImportCSVOptions = {
   input: Readable;
   output?: Writable;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number, bytes: number) => void;
+  progressCallback?: (progress: ImportProgress) => void;
   errorCallback?: (error: ErrorJSON) => void;
   delimiter?: Delimiter;
   ignoreEmptyStrings?: boolean;
@@ -93,7 +93,11 @@ export async function importCSV({
       // got written. This way progress updates continue even if every row
       // fails to parse.
       ++numProcessed;
-      progressCallback?.(numProcessed, byteCounter.total);
+      progressCallback?.({
+        bytesProcessed: byteCounter.total,
+        docsProcessed: numProcessed,
+        docsWritten: collectionStream.docsWritten,
+      });
 
       debug('importCSV:transform', numProcessed, {
         headerFields,
