@@ -13,7 +13,7 @@ const serverStatsToolbarStyles = css({
 });
 
 const serverStatsToolbarDarkThemeStyles = css({
-  background: palette.gray.dark3,
+  background: palette.black,
   color: palette.gray.light2,
 });
 

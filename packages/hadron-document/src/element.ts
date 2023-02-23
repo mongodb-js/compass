@@ -699,7 +699,7 @@ export class Element extends EventEmitter {
    */
   revert(): void {
     if (this.isAdded()) {
-      this.parent!.elements!.remove(this);
+      this.parent?.elements?.remove(this);
       this._bubbleUp(Events.Removed, this, this.parent);
       delete (this as any).parent;
     } else {

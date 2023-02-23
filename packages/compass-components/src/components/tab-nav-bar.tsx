@@ -20,7 +20,7 @@ const tabsContainerStyles = css({
 });
 
 const tabsContainerDarkStyles = css({
-  background: palette.gray.dark3,
+  background: palette.black,
 });
 
 const tabsContainerLightStyles = css({

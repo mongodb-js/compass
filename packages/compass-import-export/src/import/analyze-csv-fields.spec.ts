@@ -2,6 +2,7 @@ import assert from 'assert';
 import path from 'path';
 import { expect } from 'chai';
 import fs from 'fs';
+import { Readable } from 'stream';
 import sinon from 'sinon';
 import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
@@ -46,6 +47,26 @@ describe('analyzeCSVFields', function () {
         basename.replace(/\.csv$/, '.analyzed.json')
       ).to.deep.equal(expectedResult);
       expect(progressCallback.callCount).to.equal(result.totalRows);
+
+      const firstCallArg = Object.assign(
+        {},
+        progressCallback.firstCall.args[0]
+      );
+      expect(firstCallArg.bytesProcessed).to.be.gt(0);
+      delete firstCallArg.bytesProcessed;
+
+      expect(firstCallArg).to.deep.equal({
+        docsProcessed: 1,
+      });
+
+      const fileStat = await fs.promises.stat(filepath);
+
+      const lastCallArg = Object.assign({}, progressCallback.lastCall.args[0]);
+
+      expect(lastCallArg).to.deep.equal({
+        bytesProcessed: fileStat.size,
+        docsProcessed: result.totalRows,
+      });
     });
   }
 
@@ -179,5 +200,41 @@ describe('analyzeCSVFields', function () {
 
     // signals that it was aborted and the results are therefore incomplete
     expect(result.aborted).to.equal(true);
+  });
+
+  it('does not mind windows style line breaks', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from(text.replace(/\n/g, '\r\n'));
+
+    const result = await analyzeCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
+  });
+
+  it('errors if a file is not valid utf8', async function () {
+    const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
+    const input = Readable.from(latin1Buffer);
+
+    await expect(
+      analyzeCSVFields({
+        input,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
+  it('strips the BOM character', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from('\uFEFF' + text);
+    const result = await analyzeCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
   });
 });

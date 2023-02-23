@@ -57,10 +57,10 @@ const mongodbAceThemeCssText = css`
 
   .ace_dark.ace-mongodb {
     --editor-color: ${palette.gray.light3};
-    --editor-background: ${palette.gray.dark3};
+    --editor-background: ${palette.gray.dark4};
 
     --gutter-color: ${palette.gray.light3};
-    --gutter-background: ${palette.gray.dark3};
+    --gutter-background: ${palette.gray.dark4};
     --gutter-active-line-background: ${palette.gray.dark2};
 
     --cursor-color: ${palette.green.base};
@@ -92,7 +92,7 @@ const mongodbAceThemeCssText = css`
     --invisible-color: ${palette.gray.dark2};
 
     --autocomplete-color: ${palette.gray.light1};
-    --autocomplete-background: ${palette.gray.dark3};
+    --autocomplete-background: ${palette.gray.dark4};
     --autocomplete-border-color: ${palette.gray.dark1};
     --autocompletion-highlight-color: ${palette.gray.light3};
     --autocompletion-marker-active-line-background: ${palette.gray.dark2};
