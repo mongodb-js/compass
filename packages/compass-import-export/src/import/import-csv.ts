@@ -22,7 +22,7 @@ type ImportCSVOptions = {
   dataService: DataService;
   ns: string;
   input: Readable;
-  output: Writable;
+  output?: Writable;
   abortSignal?: AbortSignal;
   progressCallback?: (index: number, bytes: number) => void;
   errorCallback?: (error: ErrorJSON) => void;
