@@ -94,13 +94,32 @@ describe('importJSON', function () {
 
         const totalRows = progressCallback.callCount;
 
-        expect(progressCallback.firstCall.args[0]).to.equal(1);
-        expect(progressCallback.firstCall.args[1]).to.be.gt(0);
+        const firstCallArg = Object.assign(
+          {},
+          progressCallback.firstCall.args[0]
+        );
+        expect(firstCallArg.bytesProcessed).to.be.gt(0);
+        delete firstCallArg.bytesProcessed;
+
+        expect(firstCallArg).to.deep.equal({
+          docsProcessed: 1,
+          docsWritten: 0,
+        });
 
         const fileStat = await fs.promises.stat(filepath);
 
-        expect(progressCallback.lastCall.args[0]).to.equal(totalRows);
-        expect(progressCallback.lastCall.args[1]).to.be.equal(fileStat.size);
+        const lastCallArg = Object.assign(
+          {},
+          progressCallback.lastCall.args[0]
+        );
+
+        // bit of a race condition. could be 0, could be totalRows..
+        delete lastCallArg.docsWritten;
+
+        expect(lastCallArg).to.deep.equal({
+          bytesProcessed: fileStat.size,
+          docsProcessed: totalRows,
+        });
 
         expect(result).to.deep.equal({
           docsWritten: totalRows,

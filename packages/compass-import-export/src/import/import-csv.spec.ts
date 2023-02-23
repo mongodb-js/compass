@@ -125,13 +125,29 @@ describe('importCSV', function () {
 
       expect(progressCallback.callCount).to.equal(totalRows);
 
-      expect(progressCallback.firstCall.args[0]).to.equal(1);
-      expect(progressCallback.firstCall.args[1]).to.be.gt(0);
+      const firstCallArg = Object.assign(
+        {},
+        progressCallback.firstCall.args[0]
+      );
+      expect(firstCallArg.bytesProcessed).to.be.gt(0);
+      delete firstCallArg.bytesProcessed;
+
+      expect(firstCallArg).to.deep.equal({
+        docsProcessed: 1,
+        docsWritten: 0,
+      });
 
       const fileStat = await fs.promises.stat(filepath);
 
-      expect(progressCallback.lastCall.args[0]).to.equal(totalRows);
-      expect(progressCallback.lastCall.args[1]).to.be.equal(fileStat.size);
+      const lastCallArg = Object.assign({}, progressCallback.lastCall.args[0]);
+
+      // bit of a race condition. could be 0, could be totalRows..
+      delete lastCallArg.docsWritten;
+
+      expect(lastCallArg).to.deep.equal({
+        bytesProcessed: fileStat.size,
+        docsProcessed: totalRows,
+      });
 
       const docs = await dataService.find(ns, {});
 
@@ -848,6 +864,35 @@ describe('importCSV', function () {
   it('errors if a file is not valid utf8', async function () {
     const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
     const input = Readable.from(latin1Buffer);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+    const fields = {
+      // irrelevant what we put here
+    } as const;
+
+    await expect(
+      importCSV({
+        dataService,
+        ns,
+        fields,
+        input,
+        output,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
+  it('errors if a file is truncated utf8', async function () {
+    const truncatedUtf8Buffer = Buffer.from('a,foo\n1,🏳️‍🌈', 'utf8').subarray(
+      0,
+      -1
+    );
+    const input = Readable.from(truncatedUtf8Buffer);
 
     const output = temp.createWriteStream();
 

@@ -14,7 +14,7 @@ import {
   processParseError,
   processWriteStreamErrors,
 } from '../utils/import';
-import type { ImportResult, ErrorJSON } from '../utils/import';
+import type { ImportResult, ErrorJSON, ImportProgress } from '../utils/import';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
@@ -28,9 +28,9 @@ type ImportJSONOptions = {
   dataService: DataService;
   ns: string;
   input: Readable;
-  output: Writable;
+  output?: Writable;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number, bytes: number) => void;
+  progressCallback?: (progress: ImportProgress) => void;
   errorCallback?: (error: ErrorJSON) => void;
   stopOnErrors?: boolean;
   jsonVariant: JSONVariant;
@@ -57,7 +57,11 @@ export async function importJSON({
     objectMode: true,
     transform: function (chunk: any, encoding, callback) {
       ++numProcessed;
-      progressCallback?.(numProcessed, byteCounter.total);
+      progressCallback?.({
+        bytesProcessed: byteCounter.total,
+        docsProcessed: numProcessed,
+        docsWritten: collectionStream.docsWritten,
+      });
       try {
         // make sure files parsed as jsonl only contain objects with no arrays and simple values
         // (this will either stop the entire import and throw or just skip this
