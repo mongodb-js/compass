@@ -2,8 +2,11 @@ import assert from 'assert';
 import path from 'path';
 import { expect } from 'chai';
 import fs from 'fs';
+import { Readable } from 'stream';
+
 import { guessFileType } from './guess-filetype';
 import { listCSVFields } from './list-csv-fields';
+
 import { fixtures } from '../../test/fixtures';
 
 describe('listCSVFields', function () {
@@ -38,4 +41,40 @@ describe('listCSVFields', function () {
       );
     });
   }
+
+  it('does not mind windows style line breaks', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from(text.replace(/\n/g, '\r\n'));
+
+    const result = await listCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(result.headerFields).to.deep.equal(['_id', 'value']);
+  });
+
+  it('errors if a file is not valid utf8', async function () {
+    const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
+    const input = Readable.from(latin1Buffer);
+
+    await expect(
+      listCSVFields({
+        input,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
+  it('strips the BOM character', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from('\uFEFF' + text);
+    const result = await listCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(result.headerFields).to.deep.equal(['_id', 'value']);
+  });
 });
