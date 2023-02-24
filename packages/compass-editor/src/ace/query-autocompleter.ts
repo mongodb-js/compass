@@ -1,6 +1,7 @@
 import type { Ace } from 'ace-builds';
 import { completer, wrapField } from '../autocompleter';
 import type { CompletionWithServerInfo } from '../types';
+import { getNames } from './util';
 
 /**
  * Adds autocomplete suggestions for queries.
@@ -43,12 +44,7 @@ class QueryAutoCompleter implements Ace.Completer {
       null,
       completer(prefix, {
         serverVersion: this.version,
-        fields: this.fields
-          .filter(
-            (field): field is CompletionWithServerInfo & { name: string } =>
-              !!field.name
-          )
-          .map((field) => field.name),
+        fields: getNames(this.fields),
         meta: ['query', 'bson', 'field:identifier'],
       }).map((completion) => {
         if (completion.meta === 'field:identifier') {

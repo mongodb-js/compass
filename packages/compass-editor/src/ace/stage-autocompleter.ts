@@ -2,6 +2,7 @@ import { QueryAutoCompleter } from './query-autocompleter';
 import type { Ace } from 'ace-builds';
 import type { CompletionWithServerInfo } from '../types';
 import { completer } from '../autocompleter';
+import { getNames } from './util';
 
 /**
  * The proect stage operator.
@@ -81,12 +82,7 @@ class StageAutoCompleter implements Ace.Completer {
         return done(
           null,
           completer(prefix, {
-            fields: this.fields
-              .filter(
-                (field): field is CompletionWithServerInfo & { name: string } =>
-                  !!field.name
-              )
-              .map((field) => field.name),
+            fields: getNames(this.fields),
             meta: ['field:reference'],
           })
         );
@@ -118,12 +114,7 @@ class StageAutoCompleter implements Ace.Completer {
         null,
         completer(prefix, {
           serverVersion: this.version,
-          fields: this.fields
-            .filter(
-              (field): field is CompletionWithServerInfo & { name: string } =>
-                !!field.name
-            )
-            .map((field) => field.name),
+          fields: getNames(this.fields),
           meta: [
             'expr:*',
             'conv',

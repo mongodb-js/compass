@@ -102,6 +102,7 @@ function isValidIdentifier(identifier: string) {
   try {
     // Everything else we check using eval as regex methods of checking are quite
     // hard to do (see https://mathiasbynens.be/notes/javascript-identifiers-es6)
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
     new Function(`"use strict";let ${identifier};`);
     return true;
   } catch {
@@ -114,7 +115,9 @@ function isValidIdentifier(identifier: string) {
  * identifier
  */
 export function wrapField(field: string) {
-  return isValidIdentifier(field) ? field : `"${field.replace(/["\\]/g, '\\$&')}"`;
+  return isValidIdentifier(field)
+    ? field
+    : `"${field.replace(/["\\]/g, '\\$&')}"`;
 }
 
 export function completer(
