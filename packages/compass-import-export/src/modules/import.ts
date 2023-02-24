@@ -79,6 +79,7 @@ export const FAILED = `${PREFIX}/FAILED`;
 export const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
 export const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
 export const OPEN = `${PREFIX}/OPEN`;
+export const OPEN_MODAL = `${PREFIX}/OPEN_MODAL`;
 export const CLOSE = `${PREFIX}/CLOSE`;
 export const SET_PREVIEW = `${PREFIX}/SET_PREVIEW`;
 export const SET_DELIMITER = `${PREFIX}/SET_DELIMITER`;
@@ -102,6 +103,7 @@ type FieldType = FieldFromJSON | FieldFromCSV;
 export type CSVDelimiter = ',' | '\t' | ';' | ' ';
 
 type State = {
+  isInitialFileInputOpen: boolean;
   isOpen: boolean;
   errors: Error[];
   fileType: AcceptedFileType | '';
@@ -130,12 +132,8 @@ type State = {
   dest?: WritableCollectionStream;
 };
 
-/**
- * ## Initial state.
- *
- * @api private
- */
 export const INITIAL_STATE: State = {
+  isInitialFileInputOpen: false,
   isOpen: false,
   errors: [],
   fileName: '',
@@ -542,6 +540,13 @@ export const selectImportFileName = (fileName: string) => {
   ) => {
     let fileStats = {};
     try {
+      if (getState().importData.isInitialFileInputOpen) {
+        // Open the modal when we've chosen a file input from the initial import file.
+        dispatch({
+          type: OPEN_MODAL,
+        });
+      }
+
       const exists = await checkFileExists(fileName);
       if (!exists) {
         throw new Error(`File ${fileName} not found`);
@@ -912,11 +917,22 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
   }
 
   /**
-   * Open the `<ImportModal />`
+   * Open the file input before we open the file modal.
    */
   if (action.type === OPEN) {
     return {
       ...INITIAL_STATE,
+      isInitialFileInputOpen: true,
+    };
+  }
+
+  /**
+   * Start showing the import modal (after we've selected a file).
+   */
+  if (action.type === OPEN_MODAL) {
+    return {
+      ...state,
+      isInitialFileInputOpen: false,
       isOpen: true,
     };
   }
@@ -924,6 +940,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
   if (action.type === CLOSE) {
     return {
       ...state,
+      isInitialFileInputOpen: false,
       isOpen: false,
     };
   }

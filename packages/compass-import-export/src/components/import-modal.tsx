@@ -44,6 +44,7 @@ import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { ImportFileInput } from './import-file-input';
 
 /**
  * Progress messages.
@@ -62,6 +63,7 @@ const closeButtonStyles = css({
 });
 
 type ImportModalProps = {
+  isInitialFileInputOpen: boolean;
   isOpen: boolean;
   ns: string;
   startImport: () => void;
@@ -108,6 +110,7 @@ type ImportModalProps = {
 };
 
 function ImportModal({
+  isInitialFileInputOpen,
   isOpen,
   ns,
   startImport,
@@ -183,6 +186,17 @@ function ImportModal({
     undefined,
     React
   );
+
+  if (isInitialFileInputOpen) {
+    return (
+      <ImportFileInput
+        autoOpen
+        onCancel={handleClose}
+        fileName={fileName}
+        selectImportFileName={selectImportFileName}
+      />
+    );
+  }
 
   return (
     <Modal open={isOpen} setOpen={handleClose} data-testid="import-modal">
@@ -277,6 +291,7 @@ function ImportModal({
  */
 const mapStateToProps = (state: RootImportState) => ({
   ns: state.ns,
+  isInitialFileInputOpen: state.importData.isInitialFileInputOpen,
   isOpen: state.importData.isOpen,
   errors: state.importData.errors,
   fileType: state.importData.fileType,

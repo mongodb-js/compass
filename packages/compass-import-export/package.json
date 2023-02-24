@@ -68,6 +68,7 @@
     "react": "^17.0.2"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.9",
     "@mongodb-js/compass-components": "^1.5.0",
     "@mongodb-js/compass-logging": "^1.1.2",
     "bson": "^5.0.1",
@@ -128,7 +129,6 @@
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",
     "redux": "^4.2.0",
-    "redux-mock-store": "^1.5.4",
     "redux-thunk": "^2.3.0",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
