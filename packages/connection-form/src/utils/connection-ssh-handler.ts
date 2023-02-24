@@ -9,7 +9,7 @@ export type TunnelType = 'none' | 'ssh-password' | 'ssh-identity' | 'socks';
 export interface UpdateSshOptions {
   type: 'update-ssh-options';
   key: keyof SSHConnectionOptions;
-  value: string | number;
+  value: string | number | undefined;
 }
 
 export function handleUpdateSshOptions({
