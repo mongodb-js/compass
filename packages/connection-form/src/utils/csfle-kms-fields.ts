@@ -23,11 +23,11 @@ export interface KMSField<KMSProvider extends KMSProviderName> {
   description?: string;
 }
 
-// Best understood in a TS playground: https://tinyurl.com/74pb7cex
+// Best understood in a TS playground: https://tinyurl.com/3hdz2msn
 // This type hackery became necessary because some of the KMS options became
 // union types, e.g. { ... } | { accessToken: string }.
 type DecayUnion<T> = {
-  [k in T extends T ? keyof T : never]: (T & Partial<Record<string, never>>)[k];
+  [k in T extends T ? keyof T : never]?: (T & Partial<Record<string, never>>)[k];
 } & T;
 function decayUnion<T extends object>(value: T): DecayUnion<T> {
   return value;
