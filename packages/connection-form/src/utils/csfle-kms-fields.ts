@@ -23,13 +23,25 @@ export interface KMSField<KMSProvider extends KMSProviderName> {
   description?: string;
 }
 
+// Best understood in a TS playground: https://tinyurl.com/74pb7cex
+// This type hackery became necessary because some of the KMS options became
+// union types, e.g. { ... } | { accessToken: string }.
+type DecayUnion<T> = {
+  [k in T extends T ? keyof T : never]: (T & Partial<Record<string, never>>)[k];
+} & T;
+function decayUnion<T extends object>(value: T): DecayUnion<T> {
+  return value;
+}
+const empty: Record<string, never> = {};
+
 const GCPFields: KMSField<'gcp'>[] = [
   {
     name: 'email',
     label: 'Service Account E-Mail',
     type: 'text',
     optional: false,
-    value: (autoEncryption) => autoEncryption?.kmsProviders?.gcp?.email ?? '',
+    value: (autoEncryption) =>
+      decayUnion(autoEncryption?.kmsProviders?.gcp ?? empty)?.email ?? '',
     state: 'none',
     description: 'The service account email to authenticate.',
   },
@@ -39,7 +51,9 @@ const GCPFields: KMSField<'gcp'>[] = [
     type: 'textarea',
     optional: false,
     value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.gcp?.privateKey?.toString('base64') ?? '',
+      decayUnion(
+        autoEncryption?.kmsProviders?.gcp ?? empty
+      )?.privateKey?.toString('base64') ?? '',
     state: 'none',
     description: 'A base64-encoded PKCS#8 private key.',
   },
@@ -49,7 +63,7 @@ const GCPFields: KMSField<'gcp'>[] = [
     type: 'text',
     optional: true,
     value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.gcp?.endpoint ?? '',
+      decayUnion(autoEncryption?.kmsProviders?.gcp ?? empty)?.endpoint ?? '',
     state: 'none',
     description: 'A host with an optional port.',
   },
@@ -96,7 +110,7 @@ const AzureFields: KMSField<'azure'>[] = [
     type: 'text',
     optional: false,
     value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.azure?.tenantId ?? '',
+      decayUnion(autoEncryption?.kmsProviders?.azure ?? empty)?.tenantId ?? '',
     state: 'none',
     description: 'The tenant ID identifies the organization for the account.',
   },
@@ -106,7 +120,7 @@ const AzureFields: KMSField<'azure'>[] = [
     type: 'text',
     optional: false,
     value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.azure?.clientId ?? '',
+      decayUnion(autoEncryption?.kmsProviders?.azure ?? empty)?.clientId ?? '',
     state: 'none',
     description: 'The client ID to authenticate a registered application.',
   },
@@ -116,7 +130,8 @@ const AzureFields: KMSField<'azure'>[] = [
     type: 'password',
     optional: false,
     value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.azure?.clientSecret ?? '',
+      decayUnion(autoEncryption?.kmsProviders?.azure ?? empty)?.clientSecret ??
+      '',
     state: 'none',
     description: 'The client secret to authenticate a registered application.',
   },
@@ -126,7 +141,8 @@ const AzureFields: KMSField<'azure'>[] = [
     type: 'text',
     optional: true,
     value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.azure?.identityPlatformEndpoint ?? '',
+      decayUnion(autoEncryption?.kmsProviders?.azure ?? empty)
+        ?.identityPlatformEndpoint ?? '',
     state: 'none',
     description: 'A host with an optional port.',
   },

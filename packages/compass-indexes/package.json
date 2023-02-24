@@ -84,7 +84,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.contains": "^2.4.3",
     "mocha": "^8.4.0",
-    "mongodb": "^5.0.0",
+    "mongodb": "^5.1.0",
     "mongodb-data-service": "^22.4.1",
     "mongodb-query-parser": "^2.4.8",
     "numeral": "^2.0.6",

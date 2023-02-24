@@ -59,7 +59,7 @@
     "@mongodb-js/connection-form": "^1.5.3",
     "hadron-ipc": "^3.1.1",
     "lodash": "^4.17.21",
-    "mongodb": "^5.0.0",
+    "mongodb": "^5.1.0",
     "uuid": "^8.2.0"
   },
   "devDependencies": {
