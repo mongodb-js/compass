@@ -1,31 +1,24 @@
 import sinon from 'sinon';
 import bson from 'bson';
 import { expect } from 'chai';
-import { DataServiceImpl } from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
 
 import { analyzeSchema } from './schema-analysis';
 
 describe('schema-analyis', function () {
-  let dataService: DataServiceImpl;
-
-  beforeEach(function () {
-    dataService = new DataServiceImpl({
-      connectionString: 'mongodb://localhost:27017',
-    });
-  });
-
   afterEach(function () {
     sinon.restore();
   });
 
   describe('getResult', function () {
     it('returns the schema', async function () {
-      const sampleMock = sinon.stub(dataService, 'sample');
-      sampleMock.resolves([
-        { x: 1 },
-        { y: 2, __safeContent__: [new bson.Binary('aaaa')] },
-      ]);
-
+      const dataService = {
+        sample: () =>
+          Promise.resolve([
+            { x: 1 },
+            { y: 2, __safeContent__: [new bson.Binary('aaaa')] },
+          ]),
+      } as Partial<DataService> as unknown as DataService;
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
@@ -111,15 +104,16 @@ describe('schema-analyis', function () {
     });
 
     it('adds promoteValues: false so the analyzer can report more accurate types', async function () {
-      const sampleMock = sinon.stub(dataService, 'sample');
-      sampleMock.resolves([]);
-
+      const dataService = {
+        sample: () => Promise.resolve([]),
+      } as Partial<DataService> as unknown as DataService;
+      const sampleSpy = sinon.spy(dataService, 'sample');
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
       await analyzeSchema(dataService, abortSignal, 'db.coll', {}, {});
 
-      expect(sampleMock).to.have.been.calledWith(
+      expect(sampleSpy).to.have.been.calledWith(
         'db.coll',
         {},
         { promoteValues: false }
@@ -127,11 +121,10 @@ describe('schema-analyis', function () {
     });
 
     it('returns null if is cancelled', async function () {
-      const sampleMock = sinon.stub(dataService, 'sample');
-      sampleMock.rejects(new Error('test error'));
-
-      const isCancelErrorMock = sinon.stub(dataService, 'isCancelError');
-      isCancelErrorMock.returns(true);
+      const dataService = {
+        sample: () => Promise.reject(new Error('test error')),
+        isCancelError: () => true,
+      } as Partial<DataService> as unknown as DataService;
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
@@ -148,17 +141,16 @@ describe('schema-analyis', function () {
     });
 
     it('throws if sample throws', async function () {
-      const sampleMock = sinon.stub(dataService, 'sample');
       const error: Error & {
         code?: any;
       } = new Error('should have been thrown');
       error.name = 'MongoError';
       error.code = new bson.Int32(1000);
 
-      sampleMock.rejects(error);
-
-      const isCancelErrorMock = sinon.stub(dataService, 'isCancelError');
-      isCancelErrorMock.returns(false);
+      const dataService = {
+        sample: () => Promise.reject(error),
+        isCancelError: () => false,
+      } as Partial<DataService> as unknown as DataService;
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
