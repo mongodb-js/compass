@@ -33,6 +33,18 @@ const OpenConfirmationModalButton = () => {
   );
 };
 
+// https://github.com/nodejs/node/issues/40678
+// CustomEvent is a global in browsers but not in our current node version
+class CustomEvent extends Event {
+  public detail: any;
+  constructor(type: string, options: any) {
+    super(type, options);
+    this.detail = options?.detail ?? null;
+  }
+}
+// @ts-expect-error deprecated initCustomEvent is not supported in node
+globalThis.CustomEvent = CustomEvent;
+
 describe('use-confirmation', function () {
   afterEach(cleanup);
 
