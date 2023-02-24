@@ -60,7 +60,7 @@ describe('completer', function () {
       expect(wrapField('foo bar')).to.eq('"foo bar"');
       expect(wrapField('with.a.dot')).to.eq('"with.a.dot"');
       expect(wrapField('bla; process.exit(1); var foo')).to.eq(
-        '"bla; process.exit(); var foo"'
+        '"bla; process.exit(1); var foo"'
       );
       expect(wrapField('quotes"in"the"middle')).to.eq(
         '"quotes\\"in\\"the\\"middle"'
