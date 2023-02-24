@@ -42,7 +42,7 @@ class CustomEvent extends Event {
     this.detail = options?.detail ?? null;
   }
 }
-// @ts-expect-error deprecated initCustomEvent is not supported in node
+// @ts-expect-error
 globalThis.CustomEvent = CustomEvent;
 
 describe('use-confirmation', function () {
