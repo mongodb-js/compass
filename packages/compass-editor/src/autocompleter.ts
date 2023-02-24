@@ -96,13 +96,13 @@ export type CompletionResult = {
 
 function isValidIdentifier(identifier: string) {
   // Quick check for common case first
-  if (/[.\s"'()[\];]/.test(identifier)) {
+  if (/[.\s"'()[\];={}]/.test(identifier)) {
     return false;
   }
   try {
-    // Everything else we check using eval as regex methos of checking are quite
+    // Everything else we check using eval as regex methods of checking are quite
     // hard to do (see https://mathiasbynens.be/notes/javascript-identifiers-es6)
-    eval(`(function(){"use strict";let ${identifier};})`);
+    new Function(`"use strict";let ${identifier};`);
     return true;
   } catch {
     return false;
@@ -114,7 +114,7 @@ function isValidIdentifier(identifier: string) {
  * identifier
  */
 export function wrapField(field: string) {
-  return isValidIdentifier(field) ? field : `"${field.replace(/"/g, '\\"')}"`;
+  return isValidIdentifier(field) ? field : `"${field.replace(/["\\]/g, '\\$&')}"`;
 }
 
 export function completer(
