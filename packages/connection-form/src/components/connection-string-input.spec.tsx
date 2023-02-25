@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type ComponentProps } from 'react';
 import {
   render,
   screen,
@@ -14,6 +14,24 @@ import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 import ConnectionStringInput, {
   hidePasswordInConnectionString,
 } from './connection-string-input';
+
+const renderConnectionStringInput = (
+  props: Partial<ComponentProps<typeof ConnectionStringInput>> = {}
+) => {
+  render(
+    <ConfirmationModalArea>
+      <ConnectionStringInput
+        protectConnectionStrings={false}
+        connectionString=""
+        enableEditingConnectionString={false}
+        onSubmit={() => {}}
+        setEnableEditingConnectionString={() => {}}
+        updateConnectionFormField={() => {}}
+        {...props}
+      />
+    </ConfirmationModalArea>
+  );
+};
 
 describe('ConnectionStringInput Component', function () {
   let setEnableEditingConnectionStringSpy: sinon.SinonSpy;
@@ -66,15 +84,13 @@ describe('ConnectionStringInput Component', function () {
 
   describe('with an empty connection string', function () {
     beforeEach(function () {
-      render(
-        <ConnectionStringInput
-          connectionString=""
-          onSubmit={submitConnectionFormSpy}
-          enableEditingConnectionString={true}
-          setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
-          updateConnectionFormField={updateConnectionFormFieldSpy}
-        />
-      );
+      renderConnectionStringInput({
+        connectionString: '',
+        onSubmit: submitConnectionFormSpy,
+        enableEditingConnectionString: true,
+        setEnableEditingConnectionString: setEnableEditingConnectionStringSpy,
+        updateConnectionFormField: updateConnectionFormFieldSpy,
+      });
     });
 
     it('should show the connection string in the text area', function () {
@@ -152,15 +168,12 @@ describe('ConnectionStringInput Component', function () {
 
   describe('the info button', function () {
     beforeEach(function () {
-      render(
-        <ConnectionStringInput
-          connectionString="mongodb+srv://turtles:pineapples@localhost/"
-          enableEditingConnectionString={true}
-          onSubmit={() => {}}
-          setEnableEditingConnectionString={setEnableEditingConnectionStringSpy}
-          updateConnectionFormField={updateConnectionFormFieldSpy}
-        />
-      );
+      renderConnectionStringInput({
+        connectionString: 'mongodb+srv://turtles:pineapples@localhost/',
+        enableEditingConnectionString: true,
+        setEnableEditingConnectionString: setEnableEditingConnectionStringSpy,
+        updateConnectionFormField: updateConnectionFormFieldSpy,
+      });
     });
 
     it('has a link to docs', function () {
@@ -180,19 +193,12 @@ describe('ConnectionStringInput Component', function () {
 
   describe('with a connection string with a password and editing disabled', function () {
     beforeEach(function () {
-      render(
-        <ConfirmationModalArea>
-          <ConnectionStringInput
-            connectionString="mongodb+srv://turtles:pineapples@localhost/"
-            enableEditingConnectionString={false}
-            onSubmit={() => {}}
-            setEnableEditingConnectionString={
-              setEnableEditingConnectionStringSpy
-            }
-            updateConnectionFormField={updateConnectionFormFieldSpy}
-          />
-        </ConfirmationModalArea>
-      );
+      renderConnectionStringInput({
+        connectionString: 'mongodb+srv://turtles:pineapples@localhost/',
+        enableEditingConnectionString: false,
+        setEnableEditingConnectionString: setEnableEditingConnectionStringSpy,
+        updateConnectionFormField: updateConnectionFormFieldSpy,
+      });
     });
 
     it('shows the connection string in the text area', function () {
