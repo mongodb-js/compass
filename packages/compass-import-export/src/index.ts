@@ -3,6 +3,7 @@ import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
 import exportStore from './stores/export-store';
 import importStore from './stores/import-store';
+import { ImportExportArea, useImportExport } from './hooks/use-import-export';
 
 import type AppRegistry from 'hadron-app-registry';
 
@@ -45,5 +46,12 @@ function deactivate(appRegistry: AppRegistry): void {
 }
 
 export default Plugin;
-export { activate, deactivate, ImportPlugin, ExportPlugin };
+export {
+  activate,
+  deactivate,
+  ImportExportArea,
+  ImportPlugin,
+  ExportPlugin,
+  useImportExport,
+};
 export { default as metadata } from '../package.json';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Icon,
   Tooltip,
@@ -6,11 +6,22 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
+import { useImportExport } from '@mongodb-js/compass-import-export';
 
 const tooltipContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
 });
+
+type AddDataOption = 'import-file' | 'insert-document';
+const importFileAction: MenuAction<AddDataOption> = {
+  action: 'import-file',
+  label: `Import file`,
+};
+const insertDocumentAction: MenuAction<AddDataOption> = {
+  action: 'insert-document',
+  label: 'Insert document',
+};
 
 type AddDataMenuProps = {
   instanceDescription: string;
@@ -25,6 +36,15 @@ function AddDataMenuButton({
   insertDataHandler: (openInsertKey: AddDataOption) => void;
   isDisabled?: boolean;
 }) {
+  const { isImportInProgress } = useImportExport();
+  console.log('aaa isImportInProgress', isImportInProgress);
+  const addDataActions: MenuAction<AddDataOption>[] = useMemo(() => {
+    return [
+      ...(isImportInProgress ? [] : [importFileAction]),
+      insertDocumentAction,
+    ]; //.concat(isImportInProgress ? undefined : importFileAction);
+  }, [isImportInProgress]);
+
   return (
     <DropdownMenuButton<AddDataOption>
       data-testid="crud-add-data"
@@ -40,12 +60,6 @@ function AddDataMenuButton({
     ></DropdownMenuButton>
   );
 }
-
-type AddDataOption = 'import-file' | 'insert-document';
-const addDataActions: MenuAction<AddDataOption>[] = [
-  { action: 'import-file', label: 'Import file' },
-  { action: 'insert-document', label: 'Insert document' },
-];
 
 const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   instanceDescription,

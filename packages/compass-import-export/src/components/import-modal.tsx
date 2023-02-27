@@ -44,6 +44,7 @@ import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { useImportExport } from '../hooks/use-import-export';
 
 /**
  * Progress messages.
@@ -140,6 +141,14 @@ function ImportModal({
   setFieldType,
   previewLoaded,
 }: ImportModalProps) {
+  const { isImportInProgress, setIsImportInProgress } = useImportExport();
+
+  useEffect(() => {
+    if (isOpen !== isImportInProgress && setIsImportInProgress) {
+      setIsImportInProgress(isOpen);
+    }
+  }, [isOpen, isImportInProgress, setIsImportInProgress]);
+
   const modalBodyRef = useRef<HTMLDivElement>(null);
   const handleCancel = useCallback(() => {
     cancelImport();
