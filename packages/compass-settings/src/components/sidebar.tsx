@@ -1,5 +1,11 @@
 import React from 'react';
-import { css, cx, spacing, palette } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  palette,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 
 const buttonStyles = css({
   borderRadius: spacing[1],
@@ -13,19 +19,35 @@ const buttonStyles = css({
   fontWeight: 500,
 });
 
-const hoverStyles = css({
+const hoverStylesLight = css({
   '&:hover,&:focus': {
     backgroundColor: palette.green.light2,
     color: palette.gray.dark3,
   },
 });
 
-const activeStyles = css({
+const activeStylesLight = css({
   backgroundColor: palette.green.light3,
   color: palette.gray.dark3,
   '&:active,&:focus': {
     backgroundColor: palette.green.light3,
     color: palette.gray.dark3,
+  },
+});
+
+const hoverStylesDark = css({
+  '&:hover,&:focus': {
+    backgroundColor: palette.gray.dark3,
+    color: palette.white,
+  },
+});
+
+const activeStylesDark = css({
+  backgroundColor: palette.gray.dark2,
+  color: palette.white,
+  '&:active,&:focus': {
+    backgroundColor: palette.gray.dark2,
+    color: palette.white,
   },
 });
 
@@ -40,6 +62,7 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
   items,
   onSelectItem,
 }) => {
+  const darkMode = useDarkMode();
   return (
     <div
       data-testid="settings-modal-sidebar"
@@ -54,8 +77,10 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
           aria-controls={`${item} Section`}
           aria-selected={activeItem === item}
           className={cx(buttonStyles, {
-            [hoverStyles]: item !== activeItem,
-            [activeStyles]: item === activeItem,
+            [darkMode ? hoverStylesDark : hoverStylesLight]:
+              item !== activeItem,
+            [darkMode ? activeStylesDark : activeStylesLight]:
+              item === activeItem,
           })}
           id={`${item} Tab`}
           data-testid={`sidebar-${item}-item`}

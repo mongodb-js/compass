@@ -1,21 +1,23 @@
-import os from 'os';
 import { Transform } from 'stream';
 import { pipeline } from 'stream/promises';
 import type { Readable, Writable } from 'stream';
 import Papa from 'papaparse';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
+import stripBomStream from 'strip-bom-stream';
 
 import { createCollectionWriteStream } from '../utils/collection-stream';
-import type { CollectionStreamStats } from '../utils/collection-stream';
-import { makeDoc, parseHeaderName, errorToJSON } from '../utils/csv';
-import type {
-  Delimiter,
-  IncludedFields,
-  PathPart,
-  ErrorJSON,
-} from '../utils/csv';
+import { makeDoc, parseHeaderName } from '../utils/csv';
+import {
+  makeImportResult,
+  processParseError,
+  processWriteStreamErrors,
+} from '../utils/import';
+import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
+import type { ImportResult, ErrorJSON, ImportProgress } from '../utils/import';
 import { createDebug } from '../utils/logger';
+import { Utf8Validator } from '../utils/utf8-validator';
+import { ByteCounter } from '../utils/byte-counter';
 
 const debug = createDebug('import-csv');
 
@@ -23,17 +25,15 @@ type ImportCSVOptions = {
   dataService: DataService;
   ns: string;
   input: Readable;
-  output: Writable;
+  output?: Writable;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number) => void;
+  progressCallback?: (progress: ImportProgress) => void;
   errorCallback?: (error: ErrorJSON) => void;
   delimiter?: Delimiter;
   ignoreEmptyStrings?: boolean;
   stopOnErrors?: boolean;
   fields: IncludedFields; // the type chosen by the user to make each field
 };
-
-type ImportCSVResult = CollectionStreamStats & { aborted?: boolean };
 
 export async function importCSV({
   dataService,
@@ -47,8 +47,10 @@ export async function importCSV({
   ignoreEmptyStrings,
   stopOnErrors,
   fields,
-}: ImportCSVOptions): Promise<ImportCSVResult> {
+}: ImportCSVOptions): Promise<ImportResult> {
   debug('importCSV()', { ns: toNS(ns) });
+
+  const byteCounter = new ByteCounter();
 
   let numProcessed = 0;
   const headerFields: string[] = []; // will be filled via transformHeader callback below
@@ -58,6 +60,16 @@ export async function importCSV({
     objectMode: true,
     transform: function (chunk: Record<string, string>, encoding, callback) {
       if (!parsedHeader) {
+        // There's a quirk in papaparse where it calls transformHeader()
+        // before it finishes auto-detecting the line endings. We could pass
+        // in a line ending that we previously detected (in guessFileType(),
+        // perhaps?) or we can just strip the extra \r from the final header
+        // name if it exists.
+        if (headerFields.length) {
+          const lastName = headerFields[headerFields.length - 1];
+          headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
+        }
+
         parsedHeader = {};
         for (const [index, name] of headerFields.entries()) {
           try {
@@ -82,7 +94,11 @@ export async function importCSV({
       // got written. This way progress updates continue even if every row
       // fails to parse.
       ++numProcessed;
-      progressCallback?.(numProcessed);
+      progressCallback?.({
+        bytesProcessed: byteCounter.total,
+        docsProcessed: numProcessed,
+        docsWritten: collectionStream.docsWritten,
+      });
 
       debug('importCSV:transform', numProcessed, {
         headerFields,
@@ -99,26 +115,14 @@ export async function importCSV({
         debug('transform', doc);
         callback(null, doc);
       } catch (err: unknown) {
-        // rethrow with the row index appended to aid debugging
-        (err as Error).message = `${
-          (err as Error).message
-        }[Row ${numProcessed}]`;
-
-        if (stopOnErrors) {
-          callback(err as Error);
-        } else {
-          const transformedError = errorToJSON(err);
-          debug('transform error', transformedError);
-          errorCallback?.(transformedError);
-          output.write(
-            JSON.stringify(transformedError) + os.EOL,
-            'utf8',
-            (err: any) => {
-              debug('error while writing error', err);
-              callback();
-            }
-          );
-        }
+        processParseError({
+          annotation: `[Row ${numProcessed}]`,
+          stopOnErrors,
+          err,
+          output,
+          errorCallback,
+          callback,
+        });
       }
     },
   });
@@ -141,50 +145,36 @@ export async function importCSV({
 
   const params = [
     input,
+    new Utf8Validator(),
+    byteCounter,
+    stripBomStream(),
     parseStream,
     docStream,
     collectionStream,
     ...(abortSignal ? [{ signal: abortSignal }] : []),
   ] as const;
 
-  // This is temporary until we change WritableCollectionStream so it can pipe
-  // us its errors as they occur.
-  async function processWriteStreamErrors() {
-    const errors = collectionStream.getErrors();
-    const stats = collectionStream.getStats();
-    const allErrors = errors
-      .concat(stats.writeErrors)
-      .concat(stats.writeConcernErrors);
-
-    for (const error of allErrors) {
-      const transformedError = errorToJSON(error);
-      debug('write error', transformedError);
-      errorCallback?.(transformedError);
-      try {
-        await new Promise<void>((resolve) => {
-          output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
-            resolve()
-          );
-        });
-      } catch (err: any) {
-        debug('error while writing error', err);
-      }
-    }
-  }
-
   try {
     await pipeline(...params);
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
-      await processWriteStreamErrors();
-      return {
-        ...collectionStream.getStats(),
-        aborted: true,
-      };
+      await processWriteStreamErrors({
+        collectionStream,
+        output,
+        errorCallback,
+      });
+
+      return makeImportResult(collectionStream, numProcessed, true);
     }
+
     throw err;
   }
 
-  await processWriteStreamErrors();
-  return collectionStream.getStats();
+  await processWriteStreamErrors({
+    collectionStream,
+    output,
+    errorCallback,
+  });
+
+  return makeImportResult(collectionStream, numProcessed);
 }

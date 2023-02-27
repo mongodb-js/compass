@@ -46,7 +46,7 @@ const editorStyles = css({
 });
 
 const editorContainerStylesDark = css({
-  background: palette.gray.dark3,
+  background: palette.gray.dark4,
 });
 
 const editorContainerStylesLight = css({

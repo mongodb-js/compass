@@ -205,13 +205,6 @@ describe('Collection aggregations tab', function () {
     // Get us back to the empty stage every time. Also test the Create New
     // Pipeline flow while at it.
     await browser.clickVisible(Selectors.CreateNewPipelineButton);
-    const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
-    await modalElement.waitForDisplayed();
-
-    await browser.screenshot('confirm-new-pipeline-modal.png');
-
-    await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
-    await modalElement.waitForDisplayed({ reverse: true });
 
     await browser.clickVisible(Selectors.AddStageButton);
     await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
@@ -888,6 +881,19 @@ describe('Collection aggregations tab', function () {
     await modal.waitForDisplayed({ reverse: true });
   });
 
+  it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+    await browser.selectStageOperator(0, '$match');
+
+    await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    const modalElement = await browser.$(Selectors.ConfirmationModal);
+    await modalElement.waitForDisplayed();
+
+    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
+    await modalElement.waitForDisplayed({ reverse: true });
+  });
+
   describe('aggregation builder in text mode', function () {
     it('toggles pipeline mode', async function () {
       // Select operator
@@ -1057,6 +1063,11 @@ describe('Collection aggregations tab', function () {
           $match: '{ i: 0 }',
         },
       ]);
+      // create a new pipeline to make sure we don't have anything open
+      await browser.clickVisible(Selectors.CreateNewPipelineButton);
+    });
+
+    it('opens an aggregation without confirmation when its not modified', async function () {
       await browser.waitForAnimations(
         Selectors.AggregationOpenSavedPipelinesButton
       );
@@ -1065,39 +1076,59 @@ describe('Collection aggregations tab', function () {
         Selectors.AggregationSavedPipelinesPopover
       );
       await browser.hover(Selectors.AggregationSavedPipelineCard(name));
-    });
 
-    it('opens an aggregation', async function () {
       await browser.clickVisible(
         Selectors.AggregationSavedPipelineCardOpenButton(name)
       );
 
-      const confirmOpenModal = await browser.$(
-        Selectors.AggregationSavedPipelineConfirmOpenModal
-      );
-      await confirmOpenModal.waitForDisplayed();
-      const openButton = await browser
-        .$(Selectors.AggregationSavedPipelineConfirmOpenModal)
-        .$('button=Open Pipeline');
+      const content = await browser.$(Selectors.stageContent(0));
+      await waitForAnyText(browser, content);
+      expect(await content.getText()).to.equal(`{
+  i: 0,
+}`);
+    });
 
-      await openButton.click();
+    it('opens an aggregation with confirmation when its modified', async function () {
+      await browser.clickVisible(Selectors.AddStageButton);
+      await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+      await browser.selectStageOperator(0, '$match');
+
+      await browser.waitForAnimations(
+        Selectors.AggregationOpenSavedPipelinesButton
+      );
+      await browser.clickVisible(Selectors.AggregationOpenSavedPipelinesButton);
+      await browser.waitForAnimations(
+        Selectors.AggregationSavedPipelinesPopover
+      );
+      await browser.hover(Selectors.AggregationSavedPipelineCard(name));
+
+      await browser.clickVisible(
+        Selectors.AggregationSavedPipelineCardOpenButton(name)
+      );
+
+      const confirmOpenModal = await browser.$(Selectors.ConfirmationModal);
+      await confirmOpenModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
       await confirmOpenModal.waitForDisplayed({ reverse: true });
     });
 
     it('deletes an aggregation', async function () {
+      await browser.waitForAnimations(
+        Selectors.AggregationOpenSavedPipelinesButton
+      );
+      await browser.clickVisible(Selectors.AggregationOpenSavedPipelinesButton);
+      await browser.waitForAnimations(
+        Selectors.AggregationSavedPipelinesPopover
+      );
+      await browser.hover(Selectors.AggregationSavedPipelineCard(name));
+
       await browser.clickVisible(
         Selectors.AggregationSavedPipelineCardDeleteButton(name)
       );
 
-      const confirmDeleteModal = await browser.$(
-        Selectors.AggregationSavedPipelineConfirmDeleteModal
-      );
+      const confirmDeleteModal = await browser.$(Selectors.ConfirmationModal);
       await confirmDeleteModal.waitForDisplayed();
-      const deleteButton = await browser
-        .$(Selectors.AggregationSavedPipelineConfirmDeleteModal)
-        .$('button=Delete Pipeline');
-
-      await deleteButton.click();
+      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
       await confirmDeleteModal.waitForDisplayed({ reverse: true });
     });
   });

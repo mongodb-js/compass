@@ -1,5 +1,6 @@
 import type { Readable } from 'stream';
 import Papa from 'papaparse';
+import stripBomStream from 'strip-bom-stream';
 
 import { createDebug } from '../utils/logger';
 import type {
@@ -8,14 +9,21 @@ import type {
   CSVParsableFieldType,
 } from '../utils/csv';
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
+import { Utf8Validator } from '../utils/utf8-validator';
+import { ByteCounter } from '../utils/byte-counter';
 
 const debug = createDebug('analyze-csv-fields');
+
+type AnalyzeProgress = {
+  bytesProcessed: number;
+  docsProcessed: number;
+};
 
 type AnalyzeCSVFieldsOptions = {
   input: Readable;
   delimiter: Delimiter;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number) => void;
+  progressCallback?: (progress: AnalyzeProgress) => void;
   ignoreEmptyStrings?: boolean;
 };
 
@@ -131,16 +139,26 @@ export function analyzeCSVFields({
   progressCallback,
   ignoreEmptyStrings,
 }: AnalyzeCSVFieldsOptions): Promise<AnalyzeCSVFieldsResult> {
-  const result: AnalyzeCSVFieldsResult = {
-    totalRows: 0,
-    fields: {},
-    aborted: false,
-  };
-
-  let aborted = false;
-  let headerFields: string[];
-
   return new Promise(function (resolve, reject) {
+    const byteCounter = new ByteCounter();
+
+    const result: AnalyzeCSVFieldsResult = {
+      totalRows: 0,
+      fields: {},
+      aborted: false,
+    };
+
+    let aborted = false;
+    let headerFields: string[];
+
+    const validator = new Utf8Validator();
+
+    validator.once('error', function (err: any) {
+      reject(err);
+    });
+
+    input = input.pipe(validator).pipe(byteCounter).pipe(stripBomStream());
+
     Papa.parse(input, {
       delimiter,
       header: true,
@@ -155,6 +173,16 @@ export function analyzeCSVFields({
 
         if (!headerFields) {
           headerFields = results.meta.fields ?? [];
+          // There's a quirk in papaparse where it extracts header fields before
+          // it finishes auto-detecting the line endings. We could pass in a
+          // line ending that we previously detected (in guessFileType(),
+          // perhaps?) or we can just strip the extra \r from the final header
+          // name if it exists.
+          if (headerFields.length) {
+            const lastName = headerFields[headerFields.length - 1];
+            headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
+          }
+
           initResultFields(result, headerFields);
         }
 
@@ -162,7 +190,10 @@ export function analyzeCSVFields({
 
         ++result.totalRows;
 
-        progressCallback?.(result.totalRows);
+        progressCallback?.({
+          bytesProcessed: byteCounter.total,
+          docsProcessed: result.totalRows,
+        });
       },
       complete: function () {
         debug('analyzeCSVFields:complete');

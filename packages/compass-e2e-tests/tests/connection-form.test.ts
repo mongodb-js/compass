@@ -566,14 +566,12 @@ describe('Connection form', function () {
     expect(await toggle.getAttribute('aria-checked')).to.equal('false');
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
 
-    const confirmModal = await browser.$(Selectors.EditConnectionStringModal);
+    const confirmModal = await browser.$(Selectors.ConfirmationModal);
     await confirmModal.waitForDisplayed();
 
     await browser.screenshot('edit-uri-confirmation-modal.png');
 
-    await browser.clickVisible(
-      Selectors.EditConnectionStringModalConfirmButton
-    );
+    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
 
     await confirmModal.waitForDisplayed({ reverse: true });
 

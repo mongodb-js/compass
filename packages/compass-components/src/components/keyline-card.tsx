@@ -13,7 +13,7 @@ const keylineLightThemeStyles = css({
   background: palette.white,
 });
 const keylineDarkThemeStyles = css({
-  background: palette.gray.dark3,
+  background: palette.black,
   borderColor: palette.gray.dark2,
 });
 

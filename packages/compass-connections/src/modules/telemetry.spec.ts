@@ -1,7 +1,6 @@
 import { once } from 'events';
 import { expect } from 'chai';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
-
 import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
@@ -110,7 +109,6 @@ describe('connection tracking', function () {
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
-      public_cloud_name: '',
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
@@ -151,7 +149,6 @@ describe('connection tracking', function () {
       is_public_cloud: false,
       is_do_url: true,
       is_atlas_url: false,
-      public_cloud_name: '',
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
@@ -179,24 +176,14 @@ describe('connection tracking', function () {
   // eslint-disable-next-line mocha/no-setup-in-describe
   [
     {
-      url: 'mongodb://compass-data-sets.e06dc.mongodb.net',
+      url: 'mongodb://compass-data-sets-shard-00-00.e06dc.mongodb.net',
       is_srv: false,
       title: 'is atlas, no srv',
-    },
-    {
-      url: 'mongodb://compass-data-sets.e06dc.mongodb-dev.net',
-      is_srv: false,
-      title: 'is dev atlas, no srv',
     },
     {
       url: 'mongodb+srv://compass-data-sets.e06dc.mongodb.net',
       is_srv: true,
       title: 'is atlas, is srv',
-    },
-    {
-      url: 'mongodb+srv://compass-data-sets.e06dc.mongodb-dev.net',
-      is_srv: true,
-      title: 'is dev atlas, is srv',
     },
   ].forEach(({ url, is_srv, title }) => {
     it(`tracks a new connection event - ${title}`, async function () {
@@ -212,10 +199,8 @@ describe('connection tracking', function () {
 
       const expected = {
         is_localhost: false,
-        is_public_cloud: false,
         is_do_url: false,
         is_atlas_url: true,
-        public_cloud_name: '',
         auth_type: 'NONE',
         tunnel: 'none',
         is_srv: is_srv,
@@ -235,6 +220,8 @@ describe('connection tracking', function () {
         has_kms_gcp: false,
         has_kms_kmip: false,
         has_kms_azure: false,
+        is_public_cloud: true,
+        public_cloud_name: 'AWS',
       };
 
       expect(properties).to.deep.equal(expected);
@@ -286,7 +273,7 @@ describe('connection tracking', function () {
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
       connectionOptions: {
-        connectionString: 'mongodb://notlocalhost',
+        connectionString: 'mongodb://google.com',
       },
     };
 
@@ -298,10 +285,87 @@ describe('connection tracking', function () {
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
-      public_cloud_name: '',
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
+      topology_type: 'Unknown',
+      is_atlas: false,
+      is_dataLake: false,
+      is_enterprise: false,
+      is_genuine: true,
+      non_genuine_server_name: 'na',
+      server_version: 'na',
+      server_arch: undefined,
+      server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
+    };
+
+    expect(properties).to.deep.equal(expected);
+  });
+
+  it('tracks a new connection event - nonexistent', async function () {
+    const trackEvent = once(process, 'compass:track');
+    const connectionInfo = {
+      connectionOptions: {
+        connectionString: 'mongodb://nonexistent',
+      },
+    };
+
+    trackNewConnectionEvent(connectionInfo, dataService);
+    const [{ properties }] = await trackEvent;
+
+    const expected = {
+      is_localhost: false,
+      is_do_url: false,
+      is_atlas_url: false,
+      auth_type: 'NONE',
+      tunnel: 'none',
+      is_srv: false,
+      topology_type: 'Unknown',
+      is_atlas: false,
+      is_dataLake: false,
+      is_enterprise: false,
+      is_genuine: true,
+      non_genuine_server_name: 'na',
+      server_version: 'na',
+      server_arch: undefined,
+      server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
+    };
+
+    expect(properties).to.deep.equal(expected);
+  });
+
+  it('tracks a new connection event - nonexistent SRV', async function () {
+    const trackEvent = once(process, 'compass:track');
+    const connectionInfo = {
+      connectionOptions: {
+        connectionString: 'mongodb+srv://nonexistent',
+      },
+    };
+
+    trackNewConnectionEvent(connectionInfo, dataService);
+    const [{ properties }] = await trackEvent;
+
+    const expected = {
+      is_localhost: false,
+      is_do_url: false,
+      is_atlas_url: false,
+      auth_type: 'NONE',
+      tunnel: 'none',
+      is_srv: true,
       topology_type: 'Unknown',
       is_atlas: false,
       is_dataLake: false,
@@ -510,7 +574,6 @@ describe('connection tracking', function () {
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
-      public_cloud_name: '',
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
@@ -556,7 +619,6 @@ describe('connection tracking', function () {
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
-      public_cloud_name: '',
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,

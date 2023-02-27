@@ -133,6 +133,12 @@ describe('Database collections tab', function () {
 
     // wait for it to be gone
     await collectionCard.waitForExist({ reverse: true });
+
+    // the app should still be on the database Collections tab because there are
+    // other collections in this database
+    await browser
+      .$(Selectors.databaseTab('Collections', true))
+      .waitForDisplayed();
   });
 
   it('can create a capped collection', async function () {

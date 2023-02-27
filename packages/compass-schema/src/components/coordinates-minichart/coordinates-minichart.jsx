@@ -14,9 +14,10 @@ import './coordinates-minichart.css';
 
 import GeoscatterMapItem from './marker';
 
-import { DEFAULT_TILE_URL } from './constants';
+import { LIGHTMODE_TILE_URL, DARKMODE_TILE_URL } from './constants';
 import { getHereAttributionMessage } from './utils';
 import debounce from 'lodash.debounce';
+import { withDarkMode } from '@mongodb-js/compass-components';
 
 // TODO: Disable boxZoom handler for circle lasso.
 //
@@ -113,7 +114,7 @@ const valueToGeoPoint = (value) => {
 
 // From charts geospatial map-item
 
-class CoordinatesMinichart extends PureComponent {
+class UnthemedCoordinatesMinichart extends PureComponent {
   static displayName = 'CoorddinatesMinichart';
   static propTypes = {
     _id: PropTypes.string,
@@ -128,6 +129,7 @@ class CoordinatesMinichart extends PureComponent {
     actions: PropTypes.object.isRequired,
     height: PropTypes.number.isRequired,
     fieldName: PropTypes.string.isRequired,
+    darkMode: PropTypes.bool,
   };
 
   state = {
@@ -255,7 +257,10 @@ class CoordinatesMinichart extends PureComponent {
         onMoveend={this.onMoveEnd}
       >
         {this.renderMapItems()}
-        <TileLayer url={DEFAULT_TILE_URL} attribution={attributionMessage} />
+        <TileLayer
+          url={this.props.darkMode ? DARKMODE_TILE_URL : LIGHTMODE_TILE_URL}
+          attribution={attributionMessage}
+        />
         <FeatureGroup>
           <EditControl
             position="topright"
@@ -277,6 +282,8 @@ class CoordinatesMinichart extends PureComponent {
     );
   }
 }
+
+const CoordinatesMinichart = withDarkMode(UnthemedCoordinatesMinichart);
 
 export default CoordinatesMinichart;
 export { CoordinatesMinichart };

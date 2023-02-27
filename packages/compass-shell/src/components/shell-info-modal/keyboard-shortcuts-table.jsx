@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  css,
   Body,
   Description,
   Table,
@@ -8,12 +7,6 @@ import {
   Row,
   Cell,
 } from '@mongodb-js/compass-components';
-
-const rowStyles = css({
-  td: {
-    padding: 0,
-  },
-});
 
 const hotkeys = [
   {
@@ -80,7 +73,7 @@ function KeyboardShortcutsTable() {
       ]}
     >
       {({ datum }) => (
-        <Row className={rowStyles} key={datum.key}>
+        <Row key={datum.key}>
           <Cell>
             <Body weight="medium">{datum.key}</Body>
           </Cell>

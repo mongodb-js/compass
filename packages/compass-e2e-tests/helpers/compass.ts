@@ -550,7 +550,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
-    logLevel: 'info',
+    logLevel: 'info' as const,
     outputDir: webdriverLogPath,
   };
 
@@ -601,8 +601,6 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   debug('Starting compass via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
   const browser = await remote(options);
 
   const compass = new Compass(browser, {

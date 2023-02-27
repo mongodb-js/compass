@@ -93,10 +93,8 @@ describe('Connection Import / Export', function () {
     variant: typeof variants[number]
   ) {
     await browser.selectFavorite(favoriteName);
-    await browser.clickVisible('[data-testid="toggle-edit-connection-string"]');
-    await browser.clickVisible(
-      '[data-testid="edit-uri-confirmation-modal"] button:first-of-type'
-    );
+    await browser.clickVisible(Selectors.EditConnectionStringToggle);
+    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
     expect(
       await browser.$(Selectors.ConnectionStringInput).getValue()
     ).to.equal(

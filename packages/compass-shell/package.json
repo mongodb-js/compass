@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "3.5.1",
+  "version": "3.6.0",
   "description": "Compass Shell Plugin",
   "author": {
     "name": "MongoDB Inc",
@@ -52,31 +52,31 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "echo \"TODO(COMPASS-5555): These tests are broken and disabled for now\"",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-logging": "^1.1.2",
-    "@mongodb-js/compass-utils": "^0.2.1",
-    "@mongodb-js/mongodb-redux-common": "^2.0.4",
+    "@mongodb-js/compass-components": "^1.6.0",
+    "@mongodb-js/compass-logging": "^1.1.3",
+    "@mongodb-js/compass-utils": "^0.2.2",
+    "@mongodb-js/mongodb-redux-common": "^2.0.5",
     "@mongosh/node-runtime-worker-thread": "^1.7.0",
-    "compass-preferences-model": "^2.5.1"
+    "compass-preferences-model": "^2.6.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-logging": "^1.1.2",
-    "@mongodb-js/compass-utils": "^0.2.1",
-    "@mongodb-js/mongodb-redux-common": "^2.0.4",
+    "@mongodb-js/compass-components": "^1.6.0",
+    "@mongodb-js/compass-logging": "^1.1.3",
+    "@mongodb-js/compass-utils": "^0.2.2",
+    "@mongodb-js/mongodb-redux-common": "^2.0.5",
     "@mongosh/node-runtime-worker-thread": "^1.7.0",
-    "compass-preferences-model": "^2.5.1",
+    "compass-preferences-model": "^2.6.0",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.2",
+    "@mongodb-js/eslint-config-compass": "^1.0.3",
     "@mongodb-js/mocha-config-compass": "^1.0.2",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.5",
+    "@mongodb-js/webpack-config-compass": "^1.0.6",
     "@mongosh/browser-repl": "^1.7.0",
     "@mongosh/logging": "^1.7.0",
     "chai": "^4.2.0",
@@ -84,7 +84,7 @@
     "electron": "^22.0.2",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "9.0.3",
+    "hadron-app-registry": "9.0.4",
     "hadron-ipc": "^3.1.1",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",

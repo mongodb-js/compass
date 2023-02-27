@@ -51,3 +51,7 @@ if (!globalThis.IntersectionObserver) {
       disconnect() {}
     };
 }
+
+// jsdom doesn't override classes that already exist in global scope
+// https://github.com/jsdom/jsdom/issues/3331
+globalThis.EventTarget = window.EventTarget;

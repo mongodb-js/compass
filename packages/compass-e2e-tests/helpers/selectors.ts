@@ -734,8 +734,6 @@ export const AggregationSavedPipelineCardDeleteButton = (
     name
   )} [data-testid="saved-pipeline-card-delete-action"]`;
 };
-export const AggregationSavedPipelineConfirmOpenModal = `[data-testid="restore-pipeline-modal"]`;
-export const AggregationSavedPipelineConfirmDeleteModal = `[data-testid="delete-pipeline-modal"]`;
 
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
@@ -1018,11 +1016,9 @@ export const ExportToLanguageCloseButton = `${ExportToLanguageModal} [data-testi
 export const ExportToLanguageQueryOutput =
   '[data-testid="export-to-language-output"]';
 
-// Confirm new pipeline modal
-export const ConfirmNewPipelineModal =
-  '[data-testid="confirm-new-pipeline-modal"]';
-export const ConfirmNewPipelineModalConfirmButton =
-  '[data-testid="confirm-new-pipeline-modal"] [role=dialog] > div:nth-child(2) button:first-child';
+// Confirmation modal
+export const ConfirmationModal = '[data-testid="confirmation-modal"]';
+export const ConfirmationModalConfirmButton = `${ConfirmationModal} [role=dialog] > div:nth-child(2) button:first-child`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
@@ -1045,19 +1041,11 @@ export const ShellInfoModalCloseButton =
 // Edit connection string modal
 export const EditConnectionStringToggle =
   '[data-testid="toggle-edit-connection-string"]';
-export const EditConnectionStringModal =
-  '[data-testid="edit-uri-confirmation-modal"]';
-export const EditConnectionStringModalConfirmButton =
-  '[data-testid="edit-uri-confirmation-modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Rename saved item
 export const RenameSavedItemModal = '[data-testid="edit-item-modal"]';
 export const RenameSavedItemModalTextInput = `${RenameSavedItemModal} input[name="name"]`;
 export const RenameSavedItemModalSubmit = `${RenameSavedItemModal} button[type="submit"]`;
-
-// Delete saved item
-export const DeleteSavedItemModal = '[data-testid="delete-item-modal"]';
-export const DeleteSavedItemModallConfirmButton = `${DeleteSavedItemModal} [role=dialog] > div:nth-child(2) button:first-child`;
 
 // Open saved item
 export const OpenSavedItemModal = '[data-testid="open-item-modal"]';

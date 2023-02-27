@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-find-in-page",
   "productName": "Compass Find In Page plugin",
   "description": "cmd-f UI for Compass",
-  "version": "4.5.0",
+  "version": "4.6.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -53,20 +53,20 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.5.0",
+    "@mongodb-js/compass-components": "^1.6.0",
     "hadron-ipc": "^3.1.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.2",
+    "@mongodb-js/eslint-config-compass": "^1.0.3",
     "@mongodb-js/mocha-config-compass": "^1.0.2",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.5",
+    "@mongodb-js/webpack-config-compass": "^1.0.6",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -79,7 +79,7 @@
     "depcheck": "^1.4.1",
     "electron": "^22.0.2",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.3",
+    "hadron-app-registry": "^9.0.4",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
@@ -93,7 +93,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.5.0",
+    "@mongodb-js/compass-components": "^1.6.0",
     "hadron-ipc": "^3.1.1"
   }
 }

@@ -9,6 +9,7 @@ import {
   spacing,
   RadioBoxGroup,
   RadioBox,
+  palette,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/settings';
@@ -42,30 +43,21 @@ const themePreviewStyles = css({
   maxWidth: '50%',
 });
 
-function LightThemePreview() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-      fill="none"
-      viewBox="0 0 171 119"
-      className={themePreviewStyles}
-    >
-      <rect width="171" height="119" fill="#fff" rx="6" />
-      <rect width="42" height="119" fill="#F9FBFA" rx="6" />
-      <rect width="117" height="7" x="48" y="34" fill="#F9FBFA" rx="3.5" />
-      <rect width="28" height="7" x="48" y="21" fill="#F9FBFA" rx="3.5" />
-      <rect width="28" height="7" x="82" y="21" fill="#F9FBFA" rx="3.5" />
-      <rect width="28" height="7" x="116" y="21" fill="#F9FBFA" rx="3.5" />
-      <rect width="117" height="7" x="48" y="47" fill="#F9FBFA" rx="3.5" />
-      <rect width="117" height="7" x="48" y="60" fill="#F9FBFA" rx="3.5" />
-      <rect width="117" height="7" x="48" y="73" fill="#F9FBFA" rx="3.5" />
-      <rect width="170" height="118" x=".5" y=".5" stroke="#E8EDEB" rx="5.5" />
-    </svg>
-  );
-}
+const ThemeIcon: React.FunctionComponent<{ theme: 'DARK' | 'LIGHT' }> = ({
+  theme,
+}) => {
+  const lightTheme = {
+    fg: palette.gray.base,
+    bg: palette.white,
+  };
 
-function DarkThemePreview() {
+  const darkTheme = {
+    fg: palette.black,
+    bg: palette.gray.dark1,
+  };
+
+  const { fg, bg } = theme === 'DARK' ? darkTheme : lightTheme;
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -74,18 +66,24 @@ function DarkThemePreview() {
       viewBox="0 0 171 119"
       className={themePreviewStyles}
     >
-      <rect width="171" height="119" fill="#3D4F58" rx="6" />
-      <rect width="42" height="119" fill="#1C2D38" rx="6" />
-      <rect width="117" height="7" x="48" y="34" fill="#1C2D38" rx="3.5" />
-      <rect width="28" height="7" x="48" y="21" fill="#1C2D38" rx="3.5" />
-      <rect width="28" height="7" x="82" y="21" fill="#1C2D38" rx="3.5" />
-      <rect width="28" height="7" x="116" y="21" fill="#1C2D38" rx="3.5" />
-      <rect width="117" height="7" x="48" y="47" fill="#1C2D38" rx="3.5" />
-      <rect width="117" height="7" x="48" y="60" fill="#1C2D38" rx="3.5" />
-      <rect width="117" height="7" x="48" y="73" fill="#1C2D38" rx="3.5" />
+      <defs>
+        <clipPath id="sidebar-clip">
+          <path d="M6 0 L42 0 Q48 0, 48 6 L48 113 Q48 119, 42 119 L6 119 Q0 119, 0 113 L0 6 Q0 0, 6 0 Z" />
+        </clipPath>
+      </defs>
+      <rect width="171" height="119" fill={bg} rx="6" />
+      <rect width="42" height="119" fill={fg} clipPath="url(#sidebar-clip)" />
+      <rect width="117" height="7" x="48" y="34" fill={fg} rx="3.5" />
+      <rect width="28" height="7" x="48" y="21" fill={fg} rx="3.5" />
+      <rect width="28" height="7" x="82" y="21" fill={fg} rx="3.5" />
+      <rect width="28" height="7" x="116" y="21" fill={fg} rx="3.5" />
+      <rect width="117" height="7" x="48" y="47" fill={fg} rx="3.5" />
+      <rect width="117" height="7" x="48" y="60" fill={fg} rx="3.5" />
+      <rect width="117" height="7" x="48" y="73" fill={fg} rx="3.5" />
+      <rect width="170" height="118" x=".5" y=".5" stroke={fg} rx="5.5" />
     </svg>
   );
-}
+};
 
 export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
   themeValue,
@@ -144,7 +142,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
             value="LIGHT"
             disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
           >
-            <LightThemePreview />
+            <ThemeIcon theme="LIGHT" />
             Light Theme
           </RadioBox>
           <RadioBox
@@ -154,7 +152,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
             value="DARK"
             disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
           >
-            <DarkThemePreview />
+            <ThemeIcon theme="DARK" />
             Dark Theme (Preview)
           </RadioBox>
         </RadioBoxGroup>

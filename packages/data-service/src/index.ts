@@ -3,7 +3,7 @@ import { ConnectionInfo, ConnectionFavoriteOptions } from './connection-info';
 import { ConnectionOptions } from './connection-options';
 import { ConnectionStorage } from './connection-storage';
 import { getConnectionTitle } from './connection-title';
-import { DataService, DataServiceImpl } from './data-service';
+import { DataService } from './data-service';
 import {
   convertConnectionModelToInfo,
   convertConnectionInfoToModel,
@@ -27,7 +27,6 @@ export {
   ConnectionOptions,
   ConnectionStorage,
   DataService,
-  DataServiceImpl,
   connect,
   configuredKMSProviders,
   getConnectionTitle,

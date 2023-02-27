@@ -28,7 +28,7 @@ describe('AggregationAutoCompleter', function () {
         getCompletions(function (err, completions) {
           expect(err).to.be.null;
           expect(
-            completions.map((completion) => completion.name).sort()
+            completions.map((completion) => completion.value).sort()
           ).to.deep.eq([...STAGE_OPERATOR_NAMES].sort());
         });
       });
@@ -42,7 +42,7 @@ describe('AggregationAutoCompleter', function () {
         getCompletions(function (err, completions) {
           expect(err).to.be.null;
           expect(
-            completions.map((completion) => completion.name).sort()
+            completions.map((completion) => completion.value).sort()
           ).to.deep.eq([...STAGE_OPERATOR_NAMES].sort());
         });
       });
@@ -56,7 +56,7 @@ describe('AggregationAutoCompleter', function () {
           getCompletions(function (err, completions) {
             expect(err).to.be.null;
             expect(
-              completions.map((completion) => completion.name).sort()
+              completions.map((completion) => completion.value).sort()
             ).to.deep.eq([...STAGE_OPERATOR_NAMES].sort());
           });
         });
@@ -116,7 +116,7 @@ describe('AggregationAutoCompleter', function () {
       );
       getCompletions(function (err, completions) {
         expect(err).to.be.null;
-        expect(completions.map((completion) => completion.name)).to.deep.eq([
+        expect(completions.map((completion) => completion.value)).to.deep.eq([
           '$foo',
           '$bar',
         ]);

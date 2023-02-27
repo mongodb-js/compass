@@ -4,7 +4,6 @@ import { Banner, WorkspaceContainer } from '@mongodb-js/compass-components';
 
 import Settings from '../settings';
 import SavingPipelineModal from '../saving-pipeline-modal';
-import PipelineConfirmModal from '../pipeline-confirm-modal/pipeline-confirm-modal';
 import styles from './pipeline.module.less';
 
 import PipelineToolbar from '../pipeline-toolbar';
@@ -141,7 +140,6 @@ class Pipeline extends PureComponent {
           )}
           <PipelineExplain />
           <FocusMode />
-          <PipelineConfirmModal />
           {savingPipelineModal}
         </WorkspaceContainer>
       </div>

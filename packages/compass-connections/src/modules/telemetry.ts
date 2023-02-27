@@ -5,28 +5,43 @@ import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import { configuredKMSProviders } from 'mongodb-data-service';
+import resolveMongodbSrv from 'resolve-mongodb-srv';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
-async function getHostInformation(host: string) {
-  const defaultValues = {
-    is_localhost: false,
-    is_public_cloud: false,
-    is_do_url: false,
-    is_atlas_url: false,
-    public_cloud_name: '',
-  };
+type HostInformation = {
+  is_localhost: boolean;
+  is_atlas_url: boolean;
+  is_do_url: boolean;
+  is_public_cloud?: boolean;
+  public_cloud_name?: string;
+};
+
+async function getHostInformation(
+  host: string | null
+): Promise<HostInformation> {
+  if (!host) {
+    return {
+      is_do_url: false,
+      is_atlas_url: false,
+      is_localhost: false,
+    };
+  }
 
   if (isLocalhost(host)) {
     return {
-      ...defaultValues,
+      is_public_cloud: false,
+      is_do_url: false,
+      is_atlas_url: false,
       is_localhost: true,
     };
   }
 
   if (isDigitalOcean(host)) {
     return {
-      ...defaultValues,
+      is_localhost: false,
+      is_public_cloud: false,
+      is_atlas_url: false,
       is_do_url: true,
     };
   }
@@ -44,15 +59,23 @@ async function getHostInformation(host: string) {
     ? 'Azure'
     : isGcp
     ? 'GCP'
-    : '';
+    : undefined;
 
-  return {
+  const result: HostInformation = {
     is_localhost: false,
-    is_public_cloud: !!isPublicCloud,
     is_do_url: false,
     is_atlas_url: isAtlas(host),
-    public_cloud_name: publicCloudName,
   };
+
+  if (typeof isPublicCloud !== 'undefined') {
+    result.is_public_cloud = isPublicCloud;
+  }
+
+  if (typeof publicCloudName !== 'undefined') {
+    result.public_cloud_name = publicCloudName;
+  }
+
+  return result;
 }
 
 function getCsfleInformation(
@@ -72,6 +95,27 @@ function getCsfleInformation(
   return csfleInfo;
 }
 
+async function getHostnameForConnection(
+  connectionStringData: ConnectionString
+): Promise<string | null> {
+  if (connectionStringData.isSRV) {
+    const uri = await resolveMongodbSrv(connectionStringData.toString()).catch(
+      (err: Error) => {
+        debug('resolveMongodbSrv failed', err);
+        return null;
+      }
+    );
+    if (!uri) {
+      return null;
+    }
+    connectionStringData = new ConnectionString(uri, {
+      looseValidation: true,
+    });
+  }
+
+  return connectionStringData.hosts[0];
+}
+
 async function getConnectionData({
   connectionOptions: { connectionString, sshTunnel, fleOptions },
 }: Pick<ConnectionInfo, 'connectionOptions'>): Promise<
@@ -80,7 +124,6 @@ async function getConnectionData({
   const connectionStringData = new ConnectionString(connectionString, {
     looseValidation: true,
   });
-  const hostName = connectionStringData.hosts[0];
   const searchParams =
     connectionStringData.typedSearchParams<MongoClientOptions>();
 
@@ -92,8 +135,10 @@ async function getConnectionData({
     : 'NONE';
   const proxyHost = searchParams.get('proxyHost');
 
+  const resolvedHostname = await getHostnameForConnection(connectionStringData);
+
   return {
-    ...(await getHostInformation(hostName)),
+    ...(await getHostInformation(resolvedHostname)),
     auth_type: authType.toUpperCase(),
     tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,

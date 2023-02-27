@@ -62,11 +62,9 @@ describe('protectConnectionStrings', function () {
 
     // Enter edit connection string mode
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
-    const confirmModal = await browser.$(Selectors.EditConnectionStringModal);
+    const confirmModal = await browser.$(Selectors.ConfirmationModal);
     await confirmModal.waitForDisplayed();
-    await browser.clickVisible(
-      Selectors.EditConnectionStringModalConfirmButton
-    );
+    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
 
     expect(
       await browser.$(Selectors.ConnectionStringInput).getValue()

@@ -84,9 +84,7 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.is_public_cloud).to.equal(false);
         expect(connectionAttempt.properties.is_do_url).to.equal(false);
 
-        expect(connectionAttempt.properties.public_cloud_name).to.be.a(
-          'string'
-        );
+        expect(connectionAttempt.properties.public_cloud_name).to.be.undefined;
         expect(connectionAttempt.properties.is_atlas).to.be.a('boolean');
         expect(connectionAttempt.properties.is_genuine).to.be.a('boolean');
         expect(connectionAttempt.properties.non_genuine_server_name).to.be.a(
