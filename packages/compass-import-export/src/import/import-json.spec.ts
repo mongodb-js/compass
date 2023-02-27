@@ -15,7 +15,7 @@ import temp from 'temp';
 
 temp.track();
 
-import { DataServiceImpl } from 'mongodb-data-service';
+import { connect, DataService } from 'mongodb-data-service';
 
 import { fixtures } from '../../test/fixtures';
 
@@ -29,13 +29,13 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('importJSON', function () {
-  let dataService: DataServiceImpl;
+  let dataService: DataService;
   let dropCollection;
   let createCollection;
   let updateCollection: (ns: string, options: any) => Promise<Document>;
 
   beforeEach(async function () {
-    dataService = new DataServiceImpl({
+    dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
 
@@ -48,8 +48,6 @@ describe('importJSON', function () {
     updateCollection = promisify(
       dataService.updateCollection.bind(dataService)
     );
-
-    await dataService.connect();
 
     try {
       await dropCollection('db.col');
