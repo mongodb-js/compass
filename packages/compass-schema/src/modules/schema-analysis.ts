@@ -21,7 +21,7 @@ function promoteMongoErrorCode(err?: Error & { code?: unknown }) {
 }
 
 export const analyzeSchema = async (
-  dataService: DataService,
+  dataService: Pick<DataService, 'sample' | 'isCancelError'>,
   abortSignal: AbortSignal,
   ns: string,
   query:

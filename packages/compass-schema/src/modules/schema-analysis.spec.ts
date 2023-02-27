@@ -1,7 +1,6 @@
 import sinon from 'sinon';
 import bson from 'bson';
 import { expect } from 'chai';
-import type { DataService } from 'mongodb-data-service';
 
 import { analyzeSchema } from './schema-analysis';
 
@@ -18,7 +17,8 @@ describe('schema-analyis', function () {
             { x: 1 },
             { y: 2, __safeContent__: [new bson.Binary('aaaa')] },
           ]),
-      } as Partial<DataService> as unknown as DataService;
+        isCancelError: () => false,
+      };
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
@@ -106,7 +106,8 @@ describe('schema-analyis', function () {
     it('adds promoteValues: false so the analyzer can report more accurate types', async function () {
       const dataService = {
         sample: () => Promise.resolve([]),
-      } as Partial<DataService> as unknown as DataService;
+        isCancelError: () => false,
+      };
       const sampleSpy = sinon.spy(dataService, 'sample');
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
@@ -124,7 +125,7 @@ describe('schema-analyis', function () {
       const dataService = {
         sample: () => Promise.reject(new Error('test error')),
         isCancelError: () => true,
-      } as Partial<DataService> as unknown as DataService;
+      };
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
@@ -150,7 +151,7 @@ describe('schema-analyis', function () {
       const dataService = {
         sample: () => Promise.reject(error),
         isCancelError: () => false,
-      } as Partial<DataService> as unknown as DataService;
+      };
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
