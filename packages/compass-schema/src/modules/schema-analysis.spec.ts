@@ -1,9 +1,14 @@
 import sinon from 'sinon';
 import bson from 'bson';
 import { expect } from 'chai';
+
 import { analyzeSchema } from './schema-analysis';
 
 describe('schema-analyis', function () {
+  afterEach(function () {
+    sinon.restore();
+  });
+
   describe('getResult', function () {
     it('returns the schema', async function () {
       const dataService = {
@@ -12,8 +17,8 @@ describe('schema-analyis', function () {
             { x: 1 },
             { y: 2, __safeContent__: [new bson.Binary('aaaa')] },
           ]),
+        isCancelError: () => false,
       };
-
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
@@ -100,15 +105,16 @@ describe('schema-analyis', function () {
 
     it('adds promoteValues: false so the analyzer can report more accurate types', async function () {
       const dataService = {
-        sample: sinon.spy(() => Promise.resolve([])),
+        sample: () => Promise.resolve([]),
+        isCancelError: () => false,
       };
-
+      const sampleSpy = sinon.spy(dataService, 'sample');
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
       await analyzeSchema(dataService, abortSignal, 'db.coll', {}, {});
 
-      expect(dataService.sample).to.have.been.calledWith(
+      expect(sampleSpy).to.have.been.calledWith(
         'db.coll',
         {},
         { promoteValues: false }
@@ -117,16 +123,14 @@ describe('schema-analyis', function () {
 
     it('returns null if is cancelled', async function () {
       const dataService = {
-        sample: () => {
-          throw new Error();
-        },
+        sample: () => Promise.reject(new Error('test error')),
         isCancelError: () => true,
       };
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
-      const getResultPromise = analyzeSchema(
+      const result = await analyzeSchema(
         dataService,
         abortSignal,
         'db.coll',
@@ -134,40 +138,32 @@ describe('schema-analyis', function () {
         {}
       );
 
-      expect(await getResultPromise).to.equal(null);
+      expect(result).to.equal(null);
     });
 
     it('throws if sample throws', async function () {
-      let rejectOnSample;
+      const error: Error & {
+        code?: any;
+      } = new Error('should have been thrown');
+      error.name = 'MongoError';
+      error.code = new bson.Int32(1000);
+
       const dataService = {
-        sample: () =>
-          new Promise((_, _reject) => {
-            rejectOnSample = _reject;
-          }),
+        sample: () => Promise.reject(error),
         isCancelError: () => false,
       };
 
       const abortController = new AbortController();
       const abortSignal = abortController.signal;
 
-      const getResultPromise = analyzeSchema(
-        dataService,
-        abortSignal,
-        'db.coll',
-        {},
-        {}
-      ).catch((err) => err);
-
-      const error = new Error('should have been thrown');
-      error.name = 'MongoError';
-      error.code = new bson.Int32(1000);
-
-      rejectOnSample(error);
-
-      expect((await getResultPromise).message).to.equal(
-        'should have been thrown'
-      );
-      expect((await getResultPromise).code).to.equal(1000);
+      try {
+        await analyzeSchema(dataService, abortSignal, 'db.coll', {}, {});
+      } catch (err: any) {
+        expect(err.message).to.equal('should have been thrown');
+        expect(err.code).to.equal(1000);
+        return;
+      }
+      throw new Error('expected error to be thrown');
     });
   });
 });
