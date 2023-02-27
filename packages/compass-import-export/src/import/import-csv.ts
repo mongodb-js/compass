@@ -48,7 +48,7 @@ export async function importCSV({
   stopOnErrors,
   fields,
 }: ImportCSVOptions): Promise<ImportResult> {
-  debug('importCSV()', { ns: toNS(ns) });
+  debug('importCSV()', { ns: toNS(ns), stopOnErrors });
 
   const byteCounter = new ByteCounter();
 

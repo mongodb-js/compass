@@ -10,7 +10,6 @@ import {
   spacing,
   FormFieldContainer,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'mongodb';
 
 import {
   FINISHED_STATUSES,
@@ -101,7 +100,7 @@ type ImportModalProps = {
     checked: boolean;
     type?: string; // Only on csv imports.
   }[];
-  values: Document[];
+  values: string[][];
   toggleIncludeField: (path: string) => void;
   setFieldType: (path: string, bsonType: string) => void;
   previewLoaded: boolean;

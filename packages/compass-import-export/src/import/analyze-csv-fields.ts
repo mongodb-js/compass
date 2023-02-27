@@ -94,7 +94,6 @@ function addRowToResult(
       const name = headerFields[columnIndex];
       const original = data[name] ?? '';
       const type = detectFieldType(original, ignoreEmptyStrings);
-      debug('detectFieldType', name, original, type);
 
       if (!field.types[type]) {
         field.types[type] = {
@@ -194,8 +193,6 @@ export function analyzeCSVFields({
         });
       },
       complete: function () {
-        debug('analyzeCSVFields:complete');
-
         for (const field of Object.values(result.fields)) {
           field.detected = pickFieldType(field);
         }

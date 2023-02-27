@@ -66,6 +66,7 @@ export async function createDummyCollections(): Promise<void> {
   promises.push(createBlankCollection(db, 'extended-json-file'));
   promises.push(createBlankCollection(db, 'csv-file'));
   promises.push(createBlankCollection(db, 'bom-csv-file'));
+  promises.push(createBlankCollection(db, 'broken-delimiter'));
   promises.push(createBlankCollection(db, 'numbers'));
 
   // lots of collections to test virtual scrolling
