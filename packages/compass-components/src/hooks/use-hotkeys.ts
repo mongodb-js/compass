@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useHotkeys as useGlobalHotkeys } from 'react-hotkeys-hook';
 
-const isMac = window.navigator.userAgent.indexOf('Mac') !== -1;
+const isMac = () => navigator.userAgent.indexOf('Mac') !== -1;
 
 /**
  *
@@ -10,10 +10,9 @@ const isMac = window.navigator.userAgent.indexOf('Mac') !== -1;
  * ctrl     | control     | ctrl
  * shift    | shift       | shift
  * alt      | option      | alt
- * meta     | cmd/command | ctrl
+ * meta     | command     | ctrl
  *
  */
-
 export const useHotkeys = (...args: Parameters<typeof useGlobalHotkeys>) => {
   const [key] = args;
   const ref = useGlobalHotkeys(...args);
@@ -32,8 +31,8 @@ export const useHotkeys = (...args: Parameters<typeof useGlobalHotkeys>) => {
 };
 
 const mapKeyToShortcut = (key: string) => {
-  if (isMac) {
-    return key.replace('meta', '⌘');
+  if (isMac()) {
+    return key.replace('meta', '⌘').replace('alt', 'option');
   }
   return key.replace('meta', 'ctrl');
 };

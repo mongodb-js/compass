@@ -1,0 +1,115 @@
+import { fireEvent } from '@testing-library/react';
+import { expect } from 'chai';
+import { renderHook } from '@testing-library/react-hooks';
+
+import { useHotkeys } from './use-hotkeys';
+import sinon from 'sinon';
+
+const initialUserAgent = window.navigator.userAgent;
+
+describe('use-hotkeys', function () {
+  after(function () {
+    Object.defineProperty(window.navigator, 'userAgent', {
+      value: initialUserAgent,
+      writable: true,
+    });
+  });
+
+  context('on macOS', function () {
+    before(function () {
+      Object.defineProperty(window.navigator, 'userAgent', {
+        value:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
+        writable: true,
+      });
+    });
+
+    it('handles meta key and maps it to command', function () {
+      const callback = sinon.spy();
+      const {
+        result: {
+          current: { shortcut },
+        },
+      } = renderHook(() => useHotkeys('meta + 1', callback));
+      expect(callback).not.to.have.been.called;
+      fireEvent.keyDown(document, { key: '1', metaKey: true });
+      expect(callback).to.have.been.calledOnce;
+      expect(shortcut).to.equal('⌘ + 1');
+    });
+
+    it('handles alt key and maps it to option', function () {
+      const callback = sinon.spy();
+      const {
+        result: {
+          current: { shortcut },
+        },
+      } = renderHook(() => useHotkeys('alt + 1', callback));
+      expect(callback).not.to.have.been.called;
+      fireEvent.keyDown(document, { key: '1', altKey: true });
+      expect(callback).to.have.been.calledOnce;
+      expect(shortcut).to.equal('option + 1');
+    });
+
+    it('handles ctrl key and maps it to ctrl', function () {
+      const callback = sinon.spy();
+      const {
+        result: {
+          current: { shortcut },
+        },
+      } = renderHook(() => useHotkeys('ctrl + 1', callback));
+      expect(callback).not.to.have.been.called;
+      fireEvent.keyDown(document, { key: '1', ctrlKey: true });
+      expect(callback).to.have.been.calledOnce;
+      expect(shortcut).to.equal('ctrl + 1');
+    });
+  });
+
+  context('on Windows/Linux', function () {
+    before(function () {
+      Object.defineProperty(window.navigator, 'userAgent', {
+        value:
+          'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
+        writable: true,
+      });
+    });
+
+    it('handles meta key and maps it to ctrl', function () {
+      const callback = sinon.spy();
+      const {
+        result: {
+          current: { shortcut },
+        },
+      } = renderHook(() => useHotkeys('meta + 1', callback));
+      expect(callback).not.to.have.been.called;
+      fireEvent.keyDown(document, { key: '1', metaKey: true });
+      expect(callback).to.have.been.calledOnce;
+      expect(shortcut).to.equal('ctrl + 1');
+    });
+
+    it('handles alt key and maps it to alt', function () {
+      const callback = sinon.spy();
+      const {
+        result: {
+          current: { shortcut },
+        },
+      } = renderHook(() => useHotkeys('alt + 1', callback));
+      expect(callback).not.to.have.been.called;
+      fireEvent.keyDown(document, { key: '1', altKey: true });
+      expect(callback).to.have.been.calledOnce;
+      expect(shortcut).to.equal('alt + 1');
+    });
+
+    it('handles ctrl key and maps it to ctrl', function () {
+      const callback = sinon.spy();
+      const {
+        result: {
+          current: { shortcut },
+        },
+      } = renderHook(() => useHotkeys('ctrl + 1', callback));
+      expect(callback).not.to.have.been.called;
+      fireEvent.keyDown(document, { key: '1', ctrlKey: true });
+      expect(callback).to.have.been.calledOnce;
+      expect(shortcut).to.equal('ctrl + 1');
+    });
+  });
+});
