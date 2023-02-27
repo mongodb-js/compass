@@ -10,6 +10,7 @@ import {
   spacing,
   palette,
   rgba,
+  useHotkeys,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
@@ -102,34 +103,27 @@ function FindInPageInput({
     toggleStatus();
   }, [dispatchStopFind, setSearchTerm, toggleStatus]);
 
-  const onKeyDown = useCallback(
+  const onEnter = useCallback(
     (evt: KeyboardEvent) => {
-      if (evt.key === 'Escape') {
-        onClose();
+      evt.preventDefault();
+      const searchValue = findInPageInputRef.current?.value;
+      if (!searchValue || searchValue === '') {
+        return dispatchStopFind();
       }
 
-      if (evt.key === 'Enter') {
-        evt.preventDefault();
-        const searchValue = findInPageInputRef.current?.value;
-        if (!searchValue || searchValue === '') {
-          return dispatchStopFind();
-        }
-
-        const back = evt.shiftKey;
-        dispatchFind(searchValue, !back, searching);
-      }
+      const back = evt.shiftKey;
+      dispatchFind(searchValue, !back, searching);
     },
-    [onClose, dispatchFind, searching, dispatchStopFind]
+    [dispatchFind, searching, dispatchStopFind]
   );
+
+  useHotkeys('esc', onClose, { enableOnFormTags: ['INPUT'] });
+  useHotkeys('enter', onEnter, { enableOnFormTags: ['INPUT'] });
+  useHotkeys('shift + enter', onEnter, { enableOnFormTags: ['INPUT'] });
 
   useEffect(() => {
     findInPageInputRef.current?.focus();
-    window.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onKeyDown]);
+  }, []);
 
   return (
     <div

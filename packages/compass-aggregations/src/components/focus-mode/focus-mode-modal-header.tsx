@@ -10,8 +10,9 @@ import {
   spacing,
   Toggle,
   Tooltip,
+  useHotkeys,
 } from '@mongodb-js/compass-components';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
@@ -82,34 +83,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const keyEventListener = (e: KeyboardEvent) => {
-    const isShiftKey = e.shiftKey;
-    const isCtrlOrMetaKey = e.ctrlKey || e.metaKey;
-    if (!isShiftKey || !isCtrlOrMetaKey) {
-      return;
-    }
-
-    switch (e.key) {
-      case '9':
-        return onPreviousStage();
-      case '0':
-        return onNextStage();
-      case 'a':
-        return onAddStageAfter();
-      case 'b':
-        return onAddStageBefore();
-      default:
-        return;
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('keydown', keyEventListener);
-    return () => {
-      window.removeEventListener('keydown', keyEventListener);
-    };
-  }, [keyEventListener]);
-
   const isFirst = stageIndex === 0;
   const isLast = stages.length - 1 === stageIndex;
 
@@ -136,6 +109,23 @@ export const FocusModeModalHeader: React.FunctionComponent<
     onAddStageClick(stageIndex);
     setMenuOpen(false);
   };
+
+  const { shortcut: previousStageShortcut } = useHotkeys(
+    'meta + shift + 9',
+    onPreviousStage
+  );
+  const { shortcut: nextStageShortcut } = useHotkeys(
+    'meta + shift + 0',
+    onNextStage
+  );
+  const { shortcut: addStageAfterShortcut } = useHotkeys(
+    'meta + shift + a',
+    onAddStageAfter
+  );
+  const { shortcut: addStageBeforeShortcut } = useHotkeys(
+    'meta + shift + b',
+    onAddStageBefore
+  );
 
   const stageSelectLabels = stages.map((stageName, index) => {
     return `Stage ${index + 1}: ${stageName ?? 'select'}`;
@@ -179,7 +169,9 @@ export const FocusModeModalHeader: React.FunctionComponent<
             <span className={tooltipContentItemStyles}>
               Go to previous stage
             </span>
-            <span className={tooltipContentItemStyles}>Ctrl + Shift + 9</span>
+            <span className={tooltipContentItemStyles}>
+              {previousStageShortcut}
+            </span>
           </Body>
         </Tooltip>
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
@@ -227,7 +219,9 @@ export const FocusModeModalHeader: React.FunctionComponent<
         >
           <Body className={tooltipContentStyles}>
             <span>Go to next stage</span>
-            <span>Ctrl + Shift + 0</span>
+            <span className={tooltipContentItemStyles}>
+              {nextStageShortcut}
+            </span>
           </Body>
         </Tooltip>
       </div>
@@ -283,14 +277,14 @@ export const FocusModeModalHeader: React.FunctionComponent<
         <MenuItem
           className={menuItemStyles}
           onClick={onAddStageAfter}
-          data-hotkey="Ctrl + Shift + A"
+          data-hotkey={addStageAfterShortcut}
         >
           Add stage after
         </MenuItem>
         <MenuItem
           className={menuItemStyles}
           onClick={onAddStageBefore}
-          data-hotkey="Ctrl + Shift + B"
+          data-hotkey={addStageBeforeShortcut}
         >
           Add stage before
         </MenuItem>
