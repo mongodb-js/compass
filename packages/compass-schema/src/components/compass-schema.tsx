@@ -27,17 +27,6 @@ import {
   rgba,
 } from '@mongodb-js/compass-components';
 
-const mcBlue0 = palette.blue.light1;
-const mcBlue1 = lighten(0.075, mcBlue0);
-const mcBlue2 = lighten(0.15, mcBlue0);
-const mcBlue3 = lighten(0.225, mcBlue0);
-const mcBlue4 = lighten(0.3, mcBlue0);
-const mcBlue5 = lighten(0.375, mcBlue0);
-const mcBg = palette.gray.light2;
-const mcFg = mcBlue0;
-const mcFgSelected = palette.yellow.base;
-const mcFgUnselected = mcBg;
-
 const rootStyles = css`
   width: 100%;
   height: 100%;
@@ -61,7 +50,20 @@ const schemaStyles = css`
   overflow: auto;
 `;
 
-const minichartStyles = (darkMode: boolean) => css`
+const minichartStyles = (darkMode: boolean) => {
+  const mcBlue0 = palette.blue.light1;
+  const mcBlue1 = lighten(0.075, mcBlue0);
+  const mcBlue2 = lighten(0.15, mcBlue0);
+  const mcBlue3 = lighten(0.225, mcBlue0);
+  const mcBlue4 = lighten(0.3, mcBlue0);
+  const mcBlue5 = lighten(0.375, mcBlue0);
+  const mcBg = darkMode ? palette.gray.light1 : palette.gray.light2;
+  const mcFg = mcBlue0;
+  const mcFgSelected = palette.yellow.base;
+  const mcFgUnselected = mcBg;
+  const fewRectStroke = darkMode ? palette.black : palette.white;
+
+  return css`
 div.minichart.unique {
   font-size: 12px;
   dl.dl-horizontal {
@@ -154,7 +156,7 @@ svg.minichart {
     }
     &.few {
       rect {
-        stroke: ${darkMode ? palette.black : palette.white};
+        stroke: ${fewRectStroke};
         stroke-width: 2px;
       }
       rect.fg-0 {
@@ -240,7 +242,7 @@ svg.minichart {
   }
   #circle {
     background-color: ${rgba(palette.gray.dark4, 0.1)};
-    font-family: Helvetica, sans-serif;
+    font-family: 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: ${palette.blue.light1};
     padding: 5px 8px;
     border-radius: 3px;
@@ -285,6 +287,7 @@ svg.minichart {
   margin-left: -16px;
 }
 `;
+};
 
 const minichartStylesLight = minichartStyles(false);
 const minichartStylesDark = minichartStyles(true);

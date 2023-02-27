@@ -5,7 +5,7 @@ import L from 'leaflet';
 
 import { Map, TileLayer, FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
-import { palette } from '@mongodb-js/compass-components';
+import { palette, spacing } from '@mongodb-js/compass-components';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
@@ -125,9 +125,7 @@ class UnthemedCoordinatesMinichart extends PureComponent {
       unique: PropTypes.number,
       values: PropTypes.array,
     }),
-    width: PropTypes.number.isRequired,
     actions: PropTypes.object.isRequired,
-    height: PropTypes.number.isRequired,
     fieldName: PropTypes.string.isRequired,
     darkMode: PropTypes.bool,
   };
@@ -199,8 +197,8 @@ class UnthemedCoordinatesMinichart extends PureComponent {
       return;
     }
 
-    map.container.style.height = `${this.props.height}px`;
-    map.container.style.width = `${this.props.width}px`;
+    map.container.style.height = `${spacing['5'] * 12}px`;
+    map.container.style.width = '100%';
     map.leafletElement.invalidateSize();
   }
 
@@ -247,38 +245,40 @@ class UnthemedCoordinatesMinichart extends PureComponent {
   render() {
     const { attributionMessage } = this.state;
     return (
-      <Map
-        minZoom={1}
-        viewport={{ center: [0, 0], zoom: 1 }}
-        whenReady={this.whenMapReady}
-        ref={(ref) => {
-          this.mapRef = ref;
-        }}
-        onMoveend={this.onMoveEnd}
-      >
-        {this.renderMapItems()}
-        <TileLayer
-          url={this.props.darkMode ? DARKMODE_TILE_URL : LIGHTMODE_TILE_URL}
-          attribution={attributionMessage}
-        />
-        <FeatureGroup>
-          <EditControl
-            position="topright"
-            onEdited={this.onEdited}
-            onCreated={this.onCreated}
-            onDeleted={this.onDeleted}
-            onMounted={this.onMounted}
-            onEditStop={this.onEditStop}
-            onDeleteStop={this.onDeleteStop}
-            draw={{
-              rectangle: false,
-              polyline: false,
-              marker: false,
-              circlemarker: false,
-            }}
+      <div style={{ background: palette.gray.dark3 }}>
+        <Map
+          minZoom={1}
+          viewport={{ center: [0, 0], zoom: 1 }}
+          whenReady={this.whenMapReady}
+          ref={(ref) => {
+            this.mapRef = ref;
+          }}
+          onMoveend={this.onMoveEnd}
+        >
+          {this.renderMapItems()}
+          <TileLayer
+            url={this.props.darkMode ? DARKMODE_TILE_URL : LIGHTMODE_TILE_URL}
+            attribution={attributionMessage}
           />
-        </FeatureGroup>
-      </Map>
+          <FeatureGroup>
+            <EditControl
+              position="topright"
+              onEdited={this.onEdited}
+              onCreated={this.onCreated}
+              onDeleted={this.onDeleted}
+              onMounted={this.onMounted}
+              onEditStop={this.onEditStop}
+              onDeleteStop={this.onDeleteStop}
+              draw={{
+                rectangle: false,
+                polyline: false,
+                marker: false,
+                circlemarker: false,
+              }}
+            />
+          </FeatureGroup>
+        </Map>
+      </div>
     );
   }
 }

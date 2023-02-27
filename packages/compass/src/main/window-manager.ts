@@ -170,6 +170,11 @@ function showConnectWindow(
     return { action: 'deny' };
   });
 
+  window.webContents.on('will-navigate', function (e, url) {
+    e.preventDefault();
+    void shell.openExternal(url);
+  });
+
   return window;
 }
 

@@ -113,14 +113,11 @@ class MiniChart extends Component {
       );
     }
     if (typeName === 'Coordinates') {
-      const height = width / 1.618; // = golden ratio
       return (
         <CoordinatesMinichart
           actions={this.props.actions}
           fieldName={fieldName}
           type={this.props.type}
-          width={width}
-          height={height}
           localAppRegistry={this.props.localAppRegistry}
         />
       );

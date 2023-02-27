@@ -2,6 +2,8 @@ import L from 'leaflet';
 
 import { COPYRIGHT_URL } from './constants';
 
+const thisYear = new Date().getFullYear();
+
 /**
  * Fetches attribution objects from the attribution endpoint (currently the raw API).
  * @returns {Array} Array of attribution objects { label, alt, boxes, minLevel, maxLevel }
@@ -46,7 +48,7 @@ const getHereAttributionMessage = async function (bounds, level) {
   });
 
   const copyrightString = copyrights.join(', ');
-  return ` &copy; 1987-2019 HERE${
+  return ` &copy; 1987-${thisYear} HERE${
     copyrightString.length > 0 ? `, ${copyrightString}` : ''
   } | <a href="https://legal.here.com/en/terms/serviceterms/us">Terms of Use</a>`;
 };

@@ -343,6 +343,10 @@ const lineNumberCountHidden = css({
     },
 });
 
+const elementKeyDarkMode = css({
+  color: palette.gray.light2,
+});
+
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -419,7 +423,11 @@ export const HadronElement: React.FunctionComponent<{
   };
 
   const keyProps = {
-    className: cx(elementKey, internal && elementKeyInternal),
+    className: cx(
+      elementKey,
+      internal && elementKeyInternal,
+      darkMode && elementKeyDarkMode
+    ),
   };
 
   const lineNumberRemoved = darkMode
