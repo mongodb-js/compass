@@ -50,7 +50,7 @@ const getHereAttributionMessage = async function (bounds, level) {
   const copyrightString = copyrights.join(', ');
   return ` &copy; 1987-${thisYear} HERE${
     copyrightString.length > 0 ? `, ${copyrightString}` : ''
-  } | <a href="https://legal.here.com/en/terms/serviceterms/us">Terms of Use</a>`;
+  } | <a target="_blank" href="https://legal.here.com/en/terms/serviceterms/us">Terms of Use</a>`;
 };
 
 export { getHereTileBoxes, getHereAttributionMessage };
