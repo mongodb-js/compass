@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import path from 'path';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -196,11 +196,14 @@ function FileInput({
     }
   }, [disabled, backend, multi, accept]);
 
-  useEffect(() => {
+  const initialAutoOpen = useRef(() => {
     if (autoOpen) {
       handleOpenFileInput();
     }
-  }, [autoOpen, handleOpenFileInput]);
+  });
+  useEffect(() => {
+    initialAutoOpen.current();
+  }, []);
 
   useEffect(() => {
     return backend?.onFilesChosen?.(onChange);
