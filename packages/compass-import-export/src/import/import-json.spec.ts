@@ -80,7 +80,7 @@ describe('importJSON', function () {
 
         const output = temp.createWriteStream();
 
-        const stats = await importJSON({
+        const result = await importJSON({
           dataService,
           ns,
           input: fs.createReadStream(filepath),
@@ -94,23 +94,47 @@ describe('importJSON', function () {
 
         const totalRows = progressCallback.callCount;
 
-        expect(progressCallback.firstCall.args[0]).to.equal(1);
-        expect(progressCallback.firstCall.args[1]).to.be.gt(0);
+        const firstCallArg = Object.assign(
+          {},
+          progressCallback.firstCall.args[0]
+        );
+        expect(firstCallArg.bytesProcessed).to.be.gt(0);
+        delete firstCallArg.bytesProcessed;
+
+        expect(firstCallArg).to.deep.equal({
+          docsProcessed: 1,
+          docsWritten: 0,
+        });
 
         const fileStat = await fs.promises.stat(filepath);
 
-        expect(progressCallback.lastCall.args[0]).to.equal(totalRows);
-        expect(progressCallback.lastCall.args[1]).to.be.equal(fileStat.size);
+        const lastCallArg = Object.assign(
+          {},
+          progressCallback.lastCall.args[0]
+        );
 
-        expect(stats).to.deep.equal({
-          nInserted: totalRows,
-          nMatched: 0,
-          nModified: 0,
-          nRemoved: 0,
-          nUpserted: 0,
-          ok: Math.ceil(totalRows / 1000),
-          writeConcernErrors: [],
-          writeErrors: [],
+        // bit of a race condition. could be 0, could be totalRows..
+        delete lastCallArg.docsWritten;
+
+        expect(lastCallArg).to.deep.equal({
+          bytesProcessed: fileStat.size,
+          docsProcessed: totalRows,
+        });
+
+        expect(result).to.deep.equal({
+          docsWritten: totalRows,
+          docsProcessed: totalRows,
+          dbErrors: [],
+          dbStats: {
+            nInserted: totalRows,
+            nMatched: 0,
+            nModified: 0,
+            nRemoved: 0,
+            nUpserted: 0,
+            ok: Math.ceil(totalRows / 1000),
+            writeConcernErrors: [],
+            writeErrors: [],
+          },
         });
 
         const docs = await dataService.find(ns, {});
@@ -160,7 +184,7 @@ describe('importJSON', function () {
 
     const output = temp.createWriteStream();
 
-    const stats = await importJSON({
+    const result = await importJSON({
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
@@ -169,15 +193,20 @@ describe('importJSON', function () {
       jsonVariant: 'jsonl',
     });
 
-    expect(stats).to.deep.equal({
-      nInserted: 2000,
-      nMatched: 0,
-      nModified: 0,
-      nRemoved: 0,
-      nUpserted: 0,
-      ok: 2, // expected two batches
-      writeConcernErrors: [],
-      writeErrors: [],
+    expect(result).to.deep.equal({
+      docsProcessed: 2000,
+      docsWritten: 2000,
+      dbErrors: [],
+      dbStats: {
+        nInserted: 2000,
+        nMatched: 0,
+        nModified: 0,
+        nRemoved: 0,
+        nUpserted: 0,
+        ok: 2, // expected two batches
+        writeConcernErrors: [],
+        writeErrors: [],
+      },
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -387,7 +416,7 @@ describe('importJSON', function () {
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
-    const stats = await importJSON({
+    const result = await importJSON({
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
@@ -398,7 +427,7 @@ describe('importJSON', function () {
       errorCallback,
     });
 
-    expect(stats.nInserted).to.equal(1);
+    expect(result.dbStats.nInserted).to.equal(1);
 
     expect(progressCallback.callCount).to.equal(2);
     expect(errorCallback.callCount).to.equal(1);
@@ -469,7 +498,7 @@ describe('importJSON', function () {
       },
     });
 
-    const stats = await importJSON({
+    const result = await importJSON({
       dataService,
       ns,
       input: Readable.from(lines.join('\n')),
@@ -480,7 +509,7 @@ describe('importJSON', function () {
       errorCallback,
     });
 
-    expect(stats.nInserted).to.equal(0);
+    expect(result.dbStats.nInserted).to.equal(0);
 
     expect(progressCallback.callCount).to.equal(2);
     expect(errorCallback.callCount).to.equal(3); // yes one more MongoBulkWriteError than items in the batch
@@ -523,7 +552,7 @@ describe('importJSON', function () {
 
     const output = temp.createWriteStream();
 
-    const stats = await importJSON({
+    const result = await importJSON({
       dataService,
       ns,
       input: fs.createReadStream(fixtures.csv.complex),
@@ -533,16 +562,21 @@ describe('importJSON', function () {
     });
 
     // only looked at the first row because we aborted before even starting
-    expect(stats).to.deep.equal({
+    expect(result).to.deep.equal({
       aborted: true,
-      nInserted: 0,
-      nMatched: 0,
-      nModified: 0,
-      nRemoved: 0,
-      nUpserted: 0,
-      ok: 0,
-      writeConcernErrors: [],
-      writeErrors: [],
+      docsProcessed: 0,
+      docsWritten: 0,
+      dbErrors: [],
+      dbStats: {
+        nInserted: 0,
+        nMatched: 0,
+        nModified: 0,
+        nRemoved: 0,
+        nUpserted: 0,
+        ok: 0,
+        writeConcernErrors: [],
+        writeErrors: [],
+      },
     });
   });
 

@@ -95,7 +95,7 @@ describe('importCSV', function () {
 
       const output = temp.createWriteStream();
 
-      const stats = await importCSV({
+      const result = await importCSV({
         dataService,
         ns,
         fields,
@@ -107,26 +107,47 @@ describe('importCSV', function () {
         ignoreEmptyStrings: true,
       });
 
-      expect(stats).to.deep.equal({
-        nInserted: totalRows,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
-        ok: Math.ceil(totalRows / 1000),
-        writeConcernErrors: [],
-        writeErrors: [],
+      expect(result).to.deep.equal({
+        docsProcessed: totalRows,
+        docsWritten: totalRows,
+        dbErrors: [],
+        dbStats: {
+          nInserted: totalRows,
+          nMatched: 0,
+          nModified: 0,
+          nRemoved: 0,
+          nUpserted: 0,
+          ok: Math.ceil(totalRows / 1000),
+          writeConcernErrors: [],
+          writeErrors: [],
+        },
       });
 
       expect(progressCallback.callCount).to.equal(totalRows);
 
-      expect(progressCallback.firstCall.args[0]).to.equal(1);
-      expect(progressCallback.firstCall.args[1]).to.be.gt(0);
+      const firstCallArg = Object.assign(
+        {},
+        progressCallback.firstCall.args[0]
+      );
+      expect(firstCallArg.bytesProcessed).to.be.gt(0);
+      delete firstCallArg.bytesProcessed;
+
+      expect(firstCallArg).to.deep.equal({
+        docsProcessed: 1,
+        docsWritten: 0,
+      });
 
       const fileStat = await fs.promises.stat(filepath);
 
-      expect(progressCallback.lastCall.args[0]).to.equal(totalRows);
-      expect(progressCallback.lastCall.args[1]).to.be.equal(fileStat.size);
+      const lastCallArg = Object.assign({}, progressCallback.lastCall.args[0]);
+
+      // bit of a race condition. could be 0, could be totalRows..
+      delete lastCallArg.docsWritten;
+
+      expect(lastCallArg).to.deep.equal({
+        bytesProcessed: fileStat.size,
+        docsProcessed: totalRows,
+      });
 
       const docs = await dataService.find(ns, {});
 
@@ -212,7 +233,7 @@ describe('importCSV', function () {
 
       const output = temp.createWriteStream();
 
-      const stats = await importCSV({
+      const result = await importCSV({
         dataService,
         ns,
         fields,
@@ -224,15 +245,20 @@ describe('importCSV', function () {
         ignoreEmptyStrings: true,
       });
 
-      expect(stats).to.deep.equal({
-        nInserted: totalRows,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
-        ok: Math.ceil(totalRows / 1000),
-        writeConcernErrors: [],
-        writeErrors: [],
+      expect(result).to.deep.equal({
+        docsProcessed: totalRows,
+        docsWritten: totalRows,
+        dbErrors: [],
+        dbStats: {
+          nInserted: totalRows,
+          nMatched: 0,
+          nModified: 0,
+          nRemoved: 0,
+          nUpserted: 0,
+          ok: Math.ceil(totalRows / 1000),
+          writeConcernErrors: [],
+          writeErrors: [],
+        },
       });
 
       const docs = await dataService.find(ns, {}, { promoteValues: false });
@@ -278,7 +304,7 @@ describe('importCSV', function () {
 
     const output = temp.createWriteStream();
 
-    const stats = await importCSV({
+    const result = await importCSV({
       dataService,
       ns,
       fields,
@@ -290,15 +316,20 @@ describe('importCSV', function () {
       ignoreEmptyStrings: false,
     });
 
-    expect(stats).to.deep.equal({
-      nInserted: totalRows,
-      nMatched: 0,
-      nModified: 0,
-      nRemoved: 0,
-      nUpserted: 0,
-      ok: Math.ceil(totalRows / 1000),
-      writeConcernErrors: [],
-      writeErrors: [],
+    expect(result).to.deep.equal({
+      docsProcessed: totalRows,
+      docsWritten: totalRows,
+      dbErrors: [],
+      dbStats: {
+        nInserted: totalRows,
+        nMatched: 0,
+        nModified: 0,
+        nRemoved: 0,
+        nUpserted: 0,
+        ok: Math.ceil(totalRows / 1000),
+        writeConcernErrors: [],
+        writeErrors: [],
+      },
     });
 
     const docs = await dataService.find(ns, {}, { promoteValues: false });
@@ -340,7 +371,7 @@ describe('importCSV', function () {
 
     const output = temp.createWriteStream();
 
-    const stats = await importCSV({
+    const result = await importCSV({
       dataService,
       ns,
       fields,
@@ -349,15 +380,20 @@ describe('importCSV', function () {
       progressCallback,
     });
 
-    expect(stats).to.deep.equal({
-      nInserted: 2000,
-      nMatched: 0,
-      nModified: 0,
-      nRemoved: 0,
-      nUpserted: 0,
-      ok: 2, // expected two batches
-      writeConcernErrors: [],
-      writeErrors: [],
+    expect(result).to.deep.equal({
+      docsProcessed: 2000,
+      docsWritten: 2000,
+      dbErrors: [],
+      dbStats: {
+        nInserted: 2000,
+        nMatched: 0,
+        nModified: 0,
+        nRemoved: 0,
+        nUpserted: 0,
+        ok: 2, // expected two batches
+        writeConcernErrors: [],
+        writeErrors: [],
+      },
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -609,7 +645,7 @@ describe('importCSV', function () {
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
-    const stats = await importCSV({
+    const result = await importCSV({
       dataService,
       ns,
       fields,
@@ -620,7 +656,7 @@ describe('importCSV', function () {
       errorCallback,
     });
 
-    expect(stats.nInserted).to.equal(1);
+    expect(result.dbStats.nInserted).to.equal(1);
 
     expect(progressCallback.callCount).to.equal(3);
     expect(errorCallback.callCount).to.equal(2);
@@ -705,7 +741,7 @@ describe('importCSV', function () {
       },
     });
 
-    const stats = await importCSV({
+    const result = await importCSV({
       dataService,
       ns,
       fields,
@@ -716,7 +752,7 @@ describe('importCSV', function () {
       errorCallback,
     });
 
-    expect(stats.nInserted).to.equal(0);
+    expect(result.dbStats.nInserted).to.equal(0);
 
     expect(progressCallback.callCount).to.equal(3);
     expect(errorCallback.callCount).to.equal(4); // yes one more MongoBulkWriteError than items in the batch
@@ -766,7 +802,7 @@ describe('importCSV', function () {
 
     const output = temp.createWriteStream();
 
-    const stats = await importCSV({
+    const result = await importCSV({
       dataService,
       ns,
       fields,
@@ -776,16 +812,21 @@ describe('importCSV', function () {
     });
 
     // only looked at the first row because we aborted before even starting
-    expect(stats).to.deep.equal({
+    expect(result).to.deep.equal({
       aborted: true,
-      nInserted: 0,
-      nMatched: 0,
-      nModified: 0,
-      nRemoved: 0,
-      nUpserted: 0,
-      ok: 0,
-      writeConcernErrors: [],
-      writeErrors: [],
+      docsProcessed: 0,
+      docsWritten: 0,
+      dbErrors: [],
+      dbStats: {
+        nInserted: 0,
+        nMatched: 0,
+        nModified: 0,
+        nRemoved: 0,
+        nUpserted: 0,
+        ok: 0,
+        writeConcernErrors: [],
+        writeErrors: [],
+      },
     });
   });
 
@@ -823,6 +864,35 @@ describe('importCSV', function () {
   it('errors if a file is not valid utf8', async function () {
     const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
     const input = Readable.from(latin1Buffer);
+
+    const output = temp.createWriteStream();
+
+    const ns = 'db.col';
+    const fields = {
+      // irrelevant what we put here
+    } as const;
+
+    await expect(
+      importCSV({
+        dataService,
+        ns,
+        fields,
+        input,
+        output,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
+  it('errors if a file is truncated utf8', async function () {
+    const truncatedUtf8Buffer = Buffer.from('a,foo\n1,🏳️‍🌈', 'utf8').subarray(
+      0,
+      -1
+    );
+    const input = Readable.from(truncatedUtf8Buffer);
 
     const output = temp.createWriteStream();
 

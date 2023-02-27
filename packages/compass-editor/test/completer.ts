@@ -7,7 +7,7 @@ import { EditorTextCompleter } from '../src';
 
 type CompletionsOptions = {
   serverVersion: string;
-  fields: CompletionWithServerInfo[];
+  fields: Partial<CompletionWithServerInfo>[];
   pos: Ace.Position;
   stageOperator: string | null;
 };

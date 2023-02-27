@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  cleanup,
-  within,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
@@ -252,77 +246,6 @@ describe('AggregationsQueriesList', function () {
       expectedItems.forEach((item) => {
         expect(screen.getByText(item.name)).to.exist;
       });
-    });
-
-    it('should delete an item', async function () {
-      const item = queries[0];
-      const card = document.querySelector<HTMLElement>(
-        `[data-id="${item.id}"]`
-      );
-
-      if (!card) {
-        throw new Error('Expected card to exist');
-      }
-
-      userEvent.hover(card);
-      userEvent.click(within(card).getByLabelText(/show actions/i));
-      userEvent.click(
-        within(card).getByRole('menuitem', {
-          name: /delete/i,
-        })
-      );
-
-      const modal = screen.getByTestId('delete-item-modal');
-
-      const title = new RegExp(
-        `are you sure you want to delete your ${
-          item.type === 'query' ? 'query' : 'aggregation'
-        }?`,
-        'i'
-      );
-      const description = /this action can not be undone/i;
-
-      expect(within(modal).getByText(title), 'show title').to.exist;
-      expect(within(modal).getByText(description), 'show description').to.exist;
-
-      userEvent.click(
-        within(modal).getByRole('button', {
-          name: /delete/i,
-        })
-      );
-
-      await waitForElementToBeRemoved(() => {
-        return screen.queryByTestId('delete-item-modal');
-      });
-
-      expect(screen.queryByText(item.name)).to.not.exist;
-    });
-
-    it('should keep an item in the list if delete was not confirmed', async function () {
-      const item = queries[0];
-      const card = document.querySelector<HTMLElement>(
-        `[data-id="${item.id}"]`
-      );
-
-      if (!card) {
-        throw new Error('Expected card to exist');
-      }
-
-      userEvent.hover(card);
-      userEvent.click(within(card).getByLabelText('Show actions'));
-      userEvent.click(within(card).getByText('Delete'));
-
-      const modal = await screen.findByTestId('delete-item-modal');
-
-      userEvent.click(within(modal).getByText('Cancel'), undefined, {
-        skipPointerEventsCheck: true,
-      });
-
-      await waitForElementToBeRemoved(() => {
-        return screen.queryByTestId('delete-item-modal');
-      });
-
-      expect(screen.queryByText(item.name)).to.exist;
     });
 
     it('should rename an item', async function () {

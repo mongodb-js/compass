@@ -1,30 +1,13 @@
-import { BSON_TYPES, QUERY_OPERATORS } from '@mongodb-js/mongodb-constants';
-import semver from 'semver';
 import type { CompletionWithServerInfo } from '../types';
 
-const filter = (
-  version: string,
-  entries: CompletionWithServerInfo[],
-  prefix: string
-) => {
-  const parsedVersion = semver.parse(version);
-  const cleanVersion = parsedVersion
-    ? [parsedVersion.major, parsedVersion.minor, parsedVersion.patch].join('.')
-    : version;
-  return entries.filter((e) => {
-    if (!e.name) {
-      return false;
-    }
-    return e.name.startsWith(prefix) && semver.gte(cleanVersion, e.version);
-  });
-};
-
-/**
- * The match completions.
- */
-const MATCH_COMPLETIONS = ([] as CompletionWithServerInfo[]).concat(
-  QUERY_OPERATORS,
-  BSON_TYPES
-);
-
-export { filter, MATCH_COMPLETIONS };
+export function getNames(completions: CompletionWithServerInfo[]): string[] {
+  return completions
+    .filter(
+      (
+        completion
+      ): completion is CompletionWithServerInfo & { name: string } => {
+        return !!completion.name;
+      }
+    )
+    .map((completion) => completion.name);
+}

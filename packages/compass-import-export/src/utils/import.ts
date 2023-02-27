@@ -1,9 +1,43 @@
 import os from 'os';
 import type { Writable } from 'stream';
-import type { WritableCollectionStream } from './collection-stream';
+import type {
+  CollectionStreamStats,
+  CollectionStreamProgressError,
+  WritableCollectionStream,
+} from '../utils/collection-stream';
 import { createDebug } from './logger';
 
 const debug = createDebug('import');
+
+export type ImportResult = {
+  aborted?: boolean;
+  dbErrors: CollectionStreamProgressError[];
+  dbStats: CollectionStreamStats;
+  docsWritten: number;
+  docsProcessed: number;
+};
+
+export function makeImportResult(
+  collectionStream: WritableCollectionStream,
+  numProcessed: number,
+  aborted?: boolean
+): ImportResult {
+  const result: ImportResult = {
+    dbErrors: collectionStream.getErrors(),
+    dbStats: collectionStream.getStats(),
+    docsWritten: collectionStream.docsWritten,
+    // docsProcessed is not on collectionStream so that it includes docs that
+    // produced parse errors and therefore never made it to the collection
+    // stream.
+    docsProcessed: numProcessed,
+  };
+
+  if (aborted) {
+    result.aborted = aborted;
+  }
+
+  return result;
+}
 
 export type ErrorJSON = {
   name: string;
@@ -37,13 +71,19 @@ export function errorToJSON(error: any): ErrorJSON {
   return obj;
 }
 
+export type ImportProgress = {
+  bytesProcessed: number;
+  docsProcessed: number;
+  docsWritten: number;
+};
+
 export async function processWriteStreamErrors({
   collectionStream,
   output,
   errorCallback,
 }: {
   collectionStream: WritableCollectionStream;
-  output: Writable;
+  output?: Writable;
   errorCallback?: (err: ErrorJSON) => void;
 }) {
   // This is temporary until we change WritableCollectionStream so it can pipe
@@ -59,6 +99,11 @@ export async function processWriteStreamErrors({
     const transformedError = errorToJSON(error);
     debug('write error', transformedError);
     errorCallback?.(transformedError);
+
+    if (!output) {
+      continue;
+    }
+
     try {
       await new Promise<void>((resolve) => {
         output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
@@ -82,7 +127,7 @@ export function processParseError({
   annotation: string;
   stopOnErrors?: boolean;
   err: unknown;
-  output: Writable;
+  output?: Writable;
   errorCallback?: (error: ErrorJSON) => void;
   callback: (err?: any) => void;
 }) {
@@ -95,15 +140,19 @@ export function processParseError({
     const transformedError = errorToJSON(err);
     debug('transform error', transformedError);
     errorCallback?.(transformedError);
-    output.write(
-      JSON.stringify(transformedError) + os.EOL,
-      'utf8',
-      (err: any) => {
-        if (err) {
-          debug('error while writing error', err);
+    if (output) {
+      output.write(
+        JSON.stringify(transformedError) + os.EOL,
+        'utf8',
+        (err: any) => {
+          if (err) {
+            debug('error while writing error', err);
+          }
+          callback();
         }
-        callback();
-      }
-    );
+      );
+    } else {
+      callback();
+    }
   }
 }

@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "description": "Load and manage saved queries in Compass",
-  "version": "9.5.1",
+  "version": "9.6.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -57,26 +57,26 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-logging": "^1.1.2",
-    "@mongodb-js/compass-utils": "^0.2.1",
+    "@mongodb-js/compass-components": "^1.6.0",
+    "@mongodb-js/compass-logging": "^1.1.3",
+    "@mongodb-js/compass-utils": "^0.2.2",
     "bson": "^5.0.1",
-    "storage-mixin": "^5.1.1"
+    "storage-mixin": "^5.1.2"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.5.0",
-    "@mongodb-js/compass-logging": "^1.1.2",
-    "@mongodb-js/compass-utils": "^0.2.1",
+    "@mongodb-js/compass-components": "^1.6.0",
+    "@mongodb-js/compass-logging": "^1.1.3",
+    "@mongodb-js/compass-utils": "^0.2.2",
     "bson": "^5.0.1",
     "react": "^17.0.2",
-    "storage-mixin": "^5.1.1"
+    "storage-mixin": "^5.1.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.2",
+    "@mongodb-js/eslint-config-compass": "^1.0.3",
     "@mongodb-js/mocha-config-compass": "^1.0.2",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.5",
+    "@mongodb-js/webpack-config-compass": "^1.0.6",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "ampersand-model": "^8.0.1",
@@ -85,7 +85,7 @@
     "depcheck": "^1.4.1",
     "electron": "^22.0.2",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.3",
+    "hadron-app-registry": "^9.0.4",
     "lodash": "^4.17.15",
     "mocha": "^8.4.0",
     "mongodb-ns": "^2.4.0",

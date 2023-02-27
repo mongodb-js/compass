@@ -16,7 +16,10 @@ import { createDebug } from './logger';
 
 const debug = createDebug('collection-stream');
 
-type CollectionStreamProgressError = Error | WriteError | WriteConcernError;
+export type CollectionStreamProgressError =
+  | Error
+  | WriteError
+  | WriteConcernError;
 
 type CollectionStreamError = Error & {
   cause?: CollectionStreamProgressError;

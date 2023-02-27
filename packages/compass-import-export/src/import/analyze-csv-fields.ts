@@ -1,5 +1,6 @@
 import type { Readable } from 'stream';
 import Papa from 'papaparse';
+import stripBomStream from 'strip-bom-stream';
 
 import { createDebug } from '../utils/logger';
 import type {
@@ -10,15 +11,19 @@ import type {
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
-import stripBomStream from 'strip-bom-stream';
 
 const debug = createDebug('analyze-csv-fields');
+
+type AnalyzeProgress = {
+  bytesProcessed: number;
+  docsProcessed: number;
+};
 
 type AnalyzeCSVFieldsOptions = {
   input: Readable;
   delimiter: Delimiter;
   abortSignal?: AbortSignal;
-  progressCallback?: (index: number, bytes: number) => void;
+  progressCallback?: (progress: AnalyzeProgress) => void;
   ignoreEmptyStrings?: boolean;
 };
 
@@ -185,7 +190,10 @@ export function analyzeCSVFields({
 
         ++result.totalRows;
 
-        progressCallback?.(result.totalRows, byteCounter.total);
+        progressCallback?.({
+          bytesProcessed: byteCounter.total,
+          docsProcessed: result.totalRows,
+        });
       },
       complete: function () {
         debug('analyzeCSVFields:complete');

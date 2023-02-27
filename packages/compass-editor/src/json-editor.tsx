@@ -9,9 +9,9 @@
  * - [x] basic functionality: code highlighting for js and json, controlled /
  *       uncontrolled behavior, gutters, common hotkeys
  * - [x] leafygreen light and dark theme
- * - [ ] inline mode (disabled gutter extensions and adjusted theme)
+ * - [x] inline mode (disabled gutter extensions and adjusted theme)
  * - [ ] autocomplete
- * - [ ] lint annotations (for agg. builder)
+ * - [x] lint annotations (for agg. builder)
  *
  * https://jira.mongodb.org/browse/COMPASS-6481
  */
@@ -44,6 +44,8 @@ import {
   historyKeymap,
   indentWithTab,
 } from '@codemirror/commands';
+import type { Diagnostic } from '@codemirror/lint';
+import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
 import {
   //   autocompletion,
   //   completionKeymap,
@@ -62,11 +64,16 @@ import {
 } from '@mongodb-js/compass-components';
 import { javascriptLanguage } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
-import { Compartment, EditorState } from '@codemirror/state';
-import { LanguageSupport } from '@codemirror/language';
-import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
+import type { Extension } from '@codemirror/state';
+import { Facet, Compartment, EditorState } from '@codemirror/state';
+import {
+  LanguageSupport,
+  syntaxHighlighting,
+  HighlightStyle,
+} from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
+import { prettify as _prettify } from './prettify';
 
 const editorStyle = css({
   fontSize: 13,
@@ -88,6 +95,11 @@ const editorPalette = {
     activeLineBackgroundColor: rgba(palette.gray.light2, 0.5),
     selectionBackgroundColor: palette.blue.light2,
     bracketBorderColor: palette.gray.light1,
+    infoGutterIconColor: encodeURIComponent(palette.blue.base),
+    warningGutterIconColor: encodeURIComponent(palette.yellow.base),
+    errorGutterIconColor: encodeURIComponent(palette.red.base),
+    foldPlaceholderColor: palette.gray.base,
+    foldPlaceholderBackgroundColor: palette.gray.light3,
   },
   dark: {
     color: codePalette.dark[3],
@@ -101,6 +113,11 @@ const editorPalette = {
     activeLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
     selectionBackgroundColor: palette.gray.dark1,
     bracketBorderColor: palette.gray.light1,
+    infoGutterIconColor: encodeURIComponent(palette.blue.light1),
+    warningGutterIconColor: encodeURIComponent(palette.yellow.light2),
+    errorGutterIconColor: encodeURIComponent(palette.red.light1),
+    foldPlaceholderColor: palette.gray.base,
+    foldPlaceholderBackgroundColor: palette.gray.dark3,
   },
 } as const;
 
@@ -139,11 +156,40 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-gutters > .cm-gutter:last-child > .cm-gutterElement': {
         paddingRight: `${spacing[2]}px`,
       },
+      '& .cm-gutter-lint': {
+        width: 'auto',
+      },
+      '& .cm-gutter-lint .cm-gutterElement': {
+        padding: '0',
+      },
+      '& .cm-gutter-lint .cm-lint-marker': {
+        width: `${spacing[3]}px`,
+        height: `${spacing[3]}px`,
+        padding: '2px',
+      },
+      '& .cm-gutter-lint .cm-lint-marker-info': {
+        content: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${editorPalette[theme].infoGutterIconColor}' fill-rule='evenodd' d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM9 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8 6a1 1 0 0 1 1 1v4h.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1 0-1H7V7h-.5a.5.5 0 0 1 0-1H8Z' clip-rule='evenodd'/%3E%3C/svg%3E%0A")`,
+      },
+      '& .cm-gutter-lint .cm-lint-marker-warning': {
+        content: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${editorPalette[theme].warningGutterIconColor}' fill-rule='evenodd' d='M8.864 2.514a.983.983 0 0 0-1.728 0L1.122 13.539A.987.987 0 0 0 1.986 15h12.028a.987.987 0 0 0 .864-1.461L8.864 2.514ZM7 6a1 1 0 0 1 2 0v4a1 1 0 1 1-2 0V6Zm2 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z' clip-rule='evenodd'/%3E%3C/svg%3E%0A")`,
+      },
+      '& .cm-gutter-lint .cm-lint-marker-error': {
+        content: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${editorPalette[theme].errorGutterIconColor}' fill-rule='evenodd' d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm1.414-9.828a1 1 0 1 1 1.414 1.414L9.414 8l1.414 1.414a1 1 0 1 1-1.414 1.414L8 9.414l-1.414 1.414a1 1 0 1 1-1.414-1.414L6.586 8 5.172 6.586a1 1 0 0 1 1.414-1.414L8 6.586l1.414-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E%0A")`,
+      },
+
       '& .cm-activeLineGutter': {
         background: 'none',
       },
       '&.cm-focused .cm-activeLineGutter': {
         backgroundColor: editorPalette[theme].gutterActiveLineBackgroundColor,
+      },
+      '& .cm-foldPlaceholder': {
+        display: 'inline-block',
+        border: 'none',
+        color: editorPalette[theme].foldPlaceholderColor,
+        backgroundColor: editorPalette[theme].foldPlaceholderBackgroundColor,
+        boxShadow: `inset 0 0 0 1px ${editorPalette[theme].foldPlaceholderColor}`,
+        padding: '0 2px',
       },
       '& .foldMarker': {
         width: `${spacing[3]}px`,
@@ -262,6 +308,8 @@ const highlightStyles = {
 // We don't have any other cases we need to support in a base editor
 type EditorLanguage = 'json' | 'javascript';
 
+type Annotation = Pick<Diagnostic, 'from' | 'to' | 'severity' | 'message'>;
+
 type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
@@ -272,6 +320,7 @@ type EditorProps = {
   readOnly?: boolean;
   className?: string;
   'data-testid'?: string;
+  annotations?: Annotation[];
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
@@ -304,9 +353,43 @@ const languages: Record<EditorLanguage, () => LanguageSupport> = {
   },
 };
 
+const languageName = Facet.define<EditorLanguage>({});
+
+/**
+ * https://codemirror.net/examples/config/#dynamic-configuration
+ * @param fn
+ * @param editorViewRef
+ * @param value
+ * @returns
+ */
+function useCodemirrorExtensionCompartment<T>(
+  fn: () => Extension | Extension[],
+  value: T,
+  editorViewRef: React.RefObject<EditorView | undefined>
+): Extension {
+  const extensionCreatorRef = useRef<typeof fn>();
+  extensionCreatorRef.current = fn;
+  const compartmentRef = useRef<Compartment>();
+  compartmentRef.current ??= new Compartment();
+  const initialExtensionRef = useRef<Extension>();
+  initialExtensionRef.current ??= compartmentRef.current.of(
+    extensionCreatorRef.current()
+  );
+  useEffectOnChange(() => {
+    editorViewRef.current?.dispatch({
+      effects: compartmentRef.current?.reconfigure(
+        extensionCreatorRef.current!()
+      ),
+    });
+  }, value);
+  return initialExtensionRef.current;
+}
+
 const BaseEditor: React.FunctionComponent<EditorProps> & {
   foldAll: typeof foldAll;
   unfoldAll: typeof unfoldAll;
+  copyAll: typeof copyAll;
+  prettify: typeof prettify;
 } = ({
   initialText: _initialText,
   text,
@@ -316,6 +399,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   language = 'json',
   showLineNumbers = true,
   showFoldGutter = true,
+  annotations = [],
   darkMode: _darkMode,
   className,
   // TODO: Should disable gutter extensions
@@ -329,24 +413,65 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
   const onLoadRef = useRef(onLoad);
-  const initialReadOnly = useRef(readOnly);
   const initialTextProvided = useRef(!!_initialText);
   const initialText = useRef(_initialText ?? text);
   const initialLanguage = useRef(language);
-  const initialDarkMode = useRef(darkMode);
-  const initialShowLineNumbers = useRef(showLineNumbers);
-  const initialShowFoldGutter = useRef(showFoldGutter);
   const containerRef = useRef<HTMLDivElement>(null);
-  const languageConfigRef = useRef<Compartment>();
-  const readOnlyConfigRef = useRef<Compartment>();
-  const themeConfigRef = useRef<Compartment>();
-  const showLineNumbersConfigRef = useRef<Compartment>();
-  const showFoldGutterConfigRef = useRef<Compartment>();
   const editorViewRef = useRef<EditorView>();
 
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
+
+  const languageExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return [languages[language](), languageName.of(language)];
+    },
+    language,
+    editorViewRef
+  );
+
+  const readOnlyExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return [EditorState.readOnly.of(readOnly)].concat(
+        readOnly ? [] : [highlightActiveLine(), highlightActiveLineGutter()]
+      );
+    },
+    readOnly,
+    editorViewRef
+  );
+
+  const themeConfigExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return themeStyles[darkMode ? 'dark' : 'light'];
+    },
+    darkMode,
+    editorViewRef
+  );
+
+  const lineNumbersExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return showLineNumbers ? lineNumbers() : [];
+    },
+    showLineNumbers,
+    editorViewRef
+  );
+
+  const foldGutterExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return showFoldGutter ? createFoldGutterExtension() : [];
+    },
+    showFoldGutter,
+    editorViewRef
+  );
+
+  const annotationsGutterExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return annotations.length === 0 ? [] : lintGutter();
+    },
+    annotations.length === 0,
+    editorViewRef
+  );
 
   useLayoutEffect(() => {
     if (!containerRef.current) {
@@ -355,14 +480,6 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
 
     const domNode = containerRef.current;
 
-    // Dynamic configuration is an opt-in that requires some special handling
-    // https://codemirror.net/examples/config/#dynamic-configuration
-    languageConfigRef.current = new Compartment();
-    readOnlyConfigRef.current = new Compartment();
-    themeConfigRef.current = new Compartment();
-    showLineNumbersConfigRef.current = new Compartment();
-    showFoldGutterConfigRef.current = new Compartment();
-
     const editor = (editorViewRef.current = new EditorView({
       doc: initialText.current,
       // Cherry-picked from codemirror basicSetup extensions to match the ones
@@ -370,28 +487,29 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       // but this is good as a starting point
       // https://github.com/codemirror/basic-setup/blob/5b4dafdb3b02271bd3fd507d86982208457d8c5b/src/codemirror.ts#L12-L49
       extensions: [
-        showLineNumbersConfigRef.current.of(
-          initialShowLineNumbers.current ? lineNumbers() : []
-        ),
+        lineNumbersExtension,
         history(),
-        showFoldGutterConfigRef.current.of(
-          initialShowFoldGutter.current ? createFoldGutterExtension() : []
-        ),
+        foldGutterExtension,
         drawSelection(),
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
         // TODO: Make ace autocompleters work with codemirror format
         // autocompletion(),
-        // TODO: https://codemirror.net/docs/ref/#lint.lintGutter
-        // lintGutter(),
-        languageConfigRef.current.of(languages[initialLanguage.current]()),
+        annotationsGutterExtension,
+        languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
-        themeConfigRef.current.of(
-          themeStyles[initialDarkMode.current ? 'dark' : 'light']
-        ),
+        themeConfigExtension,
         keymap.of([
+          {
+            key: 'Ctrl-Shift-b',
+            run: prettify,
+          },
+          {
+            key: 'Ctrl-Shift-c',
+            run: copyAll,
+          },
           ...defaultKeymap,
           ...closeBracketsKeymap,
           ...historyKeymap,
@@ -399,15 +517,8 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           // Breaks keyboard navigation out of the editor, but we want that
           // https://codemirror.net/examples/tab/
           indentWithTab,
-          // TODO: "Prettify" and "Copy all" commands
         ]),
-        readOnlyConfigRef.current.of(
-          [EditorState.readOnly.of(initialReadOnly.current)].concat(
-            initialReadOnly.current
-              ? []
-              : [highlightActiveLine(), highlightActiveLineGutter()]
-          )
-        ),
+        readOnlyExtension,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const text = editorViewRef.current?.state.sliceDoc() ?? '';
@@ -450,47 +561,20 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       delete (domNode as any)._cm;
       editor.destroy();
     };
-  }, []);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: languageConfigRef.current?.reconfigure(languages[language]()),
-    });
-  }, language);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: readOnlyConfigRef.current?.reconfigure(
-        [EditorState.readOnly.of(readOnly)].concat(
-          readOnly ? [] : [highlightActiveLine(), highlightActiveLineGutter()]
-        )
-      ),
-    });
-  }, readOnly);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: themeConfigRef.current?.reconfigure(
-        themeStyles[darkMode ? 'dark' : 'light']
-      ),
-    });
-  }, darkMode);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: showLineNumbersConfigRef.current?.reconfigure(
-        showLineNumbers ? lineNumbers() : []
-      ),
-    });
-  }, showLineNumbers);
-
-  useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: showFoldGutterConfigRef.current?.reconfigure(
-        showFoldGutter ? createFoldGutterExtension() : []
-      ),
-    });
-  }, showFoldGutter);
+  }, [
+    // Make sure that this effect is never updated as this will cause the whole
+    // editor to re-mount causing weird behavior and possible performance
+    // bottlenecks
+    //
+    // All the following values are refs which will not change value after
+    // initial mount and so will not re-trigger this effect
+    annotationsGutterExtension,
+    foldGutterExtension,
+    languageExtension,
+    lineNumbersExtension,
+    readOnlyExtension,
+    themeConfigExtension,
+  ]);
 
   useEffect(() => {
     // Ignore changes to `text` prop if `initialText` was provided
@@ -513,6 +597,12 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       });
     }
   }, [text]);
+
+  useEffect(() => {
+    editorViewRef.current?.dispatch({
+      effects: setDiagnosticsEffect.of(annotations),
+    });
+  }, [annotations]);
 
   return (
     <div
@@ -568,9 +658,44 @@ const foldAll: Command = (editor) => {
   return !!foldableProperties.length;
 };
 
-BaseEditor.foldAll = foldAll;
+const copyAll: Command = (editorView) => {
+  void navigator.clipboard.writeText(editorView.state.sliceDoc());
+  return true;
+};
 
+const prettify: Command = (editorView) => {
+  // Can't prettify a read-only document
+  if (editorView.state.facet(EditorState.readOnly)) {
+    return false;
+  }
+
+  const language = editorView.state.facet(languageName)[0];
+  const doc = editorView.state.sliceDoc();
+  try {
+    const formatted = _prettify(
+      doc,
+      language === 'json' ? 'json' : 'javascript-expression'
+    );
+    if (formatted !== doc) {
+      editorView.dispatch({
+        changes: {
+          from: 0,
+          to: editorView.state.doc.length,
+          insert: formatted,
+        },
+      });
+      return true;
+    }
+  } catch {
+    // failed to parse, do nothing
+  }
+  return false;
+};
+
+BaseEditor.foldAll = foldAll;
 BaseEditor.unfoldAll = unfoldAll;
+BaseEditor.copyAll = copyAll;
+BaseEditor.prettify = prettify;
 
 export type { EditorView };
 

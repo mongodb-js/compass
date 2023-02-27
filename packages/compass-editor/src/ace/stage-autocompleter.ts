@@ -1,14 +1,8 @@
-import semver from 'semver';
-import {
-  EXPRESSION_OPERATORS,
-  CONVERSION_OPERATORS,
-  BSON_TYPES,
-  ACCUMULATORS,
-} from '@mongodb-js/mongodb-constants';
-import { filter } from './util';
 import { QueryAutoCompleter } from './query-autocompleter';
 import type { Ace } from 'ace-builds';
 import type { CompletionWithServerInfo } from '../types';
+import { completer } from '../autocompleter';
+import { getNames } from './util';
 
 /**
  * The proect stage operator.
@@ -31,20 +25,10 @@ const MATCH = '$match';
 const DOLLAR = '$';
 
 /**
- * The base completions.
- */
-const BASE_COMPLETIONS = ([] as CompletionWithServerInfo[]).concat(
-  EXPRESSION_OPERATORS,
-  CONVERSION_OPERATORS,
-  BSON_TYPES
-);
-
-/**
  * Adds autocomplete suggestions based on the aggregation pipeline
  * operators.
  */
 class StageAutoCompleter implements Ace.Completer {
-  variableFields: CompletionWithServerInfo[];
   queryAutoCompleter: QueryAutoCompleter;
   constructor(
     public version: string,
@@ -52,28 +36,11 @@ class StageAutoCompleter implements Ace.Completer {
     public fields: CompletionWithServerInfo[],
     public stageOperator: string | null = null
   ) {
-    this.variableFields = this.generateVariableFields(fields);
     this.queryAutoCompleter = new QueryAutoCompleter(
       version,
       textCompleter,
       fields
     );
-  }
-
-  accumulators() {
-    if (this.stageOperator) {
-      if (this.stageOperator === PROJECT) {
-        return ACCUMULATORS.filter((acc) => {
-          if ('projectVersion' in acc) {
-            return semver.gte(this.version, acc.projectVersion);
-          }
-          return false;
-        });
-      } else if (this.stageOperator === GROUP) {
-        return ACCUMULATORS;
-      }
-    }
-    return [];
   }
 
   update(
@@ -82,7 +49,6 @@ class StageAutoCompleter implements Ace.Completer {
     severVersion?: string
   ) {
     this.fields = fields;
-    this.variableFields = this.generateVariableFields(fields);
     this.queryAutoCompleter.update(fields);
     this.stageOperator = stageOperator;
     this.version = severVersion ?? this.version;
@@ -90,20 +56,6 @@ class StageAutoCompleter implements Ace.Completer {
 
   updateStageOperator(stageOperator: string | null) {
     this.stageOperator = stageOperator;
-  }
-
-  generateVariableFields(
-    fields: CompletionWithServerInfo[]
-  ): CompletionWithServerInfo[] {
-    return fields.map((field) => {
-      return {
-        ...(field.name && { name: `$${field.name.replace(/"/g, '')}` }),
-        value: `$${field.value.replace(/"/g, '')}`,
-        meta: field.meta,
-        version: field.version,
-        score: 1,
-      };
-    });
   }
 
   getCompletions: Ace.Completer['getCompletions'] = (
@@ -126,8 +78,14 @@ class StageAutoCompleter implements Ace.Completer {
     // This is so we can suggest user variable names inside the pipeline that they
     // have already typed.
     if (currentToken.type === 'string') {
-      if (prefix === DOLLAR) {
-        return done(null, this.variableFields);
+      if (prefix.startsWith(DOLLAR)) {
+        return done(
+          null,
+          completer(prefix, {
+            fields: getNames(this.fields),
+            meta: ['field:reference'],
+          })
+        );
       }
       return this.textCompleter.getCompletions(
         editor,
@@ -138,7 +96,6 @@ class StageAutoCompleter implements Ace.Completer {
       );
     }
     // Comments block do not return results.
-
     if (currentToken?.type.includes('comment')) {
       return done(null, []);
     }
@@ -153,10 +110,22 @@ class StageAutoCompleter implements Ace.Completer {
         done
       );
     } else {
-      const expressions = BASE_COMPLETIONS.concat(this.accumulators()).concat(
-        this.fields
+      return done(
+        null,
+        completer(prefix, {
+          serverVersion: this.version,
+          fields: getNames(this.fields),
+          meta: [
+            'expr:*',
+            'conv',
+            'bson',
+            'field:identifier',
+            ...([PROJECT, GROUP].includes(this.stageOperator ?? '')
+              ? (['accumulator', 'accumulator:*'] as const)
+              : []),
+          ],
+        })
       );
-      return done(null, filter(this.version, expressions, prefix));
     }
   };
 }
