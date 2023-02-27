@@ -16,7 +16,8 @@ import temp from 'temp';
 
 temp.track();
 
-import { connect, DataService } from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
+import { connect } from 'mongodb-data-service';
 
 import { fixtures } from '../../test/fixtures';
 
