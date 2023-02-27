@@ -98,6 +98,8 @@ const editorPalette = {
     infoGutterIconColor: encodeURIComponent(palette.blue.base),
     warningGutterIconColor: encodeURIComponent(palette.yellow.base),
     errorGutterIconColor: encodeURIComponent(palette.red.base),
+    foldPlaceholderColor: palette.gray.base,
+    foldPlaceholderBackgroundColor: palette.gray.light3,
   },
   dark: {
     color: codePalette.dark[3],
@@ -114,6 +116,8 @@ const editorPalette = {
     infoGutterIconColor: encodeURIComponent(palette.blue.light1),
     warningGutterIconColor: encodeURIComponent(palette.yellow.light2),
     errorGutterIconColor: encodeURIComponent(palette.red.light1),
+    foldPlaceholderColor: palette.gray.base,
+    foldPlaceholderBackgroundColor: palette.gray.dark3,
   },
 } as const;
 
@@ -178,6 +182,14 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '&.cm-focused .cm-activeLineGutter': {
         backgroundColor: editorPalette[theme].gutterActiveLineBackgroundColor,
+      },
+      '& .cm-foldPlaceholder': {
+        display: 'inline-block',
+        border: 'none',
+        color: editorPalette[theme].foldPlaceholderColor,
+        backgroundColor: editorPalette[theme].foldPlaceholderBackgroundColor,
+        boxShadow: `inset 0 0 0 1px ${editorPalette[theme].foldPlaceholderColor}`,
+        padding: '0 2px',
       },
       '& .foldMarker': {
         width: `${spacing[3]}px`,
