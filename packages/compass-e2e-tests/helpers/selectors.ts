@@ -505,6 +505,10 @@ export const DocumentListFetching =
 export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError = '[data-testid="document-list-error-summary"]';
+export const EmptyCollectionImportDataButton =
+  '[data-testid="empty-collection-import-data-button"]';
+export const ConfirmImportDataModal =
+  '[data-testid="import-new-data-confirm-modal"]';
 export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
 export const InsertDocumentOption =
   '[data-testid="crud-add-data-insert-document-action"]';

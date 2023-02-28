@@ -10,6 +10,7 @@ import {
   WorkspaceContainer,
   spacing,
   withDarkMode,
+  ConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -110,6 +111,10 @@ export type DocumentListProps = {
  * Component for the entire document list.
  */
 class DocumentList extends React.Component<DocumentListProps> {
+  state = {
+    showImportConfirmationModal: false,
+  };
+
   onApplyClicked() {
     void this.props.store.refreshDocuments();
   }
@@ -122,10 +127,21 @@ class DocumentList extends React.Component<DocumentListProps> {
     this.props.store.cancelOperation();
   }
 
+  onShowImportConfirmationModalToggled() {
+    this.setState({
+      showImportConfirmationModal: !this.state.showImportConfirmationModal,
+    });
+  }
+
+  onConfirmImportDataClicked() {
+    this.setState({
+      showImportConfirmationModal: !this.state.showImportConfirmationModal,
+    });
+    this.props.openImportFileDialog?.();
+  }
+
   /**
    * Handle opening of the insert dialog.
-   *
-   * @param {String} key - Selected option from the Add Data dropdown menu.
    */
   handleOpenInsert(key: 'insert-document' | 'import-file') {
     if (key === 'insert-document') {
@@ -140,8 +156,6 @@ class DocumentList extends React.Component<DocumentListProps> {
 
   /**
    * Render the views for the document list.
-   *
-   * @returns {React.Component} The document list views.
    */
   renderViews() {
     if (this.props.docs?.length === 0) {
@@ -182,8 +196,6 @@ class DocumentList extends React.Component<DocumentListProps> {
 
   /**
    * Render the list of documents.
-   *
-   * @returns {React.Component} The list.
    */
   renderContent() {
     if (this.props.error) {
@@ -202,8 +214,6 @@ class DocumentList extends React.Component<DocumentListProps> {
 
   /**
    * Render the insert modal.
-   *
-   * @returns {React.Component} The insert modal.
    */
   renderInsertModal() {
     if (this.props.isEditable) {
@@ -228,8 +238,6 @@ class DocumentList extends React.Component<DocumentListProps> {
 
   /**
    * Render EmptyContent view when no documents are present.
-   *
-   * @returns {React.Component} The query bar.
    */
   renderZeroState() {
     if (
@@ -260,6 +268,16 @@ class DocumentList extends React.Component<DocumentListProps> {
 
     return (
       <div className="document-list-zero-state">
+        <ConfirmationModal
+          title="Import data to the collection"
+          open={this.state.showImportConfirmationModal}
+          onConfirm={this.onConfirmImportDataClicked.bind(this)}
+          onCancel={this.onShowImportConfirmationModalToggled.bind(this)}
+          buttonText="Select file..."
+          data-testid="import-new-data-confirm-modal"
+        >
+          It only takes a few seconds to import data from a JSON or CSV file.
+        </ConfirmationModal>
         <EmptyContent
           icon={DocumentIcon}
           title="This collection has no data"
@@ -267,8 +285,8 @@ class DocumentList extends React.Component<DocumentListProps> {
           callToAction={
             <Button
               disabled={!this.props.isEditable}
-              onClick={this.props.openImportFileDialog}
-              data-testid="import-data-button"
+              onClick={this.onShowImportConfirmationModalToggled.bind(this)}
+              data-testid="empty-collection-import-data-button"
               variant="primary"
               size="small"
             >
@@ -280,11 +298,6 @@ class DocumentList extends React.Component<DocumentListProps> {
     );
   }
 
-  /**
-   * Render the document list.
-   *
-   * @returns {React.Component} The document list.
-   */
   render() {
     return (
       <div className="compass-documents">

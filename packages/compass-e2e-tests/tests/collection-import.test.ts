@@ -13,12 +13,6 @@ import {
 const { expect } = chai;
 
 async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
-  // open the import modal
-  await browser.clickVisible(Selectors.AddDataButton);
-  const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
-  await insertDocumentOption.waitForDisplayed();
-  await browser.clickVisible(Selectors.ImportFileOption);
-
   // Select the file.
   await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
@@ -41,6 +35,14 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
 
   // wait for the modal to go away
   await importModal.waitForDisplayed({ reverse: false });
+}
+
+async function openImportFileFromToolbar(browser: CompassBrowser) {
+  // open the import modal
+  await browser.clickVisible(Selectors.AddDataButton);
+  const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+  await insertDocumentOption.waitForDisplayed();
+  await browser.clickVisible(Selectors.ImportFileOption);
 }
 
 async function selectFieldType(
@@ -315,11 +317,72 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed({ reverse: true });
   });
 
+  it('supports import from the crud empty state', async function () {
+    await browser.navigateToCollectionTab(
+      'test',
+      'extended-json-file',
+      'Documents'
+    );
+
+    // Click the empty state import data button.
+    await browser.clickVisible(Selectors.EmptyCollectionImportDataButton);
+    const confirmImportDataModal = await browser.$(
+      Selectors.ConfirmImportDataModal
+    );
+    await confirmImportDataModal.waitForDisplayed();
+
+    const selectFileButton = await confirmImportDataModal.$(
+      'button=Select file...'
+    );
+    await selectFileButton.click();
+
+    const jsonPath = path.resolve(
+      __dirname,
+      '..',
+      'fixtures',
+      'extended-json.json'
+    );
+    await importJSONFile(browser, jsonPath);
+
+    const messageElement = await browser.$(
+      Selectors.DocumentListActionBarMessage
+    );
+    const text = await messageElement.getText();
+    expect(text).to.equal('1 – 1 of 1');
+
+    const result = await getFirstListDocument(browser);
+
+    expect(result._id).to.exist;
+    delete result._id;
+
+    expect(result).to.deep.equal({
+      arrayField_canonical: 'Array',
+      arrayField_relaxed: 'Array',
+      dateBefore1970: '1920-01-01T00:00:00.000+00:00',
+      dateField_canonical: '2019-08-11T17:54:14.692+00:00',
+      dateField_relaxed: '2019-08-11T17:54:14.692+00:00',
+      decimal128Field: '10.99',
+      documentField: 'Object',
+      doubleField_canonical: '10.5',
+      doubleField_relaxed: '10.5',
+      infiniteNumber: 'Infinity',
+      int32field_canonical: '10',
+      int32field_relaxed: '10',
+      int64Field_canonical: '50',
+      int64Field_relaxed: '50',
+      maxKeyField: 'MaxKey()',
+      minKeyField: 'MinKey()',
+      regexField: '/^H/i',
+      timestampField: 'Timestamp({ t: 1565545664, i: 1 })',
+    });
+  });
+
   it('supports JSON files', async function () {
     const jsonPath = path.resolve(__dirname, '..', 'fixtures', 'listings.json');
 
     await browser.navigateToCollectionTab('test', 'json-file', 'Documents');
 
+    await openImportFileFromToolbar(browser);
     await importJSONFile(browser, jsonPath);
 
     const messageElement = await browser.$(
@@ -369,6 +432,7 @@ describe('Collection import', function () {
       'Documents'
     );
 
+    await openImportFileFromToolbar(browser);
     await importJSONFile(browser, jsonPath);
 
     const messageElement = await browser.$(
