@@ -1,5 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useHotkeys as useGlobalHotkeys } from 'react-hotkeys-hook';
+import { InlineKeyCode, css, spacing } from '../';
+
+const hotkeyContainerStyles = css({
+  display: 'flex',
+  gap: spacing[1],
+});
 
 const isMac = () => navigator.userAgent.indexOf('Mac') !== -1;
 
@@ -19,12 +25,13 @@ type GlobalHotkeysArgs = Parameters<typeof useGlobalHotkeys>;
  *
  */
 export const useHotkeys = (
-  shortcut: string,
+  key: string,
   callback: GlobalHotkeysArgs[1],
   options?: GlobalHotkeysArgs[2],
   deps?: GlobalHotkeysArgs[3]
 ) => {
-  const ref = useGlobalHotkeys(shortcut, callback, options, deps);
+  const ref = useGlobalHotkeys(key, callback, options, deps);
+  const shortcut = useMemo(() => mapKeyToShortcut(key), [key]);
   return {
     shortcut,
     ref,
@@ -45,5 +52,12 @@ export const mapKeyToShortcut = (key: string) => {
 };
 
 export const Hotkey = ({ shortcut }: { shortcut: string }) => {
-  return <>{mapKeyToShortcut(shortcut)}</>;
+  const key = mapKeyToShortcut(shortcut);
+  return (
+    <span className={hotkeyContainerStyles}>
+      {key.split('+').map((x) => (
+        <InlineKeyCode key={x}>{x.trim()}</InlineKeyCode>
+      ))}
+    </span>
+  );
 };

@@ -66,28 +66,11 @@ const tooltipContentStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[3],
-  width: '100%',
-  justifyContent: 'space-between',
 });
 
 const tooltipContentItemStyles = css({
   flexShrink: 0,
 });
-
-const ItemWithShortcut = ({
-  title,
-  shortcut,
-}: {
-  title: string;
-  shortcut: string;
-}) => (
-  <span className={tooltipContentStyles}>
-    <span className={tooltipContentItemStyles}>{title}</span>
-    <span className={tooltipContentItemStyles}>
-      <Hotkey shortcut={shortcut} />
-    </span>
-  </span>
-);
 
 export const FocusModeModalHeader: React.FunctionComponent<
   FocusModeModalHeaderProps
@@ -183,11 +166,13 @@ export const FocusModeModalHeader: React.FunctionComponent<
             </span>
           )}
         >
-          <Body>
-            <ItemWithShortcut
-              title="Go to previous stage"
-              shortcut={previousStageShortcut}
-            />
+          <Body className={tooltipContentStyles}>
+            <span className={tooltipContentItemStyles}>
+              Go to previous stage
+            </span>
+            <span className={tooltipContentItemStyles}>
+              {previousStageShortcut}
+            </span>
           </Body>
         </Tooltip>
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
@@ -233,11 +218,11 @@ export const FocusModeModalHeader: React.FunctionComponent<
             </span>
           )}
         >
-          <Body>
-            <ItemWithShortcut
-              title="Go to next stage"
-              shortcut={nextStageShortcut}
-            />
+          <Body className={tooltipContentStyles}>
+            <span>Go to next stage</span>
+            <span className={tooltipContentItemStyles}>
+              {nextStageShortcut}
+            </span>
           </Body>
         </Tooltip>
       </div>
@@ -290,17 +275,19 @@ export const FocusModeModalHeader: React.FunctionComponent<
           );
         }}
       >
-        <MenuItem className={menuItemStyles} onClick={onAddStageAfter}>
-          <ItemWithShortcut
-            title="Add stage after"
-            shortcut={addStageAfterShortcut}
-          />
+        <MenuItem
+          className={menuItemStyles}
+          onClick={onAddStageAfter}
+          data-hotkey={addStageAfterShortcut}
+        >
+          Add stage after
         </MenuItem>
-        <MenuItem className={menuItemStyles} onClick={onAddStageBefore}>
-          <ItemWithShortcut
-            title="Add stage before"
-            shortcut={addStageBeforeShortcut}
-          />
+        <MenuItem
+          className={menuItemStyles}
+          onClick={onAddStageBefore}
+          data-hotkey={addStageBeforeShortcut}
+        >
+          Add stage before
         </MenuItem>
       </Menu>
     </div>
