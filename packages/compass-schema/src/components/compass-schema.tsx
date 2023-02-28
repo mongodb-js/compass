@@ -24,7 +24,6 @@ import {
   useDarkMode,
   WorkspaceContainer,
   lighten,
-  rgba,
 } from '@mongodb-js/compass-components';
 
 const rootStyles = css`
@@ -222,10 +221,6 @@ svg.minichart {
 .tooltip-wrapper {
   line-height: 120%;
   max-width: 400px;
-}
-
-.schema-date-icon-svg {
-  margin-left: -16px;
 }
 `;
 };
