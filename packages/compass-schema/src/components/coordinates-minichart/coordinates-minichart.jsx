@@ -178,15 +178,28 @@ class UnthemedCoordinatesMinichart extends PureComponent {
       return;
     }
 
+    this.disableAttributionPrefix();
     this.getTileAttribution();
     this.setState({ ready: true }, this.invalidateMapSize);
   };
 
-  async getTileAttribution() {
-    if (this.state.attributionMessage !== '') {
+  disableAttributionPrefix() {
+    const map = this.mapRef;
+    if (!map) {
       return;
     }
 
+    const leaflet = map.leafletElement;
+    // If we don't disable the prefix Leaflet will render
+    // a link that opens in the current window,
+    // we want to have control on what gets rendered and
+    // make sure that all links are targeting a new window, so
+    // here we disable the prefix and render the Leaflet link
+    // on our own.
+    leaflet?.attributionControl?.setPrefix(false);
+  }
+
+  async getTileAttribution() {
     const attributionMessage = await attachAttribution(this.mapRef);
     this.setState({ attributionMessage });
   }

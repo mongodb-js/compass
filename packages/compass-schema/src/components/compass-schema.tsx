@@ -223,66 +223,7 @@ svg.minichart {
   line-height: 120%;
   max-width: 400px;
 }
-.map {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100%;
-  float: left;
-  svg {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-  }
-  nav {
-    position: absolute;
-    top: 40px;
-    left: 20px;
-    z-index: 1;
-  }
-  #circle {
-    background-color: ${rgba(palette.gray.dark4, 0.1)};
-    font-family: 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color: ${palette.blue.light1};
-    padding: 5px 8px;
-    border-radius: 3px;
-    cursor: pointer;
-    border: 1px solid ${palette.gray.dark4};
-  }
-  #circle.active {
-    background-color: ${rgba(palette.white, 0.9)};
-  }
-}
-.map:hover + .map-overlay {
-  display: block;
-}
-.map-overlay {
-  display: none;
-  position: absolute;
-  font-weight: bold;
-  bottom: 20px;
-  left: 25px;
-  &-button {
-    background-image: linear-gradient(
-      -180deg,
-      ${palette.white} 0%
-      ${palette.gray.light3} 100%
-    );
-    border: 2px solid ${palette.gray.light2};
-    box-shadow: inset 0 -1px 0 0 ${palette.gray.light2};
-    border-radius: 5px;
-    font-size: 11px;
-    padding: 15px 4px;
-    width: 80px;
-    height: 35px;
-    float: left;
-  }
-  &-text {
-    float: left;
-    margin-left: 5px;
-    line-height: 35px;
-  }
-}
+
 .schema-date-icon-svg {
   margin-left: -16px;
 }

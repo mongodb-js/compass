@@ -35,6 +35,7 @@ let getHereTileBoxes = cachedGetHereTileBoxes();
 const getHereAttributionMessage = async function (bounds, level) {
   const tileBoxes = await getHereTileBoxes();
   const copyrights = [];
+
   tileBoxes.forEach((attribution) => {
     const overlaps = attribution.boxes.some((b) => bounds.intersects(b));
 
@@ -48,7 +49,7 @@ const getHereAttributionMessage = async function (bounds, level) {
   });
 
   const copyrightString = copyrights.join(', ');
-  return ` &copy; 1987-${thisYear} HERE${
+  return ` <a target="_blank" href="https://leafletjs.com/">Leaflet</a> | &copy; 1987-${thisYear} HERE${
     copyrightString.length > 0 ? `, ${copyrightString}` : ''
   } | <a target="_blank" href="https://legal.here.com/en/terms/serviceterms/us">Terms of Use</a>`;
 };
