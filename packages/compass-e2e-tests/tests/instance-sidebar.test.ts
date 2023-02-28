@@ -188,12 +188,15 @@ describe('Instance sidebar', function () {
   });
 
   it('can refresh the databases', async function () {
-    const db = `db_${Date.now()}`;
+    const db = 'test';
     const coll = `coll_${Date.now()}`;
-    await browser.executeInShell(`use ${db};`);
-    await browser.executeInShell(`db.createCollection('${coll}');`);
+    await browser.shellEval(`use ${db};`);
+    await browser.shellEval(`db.createCollection('${coll}');`);
     await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
-    const dbElement = await browser.$(Selectors.sidebarDatabase(db));
-    await dbElement.waitForDisplayed();
+    await browser.clickVisible(Selectors.sidebarDatabase(db));
+    const collectionElement = await browser.$(
+      Selectors.sidebarCollection(db, coll)
+    );
+    await collectionElement.waitForDisplayed();
   });
 });

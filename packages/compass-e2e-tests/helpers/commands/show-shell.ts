@@ -13,12 +13,3 @@ export async function showShell(browser: CompassBrowser): Promise<void> {
     await browser.clickVisible(Selectors.ShellInput);
   });
 }
-
-export async function executeInShell(
-  browser: CompassBrowser,
-  command: string
-): Promise<void> {
-  await browser.showShell();
-  await browser.setAceValue(Selectors.ShellContent, command);
-  await browser.keys(['Enter']);
-}
