@@ -222,8 +222,6 @@ export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
 export const SidebarTitle = '[data-testid="sidebar-title"]';
 export const SidebarShowActions =
   '[data-testid="sidebar-title-actions-show-actions"]';
-export const SidebarActionRefresh =
-  '[data-testid="sidebar-title-actions-refresh-data-action"]';
 export const SidebarActionClusterInfo =
   '[data-testid="sidebar-title-actions-open-connection-info-action"]';
 export const SidebarCreateDatabaseButton =
