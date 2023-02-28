@@ -71,7 +71,7 @@ type FindInPageInputProps = {
   setSearchTerm: (searchTerm: string) => void;
   dispatchFind: (
     searchTerm: string,
-    isDirectionInversed: boolean,
+    isForwardSearch: boolean,
     searching: boolean
   ) => void;
   toggleStatus: () => void;
@@ -103,23 +103,29 @@ function FindInPageInput({
     toggleStatus();
   }, [dispatchStopFind, setSearchTerm, toggleStatus]);
 
-  const onEnter = useCallback(
-    (evt: KeyboardEvent) => {
+  const onFind = useCallback(
+    (evt: KeyboardEvent, isForwardSearch: boolean) => {
       evt.preventDefault();
       const searchValue = findInPageInputRef.current?.value;
       if (!searchValue || searchValue === '') {
         return dispatchStopFind();
       }
-
-      const back = evt.shiftKey;
-      dispatchFind(searchValue, !back, searching);
+      dispatchFind(searchValue, isForwardSearch, searching);
     },
     [dispatchFind, searching, dispatchStopFind]
   );
+  const findNext = useCallback(
+    (evt: KeyboardEvent) => onFind(evt, true),
+    [onFind]
+  );
+  const findPrev = useCallback(
+    (evt: KeyboardEvent) => onFind(evt, false),
+    [onFind]
+  );
 
   useHotkeys('esc', onClose, { enableOnFormTags: ['INPUT'] });
-  useHotkeys('enter', onEnter, { enableOnFormTags: ['INPUT'] });
-  useHotkeys('shift + enter', onEnter, { enableOnFormTags: ['INPUT'] });
+  useHotkeys('enter', findNext, { enableOnFormTags: ['INPUT'] });
+  useHotkeys('shift + enter', findPrev, { enableOnFormTags: ['INPUT'] });
 
   useEffect(() => {
     findInPageInputRef.current?.focus();

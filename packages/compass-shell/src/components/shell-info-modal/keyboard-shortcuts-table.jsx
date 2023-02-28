@@ -6,6 +6,7 @@ import {
   TableHeader,
   Row,
   Cell,
+  Hotkey,
 } from '@mongodb-js/compass-components';
 
 const hotkeys = [
@@ -42,7 +43,7 @@ const hotkeys = [
     description: 'Erases one character, similar to hitting backspace.',
   },
   {
-    key: 'Ctrl/Cmd+L',
+    key: 'meta+L',
     description: 'Clears the screen, similar to the clear command.',
   },
   {
@@ -75,7 +76,9 @@ function KeyboardShortcutsTable() {
       {({ datum }) => (
         <Row key={datum.key}>
           <Cell>
-            <Body weight="medium">{datum.key}</Body>
+            <Body weight="medium">
+              <Hotkey shortcut={datum.key} />
+            </Body>
           </Cell>
           <Cell>
             <Description>{datum.description}</Description>

@@ -163,4 +163,4 @@ export {
   ConfirmationModalArea,
   showConfirmation,
 } from './hooks/use-confirmation';
-export { useHotkeys } from './hooks/use-hotkeys';
+export { useHotkeys, Hotkey } from './hooks/use-hotkeys';

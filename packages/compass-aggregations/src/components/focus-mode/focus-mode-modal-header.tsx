@@ -11,6 +11,7 @@ import {
   Toggle,
   Tooltip,
   useHotkeys,
+  Hotkey,
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
@@ -65,11 +66,28 @@ const tooltipContentStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[3],
+  width: '100%',
+  justifyContent: 'space-between',
 });
 
 const tooltipContentItemStyles = css({
   flexShrink: 0,
 });
+
+const ItemWithShortcut = ({
+  title,
+  shortcut,
+}: {
+  title: string;
+  shortcut: string;
+}) => (
+  <span className={tooltipContentStyles}>
+    <span className={tooltipContentItemStyles}>{title}</span>
+    <span className={tooltipContentItemStyles}>
+      <Hotkey shortcut={shortcut} />
+    </span>
+  </span>
+);
 
 export const FocusModeModalHeader: React.FunctionComponent<
   FocusModeModalHeaderProps
@@ -111,19 +129,19 @@ export const FocusModeModalHeader: React.FunctionComponent<
   };
 
   const { shortcut: previousStageShortcut } = useHotkeys(
-    'meta + shift + 9',
+    'meta+shift+9',
     onPreviousStage
   );
   const { shortcut: nextStageShortcut } = useHotkeys(
-    'meta + shift + 0',
+    'meta+shift+0',
     onNextStage
   );
   const { shortcut: addStageAfterShortcut } = useHotkeys(
-    'meta + shift + a',
+    'meta+shift+a',
     onAddStageAfter
   );
   const { shortcut: addStageBeforeShortcut } = useHotkeys(
-    'meta + shift + b',
+    'meta+shift+b',
     onAddStageBefore
   );
 
@@ -165,13 +183,11 @@ export const FocusModeModalHeader: React.FunctionComponent<
             </span>
           )}
         >
-          <Body className={tooltipContentStyles}>
-            <span className={tooltipContentItemStyles}>
-              Go to previous stage
-            </span>
-            <span className={tooltipContentItemStyles}>
-              {previousStageShortcut}
-            </span>
+          <Body>
+            <ItemWithShortcut
+              title="Go to previous stage"
+              shortcut={previousStageShortcut}
+            />
           </Body>
         </Tooltip>
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
@@ -217,11 +233,11 @@ export const FocusModeModalHeader: React.FunctionComponent<
             </span>
           )}
         >
-          <Body className={tooltipContentStyles}>
-            <span>Go to next stage</span>
-            <span className={tooltipContentItemStyles}>
-              {nextStageShortcut}
-            </span>
+          <Body>
+            <ItemWithShortcut
+              title="Go to next stage"
+              shortcut={nextStageShortcut}
+            />
           </Body>
         </Tooltip>
       </div>
@@ -274,19 +290,17 @@ export const FocusModeModalHeader: React.FunctionComponent<
           );
         }}
       >
-        <MenuItem
-          className={menuItemStyles}
-          onClick={onAddStageAfter}
-          data-hotkey={addStageAfterShortcut}
-        >
-          Add stage after
+        <MenuItem className={menuItemStyles} onClick={onAddStageAfter}>
+          <ItemWithShortcut
+            title="Add stage after"
+            shortcut={addStageAfterShortcut}
+          />
         </MenuItem>
-        <MenuItem
-          className={menuItemStyles}
-          onClick={onAddStageBefore}
-          data-hotkey={addStageBeforeShortcut}
-        >
-          Add stage before
+        <MenuItem className={menuItemStyles} onClick={onAddStageBefore}>
+          <ItemWithShortcut
+            title="Add stage before"
+            shortcut={addStageBeforeShortcut}
+          />
         </MenuItem>
       </Menu>
     </div>
