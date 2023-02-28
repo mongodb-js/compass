@@ -49,7 +49,7 @@ const delimiters: {
 
 type ImportOptionsProps = {
   selectImportFileType: (fileType: AcceptedFileType) => void;
-  selectImportFileName: (fileName: string | null) => void;
+  selectImportFileName: (fileName: string) => void;
   setDelimiter: (delimiter: CSVDelimiter) => void;
   delimiter: CSVDelimiter;
   fileType: AcceptedFileType | '';

@@ -9,7 +9,6 @@ import {
   selectImportFileType,
   selectImportFileName,
   INITIAL_STATE,
-  OPEN,
 } from './import';
 import rootReducer from '.';
 import type { RootImportState } from '../stores/import-store';
@@ -76,55 +75,6 @@ describe('import [module]', function () {
       await mockStore.dispatch(selectImportFileName(fileName));
 
       expect(mockStore.getState().importData.fileName).to.equal(fileName);
-    });
-
-    it('opens the modal when isInitialFileInputOpen is true', async function () {
-      const fileName = path.join(
-        __dirname,
-        '..',
-        '..',
-        'test',
-        'json',
-        'good.json'
-      );
-
-      mockStore.dispatch({
-        type: OPEN,
-      });
-
-      expect(mockStore.getState().importData.isInitialFileInputOpen).to.equal(
-        true
-      );
-      expect(mockStore.getState().importData.isOpen).to.equal(false);
-
-      await mockStore.dispatch(selectImportFileName(fileName));
-
-      expect(mockStore.getState().importData.isInitialFileInputOpen).to.equal(
-        false
-      );
-      expect(mockStore.getState().importData.isOpen).to.equal(true);
-    });
-
-    it('does not open the modal when isInitialFileInputOpen is false', async function () {
-      const fileName = path.join(
-        __dirname,
-        '..',
-        '..',
-        'test',
-        'json',
-        'good.json'
-      );
-
-      expect(mockStore.getState().importData.isInitialFileInputOpen).to.equal(
-        false
-      );
-
-      await mockStore.dispatch(selectImportFileName(fileName));
-
-      expect(mockStore.getState().importData.isOpen).to.equal(false);
-      expect(mockStore.getState().importData.isInitialFileInputOpen).to.equal(
-        false
-      );
     });
 
     it('adds an error when the file does not exist', async function () {

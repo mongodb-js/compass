@@ -8,8 +8,7 @@ import maxBy from 'lodash.maxby';
 import sortBy from 'lodash.sortby';
 import shared from './shared';
 import { hasDistinctValue, inValueRange } from 'mongodb-query-util';
-
-require('./d3-tip')(d3);
+import { createD3Tip } from './create-d3-tip';
 
 const minicharts_d3fns_many = (appRegistry) => {
   const QueryAction = appRegistry.getAction('Query.Actions');
@@ -33,11 +32,7 @@ const minicharts_d3fns_many = (appRegistry) => {
   const labelScale = d3.scale.ordinal();
 
   // set up tooltips
-  const tip = d3
-    .tip()
-    .attr('class', 'd3-tip d3-tip-many')
-    .direction('n')
-    .offset([-9, 0]);
+  const tip = createD3Tip();
   const brush = d3.svg.brush().on('brush', brushed).on('brushend', brushend);
   // --- end chart setup ---
 

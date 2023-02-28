@@ -231,7 +231,6 @@ describe('Aggregation Store', function () {
             maxTimeMS: INITIAL_STATE.maxTimeMS,
             savingPipeline: INITIAL_STATE.savingPipeline,
             projections: INITIAL_STATE.projections,
-            isNewPipelineConfirm: INITIAL_STATE.isNewPipelineConfirm,
             updateViewError: INITIAL_STATE.updateViewError,
             aggregation: INITIAL_STATE.aggregation,
             workspace: INITIAL_STATE.workspace,

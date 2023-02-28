@@ -12,10 +12,9 @@ import {
   Toggle,
   spacing,
   css,
+  useConfirmationModal,
 } from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
-
-import ConfirmEditConnectionString from './confirm-edit-connection-string';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
 
 const textAreaContainerStyle = css({
@@ -91,8 +90,7 @@ function ConnectionStringInput({
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
     useState(connectionString);
-  const [showEditConnectionStringPrompt, setShowEditConnectionStringPrompt] =
-    useState(false);
+  const { showConfirmation } = useConfirmationModal();
 
   useEffect(() => {
     // If the user isn't actively editing the connection string and it
@@ -140,6 +138,25 @@ function ConnectionStringInput({
     ? editingConnectionString
     : hidePasswordInConnectionString(editingConnectionString);
 
+  const handleEditConnectionCheckbox = useCallback(
+    async (checked: boolean) => {
+      if (!checked) {
+        setEnableEditingConnectionString(false);
+        return;
+      }
+      const confirmed = await showConfirmation({
+        title: 'Are you sure you want to edit your connection string?',
+        description:
+          'Editing this connection string will reveal your credentials.',
+      });
+      if (!confirmed) {
+        return;
+      }
+      setEnableEditingConnectionString(true);
+    },
+    [setEnableEditingConnectionString, showConfirmation]
+  );
+
   return (
     <Fragment>
       <div className={textAreaLabelContainerStyles}>
@@ -170,13 +187,7 @@ function ConnectionStringInput({
               size="xsmall"
               type="button"
               checked={enableEditingConnectionString}
-              onChange={(checked: boolean) => {
-                if (checked) {
-                  setShowEditConnectionStringPrompt(true);
-                  return;
-                }
-                setEnableEditingConnectionString(false);
-              }}
+              onChange={(value) => void handleEditConnectionCheckbox(value)}
             />
           </div>
         )}
@@ -194,17 +205,6 @@ function ConnectionStringInput({
           aria-labelledby={connectionStringLabelId}
           placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"
           spellCheck={false}
-        />
-        <ConfirmEditConnectionString
-          open={showEditConnectionStringPrompt}
-          onCancel={() => {
-            setShowEditConnectionStringPrompt(false);
-          }}
-          onConfirm={() => {
-            setEnableEditingConnectionString(true);
-
-            setShowEditConnectionStringPrompt(false);
-          }}
         />
       </div>
     </Fragment>

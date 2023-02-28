@@ -63,7 +63,6 @@ const closeButtonStyles = css({
 });
 
 type ImportModalProps = {
-  isInitialFileInputOpen: boolean;
   isOpen: boolean;
   ns: string;
   startImport: () => void;
@@ -110,7 +109,6 @@ type ImportModalProps = {
 };
 
 function ImportModal({
-  isInitialFileInputOpen,
   isOpen,
   ns,
   startImport,
@@ -187,7 +185,8 @@ function ImportModal({
     React
   );
 
-  if (isInitialFileInputOpen) {
+  if (isOpen && !fileName && errors.length === 0) {
+    // Show the file input when we don't have a file to import yet.
     return (
       <ImportFileInput
         autoOpen
@@ -291,7 +290,6 @@ function ImportModal({
  */
 const mapStateToProps = (state: RootImportState) => ({
   ns: state.ns,
-  isInitialFileInputOpen: state.importData.isInitialFileInputOpen,
   isOpen: state.importData.isOpen,
   errors: state.importData.errors,
   fileType: state.importData.fileType,

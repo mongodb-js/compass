@@ -14,8 +14,7 @@ import { palette, spacing } from '@mongodb-js/compass-components';
 
 import shared from './shared';
 import many from './many';
-
-require('./d3-tip')(d3);
+import { createD3Tip } from './create-d3-tip';
 
 function generateDefaults(n) {
   const doc = {};
@@ -50,14 +49,9 @@ const minicharts_d3fns_date = (appRegistry) => {
   const barcodeX = d3.time.scale();
 
   // set up tooltips
-  const tip = d3
-    .tip()
-    .attr('class', 'd3-tip d3-tip-date')
-    .html(function (d) {
-      return d.label;
-    })
-    .direction('n')
-    .offset([-9, 0]);
+  const tip = createD3Tip().html(function (d) {
+    return d.label;
+  });
 
   const brush = d3.svg
     .brush()
