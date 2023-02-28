@@ -30,8 +30,18 @@ function ImportFileInput({
   );
 
   const backend = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports
-    const electron: typeof import('@electron/remote') = require('@electron/remote');
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+    let electron: typeof import('@electron/remote');
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      electron = require('@electron/remote');
+      if (!electron) {
+        throw new Error('Not electron environment');
+      }
+    } catch (err) {
+      // Non-electron environment, default to browser behavior.
+      return;
+    }
     return createElectronFileInputBackend(electron, 'open', {
       title: 'Select JSON or CSV to import',
       buttonLabel: 'Select',

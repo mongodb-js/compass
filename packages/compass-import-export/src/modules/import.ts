@@ -79,7 +79,6 @@ export const FAILED = `${PREFIX}/FAILED`;
 export const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
 export const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
 export const OPEN = `${PREFIX}/OPEN`;
-export const OPEN_MODAL = `${PREFIX}/OPEN_MODAL`;
 export const CLOSE = `${PREFIX}/CLOSE`;
 export const SET_PREVIEW = `${PREFIX}/SET_PREVIEW`;
 export const SET_DELIMITER = `${PREFIX}/SET_DELIMITER`;
