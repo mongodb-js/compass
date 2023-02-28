@@ -44,7 +44,7 @@ function SshTunnelIdentity({
   errors: ConnectionFormError[];
 }): React.ReactElement {
   const formFieldChanged = useCallback(
-    (key: IdentityFormKeys, value: string) => {
+    (key: IdentityFormKeys, value: string | undefined) => {
       return updateConnectionFormField({
         type: 'update-ssh-options',
         key,
