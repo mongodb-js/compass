@@ -36,7 +36,15 @@ describe('QueryAutoCompleter', function () {
         it('returns all the query operators', function () {
           getCompletions((error, results) => {
             expect(error).to.equal(null);
-            expect(results).to.deep.equal(QUERY_OPERATORS);
+            expect(results).to.deep.equal(
+              QUERY_OPERATORS.map((op) => {
+                return {
+                  value: op.value,
+                  meta: op.meta,
+                  score: op.score,
+                };
+              })
+            );
           });
         });
       });
@@ -49,20 +57,14 @@ describe('QueryAutoCompleter', function () {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                name: '$all',
                 value: '$all',
                 score: 1,
                 meta: 'query',
-                version: '2.2.0',
-                geospatial: false,
               },
               {
-                name: '$and',
                 value: '$and',
                 score: 1,
                 meta: 'query',
-                version: '2.2.0',
-                geospatial: false,
               },
             ]);
           });
@@ -77,32 +79,23 @@ describe('QueryAutoCompleter', function () {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                name: 'NumberInt',
                 value: 'NumberInt',
-                label: 'NumberInt',
                 score: 1,
                 meta: 'bson',
-                version: '0.0.0',
                 description: 'BSON 32 bit Integer type',
                 snippet: 'NumberInt(${1:value})',
               },
               {
-                name: 'NumberLong',
                 value: 'NumberLong',
-                label: 'NumberLong',
                 score: 1,
                 meta: 'bson',
-                version: '0.0.0',
                 description: 'BSON 64 but Integer type',
                 snippet: 'NumberLong(${1:value})',
               },
               {
-                name: 'NumberDecimal',
                 value: 'NumberDecimal',
-                label: 'NumberDecimal',
                 score: 1,
                 meta: 'bson',
-                version: '3.4.0',
                 description: 'BSON Decimal128 type',
                 snippet: "NumberDecimal('${1:value}')",
               },
@@ -127,22 +120,7 @@ describe('QueryAutoCompleter', function () {
       context('when the query prefix matches one of the fields', function () {
         const { getCompletions } = setupQueryCompleter('{ pi', {
           serverVersion: '3.4.0',
-          fields: [
-            {
-              name: 'pineapple',
-              value: 'pineapple',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-            {
-              name: 'noMatches',
-              value: 'noMatches',
-              score: 1,
-              meta: 'field',
-              version: '0.0.0',
-            },
-          ],
+          fields: [{ name: 'pineapple' }, { name: 'noMatches' }],
         });
 
         it('returns all the query operators', function () {
@@ -151,11 +129,9 @@ describe('QueryAutoCompleter', function () {
             expect(results.length).to.equal(1);
             expect(results).to.deep.equal([
               {
-                name: 'pineapple',
                 value: 'pineapple',
                 score: 1,
-                meta: 'field',
-                version: '0.0.0',
+                meta: 'field:identifier',
               },
             ]);
           });
@@ -170,31 +146,38 @@ describe('QueryAutoCompleter', function () {
             fields: [
               {
                 name: 'pineapple',
-                value: 'pineapple',
                 score: 1,
                 meta: 'field',
-                version: '0.0.0',
               },
               {
                 name: 'pineapple.price',
-                value: '"pineapple.price"',
                 score: 1,
                 meta: 'field',
-                version: '0.0.0',
+              },
+              {
+                name: 'pineapple price',
+                score: 1,
+                meta: 'field',
+              },
+              {
+                name: 'pineapple@price',
+                score: 1,
+                meta: 'field',
+              },
+              {
+                name: 'pineapple"price',
+                score: 1,
+                meta: 'field',
               },
               {
                 name: 'pineapple.fronds',
-                value: '"pineapple.fronds"',
                 score: 1,
                 meta: 'field',
-                version: '0.0.0',
               },
               {
-                name: 'noMatches',
                 value: 'noMatches',
                 score: 1,
                 meta: 'field',
-                version: '0.0.0',
               },
             ],
           });
@@ -202,28 +185,37 @@ describe('QueryAutoCompleter', function () {
           it('returns all the query operators', function () {
             getCompletions((error, results) => {
               expect(error).to.equal(null);
-              expect(results.length).to.equal(3);
+              expect(results.length).to.equal(6);
               expect(results).to.deep.equal([
                 {
-                  name: 'pineapple',
                   value: 'pineapple',
                   score: 1,
-                  meta: 'field',
-                  version: '0.0.0',
+                  meta: 'field:identifier',
                 },
                 {
-                  name: 'pineapple.price',
                   value: '"pineapple.price"',
                   score: 1,
-                  meta: 'field',
-                  version: '0.0.0',
+                  meta: 'field:identifier',
                 },
                 {
-                  name: 'pineapple.fronds',
+                  value: '"pineapple price"',
+                  score: 1,
+                  meta: 'field:identifier',
+                },
+                {
+                  value: '"pineapple@price"',
+                  score: 1,
+                  meta: 'field:identifier',
+                },
+                {
+                  value: '"pineapple\\"price"',
+                  score: 1,
+                  meta: 'field:identifier',
+                },
+                {
                   value: '"pineapple.fronds"',
                   score: 1,
-                  meta: 'field',
-                  version: '0.0.0',
+                  meta: 'field:identifier',
                 },
               ]);
             });
@@ -241,22 +233,16 @@ describe('QueryAutoCompleter', function () {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                name: 'NumberInt',
                 value: 'NumberInt',
-                label: 'NumberInt',
                 score: 1,
                 meta: 'bson',
-                version: '0.0.0',
                 description: 'BSON 32 bit Integer type',
                 snippet: 'NumberInt(${1:value})',
               },
               {
-                name: 'NumberLong',
                 value: 'NumberLong',
-                label: 'NumberLong',
                 score: 1,
                 meta: 'bson',
-                version: '0.0.0',
                 description: 'BSON 64 but Integer type',
                 snippet: 'NumberLong(${1:value})',
               },

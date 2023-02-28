@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Aggregations from './components/aggregations';
 import { Provider } from 'react-redux';
 import configureStore from './stores';
+import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 
 class Plugin extends Component {
   static displayName = 'AggregationsPlugin';
@@ -27,13 +28,15 @@ class Plugin extends Component {
    */
   render() {
     return (
-      <Provider store={this.props.store}>
-        <Aggregations
-          showExportButton={this.props.showExportButton}
-          showRunButton={this.props.showRunButton}
-          showExplainButton={this.props.showExplainButton}
-        />
-      </Provider>
+      <ConfirmationModalArea>
+        <Provider store={this.props.store}>
+          <Aggregations
+            showExportButton={this.props.showExportButton}
+            showRunButton={this.props.showRunButton}
+            showExplainButton={this.props.showExplainButton}
+          />
+        </Provider>
+      </ConfirmationModalArea>
     );
   }
 }

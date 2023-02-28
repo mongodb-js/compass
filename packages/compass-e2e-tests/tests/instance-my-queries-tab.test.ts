@@ -160,10 +160,10 @@ describe('Instance my queries tab', function () {
 
     // delete it
     await browser.clickVisible(Selectors.SavedItemMenuItemDelete);
-    const deleteModal = await browser.$(Selectors.DeleteSavedItemModal);
+    const deleteModal = await browser.$(Selectors.ConfirmationModal);
     await deleteModal.waitForDisplayed();
     const confirmDeleteButton = await browser.$(
-      Selectors.DeleteSavedItemModallConfirmButton
+      Selectors.ConfirmationModalConfirmButton
     );
     confirmDeleteButton.waitForEnabled();
 

@@ -9,9 +9,9 @@
  * - [x] basic functionality: code highlighting for js and json, controlled /
  *       uncontrolled behavior, gutters, common hotkeys
  * - [x] leafygreen light and dark theme
- * - [ ] inline mode (disabled gutter extensions and adjusted theme)
+ * - [x] inline mode (disabled gutter extensions and adjusted theme)
  * - [ ] autocomplete
- * - [ ] lint annotations (for agg. builder)
+ * - [x] lint annotations (for agg. builder)
  *
  * https://jira.mongodb.org/browse/COMPASS-6481
  */
@@ -44,6 +44,8 @@ import {
   historyKeymap,
   indentWithTab,
 } from '@codemirror/commands';
+import type { Diagnostic } from '@codemirror/lint';
+import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
 import {
   //   autocompletion,
   //   completionKeymap,
@@ -93,6 +95,11 @@ const editorPalette = {
     activeLineBackgroundColor: rgba(palette.gray.light2, 0.5),
     selectionBackgroundColor: palette.blue.light2,
     bracketBorderColor: palette.gray.light1,
+    infoGutterIconColor: encodeURIComponent(palette.blue.base),
+    warningGutterIconColor: encodeURIComponent(palette.yellow.base),
+    errorGutterIconColor: encodeURIComponent(palette.red.base),
+    foldPlaceholderColor: palette.gray.base,
+    foldPlaceholderBackgroundColor: palette.gray.light3,
   },
   dark: {
     color: codePalette.dark[3],
@@ -106,6 +113,11 @@ const editorPalette = {
     activeLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
     selectionBackgroundColor: palette.gray.dark1,
     bracketBorderColor: palette.gray.light1,
+    infoGutterIconColor: encodeURIComponent(palette.blue.light1),
+    warningGutterIconColor: encodeURIComponent(palette.yellow.light2),
+    errorGutterIconColor: encodeURIComponent(palette.red.light1),
+    foldPlaceholderColor: palette.gray.base,
+    foldPlaceholderBackgroundColor: palette.gray.dark3,
   },
 } as const;
 
@@ -144,11 +156,40 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-gutters > .cm-gutter:last-child > .cm-gutterElement': {
         paddingRight: `${spacing[2]}px`,
       },
+      '& .cm-gutter-lint': {
+        width: 'auto',
+      },
+      '& .cm-gutter-lint .cm-gutterElement': {
+        padding: '0',
+      },
+      '& .cm-gutter-lint .cm-lint-marker': {
+        width: `${spacing[3]}px`,
+        height: `${spacing[3]}px`,
+        padding: '2px',
+      },
+      '& .cm-gutter-lint .cm-lint-marker-info': {
+        content: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${editorPalette[theme].infoGutterIconColor}' fill-rule='evenodd' d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM9 4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM8 6a1 1 0 0 1 1 1v4h.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1 0-1H7V7h-.5a.5.5 0 0 1 0-1H8Z' clip-rule='evenodd'/%3E%3C/svg%3E%0A")`,
+      },
+      '& .cm-gutter-lint .cm-lint-marker-warning': {
+        content: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${editorPalette[theme].warningGutterIconColor}' fill-rule='evenodd' d='M8.864 2.514a.983.983 0 0 0-1.728 0L1.122 13.539A.987.987 0 0 0 1.986 15h12.028a.987.987 0 0 0 .864-1.461L8.864 2.514ZM7 6a1 1 0 0 1 2 0v4a1 1 0 1 1-2 0V6Zm2 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z' clip-rule='evenodd'/%3E%3C/svg%3E%0A")`,
+      },
+      '& .cm-gutter-lint .cm-lint-marker-error': {
+        content: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${editorPalette[theme].errorGutterIconColor}' fill-rule='evenodd' d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm1.414-9.828a1 1 0 1 1 1.414 1.414L9.414 8l1.414 1.414a1 1 0 1 1-1.414 1.414L8 9.414l-1.414 1.414a1 1 0 1 1-1.414-1.414L6.586 8 5.172 6.586a1 1 0 0 1 1.414-1.414L8 6.586l1.414-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E%0A")`,
+      },
+
       '& .cm-activeLineGutter': {
         background: 'none',
       },
       '&.cm-focused .cm-activeLineGutter': {
         backgroundColor: editorPalette[theme].gutterActiveLineBackgroundColor,
+      },
+      '& .cm-foldPlaceholder': {
+        display: 'inline-block',
+        border: 'none',
+        color: editorPalette[theme].foldPlaceholderColor,
+        backgroundColor: editorPalette[theme].foldPlaceholderBackgroundColor,
+        boxShadow: `inset 0 0 0 1px ${editorPalette[theme].foldPlaceholderColor}`,
+        padding: '0 2px',
       },
       '& .foldMarker': {
         width: `${spacing[3]}px`,
@@ -267,6 +308,8 @@ const highlightStyles = {
 // We don't have any other cases we need to support in a base editor
 type EditorLanguage = 'json' | 'javascript';
 
+type Annotation = Pick<Diagnostic, 'from' | 'to' | 'severity' | 'message'>;
+
 type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
@@ -277,6 +320,7 @@ type EditorProps = {
   readOnly?: boolean;
   className?: string;
   'data-testid'?: string;
+  annotations?: Annotation[];
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
@@ -355,6 +399,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   language = 'json',
   showLineNumbers = true,
   showFoldGutter = true,
+  annotations = [],
   darkMode: _darkMode,
   className,
   // TODO: Should disable gutter extensions
@@ -420,6 +465,14 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     editorViewRef
   );
 
+  const annotationsGutterExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return annotations.length === 0 ? [] : lintGutter();
+    },
+    annotations.length === 0,
+    editorViewRef
+  );
+
   useLayoutEffect(() => {
     if (!containerRef.current) {
       throw new Error("Can't mount editor: DOM node is missing");
@@ -443,8 +496,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         closeBrackets(),
         // TODO: Make ace autocompleters work with codemirror format
         // autocompletion(),
-        // TODO: https://codemirror.net/docs/ref/#lint.lintGutter
-        // lintGutter(),
+        annotationsGutterExtension,
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
@@ -516,6 +568,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     //
     // All the following values are refs which will not change value after
     // initial mount and so will not re-trigger this effect
+    annotationsGutterExtension,
     foldGutterExtension,
     languageExtension,
     lineNumbersExtension,
@@ -544,6 +597,12 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       });
     }
   }, [text]);
+
+  useEffect(() => {
+    editorViewRef.current?.dispatch({
+      effects: setDiagnosticsEffect.of(annotations),
+    });
+  }, [annotations]);
 
   return (
     <div

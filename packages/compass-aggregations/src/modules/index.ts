@@ -27,7 +27,6 @@ import settings from './settings';
 import savingPipeline from './saving-pipeline';
 import outResultsFn from './out-results-fn';
 import projections from './projections';
-import isNewPipelineConfirm from './is-new-pipeline-confirm';
 import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
@@ -74,7 +73,6 @@ const rootReducer = combineReducers({
   editViewName,
   sourceName,
   outResultsFn,
-  isNewPipelineConfirm,
   updateViewError,
   aggregation,
   workspace,
