@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 
 import {
   Checkbox,
-  FileInput,
   Select,
   Option,
   css,
@@ -12,6 +11,7 @@ import {
 import type { AcceptedFileType } from '../constants/file-types';
 import { SelectFileType } from './select-file-type';
 import type { CSVDelimiter } from '../modules/import';
+import { ImportFileInput } from './import-file-input';
 
 const formStyles = css({
   paddingTop: spacing[3],
@@ -72,18 +72,6 @@ function ImportOptions({
   ignoreBlanks,
   setIgnoreBlanks,
 }: ImportOptionsProps) {
-  /**
-   * Handle choosing a file from the file dialog.
-   */
-  const handleChooseFile = useCallback(
-    (files: string[]) => {
-      if (files.length > 0) {
-        selectImportFileName(files[0]);
-      }
-    },
-    [selectImportFileName]
-  );
-
   const handleOnSubmit = useCallback((evt) => {
     evt.preventDefault();
     evt.stopPropagation();
@@ -91,16 +79,11 @@ function ImportOptions({
 
   const isCSV = fileType === 'csv';
 
-  const values = fileName ? [fileName] : undefined;
-
   return (
     <form onSubmit={handleOnSubmit} className={formStyles}>
-      <FileInput
-        label="Select File"
-        id="import-file"
-        onChange={handleChooseFile}
-        values={values}
-        variant="VERTICAL"
+      <ImportFileInput
+        fileName={fileName}
+        selectImportFileName={selectImportFileName}
       />
       <SelectFileType
         fileType={fileType}

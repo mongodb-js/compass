@@ -44,6 +44,7 @@ import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import { ImportFileInput } from './import-file-input';
 
 /**
  * Progress messages.
@@ -183,6 +184,18 @@ function ImportModal({
     undefined,
     React
   );
+
+  if (isOpen && !fileName && errors.length === 0) {
+    // Show the file input when we don't have a file to import yet.
+    return (
+      <ImportFileInput
+        autoOpen
+        onCancel={handleClose}
+        fileName={fileName}
+        selectImportFileName={selectImportFileName}
+      />
+    );
+  }
 
   return (
     <Modal open={isOpen} setOpen={handleClose} data-testid="import-modal">

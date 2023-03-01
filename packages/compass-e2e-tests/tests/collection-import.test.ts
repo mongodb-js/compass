@@ -19,12 +19,14 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   await insertDocumentOption.waitForDisplayed();
   await browser.clickVisible(Selectors.ImportFileOption);
 
-  // wait for the modal to appear and select the file
-  const importModal = await browser.$(Selectors.ImportModal);
-  await importModal.waitForDisplayed();
+  // Select the file.
   await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
-  // make sure it auto-selected JSON and then confirm
+  // Wait for the modal to appear.
+  const importModal = await browser.$(Selectors.ImportModal);
+  await importModal.waitForDisplayed();
+
+  // Make sure it auto-selected JSON and then confirm.
   const fileTypeJSON = await browser.$(Selectors.FileTypeJSON);
   await browser.waitUntil(async () => {
     const selected = await fileTypeJSON.getAttribute('aria-checked');
@@ -418,10 +420,11 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
+    // Select the file.
+    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+    // Wait for the modal to appear.
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
-    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
     // select file type JSON
     await browser.clickParent(Selectors.FileTypeJSON);
@@ -457,10 +460,11 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
+    // Select the file.
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+    // Wait for the modal to appear.
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
-    await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
@@ -556,10 +560,11 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
+    // Select the file.
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+    // Wait for the modal to appear.
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
-    await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
@@ -647,10 +652,11 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
+    // Select the file.
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+    // Wait for the modal to appear.
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
-    await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
