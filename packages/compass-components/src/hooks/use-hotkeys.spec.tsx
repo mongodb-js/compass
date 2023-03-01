@@ -2,7 +2,7 @@ import { fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import { renderHook } from '@testing-library/react-hooks';
 
-import { useHotkeys, mapHotkeyToShortcut } from './use-hotkeys';
+import { useHotkeys, normalizeHotkey } from './use-hotkeys';
 import sinon from 'sinon';
 
 const initialUserAgent = window.navigator.userAgent;
@@ -10,17 +10,17 @@ const initialUserAgent = window.navigator.userAgent;
 const mappingUseCases = {
   mac: [
     { key: 'meta+1', shortcut: '⌘ + 1' },
-    { key: 'alt+  1', shortcut: 'option + 1' },
-    { key: 'ctrl  +1', shortcut: 'ctrl + 1' },
-    { key: 'meta +shift+  a+ c', shortcut: '⌘ + shift + a + c' },
-    { key: 'meta+ shift +   +', shortcut: '⌘ + shift + +' },
+    { key: 'alt+  1', shortcut: 'Option + 1' },
+    { key: 'ctrl  +1', shortcut: 'Ctrl + 1' },
+    { key: 'meta +shift+  a+ c', shortcut: '⌘ + Shift + A + C' },
+    { key: 'meta+ shift +   +', shortcut: '⌘ + Shift + +' },
   ],
   windows_linux: [
-    { key: 'meta+1', shortcut: 'ctrl + 1' },
-    { key: 'alt+1', shortcut: 'alt + 1' },
-    { key: 'ctrl+1', shortcut: 'ctrl + 1' },
-    { key: 'meta+ shift+a +c', shortcut: 'ctrl + shift + a + c' },
-    { key: 'meta +shift  + +', shortcut: 'ctrl + shift + +' },
+    { key: 'meta+1', shortcut: 'Ctrl + 1' },
+    { key: 'alt+1', shortcut: 'Alt + 1' },
+    { key: 'ctrl+1', shortcut: 'Ctrl + 1' },
+    { key: 'meta+ shift+a +c', shortcut: 'Ctrl + Shift + A + C' },
+    { key: 'meta +shift  + +', shortcut: 'Ctrl + Shift + +' },
   ],
 };
 
@@ -68,7 +68,7 @@ describe('use-hotkeys', function () {
     context('handles mapping of shortcuts', function () {
       mappingUseCases.mac.forEach(({ key, shortcut }) => {
         it(`maps ${key} to ${shortcut}`, function () {
-          expect(mapHotkeyToShortcut(key)).to.equal(shortcut);
+          expect(normalizeHotkey(key)).to.equal(shortcut);
         });
       });
     });
@@ -110,7 +110,7 @@ describe('use-hotkeys', function () {
     context('handles mapping of shortcuts', function () {
       mappingUseCases.windows_linux.forEach(({ key, shortcut }) => {
         it(`maps ${key} to ${shortcut}`, function () {
-          expect(mapHotkeyToShortcut(key)).to.equal(shortcut);
+          expect(normalizeHotkey(key)).to.equal(shortcut);
         });
       });
     });
