@@ -163,8 +163,6 @@ export function analyzeCSVFields({
       delimiter,
       header: true,
       step: function (results: Papa.ParseStepResult<PapaRowData>, parser) {
-        debug('analyzeCSVFields:step', results);
-
         if (abortSignal?.aborted && !aborted) {
           aborted = true;
           result.aborted = true;
