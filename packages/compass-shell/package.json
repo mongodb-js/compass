@@ -77,7 +77,7 @@
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
     "@mongodb-js/webpack-config-compass": "^1.0.6",
-    "@mongosh/browser-repl": "^1.7.0",
+    "@mongosh/browser-repl": "^1.8.0",
     "@mongosh/logging": "^1.7.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
