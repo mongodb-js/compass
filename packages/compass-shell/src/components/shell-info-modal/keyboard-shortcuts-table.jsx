@@ -6,7 +6,7 @@ import {
   TableHeader,
   Row,
   Cell,
-  Hotkey,
+  KeyboardShortcut,
 } from '@mongodb-js/compass-components';
 
 const hotkeys = [
@@ -55,11 +55,11 @@ const hotkeys = [
     description: 'Changes the line to Uppercase.',
   },
   {
-    key: '\u2191',
+    key: 'ArrowUp',
     description: 'Cycle backwards through command history.',
   },
   {
-    key: '\u2193',
+    key: 'ArrowDown',
     description: 'Cycle forwards through command history.',
   },
 ];
@@ -77,7 +77,7 @@ function KeyboardShortcutsTable() {
         <Row key={datum.key}>
           <Cell>
             <Body weight="medium">
-              <Hotkey shortcut={datum.key} />
+              <KeyboardShortcut hotkey={datum.key} />
             </Body>
           </Cell>
           <Cell>

@@ -2,7 +2,7 @@ import { fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import { renderHook } from '@testing-library/react-hooks';
 
-import { useHotkeys, mapKeyToShortcut } from './use-hotkeys';
+import { useHotkeys, mapHotkeyToShortcut } from './use-hotkeys';
 import sinon from 'sinon';
 
 const initialUserAgent = window.navigator.userAgent;
@@ -68,7 +68,7 @@ describe('use-hotkeys', function () {
     context('handles mapping of shortcuts', function () {
       mappingUseCases.mac.forEach(({ key, shortcut }) => {
         it(`maps ${key} to ${shortcut}`, function () {
-          expect(mapKeyToShortcut(key)).to.equal(shortcut);
+          expect(mapHotkeyToShortcut(key)).to.equal(shortcut);
         });
       });
     });
@@ -110,7 +110,7 @@ describe('use-hotkeys', function () {
     context('handles mapping of shortcuts', function () {
       mappingUseCases.windows_linux.forEach(({ key, shortcut }) => {
         it(`maps ${key} to ${shortcut}`, function () {
-          expect(mapKeyToShortcut(key)).to.equal(shortcut);
+          expect(mapHotkeyToShortcut(key)).to.equal(shortcut);
         });
       });
     });

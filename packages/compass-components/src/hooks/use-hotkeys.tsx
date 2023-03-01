@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useHotkeys as useGlobalHotkeys } from 'react-hotkeys-hook';
 import { InlineKeyCode, css, spacing } from '../';
 
-const hotkeyContainerStyles = css({
+const shortcutContainerStyles = css({
   display: 'flex',
   gap: spacing[1],
 });
@@ -30,16 +30,10 @@ export const useHotkeys = (
   options?: GlobalHotkeysArgs[2],
   deps?: GlobalHotkeysArgs[3]
 ) => {
-  const ref = useGlobalHotkeys(key, callback, options, deps);
-  const shortcut = useMemo(() => mapKeyToShortcut(key), [key]);
-  return {
-    shortcut,
-    ref,
-  };
+  return useGlobalHotkeys(key, callback, options, deps);
 };
 
-// exported for testing
-export const mapKeyToShortcut = (key: string) => {
+export const mapHotkeyToShortcut = (key: string) => {
   // map the modifier keys to the platform specific keys
   const shortcut = isMac()
     ? key.replace(/\bmeta\b/, '⌘').replace(/\balt\b/, 'option')
@@ -48,13 +42,15 @@ export const mapKeyToShortcut = (key: string) => {
   return shortcut
     .replace(/\+/g, ' + ') // Add space on both sides of each '+'
     .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+    .replace('ArrowUp', '↑')
+    .replace('ArrowDown', '↓')
     .trim();
 };
 
-export const Hotkey = ({ shortcut }: { shortcut: string }) => {
-  const key = mapKeyToShortcut(shortcut);
+export const KeyboardShortcut = ({ hotkey }: { hotkey: string }) => {
+  const key = mapHotkeyToShortcut(hotkey);
   return (
-    <span className={hotkeyContainerStyles}>
+    <span className={shortcutContainerStyles}>
       {key.split('+').map((x) => (
         <InlineKeyCode key={x}>{x.trim()}</InlineKeyCode>
       ))}

@@ -11,7 +11,7 @@ import {
   Toggle,
   Tooltip,
   useHotkeys,
-  Hotkey,
+  mapHotkeyToShortcut,
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
@@ -72,6 +72,11 @@ const tooltipContentItemStyles = css({
   flexShrink: 0,
 });
 
+const PREVIOUS_STAGE_HOTKEY = 'meta+shift+9';
+const NEXT_STAGE_HOTKEY = 'meta+shift+0';
+const ADD_STAGE_AFTER_HOTKEY = 'meta+shift+a';
+const ADD_STAGE_BEFORE_HOTKEY = 'meta+shift+b';
+
 export const FocusModeModalHeader: React.FunctionComponent<
   FocusModeModalHeaderProps
 > = ({
@@ -111,22 +116,10 @@ export const FocusModeModalHeader: React.FunctionComponent<
     setMenuOpen(false);
   };
 
-  const { shortcut: previousStageShortcut } = useHotkeys(
-    'meta+shift+9',
-    onPreviousStage
-  );
-  const { shortcut: nextStageShortcut } = useHotkeys(
-    'meta+shift+0',
-    onNextStage
-  );
-  const { shortcut: addStageAfterShortcut } = useHotkeys(
-    'meta+shift+a',
-    onAddStageAfter
-  );
-  const { shortcut: addStageBeforeShortcut } = useHotkeys(
-    'meta+shift+b',
-    onAddStageBefore
-  );
+  useHotkeys(PREVIOUS_STAGE_HOTKEY, onPreviousStage);
+  useHotkeys(NEXT_STAGE_HOTKEY, onNextStage);
+  useHotkeys(ADD_STAGE_AFTER_HOTKEY, onAddStageAfter);
+  useHotkeys(ADD_STAGE_BEFORE_HOTKEY, onAddStageBefore);
 
   const stageSelectLabels = stages.map((stageName, index) => {
     return `Stage ${index + 1}: ${stageName ?? 'select'}`;
@@ -171,7 +164,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
               Go to previous stage
             </span>
             <span className={tooltipContentItemStyles}>
-              {previousStageShortcut}
+              {mapHotkeyToShortcut(PREVIOUS_STAGE_HOTKEY)}
             </span>
           </Body>
         </Tooltip>
@@ -221,7 +214,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
           <Body className={tooltipContentStyles}>
             <span>Go to next stage</span>
             <span className={tooltipContentItemStyles}>
-              {nextStageShortcut}
+              {mapHotkeyToShortcut(NEXT_STAGE_HOTKEY)}
             </span>
           </Body>
         </Tooltip>
@@ -278,14 +271,14 @@ export const FocusModeModalHeader: React.FunctionComponent<
         <MenuItem
           className={menuItemStyles}
           onClick={onAddStageAfter}
-          data-hotkey={addStageAfterShortcut}
+          data-hotkey={mapHotkeyToShortcut(ADD_STAGE_AFTER_HOTKEY)}
         >
           Add stage after
         </MenuItem>
         <MenuItem
           className={menuItemStyles}
           onClick={onAddStageBefore}
-          data-hotkey={addStageBeforeShortcut}
+          data-hotkey={mapHotkeyToShortcut(ADD_STAGE_BEFORE_HOTKEY)}
         >
           Add stage before
         </MenuItem>
