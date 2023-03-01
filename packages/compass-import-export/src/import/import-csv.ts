@@ -100,19 +100,10 @@ export async function importCSV({
         docsWritten: collectionStream.docsWritten,
       });
 
-      debug('importCSV:transform', numProcessed, {
-        headerFields,
-        chunk,
-        fields,
-        ignoreEmptyStrings,
-        encoding,
-      });
-
       try {
         const doc = makeDoc(chunk, headerFields, parsedHeader, fields, {
           ignoreEmptyStrings,
         });
-        debug('transform', doc);
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({
@@ -166,6 +157,9 @@ export async function importCSV({
 
       return makeImportResult(collectionStream, numProcessed, true);
     }
+
+    // stick the result onto the error so that we can tell how far it got
+    err.result = makeImportResult(collectionStream, numProcessed);
 
     throw err;
   }

@@ -164,7 +164,7 @@ function ImportModal({
   );
 
   useEffect(() => {
-    // When the errors change and there are now errors, we auto scroll
+    // When the errors change and there are new errors, we auto scroll
     // to the end of the modal body to ensure folks see the new errors.
     if (isOpen && errors && modalBodyRef.current) {
       const contentDiv = modalBodyRef.current;

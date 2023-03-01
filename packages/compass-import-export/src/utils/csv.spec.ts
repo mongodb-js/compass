@@ -339,11 +339,13 @@ describe('parseValue', function () {
     expect(parseValue('true', 'boolean')).to.deep.equal(true);
     expect(parseValue('TRUE', 'boolean')).to.deep.equal(true);
     expect(parseValue('True', 'boolean')).to.deep.equal(true);
+    expect(parseValue('t', 'boolean')).to.deep.equal(true);
 
     expect(parseValue('0', 'boolean')).to.deep.equal(false);
     expect(parseValue('false', 'boolean')).to.deep.equal(false);
     expect(parseValue('FALSE', 'boolean')).to.deep.equal(false);
     expect(parseValue('False', 'boolean')).to.deep.equal(false);
+    expect(parseValue('f', 'boolean')).to.deep.equal(false);
 
     // anything else is true due to the fallback of Boolean(value)
     expect(parseValue('yes', 'boolean')).to.deep.equal(true);
@@ -356,6 +358,9 @@ describe('parseValue', function () {
     ).to.deep.equal(new Date('2023-01-04T16:22:59.453Z').toString());
     expect(parseValue('1648425600000', 'date')?.toString()).to.deep.equal(
       new Date(+'1648425600000').toString()
+    );
+    expect(parseValue('2023-01-04', 'date')?.toString()).to.deep.equal(
+      new Date('2023-01-04').toString()
     );
 
     expect(() => parseValue('abc', 'date')).to.throw('"abc" is not a date');
