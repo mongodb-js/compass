@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import path from 'path';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -124,6 +124,7 @@ export type FileInputBackend = {
 };
 
 function FileInput({
+  autoOpen = false,
   id,
   label,
   dataTestId,
@@ -143,6 +144,7 @@ function FileInput({
   accept,
   backend,
 }: {
+  autoOpen?: boolean;
   id: string;
   label: string;
   dataTestId?: string;
@@ -184,6 +186,24 @@ function FileInput({
     },
     [onChange]
   );
+
+  const handleOpenFileInput = useCallback(() => {
+    if (disabled) return;
+    if (backend) {
+      backend.openFileChooser({ multi, accept });
+    } else if (inputRef.current) {
+      inputRef.current.click();
+    }
+  }, [disabled, backend, multi, accept]);
+
+  const initialAutoOpen = useRef(() => {
+    if (autoOpen) {
+      handleOpenFileInput();
+    }
+  });
+  useEffect(() => {
+    initialAutoOpen.current();
+  }, []);
 
   useEffect(() => {
     return backend?.onFilesChosen?.(onChange);
@@ -265,14 +285,7 @@ function FileInput({
           data-testid="file-input-button"
           className={buttonStyles}
           disabled={disabled}
-          onClick={() => {
-            if (disabled) return;
-            if (backend) {
-              backend.openFileChooser({ multi, accept });
-            } else if (inputRef.current) {
-              inputRef.current.click();
-            }
-          }}
+          onClick={handleOpenFileInput}
           title="Select a file"
           leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
         >
@@ -399,13 +412,13 @@ export function createElectronFileInputBackend<ElectronWindow>(
         }
       )
         .then((result) => {
-          if (result.canceled) return;
-          const files =
-            'filePaths' in result
-              ? result.filePaths
-              : result.filePath
-              ? [result.filePath]
-              : [];
+          const files = result.canceled
+            ? []
+            : 'filePaths' in result
+            ? result.filePaths
+            : result.filePath
+            ? [result.filePath]
+            : [];
           for (const listener of listeners) listener(files);
         })
         .catch(() => {

@@ -8,8 +8,7 @@ import slice from 'lodash.slice';
 import shared from './shared';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { palette } from '@mongodb-js/compass-components';
-
-require('./d3-tip')(d3);
+import { createD3Tip } from './create-d3-tip';
 
 const minicharts_d3fns_few = (localAppRegistry) => {
   // --- beginning chart setup ---
@@ -26,11 +25,7 @@ const minicharts_d3fns_few = (localAppRegistry) => {
   const xScale = d3.scale.linear();
 
   // set up tooltips
-  const tip = d3
-    .tip()
-    .attr('class', 'd3-tip d3-tip-few')
-    .direction('n')
-    .offset([-9, 0]);
+  const tip = createD3Tip();
   const brush = d3.svg
     .brush()
     .x(xScale)

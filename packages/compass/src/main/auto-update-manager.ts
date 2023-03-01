@@ -115,7 +115,7 @@ const FOUR_HOURS = 1000 * 60 * 60 * 4;
 const THIRTY_SECONDS = 30_000;
 
 type StateUpdateAction = (
-  this: AbortSignal,
+  this: { maybeInterrupt(): void | never },
   updateManager: typeof CompassAutoUpdateManager,
   ...args: any[]
 ) => void | Promise<void>;
@@ -134,22 +134,25 @@ const checkForUpdates: StateUpdateAction = async function checkForUpdates(
     'Checking for updates ...'
   );
 
+  this.maybeInterrupt();
+
   const updateInfo = await updateManager.checkForUpdate();
 
-  if (this.aborted) {
-    return;
-  }
+  this.maybeInterrupt();
 
   if (updateInfo) {
     updateManager.setState(AutoUpdateManagerState.UpdateAvailable, updateInfo);
   } else {
-    updateManager.setState(AutoUpdateManagerState.NoUpdateAvailable);
     if (isManualCheck) {
       void dialog.showMessageBox({
         icon: COMPASS_ICON,
         message: 'There are currently no updates available.',
       });
     }
+
+    this.maybeInterrupt();
+
+    updateManager.setState(AutoUpdateManagerState.NoUpdateAvailable);
   }
 };
 
@@ -172,7 +175,7 @@ const STATE_UPDATE: Partial<
       Record<
         AutoUpdateManagerState,
         (
-          this: AbortSignal,
+          this: { maybeInterrupt(): void | never },
           updateManager: typeof CompassAutoUpdateManager,
           ...extraArgs: any[]
         ) => void | Promise<void>
@@ -204,11 +207,11 @@ const STATE_UPDATE: Partial<
     ) {
       log.info(mongoLogId(1001000127), 'AutoUpdateManager', 'Update available');
 
+      this.maybeInterrupt();
+
       const answer = await promptForUpdate(updateInfo.from, updateInfo.to);
 
-      if (this.aborted) {
-        return;
-      }
+      this.maybeInterrupt();
 
       if (answer === 'update') {
         updateManager.setState(
@@ -237,10 +240,13 @@ const STATE_UPDATE: Partial<
         'AutoUpdateManager',
         'Update not available'
       );
+
+      this.maybeInterrupt();
+
       await wait(updateManager.autoUpdateOptions.updateCheckInterval);
-      if (this.aborted) {
-        return;
-      }
+
+      this.maybeInterrupt();
+
       updateManager.setState(AutoUpdateManagerState.CheckingForUpdates);
     },
     [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
@@ -253,9 +259,13 @@ const STATE_UPDATE: Partial<
     ) {
       track('Autoupdate Accepted', { update_version: updateInfo.to });
 
+      this.maybeInterrupt();
+
       autoUpdater.once('error', (error) => {
         updateManager.setState(AutoUpdateManagerState.DownloadingError, error);
       });
+
+      this.maybeInterrupt();
 
       autoUpdater.once('update-downloaded', () => {
         updateManager.setState(
@@ -263,10 +273,16 @@ const STATE_UPDATE: Partial<
           updateInfo
         );
       });
+
+      this.maybeInterrupt();
+
       // checkForUpdate downloads and installs the update when available, there
       // is also no way to interrupt this process so once it starts, disabling
       // updates in the options will not do anything
       autoUpdater.setFeedURL(updateManager.getFeedURLOptions());
+
+      this.maybeInterrupt();
+
       autoUpdater.checkForUpdates();
     },
     [AutoUpdateManagerState.ManualDownload]: function (
@@ -278,10 +294,16 @@ const STATE_UPDATE: Partial<
         'AutoUpdateManager',
         'Manual download'
       );
+
+      this.maybeInterrupt();
+
       track('Autoupdate Accepted', {
         update_version: updateInfo.to,
         manual_download: true,
       });
+
+      this.maybeInterrupt();
+
       const url = `https://downloads.mongodb.com/compass/${
         process.env.HADRON_PRODUCT
       }-${updateInfo.to}-${process.platform}-${getSystemArch()}.dmg`;
@@ -301,10 +323,10 @@ const STATE_UPDATE: Partial<
         mongoLogId(1001000128),
         'AutoUpdateManager',
         'Update downloaded',
-        {
-          releaseVersion: updateInfo.to,
-        }
+        { releaseVersion: updateInfo.to }
       );
+
+      this.maybeInterrupt();
 
       const answer = await dialog.showMessageBox({
         icon: COMPASS_ICON,
@@ -316,9 +338,7 @@ const STATE_UPDATE: Partial<
         cancelId: 1,
       });
 
-      if (this.aborted) {
-        return;
-      }
+      this.maybeInterrupt();
 
       if (answer.response === 0) {
         updateManager.setState(AutoUpdateManagerState.Restarting, updateInfo);
@@ -339,13 +359,19 @@ const STATE_UPDATE: Partial<
     },
   },
   [AutoUpdateManagerState.ReadyToUpdate]: {
-    [AutoUpdateManagerState.Restarting]: (_updateManager, updateInfo) => {
+    [AutoUpdateManagerState.Restarting]: function (_updateManager, updateInfo) {
       log.info(
         mongoLogId(1_001_000_166),
         'AutoUpdateManager',
         'Restart accepted'
       );
+
+      this.maybeInterrupt();
+
       track('Application Restart Accepted', { update_version: updateInfo.to });
+
+      this.maybeInterrupt();
+
       autoUpdater.quitAndInstall();
     },
     [AutoUpdateManagerState.RestartDismissed]: () => {
@@ -452,7 +478,16 @@ class CompassAutoUpdateManager {
   private static currentActionAbortController: AbortController =
     new AbortController();
 
+  private static currentStateTransition: Promise<unknown | void> | undefined;
+
   static setState(newState: AutoUpdateManagerState, ...args: unknown[]) {
+    // State update was aborted outside state transition loop. This indicates
+    // that we completely stopped auto update manager and no other state updates
+    // will be allowed
+    if (this.currentActionAbortController.signal.aborted) {
+      return;
+    }
+
     const currentStateHandlers = STATE_UPDATE[this.state];
 
     if (!currentStateHandlers) {
@@ -466,21 +501,44 @@ class CompassAutoUpdateManager {
     }
 
     this.currentActionAbortController.abort();
-    this.currentActionAbortController = new AbortController();
+
+    const controller = new AbortController();
+    this.currentActionAbortController = controller;
     this.state = newState;
     this.emit('new-state', this.state);
 
-    void currentStateHandlers[newState]?.call(
-      this.currentActionAbortController.signal,
-      this,
-      ...args
-    );
+    this.currentStateTransition = currentStateHandlers[newState]
+      ?.call(
+        {
+          maybeInterrupt() {
+            if (controller.signal.aborted) {
+              throw controller.signal.reason;
+            }
+          },
+        },
+        this,
+        ...args
+      )
+      ?.catch((err: Error) => {
+        if (err.name !== 'AbortError') {
+          throw err;
+        }
+      });
+  }
+
+  private static stop() {
+    this.currentActionAbortController.abort();
   }
 
   private static _init(
     compassApp: typeof CompassApplication,
     options: Partial<AutoUpdateManagerOptions> = {}
   ): void {
+    compassApp.addExitHandler(() => {
+      this.stop();
+      return Promise.resolve();
+    });
+
     log.info(mongoLogId(1001000130), 'AutoUpdateManager', 'Initializing');
 
     const product = API_PRODUCT[process.env.HADRON_PRODUCT];
@@ -494,7 +552,6 @@ class CompassAutoUpdateManager {
           productId: process.env.HADRON_PRODUCT,
         }
       );
-
       return;
     }
 

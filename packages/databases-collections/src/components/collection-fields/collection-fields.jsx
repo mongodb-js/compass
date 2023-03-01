@@ -12,6 +12,7 @@ import TimeSeriesFields from './time-series-fields';
 import hasClusteredCollectionSupport from './has-clustered-collection-support';
 import ClusteredCollectionFields from './clustered-collection-fields';
 import hasFLE2Support from './has-fle2-support';
+import hasFlexibleBucketConfigSupport from './has-flexible-bucket-config-support';
 import FLE2Fields, { ENCRYPTED_FIELDS_PLACEHOLDER } from './fle2-fields';
 import Collation from './collation';
 
@@ -108,7 +109,15 @@ export default class CollectionFields extends PureComponent {
 
     const timeSeriesOptions = isTimeSeries
       ? {
-          timeseries: fields.timeSeries,
+          timeseries: {
+            ...fields.timeSeries,
+            bucketMaxSpanSeconds: asNumber(
+              fields.timeSeries.bucketMaxSpanSeconds
+            ),
+            bucketRoundingSeconds: asNumber(
+              fields.timeSeries.bucketRoundingSeconds
+            ),
+          },
           expireAfterSeconds: asNumber(fields.expireAfterSeconds),
         }
       : {};
@@ -178,10 +187,32 @@ export default class CollectionFields extends PureComponent {
             this.setField('collectionName', newCollectionName)
           }
         />
+        {hasTimeSeriesSupport(serverVersion) && (
+          <TimeSeriesFields
+            isCapped={isCapped}
+            isTimeSeries={isTimeSeries}
+            isClustered={isClustered}
+            isFLE2={isFLE2}
+            onChangeIsTimeSeries={(newIsTimeSeries) =>
+              this.setState(
+                { isTimeSeries: newIsTimeSeries, expireAfterSeconds: '' },
+                this.updateOptions
+              )
+            }
+            onChangeField={(fieldName, value) =>
+              this.setField(fieldName, value)
+            }
+            timeSeries={timeSeries}
+            expireAfterSeconds={expireAfterSeconds}
+            supportsFlexibleBucketConfiguration={hasFlexibleBucketConfigSupport(
+              serverVersion
+            )}
+          />
+        )}
         <Accordion
-          data-testid="advanced-collection-options"
-          text="Advanced Collection Options"
-          hintText="(e.g. Time-Series, Capped, Clustered collections)"
+          data-testid="additional-collection-preferences"
+          text="Additional preferences"
+          hintText="(e.g. Custom collation, Capped, Clustered collections)"
         >
           <div className={advancedCollectionOptionsContainerStyles}>
             <CappedCollectionFields
@@ -210,25 +241,6 @@ export default class CollectionFields extends PureComponent {
               }
               isCustomCollation={isCustomCollation}
             />
-            {hasTimeSeriesSupport(serverVersion) && (
-              <TimeSeriesFields
-                isCapped={isCapped}
-                isTimeSeries={isTimeSeries}
-                isClustered={isClustered}
-                isFLE2={isFLE2}
-                onChangeIsTimeSeries={(newIsTimeSeries) =>
-                  this.setState(
-                    { isTimeSeries: newIsTimeSeries, expireAfterSeconds: '' },
-                    this.updateOptions
-                  )
-                }
-                onChangeField={(fieldName, value) =>
-                  this.setField(fieldName, value)
-                }
-                timeSeries={timeSeries}
-                expireAfterSeconds={expireAfterSeconds}
-              />
-            )}
             {hasClusteredCollectionSupport(serverVersion) && (
               <ClusteredCollectionFields
                 isCapped={isCapped}

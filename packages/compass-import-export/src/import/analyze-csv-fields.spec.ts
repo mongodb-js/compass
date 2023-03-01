@@ -2,6 +2,7 @@ import assert from 'assert';
 import path from 'path';
 import { expect } from 'chai';
 import fs from 'fs';
+import { Readable } from 'stream';
 import sinon from 'sinon';
 import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
@@ -25,6 +26,7 @@ describe('analyzeCSVFields', function () {
         delimiter: csvDelimiter,
         abortSignal: abortController.signal,
         progressCallback,
+        ignoreEmptyStrings: true,
       });
 
       const resultPath = filepath.replace(/\.csv$/, '.analyzed.json');
@@ -45,6 +47,26 @@ describe('analyzeCSVFields', function () {
         basename.replace(/\.csv$/, '.analyzed.json')
       ).to.deep.equal(expectedResult);
       expect(progressCallback.callCount).to.equal(result.totalRows);
+
+      const firstCallArg = Object.assign(
+        {},
+        progressCallback.firstCall.args[0]
+      );
+      expect(firstCallArg.bytesProcessed).to.be.gt(0);
+      delete firstCallArg.bytesProcessed;
+
+      expect(firstCallArg).to.deep.equal({
+        docsProcessed: 1,
+      });
+
+      const fileStat = await fs.promises.stat(filepath);
+
+      const lastCallArg = Object.assign({}, progressCallback.lastCall.args[0]);
+
+      expect(lastCallArg).to.deep.equal({
+        bytesProcessed: fileStat.size,
+        docsProcessed: result.totalRows,
+      });
     });
   }
 
@@ -76,6 +98,23 @@ describe('analyzeCSVFields', function () {
     let expectedTypes = [type];
     let expectedDetected = type;
 
+    if (type === 'null') {
+      // the null test file contains an example of what mongoexport does which
+      // is to turn null into a blank string, but to us that means either
+      // undefined or blank string depending on the value of ignoreEmptyStrings
+      expectedTypes = ['null', 'undefined'];
+      expectedDetected = 'null';
+    }
+
+    if (type === 'date') {
+      // the date test file contains an example of a date as an iso string and
+      // an example of a date as an int64 value. Obviously with no other context
+      // the number is detected as a long, so in that case it will be up to the
+      // user to explicitly select Date as the column's type when importing.
+      expectedTypes = ['date', 'long'];
+      expectedDetected = 'mixed';
+    }
+
     if (type === 'number') {
       expectedTypes = ['int', 'double', 'long'];
       expectedDetected = 'mixed';
@@ -86,7 +125,7 @@ describe('analyzeCSVFields', function () {
       expectedDetected = 'mixed';
     }
 
-    it(`detects ${expectedDetected} for ${basename}`, async function () {
+    it(`detects ${expectedDetected} for ${basename} with ignoreEmptyStrings=true`, async function () {
       const abortController = new AbortController();
       const progressCallback = sinon.spy();
       const result = await analyzeCSVFields({
@@ -94,6 +133,7 @@ describe('analyzeCSVFields', function () {
         delimiter: ',',
         abortSignal: abortController.signal,
         progressCallback,
+        ignoreEmptyStrings: true,
       });
 
       for (const [fieldName, field] of Object.entries(result.fields)) {
@@ -114,6 +154,33 @@ describe('analyzeCSVFields', function () {
     });
   }
 
+  it(`detects mixed for null.csv with ignoreEmptyStrings=false`, async function () {
+    const abortController = new AbortController();
+    const progressCallback = sinon.spy();
+    const result = await analyzeCSVFields({
+      input: fs.createReadStream(fixtures.csvByType.null),
+      delimiter: ',',
+      abortSignal: abortController.signal,
+      progressCallback,
+      ignoreEmptyStrings: false,
+    });
+
+    for (const [fieldName, field] of Object.entries(result.fields)) {
+      // ignore note / padding fields
+      if (['something', 'something_else', 'notes'].includes(fieldName)) {
+        continue;
+      }
+
+      expect(Object.keys(field.types), `${fieldName} types`).to.deep.equal([
+        'null',
+        'string',
+      ]);
+      expect(field.detected, `${fieldName} detected`).to.equal('mixed');
+    }
+
+    expect(progressCallback.callCount).to.equal(result.totalRows);
+  });
+
   it('responds to abortSignal.aborted', async function () {
     const abortController = new AbortController();
     const progressCallback = sinon.spy();
@@ -125,6 +192,7 @@ describe('analyzeCSVFields', function () {
       delimiter: ',',
       abortSignal: abortController.signal,
       progressCallback,
+      ignoreEmptyStrings: true,
     });
 
     // only looked at the first row because we aborted before even starting
@@ -132,5 +200,41 @@ describe('analyzeCSVFields', function () {
 
     // signals that it was aborted and the results are therefore incomplete
     expect(result.aborted).to.equal(true);
+  });
+
+  it('does not mind windows style line breaks', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from(text.replace(/\n/g, '\r\n'));
+
+    const result = await analyzeCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
+  });
+
+  it('errors if a file is not valid utf8', async function () {
+    const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
+    const input = Readable.from(latin1Buffer);
+
+    await expect(
+      analyzeCSVFields({
+        input,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
+  it('strips the BOM character', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from('\uFEFF' + text);
+    const result = await analyzeCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
   });
 });

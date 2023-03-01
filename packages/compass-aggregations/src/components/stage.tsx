@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
@@ -8,7 +8,10 @@ import {
   cx,
   spacing,
   palette,
+  GuideCue,
 } from '@mongodb-js/compass-components';
+import { type AceEditor } from '@mongodb-js/compass-editor';
+import { usePreference } from 'compass-preferences-model';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
@@ -20,6 +23,11 @@ import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
+import { useInView } from 'react-intersection-observer';
+import {
+  setHasSeenFocusModeGuideCue,
+  hasSeenFocusModeGuideCue,
+} from '../utils/local-storage';
 
 const stageStyles = css({
   position: 'relative',
@@ -58,6 +66,12 @@ const stageEditorContainerStyles = css({
   paddingBottom: spacing[2],
 });
 
+const focusModeGuideCueStyles = css({
+  position: 'absolute',
+  // 28 (options button) + 14 (focus mode button) + 4 (gap) + 8 (padding) + 1 (border) + 2 (guide cue notch)
+  right: '57px',
+});
+
 const RESIZABLE_DIRECTIONS = {
   top: false,
   right: true,
@@ -70,14 +84,22 @@ const RESIZABLE_DIRECTIONS = {
 };
 
 type ResizableEditorProps = {
-  id: number;
   index: number;
   isAutoPreviewing: boolean;
+  onLoad: (editor: AceEditor) => void;
 };
 
-function ResizableEditor({ index, isAutoPreviewing }: ResizableEditorProps) {
+function ResizableEditor({
+  index,
+  isAutoPreviewing,
+  onLoad,
+}: ResizableEditorProps) {
   const editor = (
-    <StageEditor index={index} className={stageEditorContainerStyles} />
+    <StageEditor
+      onLoad={onLoad}
+      index={index}
+      className={stageEditorContainerStyles}
+    />
   );
 
   if (!isAutoPreviewing) {
@@ -127,6 +149,33 @@ export type StageProps = {
   isAutoPreviewing: boolean;
 };
 
+const useFocusModeGuideCue = (stageIndex: number) => {
+  const [isGuideCueVisible, setIsGuideCueVisible] = useState(false);
+  const [setGuideCueIntersectingRef, isIntersecting] = useInView({
+    threshold: 0.5,
+  });
+  const showFocusMode = usePreference('showFocusMode', React);
+
+  useEffect(() => {
+    if (!hasSeenFocusModeGuideCue()) {
+      setIsGuideCueVisible(
+        Boolean(stageIndex === 0 && showFocusMode && isIntersecting)
+      );
+    }
+  }, [setIsGuideCueVisible, showFocusMode, stageIndex, isIntersecting]);
+
+  const setGuideCueVisited = () => {
+    setIsGuideCueVisible(false);
+    setHasSeenFocusModeGuideCue();
+  };
+
+  return {
+    isGuideCueVisible,
+    setGuideCueIntersectingRef,
+    setGuideCueVisited,
+  };
+};
+
 function Stage({
   id,
   index,
@@ -136,6 +185,13 @@ function Stage({
   hasServerError,
   isAutoPreviewing,
 }: StageProps) {
+  const editorRef = useRef<AceEditor | undefined>(undefined);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Focus Mode Guide Cue
+  const { isGuideCueVisible, setGuideCueVisited, setGuideCueIntersectingRef } =
+    useFocusModeGuideCue(index);
+
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
   const { setNodeRef, transform, transition, listeners, isDragging } =
     useSortable({
@@ -147,8 +203,38 @@ function Stage({
     zIndex: isDragging ? 1 : 0,
   };
 
+  const setContainerRef = useCallback(
+    (ref: HTMLDivElement) => {
+      setNodeRef(ref);
+      containerRef.current = ref;
+    },
+    [containerRef, setNodeRef]
+  );
+
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setContainerRef} style={style}>
+      <div className={focusModeGuideCueStyles}>
+        <GuideCue
+          data-testid="focus-mode-guide-cue"
+          open={isGuideCueVisible}
+          setOpen={() => setGuideCueVisited()}
+          refEl={{
+            current:
+              containerRef.current?.querySelector(
+                '[data-guide-cue-ref="focus-mode-button"]'
+              ) || null,
+          }}
+          numberOfSteps={1}
+          popoverZIndex={2}
+          // @ts-expect-error LG Guide Cue does not expose usePortal prop
+          usePortal={false}
+          title="Focus Mode"
+        >
+          Stage Focus Mode allows you to focus on a single stage in the
+          pipeline. You can use it to edit or see the results of a stage in
+          isolation.
+        </GuideCue>
+      </div>
       <KeylineCard
         data-testid="stage-card"
         data-stage-index={index}
@@ -158,15 +244,21 @@ function Stage({
           hasServerError && stageErrorStyles
         )}
       >
-        <div {...listeners}>
-          <StageToolbar index={index} />
+        <div {...listeners} ref={setGuideCueIntersectingRef}>
+          <StageToolbar
+            onFocusModeClicked={setGuideCueVisited}
+            editorRef={editorRef}
+            index={index}
+          />
         </div>
         {isExpanded && (
           <div style={{ opacity }} className={stageContentStyles}>
             <ResizableEditor
-              id={id}
               index={index}
               isAutoPreviewing={isAutoPreviewing}
+              onLoad={(editor) => {
+                editorRef.current = editor;
+              }}
             />
             {isAutoPreviewing && (
               <div className={stagePreviewContainerStyles}>

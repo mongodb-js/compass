@@ -21,7 +21,7 @@ const editorContainerStylesLight = css({
 });
 
 const editorContainerStylesDark = css({
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.gray.dark4,
   borderLeft: `3px solid ${palette.gray.dark2}`,
 });
 

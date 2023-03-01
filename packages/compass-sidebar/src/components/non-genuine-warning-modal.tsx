@@ -8,6 +8,7 @@ import {
   Body,
   BannerVariant,
 } from '@mongodb-js/compass-components';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const modalBodyStyles = css({
   marginTop: spacing[3],
@@ -34,11 +35,22 @@ function NonGenuineWarningModal({
     toggleIsVisible(false);
   }, [toggleIsVisible]);
 
+  useTrackOnChange(
+    'COMPASS-SIDEBAR-UI',
+    (track) => {
+      if (isVisible) {
+        track('Screen', { name: 'non_genuine_mongodb_modal' });
+      }
+    },
+    [isVisible],
+    undefined,
+    React
+  );
+
   return (
     <InfoModal
       title={MODAL_TITLE}
       open={isVisible}
-      trackingId="non_genuine_mongodb_modal"
       data-testid="non-genuine-mongodb-modal"
       showCloseButton={true}
       closeButtonText="Continue"

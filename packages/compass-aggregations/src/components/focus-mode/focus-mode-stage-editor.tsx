@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { css, spacing, Link } from '@mongodb-js/compass-components';
+import { type AceEditor } from '@mongodb-js/compass-editor';
 
 import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import { connect } from 'react-redux';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
+import { PIPELINE_HELP_URI } from '../../constants';
 
 const containerStyles = css({
   height: '100%',
@@ -36,23 +38,26 @@ export const FocusModeStageEditor = ({
   index: number;
   operator: string | null;
 }) => {
+  const editorRef = useRef<AceEditor | undefined>(undefined);
   if (index === -1) {
     return null;
   }
-  const link = getStageHelpLink(operator);
+  const link = getStageHelpLink(operator) || PIPELINE_HELP_URI;
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
-        <StageOperatorSelect index={index} />
-        {link && (
-          <Link hideExternalIcon={false} href={link} target="_blank">
-            Open docs
-          </Link>
-        )}
+        <StageOperatorSelect editorRef={editorRef} index={index} />
+        <Link hideExternalIcon={false} href={link} target="_blank">
+          Open docs
+        </Link>
       </div>
       <div className={editorStyles}>
-        {/* @ts-expect-error requires stage-editor.jsx to be converted */}
-        <StageEditor index={index} />
+        <StageEditor
+          onLoad={(editor) => {
+            editorRef.current = editor;
+          }}
+          index={index}
+        />
       </div>
     </div>
   );

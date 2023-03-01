@@ -83,7 +83,7 @@ export type onChangeType<M extends boolean> = M extends true
 
 // Returns the correct empty state for multiselcect / single select
 export function getNullSelection<M extends boolean>(
-  multiselect: M,
+  multiselect: M
 ): SelectValueType<M> {
   if (multiselect) {
     return [] as Array<string> as SelectValueType<M>;
@@ -314,7 +314,7 @@ interface BaseComboboxOptionProps {
 
   /**
    * A description for the option.
-   */ 
+   */
   description?: string;
 }
 

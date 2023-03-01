@@ -22,7 +22,7 @@ describe('Instance databases tab', function () {
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
     await browser.navigateToInstanceTab('Databases');
   });
 
@@ -125,7 +125,12 @@ describe('Instance databases tab', function () {
 
     await browser.dropDatabase(dbName);
 
-    // wait for it to be gone
+    // wait for it to be gone (which it will be anyway because the app should
+    // redirect back to the databases tab)
     await databaseCard.waitForExist({ reverse: true });
+
+    // the app should stay on the instance Databases tab.
+    const tabSelectedSelector = Selectors.instanceTab('Databases', true);
+    await browser.$(tabSelectedSelector).waitForDisplayed();
   });
 });

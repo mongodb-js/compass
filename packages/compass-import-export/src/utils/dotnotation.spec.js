@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 
 import dotnotation from './dotnotation';
-import { ObjectID } from 'bson';
+import { ObjectId } from 'bson';
 
 describe('dotnotation', function () {
   it('should handle simplest case', function () {
@@ -30,7 +30,7 @@ describe('dotnotation', function () {
   });
 
   it('should handle not recurse into bson types', function () {
-    var oid = new ObjectID('5df51e94e92c7b5b333d6c4f');
+    var oid = new ObjectId('5df51e94e92c7b5b333d6c4f');
 
     var doc = {
       _id: oid,

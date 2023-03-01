@@ -92,7 +92,7 @@ export async function fetchShardingKeys(
   try {
     const docs = await dataService.find(
       'config.collections',
-      { _id: ns },
+      { _id: ns } as any,
       { maxTimeMS, projection: { key: 1, _id: 0 } },
       { abortSignal: signal }
     );

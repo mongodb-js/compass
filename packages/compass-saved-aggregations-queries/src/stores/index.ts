@@ -10,7 +10,6 @@ import dataServiceReducer, {
 } from './data-service';
 import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
-import deleteItemReducer from './delete-item';
 import appRegistryReducer, { setAppRegistry } from './app-registry';
 
 const _store = createStore(
@@ -20,7 +19,6 @@ const _store = createStore(
     dataService: dataServiceReducer,
     openItem: openItemReducer,
     editItem: editItemReducer,
-    deleteItem: deleteItemReducer,
     appRegistry: appRegistryReducer,
   }),
   applyMiddleware(thunk)

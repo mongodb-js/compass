@@ -39,7 +39,15 @@ describe('ValidationAutoCompleter', function () {
         it('returns all the query operators', function () {
           getCompletions((error, results) => {
             expect(error).to.equal(null);
-            expect(results).to.deep.equal(QUERY_OPERATORS);
+            expect(results).to.deep.equal(
+              QUERY_OPERATORS.map((op) => {
+                return {
+                  value: op.value,
+                  meta: op.meta,
+                  score: op.score,
+                };
+              })
+            );
           });
         });
       });
@@ -52,20 +60,14 @@ describe('ValidationAutoCompleter', function () {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                name: '$all',
                 value: '$all',
                 score: 1,
                 meta: 'query',
-                version: '2.2.0',
-                geospatial: false,
               },
               {
-                name: '$and',
                 value: '$and',
                 score: 1,
                 meta: 'query',
-                version: '2.2.0',
-                geospatial: false,
               },
             ]);
           });
@@ -80,34 +82,31 @@ describe('ValidationAutoCompleter', function () {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                name: 'NumberInt',
                 value: 'NumberInt',
-                label: 'NumberInt',
                 score: 1,
                 meta: 'bson',
-                version: '0.0.0',
                 description: 'BSON 32 bit Integer type',
                 snippet: 'NumberInt(${1:value})',
               },
               {
-                name: 'NumberLong',
                 value: 'NumberLong',
-                label: 'NumberLong',
                 score: 1,
                 meta: 'bson',
-                version: '0.0.0',
                 description: 'BSON 64 but Integer type',
                 snippet: 'NumberLong(${1:value})',
               },
               {
-                name: 'NumberDecimal',
                 value: 'NumberDecimal',
-                label: 'NumberDecimal',
                 score: 1,
                 meta: 'bson',
-                version: '3.4.0',
                 description: 'BSON Decimal128 type',
                 snippet: "NumberDecimal('${1:value}')",
+              },
+              {
+                description: 'Field must not match the schema',
+                meta: 'json-schema',
+                score: 1,
+                value: 'not',
               },
             ]);
           });
@@ -137,22 +136,16 @@ describe('ValidationAutoCompleter', function () {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                name: 'NumberInt',
                 value: 'NumberInt',
-                label: 'NumberInt',
                 score: 1,
                 meta: 'bson',
-                version: '0.0.0',
                 description: 'BSON 32 bit Integer type',
                 snippet: 'NumberInt(${1:value})',
               },
               {
-                name: 'NumberLong',
                 value: 'NumberLong',
-                label: 'NumberLong',
                 score: 1,
                 meta: 'bson',
-                version: '0.0.0',
                 description: 'BSON 64 but Integer type',
                 snippet: 'NumberLong(${1:value})',
               },
@@ -170,21 +163,22 @@ describe('ValidationAutoCompleter', function () {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                name: 'type',
+                description: 'BSON Timestamp type',
+                meta: 'bson',
+                score: 1,
+                snippet: 'Timestamp(${1:low}, ${2:high})',
+                value: 'Timestamp',
+              },
+              {
                 value: 'type',
-                label: 'type',
                 score: 1,
                 meta: 'json-schema',
-                version: '3.6.0',
                 description: 'Enumerates the possible JSON types of the field',
               },
               {
-                name: 'title',
                 value: 'title',
-                label: 'title',
                 score: 1,
                 meta: 'json-schema',
-                version: '3.6.0',
                 description: 'A descriptive title string with no effect',
               },
             ]);
@@ -204,20 +198,14 @@ describe('ValidationAutoCompleter', function () {
               expect(error).to.equal(null);
               expect(results).to.deep.equal([
                 {
-                  name: 'minKey',
                   value: 'minKey',
-                  label: 'minKey',
                   score: 1,
                   meta: 'bson-type-aliases',
-                  version: '3.6.0',
                 },
                 {
-                  name: 'maxKey',
                   value: 'maxKey',
-                  label: 'maxKey',
                   score: 1,
                   meta: 'bson-type-aliases',
-                  version: '3.6.0',
                 },
               ]);
             });

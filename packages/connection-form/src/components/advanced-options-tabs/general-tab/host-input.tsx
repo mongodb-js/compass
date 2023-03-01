@@ -4,6 +4,8 @@ import {
   Label,
   TextInput,
   ListEditor,
+  css,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -15,6 +17,10 @@ import {
   errorMessageByFieldNameAndIndex,
   fieldNameHasError,
 } from '../../../utils/validation';
+
+const listInputStyles = css({
+  maxWidth: spacing[7] * 5,
+});
 
 function HostInput({
   errors,
@@ -67,6 +73,7 @@ function HostInput({
         </Label>
         <ListEditor
           items={hosts}
+          className={listInputStyles}
           renderItem={(host: string, index: number) => (
             <TextInput
               type="text"

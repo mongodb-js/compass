@@ -3,7 +3,7 @@ import bsonCSV, {
   detectType,
   getTypeDescriptorForValue,
 } from './bson-csv';
-import { EJSON, ObjectID, Long, BSONRegExp } from 'bson';
+import { EJSON, ObjectId, Long, BSONRegExp } from 'bson';
 import { expect } from 'chai';
 
 // TODO: lucas: probably dumb but think about that later.
@@ -140,8 +140,8 @@ describe('bson-csv', function () {
         expect(
           serialize({
             value: [
-              new ObjectID('5e6652f22c09c775463d70f1'),
-              new ObjectID('5e6652f62c09c775463d70f2'),
+              new ObjectId('5e6652f22c09c775463d70f1'),
+              new ObjectId('5e6652f62c09c775463d70f2'),
             ],
           })
         ).to.deep.equal({
@@ -172,20 +172,20 @@ describe('bson-csv', function () {
     });
   });
   describe('bson', function () {
-    describe('ObjectID', function () {
-      it('should detect value:<bson.ObjectID> as ObjectID', function () {
+    describe('ObjectId', function () {
+      it('should detect value:<bson.ObjectId> as ObjectId', function () {
         expect(
-          detectType(new ObjectID('5dd080acc15c0d5ee3ab6ad2'))
-        ).to.be.equal('ObjectID');
+          detectType(new ObjectId('5dd080acc15c0d5ee3ab6ad2'))
+        ).to.be.equal('ObjectId');
 
         expect(
-          getTypeDescriptorForValue(new ObjectID('5dd080acc15c0d5ee3ab6ad2'))
-        ).to.be.deep.equal({ type: 'ObjectID', isBSON: true });
+          getTypeDescriptorForValue(new ObjectId('5dd080acc15c0d5ee3ab6ad2'))
+        ).to.be.deep.equal({ type: 'ObjectId', isBSON: true });
       });
-      it('should serialize ObjectID as the hex string value', function () {
+      it('should serialize ObjectId as the hex string value', function () {
         const oid = '5dd080acc15c0d5ee3ab6ad2';
-        const deserialized = bsonCSV.ObjectID.fromString(oid);
-        expect(deserialized._bsontype).to.equal('ObjectID');
+        const deserialized = bsonCSV.ObjectId.fromString(oid);
+        expect(deserialized._bsontype).to.equal('ObjectId');
         expect(deserialized.toString()).to.equal('5dd080acc15c0d5ee3ab6ad2');
       });
     });

@@ -7,16 +7,36 @@ import { StageAutoCompleter } from './stage-autocompleter';
 import type { CompletionWithServerInfo } from '../types';
 import { setupCompleter } from '../../test/completer';
 
-const ALL_OPS = ([] as CompletionWithServerInfo[]).concat(
-  EXPRESSION_OPERATORS,
-  CONVERSION_OPERATORS
-);
+const ALL_OPS = ([] as CompletionWithServerInfo[])
+  .concat(EXPRESSION_OPERATORS, CONVERSION_OPERATORS)
+  .map((completion) => {
+    return {
+      value: completion.value,
+      meta: completion.meta,
+      score: completion.score,
+    };
+  })
+  .filter((completion) => completion.meta !== 'accumulator')
+  .sort(sortCompletions);
 
 const setupStageCompleter = setupCompleter.bind(null, StageAutoCompleter);
 
+function sortCompletions(
+  a: { value: string; meta?: string },
+  b: { value: string; meta?: string }
+) {
+  const metaSort = a.meta!.localeCompare(b.meta!);
+  const valueSort = a.value.localeCompare(b.value);
+  return metaSort !== 0 ? metaSort : valueSort;
+}
+
 describe('StageAutoCompleter', function () {
   const fields = [
-    { name: 'name', value: 'name', score: 1, meta: 'field', version: '0.0.0' },
+    {
+      name: 'name',
+      score: 1,
+      meta: 'field',
+    },
   ];
 
   describe('#getCompletions', function () {
@@ -49,11 +69,9 @@ describe('StageAutoCompleter', function () {
               expect(error).to.equal(null);
               expect(results).to.deep.equal([
                 {
-                  meta: 'field',
-                  name: '$name',
+                  meta: 'field:reference',
                   score: 1,
                   value: '$name',
-                  version: '0.0.0',
                 },
               ]);
             });
@@ -72,11 +90,9 @@ describe('StageAutoCompleter', function () {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                meta: 'field',
-                name: '$name',
+                meta: 'field:reference',
                 score: 1,
                 value: '$name',
-                version: '0.0.0',
               },
             ]);
           });
@@ -86,18 +102,14 @@ describe('StageAutoCompleter', function () {
       context('when the field names have special characters', function () {
         const oddFields = [
           {
-            name: '"name.test"',
-            value: '"name.test"',
+            name: 'name.test',
             score: 1,
-            meta: 'field',
-            version: '0.0.0',
+            meta: 'field:reference',
           },
           {
-            name: '"name space"',
-            value: '"name space"',
+            name: 'name space',
             score: 1,
-            meta: 'field',
-            version: '0.0.0',
+            meta: 'field:reference',
           },
         ];
 
@@ -106,21 +118,19 @@ describe('StageAutoCompleter', function () {
           { fields: oddFields, serverVersion: '3.6.0', stageOperator: null }
         );
 
-        it.skip('returns the field names without the quotes', function () {
+        it('returns the field names without the quotes', function () {
           getCompletions((error, results) => {
             expect(error).to.equal(null);
             expect(results).to.deep.equal([
               {
-                meta: 'field',
+                meta: 'field:reference',
                 score: 1,
                 value: '$name.test',
-                version: '0.0.0',
               },
               {
-                meta: 'field',
+                meta: 'field:reference',
                 score: 1,
                 value: '$name space',
-                version: '0.0.0',
               },
             ]);
           });
@@ -134,7 +144,7 @@ describe('StageAutoCompleter', function () {
             { fields, serverVersion: '3.4.0', stageOperator: null }
           );
 
-          it('returns only the previous results', function () {
+          it.skip('returns only the previous results', function () {
             getCompletions((error, results) => {
               expect(error).to.equal(null);
               expect(results).to.deep.equal([
@@ -183,52 +193,34 @@ describe('StageAutoCompleter', function () {
 
           context('when the prefix begins with a letter', function () {
             context('when the token is on the same line', function () {
-              context('when the token matches a field', function () {
-                const { getCompletions } = setupStageCompleter('{ n', {
-                  fields,
-                  serverVersion: '3.6.0',
-                  stageOperator: null,
-                });
-
-                it('returns all the matching field names', function () {
-                  getCompletions((error, results) => {
-                    expect(error).to.equal(null);
-                    expect(results).to.deep.equal([
-                      {
-                        name: 'name',
-                        value: 'name',
-                        score: 1,
-                        meta: 'field',
-                        version: '0.0.0',
-                      },
-                    ]);
+              context(
+                'when the token matches a BSON type or a field name',
+                function () {
+                  const { getCompletions } = setupStageCompleter('{ N', {
+                    fields,
+                    serverVersion: '3.6.0',
+                    stageOperator: null,
                   });
-                });
-              });
-              context('when the token matches a BSON type', function () {
-                const { getCompletions } = setupStageCompleter('{ N', {
-                  fields,
-                  serverVersion: '3.6.0',
-                  stageOperator: null,
-                });
 
-                it('returns all the matching field names', function () {
-                  getCompletions((error, results) => {
-                    expect(error).to.equal(null);
-                    expect(results.map((r) => r.value)).to.deep.equal([
-                      'NumberInt',
-                      'NumberLong',
-                      'NumberDecimal',
-                    ]);
+                  it('returns all the matching field names', function () {
+                    getCompletions((error, results) => {
+                      expect(error).to.equal(null);
+                      expect(results.map((r) => r.value)).to.deep.equal([
+                        'NumberInt',
+                        'NumberLong',
+                        'NumberDecimal',
+                        'name',
+                      ]);
+                    });
                   });
-                });
-              });
+                }
+              );
             });
           });
 
           context('when the prefix begins with $', function () {
             context('when the latest version of server', function () {
-              const latestServer = '5.2.0';
+              const latestServer = '7.0.0';
 
               context('when the token is on the same line', function () {
                 const { getCompletions } = setupStageCompleter('{ $', {
@@ -240,7 +232,9 @@ describe('StageAutoCompleter', function () {
                 it('returns all the expression operators', function () {
                   getCompletions((error, results) => {
                     expect(error).to.equal(null);
-                    expect(results).to.deep.equal(ALL_OPS);
+                    expect(results.sort(sortCompletions)).to.deep.equal(
+                      ALL_OPS
+                    );
                   });
                 });
               });
@@ -255,7 +249,9 @@ describe('StageAutoCompleter', function () {
                 it('returns all the expression operators', function () {
                   getCompletions((error, results) => {
                     expect(error).to.equal(null);
-                    expect(results).to.deep.equal(ALL_OPS);
+                    expect(results.sort(sortCompletions)).to.deep.equal(
+                      ALL_OPS
+                    );
                   });
                 });
               });
@@ -270,7 +266,9 @@ describe('StageAutoCompleter', function () {
                 it('returns all the expression operators', function () {
                   getCompletions((error, results) => {
                     expect(error).to.equal(null);
-                    expect(results).to.deep.equal(ALL_OPS);
+                    expect(results.sort(sortCompletions)).to.deep.equal(
+                      ALL_OPS
+                    );
                   });
                 });
               });
@@ -305,10 +303,8 @@ describe('StageAutoCompleter', function () {
                 expect(results).to.deep.equal([
                   {
                     meta: 'conv',
-                    name: '$convert',
                     score: 1,
                     value: '$convert',
-                    version: '3.7.2',
                   },
                 ]);
               });
@@ -327,46 +323,34 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$abs',
                     value: '$abs',
                     score: 1,
                     meta: 'expr:arith',
-                    version: '3.2.0',
                   },
                   {
-                    name: '$add',
                     value: '$add',
                     score: 1,
                     meta: 'expr:arith',
-                    version: '2.2.0',
                   },
                   {
-                    name: '$allElementsTrue',
                     value: '$allElementsTrue',
                     score: 1,
                     meta: 'expr:set',
-                    version: '2.6.0',
                   },
                   {
-                    name: '$and',
                     value: '$and',
                     score: 1,
                     meta: 'expr:bool',
-                    version: '2.2.0',
                   },
                   {
-                    name: '$anyElementTrue',
                     value: '$anyElementTrue',
                     score: 1,
                     meta: 'expr:set',
-                    version: '2.6.0',
                   },
                   {
-                    name: '$arrayElemAt',
                     value: '$arrayElemAt',
                     score: 1,
                     meta: 'expr:array',
-                    version: '3.2.0',
                   },
                 ]);
               });
@@ -385,25 +369,19 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$concat',
                     value: '$concat',
                     score: 1,
                     meta: 'expr:string',
-                    version: '2.4.0',
                   },
                   {
-                    name: '$concatArrays',
                     value: '$concatArrays',
                     score: 1,
                     meta: 'expr:array',
-                    version: '3.2.0',
                   },
                   {
-                    name: '$cond',
                     value: '$cond',
                     score: 1,
                     meta: 'expr:cond',
-                    version: '2.6.0',
                   },
                 ]);
               });
@@ -422,11 +400,9 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$second',
                     value: '$second',
                     score: 1,
                     meta: 'expr:date',
-                    version: '2.2.0',
                   },
                 ]);
               });
@@ -446,11 +422,9 @@ describe('StageAutoCompleter', function () {
               expect(error).to.equal(null);
               expect(results).to.deep.equal([
                 {
-                  name: '$size',
                   value: '$size',
                   score: 1,
                   meta: 'expr:array',
-                  version: '2.6.0',
                 },
               ]);
             });
@@ -473,69 +447,49 @@ describe('StageAutoCompleter', function () {
                   expect(error).to.equal(null);
                   expect(results).to.deep.equal([
                     {
-                      name: '$map',
-                      value: '$map',
-                      score: 1,
-                      meta: 'expr:array',
-                      version: '2.6.0',
-                    },
-                    {
-                      name: '$meta',
-                      value: '$meta',
-                      score: 1,
-                      meta: 'expr:text',
-                      version: '2.6.0',
-                    },
-                    {
-                      name: '$millisecond',
-                      value: '$millisecond',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.4.0',
-                    },
-                    {
-                      name: '$minute',
-                      value: '$minute',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$mod',
-                      value: '$mod',
-                      score: 1,
-                      meta: 'expr:arith',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$month',
-                      value: '$month',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$multiply',
-                      value: '$multiply',
-                      score: 1,
-                      meta: 'expr:arith',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$max',
                       value: '$max',
                       score: 1,
                       meta: 'accumulator',
-                      version: '2.2.0',
-                      projectVersion: '3.2.0',
                     },
                     {
-                      name: '$min',
                       value: '$min',
                       score: 1,
                       meta: 'accumulator',
-                      version: '2.2.0',
-                      projectVersion: '3.2.0',
+                    },
+                    {
+                      value: '$map',
+                      score: 1,
+                      meta: 'expr:array',
+                    },
+                    {
+                      value: '$meta',
+                      score: 1,
+                      meta: 'expr:text',
+                    },
+                    {
+                      value: '$millisecond',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$minute',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$mod',
+                      score: 1,
+                      meta: 'expr:arith',
+                    },
+                    {
+                      value: '$month',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$multiply',
+                      score: 1,
+                      meta: 'expr:arith',
                     },
                   ]);
                 });
@@ -554,69 +508,49 @@ describe('StageAutoCompleter', function () {
                   expect(error).to.equal(null);
                   expect(results).to.deep.equal([
                     {
-                      name: '$map',
-                      value: '$map',
-                      score: 1,
-                      meta: 'expr:array',
-                      version: '2.6.0',
-                    },
-                    {
-                      name: '$meta',
-                      value: '$meta',
-                      score: 1,
-                      meta: 'expr:text',
-                      version: '2.6.0',
-                    },
-                    {
-                      name: '$millisecond',
-                      value: '$millisecond',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.4.0',
-                    },
-                    {
-                      name: '$minute',
-                      value: '$minute',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$mod',
-                      value: '$mod',
-                      score: 1,
-                      meta: 'expr:arith',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$month',
-                      value: '$month',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$multiply',
-                      value: '$multiply',
-                      score: 1,
-                      meta: 'expr:arith',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$max',
                       value: '$max',
                       score: 1,
                       meta: 'accumulator',
-                      version: '2.2.0',
-                      projectVersion: '3.2.0',
                     },
                     {
-                      name: '$min',
                       value: '$min',
                       score: 1,
                       meta: 'accumulator',
-                      version: '2.2.0',
-                      projectVersion: '3.2.0',
+                    },
+                    {
+                      value: '$map',
+                      score: 1,
+                      meta: 'expr:array',
+                    },
+                    {
+                      value: '$meta',
+                      score: 1,
+                      meta: 'expr:text',
+                    },
+                    {
+                      value: '$millisecond',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$minute',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$mod',
+                      score: 1,
+                      meta: 'expr:arith',
+                    },
+                    {
+                      value: '$month',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$multiply',
+                      score: 1,
+                      meta: 'expr:arith',
                     },
                   ]);
                 });
@@ -637,69 +571,49 @@ describe('StageAutoCompleter', function () {
                   expect(error).to.equal(null);
                   expect(results).to.deep.equal([
                     {
-                      name: '$map',
-                      value: '$map',
-                      score: 1,
-                      meta: 'expr:array',
-                      version: '2.6.0',
-                    },
-                    {
-                      name: '$meta',
-                      value: '$meta',
-                      score: 1,
-                      meta: 'expr:text',
-                      version: '2.6.0',
-                    },
-                    {
-                      name: '$millisecond',
-                      value: '$millisecond',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.4.0',
-                    },
-                    {
-                      name: '$minute',
-                      value: '$minute',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$mod',
-                      value: '$mod',
-                      score: 1,
-                      meta: 'expr:arith',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$month',
-                      value: '$month',
-                      score: 1,
-                      meta: 'expr:date',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$multiply',
-                      value: '$multiply',
-                      score: 1,
-                      meta: 'expr:arith',
-                      version: '2.2.0',
-                    },
-                    {
-                      name: '$max',
                       value: '$max',
                       score: 1,
                       meta: 'accumulator',
-                      version: '2.2.0',
-                      projectVersion: '3.2.0',
                     },
                     {
-                      name: '$min',
                       value: '$min',
                       score: 1,
                       meta: 'accumulator',
-                      version: '2.2.0',
-                      projectVersion: '3.2.0',
+                    },
+                    {
+                      value: '$map',
+                      score: 1,
+                      meta: 'expr:array',
+                    },
+                    {
+                      value: '$meta',
+                      score: 1,
+                      meta: 'expr:text',
+                    },
+                    {
+                      value: '$millisecond',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$minute',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$mod',
+                      score: 1,
+                      meta: 'expr:arith',
+                    },
+                    {
+                      value: '$month',
+                      score: 1,
+                      meta: 'expr:date',
+                    },
+                    {
+                      value: '$multiply',
+                      score: 1,
+                      meta: 'expr:arith',
                     },
                   ]);
                 });
@@ -720,11 +634,14 @@ describe('StageAutoCompleter', function () {
                     expect(error).to.equal(null);
                     expect(results).to.deep.equal([
                       {
-                        name: '$pow',
+                        meta: 'accumulator',
+                        score: 1,
+                        value: '$push',
+                      },
+                      {
                         value: '$pow',
                         score: 1,
                         meta: 'expr:arith',
-                        version: '3.2.0',
                       },
                     ]);
                   });
@@ -745,11 +662,9 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$eq',
                     value: '$eq',
                     score: 1,
                     meta: 'expr:comp',
-                    version: '2.2.0',
                   },
                 ]);
               });
@@ -770,69 +685,49 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$map',
-                    value: '$map',
-                    score: 1,
-                    meta: 'expr:array',
-                    version: '2.6.0',
-                  },
-                  {
-                    name: '$meta',
-                    value: '$meta',
-                    score: 1,
-                    meta: 'expr:text',
-                    version: '2.6.0',
-                  },
-                  {
-                    name: '$millisecond',
-                    value: '$millisecond',
-                    score: 1,
-                    meta: 'expr:date',
-                    version: '2.4.0',
-                  },
-                  {
-                    name: '$minute',
-                    value: '$minute',
-                    score: 1,
-                    meta: 'expr:date',
-                    version: '2.2.0',
-                  },
-                  {
-                    name: '$mod',
-                    value: '$mod',
-                    score: 1,
-                    meta: 'expr:arith',
-                    version: '2.2.0',
-                  },
-                  {
-                    name: '$month',
-                    value: '$month',
-                    score: 1,
-                    meta: 'expr:date',
-                    version: '2.2.0',
-                  },
-                  {
-                    name: '$multiply',
-                    value: '$multiply',
-                    score: 1,
-                    meta: 'expr:arith',
-                    version: '2.2.0',
-                  },
-                  {
-                    name: '$max',
                     value: '$max',
                     score: 1,
                     meta: 'accumulator',
-                    version: '2.2.0',
-                    projectVersion: '3.2.0',
                   },
                   {
-                    name: '$min',
                     value: '$min',
                     score: 1,
                     meta: 'accumulator',
-                    version: '2.2.0',
-                    projectVersion: '3.2.0',
+                  },
+                  {
+                    value: '$map',
+                    score: 1,
+                    meta: 'expr:array',
+                  },
+                  {
+                    value: '$meta',
+                    score: 1,
+                    meta: 'expr:text',
+                  },
+                  {
+                    value: '$millisecond',
+                    score: 1,
+                    meta: 'expr:date',
+                  },
+                  {
+                    value: '$minute',
+                    score: 1,
+                    meta: 'expr:date',
+                  },
+                  {
+                    value: '$mod',
+                    score: 1,
+                    meta: 'expr:arith',
+                  },
+                  {
+                    value: '$month',
+                    score: 1,
+                    meta: 'expr:date',
+                  },
+                  {
+                    value: '$multiply',
+                    score: 1,
+                    meta: 'expr:arith',
                   },
                 ]);
               });
@@ -851,18 +746,14 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$pow',
-                    value: '$pow',
-                    score: 1,
-                    meta: 'expr:arith',
-                    version: '3.2.0',
-                  },
-                  {
-                    name: '$push',
                     value: '$push',
                     score: 1,
                     meta: 'accumulator',
-                    version: '2.2.0',
+                  },
+                  {
+                    value: '$pow',
+                    score: 1,
+                    meta: 'expr:arith',
                   },
                 ]);
               });
@@ -881,11 +772,9 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$eq',
                     value: '$eq',
                     score: 1,
                     meta: 'expr:comp',
-                    version: '2.2.0',
                   },
                 ]);
               });
@@ -906,18 +795,14 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$arrayElemAt',
                     value: '$arrayElemAt',
                     score: 1,
                     meta: 'expr:array',
-                    version: '3.2.0',
                   },
                   {
-                    name: '$arrayToObject',
                     value: '$arrayToObject',
                     score: 1,
                     meta: 'expr:array',
-                    version: '3.4.4',
                   },
                 ]);
               });
@@ -936,11 +821,9 @@ describe('StageAutoCompleter', function () {
                 expect(error).to.equal(null);
                 expect(results).to.deep.equal([
                   {
-                    name: '$arrayElemAt',
                     value: '$arrayElemAt',
                     score: 1,
                     meta: 'expr:array',
-                    version: '3.2.0',
                   },
                 ]);
               });

@@ -2,6 +2,7 @@ import {
   LeafyGreenProvider,
   Theme,
   ToastArea,
+  ConfirmationModalArea,
   css,
   cx,
   getScrollbarStyles,
@@ -74,7 +75,7 @@ const globalLightThemeStyles = css({
 });
 
 const globalDarkThemeStyles = css({
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.black,
   color: palette.white,
 });
 
@@ -425,17 +426,19 @@ function ThemedHome(
             <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
           )}
           <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
-          <ToastArea>
-            <div
-              className={cx(
-                homeContainerStyles,
-                darkMode ? globalDarkThemeStyles : globalLightThemeStyles
-              )}
-              data-theme={theme.theme}
-            >
-              <Home {...props}></Home>
-            </div>
-          </ToastArea>
+          <ConfirmationModalArea>
+            <ToastArea>
+              <div
+                className={cx(
+                  homeContainerStyles,
+                  darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+                )}
+                data-theme={theme.theme}
+              >
+                <Home {...props}></Home>
+              </div>
+            </ToastArea>
+          </ConfirmationModalArea>
         </div>
       </Body>
     </LeafyGreenProvider>

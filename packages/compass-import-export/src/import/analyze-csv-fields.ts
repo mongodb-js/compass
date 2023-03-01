@@ -1,27 +1,30 @@
 import type { Readable } from 'stream';
 import Papa from 'papaparse';
+import stripBomStream from 'strip-bom-stream';
 
-import type { Delimiter } from '../utils/constants';
 import { createDebug } from '../utils/logger';
-import { csvHeaderNameToFieldName } from '../utils/csv-header';
+import type {
+  Delimiter,
+  CSVDetectableFieldType,
+  CSVParsableFieldType,
+} from '../utils/csv';
+import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
+import { Utf8Validator } from '../utils/utf8-validator';
+import { ByteCounter } from '../utils/byte-counter';
 
 const debug = createDebug('analyze-csv-fields');
 
-const MIN_INT = -2147483648;
-const MAX_INT = 2147483647;
-const MIN_LONG = BigInt('-9223372036854775808');
-const MAX_LONG = BigInt('9223372036854775807');
-// from papaparse: https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1024
-const FLOAT = /^\s*-?(\d+\.?|\.\d+|\d+\.\d+)([eE][-+]?\d+)?\s*$/;
-// from papaparse: https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1025
-const ISO_DATE =
-  /^((\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)))$/;
+type AnalyzeProgress = {
+  bytesProcessed: number;
+  docsProcessed: number;
+};
 
 type AnalyzeCSVFieldsOptions = {
   input: Readable;
   delimiter: Delimiter;
-  abortSignal: AbortSignal;
-  progressCallback: (index: number) => void;
+  abortSignal?: AbortSignal;
+  progressCallback?: (progress: AnalyzeProgress) => void;
+  ignoreEmptyStrings?: boolean;
 };
 
 type PapaRowData = Record<string, string>;
@@ -39,17 +42,6 @@ type CSVFieldTypeInfo = {
   firstValue: string;
 };
 
-// the subset of bson types that we can detect
-type CSVFieldType =
-  | 'int'
-  | 'long'
-  | 'double'
-  | 'boolean'
-  | 'date'
-  | 'string'
-  | 'null'
-  | 'mixed';
-
 /*
 For each field we need the detected types and the column positions. This helps
 with accounting for all column indexes, but also the fact that we'd have higher
@@ -58,9 +50,9 @@ rows once it becomes field foo and so does foo[0].bar,foo[1].bar once it becomes
 foo.bar.
 */
 type CSVField = {
-  types: Record<CSVFieldType, CSVFieldTypeInfo>;
+  types: Record<CSVDetectableFieldType, CSVFieldTypeInfo>;
   columnIndexes: number[];
-  detected: CSVFieldType;
+  detected: CSVParsableFieldType;
 };
 
 type AnalyzeCSVFieldsResult = {
@@ -68,47 +60,6 @@ type AnalyzeCSVFieldsResult = {
   aborted: boolean;
   fields: Record<string, CSVField>;
 };
-
-function detectFieldType(value: string): CSVFieldType {
-  // mongoexport and existing compass style nulls
-  if (!value || value === 'Null') {
-    return 'null';
-  } else if (value === 'true' || value === 'TRUE') {
-    return 'boolean';
-  } else if (value === 'false' || value === 'FALSE') {
-    return 'boolean';
-  } else if (FLOAT.test(value)) {
-    // first separate floating point numbers from integers
-
-    // 1.0 should be double
-    if (value.includes('.') || /[Ee][+-]?/.test(value)) {
-      return 'double';
-    }
-
-    let number;
-    try {
-      number = BigInt(value);
-    } catch (err) {
-      // just in case something makes it past the regex by accident
-      return 'string';
-    }
-
-    // then separate ints from longs
-    if (number >= MIN_LONG && number <= MAX_LONG) {
-      if (number >= MIN_INT && number <= MAX_INT) {
-        return 'int';
-      }
-      return 'long';
-    }
-
-    // really big integers will remain as strings
-    return 'string';
-  } else if (ISO_DATE.test(value)) {
-    return 'date';
-  }
-
-  return 'string';
-}
 
 function initResultFields(
   result: AnalyzeCSVFieldsResult,
@@ -135,13 +86,14 @@ function initResultFields(
 function addRowToResult(
   result: AnalyzeCSVFieldsResult,
   headerFields: string[],
-  data: PapaRowData
+  data: PapaRowData,
+  ignoreEmptyStrings?: boolean
 ) {
   for (const field of Object.values(result.fields)) {
     for (const columnIndex of field.columnIndexes) {
       const name = headerFields[columnIndex];
       const original = data[name] ?? '';
-      const type = detectFieldType(original);
+      const type = detectFieldType(original, ignoreEmptyStrings);
       debug('detectFieldType', name, original, type);
 
       if (!field.types[type]) {
@@ -158,20 +110,21 @@ function addRowToResult(
   }
 }
 
-function pickFieldType(field: CSVField): CSVFieldType {
+function pickFieldType(field: CSVField): CSVParsableFieldType {
   const types = Object.keys(field.types);
 
   if (types.length === 1) {
     // If there's only one detected type, go with that.
-    return types[0] as CSVFieldType;
+    return types[0] as CSVDetectableFieldType;
   }
 
   if (types.length === 2) {
-    const filtered = types.filter((type) => type !== 'null');
+    const filtered = types.filter((type) => type !== 'undefined');
     if (filtered.length === 1) {
-      // If there are two detected types and one is null, go with the non-null
-      // one because null/empty values are special-cased during import.
-      return filtered[0] as CSVFieldType;
+      // If there are two detected types and one is undefined (ie. an ignored
+      // empty string), go with the non-undefined one because undefined values
+      // are special-cased during import.
+      return filtered[0] as CSVDetectableFieldType;
     }
   }
 
@@ -184,24 +137,35 @@ export function analyzeCSVFields({
   delimiter,
   abortSignal,
   progressCallback,
+  ignoreEmptyStrings,
 }: AnalyzeCSVFieldsOptions): Promise<AnalyzeCSVFieldsResult> {
-  const result: AnalyzeCSVFieldsResult = {
-    totalRows: 0,
-    fields: {},
-    aborted: false,
-  };
-
-  let aborted = false;
-  let headerFields: string[];
-
   return new Promise(function (resolve, reject) {
+    const byteCounter = new ByteCounter();
+
+    const result: AnalyzeCSVFieldsResult = {
+      totalRows: 0,
+      fields: {},
+      aborted: false,
+    };
+
+    let aborted = false;
+    let headerFields: string[];
+
+    const validator = new Utf8Validator();
+
+    validator.once('error', function (err: any) {
+      reject(err);
+    });
+
+    input = input.pipe(validator).pipe(byteCounter).pipe(stripBomStream());
+
     Papa.parse(input, {
       delimiter,
       header: true,
       step: function (results: Papa.ParseStepResult<PapaRowData>, parser) {
         debug('analyzeCSVFields:step', results);
 
-        if (abortSignal.aborted && !aborted) {
+        if (abortSignal?.aborted && !aborted) {
           aborted = true;
           result.aborted = true;
           parser.abort();
@@ -209,14 +173,27 @@ export function analyzeCSVFields({
 
         if (!headerFields) {
           headerFields = results.meta.fields ?? [];
+          // There's a quirk in papaparse where it extracts header fields before
+          // it finishes auto-detecting the line endings. We could pass in a
+          // line ending that we previously detected (in guessFileType(),
+          // perhaps?) or we can just strip the extra \r from the final header
+          // name if it exists.
+          if (headerFields.length) {
+            const lastName = headerFields[headerFields.length - 1];
+            headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
+          }
+
           initResultFields(result, headerFields);
         }
 
-        addRowToResult(result, headerFields, results.data);
+        addRowToResult(result, headerFields, results.data, ignoreEmptyStrings);
 
         ++result.totalRows;
 
-        progressCallback(result.totalRows);
+        progressCallback?.({
+          bytesProcessed: byteCounter.total,
+          docsProcessed: result.totalRows,
+        });
       },
       complete: function () {
         debug('analyzeCSVFields:complete');

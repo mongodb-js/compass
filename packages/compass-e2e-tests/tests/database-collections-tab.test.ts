@@ -29,7 +29,7 @@ describe('Database collections tab', function () {
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
     await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
@@ -133,6 +133,12 @@ describe('Database collections tab', function () {
 
     // wait for it to be gone
     await collectionCard.waitForExist({ reverse: true });
+
+    // the app should still be on the database Collections tab because there are
+    // other collections in this database
+    await browser
+      .$(Selectors.databaseTab('Collections', true))
+      .waitForDisplayed();
   });
 
   it('can create a capped collection', async function () {
@@ -244,6 +250,46 @@ describe('Database collections tab', function () {
       .waitForDisplayed();
   });
 
+  it('can create a time series collection with flexible bucket configuration', async function () {
+    if (serverSatisfies('< 6.3.0-alpha0')) {
+      return this.skip();
+    }
+
+    const collectionName = 'my-timeseries-collection';
+
+    // open the create collection modal from the button at the top
+    await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+
+    await browser.addCollection(
+      collectionName,
+      {
+        timeseries: {
+          timeField: 'time',
+          metaField: 'meta',
+          bucketMaxSpanSeconds: 60,
+          bucketRoundingSeconds: 60,
+          expireAfterSeconds: 60,
+        },
+      },
+      'add-collection-modal-timeseries.png'
+    );
+
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
+    const selector = Selectors.collectionCard('test', collectionName);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      selector,
+      'grid'
+    );
+    const collectionCard = await browser.$(selector);
+    await collectionCard.waitForDisplayed();
+
+    await collectionCard
+      .$('[data-testid="collection-badge-timeseries"]')
+      .waitForDisplayed();
+  });
+
   it('can create a clustered collection', async function () {
     if (serverSatisfies('< 5.3.0')) {
       return this.skip();
@@ -283,7 +329,7 @@ describe('Database collections tab', function () {
 
     await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
 
-    const typeElementSelector = `${Selectors.IndexComponent(indexName)} ${
+    const typeElementSelector = `${Selectors.indexComponent(indexName)} ${
       Selectors.IndexFieldType
     }`;
     const typeElement = await browser.$(typeElementSelector);

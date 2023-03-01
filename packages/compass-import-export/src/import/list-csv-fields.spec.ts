@@ -2,83 +2,12 @@ import assert from 'assert';
 import path from 'path';
 import { expect } from 'chai';
 import fs from 'fs';
+import { Readable } from 'stream';
+
 import { guessFileType } from './guess-filetype';
 import { listCSVFields } from './list-csv-fields';
-import { fixtures } from '../../test/fixtures';
 
-const expectedFieldsByFile = {
-  'bad.csv': ['1', '2', '3'],
-  'good-commas.csv': ['_id', 'value'],
-  'good-tabs.csv': ['_id', 'value'],
-  'number-transform.csv': [
-    'BOROUGH',
-    'Bin_#',
-    'House_#',
-    'Street_Name',
-    'Job_#',
-    'Job_doc_#',
-    'Job_Type',
-    'Self_Cert',
-    'Block',
-    'Lot',
-    'Community_Board',
-    'Zip_Code',
-    'Bldg_Type',
-    'Residential',
-    'Special_District_1',
-    'Special_District_2',
-    'Work_Type',
-    'Permit_Status',
-    'Filing_Status',
-    'Permit_Type',
-    'Permit_Sequence_#',
-    'Permit_Subtype',
-    'Oil_Gas',
-    'Site_Fill',
-    'Filing_Date',
-    'Issuance_Date',
-    'Expiration_Date',
-    'Job_Start_Date',
-    "Permittee's_First_Name",
-    "Permittee's_Last_Name",
-    "Permittee's_Business_Name",
-    "Permittee's_Phone_#",
-    "Permittee's_License_Type",
-    "Permittee's_License_#",
-    'Act_as_Superintendent',
-    "Permittee's_Other_Title",
-    'HIC_License',
-    "Site_Safety_Mgr's_First_Name",
-    "Site_Safety_Mgr's_Last_Name",
-    'Site_Safety_Mgr_Business_Name',
-    'Superintendent_First_&_Last_Name',
-    'Superintendent_Business_Name',
-    "Owner's_Business_Type",
-    'Non-Profit',
-    "Owner's_Business_Name",
-    "Owner's_First_Name",
-    "Owner's_Last_Name",
-    "Owner's_House_#",
-    "Owner's_House_Street_Name",
-    'Owner’s_House_City',
-    'Owner’s_House_State',
-    'Owner’s_House_Zip_Code',
-    "Owner's_Phone_#",
-    'DOBRunDate',
-    'PERMIT_SI_NO',
-    'LATITUDE',
-    'LONGITUDE',
-    'COUNCIL_DISTRICT',
-    'CENSUS_TRACT',
-    'NTA_NAME',
-  ],
-  'sparse.csv': ['foo', 'bar', 'baz'],
-  'semicolons.csv': ['a', 'b', 'c', 'd'],
-  'spaces.csv': ['a', 'b', 'c', 'd'],
-  'array.csv': ['a', 'foo', 'bar', 'z', 'notes'],
-  'object.csv': ['a', 'foo.bar', 'foo.baz.qux', 'foo.baz.quux', 'z', 'notes'],
-  'complex.csv': ['foo', 'foo.bar', 'foo.bar.baz', 'notes'],
-} as const;
+import { fixtures } from '../../test/fixtures';
 
 describe('listCSVFields', function () {
   for (const filepath of Object.values(fixtures.csv)) {
@@ -89,20 +18,63 @@ describe('listCSVFields', function () {
       });
       assert(typeResult.type === 'csv');
       const csvDelimiter = typeResult.csvDelimiter;
-      const fieldsResult = await listCSVFields({
+      const result = await listCSVFields({
         input: fs.createReadStream(filepath),
         delimiter: csvDelimiter,
       });
 
-      const expectedFields =
-        expectedFieldsByFile[basename as keyof typeof expectedFieldsByFile];
-      if (expectedFields) {
-        expect(fieldsResult).to.deep.equal(expectedFields);
-      } else {
-        expect(fieldsResult).to.equal(
-          `add an entry for ${basename} to expectedFields`
-        );
+      const resultPath = filepath.replace(/.csv$/, '.preview.json');
+      let text;
+      try {
+        text = await fs.promises.readFile(resultPath, 'utf8');
+      } catch (err) {
+        // This helps to tell you which file is missing and what the expected
+        // content is which helps when adding a new .csv fixture
+        console.log(resultPath);
+        console.log(JSON.stringify(result, null, 2));
+        throw err;
       }
+
+      const expectedResult = JSON.parse(text);
+      expect(result, basename.replace(/.csv$/, '.preview.json')).to.deep.equal(
+        expectedResult
+      );
     });
   }
+
+  it('does not mind windows style line breaks', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from(text.replace(/\n/g, '\r\n'));
+
+    const result = await listCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(result.headerFields).to.deep.equal(['_id', 'value']);
+  });
+
+  it('errors if a file is not valid utf8', async function () {
+    const latin1Buffer = Buffer.from('ê,foo\n1,2', 'latin1');
+    const input = Readable.from(latin1Buffer);
+
+    await expect(
+      listCSVFields({
+        input,
+        delimiter: ',',
+      })
+    ).to.be.rejectedWith(
+      TypeError,
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
+  it('strips the BOM character', async function () {
+    const text = await fs.promises.readFile(fixtures.csv.good_commas, 'utf8');
+    const input = Readable.from('\uFEFF' + text);
+    const result = await listCSVFields({
+      input,
+      delimiter: ',',
+    });
+    expect(result.headerFields).to.deep.equal(['_id', 'value']);
+  });
 });

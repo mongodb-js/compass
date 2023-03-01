@@ -1,6 +1,4 @@
-import React, { useEffect } from 'react';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-UI');
+import React from 'react';
 
 import {
   Body,
@@ -8,19 +6,13 @@ import {
 } from '../leafygreen';
 
 function ConfirmationModal({
-  trackingId,
   children,
   ...props
-}: React.ComponentProps<typeof LeafyGreenConfirmationModal> & {
-  trackingId?: string;
-}): React.ReactElement {
-  useEffect(() => {
-    if (props.open && trackingId) {
-      track('Screen', { name: trackingId });
-    }
-  }, [props.open, trackingId]);
+}: React.ComponentProps<
+  typeof LeafyGreenConfirmationModal
+>): React.ReactElement {
   return (
-    <LeafyGreenConfirmationModal data-testid={trackingId} {...props}>
+    <LeafyGreenConfirmationModal {...props}>
       <Body as="div">{children}</Body>
     </LeafyGreenConfirmationModal>
   );

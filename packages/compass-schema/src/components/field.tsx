@@ -55,6 +55,7 @@ const fieldContainerStyles = css({
 });
 
 const fieldStyles = css({
+  overflow: 'hidden',
   paddingTop: spacing[4],
   paddingBottom: spacing[3],
 });

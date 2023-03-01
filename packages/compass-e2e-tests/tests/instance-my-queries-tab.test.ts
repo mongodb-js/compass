@@ -42,7 +42,7 @@ describe('Instance my queries tab', function () {
   });
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString();
   });
   after(async function () {
     await afterTests(compass, this.currentTest);
@@ -160,10 +160,10 @@ describe('Instance my queries tab', function () {
 
     // delete it
     await browser.clickVisible(Selectors.SavedItemMenuItemDelete);
-    const deleteModal = await browser.$(Selectors.DeleteSavedItemModal);
+    const deleteModal = await browser.$(Selectors.ConfirmationModal);
     await deleteModal.waitForDisplayed();
     const confirmDeleteButton = await browser.$(
-      Selectors.DeleteSavedItemModallConfirmButton
+      Selectors.ConfirmationModalConfirmButton
     );
     confirmDeleteButton.waitForEnabled();
 

@@ -4,7 +4,6 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { Body, Subtitle } from './leafygreen';
-import type { Link } from './leafygreen';
 import { useDarkMode } from '../hooks/use-theme';
 
 const containerStyles = css({
@@ -29,7 +28,7 @@ const titleLightStyles = css({
   color: palette.green.dark2,
 });
 const titleDarkStyles = css({
-  color: palette.green.light2,
+  color: palette.green.light1,
 });
 const subTitleStyles = css({
   marginTop: spacing[2],
@@ -49,7 +48,7 @@ type EmptyContentProps = {
   title: string;
   subTitle: string;
   callToAction?: string | JSX.Element;
-  callToActionLink?: typeof Link;
+  callToActionLink?: JSX.Element;
 };
 
 const EmptyContent: React.FunctionComponent<

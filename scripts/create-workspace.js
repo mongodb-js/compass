@@ -15,8 +15,12 @@ function packageNameToDir(pkgName) {
   return pkgName ? pkgName.replace(/^@mongodb-js\//, '') : pkgName;
 }
 
-function dirToScopedPackageName(dir) {
-  return dir.startsWith('@mongodb-js/') ? dir : `@mongodb-js/${dir}`;
+function dirToScopedPackageName(dir, scope) {
+  if (!scope) {
+    return dir;
+  }
+
+  return dir.startsWith(`${scope}/`) ? dir : `${scope}/${dir}`;
 }
 
 async function main(argv) {
@@ -184,9 +188,38 @@ async function main(argv) {
 
   console.log();
 
+  await createWorkspace({
+    name,
+    scope: '@mongodb-js',
+    description,
+    isPublic,
+    isPlugin,
+    isReact,
+    workspacesMeta,
+    isConfig,
+    dependants,
+    depType,
+  });
+}
+
+const BestMatchCache = new Map();
+
+async function createWorkspace({
+  name: workspaceName,
+  scope,
+  description,
+  isPublic,
+  isPlugin,
+  isReact,
+  workspacesMeta,
+  isConfig,
+  dependants,
+  depType,
+  allowJs,
+}) {
   const pkgJson = {
-    name: dirToScopedPackageName(name),
-    productName: `${name} Plugin`,
+    name: dirToScopedPackageName(workspaceName, scope),
+    productName: `${workspaceName} Plugin`,
     ...(description && { description }),
     author: {
       name: 'MongoDB Inc',
@@ -258,7 +291,7 @@ async function main(argv) {
       'test-watch': 'npm run test -- --watch',
       'test-ci': 'npm run test-cov',
       ...(isPlugin && { 'test-ci-electron': 'npm run test-electron' }),
-      reformat: 'npm run prettier -- --write .',
+      reformat: 'npm run prettier -- --write . && npm run eslint . --fix',
     },
     ...(isReact && { peerDependencies: { react: '*', 'react-dom': '*' } }),
     ...(isReact && { dependencies: { react: '*', 'react-dom': '*' } }),
@@ -305,7 +338,7 @@ async function main(argv) {
     __dirname,
     '..',
     isConfig ? 'configs' : 'packages',
-    packageNameToDir(name)
+    packageNameToDir(workspaceName)
   );
 
   const packageJsonPath = path.join(packagePath, 'package.json');
@@ -345,6 +378,7 @@ async function main(argv) {
       },
       include: ['src/**/*'],
       exclude: ['./src/**/*.spec.*'],
+      allowJs: allowJs === true ? true : undefined,
     },
     null,
     2
@@ -452,7 +486,8 @@ describe('Compass Plugin', function() {
           if (!pkgJson[depType]) {
             pkgJson[depType] = {};
           }
-          pkgJson[depType][dirToScopedPackageName(name)] = '^0.1.0';
+          pkgJson[depType][dirToScopedPackageName(workspaceName, scope)] =
+            '^0.1.0';
           sortDepsByName(pkgJson, [depType]);
           return pkgJson;
         });
@@ -474,9 +509,9 @@ describe('Compass Plugin', function() {
     path.relative(process.cwd(), packagePath)
   );
   console.log();
-}
 
-const BestMatchCache = new Map();
+  return packagePath;
+}
 
 async function resolveLatestVersionFromRegistry(
   depName,
@@ -533,4 +568,8 @@ process.on('unhandledRejection', (err) => {
   process.exitCode = 1;
 });
 
-main(process.argv.slice(2));
+if (require.main === module) {
+  main(process.argv.slice(2));
+}
+
+module.exports = { createWorkspace };

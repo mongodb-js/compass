@@ -307,7 +307,7 @@ export const CreateCollectionCappedCheckboxLabel =
 export const CreateCollectionCappedSizeInput =
   '[data-testid="capped-collection-fields"] [data-testid="capped-size"]';
 export const CreateCollectionCollectionOptionsAccordion =
-  '[data-testid="create-collection-modal"] [data-testid="advanced-collection-options"]';
+  '[data-testid="create-collection-modal"] [data-testid="additional-collection-preferences"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
   '[data-testid="use-custom-collation-fields"] [data-testid="use-custom-collation-fields-label"]';
 
@@ -328,6 +328,10 @@ export const CreateCollectionTimeseriesGranularityButton =
   '[data-testid="time-series-fields"] [name="timeSeries.granularity"]';
 export const CreateCollectionTimeseriesGranularityMenu =
   '[data-testid="time-series-fields"] #timeSeries-granularity-menu';
+export const CreateCollectionTimeseriesBucketMaxSpanSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketMaxSpanSeconds"]';
+export const CreateCollectionTimeseriesBucketRoundingSeconds =
+  '[data-testid="time-series-fields"] [name="timeSeries.bucketRoundingSeconds"]';
 export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
 
@@ -362,7 +366,8 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
-export const ShellOutput = '[data-testid="shell-content"] pre[class]';
+export const ShellOutput =
+  '[data-testid="shell-content"] [data-codemirror="true"]';
 
 // Query bar (Find, Schema, Explain Plan)
 export const QueryBarMenuActions = '#query-bar-menu-actions';
@@ -729,8 +734,6 @@ export const AggregationSavedPipelineCardDeleteButton = (
     name
   )} [data-testid="saved-pipeline-card-delete-action"]`;
 };
-export const AggregationSavedPipelineConfirmOpenModal = `[data-testid="restore-pipeline-modal"]`;
-export const AggregationSavedPipelineConfirmDeleteModal = `[data-testid="delete-pipeline-modal"]`;
 
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
@@ -795,6 +798,7 @@ export const StageMoreOptionsContent = `[data-testid="stage-option-menu-content"
 export const StageDelete = `[data-testid="stage-option-menu-content"] [data-text="Delete stage"]`;
 
 // Focus Mode
+export const FocusModeGuideCue = '[data-testid="focus-mode-guide-cue"]';
 export const FocusModeModal = '[data-testid="focus-mode-modal"]';
 export const FocusModeStageInput = `${FocusModeModal} [data-testid="stage-input"]`;
 export const FocusModeStageEditor = `${FocusModeModal} [data-testid="stage-editor"]`;
@@ -845,6 +849,9 @@ export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
 // Explain Plan tab
 export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
+export const ExplainCancellableSpinner = '[data-testid="query-explain-cancel"]';
+export const ExplainCancelButton =
+  '[data-testid="query-explain-cancel-button"]';
 export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
@@ -852,24 +859,30 @@ export const ExplainDocumentsReturnedSummary =
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
-export const IndexComponent = (name: string): string => {
+export const indexComponent = (name: string): string => {
   return `[data-testid="index-row-${name}"]`;
 };
 export const IndexFieldName = '[data-testid="index-name-field"]';
 export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
-export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-use-wildcard"] [data-testid="create-index-modal-use-wildcard-label"]';
-export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-use-wildcard"] .ace_editor';
-
-export const CreateIndexButton =
-  '[data-testid="open-create-index-modal-button"]';
+export const indexToggleOption = (fieldName: string) => {
+  return `[data-testid="create-index-modal-${fieldName}-label"]`;
+};
+export const indexOptionInput = (
+  fieldName: string,
+  type: 'code' | 'text' | 'number' | 'checkbox' = 'text'
+) => {
+  if (type === 'code') {
+    return `[data-testid="create-index-modal-${fieldName}-code"] .ace_editor`;
+  }
+  return `input[data-testid="create-index-modal-${fieldName}-${type}"]`;
+};
 
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
-
+export const CreateIndexButton =
+  '[data-testid="open-create-index-modal-button"]';
 export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
@@ -1003,11 +1016,9 @@ export const ExportToLanguageCloseButton = `${ExportToLanguageModal} [data-testi
 export const ExportToLanguageQueryOutput =
   '[data-testid="export-to-language-output"]';
 
-// Confirm new pipeline modal
-export const ConfirmNewPipelineModal =
-  '[data-testid="confirm-new-pipeline-modal"]';
-export const ConfirmNewPipelineModalConfirmButton =
-  '[data-testid="confirm-new-pipeline-modal"] [role=dialog] > div:nth-child(2) button:first-child';
+// Confirmation modal
+export const ConfirmationModal = '[data-testid="confirmation-modal"]';
+export const ConfirmationModalConfirmButton = `${ConfirmationModal} [role=dialog] > div:nth-child(2) button:first-child`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
@@ -1030,19 +1041,11 @@ export const ShellInfoModalCloseButton =
 // Edit connection string modal
 export const EditConnectionStringToggle =
   '[data-testid="toggle-edit-connection-string"]';
-export const EditConnectionStringModal =
-  '[data-testid="edit-uri-confirmation-modal"]';
-export const EditConnectionStringModalConfirmButton =
-  '[data-testid="edit-uri-confirmation-modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Rename saved item
 export const RenameSavedItemModal = '[data-testid="edit-item-modal"]';
 export const RenameSavedItemModalTextInput = `${RenameSavedItemModal} input[name="name"]`;
 export const RenameSavedItemModalSubmit = `${RenameSavedItemModal} button[type="submit"]`;
-
-// Delete saved item
-export const DeleteSavedItemModal = '[data-testid="delete-item-modal"]';
-export const DeleteSavedItemModallConfirmButton = `${DeleteSavedItemModal} [role=dialog] > div:nth-child(2) button:first-child`;
 
 // Open saved item
 export const OpenSavedItemModal = '[data-testid="open-item-modal"]';

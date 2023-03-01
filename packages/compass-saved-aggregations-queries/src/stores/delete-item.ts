@@ -1,82 +1,51 @@
-import type { Reducer } from 'redux';
 import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import {
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
 
 const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
 export enum ActionTypes {
-  DeleteItem = 'compass-saved-aggregations-queries/deleteItem',
   DeleteItemConfirm = 'compass-saved-aggregations-queries/deleteItemConfirm',
-  DeleteItemCancel = 'compass-saved-aggregations-queries/deleteItemCancel',
 }
 
 const favoriteQueryStorage = new FavoriteQueryStorage();
 const pipelineStorage = new PipelineStorage();
-
-type DeleteItemAction = {
-  type: ActionTypes.DeleteItem;
-  id: string;
-};
-
-type DeleteItemCancelAction = {
-  type: ActionTypes.DeleteItemCancel;
-};
 
 type DeleteItemConfirmAction = {
   type: ActionTypes.DeleteItemConfirm;
   id: string;
 };
 
-export type Actions =
-  | DeleteItemAction
-  | DeleteItemCancelAction
-  | DeleteItemConfirmAction;
+export type Actions = DeleteItemConfirmAction;
 
-export type State = {
-  id: string | null;
-};
-
-const INITIAL_STATE: State = {
-  id: null,
-};
-
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case ActionTypes.DeleteItem:
-      return { id: action.id };
-    case ActionTypes.DeleteItemCancel:
-      return { id: null };
-    case ActionTypes.DeleteItemConfirm:
-      return { id: null };
-    default:
-      return state;
-  }
-};
-
-export const deleteItem = (id: string): DeleteItemAction => {
-  return { type: ActionTypes.DeleteItem, id };
-};
-
-export const deleteItemCancel = (): DeleteItemCancelAction => {
-  return { type: ActionTypes.DeleteItemCancel };
-};
-
-export const deleteItemConfirm = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
+export const confirmDeleteItem = (
+  id: string
+): ThunkAction<Promise<void>, RootState, void, DeleteItemConfirmAction> => {
   return async (dispatch, getState) => {
     const {
       savedItems: { items },
-      deleteItem: { id },
     } = getState();
     const item = items.find((x) => x.id === id);
     if (!item) {
+      return;
+    }
+
+    const title = `Are you sure you want to delete your ${
+      item.type === 'query' ? 'query' : 'aggregation'
+    }?`;
+    const confirmed = await showConfirmation({
+      title,
+      description: 'This action can not be undone.',
+      variant: ConfirmationModalVariant.Danger,
+      buttonText: 'Delete',
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -98,5 +67,3 @@ export const deleteItemConfirm = (): ThunkAction<
     dispatch({ type: ActionTypes.DeleteItemConfirm, id: item.id });
   };
 };
-
-export default reducer;

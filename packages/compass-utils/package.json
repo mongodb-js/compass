@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -48,13 +48,13 @@
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "optionalDependencies": {
     "@electron/remote": "^2.0.9"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.2",
+    "@mongodb-js/eslint-config-compass": "^1.0.3",
     "@mongodb-js/mocha-config-compass": "^1.0.2",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",

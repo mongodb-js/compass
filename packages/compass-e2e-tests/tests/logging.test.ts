@@ -15,9 +15,7 @@ describe('Logging and Telemetry integration', function () {
       const { browser } = compass;
 
       try {
-        await browser.connectWithConnectionString(
-          'mongodb://localhost:27091/test'
-        );
+        await browser.connectWithConnectionString();
         await browser.shellEval('use test');
         await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
       } finally {
@@ -86,9 +84,7 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.is_public_cloud).to.equal(false);
         expect(connectionAttempt.properties.is_do_url).to.equal(false);
 
-        expect(connectionAttempt.properties.public_cloud_name).to.be.a(
-          'string'
-        );
+        expect(connectionAttempt.properties.public_cloud_name).to.be.undefined;
         expect(connectionAttempt.properties.is_atlas).to.be.a('boolean');
         expect(connectionAttempt.properties.is_genuine).to.be.a('boolean');
         expect(connectionAttempt.properties.non_genuine_server_name).to.be.a(

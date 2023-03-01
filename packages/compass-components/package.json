@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-components",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
@@ -28,7 +28,7 @@
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run prettier -- --write ."
+    "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.7",
@@ -42,6 +42,7 @@
     "@leafygreen-ui/code": "^14.1.0",
     "@leafygreen-ui/confirmation-modal": "^4.0.1",
     "@leafygreen-ui/emotion": "^4.0.3",
+    "@leafygreen-ui/guide-cue": "^4.0.0",
     "@leafygreen-ui/hooks": "^7.3.3",
     "@leafygreen-ui/icon": "^11.12.3",
     "@leafygreen-ui/icon-button": "^15.0.3",
@@ -60,7 +61,7 @@
     "@leafygreen-ui/radio-group": "^10.0.3",
     "@leafygreen-ui/segmented-control": "^7.0.0",
     "@leafygreen-ui/select": "^10.1.0",
-    "@leafygreen-ui/table": "^9.0.1",
+    "@leafygreen-ui/table": "^10.0.2",
     "@leafygreen-ui/tabs": "^11.0.1",
     "@leafygreen-ui/text-area": "^8.0.1",
     "@leafygreen-ui/text-input": "^12.1.1",
@@ -69,16 +70,15 @@
     "@leafygreen-ui/tokens": "^1.4.1",
     "@leafygreen-ui/tooltip": "^9.0.2",
     "@leafygreen-ui/typography": "^15.2.0",
-    "@mongodb-js/compass-logging": "^1.1.2",
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/tooltip": "^3.2.1",
     "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",
     "@react-stately/tooltip": "^3.0.5",
-    "bson": "^4.7.1",
+    "bson": "^5.0.1",
     "focus-trap-react": "^8.4.2",
-    "hadron-document": "^8.1.0",
-    "hadron-type-checker": "^7.0.0",
+    "hadron-document": "^8.1.1",
+    "hadron-type-checker": "^7.0.1",
     "is-electron-renderer": "^2.0.1",
     "lodash": "^4.17.21",
     "polished": "^4.2.2",
@@ -91,7 +91,7 @@
     "react-ace": "^9.5.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.2",
+    "@mongodb-js/eslint-config-compass": "^1.0.3",
     "@mongodb-js/mocha-config-compass": "^1.0.2",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",

@@ -43,6 +43,7 @@ import {
 import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 /**
  * Progress messages.
@@ -171,13 +172,20 @@ function ImportModal({
     }
   }, [errors, isOpen]);
 
+  useTrackOnChange(
+    'COMPASS-IMPORT-EXPORT-UI',
+    (track) => {
+      if (isOpen) {
+        track('Screen', { name: 'import_modal' });
+      }
+    },
+    [isOpen],
+    undefined,
+    React
+  );
+
   return (
-    <Modal
-      open={isOpen}
-      setOpen={handleClose}
-      data-testid="import-modal"
-      trackingId="import_modal"
-    >
+    <Modal open={isOpen} setOpen={handleClose} data-testid="import-modal">
       <ModalHeader title="Import" subtitle={`To Collection ${ns}`} />
       <ModalBody ref={modalBodyRef}>
         <ImportOptions

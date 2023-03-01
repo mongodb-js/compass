@@ -33,6 +33,11 @@ async function main(fileList) {
     })
   );
 
+  if (filesToPrettify.length === 0) {
+    console.log('No files to re-format. Skipping ...');
+    return;
+  }
+
   console.log('Re-formatting following files ...');
   filesToPrettify.map((filePath) => {
     console.log(`  - ${path.relative(process.cwd(), filePath)}`);
