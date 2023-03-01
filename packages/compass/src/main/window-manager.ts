@@ -170,6 +170,13 @@ function showConnectWindow(
     return { action: 'deny' };
   });
 
+  window.webContents.on('will-navigate', function (e, url) {
+    e.preventDefault();
+    debug(
+      `Blocked navigation to url ${url} in main window. Make sure links are opened in a different window with _target="blank".`
+    );
+  });
+
   return window;
 }
 
