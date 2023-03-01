@@ -19,7 +19,6 @@ function ImportFileInput({
 }: ImportFileInputProps) {
   const handleChooseFile = useCallback(
     (files: string[]) => {
-      console.log('on change', files);
       if (files.length > 0) {
         selectImportFileName(files[0]);
       } else if (typeof onCancel === 'function') {
@@ -30,18 +29,8 @@ function ImportFileInput({
   );
 
   const backend = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    let electron: typeof import('@electron/remote');
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      electron = require('@electron/remote');
-      if (!electron) {
-        throw new Error('Not electron environment');
-      }
-    } catch (err) {
-      // Non-electron environment, default to browser behavior.
-      return;
-    }
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-var-requires
+    const electron: typeof import('@electron/remote') = require('@electron/remote');
     return createElectronFileInputBackend(electron, 'open', {
       title: 'Select JSON or CSV to import',
       buttonLabel: 'Select',

@@ -2,6 +2,8 @@ import L from 'leaflet';
 
 import { COPYRIGHT_URL } from './constants';
 
+const thisYear = new Date().getFullYear();
+
 /**
  * Fetches attribution objects from the attribution endpoint (currently the raw API).
  * @returns {Array} Array of attribution objects { label, alt, boxes, minLevel, maxLevel }
@@ -33,6 +35,7 @@ let getHereTileBoxes = cachedGetHereTileBoxes();
 const getHereAttributionMessage = async function (bounds, level) {
   const tileBoxes = await getHereTileBoxes();
   const copyrights = [];
+
   tileBoxes.forEach((attribution) => {
     const overlaps = attribution.boxes.some((b) => bounds.intersects(b));
 
@@ -46,9 +49,9 @@ const getHereAttributionMessage = async function (bounds, level) {
   });
 
   const copyrightString = copyrights.join(', ');
-  return ` &copy; 1987-2019 HERE${
+  return ` <a target="_blank" href="https://leafletjs.com/">Leaflet</a> | &copy; 1987-${thisYear} HERE${
     copyrightString.length > 0 ? `, ${copyrightString}` : ''
-  } | <a href="https://legal.here.com/en/terms/serviceterms/us">Terms of Use</a>`;
+  } | <a target="_blank" href="https://legal.here.com/en/terms/serviceterms/us">Terms of Use</a>`;
 };
 
 export { getHereTileBoxes, getHereAttributionMessage };

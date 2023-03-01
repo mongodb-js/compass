@@ -122,12 +122,6 @@ function SidebarTitle({
       icon: 'Connect',
     });
 
-    actions.push({
-      action: 'refresh-data',
-      label: 'Reload data',
-      icon: 'Refresh',
-    });
-
     return actions;
   }, [isFavorite]);
 

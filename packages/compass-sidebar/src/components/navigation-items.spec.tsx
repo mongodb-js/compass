@@ -29,6 +29,7 @@ function renderNavigationItems(
 }
 
 const createDatabaseText = 'Create database';
+const refreshCTAText = 'Refresh databases';
 
 describe('NavigationItems [Component]', function () {
   describe('when rendered', function () {
@@ -38,6 +39,10 @@ describe('NavigationItems [Component]', function () {
 
     it('renders the create database button', function () {
       expect(screen.getByLabelText(createDatabaseText)).to.be.visible;
+    });
+
+    it('renders the refresh databases button', function () {
+      expect(screen.getByLabelText(refreshCTAText)).to.be.visible;
     });
   });
 

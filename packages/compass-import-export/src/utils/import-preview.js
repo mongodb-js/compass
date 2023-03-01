@@ -53,7 +53,6 @@ export function createPreviewWritable({ MAX_SIZE = 10, fileType } = {}) {
       }
 
       if (this.docs.length >= MAX_SIZE) {
-        debug('noop');
         return next();
       }
 

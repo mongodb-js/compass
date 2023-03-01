@@ -20,7 +20,7 @@ import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 
 import { changeFilterRegex } from '../modules/databases';
 
-type DatabasesActions = 'open-create-database';
+type DatabasesActions = 'open-create-database' | 'refresh-data';
 
 const navigationItem = css({
   cursor: 'pointer',
@@ -160,6 +160,7 @@ export function NavigationItem<Actions extends string>({
             // the text
             isVisible={true}
             iconClassName={navigationItemActionIcons}
+            collapseToMenuThreshold={3}
           ></ItemActionControls>
         )}
         <div className={cx('item-background', itemBackground)} />
@@ -187,7 +188,13 @@ export function NavigationItems({
 }) {
   const isReadOnly = readOnly || isDataLake || !isWritable;
   const databasesActions = useMemo(() => {
-    const actions: ItemAction<DatabasesActions>[] = [];
+    const actions: ItemAction<DatabasesActions>[] = [
+      {
+        action: 'refresh-data',
+        label: 'Refresh databases',
+        icon: 'Refresh',
+      },
+    ];
 
     if (!isReadOnly) {
       actions.push({
