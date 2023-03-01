@@ -383,7 +383,7 @@ function useCodemirrorExtensionCompartment<T>(
   useEffectOnChange(() => {
     editorViewRef.current?.dispatch({
       effects: compartmentRef.current?.reconfigure(
-        extensionCreatorRef.current!()
+        extensionCreatorRef.current()
       ),
     });
   }, value);
