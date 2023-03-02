@@ -714,10 +714,12 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
+    // select the file
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+
+    // wait for the modal to appear
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
-    await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
