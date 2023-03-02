@@ -558,6 +558,7 @@ export const selectImportFileName = (fileName: string) => {
  * The user has manually selected the `fileType` of the import.
  */
 // TODO: remove this. It won't be possible to manually select the type
+// COMPASS-6545
 export const selectImportFileType = (fileType: 'json' | 'csv') => {
   return (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
