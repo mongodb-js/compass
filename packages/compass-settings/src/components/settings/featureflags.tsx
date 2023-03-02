@@ -10,7 +10,6 @@ import preferences, { usePreference } from 'compass-preferences-model';
 const devFeatureFlagFields = [
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
-  'useNewImportBackend',
   'useNewExportBackend',
 ] as const;
 

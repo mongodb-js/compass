@@ -42,8 +42,20 @@ describe('import [module]', function () {
   });
 
   describe('#selectImportFileType', function () {
-    it('should update fileType to csv', function () {
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('');
+    it('should update fileType to csv', async function () {
+      // changing file type uses fileName from the state, so set it first
+      expect(mockStore.getState().importData.fileName).to.equal('');
+      const fileName = path.join(
+        __dirname,
+        '..',
+        '..',
+        'test',
+        'json',
+        'good.json'
+      );
+      await mockStore.dispatch(selectImportFileName(fileName));
+
+      expect(mockStore.getState().importData.fileType).to.be.deep.equal('json');
 
       mockStore.dispatch(selectImportFileType('csv'));
 

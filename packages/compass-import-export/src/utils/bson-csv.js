@@ -1,3 +1,6 @@
+// TODO: we can get rid of this file once we get rid of dotnotation.ts and
+// formatters.ts. select-field-type.tsx is still using this, but that's easily
+// fixed.
 /* eslint-disable no-use-before-define */
 /* eslint-disable complexity */
 /**
