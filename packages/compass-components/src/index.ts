@@ -165,6 +165,6 @@ export {
 } from './hooks/use-confirmation';
 export {
   useHotkeys,
-  normalizeHotkey,
+  formatHotkey,
   KeyboardShortcut,
 } from './hooks/use-hotkeys';

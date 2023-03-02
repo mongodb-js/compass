@@ -2,7 +2,7 @@ import { fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import { renderHook } from '@testing-library/react-hooks';
 
-import { useHotkeys, normalizeHotkey } from './use-hotkeys';
+import { useHotkeys, formatHotkey } from './use-hotkeys';
 import sinon from 'sinon';
 
 const initialUserAgent = window.navigator.userAgent;
@@ -14,6 +14,9 @@ const mappingUseCases = {
     { key: 'ctrl  +1', shortcut: 'Ctrl + 1' },
     { key: 'meta +shift+  a+ c', shortcut: '⌘ + Shift + A + C' },
     { key: 'meta+ shift +   +', shortcut: '⌘ + Shift + +' },
+    { key: 'META+ SHIFT +   +', shortcut: '⌘ + Shift + +' },
+    { key: 'META+ArrowUp', shortcut: '⌘ + ↑' },
+    { key: 'shift+ArrowDown', shortcut: 'Shift + ↓' },
   ],
   windows_linux: [
     { key: 'meta+1', shortcut: 'Ctrl + 1' },
@@ -21,6 +24,9 @@ const mappingUseCases = {
     { key: 'ctrl+1', shortcut: 'Ctrl + 1' },
     { key: 'meta+ shift+a +c', shortcut: 'Ctrl + Shift + A + C' },
     { key: 'meta +shift  + +', shortcut: 'Ctrl + Shift + +' },
+    { key: 'META+SHIFT  + +', shortcut: 'Ctrl + Shift + +' },
+    { key: 'META+ArrowUp', shortcut: 'Ctrl + ↑' },
+    { key: 'shift+ArrowDown', shortcut: 'Shift + ↓' },
   ],
 };
 
@@ -68,7 +74,7 @@ describe('use-hotkeys', function () {
     context('handles mapping of shortcuts', function () {
       mappingUseCases.mac.forEach(({ key, shortcut }) => {
         it(`maps ${key} to ${shortcut}`, function () {
-          expect(normalizeHotkey(key)).to.equal(shortcut);
+          expect(formatHotkey(key)).to.equal(shortcut);
         });
       });
     });
@@ -110,7 +116,7 @@ describe('use-hotkeys', function () {
     context('handles mapping of shortcuts', function () {
       mappingUseCases.windows_linux.forEach(({ key, shortcut }) => {
         it(`maps ${key} to ${shortcut}`, function () {
-          expect(normalizeHotkey(key)).to.equal(shortcut);
+          expect(formatHotkey(key)).to.equal(shortcut);
         });
       });
     });

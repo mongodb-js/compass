@@ -11,7 +11,7 @@ import {
   Toggle,
   Tooltip,
   useHotkeys,
-  normalizeHotkey,
+  formatHotkey,
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
@@ -164,7 +164,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
               Go to previous stage
             </span>
             <span className={tooltipContentItemStyles}>
-              {normalizeHotkey(PREVIOUS_STAGE_HOTKEY)}
+              {formatHotkey(PREVIOUS_STAGE_HOTKEY)}
             </span>
           </Body>
         </Tooltip>
@@ -214,7 +214,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
           <Body className={tooltipContentStyles}>
             <span>Go to next stage</span>
             <span className={tooltipContentItemStyles}>
-              {normalizeHotkey(NEXT_STAGE_HOTKEY)}
+              {formatHotkey(NEXT_STAGE_HOTKEY)}
             </span>
           </Body>
         </Tooltip>
@@ -271,14 +271,14 @@ export const FocusModeModalHeader: React.FunctionComponent<
         <MenuItem
           className={menuItemStyles}
           onClick={onAddStageAfter}
-          data-hotkey={normalizeHotkey(ADD_STAGE_AFTER_HOTKEY)}
+          data-hotkey={formatHotkey(ADD_STAGE_AFTER_HOTKEY)}
         >
           Add stage after
         </MenuItem>
         <MenuItem
           className={menuItemStyles}
           onClick={onAddStageBefore}
-          data-hotkey={normalizeHotkey(ADD_STAGE_BEFORE_HOTKEY)}
+          data-hotkey={formatHotkey(ADD_STAGE_BEFORE_HOTKEY)}
         >
           Add stage before
         </MenuItem>

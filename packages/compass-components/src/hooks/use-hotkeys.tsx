@@ -33,23 +33,24 @@ export const useHotkeys = (
   return useGlobalHotkeys(key, callback, options, deps);
 };
 
-export const normalizeHotkey = (key: string) => {
+export const formatHotkey = (key: string) => {
+  let shortcut = key.toLowerCase();
   // map the modifier keys to the platform specific keys
-  const shortcut = isMac()
-    ? key.replace(/\bmeta\b/i, '⌘').replace(/\balt\b/i, 'option')
-    : key.replace(/\bmeta\b/i, 'ctrl');
-  // normalize the shortcut and add spaces between + signs
+  shortcut = isMac()
+    ? shortcut.replace(/\bmeta\b/, '⌘').replace(/\balt\b/, 'option')
+    : shortcut.replace(/\bmeta\b/, 'ctrl');
+
   return shortcut
     .replace(/\+/g, ' + ') // Add space on both sides of each '+'
     .replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+    .replace('arrowup', '↑')
+    .replace('arrowdown', '↓')
     .replace(/\b\w/g, (c) => c.toUpperCase()) // Capitalize the first letter of each word
-    .replace('ArrowUp', '↑')
-    .replace('ArrowDown', '↓')
     .trim();
 };
 
 export const KeyboardShortcut = ({ hotkey }: { hotkey: string }) => {
-  const key = normalizeHotkey(hotkey);
+  const key = formatHotkey(hotkey);
   return (
     <span className={shortcutContainerStyles}>
       {key.split('+').map((x) => (
