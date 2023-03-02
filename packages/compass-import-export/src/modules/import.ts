@@ -115,11 +115,6 @@ type State = {
   abortController?: AbortController;
 };
 
-/**
- * ## Initial state.
- *
- * @api private
- */
 export const INITIAL_STATE: State = {
   isOpen: false,
   errors: [],
@@ -875,9 +870,6 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
     };
   }
 
-  /**
-   * Open the `<ImportModal />`
-   */
   if (action.type === OPEN) {
     return {
       ...INITIAL_STATE,
