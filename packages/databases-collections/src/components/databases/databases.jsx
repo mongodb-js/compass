@@ -139,7 +139,7 @@ function createEmit(evtName) {
 }
 
 const mapDispatchToProps = {
-  onRefreshClick: createEmit('refresh-data'),
+  onRefreshClick: createEmit('refresh-databases'),
   onDatabaseClick: createEmit('select-database'),
   onDeleteDatabaseClick: createEmit('open-drop-database'),
   onCreateDatabaseClick: createEmit('open-create-database'),

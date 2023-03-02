@@ -243,7 +243,15 @@ store.onActivated = (appRegistry) => {
     store.refreshInstance(appRegistry);
   });
 
-  appRegistry.on('refresh-database', async({ ns }) => {
+  appRegistry.on('refresh-databases', async() => {
+    const { instance, dataService } = store.getState();
+    await instance.fetchDatabases({ dataService, force: true });
+    await Promise.allSettled(
+      instance.databases.map((db) => db.fetchCollections({ dataService, force: true }))
+    );
+  });
+
+  appRegistry.on('refresh-collections', async({ ns }) => {
     const { instance, dataService } = store.getState();
     const { database } = toNS(ns);
     if (!instance.databases.get(database)) {
@@ -252,14 +260,7 @@ store.onActivated = (appRegistry) => {
 
     const db = instance.databases.get(database);
     if (db) {
-      await db.fetchCollections({ dataService, force: true });
-      await Promise.allSettled(
-        db.collections.map((coll) => coll.fetch({
-          dataService,
-          fetchInfo: true,
-          force: true
-        }))
-      );
+      await db.fetchCollections({ dataService, fetchInfo: true, force: true });
     }
   });
 
