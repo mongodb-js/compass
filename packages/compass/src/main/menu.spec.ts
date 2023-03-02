@@ -341,12 +341,12 @@ describe('CompassMenu', function () {
           ?.submenu
       ) as any;
 
-      expect(menu.find((menu) => menu.label === '&Toggle DevTools')).to.deep.eq(
-        {
-          accelerator: 'Alt+CmdOrCtrl+I',
-          label: '&Toggle DevTools',
-        }
-      );
+      expect(
+        menu.find((item: any) => item.label === '&Toggle DevTools')
+      ).to.deep.eq({
+        accelerator: 'Alt+CmdOrCtrl+I',
+        label: '&Toggle DevTools',
+      });
     });
   });
 });
