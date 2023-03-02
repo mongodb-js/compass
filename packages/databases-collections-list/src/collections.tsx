@@ -81,12 +81,14 @@ const CollectionsList: React.FunctionComponent<{
   onCollectionClick(id: string): void;
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
+  onRefreshClick?: () => void;
 }> = ({
   isEditable,
   collections,
   onCollectionClick,
   onCreateCollectionClick,
   onDeleteCollectionClick,
+  onRefreshClick,
 }) => {
   return (
     <ItemsGrid
@@ -107,6 +109,7 @@ const CollectionsList: React.FunctionComponent<{
       onItemClick={onCollectionClick}
       onDeleteItemClick={onDeleteCollectionClick}
       onCreateItemClick={onCreateCollectionClick}
+      onRefreshClick={onRefreshClick}
       renderItem={({
         item: coll,
         onItemClick,

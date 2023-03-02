@@ -61,6 +61,7 @@ class Databases extends PureComponent {
     onDatabaseClick: PropTypes.func.isRequired,
     onDeleteDatabaseClick: PropTypes.func.isRequired,
     onCreateDatabaseClick: PropTypes.func.isRequired,
+    onRefreshClick: PropTypes.func.isRequired,
     readOnly: PropTypes.bool,
   };
 
@@ -81,6 +82,7 @@ class Databases extends PureComponent {
       onDatabaseClick,
       onDeleteDatabaseClick,
       onCreateDatabaseClick,
+      onRefreshClick,
     } = this.props;
 
     if (databasesStatus.status === 'error') {
@@ -99,7 +101,7 @@ class Databases extends PureComponent {
 
     const editable = !isReadonly && !readOnly;
     const actions = Object.assign(
-      { onDatabaseClick },
+      { onDatabaseClick, onRefreshClick },
       editable && isWritable && !isDataLake
         ? { onDeleteDatabaseClick, onCreateDatabaseClick }
         : {}
@@ -137,6 +139,7 @@ function createEmit(evtName) {
 }
 
 const mapDispatchToProps = {
+  onRefreshClick: createEmit('refresh-data'),
   onDatabaseClick: createEmit('select-database'),
   onDeleteDatabaseClick: createEmit('open-drop-database'),
   onCreateDatabaseClick: createEmit('open-create-database'),
