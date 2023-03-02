@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import sinon from 'sinon';
 
-import configureStore from '../../stores/store';
+import configureStore from '../../../test/configure-store';
 import { FocusMode } from './focus-mode';
 
 const renderFocusMode = (

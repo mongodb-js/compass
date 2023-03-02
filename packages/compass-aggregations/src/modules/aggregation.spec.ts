@@ -14,7 +14,7 @@ import reducer, {
 import type { State as AggregateState } from './aggregation';
 import type { RootState } from '.';
 import rootReducer from '../modules';
-import configureStore from '../stores/store';
+import configureStore from '../../test/configure-store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 import { createCancelError } from '@mongodb-js/compass-utils';
 

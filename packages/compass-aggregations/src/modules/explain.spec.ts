@@ -11,7 +11,7 @@ import reducer, {
   _getExplainVerbosity,
   _mapIndexesInformation,
 } from './explain';
-import configureStore from '../stores/store';
+import configureStore from '../../test/configure-store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 import type { IndexInfo } from './indexes';
 

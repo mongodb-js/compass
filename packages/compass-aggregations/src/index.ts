@@ -1,6 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
 import AggregationsPlugin from './plugin';
-import configureStore from './stores';
+import configureStore from './stores/store';
 import { Aggregations } from './components/aggregations';
 import CreateViewPlugin from './components/create-view-plugin';
 import DuplicateViewPlugin from './components/duplicate-view-plugin';

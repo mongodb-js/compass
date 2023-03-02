@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
-import configureStore from '../../../stores/store';
+import configureStore from '../../../../test/configure-store';
 import { Provider } from 'react-redux';
 import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
 

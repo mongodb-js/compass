@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import configureStore from './stores/store';
+import configureStore from '../test/configure-store';
 import Aggregations from './plugin';
 
 const renderPlugin = () => {
-  const store = configureStore({});
+  const store = configureStore();
   render(
     <Aggregations showExportButton={true} showRunButton={true} store={store} />
   );

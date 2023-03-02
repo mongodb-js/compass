@@ -13,7 +13,7 @@ import {
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
 
-import configureStore from '../../stores/store';
+import configureStore from '../../../test/configure-store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 

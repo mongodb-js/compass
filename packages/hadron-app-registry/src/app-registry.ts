@@ -249,10 +249,10 @@ export class AppRegistry {
   /**
    * Register a store in the registry.
    *
-   * @param {String} name - The name of the store.
-   * @param {Store} store - The Reflux store.
+   * @param name - The name of the store.
+   * @param store - The Reflux store.
    *
-   * @returns {AppRegistry} This instance.
+   * @returns This instance.
    */
   registerStore(name: string, store: Store): this {
     const overwrite = Object.prototype.hasOwnProperty.call(this.stores, name);

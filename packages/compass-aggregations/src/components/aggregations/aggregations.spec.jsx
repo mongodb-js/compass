@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { expect } from 'chai';
 
 import Aggregations from '../aggregations';
-import configureStore from '../../stores';
+import configureStore from '../../../test/configure-store';
 import styles from './aggregations.module.less';
 import { Provider } from 'react-redux';
 
