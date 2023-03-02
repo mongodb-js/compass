@@ -235,7 +235,6 @@ const featureFlagsProps: Required<{
     global: true,
     description: {
       short: 'Modern Dark Mode',
-      long: 'Use a custom-design dark mode that rather than a simplistic one.',
     },
   },
 
