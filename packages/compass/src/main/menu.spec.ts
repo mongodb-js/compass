@@ -114,323 +114,151 @@ describe('CompassMenu', function () {
       }).not.to.throw();
     });
 
-    it('should generate a view menu template without theme on darwin', function () {
+    it('should generate a menu template for darwin', function () {
       sinon.stub(process, 'platform').value('darwin');
-      sinon
-        .stub(preferences, 'getPreferences')
-        .returns({ theme: 'LIGHT' } as any);
-
-      expect(
-        serializable(
-          // Contains functions, so we can't easily deep equal it without
-          // converting to serializable format
-          CompassMenu.getTemplate(0).find((item) => item.label === '&View')
-        )
-      ).to.deep.eq({
-        label: '&View',
-        submenu: [
-          {
-            accelerator: 'CmdOrCtrl+Shift+R',
-            label: '&Reload',
-          },
-          {
-            accelerator: 'CmdOrCtrl+R',
-            label: '&Reload Data',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            accelerator: 'CmdOrCtrl+Shift+D',
-            label: '&Toggle Sidebar',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            accelerator: 'CmdOrCtrl+0',
-            label: 'Actual Size',
-          },
-          {
-            accelerator: 'CmdOrCtrl+=',
-            label: 'Zoom In',
-          },
-          {
-            accelerator: 'CmdOrCtrl+-',
-            label: 'Zoom Out',
-          },
-          {
-            type: 'separator',
-          },
-        ],
-      });
+      expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
+        {
+          label: app.getName(),
+          submenu: [
+            { label: `About ${app.getName()}`, role: 'about' },
+            { label: 'Check for updates…' },
+            { type: 'separator' },
+            { label: '&Settings', accelerator: 'CmdOrCtrl+,' },
+            { type: 'separator' },
+            { label: 'Hide', accelerator: 'Command+H', role: 'hide' },
+            {
+              label: 'Hide Others',
+              accelerator: 'Command+Shift+H',
+              role: 'hideOthers',
+            },
+            { label: 'Show All', role: 'unhide' },
+            { type: 'separator' },
+            { label: 'Quit', accelerator: 'CmdOrCtrl+Q' },
+          ],
+        },
+        {
+          label: '&Connect',
+          submenu: [
+            { label: 'New &Connection', accelerator: 'CmdOrCtrl+N' },
+            { label: '&Disconnect' },
+            { type: 'separator' },
+            { label: '&Import Saved Connections' },
+            { label: '&Export Saved Connections' },
+          ],
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { label: 'Undo', accelerator: 'Command+Z', role: 'undo' },
+            { label: 'Redo', accelerator: 'Shift+Command+Z', role: 'redo' },
+            { type: 'separator' },
+            { label: 'Cut', accelerator: 'Command+X', role: 'cut' },
+            { label: 'Copy', accelerator: 'Command+C', role: 'copy' },
+            { label: 'Paste', accelerator: 'Command+V', role: 'paste' },
+            {
+              label: 'Select All',
+              accelerator: 'Command+A',
+              role: 'selectAll',
+            },
+            { type: 'separator' },
+            { label: 'Find', accelerator: 'CmdOrCtrl+F' },
+          ],
+        },
+        {
+          label: '&View',
+          submenu: [
+            { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
+            { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
+            { type: 'separator' },
+            { label: '&Toggle Sidebar', accelerator: 'CmdOrCtrl+Shift+D' },
+            { type: 'separator' },
+            { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
+            { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },
+            { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-' },
+          ],
+        },
+        {
+          label: 'Window',
+          submenu: [
+            { label: 'Minimize', accelerator: 'Command+M', role: 'minimize' },
+            { label: 'Close', accelerator: 'Command+W', role: 'close' },
+            { type: 'separator' },
+            { label: 'Bring All to Front', role: 'front' },
+          ],
+        },
+        {
+          label: '&Help',
+          submenu: [
+            { label: `&Online ${app.getName()} Help`, accelerator: 'F1' },
+            { label: '&License' },
+            { label: '&Open Log File' },
+          ],
+        },
+      ]);
     });
 
-    it('should generate a view menu template with theme on non darwin', function () {
-      sinon.stub(process, 'platform').value('linux');
-      sinon
-        .stub(preferences, 'getPreferences')
-        .returns({ theme: 'LIGHT' } as any);
+    ['linux', 'win32'].forEach((platform) => {
+      it(`should generate a menu template for ${platform}`, function () {
+        sinon.stub(process, 'platform').value(platform);
 
-      expect(
-        serializable(
-          // Contains functions, so we can't easily deep equal it without
-          // converting to serializable format
-          CompassMenu.getTemplate(0).find((item) => item.label === '&View')
-        )
-      ).to.deep.eq({
-        label: '&View',
-        submenu: [
+        expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
           {
-            accelerator: 'CmdOrCtrl+Shift+R',
-            label: '&Reload',
-          },
-          {
-            accelerator: 'CmdOrCtrl+R',
-            label: '&Reload Data',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            accelerator: 'CmdOrCtrl+Shift+D',
-            label: '&Toggle Sidebar',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            accelerator: 'CmdOrCtrl+0',
-            label: 'Actual Size',
-          },
-          {
-            accelerator: 'CmdOrCtrl+=',
-            label: 'Zoom In',
-          },
-          {
-            accelerator: 'CmdOrCtrl+-',
-            label: 'Zoom Out',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            label: 'Theme',
+            label: '&Connect',
             submenu: [
-              {
-                checked: false,
-                label: 'Use OS Theme (Preview)',
-                type: 'checkbox',
-              },
-              {
-                checked: false,
-                label: 'Dark Theme (Preview)',
-                type: 'checkbox',
-              },
-              {
-                checked: true,
-                label: 'Light Theme',
-                type: 'checkbox',
-              },
+              { label: 'New &Connection', accelerator: 'CmdOrCtrl+N' },
+              { label: '&Disconnect' },
+              { type: 'separator' },
+              { label: '&Import Saved Connections' },
+              { label: '&Export Saved Connections' },
+              { type: 'separator' },
+              { label: 'E&xit', accelerator: 'CmdOrCtrl+Q' },
             ],
           },
           {
-            type: 'separator',
-          },
-        ],
-      });
-    });
-
-    it('should generate a view menu template with toggle devtools', function () {
-      sinon.stub(process, 'platform').value('linux');
-      sinon
-        .stub(preferences, 'getPreferences')
-        .returns({ enableDevTools: true } as any);
-
-      expect(
-        serializable(
-          // Contains functions, so we can't easily deep equal it without
-          // converting to serializable format
-          CompassMenu.getTemplate(0).find((item) => item.label === '&View')
-        )
-      ).to.deep.eq({
-        label: '&View',
-        submenu: [
-          {
-            accelerator: 'CmdOrCtrl+Shift+R',
-            label: '&Reload',
-          },
-          {
-            accelerator: 'CmdOrCtrl+R',
-            label: '&Reload Data',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            accelerator: 'CmdOrCtrl+Shift+D',
-            label: '&Toggle Sidebar',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            accelerator: 'CmdOrCtrl+0',
-            label: 'Actual Size',
-          },
-          {
-            accelerator: 'CmdOrCtrl+=',
-            label: 'Zoom In',
-          },
-          {
-            accelerator: 'CmdOrCtrl+-',
-            label: 'Zoom Out',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            label: 'Theme',
+            label: 'Edit',
             submenu: [
+              { label: 'Undo', accelerator: 'Command+Z', role: 'undo' },
+              { label: 'Redo', accelerator: 'Shift+Command+Z', role: 'redo' },
+              { type: 'separator' },
+              { label: 'Cut', accelerator: 'Command+X', role: 'cut' },
+              { label: 'Copy', accelerator: 'Command+C', role: 'copy' },
+              { label: 'Paste', accelerator: 'Command+V', role: 'paste' },
               {
-                checked: false,
-                label: 'Use OS Theme (Preview)',
-                type: 'checkbox',
+                label: 'Select All',
+                accelerator: 'Command+A',
+                role: 'selectAll',
               },
-              {
-                checked: false,
-                label: 'Dark Theme (Preview)',
-                type: 'checkbox',
-              },
-              {
-                checked: false,
-                label: 'Light Theme',
-                type: 'checkbox',
-              },
+              { type: 'separator' },
+              { label: 'Find', accelerator: 'CmdOrCtrl+F' },
+              { type: 'separator' },
+              { label: '&Settings', accelerator: 'CmdOrCtrl+,' },
             ],
           },
           {
-            type: 'separator',
-          },
-          {
-            accelerator: 'Alt+CmdOrCtrl+I',
-            label: '&Toggle DevTools',
-          },
-        ],
-      });
-    });
-
-    it('should generate the about and theme options on darwin', function () {
-      sinon.stub(process, 'platform').value('darwin');
-      sinon
-        .stub(preferences, 'getPreferences')
-        .returns({ theme: 'LIGHT' } as any);
-
-      expect(
-        serializable(
-          // Contains functions, so we can't easily deep equal it without
-          // converting to serializable format
-          CompassMenu.getTemplate(0).find(
-            (item) => item.label === app.getName()
-          )
-        )
-      ).to.deep.eq({
-        label: app.getName(),
-        submenu: [
-          {
-            label: `About ${app.getName()}`,
-            role: 'about',
-          },
-          {
-            label: 'Check for updates…',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            label: 'Theme',
+            label: '&View',
             submenu: [
-              {
-                checked: false,
-                label: 'Use OS Theme (Preview)',
-                type: 'checkbox',
-              },
-              {
-                checked: false,
-                label: 'Dark Theme (Preview)',
-                type: 'checkbox',
-              },
-              {
-                checked: true,
-                label: 'Light Theme',
-                type: 'checkbox',
-              },
+              { label: '&Reload', accelerator: 'CmdOrCtrl+Shift+R' },
+              { label: '&Reload Data', accelerator: 'CmdOrCtrl+R' },
+              { type: 'separator' },
+              { label: '&Toggle Sidebar', accelerator: 'CmdOrCtrl+Shift+D' },
+              { type: 'separator' },
+              { label: 'Actual Size', accelerator: 'CmdOrCtrl+0' },
+              { label: 'Zoom In', accelerator: 'CmdOrCtrl+=' },
+              { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-' },
             ],
           },
           {
-            type: 'separator',
+            label: '&Help',
+            submenu: [
+              { label: `&Online ${app.getName()} Help`, accelerator: 'F1' },
+              { label: '&License' },
+              { label: '&Open Log File' },
+              { type: 'separator' },
+              { label: `&About ${app.getName()}` },
+              { label: 'Check for updates…' },
+            ],
           },
-          {
-            label: 'Hide',
-            accelerator: 'Command+H',
-            role: 'hide',
-          },
-          {
-            label: 'Hide Others',
-            accelerator: 'Command+Shift+H',
-            role: 'hideOthers',
-          },
-          {
-            label: 'Show All',
-            role: 'unhide',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            label: 'Quit',
-            accelerator: 'CmdOrCtrl+Q',
-          },
-        ],
-      });
-    });
-
-    it('should generate the help options on non darwin', function () {
-      sinon.stub(process, 'platform').value('linux');
-
-      expect(
-        serializable(
-          // Contains functions, so we can't easily deep equal it without
-          // converting to serializable format
-          CompassMenu.getTemplate(0).find((item) => item.label === '&Help')
-        )
-      ).to.deep.eq({
-        label: '&Help',
-        submenu: [
-          {
-            label: `&Online ${app.getName()} Help`,
-            accelerator: 'F1',
-          },
-          {
-            label: '&Settings',
-            accelerator: 'CmdOrCtrl+,',
-          },
-          {
-            label: '&License',
-          },
-          {
-            label: '&Open Log File',
-          },
-          {
-            type: 'separator',
-          },
-          {
-            label: `&About ${app.getName()}`,
-          },
-          {
-            label: 'Check for updates…',
-          },
-        ],
+        ]);
       });
     });
 
@@ -501,6 +329,24 @@ describe('CompassMenu', function () {
           },
         ],
       });
+    });
+
+    it('should generate a view menu template with toggle devtools', function () {
+      sinon
+        .stub(preferences, 'getPreferences')
+        .returns({ enableDevTools: true } as any);
+
+      const menu = serializable(
+        CompassMenu.getTemplate(0).find((item) => item.label === '&View')
+          ?.submenu
+      ) as any;
+
+      expect(menu.find((menu) => menu.label === '&Toggle DevTools')).to.deep.eq(
+        {
+          accelerator: 'Alt+CmdOrCtrl+I',
+          label: '&Toggle DevTools',
+        }
+      );
     });
   });
 });
