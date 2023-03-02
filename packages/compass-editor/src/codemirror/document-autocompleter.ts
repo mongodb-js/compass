@@ -48,7 +48,7 @@ export const createDocumentAutocompleter = (
   return (context) => {
     const token = resolveTokenAtCursor(context);
 
-    const shouldEscapeProperty =
+    const shouldAlwaysEscapeProperty =
       context.state.facet(languageName)[0] === 'json';
 
     if (isJSONPropertyName(token) || isJavaScriptPropertyName(token)) {
@@ -67,7 +67,7 @@ export const createDocumentAutocompleter = (
           })
           .map((completion) => {
             return {
-              label: wrapField(completion.value, shouldEscapeProperty),
+              label: wrapField(completion.value, shouldAlwaysEscapeProperty),
               // https://codemirror.net/docs/ref/#autocomplete.Completion.type
               type: 'property',
               detail: 'field',
