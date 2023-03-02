@@ -355,7 +355,7 @@ const languages: Record<EditorLanguage, () => LanguageSupport> = {
   },
 };
 
-const languageName = Facet.define<EditorLanguage>({});
+export const languageName = Facet.define<EditorLanguage>({});
 
 /**
  * https://codemirror.net/examples/config/#dynamic-configuration
