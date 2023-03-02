@@ -568,14 +568,14 @@ export const selectImportFileType = (fileType: 'json' | 'csv') => {
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
-    const { previewLoaded, fileName, delimiter } = getState().importData;
+    const { fileName, delimiter } = getState().importData;
 
     dispatch({
       type: FILE_TYPE_SELECTED,
       fileType: fileType,
     });
 
-    if (previewLoaded && fileType === 'csv') {
+    if (fileType === 'csv') {
       debug('preview needs updating because fileType changed');
       dispatch(loadCSVPreviewDocs(fileName, delimiter));
     }
@@ -590,15 +590,17 @@ export const setDelimiter = (delimiter: CSVDelimiter) => {
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
-    const { previewLoaded, fileName, fileType, fileIsMultilineJSON } =
-      getState().importData;
+    const { fileName, fileType, fileIsMultilineJSON } = getState().importData;
     dispatch({
       type: SET_DELIMITER,
       delimiter: delimiter,
     });
 
-    // TODO: This is certainly a race condition. What if it is busy loading?
-    if (previewLoaded && fileType === 'csv') {
+    // NOTE: The preview could still be loading and then we'll have two
+    // loadCSVPreviewDocs() actions being dispatched simultaneously. The newer
+    // one should finish last and just override whatever the previous one gets,
+    // so hopefully fine.
+    if (fileType === 'csv') {
       debug('preview needs updating because delimiter changed', {
         fileName,
         fileType,
