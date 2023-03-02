@@ -243,6 +243,9 @@ store.onActivated = (appRegistry) => {
     store.refreshInstance(appRegistry);
   });
 
+  // Event emitted when the Databases grid needs to be refreshed
+  // We additionally refresh the list of collections as well
+  // since there is the side navigation which could be in expanded mode
   appRegistry.on('refresh-databases', async() => {
     const { instance, dataService } = store.getState();
     await instance.fetchDatabases({ dataService, force: true });
@@ -251,6 +254,8 @@ store.onActivated = (appRegistry) => {
     );
   });
 
+  // Event emitted when the Collections grid needs to be refreshed
+  // with new collections or collection info for existing ones.
   appRegistry.on('refresh-collections', async({ ns }) => {
     const { instance, dataService } = store.getState();
     const { database } = toNS(ns);
