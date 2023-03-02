@@ -243,6 +243,26 @@ store.onActivated = (appRegistry) => {
     store.refreshInstance(appRegistry);
   });
 
+  appRegistry.on('refresh-database', async({ ns }) => {
+    const { instance, dataService } = store.getState();
+    const { database } = toNS(ns);
+    if (!instance.databases.get(database)) {
+      await instance.fetchDatabases({ dataService, force: true });
+    }
+
+    const db = instance.databases.get(database);
+    if (db) {
+      await db.fetchCollections({ dataService, force: true });
+      await Promise.allSettled(
+        db.collections.map((coll) => coll.fetch({
+          dataService,
+          fetchInfo: true,
+          force: true
+        }))
+      );
+    }
+  });
+
   appRegistry.on('agg-pipeline-out-executed', () => {
     store.refreshInstance(appRegistry);
   });
