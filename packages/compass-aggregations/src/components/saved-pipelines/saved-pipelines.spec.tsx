@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Sinon from 'sinon';
-
 import { SavedPipelines } from './saved-pipelines';
+import type { StoredPipeline } from '../../utils/pipeline-storage';
 
 const savedPipelines = [
   {
@@ -15,7 +15,7 @@ const savedPipelines = [
     name: 'test name 1',
     id: 'test id 1',
   },
-];
+] as StoredPipeline[];
 
 const renderSavedPipelines = (
   props: Partial<ComponentProps<typeof SavedPipelines>> = {}
@@ -106,8 +106,7 @@ describe('SavedPipelines', function () {
       userEvent.click(
         within(savedPipelineCard).getByTestId('saved-pipeline-card-open-action')
       );
-      expect(onOpenPipelineSpy.calledOnce).to.be.true;
-      expect(onOpenPipelineSpy.calledWith(savedPipelines[0].id)).to.be.true;
+      expect(onOpenPipelineSpy).to.be.calledOnceWith(savedPipelines[0]);
     });
     it('calls onDeletePipeline when delete button is clicked', function () {
       const onDeletePipelineSpy = Sinon.spy();

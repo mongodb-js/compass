@@ -15,7 +15,7 @@ const renderPipelineBuilderUIWorkspace = (props = {}, options = {}) => {
   render(
     <Provider
       store={configureStore({
-        sourcePipeline: SOURCE_PIPELINE,
+        pipeline: SOURCE_PIPELINE,
         ...options,
       })}
     >
@@ -91,24 +91,24 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
 
   context('when pipeline is empty', function () {
     it('does not render any stage', function () {
-      renderPipelineBuilderUIWorkspace({}, { sourcePipeline: [] });
+      renderPipelineBuilderUIWorkspace({}, { pipeline: [] });
       expect(screen.queryByTestId('stage-card')).to.not.exist;
     });
 
     it('does not render icon buttons', function () {
-      renderPipelineBuilderUIWorkspace({}, { sourcePipeline: [] });
+      renderPipelineBuilderUIWorkspace({}, { pipeline: [] });
       expect(screen.queryByTestId('add-stage-icon-button')).to.not.exist;
     });
 
     it('renders (text) add stage button', function () {
-      renderPipelineBuilderUIWorkspace({}, { sourcePipeline: [] });
+      renderPipelineBuilderUIWorkspace({}, { pipeline: [] });
       const button = screen.getByTestId('add-stage');
       expect(button).to.exist;
       expect(button).to.have.text('Add Stage');
     });
 
     it('adds a stage when (text) button is clicked', function () {
-      renderPipelineBuilderUIWorkspace({}, { sourcePipeline: [] });
+      renderPipelineBuilderUIWorkspace({}, { pipeline: [] });
       const button = screen.getByTestId('add-stage');
       button.click();
       expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(1);

@@ -26,7 +26,7 @@ export default function reducer(
     return INITIAL_STATE;
   }
   if (action.type === RESTORE_PIPELINE) {
-    return action.restoreState.autoPreview;
+    return action.storedOptions.autoPreview;
   }
   return state;
 }

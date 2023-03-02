@@ -13,7 +13,7 @@ const renderOutputStage = (
   render(
     <Provider
       store={configureStore({
-        sourcePipeline: [{ $match: { _id: 1 } }, { $limit: 10 }],
+        pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }],
       })}
     >
       <OutputStage

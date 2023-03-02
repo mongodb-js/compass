@@ -19,12 +19,12 @@ const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
 const renderFocusModePreview = (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
-  sourcePipeline = DEFAULT_PIPELINE
+  pipeline = DEFAULT_PIPELINE
 ) => {
   render(
     <Provider
       store={configureStore({
-        sourcePipeline,
+        pipeline,
       })}
     >
       <FocusModePreview

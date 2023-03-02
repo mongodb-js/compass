@@ -142,7 +142,7 @@ describe('PipelinePreview', function () {
         isOutStage: true,
       },
       {
-        sourcePipeline: `[{$limit: 20}, {$out: "users"}]`,
+        pipeline: [{ $limit: 20 }, { $out: 'users' }],
       }
     );
 

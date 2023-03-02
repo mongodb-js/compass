@@ -41,7 +41,7 @@ describe('aggregation module', function () {
 
   it('runs an aggregation', async function () {
     const mockDocuments = [{ id: 1 }, { id: 2 }];
-    const store: Store<RootState> = configureStore({ sourcePipeline: `[]` });
+    const store: Store<RootState> = configureStore({ pipeline: [] });
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
       dataService: new (class {

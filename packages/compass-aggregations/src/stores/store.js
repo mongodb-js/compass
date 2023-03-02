@@ -6,38 +6,11 @@ import reducer from '../modules';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { indexesFetched } from '../modules/indexes';
-import { openPipelineById } from '../modules/saved-pipeline';
+import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { PipelineStorage } from '../utils/pipeline-storage';
 import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
-
-/**
- * Refresh the input documents.
- *
- * @param {Store} store - The store.
- */
-export const refreshInput = (store) => {
-  store.dispatch(refreshInputDocuments());
-};
-
-/**
- * Set the fields for the autocompleter.
- *
- * @param {Store} store - The store.
- * @param {Array} fields - The fields array in the ACE autocompleter format.
- */
-export const setFields = (store, fields) => {
-  store.dispatch(fieldsChanged(fields));
-};
-
-export const setIndexes = (store, indexes) => {
-  store.dispatch(
-    indexesFetched(
-      indexes.map((index) => index.getAttributes({ props: true }, true))
-    )
-  );
-};
 
 /**
  * One method configure store call.
@@ -47,13 +20,25 @@ export const setIndexes = (store, indexes) => {
  * @returns {Store} The store.
  */
 const configureStore = (options = {}) => {
+  const refreshInput = (store) => {
+    store.dispatch(refreshInputDocuments());
+  };
+
+  const editingView =
+    options.editViewName && typeof options.sourcePipeline !== 'undefined';
+
+  const initialPipelineSource =
+    (editingView
+      ? toJSString(options.sourcePipeline, '  ')
+      : options.pipeline
+      ? toJSString(options.pipeline)
+      : options.pipelineText) ?? undefined;
+
   const { collection } = toNS(options?.namespace ?? '');
 
   const pipelineBuilder = new PipelineBuilder(
     options.dataProvider?.dataProvider ?? null,
-    options.sourcePipeline
-      ? toJSString(options.sourcePipeline, '  ')
-      : undefined
+    initialPipelineSource
   );
   const pipelineStorage = new PipelineStorage();
 
@@ -72,7 +57,6 @@ const configureStore = (options = {}) => {
       serverVersion: options.serverVersion,
       isTimeSeries: options.isTimeSeries,
       isReadonly: options.isReadonly,
-      sourceName: options.sourceName,
       isDataLake: options.isDataLake,
       env:
         // mms specifies options.env whereas we don't currently get this variable when
@@ -95,7 +79,6 @@ const configureStore = (options = {}) => {
       fields: options.fields ?? [],
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
-      editViewName: options.editViewName,
       pipelineBuilder: {
         stageEditor: {
           stages: pipelineBuilder.stages.map((stage) =>
@@ -104,6 +87,8 @@ const configureStore = (options = {}) => {
           stageIds: pipelineBuilder.stages.map((stage) => stage.id),
         },
       },
+      sourceName: options.sourceName,
+      editViewName: options.editViewName,
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -131,11 +116,15 @@ const configureStore = (options = {}) => {
      * @param {Object} fields - The fields.
      */
     localAppRegistry.on('fields-changed', (fields) => {
-      setFields(store, fields.aceFields);
+      store.dispatch(fieldsChanged(fields.aceFields));
     });
 
     localAppRegistry.on('indexes-changed', (ixs) => {
-      setIndexes(store, ixs);
+      store.dispatch(
+        indexesFetched(
+          ixs.map((index) => index.getAttributes({ props: true }, true))
+        )
+      );
     });
   }
 
@@ -157,19 +146,14 @@ const configureStore = (options = {}) => {
     });
   }
 
-  // If we are loading aggregation, open pipeline (this will kick off preview
-  // fetch when loaded)
+  // If stored pipeline was passed through options, restore pipeline
   if (options.aggregation) {
-    store.dispatch(openPipelineById(options.aggregation.id));
-    // Otherwise if we are editing a view pipeline, kick off preview fetch right
-    // away
-  } else if (options.editViewName) {
-    store.dispatch(updatePipelinePreview());
+    store.dispatch(openStoredPipeline(options.aggregation, false));
   }
 
-  if (collection) {
-    refreshInput(store);
-  }
+  refreshInput(store);
+
+  store.dispatch(updatePipelinePreview());
 
   return store;
 };

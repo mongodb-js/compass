@@ -13,7 +13,7 @@ describe('PipelineToolbar', function () {
     beforeEach(function () {
       render(
         <Provider
-          store={configureStore({ sourcePipeline: [{ $match: { _id: 1 } }] })}
+          store={configureStore({ pipeline: [{ $match: { _id: 1 } }] })}
         >
           <PipelineToolbar
             onChangePipelineOutputOption={() => {}}

@@ -17,12 +17,12 @@ const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
 const renderStagePreview = (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
-  sourcePipeline = DEFAULT_PIPELINE
+  pipeline = DEFAULT_PIPELINE
 ) => {
   render(
     <Provider
       store={configureStore({
-        sourcePipeline,
+        pipeline,
       })}
     >
       <StagePreview

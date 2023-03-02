@@ -14,11 +14,7 @@ const renderFocusMode = (
   render(
     <Provider
       store={configureStore({
-        sourcePipeline: [
-          { $match: { _id: 1 } },
-          { $limit: 10 },
-          { $out: 'out' },
-        ],
+        pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
       })}
     >
       <FocusMode

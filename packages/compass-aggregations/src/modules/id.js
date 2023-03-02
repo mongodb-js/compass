@@ -30,7 +30,7 @@ export default function reducer(state = INITIAL_STATE, action) {
     return new ObjectId().toHexString();
   }
   if (action.type === RESTORE_PIPELINE) {
-    return action.restoreState.id;
+    return action.storedOptions.id;
   }
   return state;
 }
