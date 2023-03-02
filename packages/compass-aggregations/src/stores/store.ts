@@ -30,7 +30,7 @@ export type ConfigureStoreOptions = {
     error?: Error;
   };
   /**
-   * Namespace to be used when running aggregations
+   * Namespace to be used when running aggregations (required, only collection namespaces are supported)
    */
   namespace: string;
 } & Partial<{
@@ -41,7 +41,7 @@ export type ConfigureStoreOptions = {
    */
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'getStore'>;
   /**
-   * Instance of local app registry, listens to `refresh-data` and
+   * Instance of global app registry, listens to `refresh-data` and
    * `import-finished` events and updates corresponding redux slices
    * accordingly
    */
