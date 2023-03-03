@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Fields changed action.
  */
@@ -6,7 +8,7 @@ export const FIELDS_CHANGED = 'aggregations/fields/FIELDS_CHANGED';
 /**
  * The initial state.
  */
-export const INITIAL_STATE = [];
+export const INITIAL_STATE = [] as { name: string }[];
 
 /**
  * Reducer function for handle state changes to fields.
@@ -16,7 +18,7 @@ export const INITIAL_STATE = [];
  *
  * @returns {Array} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === FIELDS_CHANGED) {
     return action.fields;
   }
@@ -25,12 +27,8 @@ export default function reducer(state = INITIAL_STATE, action) {
 
 /**
  * Action creator for fields changed events.
- *
- * @param {Object} fields - The fields value.
- *
- * @returns {Object} The fields changed action.
  */
-export const fieldsChanged = (fields) => ({
+export const fieldsChanged = (fields: { name: string }[]) => ({
   type: FIELDS_CHANGED,
   fields: fields,
 });

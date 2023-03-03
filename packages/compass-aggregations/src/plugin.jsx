@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Aggregations from './components/aggregations';
 import { Provider } from 'react-redux';
-import configureStore from './stores';
+import configureStore from './stores/store';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 
 class Plugin extends Component {
@@ -23,8 +23,6 @@ class Plugin extends Component {
 
   /**
    * Connect the Plugin to the store and render.
-   *
-   * @returns {React.Component} The rendered component.
    */
   render() {
     return (

@@ -350,6 +350,11 @@ store.onActivated = (appRegistry) => {
       appRegistry.emit('open-namespace-in-new-tab', metadata);
     }
   );
+
+  appRegistry.on('aggregations-open-view-after-update', async function(ns) {
+    const metadata = await store.fetchCollectionMetadata(ns);
+    appRegistry.emit('select-namespace', metadata);
+  });
 };
 
 store.subscribe(() => {
