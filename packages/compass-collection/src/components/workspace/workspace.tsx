@@ -1,7 +1,12 @@
 import type AppRegistry from 'hadron-app-registry';
-import React, { PureComponent } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { WorkspaceTabs, css, cx } from '@mongodb-js/compass-components';
+import {
+  WorkspaceTabs,
+  css,
+  cx,
+  useHotkeys,
+} from '@mongodb-js/compass-components';
 
 import {
   createNewTab,
@@ -52,26 +57,6 @@ function getTabType(isTimeSeries: boolean, isReadonly: boolean): string {
   return 'collection';
 }
 
-/**
- * W key is key code 87.
- */
-const KEY_W = 87;
-
-/**
- * T key is key code 84.
- */
-const KEY_T = 84;
-
-/**
- * ] is 221.
- */
-const KEY_CLOSE_BRKT = 221;
-
-/**
- * [ = 219
- */
-const KEY_OPEN_BRKT = 219;
-
 const DEFAULT_NEW_TAB = {
   namespace: '',
   isReadonly: false,
@@ -116,40 +101,75 @@ type WorkspaceProps = {
   stats: CollectionStatsMap;
 };
 
+const WorkspaceTab = ({
+  tab,
+  changeActiveSubTab,
+  selectOrCreateTab,
+  globalAppRegistry,
+  localAppRegistry,
+  stats,
+}: {
+  tab: WorkspaceTabObject;
+  changeActiveSubTab: (activeSubTab: number, id: string) => void;
+  selectOrCreateTab: (props: any) => any;
+  globalAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
+  stats: CollectionStatsMap;
+}) => {
+  return (
+    <div
+      className={cx(
+        workspaceViewTabStyles,
+        !tab.isActive && workspaceHiddenStyles
+      )}
+      id={tab.id}
+      key={`${String(tab.id)}-wrap`}
+    >
+      <Collection
+        key={tab.id}
+        id={tab.id}
+        namespace={tab.namespace}
+        isReadonly={tab.isReadonly}
+        isTimeSeries={tab.isTimeSeries}
+        isClustered={tab.isClustered}
+        isFLE={tab.isFLE}
+        sourceName={tab.sourceName}
+        editViewName={tab.editViewName}
+        sourceReadonly={tab.sourceReadonly}
+        sourceViewOn={tab.sourceViewOn}
+        tabs={tab.tabs}
+        views={tab.views}
+        scopedModals={tab.scopedModals}
+        activeSubTab={tab.activeSubTab}
+        pipeline={tab.pipeline}
+        changeActiveSubTab={changeActiveSubTab}
+        selectOrCreateTab={selectOrCreateTab}
+        globalAppRegistry={globalAppRegistry}
+        localAppRegistry={localAppRegistry}
+        stats={stats}
+      />
+    </div>
+  );
+};
+
 /**
  * The collection workspace contains tabs of multiple collections.
  */
-class Workspace extends PureComponent<WorkspaceProps> {
-  boundHandleKeypress: (evt: any) => void;
-
-  static displayName = 'Workspace';
-
-  /**
-   * Instantiate the component.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props: WorkspaceProps) {
-    super(props);
-    this.boundHandleKeypress = this.handleKeypress.bind(this);
-  }
-
-  /**
-   * Add the keypress listener on mount.
-   */
-  componentDidMount = (): void => {
-    window.addEventListener('keydown', this.boundHandleKeypress);
-  };
-
-  /**
-   * Remove the keypress listener on unmount.
-   */
-  componentWillUnmount = (): void => {
-    window.removeEventListener('keydown', this.boundHandleKeypress);
-  };
-
-  onCreateNewTab = (): void => {
-    const activeTab = this.activeTab();
+const Workspace = ({
+  tabs,
+  closeTab,
+  createNewTab,
+  selectOrCreateTab,
+  appRegistry,
+  prevTab,
+  nextTab,
+  moveTab,
+  selectTab,
+  changeActiveSubTab,
+  stats,
+}: WorkspaceProps) => {
+  const onCreateNewTab = useCallback(() => {
+    const activeTab = tabs.find((tab: WorkspaceTabObject) => tab.isActive);
     const newTabProps = activeTab
       ? {
           namespace: activeTab.namespace,
@@ -164,92 +184,11 @@ class Workspace extends PureComponent<WorkspaceProps> {
           sourcePipeline: activeTab.pipeline,
         }
       : DEFAULT_NEW_TAB;
-    this.props.createNewTab(newTabProps);
-  };
+    createNewTab(newTabProps);
+  }, [tabs, createNewTab]);
 
-  /**
-   * Handle key press. This listens for CTRL/CMD+T and CTRL/CMD+W to control
-   * natural opening and closing of collection tabs. CTRL/CMD+SHIFT+] and
-   * CTRL/CMD+SHIFT+[ to go forward and backwards through the tabs.
-   *
-   * @param {Event} evt - The event.
-   */
-  handleKeypress = (evt: any): void => {
-    if (evt.ctrlKey || evt.metaKey) {
-      if (evt.shiftKey) {
-        if (evt.keyCode === KEY_CLOSE_BRKT) {
-          this.props.nextTab();
-        } else if (evt.keyCode === KEY_OPEN_BRKT) {
-          this.props.prevTab();
-        }
-      } else if (evt.keyCode === KEY_W) {
-        this.props.closeTab(
-          this.props.tabs.findIndex((tab: WorkspaceTabObject) => tab.isActive)
-        );
-        if (this.props.tabs.length > 0) {
-          evt.preventDefault();
-        }
-      } else if (evt.keyCode === KEY_T) {
-        this.onCreateNewTab();
-      }
-    }
-  };
-
-  /**
-   * Return the active tab.
-   *
-   * @returns {Object} The active tab.
-   */
-  activeTab(): any {
-    return this.props.tabs.find((tab: WorkspaceTabObject) => tab.isActive);
-  }
-
-  /**
-   * Render the views.
-   *
-   * @returns {Component} The views.
-   */
-  renderViews(): React.ReactElement[] {
-    return this.props.tabs.map((tab: WorkspaceTabObject) => {
-      return (
-        <div
-          className={cx(
-            workspaceViewTabStyles,
-            !tab.isActive && workspaceHiddenStyles
-          )}
-          id={tab.id}
-          key={`${String(tab.id)}-wrap`}
-        >
-          <Collection
-            key={tab.id}
-            id={tab.id}
-            namespace={tab.namespace}
-            isReadonly={tab.isReadonly}
-            isTimeSeries={tab.isTimeSeries}
-            isClustered={tab.isClustered}
-            isFLE={tab.isFLE}
-            sourceName={tab.sourceName}
-            editViewName={tab.editViewName}
-            sourceReadonly={tab.sourceReadonly}
-            sourceViewOn={tab.sourceViewOn}
-            tabs={tab.tabs}
-            views={tab.views}
-            scopedModals={tab.scopedModals}
-            activeSubTab={tab.activeSubTab}
-            pipeline={tab.pipeline}
-            changeActiveSubTab={this.props.changeActiveSubTab}
-            selectOrCreateTab={this.props.selectOrCreateTab}
-            globalAppRegistry={this.props.appRegistry}
-            localAppRegistry={tab.localAppRegistry}
-            stats={this.props.stats}
-          />
-        </div>
-      );
-    });
-  }
-
-  formatCompassComponentsWorkspaceTabs = (): any =>
-    this.props.tabs.map((tab: WorkspaceTabObject) => ({
+  const formatCompassComponentsWorkspaceTabs = useMemo((): any => {
+    return tabs.map((tab: WorkspaceTabObject) => ({
       title: tab.activeSubTabName,
       subtitle: tab.namespace,
       tabContentId: tab.id,
@@ -257,33 +196,54 @@ class Workspace extends PureComponent<WorkspaceProps> {
         getTabType(tab.isTimeSeries, tab.isReadonly)
       ),
     }));
+  }, [tabs]);
 
-  /**
-   * Render the Workspace component.
-   *
-   * @returns {Component} The rendered component.
-   */
-  render(): React.ReactElement {
-    const selectedTabIndex = this.props.tabs.findIndex(
-      (tab: WorkspaceTabObject) => tab.isActive
-    );
+  const selectedTabIndex = useMemo(
+    () => tabs.findIndex((tab: WorkspaceTabObject) => tab.isActive),
+    [tabs]
+  );
 
-    return (
-      <div className={workspaceStyles} data-testid="workspace-tabs">
-        <WorkspaceTabs
-          aria-label="Collection Tabs"
-          onCreateNewTab={this.onCreateNewTab}
-          onMoveTab={this.props.moveTab}
-          onSelectTab={this.props.selectTab}
-          onCloseTab={this.props.closeTab}
-          tabs={this.formatCompassComponentsWorkspaceTabs()}
-          selectedTabIndex={selectedTabIndex}
-        />
-        <div className={workspaceViewsStyles}>{this.renderViews()}</div>
+  useHotkeys('meta + shift + ]', nextTab);
+  useHotkeys('meta + shift + [', prevTab);
+  useHotkeys(
+    'meta + w',
+    (e) => {
+      closeTab(selectedTabIndex);
+      // This prevents the browser from closing the window
+      // as this shortcut is used to exit the app.
+      e.preventDefault();
+    },
+    [selectedTabIndex]
+  );
+  useHotkeys('meta + t', onCreateNewTab);
+
+  return (
+    <div className={workspaceStyles} data-testid="workspace-tabs">
+      <WorkspaceTabs
+        aria-label="Collection Tabs"
+        onCreateNewTab={onCreateNewTab}
+        onMoveTab={moveTab}
+        onSelectTab={selectTab}
+        onCloseTab={closeTab}
+        tabs={formatCompassComponentsWorkspaceTabs}
+        selectedTabIndex={selectedTabIndex}
+      />
+      <div className={workspaceViewsStyles}>
+        {tabs.map((tab: WorkspaceTabObject) => (
+          <WorkspaceTab
+            key={tab.id}
+            tab={tab}
+            changeActiveSubTab={changeActiveSubTab}
+            selectOrCreateTab={selectOrCreateTab}
+            globalAppRegistry={appRegistry}
+            localAppRegistry={tab.localAppRegistry}
+            stats={stats}
+          />
+        ))}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 /**
  * Map the store state to properties to pass to the components.
