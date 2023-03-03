@@ -10,7 +10,7 @@ export function useRefreshControls(
 
   return (
     <Button
-      variant="primaryOutline"
+      variant="default"
       leftGlyph={<Icon role="presentation" glyph="Refresh" />}
       onClick={() => {
         onRefreshClick();
