@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { expect } from 'chai';
 
-import configureStore from '../../stores/store';
+import configureStore from '../../../test/configure-store';
 import { PipelineToolbar } from './index';
 
 describe('PipelineToolbar', function () {
@@ -13,7 +13,7 @@ describe('PipelineToolbar', function () {
     beforeEach(function () {
       render(
         <Provider
-          store={configureStore({ sourcePipeline: [{ $match: { _id: 1 } }] })}
+          store={configureStore({ pipeline: [{ $match: { _id: 1 } }] })}
         >
           <PipelineToolbar
             onChangePipelineOutputOption={() => {}}
@@ -127,7 +127,7 @@ describe('PipelineToolbar', function () {
   describe('renders with setting row - hidden', function () {
     it('does not render toolbar settings', function () {
       render(
-        <Provider store={configureStore({})}>
+        <Provider store={configureStore()}>
           <PipelineToolbar
             onChangePipelineOutputOption={() => {}}
             pipelineOutputOption="collapse"

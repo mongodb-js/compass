@@ -10,7 +10,7 @@ import {
   spacing,
   FormFieldContainer,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'mongodb';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 import {
   FINISHED_STATUSES,
@@ -43,8 +43,8 @@ import {
 import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import { useImportExport } from '../hooks/use-import-export';
+import { ImportFileInput } from './import-file-input';
 
 /**
  * Progress messages.
@@ -102,7 +102,7 @@ type ImportModalProps = {
     checked: boolean;
     type?: string; // Only on csv imports.
   }[];
-  values: Document[];
+  values: string[][];
   toggleIncludeField: (path: string) => void;
   setFieldType: (path: string, bsonType: string) => void;
   previewLoaded: boolean;
@@ -144,10 +144,13 @@ function ImportModal({
   const { isImportInProgress, setIsImportInProgress } = useImportExport();
 
   useEffect(() => {
-    if (isOpen !== isImportInProgress && setIsImportInProgress) {
-      setIsImportInProgress(isOpen);
+    if (status !== 'STARTED' && isImportInProgress && setIsImportInProgress) {
+      setIsImportInProgress(false);
     }
-  }, [isOpen, isImportInProgress, setIsImportInProgress]);
+    if (status === 'STARTED' && !isImportInProgress && setIsImportInProgress) {
+      setIsImportInProgress(true);
+    }
+  }, [status, isImportInProgress, setIsImportInProgress]);
 
   const modalBodyRef = useRef<HTMLDivElement>(null);
   const handleCancel = useCallback(() => {
@@ -173,7 +176,7 @@ function ImportModal({
   );
 
   useEffect(() => {
-    // When the errors change and there are now errors, we auto scroll
+    // When the errors change and there are new errors, we auto scroll
     // to the end of the modal body to ensure folks see the new errors.
     if (isOpen && errors && modalBodyRef.current) {
       const contentDiv = modalBodyRef.current;
@@ -192,6 +195,18 @@ function ImportModal({
     undefined,
     React
   );
+
+  if (isOpen && !fileName && errors.length === 0) {
+    // Show the file input when we don't have a file to import yet.
+    return (
+      <ImportFileInput
+        autoOpen
+        onCancel={handleClose}
+        fileName={fileName}
+        selectImportFileName={selectImportFileName}
+      />
+    );
+  }
 
   return (
     <Modal open={isOpen} setOpen={handleClose} data-testid="import-modal">

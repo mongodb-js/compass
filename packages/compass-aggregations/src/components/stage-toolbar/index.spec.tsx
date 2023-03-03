@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
-import configureStore from '../../stores/store';
+import configureStore from '../../../test/configure-store';
 import { StageToolbar } from './';
 
 const renderStageToolbar = (
@@ -13,11 +13,7 @@ const renderStageToolbar = (
   render(
     <Provider
       store={configureStore({
-        sourcePipeline: [
-          { $match: { _id: 1 } },
-          { $limit: 10 },
-          { $out: 'out' },
-        ],
+        pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
       })}
     >
       <StageToolbar

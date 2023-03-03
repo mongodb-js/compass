@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-components",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
@@ -77,12 +77,13 @@
     "@react-stately/tooltip": "^3.0.5",
     "bson": "^5.0.1",
     "focus-trap-react": "^8.4.2",
-    "hadron-document": "^8.1.1",
+    "hadron-document": "^8.1.2",
     "hadron-type-checker": "^7.0.1",
     "is-electron-renderer": "^2.0.1",
     "lodash": "^4.17.21",
     "polished": "^4.2.2",
     "prop-types": "^15.7.2",
+    "react-hotkeys-hook": "^4.3.7",
     "react-intersection-observer": "^8.34.0",
     "react-window": "^1.8.6"
   },
@@ -91,8 +92,8 @@
     "react-ace": "^9.5.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.3",
-    "@mongodb-js/mocha-config-compass": "^1.0.2",
+    "@mongodb-js/eslint-config-compass": "^1.0.4",
+    "@mongodb-js/mocha-config-compass": "^1.1.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
     "@testing-library/dom": "^8.11.1",

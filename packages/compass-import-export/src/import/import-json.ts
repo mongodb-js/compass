@@ -71,7 +71,6 @@ export async function importJSON({
         }
 
         const doc = EJSON.deserialize(chunk.value);
-        debug('transform', doc);
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({
@@ -125,6 +124,9 @@ export async function importJSON({
 
       return makeImportResult(collectionStream, numProcessed, true);
     }
+
+    // stick the result onto the error so that we can tell how far it got
+    err.result = makeImportResult(collectionStream, numProcessed);
 
     throw err;
   }

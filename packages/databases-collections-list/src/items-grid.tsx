@@ -13,6 +13,7 @@ import type { NamespaceItemCardProps } from './namespace-card';
 import { useViewTypeControls } from './use-view-type';
 import type { ViewType } from './use-view-type';
 import { useCreateControls } from './use-create';
+import { useRefreshControls } from './use-refresh';
 
 const { track } = createLoggerAndTelemetry(
   'COMPASS-DATABASES-COLLECTIONS-LIST-UI'
@@ -43,7 +44,7 @@ const container = css({
 const controls = css({
   display: 'flex',
   padding: spacing[3],
-  gap: spacing[3],
+  gap: spacing[2],
   flex: 'none',
 });
 
@@ -86,6 +87,7 @@ type ItemsGridProps<T> = {
   onItemClick(id: string): void;
   onDeleteItemClick?: (id: string) => void;
   onCreateItemClick?: () => void;
+  onRefreshClick?: () => void;
   renderItem: RenderItem<T>;
 };
 
@@ -102,16 +104,18 @@ const pushRight = css({
 // part of the list header and scroll up when the list is scrolled
 const ControlsContext = React.createContext<{
   createControls: React.ReactElement | null;
+  refreshControls: React.ReactElement | null;
   viewTypeControls: React.ReactElement | null;
   sortControls: React.ReactElement | null;
 }>({
   createControls: null,
+  refreshControls: null,
   viewTypeControls: null,
   sortControls: null,
 });
 
 const GridControls = () => {
-  const { createControls, viewTypeControls, sortControls } =
+  const { createControls, refreshControls, viewTypeControls, sortControls } =
     useContext(ControlsContext);
 
   return (
@@ -121,8 +125,13 @@ const GridControls = () => {
           {createControls}
         </div>
       )}
-      <div className={control}>{viewTypeControls}</div>
-      <div className={cx(control, pushRight)}>{sortControls}</div>
+      {refreshControls && (
+        <div className={control} data-testid="refresh-controls">
+          {refreshControls}
+        </div>
+      )}
+      <div className={cx(control, pushRight)}>{viewTypeControls}</div>
+      <div className={control}>{sortControls}</div>
     </>
   );
 };
@@ -139,6 +148,7 @@ export const ItemsGrid = <T extends Item>({
   onItemClick,
   onDeleteItemClick,
   onCreateItemClick,
+  onRefreshClick,
   renderItem: _renderItem,
 }: ItemsGridProps<T>): React.ReactElement => {
   const onViewTypeChange = useCallback(
@@ -152,6 +162,7 @@ export const ItemsGrid = <T extends Item>({
     itemType,
     onCreateItemClick
   );
+  const refreshControls = useRefreshControls(onRefreshClick);
   const [sortControls, sortState] = useSortControls(sortBy);
   const [viewTypeControls, viewType] = useViewTypeControls({
     onChange: onViewTypeChange,
@@ -182,6 +193,7 @@ export const ItemsGrid = <T extends Item>({
     <ControlsContext.Provider
       value={{
         createControls,
+        refreshControls,
         sortControls: shouldShowControls ? sortControls : null,
         viewTypeControls: shouldShowControls ? viewTypeControls : null,
       }}

@@ -473,7 +473,7 @@ describe('FileInput', function () {
       expect(listener).to.been.calledOnceWith(['a', 'b']);
     });
 
-    it('does not call the listener if the user canceled the request', async function () {
+    it('calls the listener with an empty array if the user canceled the request', async function () {
       const { fakeElectron } = createFakeElectron();
 
       const backend = createElectronFileInputBackend(fakeElectron, 'save');
@@ -487,7 +487,40 @@ describe('FileInput', function () {
       backend.openFileChooser({ multi: false });
       expect(listener).to.not.have.been.called;
       await tick();
-      expect(listener).to.not.have.been.called;
+      expect(listener).to.been.calledOnceWith([]);
+    });
+
+    it('handles autoOpen:true', async function () {
+      const { fakeElectron } = createFakeElectron();
+      const backend = createElectronFileInputBackend(fakeElectron, 'save');
+
+      const listener = sinon.stub();
+      backend.onFilesChosen(listener);
+      const openFileChooserSpy = sinon.spy(backend, 'openFileChooser');
+
+      fakeElectron.dialog.showSaveDialog.resolves({
+        canceled: false,
+        filePaths: ['a', 'b'],
+      });
+
+      expect(openFileChooserSpy).to.not.have.been.called;
+      expect(spy).to.not.have.been.called;
+
+      render(
+        <FileInput
+          autoOpen
+          id="file-input"
+          label="Select something"
+          onChange={spy}
+          values={['new/file/path', 'another/file/path']}
+          backend={backend}
+        />
+      );
+
+      await tick();
+      expect(spy).to.been.calledOnce;
+      expect(openFileChooserSpy).to.been.calledOnce;
+      expect(listener).to.been.calledOnceWith(['a', 'b']);
     });
   });
 });

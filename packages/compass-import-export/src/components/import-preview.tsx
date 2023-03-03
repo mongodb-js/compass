@@ -11,7 +11,6 @@ import {
   spacing,
   Label,
 } from '@mongodb-js/compass-components';
-import type { Document } from 'mongodb';
 
 import { SelectFieldType } from './select-field-type';
 import { createDebug } from '../utils/logger';
@@ -60,7 +59,7 @@ function ImportPreview({
     type: string;
     checked: boolean;
   }[];
-  values: Document[];
+  values: string[][];
   onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
   setFieldType: (fieldPath: string, fieldType: string) => void;
   loaded: boolean;
@@ -143,11 +142,9 @@ function ImportPreview({
                     cellStyles,
                     !fields[fieldIndex].checked && cellUncheckedStyles
                   )}
-                  title={`${
-                    (values[fieldIndex] as unknown as string) || 'empty string'
-                  }`}
+                  title={`${values[fieldIndex] || 'empty string'}`}
                 >
-                  {(values[fieldIndex] as unknown as string) === '' ? (
+                  {values[fieldIndex] === '' ? (
                     <i>empty string</i>
                   ) : (
                     values[fieldIndex]

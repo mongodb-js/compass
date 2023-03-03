@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { toggleAutoPreview } from './auto-preview';
-import configureStore from '../stores/store';
+import configureStore from '../../test/configure-store';
 
 describe('auto preview module', function () {
   let store: ReturnType<typeof configureStore>;

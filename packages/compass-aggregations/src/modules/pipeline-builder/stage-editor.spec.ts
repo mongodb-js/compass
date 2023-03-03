@@ -102,7 +102,6 @@ number`
     });
 
     it('should keep old stage value if stage was changed before switching the operators', function () {
-      // Adding a new empty stage
       store.dispatch(addStage());
       store.dispatch(changeStageOperator(3, '$match'));
       store.dispatch(changeStageValue(3, '{ _id: 1 }'));
@@ -111,6 +110,13 @@ number`
         'value',
         '{ _id: 1 }'
       );
+    });
+
+    it('should keep old stage value if stage value was changed without changing operator first', function () {
+      store.dispatch(addStage());
+      store.dispatch(changeStageValue(3, '321'));
+      store.dispatch(changeStageOperator(3, '$match'));
+      expect(store.getState().stages[3]).to.have.property('value', '321');
     });
   });
 

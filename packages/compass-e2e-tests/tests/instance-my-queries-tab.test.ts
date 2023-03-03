@@ -122,8 +122,7 @@ describe('Instance my queries tab', function () {
     // rename the collection associated with the query to force the open item modal
     await browser.shellEval('use test');
     await browser.shellEval('db.numbers.renameCollection("numbers-renamed")');
-    await browser.clickVisible(Selectors.SidebarShowActions);
-    await browser.clickVisible(Selectors.SidebarActionRefresh);
+    await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
 
     // browse to the query
     await browser.clickVisible(Selectors.myQueriesItem(newFavoriteQueryName));
@@ -160,10 +159,10 @@ describe('Instance my queries tab', function () {
 
     // delete it
     await browser.clickVisible(Selectors.SavedItemMenuItemDelete);
-    const deleteModal = await browser.$(Selectors.DeleteSavedItemModal);
+    const deleteModal = await browser.$(Selectors.ConfirmationModal);
     await deleteModal.waitForDisplayed();
     const confirmDeleteButton = await browser.$(
-      Selectors.DeleteSavedItemModallConfirmButton
+      Selectors.ConfirmationModalConfirmButton
     );
     confirmDeleteButton.waitForEnabled();
 

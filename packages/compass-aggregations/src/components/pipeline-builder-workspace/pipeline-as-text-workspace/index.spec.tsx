@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
-import configureStore from '../../../stores/store';
+import configureStore from '../../../../test/configure-store';
 
 import { PipelineAsTextWorkspace } from '.';
 
@@ -12,7 +12,7 @@ const renderPipelineAsTextWorkspace = (
   props: Partial<ComponentProps<typeof PipelineAsTextWorkspace>> = {}
 ) => {
   render(
-    <Provider store={configureStore({})}>
+    <Provider store={configureStore()}>
       <PipelineAsTextWorkspace isAutoPreview={true} {...props} />
     </Provider>
   );

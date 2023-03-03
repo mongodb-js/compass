@@ -46,9 +46,10 @@ import {
 } from '@codemirror/commands';
 import type { Diagnostic } from '@codemirror/lint';
 import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
+import type { CompletionSource } from '@codemirror/autocomplete';
 import {
-  //   autocompletion,
-  //   completionKeymap,
+  autocompletion,
+  completionKeymap,
   closeBrackets,
   closeBracketsKeymap,
 } from '@codemirror/autocomplete';
@@ -98,6 +99,8 @@ const editorPalette = {
     infoGutterIconColor: encodeURIComponent(palette.blue.base),
     warningGutterIconColor: encodeURIComponent(palette.yellow.base),
     errorGutterIconColor: encodeURIComponent(palette.red.base),
+    foldPlaceholderColor: palette.gray.base,
+    foldPlaceholderBackgroundColor: palette.gray.light3,
   },
   dark: {
     color: codePalette.dark[3],
@@ -114,6 +117,8 @@ const editorPalette = {
     infoGutterIconColor: encodeURIComponent(palette.blue.light1),
     warningGutterIconColor: encodeURIComponent(palette.yellow.light2),
     errorGutterIconColor: encodeURIComponent(palette.red.light1),
+    foldPlaceholderColor: palette.gray.base,
+    foldPlaceholderBackgroundColor: palette.gray.dark3,
   },
 } as const;
 
@@ -178,6 +183,14 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '&.cm-focused .cm-activeLineGutter': {
         backgroundColor: editorPalette[theme].gutterActiveLineBackgroundColor,
+      },
+      '& .cm-foldPlaceholder': {
+        display: 'inline-block',
+        border: 'none',
+        color: editorPalette[theme].foldPlaceholderColor,
+        backgroundColor: editorPalette[theme].foldPlaceholderBackgroundColor,
+        boxShadow: `inset 0 0 0 1px ${editorPalette[theme].foldPlaceholderColor}`,
+        padding: '0 2px',
       },
       '& .foldMarker': {
         width: `${spacing[3]}px`,
@@ -309,6 +322,7 @@ type EditorProps = {
   className?: string;
   'data-testid'?: string;
   annotations?: Annotation[];
+  completer?: CompletionSource;
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
@@ -341,7 +355,7 @@ const languages: Record<EditorLanguage, () => LanguageSupport> = {
   },
 };
 
-const languageName = Facet.define<EditorLanguage>({});
+export const languageName = Facet.define<EditorLanguage>({});
 
 /**
  * https://codemirror.net/examples/config/#dynamic-configuration
@@ -355,18 +369,21 @@ function useCodemirrorExtensionCompartment<T>(
   value: T,
   editorViewRef: React.RefObject<EditorView | undefined>
 ): Extension {
-  const extensionCreatorRef = useRef<typeof fn>();
+  const extensionCreatorRef = useRef(fn);
   extensionCreatorRef.current = fn;
+
   const compartmentRef = useRef<Compartment>();
   compartmentRef.current ??= new Compartment();
+
   const initialExtensionRef = useRef<Extension>();
   initialExtensionRef.current ??= compartmentRef.current.of(
     extensionCreatorRef.current()
   );
+
   useEffectOnChange(() => {
     editorViewRef.current?.dispatch({
       effects: compartmentRef.current?.reconfigure(
-        extensionCreatorRef.current!()
+        extensionCreatorRef.current()
       ),
     });
   }, value);
@@ -388,10 +405,9 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   showLineNumbers = true,
   showFoldGutter = true,
   annotations = [],
+  completer,
   darkMode: _darkMode,
   className,
-  // TODO: Should disable gutter extensions
-  // inline,
   readOnly = false,
   onLoad = () => {
     /**/
@@ -461,6 +477,19 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     editorViewRef
   );
 
+  const autocomletionExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return completer
+        ? autocompletion({
+            activateOnTyping: true,
+            override: [completer],
+          })
+        : [];
+    },
+    completer,
+    editorViewRef
+  );
+
   useLayoutEffect(() => {
     if (!containerRef.current) {
       throw new Error("Can't mount editor: DOM node is missing");
@@ -482,8 +511,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
-        // TODO: Make ace autocompleters work with codemirror format
-        // autocompletion(),
+        autocomletionExtension,
         annotationsGutterExtension,
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
@@ -502,6 +530,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           ...closeBracketsKeymap,
           ...historyKeymap,
           ...foldKeymap,
+          ...completionKeymap,
           // Breaks keyboard navigation out of the editor, but we want that
           // https://codemirror.net/examples/tab/
           indentWithTab,
@@ -509,7 +538,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
-            const text = editorViewRef.current?.state.sliceDoc() ?? '';
+            const text = editor.state.sliceDoc() ?? '';
             onChangeTextRef.current(text, update);
           }
         }),
@@ -562,6 +591,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     lineNumbersExtension,
     readOnlyExtension,
     themeConfigExtension,
+    autocomletionExtension,
   ]);
 
   useEffect(() => {

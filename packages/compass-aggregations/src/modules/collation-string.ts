@@ -55,9 +55,12 @@ export default function reducer(
     return { ...INITIAL_STATE };
   }
   if (action.type === RESTORE_PIPELINE) {
-    return getCollationStateFromString(
-      action.restoreState.collationString as string
-    );
+    if (action.storedOptions.collationString) {
+      return getCollationStateFromString(
+        action.storedOptions.collationString as string
+      );
+    }
+    return state;
   }
   return state;
 }

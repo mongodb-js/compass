@@ -14,3 +14,4 @@ export { Editor } from './multiline-editor';
 export { JSONEditor } from './json-editor';
 export type { EditorView } from './json-editor';
 export { SyntaxHighlight } from './syntax-highlight';
+export { createDocumentAutocompleter } from './codemirror/document-autocompleter';

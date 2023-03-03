@@ -168,13 +168,14 @@ const configureStore = (options = {}) => {
    *
    * @param  {Array} documents  documents to process.
    */
-  store.processDocuments = (documents) => {
-    parseSchema(documents, {storeValues: false}, (err, schema) => {
-      if (err) {
-        return;
-      }
+  store.processDocuments = async(documents) => {
+    try {
+      const schema = await parseSchema(documents, { storeValues: false });
+
       store._mergeSchema(schema);
-    });
+    } catch (err) {
+      return;
+    }
   };
 
   /**

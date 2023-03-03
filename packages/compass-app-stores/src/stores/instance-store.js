@@ -243,6 +243,32 @@ store.onActivated = (appRegistry) => {
     store.refreshInstance(appRegistry);
   });
 
+  // Event emitted when the Databases grid needs to be refreshed
+  // We additionally refresh the list of collections as well
+  // since there is the side navigation which could be in expanded mode
+  appRegistry.on('refresh-databases', async() => {
+    const { instance, dataService } = store.getState();
+    await instance.fetchDatabases({ dataService, force: true });
+    await Promise.allSettled(
+      instance.databases.map((db) => db.fetchCollections({ dataService, force: true }))
+    );
+  });
+
+  // Event emitted when the Collections grid needs to be refreshed
+  // with new collections or collection info for existing ones.
+  appRegistry.on('refresh-collections', async({ ns }) => {
+    const { instance, dataService } = store.getState();
+    const { database } = toNS(ns);
+    if (!instance.databases.get(database)) {
+      await instance.fetchDatabases({ dataService, force: true });
+    }
+
+    const db = instance.databases.get(database);
+    if (db) {
+      await db.fetchCollections({ dataService, fetchInfo: true, force: true });
+    }
+  });
+
   appRegistry.on('agg-pipeline-out-executed', () => {
     store.refreshInstance(appRegistry);
   });
@@ -350,6 +376,11 @@ store.onActivated = (appRegistry) => {
       appRegistry.emit('open-namespace-in-new-tab', metadata);
     }
   );
+
+  appRegistry.on('aggregations-open-view-after-update', async function(ns) {
+    const metadata = await store.fetchCollectionMetadata(ns);
+    appRegistry.emit('select-namespace', metadata);
+  });
 };
 
 store.subscribe(() => {

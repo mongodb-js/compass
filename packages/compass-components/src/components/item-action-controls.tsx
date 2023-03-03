@@ -9,14 +9,12 @@ export type ItemAction<Action> = {
   action: Action;
   label: string;
   icon: string;
-  disabled?: boolean;
 };
 
 export type MenuAction<Action> = {
   action: Action;
   label: string;
   icon?: string;
-  disabled: boolean;
 };
 
 const ItemActionButtonSize = {
@@ -185,14 +183,13 @@ export function ItemActionMenu<Action extends string>({
           );
         }}
       >
-        {actions.map(({ action, disabled, label, icon }) => {
+        {actions.map(({ action, label, icon }) => {
           return (
             <MenuItem
               key={action}
               data-testid={actionTestId<Action>(dataTestId, action)}
               data-action={action}
               data-menuitem={true}
-              disabled={disabled}
               glyph={icon ? <Icon glyph={icon} /> : undefined}
               onClick={onClick}
             >

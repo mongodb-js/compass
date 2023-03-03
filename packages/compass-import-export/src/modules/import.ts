@@ -23,39 +23,25 @@
  * larger scale refactoring/frameworks.
  */
 
+import _ from 'lodash';
 import { promisify } from 'util';
 import fs from 'fs';
-
-import stream from 'stream';
-import stripBomStream from 'strip-bom-stream';
-import mime from 'mime-types';
-
 import type { AnyAction, Dispatch } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type { Document } from 'mongodb';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
 import { globalAppRegistryEmit, nsChanged } from './compass';
-
-import detectImportFile from '../utils/detect-import-file';
-import { createCollectionWriteStream } from '../utils/collection-stream';
-import createParser, { createProgressStream } from '../utils/import-parser';
-import {
-  createPeekStream,
-  createPreviewWritable,
-} from '../utils/import-preview';
-
-import createImportSizeGuesstimator from '../utils/import-size-guesstimator';
-import { transformProjectedTypesStream } from '../utils/import-apply-types-and-projection';
-
 import type { ProcessStatus } from '../constants/process-status';
 import type { RootImportState } from '../stores/import-store';
 import type { AcceptedFileType } from '../constants/file-types';
-import type {
-  CollectionStreamProgress,
-  WritableCollectionStream,
-} from '../utils/collection-stream';
+import type { CollectionStreamProgress } from '../utils/collection-stream';
+import type { CSVParsableFieldType } from '../utils/csv';
+import type { ErrorJSON } from '../utils/import';
+import { guessFileType } from '../import/guess-filetype';
+import { listCSVFields } from '../import/list-csv-fields';
+import { importCSV } from '../import/import-csv';
+import { importJSON } from '../import/import-json';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
@@ -81,7 +67,7 @@ export const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
 export const OPEN = `${PREFIX}/OPEN`;
 export const CLOSE = `${PREFIX}/CLOSE`;
 export const OPEN_IN_PROGRESS_MESSAGE = `${PREFIX}/OPEN_IN_PROGRESS_MESSAGE`;
-export const CLOSE_IS_IN_PROGRESS_MESSAGE = `${PREFIX}/CLOSE_IS_IN_PROGRESS_MESSAGE`;
+export const CLOSE_IN_PROGRESS_MESSAGE = `${PREFIX}/CLOSE_IN_PROGRESS_MESSAGE`;
 export const SET_PREVIEW = `${PREFIX}/SET_PREVIEW`;
 export const SET_DELIMITER = `${PREFIX}/SET_DELIMITER`;
 export const SET_GUESSTIMATED_TOTAL = `${PREFIX}/SET_GUESSTIMATED_TOTAL`;
@@ -124,20 +110,14 @@ type State = {
 
   ignoreBlanks: boolean;
   fields: FieldType[];
-  values: Document[];
+  values: string[][];
   previewLoaded: boolean;
   exclude: string[];
   transform: [string, string | undefined][];
 
-  source?: fs.ReadStream;
-  dest?: WritableCollectionStream;
+  abortController?: AbortController;
 };
 
-/**
- * ## Initial state.
- *
- * @api private
- */
 export const INITIAL_STATE: State = {
   isOpen: false,
   isInProgressMessageOpen: false,
@@ -201,13 +181,9 @@ export const onProgress = ({
   errors,
 });
 
-export const onStarted = (
-  source: fs.ReadStream,
-  dest: WritableCollectionStream
-) => ({
+export const onStarted = (abortController: AbortController) => ({
   type: STARTED,
-  source: source,
-  dest: dest,
+  abortController,
 });
 
 export const onFinished = (docsWritten: number, docsTotal: number) => ({
@@ -223,24 +199,45 @@ export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal: number) => ({
   guesstimatedDocsTotal: guesstimatedDocsTotal,
 });
 
-/**
- * Sets up a streaming based pipeline to execute the import
- * and update status/progress.
- *
- * All of the exciting bits happen in `../utils/` :)
- * @api public
- */
+const fieldTypeMap: Record<string, CSVParsableFieldType> = {
+  String: 'string',
+  Number: 'number',
+  Boolean: 'boolean',
+  Date: 'date',
+  ObjectId: 'objectId',
+  Long: 'long',
+  RegExpr: 'regex',
+  Binary: 'binData',
+  UUID: 'uuid',
+  MD5: 'md5',
+  Timestamp: 'timestamp',
+  Double: 'double',
+  Int32: 'int',
+  Decimal128: 'decimal',
+};
+
+function typeToCSVParsableFieldType(type: string): CSVParsableFieldType {
+  // this is temporary until the select options' values are updated
+  if (type === 'mixed') {
+    return 'mixed';
+  }
+
+  return fieldTypeMap[type];
+}
+
 export const startImport = () => {
   return (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
+    const startTime = Date.now();
+
     const state = getState();
-    const {
-      ns,
-      dataService: { dataService },
-      importData,
-    } = state;
+
+    const { ns, importData } = state;
+
+    const dataService = state.dataService.dataService!;
+
     const {
       fileName,
       fileType,
@@ -252,8 +249,19 @@ export const startImport = () => {
       exclude,
       transform,
     } = importData;
+
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
     const fileSize = fileStats?.size || 0;
+
+    const fields: Record<string, CSVParsableFieldType> = {};
+    for (const [name, type] of transform) {
+      if (exclude.includes(name)) {
+        continue;
+      }
+      fields[name] = typeToCSVParsableFieldType(type || 'mixed');
+    }
+
+    const input = fs.createReadStream(fileName, 'utf8');
 
     log.info(
       mongoLogId(1001000080),
@@ -272,130 +280,106 @@ export const startImport = () => {
         transform,
       }
     );
-    const source = fs.createReadStream(fileName, 'utf8');
 
-    const stripBOM = stripBomStream();
+    const abortController = new AbortController();
+    const abortSignal = abortController.signal;
+    dispatch(onStarted(abortController));
 
-    const parser = createParser({
-      fileName,
-      fileType,
-      delimiter,
-      fileIsMultilineJSON,
-    });
+    let promise;
 
-    const applyTypes = transformProjectedTypesStream({
-      exclude,
-      transform,
-      ignoreBlanks,
-    });
+    // TODO: log file, but probably only useful once we have the toast (COMPASS-6564)
+    //const logPath = path.join(app.getPath('logs'), path.basename(fileName) + '.log');
+    //const output = fs.createWriteStream(logPath);
 
-    const dest = createCollectionWriteStream(dataService!, ns, stopOnErrors);
+    const errors: ErrorJSON[] = [];
+    const errorCallback = (err: ErrorJSON) => {
+      errors.push(err);
+    };
 
-    dest.on('progress', (stats: CollectionStreamProgress) => {
-      dispatch(onProgress(stats));
-    });
+    const progressCallback = _.throttle(function ({
+      docsProcessed,
+      docsWritten,
+      bytesProcessed,
+    }: {
+      docsProcessed: number;
+      docsWritten: number;
+      bytesProcessed: number;
+    }) {
+      // for now, call onGuesstimatedDocsTotal() so that the existing progress bar works
+      const averageSize = bytesProcessed / docsProcessed;
+      const guessedTotal = Math.max(
+        docsProcessed,
+        Math.ceil(fileSize / averageSize)
+      );
+      dispatch(onGuesstimatedDocsTotal(guessedTotal));
 
-    const progress = createProgressStream(
-      fileSize,
-      function (
-        err: Error | undefined,
-        info: {
-          percentage: number;
-          transferred: number;
-          length: number;
-          remaining: number;
-          eta: number;
-          runtime: number;
-          delta: number;
-          speed: number;
-        }
-      ) {
-        if (err) return;
-        dispatch(onGuesstimatedProgress(info.transferred, info.length));
-      }
-    );
+      dispatch(onGuesstimatedProgress(docsProcessed, guessedTotal));
 
-    const importSizeGuesstimator = createImportSizeGuesstimator(
-      source,
-      fileSize,
-      function (err: Error | undefined, guesstimatedTotalDocs: number) {
-        if (err) return;
-        progress.setLength(guesstimatedTotalDocs);
-        dispatch(onGuesstimatedDocsTotal(guesstimatedTotalDocs));
-      }
-    );
+      dispatch(
+        onProgress({
+          docsWritten,
+          docsProcessed,
+          errors: errors.slice(), // make sure it is not the same variable
+        })
+      );
+    },
+    1000);
 
-    console.time('import');
-    console.group('import:start');
+    if (fileType === 'csv') {
+      promise = importCSV({
+        dataService,
+        ns,
+        input,
+        //output,
+        delimiter,
+        fields,
+        abortSignal,
+        progressCallback,
+        errorCallback,
+        stopOnErrors,
+        ignoreEmptyStrings: ignoreBlanks,
+      });
+    } else {
+      promise = importJSON({
+        dataService: dataService,
+        ns,
+        input,
+        //output,
+        abortSignal,
+        stopOnErrors,
+        jsonVariant: fileIsMultilineJSON ? 'jsonl' : 'json',
+        progressCallback,
+        errorCallback,
+      });
+    }
 
-    console.group('Import Options:');
-    console.table({
-      fileName,
-      fileType,
-      fileIsMultilineJSON,
-      fileSize,
-      delimiter,
-      ignoreBlanks,
-      stopOnErrors,
-    });
-
-    console.log('Exclude');
-    console.table(exclude);
-
-    console.log('Transform');
-    console.table(transform);
-
-    console.log('Running import...');
-
-    dispatch(onStarted(source, dest));
-
-    stream.pipeline(
-      source,
-      stripBOM,
-      parser,
-      applyTypes,
-      importSizeGuesstimator,
-      progress,
-      dest,
-      function onStreamEnd(err) {
-        console.timeEnd('import');
+    promise
+      .finally(() => {
+        progressCallback.flush();
+      })
+      .then((result) => {
         track('Import Completed', {
+          duration: Date.now() - startTime,
           file_type: fileType,
           all_fields: exclude.length === 0,
           stop_on_error_selected: stopOnErrors,
-          number_of_docs: dest.docsWritten,
-          success: !err,
+          number_of_docs: result.docsWritten,
+          success: true,
         });
-        /**
-         * TODO: lucas: Decorate with a codeframe if not already
-         * json parsing errors already are.
-         */
-        if (err) {
-          log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
-            ns,
-            docsWritten: dest.docsWritten,
-            error: err.message,
-          });
-          debug('Error while importing:', err.stack);
 
-          console.groupEnd();
-          console.groupEnd();
-
-          return dispatch(onFailed(err));
-        }
         log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
           ns,
-          docsWritten: dest.docsWritten,
-          docsProcessed: dest.docsProcessed,
+          docsWritten: result.docsWritten,
+          docsProcessed: result.docsProcessed,
         });
 
-        dispatch(onFinished(dest.docsWritten, dest.docsProcessed));
+        dispatch(onFinished(result.docsWritten, result.docsProcessed));
 
         const payload = {
           ns,
           size: fileSize,
           fileType,
-          docsWritten: dest.docsWritten,
+          docsWritten: result.docsWritten,
           fileIsMultilineJSON,
           delimiter,
           ignoreBlanks,
@@ -404,10 +388,28 @@ export const startImport = () => {
           hasTransformed: transform.length > 0,
         };
         dispatch(globalAppRegistryEmit('import-finished', payload));
-        console.groupEnd();
-        console.groupEnd();
-      }
-    );
+      })
+      .catch((err) => {
+        dispatch(onFinished(err.result.docsWritten, err.result.docsProcessed));
+
+        track('Import Completed', {
+          duration: Date.now() - startTime,
+          file_type: fileType,
+          all_fields: exclude.length === 0,
+          stop_on_error_selected: stopOnErrors,
+          number_of_docs: err.result.docsWritten,
+          success: !err,
+        });
+
+        log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
+          ns,
+          docsWritten: err.result.docsWritten,
+          error: err.message,
+        });
+        debug('Error while importing:', err.stack);
+
+        return dispatch(onFailed(err));
+      });
   };
 };
 
@@ -422,79 +424,57 @@ export const cancelImport = () => {
     getState: () => RootImportState
   ) => {
     const { importData } = getState();
-    const { source, dest } = importData;
+    const { abortController } = importData;
 
-    if (!source || !dest) {
+    if (abortController) {
+      debug('cancelling');
+      abortController.abort();
+    } else {
       debug('no active import to cancel.');
       return;
     }
-    debug('cancelling');
-    source.unpipe();
 
     debug('import canceled by user');
     dispatch({ type: CANCELED });
   };
 };
 
-/**
- * Load a preview of the first few documents in the selected file
- * which is used to calculate an inital set of `fields` and `values`.
- *
- * `loadPreviewDocs()` is only called internally when any state used
- * for specifying import parsing is modified.
- */
-const loadPreviewDocs = (
-  fileName: string,
-  fileType: 'json' | 'csv' | '',
-  delimiter: CSVDelimiter,
-  fileIsMultilineJSON: boolean
+const loadCSVPreviewDocs = (
+  filename: string,
+  delimiter: string
 ): ThunkAction<void, RootImportState, void, AnyAction> => {
   return (dispatch: Dispatch): void => {
-    debug('loading preview', {
-      fileName,
-      fileType,
-      delimiter,
-      fileIsMultilineJSON,
-    });
-    /**
-     * TODO: lucas: add dispatches for preview loading, error, etc.
-     * as needed. For the time being, its fast enough and we want
-     * errors/faults hard so we can figure out edge cases that
-     * actually need it.
-     */
-    const source = fs.createReadStream(fileName, {
-      encoding: 'utf8',
-      end: 20 * 1024,
-    });
-    const stripBOM = stripBomStream();
+    const input = fs.createReadStream(filename);
 
-    const dest = createPreviewWritable({
-      fileType,
-    });
+    listCSVFields({ input, delimiter })
+      .then((result) => {
+        // NOTE: this is temporary. In future we'll use result.uniqueFields
+        // which takes care of collapsing array fields into one. Only necessary
+        // once we use the new export that will generate output like that.
+        const fields = result.headerFields.map((name): FieldFromCSV => {
+          return {
+            path: name,
+            checked: true,
+            type: 'String', // will be detected by analyzeCSVFields
+          };
+        });
 
-    stream.pipeline(
-      source,
-      stripBOM,
-      createPeekStream(fileType, delimiter, fileIsMultilineJSON),
-      dest,
-      function (err: Error | null) {
-        if (err) {
-          log.error(
-            mongoLogId(1001000097),
-            'Import',
-            'Failed to load preview docs',
-            err
-          );
-          debug('Error while loading preview docs:', err.stack);
-          return;
-        }
+        const values = result.preview;
+
         dispatch({
           type: SET_PREVIEW,
-          fields: dest.fields,
-          values: dest.values,
+          fields,
+          values,
         });
-      }
-    );
+      })
+      .catch((err) => {
+        log.error(
+          mongoLogId(1001000097),
+          'Import',
+          'Failed to load preview docs',
+          err
+        );
+      });
   };
 };
 
@@ -535,53 +515,42 @@ export const setFieldType = (path: string, bsonType: string) => {
   };
 };
 
-/**
- * Gather file metadata quickly when the user specifies `fileName`
- * @see utils/detect-import-file.js
- */
 export const selectImportFileName = (fileName: string) => {
-  return async (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
-  ) => {
-    let fileStats = {};
+  return async (dispatch: ThunkDispatch<RootImportState, void, AnyAction>) => {
     try {
       const exists = await checkFileExists(fileName);
       if (!exists) {
         throw new Error(`File ${fileName} not found`);
       }
-      const stats = await getFileStats(fileName);
+      const fileStats = await getFileStats(fileName);
 
-      fileStats = {
-        ...stats,
-        type: mime.lookup(fileName),
-      };
-      const detected = (await promisify(detectImportFile)(fileName)) as {
-        fileName: string;
-        fileIsMultilineJSON: boolean;
-        fileType: AcceptedFileType;
-      };
-      debug('get detection results');
+      const input = fs.createReadStream(fileName, 'utf8');
+      const detected = await guessFileType({ input });
+
+      if (detected.type === 'unknown') {
+        throw new Error('Cannot determine the file type');
+      }
+
+      debug('get detection results', detected);
+
+      // This is temporary. The store should just work with one fileType var
+      const fileIsMultilineJSON = detected.type === 'jsonl';
+      const fileType = detected.type === 'jsonl' ? 'json' : detected.type;
+
       dispatch({
         type: FILE_SELECTED,
-        fileName: fileName,
-        fileStats: fileStats,
-        fileIsMultilineJSON: detected.fileIsMultilineJSON,
-        fileType: detected.fileType,
+        delimiter: detected.type === 'csv' ? detected.csvDelimiter : undefined,
+        fileName,
+        fileStats,
+        fileIsMultilineJSON,
+        fileType,
       });
 
-      /**
-       * TODO: lucas: @see utils/detect-import-file.js for future delimiter detection.
-       */
-      const delimiter = getState().importData.delimiter;
-      dispatch(
-        loadPreviewDocs(
-          fileName,
-          detected.fileType,
-          delimiter,
-          detected.fileIsMultilineJSON
-        )
-      );
+      // We only ever display preview rows for CSV files underneath the field
+      // type selects
+      if (detected.type === 'csv') {
+        dispatch(loadCSVPreviewDocs(fileName, detected.csvDelimiter));
+      }
     } catch (err: any) {
       debug('dispatching error', err?.stack);
       dispatch(onFailed(err));
@@ -592,24 +561,23 @@ export const selectImportFileName = (fileName: string) => {
 /**
  * The user has manually selected the `fileType` of the import.
  */
+// TODO: remove this. It won't be possible to manually select the type
+// COMPASS-6545
 export const selectImportFileType = (fileType: 'json' | 'csv') => {
   return (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
-    const { previewLoaded, fileName, delimiter, fileIsMultilineJSON } =
-      getState().importData;
+    const { fileName, delimiter } = getState().importData;
 
     dispatch({
       type: FILE_TYPE_SELECTED,
       fileType: fileType,
     });
 
-    if (previewLoaded) {
-      debug('preview needs updated because fileType changed');
-      dispatch(
-        loadPreviewDocs(fileName, fileType, delimiter, fileIsMultilineJSON)
-      );
+    if (fileType === 'csv') {
+      debug('preview needs updating because fileType changed');
+      dispatch(loadCSVPreviewDocs(fileName, delimiter));
     }
   };
 };
@@ -622,23 +590,24 @@ export const setDelimiter = (delimiter: CSVDelimiter) => {
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
-    const { previewLoaded, fileName, fileType, fileIsMultilineJSON } =
-      getState().importData;
+    const { fileName, fileType, fileIsMultilineJSON } = getState().importData;
     dispatch({
       type: SET_DELIMITER,
       delimiter: delimiter,
     });
 
-    if (previewLoaded) {
-      debug('preview needs updated because delimiter changed', {
+    // NOTE: The preview could still be loading and then we'll have two
+    // loadCSVPreviewDocs() actions being dispatched simultaneously. The newer
+    // one should finish last and just override whatever the previous one gets,
+    // so hopefully fine.
+    if (fileType === 'csv') {
+      debug('preview needs updating because delimiter changed', {
         fileName,
         fileType,
         delimiter,
         fileIsMultilineJSON,
       });
-      dispatch(
-        loadPreviewDocs(fileName, fileType, delimiter, fileIsMultilineJSON)
-      );
+      dispatch(loadCSVPreviewDocs(fileName, delimiter));
     }
   };
 };
@@ -684,8 +653,8 @@ export const openImport = (namespace: string) => {
   ) => {
     // TODO(COMPASS-6540): Once we have importing in the background
     // we'll need to update how we check if an import is in progress here.
-    const { isOpen } = getState().importData;
-    if (isOpen) {
+    const { status } = getState().importData;
+    if (status === 'STARTED') {
       dispatch({
         type: OPEN_IN_PROGRESS_MESSAGE,
       });
@@ -706,8 +675,8 @@ export const closeImport = () => ({
   type: CLOSE,
 });
 
-export const closeOsInProgressMessage = () => ({
-  type: CLOSE_IS_IN_PROGRESS_MESSAGE,
+export const closeInProgressMessage = () => ({
+  type: CLOSE_IN_PROGRESS_MESSAGE,
 });
 
 /**
@@ -717,6 +686,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
   if (action.type === FILE_SELECTED) {
     return {
       ...state,
+      delimiter: action.delimiter,
       fileName: action.fileName,
       fileType: action.fileType,
       fileStats: action.fileStats,
@@ -728,8 +698,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       guesstimatedDocsTotal: 0,
       guesstimatedDocsProcessed: 0,
       errors: [],
-      source: undefined,
-      dest: undefined,
+      abortController: undefined,
       fields: [],
     };
   }
@@ -787,12 +756,6 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
    * When checkbox next to a field is checked/unchecked
    */
   if (action.type === TOGGLE_INCLUDE_FIELD) {
-    /**
-     * TODO: lucas: Move away from `state.fields` being
-     * array of objects to using all array's of strings.
-     * For now, there is some duplication of fields+transform+exclude
-     * we'll come back to and fixup.
-     */
     const newState = {
       ...state,
     };
@@ -872,8 +835,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       guesstimatedDocsTotal: 0,
       guesstimatedDocsProcessed: 0,
       status: PROCESS_STATUS.STARTED,
-      source: action.source,
-      dest: action.dest,
+      abortController: action.abortController,
     };
   }
 
@@ -918,8 +880,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       status,
       docsWritten: action.docsWritten,
       docsTotal: action.docsTotal,
-      source: undefined,
-      dest: undefined,
+      abortController: undefined,
     };
   }
 
@@ -927,14 +888,10 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
     return {
       ...state,
       status: PROCESS_STATUS.CANCELED,
-      source: undefined,
-      dest: undefined,
+      abortController: undefined,
     };
   }
 
-  /**
-   * Open the `<ImportModal />`
-   */
   if (action.type === OPEN) {
     return {
       ...INITIAL_STATE,
@@ -956,7 +913,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
     };
   }
 
-  if (action.type === OPEN_IN_PROGRESS_MESSAGE) {
+  if (action.type === CLOSE_IN_PROGRESS_MESSAGE) {
     return {
       ...state,
       isInProgressMessageOpen: false,

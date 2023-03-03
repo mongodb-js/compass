@@ -157,3 +157,14 @@ export { useEffectOnChange } from './hooks/use-effect-on-change';
 export { HorizontalRule } from './components/horizontal-rule';
 export { IndexKeysBadge } from './components/index-keys-badge';
 export { Combobox, ComboboxOption, ComboboxGroup } from './components/combobox';
+export {
+  useConfirmationModal,
+  ConfirmationModalVariant,
+  ConfirmationModalArea,
+  showConfirmation,
+} from './hooks/use-confirmation';
+export {
+  useHotkeys,
+  formatHotkey,
+  KeyboardShortcut,
+} from './hooks/use-hotkeys';

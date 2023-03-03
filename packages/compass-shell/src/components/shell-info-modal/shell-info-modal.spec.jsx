@@ -24,12 +24,12 @@ describe('InfoModal [Component]', function () {
   });
 
   it('renders the hotkeys key', function () {
-    expect(component.text()).to.include('Ctrl+F');
+    expect(component.text()).to.include('CtrlF');
   });
 
   it('renders the hotkeys description', function () {
     expect(component.text()).to.include(
-      'Ctrl+FMoves the cursor Forward one character.'
+      'CtrlFMoves the cursor Forward one character.'
     );
   });
 });

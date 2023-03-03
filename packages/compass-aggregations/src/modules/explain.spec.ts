@@ -11,7 +11,7 @@ import reducer, {
   _getExplainVerbosity,
   _mapIndexesInformation,
 } from './explain';
-import configureStore from '../stores/store';
+import configureStore from '../../test/configure-store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 import type { IndexInfo } from './indexes';
 
@@ -88,7 +88,7 @@ describe('explain module', function () {
   describe('#actions', function () {
     let store: Store<RootState>;
     before(function () {
-      store = configureStore({ sourcePipeline: '[]' });
+      store = configureStore({ pipeline: [] });
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
         dataService: new (class {
