@@ -5,11 +5,7 @@ import type { AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import path from 'path';
 
-import {
-  selectImportFileType,
-  selectImportFileName,
-  INITIAL_STATE,
-} from './import';
+import { selectImportFileName, INITIAL_STATE } from './import';
 import rootReducer from '.';
 import type { RootImportState } from '../stores/import-store';
 
@@ -39,36 +35,6 @@ describe('import [module]', function () {
       mockState,
       applyMiddleware<DispatchFunctionType, RootImportState>(thunk)
     );
-  });
-
-  describe('#selectImportFileType', function () {
-    it('should update fileType to csv', async function () {
-      // changing file type uses fileName from the state, so set it first
-      expect(mockStore.getState().importData.fileName).to.equal('');
-      const fileName = path.join(
-        __dirname,
-        '..',
-        '..',
-        'test',
-        'json',
-        'good.json'
-      );
-      await mockStore.dispatch(selectImportFileName(fileName));
-
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('json');
-
-      mockStore.dispatch(selectImportFileType('csv'));
-
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('csv');
-    });
-
-    it('should update fileType to json', function () {
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('');
-
-      mockStore.dispatch(selectImportFileType('json'));
-
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('json');
-    });
   });
 
   describe('#selectImportFileName', function () {
