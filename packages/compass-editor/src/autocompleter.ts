@@ -114,10 +114,10 @@ function isValidIdentifier(identifier: string) {
  * Helper method to conditionally wrap completion value if it's not a valid
  * identifier
  */
-export function wrapField(field: string) {
-  return isValidIdentifier(field)
-    ? field
-    : `"${field.replace(/["\\]/g, '\\$&')}"`;
+export function wrapField(field: string, force = false) {
+  return force || !isValidIdentifier(field)
+    ? `"${field.replace(/["\\]/g, '\\$&')}"`
+    : field;
 }
 
 export function completer(

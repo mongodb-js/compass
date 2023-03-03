@@ -1,9 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { css, cx, KeylineCard } from '@mongodb-js/compass-components';
 
-import type { JsonEditorProps } from './json-editor';
-import JsonEditor from './json-editor';
+import type { JSONEditorProps } from './json-editor';
+import JSONEditor from './json-editor';
 import type Document from 'hadron-document';
 
 /**
@@ -26,7 +25,7 @@ export type DocumentJsonViewProps = {
   isEditable: boolean;
   className?: string;
 } & Pick<
-  JsonEditorProps,
+  JSONEditorProps,
   | 'isTimeSeries'
   | 'copyToClipboard'
   | 'removeDocument'
@@ -34,6 +33,7 @@ export type DocumentJsonViewProps = {
   | 'updateDocument'
   | 'openInsertDocumentDialog'
   | 'isExpanded'
+  | 'fields'
 >;
 
 const keylineCardCSS = css({
@@ -56,7 +56,7 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
       return (
         <li className={LIST_ITEM_CLASS} data-testid={LIST_ITEM_TEST_ID} key={i}>
           <KeylineCard className={keylineCardCSS}>
-            <JsonEditor
+            <JSONEditor
               key={doc.uuid}
               doc={doc}
               editable={this.props.isEditable}
@@ -67,6 +67,7 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
               updateDocument={this.props.updateDocument}
               openInsertDocumentDialog={this.props.openInsertDocumentDialog}
               isExpanded={this.props.isExpanded}
+              fields={this.props.fields}
             />
           </KeylineCard>
         </li>
@@ -86,21 +87,6 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
       </ol>
     );
   }
-
-  static propTypes = {
-    docs: PropTypes.array.isRequired,
-    isEditable: PropTypes.bool,
-    isTimeSeries: PropTypes.bool,
-    removeDocument: PropTypes.func,
-    replaceDocument: PropTypes.func,
-    updateDocument: PropTypes.func,
-    openInsertDocumentDialog: PropTypes.func,
-    copyToClipboard: PropTypes.func,
-    isExpanded: PropTypes.bool,
-    className: PropTypes.string,
-  };
-
-  static displayName = 'DocumentJsonView';
 }
 
 export default DocumentJsonView;
