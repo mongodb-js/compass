@@ -14,7 +14,6 @@ import {
 } from './import';
 import rootReducer from '.';
 import type { RootImportState } from '../stores/import-store';
-import {} from './import';
 
 type DispatchFunctionType = ThunkDispatch<RootImportState, void, AnyAction>;
 

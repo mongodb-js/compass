@@ -36,16 +36,9 @@ function InProgressModal({
   );
 }
 
-/**
- * Map the state of the store to component properties.
- */
 const mapStateToProps = (state: RootImportState) => ({
   isInProgressMessageOpen: state.importData.isInProgressMessageOpen,
 });
-
-/**
- * Export the connected component as the default.
- */
 export default connect(mapStateToProps, {
   closeInProgressMessage,
 })(InProgressModal);

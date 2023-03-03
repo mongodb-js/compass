@@ -1,6 +1,5 @@
 import React from 'react';
 import { css } from '@mongodb-js/compass-components';
-import { ImportExportArea } from '@mongodb-js/compass-import-export';
 
 import WorkspaceContent from './workspace-content';
 import type Namespace from '../types/namespace';
@@ -52,7 +51,7 @@ export default function Workspace({
   const FindInPage = findInPageRole ? findInPageRole[0].component : null;
 
   return (
-    <ImportExportArea>
+    <>
       <div data-testid="home-view" className={verticalSplitStyles}>
         <div className={horizontalSplitStyles}>
           <div className={sidebarStyles}>
@@ -72,6 +71,6 @@ export default function Workspace({
           const GlobalModal = globalModal.component;
           return <GlobalModal key={index} />;
         })}
-    </ImportExportArea>
+    </>
   );
 }

@@ -43,7 +43,6 @@ import {
 import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
-import { useImportExport } from '../hooks/use-import-export';
 import { ImportFileInput } from './import-file-input';
 
 /**
@@ -141,17 +140,6 @@ function ImportModal({
   setFieldType,
   previewLoaded,
 }: ImportModalProps) {
-  const { isImportInProgress, setIsImportInProgress } = useImportExport();
-
-  useEffect(() => {
-    if (status !== 'STARTED' && isImportInProgress && setIsImportInProgress) {
-      setIsImportInProgress(false);
-    }
-    if (status === 'STARTED' && !isImportInProgress && setIsImportInProgress) {
-      setIsImportInProgress(true);
-    }
-  }, [status, isImportInProgress, setIsImportInProgress]);
-
   const modalBodyRef = useRef<HTMLDivElement>(null);
   const handleCancel = useCallback(() => {
     cancelImport();
