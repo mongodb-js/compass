@@ -20,7 +20,7 @@ import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 
 import { changeFilterRegex } from '../modules/databases';
 
-type DatabasesActions = 'open-create-database' | 'refresh-data';
+type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
 const navigationItem = css({
   cursor: 'pointer',
@@ -190,7 +190,7 @@ export function NavigationItems({
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [
       {
-        action: 'refresh-data',
+        action: 'refresh-databases',
         label: 'Refresh databases',
         icon: 'Refresh',
       },

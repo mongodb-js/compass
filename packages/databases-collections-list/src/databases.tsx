@@ -27,12 +27,14 @@ const DatabasesList: React.FunctionComponent<{
   onDatabaseClick(id: string): void;
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
+  onRefreshClick?: () => void;
 }> = ({
   isEditable,
   databases,
   onDatabaseClick,
   onCreateDatabaseClick,
   onDeleteDatabaseClick,
+  onRefreshClick,
 }) => {
   return (
     <ItemsGrid
@@ -51,6 +53,7 @@ const DatabasesList: React.FunctionComponent<{
       onItemClick={onDatabaseClick}
       onDeleteItemClick={onDeleteDatabaseClick}
       onCreateItemClick={onCreateDatabaseClick}
+      onRefreshClick={onRefreshClick}
       renderItem={({
         item: db,
         onItemClick,
