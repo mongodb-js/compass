@@ -227,7 +227,7 @@ export const SidebarActionClusterInfo =
 export const SidebarCreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
 export const SidebarRefreshDatabasesButton =
-  '[data-testid="sidebar-navigation-item-actions-refresh-data-action"]';
+  '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
 export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
