@@ -47,25 +47,25 @@ const editorDarkModeStyles = css({
 export type JSONEditorProps = {
   doc: Document;
   editable: boolean;
-  isTimeSeries: boolean;
+  isTimeSeries?: boolean;
   removeDocument?: CrudActions['removeDocument'];
   replaceDocument?: CrudActions['replaceDocument'];
   updateDocument?: CrudActions['updateDocument'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
-  isExpanded: boolean;
+  isExpanded?: boolean;
   fields?: string[];
 };
 
 const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   doc,
   editable,
-  isTimeSeries,
+  isTimeSeries = false,
   removeDocument,
   replaceDocument,
   copyToClipboard,
   openInsertDocumentDialog,
-  isExpanded,
+  isExpanded = false,
   fields = [],
 }) => {
   const darkMode = useDarkMode();
