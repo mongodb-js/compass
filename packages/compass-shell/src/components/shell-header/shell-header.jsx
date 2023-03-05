@@ -8,9 +8,10 @@ import {
   keyframes,
   SpinLoader,
   withDarkMode,
+  useHotkeys,
 } from '@mongodb-js/compass-components';
+import React from 'react';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
 
 const shellHeaderStyles = css({
   height: spacing[5],
@@ -87,99 +88,69 @@ const inProgressSpinLoaderStyles = css({
   borderTopColor: palette.green.light2,
 });
 
-export class ShellHeader extends Component {
-  static propTypes = {
-    darkMode: PropTypes.bool,
-    isExpanded: PropTypes.bool.isRequired,
-    isOperationInProgress: PropTypes.bool.isRequired,
-    onShellToggleClicked: PropTypes.func.isRequired,
-    showInfoModal: PropTypes.func.isRequired,
-  };
+export const ShellHeader = ({
+  darkMode,
+  isExpanded,
+  isOperationInProgress,
+  onShellToggleClicked,
+  showInfoModal,
+}) => {
+  useHotkeys('ctrl + `', onShellToggleClicked);
 
-  componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyboardToggle.bind(this));
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener(
-      'keydown',
-      this.handleKeyboardToggle.bind(this)
-    );
-  }
-
-  handleKeyboardToggle({ ctrlKey, key }) {
-    if (ctrlKey && key === '`') {
-      this.props.onShellToggleClicked();
-    }
-  }
-
-  /**
-   * Render ShellHeader component.
-   *
-   * @returns {React.Component} The rendered component.
-   */
-  render() {
-    const {
-      darkMode,
-      isExpanded,
-      isOperationInProgress,
-      onShellToggleClicked,
-      showInfoModal,
-    } = this.props;
-
-    return (
-      <div
-        className={cx(shellHeaderStyles, darkMode && shellHeaderDarkModeStyles)}
-      >
-        <div className={shellHeaderLeftStyles}>
-          <button
-            type="button"
-            data-testid="shell-expand-button"
-            className={shellHeaderToggleStyles}
-            aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
-            onClick={onShellToggleClicked}
-            aria-pressed={isExpanded}
-          >
-            &gt;_MONGOSH
-            {!isExpanded && isOperationInProgress && (
-              <span className={operationInProgressStyles}>
-                <SpinLoader
-                  size="12px"
-                  className={inProgressSpinLoaderStyles}
-                />
-                &nbsp;Command in progress&hellip;
-              </span>
-            )}
-          </button>
-        </div>
-        <div className={shellHeaderRightStyles}>
-          {isExpanded && (
-            <IconButton
-              data-testid="shell-info-button"
-              className={infoButtonStyles}
-              variant="dark"
-              aria-label="Shell Info"
-              aria-haspopup="dialog"
-              onClick={showInfoModal}
-            >
-              <Icon glyph="InfoWithCircle" size="small" />
-            </IconButton>
+  return (
+    <div
+      className={cx(shellHeaderStyles, darkMode && shellHeaderDarkModeStyles)}
+    >
+      <div className={shellHeaderLeftStyles}>
+        <button
+          type="button"
+          data-testid="shell-expand-button"
+          className={shellHeaderToggleStyles}
+          aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
+          onClick={onShellToggleClicked}
+          aria-pressed={isExpanded}
+        >
+          &gt;_MONGOSH
+          {!isExpanded && isOperationInProgress && (
+            <span className={operationInProgressStyles}>
+              <SpinLoader size="12px" className={inProgressSpinLoaderStyles} />
+              &nbsp;Command in progress&hellip;
+            </span>
           )}
-          <IconButton
-            variant="dark"
-            aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
-            onClick={onShellToggleClicked}
-            aria-pressed={isExpanded}
-          >
-            <Icon
-              glyph={isExpanded ? 'ChevronDown' : 'ChevronUp'}
-              size="small"
-            />
-          </IconButton>
-        </div>
+        </button>
       </div>
-    );
-  }
-}
+      <div className={shellHeaderRightStyles}>
+        {isExpanded && (
+          <IconButton
+            data-testid="shell-info-button"
+            className={infoButtonStyles}
+            variant="dark"
+            aria-label="Shell Info"
+            aria-haspopup="dialog"
+            onClick={showInfoModal}
+          >
+            <Icon glyph="InfoWithCircle" size="small" />
+          </IconButton>
+        )}
+        <IconButton
+          variant="dark"
+          aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
+          onClick={onShellToggleClicked}
+          aria-pressed={isExpanded}
+        >
+          <Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronUp'} size="small" />
+        </IconButton>
+      </div>
+    </div>
+  );
+};
+
+ShellHeader.propTypes = {
+  darkMode: PropTypes.bool,
+  isExpanded: PropTypes.bool.isRequired,
+  isOperationInProgress: PropTypes.bool.isRequired,
+  onShellToggleClicked: PropTypes.func.isRequired,
+  showInfoModal: PropTypes.func.isRequired,
+};
 
 export default withDarkMode(ShellHeader);

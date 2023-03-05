@@ -5,7 +5,7 @@ import { MongoServerError } from 'mongodb';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
-import configureStore from '../../../stores/store';
+import configureStore from '../../../../test/configure-store';
 
 import { PipelineEditor } from './pipeline-editor';
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
@@ -14,7 +14,7 @@ const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelineEditor>> = {}
 ) => {
   render(
-    <Provider store={configureStore({})}>
+    <Provider store={configureStore()}>
       <PipelineEditor
         pipelineText="[{$match: {}}]"
         syntaxErrors={[]}

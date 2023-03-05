@@ -23,7 +23,7 @@ export default function reducer(state = INITIAL_STATE, action) {
     return INITIAL_STATE;
   }
   if (action.type === RESTORE_PIPELINE) {
-    return action.restoreState.name;
+    return action.storedOptions.name;
   }
   return state;
 }

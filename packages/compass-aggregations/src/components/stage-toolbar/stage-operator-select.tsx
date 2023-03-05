@@ -95,7 +95,6 @@ type EnvAwareStageOperatorSelectProps = {
     serverVersion: string;
     env: string;
     isTimeSeries: boolean;
-    isReadonly: boolean;
     sourceName: string;
   };
   stage: {
@@ -107,7 +106,7 @@ type EnvAwareStageOperatorSelectProps = {
   editorRef: React.RefObject<AceEditor | undefined>;
 };
 function EnvAwareStageOperatorSelect({
-  envInfo: { serverVersion, env, isTimeSeries, isReadonly, sourceName },
+  envInfo: { serverVersion, env, isTimeSeries, sourceName },
   stage,
   onChange,
   index,
@@ -122,14 +121,7 @@ function EnvAwareStageOperatorSelect({
       preferencesReadOnly,
       sourceName,
     });
-  }, [
-    serverVersion,
-    env,
-    isTimeSeries,
-    isReadonly,
-    preferencesReadOnly,
-    sourceName,
-  ]);
+  }, [serverVersion, env, isTimeSeries, preferencesReadOnly, sourceName]);
 
   const onChangeFilter = (index: number, name: string | null) => {
     if (name) {
@@ -156,7 +148,6 @@ export default connect(
         'serverVersion',
         'env',
         'isTimeSeries',
-        'isReadonly',
         'sourceName',
       ]),
       stage: state.pipelineBuilder.stageEditor.stages[ownProps.index],

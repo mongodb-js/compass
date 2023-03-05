@@ -43,7 +43,7 @@ function AddDataMenuButton({
 
 type AddDataOption = 'import-file' | 'insert-document';
 const addDataActions: MenuAction<AddDataOption>[] = [
-  { action: 'import-file', label: 'Import file' },
+  { action: 'import-file', label: 'Import JSON or CSV file' },
   { action: 'insert-document', label: 'Insert document' },
 ];
 

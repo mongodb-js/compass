@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 
-import configureStore from '../../stores/store';
+import configureStore from '../../../test/configure-store';
 import { OutputStage } from './output-stage-preview';
 
 const renderOutputStage = (
@@ -13,7 +13,7 @@ const renderOutputStage = (
   render(
     <Provider
       store={configureStore({
-        sourcePipeline: [{ $match: { _id: 1 } }, { $limit: 10 }],
+        pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }],
       })}
     >
       <OutputStage

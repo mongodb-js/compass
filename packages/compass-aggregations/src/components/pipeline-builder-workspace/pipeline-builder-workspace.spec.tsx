@@ -3,14 +3,14 @@ import { Provider } from 'react-redux';
 import type { ComponentProps } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
-import configureStore from '../../stores/store';
+import configureStore from '../../../test/configure-store';
 import { PipelineBuilderWorkspace } from './pipeline-builder-workspace';
 
 const renderBuilderWorkspace = (
   props: Partial<ComponentProps<typeof PipelineBuilderWorkspace>> = {}
 ) => {
   return render(
-    <Provider store={configureStore({})}>
+    <Provider store={configureStore()}>
       <PipelineBuilderWorkspace pipelineMode="as-text" {...props} />
     </Provider>
   );

@@ -1,3 +1,4 @@
+// TODO: this file is only used by formatters.spec.js. Remove once we remove that.
 import { Transform } from 'stream';
 import { parse as JSONParser } from 'JSONStream';
 import { EJSON } from 'bson';

@@ -10,12 +10,10 @@ import preferences, { usePreference } from 'compass-preferences-model';
 const devFeatureFlagFields = [
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
-  'lgDarkmode',
-  'useNewImportBackend',
   'useNewExportBackend',
 ] as const;
 
-export const publicFeatureFlagFields = ['showFocusMode'] as const;
+export const publicFeatureFlagFields = ['lgDarkmode'] as const;
 
 const featureFlagFields = [
   ...publicFeatureFlagFields,

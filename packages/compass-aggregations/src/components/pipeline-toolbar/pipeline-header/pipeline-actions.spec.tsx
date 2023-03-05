@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
-import configureStore from '../../../stores/store';
+import configureStore from '../../../../test/configure-store';
 import { Provider } from 'react-redux';
 import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
 
@@ -235,7 +235,7 @@ describe('PipelineActions', function () {
     }
 
     it('should disable actions when pipeline contains errors', function () {
-      renderPipelineActions({ sourcePipeline: [42] });
+      renderPipelineActions({ pipeline: [42] });
 
       expect(
         screen.getByTestId('pipeline-toolbar-explain-aggregation-button')
@@ -252,7 +252,7 @@ describe('PipelineActions', function () {
 
     it('should disable export button when pipeline is $out / $merge', function () {
       renderPipelineActions({
-        sourcePipeline: [{ $out: 'foo' }],
+        pipeline: [{ $out: 'foo' }],
       });
 
       expect(
@@ -262,7 +262,7 @@ describe('PipelineActions', function () {
 
     it('should disable export button when last enabled stage is $out / $merge', function () {
       const { store, rerender } = renderPipelineActions({
-        sourcePipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }],
+        pipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }],
       });
 
       store.dispatch(changeStageDisabled(1, true));

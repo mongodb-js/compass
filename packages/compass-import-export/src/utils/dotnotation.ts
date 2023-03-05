@@ -1,3 +1,4 @@
+// TODO: this file is only used by load-fields.ts. Remove once we remove that.
 import _ from 'lodash';
 // @ts-expect-error no types exist for this library
 import { flatten, unflatten } from 'flat';

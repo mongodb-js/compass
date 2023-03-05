@@ -7,16 +7,19 @@ export const mockDataService = function (
   } = { data: [] }
 ) {
   const dataService = {
-    startSession() {
-      // noop
+    isCancelError(err: any) {
+      return err?.name === 'AbortError';
+    },
+    getConnectionString() {
+      return { hosts: [] };
+    },
+    estimatedCount() {
+      return Promise.resolve(0);
     },
     aggregate() {
       return Promise.resolve(
         typeof options.data === 'function' ? options.data() : options.data
       );
-    },
-    killSessions() {
-      // noop
     },
   } as unknown as DataService;
 

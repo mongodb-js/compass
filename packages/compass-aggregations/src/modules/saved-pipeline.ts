@@ -112,28 +112,33 @@ export const updatePipelineList =
 /**
  * Restore pipeline by an ID
  */
-export const openPipelineById = (
-  id: string
-): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
+export const openStoredPipeline = (
+  pipelineData: StoredPipeline,
+  updatePreview = true
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     try {
-      const data = await pipelineStorage.load(id);
-      if (!data) {
-        throw new Error(`Pipeline with id ${id} not found`);
-      }
-      pipelineBuilder.reset(data.pipelineText);
+      pipelineBuilder.reset(pipelineData.pipelineText);
       dispatch({
         type: RESTORE_PIPELINE,
         stages: pipelineBuilder.stages,
         pipelineText: pipelineBuilder.source,
         pipeline: pipelineBuilder.pipeline,
         syntaxErrors: pipelineBuilder.syntaxError,
-        restoreState: data,
+        storedOptions: {
+          id: pipelineData.id,
+          name: pipelineData.name,
+          collationString: pipelineData.collationString,
+          comments: pipelineData.comments,
+          autoPreview: pipelineData.autoPreview,
+        },
       });
-      dispatch(updatePipelinePreview());
+      if (updatePreview) {
+        dispatch(updatePipelinePreview());
+      }
       if (pipelineBuilder.syntaxError.length > 0) {
-        let shortName = data.name.slice(0, 20);
-        if (shortName.length < data.name.length) {
+        let shortName = pipelineData.name.slice(0, 20);
+        if (shortName.length < pipelineData.name.length) {
           shortName += '…';
         }
         openToast('restore-pipeline-with-errors', {
@@ -205,7 +210,7 @@ export const saveCurrentPipeline =
   };
 
 export const confirmOpenPipeline =
-  (pipelineId: string): PipelineBuilderThunkAction<void> =>
+  (pipelineData: StoredPipeline): PipelineBuilderThunkAction<void> =>
   async (dispatch, getState) => {
     const isModified = getState().isModified;
     if (isModified) {
@@ -221,11 +226,11 @@ export const confirmOpenPipeline =
       }
     }
     track('Aggregation Opened', {
-      id: pipelineId,
+      id: pipelineData.id,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
       screen: 'aggregations',
     });
-    void dispatch(openPipelineById(pipelineId));
+    void dispatch(openStoredPipeline(pipelineData));
   };
 
 export const confirmDeletePipeline =

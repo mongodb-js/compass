@@ -10,6 +10,7 @@ import {
   spacing,
   palette,
   rgba,
+  useHotkeys,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
@@ -70,7 +71,7 @@ type FindInPageInputProps = {
   setSearchTerm: (searchTerm: string) => void;
   dispatchFind: (
     searchTerm: string,
-    isDirectionInversed: boolean,
+    isForwardSearch: boolean,
     searching: boolean
   ) => void;
   toggleStatus: () => void;
@@ -102,34 +103,33 @@ function FindInPageInput({
     toggleStatus();
   }, [dispatchStopFind, setSearchTerm, toggleStatus]);
 
-  const onKeyDown = useCallback(
-    (evt: KeyboardEvent) => {
-      if (evt.key === 'Escape') {
-        onClose();
+  const onFind = useCallback(
+    (evt: KeyboardEvent, isForwardSearch: boolean) => {
+      evt.preventDefault();
+      const searchValue = findInPageInputRef.current?.value;
+      if (!searchValue || searchValue === '') {
+        return dispatchStopFind();
       }
-
-      if (evt.key === 'Enter') {
-        evt.preventDefault();
-        const searchValue = findInPageInputRef.current?.value;
-        if (!searchValue || searchValue === '') {
-          return dispatchStopFind();
-        }
-
-        const back = evt.shiftKey;
-        dispatchFind(searchValue, !back, searching);
-      }
+      dispatchFind(searchValue, isForwardSearch, searching);
     },
-    [onClose, dispatchFind, searching, dispatchStopFind]
+    [dispatchFind, searching, dispatchStopFind]
   );
+  const findNext = useCallback(
+    (evt: KeyboardEvent) => onFind(evt, true),
+    [onFind]
+  );
+  const findPrev = useCallback(
+    (evt: KeyboardEvent) => onFind(evt, false),
+    [onFind]
+  );
+
+  useHotkeys('esc', onClose, { enableOnFormTags: ['INPUT'] });
+  useHotkeys('enter', findNext, { enableOnFormTags: ['INPUT'] });
+  useHotkeys('shift + enter', findPrev, { enableOnFormTags: ['INPUT'] });
 
   useEffect(() => {
     findInPageInputRef.current?.focus();
-    window.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onKeyDown]);
+  }, []);
 
   return (
     <div

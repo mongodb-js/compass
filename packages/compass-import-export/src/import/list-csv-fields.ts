@@ -9,7 +9,7 @@ import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('list-csv-fields');
 
-const NUM_PREVIEW_FIELDS = 5;
+const NUM_PREVIEW_FIELDS = 10;
 
 type ListCSVFieldsOptions = {
   input: Readable;

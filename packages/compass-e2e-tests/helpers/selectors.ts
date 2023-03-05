@@ -222,12 +222,12 @@ export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
 export const SidebarTitle = '[data-testid="sidebar-title"]';
 export const SidebarShowActions =
   '[data-testid="sidebar-title-actions-show-actions"]';
-export const SidebarActionRefresh =
-  '[data-testid="sidebar-title-actions-refresh-data-action"]';
 export const SidebarActionClusterInfo =
   '[data-testid="sidebar-title-actions-open-connection-info-action"]';
 export const SidebarCreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
+export const SidebarRefreshDatabasesButton =
+  '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
 export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
@@ -378,6 +378,8 @@ export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="database-grid"] [data-testid="create-controls"] button';
+export const InstanceRefreshDatabaseButton =
+  '[data-testid="database-grid"] [data-testid="refresh-controls"] button';
 export const DatabaseCard = '[data-testid="database-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
@@ -413,6 +415,8 @@ export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+export const DatabaseRefreshCollectionButton =
+  '[data-testid="collection-grid"] [data-testid="refresh-controls"] button';
 export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =

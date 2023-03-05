@@ -23,7 +23,7 @@ export default function reducer(state = INITIAL_STATE, action) {
     return INITIAL_STATE;
   }
   if (action.type === RESTORE_PIPELINE) {
-    return action.restoreState.comments;
+    return action.storedOptions.comments ?? INITIAL_STATE;
   }
   return state;
 }

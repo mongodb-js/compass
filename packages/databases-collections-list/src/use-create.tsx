@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@mongodb-js/compass-components';
+import { Button, Icon } from '@mongodb-js/compass-components';
 import { createButton } from './items-grid';
 
 export type ItemType = 'database' | 'collection';
@@ -16,6 +16,7 @@ export function useCreateControls(
   return (
     <Button
       variant="primary"
+      leftGlyph={<Icon role="presentation" glyph="Plus" />}
       onClick={() => {
         onCreateClick();
       }}

@@ -91,22 +91,13 @@ export const updateView = () => {
           num_stages: viewPipeline.length,
           editor_view_type: mapPipelineModeToEditorViewType(state),
         });
+        debug('selecting namespace', viewNamespace);
         dispatch(
-          globalAppRegistryEmit('compass:aggregations:update-view', {
-            numStages: viewPipeline.length,
-          })
+          globalAppRegistryEmit(
+            'aggregations-open-view-after-update',
+            viewNamespace
+          )
         );
-        const metadata = {
-          namespace: viewNamespace,
-          isReadonly: true,
-          sourceName: state.namespace,
-          editViewName: null,
-          sourceReadonly: state.isReadonly,
-          sourceViewOn: state.sourceName,
-          sourcePipeline: viewPipeline,
-        };
-        debug('selecting namespace', metadata);
-        dispatch(globalAppRegistryEmit('select-namespace', metadata));
       });
     } catch (e) {
       debug('Unexpected error updating view', e);

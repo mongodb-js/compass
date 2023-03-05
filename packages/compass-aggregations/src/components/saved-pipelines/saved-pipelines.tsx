@@ -12,7 +12,8 @@ import {
   confirmOpenPipeline,
   confirmDeletePipeline,
 } from '../../modules/saved-pipeline';
-import { type RootState } from '../../modules';
+import type { RootState } from '../../modules';
+import type { StoredPipeline } from '../../utils/pipeline-storage';
 
 const savedPipelinesStyles = css({
   width: '400px',
@@ -56,8 +57,8 @@ const emptyMessageStyles = css({
 
 type SavedPipelinesProps = {
   namespace: string;
-  savedPipelines: { id: string; name: string }[];
-  onOpenPipeline: (pipelineId: string) => void;
+  savedPipelines: StoredPipeline[];
+  onOpenPipeline: (pipelineData: StoredPipeline) => void;
   onDeletePipeline: (pipelineId: string) => void;
 };
 
@@ -91,8 +92,12 @@ export const SavedPipelines = ({
             key={pipeline.id}
             name={pipeline.name ?? ''}
             id={pipeline.id}
-            onOpenPipeline={() => onOpenPipeline(pipeline.id)}
-            onDeletePipeline={() => onDeletePipeline(pipeline.id)}
+            onOpenPipeline={() => {
+              onOpenPipeline(pipeline);
+            }}
+            onDeletePipeline={() => {
+              onDeletePipeline(pipeline.id);
+            }}
           />
         ))}
         {savedPipelines.length === 0 && (
