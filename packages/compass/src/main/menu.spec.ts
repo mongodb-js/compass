@@ -422,6 +422,12 @@ describe('CompassMenu', function () {
             label: `&View Source Code on GitHub`,
           },
           {
+            label: `&Suggest a Feature`,
+          },
+          {
+            label: `&Report a Bug`,
+          },
+          {
             label: '&Open Log File',
           },
           {

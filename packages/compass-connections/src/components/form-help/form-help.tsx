@@ -136,14 +136,6 @@ function FormHelp(): React.ReactElement {
           See example
         </Link>
       </div>
-      <div className={sectionContainerStyles}>
-        <Subtitle className={titleStyles}>
-          Where can I find the source code of Compass?
-        </Subtitle>
-        <Link href="https://github.com/mongodb-js/compass" target="_blank">
-          View on GitHub
-        </Link>
-      </div>
     </div>
   );
 }
