@@ -28,8 +28,14 @@ describe('AggregationAutoCompleter', function () {
         expect(err).to.be.null;
         expect(
           completions
-            .map((completion) => completion.snippet)
-            .every((snippet) => snippet.startsWith('\\$'))
+            .filter(
+              (completion) => !!(completion as CompletionWithServerInfo).snippet
+            )
+            .every((completion) =>
+              (completion as CompletionWithServerInfo).snippet?.startsWith(
+                '\\$'
+              )
+            )
         ).to.eq(true, 'Expected every completion snippet to start with "\\$"');
       });
     });
