@@ -1,7 +1,20 @@
 import type { RefObject } from 'react';
+import { useMemo } from 'react';
 import { useRef, useEffect } from 'react';
 
 const kValueChanged = Symbol('Value changed');
+
+// Creates a memo array from passed value, by either wraping value in array or
+// just returning as-is if value is alreadu an array
+function useMemoDependencies(value: unknown): unknown[] {
+  return useMemo(
+    () => {
+      return Array.isArray(value) ? value : [value];
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    Array.isArray(value) ? value : [value]
+  );
+}
 
 /**
  * Runs an effect, but only after the value changes for the first time (skipping
@@ -27,7 +40,7 @@ export function useEffectOnChange<T>(
       initial.current = kValueChanged;
       return effect.current();
     }
-  }, [val]);
+  }, useMemoDependencies(val));
   // Return a readonly ref value
   return useRef(val);
 }
