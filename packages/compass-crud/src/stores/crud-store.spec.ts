@@ -238,6 +238,7 @@ describe('store', function () {
         },
         version: '6.0.0',
         view: 'List',
+        fields: [],
       });
     });
   });

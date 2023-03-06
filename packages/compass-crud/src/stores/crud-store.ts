@@ -321,6 +321,7 @@ type CrudState = {
   resultId: number;
   isWritable: boolean;
   instanceDescription: string;
+  fields: string[];
 };
 
 class CrudStoreImpl
@@ -341,6 +342,10 @@ class CrudStoreImpl
   constructor(options: CrudStoreOptions) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
+  }
+
+  updateFields(fields: { aceFields: { name: string }[] }) {
+    this.setState({ fields: fields.aceFields.map((field) => field.name) });
   }
 
   getInitialState(): CrudState {
@@ -371,6 +376,7 @@ class CrudStoreImpl
       resultId: resultId(),
       isWritable: false,
       instanceDescription: '',
+      fields: [],
     };
   }
 
@@ -1456,6 +1462,8 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
     localAppRegistry.on('query-changed', store.onQueryChanged.bind(store));
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     localAppRegistry.on('refresh-data', store.refreshDocuments.bind(store));
+
+    localAppRegistry.on('fields-changed', store.updateFields.bind(store));
 
     setLocalAppRegistry(store, options.localAppRegistry);
   }

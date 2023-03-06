@@ -24,6 +24,7 @@ class Collections extends PureComponent {
     onCollectionClick: PropTypes.func.isRequired,
     onDeleteCollectionClick: PropTypes.func.isRequired,
     onCreateCollectionClick: PropTypes.func.isRequired,
+    onRefreshClick: PropTypes.func.isRequired,
     readOnly: PropTypes.bool,
   };
 
@@ -48,6 +49,7 @@ class Collections extends PureComponent {
       onCollectionClick,
       onDeleteCollectionClick,
       onCreateCollectionClick,
+      onRefreshClick,
     } = this.props;
 
     if (collectionsStatus.status === 'error') {
@@ -62,7 +64,7 @@ class Collections extends PureComponent {
 
     const editable = !isReadonly && !readOnly;
     const actions = Object.assign(
-      { onCollectionClick },
+      { onCollectionClick, onRefreshClick },
       editable && isWritable && !isDataLake
         ? { onDeleteCollectionClick, onCreateCollectionClick }
         : {}
@@ -118,6 +120,7 @@ function createEmit(evtName) {
 }
 
 const mapDispatchToProps = {
+  onRefreshClick: createEmit('refresh-collections'),
   onCollectionClick: createEmit('collections-list-select-collection'),
   onDeleteCollectionClick: createEmit('open-drop-collection'),
   onCreateCollectionClick: createEmit('open-create-collection'),

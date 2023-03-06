@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   css,
   cx,
@@ -10,7 +16,10 @@ import {
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 
-import { JSONEditor as Editor } from '@mongodb-js/compass-editor';
+import {
+  createDocumentAutocompleter,
+  JSONEditor as Editor,
+} from '@mongodb-js/compass-editor';
 import type { EditorView } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 
@@ -35,27 +44,29 @@ const editorDarkModeStyles = css({
   },
 });
 
-export type JsonEditorProps = {
+export type JSONEditorProps = {
   doc: Document;
   editable: boolean;
-  isTimeSeries: boolean;
+  isTimeSeries?: boolean;
   removeDocument?: CrudActions['removeDocument'];
   replaceDocument?: CrudActions['replaceDocument'];
   updateDocument?: CrudActions['updateDocument'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
-  isExpanded: boolean;
+  isExpanded?: boolean;
+  fields?: string[];
 };
 
-const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
+const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   doc,
   editable,
-  isTimeSeries,
+  isTimeSeries = false,
   removeDocument,
   replaceDocument,
   copyToClipboard,
   openInsertDocumentDialog,
-  isExpanded,
+  isExpanded = false,
+  fields = [],
 }) => {
   const darkMode = useDarkMode();
   const editorRef = useRef<EditorView>();
@@ -140,6 +151,10 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
     }
   }, [isExpanded]);
 
+  const completer = useMemo(() => {
+    return createDocumentAutocompleter(fields);
+  }, [fields]);
+
   const isEditable = editable && !deleting && !isTimeSeries;
 
   return (
@@ -153,6 +168,7 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
         onLoad={(editor) => {
           editorRef.current = editor;
         }}
+        completer={completer}
       />
       {!editing && (
         <DocumentList.DocumentActionsGroup

@@ -5,7 +5,12 @@ import type { AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import path from 'path';
 
-import { selectImportFileName, INITIAL_STATE } from './import';
+import {
+  onStarted,
+  openImport,
+  selectImportFileName,
+  INITIAL_STATE,
+} from './import';
 import rootReducer from '.';
 import type { RootImportState } from '../stores/import-store';
 
@@ -35,6 +40,43 @@ describe('import [module]', function () {
       mockState,
       applyMiddleware<DispatchFunctionType, RootImportState>(thunk)
     );
+  });
+
+  describe('#openImport', function () {
+    it('sets isInProgressMessageOpen to true when import is in progress and does not open', function () {
+      const abortController = new AbortController();
+      mockStore.dispatch(onStarted(abortController));
+
+      expect(mockStore.getState().importData.status).to.equal('STARTED');
+      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+        false
+      );
+
+      mockStore.dispatch(openImport('test.test'));
+
+      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+        true
+      );
+      expect(mockStore.getState().importData.isOpen).to.equal(false);
+    });
+
+    it('opens and sets the namespace', function () {
+      const testNS = 'test.test';
+      expect(mockStore.getState().importData.status).to.equal('UNSPECIFIED');
+      expect(mockStore.getState().ns).to.not.equal(testNS);
+      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+        false
+      );
+      expect(mockStore.getState().importData.isOpen).to.equal(false);
+
+      mockStore.dispatch(openImport('test.test'));
+
+      expect(mockStore.getState().ns).to.equal(testNS);
+      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+        false
+      );
+      expect(mockStore.getState().importData.isOpen).to.equal(true);
+    });
   });
 
   describe('#selectImportFileName', function () {

@@ -10,6 +10,7 @@ import {
   spacing,
   FormFieldContainer,
 } from '@mongodb-js/compass-components';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 import {
   FINISHED_STATUSES,
@@ -41,7 +42,6 @@ import {
 import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import { ImportFileInput } from './import-file-input';
 
 /**
