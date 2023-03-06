@@ -559,30 +559,6 @@ export const selectImportFileName = (fileName: string) => {
 };
 
 /**
- * The user has manually selected the `fileType` of the import.
- */
-// TODO: remove this. It won't be possible to manually select the type
-// COMPASS-6545
-export const selectImportFileType = (fileType: 'json' | 'csv') => {
-  return (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
-  ) => {
-    const { fileName, delimiter } = getState().importData;
-
-    dispatch({
-      type: FILE_TYPE_SELECTED,
-      fileType: fileType,
-    });
-
-    if (fileType === 'csv') {
-      debug('preview needs updating because fileType changed');
-      dispatch(loadCSVPreviewDocs(fileName, delimiter));
-    }
-  };
-};
-
-/**
  * Set the tabular delimiter.
  */
 export const setDelimiter = (delimiter: CSVDelimiter) => {
