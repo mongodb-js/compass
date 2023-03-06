@@ -5,7 +5,7 @@ import { useRef, useEffect } from 'react';
 const kValueChanged = Symbol('Value changed');
 
 // Creates a memo array from passed value, by either wraping value in array or
-// just returning as-is if value is alreadu an array
+// just returning as-is if value is already an array.
 function useMemoDependencies(value: unknown): unknown[] {
   return useMemo(
     () => {
