@@ -76,25 +76,12 @@ const renderQueryBar = (
     <QueryBar
       buttonLabel="Apply"
       expanded={false}
-      globalAppRegistry={globalAppRegistry}
-      localAppRegistry={localAppRegistry}
       onApply={noop}
-      onChangeQueryOption={noop}
-      onOpenExportToLanguage={noop}
       onReset={noop}
+      onOpenExportToLanguageClick={noop}
       queryState="apply"
-      refreshEditorAction={
-        {
-          listen: () => {
-            return noop;
-          },
-        } as any
-      }
-      schemaFields={[]}
-      serverVersion="123"
       showExportToLanguageButton
       showQueryHistoryButton
-      toggleExpandQueryOptions={noop}
       resultId="123"
       valid
       {...queryOptionProps}
@@ -121,9 +108,8 @@ describe('QueryBar Component', function () {
       renderQueryBar({
         onApply: onApplySpy,
         onReset: onResetSpy,
-        onOpenExportToLanguage: onOpenExportToLanguageSpy,
+        onOpenExportToLanguageClick: onOpenExportToLanguageSpy,
         showExportToLanguageButton: true,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -181,7 +167,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -194,11 +179,10 @@ describe('QueryBar Component', function () {
   describe('with one query option', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptionsLayout: ['project'],
+        layout: ['project'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -211,11 +195,10 @@ describe('QueryBar Component', function () {
   describe('with two query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptionsLayout: ['project', 'sort'],
+        layout: ['project', 'sort'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -256,11 +239,10 @@ describe('QueryBar Component', function () {
   describe('with three query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptionsLayout: ['project', 'sort', 'collation'],
+        layout: ['project', 'sort', 'collation'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -273,11 +255,10 @@ describe('QueryBar Component', function () {
   describe('with four query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptionsLayout: ['project', 'sort', ['collation', 'limit']],
+        layout: ['project', 'sort', ['collation', 'limit']],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 

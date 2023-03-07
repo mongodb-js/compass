@@ -1,5 +1,3 @@
-import ms from 'ms';
-
 const USER_TYPING_DEBOUNCE_MS = 100;
 
 const RESET_STATE = 'reset';
@@ -11,11 +9,19 @@ const DEFAULT_SORT = null;
 const DEFAULT_COLLATION = null;
 const DEFAULT_SKIP = 0;
 const DEFAULT_LIMIT = 0;
-const DEFAULT_SAMPLE = false;
 
-const DEFAULT_MAX_TIME_MS = ms('1m');
-const DEFAULT_SAMPLE_SIZE = 1000;
+const DEFAULT_MAX_TIME_MS = 60_000;
 const DEFAULT_STATE = RESET_STATE;
+
+const DEFAULT_FIELD_VALUES = {
+  filter: undefined,
+  project: undefined,
+  collation: undefined,
+  sort: undefined,
+  skip: undefined,
+  limit: undefined,
+  maxTimeMS: undefined,
+} as const;
 
 export {
   USER_TYPING_DEBOUNCE_MS,
@@ -27,8 +33,7 @@ export {
   DEFAULT_COLLATION,
   DEFAULT_SKIP,
   DEFAULT_LIMIT,
-  DEFAULT_SAMPLE,
   DEFAULT_MAX_TIME_MS,
-  DEFAULT_SAMPLE_SIZE,
   DEFAULT_STATE,
+  DEFAULT_FIELD_VALUES,
 };

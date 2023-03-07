@@ -111,7 +111,7 @@ export type DocumentListProps = {
  */
 class DocumentList extends React.Component<DocumentListProps> {
   onApplyClicked() {
-    void this.props.store.refreshDocuments();
+    void this.props.store.refreshDocuments(true);
   }
 
   onResetClicked() {
