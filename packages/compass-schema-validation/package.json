@@ -83,7 +83,7 @@
     "javascript-stringify": "^2.0.1",
     "less": "^3.11.1",
     "lodash": "^4.17.15",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mongodb-data-service": "^22.5.1",
     "mongodb-instance-model": "^12.5.1",
     "mongodb-ns": "^2.4.0",

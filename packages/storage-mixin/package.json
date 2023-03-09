@@ -30,8 +30,8 @@
     "ampersand.js"
   ],
   "scripts": {
-    "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "test": "mocha",
+    "test-electron": "xvfb-maybe electron-mocha --no-sandbox --file ./test/setup-keychain.js",
+    "test": "mocha --file ./test/setup-keychain.js",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",
@@ -59,7 +59,7 @@
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^7.0.0",
+    "mocha": "^10.2.0",
     "xvfb-maybe": "^0.2.1"
   }
 }
