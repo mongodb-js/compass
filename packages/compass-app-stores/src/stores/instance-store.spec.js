@@ -5,6 +5,8 @@ import { reset } from '../modules/instance/reset';
 import { INITIAL_STATE } from '../modules/instance/instance';
 import { changeDataService } from '../modules/instance/data-service';
 import { once } from 'events';
+import sinon from 'sinon';
+import { expect } from 'chai';
 
 class FakeDataService extends EventEmitter {
   getConnectionString() {
@@ -23,7 +25,7 @@ class FakeDataService extends EventEmitter {
     return {
       type: 'Unknown',
       servers: [],
-      setName: 'foo'
+      setName: 'foo',
     };
   }
 }
@@ -36,25 +38,28 @@ function createDataService(
   return dataService;
 }
 
-describe('InstanceStore [Store]', () => {
-  beforeEach(() => {
+describe('InstanceStore [Store]', function () {
+  beforeEach(function () {
     store.dispatch(reset());
   });
 
-  afterEach(() => {
+  afterEach(function () {
     store.dispatch(reset());
   });
 
-  describe('#onActivated', () => {
-    let hold;
+  describe('#onActivated', function () {
     let hideSpy;
     let configureSpy;
     let showIndeterminateProgressBarSpy;
     let emitSpy;
 
-    beforeEach(() => {
-      hold = global.hadronApp.appRegistry;
-      global.hadronApp.appRegistry = new AppRegistry();
+    const hadronAppBkp = global.hadronApp;
+
+    beforeEach(function () {
+      global.hadronApp = {
+        appRegistry: new AppRegistry(),
+      };
+
       emitSpy = sinon.spy(global.hadronApp.appRegistry, 'emit');
       hideSpy = sinon.spy();
       configureSpy = sinon.spy();
@@ -62,50 +67,54 @@ describe('InstanceStore [Store]', () => {
       global.hadronApp.appRegistry.getAction = () => ({
         hide: hideSpy,
         configure: configureSpy,
-        showIndeterminateProgressBar: showIndeterminateProgressBarSpy
+        showIndeterminateProgressBar: showIndeterminateProgressBarSpy,
       });
       store.onActivated(global.hadronApp.appRegistry);
     });
 
-    afterEach(() => {
-      global.hadronApp.appRegistry = hold;
+    afterEach(function () {
+      global.hadronApp = hadronAppBkp;
       emitSpy = null;
       hideSpy = null;
       configureSpy = null;
     });
 
-    context('when data service connects', () => {
+    context('when data service connects', function () {
       const dataService = createDataService();
 
-      beforeEach(async() => {
+      beforeEach(async function () {
         expect(store.getState().dataService).to.deep.equal(null); // initial state
         expect(store.getState().instance).to.deep.equal(INITIAL_STATE);
-        global.hadronApp.appRegistry.emit('data-service-connected', null, dataService);
+        global.hadronApp.appRegistry.emit(
+          'data-service-connected',
+          null,
+          dataService
+        );
         await once(global.hadronApp.appRegistry, 'instance-refreshed');
       });
 
-      it('dispatches the change data service action', () => {
+      it('dispatches the change data service action', function () {
         expect(store.getState().dataService).to.equal(dataService);
       });
 
-      it('creates instance and makes it globally available through global.hadronApp.instance', () => {
-        const {instance} = store.getState();
+      it('creates instance and makes it globally available through global.hadronApp.instance', function () {
+        const { instance } = store.getState();
         expect(store.getState().instance.getType()).to.equal('Instance');
         expect(global.hadronApp.instance).to.equal(instance);
       });
 
-      it('emits instance-refreshed event', () => {
+      it('emits instance-refreshed event', function () {
         const events = emitSpy.args.map(([evtName]) => evtName);
         expect(events).to.eql([
           'data-service-connected',
           'instance-created',
-          'instance-refreshed'
+          'instance-refreshed',
         ]);
       });
     });
 
-    context('when data service connects with error', () => {
-      beforeEach(() => {
+    context('when data service connects with error', function () {
+      beforeEach(function () {
         expect(store.getState().dataService).to.deep.equal(null); // initial state
         expect(store.getState().instance).to.deep.equal(INITIAL_STATE);
         global.hadronApp.appRegistry.emit(
@@ -115,33 +124,37 @@ describe('InstanceStore [Store]', () => {
         );
       });
 
-      it('sets dataService to null', () => {
+      it('sets dataService to null', function () {
         expect(store.getState().dataService).to.equal(null);
       });
 
-      it('sets instance to null', () => {
+      it('sets instance to null', function () {
         expect(store.getState().instance).to.equal(null);
       });
 
-      it('sets errorMessage', () => {
+      it('sets errorMessage', function () {
         expect(store.getState().errorMessage).to.equal('test err msg');
       });
 
-      it('emits instance-refreshed event', () => {
+      it('emits instance-refreshed event', function () {
         const events = emitSpy.args.map(([evtName]) => evtName);
-        expect(events).to.eql([
-          'data-service-connected',
-          'instance-refreshed'
-        ]);
+        expect(events).to.eql(['data-service-connected', 'instance-refreshed']);
       });
     });
 
-    context('on refresh data', () => {
-      beforeEach(async() => {
+    context('on refresh data', function () {
+      beforeEach(async function () {
         expect(store.getState().instance).to.deep.equal(INITIAL_STATE);
-        global.hadronApp.appRegistry.emit('data-service-connected', null, createDataService());
+        global.hadronApp.appRegistry.emit(
+          'data-service-connected',
+          null,
+          createDataService()
+        );
         await once(global.hadronApp.appRegistry, 'instance-refreshed');
-        expect(store.getState().instance).to.have.nested.property('build.version', '1.2.3');
+        expect(store.getState().instance).to.have.nested.property(
+          'build.version',
+          '1.2.3'
+        );
         store.dispatch(
           changeDataService(createDataService({ build: { version: '3.2.1' } }))
         );
@@ -149,14 +162,14 @@ describe('InstanceStore [Store]', () => {
         await once(global.hadronApp.appRegistry, 'instance-refreshed');
       });
 
-      it('calls instance model fetch', () => {
+      it('calls instance model fetch', function () {
         expect(store.getState().instance).to.have.nested.property(
           'build.version',
           '3.2.1'
         );
       });
 
-      it('emits instance-changed event', () => {
+      it('emits instance-changed event', function () {
         const events = emitSpy.args.map(([evtName]) => evtName);
         expect(events).to.eql([
           'data-service-connected',
@@ -168,12 +181,19 @@ describe('InstanceStore [Store]', () => {
       });
     });
 
-    context('on agg pipeline out', () => {
-      beforeEach(async() => {
+    context('on agg pipeline out', function () {
+      beforeEach(async function () {
         expect(store.getState().instance).to.deep.equal(INITIAL_STATE);
-        global.hadronApp.appRegistry.emit('data-service-connected', null, createDataService());
+        global.hadronApp.appRegistry.emit(
+          'data-service-connected',
+          null,
+          createDataService()
+        );
         await once(global.hadronApp.appRegistry, 'instance-refreshed');
-        expect(store.getState().instance).to.have.nested.property('build.version', '1.2.3');
+        expect(store.getState().instance).to.have.nested.property(
+          'build.version',
+          '1.2.3'
+        );
         store.dispatch(
           changeDataService(createDataService({ build: { version: '3.2.1' } }))
         );
@@ -181,14 +201,14 @@ describe('InstanceStore [Store]', () => {
         await once(global.hadronApp.appRegistry, 'instance-refreshed');
       });
 
-      it('calls instance model fetch', () => {
+      it('calls instance model fetch', function () {
         expect(store.getState().instance).to.have.nested.property(
           'build.version',
           '3.2.1'
         );
       });
 
-      it('emits instance-changed event', () => {
+      it('emits instance-changed event', function () {
         const events = emitSpy.args.map(([evtName]) => evtName);
         expect(events).to.eql([
           'data-service-connected',

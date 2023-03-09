@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeDataService = (dataService) => ({
   type: CHANGE_DATA_SERVICE,
-  dataService: dataService
+  dataService: dataService,
 });
