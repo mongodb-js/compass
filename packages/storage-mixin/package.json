@@ -30,7 +30,7 @@
     "ampersand.js"
   ],
   "scripts": {
-    "test-electron": "xvfb-maybe electron-mocha --no-sandbox --file ./test/setup-keychain.js",
+    "test-electron": "xvfb-maybe electron-mocha --file ./test/setup-keychain.js --no-sandbox",
     "test": "mocha --file ./test/setup-keychain.js",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
