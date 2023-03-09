@@ -77,6 +77,7 @@ function Connections({
     createNewConnection,
     duplicateConnection,
     setActiveConnectionById,
+    setActiveConnectionFromConnectionInfo,
     removeAllRecentsConnections,
     removeConnection,
     saveConnection,
@@ -124,6 +125,9 @@ function Connections({
           recentConnections={recentConnections}
           createNewConnection={createNewConnection}
           setActiveConnectionId={setActiveConnectionById}
+          setActiveConnectionFromConnectionInfo={
+            setActiveConnectionFromConnectionInfo
+          }
           onDoubleClick={(connectionInfo) => {
             void connect(connectionInfo);
           }}

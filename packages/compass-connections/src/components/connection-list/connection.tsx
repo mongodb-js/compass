@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   H3,
   Description,
@@ -158,26 +158,6 @@ function FavoriteColorIndicator({
   );
 }
 
-const actions: ItemAction<Action>[] = [
-  {
-    action: 'copy-connection-string',
-    label: 'Copy connection string',
-    icon: 'Copy',
-  },
-
-  {
-    action: 'duplicate-connection',
-    label: 'Duplicate',
-    icon: 'Clone',
-  },
-
-  {
-    action: 'remove-connection',
-    label: 'Remove',
-    icon: 'Trash',
-  },
-];
-
 function Connection({
   isActive,
   connectionInfo,
@@ -190,8 +170,8 @@ function Connection({
   connectionInfo: ConnectionInfo;
   onClick: () => void;
   onDoubleClick: (connectionInfo: ConnectionInfo) => void;
-  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
-  removeConnection: (connectionInfo: ConnectionInfo) => void;
+  duplicateConnection?: (connectionInfo: ConnectionInfo) => void;
+  removeConnection?: (connectionInfo: ConnectionInfo) => void;
 }): React.ReactElement {
   const connectionTitle = getConnectionTitle(connectionInfo);
   const {
@@ -228,6 +208,26 @@ function Connection({
 
   const { openToast } = useToast('compass-connections');
 
+  const actions: ItemAction<Action>[] = useMemo(() => {
+    return [
+      {
+        action: 'copy-connection-string',
+        label: 'Copy connection string',
+        icon: 'Copy',
+      },
+      duplicateConnection && {
+        action: 'duplicate-connection',
+        label: 'Duplicate',
+        icon: 'Clone',
+      },
+      removeConnection && {
+        action: 'remove-connection',
+        label: 'Remove',
+        icon: 'Trash',
+      },
+    ].filter(Boolean) as any[];
+  }, [duplicateConnection, removeConnection]);
+
   const onAction = useCallback(
     (action: Action) => {
       async function copyConnectionString(connectionString: string) {
@@ -259,12 +259,12 @@ function Connection({
       }
 
       if (action === 'duplicate-connection') {
-        duplicateConnection(connectionInfo);
+        duplicateConnection?.(connectionInfo);
         return;
       }
 
       if (action === 'remove-connection') {
-        removeConnection(connectionInfo);
+        removeConnection?.(connectionInfo);
         return;
       }
     },
@@ -290,6 +290,7 @@ function Connection({
         <ConnectionIcon
           color={titleColor}
           connectionString={connectionString}
+          type={(favorite as any)?.type}
         />
         <H3
           className={cx(
@@ -314,7 +315,19 @@ function Connection({
             favorite ? 'favorite' : 'recent'
           }-connection-description`}
         >
-          {lastUsed ? lastUsed.toLocaleString('default', dateConfig) : 'Never'}
+          {(favorite as any)?.lastUpdateDate ? (
+            <>
+              Last updated:{' '}
+              {(favorite as any).lastUpdateDate.toLocaleString(
+                'default',
+                dateConfig
+              )}
+            </>
+          ) : lastUsed ? (
+            lastUsed.toLocaleString('default', dateConfig)
+          ) : (
+            'Never'
+          )}
         </Description>
       </button>
       <div className={itemActionControls}>

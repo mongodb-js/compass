@@ -200,6 +200,9 @@ export function useConnections({
   createNewConnection: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
+  setActiveConnectionFromConnectionInfo: (
+    connectionInfo: ConnectionInfo
+  ) => void;
   removeAllRecentsConnections: () => Promise<void>;
   duplicateConnection: (connectioInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
@@ -238,6 +241,13 @@ export function useConnections({
   async function saveConnectionInfo(
     connectionInfo: ConnectionInfo
   ): Promise<boolean> {
+    if (
+      connectionInfo.id.startsWith('atlas') ||
+      connectionInfo.id.startsWith('adl')
+    ) {
+      return false;
+    }
+
     try {
       ensureWellFormedConnectionString(
         connectionInfo?.connectionOptions?.connectionString
@@ -508,6 +518,12 @@ export function useConnections({
           connectionInfo: connection,
         });
       }
+    },
+    setActiveConnectionFromConnectionInfo(connectionInfo: ConnectionInfo) {
+      dispatch({
+        type: 'set-active-connection',
+        connectionInfo,
+      });
     },
     removeConnection(connectionInfo) {
       void removeConnection(connectionInfo);

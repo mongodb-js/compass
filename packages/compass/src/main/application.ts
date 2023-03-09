@@ -17,6 +17,7 @@ import preferences from 'compass-preferences-model';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
+import { setupAtlasConnectionManager } from './atlas-connection';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
@@ -94,6 +95,7 @@ class CompassApplication {
     this.setupApplicationMenu();
     this.setupWindowManager();
     this.trackApplicationLaunched(globalPreferences);
+    setupAtlasConnectionManager();
   }
 
   static init(

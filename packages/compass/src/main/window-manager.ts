@@ -285,8 +285,10 @@ class CompassWindowManager {
     });
     uninstallEarlyOpenUrlListener();
     electronApp.on('open-url', (evt, url) => {
-      evt.preventDefault();
-      showConnectWindow(compassApp, { mongodbUrl: url });
+      if (url.startsWith('mongodb')) {
+        evt.preventDefault();
+        showConnectWindow(compassApp, { mongodbUrl: url });
+      }
     });
 
     showConnectWindow(compassApp, { mongodbUrl: earlyOpenUrls.shift() });

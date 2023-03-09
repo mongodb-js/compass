@@ -13,7 +13,7 @@ import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
 import IconButton from '@leafygreen-ui/icon-button';
-import {
+import Logo, {
   AtlasNavGraphic,
   MongoDBLogoMark,
   MongoDBLogo,
@@ -147,4 +147,5 @@ export {
   Label,
   Link,
   Description,
+  Logo,
 };

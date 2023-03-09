@@ -21,11 +21,30 @@ const connectionIconStyles = css({
 function ConnectionIcon({
   connectionString,
   color,
+  type,
 }: {
   connectionString: string;
   color: string;
+  type: string;
 }): React.ReactElement {
   const testId = 'connection-icon';
+
+  if (type) {
+    return (
+      <Icon
+        glyph={
+          type === 'SERVERLESS'
+            ? 'Serverless'
+            : type === 'ADF'
+            ? 'Read'
+            : 'Cloud'
+        }
+        className={connectionIconStyles}
+        fill={color}
+        data-testid={testId}
+      />
+    );
+  }
 
   if (isAtlas(connectionString)) {
     return (
