@@ -318,21 +318,6 @@ store.onActivated = (appRegistry: AppRegistry) => {
 
   // TODO: importing hadron-ipc in unit tests doesn't work right now
   if (ipc.on) {
-    /**
-     * When `Share Schema as JSON` clicked in menu send event to the active tab.
-     */
-    ipc.on('window:menu-share-schema-json', () => {
-      const state = store.getState();
-      if (state.tabs) {
-        const activeTab = state.tabs.find(
-          (tab: WorkspaceTabObject) => tab.isActive === true
-        );
-        if (activeTab.localAppRegistry) {
-          activeTab.localAppRegistry.emit('menu-share-schema-json');
-        }
-      }
-    });
-
     ipc.on('compass:open-export', () => {
       const state = store.getState();
       if (!state.tabs) {

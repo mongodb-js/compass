@@ -128,18 +128,14 @@ const configureStore = (options = {}) => {
       this.geoLayers = {};
     },
 
-    getShareText() {
-      if (this.state.schema !== null) {
-        return `The schema definition of ${this.ns} has been copied to your clipboard in JSON format.`;
-      }
-      return 'Please Analyze the Schema First from the Schema Tab.';
+    openExportSchema() {
+      this.setState({
+        exportSchemaOpened: true,
+      });
     },
 
-    handleSchemaShare() {
-      navigator.clipboard.writeText(
-        JSON.stringify(this.state.schema, null, '  ')
-      );
-      ipc.call('app:show-info-dialog', 'Share Schema', this.getShareText());
+    closeExportSchema() {
+      this.setState({ exportSchemaOpened: false });
     },
 
     /**
@@ -158,6 +154,7 @@ const configureStore = (options = {}) => {
         isActiveTab: false,
         resultId: resultId(),
         abortController: undefined,
+        exportSchemaOpened: false,
       };
     },
 
@@ -376,14 +373,6 @@ const configureStore = (options = {}) => {
     options.localAppRegistry.on('query-changed', (state) => {
       store.onQueryChanged(state);
     });
-
-    /**
-     * When `Share Schema as JSON` clicked in menu show a dialog message.
-     */
-    options.localAppRegistry.on(
-      'menu-share-schema-json',
-      store.handleSchemaShare
-    );
 
     setLocalAppRegistry(store, options.localAppRegistry);
   }

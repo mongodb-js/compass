@@ -24,7 +24,10 @@ import {
   useDarkMode,
   WorkspaceContainer,
   lighten,
+  ConfirmationModal,
+  InfoModal,
 } from '@mongodb-js/compass-components';
+import { ExportSchemaModal } from './export-schema/export-schema-modal';
 
 const rootStyles = css`
   width: 100%;
@@ -329,6 +332,7 @@ const Schema: React.FunctionComponent<{
   schema?: any;
   count?: number;
   resultId?: string;
+  exportSchemaOpened?: boolean;
 }> = ({
   actions,
   store,
@@ -338,6 +342,7 @@ const Schema: React.FunctionComponent<{
   errorMessage,
   schema,
   resultId,
+  exportSchemaOpened,
 }) => {
   useEffect(() => {
     if (isActiveTab) {
@@ -357,6 +362,10 @@ const Schema: React.FunctionComponent<{
     actions.startAnalysis();
   }, [actions]);
 
+  const onExportSchemaClicked = useCallback(() => {
+    actions.openExportSchema();
+  }, [actions]);
+
   return (
     <div className={rootStyles}>
       <WorkspaceContainer
@@ -365,6 +374,7 @@ const Schema: React.FunctionComponent<{
             localAppRegistry={store.localAppRegistry}
             onAnalyzeSchemaClicked={onApplyClicked}
             onResetClicked={onResetClicked}
+            onExportSchemaClicked={onExportSchemaClicked}
             analysisState={analysisState}
             errorMessage={errorMessage || ''}
             isOutdated={!!outdated}
@@ -388,6 +398,12 @@ const Schema: React.FunctionComponent<{
           />
         )}
       </WorkspaceContainer>
+
+      <ExportSchemaModal
+        schema={schema}
+        closeExportSchema={actions.closeExportSchema}
+        exportSchemaOpened={!!exportSchemaOpened}
+      ></ExportSchemaModal>
     </div>
   );
 };

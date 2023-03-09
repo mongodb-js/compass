@@ -266,14 +266,6 @@ function helpSubMenu(
 
 function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
   const subMenu = [];
-  subMenu.push({
-    label: '&Share Schema as JSON',
-    accelerator: 'Alt+CmdOrCtrl+S',
-    click() {
-      ipcMain.broadcastFocused('window:menu-share-schema-json');
-    },
-  });
-  subMenu.push(separator());
   if (!preferences.getPreferences().readOnly && !menuReadOnly) {
     subMenu.push({
       label: '&Import Data',

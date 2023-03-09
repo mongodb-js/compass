@@ -34,6 +34,8 @@ const configureActions = () => {
     geoLayerAdded: { sync: true },
     geoLayersEdited: { sync: true },
     geoLayersDeleted: { sync: true },
+    openExportSchema: { sync: true },
+    closeExportSchema: { sync: true },
   });
 };
 

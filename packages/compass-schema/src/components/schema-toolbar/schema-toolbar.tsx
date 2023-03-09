@@ -6,6 +6,8 @@ import {
   WarningSummary,
   css,
   spacing,
+  Button,
+  Icon,
 } from '@mongodb-js/compass-components';
 
 import type { AnalysisState } from '../../constants/analysis-states';
@@ -63,6 +65,7 @@ type SchemaToolbarProps = {
   localAppRegistry: AppRegistry;
   onAnalyzeSchemaClicked: () => void;
   onResetClicked: () => void;
+  onExportSchemaClicked: () => void;
   sampleSize: number;
   schemaResultId: string;
 };
@@ -73,6 +76,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   isOutdated,
   localAppRegistry,
   onAnalyzeSchemaClicked,
+  onExportSchemaClicked,
   onResetClicked,
   sampleSize,
   schemaResultId,
@@ -110,6 +114,16 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       </div>
       {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
         <div className={schemaToolbarActionBarStyles}>
+          <div>
+            <Button
+              leftGlyph={<Icon glyph="Export" />}
+              data-testid="export-schema-button"
+              size="xsmall"
+              onClick={onExportSchemaClicked}
+            >
+              Export schema
+            </Button>
+          </div>
           <div
             className={schemaToolbarActionBarRightStyles}
             data-testid="schema-document-count"
