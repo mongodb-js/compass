@@ -150,7 +150,7 @@ export function setDistinctValues(
  * Adds a discrete value to a field on the filter, converting primitive
  * values to $in lists as required.
  */
-function addDistinctValue(
+export function addDistinctValue(
   input: unknown,
   args: ToggleDistinctValueArgs
 ): unknown {
@@ -185,7 +185,7 @@ function addDistinctValue(
  * removes a distinct value from a field on the filter, converting primitive
  * values to $in lists as required.
  */
-function removeDistinctValue(
+export function removeDistinctValue(
   input: unknown,
   args: ToggleDistinctValueArgs
 ): unknown {
@@ -318,6 +318,8 @@ const CHANGE_FNS = {
   setValue,
   setDistinctValues,
   setRangeValues,
+  addDistinctValue,
+  removeDistinctValue,
   toggleDistinctValue,
   mergeGeoQuery,
   setGeoWithinValue,

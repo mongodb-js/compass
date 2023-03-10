@@ -1,7 +1,7 @@
 import type { Reducer, AnyAction, Store } from 'redux';
 import {
   DEFAULT_FIELD_VALUES,
-  DEFAULT_MAX_TIME_MS,
+  DEFAULT_QUERY_VALUES,
 } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
@@ -40,20 +40,13 @@ export function validateField(field: string, value: string) {
     if (
       typeof preferencesMaxTimeMS !== 'undefined' &&
       value &&
-      Number(value) > preferencesMaxTimeMS
+      Number(value) >
+        (preferencesMaxTimeMS ?? DEFAULT_FIELD_VALUES['maxTimeMS'])
     ) {
       return false;
     }
   }
 
-  if (
-    field === 'maxTimeMS' &&
-    value &&
-    Number(value) >
-      (preferences.getPreferences().maxTimeMS ?? DEFAULT_MAX_TIME_MS)
-  ) {
-    return false;
-  }
   return validated;
 }
 
@@ -113,14 +106,13 @@ export function mapQueryToValidQueryFields(query?: unknown, onlyValid = true) {
   ) as Record<QueryProperty, QueryBarFormField>;
 }
 
-const DEFAULT_QUERY = pickValuesFromFields(
-  mapQueryToValidQueryFields(DEFAULT_FIELD_VALUES)
-);
-
-type QueryBarThunkAction<R, A extends AnyAction = AnyAction> = ThunkAction<
+export type QueryBarThunkAction<
+  R,
+  A extends AnyAction = AnyAction
+> = ThunkAction<
   R,
   QueryBarState,
-  { globalAppRegistry: AppRegistry; localAppRegistry: AppRegistry },
+  { globalAppRegistry?: AppRegistry; localAppRegistry?: AppRegistry },
   A
 >;
 
@@ -181,12 +173,17 @@ type ChangeFieldAction = {
   value: string;
 };
 
+/**
+ * NB: this should only be called in apply or reset methods, doing this in any
+ * other logical place will break a ton of logic in Compass that relies on this
+ * not actually happening when query changed while user was typing
+ */
 const emitOnQueryChange = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
     const { lastAppliedQuery, fields } = getState();
     const query = pickValuesFromFields(fields);
     if (lastAppliedQuery === null || isEqual(lastAppliedQuery, query)) {
-      localAppRegistry.emit('query-changed', query);
+      localAppRegistry?.emit('query-changed', query);
     }
   };
 };
@@ -226,7 +223,7 @@ export const applyQuery = (): QueryBarThunkAction<
     const query = pickValuesFromFields(fields);
     dispatch({ type: QueryBarActions.ApplyQuery, query });
     dispatch(emitOnQueryChange());
-    localAppRegistry.emit('query-applied', query);
+    localAppRegistry?.emit('query-applied', query);
     return query;
   };
 };
@@ -239,13 +236,15 @@ export const resetQuery = (): QueryBarThunkAction<
   false | Record<string, unknown>
 > => {
   return (dispatch, getState, { localAppRegistry }) => {
-    if (isEqual(pickValuesFromFields(getState().fields), DEFAULT_QUERY)) {
+    if (
+      isEqual(pickValuesFromFields(getState().fields), DEFAULT_QUERY_VALUES)
+    ) {
       return false;
     }
     dispatch({ type: QueryBarActions.ResetQuery });
     dispatch(emitOnQueryChange());
-    localAppRegistry.emit('query-reset', cloneDeep(DEFAULT_QUERY));
-    return cloneDeep(DEFAULT_QUERY);
+    localAppRegistry?.emit('query-reset', cloneDeep(DEFAULT_QUERY_VALUES));
+    return cloneDeep(DEFAULT_QUERY_VALUES);
   };
 };
 
@@ -273,7 +272,7 @@ export const applyFilterChange = (
 
 export const openExportToLanguage = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
-    localAppRegistry.emit(
+    localAppRegistry?.emit(
       'open-query-export-to-language',
       Object.fromEntries(
         Object.entries(getState().fields).map(([key, field]) => {
@@ -296,7 +295,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   ) {
     return {
       ...state,
-      expanded: !state.expanded,
+      expanded: action.force ?? !state.expanded,
     };
   }
 
@@ -354,14 +353,14 @@ export const renderQueryHistoryComponent =
   (): QueryBarThunkAction<React.ReactElement | null> => {
     return (dispatch, getState, { globalAppRegistry, localAppRegistry }) => {
       const QueryHistory =
-        globalAppRegistry.getRole('Query.QueryHistory')?.[0].component;
+        globalAppRegistry?.getRole('Query.QueryHistory')?.[0].component;
 
       if (!QueryHistory) {
         return null;
       }
 
-      const store = localAppRegistry.getStore('Query.History');
-      const actions = localAppRegistry.getAction('Query.History.Actions');
+      const store = localAppRegistry?.getStore('Query.History');
+      const actions = localAppRegistry?.getAction('Query.History.Actions');
 
       return React.createElement(QueryHistory, { store, actions });
     };

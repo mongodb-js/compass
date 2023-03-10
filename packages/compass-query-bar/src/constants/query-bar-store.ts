@@ -1,18 +1,8 @@
-const USER_TYPING_DEBOUNCE_MS = 100;
+import { validate } from 'mongodb-query-parser';
 
-const RESET_STATE = 'reset';
-const APPLY_STATE = 'apply';
-
-const DEFAULT_FILTER = {};
-const DEFAULT_PROJECT = null;
-const DEFAULT_SORT = null;
-const DEFAULT_COLLATION = null;
-const DEFAULT_SKIP = 0;
-const DEFAULT_LIMIT = 0;
-
-const DEFAULT_MAX_TIME_MS = 60_000;
-const DEFAULT_STATE = RESET_STATE;
-
+/**
+ * Default values for the query bar form inputs
+ */
 const DEFAULT_FIELD_VALUES = {
   filter: undefined,
   project: undefined,
@@ -23,17 +13,17 @@ const DEFAULT_FIELD_VALUES = {
   maxTimeMS: undefined,
 } as const;
 
-export {
-  USER_TYPING_DEBOUNCE_MS,
-  RESET_STATE,
-  APPLY_STATE,
-  DEFAULT_FILTER,
-  DEFAULT_PROJECT,
-  DEFAULT_SORT,
-  DEFAULT_COLLATION,
-  DEFAULT_SKIP,
-  DEFAULT_LIMIT,
-  DEFAULT_MAX_TIME_MS,
-  DEFAULT_STATE,
-  DEFAULT_FIELD_VALUES,
-};
+/**
+ * Default values as will be returned from query parser during validation
+ */
+const DEFAULT_QUERY_VALUES = {
+  filter: validate('filter'),
+  project: validate('project'),
+  collation: validate('collation'),
+  sort: validate('sort'),
+  skip: validate('skip'),
+  limit: validate('limit'),
+  maxTimeMS: validate('maxTimeMS'),
+} as const;
+
+export { DEFAULT_FIELD_VALUES, DEFAULT_QUERY_VALUES };

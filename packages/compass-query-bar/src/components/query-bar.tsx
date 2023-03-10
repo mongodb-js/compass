@@ -91,7 +91,7 @@ type QueryBarProps = {
   buttonLabel?: string;
   onApply: () => void;
   onReset: () => void;
-  onOpenExportToLanguageClick: () => void;
+  onOpenExportToLanguage: () => void;
   layout?: (QueryOption | QueryOption[])[];
   queryState: 'apply' | 'reset';
   resultId?: string | number;
@@ -106,7 +106,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
   onApply,
   onReset,
-  onOpenExportToLanguageClick,
+  onOpenExportToLanguage,
   // Used to specify which query options to show and where they are positioned.
   layout: queryOptionsLayout = [
     'project',
@@ -184,7 +184,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         </Button>
         {showExportToLanguageButton && (
           <Button
-            onClick={onOpenExportToLanguageClick}
+            onClick={onOpenExportToLanguage}
             title="Open export to language"
             aria-label="Open export to language"
             data-testid="query-bar-open-export-to-language-button"
@@ -238,7 +238,7 @@ export default connect(
     ownProps: { onApply?(query: unknown): void; onReset?(query: unknown): void }
   ) => {
     return {
-      onOpenExportToLanguageClick: () => {
+      onOpenExportToLanguage: () => {
         dispatch(openExportToLanguage());
       },
       onApply: () => {

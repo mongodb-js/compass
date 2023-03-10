@@ -1,5 +1,5 @@
 import type AppRegistry from 'hadron-app-registry';
-import { createStore, applyMiddleware } from 'redux';
+import { createStore as _createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
@@ -20,35 +20,41 @@ type QueryBarStoreOptions = {
   query: Record<QueryProperty, unknown>;
 };
 
-function configureStore(options: QueryBarStoreOptions) {
+function createStore(options: Partial<QueryBarStoreOptions> = {}) {
   const { serverVersion, localAppRegistry, globalAppRegistry, query } = options;
-
-  const store = createStore(
+  return _createStore(
     queryBarReducer,
     {
       ...INITIAL_STATE,
-      serverVersion: serverVersion,
+      serverVersion: serverVersion ?? '3.6.0',
       fields: mapQueryToValidQueryFields({ ...DEFAULT_FIELD_VALUES, ...query }),
     },
     applyMiddleware(
       thunk.withExtraArgument({ localAppRegistry, globalAppRegistry })
     )
   );
+}
 
-  localAppRegistry.on('fields-changed', (fields) => {
+export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
+  const { localAppRegistry } = options;
+
+  const store = createStore(options);
+
+  localAppRegistry?.on('fields-changed', (fields) => {
     store.dispatch(changeSchemaFields(fields.aceFields));
   });
 
-  localAppRegistry.on('query-bar-change-filter', (evt: ChangeFilterEvent) => {
-    console.log(evt);
-    store.dispatch(applyFilterChange(evt));
+  localAppRegistry?.on('query-bar-change-filter', (evt: ChangeFilterEvent) => {
+    store.dispatch(applyFilterChange(evt) as any);
   });
 
   (store as any).getCurrentQuery = () => {
     return pickValuesFromFields(store.getState().fields);
   };
 
-  return store;
+  return store as ReturnType<typeof createStore> & {
+    getCurrentQuery(): unknown;
+  };
 }
 
 export default configureStore;

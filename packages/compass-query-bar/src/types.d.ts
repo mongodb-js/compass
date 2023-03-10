@@ -1,12 +1,15 @@
 declare module 'mongodb-query-parser' {
-  const queryParser: any;
+  function validate(...args: any[]): unknown | false;
+  function stringify(...args: any[]): string;
+  const queryParser = { validate, stringify };
+  export { validate, stringify };
   export default queryParser;
 }
 
 declare module 'mongodb-query-util' {
-  const queryUtil: any;
   const bsonEqual: any;
   const hasDistinctValue: any;
-  export default queryUtil;
+  const queryUtil: any;
   export { bsonEqual, hasDistinctValue };
+  export default queryUtil;
 }
