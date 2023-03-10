@@ -133,4 +133,28 @@ describe('Instance databases tab', function () {
     const tabSelectedSelector = Selectors.instanceTab('Databases', true);
     await browser.$(tabSelectedSelector).waitForDisplayed();
   });
+
+  it('can refresh the list of databases using refresh controls', async function () {
+    const db = 'my-instance-database';
+    const coll = 'my-collection';
+    // Create the database and refresh
+    await browser.shellEval(`use ${db};`);
+    await browser.shellEval(`db.createCollection('${coll}');`);
+    await browser.navigateToInstanceTab('Databases');
+    await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
+
+    const dbSelector = Selectors.databaseCard(db);
+    await browser.scrollToVirtualItem(
+      Selectors.DatabasesTable,
+      dbSelector,
+      'grid'
+    );
+    const dbCard = await browser.$(dbSelector);
+    await dbCard.waitForDisplayed();
+
+    // Drop it and refresh again
+    await browser.shellEval(`db.dropDatabase();`);
+    await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
+    await dbCard.waitForExist({ reverse: true });
+  });
 });

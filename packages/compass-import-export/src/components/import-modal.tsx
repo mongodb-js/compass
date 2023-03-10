@@ -10,6 +10,7 @@ import {
   spacing,
   FormFieldContainer,
 } from '@mongodb-js/compass-components';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 import {
   FINISHED_STATUSES,
@@ -30,7 +31,6 @@ import formatNumber from '../utils/format-number';
 import {
   startImport,
   cancelImport,
-  selectImportFileType,
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,
@@ -42,7 +42,6 @@ import {
 import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import { ImportFileInput } from './import-file-input';
 
 /**
@@ -73,7 +72,6 @@ type ImportModalProps = {
   /**
    * See `<ImportOptions />`
    */
-  selectImportFileType: (fileType: AcceptedFileType) => void;
   selectImportFileName: (fileName: string) => void;
   setDelimiter: (delimiter: CSVDelimiter) => void;
   delimiter: CSVDelimiter;
@@ -117,7 +115,6 @@ function ImportModal({
   errors,
   status,
 
-  selectImportFileType,
   selectImportFileName,
   setDelimiter,
   delimiter,
@@ -204,7 +201,6 @@ function ImportModal({
           delimiter={delimiter}
           setDelimiter={setDelimiter}
           fileType={fileType}
-          selectImportFileType={selectImportFileType}
           fileName={fileName}
           selectImportFileName={selectImportFileName}
           stopOnErrors={stopOnErrors}
@@ -313,7 +309,6 @@ const mapStateToProps = (state: RootImportState) => ({
 export default connect(mapStateToProps, {
   startImport,
   cancelImport,
-  selectImportFileType,
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,

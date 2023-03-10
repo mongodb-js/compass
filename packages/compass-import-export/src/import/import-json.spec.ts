@@ -59,7 +59,11 @@ describe('importJSON', function () {
   });
 
   afterEach(async function () {
-    await dataService.disconnect();
+    try {
+      await dataService.disconnect();
+    } catch (err) {
+      // ignore
+    }
   });
 
   for (const fixtureType of ['json', 'jsonl'] as const) {

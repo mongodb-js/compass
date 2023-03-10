@@ -336,4 +336,23 @@ describe('Database collections tab', function () {
     await typeElement.waitForDisplayed();
     expect(await typeElement.getText()).to.equal('CLUSTERED');
   });
+
+  it('can refresh the list of collections using refresh controls', async function () {
+    const db = `test`;
+    const coll = `zcoll-${Date.now()}`;
+    // Create the collection and refresh
+    await browser.shellEval(`use ${db};`);
+    await browser.shellEval(`db.createCollection('${coll}');`);
+    await browser.navigateToDatabaseTab(db, 'Collections');
+    await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
+
+    const collSelector = Selectors.collectionCard(db, coll);
+    await browser.scrollToVirtualItem(
+      Selectors.CollectionsGrid,
+      collSelector,
+      'grid'
+    );
+    const coll2Card = await browser.$(collSelector);
+    await coll2Card.waitForDisplayed();
+  });
 });

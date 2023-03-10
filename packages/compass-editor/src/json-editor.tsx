@@ -132,7 +132,6 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-scroller': {
         fontSize: '13px',
         fontFamily: fontFamilies.code,
-        lineHeight: `${spacing[3]}px`,
       },
       '&.cm-editor.cm-focused': {
         outline: 'none',
@@ -318,11 +317,16 @@ type EditorProps = {
   darkMode?: boolean;
   showLineNumbers?: boolean;
   showFoldGutter?: boolean;
+  highlightActiveLine?: boolean;
   readOnly?: boolean;
   className?: string;
+  id?: string;
   'data-testid'?: string;
   annotations?: Annotation[];
   completer?: CompletionSource;
+  minLines?: number;
+  maxLines?: number;
+  lineHeight?: number;
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
@@ -348,7 +352,7 @@ const javascriptExpression = javascriptLanguage.configure({
   top: 'SingleExpression',
 });
 
-const languages: Record<EditorLanguage, () => LanguageSupport> = {
+export const languages: Record<EditorLanguage, () => LanguageSupport> = {
   json: json,
   javascript() {
     return new LanguageSupport(javascriptExpression);
@@ -404,6 +408,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   language = 'json',
   showLineNumbers = true,
   showFoldGutter = true,
+  highlightActiveLine: shouldHighlightActiveLine = true,
   annotations = [],
   completer,
   darkMode: _darkMode,
@@ -412,6 +417,9 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   onLoad = () => {
     /**/
   },
+  minLines,
+  maxLines,
+  lineHeight = 16,
   ...props
 }) => {
   const darkMode = useDarkMode(_darkMode);
@@ -435,11 +443,19 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     editorViewRef
   );
 
+  const activeLineExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return !readOnly && shouldHighlightActiveLine
+        ? [highlightActiveLine(), highlightActiveLineGutter()]
+        : [];
+    },
+    [readOnly, shouldHighlightActiveLine],
+    editorViewRef
+  );
+
   const readOnlyExtension = useCodemirrorExtensionCompartment(
     () => {
-      return [EditorState.readOnly.of(readOnly)].concat(
-        readOnly ? [] : [highlightActiveLine(), highlightActiveLineGutter()]
-      );
+      return EditorState.readOnly.of(readOnly);
     },
     readOnly,
     editorViewRef
@@ -450,6 +466,27 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       return themeStyles[darkMode ? 'dark' : 'light'];
     },
     darkMode,
+    editorViewRef
+  );
+
+  const lineHeightExtension = useCodemirrorExtensionCompartment(
+    () => {
+      // See https://codemirror.net/examples/styling/#overflow-and-scrolling
+      return EditorView.theme({
+        '.cm-scroller': {
+          lineHeight: `${lineHeight}px`,
+          ...(maxLines &&
+            maxLines < Infinity && {
+              maxHeight: `${maxLines * lineHeight}px`,
+              overflow: 'auto',
+            }),
+        },
+        '.cm-content, .cm-gutter': {
+          ...(minLines && { minHeight: `${minLines * lineHeight}px` }),
+        },
+      });
+    },
+    [minLines, maxLines, lineHeight],
     editorViewRef
   );
 
@@ -516,6 +553,8 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
+        activeLineExtension,
+        lineHeightExtension,
         themeConfigExtension,
         keymap.of([
           {
@@ -592,6 +631,8 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     readOnlyExtension,
     themeConfigExtension,
     autocomletionExtension,
+    lineHeightExtension,
+    activeLineExtension,
   ]);
 
   useEffect(() => {

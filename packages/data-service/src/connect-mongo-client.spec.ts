@@ -1,6 +1,7 @@
 import assert from 'assert';
 import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
+import type { CommandStartedEvent } from 'mongodb';
 
 import connectMongoClient from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
@@ -10,7 +11,7 @@ const setupListeners = () => {
 };
 
 describe('connectMongoClient', function () {
-  const toBeClosed = new Set<{ close: () => Promise<void> }>();
+  const toBeClosed = new Set<undefined | { close: () => Promise<void> }>();
 
   beforeEach(function () {
     toBeClosed.clear();
@@ -18,9 +19,7 @@ describe('connectMongoClient', function () {
 
   afterEach(async function () {
     for (const mongoClientOrTunnel of toBeClosed) {
-      if (mongoClientOrTunnel) {
-        await mongoClientOrTunnel.close();
-      }
+      await mongoClientOrTunnel?.close();
     }
   });
 
@@ -131,6 +130,26 @@ describe('connectMongoClient', function () {
         expect.fail('missed exception');
       } catch (err: any) {
         expect(err.name).to.equal('MongoNetworkError');
+      }
+    });
+
+    it('should run the ping command with the specified ReadPreference', async function () {
+      const commands: CommandStartedEvent[] = [];
+      const [metadataClient, crudClient] = await connectMongoClient(
+        {
+          connectionString:
+            'mongodb://localhost:27018/?readPreference=secondaryPreferred',
+        },
+        (client) => client.on('commandStarted', (ev) => commands.push(ev))
+      );
+      expect(commands).to.have.lengthOf(1);
+      expect(commands[0].commandName).to.equal('ping');
+      expect(commands[0].command.$readPreference).to.deep.equal({
+        mode: 'secondaryPreferred',
+      });
+
+      for (const closeLater of [metadataClient, crudClient]) {
+        toBeClosed.add(closeLater);
       }
     });
 
