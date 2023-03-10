@@ -1,13 +1,14 @@
 import { createStore } from 'redux';
-import mergeWith from 'lodash/mergewith';
-import isNumber from 'lodash/isnumber';
-import isString from 'lodash/isstring';
-import uniq from 'lodash/uniq';
-import isArray from 'lodash/isarray';
-import pick from 'lodash/pick';
-import cloneDeep from 'lodash/clonedeep';
-import union from 'lodash/union';
-
+import {
+  mergeWith,
+  isNumber,
+  isString,
+  uniq,
+  isArray,
+  pick,
+  cloneDeep,
+  union,
+} from 'lodash';
 import reducer, { changeFields } from '../modules';
 
 import parseSchema from 'mongodb-schema';
