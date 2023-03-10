@@ -33,7 +33,7 @@ describe('RecentListStore [Store]', function () {
   describe('#emit query-applied', function () {
     context('when the filter is blank', function () {
       beforeEach(function () {
-        appRegistry.emit('query-applied', { ns: 'test.test', filter: {} });
+        appRegistry.emit('query-applied', { filter: {} });
       });
 
       it('does not add the query to the list', function () {
@@ -43,7 +43,7 @@ describe('RecentListStore [Store]', function () {
 
     context('when the project is blank', function () {
       beforeEach(function () {
-        appRegistry.emit('query-applied', { ns: 'test.test', project: {} });
+        appRegistry.emit('query-applied', { project: {} });
       });
 
       it('does not add the query to the list', function () {
@@ -53,17 +53,7 @@ describe('RecentListStore [Store]', function () {
 
     context('when the sort is blank', function () {
       beforeEach(function () {
-        appRegistry.emit('query-applied', { ns: 'test.test', sort: {} });
-      });
-
-      it('does not add the query to the list', function () {
-        expect(store.state.items.length).to.equal(0);
-      });
-    });
-
-    context('when the ns is blank', function () {
-      beforeEach(function () {
-        appRegistry.emit('query-applied', { filter: { name: 'test' } });
+        appRegistry.emit('query-applied', { sort: {} });
       });
 
       it('does not add the query to the list', function () {
@@ -74,7 +64,6 @@ describe('RecentListStore [Store]', function () {
     context('when the attributes are not blank', function () {
       beforeEach(function () {
         appRegistry.emit('query-applied', {
-          ns: 'test.test',
           filter: { name: 'test' },
         });
       });
@@ -91,7 +80,6 @@ describe('RecentListStore [Store]', function () {
     context('when a collation is present', function () {
       beforeEach(function () {
         appRegistry.emit('query-applied', {
-          ns: 'test.test',
           collation: { locale: 'en' },
         });
       });
@@ -116,7 +104,7 @@ describe('RecentListStore [Store]', function () {
     it('ignores duplicate queries', function () {
       expect(store.state.items.length).to.equal(0);
 
-      const recent = { ns: 'foo', filter: { foo: 1 } };
+      const recent = { filter: { foo: 1 } };
 
       store.addRecent(recent);
       expect(store.state.items.length).to.equal(1);
