@@ -42,7 +42,7 @@
     "depcheck": "^1.4.1",
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mongodb-data-service": "^22.5.1",
     "xvfb-maybe": "^0.2.1"
   }

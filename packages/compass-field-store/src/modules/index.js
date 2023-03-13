@@ -11,7 +11,7 @@ export const CHANGE_FIELDS = 'field-store/CHANGE_FIELDS';
 export const INITIAL_STATE = {
   fields: {},
   topLevelFields: [],
-  aceFields: []
+  aceFields: [],
 };
 
 /**
@@ -27,7 +27,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       fields: action.fields,
       topLevelFields: action.topLevelFields,
-      aceFields: action.aceFields
+      aceFields: action.aceFields,
     };
   }
   if (action.type === RESET) {
@@ -49,7 +49,7 @@ export const changeFields = (fields, topLevelFields, aceFields) => ({
   type: CHANGE_FIELDS,
   fields: fields,
   topLevelFields: topLevelFields,
-  aceFields: aceFields
+  aceFields: aceFields,
 });
 
 export default reducer;

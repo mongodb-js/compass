@@ -85,7 +85,7 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.5",
     "js-beautify": "^1.14.7",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",

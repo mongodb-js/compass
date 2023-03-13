@@ -37,7 +37,7 @@
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mongodb-data-service": "^22.5.1"
   }
 }

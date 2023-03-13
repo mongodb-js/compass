@@ -101,7 +101,7 @@
     "hadron-app": "^5.5.1",
     "hadron-app-registry": "^9.0.5",
     "lodash": "^4.17.21",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-reflux-store": "^0.0.1",
     "nyc": "^15.1.0",

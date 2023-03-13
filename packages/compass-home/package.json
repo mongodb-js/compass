@@ -73,7 +73,7 @@
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eventemitter3": "^4.0.0",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.0.0",
     "prettier": "^2.7.1",

@@ -53,6 +53,6 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
     "lodash.result": "^4.5.2",
-    "mocha": "^6.0.2"
+    "mocha": "^10.2.0"
   }
 }

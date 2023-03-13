@@ -80,7 +80,7 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.5",
     "lodash": "^4.17.15",
-    "mocha": "^7.0.1",
+    "mocha": "^10.2.0",
     "mongodb-query-parser": "^2.4.8",
     "mongodb-query-util": "^0.2.1",
     "ms": "^2.1.2",

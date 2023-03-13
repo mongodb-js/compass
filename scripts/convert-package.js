@@ -13,7 +13,7 @@ async function convertWorkspace(srcPath) {
   const { name, description, private: isPrivate } = pkg;
 
   // Move the folder to a tmp location
-  const tmpPath = path.join(os.tmpdir(), `${name}-tmp`);
+  const tmpPath = path.join(os.tmpdir(), `${name.replace('/', '__')}-tmp`);
   await exec(`mv ${srcPath} ${tmpPath}`);
 
   console.log('install');
@@ -41,7 +41,16 @@ async function convertWorkspace(srcPath) {
   await exec(`cp ${path.join(tmpPath, 'index.js')} ${newPath}`).catch(
     console.log
   );
+  await exec(`cp ${path.join(tmpPath, 'README.md')} ${newPath}`).catch(
+    console.log
+  );
   await exec(`cp -r ${path.join(tmpPath, 'src')} ${newPath}`).catch(
+    console.log
+  );
+  await exec(`cp -r ${path.join(tmpPath, 'lib')} ${newPath}`).catch(
+    console.log
+  );
+  await exec(`cp -r ${path.join(tmpPath, 'bin')} ${newPath}`).catch(
     console.log
   );
   await exec(
