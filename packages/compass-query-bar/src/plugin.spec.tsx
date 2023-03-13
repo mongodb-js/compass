@@ -101,7 +101,9 @@ describe('QueryBar [Plugin]', function () {
     ];
 
     it('the input fields have a placeholder by default', function () {
-      render(<QueryBarPlugin store={store} layout={queryOptionsLayout} />);
+      render(
+        <QueryBarPlugin store={store} queryOptionsLayout={queryOptionsLayout} />
+      );
 
       userEvent.click(screen.getByTestId('query-bar-options-toggle'));
 
@@ -123,7 +125,7 @@ describe('QueryBar [Plugin]', function () {
       render(
         <QueryBarPlugin
           store={store}
-          layout={queryOptionsLayout}
+          queryOptionsLayout={queryOptionsLayout}
           placeholders={{
             filter: "{field: 'matchValue'}",
             project: '{field: 1}',

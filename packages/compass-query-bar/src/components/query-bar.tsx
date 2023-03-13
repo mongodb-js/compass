@@ -18,7 +18,10 @@ import QueryOptionComponent, {
 } from './query-option';
 import QueryHistoryButtonPopover from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
-import type { QueryBarState } from '../stores/query-bar-reducer';
+import type {
+  QueryBarState,
+  QueryBarThunkDispatch,
+} from '../stores/query-bar-reducer';
 import { isQueryValid } from '../stores/query-bar-reducer';
 import {
   applyQuery,
@@ -92,7 +95,7 @@ type QueryBarProps = {
   onApply: () => void;
   onReset: () => void;
   onOpenExportToLanguage: () => void;
-  layout?: (QueryOption | QueryOption[])[];
+  queryOptionsLayout?: (QueryOption | QueryOption[])[];
   queryState: 'apply' | 'reset';
   resultId?: string | number;
   showExportToLanguageButton?: boolean;
@@ -108,7 +111,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onReset,
   onOpenExportToLanguage,
   // Used to specify which query options to show and where they are positioned.
-  layout: queryOptionsLayout = [
+  queryOptionsLayout = [
     'project',
     ['sort', 'maxTimeMS'],
     ['collation', 'skip', 'limit'],
@@ -234,7 +237,7 @@ export default connect(
     };
   },
   (
-    dispatch: any,
+    dispatch: QueryBarThunkDispatch,
     ownProps: { onApply?(query: unknown): void; onReset?(query: unknown): void }
   ) => {
     return {

@@ -5,7 +5,7 @@ import {
 } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
-import type { ThunkAction } from 'redux-thunk';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import React from 'react';
 import type AppRegistry from 'hadron-app-registry';
 import queryParser from 'mongodb-query-parser';
@@ -106,15 +106,18 @@ export function mapQueryToValidQueryFields(query?: unknown, onlyValid = true) {
   ) as Record<QueryProperty, QueryBarFormField>;
 }
 
+export type QueryBarExtraArgs = {
+  globalAppRegistry?: AppRegistry;
+  localAppRegistry?: AppRegistry;
+};
+
 export type QueryBarThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<
-  R,
-  QueryBarState,
-  { globalAppRegistry?: AppRegistry; localAppRegistry?: AppRegistry },
-  A
->;
+> = ThunkAction<R, QueryBarState, QueryBarExtraArgs, A>;
+
+export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
+  ThunkDispatch<QueryBarState, QueryBarExtraArgs, A>;
 
 function isAction<A extends AnyAction>(
   action: AnyAction,

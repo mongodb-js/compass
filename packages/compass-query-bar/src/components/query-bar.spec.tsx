@@ -133,7 +133,7 @@ describe('QueryBar Component', function () {
   describe('with one query option', function () {
     beforeEach(function () {
       renderQueryBar({
-        layout: ['project'],
+        queryOptionsLayout: ['project'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
@@ -149,7 +149,7 @@ describe('QueryBar Component', function () {
   describe('with two query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        layout: ['project', 'sort'],
+        queryOptionsLayout: ['project', 'sort'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
@@ -193,7 +193,7 @@ describe('QueryBar Component', function () {
   describe('with three query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        layout: ['project', 'sort', 'collation'],
+        queryOptionsLayout: ['project', 'sort', 'collation'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
@@ -209,7 +209,7 @@ describe('QueryBar Component', function () {
   describe('with four query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        layout: ['project', 'sort', ['collation', 'limit']],
+        queryOptionsLayout: ['project', 'sort', ['collation', 'limit']],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
