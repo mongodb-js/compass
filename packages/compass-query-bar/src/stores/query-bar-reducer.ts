@@ -27,9 +27,10 @@ export function isQueryProperty(field: string): field is QueryProperty {
 export function validateField(field: string, value: string) {
   const validated = queryParser.validate(field, value, { validate: false });
   if (field === 'filter' && validated === '') {
-    // Things like { i: $} confuses queryParser and ultimately it sets
-    // filter to '' whereas it has to be a {} (if valid) or false (if
-    // invalid). Should probably be fixed in mongodb-query-parser, though.
+    // TODO(COMPASS-5205): Things like { i: $} confuses queryParser and
+    // ultimately it sets filter to '' whereas it has to be a {} (if valid) or
+    // false (if invalid). Should probably be fixed in mongodb-query-parser,
+    // though.
     return false;
   }
 
@@ -59,23 +60,21 @@ export function isQueryFieldsValid(fields: Record<string, QueryBarFormField>) {
 export function pickValuesFromFields(
   fields: Record<string, QueryBarFormField>
 ) {
-  return Object.fromEntries(
-    Object.entries(fields)
-      .map(([key, field]) => {
-        return [
-          key,
-          // We always want filter field to be in the query, even if the field
-          // is empty. Probably would be better to handle where the query is
-          // actually used, but a lot of code in Compass relies on this
-          key === 'filter' && typeof field.value === 'undefined'
-            ? {}
-            : field.value,
-        ];
-      })
-      .filter(([, value]) => {
-        return typeof value !== 'undefined';
-      })
-  );
+  // We always want filter field to be in the query, even if the field
+  // is empty. Probably would be better to handle where the query is
+  // actually used, but a lot of code in Compass relies on this
+  return {
+    filter: {},
+    ...Object.fromEntries(
+      Object.entries(fields)
+        .map(([key, field]) => {
+          return [key, field.value];
+        })
+        .filter(([, value]) => {
+          return typeof value !== 'undefined';
+        })
+    ),
+  };
 }
 
 /**
