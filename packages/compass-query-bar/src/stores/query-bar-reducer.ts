@@ -343,6 +343,18 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     };
   }
 
+  if (
+    isAction<ChangeSchemaFieldsAction>(
+      action,
+      QueryBarActions.ChangeSchemaFields
+    )
+  ) {
+    return {
+      ...state,
+      schemaFields: action.fields,
+    };
+  }
+
   return state;
 };
 

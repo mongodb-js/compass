@@ -6,6 +6,7 @@ import type { QueryProperty } from '../constants/query-properties';
 import {
   applyQuery,
   changeField,
+  changeSchemaFields,
   queryBarReducer,
   resetQuery,
   setQuery,
@@ -163,6 +164,16 @@ describe('queryBarReducer', function () {
       store.dispatch(applyQuery());
       wasReset = store.dispatch(resetQuery());
       expect(wasReset).to.eq(false);
+    });
+  });
+
+  describe('changeSchemaFields', function () {
+    it('should save fields in the store', function () {
+      const store = createStore();
+      expect(store.getState()).to.have.property('schemaFields').deep.eq([]);
+      const fields = [{ name: 'a' }, { name: 'b' }, { name: 'c' }];
+      store.dispatch(changeSchemaFields(fields));
+      expect(store.getState()).to.have.property('schemaFields').deep.eq(fields);
     });
   });
 });
