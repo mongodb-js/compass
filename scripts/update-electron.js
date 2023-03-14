@@ -1,9 +1,21 @@
 const semver = require('semver');
 const fetch = require('make-fetch-happen');
-const { exec } = require('child_process');
 const { forEachPackage } = require('./monorepo/for-each-package');
 const fs = require('fs');
 const path = require('path');
+const { runInDir } = require('./run-in-dir');
+
+async function cleanAndBootstrap(electronVersion) {
+  try {
+    await runInDir("npx lerna exec 'rm -Rf node_modules'");
+    await runInDir('rm -Rf node_modules');
+    await runInDir('npm i');
+    await runInDir(`npm i electron@${electronVersion}`); // make sure electron is hoisted on the root
+    await runInDir('npm run bootstrap');
+  } catch (error) {
+    console.error(`Error running command: ${error}`);
+  }
+}
 
 function updatePackageVersions(packageJsonPath, newVersions) {
   // Load the package.json file
@@ -33,17 +45,11 @@ function updatePackageVersions(packageJsonPath, newVersions) {
   );
 }
 
-function getLatestVersion(packageName) {
-  return new Promise((resolve, reject) => {
-    exec(`npm view ${packageName} version`, (error, stdout) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      const latestVersion = stdout.trim();
-      resolve(latestVersion);
-    });
-  });
+async function getLatestVersion(packageName) {
+  const output = await runInDir(`npm view ${packageName} version`);
+
+  const latestVersion = output.stdout.trim();
+  return latestVersion;
 }
 
 async function getLatestElectronVersionMatchingNodeVersion(
@@ -91,25 +97,24 @@ async function main() {
 
   const latestBrowserslistVersion = await getLatestVersion('browserslist');
 
-  console.log({
-    latestElectronVersion,
-    latestNodeAbiVersion,
-    latestElectronRemoteVersion,
-    latestElectronRebuildVersion,
-    latestBrowserslistVersion,
-  });
+  const newVersions = {
+    'node-abi': `^${latestNodeAbiVersion}`,
+    '@electron/remote': `^${latestElectronRemoteVersion}`,
+    '@electron/rebuild': `^${latestElectronRebuildVersion}`,
+    electron: `^${latestElectronVersion}`,
+    browserslist: `^${latestBrowserslistVersion}`,
+  };
+
+  console.log('Updating the follwing packages:', newVersions);
 
   forEachPackage((props) => {
     const packageJsonPath = path.resolve(props.location, 'package.json');
 
-    updatePackageVersions(packageJsonPath, {
-      'node-abi': `^${latestNodeAbiVersion}`,
-      '@electron/remote': `^${latestElectronRemoteVersion}`,
-      '@electron/rebuild': `^${latestElectronRebuildVersion}`,
-      electron: `^${latestElectronVersion}`,
-      browserslist: `^${latestBrowserslistVersion}`,
-    });
+    updatePackageVersions(packageJsonPath, newVersions);
   });
+
+  console.log('Cleaning node_modules and rebotstrapping');
+  cleanAndBootstrap(latestElectronVersion);
 }
 
 main();
