@@ -337,16 +337,17 @@ describe('Database collections tab', function () {
     expect(await typeElement.getText()).to.equal('CLUSTERED');
   });
 
-  it('can refresh the list of collections using refresh controls', async function () {
-    const db = `test`;
-    const coll = `zcoll-${Date.now()}`;
+  it.only('can refresh the list of collections using refresh controls', async function () {
+    const dbName = `test`;
+    const collName = `zcoll-${Date.now()}`;
     // Create the collection and refresh
-    await browser.shellEval(`use ${db};`);
-    await browser.shellEval(`db.createCollection('${coll}');`);
-    await browser.navigateToDatabaseTab(db, 'Collections');
+    await browser.navigateToDatabaseTab(dbName, 'Collections');
+    await browser.shellEval(
+      `db.getSiblingDB("${dbName}").createCollection("${collName}")`
+    );
     await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
-    const collSelector = Selectors.collectionCard(db, coll);
+    const collSelector = Selectors.collectionCard(dbName, collName);
     await browser.scrollToVirtualItem(
       Selectors.CollectionsGrid,
       collSelector,

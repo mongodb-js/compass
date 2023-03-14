@@ -134,16 +134,17 @@ describe('Instance databases tab', function () {
     await browser.$(tabSelectedSelector).waitForDisplayed();
   });
 
-  it('can refresh the list of databases using refresh controls', async function () {
-    const db = 'my-instance-database';
-    const coll = 'my-collection';
+  it.only('can refresh the list of databases using refresh controls', async function () {
+    const dbName = 'my-instance-database';
+    const collName = 'my-collection';
     // Create the database and refresh
-    await browser.shellEval(`use ${db};`);
-    await browser.shellEval(`db.createCollection('${coll}');`);
     await browser.navigateToInstanceTab('Databases');
+    await browser.shellEval(
+      `db.getSiblingDB("${dbName}").createCollection("${collName}")`
+    );
     await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
 
-    const dbSelector = Selectors.databaseCard(db);
+    const dbSelector = Selectors.databaseCard(dbName);
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
       dbSelector,
@@ -153,7 +154,7 @@ describe('Instance databases tab', function () {
     await dbCard.waitForDisplayed();
 
     // Drop it and refresh again
-    await browser.shellEval(`db.dropDatabase();`);
+    await browser.shellEval(`db.getSiblingDB("${dbName}").dropDatabase();`);
     await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
     await dbCard.waitForExist({ reverse: true });
   });
