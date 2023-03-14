@@ -1,19 +1,11 @@
-import type {
-  CompletionContext,
-  CompletionSource,
-} from '@codemirror/autocomplete';
-import { syntaxTree } from '@codemirror/language';
+import type { CompletionSource } from '@codemirror/autocomplete';
 import { completeAnyWord, ifIn } from '@codemirror/autocomplete';
 import { completer, wrapField } from '../autocompleter';
 import { languageName } from '../json-editor';
+import { resolveTokenAtCursor } from './utils';
+import type { Token } from './utils';
 
 const completeWordsInString = ifIn(['String'], completeAnyWord);
-
-function resolveTokenAtCursor(context: CompletionContext) {
-  return syntaxTree(context.state).resolveInner(context.pos, -1);
-}
-
-type Token = ReturnType<typeof resolveTokenAtCursor>;
 
 function isJSONPropertyName(token: Token): boolean {
   return (
