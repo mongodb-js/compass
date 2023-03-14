@@ -145,7 +145,9 @@ const configureStore = (options = {}) => {
         score: ONE,
         meta: FIELD,
         version: VERSION_ZERO,
-        description: fields[key].type,
+        description: Array.isArray(fields[key].type)
+          ? fields[key].type.join(' | ')
+          : fields[key].type,
       };
     });
   };
