@@ -337,7 +337,7 @@ describe('Database collections tab', function () {
     expect(await typeElement.getText()).to.equal('CLUSTERED');
   });
 
-  it.only('can refresh the list of collections using refresh controls', async function () {
+  it('can refresh the list of collections using refresh controls', async function () {
     const dbName = `test`;
     const collName = `zcoll-${Date.now()}`;
     // Create the collection and refresh
