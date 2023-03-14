@@ -26,16 +26,17 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   const importModal = await browser.$(Selectors.ImportModal);
   await importModal.waitForDisplayed();
 
-  // Confirm
+  // Confirm import.
   await browser.clickVisible(Selectors.ImportConfirm);
 
-  // wait for the done button to appear and then click it
-  const doneButton = await browser.$(Selectors.ImportDone);
-  await doneButton.waitForDisplayed();
-  await browser.clickVisible(Selectors.ImportDone);
-
-  // wait for the modal to go away
+  // Wait for the modal to go away.
   await importModal.waitForDisplayed({ reverse: false });
+
+  // Wait for the done toast to appear and close it.
+  const toast = Selectors.ImportConnectionsSucceededToast;
+  await browser.$(toast).waitForDisplayed();
+  await browser.clickVisible(Selectors.closeToastButton(toast));
+  await browser.$(toast).waitForDisplayed({ reverse: true });
 }
 
 async function selectFieldType(
@@ -75,7 +76,7 @@ async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
   expect(await checkboxElement.isSelected()).to.be.false;
 }
 
-describe('Collection import', function () {
+describe.only('Collection import', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -426,20 +427,19 @@ describe('Collection import', function () {
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the error message to appear
-    const errorElement = await browser.$(Selectors.ImportErrorBox);
-    await errorElement.waitForDisplayed();
-    const errorText = await errorElement.getText();
-    expect(errorText).to.match(/^Parser has expected a value/);
-
-    // click the cancel button
-    await browser.clickVisible(Selectors.ImportCancel);
-
-    // wait for the modal to go away
+    // Wait for the modal to go away.
     await importModal.waitForDisplayed({ reverse: false });
+
+    // Wait for the error toast to appear and close it.
+    const toast = Selectors.ImportCompletedWithErrorsToast;
+    await browser.$(toast).waitForDisplayed();
+    const errorText = await browser.$(toast).getText();
+    expect(errorText).to.match(/^Parser has expected a value/);
+    await browser.clickVisible(Selectors.closeToastButton(toast));
+    await browser.$(toast).waitForDisplayed({ reverse: true });
   });
 
   it('supports CSV files', async function () {
@@ -483,17 +483,17 @@ describe('Collection import', function () {
     // deselect a field
     await unselectFieldName(browser, 'license');
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the done button to appear and then click it
-    const doneButton = await browser.$(Selectors.ImportDone);
-    await doneButton.waitForDisplayed();
-
-    await browser.clickVisible(Selectors.ImportDone);
-
-    // wait for the modal to go away
+    // Wait for the modal to go away.
     await importModal.waitForDisplayed({ reverse: false });
+
+    // Wait for the done toast to appear and close it.
+    const toast = Selectors.ImportConnectionsSucceededToast;
+    await browser.$(toast).waitForDisplayed();
+    await browser.clickVisible(Selectors.closeToastButton(toast));
+    await browser.$(toast).waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -593,17 +593,17 @@ describe('Collection import', function () {
       await selectFieldType(browser, fieldName, fieldType);
     }
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the done button to appear and then click it
-    const doneButton = await browser.$(Selectors.ImportDone);
-    await doneButton.waitForDisplayed();
-
-    await browser.clickVisible(Selectors.ImportDone);
-
-    // wait for the modal to go away
+    // Wait for the modal to go away.
     await importModal.waitForDisplayed({ reverse: false });
+
+    // Wait for the done toast to appear and close it.
+    const toast = Selectors.ImportConnectionsSucceededToast;
+    await browser.$(toast).waitForDisplayed();
+    await browser.clickVisible(Selectors.closeToastButton(toast));
+    await browser.$(toast).waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -654,19 +654,21 @@ describe('Collection import', function () {
     // confirm
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the error message to appear
-    const errorElement = await browser.$(Selectors.ImportErrorBox);
-    await errorElement.waitForDisplayed();
-    const errorText = await errorElement.getText();
-    expect(errorText).to.equal(
+    // Confirm import.
+    await browser.clickVisible(Selectors.ImportConfirm);
+
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: false });
+
+    // Wait for the error toast to appear and close it.
+    const toast = Selectors.ImportCompletedWithErrorsToast;
+    await browser.$(toast).waitForDisplayed();
+    const toastText = await browser.$(toast).getText();
+    expect(toastText).to.equal(
       'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
     );
-
-    // click the done button
-    await browser.clickVisible(Selectors.ImportDone);
-
-    // wait for the modal to go away
-    await importModal.waitForDisplayed({ reverse: false });
+    await browser.clickVisible(Selectors.closeToastButton(toast));
+    await browser.$(toast).waitForDisplayed({ reverse: true });
   });
 
   it('allows changing the delimiter', async function () {
@@ -722,17 +724,17 @@ describe('Collection import', function () {
       await selectFieldType(browser, fieldName, fieldType);
     }
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the done button to appear and then click it
-    const doneButton = await browser.$(Selectors.ImportDone);
-    await doneButton.waitForDisplayed();
-
-    await browser.clickVisible(Selectors.ImportDone);
-
-    // wait for the modal to go away
+    // Wait for the modal to go away.
     await importModal.waitForDisplayed({ reverse: false });
+
+    // Wait for the done toast to appear and close it.
+    const toast = Selectors.ImportConnectionsSucceededToast;
+    await browser.$(toast).waitForDisplayed();
+    await browser.clickVisible(Selectors.closeToastButton(toast));
+    await browser.$(toast).waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -752,4 +754,8 @@ describe('Collection import', function () {
         '"18080;;9;anything;9;;12-01-2016"',
     });
   });
+
+  // TODO: It stops on errors and displays the first error.
+  // TODO: It shows a log file. The log file contains the errors.
+  // TODO: Abort aborts.
 });

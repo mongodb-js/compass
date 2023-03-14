@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
@@ -12,11 +12,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
-import {
-  FINISHED_STATUSES,
-  COMPLETED_STATUSES,
-  STARTED,
-} from '../constants/process-status';
+import { FINISHED_STATUSES, STARTED } from '../constants/process-status';
 import type { ProcessStatus } from '../constants/process-status';
 import { ImportPreview } from './import-preview';
 import { ImportOptions } from './import-options';
@@ -117,11 +113,6 @@ function ImportModal({
     startImport();
   }, [startImport]);
 
-  const importWasSuccessful = useMemo(
-    () => COMPLETED_STATUSES.includes(status),
-    [status]
-  );
-
   useEffect(() => {
     // When the errors change and there are new errors, we auto scroll
     // to the end of the modal body to ensure folks see the new errors.
@@ -184,33 +175,21 @@ function ImportModal({
         <ImportErrorList errors={errors} />
       </ModalBody>
       <ModalFooter>
-        {importWasSuccessful ? (
-          <Button
-            data-testid="done-button"
-            onClick={handleClose}
-            variant="primary"
-          >
-            Done
-          </Button>
-        ) : (
-          <>
-            <Button
-              data-testid="import-button"
-              onClick={handleImportBtnClicked}
-              disabled={!fileName || status === STARTED}
-              variant="primary"
-            >
-              {status === STARTED ? 'Importing\u2026' : 'Import'}
-            </Button>
-            <Button
-              className={closeButtonStyles}
-              data-testid="cancel-button"
-              onClick={handleClose}
-            >
-              {FINISHED_STATUSES.includes(status) ? 'Close' : 'Cancel'}
-            </Button>
-          </>
-        )}
+        <Button
+          data-testid="import-button"
+          onClick={handleImportBtnClicked}
+          disabled={!fileName || status === STARTED}
+          variant="primary"
+        >
+          {status === STARTED ? 'Importing\u2026' : 'Import'}
+        </Button>
+        <Button
+          className={closeButtonStyles}
+          data-testid="cancel-button"
+          onClick={handleClose}
+        >
+          {FINISHED_STATUSES.includes(status) ? 'Close' : 'Cancel'}
+        </Button>
       </ModalFooter>
     </Modal>
   );

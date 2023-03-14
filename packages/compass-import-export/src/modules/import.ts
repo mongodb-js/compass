@@ -258,6 +258,7 @@ export const startImport = () => {
     dispatch(onStarted(abortController));
 
     openToast(importToastId, {
+      dataTestId: 'import-toast-in-progress',
       title: `Importing ${fileType} file...`,
       body: useToastAction({
         statusMessage: 'Starting...',
@@ -305,6 +306,7 @@ export const startImport = () => {
 
       // Update the toast with the new progress.
       openToast(importToastId, {
+        dataTestId: 'import-toast-in-progress',
         title: `Importing ${fileType} file...`,
         body: useToastAction({
           statusMessage: `${docsWritten}/${guessedTotal}`,
@@ -364,6 +366,7 @@ export const startImport = () => {
           aborted: result.aborted,
         });
 
+        const resultText = result.aborted ? 'aborted' : 'completed';
         if (errors.length > 0) {
           // Show the first two errors and a message that more errors exists.
           const statusMessage = `${errors
@@ -375,9 +378,8 @@ export const startImport = () => {
               : ''
           }`;
           openToast(importToastId, {
-            title: `Import ${
-              result.aborted ? 'aborted' : 'completed'
-            } with the following errors:`,
+            dataTestId: `import-toast-result-errors-${resultText}`,
+            title: `Import ${resultText} with the following errors:`,
             body: useToastAction({
               statusMessage,
               actionHandler: () => {
@@ -389,7 +391,8 @@ export const startImport = () => {
           });
         } else {
           openToast(importToastId, {
-            title: `Import ${result.aborted ? 'aborted' : 'completed'}.`,
+            dataTestId: `import-toast-result-${resultText}`,
+            title: `Import ${resultText}.`,
             body: result.aborted
               ? undefined
               : `${result.docsWritten} documents written.`,
@@ -432,6 +435,7 @@ export const startImport = () => {
         });
 
         openToast(importToastId, {
+          dataTestId: 'import-toast-result-failed',
           title: `Failed to import with the following error:`,
           body: err.message,
           variant: 'warning',
@@ -513,10 +517,6 @@ const loadCSVPreviewDocs = (
       });
   };
 };
-
-/**
- * ### User actions for speficying import options
- */
 
 /**
  * Mark a field to be included or excluded from the import.

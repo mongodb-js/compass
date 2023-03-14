@@ -18,6 +18,7 @@ type ToastProperties = {
   body: React.ReactNode;
   variant: ToastVariant;
   progress?: number;
+  dataTestId?: string;
   timeout?: number;
   dismissible?: boolean;
 };
@@ -58,27 +59,6 @@ class GlobalToastState implements ToastActions {
     this.toasts.delete(id);
     this.onToastsChange(Array.from(this.toasts.entries()));
   }
-  // TODO: Close toast dismissible. Not always show.
-  // TODO: Do we need and update toast or does open toast work.
-  // updateToast(id: string, toastProperties: ToastProperties): void {
-  //   const toast = this.toasts.get(id);
-  //   if (!this.toasts.get(id)) {
-  //     return;
-  //   }
-
-  //   // When a toast is updated we don't change the timeout, unless the timeout amount was changed.
-  //   if (toastProperties.timeout !== toast.timeout) {
-  //     this.timeouts
-  //   }
-  //   this.toasts.set();
-
-  //   // this.toasts.set();
-  //   // toast.
-
-  //   // this.clearTimeout(id);
-  //   // this.toasts.delete(id);
-  //   this.onToastsChange(Array.from(this.toasts.entries()));
-  // }
   clearTimeout(id?: string) {
     if (id) {
       if (this.timeouts.has(id)) {
@@ -157,19 +137,24 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
     <ToastContext.Provider value={toastActions}>
       <>{children}</>
       <>
-        {toasts.map(([id, { dismissible, title, body, variant, progress }]) => (
-          <Toast
-            className={toastStyles}
-            key={id}
-            data-testid={`toast-${id}`}
-            title={title}
-            body={body}
-            variant={variant}
-            progress={progress}
-            open={true}
-            close={dismissible ? () => closeToast(id) : undefined}
-          />
-        ))}
+        {toasts.map(
+          ([
+            id,
+            { dataTestId, dismissible, title, body, variant, progress },
+          ]) => (
+            <Toast
+              className={toastStyles}
+              key={id}
+              data-testid={dataTestId ?? `toast-${id}`}
+              title={title}
+              body={body}
+              variant={variant}
+              progress={progress}
+              open={true}
+              close={dismissible ? () => closeToast(id) : undefined}
+            />
+          )
+        )}
       </>
     </ToastContext.Provider>
   );

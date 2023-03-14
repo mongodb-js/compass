@@ -553,11 +553,17 @@ export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
-export const ImportCancel =
-  '[data-testid="import-modal"] [data-testid="cancel-button"]';
-export const ImportDone =
-  '[data-testid="import-modal"] [data-testid="done-button"]';
-export const ImportErrorBox = '[data-testid="import-error-box"]';
+// export const ImportCancel =
+//   '[data-testid="import-modal"] [data-testid="cancel-button"]';
+export const ImportSucceededToast =
+  '[data-testid="toast-import-toast-result-success"]';
+export const ImportCompletedWithErrorsToast =
+  '[data-testid="toast-import-toast-result-errors-completed"]';
+export const ImportAbortedToast =
+  '[data-testid="toast-import-toast-result-aborted"]';
+export const ImportFailedToast =
+  '[data-testid="toast-import-toast-result-failed"]';
+// export const ImportErrorBox = '[data-testid="import-error-box"]'; // TODO: remove
 
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] button`;
