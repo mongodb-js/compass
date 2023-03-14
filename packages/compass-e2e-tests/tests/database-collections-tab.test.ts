@@ -9,6 +9,7 @@ import {
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
+  createBlankCollection,
   createDummyCollections,
   createNumbersCollection,
 } from '../helpers/insert-data';
@@ -342,9 +343,7 @@ describe('Database collections tab', function () {
     const collName = `zcoll-${Date.now()}`;
     // Create the collection and refresh
     await browser.navigateToDatabaseTab(dbName, 'Collections');
-    await browser.shellEval(
-      `db.getSiblingDB("${dbName}").createCollection("${collName}")`
-    );
+    await createBlankCollection(dbName, collName);
     await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
     const collSelector = Selectors.collectionCard(dbName, collName);

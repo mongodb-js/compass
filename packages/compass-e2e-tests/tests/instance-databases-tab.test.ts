@@ -6,8 +6,10 @@ import type { Compass } from '../helpers/compass';
 import { LOG_PATH } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
+  createBlankCollection,
   createDummyCollections,
   createNumbersCollection,
+  dropDatabase,
 } from '../helpers/insert-data';
 
 describe('Instance databases tab', function () {
@@ -139,9 +141,7 @@ describe('Instance databases tab', function () {
     const collName = 'my-collection';
     // Create the database and refresh
     await browser.navigateToInstanceTab('Databases');
-    await browser.shellEval(
-      `db.getSiblingDB("${dbName}").createCollection("${collName}")`
-    );
+    await createBlankCollection(dbName, collName);
     await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
 
     const dbSelector = Selectors.databaseCard(dbName);
@@ -154,7 +154,7 @@ describe('Instance databases tab', function () {
     await dbCard.waitForDisplayed();
 
     // Drop it and refresh again
-    await browser.shellEval(`db.getSiblingDB("${dbName}").dropDatabase();`);
+    await dropDatabase(dbName);
     await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton);
     await dbCard.waitForExist({ reverse: true });
   });

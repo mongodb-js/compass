@@ -3,7 +3,7 @@ import type { Db, MongoServerError } from 'mongodb';
 
 const CONNECTION_URI = 'mongodb://localhost:27091';
 
-async function dropDatabase(db: Db) {
+async function _dropDatabase(db: Db) {
   try {
     await db.dropDatabase();
   } catch (err) {
@@ -14,7 +14,7 @@ async function dropDatabase(db: Db) {
   }
 }
 
-async function createBlankCollection(db: Db, name: string) {
+async function _createBlankCollection(db: Db, name: string) {
   try {
     await db.createCollection(name);
   } catch (err) {
@@ -50,9 +50,19 @@ beforeEach(async () => {
       'fle-test',
       'db-for-fle',
       'multiple-collections',
-    ].map((db) => dropDatabase(client.db(db)))
+    ].map((db) => _dropDatabase(client.db(db)))
   );
 });
+
+export async function createBlankCollection(dbName: string, collName: string) {
+  const db = client.db(dbName);
+  return await _createBlankCollection(db, collName);
+}
+
+export async function dropDatabase(dbName: string) {
+  const db = client.db(dbName);
+  return await _dropDatabase(db);
+}
 
 export async function createDummyCollections(): Promise<void> {
   const db = client.db('test');
@@ -61,18 +71,18 @@ export async function createDummyCollections(): Promise<void> {
   // Create some empty collections for the import tests so each one won't have
   // to possibly drop and create via the UI every time.
   // (named loosely after the relevant test)
-  promises.push(createBlankCollection(db, 'json-array'));
-  promises.push(createBlankCollection(db, 'json-file'));
-  promises.push(createBlankCollection(db, 'extended-json-file'));
-  promises.push(createBlankCollection(db, 'csv-file'));
-  promises.push(createBlankCollection(db, 'bom-csv-file'));
-  promises.push(createBlankCollection(db, 'broken-delimiter'));
-  promises.push(createBlankCollection(db, 'numbers'));
+  promises.push(_createBlankCollection(db, 'json-array'));
+  promises.push(_createBlankCollection(db, 'json-file'));
+  promises.push(_createBlankCollection(db, 'extended-json-file'));
+  promises.push(_createBlankCollection(db, 'csv-file'));
+  promises.push(_createBlankCollection(db, 'bom-csv-file'));
+  promises.push(_createBlankCollection(db, 'broken-delimiter'));
+  promises.push(_createBlankCollection(db, 'numbers'));
 
   // lots of collections to test virtual scrolling
   for (let i = 0; i < 26; ++i) {
     promises.push(
-      createBlankCollection(
+      _createBlankCollection(
         db,
         'zzz' + String.fromCharCode('a'.charCodeAt(0) + i)
       )
