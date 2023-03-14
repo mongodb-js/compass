@@ -154,15 +154,12 @@ const useFocusModeGuideCue = (stageIndex: number) => {
   const [setGuideCueIntersectingRef, isIntersecting] = useInView({
     threshold: 0.5,
   });
-  const showFocusMode = usePreference('showFocusMode', React);
 
   useEffect(() => {
     if (!hasSeenFocusModeGuideCue()) {
-      setIsGuideCueVisible(
-        Boolean(stageIndex === 0 && showFocusMode && isIntersecting)
-      );
+      setIsGuideCueVisible(Boolean(stageIndex === 0 && isIntersecting));
     }
-  }, [setIsGuideCueVisible, showFocusMode, stageIndex, isIntersecting]);
+  }, [setIsGuideCueVisible, stageIndex, isIntersecting]);
 
   const setGuideCueVisited = () => {
     setIsGuideCueVisible(false);

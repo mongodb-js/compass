@@ -110,7 +110,6 @@ export function StageToolbar({
   editorRef,
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
-  const showFocusMode = usePreference('showFocusMode', React);
 
   return (
     <div
@@ -135,16 +134,14 @@ export function StageToolbar({
         {isDisabled ? DISABLED_TEXT : isCollapsed ? COLLAPSED_TEXT : null}
       </div>
       <div className={rightStyles}>
-        {showFocusMode && (
-          <IconButton
-            onClick={onOpenFocusMode}
-            aria-label="Open stage in focus mode"
-            data-testid="focus-mode-button"
-            data-guide-cue-ref="focus-mode-button"
-          >
-            <Icon glyph="FullScreenEnter" size="small"></Icon>
-          </IconButton>
-        )}
+        <IconButton
+          onClick={onOpenFocusMode}
+          aria-label="Open stage in focus mode"
+          data-testid="focus-mode-button"
+          data-guide-cue-ref="focus-mode-button"
+        >
+          <Icon glyph="FullScreenEnter" size="small"></Icon>
+        </IconButton>
         <OptionMenu index={index} />
       </div>
     </div>
