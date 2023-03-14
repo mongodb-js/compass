@@ -19,6 +19,11 @@ type ToastProperties = {
   variant: ToastVariant;
   progress?: number;
   timeout?: number;
+  dismissible?: boolean;
+};
+
+const defaultToastProperties: Partial<ToastProperties> = {
+  dismissible: true,
 };
 
 interface ToastActions {
@@ -34,7 +39,10 @@ class GlobalToastState implements ToastActions {
   };
   openToast(id: string, toastProperties: ToastProperties): void {
     this.clearTimeout(id);
-    this.toasts.set(id, toastProperties);
+    this.toasts.set(id, {
+      ...defaultToastProperties,
+      ...toastProperties,
+    });
     if (toastProperties.timeout) {
       this.timeouts.set(
         id,
@@ -50,6 +58,27 @@ class GlobalToastState implements ToastActions {
     this.toasts.delete(id);
     this.onToastsChange(Array.from(this.toasts.entries()));
   }
+  // TODO: Close toast dismissible. Not always show.
+  // TODO: Do we need and update toast or does open toast work.
+  // updateToast(id: string, toastProperties: ToastProperties): void {
+  //   const toast = this.toasts.get(id);
+  //   if (!this.toasts.get(id)) {
+  //     return;
+  //   }
+
+  //   // When a toast is updated we don't change the timeout, unless the timeout amount was changed.
+  //   if (toastProperties.timeout !== toast.timeout) {
+  //     this.timeouts
+  //   }
+  //   this.toasts.set();
+
+  //   // this.toasts.set();
+  //   // toast.
+
+  //   // this.clearTimeout(id);
+  //   // this.toasts.delete(id);
+  //   this.onToastsChange(Array.from(this.toasts.entries()));
+  // }
   clearTimeout(id?: string) {
     if (id) {
       if (this.timeouts.has(id)) {
@@ -128,7 +157,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
     <ToastContext.Provider value={toastActions}>
       <>{children}</>
       <>
-        {toasts.map(([id, { title, body, variant, progress }]) => (
+        {toasts.map(([id, { dismissible, title, body, variant, progress }]) => (
           <Toast
             className={toastStyles}
             key={id}
@@ -138,7 +167,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
             variant={variant}
             progress={progress}
             open={true}
-            close={() => closeToast(id)}
+            close={dismissible ? () => closeToast(id) : undefined}
           />
         ))}
       </>

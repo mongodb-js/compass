@@ -16,18 +16,11 @@ import {
   FINISHED_STATUSES,
   COMPLETED_STATUSES,
   STARTED,
-  COMPLETED,
-  COMPLETED_WITH_ERRORS,
-  CANCELED,
-  FAILED,
-  UNSPECIFIED,
 } from '../constants/process-status';
 import type { ProcessStatus } from '../constants/process-status';
-import ProgressBar from './progress-bar';
 import { ImportPreview } from './import-preview';
 import { ImportOptions } from './import-options';
 import type { AcceptedFileType } from '../constants/file-types';
-import formatNumber from '../utils/format-number';
 import {
   startImport,
   cancelImport,
@@ -43,18 +36,6 @@ import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
-
-/**
- * Progress messages.
- */
-const MESSAGES = {
-  [STARTED]: 'Importing documents...',
-  [CANCELED]: 'Import canceled',
-  [COMPLETED]: 'Import completed',
-  [COMPLETED_WITH_ERRORS]: 'Import completed with following errors:',
-  [FAILED]: 'Failed to import with the following error:',
-  [UNSPECIFIED]: '',
-} as const;
 
 const closeButtonStyles = css({
   marginRight: spacing[2],
@@ -81,15 +62,6 @@ type ImportModalProps = {
   setStopOnErrors: (stopOnErrors: boolean) => void;
   ignoreBlanks: boolean;
   setIgnoreBlanks: (ignoreBlanks: boolean) => void;
-
-  /**
-   * See `<ProgressBar />`
-   */
-  docsTotal: number;
-  docsProcessed: number;
-  docsWritten: number;
-  guesstimatedDocsTotal: number;
-  guesstimatedDocsProcessed: number;
 
   /**
    * See `<ImportPreview />`
@@ -125,12 +97,6 @@ function ImportModal({
   ignoreBlanks,
   setIgnoreBlanks,
 
-  docsTotal,
-  docsProcessed,
-  docsWritten,
-  guesstimatedDocsTotal,
-  guesstimatedDocsProcessed,
-
   fields,
   values,
   toggleIncludeField,
@@ -150,10 +116,6 @@ function ImportModal({
   const handleImportBtnClicked = useCallback(() => {
     startImport();
   }, [startImport]);
-
-  // docsTotal is set to actual value only at the very end of processing a
-  // stream of documents
-  const isGuesstimated = useMemo(() => docsTotal === -1, [docsTotal]);
 
   const importWasSuccessful = useMemo(
     () => COMPLETED_STATUSES.includes(status),
@@ -219,32 +181,6 @@ function ImportModal({
             />
           </FormFieldContainer>
         )}
-        <ProgressBar
-          status={status}
-          withErrors={errors.length > 0}
-          cancel={cancelImport}
-          docsWritten={docsWritten}
-          docsProcessed={Math.max(docsProcessed, guesstimatedDocsProcessed)}
-          docsTotal={
-            // When guesstimating, guessed total might be too low, in that
-            // case the most reasonable thing to do would be to fallback to
-            // currently processed number
-            isGuesstimated
-              ? Math.max(docsProcessed, guesstimatedDocsTotal)
-              : docsTotal
-          }
-          progressLabel={(written: number, total: number) => {
-            return `${formatNumber(written)}\u00a0/\u00a0${
-              isGuesstimated ? '~' : ''
-            }${formatNumber(total)}`;
-          }}
-          progressTitle={(written: number, total: number) => {
-            return `Imported ${formatNumber(written)} out of ${
-              isGuesstimated ? 'approximately ' : ''
-            }${formatNumber(total)} documents`;
-          }}
-          message={MESSAGES[status]}
-        />
         <ImportErrorList errors={errors} />
       </ModalBody>
       <ModalFooter>
@@ -290,11 +226,6 @@ const mapStateToProps = (state: RootImportState) => ({
   fileType: state.importData.fileType,
   fileName: state.importData.fileName,
   status: state.importData.status,
-  docsTotal: state.importData.docsTotal,
-  docsProcessed: state.importData.docsProcessed,
-  docsWritten: state.importData.docsWritten,
-  guesstimatedDocsTotal: state.importData.guesstimatedDocsTotal,
-  guesstimatedDocsProcessed: state.importData.guesstimatedDocsProcessed,
   delimiter: state.importData.delimiter,
   stopOnErrors: state.importData.stopOnErrors,
   ignoreBlanks: state.importData.ignoreBlanks,

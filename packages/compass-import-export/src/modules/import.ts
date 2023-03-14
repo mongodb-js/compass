@@ -12,7 +12,7 @@
  *               | > cancelImport()
  * ```
  *
- * - [User actions for speficying import options] can be called once the modal has been opened
+ * - [User actions for specifying import options] can be called once the modal has been opened
  * - Once `startImport()` has been called, [Import status action creators] are created internally
  *
  * NOTE: lucas: Any values intended for internal-use only, such as the action
@@ -28,6 +28,7 @@ import { promisify } from 'util';
 import fs from 'fs';
 import type { AnyAction, Dispatch } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import { openToast } from '@mongodb-js/compass-components';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
@@ -42,6 +43,7 @@ import { guessFileType } from '../import/guess-filetype';
 import { listCSVFields } from '../import/list-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
+import { useToastAction } from '../hooks/use-toast-action';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
@@ -58,7 +60,6 @@ const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
 const PREFIX = 'import-export/import';
 export const STARTED = `${PREFIX}/STARTED`;
 export const CANCELED = `${PREFIX}/CANCELED`;
-export const GUESSTIMATED_PROGRESS = `${PREFIX}/GUESSTIMATED_PROGRESS`;
 export const PROGRESS = `${PREFIX}/PROGRESS`;
 export const FINISHED = `${PREFIX}/FINISHED`;
 export const FAILED = `${PREFIX}/FAILED`;
@@ -75,6 +76,8 @@ export const SET_STOP_ON_ERRORS = `${PREFIX}/SET_STOP_ON_ERRORS`;
 export const SET_IGNORE_BLANKS = `${PREFIX}/SET_IGNORE_BLANKS`;
 export const TOGGLE_INCLUDE_FIELD = `${PREFIX}/TOGGLE_INCLUDE_FIELD`;
 export const SET_FIELD_TYPE = `${PREFIX}/SET_FIELD_TYPE`;
+
+const importToastId = 'import-toast';
 
 export type FieldFromCSV = {
   path: string;
@@ -103,8 +106,6 @@ type State = {
   docsTotal: number;
   docsProcessed: number;
   docsWritten: number;
-  guesstimatedDocsTotal: number;
-  guesstimatedDocsProcessed: number;
   delimiter: CSVDelimiter;
   stopOnErrors: boolean;
 
@@ -130,8 +131,6 @@ export const INITIAL_STATE: State = {
   docsTotal: -1,
   docsProcessed: 0,
   docsWritten: 0,
-  guesstimatedDocsTotal: 0,
-  guesstimatedDocsProcessed: 0,
   delimiter: ',',
   stopOnErrors: false,
   ignoreBlanks: true,
@@ -142,33 +141,6 @@ export const INITIAL_STATE: State = {
   transform: [],
   fileType: '',
 };
-
-/**
- * ### Import status action creators
- *
- * @see startImport below.
- *
- * ```
- * STARTED >
- * | *ERROR* || SET_GUESSTIMATED_TOTAL >
- *           | <-- PROGRESS -->
- *           | *FINISHED*
- * ```
- */
-
-/**
- * @param {Number} progress
- * @param {Number} docsWritten
- * @api private
- */
-export const onGuesstimatedProgress = (
-  docsProcessed: number,
-  docsTotal: number
-) => ({
-  type: GUESSTIMATED_PROGRESS,
-  guesstimatedDocsProcessed: docsProcessed,
-  guesstimatedDocsTotal: docsTotal,
-});
 
 export const onProgress = ({
   docsWritten,
@@ -193,11 +165,6 @@ export const onFinished = (docsWritten: number, docsTotal: number) => ({
 });
 
 export const onFailed = (error: Error) => ({ type: FAILED, error });
-
-export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal: number) => ({
-  type: SET_GUESSTIMATED_TOTAL,
-  guesstimatedDocsTotal: guesstimatedDocsTotal,
-});
 
 const fieldTypeMap: Record<string, CSVParsableFieldType> = {
   String: 'string',
@@ -285,6 +252,20 @@ export const startImport = () => {
     const abortSignal = abortController.signal;
     dispatch(onStarted(abortController));
 
+    openToast(importToastId, {
+      title: `Importing ${fileType} file...`,
+      // body: `Starting...`,
+      body: useToastAction({
+        statusMessage: 'Starting...',
+        actionHandler: () => {
+          abortController.abort();
+        },
+        actionText: 'stop',
+      }),
+      variant: 'progress',
+      dismissible: false,
+    });
+
     let promise;
 
     // TODO: log file, but probably only useful once we have the toast (COMPASS-6564)
@@ -305,16 +286,11 @@ export const startImport = () => {
       docsWritten: number;
       bytesProcessed: number;
     }) {
-      // for now, call onGuesstimatedDocsTotal() so that the existing progress bar works
       const averageSize = bytesProcessed / docsProcessed;
       const guessedTotal = Math.max(
         docsProcessed,
         Math.ceil(fileSize / averageSize)
       );
-      dispatch(onGuesstimatedDocsTotal(guessedTotal));
-
-      dispatch(onGuesstimatedProgress(docsProcessed, guessedTotal));
-
       dispatch(
         onProgress({
           docsWritten,
@@ -322,6 +298,23 @@ export const startImport = () => {
           errors: errors.slice(), // make sure it is not the same variable
         })
       );
+
+      // Update the toast with the new progress.
+      openToast(importToastId, {
+        title: `Importing ${fileType} file...`,
+        // body: `${docsWritten}/${guessedTotal}`,
+        body: useToastAction({
+          statusMessage: `${docsWritten}/${guessedTotal}`,
+          actionHandler: () => {
+            abortController.abort();
+          },
+          actionText: 'cancel',
+        }),
+        variant: 'progress',
+        progress: Math.min(1, guessedTotal / Math.max(docsProcessed, 1)), // 0-1.
+        dismissible: false,
+        // TODO: STOP action
+      });
     },
     1000);
 
@@ -367,6 +360,42 @@ export const startImport = () => {
           success: true,
         });
 
+        if (errors.length > 0) {
+          const statusMessage = `${errors
+            .slice(0, 2)
+            .map((error) => error.message)
+            .join('\n')}${
+            errors.length > 2
+              ? '\nMore errors occurred, open the error log to view.'
+              : ''
+          }`;
+          openToast(importToastId, {
+            title: `Import completed with the following errors:`,
+            // Show the first two errors and then a more errors not shown when there are more.
+            // body: `${
+            //   errors.slice(0, 2).map(error => error.message).join('\n')
+            // }${
+            //   errors.length > 2 ? '\nMore errors occurred, open the error log to view.' : ''
+            // }`,
+            body: useToastAction({
+              statusMessage,
+              actionHandler: () => {
+                abortController.abort();
+              },
+              actionText: 'view log',
+            }),
+            variant: 'warning',
+            // TODO: Error log.
+          });
+        } else {
+          openToast(importToastId, {
+            title: `Import completed.`,
+            body: `${result.docsWritten}/${result.docsProcessed}`,
+            variant: 'success',
+          });
+        }
+        // TODO: Stop on errors show errors, not always success variant.
+
         log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
           ns,
           docsWritten: result.docsWritten,
@@ -399,6 +428,21 @@ export const startImport = () => {
           stop_on_error_selected: stopOnErrors,
           number_of_docs: err.result.docsWritten,
           success: !err,
+        });
+
+        // TODO: Error logs.
+        // TODO: Update to success variant, dismissible.
+        openToast(importToastId, {
+          title: `Failed to import with the following error:`,
+          // body: err.message,
+          body: useToastAction({
+            statusMessage: err.message,
+            actionHandler: () => {
+              abortController.abort();
+            },
+            actionText: 'view log',
+          }),
+          variant: 'warning',
         });
 
         log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
@@ -671,8 +715,6 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       docsTotal: -1,
       docsProcessed: 0,
       docsWritten: 0,
-      guesstimatedDocsTotal: 0,
-      guesstimatedDocsProcessed: 0,
       errors: [],
       abortController: undefined,
       fields: [],
@@ -804,29 +846,13 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
   if (action.type === STARTED) {
     return {
       ...state,
+      isOpen: false,
       errors: [],
       docsTotal: -1,
       docsProcessed: 0,
       docsWritten: 0,
-      guesstimatedDocsTotal: 0,
-      guesstimatedDocsProcessed: 0,
       status: PROCESS_STATUS.STARTED,
       abortController: action.abortController,
-    };
-  }
-
-  if (action.type === SET_GUESSTIMATED_TOTAL) {
-    return {
-      ...state,
-      guesstimatedDocsTotal: action.guesstimatedDocsTotal,
-    };
-  }
-
-  if (action.type === GUESSTIMATED_PROGRESS) {
-    return {
-      ...state,
-      guesstimatedDocsProcessed: action.guesstimatedDocsProcessed,
-      guesstimatedDocsTotal: action.guesstimatedDocsTotal,
     };
   }
 
