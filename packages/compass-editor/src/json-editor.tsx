@@ -10,15 +10,27 @@
  *       uncontrolled behavior, gutters, common hotkeys
  * - [x] leafygreen light and dark theme
  * - [x] inline mode (disabled gutter extensions and adjusted theme)
+ * - [x] custom commands
  * - [ ] autocomplete
+ *   - [x] query
+ *   - [ ] stage
+ *   - [ ] aggregation
+ *   - [ ] validation
  * - [x] lint annotations (for agg. builder)
  *
  * https://jira.mongodb.org/browse/COMPASS-6481
  */
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import type { Command } from '@codemirror/view';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import type { Command, KeyBinding } from '@codemirror/view';
 import {
   keymap,
+  placeholder,
   drawSelection,
   highlightActiveLine,
   lineNumbers,
@@ -137,6 +149,8 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         outline: 'none',
       },
       '& .cm-content': {
+        paddingTop: `${spacing[1]}px`,
+        paddingBottom: `${spacing[1]}px`,
         caretColor: editorPalette[theme].cursorColor,
       },
       '& .cm-activeLine': {
@@ -327,6 +341,8 @@ type EditorProps = {
   minLines?: number;
   maxLines?: number;
   lineHeight?: number;
+  placeholder?: string;
+  commands?: readonly KeyBinding[];
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
@@ -409,7 +425,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   showLineNumbers = true,
   showFoldGutter = true,
   highlightActiveLine: shouldHighlightActiveLine = true,
-  annotations = [],
+  annotations,
   completer,
   darkMode: _darkMode,
   className,
@@ -420,6 +436,8 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   minLines,
   maxLines,
   lineHeight = 16,
+  placeholder: placeholderString,
+  commands,
   ...props
 }) => {
   const darkMode = useDarkMode(_darkMode);
@@ -429,7 +447,9 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   const initialText = useRef(_initialText ?? text);
   const initialLanguage = useRef(language);
   const containerRef = useRef<HTMLDivElement>(null);
+  const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const editorViewRef = useRef<EditorView>();
+  const [contentHeight, setContentHeight] = useState(0);
 
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
@@ -475,11 +495,10 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       return EditorView.theme({
         '.cm-scroller': {
           lineHeight: `${lineHeight}px`,
-          ...(maxLines &&
-            maxLines < Infinity && {
-              maxHeight: `${maxLines * lineHeight}px`,
-              overflow: 'auto',
-            }),
+          ...(maxLines && {
+            maxHeight: `${maxLines * lineHeight}px`,
+            overflow: 'auto',
+          }),
         },
         '.cm-content, .cm-gutter': {
           ...(minLines && { minHeight: `${minLines * lineHeight}px` }),
@@ -506,11 +525,13 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     editorViewRef
   );
 
+  const hasAnnotations = annotations && annotations.length === 0;
+
   const annotationsGutterExtension = useCodemirrorExtensionCompartment(
     () => {
-      return annotations.length === 0 ? [] : lintGutter();
+      return hasAnnotations ? [] : lintGutter();
     },
-    annotations.length === 0,
+    hasAnnotations,
     editorViewRef
   );
 
@@ -527,12 +548,39 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     editorViewRef
   );
 
+  const placeholderExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return placeholderString ? placeholder(placeholderString) : [];
+    },
+    placeholderString,
+    editorViewRef
+  );
+
+  const commandsExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return commands && commands.length > 0 ? keymap.of(commands) : [];
+    },
+    commands,
+    editorViewRef
+  );
+
+  const updateEditorContentHeight = useCallback(() => {
+    editorViewRef.current?.requestMeasure({
+      read(view) {
+        return view.contentHeight;
+      },
+      write(lines) {
+        setContentHeight(lines);
+      },
+    });
+  }, []);
+
   useLayoutEffect(() => {
-    if (!containerRef.current) {
+    if (!editorContainerRef.current) {
       throw new Error("Can't mount editor: DOM node is missing");
     }
 
-    const domNode = containerRef.current;
+    const domNode = editorContainerRef.current;
 
     const editor = (editorViewRef.current = new EditorView({
       doc: initialText.current,
@@ -556,6 +604,9 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         activeLineExtension,
         lineHeightExtension,
         themeConfigExtension,
+        placeholderExtension,
+        // User provided commands should take precendece over default keybindings
+        commandsExtension,
         keymap.of([
           {
             key: 'Ctrl-Shift-b',
@@ -576,6 +627,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
         ]),
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
+          updateEditorContentHeight();
           if (update.docChanged) {
             const text = editor.state.sliceDoc() ?? '';
             onChangeTextRef.current(text, update);
@@ -613,6 +665,8 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       }
     }
 
+    updateEditorContentHeight();
+
     return () => {
       delete (domNode as any)._cm;
       editor.destroy();
@@ -623,7 +677,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     // bottlenecks
     //
     // All the following values are refs which will not change value after
-    // initial mount and so will not re-trigger this effect
+    // initial render and so will not re-trigger this effect
     annotationsGutterExtension,
     foldGutterExtension,
     languageExtension,
@@ -633,6 +687,9 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     autocomletionExtension,
     lineHeightExtension,
     activeLineExtension,
+    placeholderExtension,
+    commandsExtension,
+    updateEditorContentHeight,
   ]);
 
   useEffect(() => {
@@ -645,8 +702,11 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     // the editor if we are in controlled mode (we might need to account for
     // cursor position, but currently this sort of update can happen only on
     // blur so we can ignore this for now)
-    if (text !== editorViewRef.current?.state.sliceDoc()) {
-      editorViewRef.current?.dispatch({
+    if (
+      editorViewRef.current &&
+      text !== (editorViewRef.current.state.sliceDoc() ?? '')
+    ) {
+      editorViewRef.current.dispatch({
         changes: {
           from: 0,
           // Replace all the content
@@ -659,17 +719,57 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
 
   useEffect(() => {
     editorViewRef.current?.dispatch({
-      effects: setDiagnosticsEffect.of(annotations),
+      effects: setDiagnosticsEffect.of(annotations ?? []),
     });
   }, [annotations]);
+
+  // We wrap editor in a relatively positioned container followed by an absolute
+  // one to be able to create a new DOM layer that will prevent component
+  // changes from triggering pricey layout reflows for the whole document. We
+  // then manually keep conatiner height in sync with the editor height to make
+  // sure that the element actually takes all the required space in the page
+  // layout. This is a performance optimization that is mainly needed for the
+  // query bar component where typing anything in the editor might trigger a
+  // layout reflow for the whole document which causes .5s lag in the UI on
+  // every character input in worst case scenarios
+  useLayoutEffect(() => {
+    if (containerRef.current) {
+      const height = `${Math.min(
+        contentHeight,
+        (maxLines ?? Infinity) * lineHeight
+      )}px`;
+      containerRef.current.style.height = height;
+    }
+  }, [maxLines, contentHeight, lineHeight]);
 
   return (
     <div
       ref={containerRef}
-      className={cx(editorStyle, className)}
-      data-codemirror="true"
-      {...props}
-    ></div>
+      style={{
+        width: '100%',
+        minHeight: Math.max(lineHeight, (minLines ?? 0) * lineHeight),
+        position: 'relative',
+      }}
+    >
+      <div
+        ref={editorContainerRef}
+        className={cx(editorStyle, className)}
+        style={{
+          // We're forcing editor to it's own layer by setting position to
+          // absolute to prevent editor layout changes and style
+          // recalculations to cause layout reflows for the whole document
+          //
+          // Having position absolute here causes element to create it's
+          // own layer that keeps all pricey layout operations inside.
+          // This works in combination wit parent height update. See above
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+        }}
+        data-codemirror="true"
+        {...props}
+      ></div>
+    </div>
   );
 };
 
@@ -756,6 +856,51 @@ BaseEditor.unfoldAll = unfoldAll;
 BaseEditor.copyAll = copyAll;
 BaseEditor.prettify = prettify;
 
-export type { EditorView };
+export type { EditorView, KeyBinding as Command };
+
+type InlineEditorProps = Omit<
+  EditorProps,
+  | 'text'
+  | 'showLineNumbers'
+  | 'showFoldGutter'
+  | 'highlightActiveLine'
+  | 'minLines'
+  | 'maxLines'
+> &
+  (
+    | { text: string; initialText?: never }
+    | { text?: never; initialText: string }
+  );
+
+const inlineStyles = css({
+  '& .cm-editor': {
+    backgroundColor: 'transparent',
+  },
+  '& .cm-scroller': {
+    overflow: '-moz-scrollbars-none',
+    '-ms-overflow-style': 'none',
+  },
+  '& .cm-scroller::-webkit-scrollbar': {
+    display: 'none',
+  },
+});
+
+const InlineEditor: React.FunctionComponent<InlineEditorProps> = ({
+  className,
+  ...props
+}) => {
+  return (
+    <BaseEditor
+      maxLines={10}
+      showFoldGutter={false}
+      showLineNumbers={false}
+      highlightActiveLine={false}
+      className={cx(inlineStyles, className)}
+      language="javascript"
+      {...props}
+    ></BaseEditor>
+  );
+};
 
 export { BaseEditor as JSONEditor };
+export { InlineEditor as CodemirrorInlineEditor };
