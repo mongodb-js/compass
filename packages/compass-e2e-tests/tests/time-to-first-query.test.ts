@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
 describe('Time to first query', function () {
