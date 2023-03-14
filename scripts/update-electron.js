@@ -89,11 +89,14 @@ async function main() {
     '@electron/rebuild'
   );
 
+  const latestBrowserslistVersion = await getLatestVersion('browserslist');
+
   console.log({
     latestElectronVersion,
     latestNodeAbiVersion,
     latestElectronRemoteVersion,
     latestElectronRebuildVersion,
+    latestBrowserslistVersion,
   });
 
   forEachPackage((props) => {
@@ -104,6 +107,7 @@ async function main() {
       '@electron/remote': `^${latestElectronRemoteVersion}`,
       '@electron/rebuild': `^${latestElectronRebuildVersion}`,
       electron: `^${latestElectronVersion}`,
+      browserslist: `^${latestBrowserslistVersion}`,
     });
   });
 }
