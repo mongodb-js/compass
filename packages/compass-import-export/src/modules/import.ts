@@ -26,6 +26,7 @@
 import _ from 'lodash';
 import { promisify } from 'util';
 import fs from 'fs';
+import path from 'path';
 import type { AnyAction, Dispatch } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
@@ -44,8 +45,12 @@ import { listCSVFields } from '../import/list-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 import { useToastAction } from '../hooks/use-toast-action';
+import { getLogsPaths } from '@mongodb-js/compass-utils';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { openFile } from '../utils/open-file';
+
+const { basepath: logsBasePath } = getLogsPaths() || { basepath: '' };
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -254,7 +259,6 @@ export const startImport = () => {
 
     openToast(importToastId, {
       title: `Importing ${fileType} file...`,
-      // body: `Starting...`,
       body: useToastAction({
         statusMessage: 'Starting...',
         actionHandler: () => {
@@ -268,9 +272,9 @@ export const startImport = () => {
 
     let promise;
 
-    // TODO: log file, but probably only useful once we have the toast (COMPASS-6564)
-    //const logPath = path.join(app.getPath('logs'), path.basename(fileName) + '.log');
-    //const output = fs.createWriteStream(logPath);
+    const errorLogFileName = `import-errors-${path.basename(fileName)}.log`;
+    const errorLogFilePath = path.join(logsBasePath, errorLogFileName);
+    const errorLogWriteStream = fs.createWriteStream(errorLogFilePath);
 
     const errors: ErrorJSON[] = [];
     const errorCallback = (err: ErrorJSON) => {
@@ -302,18 +306,16 @@ export const startImport = () => {
       // Update the toast with the new progress.
       openToast(importToastId, {
         title: `Importing ${fileType} file...`,
-        // body: `${docsWritten}/${guessedTotal}`,
         body: useToastAction({
           statusMessage: `${docsWritten}/${guessedTotal}`,
           actionHandler: () => {
-            abortController.abort();
+            dispatch(cancelImport());
           },
           actionText: 'cancel',
         }),
         variant: 'progress',
         progress: Math.min(1, guessedTotal / Math.max(docsProcessed, 1)), // 0-1.
         dismissible: false,
-        // TODO: STOP action
       });
     },
     1000);
@@ -323,7 +325,7 @@ export const startImport = () => {
         dataService,
         ns,
         input,
-        //output,
+        output: errorLogWriteStream,
         delimiter,
         fields,
         abortSignal,
@@ -337,7 +339,7 @@ export const startImport = () => {
         dataService: dataService,
         ns,
         input,
-        //output,
+        output: errorLogWriteStream,
         abortSignal,
         stopOnErrors,
         jsonVariant: fileIsMultilineJSON ? 'jsonl' : 'json',
@@ -348,6 +350,7 @@ export const startImport = () => {
 
     promise
       .finally(() => {
+        errorLogWriteStream.close();
         progressCallback.flush();
       })
       .then((result) => {
@@ -358,9 +361,11 @@ export const startImport = () => {
           stop_on_error_selected: stopOnErrors,
           number_of_docs: result.docsWritten,
           success: true,
+          aborted: result.aborted,
         });
 
         if (errors.length > 0) {
+          // Show the first two errors and a message that more errors exists.
           const statusMessage = `${errors
             .slice(0, 2)
             .map((error) => error.message)
@@ -370,31 +375,27 @@ export const startImport = () => {
               : ''
           }`;
           openToast(importToastId, {
-            title: `Import completed with the following errors:`,
-            // Show the first two errors and then a more errors not shown when there are more.
-            // body: `${
-            //   errors.slice(0, 2).map(error => error.message).join('\n')
-            // }${
-            //   errors.length > 2 ? '\nMore errors occurred, open the error log to view.' : ''
-            // }`,
+            title: `Import ${
+              result.aborted ? 'aborted' : 'completed'
+            } with the following errors:`,
             body: useToastAction({
               statusMessage,
               actionHandler: () => {
-                abortController.abort();
+                void openFile(errorLogFilePath);
               },
               actionText: 'view log',
             }),
             variant: 'warning',
-            // TODO: Error log.
           });
         } else {
           openToast(importToastId, {
-            title: `Import completed.`,
-            body: `${result.docsWritten}/${result.docsProcessed}`,
-            variant: 'success',
+            title: `Import ${result.aborted ? 'aborted' : 'completed'}.`,
+            body: result.aborted
+              ? undefined
+              : `${result.docsWritten} documents written.`,
+            variant: result.aborted ? 'warning' : 'success',
           });
         }
-        // TODO: Stop on errors show errors, not always success variant.
 
         log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
           ns,
@@ -430,18 +431,9 @@ export const startImport = () => {
           success: !err,
         });
 
-        // TODO: Error logs.
-        // TODO: Update to success variant, dismissible.
         openToast(importToastId, {
           title: `Failed to import with the following error:`,
-          // body: err.message,
-          body: useToastAction({
-            statusMessage: err.message,
-            actionHandler: () => {
-              abortController.abort();
-            },
-            actionText: 'view log',
-          }),
+          body: err.message,
           variant: 'warning',
         });
 
@@ -671,8 +663,6 @@ export const openImport = (namespace: string) => {
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
-    // TODO(COMPASS-6540): Once we have importing in the background
-    // we'll need to update how we check if an import is in progress here.
     const { status } = getState().importData;
     if (status === 'STARTED') {
       dispatch({

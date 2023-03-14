@@ -1,26 +1,15 @@
 import React from 'react';
-import {
-  Button,
-  Body,
-  css,
-  spacing,
-  Link,
-} from '@mongodb-js/compass-components';
-
-const importStatusStyles = css({
-  display: 'flex',
-  justifyContent: 'space-between',
-});
+import { css, Link, spacing } from '@mongodb-js/compass-components';
 
 const toastActionStyles = css({
   textTransform: 'uppercase',
-  // marginTop: spacing[2],
-  // marginBottom: spacing[1],
-  // Override LeafyGreen's toast button `position: absolute` styles.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // position: 'relative !important' as any,
+  marginLeft: spacing[2],
 });
 
+// Note: This is not in compass-components as having actions in toasts
+// is not recommended by LeafyGreen. We are showing actions in toasts
+// for the time being until we have a dedicated component for background
+// operation actions in Compass.
 export function useToastAction({
   statusMessage,
   actionHandler,
@@ -33,40 +22,9 @@ export function useToastAction({
   return (
     <>
       {statusMessage}
-      <Link
-        // as={Button}
-        as="button"
-        onClick={actionHandler}
-        href="#"
-        // h
-        className={toastActionStyles}
-      >
+      <Link onClick={actionHandler} href="#" className={toastActionStyles}>
         {actionText}
       </Link>
     </>
   );
-  //  <div className={importStatusStyles}>
-  {
-    /* <Body>
-        {statusMessage}
-      </Body> */
-  }
-  {
-    /* <Button
-        onClick={actionHandler}
-        className={toastActionStyles}
-      >
-        {actionText}
-      </Button> */
-  }
-
-  //   <Link
-  //     as={Button}
-  //     onClick={actionHandler}
-  //     className={toastActionStyles}
-  //   >
-  //     {actionText}
-  //   </Link>
-  // </div>
-  // )
 }
