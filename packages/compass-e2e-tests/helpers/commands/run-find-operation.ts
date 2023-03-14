@@ -6,7 +6,7 @@ async function setFilter(
   tabName: string,
   value: string
 ) {
-  await browser.setAceValue(
+  await browser.setCodemirrorEditorValue(
     Selectors.queryBarOptionInputFilter(tabName),
     value
   );
@@ -17,7 +17,7 @@ async function setProject(
   tabName: string,
   value: string
 ) {
-  await browser.setAceValue(
+  await browser.setCodemirrorEditorValue(
     Selectors.queryBarOptionInputProject(tabName),
     value
   );
@@ -28,7 +28,10 @@ export async function setSort(
   tabName: string,
   value: string
 ) {
-  await browser.setAceValue(Selectors.queryBarOptionInputSort(tabName), value);
+  await browser.setCodemirrorEditorValue(
+    Selectors.queryBarOptionInputSort(tabName),
+    value
+  );
 }
 
 async function setCollation(
@@ -36,7 +39,7 @@ async function setCollation(
   tabName: string,
   value: string
 ) {
-  await browser.setAceValue(
+  await browser.setCodemirrorEditorValue(
     Selectors.queryBarOptionInputCollation(tabName),
     value
   );

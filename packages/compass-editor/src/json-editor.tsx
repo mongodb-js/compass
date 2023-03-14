@@ -914,7 +914,7 @@ const inlineStyles = css({
   },
   '& .cm-scroller': {
     overflow: '-moz-scrollbars-none',
-    '-ms-overflow-style': 'none',
+    msOverflowStyle: 'none',
   },
   '& .cm-scroller::-webkit-scrollbar': {
     display: 'none',

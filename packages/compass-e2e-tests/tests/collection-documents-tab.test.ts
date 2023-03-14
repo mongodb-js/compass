@@ -400,8 +400,8 @@ FindIterable<Document> result = collection.find(filter);`);
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
     await browser.setCodemirrorEditorValue(
-      newjson,
-      Selectors.DocumentJSONEntry
+      Selectors.DocumentJSONEntry,
+      newjson
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -453,8 +453,8 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     await browser.setCodemirrorEditorValue(
-      newjson,
-      Selectors.DocumentJSONEntry
+      Selectors.DocumentJSONEntry,
+      newjson
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);

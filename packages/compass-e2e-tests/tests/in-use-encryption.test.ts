@@ -562,8 +562,8 @@ describe('CSFLE / QE', function () {
           phoneNumber: '10101010',
         });
         await browser.setCodemirrorEditorValue(
-          newjson,
-          Selectors.DocumentJSONEntry
+          Selectors.DocumentJSONEntry,
+          newjson
         );
 
         const footer = await document.$(Selectors.DocumentFooterMessage);

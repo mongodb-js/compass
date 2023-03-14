@@ -32,23 +32,7 @@ describe('Time to first query', function () {
 
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
-    // search for the document with id == 42 and wait for just one result to appear
-    const aceCommentElement = await browser.$(
-      '[data-testid="query-bar-option-filter"] .ace_scroller'
-    );
-    await aceCommentElement.click();
-
-    await browser.keys('{ i: 42 }');
-    const filterButtonElement = await browser.$(
-      Selectors.queryBarApplyFilterButton('Documents')
-    );
-    await filterButtonElement.click();
-    await browser.waitUntil(async () => {
-      // we start off with 20 results (assuming no filter) and we expect to
-      // have just one once the filter finishes
-      const result = await browser.$$('.document-list .document');
-      return result.length === 1;
-    });
+    await browser.runFindOperation('Documents', '{ i: 42 }');
 
     const documentElementValue = await browser.$(
       '.document-list .document .element-value-is-int32'
@@ -68,23 +52,7 @@ describe('Time to first query', function () {
 
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
-    // search for the document with id == 42 and wait for just one result to appear
-    const aceCommentElement = await browser.$(
-      '[data-testid="query-bar-option-filter"] .ace_scroller'
-    );
-    await aceCommentElement.click();
-
-    await browser.keys('{ i: 42 }');
-    const filterButtonElement = await browser.$(
-      Selectors.queryBarApplyFilterButton('Documents')
-    );
-    await filterButtonElement.click();
-    await browser.waitUntil(async () => {
-      // we start off with 20 results (assuming no filter) and we expect to
-      // have just one once the filter finishes
-      const result = await browser.$$('.document-list .document');
-      return result.length === 1;
-    });
+    await browser.runFindOperation('Documents', '{ i: 42 }');
 
     const documentElementValue = await browser.$(
       '.document-list .document .element-value-is-int32'
