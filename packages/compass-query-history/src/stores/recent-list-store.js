@@ -53,12 +53,7 @@ const configureStore = (options = {}) => {
     },
 
     addRecent(recent) {
-      /* Ignore queries that don't have a namespace. */
-      if (!('ns' in recent)) {
-        return;
-      }
-
-      const ns = recent.ns;
+      const ns = this.state.ns;
 
       /* Ignore empty or default queries */
       recent = this._filterDefaults(recent);
@@ -143,6 +138,7 @@ const configureStore = (options = {}) => {
           options.dataProvider?.dataProvider
             ?.getConnectionString?.()
             .hosts.join(',') ?? null,
+        ns: options.namespace,
       };
     },
   });

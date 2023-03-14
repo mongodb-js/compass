@@ -211,10 +211,10 @@ const configureStore = (options = {}) => {
 
     geoLayerAdded(field, layer) {
       this.geoLayers = addLayer(field, layer, this.geoLayers);
-      this.localAppRegistry.emit(
-        'compass:schema:geo-query',
-        generateGeoQuery(this.geoLayers)
-      );
+      this.localAppRegistry.emit('query-bar-change-filter', {
+        type: 'mergeGeoQuery',
+        payload: generateGeoQuery(this.geoLayers),
+      });
     },
 
     geoLayersEdited(field, layers) {
@@ -227,10 +227,10 @@ const configureStore = (options = {}) => {
       layers.eachLayer((layer) => {
         delete this.geoLayers[layer._leaflet_id];
       });
-      this.localAppRegistry.emit(
-        'compass:schema:geo-query',
-        generateGeoQuery(this.geoLayers)
-      );
+      this.localAppRegistry.emit('query-bar-change-filter', {
+        type: 'mergeGeoQuery',
+        payload: generateGeoQuery(this.geoLayers),
+      });
     },
 
     async stopAnalysis() {

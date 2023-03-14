@@ -145,7 +145,7 @@ const setupStore = ({
     isDataLake,
     isClustered,
     isFLE,
-    actions: actions,
+    actions,
     sourceName,
     editViewName,
     sourcePipeline,
@@ -294,7 +294,6 @@ const setupQueryPlugins = ({
   const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')?.[0];
   if (queryBarRole) {
     localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
-    const queryBarActions = setupActions(queryBarRole, localAppRegistry);
     setupStore({
       role: queryBarRole,
       globalAppRegistry,
@@ -306,7 +305,6 @@ const setupQueryPlugins = ({
       isTimeSeries,
       isClustered,
       isFLE,
-      actions: queryBarActions,
       query,
       aggregation,
     });

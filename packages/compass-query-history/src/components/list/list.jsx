@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import mongodbns from 'mongodb-ns';
 
 import { spacing, css } from '@mongodb-js/compass-components';
 
@@ -21,13 +20,13 @@ const factory = (ListItem) => {
         .isRequired,
       actions: PropTypes.object.isRequired,
       current: PropTypes.object,
-      ns: PropTypes.object,
+      ns: PropTypes.string,
     };
 
     static defaultProps = {
       items: [],
       current: null,
-      ns: mongodbns(''),
+      ns: '',
     };
 
     renderZeroState = (length) => {
@@ -44,7 +43,7 @@ const factory = (ListItem) => {
       const { items, ns, actions } = this.props;
 
       const renderItems = items
-        .filter((item) => item._ns === ns.ns)
+        .filter((item) => item._ns === ns)
         .map((item, index) => (
           <ListItem key={index + 1} model={item} actions={actions} />
         ));

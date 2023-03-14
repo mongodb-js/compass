@@ -19,7 +19,7 @@ describe('comparableQuery', function () {
     );
     TestBackend.enable(tmpDir);
     appRegistry = new AppRegistry();
-    store = configureStore({ localAppRegistry: appRegistry });
+    store = configureStore({ localAppRegistry: appRegistry, namespace: 'foo' });
   });
 
   afterEach(function () {
@@ -28,7 +28,7 @@ describe('comparableQuery', function () {
   });
 
   it('strips ampersand properties', function () {
-    const recent = { ns: 'foo', filter: { foo: 1 } };
+    const recent = { filter: { foo: 1 } };
 
     store.addRecent(recent);
     expect(store.state.items.length).to.equal(1);

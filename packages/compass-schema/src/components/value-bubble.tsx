@@ -72,25 +72,13 @@ function ValueBubble({
 
   const onBubbleClicked = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      const QueryAction = localAppRegistry.getAction('Query.Actions') as {
-        setValue: (opts: {
-          field: string;
-          value: any;
-          unsetIfSet: boolean;
-        }) => void;
-        toggleDistinctValue: (opts: {
-          field: string;
-          value: any;
-          unsetIfSet: boolean;
-        }) => void;
-      };
-      const action = e.shiftKey
-        ? QueryAction.toggleDistinctValue
-        : QueryAction.setValue;
-      action({
-        field: fieldName,
-        value,
-        unsetIfSet: true,
+      localAppRegistry.emit('query-bar-change-filter', {
+        type: e.shiftKey ? 'toggleDistinctValue' : 'setValue',
+        payload: {
+          field: fieldName,
+          value,
+          unsetIfSet: true,
+        },
       });
     },
     [fieldName, localAppRegistry, value]
