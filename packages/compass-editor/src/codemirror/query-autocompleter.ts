@@ -34,7 +34,7 @@ export const createQueryAutocompleter = (
     const cmCompletion = {
       label: completion.value,
       apply: wrapField(completion.value),
-      detail: completion.meta,
+      detail: completion.meta?.startsWith('field') ? 'field' : completion.meta,
       info: completion.description,
     };
 

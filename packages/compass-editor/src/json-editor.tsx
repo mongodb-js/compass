@@ -113,6 +113,11 @@ const editorPalette = {
     errorGutterIconColor: encodeURIComponent(palette.red.base),
     foldPlaceholderColor: palette.gray.base,
     foldPlaceholderBackgroundColor: palette.gray.light3,
+    autocompleteColor: palette.black,
+    autocompleteBackgroundColor: palette.gray.light3,
+    autocompleteBorderColor: palette.gray.light2,
+    autocompleteMatchColor: palette.green.dark1,
+    autocompleteSelectedBackgroundColor: palette.gray.light2,
   },
   dark: {
     color: codePalette.dark[3],
@@ -131,6 +136,11 @@ const editorPalette = {
     errorGutterIconColor: encodeURIComponent(palette.red.light1),
     foldPlaceholderColor: palette.gray.base,
     foldPlaceholderBackgroundColor: palette.gray.dark3,
+    autocompleteColor: palette.gray.light1,
+    autocompleteBackgroundColor: palette.gray.dark4,
+    autocompleteBorderColor: palette.gray.dark1,
+    autocompleteMatchColor: palette.gray.light3,
+    autocompleteSelectedBackgroundColor: palette.gray.dark2,
   },
 } as const;
 
@@ -239,6 +249,32 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         borderLeft: '2px solid',
         borderColor: editorPalette[theme].cursorColor,
         marginLeft: '-1px',
+      },
+      '& .cm-tooltip': {
+        color: editorPalette[theme].autocompleteColor,
+        backgroundColor: editorPalette[theme].autocompleteBackgroundColor,
+        border: `1px solid ${editorPalette[theme].autocompleteBorderColor}`,
+      },
+      '& .cm-tooltip.cm-tooltip-autocomplete > ul': {
+        fontFamily: fontFamilies.code,
+      },
+      '& .cm-tooltip-autocomplete ul li[aria-selected]': {
+        color: editorPalette[theme].autocompleteColor,
+        backgroundColor:
+          editorPalette[theme].autocompleteSelectedBackgroundColor,
+      },
+      '& .cm-completionIcon': {
+        display: 'none',
+      },
+      '& .cm-completionDetail': {
+        color: rgba(editorPalette[theme].autocompleteColor, 0.5),
+        fontStyle: 'normal',
+        marginRight: '1em',
+      },
+      '& .cm-completionMatchedText': {
+        color: editorPalette[theme].autocompleteMatchColor,
+        fontWeight: 'bold',
+        textDecoration: 'none',
       },
     },
     { dark: theme === 'dark' }
