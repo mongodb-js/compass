@@ -79,6 +79,11 @@ const accordionContainerStyles = css({
   marginTop: spacing[3],
 });
 
+const titleStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+});
+
 function CSFLETab({
   connectionOptions,
   updateConnectionFormField,
@@ -180,7 +185,7 @@ function CSFLETab({
       <FormFieldContainer>
         {options.map(({ title, kmsProvider, ...kmsFieldComponentOptions }) => {
           const accordionTitle = (
-            <span className={css({ display: 'flex', alignItems: 'center' })}>
+            <span className={titleStyles}>
               {title}
               <KMSProviderStatusIndicator
                 errors={errors}
