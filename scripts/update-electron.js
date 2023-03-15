@@ -9,9 +9,11 @@ async function cleanAndBootstrap(electronVersion) {
   try {
     await runInDir("npx lerna exec 'rm -Rf node_modules'");
     await runInDir('rm -Rf node_modules');
+    const packageJsonBkp = fs.readFileSync('./package.json');
     await runInDir('npm i');
     await runInDir(`npm i electron@${electronVersion}`); // make sure electron is hoisted on the root
     await runInDir('npm run bootstrap');
+    fs.writeFileSync('./package.json', packageJsonBkp);
   } catch (error) {
     console.error(`Error running command: ${error}`);
   }
