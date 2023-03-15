@@ -134,7 +134,6 @@ function pickFieldType(field: CSVField): CSVParsableFieldType {
   if (
     types.every((type) => ['int', 'long', 'double', 'undefined'].includes(type))
   ) {
-    // TODO: this needs tests
     return 'number';
   }
 
