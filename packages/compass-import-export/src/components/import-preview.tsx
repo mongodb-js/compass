@@ -10,10 +10,13 @@ import {
   cx,
   spacing,
   Label,
+  Placeholder,
+  palette,
 } from '@mongodb-js/compass-components';
 
 import { SelectFieldType } from './select-field-type';
 import { createDebug } from '../utils/logger';
+import type { CSVParsableFieldType } from '../utils/csv';
 
 const debug = createDebug('import-preview');
 
@@ -22,7 +25,13 @@ const columnHeaderStyles = css({
   gap: spacing[1],
   minWidth: spacing[6] * 2,
   paddingRight: spacing[2],
-  alignItems: 'center',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+});
+
+const columnNameStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
 });
 
 const fieldPathHeaderStyles = css({
@@ -47,49 +56,37 @@ const cellUncheckedStyles = css({
   opacity: 0.4,
 });
 
-function ImportPreview({
-  fields,
-  values,
-  onFieldCheckedChanged,
-  setFieldType,
-  loaded,
-}: {
-  fields: {
-    path: string;
-    type: string;
-    checked: boolean;
-  }[];
-  values: string[][];
-  onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
-  setFieldType: (fieldPath: string, fieldType: string) => void;
-  loaded: boolean;
-}) {
-  if (!loaded) {
-    debug('Preview unavailable: not loaded yet');
-    return null;
-  }
+const rowIndexStyles = css({
+  minWidth: 0,
+  color: palette.gray.base,
+});
 
-  if (!Array.isArray(fields) || !Array.isArray(values)) {
-    debug('Preview unavailable: Fields or values is not an array', {
-      fields,
-      values,
-    });
-    return null;
-  }
+type Field = {
+  path: string;
+  type: CSVParsableFieldType | 'placeholder';
+  checked: boolean;
+  summary?: string;
+};
 
+function FieldHeader(
+  field: Field,
+  analyzed: boolean,
+  onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void,
+  setFieldType: (fieldPath: string, fieldType: string) => void
+) {
   return (
-    <>
-      <Body weight="medium">Specify Fields and Types</Body>
-      <Table
-        data={values}
-        columns={fields.map((field) => (
-          <TableHeader
-            key={`col-${field.path}`}
-            label={
-              <div
-                className={columnHeaderStyles}
-                data-testid={`preview-field-header-${field.path}`}
-              >
+    <TableHeader
+      key={`col-${field.path}`}
+      label={
+        <div
+          className={columnHeaderStyles}
+          data-testid={`preview-field-header-${field.path}`}
+        >
+          {field.type === 'placeholder' ? (
+            ''
+          ) : (
+            <>
+              <div className={columnNameStyles}>
                 <Checkbox
                   aria-labelledby={`toggle-import-field-${field.path}`}
                   id={`toggle-import-field-checkbox-${field.path}`}
@@ -109,29 +106,98 @@ function ImportPreview({
                     onFieldCheckedChanged(field.path, !!e.target.checked)
                   }
                 />
-                <div>
-                  <Label
-                    id={`toggle-import-field-label-${field.path}`}
-                    className={fieldPathHeaderStyles}
-                    htmlFor={`toggle-import-field-checkbox-${field.path}`}
-                  >
-                    <span title={field.path}>{field.path}</span>
-                  </Label>
+                <Label
+                  id={`toggle-import-field-label-${field.path}`}
+                  className={fieldPathHeaderStyles}
+                  htmlFor={`toggle-import-field-checkbox-${field.path}`}
+                >
+                  <span title={field.path}>{field.path}</span>
+                </Label>
+              </div>
+              <div>
+                {analyzed ? (
                   <SelectFieldType
                     fieldPath={field.path}
                     selectedType={field.type}
+                    summary={field.summary}
                     onChange={(newType: string) =>
                       setFieldType(field.path, newType)
                     }
                   />
-                </div>
+                ) : (
+                  <Placeholder width={spacing[3] * 9} />
+                )}
               </div>
-            }
-          />
-        ))}
+            </>
+          )}
+        </div>
+      }
+    />
+  );
+}
+
+function ImportPreview({
+  fields,
+  values,
+  onFieldCheckedChanged,
+  setFieldType,
+  loaded,
+  analyzed,
+}: {
+  fields: Field[];
+  values: string[][];
+  onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
+  setFieldType: (fieldPath: string, fieldType: string) => void;
+  loaded: boolean;
+  analyzed: boolean;
+}) {
+  if (!loaded) {
+    debug('Preview unavailable: not loaded yet');
+    return null;
+  }
+
+  if (!Array.isArray(fields) || !Array.isArray(values)) {
+    debug('Preview unavailable: Fields or values is not an array', {
+      fields,
+      values,
+    });
+    return null;
+  }
+
+  const gapOrFields: (string | Field)[] = ['', ...fields];
+
+  return (
+    <>
+      <Body weight="medium">Specify Fields and Types</Body>
+      <Table
+        data={values}
+        columns={gapOrFields.map((field) => {
+          if (typeof field !== 'string' && 'path' in field) {
+            return FieldHeader(
+              field,
+              analyzed,
+              onFieldCheckedChanged,
+              setFieldType
+            );
+          } else {
+            return (
+              <TableHeader
+                key="row-index"
+                label=""
+                className={rowIndexStyles}
+              />
+            );
+          }
+        })}
       >
-        {({ datum: values }) => (
+        {({ datum: values, index: rowIndex }) => (
           <Row>
+            <Cell
+              className={cx(cellContainerStyles, rowIndexStyles)}
+              key={`rowindex-${rowIndex}`}
+            >
+              {rowIndex + 1}
+            </Cell>
             {fields.map(({ path }, fieldIndex) => (
               <Cell
                 className={cellContainerStyles}

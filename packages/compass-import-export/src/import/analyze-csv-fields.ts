@@ -55,7 +55,7 @@ type CSVField = {
   detected: CSVParsableFieldType;
 };
 
-type AnalyzeCSVFieldsResult = {
+export type AnalyzeCSVFieldsResult = {
   totalRows: number;
   aborted: boolean;
   fields: Record<string, CSVField>;
@@ -125,6 +125,17 @@ function pickFieldType(field: CSVField): CSVParsableFieldType {
       // are special-cased during import.
       return filtered[0] as CSVDetectableFieldType;
     }
+  }
+
+  // If everything is number-ish (or undefined), go with the made up type
+  // 'number'. Behaves much like 'mixed', but makes it a bit clearer to the user
+  // what will happen and matches the existing Number entry we have in the field
+  // type dropdown.
+  if (
+    types.every((type) => ['int', 'long', 'double', 'undefined'].includes(type))
+  ) {
+    // TODO: this needs tests
+    return 'number';
   }
 
   // otherwise stick with the default 'mixed'

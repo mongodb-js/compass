@@ -38,8 +38,11 @@ import type { AcceptedFileType } from '../constants/file-types';
 import type { CollectionStreamProgress } from '../utils/collection-stream';
 import type { CSVParsableFieldType } from '../utils/csv';
 import type { ErrorJSON } from '../utils/import';
+import { csvHeaderNameToFieldName } from '../utils/csv';
 import { guessFileType } from '../import/guess-filetype';
 import { listCSVFields } from '../import/list-csv-fields';
+import { analyzeCSVFields } from '../import/analyze-csv-fields';
+import type { AnalyzeCSVFieldsResult } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 
@@ -75,17 +78,26 @@ export const SET_STOP_ON_ERRORS = `${PREFIX}/SET_STOP_ON_ERRORS`;
 export const SET_IGNORE_BLANKS = `${PREFIX}/SET_IGNORE_BLANKS`;
 export const TOGGLE_INCLUDE_FIELD = `${PREFIX}/TOGGLE_INCLUDE_FIELD`;
 export const SET_FIELD_TYPE = `${PREFIX}/SET_FIELD_TYPE`;
+export const ANALYZE_STARTED = `${PREFIX}/ANALYZE_STARTED`;
+export const ANALYZE_FINISHED = `${PREFIX}/ANALYZE_FINISHED`;
+export const ANALYZE_FAILED = `${PREFIX}/ANALYZE_FAILED`;
+export const ANALYZE_CANCELLED = `${PREFIX}/ANALYZE_CANCELLED`;
 
 export type FieldFromCSV = {
   path: string;
   checked: boolean;
-  type: string; // Only on csv imports.
+  type: CSVParsableFieldType;
+  summary?: string; // for Mixed only
 };
 type FieldFromJSON = {
   path: string;
   checked: boolean;
 };
-type FieldType = FieldFromJSON | FieldFromCSV;
+type PlaceholderField = {
+  path: string;
+  type: 'placeholder';
+};
+type FieldType = FieldFromJSON | FieldFromCSV | PlaceholderField;
 
 export type CSVDelimiter = ',' | '\t' | ';' | ' ';
 
@@ -113,9 +125,14 @@ type State = {
   values: string[][];
   previewLoaded: boolean;
   exclude: string[];
-  transform: [string, string | undefined][];
+  transform: [string, CSVParsableFieldType][];
 
   abortController?: AbortController;
+  analyzeAbortController?: AbortController;
+
+  analyzeResult?: AnalyzeCSVFieldsResult;
+  analyzeStatus: ProcessStatus;
+  analyzeError?: Error;
 };
 
 export const INITIAL_STATE: State = {
@@ -141,6 +158,7 @@ export const INITIAL_STATE: State = {
   exclude: [],
   transform: [],
   fileType: '',
+  analyzeStatus: PROCESS_STATUS.UNSPECIFIED,
 };
 
 /**
@@ -199,32 +217,6 @@ export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal: number) => ({
   guesstimatedDocsTotal: guesstimatedDocsTotal,
 });
 
-const fieldTypeMap: Record<string, CSVParsableFieldType> = {
-  String: 'string',
-  Number: 'number',
-  Boolean: 'boolean',
-  Date: 'date',
-  ObjectId: 'objectId',
-  Long: 'long',
-  RegExpr: 'regex',
-  Binary: 'binData',
-  UUID: 'uuid',
-  MD5: 'md5',
-  Timestamp: 'timestamp',
-  Double: 'double',
-  Int32: 'int',
-  Decimal128: 'decimal',
-};
-
-function typeToCSVParsableFieldType(type: string): CSVParsableFieldType {
-  // this is temporary until the select options' values are updated
-  if (type === 'mixed') {
-    return 'mixed';
-  }
-
-  return fieldTypeMap[type];
-}
-
 export const startImport = () => {
   return (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
@@ -258,7 +250,7 @@ export const startImport = () => {
       if (exclude.includes(name)) {
         continue;
       }
-      fields[name] = typeToCSVParsableFieldType(type || 'mixed');
+      fields[name] = type;
     }
 
     const input = fs.createReadStream(fileName, 'utf8');
@@ -439,25 +431,141 @@ export const cancelImport = () => {
   };
 };
 
-const loadCSVPreviewDocs = (
-  filename: string,
-  delimiter: string
+const loadTypes = (
+  fields: (FieldFromCSV | PlaceholderField)[],
+  values: string[][]
 ): ThunkAction<void, RootImportState, void, AnyAction> => {
-  return (dispatch: Dispatch): void => {
-    const input = fs.createReadStream(filename);
+  return (dispatch: Dispatch, getState: () => RootImportState): void => {
+    const { fileName, delimiter, ignoreBlanks } = getState().importData;
+
+    const abortController = new AbortController();
+    const abortSignal = abortController.signal;
+    dispatch({
+      type: ANALYZE_STARTED,
+      abortController,
+    });
+
+    const input = fs.createReadStream(fileName);
+
+    analyzeCSVFields({
+      input,
+      delimiter,
+      abortSignal,
+      ignoreEmptyStrings: ignoreBlanks,
+    })
+      .then((result) => {
+        for (const unknownField of fields) {
+          // fields are both CSV fields (where you can assign a type and decide
+          // to include/exclude it) or placeholder ones.
+          // ie. for foo[0] we'll show a type dropdown (labelled "foo") which
+          // determines the types of all the elements in the array and for
+          // foo[1] we just leave a placeholder.
+          if ((unknownField as PlaceholderField).type === 'placeholder') {
+            continue;
+          }
+
+          const csvField = unknownField as FieldFromCSV;
+
+          let detected = result.fields[csvField.path].detected;
+          if (detected === 'undefined') {
+            // This is a bit of an edge case. If a column is always empty and
+            // "Ignore empty strings" is checked, we'll detect "undefined".
+            // We'll never actually insert undefined due to the checkbox, but
+            // undefined as a bson type is deprected so it might give the wrong
+            // impression. We could select any type in the selectbox, so the
+            // choice of making it null is arbitrary.
+            detected = 'null';
+          }
+
+          csvField.type = detected;
+
+          // Summarise why we picked number/mixed if that's what got detected
+          if (['number', 'mixed'].includes(detected)) {
+            const parts = [];
+            for (const [type, summary] of Object.entries(
+              result.fields[csvField.path].types
+            )) {
+              parts.push(`${type} (${summary.count})`);
+            }
+            csvField.summary = parts.join(', ');
+          }
+        }
+
+        dispatch({
+          type: SET_PREVIEW,
+          fields,
+          values,
+        });
+
+        dispatch({
+          type: ANALYZE_FINISHED,
+          result,
+        });
+      })
+      .catch((err) => {
+        log.error(
+          mongoLogId(1_001_000_180),
+          'Import',
+          'Failed to analyze CSV fields',
+          err
+        );
+      });
+
+    dispatch({
+      type: ANALYZE_FAILED,
+    });
+  };
+};
+
+const loadCSVPreviewDocs = (): ThunkAction<
+  void,
+  RootImportState,
+  void,
+  AnyAction
+> => {
+  return (
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
+    getState: () => RootImportState
+  ): void => {
+    const { fileName, delimiter, analyzeAbortController } =
+      getState().importData;
+
+    // if there's already an analyzeCSVFields in flight, abort that first
+    if (analyzeAbortController) {
+      analyzeAbortController.abort();
+      dispatch({
+        type: ANALYZE_CANCELLED,
+      });
+    }
+
+    const input = fs.createReadStream(fileName);
 
     listCSVFields({ input, delimiter })
       .then((result) => {
-        // NOTE: this is temporary. In future we'll use result.uniqueFields
-        // which takes care of collapsing array fields into one. Only necessary
-        // once we use the new export that will generate output like that.
-        const fields = result.headerFields.map((name): FieldFromCSV => {
-          return {
-            path: name,
-            checked: true,
-            type: 'String', // will be detected by analyzeCSVFields
-          };
-        });
+        const fieldMap: Record<string, true> = {};
+
+        const fields = result.headerFields.map(
+          (name): FieldFromCSV | PlaceholderField => {
+            const uniqueName = csvHeaderNameToFieldName(name);
+            // we already have a field for this flattened/unique name.
+            // (ie. this is an item inside an array and it is not the first
+            // element in that array)
+            if (fieldMap[uniqueName]) {
+              return {
+                path: name,
+                type: 'placeholder',
+              };
+            }
+
+            fieldMap[uniqueName] = true;
+
+            return {
+              path: uniqueName,
+              checked: true,
+              type: 'mixed', // will be detected by analyzeCSVFields
+            };
+          }
+        );
 
         const values = result.preview;
 
@@ -466,6 +574,8 @@ const loadCSVPreviewDocs = (
           fields,
           values,
         });
+
+        dispatch(loadTypes(fields, values));
       })
       .catch((err) => {
         log.error(
@@ -549,7 +659,7 @@ export const selectImportFileName = (fileName: string) => {
       // We only ever display preview rows for CSV files underneath the field
       // type selects
       if (detected.type === 'csv') {
-        dispatch(loadCSVPreviewDocs(fileName, detected.csvDelimiter));
+        dispatch(loadCSVPreviewDocs());
       }
     } catch (err: any) {
       debug('dispatching error', err?.stack);
@@ -583,7 +693,7 @@ export const setDelimiter = (delimiter: CSVDelimiter) => {
         delimiter,
         fileIsMultilineJSON,
       });
-      dispatch(loadCSVPreviewDocs(fileName, delimiter));
+      dispatch(loadCSVPreviewDocs());
     }
   };
 };
@@ -655,6 +765,24 @@ export const closeInProgressMessage = () => ({
   type: CLOSE_IN_PROGRESS_MESSAGE,
 });
 
+function nonPlaceholderFields(
+  fields: FieldType[]
+): (FieldFromCSV | FieldFromJSON)[] {
+  return fields.filter(
+    (field) => (field as PlaceholderField).type !== 'placeholder'
+  ) as unknown as (FieldFromCSV | FieldFromJSON)[];
+}
+
+function csvFields(
+  fields: (FieldFromCSV | FieldFromJSON | PlaceholderField)[]
+): FieldFromCSV[] {
+  return fields.filter(
+    (field) =>
+      (field as PlaceholderField).type !== 'placeholder' &&
+      (field as FieldFromCSV).type !== undefined
+  ) as unknown as FieldFromCSV[];
+}
+
 /**
  * The import module reducer.
  */
@@ -675,6 +803,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       guesstimatedDocsProcessed: 0,
       errors: [],
       abortController: undefined,
+      analyzeAbortController: undefined,
       fields: [],
     };
   }
@@ -722,9 +851,11 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       exclude: [],
     };
 
-    newState.transform = (newState.fields as FieldFromCSV[])
-      .filter((field) => field.checked)
-      .map((field) => [field.path, field.type]);
+    newState.transform = (
+      newState.fields as (FieldFromCSV | PlaceholderField)[]
+    )
+      .filter((field) => field.type !== 'placeholder' && field.checked)
+      .map((field) => [field.path, field.type as CSVParsableFieldType]);
 
     return newState;
   }
@@ -737,18 +868,21 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
     };
 
     newState.fields = newState.fields.map((field) => {
+      // you can't toggle a placeholder field
+      field = field as FieldFromCSV | FieldFromJSON;
+
       if (field.path === action.path) {
         field.checked = !field.checked;
       }
       return field;
     });
 
-    newState.transform = (newState.fields as FieldFromCSV[]).map((field) => [
+    newState.transform = csvFields(newState.fields).map((field) => [
       field.path,
       field.type,
     ]);
 
-    newState.exclude = newState.fields
+    newState.exclude = nonPlaceholderFields(newState.fields)
       .filter((field) => !field.checked)
       .map((field) => field.path);
 
@@ -763,24 +897,30 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       ...state,
     };
 
-    newState.fields = (newState.fields as FieldFromCSV[]).map((field) => {
+    newState.fields = newState.fields.map((field) => {
       if (field.path === action.path) {
+        // you can only set the type of a csv field
+        const csvField = field as FieldFromCSV;
+
         // If a user changes a field type, automatically check it for them
         // so they don't need an extra click or forget to click it an get frustrated
         // like I did so many times :)
-        field.checked = true;
-        field.type = action.bsonType;
+        csvField.checked = true;
+        csvField.type = action.bsonType;
+
+        return csvField;
       }
+
       return field;
     });
 
-    newState.exclude = newState.fields
+    newState.transform = csvFields(newState.fields)
+      .filter((field) => field.checked)
+      .map((field) => [field.path, field.type]);
+
+    newState.exclude = nonPlaceholderFields(newState.fields)
       .filter((field) => !field.checked)
       .map((field) => field.path);
-
-    newState.transform = newState.fields
-      .filter((field) => field.checked)
-      .map((field) => [field.path, (field as FieldFromCSV).type]);
 
     return newState;
   }
@@ -893,6 +1033,40 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
     return {
       ...state,
       isInProgressMessageOpen: false,
+    };
+  }
+
+  if (action.type === ANALYZE_STARTED) {
+    return {
+      ...state,
+      analyzeStatus: PROCESS_STATUS.STARTED,
+      analyzeAbortController: action.abortController,
+      analyzeError: undefined,
+    };
+  }
+  if (action.type === ANALYZE_FINISHED) {
+    return {
+      ...state,
+      analyzeStatus: PROCESS_STATUS.COMPLETED,
+      analyzeAbortController: undefined,
+      analyzeResult: action.result,
+      analyzeError: undefined,
+    };
+  }
+  if (action.type === ANALYZE_FAILED) {
+    return {
+      ...state,
+      analyzeStatus: PROCESS_STATUS.FAILED,
+      analyzeAbortController: undefined,
+      analyzeError: action.error,
+    };
+  }
+  if (action.type === ANALYZE_CANCELLED) {
+    return {
+      ...state,
+      analyzeStatus: PROCESS_STATUS.CANCELED,
+      analyzeAbortController: undefined,
+      analyzeError: undefined,
     };
   }
 

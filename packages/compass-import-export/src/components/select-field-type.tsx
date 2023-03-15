@@ -1,43 +1,60 @@
 import React from 'react';
-import { Select, Option, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Select,
+  Option,
+  css,
+  spacing,
+  Tooltip,
+} from '@mongodb-js/compass-components';
 
-import bsonCSV from '../utils/bson-csv';
-
-function getBSONTypeCastings() {
-  return Object.keys(bsonCSV);
-}
+import { CSVFieldTypeLabels } from '../utils/csv';
+import type { CSVParsableFieldType } from '../utils/csv';
 
 const selectStyles = css({
-  minWidth: spacing[5] * 5,
+  minWidth: spacing[3] * 9,
 });
 
 function SelectFieldType({
   fieldPath,
   selectedType,
+  summary,
   onChange,
 }: {
   fieldPath: string;
-  selectedType: string;
+  selectedType: CSVParsableFieldType;
+  summary?: string;
   onChange: (type: string) => void;
 }) {
   return (
-    <Select
-      // NOTE: Leafygreen gives an error with only aria-label for select.
-      aria-labelledby=""
-      id={`import-preview-field-type-select-menu-${fieldPath}`}
-      className={selectStyles}
-      aria-label="Field type"
-      value={selectedType}
-      onChange={onChange}
-      allowDeselect={false}
-      size="xsmall"
+    <Tooltip
+      enabled={!!summary}
+      align="top"
+      justify="middle"
+      trigger={({ children, ...props }) => (
+        <div {...props}>
+          <Select
+            // NOTE: Leafygreen gives an error with only aria-label for select.
+            aria-labelledby={`toggle-import-field-label-${fieldPath}`}
+            id={`import-preview-field-type-select-menu-${fieldPath}`}
+            className={selectStyles}
+            aria-label="Field type"
+            value={selectedType}
+            onChange={onChange}
+            allowDeselect={false}
+            size="xsmall"
+          >
+            {Object.entries(CSVFieldTypeLabels).map(([value, display]) => (
+              <Option key={value} value={value}>
+                {display}
+              </Option>
+            ))}
+          </Select>
+          {children}
+        </div>
+      )}
     >
-      {getBSONTypeCastings().map((name) => (
-        <Option key={name} value={name}>
-          {name}
-        </Option>
-      ))}
-    </Select>
+      {summary}
+    </Tooltip>
   );
 }
 export { SelectFieldType };
