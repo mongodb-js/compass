@@ -60,7 +60,6 @@ const minicharts_d3fns_date = (appRegistry) => {
     .on('brushend', brushend);
 
   function handleDrag() {
-    const QueryAction = appRegistry.getAction('Query.Actions');
     const lines = el.selectAll('line.selectable');
     const numSelected = el.selectAll('line.selectable.selected').length;
     const s = brush.extent();
@@ -82,8 +81,11 @@ const minicharts_d3fns_date = (appRegistry) => {
       // number of selected items has changed, trigger querybuilder event
       if (selected[0].length === 0) {
         // clear value
-        QueryAction.clearValue({
-          field: options.fieldName,
+        appRegistry.emit('query-bar-change-filter', {
+          type: 'clearValue',
+          payload: {
+            field: options.fieldName,
+          },
         });
         return;
       }
@@ -97,23 +99,25 @@ const minicharts_d3fns_date = (appRegistry) => {
     });
 
     if (isEqual(minValue.ts, maxValue.ts)) {
-      // if values are the same, single equality query
-      QueryAction.setValue(
-        {
+      appRegistry.emit('query-bar-change-filter', {
+        type: 'setValue',
+        payload: {
           field: options.fieldName,
           value: minValue.value,
         },
-        true
-      );
+      });
       return;
     }
 
     // binned values, build range query with $gte and $lte
-    QueryAction.setRangeValues({
-      field: options.fieldName,
-      min: minValue.value,
-      max: maxValue.value,
-      maxInclusive: true,
+    appRegistry.emit('query-bar-change-filter', {
+      type: 'setRangeValues',
+      payload: {
+        field: options.fieldName,
+        min: minValue.value,
+        max: maxValue.value,
+        maxInclusive: true,
+      },
     });
   }
 
@@ -126,7 +130,6 @@ const minicharts_d3fns_date = (appRegistry) => {
   }
 
   function handleMouseDown(d) {
-    const QueryAction = appRegistry.getAction('Query.Actions');
     if (d3.event.shiftKey && lastNonShiftRangeValue) {
       const minVal =
         d.ts < lastNonShiftRangeValue.ts
@@ -136,19 +139,25 @@ const minicharts_d3fns_date = (appRegistry) => {
         d.ts > lastNonShiftRangeValue.ts
           ? d.value
           : lastNonShiftRangeValue.value;
-      QueryAction.setRangeValues({
-        field: options.fieldName,
-        min: minVal,
-        max: maxVal,
-        maxInclusive: true,
+      appRegistry.emit('query-bar-change-filter', {
+        type: 'setRangeValues',
+        payload: {
+          field: options.fieldName,
+          min: minVal,
+          max: maxVal,
+          maxInclusive: true,
+        },
       });
     } else {
       // remember non-shift value so that range can be extended with shift
       lastNonShiftRangeValue = d;
-      QueryAction.setValue({
-        field: options.fieldName,
-        value: d.value,
-        unsetIfSet: true,
+      appRegistry.emit('query-bar-change-filter', {
+        type: 'setValue',
+        payload: {
+          field: options.fieldName,
+          value: d.value,
+          unsetIfSet: true,
+        },
       });
     }
 

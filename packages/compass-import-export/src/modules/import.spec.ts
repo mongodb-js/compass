@@ -6,7 +6,8 @@ import thunk from 'redux-thunk';
 import path from 'path';
 
 import {
-  selectImportFileType,
+  onStarted,
+  openImport,
   selectImportFileName,
   INITIAL_STATE,
 } from './import';
@@ -41,33 +42,40 @@ describe('import [module]', function () {
     );
   });
 
-  describe('#selectImportFileType', function () {
-    it('should update fileType to csv', async function () {
-      // changing file type uses fileName from the state, so set it first
-      expect(mockStore.getState().importData.fileName).to.equal('');
-      const fileName = path.join(
-        __dirname,
-        '..',
-        '..',
-        'test',
-        'json',
-        'good.json'
+  describe('#openImport', function () {
+    it('sets isInProgressMessageOpen to true when import is in progress and does not open', function () {
+      const abortController = new AbortController();
+      mockStore.dispatch(onStarted(abortController));
+
+      expect(mockStore.getState().importData.status).to.equal('STARTED');
+      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+        false
       );
-      await mockStore.dispatch(selectImportFileName(fileName));
 
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('json');
+      mockStore.dispatch(openImport('test.test'));
 
-      mockStore.dispatch(selectImportFileType('csv'));
-
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('csv');
+      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+        true
+      );
+      expect(mockStore.getState().importData.isOpen).to.equal(false);
     });
 
-    it('should update fileType to json', function () {
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('');
+    it('opens and sets the namespace', function () {
+      const testNS = 'test.test';
+      expect(mockStore.getState().importData.status).to.equal('UNSPECIFIED');
+      expect(mockStore.getState().ns).to.not.equal(testNS);
+      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+        false
+      );
+      expect(mockStore.getState().importData.isOpen).to.equal(false);
 
-      mockStore.dispatch(selectImportFileType('json'));
+      mockStore.dispatch(openImport('test.test'));
 
-      expect(mockStore.getState().importData.fileType).to.be.deep.equal('json');
+      expect(mockStore.getState().ns).to.equal(testNS);
+      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+        false
+      );
+      expect(mockStore.getState().importData.isOpen).to.equal(true);
     });
   });
 

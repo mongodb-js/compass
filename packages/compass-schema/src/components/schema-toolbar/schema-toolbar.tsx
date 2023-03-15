@@ -82,11 +82,9 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   const queryBarRef = useRef<{
     component: React.ComponentType<any>;
     store: any; // Query bar store is not currently typed.
-    actions: any; // Query bar actions are not typed.
   }>({
     component: queryBarRole.component,
     store: localAppRegistry.getStore(queryBarRole.storeName!),
-    actions: localAppRegistry.getAction(queryBarRole.actionName!),
   });
 
   const QueryBarComponent = queryBarRef.current.component;
@@ -101,7 +99,6 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       <div className={schemaQueryBarStyles}>
         <QueryBarComponent
           store={queryBarRef.current.store}
-          actions={queryBarRef.current.actions}
           buttonLabel="Analyze"
           resultId={schemaResultId}
           onApply={onAnalyzeSchemaClicked}

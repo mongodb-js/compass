@@ -66,6 +66,8 @@ export const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
 export const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
 export const OPEN = `${PREFIX}/OPEN`;
 export const CLOSE = `${PREFIX}/CLOSE`;
+export const OPEN_IN_PROGRESS_MESSAGE = `${PREFIX}/OPEN_IN_PROGRESS_MESSAGE`;
+export const CLOSE_IN_PROGRESS_MESSAGE = `${PREFIX}/CLOSE_IN_PROGRESS_MESSAGE`;
 export const SET_PREVIEW = `${PREFIX}/SET_PREVIEW`;
 export const SET_DELIMITER = `${PREFIX}/SET_DELIMITER`;
 export const SET_GUESSTIMATED_TOTAL = `${PREFIX}/SET_GUESSTIMATED_TOTAL`;
@@ -89,6 +91,7 @@ export type CSVDelimiter = ',' | '\t' | ';' | ' ';
 
 type State = {
   isOpen: boolean;
+  isInProgressMessageOpen: boolean;
   errors: Error[];
   fileType: AcceptedFileType | '';
   fileName: string;
@@ -117,6 +120,7 @@ type State = {
 
 export const INITIAL_STATE: State = {
   isOpen: false,
+  isInProgressMessageOpen: false,
   errors: [],
   fileName: '',
   fileIsMultilineJSON: false,
@@ -177,7 +181,7 @@ export const onProgress = ({
   errors,
 });
 
-const onStarted = (abortController: AbortController) => ({
+export const onStarted = (abortController: AbortController) => ({
   type: STARTED,
   abortController,
 });
@@ -555,30 +559,6 @@ export const selectImportFileName = (fileName: string) => {
 };
 
 /**
- * The user has manually selected the `fileType` of the import.
- */
-// TODO: remove this. It won't be possible to manually select the type
-// COMPASS-6545
-export const selectImportFileType = (fileType: 'json' | 'csv') => {
-  return (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
-  ) => {
-    const { fileName, delimiter } = getState().importData;
-
-    dispatch({
-      type: FILE_TYPE_SELECTED,
-      fileType: fileType,
-    });
-
-    if (fileType === 'csv') {
-      debug('preview needs updating because fileType changed');
-      dispatch(loadCSVPreviewDocs(fileName, delimiter));
-    }
-  };
-};
-
-/**
  * Set the tabular delimiter.
  */
 export const setDelimiter = (delimiter: CSVDelimiter) => {
@@ -642,13 +622,26 @@ export const setIgnoreBlanks = (ignoreBlanks: boolean) => ({
 /**
  * Open the import modal.
  */
-export const openImport =
-  (namespace: string) =>
-  (dispatch: ThunkDispatch<RootImportState, void, AnyAction>) => {
+export const openImport = (namespace: string) => {
+  return (
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
+    getState: () => RootImportState
+  ) => {
+    // TODO(COMPASS-6540): Once we have importing in the background
+    // we'll need to update how we check if an import is in progress here.
+    const { status } = getState().importData;
+    if (status === 'STARTED') {
+      dispatch({
+        type: OPEN_IN_PROGRESS_MESSAGE,
+      });
+      return;
+    }
+
     track('Import Opened');
     dispatch(nsChanged(namespace));
     dispatch({ type: OPEN });
   };
+};
 
 /**
  * Close the import modal.
@@ -656,6 +649,10 @@ export const openImport =
  */
 export const closeImport = () => ({
   type: CLOSE,
+});
+
+export const closeInProgressMessage = () => ({
+  type: CLOSE_IN_PROGRESS_MESSAGE,
 });
 
 /**
@@ -884,6 +881,21 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       isOpen: false,
     };
   }
+
+  if (action.type === OPEN_IN_PROGRESS_MESSAGE) {
+    return {
+      ...state,
+      isInProgressMessageOpen: true,
+    };
+  }
+
+  if (action.type === CLOSE_IN_PROGRESS_MESSAGE) {
+    return {
+      ...state,
+      isInProgressMessageOpen: false,
+    };
+  }
+
   return state;
 };
 export default reducer;

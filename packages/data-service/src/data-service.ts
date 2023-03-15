@@ -737,7 +737,7 @@ export interface DataService {
    */
   killSessions(
     sessions: CompassClientSession | CompassClientSession[]
-  ): Promise<Document>;
+  ): Promise<unknown>;
 
   isConnected(): boolean;
 
@@ -2123,7 +2123,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
 
   killSessions(
     sessions: CompassClientSession | CompassClientSession[]
-  ): Promise<Document> {
+  ): Promise<unknown> {
     const sessionsArray = Array.isArray(sessions) ? sessions : [sessions];
     const clientTypes = new Set(
       sessionsArray.map((s) => s[kSessionClientType])
@@ -2136,11 +2136,9 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       );
     }
     const [clientType] = clientTypes;
-    return this._initializedClient(clientType)
-      .db('admin')
-      .command({
-        killSessions: sessionsArray.map((s) => s.id),
-      });
+    return runCommand(this._initializedClient(clientType).db('admin'), {
+      killSessions: sessionsArray.map((s) => s.id),
+    });
   }
 
   isConnected(): boolean {

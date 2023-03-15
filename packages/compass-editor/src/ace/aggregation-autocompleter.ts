@@ -139,11 +139,12 @@ class AggregationAutoCompleter implements Ace.Completer {
       completer(prefix, { serverVersion: this.version, meta: ['stage'] }).map(
         (completion) => {
           if (completion.snippet) {
+            const escapedOp = completion.value.replace('$', '\\$');
             return {
               ...completion,
               snippet: snippetWithBlock
-                ? `{\n${completion.value}: ${padLines(completion.snippet)}\n}`
-                : `${completion.value}: ${completion.snippet}`,
+                ? `{\n${escapedOp}: ${padLines(completion.snippet)}\n}`
+                : `${escapedOp}: ${completion.snippet}`,
             };
           }
           return completion;

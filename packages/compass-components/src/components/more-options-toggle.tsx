@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
@@ -57,6 +57,9 @@ export const MoreOptionsToggle: React.FunctionComponent<
     focusRingProps
     // We cast here so that the `as` prop of link can be properly typed.
   ) as Partial<React.ComponentType<React.ComponentProps<typeof Link>>>;
+  const onClick = useCallback(() => {
+    onToggleOptions();
+  }, [onToggleOptions]);
 
   return (
     <div className={optionContainerStyles}>
@@ -69,7 +72,7 @@ export const MoreOptionsToggle: React.FunctionComponent<
         hideExternalIcon={true}
         data-testid={dataTestId}
         id={id}
-        onClick={onToggleOptions}
+        onClick={onClick}
         {...buttonProps}
       >
         <div className={optionStyles}>

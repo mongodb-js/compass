@@ -43,7 +43,7 @@
     "electron": "^22.0.2",
     "find-up": "^5.0.0",
     "glob": "^7.1.6",
-    "jsdom": "^16.7.0",
+    "jsdom": "^21.1.0",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
     "make-fetch-happen": "^8.0.14",

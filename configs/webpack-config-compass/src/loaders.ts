@@ -11,11 +11,11 @@ const electronVersion = (() => {
 })();
 
 /**
- * "We support the latest two versions Chrome, Firefox and Safari."
- * @see {@link https://wiki.corp.mongodb.com/display/MMS/Browser+Support}
+ * "Cloud Manager can be accessed on your computer through Chrome, Firefox, Safari and Edge. We no longer support IE."
+ * @see {@link https://wiki.corp.mongodb.com/x/n5kVBQ}
  */
 const cloudSupportedBrowserslistConfig =
-  'last 2 Chrome versions, last 2 Safari versions, last 2 Firefox versions';
+  'last 1 Chrome versions, last 1 Safari versions, last 1 Firefox versions, last 1 Edge versions';
 
 export const javascriptLoader = (args: ConfigArgs, web = false) => ({
   test: /\.(mjs|c?jsx?|tsx?)$/,

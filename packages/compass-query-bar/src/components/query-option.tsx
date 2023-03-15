@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Label,
   TextInput,
@@ -8,12 +8,13 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { Listenable } from 'reflux';
-
-import { OptionEditor } from './option-editor';
+import { connect } from 'react-redux';
+import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
-import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
+import type { QueryBarState } from '../stores/query-bar-reducer';
+import { changeField } from '../stores/query-bar-reducer';
+import type { QueryProperty } from '../constants/query-properties';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -77,16 +78,13 @@ export const documentEditorLabelContainerStyles = cx(
 );
 
 type QueryOptionProps = {
-  hasError: boolean;
   id: string;
-  onChange: (value: string) => void;
-  onApply: () => void;
-  placeholder?: string;
-  queryOption: QueryOptionType;
-  refreshEditorAction: Listenable;
-  schemaFields: CompletionWithServerInfo[];
-  serverVersion: string;
+  name: QueryProperty;
   value?: string;
+  hasError: boolean;
+  onChange: (name: QueryProperty, value: string) => void;
+  placeholder?: string;
+  onApply?(): void;
 };
 
 // Helper component to allow flexible computation of extra props for the TextInput
@@ -106,26 +104,32 @@ const WithOptionDefinitionTextInputProps: React.FunctionComponent<{
     props.pattern = '[0-9]*';
   }
   props = { ...props, ...definition.extraTextInputProps?.() };
-  return <>{children({ props })}</>;
+  return children({ props });
 };
 
 const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   hasError,
-  onApply,
   onChange,
   id,
-  placeholder = '',
-  queryOption,
-  refreshEditorAction,
-  schemaFields = [],
-  serverVersion,
-  value = '',
+  placeholder,
+  name,
+  value,
+  onApply,
 }) => {
   const darkMode = useDarkMode();
 
-  const optionDefinition = OPTION_DEFINITION[queryOption];
+  const optionDefinition = OPTION_DEFINITION[name];
   const isDocumentEditor = optionDefinition.type === 'document';
-  placeholder ||= optionDefinition.placeholder;
+
+  placeholder ??= optionDefinition.placeholder;
+  value ??= '';
+
+  const onValueChange = useCallback(
+    (newVal: string) => {
+      return onChange(name, newVal);
+    },
+    [name, onChange]
+  );
 
   return (
     <div
@@ -133,10 +137,10 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
         queryOptionStyles,
         isDocumentEditor && documentEditorOptionContainerStyles
       )}
-      data-testid={`query-bar-option-${queryOption}`}
+      data-testid={`query-bar-option-${name}`}
     >
       {/* The filter label is shown by the query bar. */}
-      {queryOption !== 'filter' && (
+      {name !== 'filter' && (
         <div
           className={
             isDocumentEditor
@@ -146,14 +150,14 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
         >
           <Label
             htmlFor={id}
-            id={`query-bar-option-input-${queryOption}-label`}
+            id={`query-bar-option-input-${name}-label`}
             className={
               isDocumentEditor
                 ? documentEditorQueryOptionLabelStyles
                 : queryOptionLabelStyles
             }
           >
-            {queryOption}
+            {name}
           </Label>
         </div>
       )}
@@ -162,21 +166,17 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
           <OptionEditor
             hasError={hasError}
             id={id}
-            queryOption={queryOption}
-            onApply={onApply}
-            onChange={onChange}
+            onChange={onValueChange}
             placeholder={placeholder}
-            refreshEditorAction={refreshEditorAction}
-            schemaFields={schemaFields}
-            serverVersion={serverVersion}
             value={value}
-            data-testid={`query-bar-option-${queryOption}-input`}
+            data-testid={`query-bar-option-${name}-input`}
+            onApply={onApply}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>
             {({ props }) => (
               <TextInput
-                aria-labelledby={`query-bar-option-input-${queryOption}-label`}
+                aria-labelledby={`query-bar-option-input-${name}-label`}
                 id={id}
                 data-testid="query-bar-option-input"
                 className={cx(
@@ -188,9 +188,9 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                 type="text"
                 sizeVariant="small"
                 state={hasError ? 'error' : 'none'}
-                value={`${value}`}
+                value={value}
                 onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-                  onChange(evt.target.value)
+                  onValueChange(evt.currentTarget.value)
                 }
                 placeholder={placeholder}
                 {...props}
@@ -203,4 +203,15 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   );
 };
 
-export { QueryOption };
+const ConnectedQueryOption = connect(
+  (state: QueryBarState, ownProps: { name: QueryProperty }) => {
+    const field = state.fields[ownProps.name];
+    return {
+      value: field.string,
+      hasError: !field.valid,
+    };
+  },
+  { onChange: changeField }
+)(QueryOption);
+
+export default ConnectedQueryOption;

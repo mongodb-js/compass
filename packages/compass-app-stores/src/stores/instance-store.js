@@ -1,5 +1,9 @@
 import { createStore } from 'redux';
-import { MongoDBInstance, serversArray, TopologyDescription } from 'mongodb-instance-model';
+import {
+  MongoDBInstance,
+  serversArray,
+  TopologyDescription,
+} from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
 import reducer from '../modules/instance';
 import { reset } from '../modules/instance/reset';
@@ -13,13 +17,13 @@ function getTopologyDescription(topologyDescription) {
   return new TopologyDescription({
     type: topologyDescription.type,
     servers: serversArray(topologyDescription.servers),
-    setName: topologyDescription.setName
+    setName: topologyDescription.setName,
   });
 }
 
 const store = createStore(reducer);
 
-store.refreshInstance = async(globalAppRegistry, refreshOptions) => {
+store.refreshInstance = async (globalAppRegistry, refreshOptions) => {
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
@@ -46,7 +50,7 @@ store.refreshInstance = async(globalAppRegistry, refreshOptions) => {
   }
 };
 
-store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
+store.fetchDatabaseDetails = async (dbName, { nameOnly = false } = {}) => {
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
@@ -65,7 +69,7 @@ store.fetchDatabaseDetails = async(dbName, { nameOnly = false } = {}) => {
   }
 };
 
-store.fetchCollectionDetails = async(ns) => {
+store.fetchCollectionDetails = async (ns) => {
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
@@ -87,7 +91,7 @@ store.fetchCollectionDetails = async(ns) => {
   return coll;
 };
 
-store.fetchAllCollections = async() => {
+store.fetchAllCollections = async () => {
   const { instance, dataService } = store.getState();
 
   if (!instance || !dataService) {
@@ -113,7 +117,7 @@ store.fetchAllCollections = async() => {
  * Fetches collection info and returns a special format of collection metadata
  * that events like open-in-new-tab, select-namespace, edit-view require
  */
-store.fetchCollectionMetadata = async(ns) => {
+store.fetchCollectionMetadata = async (ns) => {
   const { instance, dataService } = store.getState();
   const { database, collection } = toNS(ns);
 
@@ -133,7 +137,7 @@ store.fetchCollectionMetadata = async(ns) => {
   return await coll.fetchMetadata({ dataService });
 };
 
-store.refreshNamespace = async({ ns, database }) => {
+store.refreshNamespace = async ({ ns, database }) => {
   const { instance, dataService } = store.getState();
   if (!instance.databases.get(database)) {
     await instance.fetchDatabases({ dataService, force: true });
@@ -145,7 +149,7 @@ store.refreshNamespace = async({ ns, database }) => {
   await store.refreshNamespaceStats(ns);
 };
 
-store.refreshNamespaceStats = async(ns) => {
+store.refreshNamespaceStats = async (ns) => {
   const { instance, dataService } = store.getState();
   const { database } = toNS(ns);
   const db = instance.databases.get(database);
@@ -160,7 +164,6 @@ store.refreshNamespaceStats = async(ns) => {
 store.onActivated = (appRegistry) => {
   // Events emitted from the app registry:
   appRegistry.on('data-service-disconnected', () => {
-    // eslint-disable-next-line chai-friendly/no-unused-expressions
     global.hadronApp.instance?.removeAllListeners();
     global.hadronApp.instance = null;
     appRegistry.emit('instance-destroyed', { instance: null });
@@ -186,7 +189,9 @@ store.onActivated = (appRegistry) => {
       _id: firstHost,
       hostname: hostname,
       port: port ? +port : undefined,
-      topologyDescription: getTopologyDescription(dataService.getLastSeenTopology())
+      topologyDescription: getTopologyDescription(
+        dataService.getLastSeenTopology()
+      ),
     }));
 
     debug('instance-created');
@@ -202,7 +207,7 @@ store.onActivated = (appRegistry) => {
 
     dataService.on('topologyDescriptionChanged', (evt) => {
       instance.set({
-        topologyDescription: getTopologyDescription(evt.newDescription)
+        topologyDescription: getTopologyDescription(evt.newDescription),
       });
     });
 
@@ -217,7 +222,6 @@ store.onActivated = (appRegistry) => {
     });
     */
   });
-
 
   appRegistry.on('select-database', (dbName) => {
     store.fetchDatabaseDetails(dbName);
@@ -246,17 +250,19 @@ store.onActivated = (appRegistry) => {
   // Event emitted when the Databases grid needs to be refreshed
   // We additionally refresh the list of collections as well
   // since there is the side navigation which could be in expanded mode
-  appRegistry.on('refresh-databases', async() => {
+  appRegistry.on('refresh-databases', async () => {
     const { instance, dataService } = store.getState();
     await instance.fetchDatabases({ dataService, force: true });
     await Promise.allSettled(
-      instance.databases.map((db) => db.fetchCollections({ dataService, force: true }))
+      instance.databases.map((db) =>
+        db.fetchCollections({ dataService, force: true })
+      )
     );
   });
 
   // Event emitted when the Collections grid needs to be refreshed
   // with new collections or collection info for existing ones.
-  appRegistry.on('refresh-collections', async({ ns }) => {
+  appRegistry.on('refresh-collections', async ({ ns }) => {
     const { instance, dataService } = store.getState();
     const { database } = toNS(ns);
     if (!instance.databases.get(database)) {
@@ -285,13 +291,13 @@ store.onActivated = (appRegistry) => {
     store.refreshNamespaceStats(ns);
   });
 
-  appRegistry.on('collection-created', async({ ns, database }) => {
+  appRegistry.on('collection-created', async ({ ns, database }) => {
     store.refreshNamespace({ ns, database });
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
 
-  appRegistry.on('active-collection-dropped', async(ns) => {
+  appRegistry.on('active-collection-dropped', async (ns) => {
     const { instance, dataService } = store.getState();
     const { database } = toNS(ns);
     await store.fetchDatabaseDetails(database);
@@ -305,26 +311,26 @@ store.onActivated = (appRegistry) => {
     }
   });
 
-  appRegistry.on('active-database-dropped', async() => {
+  appRegistry.on('active-database-dropped', async () => {
     appRegistry.emit('open-instance-workspace', 'Databases');
   });
 
-  appRegistry.on('collections-list-select-collection', async({ ns }) => {
+  appRegistry.on('collections-list-select-collection', async ({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
 
-  appRegistry.on('sidebar-select-collection', async({ ns }) => {
+  appRegistry.on('sidebar-select-collection', async ({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
 
-  appRegistry.on('sidebar-open-collection-in-new-tab', async({ ns }) => {
+  appRegistry.on('sidebar-open-collection-in-new-tab', async ({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('open-namespace-in-new-tab', metadata);
   });
 
-  appRegistry.on('sidebar-modify-view', async({ ns }) => {
+  appRegistry.on('sidebar-modify-view', async ({ ns }) => {
     const coll = await store.fetchCollectionDetails(ns);
     if (coll.sourceId && coll.pipeline) {
       // `modify-view` is currently implemented in a way where we are basically
@@ -346,7 +352,7 @@ store.onActivated = (appRegistry) => {
     }
   });
 
-  appRegistry.on('sidebar-duplicate-view', async({ ns }) => {
+  appRegistry.on('sidebar-duplicate-view', async ({ ns }) => {
     const coll = await store.fetchCollectionDetails(ns);
     if (coll.sourceId && coll.pipeline) {
       appRegistry.emit('open-create-view', {
@@ -364,7 +370,7 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on(
     'aggregations-open-result-namespace',
-    async function(namespace) {
+    async function (namespace) {
       // Force-refresh specified namespace to update collections list and get
       // collection info / stats (in case of opening result collection we're
 
@@ -377,7 +383,7 @@ store.onActivated = (appRegistry) => {
     }
   );
 
-  appRegistry.on('aggregations-open-view-after-update', async function(ns) {
+  appRegistry.on('aggregations-open-view-after-update', async function (ns) {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
   });
