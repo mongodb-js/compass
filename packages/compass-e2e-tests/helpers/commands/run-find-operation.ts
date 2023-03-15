@@ -166,6 +166,7 @@ export async function runFindOperation(
     collation = '',
     skip = '',
     limit = '',
+    // TODO(COMPASS-6606): allow for the same in other tabs with query bar
     waitForResult = true,
   } = {}
 ): Promise<void> {
@@ -185,5 +186,8 @@ export async function runFindOperation(
   await setFilter(browser, tabName, filter);
 
   await browser.runFind(tabName, waitForResult);
-  await browser.clickVisible(Selectors.SelectListView);
+
+  if (tabName === 'Documents') {
+    await browser.clickVisible(Selectors.SelectListView);
+  }
 }

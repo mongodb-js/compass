@@ -45,23 +45,24 @@ describe('Collection explain plan tab', function () {
   });
 
   it('shows a loading state while explain is running', async function () {
-    // Popuplate existing collection with some more data
-    await createNumbersCollection(collectionName, 10_00_000);
-    await browser.expandOptions(tabName);
-    await browser.setSort(tabName, '{ i: -1 }');
+    await browser.runFindOperation(
+      'Explain Plan',
+      '{ $where: "function() { sleep(10000); return true; }" }',
+      { limit: '1', waitForResult: false }
+    );
 
-    await browser.clickVisible(Selectors.ExecuteExplainButton);
     const spinner = await browser.$(Selectors.ExplainCancellableSpinner);
+
     await spinner.waitForDisplayed();
   });
 
   it('cancels an ongoing explain and falls back to welcome page', async function () {
-    // Popuplate existing collection with some more data
-    await createNumbersCollection(collectionName, 10_00_000);
-    await browser.expandOptions(tabName);
-    await browser.setSort(tabName, '{ i: -1 }');
+    await browser.runFindOperation(
+      'Explain Plan',
+      '{ $where: "function() { sleep(10000); return true; }" }',
+      { limit: '1', waitForResult: false }
+    );
 
-    await browser.clickVisible(Selectors.ExecuteExplainButton);
     await browser.clickVisible(Selectors.ExplainCancelButton);
 
     const welcomePageExecuteExplainBtn = await browser.$$(
@@ -71,29 +72,36 @@ describe('Collection explain plan tab', function () {
   });
 
   it('cancels an ongoing explain and falls back to old explain output', async function () {
-    // Popuplate existing collection with some more data
-    await createNumbersCollection(collectionName, 10_00_000);
-    await browser.expandOptions(tabName);
-    await browser.setSort(tabName, '{ i: -1 }');
-    await browser.setLimit(tabName, '10000');
-
-    // Run explain
-    await browser.clickVisible(Selectors.ExecuteExplainButton);
+    await browser.runFindOperation('Explain Plan', '{}', {
+      limit: '10',
+      waitForResult: false,
+    });
 
     // Ensure the results are shown
-    let summaryElement = await browser.$(Selectors.ExplainSummary);
+    const summaryElement = await browser.$(Selectors.ExplainSummary);
     await summaryElement.waitForDisplayed();
-    const totalStages = (await browser.$$(Selectors.ExplainStage)).length;
 
-    // Run explain again without the limit and cancel
-    await browser.setLimit(tabName, '');
-    await browser.clickVisible(Selectors.queryBarApplyFilterButton(tabName));
+    const totalDocsExaminedSummaryEl = await browser.$(
+      Selectors.explainPlanSummaryStat('totalDocsExamined')
+    );
+
+    const firstTotalDocs = (await totalDocsExaminedSummaryEl.getText()).trim();
+
+    expect(firstTotalDocs).to.eq('Documents Examined: 10');
+
+    // Run explain again with different limit and cancel
+    await browser.runFindOperation(
+      'Explain Plan',
+      '{ $where: "function() { sleep(10000); return true; }" }',
+      { limit: '1', waitForResult: false }
+    );
+
     await browser.clickVisible(Selectors.ExplainCancelButton);
 
-    summaryElement = await browser.$(Selectors.ExplainSummary);
     await summaryElement.waitForDisplayed();
 
-    const stages = await browser.$$(Selectors.ExplainStage);
-    expect(stages).to.have.lengthOf(totalStages);
+    expect(firstTotalDocs).to.eq(
+      (await totalDocsExaminedSummaryEl.getText()).trim()
+    );
   });
 });
