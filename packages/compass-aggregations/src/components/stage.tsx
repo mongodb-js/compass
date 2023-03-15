@@ -11,7 +11,6 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import { type AceEditor } from '@mongodb-js/compass-editor';
-import { usePreference } from 'compass-preferences-model';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';

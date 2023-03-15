@@ -16,7 +16,6 @@ import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
 import { hasSyntaxError } from '../../utils/stage';
-import { usePreference } from 'compass-preferences-model';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 
