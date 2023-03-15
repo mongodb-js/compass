@@ -1,11 +1,8 @@
 import type { CompletionSource } from '@codemirror/autocomplete';
-import { completeAnyWord, ifIn } from '@codemirror/autocomplete';
 import { completer, wrapField } from '../autocompleter';
 import { languageName } from '../json-editor';
-import { resolveTokenAtCursor } from './utils';
+import { resolveTokenAtCursor, completeWordsInString } from './utils';
 import type { Token } from './utils';
-
-const completeWordsInString = ifIn(['String'], completeAnyWord);
 
 function isJSONPropertyName(token: Token): boolean {
   return (
