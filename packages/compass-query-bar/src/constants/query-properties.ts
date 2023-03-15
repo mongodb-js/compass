@@ -6,9 +6,10 @@ const QUERY_PROPERTIES = [
   'sort',
   'skip',
   'limit',
-  'sample',
   'maxTimeMS',
-];
+] as const;
+
+export type QueryProperty = typeof QUERY_PROPERTIES[number];
 
 export default QUERY_PROPERTIES;
 export { QUERY_PROPERTIES };

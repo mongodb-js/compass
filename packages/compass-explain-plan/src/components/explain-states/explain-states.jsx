@@ -76,7 +76,7 @@ class ExplainStates extends Component {
    * Executes the explain plan.
    */
   onExecuteExplainClicked() {
-    this.props.fetchExplainPlan(this.queryBarStore.state);
+    this.props.fetchExplainPlan(this.queryBarStore.getCurrentQuery());
   }
 
   /**

@@ -860,6 +860,16 @@ export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
   '[data-testid="nReturned-summary"]';
+export const explainPlanSummaryStat = (
+  stat:
+    | 'nReturned'
+    | 'totalKeysExamined'
+    | 'totalDocsExamined'
+    | 'executionTimeMillis'
+    | 'inMemorySort'
+) => {
+  return `[data-testid="${stat}-summary"]`;
+};
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
