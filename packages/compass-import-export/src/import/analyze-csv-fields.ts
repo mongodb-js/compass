@@ -49,7 +49,7 @@ counts than the number of rows. ie. foo[0],foo[1] means twice as many fields as
 rows once it becomes field foo and so does foo[0].bar,foo[1].bar once it becomes
 foo.bar.
 */
-type CSVField = {
+export type CSVField = {
   types: Record<CSVDetectableFieldType, CSVFieldTypeInfo>;
   columnIndexes: number[];
   detected: CSVParsableFieldType;

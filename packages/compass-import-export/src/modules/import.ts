@@ -42,7 +42,10 @@ import { csvHeaderNameToFieldName } from '../utils/csv';
 import { guessFileType } from '../import/guess-filetype';
 import { listCSVFields } from '../import/list-csv-fields';
 import { analyzeCSVFields } from '../import/analyze-csv-fields';
-import type { AnalyzeCSVFieldsResult } from '../import/analyze-csv-fields';
+import type {
+  AnalyzeCSVFieldsResult,
+  CSVField,
+} from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 
@@ -87,7 +90,7 @@ export type FieldFromCSV = {
   path: string;
   checked: boolean;
   type: CSVParsableFieldType;
-  summary?: string; // for Mixed only
+  result?: CSVField;
 };
 type FieldFromJSON = {
   path: string;
@@ -480,6 +483,7 @@ const loadTypes = (
           csvField.type = detected;
 
           // Summarise why we picked number/mixed if that's what got detected
+          /*
           if (['number', 'mixed'].includes(detected)) {
             const parts = [];
             for (const [type, summary] of Object.entries(
@@ -489,6 +493,8 @@ const loadTypes = (
             }
             csvField.summary = parts.join(', ');
           }
+          */
+          csvField.result = result.fields[csvField.path];
         }
 
         dispatch({

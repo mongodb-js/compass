@@ -12,11 +12,14 @@ import {
   Label,
   Placeholder,
   palette,
+  Tooltip,
+  Icon,
 } from '@mongodb-js/compass-components';
 
 import { SelectFieldType } from './select-field-type';
 import { createDebug } from '../utils/logger';
 import type { CSVParsableFieldType } from '../utils/csv';
+import type { CSVField } from '../import/analyze-csv-fields';
 
 const debug = createDebug('import-preview');
 
@@ -61,12 +64,76 @@ const rowIndexStyles = css({
   color: palette.gray.base,
 });
 
+const fieldTypeContainerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+});
+
+const infoIconCSS = css({
+  height: spacing[3],
+  color: palette.gray.base,
+});
+
 type Field = {
   path: string;
   type: CSVParsableFieldType | 'placeholder';
   checked: boolean;
-  summary?: string;
+  result?: CSVField;
 };
+
+function MixedWarning({
+  result,
+  selectedType,
+}: {
+  result: CSVField;
+  selectedType: CSVParsableFieldType;
+}) {
+  if (!['mixed', 'number'].includes(result.detected)) {
+    return null;
+  }
+
+  // once the user manually changed the type, make the warning go away
+  if (result.detected !== selectedType) {
+    return null;
+  }
+
+  return (
+    <Tooltip
+      align="top"
+      justify="middle"
+      delay={500}
+      trigger={({ children, ...props }) => (
+        <div {...props}>
+          {children}
+          <div className={infoIconCSS}>
+            <Icon glyph="InfoWithCircle"></Icon>
+          </div>
+        </div>
+      )}
+    >
+      <>
+        <p>
+          This field has{' '}
+          {selectedType === 'number'
+            ? 'mixed numeric types'
+            : 'mixed data types'}
+          :
+        </p>
+        <ul>
+          {Object.entries(result.types).map(([type, info]) => {
+            return (
+              <li key={type}>
+                {type} * {info.count}
+              </li>
+            );
+          })}
+        </ul>
+        <p>To standardise your data, select a different type.</p>
+      </>
+    </Tooltip>
+  );
+}
 
 function FieldHeader(
   field: Field,
@@ -114,16 +181,23 @@ function FieldHeader(
                   <span title={field.path}>{field.path}</span>
                 </Label>
               </div>
-              <div>
+              <div className={fieldTypeContainerStyles}>
                 {analyzed ? (
-                  <SelectFieldType
-                    fieldPath={field.path}
-                    selectedType={field.type}
-                    summary={field.summary}
-                    onChange={(newType: string) =>
-                      setFieldType(field.path, newType)
-                    }
-                  />
+                  <>
+                    <SelectFieldType
+                      fieldPath={field.path}
+                      selectedType={field.type}
+                      onChange={(newType: string) =>
+                        setFieldType(field.path, newType)
+                      }
+                    />
+                    {field.result && (
+                      <MixedWarning
+                        result={field.result}
+                        selectedType={field.type}
+                      />
+                    )}
+                  </>
                 ) : (
                   <Placeholder
                     width={spacing[3] * 9}
