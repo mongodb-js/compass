@@ -7,6 +7,8 @@ export type InsertCSFLEWarningBannerProps = {
   csfleState: InsertCSFLEState;
 };
 
+const listStyles = css({ listStyle: 'inherit' });
+
 function InsertCSFLEWarningBanner({
   csfleState,
 }: InsertCSFLEWarningBannerProps) {
@@ -16,7 +18,7 @@ function InsertCSFLEWarningBanner({
       <div>
         The following fields will be encrypted according to the collection
         schema:&nbsp;
-        <ul className={css({ listStyle: 'inherit' })}>
+        <ul className={listStyles}>
           {csfleState.encryptedFields.map((fieldName) => (
             <li key={fieldName}>{fieldName}</li>
           ))}
