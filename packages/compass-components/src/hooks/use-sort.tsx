@@ -1,6 +1,6 @@
 import React, { useReducer, useMemo } from 'react';
 import { useId } from '@react-aria/utils';
-import { css, cx } from '@leafygreen-ui/emotion';
+import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Button, Icon, Label, Option, Select } from '../components/leafygreen';
 
@@ -85,10 +85,8 @@ export function useSortControls<T extends string>(
           id={controlId}
           aria-labelledby={labelId}
           allowDeselect={false}
-          className={cx(
-            select,
-            css({ minWidth: `calc(${longestLabel}ch + ${spacing[6]}px)` })
-          )}
+          className={select}
+          style={{ minWidth: `calc(${longestLabel}ch + ${spacing[6]}px)` }}
           onChange={(value) => {
             dispatch({ type: 'change-name', name: (value as T) || null });
           }}

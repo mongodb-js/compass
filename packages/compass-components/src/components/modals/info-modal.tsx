@@ -9,6 +9,8 @@ import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
 import { ModalFooterButton } from './modal-footer-button';
 
+const paddingBottomStyles = css({ paddingBottom: spacing[5] });
+
 type InfoModalProps = React.ComponentProps<typeof Modal> & {
   title: string;
   subtitle?: string;
@@ -29,9 +31,7 @@ function InfoModal({
   return (
     <Modal
       setOpen={onClose}
-      contentClassName={cx(
-        !showCloseButton && css({ paddingBottom: spacing[5] })
-      )}
+      contentClassName={cx(!showCloseButton && paddingBottomStyles)}
       {...modalProps}
     >
       <ModalHeader title={title} subtitle={subtitle} />

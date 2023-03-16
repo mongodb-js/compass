@@ -98,7 +98,7 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
   );
   await resetButton.waitForDisplayed();
 
-  if (!(await resetButton.getAttribute('class')).includes('disabled')) {
+  if (await resetButton.isEnabled()) {
     // look up the current resultId
     const initialResultId = await browser.getQueryId(tabName);
 
@@ -107,7 +107,7 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
     // wait for the button to become disabled which should happen once it reset
     // all the filter fields
     await browser.waitUntil(async () => {
-      return (await resetButton.getAttribute('class')).includes('disabled');
+      return !(await resetButton.isEnabled());
     });
 
     // now we can easily see if we get a new resultId
