@@ -35,7 +35,9 @@ function SelectFieldType({
           <Select
             // NOTE: Leafygreen gives an error with only aria-label for select.
             aria-labelledby={`toggle-import-field-label-${fieldPath}`}
+            // leafygreen bases ids inside Select off this id which is why we have it in addition to data-testid
             id={`import-preview-field-type-select-menu-${fieldPath}`}
+            data-testid={`import-preview-field-type-select-menu-${fieldPath}`}
             className={selectStyles}
             aria-label="Field type"
             value={selectedType}

@@ -104,4 +104,51 @@ describe('ImportPreview [Component]', function () {
       expect(screen.queryByText(testText)).to.be.visible;
     });
   });
+
+  it('renders placeholders when not analyzed', function () {
+    render(
+      <ImportPreview
+        fields={[testField]}
+        values={
+          [
+            {
+              _id: 25,
+            },
+          ] as any
+        }
+        loaded
+        onFieldCheckedChanged={onFieldCheckedChangedSpy}
+        setFieldType={setFieldTypeSpy}
+        analyzed={false}
+      />
+    );
+
+    expect(screen.queryByTestId('import-preview-placeholder-_id')).to.be
+      .visible;
+    expect(screen.queryByTestId('import-preview-field-type-select-menu-_id')).to
+      .not.exist;
+  });
+
+  it('renders field type selects once analyzed', function () {
+    render(
+      <ImportPreview
+        fields={[testField]}
+        values={
+          [
+            {
+              _id: 25,
+            },
+          ] as any
+        }
+        loaded
+        onFieldCheckedChanged={onFieldCheckedChangedSpy}
+        setFieldType={setFieldTypeSpy}
+        analyzed={true}
+      />
+    );
+
+    expect(screen.queryByTestId('import-preview-placeholder-_id')).to.not.exist;
+    expect(screen.queryByTestId('import-preview-field-type-select-menu-_id')).to
+      .be.visible;
+  });
 });

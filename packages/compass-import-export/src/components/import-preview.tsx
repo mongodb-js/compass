@@ -125,7 +125,10 @@ function FieldHeader(
                     }
                   />
                 ) : (
-                  <Placeholder width={spacing[3] * 9} />
+                  <Placeholder
+                    width={spacing[3] * 9}
+                    data-testid={`import-preview-placeholder-${field.path}`}
+                  />
                 )}
               </div>
             </>
