@@ -1,6 +1,7 @@
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { snippetCompletion } from '@codemirror/autocomplete';
-import { completer, CompletionResult } from '../autocompleter';
+import { completer } from '../autocompleter';
+import type { CompletionResult } from '../autocompleter';
 
 import {
   resolveTokenAtCursor,
@@ -108,10 +109,9 @@ export const createValidationAutocompleter = (
   fields: string[],
   serverVersion?: string
 ): CompletionSource => {
-  const queryCompletions = completer('', { serverVersion, meta: ['query'] });
-  const jsonSchemaCompletions = completer('', {
+  const defaultCompletions = completer('', {
     serverVersion,
-    meta: ['json-schema'],
+    meta: ['json-schema', 'bson', 'query'],
   });
   const fieldCompletions = completer('', {
     fields,
@@ -123,11 +123,6 @@ export const createValidationAutocompleter = (
     meta: ['bson-type-aliases'],
   });
 
-  const bsonCompletions = completer('', {
-    serverVersion,
-    meta: ['bson'],
-  });
-
   return (context) => {
     const token = resolveTokenAtCursor(context);
     const document = context.state.sliceDoc(0);
@@ -135,9 +130,17 @@ export const createValidationAutocompleter = (
       .slice(token.from, context.pos)
       .replace(/^("|')/, '');
 
-    // At the root leve
-    if (token.type.isTop || token.parent?.type.isTop) {
+    // At the root level
+    if (token.type.isTop) {
       return rootJsonSchemaCompletion(0, document.length);
+    }
+
+    if (token.parent?.type.isTop) {
+      return createCompletions(
+        defaultCompletions,
+        textBefore,
+        context.pos - textBefore.length
+      );
     }
 
     const ancestors = getAncestryOfToken(token, document);
@@ -162,7 +165,7 @@ export const createValidationAutocompleter = (
     }
 
     return createCompletions(
-      [...jsonSchemaCompletions, ...bsonCompletions, ...queryCompletions],
+      defaultCompletions,
       textBefore,
       context.pos - textBefore.length
     );

@@ -1,8 +1,5 @@
-import {
-  CompletionContext,
-  completeAnyWord,
-  ifIn,
-} from '@codemirror/autocomplete';
+import { completeAnyWord, ifIn } from '@codemirror/autocomplete';
+import type { CompletionContext } from '@codemirror/autocomplete';
 import { syntaxTree } from '@codemirror/language';
 
 export const ARRAY_ITEM_REGEX = /(\[(\d)+\])/;
@@ -20,7 +17,7 @@ export type Token = ReturnType<typeof resolveTokenAtCursor>;
  * Returns the list of ancestors of the token.
  */
 const getAncestorList = (node: Token | null, doc: string): string[] => {
-  let ancestors: string[] = [];
+  const ancestors: string[] = [];
 
   if (!node?.parent) {
     return ancestors;
@@ -50,19 +47,24 @@ const getAncestorList = (node: Token | null, doc: string): string[] => {
  * 1. Unquoted property names: [^\s\"\']*
  * 2. Double quoted property names: \"[^"]*\"
  * 3. Single quoted property names: \'[^\']*\'
- * 4. String ending with a colon: (?=:$)
+ * 4. Any whitespace just before ending colon: (\s)*
+ * 5. String ending with a colon: (?=:$)
+ *
+ * Exported for testing.
  */
-const normalizeAncestorList = (parent: string[]): string[] => {
-  const propertyRegex = /([^\s\"\']*|\"[^"]*\"|\'[^']*\')(?=:$)/;
+export const normalizeAncestorList = (parent: string[]): string[] => {
+  const propertyRegex = /([^\s"']*|"[^"]*"|'[^']*')(\s)*(?=:$)/;
   return parent
-    .reverse()
     .map((x) => {
       if (x.match(ARRAY_ITEM_REGEX)) {
         return x;
       }
-      return (x.trim().match(propertyRegex)?.[0] ?? '').replace(/\"/g, '');
+      return (x.trim().match(propertyRegex)?.[0] ?? '')
+        .replace(/"/g, '')
+        .replace(/'/g, '')
+        .trim();
     })
-    .filter(Boolean) as string[];
+    .filter(Boolean);
 };
 
 /**
@@ -71,6 +73,6 @@ const normalizeAncestorList = (parent: string[]): string[] => {
  * represented as `[0-9]`.
  */
 export function getAncestryOfToken(token: Token, document: string): string[] {
-  const list = getAncestorList(token, document);
+  const list = getAncestorList(token, document).reverse();
   return normalizeAncestorList(list);
 }
