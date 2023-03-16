@@ -3,13 +3,7 @@ import type { AutoEncryptionOptions } from 'mongodb';
 
 import type { KMSProviders, KMSField } from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
-import {
-  css,
-  cx,
-  Icon,
-  spacing,
-  palette,
-} from '@mongodb-js/compass-components';
+import { css, Icon, spacing, palette } from '@mongodb-js/compass-components';
 
 const iconStyles = css({
   marginLeft: spacing[2],
@@ -41,7 +35,8 @@ function KMSProviderStatusIndicator<KMSProvider extends keyof KMSProviders>({
       <span title="Error">
         <Icon
           glyph="XWithCircle"
-          className={cx(css({ color: palette.red.base }), iconStyles)}
+          className={iconStyles}
+          style={{ color: palette.red.base }}
         />
       </span>
     );
@@ -56,7 +51,8 @@ function KMSProviderStatusIndicator<KMSProvider extends keyof KMSProviders>({
       <span title="Fully configured">
         <Icon
           glyph="CheckmarkWithCircle"
-          className={cx(css({ color: palette.green.dark1 }), iconStyles)}
+          className={iconStyles}
+          style={{ color: palette.green.dark1 }}
         />
       </span>
     );
