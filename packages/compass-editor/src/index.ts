@@ -16,3 +16,4 @@ export type { EditorView } from './json-editor';
 export { SyntaxHighlight } from './syntax-highlight';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
 export { createQueryAutocompleter } from './codemirror/query-autocompleter';
+export { createStageAutocompleter } from './codemirror/stage-autocompleter';

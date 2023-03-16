@@ -45,6 +45,29 @@ describe('completer', function () {
     ]);
   });
 
+  it('should keep field description when provided', function () {
+    const completions = completer(
+      '',
+      {
+        meta: ['field:identifier'],
+        fields: [
+          { name: 'foo', description: 'ObjectId' },
+          { name: 'bar', description: 'Int32' },
+        ],
+      },
+      []
+    ).map((completion) => {
+      return {
+        value: completion.value,
+        description: completion.description,
+      };
+    });
+    expect(completions).to.deep.eq([
+      { value: 'foo', description: 'ObjectId' },
+      { value: 'bar', description: 'Int32' },
+    ]);
+  });
+
   describe('wrapField', function () {
     it('should leave identifier as-is if its roughly valid', function () {
       expect(wrapField('foo')).to.eq('foo');
