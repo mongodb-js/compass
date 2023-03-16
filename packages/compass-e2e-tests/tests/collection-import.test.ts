@@ -54,7 +54,8 @@ async function selectFieldType(
 
   const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(`span=${fieldType}`);
   await fieldTypeSelectSpan.waitForDisplayed();
-  await fieldTypeSelectSpan.click();
+  await fieldTypeSelectSpan.scrollIntoView();
+  await fieldTypeSelectSpan.clickVisible();
 
   // Wait so that the menu animation can complete.
   // Without this clicking multiple select menus bugs out.
