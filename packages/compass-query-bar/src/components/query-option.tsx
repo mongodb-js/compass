@@ -30,12 +30,9 @@ const queryOptionLabelStyles = css({
   marginRight: spacing[2],
 });
 
-const documentEditorQueryOptionLabelStyles = cx(
-  queryOptionLabelStyles,
-  css({
-    minWidth: spacing[5] * 3,
-  })
-);
+const documentEditorQueryOptionLabelStyles = css(queryOptionLabelStyles, {
+  minWidth: spacing[5] * 3,
+});
 
 const documentEditorOptionStyles = css({
   minWidth: spacing[7],
@@ -70,11 +67,11 @@ const queryOptionLabelContainerStyles = css({
   alignItems: 'center',
 });
 
-export const documentEditorLabelContainerStyles = cx(
+export const documentEditorLabelContainerStyles = css(
   queryOptionLabelContainerStyles,
-  css({
+  {
     minWidth: spacing[5] * 3,
-  })
+  }
 );
 
 type QueryOptionProps = {
