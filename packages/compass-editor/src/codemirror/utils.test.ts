@@ -1,8 +1,8 @@
-import { normalizeAncestorList } from './utils';
+import { filterAndNormalizeAncestorList } from './utils';
 import { expect } from 'chai';
 
 describe('codemirror utils', function () {
-  describe('normalizeAncestorList', function () {
+  describe('filterAndNormalizeAncestorList', function () {
     const testCases = [
       {
         name: 'invalid property names',
@@ -37,7 +37,7 @@ describe('codemirror utils', function () {
     ];
     for (const testCase of testCases) {
       it(testCase.name, function () {
-        expect(normalizeAncestorList(testCase.input)).to.deep.equal(
+        expect(filterAndNormalizeAncestorList(testCase.input)).to.deep.equal(
           testCase.expected
         );
       });

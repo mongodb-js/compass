@@ -66,8 +66,8 @@ const isCompletingBsonType = (ancestors: string[]) => {
 };
 
 /**
- * The $jsonSchema's required and properties are nested, so we need to
- * get the ancestor to get the correct field name.
+ * The $jsonSchema's *required* and *properties* fields are nested,
+ * so we need to get the ancestor to get the correct field name.
  */
 const getNestingAncestor = (ancestors: string[]): string => {
   return (
@@ -85,10 +85,13 @@ const getNestingAncestor = (ancestors: string[]): string => {
 };
 
 /**
- * As the $jsonSchema's required and properties are nested, we need to filter
- * the fields based on the nesting level (ancestor).
+ * As the $jsonSchema's *required* and *properties* fields are nested,
+ * we need to filter the fields based on the nesting level (ancestor).
  */
-const filterFieldsByParent = (fields: CompletionResult[], ancestor: string) => {
+const filterFieldsByAncestor = (
+  fields: CompletionResult[],
+  ancestor: string
+) => {
   if (ancestor === '') {
     return fields;
   }
@@ -148,7 +151,7 @@ export const createValidationAutocompleter = (
     if (isCompletingRequired(ancestors) || isCompletingProperties(ancestors)) {
       const ancestor = getNestingAncestor(ancestors);
       return createCompletions(
-        filterFieldsByParent(fieldCompletions, ancestor),
+        filterFieldsByAncestor(fieldCompletions, ancestor),
         textBefore,
         context.pos - textBefore.length,
         'Field'

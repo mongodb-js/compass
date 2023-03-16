@@ -4,6 +4,17 @@ import { syntaxTree } from '@codemirror/language';
 
 export const ARRAY_ITEM_REGEX = /(\[(\d)+\])/;
 
+/**
+ * Regex to match the property names which are extracted from the ancestors list.
+ * Property names always end with a `:` and can be either unquoted or quoted (single or double).
+ * 1. Unquoted property names: [^\s\"\']*
+ * 2. Double quoted property names: \"[^"]*\"
+ * 3. Single quoted property names: \'[^\']*\'
+ * 4. Any whitespace just before ending colon: (\s)*
+ * 5. String ending with a colon: (?=:$)
+ */
+const PROPERTY_ITEM_REGEX = /([^\s"']*|"[^"]*"|'[^']*')(\s)*(?=:$)/;
+
 export const completeWordsInString = ifIn(['String'], completeAnyWord);
 
 export function resolveTokenAtCursor(context: CompletionContext) {
@@ -13,8 +24,7 @@ export function resolveTokenAtCursor(context: CompletionContext) {
 export type Token = ReturnType<typeof resolveTokenAtCursor>;
 
 /**
- *
- * Returns the list of ancestors of the token.
+ * Returns the list of possible ancestors of the token.
  */
 const getAncestorList = (node: Token | null, doc: string): string[] => {
   const ancestors: string[] = [];
@@ -37,29 +47,25 @@ const getAncestorList = (node: Token | null, doc: string): string[] => {
     }
     ancestors.push(`[${index}]`);
   }
+  // We slice the document from the start to the current node's start position
+  // This correctly gives us the value of parent node (its corresponding text).
+  // And for a valid ancestor, it has to be a property name, meaning it ends
+  // with a `:` or if its a root, it will be an empty string.
   ancestors.push(doc.slice(0, node.from));
   return ancestors.concat(getAncestorList(node.parent, doc));
 };
 
 /**
  * Filter out the invalid property names.
- * Property names always end with a `:` and can be either unquoted or quoted (single or double).
- * 1. Unquoted property names: [^\s\"\']*
- * 2. Double quoted property names: \"[^"]*\"
- * 3. Single quoted property names: \'[^\']*\'
- * 4. Any whitespace just before ending colon: (\s)*
- * 5. String ending with a colon: (?=:$)
- *
  * Exported for testing.
  */
-export const normalizeAncestorList = (parent: string[]): string[] => {
-  const propertyRegex = /([^\s"']*|"[^"]*"|'[^']*')(\s)*(?=:$)/;
+export const filterAndNormalizeAncestorList = (parent: string[]): string[] => {
   return parent
     .map((x) => {
       if (x.match(ARRAY_ITEM_REGEX)) {
         return x;
       }
-      return (x.trim().match(propertyRegex)?.[0] ?? '')
+      return (x.trim().match(PROPERTY_ITEM_REGEX)?.[0] ?? '')
         .replace(/"/g, '')
         .replace(/'/g, '')
         .trim();
@@ -73,6 +79,7 @@ export const normalizeAncestorList = (parent: string[]): string[] => {
  * represented as `[0-9]`.
  */
 export function getAncestryOfToken(token: Token, document: string): string[] {
+  // We reverse the list as we want to start from the root.
   const list = getAncestorList(token, document).reverse();
-  return normalizeAncestorList(list);
+  return filterAndNormalizeAncestorList(list);
 }
