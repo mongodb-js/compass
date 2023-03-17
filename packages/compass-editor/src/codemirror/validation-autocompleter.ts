@@ -8,6 +8,7 @@ import {
   getAncestryOfToken,
   ARRAY_ITEM_REGEX,
 } from './utils';
+import { createQueryAutocompleter } from './query-autocompleter';
 
 const rootJsonSchemaCompletion = (from: number, to: number) => ({
   filter: false,
@@ -63,6 +64,17 @@ const isCompletingBsonType = (ancestors: string[]) => {
     (immediateParent.match(ARRAY_ITEM_REGEX) &&
       ancestors[ancestors.length - 2] === 'bsonType')
   );
+};
+
+const isCompletingQueryOperator = (
+  ancestors: string[],
+  operators: string[]
+) => {
+  // The query operators also has a $jsonSchema, so we need to filter
+  // that out as the context in that case is $jsonSchema and not query.
+  return ancestors
+    .filter((x) => x !== '$jsonSchema')
+    .some((x) => operators.includes(x));
 };
 
 /**
@@ -125,6 +137,16 @@ export const createValidationAutocompleter = (
     serverVersion,
     meta: ['bson-type-aliases'],
   });
+  const queryAutocompleter = createQueryAutocompleter({
+    fields,
+    serverVersion,
+  });
+
+  const queryCompletions = completer('', {
+    serverVersion,
+    meta: ['query'],
+  });
+  const queryOperators = queryCompletions.map((x) => x.value);
 
   return (context) => {
     const token = resolveTokenAtCursor(context);
@@ -138,15 +160,19 @@ export const createValidationAutocompleter = (
       return rootJsonSchemaCompletion(0, document.length);
     }
 
-    if (token.parent?.type.isTop) {
+    const ancestors = getAncestryOfToken(token, document);
+    // At the root object {} level.
+    if (ancestors.length === 0) {
       return createCompletions(
-        defaultCompletions,
+        queryCompletions,
         textBefore,
         context.pos - textBefore.length
       );
     }
 
-    const ancestors = getAncestryOfToken(token, document);
+    if (isCompletingQueryOperator(ancestors, queryOperators)) {
+      return queryAutocompleter(context);
+    }
 
     if (isCompletingRequired(ancestors) || isCompletingProperties(ancestors)) {
       const ancestor = getNestingAncestor(ancestors);
@@ -154,7 +180,7 @@ export const createValidationAutocompleter = (
         filterFieldsByAncestor(fieldCompletions, ancestor),
         textBefore,
         context.pos - textBefore.length,
-        'Field'
+        'field'
       );
     }
 
@@ -163,7 +189,7 @@ export const createValidationAutocompleter = (
         bsonTypeCompletions,
         textBefore,
         context.pos - textBefore.length,
-        'BSON Type'
+        'bson type'
       );
     }
 
