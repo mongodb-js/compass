@@ -75,6 +75,10 @@ const infoIconCSS = css({
   color: palette.gray.base,
 });
 
+const typesListCSS = css({
+  margin: `${spacing[3]}px 0`,
+});
+
 type Field = {
   path: string;
   type: CSVParsableFieldType | 'placeholder';
@@ -113,14 +117,14 @@ function MixedWarning({
       )}
     >
       <>
-        <p>
+        <Body as="p">
           This field has{' '}
           {selectedType === 'number'
             ? 'mixed numeric types'
             : 'mixed data types'}
           :
-        </p>
-        <ul>
+        </Body>
+        <ul className={typesListCSS}>
           {Object.entries(result.types).map(([type, info]) => {
             return (
               <li key={type}>
@@ -129,7 +133,7 @@ function MixedWarning({
             );
           })}
         </ul>
-        <p>To standardise your data, select a different type.</p>
+        <Body as="p">To standardise your data, select a different type.</Body>
       </>
     </Tooltip>
   );
@@ -155,7 +159,7 @@ function FieldHeader(
             <>
               <div className={columnNameStyles}>
                 <Checkbox
-                  aria-labelledby={`toggle-import-field-${field.path}`}
+                  aria-labelledby={`toggle-import-field-label-${field.path}`}
                   id={`toggle-import-field-checkbox-${field.path}`}
                   data-testid={`toggle-import-field-checkbox-${field.path}`}
                   aria-label={

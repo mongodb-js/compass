@@ -474,7 +474,7 @@ const loadTypes = (
             // This is a bit of an edge case. If a column is always empty and
             // "Ignore empty strings" is checked, we'll detect "undefined".
             // We'll never actually insert undefined due to the checkbox, but
-            // undefined as a bson type is deprected so it might give the wrong
+            // undefined as a bson type is deprecated so it might give the wrong
             // impression. We could select any type in the selectbox, so the
             // choice of making it null is arbitrary.
             detected = 'null';
@@ -482,18 +482,6 @@ const loadTypes = (
 
           csvField.type = detected;
 
-          // Summarise why we picked number/mixed if that's what got detected
-          /*
-          if (['number', 'mixed'].includes(detected)) {
-            const parts = [];
-            for (const [type, summary] of Object.entries(
-              result.fields[csvField.path].types
-            )) {
-              parts.push(`${type} (${summary.count})`);
-            }
-            csvField.summary = parts.join(', ');
-          }
-          */
           csvField.result = result.fields[csvField.path];
         }
 
