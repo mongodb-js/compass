@@ -133,7 +133,7 @@ function MixedWarning({
             );
           })}
         </ul>
-        <Body as="p">To standardise your data, select a different type.</Body>
+        <Body>To standardize your data, select a different type.</Body>
       </>
     </Tooltip>
   );
