@@ -3,11 +3,7 @@ import { snippetCompletion } from '@codemirror/autocomplete';
 import { completer } from '../autocompleter';
 import type { CompletionResult, CompleteOptions } from '../autocompleter';
 
-import {
-  resolveTokenAtCursor,
-  getAncestryOfToken,
-  ARRAY_ITEM_REGEX,
-} from './utils';
+import { resolveTokenAtCursor, getAncestryOfToken } from './utils';
 import {
   createCompletionResultForIdPrefix,
   ID_REGEX,
@@ -28,10 +24,7 @@ const rootJsonSchemaCompletion = (from: number, to: number) => ({
 
 const isCompletingRequired = (ancestors: string[]) => {
   // Required is always an array.
-  return (
-    (ancestors[ancestors.length - 1] ?? '').match(ARRAY_ITEM_REGEX) &&
-    ancestors[ancestors.length - 2] === 'required'
-  );
+  return ancestors[ancestors.length - 2] === 'required';
 };
 
 const isCompletingProperties = (ancestors: string[]) => {
@@ -43,8 +36,7 @@ const isCompletingBsonType = (ancestors: string[]) => {
   const immediateParent = ancestors[ancestors.length - 1] ?? '';
   return (
     immediateParent === 'bsonType' ||
-    (immediateParent.match(ARRAY_ITEM_REGEX) &&
-      ancestors[ancestors.length - 2] === 'bsonType')
+    ancestors[ancestors.length - 2] === 'bsonType'
   );
 };
 
