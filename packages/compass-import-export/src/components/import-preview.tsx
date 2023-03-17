@@ -153,9 +153,7 @@ function FieldHeader(
           className={columnHeaderStyles}
           data-testid={`preview-field-header-${field.path}`}
         >
-          {field.type === 'placeholder' ? (
-            ''
-          ) : (
+          {field.type !== 'placeholder' && (
             <>
               <div className={columnNameStyles}>
                 <Checkbox
