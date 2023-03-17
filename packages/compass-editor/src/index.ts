@@ -17,3 +17,4 @@ export { SyntaxHighlight } from './syntax-highlight';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
 export { createValidationAutocompleter } from './codemirror/validation-autocompleter';
 export { createQueryAutocompleter } from './codemirror/query-autocompleter';
+export { createStageAutocompleter } from './codemirror/stage-autocompleter';

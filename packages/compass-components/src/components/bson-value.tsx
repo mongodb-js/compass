@@ -68,21 +68,13 @@ export const BSONValueContainer: React.FunctionComponent<
   }
 > = ({ type, children, className, ...props }) => {
   const darkMode = useDarkMode();
-  const textColorStyle = useMemo(() => {
+  const color = useMemo(() => {
     if (!type) {
-      return '';
+      return;
     }
-
-    const color =
-      VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Theme.Dark : Theme.Light]?.[
-        type
-      ];
-
-    if (!color) {
-      return '';
-    }
-
-    return css({ color });
+    return VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Theme.Dark : Theme.Light][
+      type
+    ];
   }, [type, darkMode]);
 
   return (
@@ -92,11 +84,11 @@ export const BSONValueContainer: React.FunctionComponent<
         className,
         bsonValue,
         type === 'String' && bsonValuePrewrap,
-        textColorStyle,
         `element-value element-value-is-${
           type ? type.toLowerCase() : 'unknown'
         }`
       )}
+      style={{ color }}
     >
       {children}
     </div>

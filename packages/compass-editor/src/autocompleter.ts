@@ -76,7 +76,7 @@ export type CompleteOptions = {
   serverVersion?: string;
   // Additional fields that are part of the document schema to add to
   // autocomplete as identifiers and identifier references
-  fields?: string[];
+  fields?: (string | { name: string; description?: string })[];
   // Filter completions by completion value type
   meta?: (Meta | 'field:*' | 'accumulator:*' | 'expr:*')[];
 };
@@ -120,6 +120,17 @@ export function wrapField(field: string, force = false) {
     : field;
 }
 
+function normalizeField(
+  field: string | { name: string; description?: string }
+) {
+  return typeof field === 'string'
+    ? { value: field }
+    : {
+        value: field.name,
+        description: field.description,
+      };
+}
+
 export function completer(
   prefix = '',
   options: CompleteOptions = {},
@@ -130,9 +141,21 @@ export function completer(
   const completionsWithFields = ([] as Completion[]).concat(
     completions,
     fields.flatMap((field) => {
+      const { value, description } = normalizeField(field);
+
       return [
-        { value: field, meta: 'field:identifier', version: '0.0.0' },
-        { value: `$${field}`, meta: 'field:reference', version: '0.0.0' },
+        {
+          value: value,
+          meta: 'field:identifier',
+          version: '0.0.0',
+          description,
+        },
+        {
+          value: `$${value}`,
+          meta: 'field:reference',
+          version: '0.0.0',
+          description,
+        },
       ];
     })
   );

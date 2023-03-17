@@ -3,7 +3,6 @@ import {
   Icon,
   InteractivePopover,
   css,
-  cx,
   focusRing,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -13,8 +12,8 @@ import { connect } from 'react-redux';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
-const openQueryHistoryButtonStyles = cx(
-  css({
+const openQueryHistoryButtonStyles = css(
+  {
     border: 'none',
     backgroundColor: 'transparent',
     display: 'inline-flex',
@@ -24,7 +23,7 @@ const openQueryHistoryButtonStyles = cx(
     '&:hover': {
       cursor: 'pointer',
     },
-  }),
+  },
   focusRing
 );
 
