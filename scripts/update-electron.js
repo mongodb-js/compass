@@ -107,7 +107,7 @@ async function main() {
     browserslist: `^${latestBrowserslistVersion}`,
   };
 
-  console.log('Updating the follwing packages:', newVersions);
+  console.log('Updating the following packages:', newVersions);
 
   forEachPackage((props) => {
     const packageJsonPath = path.resolve(props.location, 'package.json');
