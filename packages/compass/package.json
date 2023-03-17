@@ -244,7 +244,7 @@
     "local-links": "^1.4.0",
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mongodb": "^5.1.0",
     "mongodb-connection-model": "^22.2.3",
     "mongodb-connection-string-url": "^2.6.0",

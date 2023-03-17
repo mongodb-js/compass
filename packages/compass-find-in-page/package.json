@@ -80,7 +80,7 @@
     "electron": "^22.0.2",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.5",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",

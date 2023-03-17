@@ -78,7 +78,7 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "mongodb": "^5.1.0",
     "mongodb-data-service": "^22.5.1",
     "nyc": "^15.1.0",

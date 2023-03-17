@@ -20,9 +20,8 @@ export async function shellEval(
   const numLines = (await getOutputText(browser)).length;
 
   const command = parse === true ? `JSON.stringify(${str})` : str;
-  // Might be marked with a deprecation warning, but can be used
-  // https://github.com/webdriverio/webdriverio/issues/2076
-  await browser.keys(command);
+
+  await browser.setAceValue(Selectors.ShellInputEditor, command);
   await browser.keys(['Enter']);
 
   // wait until more output appears

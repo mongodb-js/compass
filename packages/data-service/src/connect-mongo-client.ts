@@ -14,6 +14,7 @@ import {
   openSshTunnel,
   waitForTunnelError,
 } from './ssh-tunnel';
+import { runCommand } from './run-command';
 
 const { debug, log } = createLoggerAndTelemetry('COMPASS-CONNECT');
 
@@ -90,7 +91,7 @@ export default async function connectMongoClientCompass(
       connectLogger,
       CompassMongoClient
     );
-    await client.db('admin').command({ ping: 1 });
+    await runCommand(client.db('admin'), { ping: 1 });
     return Object.assign(client, {
       async [createClonedClient]() {
         return await connectSingleClient(connectOptions);

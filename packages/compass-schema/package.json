@@ -107,7 +107,7 @@
     "lodash.sortbyorder": "^3.4.4",
     "lodash.sum": "^4.0.2",
     "mapbox-gl": "^1.2.0",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "moment": "^2.27.0",
     "mongodb": "^5.1.0",
     "mongodb-data-service": "^22.5.1",

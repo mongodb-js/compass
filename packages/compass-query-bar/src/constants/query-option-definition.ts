@@ -2,15 +2,9 @@ import type { TextInput } from '@mongodb-js/compass-components';
 import type { ComponentProps } from 'react';
 import React from 'react';
 import { usePreference } from 'compass-preferences-model';
+import type { QueryProperty } from './query-properties';
 
-export type QueryOption =
-  | 'filter'
-  | 'project'
-  | 'sort'
-  | 'maxTimeMS'
-  | 'collation'
-  | 'skip'
-  | 'limit';
+export type QueryOption = QueryProperty;
 
 export const OPTION_DEFINITION: {
   [optionName in QueryOption]: {
@@ -77,11 +71,5 @@ export const OPTION_DEFINITION: {
   },
 };
 
-export type QueryBarOptionProps = {
-  [key in `${QueryOption}String`]: string;
-} & { [key in `${QueryOption}Valid`]: boolean } & {
-  [key in `${QueryOption}Placeholder`]?: string;
-};
-
 export type QueryBarRowLayout = QueryOption | QueryOption[];
-export type QueryBarLayout = Array<QueryBarRowLayout>;
+export type QueryBarLayout = QueryBarRowLayout[];

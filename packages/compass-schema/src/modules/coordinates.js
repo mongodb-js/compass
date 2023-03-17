@@ -59,22 +59,26 @@ const minicharts_d3fns_geo = (localAppRegistry) => {
     let update = null;
 
     function dispatchQueryActions() {
-      const QueryAction = localAppRegistry.getAction('Query.Actions');
-
       if (circleCenter && circleOuter) {
         mileDistance = turfDistance(
           turfPoint([circleCenter.lng, circleCenter.lat]),
           turfPoint([circleOuter.lng, circleOuter.lat]),
           'miles'
         );
-        QueryAction.setGeoWithinValue({
-          field: options.fieldName,
-          center: [circleCenter.lng, circleCenter.lat],
-          radius: mileDistance / 3963.2,
+        localAppRegistry.emit('query-bar-change-filter', {
+          type: 'setGeoWithinValue',
+          payload: {
+            field: options.fieldName,
+            center: [circleCenter.lng, circleCenter.lat],
+            radius: mileDistance / 3963.2,
+          },
         });
       } else {
-        QueryAction.clearValue({
-          field: options.fieldName,
+        localAppRegistry.emit('query-bar-change-filter', {
+          type: 'clearValue',
+          payload: {
+            field: options.fieldName,
+          },
         });
       }
     }

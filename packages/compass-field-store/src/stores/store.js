@@ -1,23 +1,19 @@
 import { createStore } from 'redux';
-import mergeWith from 'lodash.mergewith';
-import isNumber from 'lodash.isnumber';
-import isString from 'lodash.isstring';
-import uniq from 'lodash.uniq';
-import isArray from 'lodash.isarray';
-import pick from 'lodash.pick';
-import cloneDeep from 'lodash.clonedeep';
-import union from 'lodash.union';
-
+import {
+  mergeWith,
+  isNumber,
+  isString,
+  uniq,
+  isArray,
+  pick,
+  cloneDeep,
+  union,
+} from 'lodash';
 import reducer, { changeFields } from '../modules';
 
 import parseSchema from 'mongodb-schema';
 
-const FIELDS = [
-  'name',
-  'path',
-  'count',
-  'type'
-];
+const FIELDS = ['name', 'path', 'count', 'type'];
 
 const ONE = 1;
 const FIELD = 'field';
@@ -30,10 +26,12 @@ const configureStore = (options = {}) => {
     return mergeWith(
       existingField,
       newField,
-      function(objectValue, sourceValue, key) {
+      function (objectValue, sourceValue, key) {
         if (key === 'count') {
           // counts add up
-          return isNumber(objectValue) ? objectValue + sourceValue : sourceValue;
+          return isNumber(objectValue)
+            ? objectValue + sourceValue
+            : sourceValue;
         }
         if (key === 'type') {
           // Avoid the merge of 'Array' with 'Array' case becoming
@@ -45,7 +43,9 @@ const configureStore = (options = {}) => {
           if (isString(objectValue)) {
             return uniq([objectValue, sourceValue]);
           }
-          return isArray(objectValue) ? uniq(objectValue.concat(sourceValue)) : sourceValue;
+          return isArray(objectValue)
+            ? uniq(objectValue.concat(sourceValue))
+            : sourceValue;
         }
         // all other keys are handled as per default
         return undefined;
@@ -61,12 +61,18 @@ const configureStore = (options = {}) => {
    * @param  {Object} rootField    current top level field which can contain nestedFields
    * @param  {Number} arrayDepth   track depth of the dimensionality recursion
    */
-  store._flattenedFields = (fields, nestedFields, rootField, arrayDepth = 1) => {
+  store._flattenedFields = (
+    fields,
+    nestedFields,
+    rootField,
+    arrayDepth = 1
+  ) => {
     if (!nestedFields) {
       return;
     }
 
     if (rootField) {
+      // eslint-disable-next-line no-prototype-builtins
       if (!fields[rootField.path].hasOwnProperty('nestedFields')) {
         fields[rootField.path].nestedFields = [];
       }
@@ -131,13 +137,14 @@ const configureStore = (options = {}) => {
    */
   store._processAceFields = (fields) => {
     return Object.keys(fields).map((key) => {
-      const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
+      const field =
+        key.indexOf('.') > -1 || key.indexOf(' ') > -1 ? `"${key}"` : key;
       return {
         name: key,
         value: field,
         score: ONE,
         meta: FIELD,
-        version: VERSION_ZERO
+        version: VERSION_ZERO,
       };
     });
   };
@@ -168,7 +175,7 @@ const configureStore = (options = {}) => {
    *
    * @param  {Array} documents  documents to process.
    */
-  store.processDocuments = async(documents) => {
+  store.processDocuments = async (documents) => {
     try {
       const schema = await parseSchema(documents, { storeValues: false });
 
@@ -184,7 +191,7 @@ const configureStore = (options = {}) => {
    * @param  {Object} document     document to process.
    */
   store.processSingleDocument = (document) => {
-    store.processDocuments([ document ]);
+    store.processDocuments([document]);
   };
 
   /**

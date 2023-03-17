@@ -78,6 +78,7 @@ const configureStore = (options = {}) => {
           options.dataProvider?.dataProvider
             ?.getConnectionString?.()
             .hosts.join(',') ?? null,
+        ns: options.namespace,
       };
     },
   });

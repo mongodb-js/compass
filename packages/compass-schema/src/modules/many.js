@@ -11,8 +11,6 @@ import { hasDistinctValue, inValueRange } from 'mongodb-query-util';
 import { createD3Tip } from './create-d3-tip';
 
 const minicharts_d3fns_many = (appRegistry) => {
-  const QueryAction = appRegistry.getAction('Query.Actions');
-
   // --- beginning chart setup ---
   let width = 400; // default width
   let height = 100; // default height
@@ -61,17 +59,21 @@ const minicharts_d3fns_many = (appRegistry) => {
     if (numSelected !== selected[0].length) {
       if (selected[0].length === 0) {
         // clear value
-        QueryAction.clearValue({
-          field: options.fieldName,
+        appRegistry.emit('query-bar-change-filter', {
+          type: 'clearValue',
+          payload: { field: options.fieldName },
         });
         return;
       }
       // distinct values (strings)
       if (options.selectionType === 'distinct') {
         const values = map(selected.data(), 'value');
-        QueryAction.setDistinctValues({
-          field: options.fieldName,
-          value: values.map((v) => options.promoter(v)),
+        appRegistry.emit('query-bar-change-filter', {
+          type: 'setDistinctValues',
+          payload: {
+            field: options.fieldName,
+            value: values.map((v) => options.promoter(v)),
+          },
         });
         return;
       }
@@ -85,19 +87,25 @@ const minicharts_d3fns_many = (appRegistry) => {
 
       if (minValue.value === maxValue.value + maxValue.dx) {
         // if not binned and values are the same, single equality query
-        QueryAction.setValue({
-          field: options.fieldName,
-          value: options.promoter(minValue.bson),
+        appRegistry.emit('query-bar-change-filter', {
+          type: 'setValue',
+          payload: {
+            field: options.fieldName,
+            value: options.promoter(minValue.bson),
+          },
         });
         return;
       }
       // binned values, build range query with $gte and $lt (if binned)
       // or $gte and $lte (if not binned)
-      QueryAction.setRangeValues({
-        field: options.fieldName,
-        min: options.promoter(minValue.value),
-        max: options.promoter(maxValue.value + maxValue.dx),
-        maxInclusive: maxValue.dx === 0,
+      appRegistry.emit('query-bar-change-filter', {
+        type: 'setRangeValues',
+        payload: {
+          field: options.fieldName,
+          min: options.promoter(minValue.value),
+          max: options.promoter(maxValue.value + maxValue.dx),
+          maxInclusive: maxValue.dx === 0,
+        },
       });
     }
   }
@@ -135,43 +143,54 @@ const minicharts_d3fns_many = (appRegistry) => {
 
     if (options.selectionType === 'distinct') {
       // distinct values, behavior dependent on shift key
-      const qbAction = d3.event.shiftKey
-        ? QueryAction.toggleDistinctValue
-        : QueryAction.setValue;
-      qbAction({
-        field: options.fieldName,
-        value: options.promoter(d.value),
-        unsetIfSet: true,
+      appRegistry.emit('query-bar-change-filter', {
+        type: d3.event.shiftKey ? 'toggleDistinctValue' : 'setValue',
+        payload: {
+          field: options.fieldName,
+          value: options.promoter(d.value),
+          unsetIfSet: true,
+        },
       });
     } else if (d3.event.shiftKey && lastNonShiftRangeValue) {
-      QueryAction.setRangeValues({
-        field: options.fieldName,
-        min: options.promoter(Math.min(d.value, lastNonShiftRangeValue.value)),
-        max: options.promoter(
-          Math.max(
-            d.value + d.dx,
-            lastNonShiftRangeValue.value + lastNonShiftRangeValue.dx
-          )
-        ),
-        maxInclusive: d.dx === 0,
+      appRegistry.emit('query-bar-change-filter', {
+        type: 'setRangeValues',
+        payload: {
+          field: options.fieldName,
+          min: options.promoter(
+            Math.min(d.value, lastNonShiftRangeValue.value)
+          ),
+          max: options.promoter(
+            Math.max(
+              d.value + d.dx,
+              lastNonShiftRangeValue.value + lastNonShiftRangeValue.dx
+            )
+          ),
+          maxInclusive: d.dx === 0,
+        },
       });
     } else {
       // remember non-shift value so that range can be extended with shift
       lastNonShiftRangeValue = d;
       if (d.dx > 0) {
         // binned bars, turn single value into range
-        QueryAction.setRangeValues({
-          field: options.fieldName,
-          min: options.promoter(d.value),
-          max: options.promoter(d.value + d.dx),
-          unsetIfSet: true,
+        appRegistry.emit('query-bar-change-filter', {
+          type: 'setRangeValues',
+          payload: {
+            field: options.fieldName,
+            min: options.promoter(d.value),
+            max: options.promoter(d.value + d.dx),
+            unsetIfSet: true,
+          },
         });
       } else {
         // bars don't represent bins, build single value query
-        QueryAction.setValue({
-          field: options.fieldName,
-          value: options.promoter(d.bson),
-          unsetIfSet: true,
+        appRegistry.emit('query-bar-change-filter', {
+          type: 'setValue',
+          payload: {
+            field: options.fieldName,
+            value: options.promoter(d.bson),
+            unsetIfSet: true,
+          },
         });
       }
     }

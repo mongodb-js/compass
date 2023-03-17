@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeErrorMessage = (errorMessage) => ({
   type: CHANGE_ERROR_MESSAGE,
-  errorMessage: errorMessage
+  errorMessage: errorMessage,
 });

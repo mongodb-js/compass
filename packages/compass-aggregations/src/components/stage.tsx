@@ -11,7 +11,6 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import { type AceEditor } from '@mongodb-js/compass-editor';
-import { usePreference } from 'compass-preferences-model';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
@@ -154,15 +153,12 @@ const useFocusModeGuideCue = (stageIndex: number) => {
   const [setGuideCueIntersectingRef, isIntersecting] = useInView({
     threshold: 0.5,
   });
-  const showFocusMode = usePreference('showFocusMode', React);
 
   useEffect(() => {
     if (!hasSeenFocusModeGuideCue()) {
-      setIsGuideCueVisible(
-        Boolean(stageIndex === 0 && showFocusMode && isIntersecting)
-      );
+      setIsGuideCueVisible(Boolean(stageIndex === 0 && isIntersecting));
     }
-  }, [setIsGuideCueVisible, showFocusMode, stageIndex, isIntersecting]);
+  }, [setIsGuideCueVisible, stageIndex, isIntersecting]);
 
   const setGuideCueVisited = () => {
     setIsGuideCueVisible(false);

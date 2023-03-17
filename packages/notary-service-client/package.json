@@ -39,7 +39,7 @@
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.2.0",
-    "mocha": "^3.2.0"
+    "mocha": "^10.2.0"
   },
   "license": "SSPL"
 }

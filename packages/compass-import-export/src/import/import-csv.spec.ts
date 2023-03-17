@@ -62,7 +62,11 @@ describe('importCSV', function () {
   });
 
   afterEach(async function () {
-    await dataService.disconnect();
+    try {
+      await dataService.disconnect();
+    } catch (err) {
+      // ignore
+    }
   });
 
   for (const filepath of Object.values(fixtures.csv)) {

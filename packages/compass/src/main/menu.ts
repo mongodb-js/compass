@@ -44,31 +44,6 @@ function settingsDialogItem(): MenuItemConstructorOptions {
   };
 }
 
-function themeSubmenuItems(): MenuItemConstructorOptions[] {
-  const currentTheme = preferences.getPreferences().theme;
-  return (
-    [
-      ['OS_THEME', 'Use OS Theme (Preview)'],
-      ['DARK', 'Dark Theme (Preview)'],
-      ['LIGHT', 'Light Theme'],
-    ] as const
-  ).map(([theme, label]) => ({
-    label,
-    click: function () {
-      void preferences.savePreferences({ theme });
-    },
-    type: 'checkbox',
-    checked: theme === currentTheme,
-  }));
-}
-
-function themeMenuItem(): MenuItemConstructorOptions {
-  return {
-    label: 'Theme',
-    submenu: themeSubmenuItems(),
-  };
-}
-
 function darwinCompassSubMenu(
   compassApp: typeof CompassApplication
 ): MenuItemConstructorOptions {
@@ -86,7 +61,7 @@ function darwinCompassSubMenu(
         },
       },
       separator(),
-      themeMenuItem(),
+      settingsDialogItem(),
       separator(),
       {
         label: 'Hide',
@@ -205,6 +180,9 @@ function editSubMenu(): MenuItemConstructorOptions {
           ipcMain.broadcastFocused('app:find');
         },
       },
+      ...(process.platform === 'darwin'
+        ? []
+        : [separator(), settingsDialogItem()]),
     ],
   };
 }
@@ -296,8 +274,6 @@ function helpSubMenu(
 ): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push(helpWindowItem());
-
-  subMenu.push(settingsDialogItem());
 
   subMenu.push(license());
 
@@ -399,11 +375,10 @@ function viewSubMenu(): MenuItemConstructorOptions {
         ipcMain.broadcast('window:zoom-out');
       },
     },
-    separator(),
-    ...(process.platform === 'darwin' ? [] : [themeMenuItem(), separator()]),
   ];
 
   if (preferences.getPreferences().enableDevTools) {
+    subMenu.push(separator());
     subMenu.push({
       label: '&Toggle DevTools',
       accelerator: 'Alt+CmdOrCtrl+I',
@@ -467,7 +442,7 @@ function nonDarwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu = [connectSubMenu(true, app), viewSubMenu()];
+  const menu = [connectSubMenu(true, app), editSubMenu(), viewSubMenu()];
 
   if (menuState.showCollection) {
     menu.push(collectionSubMenu(menuState.isReadOnly));
