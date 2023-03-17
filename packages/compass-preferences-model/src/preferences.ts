@@ -17,7 +17,6 @@ export type FeatureFlags = {
   showDevFeatureFlags?: boolean;
   lgDarkmode?: boolean;
   debugUseCsfleSchemaMap?: boolean;
-  showFocusMode?: boolean;
   useNewExportBackend?: boolean;
 };
 
@@ -252,22 +251,6 @@ const featureFlagsProps: Required<{
     global: true,
     description: {
       short: 'CSFLE Schema Map Debugging',
-    },
-  },
-
-  /**
-   * Feature flag for the focus mode in aggregation pipeline builder.
-   */
-  showFocusMode: {
-    type: 'boolean',
-    required: false,
-    default: true,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Focus Mode in Stage Editor',
-      long: 'Use focus mode to compose aggregation pipeline stage.',
     },
   },
 
