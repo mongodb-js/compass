@@ -1,13 +1,17 @@
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { snippetCompletion } from '@codemirror/autocomplete';
 import { completer } from '../autocompleter';
-import type { CompletionResult } from '../autocompleter';
+import type { CompletionResult, CompleteOptions } from '../autocompleter';
 
 import {
   resolveTokenAtCursor,
   getAncestryOfToken,
   ARRAY_ITEM_REGEX,
 } from './utils';
+import {
+  createCompletionResultForIdPrefix,
+  ID_REGEX,
+} from './ace-compat-autocompleter';
 import { createQueryAutocompleter } from './query-autocompleter';
 
 const rootJsonSchemaCompletion = (from: number, to: number) => ({
@@ -21,28 +25,6 @@ const rootJsonSchemaCompletion = (from: number, to: number) => ({
     }),
   ],
 });
-
-const createCompletions = (
-  completions: CompletionResult[],
-  text: string,
-  from: number,
-  detail?: string
-) => {
-  return {
-    from,
-    filter: false,
-    options: completions
-      .filter((completion) => {
-        return completion.value.toLowerCase().startsWith(text.toLowerCase());
-      })
-      .map((completion) => ({
-        ...completion,
-        label: completion.value,
-        info: completion.description,
-        detail: detail ?? completion.meta,
-      })),
-  };
-};
 
 const isCompletingRequired = (ancestors: string[]) => {
   // Required is always an array.
@@ -71,7 +53,7 @@ const isCompletingQueryOperator = (
   operators: string[]
 ) => {
   // The query operators also has a $jsonSchema, so we need to filter
-  // that out as the context in that case is $jsonSchema and not query.
+  // that out as the context in that case is jsonSchema and not query.
   return ancestors
     .filter((x) => x !== '$jsonSchema')
     .some((x) => operators.includes(x));
@@ -121,53 +103,49 @@ const filterFieldsByAncestor = (
 };
 
 export const createValidationAutocompleter = (
-  fields: string[],
-  serverVersion?: string
+  options: Pick<CompleteOptions, 'fields' | 'serverVersion'> = {}
 ): CompletionSource => {
   const defaultCompletions = completer('', {
-    serverVersion,
     meta: ['json-schema', 'bson', 'query'],
+    ...options,
   });
   const fieldCompletions = completer('', {
-    fields,
-    serverVersion,
     meta: ['field:identifier'],
+    ...options,
   });
   const bsonTypeCompletions = completer('', {
-    serverVersion,
     meta: ['bson-type-aliases'],
+    ...options,
   });
-  const queryAutocompleter = createQueryAutocompleter({
-    fields,
-    serverVersion,
-  });
+  const queryAutocompleter = createQueryAutocompleter(options);
 
   const queryCompletions = completer('', {
-    serverVersion,
     meta: ['query'],
+    ...options,
   });
   const queryOperators = queryCompletions.map((x) => x.value);
 
   return (context) => {
     const token = resolveTokenAtCursor(context);
     const document = context.state.sliceDoc(0);
-    const textBefore = document
-      .slice(token.from, context.pos)
-      .replace(/^("|')/, '');
+    const prefix = context.matchBefore(ID_REGEX);
 
     // At the root level
     if (token.type.isTop) {
       return rootJsonSchemaCompletion(0, document.length);
     }
 
+    if (!prefix) {
+      return null;
+    }
+
     const ancestors = getAncestryOfToken(token, document);
     // At the root object {} level.
     if (ancestors.length === 0) {
-      return createCompletions(
-        queryCompletions,
-        textBefore,
-        context.pos - textBefore.length
-      );
+      return createCompletionResultForIdPrefix({
+        prefix,
+        completions: queryCompletions,
+      });
     }
 
     if (isCompletingQueryOperator(ancestors, queryOperators)) {
@@ -176,27 +154,23 @@ export const createValidationAutocompleter = (
 
     if (isCompletingRequired(ancestors) || isCompletingProperties(ancestors)) {
       const ancestor = getNestingAncestor(ancestors);
-      return createCompletions(
-        filterFieldsByAncestor(fieldCompletions, ancestor),
-        textBefore,
-        context.pos - textBefore.length,
-        'field'
-      );
+      return createCompletionResultForIdPrefix({
+        prefix,
+        completions: filterFieldsByAncestor(fieldCompletions, ancestor),
+      });
     }
 
     if (isCompletingBsonType(ancestors)) {
-      return createCompletions(
-        bsonTypeCompletions,
-        textBefore,
-        context.pos - textBefore.length,
-        'bson type'
-      );
+      return createCompletionResultForIdPrefix({
+        prefix,
+        completions: bsonTypeCompletions,
+        escape: 'always',
+      });
     }
 
-    return createCompletions(
-      defaultCompletions,
-      textBefore,
-      context.pos - textBefore.length
-    );
+    return createCompletionResultForIdPrefix({
+      prefix,
+      completions: defaultCompletions,
+    });
   };
 };
