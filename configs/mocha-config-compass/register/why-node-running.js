@@ -1,6 +1,9 @@
 require('why-is-node-running/include');
 exports.mochaHooks = {
   afterAll() {
+    if (process.argv.includes('--watch')) {
+      return;
+    }
     const timeout = setTimeout(() => {
       console.log(
         "if the process still running, run kill -SIGINFO %s to see what's keeping it",
