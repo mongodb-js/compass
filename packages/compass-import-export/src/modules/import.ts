@@ -221,6 +221,9 @@ export const startImport = () => {
 
     // Create the error log output file.
     const userDataPath = getUserDataFolderPath();
+    if (!userDataPath) {
+      throw new Error('cannot access user data for error log generation');
+    }
     const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
     await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
 
