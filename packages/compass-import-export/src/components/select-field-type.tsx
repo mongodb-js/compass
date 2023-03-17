@@ -15,7 +15,6 @@ function SelectFieldType({
 }: {
   fieldPath: string;
   selectedType: CSVParsableFieldType;
-  summary?: string;
   onChange: (type: string) => void;
 }) {
   return (
