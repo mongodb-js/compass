@@ -548,22 +548,18 @@ export const incompleteSchemaForClonedDocMsg =
 export const ImportModal = '[data-testid="import-modal"]';
 export const ImportDelimiterSelect = '[data-testid="import-delimiter-select"]';
 export const ImportDelimiterMenu = '[id="import-delimiter-select-menu"]';
+export const ImportStopOnErrorsCheckbox = 'data-testid="import-stop-on-errors"';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
-// export const ImportCancel =
-//   '[data-testid="import-modal"] [data-testid="cancel-button"]';
 export const ImportSucceededToast =
-  '[data-testid="toast-import-toast-result-success"]';
+  '[data-testid="import-toast-result-completed"]';
 export const ImportCompletedWithErrorsToast =
-  '[data-testid="toast-import-toast-result-errors-completed"]';
-export const ImportAbortedToast =
-  '[data-testid="toast-import-toast-result-aborted"]';
-export const ImportFailedToast =
-  '[data-testid="toast-import-toast-result-failed"]';
-// export const ImportErrorBox = '[data-testid="import-error-box"]'; // TODO: remove
+  '[data-testid="import-toast-result-errors-completed"]';
+export const ImportAbortedToast = '[data-testid="import-toast-result-aborted"]';
+export const ImportFailedToast = '[data-testid="import-toast-result-failed"]';
 
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] button`;

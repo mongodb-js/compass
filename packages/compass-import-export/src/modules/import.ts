@@ -30,6 +30,7 @@ import path from 'path';
 import type { AnyAction, Dispatch } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
@@ -45,12 +46,8 @@ import { listCSVFields } from '../import/list-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 import { useToastAction } from '../hooks/use-toast-action';
-import { getLogsPaths } from '@mongodb-js/compass-utils';
-
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
 import { openFile } from '../utils/open-file';
-
-const { basepath: logsBasePath } = getLogsPaths() || { basepath: '' };
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -198,7 +195,7 @@ function typeToCSVParsableFieldType(type: string): CSVParsableFieldType {
 }
 
 export const startImport = () => {
-  return (
+  return async (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
@@ -221,6 +218,15 @@ export const startImport = () => {
       exclude,
       transform,
     } = importData;
+
+    // Create the error log output file.
+    const userDataPath = getUserDataFolderPath();
+    const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
+    await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
+
+    const errorLogFileName = `import-${path.basename(fileName)}.log`;
+    const errorLogFilePath = path.join(importErrorLogsPath, errorLogFileName);
+    const errorLogWriteStream = fs.createWriteStream(errorLogFilePath);
 
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
     const fileSize = fileStats?.size || 0;
@@ -263,6 +269,7 @@ export const startImport = () => {
       body: useToastAction({
         statusMessage: 'Starting...',
         actionHandler: () => {
+          progressCallback.flush();
           abortController.abort();
         },
         actionText: 'stop',
@@ -272,10 +279,6 @@ export const startImport = () => {
     });
 
     let promise;
-
-    const errorLogFileName = `import-errors-${path.basename(fileName)}.log`;
-    const errorLogFilePath = path.join(logsBasePath, errorLogFileName);
-    const errorLogWriteStream = fs.createWriteStream(errorLogFilePath);
 
     const errors: ErrorJSON[] = [];
     const errorCallback = (err: ErrorJSON) => {
@@ -312,6 +315,7 @@ export const startImport = () => {
           statusMessage: `${docsWritten}/${guessedTotal}`,
           actionHandler: () => {
             dispatch(cancelImport());
+            progressCallback.flush();
           },
           actionText: 'cancel',
         }),
@@ -350,106 +354,107 @@ export const startImport = () => {
       });
     }
 
-    promise
-      .finally(() => {
-        errorLogWriteStream.close();
-        progressCallback.flush();
-      })
-      .then((result) => {
-        track('Import Completed', {
-          duration: Date.now() - startTime,
-          file_type: fileType,
-          all_fields: exclude.length === 0,
-          stop_on_error_selected: stopOnErrors,
-          number_of_docs: result.docsWritten,
-          success: true,
-          aborted: result.aborted,
-        });
+    // let result: ImportResult;
+    let result;
+    try {
+      result = await promise;
+    } catch (err: any) {
+      dispatch(onFinished(err.result.docsWritten, err.result.docsProcessed));
 
-        const resultText = result.aborted ? 'aborted' : 'completed';
-        if (errors.length > 0) {
-          // Show the first two errors and a message that more errors exists.
-          const statusMessage = `${errors
-            .slice(0, 2)
-            .map((error) => error.message)
-            .join('\n')}${
-            errors.length > 2
-              ? '\nMore errors occurred, open the error log to view.'
-              : ''
-          }`;
-          openToast(importToastId, {
-            dataTestId: `import-toast-result-errors-${resultText}`,
-            title: `Import ${resultText} with the following errors:`,
-            body: useToastAction({
-              statusMessage,
-              actionHandler: () => {
-                void openFile(errorLogFilePath);
-              },
-              actionText: 'view log',
-            }),
-            variant: 'warning',
-          });
-        } else {
-          openToast(importToastId, {
-            dataTestId: `import-toast-result-${resultText}`,
-            title: `Import ${resultText}.`,
-            body: result.aborted
-              ? undefined
-              : `${result.docsWritten} documents written.`,
-            variant: result.aborted ? 'warning' : 'success',
-          });
-        }
-
-        log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
-          ns,
-          docsWritten: result.docsWritten,
-          docsProcessed: result.docsProcessed,
-        });
-
-        dispatch(onFinished(result.docsWritten, result.docsProcessed));
-
-        const payload = {
-          ns,
-          size: fileSize,
-          fileType,
-          docsWritten: result.docsWritten,
-          fileIsMultilineJSON,
-          delimiter,
-          ignoreBlanks,
-          stopOnErrors,
-          hasExcluded: exclude.length > 0,
-          hasTransformed: transform.length > 0,
-        };
-        dispatch(globalAppRegistryEmit('import-finished', payload));
-      })
-      .catch((err) => {
-        dispatch(onFinished(err.result.docsWritten, err.result.docsProcessed));
-
-        track('Import Completed', {
-          duration: Date.now() - startTime,
-          file_type: fileType,
-          all_fields: exclude.length === 0,
-          stop_on_error_selected: stopOnErrors,
-          number_of_docs: err.result.docsWritten,
-          success: !err,
-        });
-
-        openToast(importToastId, {
-          dataTestId: 'import-toast-result-failed',
-          title: `Failed to import with the following error:`,
-          body: err.message,
-          variant: 'warning',
-        });
-
-        log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
-          ns,
-          docsWritten: err.result.docsWritten,
-          error: err.message,
-        });
-        debug('Error while importing:', err.stack);
-
-        return dispatch(onFailed(err));
+      track('Import Completed', {
+        duration: Date.now() - startTime,
+        file_type: fileType,
+        all_fields: exclude.length === 0,
+        stop_on_error_selected: stopOnErrors,
+        number_of_docs: err.result.docsWritten,
+        success: !err,
       });
+
+      openToast(importToastId, {
+        dataTestId: 'import-toast-result-failed',
+        title: `Failed to import with the following error:`,
+        body: err.message,
+        variant: 'warning',
+      });
+
+      log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
+        ns,
+        docsWritten: err.result.docsWritten,
+        error: err.message,
+      });
+      debug('Error while importing:', err.stack);
+
+      return dispatch(onFailed(err));
+    } finally {
+      errorLogWriteStream.close();
+      progressCallback.flush();
+    }
+
+    track('Import Completed', {
+      duration: Date.now() - startTime,
+      file_type: fileType,
+      all_fields: exclude.length === 0,
+      stop_on_error_selected: stopOnErrors,
+      number_of_docs: result.docsWritten,
+      success: true,
+      aborted: result.aborted,
+    });
+
+    const resultText = result.aborted ? 'aborted' : 'completed';
+    if (errors.length > 0) {
+      // Show the first two errors and a message that more errors exists.
+      const statusMessage = `${errors
+        .slice(0, 2)
+        .map((error) => error.message)
+        .join('\n')}${
+        errors.length > 2
+          ? '\nMore errors occurred, open the error log to view.'
+          : ''
+      }`;
+      openToast(importToastId, {
+        dataTestId: `import-toast-result-errors-${resultText}`,
+        title: `Import ${resultText} with the following errors:`,
+        body: useToastAction({
+          statusMessage,
+          actionHandler: () => {
+            void openFile(errorLogFilePath);
+          },
+          actionText: 'view log',
+        }),
+        variant: 'warning',
+      });
+    } else {
+      openToast(importToastId, {
+        dataTestId: `import-toast-result-${resultText}`,
+        title: `Import ${resultText}.`,
+        body: result.aborted
+          ? undefined
+          : `${result.docsWritten} documents written.`,
+        variant: result.aborted ? 'warning' : 'success',
+      });
+    }
+
+    log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
+      ns,
+      docsWritten: result.docsWritten,
+      docsProcessed: result.docsProcessed,
+    });
+
+    dispatch(onFinished(result.docsWritten, result.docsProcessed));
+
+    const payload = {
+      ns,
+      size: fileSize,
+      fileType,
+      docsWritten: result.docsWritten,
+      fileIsMultilineJSON,
+      delimiter,
+      ignoreBlanks,
+      stopOnErrors,
+      hasExcluded: exclude.length > 0,
+      hasTransformed: transform.length > 0,
+    };
+    dispatch(globalAppRegistryEmit('import-finished', payload));
   };
 };
 

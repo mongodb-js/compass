@@ -20,16 +20,6 @@ function getElectronApp() {
   return app;
 }
 
-export function getLogsPaths(): StoragePaths | undefined {
-  const app = getElectronApp();
-  if (!app) return undefined;
-
-  const appName = app.getName();
-  const basepath = app.getPath('logs');
-
-  return { appName, basepath };
-}
-
 export function getStoragePaths(): StoragePaths | undefined {
   const app = getElectronApp();
   if (!app) return undefined;

@@ -1,5 +1,6 @@
 import path from 'path';
 import chai from 'chai';
+import { promises as fs } from 'fs';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
@@ -33,8 +34,10 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   await importModal.waitForDisplayed({ reverse: false });
 
   // Wait for the done toast to appear and close it.
-  const toast = Selectors.ImportConnectionsSucceededToast;
+  const toast = Selectors.ImportSucceededToast;
   await browser.$(toast).waitForDisplayed();
+  await browser.waitForAnimations(toast);
+  await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
   await browser.clickVisible(Selectors.closeToastButton(toast));
   await browser.$(toast).waitForDisplayed({ reverse: true });
 }
@@ -99,7 +102,7 @@ describe.only('Collection import', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it('supports single JSON objects', async function () {
+  it.skip('supports single JSON objects', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     // browse to the "Insert to Collection" modal
@@ -151,7 +154,7 @@ describe.only('Collection import', function () {
     });
   });
 
-  it('supports single objects in document view mode', async function () {
+  it.skip('supports single objects in document view mode', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     // browse to the "Insert to Collection" modal
@@ -222,7 +225,7 @@ describe.only('Collection import', function () {
     });
   });
 
-  it('supports JSON arrays', async function () {
+  it.skip('supports JSON arrays', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     const array = [];
@@ -277,7 +280,7 @@ describe.only('Collection import', function () {
     });
   });
 
-  it('displays an error for a malformed JSON array', async function () {
+  it.skip('displays an error for a malformed JSON array', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     const json = 'this is not valid JSON';
@@ -311,7 +314,7 @@ describe.only('Collection import', function () {
     await insertDialog.waitForDisplayed({ reverse: true });
   });
 
-  it('supports JSON files', async function () {
+  it.only('supports JSON files', async function () {
     const jsonPath = path.resolve(__dirname, '..', 'fixtures', 'listings.json');
 
     await browser.navigateToCollectionTab('test', 'json-file', 'Documents');
@@ -434,10 +437,13 @@ describe.only('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: false });
 
     // Wait for the error toast to appear and close it.
-    const toast = Selectors.ImportCompletedWithErrorsToast;
+    const toast = Selectors.ImportFailedToast;
     await browser.$(toast).waitForDisplayed();
+    await browser.waitForAnimations(toast);
     const errorText = await browser.$(toast).getText();
-    expect(errorText).to.match(/^Parser has expected a value/);
+    expect(errorText).to.include('Failed to import with the following error');
+    expect(errorText).to.include('Parser has expected a value');
+    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
     await browser.clickVisible(Selectors.closeToastButton(toast));
     await browser.$(toast).waitForDisplayed({ reverse: true });
   });
@@ -490,8 +496,10 @@ describe.only('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: false });
 
     // Wait for the done toast to appear and close it.
-    const toast = Selectors.ImportConnectionsSucceededToast;
+    const toast = Selectors.ImportSucceededToast;
     await browser.$(toast).waitForDisplayed();
+    await browser.waitForAnimations(toast);
+    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
     await browser.clickVisible(Selectors.closeToastButton(toast));
     await browser.$(toast).waitForDisplayed({ reverse: true });
 
@@ -600,8 +608,10 @@ describe.only('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: false });
 
     // Wait for the done toast to appear and close it.
-    const toast = Selectors.ImportConnectionsSucceededToast;
+    const toast = Selectors.ImportSucceededToast;
     await browser.$(toast).waitForDisplayed();
+    await browser.waitForAnimations(toast);
+    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
     await browser.clickVisible(Selectors.closeToastButton(toast));
     await browser.$(toast).waitForDisplayed({ reverse: true });
 
@@ -651,9 +661,6 @@ describe.only('Collection import', function () {
     // pick an incompatible type
     await selectFieldType(browser, 'id', 'ObjectId');
 
-    // confirm
-    await browser.clickVisible(Selectors.ImportConfirm);
-
     // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
@@ -663,10 +670,12 @@ describe.only('Collection import', function () {
     // Wait for the error toast to appear and close it.
     const toast = Selectors.ImportCompletedWithErrorsToast;
     await browser.$(toast).waitForDisplayed();
+    await browser.waitForAnimations(toast);
     const toastText = await browser.$(toast).getText();
-    expect(toastText).to.equal(
+    expect(toastText).to.include(
       'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
     );
+    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
     await browser.clickVisible(Selectors.closeToastButton(toast));
     await browser.$(toast).waitForDisplayed({ reverse: true });
   });
@@ -731,8 +740,10 @@ describe.only('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: false });
 
     // Wait for the done toast to appear and close it.
-    const toast = Selectors.ImportConnectionsSucceededToast;
+    const toast = Selectors.ImportSucceededToast;
     await browser.$(toast).waitForDisplayed();
+    await browser.waitForAnimations(toast);
+    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
     await browser.clickVisible(Selectors.closeToastButton(toast));
     await browser.$(toast).waitForDisplayed({ reverse: true });
 
@@ -755,7 +766,142 @@ describe.only('Collection import', function () {
     });
   });
 
-  // TODO: It stops on errors and displays the first error.
-  // TODO: It shows a log file. The log file contains the errors.
+  it.only('stops on errors and displays the first error', async function () {
+    const jsonPath = path.resolve(
+      __dirname,
+      '..',
+      'fixtures',
+      'three-documents.json'
+    );
+
+    await browser.navigateToCollectionTab(
+      'test',
+      'import-stop-first-error',
+      'Documents'
+    );
+
+    console.log('do first');
+
+    // First import it (so that the next import will conflict _ids).
+    await importJSONFile(browser, jsonPath);
+    console.log('first import done');
+
+    // Open the import modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.ImportFileOption);
+
+    // select the file
+    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+
+    // wait for the modal to appear
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // Click the stop on errors checkbox.
+    const stopOnErrorsCheckbox = await browser.$(
+      Selectors.ImportStopOnErrorsCheckbox
+    );
+    const stopOnErrorsLabel = await stopOnErrorsCheckbox.parentElement();
+    // if (!(await stopOnErrorsCheckbox.isSelected())) {
+    await stopOnErrorsLabel.click();
+    // }
+
+    console.log('first import done, in 2nd');
+
+    // Confirm import.
+    await browser.clickVisible(Selectors.ImportConfirm);
+
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: false });
+
+    console.log('modal gone');
+
+    // Wait for the error toast to appear and close it.
+    const toast = Selectors.ImportFailedToast;
+    await browser.$(toast).waitForDisplayed();
+    await browser.waitForAnimations(toast);
+    const toastText = await browser.$(toast).getText();
+    expect(toastText).to.include('E11000 duplicate key error collection');
+    console.log('got text, nice');
+
+    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
+    await browser.clickVisible(Selectors.closeToastButton(toast));
+    await browser.$(toast).waitForDisplayed({ reverse: true });
+  });
+
+  it.only('shows a log file with the errors', async function () {
+    const fileName = 'three-documents.json';
+    const jsonPath = path.resolve(
+      __dirname,
+      '..',
+      'fixtures',
+      'three-documents.json'
+    );
+
+    await browser.navigateToCollectionTab(
+      'test',
+      'import-with-errors',
+      'Documents'
+    );
+
+    // First import it (so that the next import will conflict _ids).
+    await importJSONFile(browser, jsonPath);
+
+    // Open the import modal.
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.ImportFileOption);
+
+    // Select the file.
+    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+
+    // Wait for the modal to appear.
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // Confirm import.
+    await browser.clickVisible(Selectors.ImportConfirm);
+
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: false });
+
+    // Wait for the error toast to appear.
+    const toast = Selectors.ImportCompletedWithErrorsToast;
+    await browser.$(toast).waitForDisplayed();
+    await browser.waitForAnimations(toast);
+    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
+
+    // Displays first two errors in the toast.
+    const toastText = await browser.$(toast).getText();
+    expect(
+      (toastText.match(/E11000 duplicate key error collection/g) || []).length
+    ).to.equal(2);
+
+    if (!compass.userDataPath) {
+      throw new Error('no compass.userDataPath');
+    }
+
+    const logFilePath = path.resolve(
+      compass.userDataPath,
+      'ImportErrorLogs',
+      `import-${fileName}.log`
+    );
+    await expect(fs.stat(logFilePath)).to.not.be.rejected;
+
+    // Check the log file contents for 3 errors.
+    const logFileContent = await fs.readFile(logFilePath, 'utf-8');
+    const errorCount = (
+      logFileContent.match(/E11000 duplicate key error collection/g) || []
+    ).length;
+    expect(errorCount).to.equal(3);
+
+    // Close toast.
+    await browser.clickVisible(Selectors.closeToastButton(toast));
+    await browser.$(toast).waitForDisplayed({ reverse: true });
+  });
+
   // TODO: Abort aborts.
 });

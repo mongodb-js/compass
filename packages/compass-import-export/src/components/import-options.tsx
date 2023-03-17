@@ -113,6 +113,7 @@ function ImportOptions({
         </>
       )}
       <Checkbox
+        data-testid="import-stop-on-errors"
         className={checkboxStyles}
         checked={stopOnErrors}
         onChange={() => {

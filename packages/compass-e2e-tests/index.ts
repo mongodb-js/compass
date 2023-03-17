@@ -179,7 +179,8 @@ async function main() {
   const bail = process.argv.includes('--bail');
 
   const mocha = new Mocha({
-    timeout: 240_000, // kinda arbitrary, but longer than waitforTimeout set in helpers/compass.ts so the test can fail before it times out
+    timeout: 10_000,
+    // timeout: 240_000, // kinda arbitrary, but longer than waitforTimeout set in helpers/compass.ts so the test can fail before it times out
     bail,
   });
 
