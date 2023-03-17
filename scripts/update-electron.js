@@ -115,7 +115,7 @@ async function main() {
     updatePackageVersions(packageJsonPath, newVersions);
   });
 
-  console.log('Cleaning node_modules and rebotstrapping');
+  console.log('Cleaning node_modules and rebootstrapping');
   cleanAndBootstrap(latestElectronVersion);
 }
 
