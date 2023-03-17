@@ -98,7 +98,7 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
   );
   await resetButton.waitForDisplayed();
 
-  if (!(await resetButton.getAttribute('class')).includes('disabled')) {
+  if (await resetButton.isEnabled()) {
     // look up the current resultId
     const initialResultId = await browser.getQueryId(tabName);
 
@@ -107,7 +107,7 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
     // wait for the button to become disabled which should happen once it reset
     // all the filter fields
     await browser.waitUntil(async () => {
-      return (await resetButton.getAttribute('class')).includes('disabled');
+      return !(await resetButton.isEnabled());
     });
 
     // now we can easily see if we get a new resultId
@@ -163,6 +163,7 @@ export async function runFindOperation(
     collation = '',
     skip = '',
     limit = '',
+    // TODO(COMPASS-6606): allow for the same in other tabs with query bar
     waitForResult = true,
   } = {}
 ): Promise<void> {
@@ -182,5 +183,8 @@ export async function runFindOperation(
   await setFilter(browser, tabName, filter);
 
   await browser.runFind(tabName, waitForResult);
-  await browser.clickVisible(Selectors.SelectListView);
+
+  if (tabName === 'Documents') {
+    await browser.clickVisible(Selectors.SelectListView);
+  }
 }

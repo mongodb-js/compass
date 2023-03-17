@@ -77,11 +77,9 @@ function ExplainToolbar({
   const queryBarRef = useRef<{
     component: React.ComponentType<any>;
     store: any; // Query bar store is not currently typed.
-    actions: any; // Query bar actions are not typed.
   }>({
     component: queryBarRole.component,
     store: localAppRegistry.getStore(queryBarRole.storeName!),
-    actions: localAppRegistry.getAction(queryBarRole.actionName!),
   });
 
   const toggleView = useCallback(
@@ -100,16 +98,13 @@ function ExplainToolbar({
   return (
     <div className={explainToolbarStyles}>
       <div className={explainQueryBarStyles}>
-        {
-          <QueryBarComponent
-            store={queryBarRef.current.store}
-            actions={queryBarRef.current.actions}
-            buttonLabel="Explain"
-            resultId={resultId}
-            onApply={onExecuteExplainClicked}
-            onReset={onExecuteExplainClicked}
-          />
-        }
+        <QueryBarComponent
+          store={queryBarRef.current.store}
+          buttonLabel="Explain"
+          resultId={resultId}
+          onApply={onExecuteExplainClicked}
+          onReset={onExecuteExplainClicked}
+        />
       </div>
       {hasExplainResults && (
         <div className={explainActionsToolbarStyles}>
