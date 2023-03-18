@@ -93,6 +93,24 @@ const editorStyle = css({
   fontFamily: fontFamilies.code,
 });
 
+// Breaks keyboard navigation out of the editor, but we want that
+const breakFocusOutBinding: KeyBinding = {
+  // https://codemirror.net/examples/tab/
+  ...indentWithTab,
+  // `indentWithTab` will also do indent when tab is pressed without Shift (like
+  // in browser devtools for example). We want to just input tab symbol in that
+  // case
+  run({ state, dispatch }) {
+    dispatch(
+      state.update(state.replaceSelection('\t'), {
+        scrollIntoView: true,
+        userEvent: 'input',
+      })
+    );
+    return true;
+  },
+};
+
 type CodemirrorThemeType = 'light' | 'dark';
 
 const editorPalette = {
@@ -349,6 +367,8 @@ function getHighlightStyleForTheme(theme: CodemirrorThemeType) {
     { themeType: theme }
   );
 }
+
+console.log(indentWithTab);
 
 const highlightStyles = {
   light: getHighlightStyleForTheme('light'),
@@ -657,9 +677,14 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           ...historyKeymap,
           ...foldKeymap,
           ...completionKeymap,
-          // Breaks keyboard navigation out of the editor, but we want that
-          // https://codemirror.net/examples/tab/
-          indentWithTab,
+          breakFocusOutBinding,
+          {
+            key: 'Tab',
+            run(view) {
+              console.log(view);
+              return true;
+            },
+          },
         ]),
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
