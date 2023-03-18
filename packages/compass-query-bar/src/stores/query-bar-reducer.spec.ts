@@ -125,7 +125,6 @@ describe('queryBarReducer', function () {
       const store = createStore();
       store.dispatch(setQuery({ filter: { _id: '123' }, limit: 10 }));
       const appliedQuery = store.dispatch(applyQuery() as any);
-      expect(store.getState()).to.have.property('queryState', 'apply');
       expect(appliedQuery).to.deep.eq({
         ...DEFAULT_QUERY_VALUES,
         filter: { _id: '123' },
@@ -141,7 +140,6 @@ describe('queryBarReducer', function () {
       store.dispatch(changeField('filter', '{ _id'));
       const appliedQuery = store.dispatch(applyQuery() as any);
       expect(appliedQuery).to.eq(false);
-      expect(store.getState()).to.have.property('queryState', 'reset');
       expect(store.getState()).to.have.property('lastAppliedQuery', null);
     });
   });

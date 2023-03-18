@@ -133,7 +133,6 @@ export type QueryBarFormField = {
 
 export type QueryBarState = {
   fields: Record<QueryProperty, QueryBarFormField>;
-  queryState: 'reset' | 'apply';
   expanded: boolean;
   serverVersion: string;
   schemaFields: unknown[];
@@ -145,7 +144,6 @@ export const INITIAL_STATE: QueryBarState = {
   expanded: false,
   serverVersion: '3.6.0',
   schemaFields: [],
-  queryState: 'reset',
   lastAppliedQuery: null,
 };
 
@@ -234,13 +232,15 @@ type ResetQueryAction = {
   type: QueryBarActions.ResetQuery;
 };
 
+export function isEqualDefaultQuery(state: QueryBarState): boolean {
+  return isEqual(pickValuesFromFields(state.fields), DEFAULT_QUERY_VALUES);
+}
+
 export const resetQuery = (): QueryBarThunkAction<
   false | Record<string, unknown>
 > => {
   return (dispatch, getState, { localAppRegistry }) => {
-    if (
-      isEqual(pickValuesFromFields(getState().fields), DEFAULT_QUERY_VALUES)
-    ) {
+    if (isEqualDefaultQuery(getState())) {
       return false;
     }
     dispatch({ type: QueryBarActions.ResetQuery });
@@ -330,7 +330,6 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ApplyQueryAction>(action, QueryBarActions.ApplyQuery)) {
     return {
       ...state,
-      queryState: 'apply',
       lastAppliedQuery: action.query,
     };
   }
@@ -338,7 +337,6 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ResetQueryAction>(action, QueryBarActions.ResetQuery)) {
     return {
       ...state,
-      queryState: 'reset',
       fields: mapQueryToValidQueryFields(DEFAULT_FIELD_VALUES),
     };
   }

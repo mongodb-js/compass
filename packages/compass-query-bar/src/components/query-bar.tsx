@@ -22,6 +22,7 @@ import type {
   QueryBarState,
   QueryBarThunkDispatch,
 } from '../stores/query-bar-reducer';
+import { isEqualDefaultQuery } from '../stores/query-bar-reducer';
 import { isQueryValid } from '../stores/query-bar-reducer';
 import {
   applyQuery,
@@ -96,7 +97,7 @@ type QueryBarProps = {
   onReset: () => void;
   onOpenExportToLanguage: () => void;
   queryOptionsLayout?: (QueryOption | QueryOption[])[];
-  queryState: 'apply' | 'reset';
+  queryChanged: boolean;
   resultId?: string | number;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
@@ -116,7 +117,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     ['sort', 'maxTimeMS'],
     ['collation', 'skip', 'limit'],
   ],
-  queryState,
+  queryChanged,
   resultId,
   showExportToLanguageButton = true,
   showQueryHistoryButton = true,
@@ -169,7 +170,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
           onClick={onReset}
-          disabled={queryState !== 'apply'}
+          disabled={!queryChanged}
           size="small"
           type="button"
         >
@@ -232,7 +233,7 @@ export default connect(
   (state: QueryBarState) => {
     return {
       expanded: state.expanded,
-      queryState: state.queryState,
+      queryChanged: !isEqualDefaultQuery(state),
       valid: isQueryValid(state),
     };
   },
