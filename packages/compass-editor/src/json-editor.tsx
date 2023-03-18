@@ -294,6 +294,12 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         fontWeight: 'bold',
         textDecoration: 'none',
       },
+      '& .cm-widgetBuffer': {
+        // Default is text-top which causes weird 1px added to the line height
+        // when widget (in our case this is placeholder widget) is shown in the
+        // editor
+        verticalAlign: 'top',
+      },
     },
     { dark: theme === 'dark' }
   );
