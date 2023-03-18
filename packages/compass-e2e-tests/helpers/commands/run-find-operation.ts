@@ -105,14 +105,14 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
     // look up the current resultId
     const initialResultId = await browser.getQueryId(tabName);
 
-    await resetButton.click();
-
-    // wait for the button to become disabled which should happen once it reset
-    // all the filter fields
     await browser.waitUntil(async () => {
+      // In some very rare cases on particularly slow machines in CI (looking at
+      // you macos hosts) clicking doesn't register on the first try, to work
+      // around that, we try to click with pause until the button is disabled
+      await browser.clickVisible(Selectors.queryBarResetFilterButton(tabName));
+      await browser.pause(50);
       return !(await resetButton.isEnabled());
     });
-
     // now we can easily see if we get a new resultId
     // (which we should because resetting re-runs the query)
     await browser.waitUntil(async () => {
