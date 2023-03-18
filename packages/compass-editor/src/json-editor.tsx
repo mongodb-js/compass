@@ -374,8 +374,6 @@ function getHighlightStyleForTheme(theme: CodemirrorThemeType) {
   );
 }
 
-console.log(indentWithTab);
-
 const highlightStyles = {
   light: getHighlightStyleForTheme('light'),
   dark: getHighlightStyleForTheme('dark'),
@@ -651,6 +649,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       // but this is good as a starting point
       // https://github.com/codemirror/basic-setup/blob/5b4dafdb3b02271bd3fd507d86982208457d8c5b/src/codemirror.ts#L12-L49
       extensions: [
+        EditorState.tabSize.of(2),
         lineNumbersExtension,
         history(),
         foldGutterExtension,
@@ -684,13 +683,6 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           ...foldKeymap,
           ...completionKeymap,
           breakFocusOutBinding,
-          {
-            key: 'Tab',
-            run(view) {
-              console.log(view);
-              return true;
-            },
-          },
         ]),
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
