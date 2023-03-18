@@ -90,8 +90,8 @@ export const setupCodemirrorCompleter = <
     editor.destroy();
     el.remove();
   };
-  const applySnippet = (completion) => {
-    (completion as any).apply(editor, null, 0, editor.state.doc.length);
+  const applySnippet = (completion: any) => {
+    completion.apply(editor, null, 0, editor.state.doc.length);
     return editor.state.sliceDoc(0);
   };
   return { getCompletions, cleanup, applySnippet };
