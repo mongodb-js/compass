@@ -55,3 +55,7 @@ if (!globalThis.IntersectionObserver) {
 // jsdom doesn't override classes that already exist in global scope
 // https://github.com/jsdom/jsdom/issues/3331
 globalThis.EventTarget = window.EventTarget;
+
+Range.prototype.getClientRects = function () {
+  return [];
+};

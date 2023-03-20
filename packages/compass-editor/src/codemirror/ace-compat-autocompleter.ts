@@ -90,8 +90,8 @@ export function createAceCompatAutocompleter(completers: {
 
     const opts = { context, prefix, token };
 
-    if (token.type.name === 'String') {
-      return completers.String?.(opts) ?? null;
+    if (token.type.name === 'String' && completers.String) {
+      return completers.String(opts) ?? null;
     }
 
     return completers.IdentifierLike?.(opts) ?? null;
