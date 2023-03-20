@@ -14,11 +14,13 @@ import {
   palette,
   Tooltip,
   Icon,
+  Select,
+  Option,
 } from '@mongodb-js/compass-components';
 
-import { SelectFieldType } from './select-field-type';
 import { createDebug } from '../utils/logger';
 import type { CSVParsableFieldType } from '../utils/csv';
+import { CSVFieldTypeLabels } from '../utils/csv';
 import type { CSVField } from '../import/analyze-csv-fields';
 
 const debug = createDebug('import-preview');
@@ -78,6 +80,42 @@ const infoIconCSS = css({
 const typesListCSS = css({
   margin: `${spacing[3]}px 0`,
 });
+
+const selectStyles = css({
+  minWidth: spacing[3] * 9,
+});
+
+function SelectFieldType({
+  fieldPath,
+  selectedType,
+  onChange,
+}: {
+  fieldPath: string;
+  selectedType: CSVParsableFieldType;
+  onChange: (type: string) => void;
+}) {
+  return (
+    <Select
+      // NOTE: Leafygreen gives an error with only aria-label for select.
+      aria-labelledby={`toggle-import-field-label-${fieldPath}`}
+      // leafygreen bases ids inside Select off this id which is why we have it in addition to data-testid
+      id={`import-preview-field-type-select-menu-${fieldPath}`}
+      data-testid={`import-preview-field-type-select-menu-${fieldPath}`}
+      className={selectStyles}
+      aria-label="Field type"
+      value={selectedType}
+      onChange={onChange}
+      allowDeselect={false}
+      size="xsmall"
+    >
+      {Object.entries(CSVFieldTypeLabels).map(([value, display]) => (
+        <Option key={value} value={value}>
+          {display}
+        </Option>
+      ))}
+    </Select>
+  );
+}
 
 type Field = {
   path: string;
