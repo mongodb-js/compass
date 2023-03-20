@@ -4,11 +4,11 @@ import type {
   CompletionResult,
   CompletionSource,
 } from '@codemirror/autocomplete';
-import { completeAnyWord, ifIn } from '@codemirror/autocomplete';
 import { snippetCompletion } from '@codemirror/autocomplete';
-import { syntaxTree } from '@codemirror/language';
 import type { CompletionResult as MongoDBCompletionResult } from '../autocompleter';
 import { wrapField } from '../autocompleter';
+import { resolveTokenAtCursor } from './utils';
+import type { Token } from './utils';
 
 export function mapMongoDBCompletionToCodemirrorCompletion(
   completion: MongoDBCompletionResult,
@@ -33,16 +33,10 @@ export function mapMongoDBCompletionToCodemirrorCompletion(
 
 type Prefix = { from: number; to: number; text: string };
 
-export const completeWordsInString = ifIn(['String'], completeAnyWord);
-
 /**
  * Ace autocompleter "valid" identifier regex
  */
 export const ID_REGEX = /[a-zA-Z_0-9$\-\u00A2-\u2000\u2070-\uFFFF]+/;
-
-export function resolveTokenAtCursor(context: CompletionContext) {
-  return syntaxTree(context.state).resolveInner(context.pos, -1);
-}
 
 export function createCompletionResultForIdPrefix({
   prefix,
@@ -65,7 +59,7 @@ export function createCompletionResultForIdPrefix({
 
 type AceCompatCompletionSource = (options: {
   prefix: Prefix;
-  token: ReturnType<typeof resolveTokenAtCursor>;
+  token: Token;
   context: CompletionContext;
 }) => ReturnType<CompletionSource>;
 

@@ -2,10 +2,10 @@ import type { CompletionSource } from '@codemirror/autocomplete';
 import type { CompleteOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
 import {
-  completeWordsInString,
   createAceCompatAutocompleter,
   createCompletionResultForIdPrefix,
 } from './ace-compat-autocompleter';
+import { completeWordsInString } from './utils';
 
 /**
  * Autocompleter for the document object, only autocompletes field names in the
