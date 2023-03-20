@@ -221,43 +221,45 @@ describe('Collection documents tab', function () {
   for (const maxTimeMSMode of ['ui', 'preference'] as const) {
     it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
       let maxTimeMSBefore;
-      if (maxTimeMSMode === 'preference') {
-        maxTimeMSBefore = await browser.getFeature('maxTimeMS');
+      try {
+        if (maxTimeMSMode === 'preference') {
+          maxTimeMSBefore = await browser.getFeature('maxTimeMS');
 
-        await browser.openSettingsModal();
-        const settingsModal = await browser.$(Selectors.SettingsModal);
-        await settingsModal.waitForDisplayed();
-        await browser.clickVisible(Selectors.GeneralSettingsButton);
+          await browser.openSettingsModal();
+          const settingsModal = await browser.$(Selectors.SettingsModal);
+          await settingsModal.waitForDisplayed();
+          await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-        await browser.setValueVisible(
-          Selectors.SettingsInputElement('maxTimeMS'),
-          '1'
-        );
-        await browser.clickVisible(Selectors.SaveSettingsButton);
-      }
-
-      // execute a query that will take a long time, but set a maxTimeMS shorter than that
-      await browser.runFindOperation(
-        'Documents',
-        '{ $where: function() { return sleep(10000) || true; } }',
-        {
-          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
-          waitForResult: false,
+          await browser.setValueVisible(
+            Selectors.SettingsInputElement('maxTimeMS'),
+            '1'
+          );
+          await browser.clickVisible(Selectors.SaveSettingsButton);
         }
-      );
 
-      const documentListErrorElement = await browser.$(
-        Selectors.DocumentListError
-      );
-      await documentListErrorElement.waitForDisplayed();
+        // execute a query that will take a long time, but set a maxTimeMS shorter than that
+        await browser.runFindOperation(
+          'Documents',
+          '{ $where: function() { return sleep(10000) || true; } }',
+          {
+            ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
+            waitForResult: false,
+          }
+        );
 
-      const errorText = await documentListErrorElement.getText();
-      expect(errorText).to.include(
-        'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
-      );
+        const documentListErrorElement = await browser.$(
+          Selectors.DocumentListError
+        );
+        await documentListErrorElement.waitForDisplayed();
 
-      if (maxTimeMSMode === 'preference') {
-        await browser.setFeature('maxTimeMS', maxTimeMSBefore);
+        const errorText = await documentListErrorElement.getText();
+        expect(errorText).to.include(
+          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+        );
+      } finally {
+        if (maxTimeMSMode === 'preference') {
+          await browser.setFeature('maxTimeMS', maxTimeMSBefore);
+        }
       }
     });
   }

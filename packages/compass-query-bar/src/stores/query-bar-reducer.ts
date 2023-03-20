@@ -137,6 +137,11 @@ export type QueryBarState = {
   serverVersion: string;
   schemaFields: unknown[];
   lastAppliedQuery: unknown | null;
+  /**
+   * For testing purposes only, allows to track whether or not apply button was
+   * clicked or not
+   */
+  applyId: number;
 };
 
 export const INITIAL_STATE: QueryBarState = {
@@ -145,6 +150,7 @@ export const INITIAL_STATE: QueryBarState = {
   serverVersion: '3.6.0',
   schemaFields: [],
   lastAppliedQuery: null,
+  applyId: 0,
 };
 
 enum QueryBarActions {
@@ -331,6 +337,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     return {
       ...state,
       lastAppliedQuery: action.query,
+      applyId: (state.applyId + 1) % Number.MAX_SAFE_INTEGER,
     };
   }
 

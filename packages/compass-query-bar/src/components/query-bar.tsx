@@ -99,6 +99,11 @@ type QueryBarProps = {
   queryOptionsLayout?: (QueryOption | QueryOption[])[];
   queryChanged: boolean;
   resultId?: string | number;
+  /**
+   * For testing purposes only, allows to track whether or not apply button was
+   * clicked or not
+   */
+  applyId: number;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
   valid: boolean;
@@ -119,6 +124,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   ],
   queryChanged,
   resultId,
+  applyId,
   showExportToLanguageButton = true,
   showQueryHistoryButton = true,
   valid: isQueryValid,
@@ -144,6 +150,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       onSubmit={onFormSubmit}
       noValidate
       data-result-id={resultId}
+      data-apply-id={applyId}
     >
       <div className={queryBarFirstRowStyles}>
         <div className={documentEditorLabelContainerStyles}>
@@ -235,6 +242,7 @@ export default connect(
       expanded: state.expanded,
       queryChanged: !isEqualDefaultQuery(state),
       valid: isQueryValid(state),
+      applyId: state.applyId,
     };
   },
   (
