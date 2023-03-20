@@ -2,7 +2,7 @@ import type { EditorState } from '@codemirror/state';
 import { STAGE_OPERATOR_NAMES } from '@mongodb-js/mongodb-constants';
 import type { CompleteOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
-import type { Token } from './ace-compat-autocompleter';
+import type { Token } from './utils';
 import { createCompletionResultForIdPrefix } from './ace-compat-autocompleter';
 import { createAceCompatAutocompleter } from './ace-compat-autocompleter';
 import { createStageAutocompleter } from './stage-autocompleter';
