@@ -91,6 +91,7 @@ describe('Collection documents tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
+  let maxTimeMSBefore: string;
 
   before(async function () {
     telemetry = await startTelemetryServer();
@@ -102,6 +103,7 @@ describe('Collection documents tab', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
   });
 
   after(async function () {
@@ -110,6 +112,7 @@ describe('Collection documents tab', function () {
   });
 
   afterEach(async function () {
+    await browser.setFeature('maxTimeMS', maxTimeMSBefore);
     await afterTest(compass, this.currentTest);
   });
 
@@ -220,47 +223,39 @@ describe('Collection documents tab', function () {
 
   for (const maxTimeMSMode of ['ui', 'preference'] as const) {
     it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
-      let maxTimeMSBefore;
-      try {
-        if (maxTimeMSMode === 'preference') {
-          maxTimeMSBefore = await browser.getFeature('maxTimeMS');
+      if (maxTimeMSMode === 'preference') {
+        await browser.openSettingsModal();
+        const settingsModal = await browser.$(Selectors.SettingsModal);
+        await settingsModal.waitForDisplayed();
+        await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-          await browser.openSettingsModal();
-          const settingsModal = await browser.$(Selectors.SettingsModal);
-          await settingsModal.waitForDisplayed();
-          await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-          await browser.setValueVisible(
-            Selectors.SettingsInputElement('maxTimeMS'),
-            '1'
-          );
-          await browser.clickVisible(Selectors.SaveSettingsButton);
-        }
-
-        // execute a query that will take a long time, but set a maxTimeMS shorter than that
-        await browser.runFindOperation(
-          'Documents',
-          '{ $where: function() { return sleep(10000) || true; } }',
-          {
-            ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
-            waitForResult: false,
-          }
+        await browser.setValueVisible(
+          Selectors.SettingsInputElement('maxTimeMS'),
+          '1'
         );
-
-        const documentListErrorElement = await browser.$(
-          Selectors.DocumentListError
-        );
-        await documentListErrorElement.waitForDisplayed();
-
-        const errorText = await documentListErrorElement.getText();
-        expect(errorText).to.include(
-          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
-        );
-      } finally {
-        if (maxTimeMSMode === 'preference') {
-          await browser.setFeature('maxTimeMS', maxTimeMSBefore);
-        }
+        await browser.clickVisible(Selectors.SaveSettingsButton);
+        await settingsModal.waitForDisplayed({ reverse: true });
       }
+
+      // execute a query that will take a long time, but set a maxTimeMS shorter than that
+      await browser.runFindOperation(
+        'Documents',
+        '{ $where: function() { return sleep(10000) || true; } }',
+        {
+          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
+          waitForResult: false,
+        }
+      );
+
+      const documentListErrorElement = await browser.$(
+        Selectors.DocumentListError
+      );
+      await documentListErrorElement.waitForDisplayed();
+
+      const errorText = await documentListErrorElement.getText();
+      expect(errorText).to.include(
+        'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+      );
     });
   }
 
@@ -559,6 +554,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const insertConfirm = await browser.$(Selectors.InsertConfirm);
     await insertConfirm.waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
+    await insertDialog.waitForDisplayed({ reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 10042 }');
 
