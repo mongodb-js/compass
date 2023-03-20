@@ -230,7 +230,7 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^10.1.0",
-    "electron-rebuild": "^3.2.9",
+    "@electron/rebuild": "^3.2.10",
     "electron-squirrel-startup": "^1.0.0",
     "ensure-error": "^3.0.1",
     "eslint": "^7.25.0",

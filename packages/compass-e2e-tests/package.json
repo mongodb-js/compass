@@ -44,7 +44,7 @@
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
     "electron": "^22.0.2",
-    "electron-rebuild": "^3.2.9",
+    "@electron/rebuild": "^3.2.10",
     "eslint": "^7.25.0",
     "fast-glob": "^3.2.7",
     "glob": "^7.1.6",
