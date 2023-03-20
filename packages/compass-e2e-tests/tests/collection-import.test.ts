@@ -105,7 +105,7 @@ describe('Collection import', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it.skip('supports single JSON objects', async function () {
+  it('supports single JSON objects', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     // browse to the "Insert to Collection" modal
@@ -157,7 +157,7 @@ describe('Collection import', function () {
     });
   });
 
-  it.skip('supports single objects in document view mode', async function () {
+  it('supports single objects in document view mode', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     // browse to the "Insert to Collection" modal
@@ -228,7 +228,7 @@ describe('Collection import', function () {
     });
   });
 
-  it.skip('supports JSON arrays', async function () {
+  it('supports JSON arrays', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     const array = [];
@@ -283,7 +283,7 @@ describe('Collection import', function () {
     });
   });
 
-  it.skip('displays an error for a malformed JSON array', async function () {
+  it('displays an error for a malformed JSON array', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     const json = 'this is not valid JSON';
