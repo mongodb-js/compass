@@ -1,13 +1,54 @@
+import browserslist from 'browserslist';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import { execSync } from 'child_process';
+
 import type { ConfigArgs } from './args';
 import { isServe } from './args';
+import chalk from 'chalk';
+
+function isLatestBrowserslist() {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const browserslistVersion = require('browserslist/package.json').version;
+  const command = `npm view browserslist version --json`;
+  const latestBrowserslistVersion = JSON.parse(
+    execSync(command).toString().trim()
+  );
+
+  return browserslistVersion === latestBrowserslistVersion;
+}
 
 const electronVersion = (() => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const [maj, min] = require('electron/package.json').version.split(
     '.'
   ) as string[];
+
   return `${maj}.${min}`;
+})();
+
+const browserslistElectronVersion = (() => {
+  const installedElectronVersion = `electron ${electronVersion}`;
+  try {
+    // Occasionally it may happen that browserslist does not catch up with
+    // Electron versions.
+
+    // If we discover that our version of Electron is not supported by browserslist
+    // we first try to determine if a new version of browserslist is avaliable.
+    //
+    // If a new version of browserslist is available we throw an error and prompt to update
+    // browserslist, otherwise we ignore the error and we use the last known electron version.
+    browserslist(installedElectronVersion);
+    return installedElectronVersion;
+  } catch (e) {
+    if (!isLatestBrowserslist()) {
+      const errorMessage = `${(e as Error).message}.
+Please update browserslist in webpack-config-compass:
+npm i -S -w @mongodb-js/webpack-config-compass browserslist@latest`;
+      throw new Error(chalk.red(errorMessage));
+    }
+
+    return 'last 1 electron version';
+  }
 })();
 
 /**
@@ -36,7 +77,7 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
           {
             targets: web
               ? cloudSupportedBrowserslistConfig
-              : { electron: electronVersion },
+              : browserslistElectronVersion,
             useBuiltIns: 'usage',
             corejs: { version: '3.12', proposals: true },
           },
@@ -110,7 +151,7 @@ export const cssLoader = (args: ConfigArgs, web = false) => ({
               {
                 browsers: web
                   ? cloudSupportedBrowserslistConfig
-                  : `electron ${electronVersion}`,
+                  : browserslistElectronVersion,
               },
             ],
           ],
