@@ -34,6 +34,10 @@ const columnHeaderStyles = css({
   alignItems: 'flex-start',
 });
 
+const mixedCellStyles = css({
+  backgroundColor: palette.yellow.light3,
+});
+
 const columnNameStyles = css({
   display: 'flex',
   flexDirection: 'row',
@@ -86,6 +90,16 @@ const selectStyles = css({
   minWidth: spacing[3] * 9,
 });
 
+function needsMixedWarning(field: Field) {
+  // Only show the warning for mixed and number types and once the user manually
+  // changed the type, make the warning go away
+  return (
+    field.result &&
+    ['mixed', 'number'].includes(field.result.detected) &&
+    field.result.detected === field.type
+  );
+}
+
 function SelectFieldType({
   fieldPath,
   selectedType,
@@ -132,15 +146,6 @@ function MixedWarning({
   result: CSVField;
   selectedType: CSVParsableFieldType;
 }) {
-  if (!['mixed', 'number'].includes(result.detected)) {
-    return null;
-  }
-
-  // once the user manually changed the type, make the warning go away
-  if (result.detected !== selectedType) {
-    return null;
-  }
-
   return (
     <Tooltip
       align="top"
@@ -187,6 +192,7 @@ function FieldHeader(
   return (
     <TableHeader
       key={`col-${field.path}`}
+      className={cx(needsMixedWarning(field) && mixedCellStyles)}
       label={
         <div
           className={columnHeaderStyles}
@@ -232,7 +238,7 @@ function FieldHeader(
                         setFieldType(field.path, newType)
                       }
                     />
-                    {field.result && (
+                    {field.result && needsMixedWarning(field) && (
                       <MixedWarning
                         result={field.result}
                         selectedType={field.type}
@@ -318,7 +324,10 @@ function ImportPreview({
             </Cell>
             {fields.map(({ path }, fieldIndex) => (
               <Cell
-                className={cellContainerStyles}
+                className={cx(
+                  cellContainerStyles,
+                  needsMixedWarning(fields[fieldIndex]) && mixedCellStyles
+                )}
                 key={`item-${path}-${fieldIndex}`}
               >
                 <div
