@@ -73,8 +73,9 @@ const fieldTypeContainerStyles = css({
 });
 
 const infoIconCSS = css({
-  height: spacing[3],
-  color: palette.gray.base,
+  // align the icon relative to the selectbox
+  height: `${spacing[3]}px`,
+  color: palette.gray.dark2,
 });
 
 const typesListCSS = css({
