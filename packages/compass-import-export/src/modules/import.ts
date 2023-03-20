@@ -437,8 +437,11 @@ export const cancelImport = () => {
 const loadTypes = (
   fields: (FieldFromCSV | PlaceholderField)[],
   values: string[][]
-): ThunkAction<void, RootImportState, void, AnyAction> => {
-  return (dispatch: Dispatch, getState: () => RootImportState): void => {
+): ThunkAction<Promise<void>, RootImportState, void, AnyAction> => {
+  return async (
+    dispatch: Dispatch,
+    getState: () => RootImportState
+  ): Promise<void> => {
     const { fileName, delimiter, ignoreBlanks } = getState().importData;
 
     const abortController = new AbortController();
@@ -450,77 +453,76 @@ const loadTypes = (
 
     const input = fs.createReadStream(fileName);
 
-    analyzeCSVFields({
-      input,
-      delimiter,
-      abortSignal,
-      ignoreEmptyStrings: ignoreBlanks,
-    })
-      .then((result) => {
-        for (const unknownField of fields) {
-          // fields are both CSV fields (where you can assign a type and decide
-          // to include/exclude it) or placeholder ones.
-          // ie. for foo[0] we'll show a type dropdown (labelled "foo") which
-          // determines the types of all the elements in the array and for
-          // foo[1] we just leave a placeholder.
-          if ((unknownField as PlaceholderField).type === 'placeholder') {
-            continue;
-          }
-
-          const csvField = unknownField as FieldFromCSV;
-
-          let detected = result.fields[csvField.path].detected;
-          if (detected === 'undefined') {
-            // This is a bit of an edge case. If a column is always empty and
-            // "Ignore empty strings" is checked, we'll detect "undefined".
-            // We'll never actually insert undefined due to the checkbox, but
-            // undefined as a bson type is deprecated so it might give the wrong
-            // impression. We could select any type in the selectbox, so the
-            // choice of making it null is arbitrary.
-            detected = 'null';
-          }
-
-          csvField.type = detected;
-
-          csvField.result = result.fields[csvField.path];
-        }
-
-        dispatch({
-          type: SET_PREVIEW,
-          fields,
-          values,
-        });
-
-        dispatch({
-          type: ANALYZE_FINISHED,
-          result,
-        });
-      })
-      .catch((err) => {
-        log.error(
-          mongoLogId(1_001_000_180),
-          'Import',
-          'Failed to analyze CSV fields',
-          err
-        );
+    try {
+      const result = await analyzeCSVFields({
+        input,
+        delimiter,
+        abortSignal,
+        ignoreEmptyStrings: ignoreBlanks,
       });
 
-    dispatch({
-      type: ANALYZE_FAILED,
-    });
+      for (const unknownField of fields) {
+        // fields are both CSV fields (where you can assign a type and decide
+        // to include/exclude it) or placeholder ones.
+        // ie. for foo[0] we'll show a type dropdown (labelled "foo") which
+        // determines the types of all the elements in the array and for
+        // foo[1] we just leave a placeholder.
+        if ((unknownField as PlaceholderField).type === 'placeholder') {
+          continue;
+        }
+
+        const csvField = unknownField as FieldFromCSV;
+
+        let detected = result.fields[csvField.path].detected;
+        if (detected === 'undefined') {
+          // This is a bit of an edge case. If a column is always empty and
+          // "Ignore empty strings" is checked, we'll detect "undefined".
+          // We'll never actually insert undefined due to the checkbox, but
+          // undefined as a bson type is deprecated so it might give the wrong
+          // impression. We could select any type in the selectbox, so the
+          // choice of making it null is arbitrary.
+          detected = 'null';
+        }
+
+        csvField.type = detected;
+
+        csvField.result = result.fields[csvField.path];
+      }
+
+      dispatch({
+        type: SET_PREVIEW,
+        fields,
+        values,
+      });
+
+      dispatch({
+        type: ANALYZE_FINISHED,
+        result,
+      });
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_180),
+        'Import',
+        'Failed to analyze CSV fields',
+        err
+      );
+      dispatch({
+        type: ANALYZE_FAILED,
+      });
+    }
   };
 };
 
 const loadCSVPreviewDocs = (): ThunkAction<
-  void,
+  Promise<void>,
   RootImportState,
   void,
   AnyAction
 > => {
-  return (
+  return async (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
-  ): void => {
+  ): Promise<void> => {
     const { fileName, delimiter, analyzeAbortController } =
       getState().importData;
 
@@ -534,51 +536,50 @@ const loadCSVPreviewDocs = (): ThunkAction<
 
     const input = fs.createReadStream(fileName);
 
-    listCSVFields({ input, delimiter })
-      .then((result) => {
-        const fieldMap: Record<string, true> = {};
+    try {
+      const result = await listCSVFields({ input, delimiter });
+      const fieldMap: Record<string, true> = {};
 
-        const fields = result.headerFields.map(
-          (name): FieldFromCSV | PlaceholderField => {
-            const uniqueName = csvHeaderNameToFieldName(name);
-            // we already have a field for this flattened/unique name.
-            // (ie. this is an item inside an array and it is not the first
-            // element in that array)
-            if (fieldMap[uniqueName]) {
-              return {
-                path: name,
-                type: 'placeholder',
-              };
-            }
-
-            fieldMap[uniqueName] = true;
-
+      const fields = result.headerFields.map(
+        (name): FieldFromCSV | PlaceholderField => {
+          const uniqueName = csvHeaderNameToFieldName(name);
+          // we already have a field for this flattened/unique name.
+          // (ie. this is an item inside an array and it is not the first
+          // element in that array)
+          if (fieldMap[uniqueName]) {
             return {
-              path: uniqueName,
-              checked: true,
-              type: 'mixed', // will be detected by analyzeCSVFields
+              path: name,
+              type: 'placeholder',
             };
           }
-        );
 
-        const values = result.preview;
+          fieldMap[uniqueName] = true;
 
-        dispatch({
-          type: SET_PREVIEW,
-          fields,
-          values,
-        });
+          return {
+            path: uniqueName,
+            checked: true,
+            type: 'mixed', // will be detected by analyzeCSVFields
+          };
+        }
+      );
 
-        dispatch(loadTypes(fields, values));
-      })
-      .catch((err) => {
-        log.error(
-          mongoLogId(1001000097),
-          'Import',
-          'Failed to load preview docs',
-          err
-        );
+      const values = result.preview;
+
+      dispatch({
+        type: SET_PREVIEW,
+        fields,
+        values,
       });
+
+      await dispatch(loadTypes(fields, values));
+    } catch (err) {
+      log.error(
+        mongoLogId(1001000097),
+        'Import',
+        'Failed to load preview docs',
+        err
+      );
+    }
   };
 };
 
@@ -653,7 +654,7 @@ export const selectImportFileName = (fileName: string) => {
       // We only ever display preview rows for CSV files underneath the field
       // type selects
       if (detected.type === 'csv') {
-        dispatch(loadCSVPreviewDocs());
+        await dispatch(loadCSVPreviewDocs());
       }
     } catch (err: any) {
       debug('dispatching error', err?.stack);
@@ -666,7 +667,7 @@ export const selectImportFileName = (fileName: string) => {
  * Set the tabular delimiter.
  */
 export const setDelimiter = (delimiter: CSVDelimiter) => {
-  return (
+  return async (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ) => {
@@ -687,7 +688,7 @@ export const setDelimiter = (delimiter: CSVDelimiter) => {
         delimiter,
         fileIsMultilineJSON,
       });
-      dispatch(loadCSVPreviewDocs());
+      await dispatch(loadCSVPreviewDocs());
     }
   };
 };
