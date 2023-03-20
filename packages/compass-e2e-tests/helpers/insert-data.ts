@@ -70,6 +70,7 @@ export async function createDummyCollections(): Promise<void> {
   promises.push(createBlankCollection(db, 'numbers'));
   promises.push(createBlankCollection(db, 'import-stop-first-error'));
   promises.push(createBlankCollection(db, 'import-with-errors'));
+  promises.push(createBlankCollection(db, 'import-abort'));
 
   // lots of collections to test virtual scrolling
   for (let i = 0; i < 26; ++i) {

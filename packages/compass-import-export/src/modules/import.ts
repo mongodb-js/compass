@@ -40,7 +40,7 @@ import type { RootImportState } from '../stores/import-store';
 import type { AcceptedFileType } from '../constants/file-types';
 import type { CollectionStreamProgress } from '../utils/collection-stream';
 import type { CSVParsableFieldType } from '../utils/csv';
-import type { ErrorJSON } from '../utils/import';
+import type { ErrorJSON, ImportResult } from '../utils/import';
 import { guessFileType } from '../import/guess-filetype';
 import { listCSVFields } from '../import/list-csv-fields';
 import { importCSV } from '../import/import-csv';
@@ -272,8 +272,8 @@ export const startImport = () => {
       body: useToastAction({
         statusMessage: 'Starting...',
         actionHandler: () => {
-          progressCallback.flush();
           abortController.abort();
+          progressCallback.flush();
         },
         actionText: 'stop',
       }),
@@ -281,13 +281,22 @@ export const startImport = () => {
       dismissible: false,
     });
 
-    let promise;
+    let promise: Promise<ImportResult>;
+    let importDone = false;
 
     const errors: ErrorJSON[] = [];
     const errorCallback = (err: ErrorJSON) => {
-      errors.push(err);
+      if (errors.length < 5) {
+        // Only store the first few errors in memory.
+        // The log file tracks all of them.
+        // If we are importing a massive file with many errors we don't
+        // want to run out of memory.
+        errors.push(err);
+      }
     };
 
+    // Note: This progress callback can be called
+    // after the import has completed/aborted.
     const progressCallback = _.throttle(function ({
       docsProcessed,
       docsWritten,
@@ -309,23 +318,24 @@ export const startImport = () => {
           errors: errors.slice(), // make sure it is not the same variable
         })
       );
-
-      // Update the toast with the new progress.
-      openToast(importToastId, {
-        dataTestId: 'import-toast-in-progress',
-        title: `Importing ${fileType} file...`,
-        body: useToastAction({
-          statusMessage: `${docsWritten}/${guessedTotal}`,
-          actionHandler: () => {
-            dispatch(cancelImport());
-            progressCallback.flush();
-          },
-          actionText: 'cancel',
-        }),
-        variant: 'progress',
-        progress: Math.min(1, guessedTotal / Math.max(docsProcessed, 1)), // 0-1.
-        dismissible: false,
-      });
+      if (!importDone) {
+        // Update the toast with the new progress.
+        openToast(importToastId, {
+          dataTestId: 'import-toast-in-progress',
+          title: `Importing ${fileType} file...`,
+          body: useToastAction({
+            statusMessage: `${docsWritten}/${guessedTotal}`,
+            actionHandler: () => {
+              abortController.abort();
+              progressCallback.flush();
+            },
+            actionText: 'stop',
+          }),
+          variant: 'progress',
+          progress: Math.min(1, guessedTotal / Math.max(docsProcessed, 1)), // 0-1.
+          dismissible: false,
+        });
+      }
     },
     1000);
 
@@ -357,8 +367,7 @@ export const startImport = () => {
       });
     }
 
-    // let result: ImportResult;
-    let result;
+    let result: ImportResult;
     try {
       result = await promise;
     } catch (err: any) {
@@ -389,6 +398,7 @@ export const startImport = () => {
 
       return dispatch(onFailed(err));
     } finally {
+      importDone = true;
       errorLogWriteStream.close();
       progressCallback.flush();
     }

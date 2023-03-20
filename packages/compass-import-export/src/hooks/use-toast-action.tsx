@@ -22,7 +22,12 @@ export function useToastAction({
   return (
     <>
       {statusMessage}
-      <Link onClick={actionHandler} href="#" className={toastActionStyles}>
+      <Link
+        data-testid={`toast-action-${actionText}`}
+        onClick={actionHandler}
+        href="#"
+        className={toastActionStyles}
+      >
         {actionText}
       </Link>
     </>

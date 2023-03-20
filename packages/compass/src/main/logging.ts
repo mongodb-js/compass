@@ -152,6 +152,10 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       return app.getPath('userData');
     });
 
+    ipcMain.handle('compass:appName', () => {
+      return app.getName();
+    });
+
     await manager.cleanupOldLogfiles();
 
     return writer;
