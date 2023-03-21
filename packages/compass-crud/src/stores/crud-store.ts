@@ -8,8 +8,12 @@ import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-
-import { findDocuments, countDocuments, fetchShardingKeys } from '../utils';
+import {
+  findDocuments,
+  countDocuments,
+  fetchShardingKeys,
+  objectContainsRegularExpression,
+} from '../utils';
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
@@ -321,6 +325,7 @@ type CrudState = {
   resultId: number;
   isWritable: boolean;
   instanceDescription: string;
+  fields: string[];
 };
 
 class CrudStoreImpl
@@ -341,6 +346,10 @@ class CrudStoreImpl
   constructor(options: CrudStoreOptions) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
+  }
+
+  updateFields(fields: { aceFields: { name: string }[] }) {
+    this.setState({ fields: fields.aceFields.map((field) => field.name) });
   }
 
   getInitialState(): CrudState {
@@ -371,6 +380,7 @@ class CrudStoreImpl
       resultId: resultId(),
       isWritable: false,
       instanceDescription: '',
+      fields: [],
     };
   }
 
@@ -1251,7 +1261,7 @@ class CrudStoreImpl
   /**
    * This function is called when the collection filter changes.
    */
-  async refreshDocuments() {
+  async refreshDocuments(onApply = false) {
     if (this.dataService && !this.dataService.isConnected()) {
       log.warn(
         mongoLogId(1_001_000_072),
@@ -1265,6 +1275,24 @@ class CrudStoreImpl
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
       return;
+    }
+
+    if (onApply) {
+      const { query, isTimeSeries, isReadonly } = this.state;
+      track('Query Executed', {
+        has_projection:
+          !!query.project && Object.keys(query.project).length > 0,
+        has_skip: query.skip > 0,
+        has_limit: query.limit > 0,
+        has_collation: !!query.collation,
+        changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,
+        collection_type: isTimeSeries
+          ? 'time-series'
+          : isReadonly
+          ? 'readonly'
+          : 'collection',
+        used_regex: objectContainsRegularExpression(query.filter),
+      });
     }
 
     // pass the signal so that the queries can close their own cursors and
@@ -1456,6 +1484,8 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
     localAppRegistry.on('query-changed', store.onQueryChanged.bind(store));
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     localAppRegistry.on('refresh-data', store.refreshDocuments.bind(store));
+
+    localAppRegistry.on('fields-changed', store.updateFields.bind(store));
 
     setLocalAppRegistry(store, options.localAppRegistry);
   }

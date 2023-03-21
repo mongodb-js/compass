@@ -3,8 +3,19 @@ import { expect } from 'chai';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Sinon from 'sinon';
-
 import { SavedPipelines } from './saved-pipelines';
+import type { StoredPipeline } from '../../utils/pipeline-storage';
+
+const savedPipelines = [
+  {
+    name: 'test name 0',
+    id: 'test id 0',
+  },
+  {
+    name: 'test name 1',
+    id: 'test id 1',
+  },
+] as StoredPipeline[];
 
 const renderSavedPipelines = (
   props: Partial<ComponentProps<typeof SavedPipelines>> = {}
@@ -13,7 +24,6 @@ const renderSavedPipelines = (
     <SavedPipelines
       savedPipelines={[]}
       namespace="test.test123"
-      editor_view_type="stage"
       onDeletePipeline={() => {}}
       onOpenPipeline={() => {}}
       {...props}
@@ -39,16 +49,6 @@ describe('SavedPipelines', function () {
   });
 
   describe('renders saved pipeline cards', function () {
-    const savedPipelines = [
-      {
-        name: 'test name 0',
-        id: 'test id 0',
-      },
-      {
-        name: 'test name 1',
-        id: 'test id 1',
-      },
-    ];
     let savedPipelineCards: HTMLElement[];
 
     beforeEach(function () {
@@ -95,95 +95,33 @@ describe('SavedPipelines', function () {
     });
   });
 
-  describe('when pipeline is opened', function () {
-    const openPipelineModalTestId = 'restore-pipeline-modal';
-    let onOpenPipelineSpy: Sinon.SinonSpy;
-
-    beforeEach(function () {
-      onOpenPipelineSpy = Sinon.spy();
+  describe('calls card actions', function () {
+    it('calls onOpenPipeline when open button is clicked', function () {
+      const onOpenPipelineSpy = Sinon.spy();
       renderSavedPipelines({
-        savedPipelines: [
-          {
-            name: 'test name 1',
-            id: 'test id 1',
-          },
-        ],
+        savedPipelines,
         onOpenPipeline: onOpenPipelineSpy,
       });
-      // Open the pipeline open modal
-      userEvent.click(screen.getByTestId('saved-pipeline-card-open-action'));
-      expect(screen.getByTestId(openPipelineModalTestId)).to.exist;
-    });
-
-    it('closes when cancel is clicked', function () {
+      const savedPipelineCard = screen.getAllByTestId('saved-pipeline-card')[0];
       userEvent.click(
-        screen.getByRole('button', {
-          name: /cancel/i,
-        })
+        within(savedPipelineCard).getByTestId('saved-pipeline-card-open-action')
       );
-      expect(onOpenPipelineSpy.calledOnce).to.be.false;
-      expect(() => {
-        screen.getByTestId(openPipelineModalTestId);
-      }).to.throw;
+      expect(onOpenPipelineSpy).to.be.calledOnceWith(savedPipelines[0]);
     });
-
-    it('closes when open pipeline is clicked and calls onOpenPipeline', function () {
-      expect(onOpenPipelineSpy.calledOnce).to.be.false;
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /open pipeline/i,
-        })
-      );
-      expect(onOpenPipelineSpy.calledOnce).to.be.true;
-      expect(() => {
-        screen.getByTestId(openPipelineModalTestId);
-      }).to.throw;
-    });
-  });
-
-  describe('when pipeline is deleted', function () {
-    const deletePipelineModalTestId = 'delete-pipeline-modal';
-    let onDeletePipelineSpy: Sinon.SinonSpy;
-
-    beforeEach(function () {
-      onDeletePipelineSpy = Sinon.spy();
+    it('calls onDeletePipeline when delete button is clicked', function () {
+      const onDeletePipelineSpy = Sinon.spy();
       renderSavedPipelines({
-        savedPipelines: [
-          {
-            name: 'test name 1',
-            id: 'test id 1',
-          },
-        ],
+        savedPipelines,
         onDeletePipeline: onDeletePipelineSpy,
       });
-      // Open the pipeline delete modal
-      userEvent.click(screen.getByTestId('saved-pipeline-card-delete-action'));
-      expect(screen.getByTestId(deletePipelineModalTestId)).to.exist;
-    });
-
-    it('closes when cancel is clicked', function () {
+      const savedPipelineCard = screen.getAllByTestId('saved-pipeline-card')[1];
       userEvent.click(
-        screen.getByRole('button', {
-          name: /cancel/i,
-        })
-      );
-      expect(onDeletePipelineSpy.calledOnce).to.be.false;
-      expect(() => {
-        screen.getByTestId(deletePipelineModalTestId);
-      }).to.throw;
-    });
-
-    it('closes when delete pipeline is clicked and calls onDeletePipeline', function () {
-      expect(onDeletePipelineSpy.calledOnce).to.be.false;
-      userEvent.click(
-        screen.getByRole('button', {
-          name: /delete pipeline/i,
-        })
+        within(savedPipelineCard).getByTestId(
+          'saved-pipeline-card-delete-action'
+        )
       );
       expect(onDeletePipelineSpy.calledOnce).to.be.true;
-      expect(() => {
-        screen.getByTestId(deletePipelineModalTestId);
-      }).to.throw;
+      expect(onDeletePipelineSpy.calledWith(savedPipelines[1].id)).to.be.true;
     });
   });
 });

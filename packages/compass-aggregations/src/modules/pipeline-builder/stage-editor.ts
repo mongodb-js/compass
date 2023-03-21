@@ -376,11 +376,12 @@ export const changeStageOperator = (
       stages[id].stageOperator,
       env,
       comments
-    );
+    ).trim();
 
-    const currentOp = stage.operator;
+    const currentValue = stages[id].value?.trim();
 
     stage.changeOperator(newVal);
+
     track('Aggregation Edited', {
       num_stages: stages.length,
       stage_action: 'stage_renamed',
@@ -388,12 +389,13 @@ export const changeStageOperator = (
       stage_index: id + 1,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
+
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
 
-    // If there is no stage operator (this is a newly added stage) or current
-    // stage value is identical to the snippet for the current stage operator
-    // change the stage value
-    if (!currentOp || currentSnippet === stages[id].value) {
+    // If there is no stage value or current stage value is identical to the
+    // snippet for the current stage operator, then change the stage value to
+    // the new snippet
+    if (!currentValue || currentSnippet === currentValue) {
       const newValue = getStageSnippet(stage.operator, env, comments);
       dispatch(changeStageValue(id, newValue));
     }

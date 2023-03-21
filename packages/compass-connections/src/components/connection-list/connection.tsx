@@ -130,6 +130,15 @@ const dateConfig: Intl.DateTimeFormatOptions = {
   minute: 'numeric',
 };
 
+const colorIndicatorStyles = css({
+  height: 'calc(100% - 4px)',
+  width: spacing[2],
+  borderRadius: spacing[2],
+  margin: '2px 0',
+  marginRight: spacing[2],
+  gridArea: 'color',
+});
+
 function FavoriteColorIndicator({
   favorite,
   className,
@@ -142,18 +151,8 @@ function FavoriteColorIndicator({
 
   return (
     <div
-      className={cx(
-        css({
-          background: favoriteColorHex,
-          height: 'calc(100% - 4px)',
-          width: spacing[2],
-          borderRadius: spacing[2],
-          margin: '2px 0',
-          marginRight: spacing[2],
-          gridArea: 'color',
-        }),
-        className
-      )}
+      className={cx(colorIndicatorStyles, className)}
+      style={{ backgroundColor: favoriteColorHex }}
     ></div>
   );
 }
@@ -279,9 +278,9 @@ function Connection({
         type="button"
         className={cx(
           connectionButtonStyles,
-          darkMode ? connectionButtonStylesDark : connectionButtonStylesLight,
-          css({ background: backgroundColor })
+          darkMode ? connectionButtonStylesDark : connectionButtonStylesLight
         )}
+        style={{ backgroundColor }}
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
         onDoubleClick={() => onDoubleClick(connectionInfo)}
@@ -292,24 +291,16 @@ function Connection({
           connectionString={connectionString}
         />
         <H3
-          className={cx(
-            connectionTitleStyles,
-            css({
-              color: titleColor,
-            })
-          )}
+          className={connectionTitleStyles}
+          style={{ color: titleColor }}
           data-testid={`${favorite ? 'favorite' : 'recent'}-connection-title`}
           title={connectionTitle}
         >
           {connectionTitle}
         </H3>
         <Description
-          className={cx(
-            connectionDescriptionStyles,
-            css({
-              color: descriptionColor,
-            })
-          )}
+          className={connectionDescriptionStyles}
+          style={{ color: descriptionColor }}
           data-testid={`${
             favorite ? 'favorite' : 'recent'
           }-connection-description`}
@@ -324,9 +315,7 @@ function Connection({
           iconSize="small"
           actions={actions}
           isVisible={isHovered}
-          iconClassName={css({
-            color: connectionMenuColor,
-          })}
+          iconStyle={{ color: connectionMenuColor }}
         ></ItemActionControls>
       </div>
     </div>

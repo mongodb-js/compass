@@ -186,4 +186,17 @@ describe('Instance sidebar', function () {
       .$(Selectors.databaseTab('Collections', true))
       .waitForDisplayed();
   });
+
+  it('can refresh the databases', async function () {
+    const db = 'test';
+    const coll = `coll_${Date.now()}`;
+    await browser.shellEval(`use ${db};`);
+    await browser.shellEval(`db.createCollection('${coll}');`);
+    await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+    await browser.clickVisible(Selectors.sidebarDatabase(db));
+    const collectionElement = await browser.$(
+      Selectors.sidebarCollection(db, coll)
+    );
+    await collectionElement.waitForDisplayed();
+  });
 });

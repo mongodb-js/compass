@@ -222,12 +222,12 @@ export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
 export const SidebarTitle = '[data-testid="sidebar-title"]';
 export const SidebarShowActions =
   '[data-testid="sidebar-title-actions-show-actions"]';
-export const SidebarActionRefresh =
-  '[data-testid="sidebar-title-actions-refresh-data-action"]';
 export const SidebarActionClusterInfo =
   '[data-testid="sidebar-title-actions-open-connection-info-action"]';
 export const SidebarCreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
+export const SidebarRefreshDatabasesButton =
+  '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
 export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
@@ -366,6 +366,8 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
+// TODO: add a proper data-testid to the editor component
+export const ShellInputEditor = '[id^="mongosh-ace-"]';
 export const ShellOutput =
   '[data-testid="shell-content"] [data-codemirror="true"]';
 
@@ -378,6 +380,8 @@ export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
   '[data-testid="database-grid"] [data-testid="create-controls"] button';
+export const InstanceRefreshDatabaseButton =
+  '[data-testid="database-grid"] [data-testid="refresh-controls"] button';
 export const DatabaseCard = '[data-testid="database-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
@@ -413,6 +417,8 @@ export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
   '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+export const DatabaseRefreshCollectionButton =
+  '[data-testid="collection-grid"] [data-testid="refresh-controls"] button';
 export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
@@ -555,6 +561,9 @@ export const ImportDone =
   '[data-testid="import-modal"] [data-testid="done-button"]';
 export const ImportErrorBox = '[data-testid="import-error-box"]';
 
+export const importPreviewFieldHeaderField = (fieldName: string): string => {
+  return `[data-testid="import-preview-field-type-select-menu-${fieldName}"]`;
+};
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] button`;
 };
@@ -734,8 +743,6 @@ export const AggregationSavedPipelineCardDeleteButton = (
     name
   )} [data-testid="saved-pipeline-card-delete-action"]`;
 };
-export const AggregationSavedPipelineConfirmOpenModal = `[data-testid="restore-pipeline-modal"]`;
-export const AggregationSavedPipelineConfirmDeleteModal = `[data-testid="delete-pipeline-modal"]`;
 
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
@@ -858,6 +865,16 @@ export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
   '[data-testid="nReturned-summary"]';
+export const explainPlanSummaryStat = (
+  stat:
+    | 'nReturned'
+    | 'totalKeysExamined'
+    | 'totalDocsExamined'
+    | 'executionTimeMillis'
+    | 'inMemorySort'
+) => {
+  return `[data-testid="${stat}-summary"]`;
+};
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
@@ -1018,11 +1035,9 @@ export const ExportToLanguageCloseButton = `${ExportToLanguageModal} [data-testi
 export const ExportToLanguageQueryOutput =
   '[data-testid="export-to-language-output"]';
 
-// Confirm new pipeline modal
-export const ConfirmNewPipelineModal =
-  '[data-testid="confirm-new-pipeline-modal"]';
-export const ConfirmNewPipelineModalConfirmButton =
-  '[data-testid="confirm-new-pipeline-modal"] [role=dialog] > div:nth-child(2) button:first-child';
+// Confirmation modal
+export const ConfirmationModal = '[data-testid="confirmation-modal"]';
+export const ConfirmationModalConfirmButton = `${ConfirmationModal} [role=dialog] > div:nth-child(2) button:first-child`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
@@ -1045,19 +1060,11 @@ export const ShellInfoModalCloseButton =
 // Edit connection string modal
 export const EditConnectionStringToggle =
   '[data-testid="toggle-edit-connection-string"]';
-export const EditConnectionStringModal =
-  '[data-testid="edit-uri-confirmation-modal"]';
-export const EditConnectionStringModalConfirmButton =
-  '[data-testid="edit-uri-confirmation-modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Rename saved item
 export const RenameSavedItemModal = '[data-testid="edit-item-modal"]';
 export const RenameSavedItemModalTextInput = `${RenameSavedItemModal} input[name="name"]`;
 export const RenameSavedItemModalSubmit = `${RenameSavedItemModal} button[type="submit"]`;
-
-// Delete saved item
-export const DeleteSavedItemModal = '[data-testid="delete-item-modal"]';
-export const DeleteSavedItemModallConfirmButton = `${DeleteSavedItemModal} [role=dialog] > div:nth-child(2) button:first-child`;
 
 // Open saved item
 export const OpenSavedItemModal = '[data-testid="open-item-modal"]';

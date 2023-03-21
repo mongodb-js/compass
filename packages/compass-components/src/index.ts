@@ -56,7 +56,7 @@ export {
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
 export { palette } from '@leafygreen-ui/palette';
-export { rgba } from 'polished';
+export { rgba, lighten } from 'polished';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
@@ -157,3 +157,14 @@ export { useEffectOnChange } from './hooks/use-effect-on-change';
 export { HorizontalRule } from './components/horizontal-rule';
 export { IndexKeysBadge } from './components/index-keys-badge';
 export { Combobox, ComboboxOption, ComboboxGroup } from './components/combobox';
+export {
+  useConfirmationModal,
+  ConfirmationModalVariant,
+  ConfirmationModalArea,
+  showConfirmation,
+} from './hooks/use-confirmation';
+export {
+  useHotkeys,
+  formatHotkey,
+  KeyboardShortcut,
+} from './hooks/use-hotkeys';

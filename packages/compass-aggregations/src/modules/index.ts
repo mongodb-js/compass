@@ -15,7 +15,6 @@ import name from './name';
 import limit from './limit';
 import largeLimit from './large-limit';
 import isAtlasDeployed from './is-atlas-deployed';
-import isReadonly from './is-readonly';
 import maxTimeMS from './max-time-ms';
 import collationString from './collation-string';
 import comments from './comments';
@@ -27,7 +26,6 @@ import settings from './settings';
 import savingPipeline from './saving-pipeline';
 import outResultsFn from './out-results-fn';
 import projections from './projections';
-import isNewPipelineConfirm from './is-new-pipeline-confirm';
 import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
@@ -64,7 +62,6 @@ const rootReducer = combineReducers({
   id,
   isModified,
   isAtlasDeployed,
-  isReadonly,
   settings,
   limit,
   largeLimit,
@@ -74,7 +71,6 @@ const rootReducer = combineReducers({
   editViewName,
   sourceName,
   outResultsFn,
-  isNewPipelineConfirm,
   updateViewError,
   aggregation,
   workspace,

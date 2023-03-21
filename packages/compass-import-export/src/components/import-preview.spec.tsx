@@ -4,13 +4,14 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { ImportPreview } from './import-preview';
+import type { CSVParsableFieldType } from '../utils/csv';
 
 const testText = 'Specify Fields and Types';
 
 const testField = {
   path: '_id',
   checked: true,
-  type: 'String',
+  type: 'string' as CSVParsableFieldType,
 };
 
 describe('ImportPreview [Component]', function () {
@@ -31,6 +32,7 @@ describe('ImportPreview [Component]', function () {
           loaded={false}
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
+          analyzed={false}
         />
       );
     });
@@ -49,6 +51,7 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
+          analyzed={true}
         />
       );
     });
@@ -67,6 +70,7 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
+          analyzed={true}
         />
       );
     });
@@ -91,6 +95,7 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
+          analyzed={true}
         />
       );
     });
@@ -98,5 +103,52 @@ describe('ImportPreview [Component]', function () {
     it('should render', function () {
       expect(screen.queryByText(testText)).to.be.visible;
     });
+  });
+
+  it('renders placeholders when not analyzed', function () {
+    render(
+      <ImportPreview
+        fields={[testField]}
+        values={
+          [
+            {
+              _id: 25,
+            },
+          ] as any
+        }
+        loaded
+        onFieldCheckedChanged={onFieldCheckedChangedSpy}
+        setFieldType={setFieldTypeSpy}
+        analyzed={false}
+      />
+    );
+
+    expect(screen.queryByTestId('import-preview-placeholder-_id')).to.be
+      .visible;
+    expect(screen.queryByTestId('import-preview-field-type-select-menu-_id')).to
+      .not.exist;
+  });
+
+  it('renders field type selects once analyzed', function () {
+    render(
+      <ImportPreview
+        fields={[testField]}
+        values={
+          [
+            {
+              _id: 25,
+            },
+          ] as any
+        }
+        loaded
+        onFieldCheckedChanged={onFieldCheckedChangedSpy}
+        setFieldType={setFieldTypeSpy}
+        analyzed={true}
+      />
+    );
+
+    expect(screen.queryByTestId('import-preview-placeholder-_id')).to.not.exist;
+    expect(screen.queryByTestId('import-preview-field-type-select-menu-_id')).to
+      .be.visible;
   });
 });

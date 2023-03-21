@@ -8,10 +8,10 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
+import { connect } from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
 
 temp.track();
-
-import { DataServiceImpl } from 'mongodb-data-service';
 
 import { fixtures } from '../../test/fixtures';
 
@@ -24,11 +24,11 @@ chai.use(chaiAsPromised);
 const testNS = 'export-json-test.test-col';
 
 describe('exportJSON', function () {
-  let dataService: DataServiceImpl;
+  let dataService: DataService;
   let dropCollection;
   let createCollection;
-  let insertOne;
-  let insertMany;
+  let insertOne: any;
+  let insertMany: any;
   let tmpdir: string;
 
   // Insert documents once for all of the tests.
@@ -40,7 +40,7 @@ describe('exportJSON', function () {
     );
     await fs.promises.mkdir(tmpdir, { recursive: true });
 
-    dataService = new DataServiceImpl({
+    dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
 
@@ -52,8 +52,6 @@ describe('exportJSON', function () {
 
     insertOne = promisify(dataService.insertOne.bind(dataService));
     insertMany = promisify(dataService.insertMany.bind(dataService));
-
-    await dataService.connect();
 
     try {
       await dropCollection(testNS);

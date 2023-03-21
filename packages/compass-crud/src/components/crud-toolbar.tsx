@@ -133,7 +133,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       ? {
           component: queryBarRole.component,
           store: localAppRegistry.getStore(queryBarRole.storeName!),
-          actions: localAppRegistry.getAction(queryBarRole.actionName!),
         }
       : null
   );
@@ -167,7 +166,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         {isExportable && QueryBarComponent && (
           <QueryBarComponent
             store={queryBarRef.current!.store}
-            actions={queryBarRef.current!.actions}
+            // TODO(COMPASS-6606): add the same for other query bars
             resultId={resultId}
             buttonLabel="Find"
             onApply={onApplyClicked}

@@ -1,32 +1,15 @@
-import {
-  STAGE_OPERATORS as _STAGE_OPERATORS,
-  STAGE_OPERATOR_NAMES,
-} from '@mongodb-js/mongodb-constants';
+import { STAGE_OPERATOR_NAMES } from '@mongodb-js/mongodb-constants';
 import type { Ace } from 'ace-builds';
+import { completer } from '../autocompleter';
 import type { CompletionWithServerInfo } from '../types';
 import { StageAutoCompleter } from './stage-autocompleter';
-import { filter } from './util';
 
-const STAGE_OPERATORS = _STAGE_OPERATORS.map((op) => {
-  return {
-    ...op,
-    snippet: `\\${op.name}: ${op.snippet}`,
-  };
-});
-
-const STAGE_OPERATORS_WITH_BLOCK_SNIPPETS = STAGE_OPERATORS.map(
-  (completion) => {
-    const padded = completion.snippet
-      .split('\n')
-      .map((line) => `  ${line}`)
-      .join('\n');
-
-    return {
-      ...completion,
-      snippet: `{\n${padded}\n}`,
-    };
-  }
-);
+function padLines(str: string, pad = '  ') {
+  return str
+    .split('\n')
+    .map((line) => `${pad}${line}`)
+    .join('\n');
+}
 
 function type(token: Ace.Token, type: string) {
   return token.type.split('.').includes(type);
@@ -89,13 +72,13 @@ export function* getScopeTokensBefore(
  * Adds autocomplete suggestions for queries.
  */
 class AggregationAutoCompleter implements Ace.Completer {
-  public stageAutocopmleter: StageAutoCompleter;
+  public stageAutocompleter: StageAutoCompleter;
   constructor(
     public version: string,
     public textCompleter: Ace.Completer,
     public fields: CompletionWithServerInfo[]
   ) {
-    this.stageAutocopmleter = new StageAutoCompleter(
+    this.stageAutocompleter = new StageAutoCompleter(
       this.version,
       this.textCompleter,
       this.fields
@@ -104,7 +87,7 @@ class AggregationAutoCompleter implements Ace.Completer {
 
   updateFields(fields: CompletionWithServerInfo[]) {
     this.fields = fields;
-    this.stageAutocopmleter.update(fields, null);
+    this.stageAutocompleter.update(fields, null);
   }
 
   getCompletions: Ace.Completer['getCompletions'] = (
@@ -138,8 +121,8 @@ class AggregationAutoCompleter implements Ace.Completer {
             token.value as typeof STAGE_OPERATOR_NAMES[number]
           ))
       ) {
-        this.stageAutocopmleter.updateStageOperator(token.value);
-        return this.stageAutocopmleter.getCompletions(
+        this.stageAutocompleter.updateStageOperator(token.value);
+        return this.stageAutocompleter.getCompletions(
           editor,
           session,
           position,
@@ -149,14 +132,23 @@ class AggregationAutoCompleter implements Ace.Completer {
       }
     }
 
+    const snippetWithBlock = !isInsideBlock(tokens);
+
     callback(
       null,
-      filter(
-        this.version,
-        isInsideBlock(tokens)
-          ? STAGE_OPERATORS
-          : STAGE_OPERATORS_WITH_BLOCK_SNIPPETS,
-        prefix
+      completer(prefix, { serverVersion: this.version, meta: ['stage'] }).map(
+        (completion) => {
+          if (completion.snippet) {
+            const escapedOp = completion.value.replace('$', '\\$');
+            return {
+              ...completion,
+              snippet: snippetWithBlock
+                ? `{\n${escapedOp}: ${padLines(completion.snippet)}\n}`
+                : `${escapedOp}: ${completion.snippet}`,
+            };
+          }
+          return completion;
+        }
       )
     );
   };

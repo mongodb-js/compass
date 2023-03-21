@@ -8,12 +8,14 @@ import {
   palette,
   InlineDefinition,
   Subtitle,
+  withDarkMode,
 } from '@mongodb-js/compass-components';
 import { SAMPLE_SIZE } from '../../modules/sample-documents';
 import {
   InvalidDocumentPreview,
   ValidDocumentPreview,
 } from '../document-preview';
+import PropTypes from 'prop-types';
 
 const SAMPLE_DEFINITION = `A sample is fetched from a sample-space of ${SAMPLE_SIZE} randomly selected documents`;
 
@@ -44,12 +46,20 @@ const documentHeadingStyles = css({
   marginBottom: spacing[3],
 });
 
-const matchingStyles = css({
+const matchingStylesLight = css({
   color: palette.green.dark2,
 });
 
-const notMatchingStyles = css({
+const notMatchingStylesLight = css({
   color: palette.red.dark2,
+});
+
+const matchingStylesDark = css({
+  color: palette.green.dark1,
+});
+
+const notMatchingStylesDark = css({
+  color: palette.red.light1,
 });
 
 const documentHeadingTextStyles = css({
@@ -59,6 +69,10 @@ const documentHeadingTextStyles = css({
 class SampleDocuments extends Component {
   static displayName = 'SampleDocuments';
 
+  static propTypes = {
+    darkMode: PropTypes.bool,
+  };
+
   /**
    * Render matching documents.
    *
@@ -67,7 +81,12 @@ class SampleDocuments extends Component {
   renderMatchingDocuments() {
     return (
       <div className={sampleDocumentStyles} data-testid="matching-documents">
-        <div className={cx(documentHeadingStyles, matchingStyles)}>
+        <div
+          className={cx(
+            documentHeadingStyles,
+            this.props.darkMode ? matchingStylesDark : matchingStylesLight
+          )}
+        >
           <Icon glyph="CheckmarkWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>Passed validation</Body>
         </div>
@@ -84,7 +103,12 @@ class SampleDocuments extends Component {
   renderNotMatchingDocuments() {
     return (
       <div className={sampleDocumentStyles} data-testid="notmatching-documents">
-        <div className={cx(documentHeadingStyles, notMatchingStyles)}>
+        <div
+          className={cx(
+            documentHeadingStyles,
+            this.props.darkMode ? notMatchingStylesDark : notMatchingStylesLight
+          )}
+        >
           <Icon glyph="XWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>Failed validation</Body>
         </div>
@@ -115,4 +139,4 @@ class SampleDocuments extends Component {
   }
 }
 
-export default SampleDocuments;
+export default withDarkMode(SampleDocuments);

@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { Provider } from 'react-redux';
 
-import configureStore from '../../../stores/store';
+import configureStore from '../../../../test/configure-store';
 import { PipelineHeader } from '.';
 
 describe('PipelineHeader', function () {

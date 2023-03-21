@@ -25,8 +25,7 @@ async function refresh(browser: CompassBrowser) {
   // hit refresh, then wait for a transition to occur that will correlate to the
   // data actually being refreshed and arriving.
 
-  await browser.clickVisible(Selectors.SidebarShowActions);
-  await browser.clickVisible(Selectors.SidebarActionRefresh);
+  await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
 }
 
 describe('CSFLE / QE', function () {
@@ -563,8 +562,8 @@ describe('CSFLE / QE', function () {
           phoneNumber: '10101010',
         });
         await browser.setCodemirrorEditorValue(
-          newjson,
-          Selectors.DocumentJSONEntry
+          Selectors.DocumentJSONEntry,
+          newjson
         );
 
         const footer = await document.$(Selectors.DocumentFooterMessage);

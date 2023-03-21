@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
 import errorMessage, {
-  INITIAL_STATE as ERROR_MESSAGE_INITIAL_STATE
+  INITIAL_STATE as ERROR_MESSAGE_INITIAL_STATE,
 } from '../instance/error-message';
 import instance, {
-  INITIAL_STATE as INSTANCE_INITIAL_STATE
+  INITIAL_STATE as INSTANCE_INITIAL_STATE,
 } from '../instance/instance';
 import dataService, {
-  INITIAL_STATE as DATA_SERVICE_INITIAL_STATE
+  INITIAL_STATE as DATA_SERVICE_INITIAL_STATE,
 } from '../instance/data-service';
 
 import { RESET } from '../instance/reset';
@@ -16,7 +16,7 @@ import { RESET } from '../instance/reset';
 const reducer = combineReducers({
   errorMessage,
   instance,
-  dataService
+  dataService,
 });
 
 /**
@@ -33,7 +33,7 @@ const rootReducer = (state, action) => {
       ...state,
       errorMessage: ERROR_MESSAGE_INITIAL_STATE,
       instance: INSTANCE_INITIAL_STATE,
-      dataService: DATA_SERVICE_INITIAL_STATE
+      dataService: DATA_SERVICE_INITIAL_STATE,
     };
   }
   return reducer(state, action);

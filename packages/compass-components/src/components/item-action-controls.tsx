@@ -110,6 +110,7 @@ export function ItemActionMenu<Action extends string>({
   className,
   usePortal,
   iconClassName,
+  iconStyle,
   iconSize = ItemActionButtonSize.Default,
   'data-testid': dataTestId,
 }: {
@@ -118,6 +119,7 @@ export function ItemActionMenu<Action extends string>({
   className?: string;
   usePortal?: boolean;
   iconClassName?: string;
+  iconStyle?: React.CSSProperties;
   iconSize?: ItemActionButtonSize;
   isVisible?: boolean;
   'data-testid'?: string;
@@ -177,6 +179,7 @@ export function ItemActionMenu<Action extends string>({
                 onClick && onClick(evt);
               }}
               className={cx(actionGroupButtonStyle, iconClassName)}
+              style={iconStyle}
             >
               {children}
             </ItemActionButton>
@@ -207,6 +210,7 @@ export function ItemActionGroup<Action extends string>({
   onAction,
   className,
   iconClassName,
+  iconStyle,
   iconSize = ItemActionButtonSize.Default,
   isVisible = true,
   'data-testid': dataTestId,
@@ -215,6 +219,7 @@ export function ItemActionGroup<Action extends string>({
   onAction(actionName: Action): void;
   className?: string;
   iconClassName?: string;
+  iconStyle?: React.CSSProperties;
   iconSize?: ItemActionButtonSize;
   isVisible?: boolean;
   'data-testid'?: string;
@@ -250,6 +255,7 @@ export function ItemActionGroup<Action extends string>({
             data-testid={actionTestId<Action>(dataTestId, action)}
             onClick={onClick}
             className={cx(actionGroupButtonStyle, iconClassName)}
+            style={iconStyle}
           ></ItemActionButton>
         );
       })}
@@ -263,6 +269,7 @@ export function ItemActionControls<Action extends string>({
   onAction,
   className,
   iconClassName,
+  iconStyle,
   iconSize = ItemActionButtonSize.Default,
   usePortal,
   collapseToMenuThreshold = 2,
@@ -274,6 +281,7 @@ export function ItemActionControls<Action extends string>({
   className?: string;
   iconSize?: ItemActionButtonSize;
   iconClassName?: string;
+  iconStyle?: React.CSSProperties;
   collapseToMenuThreshold?: number;
   usePortal?: boolean;
   'data-testid'?: string;
@@ -291,6 +299,7 @@ export function ItemActionControls<Action extends string>({
         className={cx('item-action-controls', className)}
         data-testid={dataTestId}
         iconClassName={iconClassName}
+        iconStyle={iconStyle}
         iconSize={iconSize}
         isVisible={isVisible}
         onAction={onAction}
@@ -308,6 +317,7 @@ export function ItemActionControls<Action extends string>({
       iconSize={iconSize}
       data-testid={dataTestId}
       iconClassName={iconClassName}
+      iconStyle={iconStyle}
     ></ItemActionGroup>
   );
 }

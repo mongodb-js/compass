@@ -20,7 +20,6 @@ import {
   clearNewIndexField,
 } from '../../modules/create-index/new-index-field';
 import { clearError, handleError } from '../../modules/error';
-import { openLink } from '../../modules/link';
 import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
@@ -116,7 +115,6 @@ const mapDispatch = {
   handleError,
   createNewIndexField,
   clearNewIndexField,
-  openLink,
   createIndex,
   closeCreateIndexModal,
   addField,

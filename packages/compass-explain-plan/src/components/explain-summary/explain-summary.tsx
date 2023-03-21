@@ -10,6 +10,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  Link,
 } from '@mongodb-js/compass-components';
 
 interface IndexModel {
@@ -20,6 +21,9 @@ interface IndexModel {
     }[];
   };
 }
+
+const EXECUTION_STATS_HELP_LINK =
+  'https://www.mongodb.com/docs/upcoming/reference/explain-results/#mongodb-data-explain.executionStats';
 
 type IndexType = 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX' | 'UNAVAILABLE';
 
@@ -106,6 +110,10 @@ const SummaryStat: React.FunctionComponent<{
 );
 
 const explainSummaryStyles = css({ padding: spacing[3] });
+const explainSummaryTitleStyles = css({
+  display: 'inline',
+  marginRight: spacing[2],
+});
 const columnStyles = css({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
@@ -128,7 +136,12 @@ const ExplainSummary: React.FC<ExplainSummaryProps> = ({
 
   return (
     <KeylineCard className={explainSummaryStyles} data-testid="explain-summary">
-      <Subtitle>Query Performance Summary</Subtitle>
+      <div>
+        <Subtitle className={explainSummaryTitleStyles}>
+          Query Performance Summary
+        </Subtitle>{' '}
+        <Link href={EXECUTION_STATS_HELP_LINK}>Learn more</Link>
+      </div>
       <div className={columnStyles}>
         <div>
           <SummaryStat

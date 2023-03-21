@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 
 import {
   Checkbox,
-  FileInput,
   Select,
   Option,
   css,
@@ -10,8 +9,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { AcceptedFileType } from '../constants/file-types';
-import { SelectFileType } from './select-file-type';
 import type { CSVDelimiter } from '../modules/import';
+import { ImportFileInput } from './import-file-input';
 
 const formStyles = css({
   paddingTop: spacing[3],
@@ -48,7 +47,6 @@ const delimiters: {
 ];
 
 type ImportOptionsProps = {
-  selectImportFileType: (fileType: AcceptedFileType) => void;
   selectImportFileName: (fileName: string) => void;
   setDelimiter: (delimiter: CSVDelimiter) => void;
   delimiter: CSVDelimiter;
@@ -61,7 +59,6 @@ type ImportOptionsProps = {
 };
 
 function ImportOptions({
-  selectImportFileType,
   selectImportFileName,
   setDelimiter,
   delimiter,
@@ -72,18 +69,6 @@ function ImportOptions({
   ignoreBlanks,
   setIgnoreBlanks,
 }: ImportOptionsProps) {
-  /**
-   * Handle choosing a file from the file dialog.
-   */
-  const handleChooseFile = useCallback(
-    (files: string[]) => {
-      if (files.length > 0) {
-        selectImportFileName(files[0]);
-      }
-    },
-    [selectImportFileName]
-  );
-
   const handleOnSubmit = useCallback((evt) => {
     evt.preventDefault();
     evt.stopPropagation();
@@ -91,21 +76,11 @@ function ImportOptions({
 
   const isCSV = fileType === 'csv';
 
-  const values = fileName ? [fileName] : undefined;
-
   return (
     <form onSubmit={handleOnSubmit} className={formStyles}>
-      <FileInput
-        label="Select File"
-        id="import-file"
-        onChange={handleChooseFile}
-        values={values}
-        variant="VERTICAL"
-      />
-      <SelectFileType
-        fileType={fileType}
-        onSelected={selectImportFileType}
-        label="Input File Type"
+      <ImportFileInput
+        fileName={fileName}
+        selectImportFileName={selectImportFileName}
       />
       {isCSV && (
         <>
@@ -115,7 +90,7 @@ function ImportOptions({
             id="import-delimiter-select"
             data-testid="import-delimiter-select"
             onChange={(delimiter: string) =>
-              setDelimiter(delimiter as CSVDelimiter)
+              void setDelimiter(delimiter as CSVDelimiter)
             }
             value={delimiter}
             allowDeselect={false}

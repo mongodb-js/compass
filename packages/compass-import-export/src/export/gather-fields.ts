@@ -2,7 +2,6 @@ import type { DataService } from 'mongodb-data-service';
 import type { TypeCastMap } from 'hadron-type-checker';
 import mongodbSchema from 'mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
-import { promisify } from 'util';
 
 import { createDebug } from '../utils/logger';
 
@@ -43,8 +42,7 @@ async function analyzeSchema({
         abortSignal,
       }
     );
-    const analyzeDocuments = promisify(mongodbSchema);
-    const schemaData = await analyzeDocuments(docs);
+    const schemaData = await mongodbSchema(docs);
     schemaData.fields = schemaData.fields.filter(
       ({ path }: { path: string }) => !isInternalFieldPath(path)
     );

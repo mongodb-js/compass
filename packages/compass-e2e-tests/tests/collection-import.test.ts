@@ -19,17 +19,14 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   await insertDocumentOption.waitForDisplayed();
   await browser.clickVisible(Selectors.ImportFileOption);
 
-  // wait for the modal to appear and select the file
-  const importModal = await browser.$(Selectors.ImportModal);
-  await importModal.waitForDisplayed();
+  // Select the file.
   await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
-  // make sure it auto-selected JSON and then confirm
-  const fileTypeJSON = await browser.$(Selectors.FileTypeJSON);
-  await browser.waitUntil(async () => {
-    const selected = await fileTypeJSON.getAttribute('aria-checked');
-    return selected === 'true';
-  });
+  // Wait for the modal to appear.
+  const importModal = await browser.$(Selectors.ImportModal);
+  await importModal.waitForDisplayed();
+
+  // Confirm
   await browser.clickVisible(Selectors.ImportConfirm);
 
   // wait for the done button to appear and then click it
@@ -57,6 +54,8 @@ async function selectFieldType(
 
   const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(`span=${fieldType}`);
   await fieldTypeSelectSpan.waitForDisplayed();
+  await fieldTypeSelectSpan.scrollIntoView();
+  await browser.pause(1000);
   await fieldTypeSelectSpan.click();
 
   // Wait so that the menu animation can complete.
@@ -404,7 +403,12 @@ describe('Collection import', function () {
   });
 
   it('displays an error for a malformed JSON file', async function () {
-    const jsonPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv'); // NOTE: not JSON
+    const jsonPath = path.resolve(
+      __dirname,
+      '..',
+      'fixtures',
+      'broken-json.json'
+    );
 
     await browser.navigateToCollectionTab(
       'test',
@@ -418,26 +422,20 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
+    // Select the file.
+    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+    // Wait for the modal to appear.
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
-    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
-    // select file type JSON
-    await browser.clickParent(Selectors.FileTypeJSON);
-
-    const fileTypeJSON = await browser.$(Selectors.FileTypeJSON);
-    await browser.waitUntil(async () => {
-      const selected = await fileTypeJSON.getAttribute('aria-checked');
-      return selected === 'true';
-    });
+    // confirm
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // wait for the error message to appear
     const errorElement = await browser.$(Selectors.ImportErrorBox);
     await errorElement.waitForDisplayed();
     const errorText = await errorElement.getText();
-    expect(errorText).to.match(/Unexpected token ("|')i\1/);
+    expect(errorText).to.match(/^Parser has expected a value/);
 
     // click the cancel button
     await browser.clickVisible(Selectors.ImportCancel);
@@ -457,17 +455,21 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
-    const importModal = await browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    // Select the file.
+    // Unfortunately this opens a second open dialog and the one that got
+    // automatically opened when clicking on import file sticks around on top of
+    // everything :(
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
-    // make sure it auto-selected CSV
-    const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
-    await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-checked');
-      return selected === 'true';
-    });
+    // Wait for the modal to appear.
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // wait for it to finish analyzing
+    await browser.$(Selectors.ImportConfirm).waitForDisplayed();
+    await browser
+      .$(Selectors.importPreviewFieldHeaderField('id'))
+      .waitForDisplayed();
 
     // pick some types
     const typeMapping = {
@@ -556,33 +558,24 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
-    const importModal = await browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    // Select the file.
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
-    // make sure it auto-selected CSV
-    const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
-    await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-checked');
-      return selected === 'true';
-    });
+    // Wait for the modal to appear.
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
 
+    // it now autodetects the delimiter
     const importDelimiterSelectButton = await browser.$(
       Selectors.ImportDelimiterSelect
     );
-    await importDelimiterSelectButton.waitForDisplayed();
-    await importDelimiterSelectButton.click();
+    expect(await importDelimiterSelectButton.getText()).to.equal('semicolon');
 
-    const importDelimiterSelectMenu = await browser.$(
-      Selectors.ImportDelimiterMenu
-    );
-    await importDelimiterSelectMenu.waitForDisplayed();
-    const delimiterSelectSpan = await importDelimiterSelectMenu.$(
-      'span=semicolon'
-    );
-    await delimiterSelectSpan.waitForDisplayed();
-    await delimiterSelectSpan.click();
+    // wait for it to finish analyzing
+    await browser.$(Selectors.ImportConfirm).waitForDisplayed();
+    await browser
+      .$(Selectors.importPreviewFieldHeaderField('amount'))
+      .waitForDisplayed();
 
     // pick some types
     const typeMapping = {
@@ -647,17 +640,18 @@ describe('Collection import', function () {
     await insertDocumentOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ImportFileOption);
 
-    // wait for the modal to appear and select the file
-    const importModal = await browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+    // Select the file.
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
-    // make sure it auto-selected CSV
-    const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
-    await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-checked');
-      return selected === 'true';
-    });
+    // Wait for the modal to appear.
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // wait for it to finish analyzing
+    await browser.$(Selectors.ImportConfirm).waitForDisplayed();
+    await browser
+      .$(Selectors.importPreviewFieldHeaderField('id'))
+      .waitForDisplayed();
 
     // pick an incompatible type
     await selectFieldType(browser, 'id', 'ObjectId');
@@ -673,10 +667,94 @@ describe('Collection import', function () {
       'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
     );
 
-    // click the cancel button
-    await browser.clickVisible(Selectors.ImportCancel);
+    // click the done button
+    await browser.clickVisible(Selectors.ImportDone);
 
     // wait for the modal to go away
     await importModal.waitForDisplayed({ reverse: false });
+  });
+
+  it('allows changing the delimiter', async function () {
+    const csvPath = path.resolve(
+      __dirname,
+      '..',
+      'fixtures',
+      'source-with-bom.csv'
+    );
+
+    await browser.navigateToCollectionTab(
+      'test',
+      'broken-delimiter',
+      'Documents'
+    );
+
+    // open the import modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.ImportFileOption);
+
+    // select the file
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+
+    // wait for the modal to appear
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // it now autodetects the delimiter correctly
+    const importDelimiterSelectButton = await browser.$(
+      Selectors.ImportDelimiterSelect
+    );
+    expect(await importDelimiterSelectButton.getText()).to.equal('semicolon');
+
+    // but let's break it anyway
+    await importDelimiterSelectButton.waitForDisplayed();
+    await importDelimiterSelectButton.click();
+    const importDelimiterSelectMenu = await browser.$(
+      Selectors.ImportDelimiterMenu
+    );
+    await importDelimiterSelectMenu.waitForDisplayed();
+    const delimiterSelectSpan = await importDelimiterSelectMenu.$('span=comma');
+    await delimiterSelectSpan.waitForDisplayed();
+    await delimiterSelectSpan.click();
+
+    // nothing to see here
+    const typeMapping = {
+      'amount;description;category;name;order;color;date': 'String',
+    };
+
+    for (const [fieldName, fieldType] of Object.entries(typeMapping)) {
+      await selectFieldType(browser, fieldName, fieldType);
+    }
+
+    // confirm
+    await browser.clickVisible(Selectors.ImportConfirm);
+
+    // wait for the done button to appear and then click it
+    const doneButton = await browser.$(Selectors.ImportDone);
+    await doneButton.waitForDisplayed();
+
+    await browser.clickVisible(Selectors.ImportDone);
+
+    // wait for the modal to go away
+    await importModal.waitForDisplayed({ reverse: false });
+
+    const messageElement = await browser.$(
+      Selectors.DocumentListActionBarMessage
+    );
+    const text = await messageElement.getText();
+    expect(text).to.equal('1 – 1 of 1');
+
+    const result = await getFirstListDocument(browser);
+
+    // _id is different every time
+    expect(result._id).to.exist;
+    delete result._id;
+
+    // broken as expected
+    expect(result).to.deep.equal({
+      'amount;description;category;name;order;color;date':
+        '"18080;;9;anything;9;;12-01-2016"',
+    });
   });
 });

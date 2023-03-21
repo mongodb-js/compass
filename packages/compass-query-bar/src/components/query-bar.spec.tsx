@@ -6,34 +6,13 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import AppRegistry from 'hadron-app-registry';
-
-import { QueryBar } from './query-bar';
+import QueryBar from './query-bar';
+import { Provider } from 'react-redux';
+import { configureStore } from '../stores/query-bar-store';
+import { toggleQueryOptions } from '../stores/query-bar-reducer';
 
 const noop = () => {
   /* no op */
-};
-
-const queryOptionProps = {
-  filterValid: true,
-  filterString: '',
-
-  projectValid: true,
-  projectString: '',
-
-  sortValid: true,
-  sortString: '',
-
-  collationValid: true,
-  collationString: '',
-
-  skipValid: true,
-  skipString: '',
-
-  limitValid: true,
-  limitString: '',
-
-  maxTimeMSValid: true,
-  maxTimeMSString: '',
 };
 
 const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
@@ -48,6 +27,7 @@ const QueryHistoryMockComponent = () => (
     </button>
   </div>
 );
+
 const mockQueryHistoryRole = {
   name: 'Query History',
   // eslint-disable-next-line react/display-name
@@ -58,61 +38,48 @@ const mockQueryHistoryRole = {
   actionName: 'Query.History.Actions',
 };
 
-const renderQueryBar = (
-  props: Partial<ComponentProps<typeof QueryBar>> = {}
-) => {
+const renderQueryBar = ({
+  expanded = false,
+  ...props
+}: Partial<ComponentProps<typeof QueryBar>> & { expanded?: boolean } = {}) => {
   const globalAppRegistry = new AppRegistry();
   globalAppRegistry.registerRole('Query.QueryHistory', mockQueryHistoryRole);
 
   const localAppRegistry = new AppRegistry();
+
   localAppRegistry.registerStore('Query.History', {
     onActivated: noop,
   });
+
   localAppRegistry.registerAction('Query.History.Actions', {
     actions: true,
   });
 
+  const store = configureStore({ localAppRegistry, globalAppRegistry });
+
+  store.dispatch(toggleQueryOptions(expanded));
+
   render(
-    <QueryBar
-      buttonLabel="Apply"
-      expanded={false}
-      globalAppRegistry={globalAppRegistry}
-      localAppRegistry={localAppRegistry}
-      onApply={noop}
-      onChangeQueryOption={noop}
-      onOpenExportToLanguage={noop}
-      onReset={noop}
-      queryState="apply"
-      refreshEditorAction={
-        {
-          listen: () => {
-            return noop;
-          },
-        } as any
-      }
-      schemaFields={[]}
-      serverVersion="123"
-      showExportToLanguageButton
-      showQueryHistoryButton
-      toggleExpandQueryOptions={noop}
-      resultId="123"
-      valid
-      {...queryOptionProps}
-      {...props}
-    />
+    <Provider store={store}>
+      <QueryBar
+        buttonLabel="Apply"
+        onApply={noop}
+        onReset={noop}
+        showExportToLanguageButton
+        showQueryHistoryButton
+        resultId="123"
+        {...props}
+      />
+    </Provider>
   );
 };
 
 describe('QueryBar Component', function () {
   let onApplySpy: SinonSpy;
   let onResetSpy: SinonSpy;
-  let toggleExpandQueryOptionsSpy: SinonSpy;
-  let onOpenExportToLanguageSpy: SinonSpy;
   beforeEach(function () {
     onApplySpy = sinon.spy();
     onResetSpy = sinon.spy();
-    onOpenExportToLanguageSpy = sinon.spy();
-    toggleExpandQueryOptionsSpy = sinon.spy();
   });
   afterEach(cleanup);
 
@@ -121,14 +88,12 @@ describe('QueryBar Component', function () {
       renderQueryBar({
         onApply: onApplySpy,
         onReset: onResetSpy,
-        onOpenExportToLanguage: onOpenExportToLanguageSpy,
         showExportToLanguageButton: true,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
     it('renders the filter input', function () {
-      const filterInput = screen.getByRole('textbox');
+      const filterInput = screen.getByTestId('query-bar-option-filter-input');
       expect(filterInput).to.exist;
       expect(filterInput).to.have.attribute(
         'id',
@@ -137,31 +102,6 @@ describe('QueryBar Component', function () {
 
       const queryInputs = screen.getAllByRole('textbox');
       expect(queryInputs.length).to.equal(1);
-    });
-
-    it('calls onOpenExportToLanguage when the export to pipeline button is clicked', function () {
-      const exportToLanguageButton = screen.getByTestId(
-        exportToLanguageButtonId
-      );
-      expect(exportToLanguageButton).to.exist;
-
-      expect(onOpenExportToLanguageSpy).to.not.have.been.called;
-      userEvent.click(exportToLanguageButton);
-
-      expect(onOpenExportToLanguageSpy).to.have.been.calledOnce;
-    });
-
-    it('calls onClick when the expand button is clicked', function () {
-      const expandButton = screen.getByText('More Options');
-      expect(expandButton).to.exist;
-
-      const queryInputsBeforeExpand = screen.getAllByRole('textbox');
-      expect(queryInputsBeforeExpand.length).to.equal(1);
-
-      expect(toggleExpandQueryOptionsSpy).to.not.have.been.called;
-      userEvent.click(expandButton);
-
-      expect(toggleExpandQueryOptionsSpy).to.have.been.calledOnce;
     });
 
     it('renders the query history button', function () {
@@ -181,7 +121,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -198,7 +137,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -215,7 +153,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -260,7 +197,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 
@@ -277,7 +213,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
 

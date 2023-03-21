@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -35,6 +35,6 @@
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
-    "mocha": "^8.0.1"
+    "mocha": "^10.2.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "apiVersion": "0.0.1",
   "productName": "BSON Transpilers",
   "description": "Source to source compilers using ANTLR",
@@ -38,7 +38,7 @@
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^2.1.0",
-    "mocha": "^8.4.0"
+    "mocha": "^10.2.0"
   },
   "dependencies": {
     "antlr4": "4.7.2",

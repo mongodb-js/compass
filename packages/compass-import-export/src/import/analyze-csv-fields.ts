@@ -49,13 +49,13 @@ counts than the number of rows. ie. foo[0],foo[1] means twice as many fields as
 rows once it becomes field foo and so does foo[0].bar,foo[1].bar once it becomes
 foo.bar.
 */
-type CSVField = {
+export type CSVField = {
   types: Record<CSVDetectableFieldType, CSVFieldTypeInfo>;
   columnIndexes: number[];
   detected: CSVParsableFieldType;
 };
 
-type AnalyzeCSVFieldsResult = {
+export type AnalyzeCSVFieldsResult = {
   totalRows: number;
   aborted: boolean;
   fields: Record<string, CSVField>;
@@ -94,7 +94,6 @@ function addRowToResult(
       const name = headerFields[columnIndex];
       const original = data[name] ?? '';
       const type = detectFieldType(original, ignoreEmptyStrings);
-      debug('detectFieldType', name, original, type);
 
       if (!field.types[type]) {
         field.types[type] = {
@@ -126,6 +125,16 @@ function pickFieldType(field: CSVField): CSVParsableFieldType {
       // are special-cased during import.
       return filtered[0] as CSVDetectableFieldType;
     }
+  }
+
+  // If everything is number-ish (or undefined), go with the made up type
+  // 'number'. Behaves much like 'mixed', but makes it a bit clearer to the user
+  // what will happen and matches the existing Number entry we have in the field
+  // type dropdown.
+  if (
+    types.every((type) => ['int', 'long', 'double', 'undefined'].includes(type))
+  ) {
+    return 'number';
   }
 
   // otherwise stick with the default 'mixed'
@@ -163,8 +172,6 @@ export function analyzeCSVFields({
       delimiter,
       header: true,
       step: function (results: Papa.ParseStepResult<PapaRowData>, parser) {
-        debug('analyzeCSVFields:step', results);
-
         if (abortSignal?.aborted && !aborted) {
           aborted = true;
           result.aborted = true;
@@ -196,8 +203,6 @@ export function analyzeCSVFields({
         });
       },
       complete: function () {
-        debug('analyzeCSVFields:complete');
-
         for (const field of Object.values(result.fields)) {
           field.detected = pickFieldType(field);
         }

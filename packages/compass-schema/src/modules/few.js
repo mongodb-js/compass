@@ -8,16 +8,13 @@ import slice from 'lodash.slice';
 import shared from './shared';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { palette } from '@mongodb-js/compass-components';
-
-require('./d3-tip')(d3);
+import { createD3Tip } from './create-d3-tip';
 
 const minicharts_d3fns_few = (localAppRegistry) => {
   // --- beginning chart setup ---
   let width = 400; // default width
   let height = 100; // default height
   let el;
-
-  const QueryAction = localAppRegistry.getAction('Query.Actions');
 
   const barHeight = 25;
   const brushHeight = 80;
@@ -26,11 +23,7 @@ const minicharts_d3fns_few = (localAppRegistry) => {
   const xScale = d3.scale.linear();
 
   // set up tooltips
-  const tip = d3
-    .tip()
-    .attr('class', 'd3-tip d3-tip-few')
-    .direction('n')
-    .offset([-9, 0]);
+  const tip = createD3Tip();
   const brush = d3.svg
     .brush()
     .x(xScale)
@@ -61,9 +54,12 @@ const minicharts_d3fns_few = (localAppRegistry) => {
     // if selection has changed, trigger query builder event
     if (numSelected !== selected[0].length) {
       const values = map(selected.data(), 'value');
-      QueryAction.setDistinctValues({
-        field: options.fieldName,
-        value: values.map((v) => options.promoter(v)),
+      localAppRegistry.emit('query-bar-change-filter', {
+        type: 'setDistinctValues',
+        payload: {
+          field: options.fieldName,
+          value: values.map((v) => options.promoter(v)),
+        },
       });
     }
   }
@@ -82,13 +78,13 @@ const minicharts_d3fns_few = (localAppRegistry) => {
     const brushNode = parent.find('g.brush')[0];
     const start = xScale.invert(d3.mouse(background)[0]);
 
-    const qbAction = d3.event.shiftKey
-      ? QueryAction.toggleDistinctValue
-      : QueryAction.setValue;
-    qbAction({
-      field: options.fieldName,
-      value: options.promoter(d.value),
-      unsetIfSet: true,
+    localAppRegistry.emit('query-bar-change-filter', {
+      type: d3.event.shiftKey ? 'toggleDistinctValue' : 'setValue',
+      payload: {
+        field: options.fieldName,
+        value: options.promoter(d.value),
+        unsetIfSet: true,
+      },
     });
 
     const w = d3

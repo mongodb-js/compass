@@ -5,10 +5,10 @@ import chai from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
+import { connect } from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
 
 temp.track();
-
-import { DataServiceImpl } from 'mongodb-data-service';
 
 // import { fixtures } from '../../test/fixtures';
 
@@ -447,14 +447,14 @@ const testDoc = {
 describe('gatherFields', function () {
   // TODO: In COMPASS-6426 we fill in more tests.
 
-  let dataService: DataServiceImpl;
+  let dataService: DataService;
   let dropCollection;
   let createCollection;
   let insertOne;
 
   // We insert documents only once for all of the tests.
   before(async function () {
-    dataService = new DataServiceImpl({
+    dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
 
@@ -465,8 +465,6 @@ describe('gatherFields', function () {
     );
 
     insertOne = promisify(dataService.insertOne.bind(dataService));
-
-    await dataService.connect();
 
     try {
       await dropCollection(testNS);
@@ -494,7 +492,6 @@ describe('gatherFields', function () {
       sampleSize: 1000,
       dataService,
     });
-    // console.dir(paths, { depth: Infinity });
 
     const expectedPaths = [
       ['_id'],

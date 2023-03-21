@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import configureStore from '../../../stores/store';
+import configureStore from '../../../../test/configure-store';
 import PipelineCollation from './pipeline-collation';
 
 describe('PipelineCollation', function () {

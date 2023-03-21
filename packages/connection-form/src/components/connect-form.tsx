@@ -18,6 +18,7 @@ import {
   cx,
   palette,
   useDarkMode,
+  ConfirmationModalArea,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
@@ -213,7 +214,7 @@ function ConnectForm({
   );
 
   return (
-    <>
+    <ConfirmationModalArea>
       <div className={formContainerStyles} data-testid="connection-form">
         <Card
           className={cx(
@@ -361,7 +362,7 @@ function ConnectForm({
           initialFavoriteInfo={initialConnectionInfo.favorite}
         />
       )}
-    </>
+    </ConfirmationModalArea>
   );
 }
 

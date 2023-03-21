@@ -1,19 +1,19 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Icon,
   InteractivePopover,
   css,
-  cx,
   focusRing,
   spacing,
 } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type AppRegistry from 'hadron-app-registry';
+import { renderQueryHistoryComponent } from '../stores/query-bar-reducer';
+import { connect } from 'react-redux';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
-const openQueryHistoryButtonStyles = cx(
-  css({
+const openQueryHistoryButtonStyles = css(
+  {
     border: 'none',
     backgroundColor: 'transparent',
     display: 'inline-flex',
@@ -23,7 +23,7 @@ const openQueryHistoryButtonStyles = cx(
     '&:hover': {
       cursor: 'pointer',
     },
-  }),
+  },
   focusRing
 );
 
@@ -35,22 +35,12 @@ const queryHistoryPopoverStyles = css({
 });
 
 type QueryHistoryProps = {
-  globalAppRegistry: AppRegistry;
-  localAppRegistry: AppRegistry;
+  renderQueryHistoryComponent: () => React.ReactElement | null;
 };
 
-export const QueryHistoryButtonPopover: React.FunctionComponent<
-  QueryHistoryProps
-> = ({ globalAppRegistry, localAppRegistry }) => {
-  const queryHistoryRef = useRef<{
-    component?: React.ComponentType<any>;
-    store: any; // Query history store is not currently typed.
-    actions: any; // Query history actions are not typed.
-  }>({
-    component: globalAppRegistry.getRole('Query.QueryHistory')?.[0].component,
-    store: localAppRegistry.getStore('Query.History'),
-    actions: localAppRegistry.getAction('Query.History.Actions'),
-  });
+const QueryHistoryButtonPopover: React.FunctionComponent<QueryHistoryProps> = ({
+  renderQueryHistoryComponent = () => null,
+}) => {
   const [showQueryHistory, setShowQueryHistory] = useState(false);
 
   const onSetShowQueryHistory = useCallback(
@@ -66,9 +56,9 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
     [setShowQueryHistory]
   );
 
-  const QueryHistoryComponent = queryHistoryRef.current.component;
+  const queryHistory = renderQueryHistoryComponent();
 
-  if (!QueryHistoryComponent) {
+  if (!queryHistory) {
     return null;
   }
 
@@ -97,10 +87,11 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
       open={showQueryHistory}
       setOpen={onSetShowQueryHistory}
     >
-      <QueryHistoryComponent
-        store={queryHistoryRef.current?.store}
-        actions={queryHistoryRef.current?.actions}
-      />
+      {queryHistory}
     </InteractivePopover>
   );
 };
+
+export default connect(null, { renderQueryHistoryComponent })(
+  QueryHistoryButtonPopover
+);

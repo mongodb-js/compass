@@ -39,7 +39,6 @@ class QueryHistory extends PureComponent {
     >
       <FavoriteList
         data-testid="query-history-list-favorites"
-        ns={this.props.ns}
         actions={this.props.actions}
       />
     </StoreConnector>
@@ -53,7 +52,6 @@ class QueryHistory extends PureComponent {
     >
       <RecentList
         data-testid="query-history-list-recent"
-        ns={this.props.ns}
         actions={this.props.actions}
       />
     </StoreConnector>

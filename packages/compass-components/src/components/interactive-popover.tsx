@@ -7,6 +7,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
 import { rgba } from 'polished';
 import { useDarkMode } from '../hooks/use-theme';
+import { useHotkeys } from '../hooks/use-hotkeys';
 import { useId } from '@react-aria/utils';
 
 const borderRadius = spacing[2];
@@ -131,26 +132,7 @@ function InteractivePopover({
     };
   }, [open, onClose, containedElements]);
 
-  const onPopoverKeyDown = useCallback(
-    (evt: KeyboardEvent) => {
-      if (evt.key === 'Escape') {
-        onClose();
-        return;
-      }
-    },
-    [onClose]
-  );
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    document.addEventListener('keydown', onPopoverKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', onPopoverKeyDown);
-    };
-  }, [onPopoverKeyDown, open]);
+  useHotkeys('Escape', onClose, { enabled: open }, [onClose]);
 
   const closeButtonId = useId('close-button-id');
 

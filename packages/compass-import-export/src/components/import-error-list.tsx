@@ -28,6 +28,16 @@ const SHOW_MORE_STEP = 10;
 
 const DEFAULT_VISIBLE_ERRORS_COUNT = 3;
 
+function stripColRow(message: string) {
+  // this is temporary while we're still showing errors in the modal
+  const index = message.indexOf(' [Col ');
+  if (index === -1) {
+    return message;
+  }
+
+  return message.slice(0, index);
+}
+
 function ImportErrorList({ errors }: { errors: Error[] }) {
   const [visibleErrorsCount, setVisibleErrorsCount] = useState(
     DEFAULT_VISIBLE_ERRORS_COUNT
@@ -37,7 +47,9 @@ function ImportErrorList({ errors }: { errors: Error[] }) {
     // BulkWrite and WriteErrors can have identical messages, we want to leave
     // only unique errors for display. We also reversing to show recent errors
     // higher in the list
-    return [...new Set(errors.map((err) => err.message))].reverse();
+    return [
+      ...new Set(errors.map((err) => stripColRow(err.message))),
+    ].reverse();
   }, [errors]);
 
   const showMoreCount = useMemo(() => {

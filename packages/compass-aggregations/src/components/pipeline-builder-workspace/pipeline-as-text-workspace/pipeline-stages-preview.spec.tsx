@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import configureStore from '../../../stores/store';
+import configureStore from '../../../../test/configure-store';
 
 import { OutputStagePreview } from './pipeline-stages-preview';
 
@@ -14,7 +14,7 @@ const renderStageBanner = (
   props: Partial<ComponentProps<typeof OutputStagePreview>> = {}
 ) => {
   render(
-    <Provider store={configureStore({})}>
+    <Provider store={configureStore()}>
       <OutputStagePreview
         stageOperator="$out"
         isAtlas={false}

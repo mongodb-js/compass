@@ -66,9 +66,7 @@
                   "bsonType": "Number",
                   "path": "review._id",
                   "count": 1,
-                  "values": [
-                    3
-                  ],
+                  "values": [3],
                   "total_count": 0,
                   "probability": 1,
                   "unique": 1,
@@ -90,9 +88,7 @@
                   "bsonType": "Number",
                   "path": "review.rating",
                   "count": 1,
-                  "values": [
-                    9
-                  ],
+                  "values": [9],
                   "total_count": 0,
                   "probability": 1,
                   "unique": 1,
@@ -114,9 +110,7 @@
                   "bsonType": "String",
                   "path": "review.text",
                   "count": 1,
-                  "values": [
-                    "it was great!"
-                  ],
+                  "values": ["it was great!"],
                   "total_count": 0,
                   "probability": 1,
                   "unique": 1,
@@ -134,10 +128,7 @@
         }
       ],
       "total_count": 4,
-      "type": [
-        "Undefined",
-        "Document"
-      ],
+      "type": ["Undefined", "Document"],
       "has_duplicates": true,
       "probability": 0.25
     },
@@ -168,13 +159,7 @@
                       "bsonType": "Number",
                       "path": "reviews._id",
                       "count": 5,
-                      "values": [
-                        1,
-                        2,
-                        2,
-                        1,
-                        2
-                      ],
+                      "values": [1, 2, 2, 1, 2],
                       "total_count": 0,
                       "probability": 0.8333333333333334,
                       "unique": 2,
@@ -192,10 +177,7 @@
                     }
                   ],
                   "total_count": 6,
-                  "type": [
-                    "Number",
-                    "Undefined"
-                  ],
+                  "type": ["Number", "Undefined"],
                   "has_duplicates": true,
                   "probability": 0.8333333333333334
                 },
@@ -209,13 +191,7 @@
                       "bsonType": "Number",
                       "path": "reviews.rating",
                       "count": 5,
-                      "values": [
-                        4,
-                        1,
-                        1,
-                        4,
-                        1
-                      ],
+                      "values": [4, 1, 1, 4, 1],
                       "total_count": 0,
                       "probability": 0.8333333333333334,
                       "unique": 2,
@@ -233,10 +209,7 @@
                     }
                   ],
                   "total_count": 6,
-                  "type": [
-                    "Number",
-                    "Undefined"
-                  ],
+                  "type": ["Number", "Undefined"],
                   "has_duplicates": true,
                   "probability": 0.8333333333333334
                 },
@@ -274,10 +247,7 @@
                     }
                   ],
                   "total_count": 6,
-                  "type": [
-                    "String",
-                    "Undefined"
-                  ],
+                  "type": ["String", "Undefined"],
                   "has_duplicates": true,
                   "probability": 0.8333333333333334
                 }
@@ -286,11 +256,7 @@
               "probability": 1
             }
           ],
-          "lengths": [
-            3,
-            1,
-            2
-          ],
+          "lengths": [3, 1, 2],
           "total_count": 6,
           "probability": 0.75,
           "average_length": 2
@@ -307,10 +273,7 @@
         }
       ],
       "total_count": 4,
-      "type": [
-        "Array",
-        "Undefined"
-      ],
+      "type": ["Array", "Undefined"],
       "has_duplicates": false,
       "probability": 0.75
     }

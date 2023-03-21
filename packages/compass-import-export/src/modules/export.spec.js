@@ -9,7 +9,7 @@ import AppRegistry from 'hadron-app-registry';
 import FILE_TYPES from '../constants/file-types';
 import reducer, * as actions from './export';
 import store from '../stores/export-store';
-import { DataServiceImpl } from 'mongodb-data-service';
+import { connect } from 'mongodb-data-service';
 import { promisify } from 'util';
 import { once } from 'events';
 import { dataServiceConnected, globalAppRegistryActivated } from './compass';
@@ -21,19 +21,14 @@ describe('export [module]', function () {
   describe('#reducer', function () {
     context('#startExport', function () {
       const globalAppRegistry = new AppRegistry();
-      const dataService = new DataServiceImpl({
-        connectionString: 'mongodb://localhost:27018/local',
-      });
-      const createCollection = promisify(dataService.createCollection).bind(
-        dataService
-      );
-      const dropCollection = promisify(dataService.dropCollection).bind(
-        dataService
-      );
-      const insertMany = promisify(dataService.insertMany).bind(dataService);
+      let dataService;
       const TEST_COLLECTION_NAME = 'local.foobar';
 
       afterEach(async function () {
+        const dropCollection = promisify(dataService.dropCollection).bind(
+          dataService
+        );
+
         await dropCollection(TEST_COLLECTION_NAME);
         await dataService.disconnect().catch((e) => {
           console.error('Failed to disconnet:', e);
@@ -41,7 +36,14 @@ describe('export [module]', function () {
       });
 
       beforeEach(async function () {
-        await dataService.connect();
+        dataService = await connect({
+          connectionString: 'mongodb://localhost:27018/local',
+        });
+
+        const createCollection = promisify(dataService.createCollection).bind(
+          dataService
+        );
+        const insertMany = promisify(dataService.insertMany).bind(dataService);
 
         await createCollection(TEST_COLLECTION_NAME, {});
         await insertMany(

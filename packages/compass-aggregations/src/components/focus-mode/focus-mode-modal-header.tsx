@@ -10,8 +10,10 @@ import {
   spacing,
   Toggle,
   Tooltip,
+  useHotkeys,
+  formatHotkey,
 } from '@mongodb-js/compass-components';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
@@ -70,6 +72,11 @@ const tooltipContentItemStyles = css({
   flexShrink: 0,
 });
 
+const PREVIOUS_STAGE_HOTKEY = 'meta+shift+9';
+const NEXT_STAGE_HOTKEY = 'meta+shift+0';
+const ADD_STAGE_AFTER_HOTKEY = 'meta+shift+a';
+const ADD_STAGE_BEFORE_HOTKEY = 'meta+shift+b';
+
 export const FocusModeModalHeader: React.FunctionComponent<
   FocusModeModalHeaderProps
 > = ({
@@ -81,34 +88,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onStageDisabledToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const keyEventListener = (e: KeyboardEvent) => {
-    const isShiftKey = e.shiftKey;
-    const isCtrlOrMetaKey = e.ctrlKey || e.metaKey;
-    if (!isShiftKey || !isCtrlOrMetaKey) {
-      return;
-    }
-
-    switch (e.key) {
-      case '9':
-        return onPreviousStage();
-      case '0':
-        return onNextStage();
-      case 'a':
-        return onAddStageAfter();
-      case 'b':
-        return onAddStageBefore();
-      default:
-        return;
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener('keydown', keyEventListener);
-    return () => {
-      window.removeEventListener('keydown', keyEventListener);
-    };
-  }, [keyEventListener]);
 
   const isFirst = stageIndex === 0;
   const isLast = stages.length - 1 === stageIndex;
@@ -136,6 +115,11 @@ export const FocusModeModalHeader: React.FunctionComponent<
     onAddStageClick(stageIndex);
     setMenuOpen(false);
   };
+
+  useHotkeys(PREVIOUS_STAGE_HOTKEY, onPreviousStage);
+  useHotkeys(NEXT_STAGE_HOTKEY, onNextStage);
+  useHotkeys(ADD_STAGE_AFTER_HOTKEY, onAddStageAfter);
+  useHotkeys(ADD_STAGE_BEFORE_HOTKEY, onAddStageBefore);
 
   const stageSelectLabels = stages.map((stageName, index) => {
     return `Stage ${index + 1}: ${stageName ?? 'select'}`;
@@ -179,7 +163,9 @@ export const FocusModeModalHeader: React.FunctionComponent<
             <span className={tooltipContentItemStyles}>
               Go to previous stage
             </span>
-            <span className={tooltipContentItemStyles}>Ctrl + Shift + 9</span>
+            <span className={tooltipContentItemStyles}>
+              {formatHotkey(PREVIOUS_STAGE_HOTKEY)}
+            </span>
           </Body>
         </Tooltip>
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
@@ -227,7 +213,9 @@ export const FocusModeModalHeader: React.FunctionComponent<
         >
           <Body className={tooltipContentStyles}>
             <span>Go to next stage</span>
-            <span>Ctrl + Shift + 0</span>
+            <span className={tooltipContentItemStyles}>
+              {formatHotkey(NEXT_STAGE_HOTKEY)}
+            </span>
           </Body>
         </Tooltip>
       </div>
@@ -283,14 +271,14 @@ export const FocusModeModalHeader: React.FunctionComponent<
         <MenuItem
           className={menuItemStyles}
           onClick={onAddStageAfter}
-          data-hotkey="Ctrl + Shift + A"
+          data-hotkey={formatHotkey(ADD_STAGE_AFTER_HOTKEY)}
         >
           Add stage after
         </MenuItem>
         <MenuItem
           className={menuItemStyles}
           onClick={onAddStageBefore}
-          data-hotkey="Ctrl + Shift + B"
+          data-hotkey={formatHotkey(ADD_STAGE_BEFORE_HOTKEY)}
         >
           Add stage before
         </MenuItem>

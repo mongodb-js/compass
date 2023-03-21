@@ -11,6 +11,10 @@ import {
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
+import {
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -106,42 +110,35 @@ export const updatePipelineList =
   };
 
 /**
- * Get the delete action.
- */
-export const deletePipelineById = (
-  pipelineId: string
-): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineStorage }) => {
-    await pipelineStorage.delete(pipelineId);
-    dispatch(updatePipelineList());
-  };
-};
-
-/**
  * Restore pipeline by an ID
  */
-export const openPipelineById = (
-  id: string
-): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
+export const openStoredPipeline = (
+  pipelineData: StoredPipeline,
+  updatePreview = true
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     try {
-      const data = await pipelineStorage.load(id);
-      if (!data) {
-        throw new Error(`Pipeline with id ${id} not found`);
-      }
-      pipelineBuilder.reset(data.pipelineText);
+      pipelineBuilder.reset(pipelineData.pipelineText);
       dispatch({
         type: RESTORE_PIPELINE,
         stages: pipelineBuilder.stages,
         pipelineText: pipelineBuilder.source,
         pipeline: pipelineBuilder.pipeline,
         syntaxErrors: pipelineBuilder.syntaxError,
-        restoreState: data,
+        storedOptions: {
+          id: pipelineData.id,
+          name: pipelineData.name,
+          collationString: pipelineData.collationString,
+          comments: pipelineData.comments,
+          autoPreview: pipelineData.autoPreview,
+        },
       });
-      dispatch(updatePipelinePreview());
+      if (updatePreview) {
+        dispatch(updatePipelinePreview());
+      }
       if (pipelineBuilder.syntaxError.length > 0) {
-        let shortName = data.name.slice(0, 20);
-        if (shortName.length < data.name.length) {
+        let shortName = pipelineData.name.slice(0, 20);
+        if (shortName.length < pipelineData.name.length) {
           shortName += '…';
         }
         openToast('restore-pipeline-with-errors', {
@@ -209,5 +206,52 @@ export const saveCurrentPipeline =
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
 
+    dispatch(updatePipelineList());
+  };
+
+export const confirmOpenPipeline =
+  (pipelineData: StoredPipeline): PipelineBuilderThunkAction<void> =>
+  async (dispatch, getState) => {
+    const isModified = getState().isModified;
+    if (isModified) {
+      track('Screen', { name: 'restore_pipeline_modal' });
+      const confirmed = await showConfirmation({
+        title: 'Are you sure you want to open this pipeline?',
+        description:
+          'Opening this project will abandon unsaved changes to the current pipeline you are building.',
+        buttonText: 'Open Pipeline',
+      });
+      if (!confirmed) {
+        return;
+      }
+    }
+    track('Aggregation Opened', {
+      id: pipelineData.id,
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      screen: 'aggregations',
+    });
+    void dispatch(openStoredPipeline(pipelineData));
+  };
+
+export const confirmDeletePipeline =
+  (pipelineId: string): PipelineBuilderThunkAction<void> =>
+  async (dispatch, getState, { pipelineStorage }) => {
+    track('Screen', { name: 'delete_pipeline_modal' });
+    const confirmed = await showConfirmation({
+      title: 'Are you sure you want to delete this pipeline?',
+      description:
+        'Deleting this pipeline will remove it from your saved pipelines.',
+      buttonText: 'Delete Pipeline',
+      variant: ConfirmationModalVariant.Danger,
+    });
+    if (!confirmed) {
+      return;
+    }
+    track('Aggregation Deleted', {
+      id: pipelineId,
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      screen: 'aggregations',
+    });
+    await pipelineStorage.delete(pipelineId);
     dispatch(updatePipelineList());
   };

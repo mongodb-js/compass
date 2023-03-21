@@ -37,8 +37,28 @@ export type CSVParsableFieldType =
   | 'timestamp'
   | 'decimal'
   | 'regex'
-  | 'number'
+  | 'number' // like 'mixed', but for use when everything is an int, long or double.
   | 'mixed';
+
+export const CSVFieldTypeLabels: Record<CSVParsableFieldType, string> = {
+  int: 'Int32',
+  long: 'Long',
+  double: 'Double',
+  boolean: 'Boolean',
+  date: 'Date',
+  string: 'String',
+  null: 'Null',
+  undefined: 'Undefined',
+  objectId: 'ObjectId',
+  binData: 'Binary',
+  uuid: 'UUID',
+  md5: 'MD5',
+  timestamp: 'Timestamp',
+  decimal: 'Decimal128',
+  regex: 'RegExpr',
+  number: 'Number',
+  mixed: 'Mixed',
+};
 
 export type IncludedFields = Record<string, CSVParsableFieldType>;
 
@@ -84,8 +104,8 @@ const FLOAT = /^\s*-?(\d+\.?|\.\d+|\d+\.\d+)([eE][-+]?\d+)?\s*$/;
 // from papaparse: https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1025
 const ISO_DATE =
   /^((\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)))$/;
-const TRUTHY_STRINGS = ['true', 'TRUE', 'True'];
-const FALSY_STRINGS = ['false', 'FALSE', 'False'];
+const TRUTHY_STRINGS = ['t', 'true', 'TRUE', 'True'];
+const FALSY_STRINGS = ['f', 'false', 'FALSE', 'False'];
 const NULL_STRINGS = ['Null', 'NULL', 'null'];
 
 export function detectFieldType(
@@ -293,11 +313,15 @@ export function parseValue(
     if (ISO_DATE.test(value)) {
       // iso string
       date = new Date(value);
-    } else {
-      // fall back to assuming it is an int64 value
+    } else if (!isNaN(+value)) {
+      // if it is a number, assume it is an int64 value
       // NOTE: this won't be detected as date, so the user can only get here by
       // explicitly selecting date
       date = new Date(+value);
+    } else {
+      // As a last resort, maybe it is in the date-only format like "YYYY-MM-DD"
+      // with no time part?
+      date = new Date(value);
     }
 
     if (date.toString() === 'Invalid Date') {

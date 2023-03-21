@@ -14,7 +14,7 @@ import reducer, {
 import type { State as AggregateState } from './aggregation';
 import type { RootState } from '.';
 import rootReducer from '../modules';
-import configureStore from '../stores/store';
+import configureStore from '../../test/configure-store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 import { createCancelError } from '@mongodb-js/compass-utils';
 
@@ -41,7 +41,7 @@ describe('aggregation module', function () {
 
   it('runs an aggregation', async function () {
     const mockDocuments = [{ id: 1 }, { id: 2 }];
-    const store: Store<RootState> = configureStore({ sourcePipeline: `[]` });
+    const store: Store<RootState> = configureStore({ pipeline: [] });
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
       dataService: new (class {

@@ -2,10 +2,7 @@ import type { Document } from 'mongodb';
 import type { AnyAction } from 'redux';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { PipelineBuilderThunkAction } from '.';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-const { debug } = createLoggerAndTelemetry(
-  'mongodb-aggregations:modules:input-document'
-);
+
 export enum ActionTypes {
   CollapseToggled = 'aggregations/input-documents/CollapseToggled',
   DocumentsFetchStarted = 'aggregations/input-documents/DocumentsFetchStarted',
@@ -98,13 +95,6 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
 
     if (!dataService) {
       return;
-    }
-
-    if (dataService && !dataService.isConnected()) {
-      debug(
-        'warning: trying to refresh aggregation but dataService is disconnected',
-        dataService
-      );
     }
 
     const options = {

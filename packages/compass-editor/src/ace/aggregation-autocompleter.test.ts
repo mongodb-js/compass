@@ -22,13 +22,31 @@ function getTokens(text: string, pos?: Ace.Position) {
 
 describe('AggregationAutoCompleter', function () {
   context('when autocompleting outside of stage', function () {
+    it("should escape stage op in snippet so that ace doesn't remove it from the output", function () {
+      const { getCompletions } = setupAggregationCompleter('[{ $');
+      getCompletions(function (err, completions) {
+        expect(err).to.be.null;
+        expect(
+          completions
+            .filter(
+              (completion) => !!(completion as CompletionWithServerInfo).snippet
+            )
+            .every((completion) =>
+              (completion as CompletionWithServerInfo).snippet?.startsWith(
+                '\\$'
+              )
+            )
+        ).to.eq(true, 'Expected every completion snippet to start with "\\$"');
+      });
+    });
+
     context('with empty pipeline', function () {
       it('should return stages', function () {
         const { getCompletions } = setupAggregationCompleter('[{ $');
         getCompletions(function (err, completions) {
           expect(err).to.be.null;
           expect(
-            completions.map((completion) => completion.name).sort()
+            completions.map((completion) => completion.value).sort()
           ).to.deep.eq([...STAGE_OPERATOR_NAMES].sort());
         });
       });
@@ -42,7 +60,7 @@ describe('AggregationAutoCompleter', function () {
         getCompletions(function (err, completions) {
           expect(err).to.be.null;
           expect(
-            completions.map((completion) => completion.name).sort()
+            completions.map((completion) => completion.value).sort()
           ).to.deep.eq([...STAGE_OPERATOR_NAMES].sort());
         });
       });
@@ -56,7 +74,7 @@ describe('AggregationAutoCompleter', function () {
           getCompletions(function (err, completions) {
             expect(err).to.be.null;
             expect(
-              completions.map((completion) => completion.name).sort()
+              completions.map((completion) => completion.value).sort()
             ).to.deep.eq([...STAGE_OPERATOR_NAMES].sort());
           });
         });
@@ -116,7 +134,7 @@ describe('AggregationAutoCompleter', function () {
       );
       getCompletions(function (err, completions) {
         expect(err).to.be.null;
-        expect(completions.map((completion) => completion.name)).to.deep.eq([
+        expect(completions.map((completion) => completion.value)).to.deep.eq([
           '$foo',
           '$bar',
         ]);

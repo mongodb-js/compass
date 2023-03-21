@@ -55,11 +55,17 @@ const fieldContainerStyles = css({
 });
 
 const fieldStyles = css({
-  paddingTop: spacing[4],
+  overflow: 'hidden',
+  paddingTop: spacing[3],
   paddingBottom: spacing[3],
 });
 
+const fieldExpandedStyles = css({
+  paddingBottom: 0,
+});
+
 const fieldListContainerStyles = css({
+  marginTop: spacing[3],
   position: 'relative',
 });
 
@@ -72,7 +78,6 @@ const fieldNameContainerStyles = css({
 });
 
 const fieldRowStyles = css({
-  marginBottom: spacing[3],
   padding: `0px ${spacing[3]}px`,
   display: 'grid',
 
@@ -176,7 +181,10 @@ function Field({
 
   return (
     <KeylineCard className={fieldContainerStyles}>
-      <div className={fieldStyles} data-testid="schema-field">
+      <div
+        className={cx(fieldStyles, isExpanded && fieldExpandedStyles)}
+        data-testid="schema-field"
+      >
         <div className={fieldRowStyles}>
           <div className={fieldDescriptionStyles}>
             <div
