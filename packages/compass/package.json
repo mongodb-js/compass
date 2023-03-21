@@ -139,6 +139,7 @@
     "prewebpack": "rimraf ./build",
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
+    "postcompile": "node scripts/generate-bundle-third-party-notices.js",
     "run-compiled": "electron .",
     "release": "node release/index.js",
     "package-compass": "hadron-build release",

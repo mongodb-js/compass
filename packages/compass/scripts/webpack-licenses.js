@@ -1,10 +1,17 @@
+// Configures `webpack-license-plugin` to scan and collect all the 3rd parties dependencies that are bundled,
+// optionally adding also the production dependencies of the package (found recursively inside the node_modules).
+
+// The `webpack-license-plugin` configured is meant to be run twice, once for the main bundle and once for the renderer bundle,
+// one of the 2 should run with `includeProdPackages: true` so those packages are collected as well.
+// This way the `webpack-license-plugin` will output 2 separate json files that can be merged and rendered in a final third-party-notices file.
+
 const path = require('path');
 const findUp = require('find-up');
 const fs = require('fs');
 const WebpackLicensePlugin = require('webpack-license-plugin');
 const { execSync, spawnSync } = require('child_process');
 
-// --- options ---
+// Configuration:
 
 const ALLOWED_LICENSES = [
   /^MIT$/,
@@ -31,6 +38,8 @@ const LICENSE_OVERRIDES = {
   'jszip@3.6.0': 'MIT',
   'pako@1.0.11': 'MIT',
 };
+
+// ---
 
 function checkOverridesArePresent() {
   const packagesToCheck = [
