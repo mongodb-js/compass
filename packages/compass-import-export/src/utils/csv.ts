@@ -37,8 +37,28 @@ export type CSVParsableFieldType =
   | 'timestamp'
   | 'decimal'
   | 'regex'
-  | 'number'
+  | 'number' // like 'mixed', but for use when everything is an int, long or double.
   | 'mixed';
+
+export const CSVFieldTypeLabels: Record<CSVParsableFieldType, string> = {
+  int: 'Int32',
+  long: 'Long',
+  double: 'Double',
+  boolean: 'Boolean',
+  date: 'Date',
+  string: 'String',
+  null: 'Null',
+  undefined: 'Undefined',
+  objectId: 'ObjectId',
+  binData: 'Binary',
+  uuid: 'UUID',
+  md5: 'MD5',
+  timestamp: 'Timestamp',
+  decimal: 'Decimal128',
+  regex: 'RegExpr',
+  number: 'Number',
+  mixed: 'Mixed',
+};
 
 export type IncludedFields = Record<string, CSVParsableFieldType>;
 

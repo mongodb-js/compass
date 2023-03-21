@@ -561,6 +561,9 @@ export const ImportDone =
   '[data-testid="import-modal"] [data-testid="done-button"]';
 export const ImportErrorBox = '[data-testid="import-error-box"]';
 
+export const importPreviewFieldHeaderField = (fieldName: string): string => {
+  return `[data-testid="import-preview-field-type-select-menu-${fieldName}"]`;
+};
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] button`;
 };

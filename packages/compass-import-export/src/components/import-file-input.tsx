@@ -20,7 +20,7 @@ function ImportFileInput({
   const handleChooseFile = useCallback(
     (files: string[]) => {
       if (files.length > 0) {
-        selectImportFileName(files[0]);
+        void selectImportFileName(files[0]);
       } else if (typeof onCancel === 'function') {
         onCancel();
       }
