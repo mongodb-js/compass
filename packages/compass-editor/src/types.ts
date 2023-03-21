@@ -63,4 +63,6 @@ export type CompletionWithServerInfo = Ace.Completion & {
   version: string;
   /* Server version that supports using the key in $project stage */
   projectVersion?: string;
+  /** Optional completion description */
+  description?: string;
 };

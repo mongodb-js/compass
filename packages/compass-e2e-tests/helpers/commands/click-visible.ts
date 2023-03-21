@@ -26,5 +26,11 @@ export async function clickVisible(
   if (options?.screenshot) {
     await browser.saveScreenshot(options.screenshot);
   }
-  await clickElement.click();
+  if (await clickElement.isEnabled()) {
+    await clickElement.click();
+  } else {
+    throw new Error(
+      `Trying to click ${selector}, but the element is not enabled`
+    );
+  }
 }

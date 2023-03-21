@@ -22,6 +22,7 @@ import type {
   QueryBarState,
   QueryBarThunkDispatch,
 } from '../stores/query-bar-reducer';
+import { isEqualDefaultQuery } from '../stores/query-bar-reducer';
 import { isQueryValid } from '../stores/query-bar-reducer';
 import {
   applyQuery,
@@ -96,8 +97,13 @@ type QueryBarProps = {
   onReset: () => void;
   onOpenExportToLanguage: () => void;
   queryOptionsLayout?: (QueryOption | QueryOption[])[];
-  queryState: 'apply' | 'reset';
+  queryChanged: boolean;
   resultId?: string | number;
+  /**
+   * For testing purposes only, allows to track whether or not apply button was
+   * clicked or not
+   */
+  applyId: number;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
   valid: boolean;
@@ -116,8 +122,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     ['sort', 'maxTimeMS'],
     ['collation', 'skip', 'limit'],
   ],
-  queryState,
+  queryChanged,
   resultId,
+  applyId,
   showExportToLanguageButton = true,
   showQueryHistoryButton = true,
   valid: isQueryValid,
@@ -143,6 +150,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       onSubmit={onFormSubmit}
       noValidate
       data-result-id={resultId}
+      data-apply-id={applyId}
     >
       <div className={queryBarFirstRowStyles}>
         <div className={documentEditorLabelContainerStyles}>
@@ -169,7 +177,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
           onClick={onReset}
-          disabled={queryState !== 'apply'}
+          disabled={!queryChanged}
           size="small"
           type="button"
         >
@@ -232,8 +240,9 @@ export default connect(
   (state: QueryBarState) => {
     return {
       expanded: state.expanded,
-      queryState: state.queryState,
+      queryChanged: !isEqualDefaultQuery(state),
       valid: isQueryValid(state),
+      applyId: state.applyId,
     };
   },
   (
