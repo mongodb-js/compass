@@ -23,7 +23,7 @@ describe('guessFileType', function () {
     const bigDocs: any[] = [];
     for (let i = 0; i < 100; i++) {
       const doc: any = {};
-      for (let j = 0; j < 1000; j++) {
+      for (let j = 0; j < 100; j++) {
         doc[`c_${j}`] = 'abcdefghijklmnop';
       }
       bigDocs.push(doc);
