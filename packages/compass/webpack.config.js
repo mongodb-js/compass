@@ -1,6 +1,8 @@
 // @ts-check
 const path = require('path');
+// @ts-ignore
 const HadronBuildTarget = require('hadron-build/lib/target');
+
 const {
   createElectronMainConfig,
   createElectronRendererConfig,
@@ -9,6 +11,8 @@ const {
   webpack,
   merge,
 } = require('@mongodb-js/webpack-config-compass');
+
+const { createLicensePlugin } = require('./scripts/webpack-licenses');
 
 module.exports = (_env, args) => {
   const opts = {
@@ -38,8 +42,14 @@ module.exports = (_env, args) => {
     // Runtime implementation depends on worker file existing near the library
     // main import and for that reason it needs to stay external to compass (and
     // compass-shell plugin)
-    '@mongosh/node-runtime-worker-thread':
+    '@mongosh/node-x-worker-thread':
       'commonjs2 @mongosh/node-runtime-worker-thread',
+  };
+
+  const resolve = {
+    alias: {
+      browserslist: false,
+    },
   };
 
   // Having persistent build cache makes initial dev build slower, but
@@ -98,7 +108,13 @@ module.exports = (_env, args) => {
     merge(mainConfig, {
       cache,
       externals,
-      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
+      plugins: [
+        new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // @ts-ignore
+        createLicensePlugin({
+          outputFilename: 'third-party-notices-main.json',
+        }),
+      ],
     }),
     merge(rendererConfig, {
       cache,
@@ -106,8 +122,17 @@ module.exports = (_env, args) => {
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
+      // @ts-ignore
+      resolve,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // @ts-ignore
+        createLicensePlugin({
+          outputFilename: 'third-party-notices-renderer.json',
+          // @ts-ignore
+          includeProdPackages: true,
+        }),
+
         // Not a part of common config because mostly a Compass thing that we
         // might be able to get rid of eventually
         new webpack.ProvidePlugin({

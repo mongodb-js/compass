@@ -42,7 +42,6 @@
     "@mongodb-js/compass-logging": "^1.1.4",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
-    "ampersand-sync": "^5.1.0",
     "async": "^3.2.0",
     "debug": "^4.2.0",
     "hadron-ipc": "^3.1.1",

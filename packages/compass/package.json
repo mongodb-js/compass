@@ -176,6 +176,7 @@
     "system-ca": "^1.0.2"
   },
   "devDependencies": {
+    "@electron/rebuild": "^3.2.10",
     "@electron/remote": "^2.0.9",
     "@mongodb-js/compass-aggregations": "^9.8.0",
     "@mongodb-js/compass-app-stores": "^6.5.1",
@@ -230,7 +231,6 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^10.1.0",
-    "@electron/rebuild": "^3.2.10",
     "electron-squirrel-startup": "^1.0.0",
     "ensure-error": "^3.0.1",
     "eslint": "^7.25.0",
@@ -266,6 +266,7 @@
     "tar": "^6.1.11",
     "uuid": "^3.0.0",
     "web-vitals": "^2.1.2",
+    "webpack-license-plugin": "^4.2.2",
     "winreg-ts": "^1.0.4"
   },
   "optionalDependencies": {
