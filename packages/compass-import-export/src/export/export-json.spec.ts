@@ -429,7 +429,6 @@ describe('exportJSON', function () {
       variant: 'default',
       abortSignal: abortController.signal,
       progressCallback: () => {},
-      // TODO: Fields
     });
 
     expect(result.docsWritten).to.equal(2);

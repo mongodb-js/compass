@@ -152,7 +152,7 @@ export async function gatherFields({
   ns,
   abortSignal,
   filter,
-  // progressCallback,
+  // progressCallback, // TODO(COMPASS-6426)
   sampleSize,
 }: GatherFieldsOptions): Promise<SchemaPath[]> {
   const schema = await analyzeSchema({
@@ -162,17 +162,6 @@ export async function gatherFields({
     filter,
     sampleSize,
   });
-
-  // console.log(
-  //   dataService,
-  //   ns,
-  //   abortSignal,
-  //   filter,
-  //   progressCallback,
-  //   sampleSize
-  // );
-
-  // console.dir(schema, { depth: Infinity });
 
   const paths = schemaToPaths(schema?.fields ?? []);
 
