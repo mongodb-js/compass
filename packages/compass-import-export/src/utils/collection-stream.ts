@@ -9,11 +9,11 @@ import type {
   WriteError,
   WriteConcernError,
   BulkWriteResult,
+  Sort,
 } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import { promisify } from 'util';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type { TypeCastMap } from 'hadron-type-checker';
 
 import { createDebug } from './logger';
 
@@ -299,29 +299,23 @@ export const createCollectionWriteStream = function (
   return new WritableCollectionStream(dataService, ns, stopOnErrors);
 };
 
-type BSONObject = TypeCastMap['Object'];
-
 export type ExportAggregation = {
   stages: Document[];
   options: AggregateOptions;
 };
 
 export type ExportQuery = {
-  filter: BSONObject;
+  filter: Document;
+  sort?: Sort;
   limit?: number;
   skip?: number;
-  projection?: BSONObject;
+  projection?: Document;
 };
 
 type ReadableCollectionStreamOptions = {
   dataService: DataService;
   ns: string;
-  query: {
-    filter: BSONObject;
-    limit?: number;
-    skip?: number;
-  };
-  projection?: BSONObject;
+  query: ExportQuery;
   aggregation?: ExportAggregation;
 };
 
@@ -329,7 +323,6 @@ export const createReadableCollectionCursor = function ({
   dataService,
   ns,
   query,
-  projection,
   aggregation,
 }: ReadableCollectionStreamOptions) {
   if (aggregation) {
@@ -339,7 +332,8 @@ export const createReadableCollectionCursor = function ({
   }
 
   return dataService.findCursor(ns, query.filter ?? {}, {
-    projection,
+    projection: query.projection,
+    sort: query.sort,
     limit: query.limit,
     skip: query.skip,
   });

@@ -444,9 +444,8 @@ const testDoc = {
   },
 };
 
+// TODO(COMPASS-6426): Add more tests.
 describe('gatherFields', function () {
-  // TODO: In COMPASS-6426 we fill in more tests.
-
   let dataService: DataService;
   let dropCollection;
   let createCollection;

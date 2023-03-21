@@ -80,7 +80,6 @@ describe('exportJSON', function () {
     const result = await exportJSON({
       dataService,
       ns: testNS,
-      fields: [],
       output: tempWriteStream,
       variant: 'default',
       abortSignal: abortController.signal,
@@ -214,7 +213,6 @@ describe('exportJSON', function () {
     const result = await exportJSON({
       dataService,
       ns: testNS,
-      fields: [],
       output: temp.createWriteStream(),
       variant: 'default',
       abortSignal: abortController.signal,
@@ -310,7 +308,6 @@ describe('exportJSON', function () {
     const result = await exportJSON({
       dataService,
       ns: `${testDB}.test-empty`,
-      fields: [],
       output,
       variant: 'default',
       abortSignal: abortController.signal,
@@ -354,7 +351,6 @@ describe('exportJSON', function () {
       await exportJSON({
         dataService,
         ns: testNS,
-        fields: [],
         output: temp.createWriteStream(),
         variant: 'default',
         abortSignal: abortController.signal,
@@ -362,7 +358,7 @@ describe('exportJSON', function () {
       });
 
       throw new Error('did not expect export to succeed');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal('example error cannot fetch docs');
     }
   });
@@ -381,7 +377,6 @@ describe('exportJSON', function () {
       await exportJSON({
         dataService,
         ns: testNS,
-        fields: [],
         output: mockWriteStream,
         variant: 'default',
         abortSignal: abortController.signal,
@@ -389,12 +384,73 @@ describe('exportJSON', function () {
       });
 
       throw new Error('expected to throw');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal('example error cannot write to file');
     }
   });
 
-  // TODO: Projection. It exports the selected fields.
+  it('exports with a projection', async function () {
+    const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
+      (name, index) => ({
+        counter: index,
+        name,
+      })
+    );
+    await insertMany(testNS, docs, {});
+    await insertOne(testNS, { testDoc: true }, {});
+
+    const resultPath = path.join(
+      tmpdir,
+      'test-export-projection.exported.ejson'
+    );
+    const output = fs.createWriteStream(resultPath);
+    const abortController = new AbortController();
+
+    const result = await exportJSON({
+      dataService,
+      ns: testNS,
+      output,
+      query: {
+        filter: {
+          name: {
+            $exists: true,
+          },
+        },
+        sort: {
+          name: 1,
+        },
+        limit: 2,
+        skip: 1,
+        projection: {
+          _id: 0,
+          name: 1,
+        },
+      },
+      variant: 'default',
+      abortSignal: abortController.signal,
+      progressCallback: () => {},
+      // TODO: Fields
+    });
+
+    expect(result.docsWritten).to.equal(2);
+    expect(result.aborted).to.be.false;
+
+    let resultText;
+    try {
+      resultText = await fs.promises.readFile(resultPath, 'utf8');
+    } catch (err) {
+      console.log(resultPath);
+      throw err;
+    }
+
+    const expectedText = `[{
+  "name": "orange"
+},
+{
+  "name": "pineapple"
+}]`;
+    expect(resultText).to.deep.equal(expectedText);
+  });
 
   // TODO(COMPASS-6611): It exports different json variant formats
 });

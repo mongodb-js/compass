@@ -1,19 +1,18 @@
 import type { DataService } from 'mongodb-data-service';
-import type { TypeCastMap } from 'hadron-type-checker';
 import mongodbSchema from 'mongodb-schema';
+import type { SchemaField } from 'mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
+import type { Document } from 'mongodb';
 
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('export-json');
 
-type BSONObject = TypeCastMap['Object'];
-
-type AnalyzeShemaOptions = {
+type AnalyzeSchemaOptions = {
   dataService: DataService;
   ns: string;
   abortSignal: AbortSignal;
-  filter?: BSONObject;
+  filter?: Document;
   sampleSize: number;
 };
 
@@ -23,8 +22,9 @@ async function analyzeSchema({
   abortSignal,
   filter,
   sampleSize,
-}: AnalyzeShemaOptions) {
+}: AnalyzeSchemaOptions) {
   try {
+    // TODO(COMPASS-6426): Should we use the other aspects of the query in this sample. (project/sort/limit/skip)
     const docs = await dataService.sample(
       ns,
       {
@@ -63,7 +63,7 @@ type GatherFieldsOptions = {
   dataService: DataService;
   ns: string;
   abortSignal: AbortSignal;
-  filter?: BSONObject;
+  filter?: Document;
   progressCallback: (index: number) => void;
   sampleSize: number;
 };
@@ -71,27 +71,8 @@ type GatherFieldsOptions = {
 // Array of path components. ie. { foo: { bar: { baz:  1 } } } results in ['foo', 'bar', 'baz']
 export type SchemaPath = string[];
 
-// See https://github.com/mongodb-js/mongodb-schema for more information on
-// the types returned by the schema analysis. Once that's in typescript we
-// can update this to use those types.
-export type SchemaFieldType = {
-  name: string;
-  path: string;
-  probability: number;
-  types: (SchemaFieldType & {
-    bsonType: string;
-  })[];
-  fields?: SchemaFieldType[];
-  values?: any[];
-  count?: number;
-  has_duplicates?: boolean;
-  lengths?: number[];
-  average_length?: number;
-  total_count?: number;
-};
-
 function schemaToPaths(
-  fields: SchemaFieldType[],
+  fields: SchemaField[],
   parent: string[] = []
 ): SchemaPath[] {
   const paths: string[][] = [];
@@ -101,15 +82,33 @@ function schemaToPaths(
     paths.push(path);
 
     // Recurse on doc.
-    const doc = field.types.find((f) => f.bsonType === 'Document');
+    const doc = field.types.find(
+      (f) =>
+        (
+          f as unknown as {
+            bsonType: string;
+          }
+        ).bsonType === 'Document'
+    );
     if (doc) {
-      paths.push(...schemaToPaths(doc.fields ?? [], path));
+      paths.push(
+        ...schemaToPaths(((doc as any).fields ?? []) as SchemaField[], path)
+      );
     }
 
     // Recurse on array.
-    const array = field.types.find((f) => f.bsonType === 'Array');
+    const array = field.types.find(
+      (f) =>
+        (
+          f as unknown as {
+            bsonType: string;
+          }
+        ).bsonType === 'Array'
+    );
     if (array) {
-      const arrayDoc = array.types.find((f) => f.bsonType === 'Document');
+      const arrayDoc = (array as any).types.find(
+        (f: { bsonType?: string }) => f.bsonType === 'Document'
+      );
       if (arrayDoc) {
         paths.push(...schemaToPaths(arrayDoc.fields ?? [], path));
       }
@@ -119,7 +118,35 @@ function schemaToPaths(
   return paths;
 }
 
-// TODO: In COMPASS-6426
+type Projection = {
+  [field: string]: boolean | Projection;
+};
+
+export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
+  const projection: Projection = {};
+
+  for (const fieldPath of fields) {
+    let current = projection;
+    for (const [index, fieldName] of fieldPath.entries()) {
+      // Set the projection when it's the last index.
+      if (index === fieldPath.length) {
+        current[fieldName] = true;
+        break;
+      }
+
+      if (!current[fieldName]) {
+        current[fieldName] = {};
+      }
+
+      current = current[fieldName] as Projection;
+    }
+  }
+
+  return projection;
+}
+
+// TODO(COMPASS-6426): We will fill out the rest of this function and
+// start using the progress callback.
 export async function gatherFields({
   dataService,
   ns,
@@ -147,7 +174,7 @@ export async function gatherFields({
 
   // console.dir(schema, { depth: Infinity });
 
-  const paths = schemaToPaths(schema.fields);
+  const paths = schemaToPaths(schema?.fields ?? []);
 
   return paths;
 }

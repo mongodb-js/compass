@@ -11,7 +11,6 @@ import type {
   ExportAggregation,
 } from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
-import type { SchemaPath } from './gather-fields';
 
 const debug = createDebug('export-json');
 
@@ -24,7 +23,6 @@ type ExportJSONOptions = {
   aggregation?: ExportAggregation;
   progressCallback: (index: number) => void;
   variant: 'default' | 'relaxed' | 'canonical';
-  fields?: SchemaPath[];
 };
 
 type ExportJSONResult = {
@@ -56,8 +54,7 @@ export async function exportJSON({
   progressCallback,
   aggregation,
   variant,
-}: // fields,
-ExportJSONOptions): Promise<ExportJSONResult> {
+}: ExportJSONOptions): Promise<ExportJSONResult> {
   debug('exportJSON()', { ns: toNS(ns) });
 
   let docsWritten = 0;
@@ -71,7 +68,10 @@ ExportJSONOptions): Promise<ExportJSONResult> {
   const docStream = new Transform({
     objectMode: true,
     transform: function (chunk: any, encoding, callback) {
-      ++docsWritten; // TODO: is numProcessed not number written.
+      // NOTE: This count is used as the final documents written count,
+      // however it does not, at this point, represent the count of documents
+      // written to the file as this is an earlier point in the pipeline.
+      ++docsWritten;
       progressCallback?.(docsWritten);
       try {
         const doc = `${
@@ -81,8 +81,8 @@ ExportJSONOptions): Promise<ExportJSONResult> {
 
         debug('transform', doc);
         callback(null, doc);
-      } catch (err: unknown) {
-        // TODO
+      } catch (err: any) {
+        callback(err);
       }
     },
     final: function (callback) {
@@ -91,13 +91,11 @@ ExportJSONOptions): Promise<ExportJSONResult> {
     },
   });
 
-  // todo: promoteValues ?
   const collectionCursor = createReadableCollectionCursor({
     dataService,
     ns,
     query,
     aggregation,
-    // TODO: projection + fields
   });
   const collectionStream = collectionCursor.stream();
 
