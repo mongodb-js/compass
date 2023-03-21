@@ -12,4 +12,4 @@ async function runInDir(command, cwd = process.cwd(), timeout = ONE_HOUR) {
   return await execPromise;
 }
 
-exports.runInDir = runInDir;
+module.exports = { runInDir };

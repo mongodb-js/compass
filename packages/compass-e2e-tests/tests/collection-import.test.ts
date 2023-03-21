@@ -31,13 +31,11 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   await browser.clickVisible(Selectors.ImportConfirm);
 
   // Wait for the modal to go away.
-  await importModal.waitForDisplayed({ reverse: false });
+  await importModal.waitForDisplayed({ reverse: true });
 
   // Wait for the done toast to appear and close it.
   const toast = Selectors.ImportSucceededToast;
   await browser.$(toast).waitForDisplayed();
-  await browser.waitForAnimations(toast);
-
   await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
   await browser.waitForAnimations(toast);
   await browser.clickVisible(Selectors.closeToastButton(toast));
@@ -61,6 +59,8 @@ async function selectFieldType(
 
   const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(`span=${fieldType}`);
   await fieldTypeSelectSpan.waitForDisplayed();
+  await fieldTypeSelectSpan.scrollIntoView();
+  await browser.pause(1000);
   await fieldTypeSelectSpan.click();
 
   // Wait so that the menu animation can complete.
@@ -437,7 +437,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: false });
+    await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
     const toast = Selectors.ImportFailedToast;
@@ -463,11 +463,20 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportFileOption);
 
     // Select the file.
+    // Unfortunately this opens a second open dialog and the one that got
+    // automatically opened when clicking on import file sticks around on top of
+    // everything :(
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
+
+    // wait for it to finish analyzing
+    await browser.$(Selectors.ImportConfirm).waitForDisplayed();
+    await browser
+      .$(Selectors.importPreviewFieldHeaderField('id'))
+      .waitForDisplayed();
 
     // pick some types
     const typeMapping = {
@@ -496,7 +505,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: false });
+    await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
     const toast = Selectors.ImportSucceededToast;
@@ -571,23 +580,11 @@ describe('Collection import', function () {
     );
     expect(await importDelimiterSelectButton.getText()).to.equal('semicolon');
 
-    /*
-    const importDelimiterSelectButton = await browser.$(
-      Selectors.ImportDelimiterSelect
-    );
-    await importDelimiterSelectButton.waitForDisplayed();
-    await importDelimiterSelectButton.click();
-
-    const importDelimiterSelectMenu = await browser.$(
-      Selectors.ImportDelimiterMenu
-    );
-    await importDelimiterSelectMenu.waitForDisplayed();
-    const delimiterSelectSpan = await importDelimiterSelectMenu.$(
-      'span=semicolon'
-    );
-    await delimiterSelectSpan.waitForDisplayed();
-    await delimiterSelectSpan.click();
-    */
+    // wait for it to finish analyzing
+    await browser.$(Selectors.ImportConfirm).waitForDisplayed();
+    await browser
+      .$(Selectors.importPreviewFieldHeaderField('amount'))
+      .waitForDisplayed();
 
     // pick some types
     const typeMapping = {
@@ -608,7 +605,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: false });
+    await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
     const toast = Selectors.ImportSucceededToast;
@@ -661,6 +658,12 @@ describe('Collection import', function () {
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
+    // wait for it to finish analyzing
+    await browser.$(Selectors.ImportConfirm).waitForDisplayed();
+    await browser
+      .$(Selectors.importPreviewFieldHeaderField('id'))
+      .waitForDisplayed();
+
     // pick an incompatible type
     await selectFieldType(browser, 'id', 'ObjectId');
 
@@ -668,7 +671,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: false });
+    await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
     const toast = Selectors.ImportCompletedWithErrorsToast;
@@ -740,7 +743,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: false });
+    await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
     const toast = Selectors.ImportSucceededToast;
@@ -810,7 +813,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: false });
+    await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
     const toast = Selectors.ImportFailedToast;
@@ -854,7 +857,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: false });
+    await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear.
     const toast = Selectors.ImportCompletedWithErrorsToast;
@@ -918,7 +921,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportConfirm);
 
     // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: false });
+    await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the in progress toast to appear and click stop.
     const inProgressToast = Selectors.ImportInProgressToast;

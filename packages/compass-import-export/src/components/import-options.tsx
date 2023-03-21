@@ -90,7 +90,7 @@ function ImportOptions({
             id="import-delimiter-select"
             data-testid="import-delimiter-select"
             onChange={(delimiter: string) =>
-              setDelimiter(delimiter as CSVDelimiter)
+              void setDelimiter(delimiter as CSVDelimiter)
             }
             value={delimiter}
             allowDeselect={false}

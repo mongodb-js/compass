@@ -32,6 +32,7 @@ import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
+import type { CSVParsableFieldType } from '../utils/csv';
 
 const closeButtonStyles = css({
   marginRight: spacing[2],
@@ -64,13 +65,14 @@ type ImportModalProps = {
    */
   fields: {
     path: string;
-    checked: boolean;
-    type?: string; // Only on csv imports.
+    checked?: boolean; // CSV placeholder fields don't have checked
+    type?: CSVParsableFieldType | 'placeholder'; // Only on csv imports.
   }[];
   values: string[][];
   toggleIncludeField: (path: string) => void;
   setFieldType: (path: string, bsonType: string) => void;
   previewLoaded: boolean;
+  csvAnalyzed: boolean;
 };
 
 function ImportModal({
@@ -98,6 +100,7 @@ function ImportModal({
   toggleIncludeField,
   setFieldType,
   previewLoaded,
+  csvAnalyzed,
 }: ImportModalProps) {
   const modalBodyRef = useRef<HTMLDivElement>(null);
   const handleCancel = useCallback(() => {
@@ -147,7 +150,12 @@ function ImportModal({
   }
 
   return (
-    <Modal open={isOpen} setOpen={handleClose} data-testid="import-modal">
+    <Modal
+      open={isOpen}
+      setOpen={handleClose}
+      data-testid="import-modal"
+      size="large"
+    >
       <ModalHeader title="Import" subtitle={`To Collection ${ns}`} />
       <ModalBody ref={modalBodyRef}>
         <ImportOptions
@@ -165,6 +173,7 @@ function ImportModal({
           <FormFieldContainer>
             <ImportPreview
               loaded={previewLoaded}
+              analyzed={csvAnalyzed}
               onFieldCheckedChanged={toggleIncludeField}
               setFieldType={setFieldType}
               values={values}
@@ -178,7 +187,11 @@ function ImportModal({
         <Button
           data-testid="import-button"
           onClick={handleImportBtnClicked}
-          disabled={!fileName || status === STARTED}
+          disabled={
+            !fileName ||
+            status === STARTED ||
+            (fileType === 'csv' && !csvAnalyzed)
+          }
           variant="primary"
         >
           {status === STARTED ? 'Importing\u2026' : 'Import'}
@@ -211,6 +224,7 @@ const mapStateToProps = (state: RootImportState) => ({
   fields: state.importData.fields,
   values: state.importData.values,
   previewLoaded: state.importData.previewLoaded,
+  csvAnalyzed: state.importData.analyzeStatus === 'COMPLETED',
 });
 
 /**

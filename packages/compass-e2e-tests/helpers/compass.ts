@@ -8,7 +8,7 @@ import { execFile } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
-import { rebuild } from 'electron-rebuild';
+import { rebuild } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
 import {
   run as packageCompass,

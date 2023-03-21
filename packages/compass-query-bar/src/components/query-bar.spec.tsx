@@ -93,7 +93,7 @@ describe('QueryBar Component', function () {
     });
 
     it('renders the filter input', function () {
-      const filterInput = screen.getByRole('textbox');
+      const filterInput = screen.getByTestId('query-bar-option-filter-input');
       expect(filterInput).to.exist;
       expect(filterInput).to.have.attribute(
         'id',

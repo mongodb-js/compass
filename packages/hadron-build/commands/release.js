@@ -27,7 +27,7 @@ const packager = require('electron-packager');
 const createApplicationZip = require('../lib/zip');
 const run = require('./../lib/run');
 const license = require('electron-license');
-const rebuild = require('electron-rebuild').rebuild;
+const rebuild = require('@electron/rebuild').rebuild;
 
 const ui = require('./ui');
 const verify = require('./verify');
@@ -331,7 +331,7 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     electronVersion: CONFIG.packagerOptions.electronVersion,
     buildPath: appPackagePath,
     // `projectRootPath` is undocumented, but changes modules resolution quite
-    // a bit and required for the electron-rebuild to be able to pick up
+    // a bit and required for the @electron/rebuild to be able to pick up
     // dependencies inside project root, but outside of their dependants (e.g.
     // a transitive dependency that was hoisted by npm installation process)
     projectRootPath: appPackagePath,

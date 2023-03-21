@@ -567,6 +567,9 @@ export const ImportFailedToast = '[data-testid="import-toast-result-failed"]';
 export const ImportToastAbort =
   '[data-testid="import-toast-in-progress"] [data-testid="toast-action-stop"]';
 
+export const importPreviewFieldHeaderField = (fieldName: string): string => {
+  return `[data-testid="import-preview-field-type-select-menu-${fieldName}"]`;
+};
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] button`;
 };

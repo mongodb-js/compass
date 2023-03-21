@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   css,
   cx,
@@ -7,13 +7,12 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type {
-  AceEditor,
+  Command,
   CompletionWithServerInfo,
 } from '@mongodb-js/compass-editor';
 import {
-  InlineEditor,
-  EditorTextCompleter,
-  QueryAutoCompleter,
+  CodemirrorInlineEditor as InlineEditor,
+  createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
 import type { QueryBarState } from '../stores/query-bar-reducer';
@@ -21,11 +20,11 @@ import type { QueryBarState } from '../stores/query-bar-reducer';
 const editorStyles = css({
   width: '100%',
   minWidth: spacing[7],
-  // To match ace editor with leafygreen inputs.
-  paddingTop: '5px',
-  paddingBottom: '5px',
-  paddingLeft: '10px',
-  paddingRight: '2px',
+  // To match codemirror editor with leafygreen inputs.
+  paddingTop: 1,
+  paddingBottom: 1,
+  paddingLeft: 4,
+  paddingRight: 0,
   border: '1px solid transparent',
   borderRadius: spacing[1],
   overflow: 'visible',
@@ -50,20 +49,6 @@ type OptionEditorProps = {
   ['data-testid']?: string;
 };
 
-function useQueryCompleter(
-  ...args: ConstructorParameters<typeof QueryAutoCompleter>
-): QueryAutoCompleter {
-  const [version, textCompleter, fields] = args;
-  const completer = useRef<QueryAutoCompleter>();
-  if (!completer.current) {
-    completer.current = new QueryAutoCompleter(version, textCompleter, fields);
-  }
-  useEffect(() => {
-    completer.current?.update(fields);
-  }, [fields]);
-  return completer.current;
-}
-
 const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   hasError,
   id,
@@ -83,55 +68,36 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     hover: true,
   });
 
-  const completer = useQueryCompleter(
-    serverVersion,
-    EditorTextCompleter,
-    schemaFields
-  );
+  const onApplyRef = useRef(onApply);
+  onApplyRef.current = onApply;
 
-  const editorRef = useRef<AceEditor | undefined>(undefined);
-
-  const commands = useMemo(() => {
+  const commands = useMemo<Command[]>(() => {
     return [
       {
-        name: 'executeQuery',
-        bindKey: {
-          win: 'Enter',
-          mac: 'Enter',
+        key: 'Enter',
+        run() {
+          onApplyRef.current?.();
+          return true;
         },
-        exec: () => {
-          onApply?.();
-        },
+        preventDefault: true,
       },
     ];
-  }, [onApply]);
+  }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // Ace editor does not update the value of the editor when
-          // the container is not displayed (display: 'none').
-          // As a result, we currently listen for `subtab-changed` events
-          // which call this `refreshEditor` action. Then we perform a full ace
-          // update editor update to ensure the value is updated
-          // when the container is displayed, so that any changes to the query
-          // are reflected.
-          // More info https://github.com/securingsincity/react-ace/issues/204
-          editorRef.current?.renderer.updateFull();
-        }
-      });
+  const completer = useMemo(() => {
+    return createQueryAutocompleter({
+      fields: schemaFields
+        .filter(
+          (field): field is { name: string } & CompletionWithServerInfo =>
+            !!field.name
+        )
+        .map((field) => ({
+          name: field.name,
+          description: field.description,
+        })),
+      serverVersion,
     });
-    observer.observe(editorContainerRef.current!);
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  const onLoadEditor = useCallback((editor: AceEditor) => {
-    editorRef.current = editor;
-    editorRef.current.setBehavioursEnabled(true);
-  }, []);
+  }, [schemaFields, serverVersion]);
 
   return (
     <div
@@ -143,13 +109,11 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       ref={editorContainerRef}
     >
       <InlineEditor
-        variant="Shell"
+        id={id}
         text={value}
         onChangeText={onChange}
-        id={id}
-        completer={completer}
         placeholder={placeholder}
-        onLoad={onLoadEditor}
+        completer={completer}
         commands={commands}
         data-testid={dataTestId}
       />
