@@ -11,34 +11,47 @@ import { Utf8Validator } from '../utils/utf8-validator';
 const debug = createDebug('import-guess-filetype');
 
 function detectJSON(input: Readable): Promise<'json' | 'jsonl' | null> {
-  let jsonVariant: 'json' | 'jsonl' | null = null;
-
   return new Promise(function (resolve) {
     const parser = StreamJSON.parser();
 
+    let found = false;
+
     parser.once('data', (data) => {
       debug('detectJSON:data', data);
+
+      let jsonVariant: 'json' | 'jsonl' | null = null;
       if (data.name === 'startObject') {
         jsonVariant = 'jsonl';
       } else if (data.name === 'startArray') {
         jsonVariant = 'json';
       }
-      parser.destroy();
+
+      found = true;
+      resolve(jsonVariant);
     });
 
     parser.on('end', () => {
-      debug('detectJSON:end', jsonVariant);
-      resolve(jsonVariant);
+      debug('detectJSON:end');
+      if (!found) {
+        // reached the end before a full doc
+        resolve(null);
+      }
     });
 
     parser.on('close', (err: Error) => {
-      debug('detectJSON:close', err, jsonVariant);
-      resolve(jsonVariant);
+      debug('detectJSON:close', err);
+      if (!found) {
+        // stream closed before a full doc
+        resolve(null);
+      }
     });
 
     parser.on('error', (err: Error) => {
       debug('detectJSON:error', err);
-      resolve(null);
+      if (!found) {
+        // got an error before a full doc
+        resolve(null);
+      }
     });
 
     input.pipe(parser);
@@ -76,13 +89,14 @@ function redetectDelimiter({ data }: { data: string[] }): string {
 function detectCSV(input: Readable): Promise<Delimiter | null> {
   let csvDelimiter: Delimiter | null = null;
   let lines = 0;
+  let found = false;
 
   return new Promise(function (resolve) {
     Papa.parse(input, {
       // NOTE: parsing without header: true otherwise the delimiter detection
       // can't fail and will always detect ,
       delimitersToGuess: supportedDelimiters,
-      step: function (results: Papa.ParseStepResult<string[]>, parser) {
+      step: function (results: Papa.ParseStepResult<string[]>) {
         ++lines;
         debug('detectCSV:step', lines, results);
         if (lines === 1) {
@@ -94,16 +108,24 @@ function detectCSV(input: Readable): Promise<Delimiter | null> {
         }
         // must be at least two lines for header row and data
         if (lines === 2) {
-          parser.abort();
+          found = true;
+          debug('detectCSV:complete');
+          resolve(lines === 2 ? csvDelimiter : null);
         }
       },
       complete: function () {
         debug('detectCSV:complete');
-        resolve(lines === 2 ? csvDelimiter : null);
+        if (!found) {
+          // we reached the end before two lines
+          resolve(null);
+        }
       },
       error: function () {
         debug('detectCSV:error');
-        resolve(null);
+        if (!found) {
+          // something failed before we got to the end of two lines
+          resolve(null);
+        }
       },
     });
   });
@@ -140,6 +162,10 @@ export function guessFileType({
         detectJSON(jsStream),
         detectCSV(csvStream),
       ]);
+
+      // keep streaming until both promises resolved, then destroy the input
+      // stream to stop further processing
+      input.destroy();
 
       debug('guessFileType', jsonVariant, csvDelimiter);
 

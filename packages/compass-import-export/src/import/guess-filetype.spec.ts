@@ -19,6 +19,21 @@ const expectedDelimiters = {
 } as const;
 
 describe('guessFileType', function () {
+  it('detects json for a file with lots of fields', async function () {
+    const bigDocs: any[] = [];
+    for (let i = 0; i < 100; i++) {
+      const doc: any = {};
+      for (let j = 0; j < 1000; j++) {
+        doc[`c_${j}`] = 'abcdefghijklmnop';
+      }
+      bigDocs.push(doc);
+    }
+    const jsonText = JSON.stringify(bigDocs);
+    const input = Readable.from(jsonText);
+    const { type } = await guessFileType({ input });
+    expect(type).to.equal('json');
+  });
+
   for (const filepath of Object.values(fixtures.json)) {
     const basename = path.basename(filepath);
     it(`detects ${basename} as json`, async function () {
