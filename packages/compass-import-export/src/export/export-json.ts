@@ -35,11 +35,12 @@ type ExportJSONResult = {
 function getEJSONOptionsForVariant(
   variant: 'default' | 'relaxed' | 'canonical'
 ) {
-  return variant === 'relaxed'
-    ? {
-        relaxed: true,
-      }
-    : variant === 'canonical'
+  if (variant === 'relaxed') {
+    return {
+      relaxed: true,
+    };
+  }
+  return variant === 'canonical'
     ? {
         relaxed: false, // canonical
       }
@@ -100,15 +101,11 @@ ExportJSONOptions): Promise<ExportJSONResult> {
   });
   const collectionStream = collectionCursor.stream();
 
-  const params = [
-    collectionStream,
-    docStream,
-    output,
-    ...(abortSignal ? [{ signal: abortSignal }] : []),
-  ] as const;
-
   try {
-    await pipeline(...params);
+    await pipeline(
+      [collectionStream, docStream, output],
+      ...(abortSignal ? [{ signal: abortSignal }] : [])
+    );
 
     if (abortSignal.aborted) {
       void collectionCursor.close();

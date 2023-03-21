@@ -10,6 +10,8 @@ import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
+import { Readable, Writable } from 'stream';
+import type { FindCursor } from 'mongodb';
 
 temp.track();
 
@@ -21,7 +23,8 @@ const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-const testNS = 'export-json-test.test-col';
+const testDB = 'export-json-test';
+const testNS = `${testDB}.test-col`;
 
 describe('exportJSON', function () {
   let dataService: DataService;
@@ -65,6 +68,7 @@ describe('exportJSON', function () {
     await fs.promises.rm(tmpdir, { recursive: true });
 
     await dataService.disconnect();
+    sinon.restore();
   });
 
   it('exports to the output stream', async function () {
@@ -297,11 +301,100 @@ describe('exportJSON', function () {
     expect(resultText).to.deep.equal(expectedText);
   });
 
-  // TODO: It exports different json variant formats
-  // TODO: It exports/handles an empty collection
+  it('handles an empty collection', async function () {
+    const abortController = new AbortController();
 
-  // TODO: When data service errors.e
-  // TODO: When write file errors.
+    const resultPath = path.join(tmpdir, 'test-empty.exported.ejson');
 
-  // TODO: It reports database errors
+    const output = fs.createWriteStream(resultPath);
+    const result = await exportJSON({
+      dataService,
+      ns: `${testDB}.test-empty`,
+      fields: [],
+      output,
+      variant: 'default',
+      abortSignal: abortController.signal,
+      progressCallback: () => {},
+    });
+
+    expect(result.docsWritten).to.equal(0);
+    expect(result.aborted).to.be.false;
+
+    let resultText;
+    let writtenResultDocs;
+    try {
+      resultText = await fs.promises.readFile(resultPath, 'utf8');
+      writtenResultDocs = EJSON.parse(resultText);
+    } catch (err) {
+      console.log(resultPath);
+      throw err;
+    }
+
+    const expectedText = '[]';
+
+    expect(writtenResultDocs).to.deep.equal([]);
+    expect(resultText).to.deep.equal(expectedText);
+  });
+
+  it('throws when the database stream errors', async function () {
+    const abortController = new AbortController();
+
+    const mockReadStream = new Readable({
+      objectMode: true,
+      read: function () {
+        this.emit('error', new Error('example error cannot fetch docs'));
+      },
+    });
+
+    sinon.stub(dataService, 'findCursor').returns({
+      stream: () => mockReadStream,
+    } as unknown as FindCursor);
+
+    try {
+      await exportJSON({
+        dataService,
+        ns: testNS,
+        fields: [],
+        output: temp.createWriteStream(),
+        variant: 'default',
+        abortSignal: abortController.signal,
+        progressCallback: () => {},
+      });
+
+      throw new Error('did not expect export to succeed');
+    } catch (err) {
+      expect(err.message).to.equal('example error cannot fetch docs');
+    }
+  });
+
+  it('throws when the write output errors', async function () {
+    await insertOne(testNS, { testDoc: true }, {});
+    const abortController = new AbortController();
+
+    const mockWriteStream = new Writable({
+      write() {
+        this.emit('error', new Error('example error cannot write to file'));
+      },
+    });
+
+    try {
+      await exportJSON({
+        dataService,
+        ns: testNS,
+        fields: [],
+        output: mockWriteStream,
+        variant: 'default',
+        abortSignal: abortController.signal,
+        progressCallback: () => {},
+      });
+
+      throw new Error('expected to throw');
+    } catch (err) {
+      expect(err.message).to.equal('example error cannot write to file');
+    }
+  });
+
+  // TODO: Projection. It exports the selected fields.
+
+  // TODO(COMPASS-6611): It exports different json variant formats
 });
