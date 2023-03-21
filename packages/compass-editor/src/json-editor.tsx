@@ -24,6 +24,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -65,6 +66,7 @@ import {
   closeBrackets,
   closeBracketsKeymap,
 } from '@codemirror/autocomplete';
+import type { IconGlyph } from '@mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -87,6 +89,7 @@ import {
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
 import { prettify as _prettify } from './prettify';
+import { ActionButton, FormatIcon } from './actions';
 
 const editorStyle = css({
   fontSize: 13,
@@ -382,7 +385,10 @@ const highlightStyles = {
 // We don't have any other cases we need to support in a base editor
 type EditorLanguage = 'json' | 'javascript';
 
-type Annotation = Pick<Diagnostic, 'from' | 'to' | 'severity' | 'message'>;
+export type Annotation = Pick<
+  Diagnostic,
+  'from' | 'to' | 'severity' | 'message'
+>;
 
 type EditorProps = {
   language?: EditorLanguage;
@@ -589,7 +595,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
 
   const annotationsGutterExtension = useCodemirrorExtensionCompartment(
     () => {
-      return hasAnnotations ? [] : lintGutter();
+      return hasAnnotations ? [] : []; //lintGutter();
     },
     hasAnnotations,
     editorViewRef
@@ -650,15 +656,15 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       // https://github.com/codemirror/basic-setup/blob/5b4dafdb3b02271bd3fd507d86982208457d8c5b/src/codemirror.ts#L12-L49
       extensions: [
         EditorState.tabSize.of(2),
+        annotationsGutterExtension,
         lineNumbersExtension,
-        history(),
         foldGutterExtension,
+        history(),
         drawSelection(),
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
         autocomletionExtension,
-        annotationsGutterExtension,
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
@@ -804,6 +810,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   return (
     <div
       ref={containerRef}
+      className={className}
       style={{
         width: '100%',
         minHeight: Math.max(lineHeight, (minLines ?? 0) * lineHeight),
@@ -812,7 +819,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     >
       <div
         ref={editorContainerRef}
-        className={cx(editorStyle, className)}
+        className={editorStyle}
         style={{
           // We're forcing editor to it's own layer by setting position to
           // absolute to prevent editor layout changes and style
@@ -961,5 +968,129 @@ const InlineEditor: React.FunctionComponent<InlineEditorProps> = ({
   );
 };
 
+const multilineEditorContainerStyle = css({
+  position: 'relative',
+  height: '100%',
+  [`&:focus-within > .multiline-editor-actions,
+    &:hover > .multiline-editor-actions`]: {
+    display: 'flex',
+  },
+});
+
+const editorContainerStyle = css({
+  overflow: 'auto',
+  // To account for the leafygreen button shadow on hover we add padding to the
+  // top of the container that wraps the editor
+  paddingTop: spacing[1],
+  height: `calc(100% - ${spacing[1]}px)`,
+  // We want folks to be able to click into the container element
+  // they're using for the editor to focus the editor.
+  minHeight: 'inherit',
+});
+
+const actionsContainerStyle = css({
+  position: 'absolute',
+  top: spacing[1],
+  right: spacing[2],
+  display: 'none',
+  gap: spacing[2],
+});
+
+export type Action = {
+  icon: IconGlyph;
+  label: string;
+  action(editor: EditorView): boolean | void;
+};
+
+const MultilineEditor: React.FunctionComponent<
+  EditorProps & {
+    customActions?: Action[];
+    copyable?: boolean;
+    formattable?: boolean;
+    editorClassName?: string;
+  }
+> = ({
+  customActions,
+  copyable = true,
+  formattable = true,
+  onLoad,
+  className,
+  editorClassName,
+  ...props
+}) => {
+  const onLoadRef = useRef(onLoad);
+  const editorRef = useRef<EditorView>();
+
+  const actions = useMemo(() => {
+    return [
+      copyable && (
+        <ActionButton
+          key="Copy"
+          label="Copy"
+          icon="Copy"
+          onClick={() => {
+            copyAll(editorRef.current!);
+            return true;
+          }}
+        ></ActionButton>
+      ),
+      formattable && (
+        <ActionButton
+          key="Format"
+          label="Format"
+          icon={
+            <FormatIcon
+              size={/* leafygreen small */ 14}
+              role="presentation"
+            ></FormatIcon>
+          }
+          onClick={() => {
+            prettify(editorRef.current!);
+            return true;
+          }}
+        ></ActionButton>
+      ),
+      ...(customActions ?? []).map((action) => {
+        return (
+          <ActionButton
+            key={action.label}
+            icon={action.icon}
+            label={action.label}
+            onClick={() => {
+              return action.action(editorRef.current!);
+            }}
+          ></ActionButton>
+        );
+      }),
+    ];
+  }, [copyable, formattable, customActions]);
+
+  const onEditorLoad = useCallback((editor: EditorView) => {
+    editorRef.current = editor;
+    onLoadRef.current?.(editor);
+  }, []);
+
+  return (
+    <div className={cx(multilineEditorContainerStyle, className)}>
+      {/* Separate scrollable container for editor so that action buttons can */}
+      {/* stay in one place when scrolling */}
+      <div className={editorContainerStyle}>
+        <BaseEditor
+          onLoad={onEditorLoad}
+          className={editorClassName}
+          language="javascript"
+          {...props}
+        ></BaseEditor>
+      </div>
+      {actions.length > 0 && (
+        <div className={cx('multiline-editor-actions', actionsContainerStyle)}>
+          {actions}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export { BaseEditor as JSONEditor };
 export { InlineEditor as CodemirrorInlineEditor };
+export { MultilineEditor as CodemirrorMultilineEditor };

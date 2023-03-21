@@ -19,6 +19,7 @@ import HadronDocument from 'hadron-document';
 import {
   createDocumentAutocompleter,
   JSONEditor as Editor,
+  CodemirrorMultilineEditor,
 } from '@mongodb-js/compass-editor';
 import type { EditorView } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
@@ -159,9 +160,12 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
 
   return (
     <div data-testid="editable-json">
-      <Editor
+      <CodemirrorMultilineEditor
+        language="json"
         text={value}
         onChangeText={onChange}
+        copyable={false}
+        formattable={false}
         readOnly={!editing}
         showLineNumbers={editing}
         className={cx(editorStyles, darkMode && editorDarkModeStyles)}

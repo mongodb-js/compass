@@ -11,8 +11,12 @@ export { InlineEditor } from './inline-editor';
 export { prettify } from './prettify';
 export type { FormatOptions } from './prettify';
 export { Editor } from './multiline-editor';
-export { JSONEditor, CodemirrorInlineEditor } from './json-editor';
-export type { EditorView, Command } from './json-editor';
+export {
+  JSONEditor,
+  CodemirrorInlineEditor,
+  CodemirrorMultilineEditor,
+} from './json-editor';
+export type { EditorView, Command, Annotation, Action } from './json-editor';
 export { SyntaxHighlight } from './syntax-highlight';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
 export { createValidationAutocompleter } from './codemirror/validation-autocompleter';
