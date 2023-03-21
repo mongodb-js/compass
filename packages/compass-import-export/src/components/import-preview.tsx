@@ -29,7 +29,6 @@ const columnHeaderStyles = css({
   display: 'flex',
   gap: spacing[1],
   minWidth: spacing[6] * 2,
-  paddingRight: spacing[2],
   flexDirection: 'column',
   alignItems: 'flex-start',
 });
