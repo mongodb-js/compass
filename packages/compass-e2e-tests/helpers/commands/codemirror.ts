@@ -35,8 +35,8 @@ export async function getCodemirrorEditorTextAll(
 
 export async function setCodemirrorEditorValue(
   browser: CompassBrowser,
-  text: string,
-  selector: string = Selectors.DocumentJSONEntry
+  selector: string,
+  text: string
 ) {
   await browser.execute(
     function (selector, text) {

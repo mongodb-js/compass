@@ -375,10 +375,10 @@ async function createWorkspace({
       }.json`,
       compilerOptions: {
         outDir: 'dist',
+        allowJs: allowJs === true ? true : undefined,
       },
       include: ['src/**/*'],
       exclude: ['./src/**/*.spec.*'],
-      allowJs: allowJs === true ? true : undefined,
     },
     null,
     2

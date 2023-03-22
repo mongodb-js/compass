@@ -87,7 +87,7 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.5",
     "lodash": "^4.17.15",
-    "mocha": "^8.4.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",

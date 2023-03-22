@@ -16,8 +16,6 @@ const minicharts_d3fns_few = (localAppRegistry) => {
   let height = 100; // default height
   let el;
 
-  const QueryAction = localAppRegistry.getAction('Query.Actions');
-
   const barHeight = 25;
   const brushHeight = 80;
   const options = {};
@@ -56,9 +54,12 @@ const minicharts_d3fns_few = (localAppRegistry) => {
     // if selection has changed, trigger query builder event
     if (numSelected !== selected[0].length) {
       const values = map(selected.data(), 'value');
-      QueryAction.setDistinctValues({
-        field: options.fieldName,
-        value: values.map((v) => options.promoter(v)),
+      localAppRegistry.emit('query-bar-change-filter', {
+        type: 'setDistinctValues',
+        payload: {
+          field: options.fieldName,
+          value: values.map((v) => options.promoter(v)),
+        },
       });
     }
   }
@@ -77,13 +78,13 @@ const minicharts_d3fns_few = (localAppRegistry) => {
     const brushNode = parent.find('g.brush')[0];
     const start = xScale.invert(d3.mouse(background)[0]);
 
-    const qbAction = d3.event.shiftKey
-      ? QueryAction.toggleDistinctValue
-      : QueryAction.setValue;
-    qbAction({
-      field: options.fieldName,
-      value: options.promoter(d.value),
-      unsetIfSet: true,
+    localAppRegistry.emit('query-bar-change-filter', {
+      type: d3.event.shiftKey ? 'toggleDistinctValue' : 'setValue',
+      payload: {
+        field: options.fieldName,
+        value: options.promoter(d.value),
+        unsetIfSet: true,
+      },
     });
 
     const w = d3

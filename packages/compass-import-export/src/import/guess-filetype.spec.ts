@@ -19,6 +19,63 @@ const expectedDelimiters = {
 } as const;
 
 describe('guessFileType', function () {
+  it('detects unknown for a file that is just one very long line', async function () {
+    const chars: string[] = [];
+    for (let i = 0; i < 1000001; i++) {
+      chars.push('x');
+    }
+    const input = Readable.from(chars.join(''));
+    const { type } = await guessFileType({ input });
+    expect(type).to.equal('unknown');
+  });
+
+  it('detects unknown for a file where the second line is very long', async function () {
+    const chars: string[] = ['x', '\n']; // there is one line break
+    for (let i = 0; i < 1000001; i++) {
+      chars.push('x');
+    }
+    const input = Readable.from(chars.join(''));
+    const { type } = await guessFileType({ input });
+    expect(type).to.equal('unknown');
+  });
+
+  it('detects json as long as there is one square bracket', async function () {
+    const chars: string[] = ['[', '\n']; // there is one line break
+    for (let i = 0; i < 1000001; i++) {
+      chars.push('x');
+    }
+    const input = Readable.from(chars.join(''));
+    const { type } = await guessFileType({ input });
+    expect(type).to.equal('json');
+  });
+
+  it('detects json for one square bracket even if it is otherwise valid csv', async function () {
+    const input = Readable.from('[a,b\n1,2');
+    const { type } = await guessFileType({ input });
+    expect(type).to.equal('json');
+  });
+
+  it('detects jsonl for anything starting with {', async function () {
+    const input = Readable.from('{a,b\n1,2');
+    const { type } = await guessFileType({ input });
+    expect(type).to.equal('jsonl');
+  });
+
+  it('detects json for a file with lots of fields', async function () {
+    const bigDocs: any[] = [];
+    for (let i = 0; i < 100; i++) {
+      const doc: any = {};
+      for (let j = 0; j < 100; j++) {
+        doc[`c_${j}`] = 'abcdefghijklmnop';
+      }
+      bigDocs.push(doc);
+    }
+    const jsonText = JSON.stringify(bigDocs);
+    const input = Readable.from(jsonText);
+    const { type } = await guessFileType({ input });
+    expect(type).to.equal('json');
+  });
+
   for (const filepath of Object.values(fixtures.json)) {
     const basename = path.basename(filepath);
     it(`detects ${basename} as json`, async function () {

@@ -1,34 +1,29 @@
-import ms from 'ms';
+import { validate } from 'mongodb-query-parser';
 
-const USER_TYPING_DEBOUNCE_MS = 100;
+/**
+ * Default values for the query bar form inputs
+ */
+const DEFAULT_FIELD_VALUES = {
+  filter: undefined,
+  project: undefined,
+  collation: undefined,
+  sort: undefined,
+  skip: undefined,
+  limit: undefined,
+  maxTimeMS: undefined,
+} as const;
 
-const RESET_STATE = 'reset';
-const APPLY_STATE = 'apply';
+/**
+ * Default values as will be returned from query parser during validation
+ */
+const DEFAULT_QUERY_VALUES = {
+  filter: validate('filter'),
+  project: validate('project'),
+  collation: validate('collation'),
+  sort: validate('sort'),
+  skip: validate('skip'),
+  limit: validate('limit'),
+  maxTimeMS: validate('maxTimeMS'),
+} as const;
 
-const DEFAULT_FILTER = {};
-const DEFAULT_PROJECT = null;
-const DEFAULT_SORT = null;
-const DEFAULT_COLLATION = null;
-const DEFAULT_SKIP = 0;
-const DEFAULT_LIMIT = 0;
-const DEFAULT_SAMPLE = false;
-
-const DEFAULT_MAX_TIME_MS = ms('1m');
-const DEFAULT_SAMPLE_SIZE = 1000;
-const DEFAULT_STATE = RESET_STATE;
-
-export {
-  USER_TYPING_DEBOUNCE_MS,
-  RESET_STATE,
-  APPLY_STATE,
-  DEFAULT_FILTER,
-  DEFAULT_PROJECT,
-  DEFAULT_SORT,
-  DEFAULT_COLLATION,
-  DEFAULT_SKIP,
-  DEFAULT_LIMIT,
-  DEFAULT_SAMPLE,
-  DEFAULT_MAX_TIME_MS,
-  DEFAULT_SAMPLE_SIZE,
-  DEFAULT_STATE,
-};
+export { DEFAULT_FIELD_VALUES, DEFAULT_QUERY_VALUES };

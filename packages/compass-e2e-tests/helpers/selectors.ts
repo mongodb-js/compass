@@ -366,6 +366,8 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
+// TODO: add a proper data-testid to the editor component
+export const ShellInputEditor = '[id^="mongosh-ace-"]';
 export const ShellOutput =
   '[data-testid="shell-content"] [data-codemirror="true"]';
 
@@ -559,6 +561,9 @@ export const ImportDone =
   '[data-testid="import-modal"] [data-testid="done-button"]';
 export const ImportErrorBox = '[data-testid="import-error-box"]';
 
+export const importPreviewFieldHeaderField = (fieldName: string): string => {
+  return `[data-testid="import-preview-field-type-select-menu-${fieldName}"]`;
+};
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] button`;
 };
@@ -860,6 +865,16 @@ export const ExplainSummary = '[data-testid="explain-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
   '[data-testid="nReturned-summary"]';
+export const explainPlanSummaryStat = (
+  stat:
+    | 'nReturned'
+    | 'totalKeysExamined'
+    | 'totalDocsExamined'
+    | 'executionTimeMillis'
+    | 'inMemorySort'
+) => {
+  return `[data-testid="${stat}-summary"]`;
+};
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';

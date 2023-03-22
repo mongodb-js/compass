@@ -9,7 +9,6 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { AcceptedFileType } from '../constants/file-types';
-import { SelectFileType } from './select-file-type';
 import type { CSVDelimiter } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
 
@@ -48,7 +47,6 @@ const delimiters: {
 ];
 
 type ImportOptionsProps = {
-  selectImportFileType: (fileType: AcceptedFileType) => void;
   selectImportFileName: (fileName: string) => void;
   setDelimiter: (delimiter: CSVDelimiter) => void;
   delimiter: CSVDelimiter;
@@ -61,7 +59,6 @@ type ImportOptionsProps = {
 };
 
 function ImportOptions({
-  selectImportFileType,
   selectImportFileName,
   setDelimiter,
   delimiter,
@@ -85,11 +82,6 @@ function ImportOptions({
         fileName={fileName}
         selectImportFileName={selectImportFileName}
       />
-      <SelectFileType
-        fileType={fileType}
-        onSelected={selectImportFileType}
-        label="Input File Type"
-      />
       {isCSV && (
         <>
           <Select
@@ -98,7 +90,7 @@ function ImportOptions({
             id="import-delimiter-select"
             data-testid="import-delimiter-select"
             onChange={(delimiter: string) =>
-              setDelimiter(delimiter as CSVDelimiter)
+              void setDelimiter(delimiter as CSVDelimiter)
             }
             value={delimiter}
             allowDeselect={false}

@@ -140,6 +140,7 @@ interface RunDiagnosticsCommand {
     spec: { atlasVersion: 1 },
     options?: RunCommandOptions
   ): Promise<AtlasVersionInfo>;
+  (db: Db, spec: { ping: 1 }, options?: RunCommandOptions): Promise<unknown>;
 }
 
 export type ListDatabasesOptions = {
@@ -248,6 +249,11 @@ interface RunAdministrationCommand {
     spec: { listCollections: 1 } & ListCollectionsOptionsNamesOnly,
     options?: RunCommandOptions
   ): Promise<ListCollectionsResult<CollectionInfoNameOnly>>;
+  (
+    db: Db,
+    spec: { killSessions: unknown[] },
+    options?: RunCommandOptions
+  ): Promise<unknown>;
 }
 
 interface RunCommand extends RunDiagnosticsCommand, RunAdministrationCommand {}
@@ -279,9 +285,9 @@ export const runCommand: RunCommand = (
 
   return db.command(
     { ...spec },
-    { readPreference, ...options } as RunCommandOptions
+    { readPreference, ...options }
     // It's pretty hard to convince TypeScript that we are doing the right thing
     // here due to how vague the driver types are hence the `any` assertion
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ) as any;
+  ) as Promise<any>;
 };

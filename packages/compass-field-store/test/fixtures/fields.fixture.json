@@ -13,9 +13,7 @@
       "count": 1,
       "type": "Document",
       "probability": 0.25,
-      "children": [
-        "review._id"
-      ]
+      "children": ["review._id"]
     },
     "review._id": {
       "name": "_id",

@@ -1,38 +1,8 @@
-ignores: [
-  "reflux",
-  "@babel/cli",
-  "@babel/register",
-  "ampersand-collection-filterable",
-  "ampersand-rest-collection",
-  "classnames",
-  "core-js",
-  "electron-rebuild",
-  "karma-electron",
-  "karma-sourcemap-loader",
-  "karma-webpack",
-  "lodash.clone",
-  "lodash.foreach",
-  "lodash.result",
-  "mongodb-collection-model",
-  "mongodb-database-model",
-  "mongodb-reflux-store",
-  "raf",
-  "reflux-state-mixin",
-  "resolve",
-  "storage-mixin",
-  "uuid",
-  "webpack-bundle-analyzer",
-  "webpack-cli",
-  "mongodb-compass",
-  "babel-loader",
-  "css-loader",
-  "file-loader",
-  "ignore-loader",
-  "istanbul-instrumenter-loader",
-  "less-loader",
-  "node-loader",
-  "postcss-loader",
-  "shebang-loader",
-  "style-loader",
-  "url-loader"
-]
+ignores:
+ - '@mongodb-js/prettier-config-compass'
+ - '@mongodb-js/tsconfig-compass'
+ - '@types/chai'
+ - '@types/sinon-chai'
+ - 'sinon'
+ignore-patterns:
+ - 'dist'

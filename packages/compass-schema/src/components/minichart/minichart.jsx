@@ -7,6 +7,7 @@ import CoordinatesMinichart from '../coordinates-minichart';
 import D3Component from '../d3-component';
 import vizFns from '../../modules';
 import CONSTANTS from '../../constants/schema';
+import { debounce } from 'lodash';
 
 class MiniChart extends Component {
   static displayName = 'MiniChartComponent';
@@ -24,8 +25,6 @@ class MiniChart extends Component {
     this.state = {
       containerWidth: null,
       filter: {},
-      valid: true,
-      userTyping: false,
     };
     this.resizeListener = this.handleResize.bind(this);
   }
@@ -37,25 +36,42 @@ class MiniChart extends Component {
     this.resizeListener();
     window.addEventListener('resize', this.resizeListener);
 
-    const QueryStore = this.props.localAppRegistry.getStore('Query.Store');
-    const onQueryChanged = (store) => {
-      this.setState({
-        filter: store.filter,
-        valid: store.valid,
-        userTyping: store.userTyping,
+    const onQueryChanged = (state) => {
+      this.setState((prevState) => {
+        const filter = state.fields.filter.value;
+        const valid = [...Object.values(state.fields)].every(
+          (value) => value.valid
+        );
+        if (!valid || prevState.filter === filter) {
+          return null;
+        }
+        return { filter, valid };
       });
     };
 
-    // Also populate initial values
-    onQueryChanged(QueryStore.state);
-
-    this.unsubscribeQueryStore = QueryStore.listen(onQueryChanged);
+    this.unsubscribeQueryStore = this.subscribeToQueryStore(onQueryChanged);
     this.unsubscribeMiniChartResize =
       this.props.actions.resizeMiniCharts.listen(this.resizeListener);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextState.valid && !nextState.userTyping;
+  subscribeToQueryStore(fn) {
+    const QueryStore = this.props.localAppRegistry.getStore('Query.Store');
+    // Also populate initial values
+    fn(QueryStore.getState());
+    const debouncedFn = debounce(() => {
+      fn(QueryStore.getState());
+    }, 100);
+    // We bombard component with updates on any change to the query bar store
+    // which causes massive rendering lag as every minichart is getting
+    // re-rendered even for unrelated changes. We compensate by having a
+    // setState function debounced and by short-circuiting state update when
+    // query is not valid (which can lead to components ending up in weird
+    // state)
+    const cancelStoreSubscription = QueryStore.subscribe(debouncedFn);
+    return () => {
+      debouncedFn.cancel();
+      cancelStoreSubscription();
+    };
   }
 
   componentWillUnmount() {

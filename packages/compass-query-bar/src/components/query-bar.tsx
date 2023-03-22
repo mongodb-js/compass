@@ -11,20 +11,26 @@ import {
   Label,
   Link,
 } from '@mongodb-js/compass-components';
-import type { Listenable } from 'reflux';
-import type AppRegistry from 'hadron-app-registry';
-
-import type {
-  QueryOption,
-  QueryBarOptionProps,
-} from '../constants/query-option-definition';
-import {
-  QueryOption as QueryOptionComponent,
+import { connect } from 'react-redux';
+import type { QueryOption } from '../constants/query-option-definition';
+import QueryOptionComponent, {
   documentEditorLabelContainerStyles,
 } from './query-option';
-import { QueryHistoryButtonPopover } from './query-history-button-popover';
+import QueryHistoryButtonPopover from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
-import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
+import type {
+  QueryBarState,
+  QueryBarThunkDispatch,
+} from '../stores/query-bar-reducer';
+import { isEqualDefaultQuery } from '../stores/query-bar-reducer';
+import { isQueryValid } from '../stores/query-bar-reducer';
+import {
+  applyQuery,
+  openExportToLanguage,
+  resetQuery,
+} from '../stores/query-bar-reducer';
+import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import type { QueryProperty } from '../constants/query-properties';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -78,65 +84,58 @@ const queryOptionsContainerStyles = css({
 const queryBarDocumentationLink =
   'https://docs.mongodb.com/compass/current/query/filter/';
 
+const QueryMoreOptionsToggle = connect(
+  (state: QueryBarState) => {
+    return { isExpanded: state.expanded };
+  },
+  { onToggleOptions: toggleQueryOptions }
+)(MoreOptionsToggle);
+
 type QueryBarProps = {
   buttonLabel?: string;
-  expanded: boolean;
-  globalAppRegistry: AppRegistry;
-  localAppRegistry: AppRegistry;
   onApply: () => void;
-  onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
-  onOpenExportToLanguage: () => void;
   onReset: () => void;
+  onOpenExportToLanguage: () => void;
   queryOptionsLayout?: (QueryOption | QueryOption[])[];
-  queryState: 'apply' | 'reset';
-  refreshEditorAction: Listenable;
-  resultId: string | number;
-  schemaFields: CompletionWithServerInfo[];
-  serverVersion: string;
+  queryChanged: boolean;
+  resultId?: string | number;
+  /**
+   * For testing purposes only, allows to track whether or not apply button was
+   * clicked or not
+   */
+  applyId: number;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
-  toggleExpandQueryOptions: () => void;
   valid: boolean;
-} & QueryBarOptionProps;
+  expanded: boolean;
+  placeholders?: Record<QueryProperty, string>;
+};
 
-const QueryBar: React.FunctionComponent<QueryBarProps> = ({
+export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
-  expanded: isQueryOptionsExpanded = false,
-  globalAppRegistry,
-  localAppRegistry,
-  onApply: _onApply,
-  onChangeQueryOption,
-  onOpenExportToLanguage,
+  onApply,
   onReset,
+  onOpenExportToLanguage,
   // Used to specify which query options to show and where they are positioned.
   queryOptionsLayout = [
     'project',
     ['sort', 'maxTimeMS'],
     ['collation', 'skip', 'limit'],
   ],
-  queryState,
-  refreshEditorAction,
+  queryChanged,
   resultId,
-  schemaFields,
-  serverVersion,
+  applyId,
   showExportToLanguageButton = true,
   showQueryHistoryButton = true,
-  toggleExpandQueryOptions,
   valid: isQueryValid,
-  ...queryOptionProps
+  expanded: isQueryOptionsExpanded,
+  placeholders,
 }) => {
   const darkMode = useDarkMode();
-
-  const onApply = useCallback(() => {
-    if (isQueryValid) {
-      _onApply();
-    }
-  }, [_onApply, isQueryValid]);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
       evt.preventDefault();
-
       onApply();
     },
     [onApply]
@@ -151,6 +150,7 @@ const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       onSubmit={onFormSubmit}
       noValidate
       data-result-id={resultId}
+      data-apply-id={applyId}
     >
       <div className={queryBarFirstRowStyles}>
         <div className={documentEditorLabelContainerStyles}>
@@ -163,32 +163,21 @@ const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               Filter
             </Link>
           </Label>
-          {showQueryHistoryButton && (
-            <QueryHistoryButtonPopover
-              localAppRegistry={localAppRegistry}
-              globalAppRegistry={globalAppRegistry}
-            />
-          )}
+          {showQueryHistoryButton && <QueryHistoryButtonPopover />}
         </div>
         <div className={filterContainerStyles}>
           <QueryOptionComponent
-            hasError={!queryOptionProps.filterValid}
-            queryOption="filter"
+            name="filter"
             id={filterQueryOptionId}
-            onChange={(value: string) => onChangeQueryOption('filter', value)}
             onApply={onApply}
-            placeholder={queryOptionProps.filterPlaceholder}
-            refreshEditorAction={refreshEditorAction}
-            schemaFields={schemaFields}
-            serverVersion={serverVersion}
-            value={queryOptionProps.filterString}
+            placeholder={placeholders?.filter}
           />
         </div>
         <Button
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
           onClick={onReset}
-          disabled={queryState !== 'apply'}
+          disabled={!queryChanged}
           size="small"
           type="button"
         >
@@ -219,11 +208,9 @@ const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
           <div className={moreOptionsContainerStyles}>
-            <MoreOptionsToggle
+            <QueryMoreOptionsToggle
               aria-controls="additional-query-options-container"
               data-testid="query-bar-options-toggle"
-              isExpanded={isQueryOptionsExpanded}
-              onToggleOptions={toggleExpandQueryOptions}
             />
           </div>
         )}
@@ -239,12 +226,8 @@ const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               <QueryBarRow
                 queryOptionsLayout={queryOptionRowLayout}
                 key={`query-bar-row-${rowIndex}`}
-                queryOptionProps={queryOptionProps}
-                onChangeQueryOption={onChangeQueryOption}
                 onApply={onApply}
-                refreshEditorAction={refreshEditorAction}
-                schemaFields={schemaFields}
-                serverVersion={serverVersion}
+                placeholders={placeholders}
               />
             ))}
           </div>
@@ -253,4 +236,37 @@ const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   );
 };
 
-export { QueryBar };
+export default connect(
+  (state: QueryBarState) => {
+    return {
+      expanded: state.expanded,
+      queryChanged: !isEqualDefaultQuery(state),
+      valid: isQueryValid(state),
+      applyId: state.applyId,
+    };
+  },
+  (
+    dispatch: QueryBarThunkDispatch,
+    ownProps: { onApply?(query: unknown): void; onReset?(query: unknown): void }
+  ) => {
+    return {
+      onOpenExportToLanguage: () => {
+        dispatch(openExportToLanguage());
+      },
+      onApply: () => {
+        const applied = dispatch(applyQuery());
+        if (applied === false) {
+          return;
+        }
+        ownProps.onApply?.(applied);
+      },
+      onReset: () => {
+        const reset = dispatch(resetQuery());
+        if (reset === false) {
+          return;
+        }
+        ownProps.onReset?.(reset);
+      },
+    };
+  }
+)(QueryBar);

@@ -14,20 +14,20 @@ describe('Field', function () {
   beforeEach(function () {
     testAppRegistry = new AppRegistry();
     testAppRegistry.registerStore('Query.Store', {
-      state: {
-        filter: {},
-        valid: true,
-        userTyping: false,
+      getState() {
+        return {
+          fields: {
+            filter: {
+              value: {},
+              string: '',
+              valid: true,
+            },
+          },
+        };
       },
-      filter: {},
-      listen: ((
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        func: () => {
-          /* noop */
-        }
-      ) => {
+      subscribe() {
         return () => {};
-      }) as any,
+      },
     } as any);
   });
 

@@ -32,7 +32,7 @@
     "eslint-config-mongodb-js": "^3.0.1",
     "eslint-plugin-react": "^7.24.0",
     "hadron-app-registry": "^9.0.5",
-    "mocha": "^6.1.2",
+    "mocha": "^10.2.0",
     "sinon": "^7.2.7"
   }
 }

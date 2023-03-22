@@ -1,7 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
 
 import QueryBarPlugin from './plugin';
-import configureActions from './actions';
 import configureStore from './stores';
 
 /**
@@ -11,9 +10,7 @@ const ROLE = {
   name: 'Query Bar',
   component: QueryBarPlugin,
   configureStore: configureStore,
-  configureActions: configureActions,
   storeName: 'Query.Store',
-  actionName: 'Query.Actions',
 };
 
 /**
@@ -33,5 +30,5 @@ function deactivate(appRegistry: AppRegistry): void {
 }
 
 export default QueryBarPlugin;
-export { activate, deactivate, configureStore, configureActions };
+export { activate, deactivate, configureStore };
 export { default as metadata } from '../package.json';
