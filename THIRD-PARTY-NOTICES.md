@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Tue Mar 21 2023.
+This document was automatically generated on Wed Mar 22 2023.
 
 ## List of dependencies
 
@@ -49,7 +49,7 @@ Package|Version|License
 **[mongodb-compass](#83bc011aa472d9fe55460f83c3fcfc98ca134ed763686df7a4bc080171ccb917)**|0.0.1-dev.0|SSPL
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
-**[node-abi](#1aa26b37082c2acf30fa9dfa5538388ad97e6cdba41f132c7227cedcafd5d675)**|3.31.0|MIT
+**[node-abi](#6b6e3668c7b638fe3bdbdfe7e5929922e46f2599ca98e8639bc88e733ce652fe)**|3.33.0|MIT
 **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**|4.3.0|MIT
 **[npmlog](#ee61305241ab0f8e87a6dc2160efc46973e046400e72fe10858cc36309d51f9b)**|4.1.2|ISC
 **[number-is-nan](#044063cb59ac16c3146a6aa01521f5bd00ae1e6c7a197f31df253f357faf9f75)**|1.0.1|MIT
@@ -2861,8 +2861,8 @@ Authors:
 * Jim Schlight
 
 
-<a id="1aa26b37082c2acf30fa9dfa5538388ad97e6cdba41f132c7227cedcafd5d675"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.31.0)
+<a id="6b6e3668c7b638fe3bdbdfe7e5929922e46f2599ca98e8639bc88e733ce652fe"></a>
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.33.0)
 <!-- initially found at node_modules/node-abi -->
 > Get the Node ABI for a given target and runtime, and vice versa.
 

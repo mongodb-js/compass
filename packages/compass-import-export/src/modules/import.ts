@@ -577,6 +577,7 @@ const loadCSVPreviewDocs = (): ThunkAction<
   void,
   AnyAction
 > => {
+  console.log('loading preview docs');
   return async (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
