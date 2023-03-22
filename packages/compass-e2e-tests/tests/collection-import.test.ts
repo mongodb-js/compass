@@ -919,13 +919,8 @@ describe('Collection import', function () {
 
     // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
-
-    // Wait for the modal to go away.
-    await importModal.waitForDisplayed({ reverse: true });
-
+    g;
     // Wait for the in progress toast to appear and click stop.
-    const inProgressToast = Selectors.ImportInProgressToast;
-    await browser.$(inProgressToast).waitForDisplayed();
     await browser.clickVisible(Selectors.ImportToastAbort);
 
     // Wait for the done toast to appear.
