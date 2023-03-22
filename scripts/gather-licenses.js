@@ -53,7 +53,11 @@ async function gatherLicenses(startPath) {
   packages.set(startPath, await getPackageInfo(startPath));
   for (const pkg of packages.values()) {
     const require = createRequire(path.resolve(pkg.path, 'index.js'));
-    for (const depsKey of ['dependencies', 'optionalDependencies']) {
+    for (const depsKey of [
+      'dependencies',
+      'optionalDependencies',
+      'devDependencies',
+    ]) {
       for (const dep of Object.keys(pkg[depsKey] || {})) {
         let resolved;
         try {

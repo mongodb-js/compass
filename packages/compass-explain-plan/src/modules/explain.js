@@ -370,19 +370,19 @@ export const fetchExplainPlan = (query) => {
       // Reset the abortController
       explain.abortController = null;
 
-      if (isAggregationExplainOutput(data)) {
-        // Queries against time series collections are run against
-        // non-materialized views, so the explain plan resembles
-        // that of an explain on an aggregation.
-        // We do not currently support visualizing aggregations,
-        // so we return here before parsing more, and ensure we can show
-        // the json view of the explain plan.
-        explain.errorParsing = true;
-        explain.originalExplainData = data;
-        explain.resultId = resultId();
+      // if (isAggregationExplainOutput(data)) {
+      //   // Queries against time series collections are run against
+      //   // non-materialized views, so the explain plan resembles
+      //   // that of an explain on an aggregation.
+      //   // We do not currently support visualizing aggregations,
+      //   // so we return here before parsing more, and ensure we can show
+      //   // the json view of the explain plan.
+      //   explain.errorParsing = true;
+      //   explain.originalExplainData = data;
+      //   explain.resultId = resultId();
 
-        return dispatch(explainPlanFetched(explain));
-      }
+      //   return dispatch(explainPlanFetched(explain));
+      // }
 
       try {
         explain = parseExplainPlan(explain, data);

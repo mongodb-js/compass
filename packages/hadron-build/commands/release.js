@@ -1,3 +1,4 @@
+/* eslint-disable valid-jsdoc */
 /* eslint-disable no-shadow */
 
 /* eslint no-sync: 0 */
@@ -26,7 +27,6 @@ const asar = require('asar');
 const packager = require('electron-packager');
 const createApplicationZip = require('../lib/zip');
 const run = require('./../lib/run');
-const license = require('electron-license');
 const rebuild = require('@electron/rebuild').rebuild;
 
 const ui = require('./ui');
@@ -133,43 +133,15 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
 /**
  * Replace the LICENSE file `electron-packager` creates w/ a LICENSE
  * file specific to the project.
- *
- * @see [Atom's generate-license-task.coffee](https://git.io/vaZI7)
- * @param {Object} CONFIG
- * @param {Function} [done] Optional callback
- * @returns {Promise}
- * @api public
  */
 const writeLicenseFile = (CONFIG, done) => {
-  var opts = {
-    dir: CONFIG.resourcesAppDir,
-    production: false,
-    excludeOrg: 'mongodb-js,10gen,christkv'
-  };
-  /**
-   * TODO (imlucas) If no license file at `opts.dir`, use `CONFIG`
-   * to generate one and write it there before calling `license.build()`
-   * or else this fails miserably.
-   */
-  return license.list(opts).then((deps) => {
-    return license.render(deps, opts.dir)
-      .then(contents => CONFIG.write('LICENSE', contents))
-      /**
-       * TODO (imlucas) Write `deps` to an Atlas instance so we can analyze it.
-       */
-      // .then(() => CONFIG.write('LICENSE.json', JSON.stringify(licenseData, null, 2)))
-      .then(dest => {
-        cli.debug(format('LICENSE written to `%s`', dest));
-        if (done) {
-          done(null, true);
-        }
-      });
-  }).catch(err => {
-    if (done) {
-      return done(err);
-    }
-    throw err;
-  });
+  try {
+    const contents = fs.readFileSync(path.join(CONFIG.resourcesAppDir, 'LICENSE'));
+    CONFIG.write('LICENSE', contents).then(() => done(null, true));
+    cli.debug(format('LICENSE written'));
+  } catch (err) {
+    done(err);
+  }
 };
 
 // Remove a malicious link from chromium license

@@ -24,6 +24,7 @@ const ALLOWED_LICENSES = [
   /^Unlicense$/,
 ];
 
+const IGNORED_ORGS = ['@mongodb-js', '@leafygreen-ui', '@mongosh'];
 const IGNORED_PACKAGES = ['json-schema@0.2.3'];
 const LICENSE_OVERRIDES = {
   'component-event@0.1.4': 'MIT',
@@ -166,7 +167,7 @@ function createLicensePlugin({ outputFilename, includeProdPackages }) {
     excludedPackageTest: (packageName, version) => {
       packageNamesCache ||= getAllPackageNames();
       return (
-        packageName.startsWith('@mongodb-js/') ||
+        IGNORED_ORGS.some((org) => packageName.startsWith(org + '/')) ||
         packageNamesCache.includes(packageName) ||
         IGNORED_PACKAGES.includes(`${packageName}@${version}`)
       );
