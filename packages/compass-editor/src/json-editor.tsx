@@ -396,8 +396,6 @@ type EditorProps = {
   showAnnotationsGutter?: boolean;
   highlightActiveLine?: boolean;
   readOnly?: boolean;
-  className?: string;
-  id?: string;
   'data-testid'?: string;
   annotations?: Annotation[];
   completer?: CompletionSource;
@@ -409,7 +407,11 @@ type EditorProps = {
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
-);
+) &
+  Pick<
+    React.HTMLProps<HTMLDivElement>,
+    'id' | 'className' | 'onFocus' | 'onBlur'
+  >;
 
 function createFoldGutterExtension() {
   return foldGutter({
@@ -975,6 +977,7 @@ const prettify: Command = (editorView) => {
           to: editorView.state.doc.length,
           insert: formatted,
         },
+        scrollIntoView: true,
       });
       return true;
     }
@@ -1127,7 +1130,9 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
             key="Copy"
             label="Copy"
             icon="Copy"
-            onClick={editorRef.current?.copyAll}
+            onClick={() => {
+              return editorRef.current?.copyAll() ?? false;
+            }}
           ></ActionButton>
         ),
         formattable && (
@@ -1140,7 +1145,9 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
                 role="presentation"
               ></FormatIcon>
             }
-            onClick={editorRef.current?.prettify}
+            onClick={() => {
+              return editorRef.current?.prettify() ?? false;
+            }}
           ></ActionButton>
         ),
         ...(customActions ?? []).map((action) => {
