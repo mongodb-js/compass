@@ -61,6 +61,8 @@ const mapStateToProps = (state) => ({
   savingPipeline: state.savingPipeline,
   updateViewError: state.updateViewError,
   workspace: state.workspace,
+  isStageCreatorOpen: state.stageCreator.isPanelOpen,
+  fields: state.fields,
 });
 
 /**

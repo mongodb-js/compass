@@ -17,6 +17,8 @@ import {
   DEFAULT_LARGE_LIMIT,
 } from '../../constants';
 
+import { StageCreator } from './stage-creator';
+
 /**
  * Displays a pipeline.
  */
@@ -49,6 +51,8 @@ class Pipeline extends PureComponent {
     showExportButton: PropTypes.bool.isRequired,
     showRunButton: PropTypes.bool.isRequired,
     showExplainButton: PropTypes.bool.isRequired,
+    isStageCreatorOpen: PropTypes.bool.isRequired,
+    fields: PropTypes.array,
   };
 
   static defaultProps = {
@@ -130,14 +134,31 @@ class Pipeline extends PureComponent {
           settings={this.props.settings}
         />
         <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
-          {this.renderModifyingViewSourceError()}
-          {this.props.workspace === 'results' ? (
-            <PipelineResultsWorkspace
-              allDocsExpanded={this.state.pipelineOutputOption === 'expand'}
-            />
-          ) : (
-            <PipelineBuilderWorkspace />
-          )}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                width: this.props.isStageCreatorOpen ? '50%' : '100%',
+              }}
+            >
+              {this.renderModifyingViewSourceError()}
+              {this.props.workspace === 'results' ? (
+                <PipelineResultsWorkspace
+                  allDocsExpanded={this.state.pipelineOutputOption === 'expand'}
+                />
+              ) : (
+                <PipelineBuilderWorkspace />
+              )}
+            </div>
+            {this.props.isStageCreatorOpen && (
+              <StageCreator fields={this.props.fields} />
+            )}
+          </div>
           <PipelineExplain />
           <FocusMode />
           {savingPipelineModal}

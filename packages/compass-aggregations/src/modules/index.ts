@@ -38,6 +38,7 @@ import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { PipelineStorage } from '../utils/pipeline-storage';
 import focusMode from './focus-mode';
+import stageCreator from './stage-creator';
 
 /**
  * The main application reducer.
@@ -81,6 +82,7 @@ const rootReducer = combineReducers({
   indexes,
   pipelineBuilder,
   focusMode,
+  stageCreator,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
