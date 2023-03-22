@@ -81,7 +81,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { javascriptLanguage } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
-import type { Extension } from '@codemirror/state';
+import type { Extension, TransactionSpec } from '@codemirror/state';
 import { Facet, Compartment, EditorState } from '@codemirror/state';
 import {
   LanguageSupport,
@@ -443,6 +443,34 @@ export const languages: Record<EditorLanguage, () => LanguageSupport> = {
 export const languageName = Facet.define<EditorLanguage>({});
 
 /**
+ * Codemirror editor throws when the state update is being applied while another
+ * one is in progress and doesn't give us a way to schedule updates otherwise.
+ * They do have some good reasoning[0] for it, but as we are using this library
+ * in React context where having multiple effects instead of grouping them all
+ * in one place is preferable over grouping them all together, we have this
+ * method to allow to schedule updates and apply them when editor gets idle
+ *
+ * [0]: https://discuss.codemirror.net/t/should-dispatched-transactions-be-added-to-a-queue/4610/4
+ */
+function sheduleDispatch(
+  editorView: EditorView,
+  transactions: TransactionSpec | TransactionSpec[],
+  signal?: AbortSignal
+) {
+  if (signal?.aborted) {
+    return;
+  }
+  if ((editorView as any).updateState != 0) {
+    setTimeout(() => {
+      sheduleDispatch(editorView, transactions, signal);
+    });
+  } else {
+    transactions = Array.isArray(transactions) ? transactions : [transactions];
+    editorView.dispatch(...transactions);
+  }
+}
+
+/**
  * https://codemirror.net/examples/config/#dynamic-configuration
  * @param fn
  * @param editorViewRef
@@ -466,11 +494,25 @@ function useCodemirrorExtensionCompartment<T>(
   );
 
   useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: compartmentRef.current?.reconfigure(
-        extensionCreatorRef.current()
-      ),
-    });
+    if (!editorViewRef.current) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    sheduleDispatch(
+      editorViewRef.current,
+      {
+        effects: compartmentRef.current?.reconfigure(
+          extensionCreatorRef.current()
+        ),
+      },
+      controller.signal
+    );
+
+    return () => {
+      controller.abort();
+    };
   }, value);
   return initialExtensionRef.current;
 }
@@ -830,21 +872,45 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       editorViewRef.current &&
       text !== (editorViewRef.current.state.sliceDoc() ?? '')
     ) {
-      editorViewRef.current.dispatch({
-        changes: {
-          from: 0,
-          // Replace all the content
-          to: editorViewRef.current.state.doc.length,
-          insert: text,
+      const controller = new AbortController();
+
+      sheduleDispatch(
+        editorViewRef.current,
+        {
+          changes: {
+            from: 0,
+            // Replace all the content
+            to: editorViewRef.current.state.doc.length,
+            insert: text,
+          },
         },
-      });
+        controller.signal
+      );
+
+      return () => {
+        controller.abort();
+      };
     }
   }, [text]);
 
   useEffect(() => {
-    editorViewRef.current?.dispatch({
-      effects: setDiagnosticsEffect.of(annotations ?? []),
-    });
+    if (!editorViewRef.current) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    sheduleDispatch(
+      editorViewRef.current,
+      {
+        effects: setDiagnosticsEffect.of(annotations ?? []),
+      },
+      controller.signal
+    );
+
+    return () => {
+      controller.abort();
+    };
   }, [annotations]);
 
   // We wrap editor in a relatively positioned container followed by an absolute
@@ -943,7 +1009,7 @@ const foldAll: Command = (editor) => {
     },
   });
   if (foldableProperties.length > 0) {
-    editor.dispatch({
+    sheduleDispatch(editor, {
       effects: foldableProperties.map((range) => {
         return foldEffect.of(range);
       }),
@@ -971,7 +1037,7 @@ const prettify: Command = (editorView) => {
       language === 'json' ? 'json' : 'javascript-expression'
     );
     if (formatted !== doc) {
-      editorView.dispatch({
+      sheduleDispatch(editorView, {
         changes: {
           from: 0,
           to: editorView.state.doc.length,

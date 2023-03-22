@@ -44,7 +44,8 @@ export const ActionButton: React.FunctionComponent<{
   onClick?: (
     ...args: Parameters<React.MouseEventHandler<HTMLButtonElement>>
   ) => boolean | void;
-}> = ({ label, icon, onClick }) => {
+  'data-testid'?: string;
+}> = ({ label, icon, onClick, ...props }) => {
   const [clickResult, setClickResult] = useState<'success' | 'error'>(
     'success'
   );
@@ -82,6 +83,7 @@ export const ActionButton: React.FunctionComponent<{
       title={label}
       onClick={onButtonClick}
       className={actionButtonStyle}
+      data-testid={props['data-testid'] ?? `editor-action-${label}`}
     >
       <div className={actionButtonContentStyle}>
         <div

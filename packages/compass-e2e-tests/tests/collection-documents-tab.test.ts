@@ -391,8 +391,8 @@ FindIterable<Document> result = collection.find(filter);`);
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/
     );
 
-    await browser.hover('[data-testid="editable-json"]');
-    await browser.clickVisible('[data-testid="edit-document-button"]');
+    await browser.hover(Selectors.JSONDocumentCard);
+    await browser.clickVisible(Selectors.JSONEditDocumentButton);
 
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
@@ -441,8 +441,8 @@ FindIterable<Document> result = collection.find(filter);`);
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
     );
 
-    await browser.hover('[data-testid="editable-json"]');
-    await browser.clickVisible('[data-testid="edit-document-button"]');
+    await browser.hover(Selectors.JSONDocumentCard);
+    await browser.clickVisible(Selectors.JSONEditDocumentButton);
 
     const newjson = JSON.stringify({
       ...JSON.parse(json),
