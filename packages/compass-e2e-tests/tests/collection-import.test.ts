@@ -919,7 +919,6 @@ describe('Collection import', function () {
 
     // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
-    g;
     // Wait for the in progress toast to appear and click stop.
     await browser.clickVisible(Selectors.ImportToastAbort);
 
