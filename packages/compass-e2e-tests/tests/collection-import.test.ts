@@ -900,7 +900,7 @@ describe('Collection import', function () {
 
   it('aborts an in progress import', async function () {
     // 16116 documents.
-    const jsonPath = path.resolve(__dirname, '..', 'fixtures', 'listings.json');
+    const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
     await browser.navigateToCollectionTab('test', 'import-abort', 'Documents');
 
@@ -911,7 +911,7 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportFileOption);
 
     // Select the file.
-    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // Wait for the modal to appear.
     const importModal = await browser.$(Selectors.ImportModal);
