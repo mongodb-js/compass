@@ -201,7 +201,7 @@ function ImportModal({
       open={isOpen}
       setOpen={handleClose}
       data-testid="import-modal"
-      size="large"
+      size={fileType === 'csv' ? 'large' : 'small'}
     >
       <ModalHeader title="Import" subtitle={`To Collection ${ns}`} />
       <ModalBody ref={modalBodyRef}>
