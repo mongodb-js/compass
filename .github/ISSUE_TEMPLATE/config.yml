@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Bug Reports
+    url: https://jira.mongodb.org/projects/COMPASS/issues/
+    about: Report a bug via Jira.
+  - name: Feature Request
+    url: https://feedback.mongodb.com/forums/924283-compass
+    about: Request a new feature or enhancement via the MongoDB Feedback Engine.
+  - name: General Questions and Inquiries
+    url: https://www.mongodb.com/community/forums/tags/c/data/developer-tools/49/compass
+    about: Visit our forums for public community discussion and collaboration.
