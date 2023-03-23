@@ -6,7 +6,7 @@ async function setFilter(
   tabName: string,
   value: string
 ) {
-  await browser.setAceValue(
+  await browser.setCodemirrorEditorValue(
     Selectors.queryBarOptionInputFilter(tabName),
     value
   );
@@ -17,7 +17,7 @@ async function setProject(
   tabName: string,
   value: string
 ) {
-  await browser.setAceValue(
+  await browser.setCodemirrorEditorValue(
     Selectors.queryBarOptionInputProject(tabName),
     value
   );
@@ -28,7 +28,10 @@ export async function setSort(
   tabName: string,
   value: string
 ) {
-  await browser.setAceValue(Selectors.queryBarOptionInputSort(tabName), value);
+  await browser.setCodemirrorEditorValue(
+    Selectors.queryBarOptionInputSort(tabName),
+    value
+  );
 }
 
 async function setCollation(
@@ -36,7 +39,7 @@ async function setCollation(
   tabName: string,
   value: string
 ) {
-  await browser.setAceValue(
+  await browser.setCodemirrorEditorValue(
     Selectors.queryBarOptionInputCollation(tabName),
     value
   );
@@ -102,14 +105,14 @@ async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
     // look up the current resultId
     const initialResultId = await browser.getQueryId(tabName);
 
-    await resetButton.click();
-
-    // wait for the button to become disabled which should happen once it reset
-    // all the filter fields
     await browser.waitUntil(async () => {
+      // In some very rare cases on particularly slow machines in CI (looking at
+      // you macos hosts) clicking doesn't register on the first try, to work
+      // around that, we try to click with pause until the button is disabled
+      await browser.clickVisible(Selectors.queryBarResetFilterButton(tabName));
+      await browser.pause(50);
       return !(await resetButton.isEnabled());
     });
-
     // now we can easily see if we get a new resultId
     // (which we should because resetting re-runs the query)
     await browser.waitUntil(async () => {
@@ -165,6 +168,7 @@ export async function runFindOperation(
     limit = '',
     // TODO(COMPASS-6606): allow for the same in other tabs with query bar
     waitForResult = true,
+    expandOptions: keepOptionsExpanded = false,
   } = {}
 ): Promise<void> {
   if (project || sort || maxTimeMS || collation || skip || limit) {
@@ -178,6 +182,10 @@ export async function runFindOperation(
     await setLimit(browser, tabName, limit);
   } else {
     await collapseOptions(browser, tabName);
+  }
+
+  if (keepOptionsExpanded) {
+    await expandOptions(browser, tabName);
   }
 
   await setFilter(browser, tabName, filter);

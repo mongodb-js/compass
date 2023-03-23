@@ -57,6 +57,7 @@ const Placeholder: React.FunctionComponent<
     maxChar?: number;
     width?: CSSProperties['width'];
     height?: CSSProperties['height'];
+    'data-testid'?: string;
   }
 > = ({
   className,
@@ -76,7 +77,7 @@ const Placeholder: React.FunctionComponent<
     <div
       {...props}
       role="presentation"
-      data-testid="placeholder"
+      data-testid={props['data-testid'] ?? 'placeholder'}
       className={cx(placeholder, className, darkMode && placeholderDarkMode)}
       style={{ width, height: propsHeight }}
     ></div>

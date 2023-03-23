@@ -72,13 +72,13 @@ export function* getScopeTokensBefore(
  * Adds autocomplete suggestions for queries.
  */
 class AggregationAutoCompleter implements Ace.Completer {
-  public stageAutocopmleter: StageAutoCompleter;
+  public stageAutocompleter: StageAutoCompleter;
   constructor(
     public version: string,
     public textCompleter: Ace.Completer,
     public fields: CompletionWithServerInfo[]
   ) {
-    this.stageAutocopmleter = new StageAutoCompleter(
+    this.stageAutocompleter = new StageAutoCompleter(
       this.version,
       this.textCompleter,
       this.fields
@@ -87,7 +87,7 @@ class AggregationAutoCompleter implements Ace.Completer {
 
   updateFields(fields: CompletionWithServerInfo[]) {
     this.fields = fields;
-    this.stageAutocopmleter.update(fields, null);
+    this.stageAutocompleter.update(fields, null);
   }
 
   getCompletions: Ace.Completer['getCompletions'] = (
@@ -121,8 +121,8 @@ class AggregationAutoCompleter implements Ace.Completer {
             token.value as typeof STAGE_OPERATOR_NAMES[number]
           ))
       ) {
-        this.stageAutocopmleter.updateStageOperator(token.value);
-        return this.stageAutocopmleter.getCompletions(
+        this.stageAutocompleter.updateStageOperator(token.value);
+        return this.stageAutocompleter.getCompletions(
           editor,
           session,
           position,

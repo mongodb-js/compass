@@ -119,7 +119,7 @@ describe('analyzeCSVFields', function () {
 
     if (type === 'number') {
       expectedTypes = ['int', 'double', 'long'];
-      expectedDetected = 'mixed';
+      expectedDetected = 'number';
     }
 
     if (type === 'mixed') {

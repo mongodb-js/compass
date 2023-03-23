@@ -91,6 +91,7 @@ describe('Collection documents tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
+  let maxTimeMSBefore: string;
 
   before(async function () {
     telemetry = await startTelemetryServer();
@@ -102,6 +103,7 @@ describe('Collection documents tab', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
   });
 
   after(async function () {
@@ -110,6 +112,7 @@ describe('Collection documents tab', function () {
   });
 
   afterEach(async function () {
+    await browser.setFeature('maxTimeMS', maxTimeMSBefore);
     await afterTest(compass, this.currentTest);
   });
 
@@ -220,10 +223,7 @@ describe('Collection documents tab', function () {
 
   for (const maxTimeMSMode of ['ui', 'preference'] as const) {
     it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
-      let maxTimeMSBefore;
       if (maxTimeMSMode === 'preference') {
-        maxTimeMSBefore = await browser.getFeature('maxTimeMS');
-
         await browser.openSettingsModal();
         const settingsModal = await browser.$(Selectors.SettingsModal);
         await settingsModal.waitForDisplayed();
@@ -234,6 +234,7 @@ describe('Collection documents tab', function () {
           '1'
         );
         await browser.clickVisible(Selectors.SaveSettingsButton);
+        await settingsModal.waitForDisplayed({ reverse: true });
       }
 
       // execute a query that will take a long time, but set a maxTimeMS shorter than that
@@ -255,10 +256,6 @@ describe('Collection documents tab', function () {
       expect(errorText).to.include(
         'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
       );
-
-      if (maxTimeMSMode === 'preference') {
-        await browser.setFeature('maxTimeMS', maxTimeMSBefore);
-      }
     });
   }
 
@@ -400,8 +397,8 @@ FindIterable<Document> result = collection.find(filter);`);
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
     await browser.setCodemirrorEditorValue(
-      newjson,
-      Selectors.DocumentJSONEntry
+      Selectors.DocumentJSONEntry,
+      newjson
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -453,8 +450,8 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     await browser.setCodemirrorEditorValue(
-      newjson,
-      Selectors.DocumentJSONEntry
+      Selectors.DocumentJSONEntry,
+      newjson
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -557,6 +554,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const insertConfirm = await browser.$(Selectors.InsertConfirm);
     await insertConfirm.waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
+    await insertDialog.waitForDisplayed({ reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 10042 }');
 

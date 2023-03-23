@@ -23,6 +23,20 @@ describe('FieldStore', function () {
   let store;
   let appRegistry;
 
+  function subscribe(fn, done) {
+    return store.subscribe(() => {
+      try {
+        const isDone = fn();
+        if (isDone === false) {
+          return;
+        }
+        done();
+      } catch (err) {
+        done(err);
+      }
+    });
+  }
+
   beforeEach(function () {
     appRegistry = new AppRegistry();
     appRegistry.registerStore('Schema.Store', SchemaStore);
@@ -30,6 +44,7 @@ describe('FieldStore', function () {
     store.dispatch(reset());
     expect(store.getState()).to.deep.equal(INITIAL_STATE);
   });
+
   afterEach(function () {
     unsubscribe();
   });
@@ -47,6 +62,7 @@ describe('FieldStore', function () {
         score: 1,
         meta: 'field',
         version: '0.0.0',
+        description: 'Number',
       },
       {
         name: 'potter',
@@ -54,11 +70,12 @@ describe('FieldStore', function () {
         score: 1,
         meta: 'field',
         version: '0.0.0',
+        description: 'Boolean',
       },
     ];
 
     it('on schema store trigger', function (done) {
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         const state = store.getState();
         expect(Object.keys(state.fields)).to.have.all.members([
           '_id',
@@ -71,47 +88,43 @@ describe('FieldStore', function () {
           'reviews.rating',
           'reviews.text',
         ]);
-        done();
-      });
+      }, done);
       SchemaStore.setSchema();
     });
 
     it('on documents-refreshed', function (done) {
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         const state = store.getState();
         expect(Object.keys(state.fields)).to.have.all.members([
           'harry',
           'potter',
         ]);
         expect(state.aceFields).to.deep.equal(expected);
-        done();
-      });
+      }, done);
       appRegistry.emit('documents-refreshed', null, [doc]);
     });
 
     it('on documents-inserted', function (done) {
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         const state = store.getState();
         expect(Object.keys(state.fields)).to.have.all.members([
           'harry',
           'potter',
         ]);
         expect(state.aceFields).to.deep.equal(expected);
-        done();
-      });
+      }, done);
       appRegistry.emit('document-inserted', { docs: [doc] });
     });
 
     it('on documents-paginated', function (done) {
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         const state = store.getState();
         expect(Object.keys(state.fields)).to.have.all.members([
           'harry',
           'potter',
         ]);
         expect(state.aceFields).to.deep.equal(expected);
-        done();
-      });
+      }, done);
       appRegistry.emit('documents-paginated', null, [doc]);
     });
   });
@@ -134,7 +147,7 @@ describe('FieldStore', function () {
     it('triggers for store methods', function () {
       const doc = { harry: 1, potter: true };
       store.processSingleDocument(doc);
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         expect(spy.calledTwice).to.equal(true);
         expect(spy.args[0][0]).to.equal('fields-changed');
         expect(spy.args[0][1]).to.deep.equal({
@@ -169,7 +182,7 @@ describe('FieldStore', function () {
 
   describe('store process methods', function () {
     it('samples a single document', function (done) {
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         const state = store.getState();
         expect(Object.keys(state.fields)).to.have.all.members([
           'harry',
@@ -182,6 +195,7 @@ describe('FieldStore', function () {
             score: 1,
             meta: 'field',
             version: '0.0.0',
+            description: 'Number',
           },
           {
             name: 'potter',
@@ -189,16 +203,16 @@ describe('FieldStore', function () {
             score: 1,
             meta: 'field',
             version: '0.0.0',
+            description: 'Boolean',
           },
         ]);
-        done();
-      });
+      }, done);
       const doc = { harry: 1, potter: true };
       store.processSingleDocument(doc);
     });
 
     it('samples many documents', function (done) {
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         const state = store.getState();
         expect(Object.keys(state.fields)).to.have.all.members([
           'harry',
@@ -213,6 +227,7 @@ describe('FieldStore', function () {
             score: 1,
             meta: 'field',
             version: '0.0.0',
+            description: 'Number | Undefined',
           },
           {
             name: 'potter',
@@ -220,6 +235,7 @@ describe('FieldStore', function () {
             score: 1,
             meta: 'field',
             version: '0.0.0',
+            description: 'Boolean | Undefined',
           },
           {
             name: 'ron',
@@ -227,6 +243,7 @@ describe('FieldStore', function () {
             score: 1,
             meta: 'field',
             version: '0.0.0',
+            description: 'String | Undefined',
           },
           {
             name: 'weasley',
@@ -234,10 +251,10 @@ describe('FieldStore', function () {
             score: 1,
             meta: 'field',
             version: '0.0.0',
+            description: 'Null | Undefined',
           },
         ]);
-        done();
-      });
+      }, done);
       const docs = [
         { harry: 1, potter: true },
         { ron: 'test', weasley: null },
@@ -250,7 +267,7 @@ describe('FieldStore', function () {
       store.processSingleDocument(doc);
 
       setTimeout(() => {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           expect(Object.keys(state.fields)).to.have.all.members([
             'harry',
@@ -265,6 +282,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Number',
             },
             {
               name: 'potter',
@@ -272,6 +290,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Boolean',
             },
             {
               name: 'granger',
@@ -279,6 +298,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Boolean',
             },
             {
               name: 'hermione',
@@ -286,10 +306,10 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Number',
             },
           ]);
-          done();
-        });
+        }, done);
         const secondDoc = { hermione: 0, granger: false };
         store.processSingleDocument(secondDoc);
       });
@@ -300,7 +320,7 @@ describe('FieldStore', function () {
       store.processSingleDocument(doc);
 
       setTimeout(() => {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           expect(Object.keys(state.fields)).to.have.all.members([
             'harry',
@@ -322,6 +342,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Number',
             },
             {
               name: 'potter',
@@ -329,6 +350,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Boolean',
             },
             {
               name: '_id',
@@ -336,6 +358,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'ObjectId',
             },
             {
               name: 'review',
@@ -343,6 +366,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Undefined | Document',
             },
             {
               name: 'review._id',
@@ -350,6 +374,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Number',
             },
             {
               name: 'review.rating',
@@ -357,6 +382,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Number',
             },
             {
               name: 'review.text',
@@ -364,6 +390,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'String',
             },
             {
               name: 'reviews',
@@ -371,6 +398,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Array | Undefined',
             },
             {
               name: 'reviews._id',
@@ -378,6 +406,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Number | Undefined',
             },
             {
               name: 'reviews.rating',
@@ -385,6 +414,7 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'Number | Undefined',
             },
             {
               name: 'reviews.text',
@@ -392,35 +422,33 @@ describe('FieldStore', function () {
               score: 1,
               meta: 'field',
               version: '0.0.0',
+              description: 'String | Undefined',
             },
           ]);
-          done();
-        });
+        }, done);
         store.processSchema(schemaFixture);
       });
     });
 
     it('flattens the schema', function (done) {
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         const state = store.getState();
         expect(state.fields).to.have.all.keys(['a', 'a.b', 'a.b.c']);
-        done();
-      });
+      }, done);
       store.processSingleDocument({ a: { b: { c: 1 } } });
     });
 
     it('maintains list of root fields', function (done) {
-      unsubscribe = store.subscribe(() => {
+      unsubscribe = subscribe(() => {
         const state = store.getState();
         expect(state.topLevelFields).to.have.all.members(['a', 'd', 'e']);
-        done();
-      });
+      }, done);
       store.processSingleDocument({ a: { b: { c: 1 } }, d: 5, e: { f: 3 } });
     });
 
     describe('multidimensional arrays', function () {
       it('identifies empty 1d arrays', function (done) {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           const expected = {
             a: {
@@ -432,13 +460,12 @@ describe('FieldStore', function () {
             },
           };
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument({ a: [] });
       });
 
       it('identifies populated 1d arrays', function (done) {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           const expected = {
             a: {
@@ -450,13 +477,12 @@ describe('FieldStore', function () {
             },
           };
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument({ a: [1, 2, 3] });
       });
 
       it('identifies 2d arrays', function (done) {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           const expected = {
             a: {
@@ -468,8 +494,7 @@ describe('FieldStore', function () {
             },
           };
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument({
           a: [
             ['1_1', '1_2', '1_3'],
@@ -479,7 +504,7 @@ describe('FieldStore', function () {
       });
 
       it('identifies 3d arrays', function (done) {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           const expected = {
             a: {
@@ -491,8 +516,7 @@ describe('FieldStore', function () {
             },
           };
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument({
           a: [
             // Think cube
@@ -531,16 +555,21 @@ describe('FieldStore', function () {
         // Call that matters, the one that should be kept around
         store.processSingleDocument({ a: [1, 2, 3] });
 
-        setTimeout(() => {
+        let i = 0;
+
+        unsubscribe = subscribe(() => {
+          // Skip first action
+          if (i++ === 0) {
+            return false;
+          }
           expect(store.getState().fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
       });
     });
 
     describe('mixed nested arrays and subdocuments', function () {
       it('identifies 1d arrays of subdocuments', function (done) {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           const expected = {
             a: {
@@ -559,13 +588,12 @@ describe('FieldStore', function () {
             },
           };
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument({ a: [{ b: 'foo' }, { b: 'bar' }] });
       });
 
       it('identifies 2d arrays of subdocuments', function (done) {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           const expected = {
             a: {
@@ -584,8 +612,7 @@ describe('FieldStore', function () {
             },
           };
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument({
           a: [
             [{ b: 'foo' }, { b: 'bar' }],
@@ -595,7 +622,7 @@ describe('FieldStore', function () {
       });
 
       it('identifies 1d arrays of sub-subdocuments', function (done) {
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           const expected = {
             a: {
@@ -621,8 +648,7 @@ describe('FieldStore', function () {
             },
           };
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument({
           a: [{ b: { c: 'foo' } }, { b: { c: 'bar' } }],
         });
@@ -661,11 +687,10 @@ describe('FieldStore', function () {
             type: 'Array',
           },
         };
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument({
           a: {
             b: [
@@ -719,11 +744,10 @@ describe('FieldStore', function () {
         const doc = {
           foo1: [{ age: 10, name: 'bazillion' }],
         };
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument(doc);
       });
       it('handles path', function (done) {
@@ -753,11 +777,10 @@ describe('FieldStore', function () {
         const doc = {
           foo1: [{ age: 10, path: 'bazillion' }],
         };
-        unsubscribe = store.subscribe(() => {
+        unsubscribe = subscribe(() => {
           const state = store.getState();
           expect(state.fields).to.be.deep.equal(expected);
-          done();
-        });
+        }, done);
         store.processSingleDocument(doc);
       });
     });
