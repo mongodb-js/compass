@@ -225,6 +225,7 @@
     "cli-ux": "^5.5.1",
     "compass-preferences-model": "^2.7.0",
     "compass-user-model": "^2.5.1",
+    "cross-spawn": "^7.0.3",
     "darkreader": "^4.9.40",
     "debug": "^4.2.0",
     "decompress": "^4.2.1",

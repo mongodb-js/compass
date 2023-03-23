@@ -9,7 +9,7 @@ const path = require('path');
 const findUp = require('find-up');
 const fs = require('fs');
 const WebpackLicensePlugin = require('webpack-license-plugin');
-const { spawnSync } = require('child_process');
+const crossSpawn = require('cross-spawn');
 
 // Configuration:
 
@@ -80,7 +80,7 @@ function checkOverridesArePresent() {
 checkOverridesArePresent();
 
 function getAllPackageNames() {
-  const output = spawnSync('npx', ['lerna', 'ls', '--all', '--json'], {
+  const output = crossSpawn.sync('npx', ['lerna', 'ls', '--all', '--json'], {
     encoding: 'utf-8',
   });
 
