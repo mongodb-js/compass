@@ -42,7 +42,7 @@ module.exports = (_env, args) => {
     // Runtime implementation depends on worker file existing near the library
     // main import and for that reason it needs to stay external to compass (and
     // compass-shell plugin)
-    '@mongosh/node-x-worker-thread':
+    '@mongosh/node-runtime-worker-thread':
       'commonjs2 @mongosh/node-runtime-worker-thread',
   };
 
