@@ -263,7 +263,7 @@ export const startImport = () => {
 
     openToast(importToastId, {
       dataTestId: 'import-toast-in-progress',
-      title: `Importing ${fileType} file...`,
+      title: `Importing ${fileType} file…`,
       body: useToastAction({
         statusMessage: 'Starting...',
         actionHandler: () => {
