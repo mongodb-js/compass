@@ -91,7 +91,11 @@ type StageToolbarProps = {
   isDisabled?: boolean;
   onFocusModeClicked: () => void;
   onOpenFocusMode: () => void;
-  onStageOperatorChange?: (index: number, name: string | null) => void;
+  onStageOperatorChange?: (
+    index: number,
+    name: string | null,
+    snippet?: string
+  ) => void;
 };
 
 const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';

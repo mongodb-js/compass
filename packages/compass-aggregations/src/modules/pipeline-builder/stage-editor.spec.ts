@@ -72,50 +72,50 @@ describe('stageEditor', function () {
       );
     });
 
-    it('should set stage value to a snippet when stage was in initial state', function () {
+    it('should return stage snippet when stage was in initial state', function () {
       // Adding a new empty stage
       store.dispatch(addStage());
-      store.dispatch(changeStageOperator(3, '$match'));
-      expect(store.getState().stages[3]).to.have.property(
-        'value',
+      const snippet = store.dispatch(changeStageOperator(3, '$match'));
+      expect(snippet).to.eq(
         `/**
  * query: The query in MQL.
  */
 {
-  query
+  \${1:query}
 }`
       );
     });
 
-    it('should set stage value to a new snippet if the old snippet was not changed', function () {
+    it('should return new stage snippet if the old snippet was not changed', function () {
       // Adding a new empty stage
       store.dispatch(addStage());
       store.dispatch(changeStageOperator(3, '$match'));
-      store.dispatch(changeStageOperator(3, '$limit'));
-      expect(store.getState().stages[3]).to.have.property(
-        'value',
+      const snippet = store.dispatch(changeStageOperator(3, '$limit'));
+      expect(snippet).to.eq(
         `/**
  * Provide the number of documents to limit.
  */
-number`
+\${1:number}`
       );
     });
 
-    it('should keep old stage value if stage was changed before switching the operators', function () {
+    it('should not return stage snippet if stage was changed before switching the operators', function () {
       store.dispatch(addStage());
       store.dispatch(changeStageOperator(3, '$match'));
       store.dispatch(changeStageValue(3, '{ _id: 1 }'));
-      store.dispatch(changeStageOperator(3, '$limit'));
+      const snippet = store.dispatch(changeStageOperator(3, '$limit'));
+      expect(snippet).to.eq(undefined);
       expect(store.getState().stages[3]).to.have.property(
         'value',
         '{ _id: 1 }'
       );
     });
 
-    it('should keep old stage value if stage value was changed without changing operator first', function () {
+    it('should not return stage snippet if stage value was changed without changing operator first', function () {
       store.dispatch(addStage());
       store.dispatch(changeStageValue(3, '321'));
-      store.dispatch(changeStageOperator(3, '$match'));
+      const snippet = store.dispatch(changeStageOperator(3, '$match'));
+      expect(snippet).to.eq(undefined);
       expect(store.getState().stages[3]).to.have.property('value', '321');
     });
   });

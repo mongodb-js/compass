@@ -34,7 +34,7 @@ const comboboxStyles = css({
 });
 
 type StageOperatorSelectProps = {
-  onChange: (index: number, name: string | null) => void;
+  onChange: (index: number, name: string | null, snippet?: string) => void;
   index: number;
   selectedStage: string | null;
   isDisabled: boolean;
@@ -95,7 +95,11 @@ export default withPreferences(
       ownProps: {
         index: number;
         readOnly: boolean;
-        onChange?: (index: number, name: string | null) => void;
+        onChange?: (
+          index: number,
+          name: string | null,
+          snippet?: string
+        ) => void;
       }
     ) => {
       const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
@@ -115,8 +119,8 @@ export default withPreferences(
     (dispatch: any, ownProps) => {
       return {
         onChange(index: number, name: string | null) {
-          ownProps.onChange?.(index, name);
-          return dispatch(changeStageOperator(index, name ?? ''));
+          const snippet = dispatch(changeStageOperator(index, name ?? ''));
+          ownProps.onChange?.(index, name, snippet);
         },
       };
     }

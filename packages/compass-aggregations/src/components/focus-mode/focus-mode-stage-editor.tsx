@@ -46,11 +46,14 @@ export const FocusModeStageEditor = ({
     <div className={containerStyles}>
       <div className={headerStyles}>
         <StageOperatorSelect
-          onChange={() => {
+          onChange={(_index, _name, snippet) => {
             // Accounting for Combobox moving focus back to the input on stage
             // change
             rafraf(() => {
               editorRef.current?.focus();
+              if (snippet) {
+                editorRef.current?.applySnippet(snippet);
+              }
             });
           }}
           index={index}

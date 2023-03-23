@@ -239,12 +239,14 @@ function Stage({
       >
         <div {...listeners} ref={setGuideCueIntersectingRef}>
           <StageToolbar
-            onStageOperatorChange={() => {
+            onStageOperatorChange={(_index, _name, snippet) => {
               // Accounting for Combobox moving focus back to the input on
               // stage change
               rafraf(() => {
-                // TODO: apply snippet here
                 editorRef.current?.focus();
+                if (snippet) {
+                  editorRef.current?.applySnippet(snippet);
+                }
               });
             }}
             onFocusModeClicked={setGuideCueVisited}
