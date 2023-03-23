@@ -136,9 +136,28 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
  */
 const writeLicenseFile = (CONFIG, done) => {
   try {
-    const contents = fs.readFileSync(path.join(CONFIG.resourcesAppDir, 'LICENSE'));
-    CONFIG.write('LICENSE', contents).then(() => done(null, true));
-    cli.debug(format('LICENSE written'));
+    const contents = fs.readFileSync(path.join(CONFIG.dir, 'LICENSE'));
+    CONFIG.write('LICENSE', contents).then(() => {
+      cli.debug(format('LICENSE written'));
+    }).then(() => done(null, true));
+  } catch (err) {
+    done(err);
+  }
+};
+
+/**
+ * Copies the THIRD-PARTY-NOTICES from the compass dir to the root of the archive.
+ * This replicates the previous behavior where the `electron-license` package was used to produce
+ * a single LICENSE file on the root of the archive containing both the Compass license
+ * and any other 3rd-party licenses.
+ */
+const copy3rdPartyNoticesFile = (CONFIG, done) => {
+  try {
+    const noticesPath = path.join(CONFIG.dir, 'THIRD-PARTY-NOTICES.md');
+    const contents = fs.readFileSync(noticesPath);
+    CONFIG.write('THIRD-PARTY-NOTICES.md', contents).then(() => {
+      cli.debug(format('THIRD-PARTY-NOTICES.md written'));
+    }).then(() => done(null, true));
   } catch (err) {
     done(err);
   }
@@ -513,6 +532,7 @@ exports.run = (argv, done) => {
     task('install dependencies', installDependencies),
     task('fix COMPASS-5333', fixCompass5333),
     task('write license file', writeLicenseFile),
+    task('write 3rd party notices file', copy3rdPartyNoticesFile),
     task('remove development files', removeDevelopmentFiles),
     !noAsar && task('create application asar', createApplicationAsar),
     !skipInstaller && task('create branded installer', createBrandedInstaller),
