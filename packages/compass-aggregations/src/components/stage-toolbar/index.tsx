@@ -11,7 +11,6 @@ import {
   IconButton,
 } from '@mongodb-js/compass-components';
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
-import { type AceEditor } from '@mongodb-js/compass-editor';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
@@ -92,7 +91,7 @@ type StageToolbarProps = {
   isDisabled?: boolean;
   onFocusModeClicked: () => void;
   onOpenFocusMode: () => void;
-  editorRef: React.RefObject<AceEditor | undefined>;
+  onStageOperatorChange?: (index: number, name: string | null) => void;
 };
 
 const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
@@ -106,7 +105,7 @@ export function StageToolbar({
   isCollapsed,
   isDisabled,
   onOpenFocusMode,
-  editorRef,
+  onStageOperatorChange,
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
 
@@ -125,7 +124,7 @@ export function StageToolbar({
         <StageCollapser index={index} />
         <Body weight="medium">Stage {index + 1}</Body>
         <div className={selectStyles}>
-          <StageOperatorSelect editorRef={editorRef} index={index} />
+          <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
         <ToggleStage index={index} />
       </div>

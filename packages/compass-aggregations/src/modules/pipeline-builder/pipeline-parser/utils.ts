@@ -8,7 +8,9 @@ import type { FormatOptions } from '@mongodb-js/compass-editor';
 type ErrorLoc = {
   line: number;
   column: number;
+  index?: number;
 };
+
 export class PipelineParserError extends SyntaxError {
   constructor(message: string, public loc?: ErrorLoc, public code?: number) {
     super(message);

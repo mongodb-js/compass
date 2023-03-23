@@ -1,11 +1,10 @@
 import React, { useRef } from 'react';
-import { css, spacing, Link } from '@mongodb-js/compass-components';
-import { type AceEditor } from '@mongodb-js/compass-editor';
-
+import { css, spacing, Link, rafraf } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
-import { connect } from 'react-redux';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
 import { PIPELINE_HELP_URI } from '../../constants';
 
@@ -38,7 +37,7 @@ export const FocusModeStageEditor = ({
   index: number;
   operator: string | null;
 }) => {
-  const editorRef = useRef<AceEditor | undefined>(undefined);
+  const editorRef = useRef<EditorRef>(null);
   if (index === -1) {
     return null;
   }
@@ -46,18 +45,22 @@ export const FocusModeStageEditor = ({
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
-        <StageOperatorSelect editorRef={editorRef} index={index} />
+        <StageOperatorSelect
+          onChange={() => {
+            // Accounting for Combobox moving focus back to the input on stage
+            // change
+            rafraf(() => {
+              editorRef.current?.focus();
+            });
+          }}
+          index={index}
+        />
         <Link hideExternalIcon={false} href={link} target="_blank">
           Open docs
         </Link>
       </div>
       <div className={editorStyles}>
-        <StageEditor
-          onLoad={(editor) => {
-            editorRef.current = editor;
-          }}
-          index={index}
-        />
+        <StageEditor editorRef={editorRef} index={index} />
       </div>
     </div>
   );

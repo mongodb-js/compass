@@ -1,8 +1,6 @@
-import _ from 'lodash';
-import React, { useCallback, useMemo } from 'react';
-import { usePreference } from 'compass-preferences-model';
+import React, { useCallback } from 'react';
+import { withPreferences } from 'compass-preferences-model';
 import { connect } from 'react-redux';
-import { type AceEditor } from '@mongodb-js/compass-editor';
 
 import {
   Combobox,
@@ -90,68 +88,39 @@ export const StageOperatorSelect = ({
   );
 };
 
-type EnvAwareStageOperatorSelectProps = {
-  envInfo: {
-    serverVersion: string;
-    env: string;
-    isTimeSeries: boolean;
-    sourceName: string;
-  };
-  stage: {
-    stageOperator: string | null;
-    disabled: boolean;
-  };
-  onChange: (index: number, name: string) => void;
-  index: number;
-  editorRef: React.RefObject<AceEditor | undefined>;
-};
-function EnvAwareStageOperatorSelect({
-  envInfo: { serverVersion, env, isTimeSeries, sourceName },
-  stage,
-  onChange,
-  index,
-  editorRef,
-}: EnvAwareStageOperatorSelectProps) {
-  const preferencesReadOnly = usePreference('readOnly', React);
-  const stages = useMemo(() => {
-    return filterStageOperators({
-      serverVersion,
-      env,
-      isTimeSeries,
-      preferencesReadOnly,
-      sourceName,
-    });
-  }, [serverVersion, env, isTimeSeries, preferencesReadOnly, sourceName]);
-
-  const onChangeFilter = (index: number, name: string | null) => {
-    if (name) {
-      onChange(index, name);
-      editorRef.current?.focus();
+export default withPreferences(
+  connect(
+    (
+      state: RootState,
+      ownProps: {
+        index: number;
+        readOnly: boolean;
+        onChange?: (index: number, name: string | null) => void;
+      }
+    ) => {
+      const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+      const stages = filterStageOperators({
+        serverVersion: state.serverVersion,
+        env: state.env,
+        isTimeSeries: state.isTimeSeries,
+        sourceName: state.sourceName,
+        preferencesReadOnly: ownProps.readOnly,
+      });
+      return {
+        selectedStage: stage.stageOperator,
+        isDisabled: stage.disabled,
+        stages: stages,
+      };
+    },
+    (dispatch: any, ownProps) => {
+      return {
+        onChange(index: number, name: string | null) {
+          ownProps.onChange?.(index, name);
+          return dispatch(changeStageOperator(index, name ?? ''));
+        },
+      };
     }
-  };
-
-  return (
-    <StageOperatorSelect
-      index={index}
-      stages={stages}
-      selectedStage={stage.stageOperator}
-      isDisabled={stage.disabled}
-      onChange={onChangeFilter}
-    />
-  );
-}
-
-export default connect(
-  (state: RootState, ownProps: { index: number }) => {
-    return {
-      envInfo: _.pick(state, [
-        'serverVersion',
-        'env',
-        'isTimeSeries',
-        'sourceName',
-      ]),
-      stage: state.pipelineBuilder.stageEditor.stages[ownProps.index],
-    };
-  },
-  { onChange: changeStageOperator }
-)(EnvAwareStageOperatorSelect);
+  )(StageOperatorSelect),
+  ['readOnly'],
+  React
+);

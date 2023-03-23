@@ -1,17 +1,11 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import type { MongoServerError } from 'mongodb';
 import {
-  Editor,
-  EditorVariant,
-  EditorTextCompleter,
-  StageAutoCompleter,
+  CodemirrorMultilineEditor,
+  createStageAutocompleter,
 } from '@mongodb-js/compass-editor';
-import type {
-  AceEditor,
-  CompletionWithServerInfo,
-  AceAnnotation,
-} from '@mongodb-js/compass-editor';
+import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   css,
@@ -70,34 +64,15 @@ type StageEditorProps = {
   stageOperator: string | null;
   stageValue: string | null;
   serverVersion: string;
-  autocompleteFields: CompletionWithServerInfo[];
+  autocompleteFields: { name: string; description?: string }[];
   syntaxError: PipelineParserError | null;
   serverError: MongoServerError | null;
   num_stages: number;
   editor_view_type: string;
   className?: string;
   onChange: (index: number, value: string) => void;
-  onLoad?: (editor: AceEditor) => void;
+  editorRef?: React.Ref<EditorRef>;
 };
-
-function useStageCompleter(
-  ...args: ConstructorParameters<typeof StageAutoCompleter>
-): StageAutoCompleter {
-  const [version, textCompleter, fields, operator] = args;
-  const completer = useRef<StageAutoCompleter>();
-  if (!completer.current) {
-    completer.current = new StageAutoCompleter(
-      version,
-      textCompleter,
-      fields,
-      operator
-    );
-  }
-  useEffect(() => {
-    completer.current?.update(fields, operator ?? null, version);
-  }, [fields]);
-  return completer.current;
-}
 
 export const StageEditor = ({
   stageValue,
@@ -111,37 +86,41 @@ export const StageEditor = ({
   serverVersion,
   num_stages,
   editor_view_type,
-  onLoad,
+  editorRef,
 }: StageEditorProps) => {
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
-  const editorRef = useRef<AceEditor | undefined>(undefined);
-  const completer = useStageCompleter(
-    serverVersion,
-    EditorTextCompleter,
-    autocompleteFields,
-    stageOperator
-  );
+  const editorCurrentValueRef = useRef<string | null>(stageValue);
+  editorCurrentValueRef.current = stageValue;
 
-  useEffect(() => {
-    let annotations: AceAnnotation[] = [];
-    if (syntaxError && syntaxError.loc) {
-      const { line: row, column } = syntaxError.loc;
-      annotations = [
+  const completer = useMemo(() => {
+    return createStageAutocompleter({
+      serverVersion,
+      stageOperator: stageOperator ?? undefined,
+      fields: autocompleteFields,
+    });
+  }, [autocompleteFields, serverVersion, stageOperator]);
+
+  const annotations = useMemo<Annotation[]>(() => {
+    if (syntaxError?.loc?.index) {
+      return [
         {
-          row: row - 1,
-          column,
-          text: syntaxError.message,
-          type: 'error',
+          message: syntaxError.message,
+          severity: 'error',
+          from: syntaxError.loc.index,
+          to: syntaxError.loc.index,
         },
       ];
     }
-    editorRef.current?.getSession().setAnnotations(annotations);
-  }, [syntaxError, editorRef]);
+
+    return [];
+  }, [syntaxError]);
 
   const onBlurEditor = useCallback(() => {
-    const value = editorRef.current?.getValue();
-    if (value !== undefined && value !== editorInitialValueRef.current) {
+    if (
+      !!editorCurrentValueRef.current &&
+      editorCurrentValueRef.current !== editorInitialValueRef.current
+    ) {
       track('Aggregation Edited', {
         num_stages: num_stages,
         stage_index: index + 1,
@@ -149,10 +128,9 @@ export const StageEditor = ({
         stage_name: stageOperator,
         editor_view_type: editor_view_type,
       });
-      editorInitialValueRef.current = value;
+      editorInitialValueRef.current = editorCurrentValueRef.current;
     }
   }, [
-    editorRef,
     editorInitialValueRef,
     num_stages,
     index,
@@ -169,18 +147,17 @@ export const StageEditor = ({
       )}
     >
       <div className={editorStyles}>
-        <Editor
+        <CodemirrorMultilineEditor
+          ref={editorRef}
           text={stageValue ?? ''}
-          onChangeText={(value) => onChange(index, value)}
-          variant={EditorVariant.Shell}
-          className={aceEditorStyles}
-          name={`aggregations-stage-editor-${index}`}
-          options={{ minLines: 5 }}
-          completer={completer}
-          onLoad={(editor) => {
-            editorRef.current = editor;
-            onLoad?.(editor);
+          onChangeText={(value: string) => {
+            onChange(index, value);
           }}
+          className={aceEditorStyles}
+          id={`aggregations-stage-editor-${index}`}
+          minLines={5}
+          completer={completer}
+          annotations={annotations}
           onBlur={onBlurEditor}
         />
       </div>
@@ -223,7 +200,10 @@ export default connect(
       syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
       serverError: !stage.empty ? stage.serverError ?? null : null,
       serverVersion: state.serverVersion,
-      autocompleteFields: state.fields as CompletionWithServerInfo[],
+      autocompleteFields: state.fields as {
+        name: string;
+        description?: string;
+      }[],
       num_stages,
       editor_view_type: mapPipelineModeToEditorViewType(state),
     };

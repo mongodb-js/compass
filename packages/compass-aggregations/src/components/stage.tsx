@@ -9,8 +9,8 @@ import {
   spacing,
   palette,
   GuideCue,
+  rafraf,
 } from '@mongodb-js/compass-components';
-import { type AceEditor } from '@mongodb-js/compass-editor';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
@@ -27,6 +27,7 @@ import {
   setHasSeenFocusModeGuideCue,
   hasSeenFocusModeGuideCue,
 } from '../utils/local-storage';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 
 const stageStyles = css({
   position: 'relative',
@@ -82,22 +83,18 @@ const RESIZABLE_DIRECTIONS = {
   topLeft: false,
 };
 
-type ResizableEditorProps = {
-  index: number;
+type ResizableEditorProps = React.ComponentProps<typeof StageEditor> & {
   isAutoPreviewing: boolean;
-  onLoad: (editor: AceEditor) => void;
 };
 
 function ResizableEditor({
-  index,
   isAutoPreviewing,
-  onLoad,
+  ...editorProps
 }: ResizableEditorProps) {
   const editor = (
     <StageEditor
-      onLoad={onLoad}
-      index={index}
-      className={stageEditorContainerStyles}
+      {...editorProps}
+      className={cx(stageEditorContainerStyles, editorProps.className)}
     />
   );
 
@@ -181,7 +178,7 @@ function Stage({
   hasServerError,
   isAutoPreviewing,
 }: StageProps) {
-  const editorRef = useRef<AceEditor | undefined>(undefined);
+  const editorRef = useRef<EditorRef>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // Focus Mode Guide Cue
@@ -242,8 +239,15 @@ function Stage({
       >
         <div {...listeners} ref={setGuideCueIntersectingRef}>
           <StageToolbar
+            onStageOperatorChange={() => {
+              // Accounting for Combobox moving focus back to the input on
+              // stage change
+              rafraf(() => {
+                // TODO: apply snippet here
+                editorRef.current?.focus();
+              });
+            }}
             onFocusModeClicked={setGuideCueVisited}
-            editorRef={editorRef}
             index={index}
           />
         </div>
@@ -252,9 +256,7 @@ function Stage({
             <ResizableEditor
               index={index}
               isAutoPreviewing={isAutoPreviewing}
-              onLoad={(editor) => {
-                editorRef.current = editor;
-              }}
+              editorRef={editorRef}
             />
             {isAutoPreviewing && (
               <div className={stagePreviewContainerStyles}>
