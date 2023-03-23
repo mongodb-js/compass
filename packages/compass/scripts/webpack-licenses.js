@@ -47,32 +47,29 @@ function checkOverridesArePresent() {
     ...Object.keys(LICENSE_OVERRIDES),
   ];
 
-  const { stdout } = spawnSync('npm', ['ls', '--json', ...packagesToCheck], {
-    encoding: 'utf8',
+  const packageLockJsonPath = findUp.sync('package-lock.json', {
+    cwd: __dirname,
   });
+  const packageLockJson = JSON.parse(
+    fs.readFileSync(packageLockJsonPath, 'utf-8')
+  );
 
-  let npmLs;
-  try {
-    npmLs = JSON.parse(stdout);
-  } catch (e) {
-    throw new Error('Failed to parse npm ls output, npm ls --failed');
-  }
+  const allDepsInLock = new Set();
+  const traverseDependencies = (dependencies) => {
+    for (const packageName in dependencies) {
+      const packageInfo = dependencies[packageName];
+      allDepsInLock.add(`${packageName}@${packageInfo.version}`);
 
-  const allPackages = new Set();
-
-  const traverseDependencies = (dependencies, callback) => {
-    for (const [name, dependency] of Object.entries(dependencies || {})) {
-      callback(name, dependency);
-      traverseDependencies(dependency.dependencies, callback);
+      if (packageInfo.dependencies) {
+        traverseDependencies(packageInfo.dependencies);
+      }
     }
   };
 
-  traverseDependencies(npmLs.dependencies, (name, dependency) => {
-    allPackages.add(`${name}@${dependency.version}`);
-  });
+  traverseDependencies(packageLockJson.dependencies);
 
   for (const packageName of packagesToCheck) {
-    if (!allPackages.has(packageName)) {
+    if (!allDepsInLock.has(packageName)) {
       throw new Error(
         `The package "${packageName}" is not installed, please remove it from IGNORED_PACKAGES or LICENSE_OVERRIDES in ${__filename}.`
       );
