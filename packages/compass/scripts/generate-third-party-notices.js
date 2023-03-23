@@ -60,9 +60,6 @@ sortedData.forEach((entry) => {
   if (entry.repository) {
     markdown += `**Repository**: ${entry.repository}\n\n`;
   }
-  if (entry.source) {
-    markdown += `**Source**: ${entry.source}\n\n`;
-  }
   if (entry.licenseText) {
     markdown += `**License Text**:\n\n\`\`\`\n${entry.licenseText}\n\`\`\`\n\n`;
   }

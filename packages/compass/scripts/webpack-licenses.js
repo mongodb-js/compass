@@ -9,7 +9,7 @@ const path = require('path');
 const findUp = require('find-up');
 const fs = require('fs');
 const WebpackLicensePlugin = require('webpack-license-plugin');
-const { execSync, spawnSync } = require('child_process');
+const { spawnSync } = require('child_process');
 
 // Configuration:
 
@@ -34,7 +34,6 @@ const LICENSE_OVERRIDES = {
   'media-type@0.3.0': 'Apache-2.0',
   'expand-template@2.0.3': 'MIT',
   'rc@1.2.8': 'MIT',
-  // https://github.com/segmentio/loosely-validate-event/blob/master/LICENSE
   '@segment/loosely-validate-event@2.0.0': 'MIT',
   'jszip@3.6.0': 'MIT',
   'pako@1.0.11': 'MIT',
@@ -84,8 +83,16 @@ function checkOverridesArePresent() {
 checkOverridesArePresent();
 
 function getAllPackageNames() {
-  const output = execSync('npx lerna ls --json', { encoding: 'utf-8' });
-  const packages = JSON.parse(output);
+  const output = spawnSync('npx', ['lerna', 'ls', '--all', '--json'], {
+    encoding: 'utf-8',
+  });
+
+  if (output.error) {
+    console.error('Error executing command:', output.error);
+    process.exit(1);
+  }
+
+  const packages = JSON.parse(output.stdout);
   return packages.map((pkg) => pkg.name);
 }
 
@@ -130,7 +137,8 @@ function getProductionDeps(packageLocation) {
   return Object.keys(dependencies);
 }
 
-function findAllProdDepsTreeLocations(root) {
+function findAllProdDepsTreeLocations() {
+  const root = path.dirname(findUp.sync('package.json', { cwd: __dirname }));
   const allLocations = new Set();
   const visited = new Set();
   const queue = [root];
@@ -178,7 +186,10 @@ function createLicensePlugin({ outputFilename, includeProdPackages }) {
     },
     // @ts-ignore
     includePackages: includeProdPackages
-      ? () => findAllProdDepsTreeLocations(path.resolve(__dirname))
+      ? () => [
+          findPackageLocation('electron'),
+          ...findAllProdDepsTreeLocations(),
+        ]
       : () => [],
   });
 }
