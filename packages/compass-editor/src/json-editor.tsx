@@ -1129,13 +1129,6 @@ const multilineEditorContainerStyle = css({
   },
 });
 
-const editorContainerStyle = css({
-  overflow: 'auto',
-  // We want folks to be able to click into the container element
-  // they're using for the editor to focus the editor.
-  minHeight: 'inherit',
-});
-
 const actionsContainerStyle = css({
   position: 'absolute',
   top: spacing[1],
@@ -1171,6 +1164,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
     },
     ref
   ) {
+    const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<EditorRef>(null);
 
     useImperativeHandle(
@@ -1249,10 +1243,23 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
     }, [copyable, formattable, customActions]);
 
     return (
-      <div className={cx(multilineEditorContainerStyle, className)}>
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+      <div
+        ref={containerRef}
+        className={cx(multilineEditorContainerStyle, className)}
+        // We want folks to be able to click into the container element
+        // they're using for the editor to focus the editor.
+        onClick={(evt) => {
+          // Only do this when root container of the editor is clicked (not
+          // something inside it)
+          if (evt.target === containerRef.current) {
+            editorRef.current?.focus();
+          }
+        }}
+      >
         {/* Separate scrollable container for editor so that action buttons can */}
         {/* stay in one place when scrolling */}
-        <div className={editorContainerStyle}>
+        <div>
           <BaseEditor
             ref={editorRef}
             className={editorClassName}
