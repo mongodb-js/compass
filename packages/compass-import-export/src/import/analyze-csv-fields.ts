@@ -176,6 +176,7 @@ export function analyzeCSVFields({
           aborted = true;
           result.aborted = true;
           parser.abort();
+          input.destroy();
         }
 
         if (!headerFields) {
