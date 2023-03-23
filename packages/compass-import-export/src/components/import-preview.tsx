@@ -16,6 +16,7 @@ import {
   Icon,
   Select,
   Option,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import { createDebug } from '../utils/logger';
@@ -33,8 +34,12 @@ const columnHeaderStyles = css({
   alignItems: 'flex-start',
 });
 
-const mixedCellStyles = css({
+const mixedCellStylesLight = css({
   backgroundColor: palette.yellow.light3,
+});
+
+const mixedCellStylesDark = css({
+  backgroundColor: palette.yellow.dark3,
 });
 
 const columnNameStyles = css({
@@ -75,10 +80,17 @@ const fieldTypeContainerStyles = css({
   gap: spacing[1],
 });
 
-const infoIconCSS = css({
+const infoIconCSSCommon = css({
   // align the icon relative to the selectbox
   height: `${spacing[3]}px`,
+});
+
+const infoIconCSSLight = css({
   color: palette.gray.dark2,
+});
+
+const infoIconCSSDark = css({
+  color: palette.gray.light2,
 });
 
 const typesListCSS = css({
@@ -145,6 +157,8 @@ function MixedWarning({
   result: CSVField;
   selectedType: CSVParsableFieldType;
 }) {
+  const darkMode = useDarkMode();
+
   return (
     <Tooltip
       align="top"
@@ -153,7 +167,12 @@ function MixedWarning({
       trigger={({ children, ...props }) => (
         <div {...props}>
           {children}
-          <div className={infoIconCSS}>
+          <div
+            className={cx(
+              infoIconCSSCommon,
+              darkMode ? infoIconCSSDark : infoIconCSSLight
+            )}
+          >
             <Icon glyph="InfoWithCircle"></Icon>
           </div>
         </div>
@@ -188,6 +207,9 @@ function FieldHeader(
   onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void,
   setFieldType: (fieldPath: string, fieldType: string) => void
 ) {
+  const darkMode = useDarkMode();
+  const mixedCellStyles = darkMode ? mixedCellStylesDark : mixedCellStylesLight;
+
   return (
     <TableHeader
       key={`col-${field.path}`}
@@ -274,6 +296,8 @@ function ImportPreview({
   loaded: boolean;
   analyzed: boolean;
 }) {
+  const darkMode = useDarkMode();
+
   if (!loaded) {
     debug('Preview unavailable: not loaded yet');
     return null;
@@ -288,6 +312,8 @@ function ImportPreview({
   }
 
   const gapOrFields: (string | Field)[] = ['', ...fields];
+
+  const mixedCellStyles = darkMode ? mixedCellStylesDark : mixedCellStylesLight;
 
   return (
     <>

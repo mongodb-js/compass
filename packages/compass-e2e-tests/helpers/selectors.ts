@@ -528,6 +528,8 @@ export const DocumentFooter = '[data-testid="document-footer"]';
 export const DocumentFooterMessage = '[data-testid="document-footer-message"]';
 export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-button"]`;
 export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="delete-button"]`;
+export const JSONDocumentCard = '[data-testid="editable-json"]';
+export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
 
 // Insert Document modal
 
