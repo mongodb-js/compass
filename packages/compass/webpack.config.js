@@ -46,12 +46,6 @@ module.exports = (_env, args) => {
       'commonjs2 @mongosh/node-runtime-worker-thread',
   };
 
-  const resolve = {
-    alias: {
-      browserslist: false,
-    },
-  };
-
   // Having persistent build cache makes initial dev build slower, but
   // subsequent builds much much faster
   const cache = {
@@ -122,8 +116,6 @@ module.exports = (_env, args) => {
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
-      // @ts-ignore
-      resolve,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         // @ts-ignore
