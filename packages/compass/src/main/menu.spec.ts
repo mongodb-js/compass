@@ -191,6 +191,9 @@ describe('CompassMenu', function () {
           submenu: [
             { label: `&Online ${app.getName()} Help`, accelerator: 'F1' },
             { label: '&License' },
+            { label: `&View Source Code on GitHub` },
+            { label: `&Suggest a Feature` },
+            { label: `&Report a Bug` },
             { label: '&Open Log File' },
           ],
         },
