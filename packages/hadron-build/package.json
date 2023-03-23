@@ -34,7 +34,6 @@
     "del": "^2.0.2",
     "download": "^8.0.0",
     "electron": "^22.3.3",
-    "electron-license": "^3.0.0",
     "electron-packager": "^15.5.1",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
     "@electron/rebuild": "^3.2.10",
