@@ -21,6 +21,7 @@ import type { DocumentTableViewProps } from './table-view/document-table-view';
 import DocumentTableView from './table-view/document-table-view';
 import type { CrudToolbarProps } from './crud-toolbar';
 import { CrudToolbar } from './crud-toolbar';
+import { withPreferences } from 'compass-preferences-model';
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
@@ -33,6 +34,7 @@ import {
 import './index.less';
 import type { CrudStore, BSONObject } from '../stores/crud-store';
 import type Document from 'hadron-document';
+import type { EDITOR } from 'compass-preferences-model';
 
 const listAndJsonStyles = css({
   padding: spacing[3],
@@ -47,12 +49,16 @@ const tableStyles = css({
   paddingLeft: spacing[3],
 });
 
+export type DocumentListState = {
+  view: EDITOR;
+};
+
 export type DocumentListProps = {
   store: CrudStore;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   openImportFileDialog?: () => void;
   docs: Document[];
-  view: 'List' | 'JSON' | 'Table';
+  editor: EDITOR;
   insert: Partial<InsertDocumentDialogProps> &
     Required<
       Pick<
@@ -109,7 +115,10 @@ export type DocumentListProps = {
 /**
  * Component for the entire document list.
  */
-class DocumentList extends React.Component<DocumentListProps> {
+class DocumentList extends React.Component<
+  DocumentListProps,
+  DocumentListState
+> {
   onApplyClicked() {
     void this.props.store.refreshDocuments(true);
   }
@@ -148,9 +157,9 @@ class DocumentList extends React.Component<DocumentListProps> {
       return null;
     }
 
-    if (this.props.view === 'List') {
+    if (this.state.view === 'List') {
       return <DocumentListView {...this.props} className={listAndJsonStyles} />;
-    } else if (this.props.view === 'Table') {
+    } else if (this.state.view === 'Table') {
       return (
         <DocumentTableView
           // ag-grid would not refresh the theme for the elements that it renders directly otherwise (ie. CellEditor, CellRenderer ...)
@@ -280,6 +289,11 @@ class DocumentList extends React.Component<DocumentListProps> {
     );
   }
 
+  constructor(props: DocumentListProps) {
+    super(props);
+    this.state = { view: props.editor };
+  }
+
   /**
    * Render the document list.
    *
@@ -291,7 +305,7 @@ class DocumentList extends React.Component<DocumentListProps> {
         <WorkspaceContainer
           toolbar={
             <CrudToolbar
-              activeDocumentView={this.props.view}
+              activeDocumentView={this.state.view}
               error={this.props.error}
               count={this.props.count}
               loadingCount={this.props.loadingCount}
@@ -307,7 +321,7 @@ class DocumentList extends React.Component<DocumentListProps> {
               openExportFileDialog={this.props.openExportFileDialog}
               outdated={this.props.outdated}
               readonly={!this.props.isEditable}
-              viewSwitchHandler={this.props.viewChanged}
+              viewSwitchHandler={(view) => this.setState({ view })}
               isWritable={this.props.isWritable}
               instanceDescription={this.props.instanceDescription}
               refreshDocuments={this.props.refreshDocuments}
@@ -351,7 +365,6 @@ class DocumentList extends React.Component<DocumentListProps> {
     updateDocument: PropTypes.func,
     updateJsonDoc: PropTypes.func,
     version: PropTypes.string.isRequired,
-    view: PropTypes.oneOf(['List', 'JSON', 'Table'] as const).isRequired,
     viewChanged: PropTypes.func.isRequired,
     docs: PropTypes.array.isRequired,
     ns: PropTypes.string,
@@ -369,7 +382,6 @@ class DocumentList extends React.Component<DocumentListProps> {
 
   static defaultProps = {
     error: null,
-    view: 'List',
     version: '3.4.0',
     isEditable: true,
     insert: {} as any,
@@ -405,7 +417,6 @@ DocumentList.propTypes = {
   updateDocument: PropTypes.func,
   updateJsonDoc: PropTypes.func,
   version: PropTypes.string.isRequired,
-  view: PropTypes.string.isRequired,
   viewChanged: PropTypes.func.isRequired,
   docs: PropTypes.array,
   ns: PropTypes.string,
@@ -423,11 +434,10 @@ DocumentList.propTypes = {
 
 DocumentList.defaultProps = {
   error: null,
-  view: 'List',
   version: '3.4.0',
   isEditable: true,
   insert: {},
   tz: 'UTC',
 };
 
-export default withDarkMode(DocumentList);
+export default withDarkMode(withPreferences(DocumentList, ['editor'], React));
