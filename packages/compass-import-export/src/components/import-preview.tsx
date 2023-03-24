@@ -10,7 +10,6 @@ import {
   cx,
   spacing,
   Label,
-  Placeholder,
   palette,
   Tooltip,
   Icon,
@@ -203,7 +202,6 @@ function MixedWarning({
 
 function FieldHeader(
   field: Field,
-  analyzed: boolean,
   onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void,
   setFieldType: (fieldPath: string, fieldType: string) => void
 ) {
@@ -250,26 +248,17 @@ function FieldHeader(
                 </Label>
               </div>
               <div className={fieldTypeContainerStyles}>
-                {analyzed ? (
-                  <>
-                    <SelectFieldType
-                      fieldPath={field.path}
-                      selectedType={field.type}
-                      onChange={(newType: string) =>
-                        setFieldType(field.path, newType)
-                      }
-                    />
-                    {field.result && needsMixedWarning(field) && (
-                      <MixedWarning
-                        result={field.result}
-                        selectedType={field.type}
-                      />
-                    )}
-                  </>
-                ) : (
-                  <Placeholder
-                    width={spacing[3] * 9}
-                    data-testid={`import-preview-placeholder-${field.path}`}
+                <SelectFieldType
+                  fieldPath={field.path}
+                  selectedType={field.type}
+                  onChange={(newType: string) =>
+                    setFieldType(field.path, newType)
+                  }
+                />
+                {field.result && needsMixedWarning(field) && (
+                  <MixedWarning
+                    result={field.result}
+                    selectedType={field.type}
                   />
                 )}
               </div>
@@ -287,14 +276,12 @@ function ImportPreview({
   onFieldCheckedChanged,
   setFieldType,
   loaded,
-  analyzed,
 }: {
   fields: Field[];
   values: string[][];
   onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
   setFieldType: (fieldPath: string, fieldType: string) => void;
   loaded: boolean;
-  analyzed: boolean;
 }) {
   const darkMode = useDarkMode();
 
@@ -322,12 +309,7 @@ function ImportPreview({
         data={values}
         columns={gapOrFields.map((field) => {
           if (typeof field !== 'string' && 'path' in field) {
-            return FieldHeader(
-              field,
-              analyzed,
-              onFieldCheckedChanged,
-              setFieldType
-            );
+            return FieldHeader(field, onFieldCheckedChanged, setFieldType);
           } else {
             return (
               <TableHeader

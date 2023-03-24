@@ -9,6 +9,7 @@ import {
   css,
   spacing,
   FormFieldContainer,
+  Body,
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
@@ -31,6 +32,7 @@ import formatNumber from '../utils/format-number';
 import {
   startImport,
   cancelImport,
+  skipCSVAnalyze,
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,
@@ -61,11 +63,18 @@ const closeButtonStyles = css({
   marginRight: spacing[2],
 });
 
+const progressStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+});
+
 type ImportModalProps = {
   isOpen: boolean;
   ns: string;
   startImport: () => void;
   cancelImport: () => void;
+  skipCSVAnalyze: () => void;
   closeImport: () => void;
   errors: Error[];
   status: ProcessStatus;
@@ -92,6 +101,9 @@ type ImportModalProps = {
   guesstimatedDocsTotal: number;
   guesstimatedDocsProcessed: number;
 
+  analyzeBytesProcessed: number;
+  analyzeBytesTotal: number;
+
   /**
    * See `<ImportPreview />`
    */
@@ -114,6 +126,8 @@ function ImportModal({
   cancelImport,
   closeImport,
 
+  skipCSVAnalyze,
+
   errors,
   status,
 
@@ -132,6 +146,9 @@ function ImportModal({
   docsWritten,
   guesstimatedDocsTotal,
   guesstimatedDocsProcessed,
+
+  analyzeBytesProcessed,
+  analyzeBytesTotal,
 
   fields,
   values,
@@ -153,6 +170,10 @@ function ImportModal({
   const handleImportBtnClicked = useCallback(() => {
     startImport();
   }, [startImport]);
+
+  const handleSkipCSVAnalyze = useCallback(() => {
+    skipCSVAnalyze();
+  }, [skipCSVAnalyze]);
 
   // docsTotal is set to actual value only at the very end of processing a
   // stream of documents
@@ -216,16 +237,27 @@ function ImportModal({
           ignoreBlanks={ignoreBlanks}
           setIgnoreBlanks={setIgnoreBlanks}
         />
-        {fileType === 'csv' && (
+        {fileType === 'csv' && csvAnalyzed && (
           <FormFieldContainer>
             <ImportPreview
               loaded={previewLoaded}
-              analyzed={csvAnalyzed}
               onFieldCheckedChanged={toggleIncludeField}
               setFieldType={setFieldType}
               values={values}
               fields={fields as FieldFromCSV[]}
             />
+          </FormFieldContainer>
+        )}
+
+        {fileType === 'csv' && !csvAnalyzed && (
+          <FormFieldContainer className={progressStyles}>
+            <Body>Detecting field types</Body>
+            {analyzeBytesTotal && (
+              <Body>
+                {Math.round((analyzeBytesProcessed / analyzeBytesTotal) * 100)}%
+              </Body>
+            )}
+            <Button onClick={handleSkipCSVAnalyze}>Skip</Button>
           </FormFieldContainer>
         )}
         <ProgressBar
@@ -308,6 +340,8 @@ const mapStateToProps = (state: RootImportState) => ({
   docsWritten: state.importData.docsWritten,
   guesstimatedDocsTotal: state.importData.guesstimatedDocsTotal,
   guesstimatedDocsProcessed: state.importData.guesstimatedDocsProcessed,
+  analyzeBytesProcessed: state.importData.analyzeBytesProcessed,
+  analyzeBytesTotal: state.importData.analyzeBytesTotal,
   delimiter: state.importData.delimiter,
   stopOnErrors: state.importData.stopOnErrors,
   ignoreBlanks: state.importData.ignoreBlanks,
@@ -323,6 +357,7 @@ const mapStateToProps = (state: RootImportState) => ({
 export default connect(mapStateToProps, {
   startImport,
   cancelImport,
+  skipCSVAnalyze,
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,
