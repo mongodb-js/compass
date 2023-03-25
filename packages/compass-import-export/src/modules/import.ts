@@ -419,18 +419,27 @@ export const cancelImport = () => {
     getState: () => RootImportState
   ) => {
     const { importData } = getState();
-    const { abortController } = importData;
+    const { abortController, analyzeAbortController } = importData;
 
-    if (abortController) {
-      debug('cancelling');
-      abortController.abort();
-    } else {
-      debug('no active import to cancel.');
-      return;
+    // The user could close the modal while a analyzeCSVFields() is running
+    if (analyzeAbortController) {
+      debug('cancelling analyzeCSVFields');
+      analyzeAbortController.abort();
+
+      debug('analyzeCSVFields canceled by user');
+      dispatch({ type: ANALYZE_CANCELLED });
     }
 
-    debug('import canceled by user');
-    dispatch({ type: CANCELED });
+    // The user could close the modal while a importCSV() or importJSON() is running
+    if (abortController) {
+      debug('cancelling import');
+      abortController.abort();
+
+      debug('import canceled by user');
+      dispatch({ type: CANCELED });
+    } else {
+      debug('no active import to cancel.');
+    }
   };
 };
 

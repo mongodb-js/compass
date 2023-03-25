@@ -35,7 +35,7 @@ jobs:
       - name: Install Dependencies
         run: |
           npm -v
-          npm ci
+          npm run bootstrap-ci
 
       - name: Update AUTHORS
         run: npm run update-authors

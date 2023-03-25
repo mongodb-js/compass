@@ -24,6 +24,8 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
+  useImperativeHandle,
   useRef,
   useState,
 } from 'react';
@@ -59,12 +61,14 @@ import {
 import type { Diagnostic } from '@codemirror/lint';
 import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
 import type { CompletionSource } from '@codemirror/autocomplete';
+import { snippetCompletion } from '@codemirror/autocomplete';
 import {
   autocompletion,
   completionKeymap,
   closeBrackets,
   closeBracketsKeymap,
 } from '@codemirror/autocomplete';
+import type { IconGlyph } from '@mongodb-js/compass-components';
 import {
   css,
   cx,
@@ -77,7 +81,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { javascriptLanguage } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
-import type { Extension } from '@codemirror/state';
+import type { Extension, TransactionSpec } from '@codemirror/state';
 import { Facet, Compartment, EditorState } from '@codemirror/state';
 import {
   LanguageSupport,
@@ -87,6 +91,7 @@ import {
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
 import { prettify as _prettify } from './prettify';
+import { ActionButton, FormatIcon } from './actions';
 
 const editorStyle = css({
   fontSize: 13,
@@ -192,14 +197,8 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         backgroundColor: editorPalette[theme].gutterBackgroundColor,
         border: 'none',
       },
-      '& .cm-gutters > .cm-gutter:first-child > .cm-gutterElement': {
-        paddingLeft: `${spacing[2]}px`,
-      },
-      '& .cm-gutters > .cm-gutter:last-child > .cm-gutterElement': {
-        paddingRight: `${spacing[2]}px`,
-      },
       '& .cm-gutter-lint': {
-        width: 'auto',
+        width: `${spacing[3]}px`,
       },
       '& .cm-gutter-lint .cm-gutterElement': {
         padding: '0',
@@ -382,7 +381,10 @@ const highlightStyles = {
 // We don't have any other cases we need to support in a base editor
 type EditorLanguage = 'json' | 'javascript';
 
-type Annotation = Pick<Diagnostic, 'from' | 'to' | 'severity' | 'message'>;
+export type Annotation = Pick<
+  Diagnostic,
+  'from' | 'to' | 'severity' | 'message'
+>;
 
 type EditorProps = {
   language?: EditorLanguage;
@@ -391,10 +393,9 @@ type EditorProps = {
   darkMode?: boolean;
   showLineNumbers?: boolean;
   showFoldGutter?: boolean;
+  showAnnotationsGutter?: boolean;
   highlightActiveLine?: boolean;
   readOnly?: boolean;
-  className?: string;
-  id?: string;
   'data-testid'?: string;
   annotations?: Annotation[];
   completer?: CompletionSource;
@@ -406,7 +407,11 @@ type EditorProps = {
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
-);
+) &
+  Pick<
+    React.HTMLProps<HTMLDivElement>,
+    'id' | 'className' | 'onFocus' | 'onBlur'
+  >;
 
 function createFoldGutterExtension() {
   return foldGutter({
@@ -438,6 +443,34 @@ export const languages: Record<EditorLanguage, () => LanguageSupport> = {
 export const languageName = Facet.define<EditorLanguage>({});
 
 /**
+ * Codemirror editor throws when the state update is being applied while another
+ * one is in progress and doesn't give us a way to schedule updates otherwise.
+ * They do have some good reasoning[0] for it, but as we are using this library
+ * in React context where having multiple effects instead of grouping them all
+ * in one place is preferable over grouping them all together, we have this
+ * method to allow to schedule updates and apply them when editor gets idle
+ *
+ * [0]: https://discuss.codemirror.net/t/should-dispatched-transactions-be-added-to-a-queue/4610/4
+ */
+function sheduleDispatch(
+  editorView: EditorView,
+  transactions: TransactionSpec | TransactionSpec[],
+  signal?: AbortSignal
+) {
+  if (signal?.aborted) {
+    return;
+  }
+  if ((editorView as any).updateState != 0) {
+    setTimeout(() => {
+      sheduleDispatch(editorView, transactions, signal);
+    });
+  } else {
+    transactions = Array.isArray(transactions) ? transactions : [transactions];
+    editorView.dispatch(...transactions);
+  }
+}
+
+/**
  * https://codemirror.net/examples/config/#dynamic-configuration
  * @param fn
  * @param editorViewRef
@@ -461,45 +494,66 @@ function useCodemirrorExtensionCompartment<T>(
   );
 
   useEffectOnChange(() => {
-    editorViewRef.current?.dispatch({
-      effects: compartmentRef.current?.reconfigure(
-        extensionCreatorRef.current()
-      ),
-    });
+    if (!editorViewRef.current) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    sheduleDispatch(
+      editorViewRef.current,
+      {
+        effects: compartmentRef.current?.reconfigure(
+          extensionCreatorRef.current()
+        ),
+      },
+      controller.signal
+    );
+
+    return () => {
+      controller.abort();
+    };
   }, value);
   return initialExtensionRef.current;
 }
 
-const BaseEditor: React.FunctionComponent<EditorProps> & {
-  foldAll: typeof foldAll;
-  unfoldAll: typeof unfoldAll;
-  copyAll: typeof copyAll;
-  prettify: typeof prettify;
-} = ({
-  initialText: _initialText,
-  text,
-  onChangeText = () => {
-    /**/
+export type EditorRef = {
+  foldAll: () => boolean;
+  unfoldAll: () => boolean;
+  copyAll: () => boolean;
+  prettify: () => boolean;
+  applySnippet: (template: string) => boolean;
+  focus: () => boolean;
+  readonly editor: EditorView | null;
+};
+
+const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
+  {
+    initialText: _initialText,
+    text,
+    onChangeText,
+    language = 'json',
+    showLineNumbers = true,
+    showFoldGutter = true,
+    showAnnotationsGutter = true,
+    highlightActiveLine: shouldHighlightActiveLine = true,
+    annotations,
+    completer,
+    darkMode: _darkMode,
+    className,
+    readOnly = false,
+    onLoad = () => {
+      /**/
+    },
+    minLines,
+    maxLines,
+    lineHeight = 16,
+    placeholder: placeholderString,
+    commands,
+    ...props
   },
-  language = 'json',
-  showLineNumbers = true,
-  showFoldGutter = true,
-  highlightActiveLine: shouldHighlightActiveLine = true,
-  annotations,
-  completer,
-  darkMode: _darkMode,
-  className,
-  readOnly = false,
-  onLoad = () => {
-    /**/
-  },
-  minLines,
-  maxLines,
-  lineHeight = 16,
-  placeholder: placeholderString,
-  commands,
-  ...props
-}) => {
+  ref
+) {
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
   const onLoadRef = useRef(onLoad);
@@ -514,6 +568,55 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        foldAll() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return foldAll(editorViewRef.current);
+        },
+        unfoldAll() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return unfoldAll(editorViewRef.current);
+        },
+        copyAll() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return copyAll(editorViewRef.current);
+        },
+        prettify() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return prettify(editorViewRef.current);
+        },
+        applySnippet(template: string) {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return applySnippet(editorViewRef.current, template);
+        },
+        focus() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          editorViewRef.current.focus();
+          return true;
+        },
+        get editor() {
+          return editorViewRef.current ?? null;
+        },
+      };
+    },
+    []
+  );
 
   const languageExtension = useCodemirrorExtensionCompartment(
     () => {
@@ -585,13 +688,17 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     editorViewRef
   );
 
-  const hasAnnotations = annotations && annotations.length === 0;
+  // By default we want to show annotations gutter so that the gutters don't
+  // jump when annotations are added / removed. This can be opted out by setting
+  // showAnnotationsGutter to false
+  const shouldShowAnnotationsGutter =
+    showAnnotationsGutter || (annotations && annotations.length === 0);
 
   const annotationsGutterExtension = useCodemirrorExtensionCompartment(
     () => {
-      return hasAnnotations ? [] : lintGutter();
+      return shouldShowAnnotationsGutter ? lintGutter() : [];
     },
-    hasAnnotations,
+    shouldShowAnnotationsGutter,
     editorViewRef
   );
 
@@ -650,15 +757,15 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       // https://github.com/codemirror/basic-setup/blob/5b4dafdb3b02271bd3fd507d86982208457d8c5b/src/codemirror.ts#L12-L49
       extensions: [
         EditorState.tabSize.of(2),
+        annotationsGutterExtension,
         lineNumbersExtension,
-        history(),
         foldGutterExtension,
+        history(),
         drawSelection(),
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
         autocomletionExtension,
-        annotationsGutterExtension,
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
@@ -689,7 +796,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           updateEditorContentHeight();
           if (update.docChanged) {
             const text = editor.state.sliceDoc() ?? '';
-            onChangeTextRef.current(text, update);
+            onChangeTextRef.current?.(text, update);
           }
         }),
       ],
@@ -765,21 +872,45 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       editorViewRef.current &&
       text !== (editorViewRef.current.state.sliceDoc() ?? '')
     ) {
-      editorViewRef.current.dispatch({
-        changes: {
-          from: 0,
-          // Replace all the content
-          to: editorViewRef.current.state.doc.length,
-          insert: text,
+      const controller = new AbortController();
+
+      sheduleDispatch(
+        editorViewRef.current,
+        {
+          changes: {
+            from: 0,
+            // Replace all the content
+            to: editorViewRef.current.state.doc.length,
+            insert: text,
+          },
         },
-      });
+        controller.signal
+      );
+
+      return () => {
+        controller.abort();
+      };
     }
   }, [text]);
 
   useEffect(() => {
-    editorViewRef.current?.dispatch({
-      effects: setDiagnosticsEffect.of(annotations ?? []),
-    });
+    if (!editorViewRef.current) {
+      return;
+    }
+
+    const controller = new AbortController();
+
+    sheduleDispatch(
+      editorViewRef.current,
+      {
+        effects: setDiagnosticsEffect.of(annotations ?? []),
+      },
+      controller.signal
+    );
+
+    return () => {
+      controller.abort();
+    };
   }, [annotations]);
 
   // We wrap editor in a relatively positioned container followed by an absolute
@@ -804,6 +935,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   return (
     <div
       ref={containerRef}
+      className={className}
       style={{
         width: '100%',
         minHeight: Math.max(lineHeight, (minLines ?? 0) * lineHeight),
@@ -812,7 +944,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     >
       <div
         ref={editorContainerRef}
-        className={cx(editorStyle, className)}
+        className={editorStyle}
         style={{
           // We're forcing editor to it's own layer by setting position to
           // absolute to prevent editor layout changes and style
@@ -830,7 +962,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
       ></div>
     </div>
   );
-};
+});
 
 function isTopNode(node?: any): boolean {
   return !node
@@ -841,6 +973,16 @@ function isTopNode(node?: any): boolean {
     ? true
     : isTopNode(node.parent);
 }
+
+const applySnippet = (editor: EditorView, template: string): boolean => {
+  const completion = snippetCompletion(template, { label: template });
+  if (typeof completion.apply === 'function') {
+    completion.apply(editor, completion, 0, editor.state.doc.length);
+    return true;
+  } else {
+    return false;
+  }
+};
 
 const foldAll: Command = (editor) => {
   const foldableProperties: { from: number; to: number }[] = [];
@@ -867,7 +1009,7 @@ const foldAll: Command = (editor) => {
     },
   });
   if (foldableProperties.length > 0) {
-    editor.dispatch({
+    sheduleDispatch(editor, {
       effects: foldableProperties.map((range) => {
         return foldEffect.of(range);
       }),
@@ -895,12 +1037,13 @@ const prettify: Command = (editorView) => {
       language === 'json' ? 'json' : 'javascript-expression'
     );
     if (formatted !== doc) {
-      editorView.dispatch({
+      sheduleDispatch(editorView, {
         changes: {
           from: 0,
           to: editorView.state.doc.length,
           insert: formatted,
         },
+        scrollIntoView: true,
       });
       return true;
     }
@@ -910,11 +1053,6 @@ const prettify: Command = (editorView) => {
   return false;
 };
 
-BaseEditor.foldAll = foldAll;
-BaseEditor.unfoldAll = unfoldAll;
-BaseEditor.copyAll = copyAll;
-BaseEditor.prettify = prettify;
-
 export type { EditorView, KeyBinding as Command };
 
 type InlineEditorProps = Omit<
@@ -922,9 +1060,11 @@ type InlineEditorProps = Omit<
   | 'text'
   | 'showLineNumbers'
   | 'showFoldGutter'
+  | 'showAnnotationsGutter'
   | 'highlightActiveLine'
   | 'minLines'
   | 'maxLines'
+  | 'annotations'
 > &
   (
     | { text: string; initialText?: never }
@@ -944,22 +1084,184 @@ const inlineStyles = css({
   },
 });
 
-const InlineEditor: React.FunctionComponent<InlineEditorProps> = ({
-  className,
-  ...props
-}) => {
-  return (
-    <BaseEditor
-      maxLines={10}
-      showFoldGutter={false}
-      showLineNumbers={false}
-      highlightActiveLine={false}
-      className={cx(inlineStyles, className)}
-      language="javascript"
-      {...props}
-    ></BaseEditor>
-  );
+const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
+  function InlineEditor({ className, ...props }, forwardRef) {
+    return (
+      <BaseEditor
+        ref={forwardRef}
+        maxLines={10}
+        showFoldGutter={false}
+        showLineNumbers={false}
+        showAnnotationsGutter={false}
+        highlightActiveLine={false}
+        className={cx(inlineStyles, className)}
+        language="javascript"
+        {...props}
+      ></BaseEditor>
+    );
+  }
+);
+
+const multilineEditorContainerStyle = css({
+  position: 'relative',
+  height: '100%',
+  [`&:focus-within > .multiline-editor-actions,
+    &:hover > .multiline-editor-actions`]: {
+    display: 'flex',
+  },
+});
+
+const editorContainerStyle = css({
+  overflow: 'auto',
+  // To account for the leafygreen button shadow on hover we add padding to the
+  // top of the container that wraps the editor
+  paddingTop: spacing[1],
+  height: `calc(100% - ${spacing[1]}px)`,
+  // We want folks to be able to click into the container element
+  // they're using for the editor to focus the editor.
+  minHeight: 'inherit',
+});
+
+const actionsContainerStyle = css({
+  position: 'absolute',
+  top: spacing[1],
+  right: spacing[2],
+  display: 'none',
+  gap: spacing[2],
+});
+
+export type Action = {
+  icon: IconGlyph;
+  label: string;
+  action: (editor: EditorView) => boolean | void;
 };
 
-export { BaseEditor as JSONEditor };
+type MultilineEditorProps = EditorProps & {
+  customActions?: Action[];
+  copyable?: boolean;
+  formattable?: boolean;
+  editorClassName?: string;
+  actionsClassName?: string;
+};
+
+const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
+  function MultilineEditor(
+    {
+      customActions,
+      copyable = true,
+      formattable = true,
+      className,
+      editorClassName,
+      actionsClassName,
+      ...props
+    },
+    ref
+  ) {
+    const editorRef = useRef<EditorRef>(null);
+
+    useImperativeHandle(
+      ref,
+      () => {
+        return {
+          foldAll() {
+            return editorRef.current?.foldAll() ?? false;
+          },
+          unfoldAll() {
+            return editorRef.current?.unfoldAll() ?? false;
+          },
+          copyAll() {
+            return editorRef.current?.copyAll() ?? false;
+          },
+          prettify() {
+            return editorRef.current?.prettify() ?? false;
+          },
+          focus() {
+            return editorRef.current?.focus() ?? false;
+          },
+          applySnippet(template: string) {
+            return editorRef.current?.applySnippet(template) ?? false;
+          },
+          get editor() {
+            return editorRef.current?.editor ?? null;
+          },
+        };
+      },
+      []
+    );
+
+    const actions = useMemo(() => {
+      return [
+        copyable && (
+          <ActionButton
+            key="Copy"
+            label="Copy"
+            icon="Copy"
+            onClick={() => {
+              return editorRef.current?.copyAll() ?? false;
+            }}
+          ></ActionButton>
+        ),
+        formattable && (
+          <ActionButton
+            key="Format"
+            label="Format"
+            icon={
+              <FormatIcon
+                size={/* leafygreen small */ 14}
+                role="presentation"
+              ></FormatIcon>
+            }
+            onClick={() => {
+              return editorRef.current?.prettify() ?? false;
+            }}
+          ></ActionButton>
+        ),
+        ...(customActions ?? []).map((action) => {
+          return (
+            <ActionButton
+              key={action.label}
+              icon={action.icon}
+              label={action.label}
+              onClick={() => {
+                if (!editorRef.current?.editor) {
+                  return false;
+                }
+                return action.action(editorRef.current.editor);
+              }}
+            ></ActionButton>
+          );
+        }),
+      ];
+    }, [copyable, formattable, customActions]);
+
+    return (
+      <div className={cx(multilineEditorContainerStyle, className)}>
+        {/* Separate scrollable container for editor so that action buttons can */}
+        {/* stay in one place when scrolling */}
+        <div className={editorContainerStyle}>
+          <BaseEditor
+            ref={editorRef}
+            className={editorClassName}
+            language="javascript"
+            {...props}
+          ></BaseEditor>
+        </div>
+        {actions.length > 0 && (
+          <div
+            className={cx(
+              'multiline-editor-actions',
+              actionsContainerStyle,
+              actionsClassName
+            )}
+          >
+            {actions}
+          </div>
+        )}
+      </div>
+    );
+  }
+);
+
+export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
+export { MultilineEditor as CodemirrorMultilineEditor };

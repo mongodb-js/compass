@@ -86,7 +86,7 @@ const connectionButtonStyles = css({
 
 const connectionButtonStylesLight = css({
   '&:hover': {
-    backgroundColor: palette.gray.light2,
+    background: palette.gray.light2,
   },
 });
 
@@ -207,9 +207,7 @@ function Connection({
   const hasColoredBackground = isActive && favoriteColorHex;
   const normalTitleColor = darkMode ? palette.white : palette.gray.dark3;
   const titleColor = hasColoredBackground ? palette.black : normalTitleColor;
-  const backgroundColor = hasColoredBackground
-    ? `${favoriteColorHex} !important`
-    : 'none';
+  const backgroundColor = hasColoredBackground ? favoriteColorHex : 'none';
 
   const normalDescriptionColor = darkMode
     ? palette.gray.light1
@@ -280,7 +278,9 @@ function Connection({
           connectionButtonStyles,
           darkMode ? connectionButtonStylesDark : connectionButtonStylesLight
         )}
-        style={{ backgroundColor }}
+        style={{
+          background: backgroundColor,
+        }}
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
         onClick={onClick}
         onDoubleClick={() => onDoubleClick(connectionInfo)}

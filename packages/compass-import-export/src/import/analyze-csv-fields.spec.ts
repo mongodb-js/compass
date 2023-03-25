@@ -88,6 +88,7 @@ describe('analyzeCSVFields', function () {
         'objectId',
         'regex',
         'timestamp',
+        'symbol',
       ].includes(type)
     ) {
       continue;
@@ -198,7 +199,7 @@ describe('analyzeCSVFields', function () {
     });
 
     // only looked at the first row because we aborted before even starting
-    expect(result.totalRows).to.equal(1);
+    expect(result.totalRows).to.equal(0);
 
     // signals that it was aborted and the results are therefore incomplete
     expect(result.aborted).to.equal(true);

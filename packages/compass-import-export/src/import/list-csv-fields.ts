@@ -86,6 +86,10 @@ export async function listCSVFields({
 
         if (lines === NUM_PREVIEW_FIELDS + 1) {
           parser.abort();
+          // Aborting the parser does not destroy the input stream. If we don't
+          // destroy the input stream it will try and read the entire file into
+          // memory.
+          input.destroy();
         }
       },
       complete: function () {
