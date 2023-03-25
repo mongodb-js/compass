@@ -5,10 +5,12 @@ import { changeFieldValue } from '../../stores/settings';
 import type { EDITOR } from 'compass-preferences-model';
 import {
   FormFieldContainer,
+  Icon,
   css,
   spacing,
   RadioBoxGroup,
   RadioBox,
+  Label,
 } from '@mongodb-js/compass-components';
 
 const radioBoxStyles = css({
@@ -17,6 +19,10 @@ const radioBoxStyles = css({
     padding: spacing[3],
     justifyContent: 'flex-start',
   },
+});
+
+const iconStyles = css({
+  marginRight: spacing[3],
 });
 
 type EditorSettingsProps = {
@@ -37,7 +43,13 @@ export const EditorSettings: React.FunctionComponent<EditorSettingsProps> = ({
 
   return (
     <div data-testid="editor-settings">
-      <div>Change the appearance of documents in Editor.</div>
+      <div>Change the Editor settings.</div>
+
+      <FormFieldContainer>
+        <Label id="editor-selector-label">
+          Select the Editor default appearance.
+        </Label>
+      </FormFieldContainer>
       <FormFieldContainer>
         <RadioBoxGroup
           id="editor-selector"
@@ -51,6 +63,7 @@ export const EditorSettings: React.FunctionComponent<EditorSettingsProps> = ({
             className={radioBoxStyles}
             value="List"
           >
+            <Icon className={iconStyles} glyph="Menu" />
             List
           </RadioBox>
           <RadioBox
@@ -59,6 +72,7 @@ export const EditorSettings: React.FunctionComponent<EditorSettingsProps> = ({
             className={radioBoxStyles}
             value="JSON"
           >
+            <Icon className={iconStyles} glyph="CurlyBraces" />
             JSON
           </RadioBox>
           <RadioBox
@@ -67,6 +81,7 @@ export const EditorSettings: React.FunctionComponent<EditorSettingsProps> = ({
             className={radioBoxStyles}
             value="Table"
           >
+            <Icon className={iconStyles} glyph="Table" />
             Table
           </RadioBox>
         </RadioBoxGroup>
