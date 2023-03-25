@@ -1,6 +1,8 @@
 // @ts-check
 const path = require('path');
+// @ts-ignore
 const HadronBuildTarget = require('hadron-build/lib/target');
+
 const {
   createElectronMainConfig,
   createElectronRendererConfig,
@@ -9,6 +11,8 @@ const {
   webpack,
   merge,
 } = require('@mongodb-js/webpack-config-compass');
+
+const { createLicensePlugin } = require('./scripts/webpack-licenses');
 
 module.exports = (_env, args) => {
   const opts = {
@@ -98,7 +102,13 @@ module.exports = (_env, args) => {
     merge(mainConfig, {
       cache,
       externals,
-      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
+      plugins: [
+        new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // @ts-ignore
+        createLicensePlugin({
+          outputFilename: 'third-party-notices-main.json',
+        }),
+      ],
     }),
     merge(rendererConfig, {
       cache,
@@ -108,6 +118,13 @@ module.exports = (_env, args) => {
       externals,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // @ts-ignore
+        createLicensePlugin({
+          outputFilename: 'third-party-notices-renderer.json',
+          // @ts-ignore
+          includeProdPackages: true,
+        }),
+
         // Not a part of common config because mostly a Compass thing that we
         // might be able to get rid of eventually
         new webpack.ProvidePlugin({
