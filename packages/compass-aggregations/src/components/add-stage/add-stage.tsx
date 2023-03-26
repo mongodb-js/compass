@@ -8,6 +8,9 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 import { PIPELINE_HELP_URI } from '../../constants';
+import { useDroppable } from '@dnd-kit/core';
+import { addStage } from '../../modules/pipeline-builder/stage-editor';
+import { connect } from 'react-redux';
 
 const iconContainerStyles = css({
   textAlign: 'center',
@@ -29,18 +32,31 @@ const linkContainerStyles = css({
 
 type AddStageProps = {
   variant: 'button' | 'icon';
-  onAddStage: () => void;
+  onAddStage: (index?: number) => void;
+  index?: number;
 };
 
-export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
+export const AddStage = ({ onAddStage, variant, index }: AddStageProps) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id: index ?? 0,
+    data: {
+      type: 'placeholder',
+    },
+  });
   if (variant === 'icon') {
     return (
-      <div className={iconContainerStyles}>
+      <div
+        style={{
+          backgroundColor: isOver ? 'red' : 'transparent',
+        }}
+        className={iconContainerStyles}
+        ref={setNodeRef}
+      >
         <IconButton
           aria-label="Add stage"
           title="Add stage"
           data-testid="add-stage-icon-button"
-          onClick={() => onAddStage()}
+          onClick={() => onAddStage(index)}
         >
           <Icon glyph="PlusWithCircle"></Icon>
         </IconButton>
@@ -49,10 +65,16 @@ export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
   }
 
   return (
-    <div className={buttonContainerStyles}>
+    <div
+      style={{
+        backgroundColor: isOver ? 'red' : 'transparent',
+      }}
+      className={buttonContainerStyles}
+      ref={setNodeRef}
+    >
       <Button
         data-testid="add-stage"
-        onClick={() => onAddStage()}
+        onClick={() => onAddStage(index)}
         variant="primary"
         leftGlyph={<Icon glyph="Plus"></Icon>}
       >
@@ -68,4 +90,6 @@ export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
   );
 };
 
-export default AddStage;
+export default connect(() => ({}), {
+  onAddStage: addStage,
+})(AddStage);

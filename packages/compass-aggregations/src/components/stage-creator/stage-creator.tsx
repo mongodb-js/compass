@@ -1,11 +1,46 @@
 import React, { useMemo, useState } from 'react';
 import type { Document } from 'mongodb';
-import { Button, ErrorSummary } from '@mongodb-js/compass-components';
+import { Card, ErrorSummary } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
+import { useDraggable } from '@dnd-kit/core';
+
 import { STAGE_CREATOR_USE_CASES } from './use-cases';
 import type { Field } from './use-cases';
 import { StageCreatorForm } from './stage-creator-form';
-import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
+import { CSS } from '@dnd-kit/utilities';
+
+const UsecaseCard = ({
+  id,
+  title,
+  onClick,
+}: {
+  id: string;
+  title: string;
+  onClick: () => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id,
+    data: {
+      type: 'use-case',
+    },
+  });
+  const usecaseStyle = {
+    cursor: 'grab',
+    transform: CSS.Translate.toString(transform),
+  };
+  return (
+    <div
+      key={id}
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={usecaseStyle}
+    >
+      <Card onClick={onClick}>{title}</Card>
+    </div>
+  );
+};
 
 const StageCreator = ({ fields }: { fields: Field[] }) => {
   const [stageId, setStageId] = React.useState<string | null>(null);
@@ -45,23 +80,21 @@ const StageCreator = ({ fields }: { fields: Field[] }) => {
   return (
     <div
       style={{
-        width: '50%',
-        paddingRight: '8px',
+        padding: '16px',
         display: 'flex',
         gap: '8px',
         flexDirection: 'column',
+        width: '100%',
       }}
     >
       <h3>Stage Creator</h3>
-      <hr />
       {STAGE_CREATOR_USE_CASES.map((stage) => (
-        <Button
-          key={stage.id}
-          size="small"
+        <UsecaseCard
           onClick={() => onSelectStage(stage.id)}
-        >
-          {stage.description}
-        </Button>
+          key={stage.id}
+          id={stage.id}
+          title={stage.title}
+        />
       ))}
       {stage && StageTemplate && (
         <>

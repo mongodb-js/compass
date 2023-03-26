@@ -11,6 +11,7 @@ import {
 } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 import { css, spacing } from '@mongodb-js/compass-components';
+import StageCreator from '../stage-creator/stage-creator';
 
 import {
   DndContext,
@@ -47,6 +48,7 @@ const stageContainerStyles = css({
 type PipelineBuilderUIWorkspaceProps = {
   stageIds: number[];
   editViewName?: string;
+  isStageCreatorOpen: boolean;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
 };
@@ -54,40 +56,51 @@ type PipelineBuilderUIWorkspaceProps = {
 type SortableItemProps = {
   idx: number;
   isLastStage: boolean;
-  onStageAddAfter: (after?: number) => void;
 } & Partial<StageProps>;
 
 type SortableListProps = {
   stageIds: number[];
-  onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
 };
 
-const SortableItem = ({
-  idx,
-  isLastStage,
-  onStageAddAfter,
-  ...props
-}: SortableItemProps) => {
+const SortableItem = ({ idx, isLastStage, ...props }: SortableItemProps) => {
   return (
     <div className={stageContainerStyles}>
       <Stage index={idx} {...props}></Stage>
-      {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
+      {!isLastStage && <AddStage index={idx} variant="icon" />}
     </div>
   );
 };
 
-const SortableList = ({
-  stageIds,
-  onStageMoveEnd,
-  onStageAddAfterEnd,
-}: SortableListProps) => {
+const SortableList = ({ stageIds }: SortableListProps) => {
   // It requires that you pass it a sorted array of the unique identifiers
   // associated with the elements that use the useSortable hook within it.
   // They must be strings or numbers bigger than 0.
   // It's important that the items prop passed to SortableContext
   // be sorted in the same order in which the items are rendered.
   const items = stageIds.map((id) => id + 1);
+  return (
+    <SortableContext items={items} strategy={verticalListSortingStrategy}>
+      {stageIds.map((id, index) => (
+        <SortableItem
+          key={`stage-${id}`}
+          idx={index}
+          isLastStage={index === stageIds.length - 1}
+        />
+      ))}
+    </SortableContext>
+  );
+};
+
+export const PipelineBuilderUIWorkspace: React.FunctionComponent<
+  PipelineBuilderUIWorkspaceProps
+> = ({
+  stageIds,
+  editViewName,
+  isStageCreatorOpen,
+  onStageMoveEnd,
+  onStageAddAfterEnd,
+}) => {
   const sensors = useSensors(
     useSensor(MouseSensor, {
       // Require the mouse to move by 10 pixels before activating.
@@ -105,7 +118,6 @@ const SortableList = ({
       },
     })
   );
-
   const onSortEnd = useCallback(
     ({ oldIndex, newIndex }) => {
       const from = stageIds.findIndex((id) => id + 1 === oldIndex);
@@ -116,52 +128,52 @@ const SortableList = ({
   );
 
   return (
-    <DndContext
-      sensors={sensors}
-      autoScroll={false}
-      onDragEnd={({ active, over }) => {
-        if (over && active.id !== over.id) {
-          onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
-        }
-      }}
-    >
-      <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        {stageIds.map((id, index) => (
-          <SortableItem
-            key={`stage-${id}`}
-            idx={index}
-            isLastStage={index === stageIds.length - 1}
-            onStageAddAfter={() => onStageAddAfterEnd(index)}
-          />
-        ))}
-      </SortableContext>
-    </DndContext>
-  );
-};
-
-export const PipelineBuilderUIWorkspace: React.FunctionComponent<
-  PipelineBuilderUIWorkspaceProps
-> = ({ stageIds, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
-  return (
     <div data-testid="pipeline-builder-ui-workspace">
-      <div className={pipelineWorkspaceContainerStyles}>
-        <div className={pipelineWorkspaceStyles}>
-          {editViewName && <ModifySourceBanner editViewName={editViewName} />}
-          <PipelineBuilderInputDocuments />
-          {stageIds.length !== 0 && (
-            <AddStage
-              onAddStage={() => onStageAddAfterEnd(-1)}
-              variant="icon"
-            />
-          )}
-          <SortableList
-            stageIds={stageIds}
-            onStageMoveEnd={onStageMoveEnd}
-            onStageAddAfterEnd={onStageAddAfterEnd}
-          />
-          <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
+      <DndContext
+        sensors={sensors}
+        autoScroll={false}
+        onDragEnd={({ active, over }) => {
+          if (
+            active.data.current?.type === 'use-case' &&
+            over?.data.current?.type === 'placeholder'
+          ) {
+            const useCaseId = active.id;
+            const afterStageId = over.id;
+            console.log(
+              `Create card: ${useCaseId} after stage: ${afterStageId}`
+            );
+            return;
+          }
+          if (over && active.id !== over.id) {
+            onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
+          }
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            width: '100%',
+            gridTemplateColumns: isStageCreatorOpen ? '66% 34%' : '100%',
+            // todo: remove the scroll container.
+          }}
+        >
+          <div className={pipelineWorkspaceContainerStyles}>
+            <div className={pipelineWorkspaceStyles}>
+              {editViewName && (
+                <ModifySourceBanner editViewName={editViewName} />
+              )}
+              <PipelineBuilderInputDocuments />
+              {stageIds.length !== 0 && <AddStage variant="icon" index={-1} />}
+              <SortableList
+                stageIds={stageIds}
+                onStageAddAfterEnd={onStageAddAfterEnd}
+              />
+              <AddStage variant="button" />
+            </div>
+          </div>
+          {isStageCreatorOpen && <StageCreator />}
         </div>
-      </div>
+      </DndContext>
     </div>
   );
 };
@@ -170,6 +182,7 @@ const mapState = (state: RootState) => {
   return {
     stageIds: state.pipelineBuilder.stageEditor.stageIds,
     editViewName: state.editViewName,
+    isStageCreatorOpen: state.stageCreator.isPanelOpen,
   };
 };
 
