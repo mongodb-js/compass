@@ -18,7 +18,6 @@ type ToastProperties = {
   body: React.ReactNode;
   variant: ToastVariant;
   progress?: number;
-  dataTestId?: string;
   timeout?: number;
   dismissible?: boolean;
 };
@@ -137,24 +136,19 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
     <ToastContext.Provider value={toastActions}>
       <>{children}</>
       <>
-        {toasts.map(
-          ([
-            id,
-            { dataTestId, dismissible, title, body, variant, progress },
-          ]) => (
-            <Toast
-              className={toastStyles}
-              key={id}
-              data-testid={dataTestId ?? `toast-${id}`}
-              title={title}
-              body={body}
-              variant={variant}
-              progress={progress}
-              open={true}
-              close={dismissible ? () => closeToast(id) : undefined}
-            />
-          )
-        )}
+        {toasts.map(([id, { dismissible, title, body, variant, progress }]) => (
+          <Toast
+            className={toastStyles}
+            key={id}
+            data-testid={`toast-${id}`}
+            title={title}
+            body={body}
+            variant={variant}
+            progress={progress}
+            open={true}
+            close={dismissible ? () => closeToast(id) : undefined}
+          />
+        ))}
       </>
     </ToastContext.Provider>
   );

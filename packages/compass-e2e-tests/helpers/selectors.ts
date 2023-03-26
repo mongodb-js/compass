@@ -557,15 +557,9 @@ export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
-export const ImportInProgressToast = '[data-testid="import-toast-in-progress"]';
-export const ImportSucceededToast =
-  '[data-testid="import-toast-result-completed"]';
-export const ImportCompletedWithErrorsToast =
-  '[data-testid="import-toast-result-errors-completed"]';
-export const ImportAbortedToast = '[data-testid="import-toast-result-aborted"]';
-export const ImportFailedToast = '[data-testid="import-toast-result-failed"]';
+export const ImportToast = '[data-testid="toast-import-toast"]';
 export const ImportToastAbort =
-  '[data-testid="import-toast-in-progress"] [data-testid="toast-action-stop"]';
+  '[data-testid="toast-import-toast"] [data-testid="toast-action-stop"]';
 
 export const importPreviewFieldHeaderField = (fieldName: string): string => {
   return `[data-testid="import-preview-field-type-select-menu-${fieldName}"]`;

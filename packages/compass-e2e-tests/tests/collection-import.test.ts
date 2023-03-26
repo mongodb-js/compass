@@ -34,13 +34,14 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   await importModal.waitForDisplayed({ reverse: true });
 
   // Wait for the done toast to appear and close it.
-  const toast = Selectors.ImportSucceededToast;
-  await browser.$(toast).waitForDisplayed();
-  await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
-  await browser.waitForAnimations(toast);
-  await browser.clickVisible(Selectors.closeToastButton(toast));
+  const toastElement = await browser.$(Selectors.ImportToast);
+  await toastElement.waitForDisplayed();
+  await browser
+    .$(Selectors.closeToastButton(Selectors.ImportToast))
+    .waitForDisplayed();
+  await browser.clickVisible(Selectors.closeToastButton(Selectors.ImportToast));
 
-  await browser.$(toast).waitForDisplayed({ reverse: true });
+  await toastElement.waitForDisplayed({ reverse: true });
 }
 
 async function selectFieldType(
@@ -440,15 +441,18 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
-    const toast = Selectors.ImportFailedToast;
-    await browser.$(toast).waitForDisplayed();
-    await browser.waitForAnimations(toast);
-    const errorText = await browser.$(toast).getText();
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    const errorText = await toastElement.getText();
     expect(errorText).to.include('Failed to import with the following error');
     expect(errorText).to.include('Parser has expected a value');
-    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
-    await browser.clickVisible(Selectors.closeToastButton(toast));
-    await browser.$(toast).waitForDisplayed({ reverse: true });
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
   });
 
   it('supports CSV files', async function () {
@@ -508,12 +512,15 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
-    const toast = Selectors.ImportSucceededToast;
-    await browser.$(toast).waitForDisplayed();
-    await browser.waitForAnimations(toast);
-    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
-    await browser.clickVisible(Selectors.closeToastButton(toast));
-    await browser.$(toast).waitForDisplayed({ reverse: true });
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -608,12 +615,15 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
-    const toast = Selectors.ImportSucceededToast;
-    await browser.$(toast).waitForDisplayed();
-    await browser.waitForAnimations(toast);
-    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
-    await browser.clickVisible(Selectors.closeToastButton(toast));
-    await browser.$(toast).waitForDisplayed({ reverse: true });
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -674,16 +684,21 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
-    const toast = Selectors.ImportCompletedWithErrorsToast;
-    await browser.$(toast).waitForDisplayed();
-    await browser.waitForAnimations(toast);
-    const toastText = await browser.$(toast).getText();
-    expect(toastText).to.include(
-      'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser.waitUntil(async function () {
+      const toastText = await toastElement.getText();
+      return toastText.includes(
+        'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
+      );
+    });
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
     );
-    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
-    await browser.clickVisible(Selectors.closeToastButton(toast));
-    await browser.$(toast).waitForDisplayed({ reverse: true });
+    await toastElement.waitForDisplayed({ reverse: true });
   });
 
   it('allows changing the delimiter', async function () {
@@ -746,12 +761,15 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the done toast to appear and close it.
-    const toast = Selectors.ImportSucceededToast;
-    await browser.$(toast).waitForDisplayed();
-    await browser.waitForAnimations(toast);
-    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
-    await browser.clickVisible(Selectors.closeToastButton(toast));
-    await browser.$(toast).waitForDisplayed({ reverse: true });
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -816,15 +834,19 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear and close it.
-    const toast = Selectors.ImportFailedToast;
-    await browser.$(toast).waitForDisplayed();
-    await browser.waitForAnimations(toast);
-    const toastText = await browser.$(toast).getText();
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    const toastText = await toastElement.getText();
+    expect(toastText).to.include('Failed to import with the following error:');
     expect(toastText).to.include('E11000 duplicate key error collection');
 
-    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
-    await browser.clickVisible(Selectors.closeToastButton(toast));
-    await browser.$(toast).waitForDisplayed({ reverse: true });
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
   });
 
   it('shows a log file with the errors', async function () {
@@ -860,17 +882,21 @@ describe('Collection import', function () {
     await importModal.waitForDisplayed({ reverse: true });
 
     // Wait for the error toast to appear.
-    const toast = Selectors.ImportCompletedWithErrorsToast;
-    await browser.$(toast).waitForDisplayed();
-    await browser.waitForAnimations(toast);
-    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
 
     // Displays first two errors in the toast and view log.
-    const toastText = await browser.$(toast).getText();
+    const toastText = await toastElement.getText();
+    expect(toastText).to.include(
+      'Import completed 0/3 with the following errors:'
+    );
     expect(
       (toastText.match(/E11000 duplicate key error collection/g) || []).length
     ).to.equal(2);
-    expect(toastText.includes('VIEW LOG')).to.be.true;
+    expect(toastText).to.include('VIEW LOG');
 
     if (!compass.userDataPath || !compass.appName) {
       throw new Error(
@@ -894,8 +920,10 @@ describe('Collection import', function () {
     expect(errorCount).to.equal(4);
 
     // Close toast.
-    await browser.clickVisible(Selectors.closeToastButton(toast));
-    await browser.$(toast).waitForDisplayed({ reverse: true });
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
   });
 
   it('aborts an in progress import', async function () {
@@ -923,13 +951,14 @@ describe('Collection import', function () {
     await browser.clickVisible(Selectors.ImportToastAbort);
 
     // Wait for the done toast to appear.
-    const toast = Selectors.ImportAbortedToast;
-    await browser.$(toast).waitForDisplayed();
-    await browser.waitForAnimations(toast);
-    await browser.$(Selectors.closeToastButton(toast)).waitForDisplayed();
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
 
     // Check it displays that the import was aborted.
-    const toastText = await browser.$(toast).getText();
+    const toastText = await toastElement.getText();
     expect(toastText).to.include('Import aborted.');
 
     // Check at least one and fewer than 16116 documents were imported.
@@ -942,7 +971,9 @@ describe('Collection import', function () {
     expect(result._id).to.exist;
 
     // Close toast.
-    await browser.clickVisible(Selectors.closeToastButton(toast));
-    await browser.$(toast).waitForDisplayed({ reverse: true });
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
   });
 });

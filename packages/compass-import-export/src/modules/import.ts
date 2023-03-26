@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable valid-jsdoc */
 /**
  * # Import
  *
@@ -29,7 +27,6 @@ import fs from 'fs';
 import path from 'path';
 import type { AnyAction, Dispatch } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import { openToast } from '@mongodb-js/compass-components';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import PROCESS_STATUS from '../constants/process-status';
@@ -51,9 +48,7 @@ import type {
 } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
-import { useToastAction } from '../hooks/use-toast-action';
 import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
-import { openFile } from '../utils/open-file';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -73,6 +68,7 @@ export const FINISHED = `${PREFIX}/FINISHED`;
 export const FAILED = `${PREFIX}/FAILED`;
 export const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
 export const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
+export const FILE_SELECT_ERROR = `${PREFIX}/FILE_SELECT_ERROR`;
 export const OPEN = `${PREFIX}/OPEN`;
 export const CLOSE = `${PREFIX}/CLOSE`;
 export const OPEN_IN_PROGRESS_MESSAGE = `${PREFIX}/OPEN_IN_PROGRESS_MESSAGE`;
@@ -88,8 +84,6 @@ export const ANALYZE_STARTED = `${PREFIX}/ANALYZE_STARTED`;
 export const ANALYZE_FINISHED = `${PREFIX}/ANALYZE_FINISHED`;
 export const ANALYZE_FAILED = `${PREFIX}/ANALYZE_FAILED`;
 export const ANALYZE_CANCELLED = `${PREFIX}/ANALYZE_CANCELLED`;
-
-const importToastId = 'import-toast';
 
 export type FieldFromCSV = {
   path: string;
@@ -115,12 +109,12 @@ type State = {
   errors: Error[];
   fileType: AcceptedFileType | '';
   fileName: string;
+  errorLogFilePath: string;
   fileIsMultilineJSON: boolean;
   useHeaderLines: boolean;
   status: ProcessStatus;
 
   fileStats: null | fs.Stats;
-  docsTotal: number;
   docsProcessed: number;
   docsWritten: number;
   delimiter: CSVDelimiter;
@@ -146,11 +140,11 @@ export const INITIAL_STATE: State = {
   isInProgressMessageOpen: false,
   errors: [],
   fileName: '',
+  errorLogFilePath: '',
   fileIsMultilineJSON: false,
   useHeaderLines: true,
   status: PROCESS_STATUS.UNSPECIFIED,
   fileStats: null,
-  docsTotal: -1,
   docsProcessed: 0,
   docsWritten: 0,
   delimiter: ',',
@@ -176,18 +170,42 @@ export const onProgress = ({
   errors,
 });
 
-export const onStarted = (abortController: AbortController) => ({
+export const onStarted = ({
+  abortController,
+  errorLogFilePath,
+}: {
+  abortController: AbortController;
+  errorLogFilePath: string;
+}) => ({
   type: STARTED,
   abortController,
+  errorLogFilePath,
 });
 
-export const onFinished = (docsWritten: number, docsTotal: number) => ({
-  type: FINISHED,
+const onFinished = ({
+  aborted,
   docsWritten,
-  docsTotal,
+  docsProcessed,
+  errors,
+}: {
+  aborted: boolean;
+  docsWritten: number;
+  docsProcessed: number;
+  errors: Error[];
+}) => ({
+  type: FINISHED,
+  aborted,
+  docsWritten,
+  docsProcessed,
+  errors,
 });
 
-export const onFailed = (error: Error) => ({ type: FAILED, error });
+const onFailed = (error: Error) => ({ type: FAILED, error });
+
+const onFileSelectError = (error: Error) => ({
+  type: FILE_SELECT_ERROR,
+  error,
+});
 
 export const startImport = () => {
   return async (
@@ -222,10 +240,6 @@ export const startImport = () => {
     const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
     await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
 
-    const errorLogFileName = `import-${path.basename(fileName)}.log`;
-    const errorLogFilePath = path.join(importErrorLogsPath, errorLogFileName);
-    const errorLogWriteStream = fs.createWriteStream(errorLogFilePath);
-
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
     const fileSize = fileStats?.size || 0;
 
@@ -238,6 +252,9 @@ export const startImport = () => {
     }
 
     const input = fs.createReadStream(fileName, 'utf8');
+    const errorLogFileName = `import-${path.basename(fileName)}.log`;
+    const errorLogFilePath = path.join(importErrorLogsPath, errorLogFileName);
+    const errorLogWriteStream = fs.createWriteStream(errorLogFilePath);
 
     log.info(
       mongoLogId(1001000080),
@@ -252,6 +269,7 @@ export const startImport = () => {
         delimiter,
         ignoreBlanks,
         stopOnErrors,
+        errorLogFilePath,
         exclude,
         transform,
       }
@@ -259,25 +277,14 @@ export const startImport = () => {
 
     const abortController = new AbortController();
     const abortSignal = abortController.signal;
-    dispatch(onStarted(abortController));
-
-    openToast(importToastId, {
-      dataTestId: 'import-toast-in-progress',
-      title: `Importing ${fileType} file…`,
-      body: useToastAction({
-        statusMessage: 'Starting...',
-        actionHandler: () => {
-          abortController.abort();
-          progressCallback.flush();
-        },
-        actionText: 'stop',
-      }),
-      variant: 'progress',
-      dismissible: false,
-    });
+    dispatch(
+      onStarted({
+        abortController,
+        errorLogFilePath,
+      })
+    );
 
     let promise: Promise<ImportResult>;
-    let importDone = false;
 
     const errors: ErrorJSON[] = [];
     const errorCallback = (err: ErrorJSON) => {
@@ -290,22 +297,24 @@ export const startImport = () => {
       }
     };
 
+    let importDone = false;
+
     // Note: This progress callback can be called
     // after the import has completed/aborted.
     const progressCallback = _.throttle(function ({
       docsProcessed,
       docsWritten,
-      bytesProcessed,
     }: {
       docsProcessed: number;
       docsWritten: number;
-      bytesProcessed: number;
     }) {
-      const averageSize = bytesProcessed / docsProcessed;
-      const guessedTotal = Math.max(
-        docsProcessed,
-        Math.ceil(fileSize / averageSize)
-      );
+      if (importDone) {
+        // When on error occurs in importing it will end the import.
+        // Sometimes this is while the stream is waiting on an insert response
+        // from the MongoDB server. In that case we ignore the progress
+        // so that the errors aren't overridden.
+        return;
+      }
       dispatch(
         onProgress({
           docsWritten,
@@ -313,24 +322,6 @@ export const startImport = () => {
           errors: errors.slice(), // make sure it is not the same variable
         })
       );
-      if (!importDone) {
-        // Update the toast with the new progress.
-        openToast(importToastId, {
-          dataTestId: 'import-toast-in-progress',
-          title: `Importing ${fileType} file...`,
-          body: useToastAction({
-            statusMessage: `${docsWritten}/${guessedTotal}`,
-            actionHandler: () => {
-              abortController.abort();
-              progressCallback.flush();
-            },
-            actionText: 'stop',
-          }),
-          variant: 'progress',
-          progress: Math.min(1, guessedTotal / Math.max(docsProcessed, 1)), // 0-1.
-          dismissible: false,
-        });
-      }
     },
     1000);
 
@@ -366,8 +357,6 @@ export const startImport = () => {
     try {
       result = await promise;
     } catch (err: any) {
-      dispatch(onFinished(err.result.docsWritten, err.result.docsProcessed));
-
       track('Import Completed', {
         duration: Date.now() - startTime,
         file_type: fileType,
@@ -377,15 +366,9 @@ export const startImport = () => {
         success: !err,
       });
 
-      openToast(importToastId, {
-        dataTestId: 'import-toast-result-failed',
-        title: `Failed to import with the following error:`,
-        body: err.message,
-        variant: 'warning',
-      });
-
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
         ns,
+        errorLogFilePath,
         docsWritten: err.result.docsWritten,
         error: err.message,
       });
@@ -408,47 +391,20 @@ export const startImport = () => {
       aborted: result.aborted,
     });
 
-    const resultText = result.aborted ? 'aborted' : 'completed';
-    if (errors.length > 0) {
-      // Show the first two errors and a message that more errors exists.
-      const statusMessage = `${errors
-        .slice(0, 2)
-        .map((error) => error.message)
-        .join('\n')}${
-        errors.length > 2
-          ? '\nMore errors occurred, open the error log to view.'
-          : ''
-      }`;
-      openToast(importToastId, {
-        dataTestId: `import-toast-result-errors-${resultText}`,
-        title: `Import ${resultText} with the following errors:`,
-        body: useToastAction({
-          statusMessage,
-          actionHandler: () => {
-            void openFile(errorLogFilePath);
-          },
-          actionText: 'view log',
-        }),
-        variant: 'warning',
-      });
-    } else {
-      openToast(importToastId, {
-        dataTestId: `import-toast-result-${resultText}`,
-        title: `Import ${resultText}.`,
-        body: result.aborted
-          ? undefined
-          : `${result.docsWritten} documents written.`,
-        variant: result.aborted ? 'warning' : 'success',
-      });
-    }
-
     log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
       ns,
       docsWritten: result.docsWritten,
       docsProcessed: result.docsProcessed,
     });
 
-    dispatch(onFinished(result.docsWritten, result.docsProcessed));
+    dispatch(
+      onFinished({
+        aborted: !!result.aborted,
+        docsWritten: result.docsWritten,
+        docsProcessed: result.docsProcessed,
+        errors,
+      })
+    );
 
     const payload = {
       ns,
@@ -488,7 +444,6 @@ export const cancelImport = () => {
     }
 
     debug('import canceled by user');
-    dispatch({ type: CANCELED });
   };
 };
 
@@ -577,7 +532,6 @@ const loadCSVPreviewDocs = (): ThunkAction<
   void,
   AnyAction
 > => {
-  console.log('loading preview docs');
   return async (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
@@ -713,7 +667,7 @@ export const selectImportFileName = (fileName: string) => {
       }
     } catch (err: any) {
       debug('dispatching error', err?.stack);
-      dispatch(onFailed(err));
+      dispatch(onFileSelectError(err));
     }
   };
 };
@@ -844,7 +798,6 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       fileStats: action.fileStats,
       fileIsMultilineJSON: action.fileIsMultilineJSON,
       status: PROCESS_STATUS.UNSPECIFIED,
-      docsTotal: -1,
       docsProcessed: 0,
       docsWritten: 0,
       errors: [],
@@ -971,19 +924,22 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
     return newState;
   }
 
+  if (action.type === FILE_SELECT_ERROR) {
+    return {
+      ...state,
+      errors: [action.error],
+    };
+  }
+
   /**
    * ## Status/Progress
    */
   if (action.type === FAILED) {
     return {
       ...state,
-      // In cases where `FAILED` happened on import it might emit an event with
-      // an error that was already saved in the `errors` array. We want to avoid
-      // that by checking if the error is there before storing it in the state
-      errors: state.errors.includes(action.error)
-        ? state.errors
-        : state.errors.concat(action.error),
+      errors: [action.error],
       status: PROCESS_STATUS.FAILED,
+      abortController: undefined,
     };
   }
 
@@ -992,11 +948,11 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       ...state,
       isOpen: false,
       errors: [],
-      docsTotal: -1,
       docsProcessed: 0,
       docsWritten: 0,
       status: PROCESS_STATUS.STARTED,
       abortController: action.abortController,
+      errorLogFilePath: action.errorLogFilePath,
     };
   }
 
@@ -1010,30 +966,16 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
   }
 
   if (action.type === FINISHED) {
-    const isComplete = state.status !== PROCESS_STATUS.CANCELED;
-    const hasErrors = (state.errors || []).length > 0;
-
-    let status = state.status;
-
-    if (isComplete && hasErrors) {
-      status = PROCESS_STATUS.COMPLETED_WITH_ERRORS;
-    } else if (isComplete) {
-      status = PROCESS_STATUS.COMPLETED;
-    }
+    const status = action.aborted
+      ? PROCESS_STATUS.CANCELED
+      : PROCESS_STATUS.COMPLETED;
 
     return {
       ...state,
       status,
       docsWritten: action.docsWritten,
-      docsTotal: action.docsTotal,
-      abortController: undefined,
-    };
-  }
-
-  if (action.type === CANCELED) {
-    return {
-      ...state,
-      status: PROCESS_STATUS.CANCELED,
+      docsProcessed: action.docsProcessed,
+      errors: action.errors,
       abortController: undefined,
     };
   }

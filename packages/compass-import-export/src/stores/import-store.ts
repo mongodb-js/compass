@@ -32,6 +32,8 @@ const store = Object.assign(_store, {
       }
     );
 
+    // TODO: Handle disconnect, abort any operations.
+
     globalAppRegistry.on('open-import', ({ namespace }) => {
       // TODO: Once we update our redux usage to use `configureStore` from `@reduxjs/toolkit`
       // we should be able to remove this type cast as the thunk action will
