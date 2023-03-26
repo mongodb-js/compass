@@ -1,5 +1,4 @@
 import type { AnyAction, Reducer } from 'redux';
-import type { PipelineBuilderThunkAction } from '.';
 
 export enum ActionTypes {
   PanelToggled = 'compass-aggregations/stageCreator/panelToggled',
@@ -28,7 +27,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   }
 };
 
-export const toggleStageCreatorPanel = () => ({
+export const toggleStageCreatorPanel = (): PanelToggledAction => ({
   type: ActionTypes.PanelToggled,
 });
 

@@ -1,28 +1,35 @@
+import React from 'react';
 import {
   Combobox,
   ComboboxOption,
   Select,
   Option,
 } from '@mongodb-js/compass-components';
-import React from 'react';
-import { Field } from './stage-creator';
+import type { Field } from '.';
+import type { Document } from 'mongodb';
 
-export type ProjectFormState = {
+type ProjectFormState = {
   fields: string[];
   type: string;
 };
 
-type ProjectFormProps = {
-  initialData?: ProjectFormState;
-  fields: Field[];
-  onChange: (data: ProjectFormState) => void;
+export const mapProjectFormToStageValue = (data: ProjectFormState) => {
+  const project: Document = {};
+  data.fields.forEach((field) => {
+    project[field] = data.type === 'Include' ? 1 : 0;
+  });
+  return project;
 };
 
 export const ProjectForm = ({
   initialData = { fields: [], type: '' },
   onChange,
   fields: schemaFields,
-}: ProjectFormProps) => {
+}: {
+  initialData?: ProjectFormState;
+  fields: Field[];
+  onChange: (data: ProjectFormState) => void;
+}) => {
   const setProjectType = (value: string) => {
     onChange({ fields: initialData.fields, type: value });
   };

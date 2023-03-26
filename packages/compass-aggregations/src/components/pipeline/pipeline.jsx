@@ -17,7 +17,7 @@ import {
   DEFAULT_LARGE_LIMIT,
 } from '../../constants';
 
-import { StageCreator } from './stage-creator';
+import StageCreator from '../stage-creator/stage-creator';
 
 /**
  * Displays a pipeline.
@@ -52,7 +52,6 @@ class Pipeline extends PureComponent {
     showRunButton: PropTypes.bool.isRequired,
     showExplainButton: PropTypes.bool.isRequired,
     isStageCreatorOpen: PropTypes.bool.isRequired,
-    fields: PropTypes.array,
   };
 
   static defaultProps = {
@@ -155,9 +154,7 @@ class Pipeline extends PureComponent {
                 <PipelineBuilderWorkspace />
               )}
             </div>
-            {this.props.isStageCreatorOpen && (
-              <StageCreator fields={this.props.fields} />
-            )}
+            {this.props.isStageCreatorOpen && <StageCreator />}
           </div>
           <PipelineExplain />
           <FocusMode />

@@ -62,7 +62,6 @@ const mapStateToProps = (state) => ({
   updateViewError: state.updateViewError,
   workspace: state.workspace,
   isStageCreatorOpen: state.stageCreator.isPanelOpen,
-  fields: state.fields,
 });
 
 /**

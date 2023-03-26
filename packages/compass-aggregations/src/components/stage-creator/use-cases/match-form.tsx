@@ -13,7 +13,7 @@ import {
   Menu,
   MenuItem,
 } from '@mongodb-js/compass-components';
-import { Field } from './stage-creator';
+import type { Field } from '.';
 
 const MATCH_OPERATORS = [
   {
@@ -50,7 +50,23 @@ type MatchFormGroup = {
   conditions: MatchFormState;
 };
 
-export type MatchFormState = Array<MatchFormField | MatchFormGroup>;
+type MatchFormState = Array<MatchFormField | MatchFormGroup>;
+
+export const mapMatchFormToStageValue = (data: MatchFormState) => {
+  const ret = {};
+  data.map((x) => {
+    if ('logicalOperator' in x) {
+      ret[x.logicalOperator] = convertToStage(x.conditions);
+      return ret;
+    }
+
+    ret[x.field] = {
+      [x.operator]: x.value,
+    };
+    return ret;
+  });
+  return ret;
+};
 
 const MatchFormFields = ({
   data,
@@ -319,20 +335,4 @@ export const MatchForm = ({
       )}
     </div>
   );
-};
-
-export const convertToStage = (data: MatchFormState) => {
-  const ret = {};
-  data.map((x) => {
-    if ('logicalOperator' in x) {
-      ret[x.logicalOperator] = convertToStage(x.conditions);
-      return ret;
-    }
-
-    ret[x.field] = {
-      [x.operator]: x.value,
-    };
-    return ret;
-  });
-  return ret;
 };

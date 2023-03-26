@@ -7,11 +7,20 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import React from 'react';
-import type { Field } from './stage-creator';
+import type { Field } from '.';
+import type { Document } from 'mongodb';
 
-export type SortFormState = {
+type SortFormState = {
   field: string;
   direction: string;
+};
+
+export const mapSortFormToStageValue = (data: SortFormState[]) => {
+  const sort: Document = {};
+  data.forEach(({ field, direction }) => {
+    sort[field] = direction === 'Asc' ? 1 : -1;
+  });
+  return sort;
 };
 
 export const SortForm = ({
