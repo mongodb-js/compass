@@ -133,19 +133,20 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
         sensors={sensors}
         autoScroll={false}
         onDragEnd={({ active, over }) => {
-          if (
-            active.data.current?.type === 'use-case' &&
-            over?.data.current?.type === 'placeholder'
-          ) {
-            const useCaseId = active.id;
-            const afterStageId = over.id;
-            console.log(
-              `Create card: ${useCaseId} after stage: ${afterStageId}`
-            );
-            return;
-          }
-          if (over && active.id !== over.id) {
-            onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
+          // If the user is dragging a use-case card
+          if (active.data.current?.type === 'use-case') {
+            if (over?.data.current?.type === 'placeholder') {
+              const useCaseId = active.id;
+              const afterStageId = over.id;
+              console.log(
+                `Create card: ${useCaseId} after stage: ${afterStageId}`
+              );
+              return;
+            }
+          } else {
+            if (over && active.id !== over.id) {
+              onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
+            }
           }
         }}
       >
