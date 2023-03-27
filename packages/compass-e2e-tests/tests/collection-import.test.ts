@@ -898,15 +898,9 @@ describe('Collection import', function () {
     ).to.equal(2);
     expect(toastText).to.include('VIEW LOG');
 
-    if (!compass.userDataPath || !compass.appName) {
-      throw new Error(
-        `no compass.userDataPath ${compass.userDataPath} or compass.appName ${compass.appName}`
-      );
-    }
-
     const logFilePath = path.resolve(
-      compass.userDataPath,
-      compass.appName,
+      compass.userDataPath || '',
+      compass.appName || '',
       'ImportErrorLogs',
       `import-${fileName}.log`
     );

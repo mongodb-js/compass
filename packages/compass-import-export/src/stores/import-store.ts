@@ -9,7 +9,7 @@ import {
   dataServiceConnected,
   globalAppRegistryActivated,
 } from '../modules/compass';
-import { openImport } from '../modules/import';
+import { cancelImport, openImport } from '../modules/import';
 
 const _store = createStore(reducer, applyMiddleware(thunk));
 
@@ -32,7 +32,10 @@ const store = Object.assign(_store, {
       }
     );
 
-    // TODO: Handle disconnect, abort any operations.
+    // Abort the import operation when it's in progress.
+    globalAppRegistry.on('data-service-disconnected', () => {
+      store.dispatch(cancelImport() as unknown as AnyAction);
+    });
 
     globalAppRegistry.on('open-import', ({ namespace }) => {
       // TODO: Once we update our redux usage to use `configureStore` from `@reduxjs/toolkit`

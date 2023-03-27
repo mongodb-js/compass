@@ -207,6 +207,21 @@ const onFileSelectError = (error: Error) => ({
   error,
 });
 
+async function getErrorLogPath(fileName: string) {
+  // Create the error log output file.
+  const userDataPath = getUserDataFolderPath();
+  if (!userDataPath) {
+    throw new Error('cannot access user data for error log generation');
+  }
+  const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
+  await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
+
+  const errorLogFileName = `import-${path.basename(fileName)}.log`;
+  const errorLogFilePath = path.join(importErrorLogsPath, errorLogFileName);
+
+  return errorLogFilePath;
+}
+
 export const startImport = () => {
   return async (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
@@ -232,17 +247,8 @@ export const startImport = () => {
       transform,
     } = importData;
 
-    // Create the error log output file.
-    const userDataPath = getUserDataFolderPath();
-    if (!userDataPath) {
-      throw new Error('cannot access user data for error log generation');
-    }
-    const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
-    await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
-
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
     const fileSize = fileStats?.size || 0;
-
     const fields: Record<string, CSVParsableFieldType> = {};
     for (const [name, type] of transform) {
       if (exclude.includes(name)) {
@@ -250,11 +256,19 @@ export const startImport = () => {
       }
       fields[name] = type;
     }
-
     const input = fs.createReadStream(fileName, 'utf8');
-    const errorLogFileName = `import-${path.basename(fileName)}.log`;
-    const errorLogFilePath = path.join(importErrorLogsPath, errorLogFileName);
-    const errorLogWriteStream = fs.createWriteStream(errorLogFilePath);
+
+    const errors: ErrorJSON[] = [];
+
+    let errorLogFilePath;
+    try {
+      errorLogFilePath = await getErrorLogPath(fileName);
+    } catch (err: any) {
+      errors.push(err as Error);
+    }
+    const errorLogWriteStream = errorLogFilePath
+      ? fs.createWriteStream(errorLogFilePath)
+      : undefined;
 
     log.info(
       mongoLogId(1001000080),
@@ -280,13 +294,12 @@ export const startImport = () => {
     dispatch(
       onStarted({
         abortController,
-        errorLogFilePath,
+        errorLogFilePath: errorLogFilePath || '',
       })
     );
 
     let promise: Promise<ImportResult>;
 
-    const errors: ErrorJSON[] = [];
     const errorCallback = (err: ErrorJSON) => {
       if (errors.length < 5) {
         // Only store the first few errors in memory.
@@ -377,7 +390,7 @@ export const startImport = () => {
       return dispatch(onFailed(err));
     } finally {
       importDone = true;
-      errorLogWriteStream.close();
+      errorLogWriteStream?.close();
       progressCallback.flush();
     }
 
@@ -435,13 +448,13 @@ export const cancelImport = () => {
     const { importData } = getState();
     const { abortController } = importData;
 
-    if (abortController) {
-      debug('cancelling');
-      abortController.abort();
-    } else {
+    if (!abortController) {
       debug('no active import to cancel.');
       return;
     }
+
+    debug('cancelling in progress import operation');
+    abortController.abort();
 
     debug('import canceled by user');
   };
