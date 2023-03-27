@@ -52,6 +52,7 @@ export const zeroStateChanged = (isZeroState) => ({
  * @returns {Function} The function.
  */
 const sendMetrics = (dispatch, dataService, namespace, registryEvent) =>
+  // TODO(COMPASS-6621): replace
   dataService.database(namespace.database, {}, (errorDB, res) => {
     let collectionSize = 0;
 

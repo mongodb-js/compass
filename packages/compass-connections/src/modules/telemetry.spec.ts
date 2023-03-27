@@ -7,7 +7,7 @@ import {
   trackConnectionFailedEvent,
 } from './telemetry';
 
-const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
+const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
   instance: () => {
     return Promise.resolve({
       dataLake: {
@@ -27,7 +27,7 @@ const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
       featureCompatibilityVersion: null,
     });
   },
-  currentTopologyType: () => 'Unknown',
+  getCurrentTopologyType: () => 'Unknown',
 };
 
 describe('connection tracking', function () {
@@ -462,7 +462,7 @@ describe('connection tracking', function () {
   it('tracks the instance data - case 1', async function () {
     const mockDataService: Pick<
       DataService,
-      'instance' | 'currentTopologyType'
+      'instance' | 'getCurrentTopologyType'
     > = {
       instance: () => {
         return Promise.resolve({
@@ -486,7 +486,7 @@ describe('connection tracking', function () {
           featureCompatibilityVersion: null,
         });
       },
-      currentTopologyType: () => 'Unknown',
+      getCurrentTopologyType: () => 'Unknown',
     };
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
@@ -510,7 +510,7 @@ describe('connection tracking', function () {
   it('tracks the instance data - case 2', async function () {
     const mockDataService: Pick<
       DataService,
-      'instance' | 'currentTopologyType'
+      'instance' | 'getCurrentTopologyType'
     > = {
       instance: () => {
         return Promise.resolve({
@@ -534,7 +534,7 @@ describe('connection tracking', function () {
           featureCompatibilityVersion: null,
         });
       },
-      currentTopologyType: () => 'Sharded',
+      getCurrentTopologyType: () => 'Sharded',
     };
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {

@@ -56,7 +56,7 @@ describe('data service module', function () {
     context('when the action is data service updated', function () {
       it('returns the new state', function () {
         const ds = {
-          currentTopologyType: () => 'Single',
+          getCurrentTopologyType: () => 'Single',
         };
         const state1 = reducer(
           undefined,
@@ -64,7 +64,7 @@ describe('data service module', function () {
         );
         expect(state1.currentTopologyType).to.equal('Single');
 
-        ds.currentTopologyType = () => 'ReplicaSetWithPrimary';
+        ds.getCurrentTopologyType = () => 'ReplicaSetWithPrimary';
         const state2 = reducer(state1, dataServiceUpdated(ds as any));
         expect(state2).to.deep.equal({
           error: 'err',

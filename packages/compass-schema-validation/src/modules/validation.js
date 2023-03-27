@@ -348,6 +348,7 @@ const sendMetrics = (
   validation,
   registryEvent
 ) =>
+  // TODO(COMPASS-6621): replace
   dataService.database(namespace.database, {}, (errorDB, res) => {
     let collectionSize = 0;
     let ruleCount = 0;
