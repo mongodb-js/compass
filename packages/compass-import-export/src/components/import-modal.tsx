@@ -7,10 +7,12 @@ import {
   ModalFooter,
   ModalHeader,
   css,
+  cx,
   spacing,
   FormFieldContainer,
   Body,
   palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
@@ -65,12 +67,19 @@ const closeButtonStyles = css({
   marginRight: spacing[2],
 });
 
-const progressStyles = css({
+const analyzeStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  backgroundColor: palette.gray.light3, // TODO: dark mode
   padding: `${spacing[4]}px 0`,
+});
+
+const analyzeStylesDark = css({
+  backgroundColor: palette.gray.dark3,
+});
+
+const analyzeStylesLight = css({
+  backgroundColor: palette.gray.light3,
 });
 
 const loaderStyles = css({
@@ -223,6 +232,8 @@ function ImportModal({
     React
   );
 
+  const darkMode = useDarkMode();
+
   if (isOpen && !fileName && errors.length === 0) {
     // Show the file input when we don't have a file to import yet.
     return (
@@ -268,7 +279,12 @@ function ImportModal({
         )}
 
         {fileType === 'csv' && !csvAnalyzed && (
-          <FormFieldContainer className={progressStyles}>
+          <FormFieldContainer
+            className={cx(
+              analyzeStyles,
+              darkMode ? analyzeStylesDark : analyzeStylesLight
+            )}
+          >
             <Body weight="medium">Detecting field types</Body>
             {analyzeBytesTotal && (
               <div className={loaderStyles}>
