@@ -16,12 +16,10 @@ function showInProgressToast({
   fileName,
   cancelImport,
   docsWritten,
-  docsProcessed,
 }: {
   fileName: string;
   cancelImport: () => void;
   docsWritten: number;
-  docsProcessed: number;
 }) {
   // Update the toast with the new progress.
   openToast(importToastId, {
@@ -173,7 +171,6 @@ function useImportToast({
         showInProgressToast({
           cancelImport,
           docsWritten,
-          docsProcessed,
           fileName,
         });
       } else {
