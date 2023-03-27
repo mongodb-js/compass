@@ -32,6 +32,7 @@ import countDocuments from './count-documents';
 import explain from './explain';
 import isDataLake from './is-datalake';
 import workspace from './workspace';
+import aggregationLibraryPanel from './aggregation-library';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import indexes from './indexes';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
@@ -81,6 +82,7 @@ const rootReducer = combineReducers({
   indexes,
   pipelineBuilder,
   focusMode,
+  aggregationLibraryPanel,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

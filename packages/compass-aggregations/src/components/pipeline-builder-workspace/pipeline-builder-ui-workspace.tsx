@@ -23,11 +23,12 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { AggregationLibraryPanel } from './aggregation-library-panel';
+import { DroppableMarker } from './droppable-marker';
+import { palette } from '@leafygreen-ui/palette';
 
-const pipelineWorkspaceContainerStyles = css({
-  position: 'relative',
-  width: '100%',
-  height: '100%',
+const pipelineBuilderUiStyles = css({
+  // position: 'relative'
 });
 
 const pipelineWorkspaceStyles = css({
@@ -49,6 +50,7 @@ type PipelineBuilderUIWorkspaceProps = {
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
+  isAggregationLibraryOpen: boolean;
 };
 
 type SortableItemProps = {
@@ -59,8 +61,18 @@ type SortableItemProps = {
 
 type SortableListProps = {
   stageIds: number[];
-  onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
+};
+
+const StageCreator = (props: { index: number }) => {
+  const stageCreatorStyles = css({
+    display: 'flex',
+    height: '100px',
+    borderRadius: '8px',
+    padding: '15px',
+  });
+
+  return <div className={stageCreatorStyles}>{props.index}</div>;
 };
 
 const SortableItem = ({
@@ -72,22 +84,71 @@ const SortableItem = ({
   return (
     <div className={stageContainerStyles}>
       <Stage index={idx} {...props}></Stage>
-      {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
+      {!isLastStage && (
+        <AddStage index={idx} onAddStage={onStageAddAfter} variant="icon" />
+      )}
     </div>
   );
 };
 
-const SortableList = ({
-  stageIds,
-  onStageMoveEnd,
-  onStageAddAfterEnd,
-}: SortableListProps) => {
+const SortableList = ({ stageIds, onStageAddAfterEnd }: SortableListProps) => {
   // It requires that you pass it a sorted array of the unique identifiers
   // associated with the elements that use the useSortable hook within it.
   // They must be strings or numbers bigger than 0.
   // It's important that the items prop passed to SortableContext
   // be sorted in the same order in which the items are rendered.
   const items = stageIds.map((id) => id + 1);
+
+  return (
+    <SortableContext items={items} strategy={verticalListSortingStrategy}>
+      {stageIds.map((id, index) => (
+        <SortableItem
+          key={`stage-${id}`}
+          idx={index}
+          isLastStage={index === stageIds.length - 1}
+          onStageAddAfter={() => onStageAddAfterEnd(index)}
+        />
+      ))}
+    </SortableContext>
+  );
+};
+
+export const PipelineBuilderUIWorkspace: React.FunctionComponent<
+  PipelineBuilderUIWorkspaceProps
+> = ({
+  stageIds,
+  editViewName,
+  onStageMoveEnd,
+  onStageAddAfterEnd,
+  isAggregationLibraryOpen,
+}) => {
+  const AGG_PANEL_WIDTH = 400;
+
+  const pipelineWorkspaceContainerStyles = css({
+    width: isAggregationLibraryOpen
+      ? `calc(100% - ${AGG_PANEL_WIDTH}px)`
+      : '100%',
+    height: '100%',
+    overflowY: isAggregationLibraryOpen ? 'scroll' : 'unset',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+  });
+
+  const aggregationPanelStyles = css({
+    width: `${AGG_PANEL_WIDTH}px`,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    padding: spacing[3],
+    flexDirection: 'column',
+    display: isAggregationLibraryOpen ? 'flex' : 'none',
+    gap: spacing[2],
+    background: palette.white,
+  });
+
   const sensors = useSensors(
     useSensor(MouseSensor, {
       // Require the mouse to move by 10 pixels before activating.
@@ -105,7 +166,6 @@ const SortableList = ({
       },
     })
   );
-
   const onSortEnd = useCallback(
     ({ oldIndex, newIndex }) => {
       const from = stageIds.findIndex((id) => id + 1 === oldIndex);
@@ -116,52 +176,54 @@ const SortableList = ({
   );
 
   return (
-    <DndContext
-      sensors={sensors}
-      autoScroll={false}
-      onDragEnd={({ active, over }) => {
-        if (over && active.id !== over.id) {
-          onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
-        }
-      }}
+    <div
+      className={pipelineBuilderUiStyles}
+      data-testid="pipeline-builder-ui-workspace"
     >
-      <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        {stageIds.map((id, index) => (
-          <SortableItem
-            key={`stage-${id}`}
-            idx={index}
-            isLastStage={index === stageIds.length - 1}
-            onStageAddAfter={() => onStageAddAfterEnd(index)}
-          />
-        ))}
-      </SortableContext>
-    </DndContext>
-  );
-};
-
-export const PipelineBuilderUIWorkspace: React.FunctionComponent<
-  PipelineBuilderUIWorkspaceProps
-> = ({ stageIds, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
-  return (
-    <div data-testid="pipeline-builder-ui-workspace">
-      <div className={pipelineWorkspaceContainerStyles}>
-        <div className={pipelineWorkspaceStyles}>
-          {editViewName && <ModifySourceBanner editViewName={editViewName} />}
-          <PipelineBuilderInputDocuments />
-          {stageIds.length !== 0 && (
-            <AddStage
-              onAddStage={() => onStageAddAfterEnd(-1)}
-              variant="icon"
+      <DndContext
+        sensors={sensors}
+        autoScroll={false}
+        onDragEnd={({ active, over }) => {
+          console.log(active, over);
+          const activeElementId = active.id.toString();
+          const isUseCaseDragAndDrop = activeElementId.startsWith('usecase-');
+          if (isUseCaseDragAndDrop) {
+            // Update the redux slice for stages
+            // with an entry for stage wizard state
+            //
+          } else {
+            if (over && active.id !== over.id) {
+              onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
+            }
+          }
+        }}
+      >
+        <div className={pipelineWorkspaceContainerStyles}>
+          <div className={pipelineWorkspaceStyles}>
+            {editViewName && <ModifySourceBanner editViewName={editViewName} />}
+            <PipelineBuilderInputDocuments />
+            {stageIds.length !== 0 && (
+              <AddStage
+                index={0}
+                onAddStage={() => onStageAddAfterEnd(-1)}
+                variant="icon"
+              />
+            )}
+            <SortableList
+              stageIds={stageIds}
+              onStageAddAfterEnd={onStageAddAfterEnd}
             />
-          )}
-          <SortableList
-            stageIds={stageIds}
-            onStageMoveEnd={onStageMoveEnd}
-            onStageAddAfterEnd={onStageAddAfterEnd}
-          />
-          <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
+            <AddStage
+              index={stageIds.length}
+              onAddStage={onStageAddAfterEnd}
+              variant="button"
+            />
+          </div>
         </div>
-      </div>
+        <div className={aggregationPanelStyles}>
+          <AggregationLibraryPanel />
+        </div>
+      </DndContext>
     </div>
   );
 };
@@ -170,6 +232,7 @@ const mapState = (state: RootState) => {
   return {
     stageIds: state.pipelineBuilder.stageEditor.stageIds,
     editViewName: state.editViewName,
+    isAggregationLibraryOpen: state.aggregationLibraryPanel.isOpen,
   };
 };
 

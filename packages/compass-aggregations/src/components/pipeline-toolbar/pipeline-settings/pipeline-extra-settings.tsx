@@ -16,6 +16,7 @@ import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { toggleAggregationPanelVisibility } from '../../../modules/aggregation-library';
 
 const containerStyles = css({
   display: 'flex',
@@ -42,6 +43,7 @@ type PipelineExtraSettingsProps = {
   onToggleAutoPreview: (newVal: boolean) => void;
   onChangePipelineMode: (newVal: PipelineMode) => void;
   onToggleSettings: () => void;
+  onToggleAggregationLibrary: () => void;
 };
 
 export const PipelineExtraSettings: React.FunctionComponent<
@@ -53,6 +55,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleAutoPreview,
   onChangePipelineMode,
   onToggleSettings,
+  onToggleAggregationLibrary,
 }) => {
   return (
     <div
@@ -103,6 +106,14 @@ export const PipelineExtraSettings: React.FunctionComponent<
         </SegmentedControlOption>
       </SegmentedControl>
       <IconButton
+        title="Open Aggregation Library"
+        aria-label="Open Aggregation Library"
+        onClick={() => onToggleAggregationLibrary()}
+        data-testid="pipeline-toolbar-aggregation-library-button"
+      >
+        <Icon glyph="Filter" />
+      </IconButton>
+      <IconButton
         title="More Settings"
         aria-label="More Settings"
         onClick={() => onToggleSettings()}
@@ -126,6 +137,7 @@ const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
   onChangePipelineMode: changePipelineMode,
   onToggleSettings: toggleSettingsIsExpanded,
+  onToggleAggregationLibrary: toggleAggregationPanelVisibility,
 };
 
 export default connect(mapState, mapDispatch)(PipelineExtraSettings);
