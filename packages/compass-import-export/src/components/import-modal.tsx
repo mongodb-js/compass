@@ -7,8 +7,12 @@ import {
   ModalFooter,
   ModalHeader,
   css,
+  cx,
   spacing,
   FormFieldContainer,
+  Body,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
@@ -31,6 +35,7 @@ import formatNumber from '../utils/format-number';
 import {
   startImport,
   cancelImport,
+  skipCSVAnalyze,
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,
@@ -44,6 +49,7 @@ import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
 import type { CSVParsableFieldType } from '../utils/csv';
+import { SpinLoader } from '@mongodb-js/compass-components';
 
 /**
  * Progress messages.
@@ -61,11 +67,41 @@ const closeButtonStyles = css({
   marginRight: spacing[2],
 });
 
+const analyzeStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: `${spacing[4]}px 0`,
+});
+
+const analyzeStylesDark = css({
+  backgroundColor: palette.gray.dark3,
+});
+
+const analyzeStylesLight = css({
+  backgroundColor: palette.gray.light3,
+});
+
+const loaderStyles = css({
+  marginTop: spacing[3],
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[1],
+  alignItems: 'center',
+});
+
+const explanationTextStyles = css({
+  margin: `${spacing[3]}px 0`,
+  width: '350px',
+  textAlign: 'center',
+});
+
 type ImportModalProps = {
   isOpen: boolean;
   ns: string;
   startImport: () => void;
   cancelImport: () => void;
+  skipCSVAnalyze: () => void;
   closeImport: () => void;
   errors: Error[];
   status: ProcessStatus;
@@ -92,6 +128,9 @@ type ImportModalProps = {
   guesstimatedDocsTotal: number;
   guesstimatedDocsProcessed: number;
 
+  analyzeBytesProcessed: number;
+  analyzeBytesTotal: number;
+
   /**
    * See `<ImportPreview />`
    */
@@ -114,6 +153,8 @@ function ImportModal({
   cancelImport,
   closeImport,
 
+  skipCSVAnalyze,
+
   errors,
   status,
 
@@ -133,6 +174,9 @@ function ImportModal({
   guesstimatedDocsTotal,
   guesstimatedDocsProcessed,
 
+  analyzeBytesProcessed,
+  analyzeBytesTotal,
+
   fields,
   values,
   toggleIncludeField,
@@ -141,18 +185,11 @@ function ImportModal({
   csvAnalyzed,
 }: ImportModalProps) {
   const modalBodyRef = useRef<HTMLDivElement>(null);
-  const handleCancel = useCallback(() => {
-    cancelImport();
-  }, [cancelImport]);
 
   const handleClose = useCallback(() => {
-    handleCancel();
+    cancelImport();
     closeImport();
-  }, [closeImport, handleCancel]);
-
-  const handleImportBtnClicked = useCallback(() => {
-    startImport();
-  }, [startImport]);
+  }, [closeImport, cancelImport]);
 
   // docsTotal is set to actual value only at the very end of processing a
   // stream of documents
@@ -183,6 +220,8 @@ function ImportModal({
     undefined,
     React
   );
+
+  const darkMode = useDarkMode();
 
   if (isOpen && !fileName && errors.length === 0) {
     // Show the file input when we don't have a file to import yet.
@@ -216,16 +255,43 @@ function ImportModal({
           ignoreBlanks={ignoreBlanks}
           setIgnoreBlanks={setIgnoreBlanks}
         />
-        {fileType === 'csv' && (
+        {fileType === 'csv' && csvAnalyzed && (
           <FormFieldContainer>
             <ImportPreview
               loaded={previewLoaded}
-              analyzed={csvAnalyzed}
               onFieldCheckedChanged={toggleIncludeField}
               setFieldType={setFieldType}
               values={values}
               fields={fields as FieldFromCSV[]}
             />
+          </FormFieldContainer>
+        )}
+
+        {fileType === 'csv' && !csvAnalyzed && (
+          <FormFieldContainer
+            className={cx(
+              analyzeStyles,
+              darkMode ? analyzeStylesDark : analyzeStylesLight
+            )}
+          >
+            <Body weight="medium">Detecting field types</Body>
+            {analyzeBytesTotal && (
+              <div className={loaderStyles}>
+                <SpinLoader />
+                <Body>
+                  {Math.round(
+                    (analyzeBytesProcessed / analyzeBytesTotal) * 100
+                  )}
+                  %
+                </Body>
+              </div>
+            )}
+            <Body className={explanationTextStyles}>
+              We are scanning your CSV file row by row to detect the field
+              types. You can skip this step and manually assign field types at
+              any point during the process.
+            </Body>
+            <Button onClick={skipCSVAnalyze}>Skip</Button>
           </FormFieldContainer>
         )}
         <ProgressBar
@@ -269,7 +335,7 @@ function ImportModal({
           <>
             <Button
               data-testid="import-button"
-              onClick={handleImportBtnClicked}
+              onClick={startImport}
               disabled={
                 !fileName ||
                 status === STARTED ||
@@ -308,6 +374,8 @@ const mapStateToProps = (state: RootImportState) => ({
   docsWritten: state.importData.docsWritten,
   guesstimatedDocsTotal: state.importData.guesstimatedDocsTotal,
   guesstimatedDocsProcessed: state.importData.guesstimatedDocsProcessed,
+  analyzeBytesProcessed: state.importData.analyzeBytesProcessed,
+  analyzeBytesTotal: state.importData.analyzeBytesTotal,
   delimiter: state.importData.delimiter,
   stopOnErrors: state.importData.stopOnErrors,
   ignoreBlanks: state.importData.ignoreBlanks,
@@ -323,6 +391,7 @@ const mapStateToProps = (state: RootImportState) => ({
 export default connect(mapStateToProps, {
   startImport,
   cancelImport,
+  skipCSVAnalyze,
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,
