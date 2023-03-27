@@ -147,7 +147,7 @@ describe('Collection indexes tab', function () {
       );
 
       // set the text in the editor
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.indexOptionInput('wildcardProjection', 'code'),
         '{ "fieldA": 1, "fieldB.fieldC": 1 }'
       );
