@@ -25,7 +25,6 @@ const renderStageToolbar = (
         isCollapsed={false}
         isDisabled={false}
         onOpenFocusMode={() => {}}
-        editorRef={React.createRef()}
         {...props}
       />
     </Provider>

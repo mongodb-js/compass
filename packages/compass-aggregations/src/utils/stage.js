@@ -37,6 +37,8 @@ function disallowOutputStagesOnCompassReadonly(operator, preferencesReadOnly) {
   return true;
 }
 
+const FilteredStagesCache = new Map();
+
 /**
  * Filters stage operators by server version.
  *
@@ -48,13 +50,10 @@ function disallowOutputStagesOnCompassReadonly(operator, preferencesReadOnly) {
  *
  * @returns {Array} Stage operators supported by the current version of the server.
  */
-export const filterStageOperators = ({
-  serverVersion,
-  env,
-  isTimeSeries,
-  sourceName,
-  preferencesReadOnly,
-}) => {
+export const filterStageOperators = (options) => {
+  const { serverVersion, env, isTimeSeries, sourceName, preferencesReadOnly } =
+    options;
+
   const namespaceType = isTimeSeries
     ? TIME_SERIES
     : // we identify a view looking for a source
@@ -63,19 +62,31 @@ export const filterStageOperators = ({
     ? VIEW
     : COLLECTION;
 
-  return (
-    STAGE_OPERATORS.filter((op) =>
-      disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly)
-    )
-      .filter((op) => supportsVersion(op, serverVersion))
-      .filter((op) => supportsNamespace(op, namespaceType))
+  const cacheKey = JSON.stringify({
+    serverVersion,
+    env,
+    namespaceType,
+    preferencesReadOnly,
+  });
 
-      // we want to display Atlas-only stages
-      // also when connected to on-prem / localhost
-      // in order to improve their discoverability:
-      .filter((op) => isAtlasOnly(op.env) || supportsEnv(op, env))
-      .map((obj) => ({ ...obj }))
-  );
+  if (FilteredStagesCache.has(cacheKey)) {
+    return FilteredStagesCache.get(cacheKey);
+  }
+
+  const filteredStages = STAGE_OPERATORS.filter((op) =>
+    disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly)
+  )
+    .filter((op) => supportsVersion(op, serverVersion))
+    .filter((op) => supportsNamespace(op, namespaceType))
+
+    // we want to display Atlas-only stages
+    // also when connected to on-prem / localhost
+    // in order to improve their discoverability:
+    .filter((op) => isAtlasOnly(op.env) || supportsEnv(op, env));
+
+  FilteredStagesCache.set(cacheKey, filteredStages);
+
+  return filteredStages;
 };
 
 /**
