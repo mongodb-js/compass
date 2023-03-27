@@ -64,7 +64,7 @@ type GatherFieldsOptions = {
   ns: string;
   abortSignal: AbortSignal;
   filter?: Document;
-  progressCallback: (index: number) => void;
+  progressCallback?: (index: number) => void;
   sampleSize: number;
 };
 

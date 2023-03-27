@@ -17,7 +17,7 @@ temp.track();
 
 import { fixtures } from '../../test/fixtures';
 
-import { exportJSON } from './export-json';
+import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -77,13 +77,12 @@ describe('exportJSON', function () {
     const abortController = new AbortController();
     const tempWriteStream = temp.createWriteStream();
 
-    const result = await exportJSON({
+    const result = await exportJSONFromQuery({
       dataService,
       ns: testNS,
       output: tempWriteStream,
       variant: 'default',
       abortSignal: abortController.signal,
-      progressCallback: () => {},
     });
 
     expect(result.docsWritten).to.equal(1);
@@ -127,7 +126,7 @@ describe('exportJSON', function () {
         await insertMany(testNS, ejsonToInsert, {});
 
         const output = fs.createWriteStream(resultPath);
-        const stats = await exportJSON({
+        const stats = await exportJSONFromQuery({
           dataService,
           ns: testNS,
           output,
@@ -210,13 +209,12 @@ describe('exportJSON', function () {
     const abortController = new AbortController();
     abortController.abort();
 
-    const result = await exportJSON({
+    const result = await exportJSONFromQuery({
       dataService,
       ns: testNS,
       output: temp.createWriteStream(),
       variant: 'default',
       abortSignal: abortController.signal,
-      progressCallback: () => {},
     });
 
     expect(result.docsWritten).to.equal(0);
@@ -236,7 +234,7 @@ describe('exportJSON', function () {
     const resultPath = path.join(tmpdir, 'test-aggregations.exported.json');
     const output = fs.createWriteStream(resultPath);
 
-    const result = await exportJSON({
+    const result = await exportJSONFromAggregation({
       dataService,
       ns: testNS,
       aggregation: {
@@ -261,7 +259,6 @@ describe('exportJSON', function () {
       output,
       variant: 'default',
       abortSignal: abortController.signal,
-      progressCallback: () => {},
     });
 
     expect(result.docsWritten).to.equal(3);
@@ -305,13 +302,12 @@ describe('exportJSON', function () {
     const resultPath = path.join(tmpdir, 'test-empty.exported.ejson');
 
     const output = fs.createWriteStream(resultPath);
-    const result = await exportJSON({
+    const result = await exportJSONFromQuery({
       dataService,
       ns: `${testDB}.test-empty`,
       output,
       variant: 'default',
       abortSignal: abortController.signal,
-      progressCallback: () => {},
     });
 
     expect(result.docsWritten).to.equal(0);
@@ -347,20 +343,15 @@ describe('exportJSON', function () {
       stream: () => mockReadStream,
     } as unknown as FindCursor);
 
-    try {
-      await exportJSON({
+    await expect(
+      exportJSONFromQuery({
         dataService,
         ns: testNS,
         output: temp.createWriteStream(),
         variant: 'default',
         abortSignal: abortController.signal,
-        progressCallback: () => {},
-      });
-
-      throw new Error('did not expect export to succeed');
-    } catch (err: any) {
-      expect(err.message).to.equal('example error cannot fetch docs');
-    }
+      })
+    ).to.be.rejectedWith(Error, 'example error cannot fetch docs');
   });
 
   it('throws when the write output errors', async function () {
@@ -373,20 +364,15 @@ describe('exportJSON', function () {
       },
     });
 
-    try {
-      await exportJSON({
+    await expect(
+      exportJSONFromQuery({
         dataService,
         ns: testNS,
         output: mockWriteStream,
         variant: 'default',
         abortSignal: abortController.signal,
-        progressCallback: () => {},
-      });
-
-      throw new Error('expected to throw');
-    } catch (err: any) {
-      expect(err.message).to.equal('example error cannot write to file');
-    }
+      })
+    ).to.be.rejectedWith(Error, 'xample error cannot write to file');
   });
 
   it('exports with a projection', async function () {
@@ -406,7 +392,7 @@ describe('exportJSON', function () {
     const output = fs.createWriteStream(resultPath);
     const abortController = new AbortController();
 
-    const result = await exportJSON({
+    const result = await exportJSONFromQuery({
       dataService,
       ns: testNS,
       output,
@@ -428,7 +414,6 @@ describe('exportJSON', function () {
       },
       variant: 'default',
       abortSignal: abortController.signal,
-      progressCallback: () => {},
     });
 
     expect(result.docsWritten).to.equal(2);

@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { Writable } from 'stream';
 import type {
-  AggregateOptions,
   MongoServerError,
   Document,
   MongoBulkWriteError,
@@ -9,11 +8,9 @@ import type {
   WriteError,
   WriteConcernError,
   BulkWriteResult,
-  Sort,
 } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import { promisify } from 'util';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 import { createDebug } from './logger';
 
@@ -297,44 +294,4 @@ export const createCollectionWriteStream = function (
   stopOnErrors: boolean
 ) {
   return new WritableCollectionStream(dataService, ns, stopOnErrors);
-};
-
-export type ExportAggregation = {
-  stages: Document[];
-  options: AggregateOptions;
-};
-
-export type ExportQuery = {
-  filter: Document;
-  sort?: Sort;
-  limit?: number;
-  skip?: number;
-  projection?: Document;
-};
-
-type ReadableCollectionStreamOptions = {
-  dataService: DataService;
-  ns: string;
-  query: ExportQuery;
-  aggregation?: ExportAggregation;
-};
-
-export const createReadableCollectionCursor = function ({
-  dataService,
-  ns,
-  query,
-  aggregation,
-}: ReadableCollectionStreamOptions) {
-  if (aggregation) {
-    const { stages, options } = aggregation;
-    options.maxTimeMS = capMaxTimeMSAtPreferenceLimit(options.maxTimeMS);
-    return dataService.aggregateCursor(ns, stages, options);
-  }
-
-  return dataService.findCursor(ns, query.filter ?? {}, {
-    projection: query.projection,
-    sort: query.sort,
-    limit: query.limit,
-    skip: query.skip,
-  });
 };

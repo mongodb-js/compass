@@ -4,24 +4,39 @@ import { EJSON } from 'bson';
 import type { Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
-
-import { createReadableCollectionCursor } from '../utils/collection-stream';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type {
-  ExportQuery,
-  ExportAggregation,
-} from '../utils/collection-stream';
+  AggregationCursor,
+  AggregateOptions,
+  Document,
+  FindCursor,
+  Sort,
+} from 'mongodb';
+
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('export-json');
+
+export type ExportAggregation = {
+  stages: Document[];
+  options: AggregateOptions;
+};
+
+export type ExportQuery = {
+  filter: Document;
+  sort?: Sort;
+  limit?: number;
+  skip?: number;
+  projection?: Document;
+};
 
 type ExportJSONOptions = {
   dataService: DataService;
   ns: string;
   output: Writable;
-  abortSignal: AbortSignal;
-  query?: ExportQuery;
-  aggregation?: ExportAggregation;
-  progressCallback: (index: number) => void;
+  abortSignal?: AbortSignal;
+  input: FindCursor | AggregationCursor;
+  progressCallback?: (index: number) => void;
   variant: 'default' | 'relaxed' | 'canonical';
 };
 
@@ -46,13 +61,11 @@ function getEJSONOptionsForVariant(
 }
 
 export async function exportJSON({
-  dataService,
   ns,
   output,
   abortSignal,
-  query = { filter: {} },
+  input,
   progressCallback,
-  aggregation,
   variant,
 }: ExportJSONOptions): Promise<ExportJSONResult> {
   debug('exportJSON()', { ns: toNS(ns) });
@@ -61,7 +74,7 @@ export async function exportJSON({
 
   const ejsonOptions = getEJSONOptionsForVariant(variant);
 
-  if (!abortSignal.aborted) {
+  if (!abortSignal?.aborted) {
     output.write('[');
   }
 
@@ -91,28 +104,21 @@ export async function exportJSON({
     },
   });
 
-  const collectionCursor = createReadableCollectionCursor({
-    dataService,
-    ns,
-    query,
-    aggregation,
-  });
-  const collectionStream = collectionCursor.stream();
-
   try {
+    const inputStream = input.stream();
     await pipeline(
-      [collectionStream, docStream, output],
+      [inputStream, docStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
 
-    if (abortSignal.aborted) {
-      void collectionCursor.close();
+    if (abortSignal?.aborted) {
+      void input.close();
     } else {
       output.write(']\n', 'utf8');
     }
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
-      void collectionCursor.close();
+      void input.close();
       return {
         docsWritten,
         aborted: true,
@@ -124,6 +130,49 @@ export async function exportJSON({
 
   return {
     docsWritten,
-    aborted: abortSignal.aborted,
+    aborted: !!abortSignal?.aborted,
   };
+}
+
+export async function exportJSONFromAggregation(
+  options: Omit<ExportJSONOptions, 'input'> & {
+    aggregation: ExportAggregation;
+  }
+) {
+  const { dataService, ns, aggregation } = options;
+
+  const { stages, options: aggregationOptions } = aggregation;
+  aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
+    aggregationOptions.maxTimeMS
+  );
+  const aggregationCursor = dataService.aggregateCursor(
+    ns,
+    stages,
+    aggregationOptions
+  );
+
+  return await exportJSON({
+    ...options,
+    input: aggregationCursor,
+  });
+}
+
+export async function exportJSONFromQuery(
+  options: Omit<ExportJSONOptions, 'input'> & {
+    query?: ExportQuery;
+  }
+) {
+  const { dataService, ns, query = { filter: {} } } = options;
+
+  const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
+    projection: query.projection,
+    sort: query.sort,
+    limit: query.limit,
+    skip: query.skip,
+  });
+
+  return await exportJSON({
+    ...options,
+    input: findCursor,
+  });
 }
