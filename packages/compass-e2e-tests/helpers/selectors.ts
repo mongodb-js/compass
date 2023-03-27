@@ -894,10 +894,7 @@ export const indexOptionInput = (
   fieldName: string,
   type: 'code' | 'text' | 'number' | 'checkbox' = 'text'
 ) => {
-  if (type === 'code') {
-    return `[data-testid="create-index-modal-${fieldName}-code"] .ace_editor`;
-  }
-  return `input[data-testid="create-index-modal-${fieldName}-${type}"]`;
+  return `[data-testid="create-index-modal-${fieldName}-${type}"]`;
 };
 
 // Indexes modal

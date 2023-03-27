@@ -1264,6 +1264,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
             ref={editorRef}
             className={editorClassName}
             language="javascript"
+            minLines={10}
             {...props}
           ></BaseEditor>
         </div>
