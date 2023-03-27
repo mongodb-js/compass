@@ -98,6 +98,16 @@ const editorStyle = css({
   fontFamily: fontFamilies.code,
 });
 
+const hiddenScrollStyle = css({
+  '& .cm-scroller': {
+    overflow: '-moz-scrollbars-none',
+    msOverflowStyle: 'none',
+  },
+  '& .cm-scroller::-webkit-scrollbar': {
+    display: 'none',
+  },
+});
+
 // Breaks keyboard navigation out of the editor, but we want that
 const breakFocusOutBinding: KeyBinding = {
   // https://codemirror.net/examples/tab/
@@ -394,6 +404,7 @@ type EditorProps = {
   showLineNumbers?: boolean;
   showFoldGutter?: boolean;
   showAnnotationsGutter?: boolean;
+  showScroll?: boolean;
   highlightActiveLine?: boolean;
   readOnly?: boolean;
   'data-testid'?: string;
@@ -536,6 +547,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     showLineNumbers = true,
     showFoldGutter = true,
     showAnnotationsGutter = true,
+    showScroll = true,
     highlightActiveLine: shouldHighlightActiveLine = true,
     annotations,
     completer,
@@ -563,7 +575,10 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   const containerRef = useRef<HTMLDivElement>(null);
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const editorViewRef = useRef<EditorView>();
-  const [contentHeight, setContentHeight] = useState(0);
+  const [{ height: contentHeight, hasScroll }, setContentHeight] = useState({
+    height: 0,
+    hasScroll: false,
+  });
 
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
@@ -656,14 +671,14 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     () => {
       // See https://codemirror.net/examples/styling/#overflow-and-scrolling
       return EditorView.theme({
-        '.cm-scroller': {
+        '& .cm-scroller': {
           lineHeight: `${lineHeight}px`,
           ...(maxLines && {
             maxHeight: `${maxLines * lineHeight}px`,
-            overflow: 'auto',
+            overflowY: 'auto',
           }),
         },
-        '.cm-content, .cm-gutter': {
+        '& .cm-content, & .cm-gutter': {
           ...(minLines && { minHeight: `${minLines * lineHeight}px` }),
         },
       });
@@ -734,10 +749,18 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   const updateEditorContentHeight = useCallback(() => {
     editorViewRef.current?.requestMeasure({
       read(view) {
-        return view.contentHeight;
+        return [
+          view.contentHeight,
+          view.scrollDOM.scrollWidth > view.scrollDOM.clientWidth,
+        ] as const;
       },
-      write(lines) {
-        setContentHeight(lines);
+      write([height, hasScroll]) {
+        setContentHeight((state) => {
+          if (height !== state.height || hasScroll !== state.hasScroll) {
+            return { height, hasScroll };
+          }
+          return state;
+        });
       },
     });
   }, []);
@@ -924,13 +947,13 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   // every character input in worst case scenarios
   useLayoutEffect(() => {
     if (containerRef.current) {
-      const height = `${Math.min(
-        contentHeight,
-        (maxLines ?? Infinity) * lineHeight
-      )}px`;
-      containerRef.current.style.height = height;
+      const scrollHeight = hasScroll && showScroll ? 10 : 0;
+      const height =
+        Math.min(contentHeight, (maxLines ?? Infinity) * lineHeight) +
+        scrollHeight;
+      containerRef.current.style.height = `${height}px`;
     }
-  }, [maxLines, contentHeight, lineHeight]);
+  }, [maxLines, contentHeight, hasScroll, lineHeight, showScroll]);
 
   return (
     <div
@@ -944,7 +967,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     >
       <div
         ref={editorContainerRef}
-        className={editorStyle}
+        className={cx(editorStyle, !showScroll && hiddenScrollStyle)}
         style={{
           // We're forcing editor to it's own layer by setting position to
           // absolute to prevent editor layout changes and style
@@ -1061,6 +1084,7 @@ type InlineEditorProps = Omit<
   | 'showLineNumbers'
   | 'showFoldGutter'
   | 'showAnnotationsGutter'
+  | 'showScroll'
   | 'highlightActiveLine'
   | 'minLines'
   | 'maxLines'
@@ -1075,13 +1099,6 @@ const inlineStyles = css({
   '& .cm-editor': {
     backgroundColor: 'transparent',
   },
-  '& .cm-scroller': {
-    overflow: '-moz-scrollbars-none',
-    msOverflowStyle: 'none',
-  },
-  '& .cm-scroller::-webkit-scrollbar': {
-    display: 'none',
-  },
 });
 
 const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
@@ -1093,6 +1110,7 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
         showFoldGutter={false}
         showLineNumbers={false}
         showAnnotationsGutter={false}
+        showScroll={false}
         highlightActiveLine={false}
         className={cx(inlineStyles, className)}
         language="javascript"
@@ -1109,17 +1127,6 @@ const multilineEditorContainerStyle = css({
     &:hover > .multiline-editor-actions`]: {
     display: 'flex',
   },
-});
-
-const editorContainerStyle = css({
-  overflow: 'auto',
-  // To account for the leafygreen button shadow on hover we add padding to the
-  // top of the container that wraps the editor
-  paddingTop: spacing[1],
-  height: `calc(100% - ${spacing[1]}px)`,
-  // We want folks to be able to click into the container element
-  // they're using for the editor to focus the editor.
-  minHeight: 'inherit',
 });
 
 const actionsContainerStyle = css({
@@ -1157,6 +1164,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
     },
     ref
   ) {
+    const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<EditorRef>(null);
 
     useImperativeHandle(
@@ -1235,14 +1243,28 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
     }, [copyable, formattable, customActions]);
 
     return (
-      <div className={cx(multilineEditorContainerStyle, className)}>
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+      <div
+        ref={containerRef}
+        className={cx(multilineEditorContainerStyle, className)}
+        // We want folks to be able to click into the container element
+        // they're using for the editor to focus the editor.
+        onClick={(evt) => {
+          // Only do this when root container of the editor is clicked (not
+          // something inside it)
+          if (evt.target === containerRef.current) {
+            editorRef.current?.focus();
+          }
+        }}
+      >
         {/* Separate scrollable container for editor so that action buttons can */}
         {/* stay in one place when scrolling */}
-        <div className={editorContainerStyle}>
+        <div>
           <BaseEditor
             ref={editorRef}
             className={editorClassName}
             language="javascript"
+            minLines={10}
             {...props}
           ></BaseEditor>
         </div>

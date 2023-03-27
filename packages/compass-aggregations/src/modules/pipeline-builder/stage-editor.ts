@@ -324,21 +324,24 @@ const ESCAPED_STAGE_OPERATORS = STAGE_OPERATORS.map((stage) => {
     comment: replaceOperatorSnippetTokens(stage.comment),
     snippet: replaceOperatorSnippetTokens(stage.snippet),
   };
-});
+}) as unknown as typeof STAGE_OPERATORS;
 
 function getStageSnippet(
   stageOperator: string | null,
   env: string,
-  shouldAddComment: boolean
+  shouldAddComment: boolean,
+  escaped = false
 ) {
-  const stage = ESCAPED_STAGE_OPERATORS.find((stageOp) => {
-    return (
-      stageOp.value === stageOperator &&
-      (stageOp.env as readonly typeof ENVS[number][]).includes(
-        env as typeof ENVS[number]
-      )
-    );
-  });
+  const stage = (escaped ? ESCAPED_STAGE_OPERATORS : STAGE_OPERATORS).find(
+    (stageOp) => {
+      return (
+        stageOp.value === stageOperator &&
+        (stageOp.env as readonly typeof ENVS[number][]).includes(
+          env as typeof ENVS[number]
+        )
+      );
+    }
+  );
 
   if (!stage) {
     return `{}`;
@@ -352,7 +355,10 @@ function getStageSnippet(
 export const changeStageOperator = (
   id: number,
   newVal: string
-): PipelineBuilderThunkAction<void, ChangeStageOperatorAction> => {
+): PipelineBuilderThunkAction<
+  string | undefined,
+  ChangeStageOperatorAction
+> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const stage = pipelineBuilder.getStage(id);
 
@@ -375,7 +381,12 @@ export const changeStageOperator = (
     const currentSnippet = getStageSnippet(
       stages[id].stageOperator,
       env,
-      comments
+      comments,
+      // We're getting escaped snippet here because on insert to the editor, it
+      // will replace anchors with their names (i.e., `${anchor}` will be
+      // `anchor` when snippet is applied to the editor) and that's what we want
+      // to compare to here
+      true
     ).trim();
 
     const currentValue = stages[id].value?.trim();
@@ -392,15 +403,19 @@ export const changeStageOperator = (
 
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
 
+    let newSnippet: string | undefined;
+
     // If there is no stage value or current stage value is identical to the
-    // snippet for the current stage operator, then change the stage value to
-    // the new snippet
+    // snippet for the current stage operator, then return a new snippet that
+    // can be applied to the editor (this will be picked up by the UI and passed
+    // the the editor to start snippet completion)
     if (!currentValue || currentSnippet === currentValue) {
-      const newValue = getStageSnippet(stage.operator, env, comments);
-      dispatch(changeStageValue(id, newValue));
+      newSnippet = getStageSnippet(stage.operator, env, comments);
     }
 
     dispatch(loadPreviewForStagesFrom(id));
+
+    return newSnippet;
   };
 };
 

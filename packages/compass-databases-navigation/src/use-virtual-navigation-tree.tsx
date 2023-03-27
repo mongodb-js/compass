@@ -1,6 +1,10 @@
 import type React from 'react';
 import { useCallback, useRef, useState, useEffect } from 'react';
-import { FocusState, useFocusState } from '@mongodb-js/compass-components';
+import {
+  FocusState,
+  rafraf,
+  useFocusState,
+} from '@mongodb-js/compass-components';
 
 type TreeItem = {
   id: string;
@@ -154,12 +158,10 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
       const item = findNext(-1, items, (item) => item.id === currentTabbable);
       if (item) {
         onFocusMove(item);
-        const reqId = requestAnimationFrame(() => {
+        const cancel = rafraf(() => {
           focusItemById(item.id);
         });
-        return () => {
-          cancelAnimationFrame(reqId);
-        };
+        return cancel;
       }
     }
 

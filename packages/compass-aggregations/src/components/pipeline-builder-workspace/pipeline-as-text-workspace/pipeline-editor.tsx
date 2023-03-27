@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   ErrorSummary,
@@ -11,12 +11,10 @@ import {
 } from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
-  Editor,
-  EditorVariant,
-  EditorTextCompleter,
-  AggregationAutoCompleter,
+  createAggregationAutocompleter,
+  CodemirrorMultilineEditor,
 } from '@mongodb-js/compass-editor';
-import type { AceEditor, AceAnnotation } from '@mongodb-js/compass-editor';
+import type { Annotation } from '@mongodb-js/compass-editor';
 import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
@@ -45,6 +43,14 @@ const editorContainerStyles = css({
   overflow: 'hidden',
 });
 
+// We use custom color here so need to disable default one that we use
+// everywhere else
+const codeEditorStyles = css({
+  '& .cm-editor': {
+    background: 'transparent !important',
+  },
+});
+
 const errorContainerStyles = css({
   flex: 'none',
   marginTop: 'auto',
@@ -62,24 +68,6 @@ type PipelineEditorProps = {
   onChangePipelineText: (value: string) => void;
 };
 
-function useAggregationCompleter(
-  ...args: ConstructorParameters<typeof AggregationAutoCompleter>
-): AggregationAutoCompleter {
-  const [version, textCompleter, fields] = args;
-  const completer = useRef<AggregationAutoCompleter>();
-  if (!completer.current) {
-    completer.current = new AggregationAutoCompleter(
-      version,
-      textCompleter,
-      fields
-    );
-  }
-  useEffect(() => {
-    completer.current?.updateFields(fields);
-  }, [fields]);
-  return completer.current;
-}
-
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   num_stages,
   pipelineText,
@@ -90,48 +78,49 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   onChangePipelineText,
 }) => {
   const editorInitialValueRef = useRef<string>(pipelineText);
-  const editorRef = useRef<AceEditor | undefined>(undefined);
-  const completer = useAggregationCompleter(
-    serverVersion,
-    EditorTextCompleter,
-    fields
-  );
+  const editorCurrentValueRef = useRef<string>(pipelineText);
+  editorCurrentValueRef.current = pipelineText;
+
+  const completer = useMemo(() => {
+    return createAggregationAutocompleter({
+      serverVersion,
+      fields: fields.filter(
+        (field): field is { name: string } & CompletionWithServerInfo =>
+          !!field.name
+      ),
+    });
+  }, [serverVersion, fields]);
 
   const onBlurEditor = useCallback(() => {
-    const value = editorRef.current?.getValue();
-    if (value !== undefined && value !== editorInitialValueRef.current) {
+    if (
+      !!editorCurrentValueRef.current &&
+      editorCurrentValueRef.current !== editorInitialValueRef.current
+    ) {
       track('Aggregation Edited', {
         num_stages,
         editor_view_type: 'text',
       });
-      editorInitialValueRef.current = value;
+      editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [editorRef, editorInitialValueRef, num_stages]);
+  }, [editorInitialValueRef, num_stages]);
 
-  const onLoadEditor = useCallback((editor: AceEditor) => {
-    editorRef.current = editor;
-  }, []);
-
-  useEffect(() => {
-    let annotations: AceAnnotation[] = [];
-    if (syntaxErrors.length > 0) {
-      annotations = syntaxErrors
-        .map((error) => {
-          if (!error.loc) {
-            return null;
-          }
-          const { line: row, column } = error.loc;
-          return {
-            row: row - 1,
-            column,
-            text: error.message,
-            type: 'error',
-          };
-        })
-        .filter(Boolean) as AceAnnotation[];
-    }
-    editorRef.current?.getSession().setAnnotations(annotations);
-  }, [syntaxErrors, editorRef]);
+  const annotations: Annotation[] = useMemo(() => {
+    return syntaxErrors
+      .map((error) => {
+        if (!error.loc || !error.loc.index) {
+          return null;
+        }
+        return {
+          message: error.message,
+          severity: 'error',
+          from: error.loc.index,
+          to: error.loc.index,
+        };
+      })
+      .filter((annotation): annotation is Annotation => {
+        return !!annotation;
+      });
+  }, [syntaxErrors]);
 
   const darkMode = useDarkMode();
 
@@ -143,16 +132,16 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       data-testid="pipeline-as-text-editor"
     >
       <div className={editorContainerStyles}>
-        <Editor
+        <CodemirrorMultilineEditor
           text={pipelineText}
           onChangeText={onChangePipelineText}
-          variant={EditorVariant.Shell}
-          name={'pipeline-text-editor'}
-          data-testid={'pipeline-text-editor'}
+          annotations={annotations}
+          id="pipeline-text-editor"
+          data-testid="pipeline-text-editor"
           completer={completer}
-          options={{ minLines: 16 }}
-          onLoad={onLoadEditor}
+          minLines={16}
           onBlur={onBlurEditor}
+          className={codeEditorStyles}
         />
       </div>
       {showErrorContainer && (
