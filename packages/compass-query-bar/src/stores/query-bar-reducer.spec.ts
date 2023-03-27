@@ -133,6 +133,10 @@ describe('queryBarReducer', function () {
       expect(store.getState())
         .to.have.property('lastAppliedQuery')
         .deep.eq(appliedQuery);
+      expect(store.getState().fields['filter']).to.have.property(
+        'string',
+        "{_id: '123'}"
+      );
     });
 
     it('should not "apply" query if query is invalid', function () {
@@ -141,6 +145,26 @@ describe('queryBarReducer', function () {
       const appliedQuery = store.dispatch(applyQuery() as any);
       expect(appliedQuery).to.eq(false);
       expect(store.getState()).to.have.property('lastAppliedQuery', null);
+    });
+
+    it('should "apply" query and wrap the query\'s filter with {} when the query is invalid without being wrapped with {}', function () {
+      const store = createStore();
+      store.dispatch(changeField('filter', 'name: "pineapple"'));
+      const appliedQuery = store.dispatch(applyQuery() as any);
+      expect(appliedQuery).to.deep.eq({
+        ...DEFAULT_QUERY_VALUES,
+        filter: { name: 'pineapple' },
+      });
+      expect(store.getState())
+        .to.have.property('lastAppliedQuery')
+        .deep.eq(appliedQuery);
+      expect(store.getState().fields['filter'])
+        .to.have.property('value')
+        .deep.eq(appliedQuery.filter);
+      expect(store.getState().fields['filter']).to.have.property(
+        'string',
+        "{name: 'pineapple'}"
+      );
     });
   });
 

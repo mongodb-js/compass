@@ -212,6 +212,28 @@ export const changeSchemaFields = (
   return { type: QueryBarActions.ChangeSchemaFields, fields };
 };
 
+function wrapFilterIfNotWrapped(
+  filter: QueryBarState['fields']['filter']
+): QueryBarState['fields']['filter'] {
+  if (validateField('filter', filter.string) !== false) {
+    return filter;
+  }
+
+  // TODO: Auto shift the cursor position if there's a cursor.
+
+  // When the filter isn't valid we try to wrap it in {}.
+  const filterWithBrackets = validateField('filter', `{${filter.string}}`);
+  if (filterWithBrackets !== false) {
+    return {
+      value: filterWithBrackets,
+      string: queryParser.stringify(filterWithBrackets),
+      valid: true,
+    };
+  }
+
+  return filter;
+}
+
 type ApplyQueryAction = {
   type: QueryBarActions.ApplyQuery;
   query: unknown;
@@ -222,7 +244,13 @@ export const applyQuery = (): QueryBarThunkAction<
   ApplyQueryAction
 > => {
   return (dispatch, getState, { localAppRegistry }) => {
-    const { fields } = getState();
+    const { fields: _fields } = getState();
+
+    const fields = {
+      ..._fields,
+      filter: wrapFilterIfNotWrapped(_fields.filter),
+    };
+
     if (!isQueryFieldsValid(fields)) {
       return false;
     }
@@ -336,6 +364,10 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ApplyQueryAction>(action, QueryBarActions.ApplyQuery)) {
     return {
       ...state,
+      fields: {
+        ...state.fields,
+        ...mapQueryToValidQueryFields(action.query),
+      },
       lastAppliedQuery: action.query,
       applyId: (state.applyId + 1) % Number.MAX_SAFE_INTEGER,
     };
