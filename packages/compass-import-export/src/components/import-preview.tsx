@@ -200,76 +200,6 @@ function MixedWarning({
   );
 }
 
-function FieldHeader(
-  field: Field,
-  onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void,
-  setFieldType: (fieldPath: string, fieldType: string) => void
-) {
-  const darkMode = useDarkMode();
-  const mixedCellStyles = darkMode ? mixedCellStylesDark : mixedCellStylesLight;
-
-  return (
-    <TableHeader
-      key={`col-${field.path}`}
-      className={cx(needsMixedWarning(field) && mixedCellStyles)}
-      label={
-        <div
-          className={columnHeaderStyles}
-          data-testid={`preview-field-header-${field.path}`}
-        >
-          {field.type !== 'placeholder' && (
-            <>
-              <div className={columnNameStyles}>
-                <Checkbox
-                  aria-labelledby={`toggle-import-field-label-${field.path}`}
-                  id={`toggle-import-field-checkbox-${field.path}`}
-                  data-testid={`toggle-import-field-checkbox-${field.path}`}
-                  aria-label={
-                    field.checked
-                      ? `${field.path} values will be imported`
-                      : `Values for ${field.path} will be ignored`
-                  }
-                  checked={field.checked}
-                  title={
-                    field.checked
-                      ? `${field.path} values will be imported`
-                      : `Values for ${field.path} will be ignored`
-                  }
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    onFieldCheckedChanged(field.path, !!e.target.checked)
-                  }
-                />
-                <Label
-                  id={`toggle-import-field-label-${field.path}`}
-                  className={fieldPathHeaderStyles}
-                  htmlFor={`toggle-import-field-checkbox-${field.path}`}
-                >
-                  <span title={field.path}>{field.path}</span>
-                </Label>
-              </div>
-              <div className={fieldTypeContainerStyles}>
-                <SelectFieldType
-                  fieldPath={field.path}
-                  selectedType={field.type}
-                  onChange={(newType: string) =>
-                    setFieldType(field.path, newType)
-                  }
-                />
-                {field.result && needsMixedWarning(field) && (
-                  <MixedWarning
-                    result={field.result}
-                    selectedType={field.type}
-                  />
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      }
-    />
-  );
-}
-
 function ImportPreview({
   fields,
   values,
@@ -309,7 +239,71 @@ function ImportPreview({
         data={values}
         columns={gapOrFields.map((field) => {
           if (typeof field !== 'string' && 'path' in field) {
-            return FieldHeader(field, onFieldCheckedChanged, setFieldType);
+            return (
+              <TableHeader
+                key={`col-${field.path}`}
+                className={cx(needsMixedWarning(field) && mixedCellStyles)}
+                label={
+                  <div
+                    className={columnHeaderStyles}
+                    data-testid={`preview-field-header-${field.path}`}
+                  >
+                    {field.type !== 'placeholder' && (
+                      <>
+                        <div className={columnNameStyles}>
+                          <Checkbox
+                            aria-labelledby={`toggle-import-field-label-${field.path}`}
+                            id={`toggle-import-field-checkbox-${field.path}`}
+                            data-testid={`toggle-import-field-checkbox-${field.path}`}
+                            aria-label={
+                              field.checked
+                                ? `${field.path} values will be imported`
+                                : `Values for ${field.path} will be ignored`
+                            }
+                            checked={field.checked}
+                            title={
+                              field.checked
+                                ? `${field.path} values will be imported`
+                                : `Values for ${field.path} will be ignored`
+                            }
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) =>
+                              onFieldCheckedChanged(
+                                field.path,
+                                !!e.target.checked
+                              )
+                            }
+                          />
+                          <Label
+                            id={`toggle-import-field-label-${field.path}`}
+                            className={fieldPathHeaderStyles}
+                            htmlFor={`toggle-import-field-checkbox-${field.path}`}
+                          >
+                            <span title={field.path}>{field.path}</span>
+                          </Label>
+                        </div>
+                        <div className={fieldTypeContainerStyles}>
+                          <SelectFieldType
+                            fieldPath={field.path}
+                            selectedType={field.type}
+                            onChange={(newType: string) =>
+                              setFieldType(field.path, newType)
+                            }
+                          />
+                          {field.result && needsMixedWarning(field) && (
+                            <MixedWarning
+                              result={field.result}
+                              selectedType={field.type}
+                            />
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                }
+              />
+            );
           } else {
             return (
               <TableHeader
