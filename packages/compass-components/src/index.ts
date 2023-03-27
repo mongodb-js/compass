@@ -168,3 +168,4 @@ export {
   formatHotkey,
   KeyboardShortcut,
 } from './hooks/use-hotkeys';
+export { rafraf } from './utils/rafraf';

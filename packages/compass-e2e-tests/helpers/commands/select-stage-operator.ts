@@ -8,7 +8,7 @@ export async function selectStageOperator(
   stageOperator: string
 ): Promise<void> {
   const comboboxSelector = Selectors.stagePickerComboboxInput(index);
-  const textareaSelector = Selectors.stageTextarea(index);
+  const editorSelector = Selectors.stageValueEditor(index);
 
   await focusStageOperator(browser, index);
 
@@ -30,8 +30,8 @@ export async function selectStageOperator(
   await stageSelectorListBoxElement.waitForDisplayed({ reverse: true });
 
   await browser.waitUntil(async () => {
-    const textareaElement = await browser.$(textareaSelector);
-    const isFocused = await textareaElement.isFocused();
+    const editorElement = await browser.$(editorSelector);
+    const isFocused = await editorElement.isFocused();
     return isFocused === true;
   });
 }

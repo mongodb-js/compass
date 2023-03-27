@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { rafraf } from '../utils/rafraf';
 
 function closest(
   node: HTMLElement | null,
@@ -227,14 +228,12 @@ export function useVirtualGridArrowNavigation<
         onFocusMove(activeCurrentTabbable);
         // ... and trigger a focus on the element after a frame delay, so that
         // the item has time to scroll into view and render if needed
-        const frameId = requestAnimationFrame(() => {
+        const cancel = rafraf(() => {
           rootNode.current
             ?.querySelector<HTMLElement>(vgridItemSelector(currentTabbable))
             ?.focus();
         });
-        return () => {
-          cancelAnimationFrame(frameId);
-        };
+        return cancel;
       }
     }
   }, [activeCurrentTabbable]);

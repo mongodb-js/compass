@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getDirectory } from './get-directory';
-import { prettify } from '@mongodb-js/compass-editor';
+import { prettify } from '../modules/pipeline-builder/pipeline-parser/utils';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 

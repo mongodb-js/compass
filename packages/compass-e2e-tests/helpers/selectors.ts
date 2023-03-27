@@ -789,11 +789,11 @@ export const stagePickerComboboxInput = (stageIndex: number): string => {
 export const stagePickerListBox = (stageIndex: number): string => {
   return `.mongodb-compass-stage-operator-combobox-${stageIndex} [role="listbox"]`;
 };
-export const stageTextarea = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] .ace_editor textarea`; // .ace_text-input
+export const stageValueEditor = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] .cm-content`;
 };
 export const stageContent = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] .ace_content`;
+  return stageValueEditor(stageIndex);
 };
 export const stageAdd = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="add-after-stage"]`;
@@ -894,10 +894,7 @@ export const indexOptionInput = (
   fieldName: string,
   type: 'code' | 'text' | 'number' | 'checkbox' = 'text'
 ) => {
-  if (type === 'code') {
-    return `[data-testid="create-index-modal-${fieldName}-code"] .ace_editor`;
-  }
-  return `input[data-testid="create-index-modal-${fieldName}-${type}"]`;
+  return `[data-testid="create-index-modal-${fieldName}-${type}"]`;
 };
 
 // Indexes modal
