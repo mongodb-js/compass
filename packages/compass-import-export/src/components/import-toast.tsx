@@ -1,34 +1,34 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { openToast } from '@mongodb-js/compass-components';
+import path from 'path';
 
 import type { RootImportState } from '../stores/import-store';
 import type { ProcessStatus } from '../constants/process-status';
 import { cancelImport } from '../modules/import';
 import { ImportToastBody } from './import-toast-body';
 import { openFile } from '../utils/open-file';
-import type { AcceptedFileType } from '../constants/file-types';
 
 const importToastId = 'import-toast';
 const toastMessageCharacterLimit = 200;
 
 function showInProgressToast({
-  fileType,
+  fileName,
   cancelImport,
   docsWritten,
   docsProcessed,
 }: {
-  fileType: string;
+  fileName: string;
   cancelImport: () => void;
   docsWritten: number;
   docsProcessed: number;
 }) {
   // Update the toast with the new progress.
   openToast(importToastId, {
-    title: `Importing ${fileType} file…`,
+    title: `Importing ${path.basename(fileName)}…`,
     body: (
       <ImportToastBody
-        statusMessage={`${docsWritten}/${docsProcessed} document${
+        statusMessage={`${docsWritten} document${
           docsWritten !== 1 ? 's' : ''
         } written.`}
         actionHandler={cancelImport}
@@ -41,14 +41,14 @@ function showInProgressToast({
 }
 
 function showStartingToast({
-  fileType,
+  fileName,
   cancelImport,
 }: {
-  fileType: string;
+  fileName: string;
   cancelImport: () => void;
 }) {
   openToast(importToastId, {
-    title: `Importing ${fileType} file…`,
+    title: `Importing ${path.basename(fileName)}…`,
     body: (
       <ImportToastBody
         statusMessage="Starting…"
@@ -157,7 +157,7 @@ function useImportToast({
   docsProcessed,
   status,
   errors,
-  fileType,
+  fileName,
 }: {
   cancelImport: () => void;
   docsWritten: number;
@@ -165,7 +165,7 @@ function useImportToast({
   docsProcessed: number;
   status: ProcessStatus;
   errors: Error[];
-  fileType: AcceptedFileType | '';
+  fileName: string;
 }) {
   useEffect(() => {
     if (status === 'STARTED') {
@@ -174,12 +174,12 @@ function useImportToast({
           cancelImport,
           docsWritten,
           docsProcessed,
-          fileType,
+          fileName,
         });
       } else {
         showStartingToast({
           cancelImport,
-          fileType,
+          fileName,
         });
       }
     } else if (status === 'COMPLETED') {
@@ -207,7 +207,7 @@ function useImportToast({
     status,
     docsProcessed,
     docsWritten,
-    fileType,
+    fileName,
     errorLogFilePath,
     errors,
     cancelImport,
@@ -219,7 +219,6 @@ function useImportToast({
 
 const mapStateToProps = (state: RootImportState) => ({
   errors: state.importData.errors,
-  fileType: state.importData.fileType,
   fileName: state.importData.fileName,
   status: state.importData.status,
   docsWritten: state.importData.docsWritten,
