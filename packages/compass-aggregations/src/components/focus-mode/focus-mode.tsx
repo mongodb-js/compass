@@ -81,7 +81,7 @@ const editorAreaBaseStyles = css({
 });
 
 const editorAreaDarkStyles = css({
-  backgroundColor: palette.gray.dark3,
+  backgroundColor: palette.gray.dark4,
 });
 
 const editorAreaLightStyles = css({
