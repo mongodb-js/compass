@@ -217,9 +217,8 @@ async function getErrorLogPath(fileName: string) {
   await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
 
   const errorLogFileName = `import-${path.basename(fileName)}.log`;
-  const errorLogFilePath = path.join(importErrorLogsPath, errorLogFileName);
 
-  return errorLogFilePath;
+  return path.join(importErrorLogsPath, errorLogFileName);
 }
 
 export const startImport = () => {
