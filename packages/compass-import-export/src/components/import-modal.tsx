@@ -185,22 +185,11 @@ function ImportModal({
   csvAnalyzed,
 }: ImportModalProps) {
   const modalBodyRef = useRef<HTMLDivElement>(null);
-  const handleCancel = useCallback(() => {
-    cancelImport();
-  }, [cancelImport]);
 
   const handleClose = useCallback(() => {
-    handleCancel();
+    cancelImport();
     closeImport();
-  }, [closeImport, handleCancel]);
-
-  const handleImportBtnClicked = useCallback(() => {
-    startImport();
-  }, [startImport]);
-
-  const handleSkipCSVAnalyze = useCallback(() => {
-    skipCSVAnalyze();
-  }, [skipCSVAnalyze]);
+  }, [closeImport, cancelImport]);
 
   // docsTotal is set to actual value only at the very end of processing a
   // stream of documents
@@ -302,7 +291,7 @@ function ImportModal({
               types. You can skip this step and manually assign field types at
               any point during the process.
             </Body>
-            <Button onClick={handleSkipCSVAnalyze}>Skip</Button>
+            <Button onClick={skipCSVAnalyze}>Skip</Button>
           </FormFieldContainer>
         )}
         <ProgressBar
@@ -346,7 +335,7 @@ function ImportModal({
           <>
             <Button
               data-testid="import-button"
-              onClick={handleImportBtnClicked}
+              onClick={startImport}
               disabled={
                 !fileName ||
                 status === STARTED ||
