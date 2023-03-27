@@ -503,7 +503,6 @@ const loadTypes = (
     }: {
       bytesProcessed: number;
     }) {
-      console.log({ bytesProcessed, fileSize });
       dispatch({
         type: ANALYZE_PROGRESS,
         analyzeBytesProcessed: bytesProcessed,
@@ -578,7 +577,6 @@ const loadCSVPreviewDocs = (): ThunkAction<
   void,
   AnyAction
 > => {
-  console.log('loading preview docs');
   return async (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState

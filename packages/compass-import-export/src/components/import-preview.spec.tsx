@@ -32,7 +32,6 @@ describe('ImportPreview [Component]', function () {
           loaded={false}
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
-          analyzed={false}
         />
       );
     });
@@ -51,7 +50,6 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
-          analyzed={true}
         />
       );
     });
@@ -70,7 +68,6 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
-          analyzed={true}
         />
       );
     });
@@ -95,7 +92,6 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
-          analyzed={true}
         />
       );
     });
@@ -119,7 +115,6 @@ describe('ImportPreview [Component]', function () {
         loaded
         onFieldCheckedChanged={onFieldCheckedChangedSpy}
         setFieldType={setFieldTypeSpy}
-        analyzed={false}
       />
     );
 
@@ -143,7 +138,6 @@ describe('ImportPreview [Component]', function () {
         loaded
         onFieldCheckedChanged={onFieldCheckedChangedSpy}
         setFieldType={setFieldTypeSpy}
-        analyzed={true}
       />
     );
 

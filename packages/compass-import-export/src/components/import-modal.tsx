@@ -10,6 +10,7 @@ import {
   spacing,
   FormFieldContainer,
   Body,
+  palette,
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
@@ -46,6 +47,7 @@ import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
 import type { CSVParsableFieldType } from '../utils/csv';
+import { SpinLoader } from '@mongodb-js/compass-components';
 
 /**
  * Progress messages.
@@ -67,6 +69,22 @@ const progressStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
+  backgroundColor: palette.gray.light3, // TODO: dark mode
+  padding: `${spacing[4]}px 0`,
+});
+
+const loaderStyles = css({
+  marginTop: spacing[3],
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[1],
+  alignItems: 'center',
+});
+
+const explanationTextStyles = css({
+  margin: `${spacing[3]}px 0`,
+  width: '350px',
+  textAlign: 'center',
 });
 
 type ImportModalProps = {
@@ -251,12 +269,23 @@ function ImportModal({
 
         {fileType === 'csv' && !csvAnalyzed && (
           <FormFieldContainer className={progressStyles}>
-            <Body>Detecting field types</Body>
+            <Body weight="medium">Detecting field types</Body>
             {analyzeBytesTotal && (
-              <Body>
-                {Math.round((analyzeBytesProcessed / analyzeBytesTotal) * 100)}%
-              </Body>
+              <div className={loaderStyles}>
+                <SpinLoader />
+                <Body>
+                  {Math.round(
+                    (analyzeBytesProcessed / analyzeBytesTotal) * 100
+                  )}
+                  %
+                </Body>
+              </div>
             )}
+            <Body className={explanationTextStyles}>
+              We are scanning your CSV file row by row to detect the field
+              types. You can skip this step and manually assign field types at
+              any point during the process.
+            </Body>
             <Button onClick={handleSkipCSVAnalyze}>Skip</Button>
           </FormFieldContainer>
         )}
