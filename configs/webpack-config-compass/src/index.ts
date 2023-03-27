@@ -33,7 +33,10 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 const sharedResolveOptions = (
   target: ConfigArgs['target']
-): Pick<ResolveOptions, 'mainFields' | 'exportsFields' | 'extensions'> => {
+): Pick<
+  ResolveOptions,
+  'mainFields' | 'exportsFields' | 'extensions' | 'alias'
+> => {
   if (typeof target === 'string') {
     target = [target];
   }
@@ -55,6 +58,11 @@ const sharedResolveOptions = (
         : ['compass:module', 'compass:main', 'module', 'main'],
     exportsFields: ['compass:exports', 'exports'],
     extensions: ['.jsx', '.tsx', '.ts', '...'],
+    alias: {
+      // Removes `browserslist` that is pulled in by `babel` and is unnecessary
+      // as well as being a particularly large dependency.
+      browserslist: false,
+    },
   };
 };
 

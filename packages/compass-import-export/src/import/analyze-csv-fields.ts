@@ -1,8 +1,9 @@
 import type { Readable } from 'stream';
+import { Transform } from 'stream';
+import { pipeline } from 'stream/promises';
 import Papa from 'papaparse';
 import stripBomStream from 'strip-bom-stream';
 
-import { createDebug } from '../utils/logger';
 import type {
   Delimiter,
   CSVDetectableFieldType,
@@ -11,8 +12,6 @@ import type {
 import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
-
-const debug = createDebug('analyze-csv-fields');
 
 type AnalyzeProgress = {
   bytesProcessed: number;
@@ -26,8 +25,6 @@ type AnalyzeCSVFieldsOptions = {
   progressCallback?: (progress: AnalyzeProgress) => void;
   ignoreEmptyStrings?: boolean;
 };
-
-type PapaRowData = Record<string, string>;
 
 type CSVFieldTypeInfo = {
   // How many cells in the file matched this type.
@@ -84,21 +81,20 @@ function initResultFields(
 }
 
 function addRowToResult(
-  result: AnalyzeCSVFieldsResult,
-  headerFields: string[],
-  data: PapaRowData,
+  fields: CSVField[],
+  rowNum: number,
+  data: string[],
   ignoreEmptyStrings?: boolean
 ) {
-  for (const field of Object.values(result.fields)) {
+  for (const field of fields) {
     for (const columnIndex of field.columnIndexes) {
-      const name = headerFields[columnIndex];
-      const original = data[name] ?? '';
+      const original = data[columnIndex] ?? '';
       const type = detectFieldType(original, ignoreEmptyStrings);
 
       if (!field.types[type]) {
         field.types[type] = {
           count: 0,
-          firstRowIndex: result.totalRows,
+          firstRowIndex: rowNum,
           firstColumnIndex: columnIndex,
           firstValue: original,
         };
@@ -141,77 +137,81 @@ function pickFieldType(field: CSVField): CSVParsableFieldType {
   return field.detected;
 }
 
-export function analyzeCSVFields({
+export async function analyzeCSVFields({
   input,
   delimiter,
   abortSignal,
   progressCallback,
   ignoreEmptyStrings,
 }: AnalyzeCSVFieldsOptions): Promise<AnalyzeCSVFieldsResult> {
-  return new Promise(function (resolve, reject) {
-    const byteCounter = new ByteCounter();
+  const byteCounter = new ByteCounter();
 
-    const result: AnalyzeCSVFieldsResult = {
-      totalRows: 0,
-      fields: {},
-      aborted: false,
-    };
+  const result: AnalyzeCSVFieldsResult = {
+    totalRows: 0,
+    fields: {},
+    aborted: false,
+  };
 
-    let aborted = false;
-    let headerFields: string[];
+  let fields: CSVField[];
 
-    const validator = new Utf8Validator();
+  const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, { delimiter });
 
-    validator.once('error', function (err: any) {
-      reject(err);
-    });
-
-    input = input.pipe(validator).pipe(byteCounter).pipe(stripBomStream());
-
-    Papa.parse(input, {
-      delimiter,
-      header: true,
-      step: function (results: Papa.ParseStepResult<PapaRowData>, parser) {
-        if (abortSignal?.aborted && !aborted) {
-          aborted = true;
-          result.aborted = true;
-          parser.abort();
+  let numRows = 0;
+  const analyzeStream = new Transform({
+    objectMode: true,
+    transform: (chunk: string[], encoding, callback) => {
+      if (numRows === 0) {
+        const headerFields = chunk;
+        // There's a quirk in papaparse where it extracts header fields before
+        // it finishes auto-detecting the line endings. We could pass in a
+        // line ending that we previously detected (in guessFileType(),
+        // perhaps?) or we can just strip the extra \r from the final header
+        // name if it exists.
+        if (headerFields.length) {
+          const lastName = headerFields[headerFields.length - 1];
+          headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
         }
 
-        if (!headerFields) {
-          headerFields = results.meta.fields ?? [];
-          // There's a quirk in papaparse where it extracts header fields before
-          // it finishes auto-detecting the line endings. We could pass in a
-          // line ending that we previously detected (in guessFileType(),
-          // perhaps?) or we can just strip the extra \r from the final header
-          // name if it exists.
-          if (headerFields.length) {
-            const lastName = headerFields[headerFields.length - 1];
-            headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
-          }
-
-          initResultFields(result, headerFields);
-        }
-
-        addRowToResult(result, headerFields, results.data, ignoreEmptyStrings);
-
-        ++result.totalRows;
+        initResultFields(result, headerFields);
+        fields = Object.values(result.fields);
+      } else {
+        addRowToResult(fields, result.totalRows, chunk, ignoreEmptyStrings);
+        result.totalRows = numRows;
 
         progressCallback?.({
           bytesProcessed: byteCounter.total,
           docsProcessed: result.totalRows,
         });
-      },
-      complete: function () {
-        for (const field of Object.values(result.fields)) {
-          field.detected = pickFieldType(field);
-        }
-        resolve(result);
-      },
-      error: function (err) {
-        debug('analyzeCSVFields:error', err);
-        reject(err);
-      },
-    });
+      }
+
+      ++numRows;
+      callback();
+    },
   });
+
+  try {
+    await pipeline(
+      [
+        input,
+        new Utf8Validator(),
+        byteCounter,
+        stripBomStream(),
+        parseStream,
+        analyzeStream,
+      ],
+      ...(abortSignal ? [{ signal: abortSignal }] : [])
+    );
+  } catch (err: any) {
+    if (err.code === 'ABORT_ERR') {
+      result.aborted = true;
+    } else {
+      throw err;
+    }
+  }
+
+  for (const field of Object.values(result.fields)) {
+    field.detected = pickFieldType(field);
+  }
+
+  return result;
 }

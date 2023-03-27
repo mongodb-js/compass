@@ -1,3 +1,4 @@
+/* eslint-disable valid-jsdoc */
 /* eslint-disable no-shadow */
 
 /* eslint no-sync: 0 */
@@ -26,7 +27,6 @@ const asar = require('asar');
 const packager = require('electron-packager');
 const createApplicationZip = require('../lib/zip');
 const run = require('./../lib/run');
-const license = require('electron-license');
 const rebuild = require('@electron/rebuild').rebuild;
 
 const ui = require('./ui');
@@ -133,43 +133,34 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
 /**
  * Replace the LICENSE file `electron-packager` creates w/ a LICENSE
  * file specific to the project.
- *
- * @see [Atom's generate-license-task.coffee](https://git.io/vaZI7)
- * @param {Object} CONFIG
- * @param {Function} [done] Optional callback
- * @returns {Promise}
- * @api public
  */
 const writeLicenseFile = (CONFIG, done) => {
-  var opts = {
-    dir: CONFIG.resourcesAppDir,
-    production: false,
-    excludeOrg: 'mongodb-js,10gen,christkv'
-  };
-  /**
-   * TODO (imlucas) If no license file at `opts.dir`, use `CONFIG`
-   * to generate one and write it there before calling `license.build()`
-   * or else this fails miserably.
-   */
-  return license.list(opts).then((deps) => {
-    return license.render(deps, opts.dir)
-      .then(contents => CONFIG.write('LICENSE', contents))
-      /**
-       * TODO (imlucas) Write `deps` to an Atlas instance so we can analyze it.
-       */
-      // .then(() => CONFIG.write('LICENSE.json', JSON.stringify(licenseData, null, 2)))
-      .then(dest => {
-        cli.debug(format('LICENSE written to `%s`', dest));
-        if (done) {
-          done(null, true);
-        }
-      });
-  }).catch(err => {
-    if (done) {
-      return done(err);
-    }
-    throw err;
-  });
+  try {
+    const contents = fs.readFileSync(path.join(CONFIG.dir, 'LICENSE'));
+    CONFIG.write('LICENSE', contents).then(() => {
+      cli.debug(format('LICENSE written'));
+    }).then(() => done(null, true));
+  } catch (err) {
+    done(err);
+  }
+};
+
+/**
+ * Copies the THIRD-PARTY-NOTICES from the compass dir to the root of the archive.
+ * This replicates the previous behavior where the `electron-license` package was used to produce
+ * a single LICENSE file on the root of the archive containing both the Compass license
+ * and any other 3rd-party licenses.
+ */
+const copy3rdPartyNoticesFile = (CONFIG, done) => {
+  try {
+    const noticesPath = path.join(CONFIG.dir, 'THIRD-PARTY-NOTICES.md');
+    const contents = fs.readFileSync(noticesPath);
+    CONFIG.write('THIRD-PARTY-NOTICES.md', contents).then(() => {
+      cli.debug(format('THIRD-PARTY-NOTICES.md written'));
+    }).then(() => done(null, true));
+  } catch (err) {
+    done(err);
+  }
 };
 
 // Remove a malicious link from chromium license
@@ -541,6 +532,7 @@ exports.run = (argv, done) => {
     task('install dependencies', installDependencies),
     task('fix COMPASS-5333', fixCompass5333),
     task('write license file', writeLicenseFile),
+    task('write 3rd party notices file', copy3rdPartyNoticesFile),
     task('remove development files', removeDevelopmentFiles),
     !noAsar && task('create application asar', createApplicationAsar),
     !skipInstaller && task('create branded installer', createBrandedInstaller),

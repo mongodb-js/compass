@@ -25,7 +25,7 @@ import _ from 'lodash';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
-import type { AnyAction, Dispatch } from 'redux';
+import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
@@ -84,6 +84,7 @@ export const ANALYZE_STARTED = `${PREFIX}/ANALYZE_STARTED`;
 export const ANALYZE_FINISHED = `${PREFIX}/ANALYZE_FINISHED`;
 export const ANALYZE_FAILED = `${PREFIX}/ANALYZE_FAILED`;
 export const ANALYZE_CANCELLED = `${PREFIX}/ANALYZE_CANCELLED`;
+export const ANALYZE_PROGRESS = `${PREFIX}/ANALYZE_PROGRESS`;
 
 export type FieldFromCSV = {
   path: string;
@@ -117,6 +118,8 @@ type State = {
   fileStats: null | fs.Stats;
   docsProcessed: number;
   docsWritten: number;
+  analyzeBytesProcessed: number;
+  analyzeBytesTotal: number;
   delimiter: CSVDelimiter;
   stopOnErrors: boolean;
 
@@ -147,6 +150,8 @@ export const INITIAL_STATE: State = {
   fileStats: null,
   docsProcessed: 0,
   docsWritten: 0,
+  analyzeBytesProcessed: 0,
+  analyzeBytesTotal: 0,
   delimiter: ',',
   stopOnErrors: false,
   ignoreBlanks: true,
@@ -445,17 +450,48 @@ export const cancelImport = () => {
     getState: () => RootImportState
   ) => {
     const { importData } = getState();
-    const { abortController } = importData;
+    const { abortController, analyzeAbortController } = importData;
 
-    if (!abortController) {
-      debug('no active import to cancel.');
-      return;
+    // The user could close the modal while a analyzeCSVFields() is running
+    if (analyzeAbortController) {
+      debug('cancelling analyzeCSVFields');
+      analyzeAbortController.abort();
+
+      debug('analyzeCSVFields canceled by user');
+      dispatch({ type: ANALYZE_CANCELLED });
     }
 
-    debug('cancelling in progress import operation');
-    abortController.abort();
+    // The user could close the modal while a importCSV() or importJSON() is running
+    if (abortController) {
+      debug('cancelling import');
+      abortController.abort();
 
-    debug('import canceled by user');
+      debug('import canceled by user');
+      dispatch({ type: CANCELED });
+    } else {
+      debug('no active import to cancel.');
+    }
+  };
+};
+
+export const skipCSVAnalyze = () => {
+  return (
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
+    getState: () => RootImportState
+  ) => {
+    const { importData } = getState();
+    const { analyzeAbortController } = importData;
+
+    // cancelling analyzeCSVFields() still makes it resolve, the result is just
+    // based on a smaller sample size. It will still detect something based on
+    // however far it got into the file.
+    if (analyzeAbortController) {
+      debug('cancelling analyzeCSVFields');
+      analyzeAbortController.abort();
+
+      debug('analyzeCSVFields canceled by user');
+      dispatch({ type: ANALYZE_CANCELLED });
+    }
   };
 };
 
@@ -464,19 +500,41 @@ const loadTypes = (
   values: string[][]
 ): ThunkAction<Promise<void>, RootImportState, void, AnyAction> => {
   return async (
-    dispatch: Dispatch,
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ): Promise<void> => {
-    const { fileName, delimiter, ignoreBlanks } = getState().importData;
+    const { fileName, delimiter, ignoreBlanks, analyzeAbortController } =
+      getState().importData;
+
+    // if there's already an analyzeCSVFields in flight, abort that first
+    if (analyzeAbortController) {
+      analyzeAbortController.abort();
+      dispatch(skipCSVAnalyze());
+    }
 
     const abortController = new AbortController();
     const abortSignal = abortController.signal;
+    const fileStats = await getFileStats(fileName);
+    const fileSize = fileStats?.size || 0;
     dispatch({
       type: ANALYZE_STARTED,
       abortController,
+      analyzeBytesTotal: fileSize,
     });
 
     const input = fs.createReadStream(fileName);
+
+    const progressCallback = _.throttle(function ({
+      bytesProcessed,
+    }: {
+      bytesProcessed: number;
+    }) {
+      dispatch({
+        type: ANALYZE_PROGRESS,
+        analyzeBytesProcessed: bytesProcessed,
+      });
+    },
+    1000);
 
     try {
       const result = await analyzeCSVFields({
@@ -484,6 +542,7 @@ const loadTypes = (
         delimiter,
         abortSignal,
         ignoreEmptyStrings: ignoreBlanks,
+        progressCallback,
       });
 
       for (const unknownField of fields) {
@@ -548,16 +607,7 @@ const loadCSVPreviewDocs = (): ThunkAction<
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ): Promise<void> => {
-    const { fileName, delimiter, analyzeAbortController } =
-      getState().importData;
-
-    // if there's already an analyzeCSVFields in flight, abort that first
-    if (analyzeAbortController) {
-      analyzeAbortController.abort();
-      dispatch({
-        type: ANALYZE_CANCELLED,
-      });
-    }
+    const { fileName, delimiter } = getState().importData;
 
     const input = fs.createReadStream(fileName);
 
@@ -589,12 +639,6 @@ const loadCSVPreviewDocs = (): ThunkAction<
       );
 
       const values = result.preview;
-
-      dispatch({
-        type: SET_PREVIEW,
-        fields,
-        values,
-      });
 
       await dispatch(loadTypes(fields, values));
     } catch (err) {
@@ -1026,6 +1070,8 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       analyzeStatus: PROCESS_STATUS.STARTED,
       analyzeAbortController: action.abortController,
       analyzeError: undefined,
+      analyzeBytesProcessed: 0,
+      analyzeBytesTotal: action.analyzeBytesTotal,
     };
   }
   if (action.type === ANALYZE_FINISHED) {
@@ -1048,9 +1094,14 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
   if (action.type === ANALYZE_CANCELLED) {
     return {
       ...state,
-      analyzeStatus: PROCESS_STATUS.CANCELED,
       analyzeAbortController: undefined,
       analyzeError: undefined,
+    };
+  }
+  if (action.type === ANALYZE_PROGRESS) {
+    return {
+      ...state,
+      analyzeBytesProcessed: action.analyzeBytesProcessed,
     };
   }
 

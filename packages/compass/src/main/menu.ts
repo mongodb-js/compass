@@ -213,6 +213,37 @@ function helpWindowItem(): MenuItemConstructorOptions {
   };
 }
 
+function sourceCodeLink(): MenuItemConstructorOptions {
+  return {
+    label: `&View Source Code on GitHub`,
+    click() {
+      void shell.openExternal('https://github.com/mongodb-js/compass');
+    },
+  };
+}
+
+function feedbackForumLink(): MenuItemConstructorOptions {
+  return {
+    label: `&Suggest a Feature`,
+    click() {
+      void shell.openExternal(
+        'https://feedback.mongodb.com/forums/924283-compass'
+      );
+    },
+  };
+}
+
+function bugReportLink(): MenuItemConstructorOptions {
+  return {
+    label: `&Report a Bug`,
+    click() {
+      void shell.openExternal(
+        'https://jira.mongodb.org/projects/COMPASS/summary'
+      );
+    },
+  };
+}
+
 function license(): MenuItemConstructorOptions {
   return {
     label: '&License',
@@ -245,6 +276,10 @@ function helpSubMenu(
   subMenu.push(helpWindowItem());
 
   subMenu.push(license());
+
+  subMenu.push(sourceCodeLink());
+  subMenu.push(feedbackForumLink());
+  subMenu.push(bugReportLink());
   subMenu.push(logFile(app));
 
   if (process.platform !== 'darwin') {

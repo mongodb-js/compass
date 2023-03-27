@@ -9,7 +9,9 @@ export async function getCodemirrorEditorText(
   // we have to find an instance of the editor and get the text directly from
   // its state
   const editorContents = await browser.execute(function (selector) {
-    const node = document.querySelector(`${selector} [data-codemirror]`);
+    const node =
+      document.querySelector(`${selector} [data-codemirror]`) ??
+      document.querySelector(`${selector}[data-codemirror]`);
     return (node as any)._cm.state.sliceDoc() as string;
   }, selector);
   return editorContents;
@@ -40,7 +42,9 @@ export async function setCodemirrorEditorValue(
 ) {
   await browser.execute(
     function (selector, text) {
-      const node = document.querySelector(`${selector} [data-codemirror]`);
+      const node =
+        document.querySelector(`${selector} [data-codemirror]`) ??
+        document.querySelector(`${selector}[data-codemirror]`);
       const editor = (node as any)._cm;
 
       editor.dispatch({

@@ -32,7 +32,6 @@ describe('ImportPreview [Component]', function () {
           loaded={false}
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
-          analyzed={false}
         />
       );
     });
@@ -51,7 +50,6 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
-          analyzed={true}
         />
       );
     });
@@ -70,7 +68,6 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
-          analyzed={true}
         />
       );
     });
@@ -95,7 +92,6 @@ describe('ImportPreview [Component]', function () {
           loaded
           onFieldCheckedChanged={onFieldCheckedChangedSpy}
           setFieldType={setFieldTypeSpy}
-          analyzed={true}
         />
       );
     });
@@ -105,7 +101,7 @@ describe('ImportPreview [Component]', function () {
     });
   });
 
-  it('renders placeholders when not analyzed', function () {
+  it('renders field type selects', function () {
     render(
       <ImportPreview
         fields={[testField]}
@@ -119,31 +115,6 @@ describe('ImportPreview [Component]', function () {
         loaded
         onFieldCheckedChanged={onFieldCheckedChangedSpy}
         setFieldType={setFieldTypeSpy}
-        analyzed={false}
-      />
-    );
-
-    expect(screen.queryByTestId('import-preview-placeholder-_id')).to.be
-      .visible;
-    expect(screen.queryByTestId('import-preview-field-type-select-menu-_id')).to
-      .not.exist;
-  });
-
-  it('renders field type selects once analyzed', function () {
-    render(
-      <ImportPreview
-        fields={[testField]}
-        values={
-          [
-            {
-              _id: 25,
-            },
-          ] as any
-        }
-        loaded
-        onFieldCheckedChanged={onFieldCheckedChangedSpy}
-        setFieldType={setFieldTypeSpy}
-        analyzed={true}
       />
     );
 

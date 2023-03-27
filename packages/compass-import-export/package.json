@@ -102,7 +102,7 @@
     "csv-parser": "^2.3.1",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^22.3.3",
+    "electron": "^22.0.2",
     "eslint": "^7.25.0",
     "fast-csv": "^3.4.0",
     "flat": "cipacda/flat",

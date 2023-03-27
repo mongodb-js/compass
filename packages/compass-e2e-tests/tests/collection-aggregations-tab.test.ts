@@ -147,7 +147,10 @@ async function saveAggregation(
 
     await browser.focusStageOperator(index);
     await browser.selectStageOperator(index, stageOperator);
-    await browser.setAceValue(Selectors.stageEditor(index), stageValue);
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(index),
+      stageValue
+    );
   }
 
   await browser.clickVisible(Selectors.SavePipelineMenuButton);
@@ -279,7 +282,10 @@ describe('Collection aggregations tab', function () {
   // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
   it('supports creating an aggregation', async function () {
     await browser.selectStageOperator(0, '$match');
-    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ i: 0 }'
+    );
 
     await browser.waitUntil(async function () {
       const textElement = await browser.$(
@@ -308,7 +314,10 @@ describe('Collection aggregations tab', function () {
 
   it('shows $out stage preview', async function () {
     await browser.selectStageOperator(0, '$out');
-    await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '"listings"'
+    );
 
     const preview = await browser.$(Selectors.stagePreview(0));
     const text = await preview.getText();
@@ -324,7 +333,10 @@ describe('Collection aggregations tab', function () {
     }
 
     await browser.selectStageOperator(0, '$merge');
-    await browser.setAceValue(Selectors.stageEditor(0), '"listings"');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '"listings"'
+    );
 
     const preview = await browser.$(Selectors.stagePreview(0));
     const text = await preview.getText();
@@ -366,7 +378,10 @@ describe('Collection aggregations tab', function () {
 }`);
 
     //change $match
-    await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gt: 5 } }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ i: { $gt: 5 } }'
+    );
 
     // TODO: click collapse and then expand again
 
@@ -405,7 +420,10 @@ describe('Collection aggregations tab', function () {
     expect(await contentElement1.getText()).to.equal(`{
   specification(s)
 }`);
-    await browser.setAceValue(Selectors.stageEditor(1), '{ _id: 0 }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(1),
+      '{ _id: 0 }'
+    );
 
     // disable it
     await browser.clickVisible(Selectors.stageToggle(1));
@@ -581,7 +599,7 @@ describe('Collection aggregations tab', function () {
         // This works better than a $project with sleep(10000),
         // where the DB may not interrupt the sleep() call if it
         // has already started.
-        await browser.setAceValue(
+        await browser.setCodemirrorEditorValue(
           Selectors.stageEditor(0),
           `{
         $expr: {
@@ -612,7 +630,10 @@ describe('Collection aggregations tab', function () {
 
   it('supports $out as the last stage', async function () {
     await browser.selectStageOperator(0, '$out');
-    await browser.setAceValue(Selectors.stageEditor(0), "'my-out-collection'");
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      "'my-out-collection'"
+    );
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
 
@@ -620,7 +641,10 @@ describe('Collection aggregations tab', function () {
 
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
-    await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(1),
+      `{ i: 5 }`
+    );
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
@@ -654,7 +678,7 @@ describe('Collection aggregations tab', function () {
     }
 
     await browser.selectStageOperator(0, '$merge');
-    await browser.setAceValue(
+    await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(0),
       `{
   into: 'my-merge-collection'
@@ -667,7 +691,10 @@ describe('Collection aggregations tab', function () {
 
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
-    await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(1),
+      `{ i: 5 }`
+    );
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
@@ -698,7 +725,10 @@ describe('Collection aggregations tab', function () {
   it('supports running and editing aggregation', async function () {
     // Set first stage to match
     await browser.selectStageOperator(0, '$match');
-    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ i: 5 }'
+    );
 
     // Run and wait for results
     await goToRunAggregation(browser);
@@ -715,7 +745,7 @@ describe('Collection aggregations tab', function () {
     await goToEditPipeline(browser);
 
     // Change match filter
-    await browser.setAceValue(
+    await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(0),
       '{ i: { $gte: 5, $lte: 10 } }'
     );
@@ -739,13 +769,16 @@ describe('Collection aggregations tab', function () {
   it('supports paginating aggregation results', async function () {
     // Set first stage to $match
     await browser.selectStageOperator(0, '$match');
-    await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gte: 5 } }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ i: { $gte: 5 } }'
+    );
 
     // Add second $limit stage
     await browser.clickVisible(Selectors.AddStageButton);
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$limit');
-    await browser.setAceValue(Selectors.stageEditor(1), '25');
+    await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '25');
 
     // Run and wait for results
     await goToRunAggregation(browser);
@@ -788,7 +821,7 @@ describe('Collection aggregations tab', function () {
 
     // Set first stage to a very slow $addFields
     await browser.selectStageOperator(0, '$addFields');
-    await browser.setAceValue(Selectors.stageEditor(0), slowQuery);
+    await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), slowQuery);
 
     // Run and wait for results
     await goToRunAggregation(browser);
@@ -809,7 +842,7 @@ describe('Collection aggregations tab', function () {
 
     // Set first stage to an invalid $project stage to trigger server error
     await browser.selectStageOperator(0, '$project');
-    await browser.setAceValue(Selectors.stageEditor(0), '{}');
+    await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
 
     // Run and wait for results
     await goToRunAggregation(browser);
@@ -826,7 +859,10 @@ describe('Collection aggregations tab', function () {
   it('supports exporting aggregation results', async function () {
     // Set first stage to $match
     await browser.selectStageOperator(0, '$match');
-    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ i: 5 }'
+    );
 
     // Open the modal
     await browser.clickVisible(Selectors.ExportAggregationResultsButton);
@@ -864,7 +900,10 @@ describe('Collection aggregations tab', function () {
   it('shows the explain for a pipeline', async function () {
     // Set first stage to $match
     await browser.selectStageOperator(0, '$match');
-    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ i: 5 }'
+    );
 
     await browser.clickVisible(Selectors.AggregationExplainButton);
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
@@ -898,7 +937,10 @@ describe('Collection aggregations tab', function () {
     it('toggles pipeline mode', async function () {
       // Select operator
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
 
       await switchPipelineMode(browser, 'as-text');
       const textContent = await browser.$(Selectors.AggregationAsTextEditor);
@@ -919,10 +961,13 @@ describe('Collection aggregations tab', function () {
 
     it('runs pipeline in text mode when changed', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await switchPipelineMode(browser, 'as-text');
 
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
         '[{$count: "count"}]'
       );
@@ -940,10 +985,13 @@ describe('Collection aggregations tab', function () {
 
     it('previews $out stage', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await switchPipelineMode(browser, 'as-text');
 
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
         '[{$out: "somewhere"}]'
       );
@@ -958,10 +1006,13 @@ describe('Collection aggregations tab', function () {
 
     it('previews $merge stage', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await switchPipelineMode(browser, 'as-text');
 
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
         '[{$merge: "somewhere"}]'
       );
@@ -976,10 +1027,13 @@ describe('Collection aggregations tab', function () {
 
     it('previews atlas operators - $search', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await switchPipelineMode(browser, 'as-text');
 
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
         '[{$search: {}}]'
       );
@@ -995,10 +1049,13 @@ describe('Collection aggregations tab', function () {
 
     it('previews atlas operators - $searchMeta', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await switchPipelineMode(browser, 'as-text');
 
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
         '[{$searchMeta: {}}]'
       );
@@ -1014,10 +1071,13 @@ describe('Collection aggregations tab', function () {
 
     it('shows syntax error when pipeline is invalid', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await switchPipelineMode(browser, 'as-text');
 
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
         '[{$out: "somewhere"]'
       );
@@ -1028,10 +1088,13 @@ describe('Collection aggregations tab', function () {
 
     it('disables mode toggle when pipeline is invalid', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await switchPipelineMode(browser, 'as-text');
 
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.AggregationAsTextEditor,
         '[{$out: "somewhere"]'
       );
@@ -1043,7 +1106,10 @@ describe('Collection aggregations tab', function () {
 
     it('hides preview when disabled', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await switchPipelineMode(browser, 'as-text');
 
       const preview = await browser.$(Selectors.AggregationAsTextPreview);
@@ -1136,7 +1202,10 @@ describe('Collection aggregations tab', function () {
   describe('focus mode', function () {
     it('opens and closes the modal', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
       await modal.waitForDisplayed();
@@ -1153,17 +1222,23 @@ describe('Collection aggregations tab', function () {
 
     it('navigates between stages', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
 
       await browser.clickVisible(Selectors.AddStageButton);
       await browser.$(Selectors.stageEditor(1)).waitForDisplayed();
       await browser.selectStageOperator(1, '$limit');
-      await browser.setAceValue(Selectors.stageEditor(1), '10');
+      await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '10');
 
       await browser.clickVisible(Selectors.AddStageButton);
       await browser.$(Selectors.stageEditor(2)).waitForDisplayed();
       await browser.selectStageOperator(2, '$sort');
-      await browser.setAceValue(Selectors.stageEditor(2), '{ i: -1 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(2),
+        '{ i: -1 }'
+      );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
@@ -1228,7 +1303,10 @@ describe('Collection aggregations tab', function () {
 
     it('adds a new stage before or after current stage', async function () {
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
@@ -1284,7 +1362,10 @@ describe('Collection aggregations tab', function () {
       await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
 
       await browser.selectStageOperator(0, '$match');
-      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '{ i: 5 }'
+      );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
@@ -1301,7 +1382,10 @@ describe('Collection aggregations tab', function () {
 
     it('handles $out stage operators', async function () {
       await browser.selectStageOperator(0, '$out');
-      await browser.setAceValue(Selectors.stageEditor(0), '"test"');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '"test"'
+      );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
@@ -1320,7 +1404,10 @@ describe('Collection aggregations tab', function () {
       }
 
       await browser.selectStageOperator(0, '$merge');
-      await browser.setAceValue(Selectors.stageEditor(0), '"test"');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        '"test"'
+      );
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
@@ -1339,7 +1426,7 @@ describe('Collection aggregations tab', function () {
       }
 
       await browser.selectStageOperator(0, '$search');
-      await browser.setAceValue(Selectors.stageEditor(0), '{}');
+      await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '{}');
 
       await browser.clickVisible(Selectors.stageFocusModeButton(0));
       const modal = await browser.$(Selectors.FocusModeModal);
@@ -1364,7 +1451,7 @@ describe('Collection aggregations tab', function () {
       await browser.clickVisible(Selectors.AddStageButton);
       await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
       await browser.selectStageOperator(0, '$limit');
-      await browser.setAceValue(Selectors.stageEditor(0), '10');
+      await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '10');
 
       const guideCue = await browser.$(Selectors.FocusModeGuideCue);
       await guideCue.waitForDisplayed();
@@ -1379,7 +1466,7 @@ describe('Collection aggregations tab', function () {
       await browser.clickVisible(Selectors.AddStageButton);
       await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
       await browser.selectStageOperator(0, '$limit');
-      await browser.setAceValue(Selectors.stageEditor(0), '10');
+      await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '10');
 
       await guideCue.waitForDisplayed({ reverse: true });
     });

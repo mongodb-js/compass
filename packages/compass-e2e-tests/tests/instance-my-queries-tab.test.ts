@@ -184,7 +184,10 @@ describe('Instance my queries tab', function () {
     // select $match
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
-    await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gt: 10 } }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      '{ i: { $gt: 10 } }'
+    );
 
     await browser.clickVisible(Selectors.SavePipelineMenuButton);
     const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
