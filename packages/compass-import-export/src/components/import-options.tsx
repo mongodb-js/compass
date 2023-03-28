@@ -35,7 +35,7 @@ const inlineLabelStyles = css({
 });
 
 const delimiterSelectStyles = css({
-  width: '120px', // fit all options without wrapping
+  minWidth: '120px', // fit all options without wrapping
 });
 
 const checkboxStyles = css({
