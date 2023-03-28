@@ -20,7 +20,7 @@ const formStyles = css({
 
 const optionsHeadingStyles = css({
   fontWeight: 'bold',
-  marginTop: spacing[4],
+  marginTop: spacing[3],
 });
 
 const inlineFieldStyles = css({
