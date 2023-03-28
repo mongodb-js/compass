@@ -340,6 +340,43 @@ describe('DataService', function () {
       });
     });
 
+    describe('#deleteMany', function () {
+      it('deletes the document from the collection', function (done) {
+        dataService.insertOne(
+          testNamespace,
+          {
+            a: 500,
+          },
+          {},
+          function (err) {
+            assert.equal(null, err);
+            dataService.deleteMany(
+              testNamespace,
+              {
+                a: 500,
+              },
+              {},
+              function (er) {
+                assert.equal(null, er);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 500,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
+                    expect(docs.length).to.equal(0);
+                    done();
+                  });
+              }
+            );
+          }
+        );
+      });
+    });
+
     describe('#aggregateCursor', function () {
       it('returns a cursor for the documents', async function () {
         let count = 0;

@@ -33,6 +33,8 @@ import type {
   InsertOneResult,
   MongoClient,
   MongoClientOptions,
+  ServerDescriptionChangedEvent,
+  ServerOpeningEvent,
   ServerClosedEvent,
   ServerDescription,
   ServerHeartbeatFailedEvent,
@@ -616,6 +618,21 @@ export interface DataService {
    * @param callback - The callback.
    */
   deleteOne(
+    ns: string,
+    filter: Filter<Document>,
+    options: DeleteOptions,
+    callback: Callback<DeleteResult>
+  ): void;
+
+  /**
+   * Deletes multiple documents from a collection.
+   *
+   * @param ns - The namespace.
+   * @param filter - The filter.
+   * @param options - The options.
+   * @param callback - The callback.
+   */
+  deleteMany(
     ns: string,
     filter: Filter<Document>,
     options: DeleteOptions,
@@ -1314,6 +1331,32 @@ export class DataServiceImpl implements DataService {
     );
   }
 
+  deleteMany(
+    ns: string,
+    filter: Filter<Document>,
+    options: DeleteOptions,
+    callback: Callback<DeleteResult>
+  ): void {
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_039),
+      'Running deleteMany',
+      { ns }
+    );
+    const coll = this._collection(ns, 'CRUD');
+    callbackify(allArgumentsMandatory(coll.deleteMany.bind(coll)))(
+      filter,
+      options,
+      (error, result) => {
+        logop(error, result);
+        if (error) {
+          // @ts-expect-error Callback without result...
+          return callback(this._translateErrorMessage(error));
+        }
+        callback(null, result);
+      }
+    );
+  }
+
   async disconnect(): Promise<void> {
     log.info(mongoLogId(1_001_000_016), this._logCtx(), 'Disconnecting');
 
@@ -1972,6 +2015,29 @@ export class DataServiceImpl implements DataService {
 
   private _setupListeners(client: MongoClient): void {
     if (client) {
+      client.on(
+        'serverDescriptionChanged',
+        (evt: ServerDescriptionChangedEvent) => {
+          log.info(
+            mongoLogId(1_001_000_018),
+            this._logCtx(),
+            'Server description changed',
+            {
+              address: evt.address,
+              error: evt.newDescription.error?.message ?? null,
+              previousType: evt.previousDescription.type,
+              newType: evt.newDescription.type,
+            }
+          );
+        }
+      );
+
+      client.on('serverOpening', (evt: ServerOpeningEvent) => {
+        log.info(mongoLogId(1_001_000_019), this._logCtx(), 'Server opening', {
+          address: evt.address,
+        });
+      });
+
       client.on('serverClosed', (evt: ServerClosedEvent) => {
         log.info(mongoLogId(1_001_000_020), this._logCtx(), 'Server closed', {
           address: evt.address,
