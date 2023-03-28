@@ -927,10 +927,10 @@ describe('Collection import', function () {
     let tmpdir: string;
 
     beforeEach(async function () {
-      // Create temp file with 1 million documents.
-      let oneMillionDocuments = '_id,name,info\n';
-      for (let i = 0; i < 1_000_000; i++) {
-        oneMillionDocuments += `${i},name-${i},info-{i}\n`;
+      // Create temp file with 10 million documents.
+      let tenMillionDocuments = '_id,name,info\n';
+      for (let i = 0; i < 10_000_000; i++) {
+        tenMillionDocuments += `${i},name-${i},info-{i}\n`;
       }
 
       tmpdir = path.join(
@@ -940,7 +940,7 @@ describe('Collection import', function () {
       await fs.mkdir(tmpdir, { recursive: true });
       csvFilePath = path.join(tmpdir, 'large-file.csv');
 
-      await fs.writeFile(csvFilePath, oneMillionDocuments);
+      await fs.writeFile(csvFilePath, tenMillionDocuments);
     });
 
     afterEach(async function () {
@@ -990,7 +990,7 @@ describe('Collection import', function () {
         Selectors.DocumentListActionBarMessage
       );
       const documentsText = await messageElement.getText();
-      expect(documentsText).to.not.equal('1 – 20 of 100000');
+      expect(documentsText).to.not.equal('1 – 20 of 10000000');
       const result = await getFirstListDocument(browser);
       expect(result._id).to.exist;
 
