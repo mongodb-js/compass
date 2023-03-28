@@ -499,7 +499,7 @@ This document was automatically generated on Tue Mar 28 2023.
 | [mongodb-query-util](#mongodb-query-util-0.0.3) | 0.0.3 | Apache-2.0 |
 | [mongodb-query-util](#mongodb-query-util-0.2.1) | 0.2.1 | Apache-2.0 |
 | [mongodb-redact](#mongodb-redact-0.2.2) | 0.2.2 | Apache-2.0 |
-| [mongodb-schema](#mongodb-schema-10.0.0) | 10.0.0 | Apache-2.0 |
+| [mongodb-schema](#mongodb-schema-10.0.1) | 10.0.1 | Apache-2.0 |
 | [mongodb-url](#mongodb-url-3.0.3) | 3.0.3 | Apache-2.0 |
 | [ms](#ms-2.1.2) | 2.1.2 | MIT |
 | [ms](#ms-2.0.0) | 2.0.0 | MIT |
@@ -33330,8 +33330,8 @@ limitations under the License.
 
 ```
 
-<a id="mongodb-schema-10.0.0"></a>
-### mongodb-schema 10.0.0
+<a id="mongodb-schema-10.0.1"></a>
+### mongodb-schema 10.0.1
 
 **License**: Apache-2.0
 
