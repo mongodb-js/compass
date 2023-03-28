@@ -1,5 +1,4 @@
 import assert from 'assert';
-import type { Document } from 'bson';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
 import type { Sort } from 'mongodb';
