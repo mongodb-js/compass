@@ -986,21 +986,20 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
-      // Wait for the in progress toast to appear and click stop.
+      // Wait for the in progress toast to appear.
       await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
 
       await browser.disconnect();
       await browser
-        .$(Selectors.RecentConnections)
+        .$(Selectors.SidebarTitle)
         .waitForDisplayed({ reverse: true });
 
       // Wait for the aborted toast to appear.
-      const toastElement = await browser.$(Selectors.ImportToast);
-      await toastElement.waitForDisplayed();
       await browser
         .$(Selectors.closeToastButton(Selectors.ImportToast))
         .waitForDisplayed();
 
+      const toastElement = await browser.$(Selectors.ImportToast);
       // Check it displays that the import was aborted.
       const toastText = await toastElement.getText();
       expect(toastText).to.include('Import aborted.');
