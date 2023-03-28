@@ -583,9 +583,10 @@ class CrudStoreImpl
       // doing so is disallowed might not be great UX, but
       // since we are mostly targeting typical FLE2 use cases,
       // it's probably not worth spending too much time on this.
-      const isAllowed = await this.dataService
-        .getCSFLECollectionTracker()
-        .isUpdateAllowed(ns, doc.generateOriginalObject());
+      const isAllowed = await this.dataService.isUpdateAllowed(
+        ns,
+        doc.generateOriginalObject()
+      );
       if (!isAllowed) {
         doc.emit(
           'update-error',
@@ -701,9 +702,8 @@ class CrudStoreImpl
         this.dataService.getCSFLEMode &&
         this.dataService.getCSFLEMode() === 'enabled'
       ) {
-        const knownSchemaForCollection = await this.dataService
-          .getCSFLECollectionTracker()
-          .knownSchemaForCollection(this.state.ns);
+        const knownSchemaForCollection =
+          await this.dataService.knownSchemaForCollection(this.state.ns);
 
         // The find/query portion will typically exclude encrypted fields,
         // because those cannot be queried to make sure that the original
@@ -917,14 +917,12 @@ class CrudStoreImpl
       this.dataService.getCSFLEMode &&
       this.dataService.getCSFLEMode();
     if (dataServiceCSFLEMode === 'enabled') {
-      // Show a warning if this is a CSFLE-enabled connection but this collection
-      // does not have a schema.
-      const csfleCollectionTracker =
-        this.dataService.getCSFLECollectionTracker();
+      // Show a warning if this is a CSFLE-enabled connection but this
+      // collection does not have a schema.
       const {
         hasSchema,
         encryptedFields: { encryptedFields },
-      } = await csfleCollectionTracker.knownSchemaForCollection(this.state.ns);
+      } = await this.dataService.knownSchemaForCollection(this.state.ns);
       if (encryptedFields.length > 0) {
         // This is for displaying encrypted fields to the user. We do not really
         // need to worry about the distinction between '.' as a nested-field
@@ -937,7 +935,7 @@ class CrudStoreImpl
       if (!hasSchema) {
         csfleState.state = 'no-known-schema';
       } else if (
-        !(await csfleCollectionTracker.isUpdateAllowed(this.state.ns, doc))
+        !(await this.dataService.isUpdateAllowed(this.state.ns, doc))
       ) {
         csfleState.state = 'incomplete-schema-for-cloned-doc';
       } else {

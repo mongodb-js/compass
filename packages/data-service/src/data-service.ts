@@ -1,4 +1,4 @@
-import { promisify, callbackify } from 'util';
+import { callbackify } from 'util';
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -42,6 +42,7 @@ import type {
   TopologyDescription,
   TopologyDescriptionChangedEvent,
   TopologyType,
+  Db,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -229,19 +230,10 @@ export interface DataService {
   top(callback: Callback<Document>): void;
 
   /**
-   * Execute a command.
-   *
-   * @param databaseName - The db name.
-   * @param comm - The command.
-   * @param callback - The callback.
-   *
-   * TODO(COMPASS-6621): remove
+   * Kills operation by operation id
+   * @see {@link https://www.mongodb.com/docs/manual/reference/command/killOp/#mongodb-dbcommand-dbcmd.killOp}
    */
-  command(
-    databaseName: string,
-    comm: Document,
-    callback: Callback<Document>
-  ): void;
+  killOp(id: number, comment?: string): Promise<Document>;
 
   /*** Collections ***/
 
@@ -348,17 +340,6 @@ export interface DataService {
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
   }): Promise<{ _id: string; name: string }[]>;
-
-  /**
-   * Get the kitchen sink information about a database and all its collections.
-   *
-   * @param name - The database name.
-   * @param options - The query options.
-   * @param callback - The callback.
-   *
-   * TODO(COMPASS-6621): remove
-   */
-  database(name: string, options: unknown, callback: Callback<Document>): void;
 
   /**
    * Get the stats for a database.
@@ -684,12 +665,14 @@ export interface DataService {
   setCSFLEEnabled(enabled: boolean): void;
 
   /**
-   * Returns an instance of the CSFLECollectionTracker that provides helper
-   * methods to do CSFLE checks on document or collection
-   *
-   * TODO(COMPASS-6621): proxy methods through data service
+   * @see CSFLECollectionTracker.isUpdateAllowed
    */
-  getCSFLECollectionTracker(): CSFLECollectionTracker;
+  isUpdateAllowed: CSFLECollectionTracker['isUpdateAllowed'];
+
+  /**
+   * @see CSFLECollectionTracker.knownSchemaForCollection
+   */
+  knownSchemaForCollection: CSFLECollectionTracker['knownSchemaForCollection'];
 
   /**
    * Retuns a list of configured KMS providers for the current connection
@@ -826,7 +809,7 @@ export class DataServiceImpl implements DataService {
     // clients, but the $collStats aggregation stage is.
     // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
     // we can switch this over to using the CRUD client instead.
-    const db = this._initializedClient('META').db(databaseName);
+    const db = this._database(databaseName, 'META');
     callbackify(db.command.bind(db))(
       { collStats: collectionName, verbose: true },
       (error, data) => {
@@ -855,19 +838,9 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  command(
-    databaseName: string,
-    comm: Document,
-    callback: Callback<Document>
-  ): void {
-    const db = this._initializedClient('META').db(databaseName);
-    callbackify(db.command.bind(db))(comm, (error, result) => {
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      callback(null, result);
-    });
+  async killOp(id: number, comment?: string): Promise<Document> {
+    const db = this._database('admin', 'META');
+    return runCommand(db, { killOp: 1, id, comment });
   }
 
   isWritable(): boolean {
@@ -888,7 +861,7 @@ export class DataServiceImpl implements DataService {
       'Running connectionStatus'
     );
     try {
-      const adminDb = this._initializedClient('META').db('admin');
+      const adminDb = this._database('admin', 'META');
       const result = await runCommand(adminDb, {
         connectionStatus: 1,
         showPrivileges: true,
@@ -949,7 +922,7 @@ export class DataServiceImpl implements DataService {
       { db: databaseName, nameOnly: nameOnly ?? false }
     );
 
-    const db = this._initializedClient('CRUD').db(databaseName);
+    const db = this._database(databaseName, 'CRUD');
 
     const listCollections = async () => {
       try {
@@ -1051,7 +1024,7 @@ export class DataServiceImpl implements DataService {
       { nameOnly: nameOnly ?? false }
     );
 
-    const adminDb = this._initializedClient('CRUD').db('admin');
+    const adminDb = this._database('admin', 'CRUD');
 
     const listDatabases = async () => {
       try {
@@ -1244,7 +1217,7 @@ export class DataServiceImpl implements DataService {
     callback: Callback<Collection<Document>>
   ): void {
     const collectionName = this._collectionName(ns);
-    const db = this._initializedClient('CRUD').db(this._databaseName(ns));
+    const db = this._database(ns, 'CRUD');
     const logop = this._startLogOp(
       mongoLogId(1_001_000_036),
       'Running createCollection',
@@ -1287,20 +1260,6 @@ export class DataServiceImpl implements DataService {
           return callback(this._translateErrorMessage(error));
         }
         callback(null, result);
-      }
-    );
-  }
-
-  database(name: string, options: unknown, callback: Callback<Document>): void {
-    const asyncColls = promisify(this._collections.bind(this));
-
-    void Promise.all([this.databaseStats(name), asyncColls(name)]).then(
-      ([stats, collections]) => {
-        callback(null, this._buildDatabaseDetail(name, { stats, collections }));
-      },
-      (err) => {
-        // @ts-expect-error callback without result
-        callback(this._translateErrorMessage(err));
       }
     );
   }
@@ -1386,8 +1345,7 @@ export class DataServiceImpl implements DataService {
       { ns }
     );
 
-    const client = this._initializedClient('CRUD');
-    const db = client.db(this._databaseName(ns));
+    const db = this._database(ns, 'CRUD');
     const collName = this._collectionName(ns);
     const coll = db.collection(collName);
 
@@ -1418,7 +1376,7 @@ export class DataServiceImpl implements DataService {
       'Running dropDatabase',
       { db: name }
     );
-    const db = this._initializedClient('CRUD').db(this._databaseName(name));
+    const db = this._database(name, 'CRUD');
     callbackify(db.dropDatabase.bind(db))((error, result) => {
       logop(error, result);
       if (error) {
@@ -1737,7 +1695,7 @@ export class DataServiceImpl implements DataService {
       { ns }
     );
     const collectionName = this._collectionName(ns);
-    const db = this._initializedClient('CRUD').db(this._databaseName(ns));
+    const db = this._database(ns, 'CRUD');
     // Order of arguments is important here, collMod is a command name and it
     // should always be the first one in the object
     const command = {
@@ -1777,7 +1735,7 @@ export class DataServiceImpl implements DataService {
       mongoLogId(1_001_000_053),
       'Running currentOp'
     );
-    const db = this._initializedClient('META').db('admin');
+    const db = this._database('admin', 'META');
 
     callbackify(db.command.bind(db))(
       { currentOp: 1, $all: includeAll },
@@ -1816,31 +1774,34 @@ export class DataServiceImpl implements DataService {
       mongoLogId(1_001_000_061),
       'Running serverStats'
     );
-
-    const admin = this._initializedClient('META').db().admin();
-    callbackify(admin.serverStatus.bind(admin))((error, result) => {
-      logop(error);
-
-      if (error) {
+    const admin = this._database('admin', 'META');
+    void runCommand(admin, { serverStatus: 1 }).then(
+      (result) => {
+        logop(null);
+        callback(null, result);
+      },
+      (error) => {
+        logop(error);
         // @ts-expect-error Callback without result...
         return callback(this._translateErrorMessage(error));
       }
-      callback(null, result);
-    });
+    );
   }
 
   top(callback: Callback<Document>): void {
     const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
-    const admin = this._initializedClient('META').db().admin();
-
-    callbackify(admin.command.bind(admin))({ top: 1 }, (error, result) => {
-      logop(error);
-      if (error) {
+    const adminDb = this._database('admin', 'META');
+    void runCommand(adminDb, { top: 1 }).then(
+      (result) => {
+        logop(null);
+        callback(null, result);
+      },
+      (error) => {
+        logop(error);
         // @ts-expect-error Callback without result...
         return callback(this._translateErrorMessage(error));
       }
-      callback(null, result);
-    });
+    );
   }
 
   createView(
@@ -1864,7 +1825,7 @@ export class DataServiceImpl implements DataService {
       }
     );
 
-    const db = this._initializedClient('CRUD').db(this._databaseName(sourceNs));
+    const db = this._database(sourceNs, 'CRUD');
 
     callbackify(allArgumentsMandatory(db.createCollection.bind(db)))(
       name,
@@ -1944,8 +1905,8 @@ export class DataServiceImpl implements DataService {
       );
     }
     const [clientType] = clientTypes;
-    return runCommand(this._initializedClient(clientType).db('admin'), {
-      killSessions: sessionsArray.map((s) => s.id),
+    return runCommand(this._database('admin', clientType), {
+      killSessions: sessionsArray.map((s) => s.id!),
     });
   }
 
@@ -2187,11 +2148,22 @@ export class DataServiceImpl implements DataService {
     return client;
   }
 
-  getCSFLECollectionTracker(): CSFLECollectionTracker {
+  private _getCSFLECollectionTracker(): CSFLECollectionTracker {
     if (!this._csfleCollectionTracker) {
       throw new Error('Client not yet initialized');
     }
     return this._csfleCollectionTracker;
+  }
+
+  isUpdateAllowed(ns: string, originalDocument: Document) {
+    return this._getCSFLECollectionTracker().isUpdateAllowed(
+      ns,
+      originalDocument
+    );
+  }
+
+  knownSchemaForCollection(ns: string) {
+    return this._getCSFLECollectionTracker().knownSchemaForCollection(ns);
   }
 
   async databaseStats(
@@ -2203,7 +2175,7 @@ export class DataServiceImpl implements DataService {
       { db: name }
     );
     try {
-      const db = this._initializedClient('META').db(name);
+      const db = this._database(name, 'META');
       const stats = await runCommand(db, { dbStats: 1 });
       const normalized = adaptDatabaseInfo(stats);
       return { name, ...normalized };
@@ -2250,21 +2222,6 @@ export class DataServiceImpl implements DataService {
   }
 
   /**
-   * Builds the database detail.
-   *
-   * @param name - The database name.
-   * @param db - The database statistics.
-   */
-  private _buildDatabaseDetail(name: string, db: Document): Document {
-    return {
-      _id: name,
-      name: name,
-      stats: db.stats,
-      collections: db.collections,
-    };
-  }
-
-  /**
    * Get the collection to operate on.
    *
    * @param ns - The namespace.
@@ -2273,6 +2230,15 @@ export class DataServiceImpl implements DataService {
     return this._initializedClient(type)
       .db(this._databaseName(ns))
       .collection(this._collectionName(ns));
+  }
+
+  /**
+   * Get the database to operate on.
+   *
+   * @param ns - The namespace.
+   */
+  private _database(ns: string, type: ClientType): Db {
+    return this._initializedClient(type).db(this._databaseName(ns));
   }
 
   /**

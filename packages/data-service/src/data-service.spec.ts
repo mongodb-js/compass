@@ -1,5 +1,4 @@
 import assert from 'assert';
-import type { Document } from 'bson';
 import { ObjectId } from 'bson';
 import { expect } from 'chai';
 import type { Sort } from 'mongodb';
@@ -18,6 +17,7 @@ import type { ClientMockOptions } from '../test/helpers';
 import { createMongoClientMock } from '../test/helpers';
 import { AbortController } from '../test/mocks';
 import { createClonedClient } from './connect-mongo-client';
+import { runCommand } from './run-command';
 
 const TEST_DOCS = [
   {
@@ -198,20 +198,6 @@ describe('DataService', function () {
       });
     });
 
-    describe('#command', function () {
-      it('executes the command', function (done) {
-        dataService.command(
-          `${testDatabaseName}`,
-          { ping: 1 },
-          function (error, result) {
-            assert.equal(null, error);
-            expect(result.ok).to.equal(1);
-            done();
-          }
-        );
-      });
-    });
-
     describe('#dropCollection', function () {
       beforeEach(async function () {
         await mongoClient.db(testDatabaseName).createCollection('bar');
@@ -239,11 +225,10 @@ describe('DataService', function () {
       });
 
       it('drops a collection with fle2 options', async function () {
-        const buildInfo = await new Promise<Document>((resolve, reject) => {
-          dataService.command('admin', { buildInfo: 1 }, (error, result) => {
-            error ? reject(error) : resolve(result);
-          });
-        });
+        const buildInfo = await runCommand(
+          dataService['_database']('admin', 'META'),
+          { buildInfo: 1 }
+        );
         if (
           (buildInfo.versionArray?.[0] ?? 0) <= 5 ||
           dataService.getCurrentTopologyType() === 'Single'
@@ -730,21 +715,6 @@ describe('DataService', function () {
         const error = await promise;
 
         expect(dataService.isCancelError(error)).to.be.true;
-      });
-    });
-
-    describe('#database', function () {
-      it('returns the database details', function (done) {
-        dataService.database(
-          `${testDatabaseName}`,
-          {},
-          function (err, database) {
-            assert.equal(null, err);
-            expect(database._id).to.equal(`${testDatabaseName}`);
-            expect(database.stats.document_count).to.not.equal(undefined);
-            done();
-          }
-        );
       });
     });
 

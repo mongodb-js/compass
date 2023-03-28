@@ -12,6 +12,7 @@ import connect from './connect';
 import type { ConnectionOptions } from './connection-options';
 import type DataService from './data-service';
 import { redactConnectionOptions } from './redact';
+import { runCommand } from './run-command';
 
 const IS_CI = process.env.EVERGREEN_BUILD_VARIANT || process.env.CI === 'true';
 
@@ -145,12 +146,13 @@ describe('connect', function () {
           connectionString: COMPASS_TEST_SECONDARY_NODE_URL,
         });
 
-        const command = util.promisify(dataService.command.bind(dataService));
-
         const explainPlan = await dataService.explainFind('test.test', {}, {});
 
         const targetHost = explainPlan?.serverInfo?.host;
-        const replSetStatus = await command('admin', { replSetGetStatus: 1 });
+        const replSetStatus: any = await runCommand(
+          dataService['_database']('admin', 'META'),
+          { replSetGetStatus: 1 } as any
+        );
         const targetHostStatus = replSetStatus?.members.find((member) =>
           member.name.startsWith(targetHost)
         );
@@ -173,13 +175,12 @@ describe('connect', function () {
           connectionString: COMPASS_TEST_ANALYTICS_NODE_URL,
         });
 
-        const command = util.promisify(dataService.command.bind(dataService));
-
         const explainPlan = await dataService.explainFind('test.test', {}, {});
 
-        const replSetGetConfig = await command('admin', {
-          replSetGetConfig: 1,
-        });
+        const replSetGetConfig: any = await runCommand(
+          dataService['_database']('admin', 'META'),
+          { replSetGetConfig: 1 } as any
+        );
 
         const analtyticsNode = replSetGetConfig?.config?.members.find(
           (member) => member?.tags.nodeType === 'ANALYTICS'
@@ -640,8 +641,10 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
 
   try {
     dataService = await connect(connectionOptions);
-    const command = util.promisify(dataService.command.bind(dataService));
-    const connectionStatus = await command('admin', { connectionStatus: 1 });
+    const connectionStatus = await runCommand(
+      dataService['_database']('admin', 'META'),
+      { connectionStatus: 1 }
+    );
 
     return {
       authenticatedUserRoles:
