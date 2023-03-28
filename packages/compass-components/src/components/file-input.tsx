@@ -27,7 +27,7 @@ const formItemSmallStyles = css({
   display: 'flex',
   flexFirection: 'row',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[1],
 });
 
 const formItemHorizontalStyles = css({
@@ -42,6 +42,21 @@ const removeFileLineStyles = css({
 
 const removeFileButtonStyles = css({
   marginLeft: spacing[1],
+});
+
+const buttonSmallStyles = css({
+  border: 'none',
+  background: 'none',
+  fontWeight: 'normal',
+
+  '&:hover': {
+    background: 'none',
+    boxShadow: 'none',
+  },
+  '&:active': {
+    background: 'none',
+    boxShadow: 'none',
+  },
 });
 
 const buttonHorizontalStyles = css({
@@ -246,6 +261,15 @@ function FileInput({
 
   const valuesAsString = useMemo(() => JSON.stringify(values), [values]);
 
+  const leftGlyph =
+    variant === Variant.Small ? undefined : (
+      <Icon glyph="AddFile" title={null} fill="currentColor" />
+    );
+  const rightGlyph =
+    variant === Variant.Small ? (
+      <Icon glyph="Edit" title={null} fill="currentColor" />
+    ) : undefined;
+
   return (
     <div className={cx(containerStyles, className)}>
       <div
@@ -297,13 +321,15 @@ function FileInput({
           id={id}
           data-testid="file-input-button"
           className={cx({
+            [buttonSmallStyles]: variant === Variant.Small,
             [buttonHorizontalStyles]: variant === Variant.Horizontal,
             [buttonVerticalStyles]: variant === Variant.Vertical,
           })}
           disabled={disabled}
           onClick={handleOpenFileInput}
           title="Select a file"
-          leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
+          leftGlyph={leftGlyph}
+          rightGlyph={rightGlyph}
         >
           <span className={buttonTextStyle}>{buttonText}</span>
         </Button>
