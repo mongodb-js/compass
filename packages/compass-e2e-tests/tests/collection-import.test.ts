@@ -920,54 +920,96 @@ describe('Collection import', function () {
     await toastElement.waitForDisplayed({ reverse: true });
   });
 
-  it('aborts an in progress import', async function () {
-    // 16116 documents.
-    const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
+  describe('aborting an import', function () {
+    beforeEach(async function () {
+      process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
 
-    await browser.navigateToCollectionTab('test', 'import-abort', 'Documents');
+      // 16116 documents.
+      const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
-    // Open the import modal.
-    await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
-    await insertDocumentOption.waitForDisplayed();
-    await browser.clickVisible(Selectors.ImportFileOption);
+      await browser.navigateToCollectionTab(
+        'test',
+        'import-abort',
+        'Documents'
+      );
 
-    // Select the file.
-    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+      // Open the import modal.
+      await browser.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+      await insertDocumentOption.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportFileOption);
 
-    // Wait for the modal to appear.
-    const importModal = await browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed();
+      // Select the file.
+      await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
-    // Confirm import.
-    await browser.clickVisible(Selectors.ImportConfirm);
-    // Wait for the in progress toast to appear and click stop.
-    await browser.clickVisible(Selectors.ImportToastAbort);
+      // Wait for the modal to appear.
+      const importModal = await browser.$(Selectors.ImportModal);
+      await importModal.waitForDisplayed();
 
-    // Wait for the done toast to appear.
-    const toastElement = await browser.$(Selectors.ImportToast);
-    await toastElement.waitForDisplayed();
-    await browser
-      .$(Selectors.closeToastButton(Selectors.ImportToast))
-      .waitForDisplayed();
+      // Confirm import.
+      await browser.clickVisible(Selectors.ImportConfirm);
+    });
 
-    // Check it displays that the import was aborted.
-    const toastText = await toastElement.getText();
-    expect(toastText).to.include('Import aborted.');
+    afterEach(function () {
+      delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
+    });
 
-    // Check at least one and fewer than 16116 documents were imported.
-    const messageElement = await browser.$(
-      Selectors.DocumentListActionBarMessage
-    );
-    const documentsText = await messageElement.getText();
-    expect(documentsText).to.not.equal('1 – 20 of 16116');
-    const result = await getFirstListDocument(browser);
-    expect(result._id).to.exist;
+    it('aborts an in progress import', async function () {
+      // Wait for the in progress toast to appear and click stop.
+      await browser.clickVisible(Selectors.ImportToastAbort);
 
-    // Close toast.
-    await browser.clickVisible(
-      Selectors.closeToastButton(Selectors.ImportToast)
-    );
-    await toastElement.waitForDisplayed({ reverse: true });
+      // Wait for the done toast to appear.
+      const toastElement = await browser.$(Selectors.ImportToast);
+      await toastElement.waitForDisplayed();
+      await browser
+        .$(Selectors.closeToastButton(Selectors.ImportToast))
+        .waitForDisplayed();
+
+      // Check it displays that the import was aborted.
+      const toastText = await toastElement.getText();
+      expect(toastText).to.include('Import aborted.');
+
+      // Check at least one and fewer than 16116 documents were imported.
+      const messageElement = await browser.$(
+        Selectors.DocumentListActionBarMessage
+      );
+      const documentsText = await messageElement.getText();
+      expect(documentsText).to.not.equal('1 – 20 of 16116');
+      const result = await getFirstListDocument(browser);
+      expect(result._id).to.exist;
+
+      // Close toast.
+      await browser.clickVisible(
+        Selectors.closeToastButton(Selectors.ImportToast)
+      );
+      await toastElement.waitForDisplayed({ reverse: true });
+    });
+
+    it('aborts when disconnected', async function () {
+      // Wait for the in progress toast to appear and click stop.
+      await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
+
+      await browser.disconnect();
+      await browser
+        .$(Selectors.RecentConnections)
+        .waitForDisplayed({ reverse: true });
+
+      // Wait for the aborted toast to appear.
+      const toastElement = await browser.$(Selectors.ImportToast);
+      await toastElement.waitForDisplayed();
+      await browser
+        .$(Selectors.closeToastButton(Selectors.ImportToast))
+        .waitForDisplayed();
+
+      // Check it displays that the import was aborted.
+      const toastText = await toastElement.getText();
+      expect(toastText).to.include('Import aborted.');
+
+      // Close toast.
+      await browser.clickVisible(
+        Selectors.closeToastButton(Selectors.ImportToast)
+      );
+      await toastElement.waitForDisplayed({ reverse: true });
+    });
   });
 });

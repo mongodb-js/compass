@@ -71,6 +71,14 @@ export async function importJSON({
         }
 
         const doc = EJSON.deserialize(chunk.value);
+        if (process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT === 'true') {
+          setTimeout(() => {
+            callback(null, doc);
+          }, 2000);
+
+          return;
+        }
+
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({

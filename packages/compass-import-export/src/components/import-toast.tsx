@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import { openToast } from '@mongodb-js/compass-components';
 import path from 'path';
@@ -209,6 +209,30 @@ function useImportToast({
     errors,
     cancelImport,
   ]);
+
+  const abortIfInProgress = useRef(() => {
+    /* noop */
+  });
+  useEffect(() => {
+    abortIfInProgress.current = () => {
+      // When the component is dismounted, we abort the import if
+      // it's in progress and update the toast.
+      if (status === 'STARTED') {
+        cancelImport();
+        showCancelledToast({
+          errors,
+          errorLogFilePath: errorLogFilePath,
+        });
+      }
+    };
+  }, [errors, errorLogFilePath, cancelImport, status]);
+
+  useEffect(() => {
+    return () => {
+      // Abort the import operation when it's in progress and the import is going away.
+      abortIfInProgress.current?.();
+    };
+  }, []);
 
   // We return null as we're using this hook as a standalone component.
   return null;
