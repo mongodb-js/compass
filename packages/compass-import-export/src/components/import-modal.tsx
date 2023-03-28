@@ -222,7 +222,7 @@ function ImportModal({
       data-testid="import-modal"
       size={fileType === 'csv' ? 'large' : 'small'}
     >
-      <ModalHeader title={`Import to collection ${ns}`} />
+      <ModalHeader title="Import" subtitle={`To Collection ${ns}`} />
       <ModalBody ref={modalBodyRef}>
         <ImportOptions
           delimiter={delimiter}
