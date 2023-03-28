@@ -714,7 +714,7 @@ describe('Collection import', function () {
       Selectors.ImportDelimiterMenu
     );
     await importDelimiterSelectMenu.waitForDisplayed();
-    const delimiterSelectSpan = await importDelimiterSelectMenu.$('span=comma');
+    const delimiterSelectSpan = await importDelimiterSelectMenu.$('span=Comma');
     await delimiterSelectSpan.waitForDisplayed();
     await delimiterSelectSpan.click();
 
