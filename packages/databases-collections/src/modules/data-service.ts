@@ -45,8 +45,8 @@ export default function reducer(
       configuredKMSProviders: action.dataService.configuredKMSProviders
         ? action.dataService.configuredKMSProviders()
         : [],
-      currentTopologyType: action.dataService.currentTopologyType
-        ? action.dataService.currentTopologyType()
+      currentTopologyType: action.dataService.getCurrentTopologyType
+        ? action.dataService.getCurrentTopologyType()
         : 'Unknown',
     };
   }
@@ -60,8 +60,8 @@ export default function reducer(
       configuredKMSProviders: action.dataService.configuredKMSProviders
         ? action.dataService.configuredKMSProviders()
         : [],
-      currentTopologyType: action.dataService.currentTopologyType
-        ? action.dataService.currentTopologyType()
+      currentTopologyType: action.dataService.getCurrentTopologyType
+        ? action.dataService.getCurrentTopologyType()
         : 'Unknown',
     };
   }

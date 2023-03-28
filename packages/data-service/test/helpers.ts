@@ -13,7 +13,7 @@ export type ClientMockOptions = {
     listDatabases: unknown;
     collMod: unknown;
   }>;
-  collections: Record<string, string[]>;
+  collections: Record<string, string[] | Error>;
   clientOptions: Record<string, unknown>;
 };
 

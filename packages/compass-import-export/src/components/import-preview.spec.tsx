@@ -6,7 +6,7 @@ import { expect } from 'chai';
 import { ImportPreview } from './import-preview';
 import type { CSVParsableFieldType } from '../utils/csv';
 
-const testText = 'Specify Fields and Types';
+const testText = '_id';
 
 const testField = {
   path: '_id',

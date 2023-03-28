@@ -23,6 +23,13 @@ const containerStyles = css({
   marginLeft: 'auto',
 });
 
+const formItemSmallStyles = css({
+  display: 'flex',
+  flexFirection: 'row',
+  alignItems: 'center',
+  gap: spacing[1],
+});
+
 const formItemHorizontalStyles = css({
   display: 'flex',
 });
@@ -37,7 +44,26 @@ const removeFileButtonStyles = css({
   marginLeft: spacing[1],
 });
 
-const buttonStyles = css({
+const buttonSmallStyles = css({
+  border: 'none',
+  background: 'none',
+  fontWeight: 'normal',
+
+  '&:hover': {
+    background: 'none',
+    boxShadow: 'none',
+  },
+  '&:active': {
+    background: 'none',
+    boxShadow: 'none',
+  },
+});
+
+const buttonHorizontalStyles = css({
+  width: '100%',
+});
+
+const buttonVerticalStyles = css({
   width: '100%',
 });
 
@@ -102,6 +128,7 @@ const disabledDescriptionDarkStyles = css({
 });
 
 export enum Variant {
+  Small = 'SMALL',
   Horizontal = 'HORIZONTAL',
   Vertical = 'VERTICAL',
 }
@@ -155,7 +182,7 @@ function FileInput({
   optionalMessage?: string;
   error?: boolean;
   errorMessage?: string;
-  variant?: 'HORIZONTAL' | 'VERTICAL';
+  variant?: 'SMALL' | 'HORIZONTAL' | 'VERTICAL';
   link?: string;
   description?: string;
   showFileOnNewLine?: boolean;
@@ -234,10 +261,20 @@ function FileInput({
 
   const valuesAsString = useMemo(() => JSON.stringify(values), [values]);
 
+  const leftGlyph =
+    variant === Variant.Small ? undefined : (
+      <Icon glyph="AddFile" title={null} fill="currentColor" />
+    );
+  const rightGlyph =
+    variant === Variant.Small ? (
+      <Icon glyph="Edit" title={null} fill="currentColor" />
+    ) : undefined;
+
   return (
     <div className={cx(containerStyles, className)}>
       <div
         className={cx({
+          [formItemSmallStyles]: variant === Variant.Small,
           [formItemHorizontalStyles]: variant === Variant.Horizontal,
         })}
       >
@@ -283,11 +320,16 @@ function FileInput({
         <Button
           id={id}
           data-testid="file-input-button"
-          className={buttonStyles}
+          className={cx({
+            [buttonSmallStyles]: variant === Variant.Small,
+            [buttonHorizontalStyles]: variant === Variant.Horizontal,
+            [buttonVerticalStyles]: variant === Variant.Vertical,
+          })}
           disabled={disabled}
           onClick={handleOpenFileInput}
           title="Select a file"
-          leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
+          leftGlyph={leftGlyph}
+          rightGlyph={rightGlyph}
         >
           <span className={buttonTextStyle}>{buttonText}</span>
         </Button>
