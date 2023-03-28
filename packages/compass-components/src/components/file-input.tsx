@@ -23,6 +23,13 @@ const containerStyles = css({
   marginLeft: 'auto',
 });
 
+const formItemSmallStyles = css({
+  display: 'flex',
+  flexFirection: 'row',
+  alignItems: 'center',
+  gap: spacing[2],
+});
+
 const formItemHorizontalStyles = css({
   display: 'flex',
 });
@@ -37,7 +44,11 @@ const removeFileButtonStyles = css({
   marginLeft: spacing[1],
 });
 
-const buttonStyles = css({
+const buttonHorizontalStyles = css({
+  width: '100%',
+});
+
+const buttonVerticalStyles = css({
   width: '100%',
 });
 
@@ -102,6 +113,7 @@ const disabledDescriptionDarkStyles = css({
 });
 
 export enum Variant {
+  Small = 'SMALL',
   Horizontal = 'HORIZONTAL',
   Vertical = 'VERTICAL',
 }
@@ -155,7 +167,7 @@ function FileInput({
   optionalMessage?: string;
   error?: boolean;
   errorMessage?: string;
-  variant?: 'HORIZONTAL' | 'VERTICAL';
+  variant?: 'SMALL' | 'HORIZONTAL' | 'VERTICAL';
   link?: string;
   description?: string;
   showFileOnNewLine?: boolean;
@@ -238,6 +250,7 @@ function FileInput({
     <div className={cx(containerStyles, className)}>
       <div
         className={cx({
+          [formItemSmallStyles]: variant === Variant.Small,
           [formItemHorizontalStyles]: variant === Variant.Horizontal,
         })}
       >
@@ -283,7 +296,10 @@ function FileInput({
         <Button
           id={id}
           data-testid="file-input-button"
-          className={buttonStyles}
+          className={cx({
+            [buttonHorizontalStyles]: variant === Variant.Horizontal,
+            [buttonVerticalStyles]: variant === Variant.Vertical,
+          })}
           disabled={disabled}
           onClick={handleOpenFileInput}
           title="Select a file"
