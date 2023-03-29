@@ -34,7 +34,7 @@ const sortColumnToProps = {
 
 export type IndexDefinition = Omit<
   _IndexDefinition,
-  'type' | 'cardinality' | 'properties'
+  'type' | 'cardinality' | 'properties' | 'version'
 > &
   Partial<_IndexDefinition>;
 
