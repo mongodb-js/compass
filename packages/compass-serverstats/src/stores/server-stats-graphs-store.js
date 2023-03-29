@@ -26,17 +26,22 @@ const ServerStatsStore = Reflux.createStore({
     this.isPaused = false;
   },
 
-  serverStats: function() {
-    if (this.dataService) {
-      this.dataService.serverstats((error, doc) => {
-        if (error === null && this.error !== null) { // Trigger error removal
-          Actions.dbError({'op': 'serverStatus', 'error': null });
-        } else if (error !== null) {
-          Actions.dbError({'op': 'serverStatus', 'error': error });
-        }
-        this.trigger(error, doc, this.isPaused);
-      });
+  serverStats: async function() {
+    if (!this.dataService) {
+      return;
     }
+    let error = null; let doc;
+    try {
+      doc = this.dataService.serverStatus();
+    } catch (err) {
+      error = err;
+    }
+    if (error === null && this.error !== null) { // Trigger error removal
+      Actions.dbError({'op': 'serverStatus', 'error': null });
+    } else if (error !== null) {
+      Actions.dbError({'op': 'serverStatus', 'error': error });
+    }
+    this.trigger(error, doc, this.isPaused);
   },
 
   pause: function() {
