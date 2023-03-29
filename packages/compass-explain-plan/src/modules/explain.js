@@ -415,7 +415,7 @@ export const fetchExplainPlan = (query) => {
           isMultiKey: explain.isMultiKey,
           isSharded: explain.isSharded,
           indexType: explain.indexType,
-          index: explain.index ? explain.index.serialize() : null,
+          index: explain.index ? explain.index : null,
           numberOfDocsReturned: explain.nReturned,
           numberOfShards: explain.numShards,
           totalDocsExamined: explain.totalDocsExamined,

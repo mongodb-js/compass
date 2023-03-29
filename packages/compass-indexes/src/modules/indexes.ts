@@ -1,6 +1,5 @@
-import IndexModel from 'mongodb-index-model';
-import type { Document } from 'mongodb';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import type { IndexDefinition as _IndexDefinition } from 'mongodb-data-service';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import _debug from 'debug';
 import cloneDeep from 'lodash.clonedeep';
@@ -11,6 +10,7 @@ import { handleError } from './error';
 import type { HandleErrorAction, IndexesError } from './error';
 import { ActionTypes as RefreshActionTypes } from './is-refreshing';
 import type { RefreshFinishedAction } from './is-refreshing';
+import type { InProgressIndex } from '../modules/in-progress-indexes';
 import { inProgressIndexRemoved } from '../modules/in-progress-indexes';
 
 const debug = _debug('mongodb-compass:modules:indexes');
@@ -19,8 +19,11 @@ type SortField = keyof Pick<
   IndexDefinition,
   'name' | 'type' | 'size' | 'usageCount' | 'properties'
 >;
+
 export type SortColumn = keyof typeof sortColumnToProps;
+
 export type SortDirection = 'asc' | 'desc';
+
 const sortColumnToProps = {
   'Name and Definition': 'name',
   Type: 'type',
@@ -29,32 +32,13 @@ const sortColumnToProps = {
   Properties: 'properties',
 } as const;
 
-export type IndexFieldsDefinition = { field: string; value: number | string };
+export type IndexDefinition = Omit<
+  _IndexDefinition,
+  'type' | 'cardinality' | 'properties'
+> &
+  Partial<_IndexDefinition>;
 
-export type IndexDefinition = {
-  name: string;
-  ns: string;
-  fields: {
-    serialize: () => IndexFieldsDefinition[];
-  };
-
-  type:
-    | 'regular'
-    | 'geospatial'
-    | 'hashed'
-    | 'text'
-    | 'wildcard'
-    | 'clustered'
-    | 'columnstore';
-  cardinality: 'single' | 'compound';
-  properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
-  extra: Record<string, string | number | Record<string, any>>;
-  size: number;
-  relativeSize: number;
-  usageCount: number;
-  usageSince?: Date;
-  usageHost?: string;
-};
+export type IndexFieldsDefinition = _IndexDefinition['fields'];
 
 export enum ActionTypes {
   LoadIndexes = 'indexes/indexes/LOAD_INDEXES',
@@ -124,12 +108,12 @@ const _handleIndexesChanged = (
 };
 
 export const fetchIndexes = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   LoadIndexesAction | RefreshFinishedAction | HandleErrorAction
 > => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const {
       isReadonly,
       dataService,
@@ -152,38 +136,28 @@ export const fetchIndexes = (): ThunkAction<
       return;
     }
 
-    dataService.indexes(namespace, {}, (err, indexes: Document[]) => {
-      if (err) {
-        dispatch(handleError(err as IndexesError));
-        return _handleIndexesChanged(dispatch, []);
-      }
-      // Set the `ns` field manually as it is not returned from the server
-      // since version 4.4.
-      for (const index of indexes) {
-        index.ns = namespace;
-      }
-      const inProgressIndexModels = _convertToModels(
-        cloneDeep(inProgressIndexes)
-      );
-
-      const indexModels = _convertToModels(indexes);
+    try {
+      const indexes = await dataService.indexes(namespace);
 
       const allIndexes = _mergeInProgressIndexes(
-        indexModels,
-        inProgressIndexModels
+        indexes,
+        cloneDeep(inProgressIndexes) as InProgressIndex[]
       ).sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
 
-      return _handleIndexesChanged(dispatch, allIndexes);
-    });
+      _handleIndexesChanged(dispatch, allIndexes);
+    } catch (err) {
+      dispatch(handleError(err as IndexesError));
+      _handleIndexesChanged(dispatch, []);
+    }
   };
 };
 
 const _getSortFunctionForProperties = (order: 1 | -1) => {
   return function (a: IndexDefinition, b: IndexDefinition) {
     const aValue =
-      a.cardinality === 'compound' ? 'compound' : a.properties[0] || '';
+      a.cardinality === 'compound' ? 'compound' : a.properties?.[0] || '';
     const bValue =
-      b.cardinality === 'compound' ? 'compound' : b.properties[0] || '';
+      b.cardinality === 'compound' ? 'compound' : b.properties?.[0] || '';
     if (aValue > bValue) {
       return order;
     }
@@ -194,17 +168,23 @@ const _getSortFunctionForProperties = (order: 1 | -1) => {
   };
 };
 
-const _getSortFunction = (field: SortField, order: SortDirection) => {
-  const _order = order === 'asc' ? 1 : -1;
+const _getSortFunction = (field: SortField, sortDirection: SortDirection) => {
+  const order = sortDirection === 'asc' ? 1 : -1;
   if (field === 'properties') {
-    return _getSortFunctionForProperties(_order);
+    return _getSortFunctionForProperties(order);
   }
   return function (a: IndexDefinition, b: IndexDefinition) {
-    if (a[field] > b[field]) {
-      return _order;
+    if (typeof b[field] === 'undefined') {
+      return order;
     }
-    if (a[field] < b[field]) {
-      return -_order;
+    if (typeof a[field] === 'undefined') {
+      return -order;
+    }
+    if (a[field]! > b[field]!) {
+      return order;
+    }
+    if (a[field]! < b[field]!) {
+      return -order;
     }
     return 0;
   };
@@ -214,24 +194,9 @@ const _mapColumnToProp = (column: SortColumn): SortField => {
   return sortColumnToProps[column];
 };
 
-/**
- * Converts the raw index data (from ampersand) to
- * Index models (IndexDefinition) and adds computed props.
- */
-const _convertToModels = (indexes: Document[]): IndexDefinition[] => {
-  const sizes: number[] = indexes.map((index) => index.size);
-  const maxSize = Math.max(...sizes);
-
-  return indexes.map((index) => {
-    const model = new IndexModel(new IndexModel().parse(index));
-    model.relativeSize = (model.size / maxSize) * 100;
-    return model as IndexDefinition;
-  });
-};
-
 function _mergeInProgressIndexes(
   indexes: IndexDefinition[],
-  inProgressIndexes: IndexDefinition[]
+  inProgressIndexes: InProgressIndex[]
 ) {
   indexes = cloneDeep(indexes);
 
@@ -241,7 +206,9 @@ function _mergeInProgressIndexes(
     if (index) {
       index.extra = index.extra ?? {};
       index.extra.status = inProgressIndex.extra.status;
-      index.extra.error = inProgressIndex.extra.error;
+      if (inProgressIndex.extra.error) {
+        index.extra.error = inProgressIndex.extra.error;
+      }
     } else {
       indexes.push(inProgressIndex);
     }
@@ -255,6 +222,6 @@ export const dropFailedIndex = (
 ): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch) => {
     dispatch(inProgressIndexRemoved(id));
-    dispatch(fetchIndexes());
+    void dispatch(fetchIndexes());
   };
 };

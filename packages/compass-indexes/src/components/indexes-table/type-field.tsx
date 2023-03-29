@@ -6,7 +6,7 @@ import type { IndexDefinition } from '../../modules/indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
 
 export const canRenderTooltip = (type: IndexDefinition['type']) => {
-  return ['text', 'wildcard', 'columnstore'].indexOf(type) !== -1;
+  return ['text', 'wildcard', 'columnstore'].indexOf(type ?? '') !== -1;
 };
 
 type TypeFieldProps = {
@@ -37,14 +37,14 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
   type,
   extra,
 }) => {
-  const link = getIndexHelpLink(type.toUpperCase() as any);
+  const link = getIndexHelpLink(type?.toUpperCase());
   return (
     <Tooltip
       enabled={canRenderTooltip(type)}
       trigger={({ children, ...props }) => (
         <span {...props}>
           {children}
-          <BadgeWithIconLink text={type} link={link ?? '#'} />
+          <BadgeWithIconLink text={type ?? 'unknown'} link={link ?? '#'} />
         </span>
       )}
     >

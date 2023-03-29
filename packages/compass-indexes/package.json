@@ -63,7 +63,6 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.6",
     "bson": "^5.0.1",
     "compass-preferences-model": "^2.7.0",
-    "mongodb-index-model": "^4.1.2",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -107,7 +106,6 @@
     "@mongodb-js/compass-logging": "^1.1.4",
     "@mongodb-js/mongodb-redux-common": "^2.0.6",
     "bson": "^5.0.1",
-    "compass-preferences-model": "^2.7.0",
-    "mongodb-index-model": "^4.1.2"
+    "compass-preferences-model": "^2.7.0"
   }
 }

@@ -9,4 +9,3 @@ declare module 'mongodb-query-parser' {
 declare module '@mongodb-js/mongodb-redux-common/app-registry';
 declare module 'lodash.contains';
 declare module 'lodash.clonedeep';
-declare module 'mongodb-index-model';
