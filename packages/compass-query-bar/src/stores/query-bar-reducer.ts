@@ -14,12 +14,6 @@ import { cloneDeep, isEqual } from 'lodash';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
 
-export function isQueryValid(state: QueryBarState) {
-  return QUERY_PROPERTIES.every((prop) => {
-    return state.fields[prop].valid;
-  });
-}
-
 export function isQueryProperty(field: string): field is QueryProperty {
   return (QUERY_PROPERTIES as readonly string[]).includes(field);
 }
@@ -55,6 +49,43 @@ export function isQueryFieldsValid(fields: Record<string, QueryBarFormField>) {
   return Object.entries(fields).every(
     ([key, value]) => validateField(key, value.string) !== false
   );
+}
+
+function wrapFilterIfNotWrapped(
+  filter: QueryBarState['fields']['filter']
+): QueryBarState['fields']['filter'] {
+  if (validateField('filter', filter.string) !== false) {
+    return filter;
+  }
+
+  // When the filter isn't valid we try to wrap it in {}.
+  const filterWithBrackets = validateField('filter', `{${filter.string}}`);
+  if (filterWithBrackets !== false) {
+    return {
+      value: filterWithBrackets,
+      string: queryParser.stringify(filterWithBrackets),
+      valid: true,
+    };
+  }
+
+  return filter;
+}
+
+export function isQueryValid(state: QueryBarState) {
+  return QUERY_PROPERTIES.every((prop) => {
+    // When the filter is invalid but can be automatically altered to be valid,
+    // we want to allow the user to run the query.
+    if (prop === 'filter' && state.fields[prop].valid === false) {
+      return (
+        validateField(
+          'filter',
+          wrapFilterIfNotWrapped(state.fields['filter']).string
+        ) !== false
+      );
+    }
+
+    return state.fields[prop].valid;
+  });
 }
 
 export function pickValuesFromFields(
@@ -211,28 +242,6 @@ export const changeSchemaFields = (
 ): ChangeSchemaFieldsAction => {
   return { type: QueryBarActions.ChangeSchemaFields, fields };
 };
-
-function wrapFilterIfNotWrapped(
-  filter: QueryBarState['fields']['filter']
-): QueryBarState['fields']['filter'] {
-  if (validateField('filter', filter.string) !== false) {
-    return filter;
-  }
-
-  // TODO: Auto shift the cursor position if there's a cursor.
-
-  // When the filter isn't valid we try to wrap it in {}.
-  const filterWithBrackets = validateField('filter', `{${filter.string}}`);
-  if (filterWithBrackets !== false) {
-    return {
-      value: filterWithBrackets,
-      string: queryParser.stringify(filterWithBrackets),
-      valid: true,
-    };
-  }
-
-  return filter;
-}
 
 type ApplyQueryAction = {
   type: QueryBarActions.ApplyQuery;
