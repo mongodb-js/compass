@@ -54,7 +54,7 @@ export function isQueryFieldsValid(fields: Record<string, QueryBarFormField>) {
 function wrapFilterIfNotWrapped(
   filter: QueryBarState['fields']['filter']
 ): QueryBarState['fields']['filter'] {
-  if (validateField('filter', filter.string) !== false) {
+  if (validateField('filter', filter.string) !== false || !filter) {
     return filter;
   }
 
@@ -246,6 +246,7 @@ export const changeSchemaFields = (
 type ApplyQueryAction = {
   type: QueryBarActions.ApplyQuery;
   query: unknown;
+  fields: QueryBarState['fields'];
 };
 
 export const applyQuery = (): QueryBarThunkAction<
@@ -255,16 +256,14 @@ export const applyQuery = (): QueryBarThunkAction<
   return (dispatch, getState, { localAppRegistry }) => {
     const { fields: _fields } = getState();
 
-    const fields = {
-      ..._fields,
-      filter: wrapFilterIfNotWrapped(_fields.filter),
-    };
+    const fields = cloneDeep(_fields);
+    fields.filter = wrapFilterIfNotWrapped(_fields.filter);
 
     if (!isQueryFieldsValid(fields)) {
       return false;
     }
     const query = pickValuesFromFields(fields);
-    dispatch({ type: QueryBarActions.ApplyQuery, query });
+    dispatch({ type: QueryBarActions.ApplyQuery, fields, query });
     dispatch(emitOnQueryChange());
     localAppRegistry?.emit('query-applied', query);
     return query;
@@ -373,10 +372,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ApplyQueryAction>(action, QueryBarActions.ApplyQuery)) {
     return {
       ...state,
-      fields: {
-        ...state.fields,
-        ...mapQueryToValidQueryFields(action.query),
-      },
+      fields: action.fields,
       lastAppliedQuery: action.query,
       applyId: (state.applyId + 1) % Number.MAX_SAFE_INTEGER,
     };
