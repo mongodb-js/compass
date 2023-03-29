@@ -76,23 +76,22 @@ export default rootReducer;
  * @returns {Function} The thunk function.
  */
 export const dropIndex = (indexName: string) => {
-  return (dispatch: Dispatch, getState: () => RootState) => {
+  return async (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const ns = state.namespace;
 
     dispatch(toggleInProgress(true));
-    state.dataService?.dropIndex(ns, indexName, (err) => {
-      if (!err) {
-        track('Index Dropped');
-        dispatch(resetForm());
-        dispatch(localAppRegistryEmit('refresh-data'));
-        dispatch(clearError());
-        dispatch(toggleInProgress(false));
-        dispatch(toggleIsVisible(false));
-      } else {
-        dispatch(toggleInProgress(false));
-        dispatch(handleError(err as Error));
-      }
-    });
+    try {
+      await state.dataService?.dropIndex(ns, indexName);
+      track('Index Dropped');
+      dispatch(resetForm());
+      dispatch(localAppRegistryEmit('refresh-data'));
+      dispatch(clearError());
+      dispatch(toggleInProgress(false));
+      dispatch(toggleIsVisible(false));
+    } catch (err) {
+      dispatch(toggleInProgress(false));
+      dispatch(handleError(err as Error));
+    }
   };
 };

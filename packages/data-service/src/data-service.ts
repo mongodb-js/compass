@@ -43,6 +43,7 @@ import type {
   TopologyDescriptionChangedEvent,
   TopologyType,
   Db,
+  IndexInformationOptions,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -51,6 +52,10 @@ import type {
   ConnectionOptions,
 } from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
+import {
+  isNotAuthorized,
+  isNotSupportedPipelineStage,
+} from './instance-detail-helper';
 import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
@@ -63,7 +68,7 @@ import {
 import { redactConnectionString } from './redact';
 import type { CloneableMongoClient } from './connect-mongo-client';
 import connectMongoClient, { createClonedClient } from './connect-mongo-client';
-import type { Callback, CollectionStats, IndexDetails } from './types';
+import type { Callback, CollectionStats } from './types';
 import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
@@ -76,6 +81,12 @@ import {
   createCancelError,
   isCancelError,
 } from '@mongodb-js/compass-utils';
+import type {
+  IndexDefinition,
+  IndexStats,
+  IndexInfo,
+} from './index-detail-helper';
+import { createIndexDefinition } from './index-detail-helper';
 
 // TODO: remove try/catch and refactor encryption related types
 // when the Node bundles native binding distributions
@@ -91,9 +102,6 @@ try {
 } catch (e) {
   console.warn(e);
 }
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { fetch: getIndexes } = require('mongodb-index-model');
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-DATA-SERVICE'
@@ -365,10 +373,12 @@ export interface DataService {
    * Get the indexes for the collection.
    *
    * @param ns - The collection namespace.
-   * @param options - The options (unused).
-   * @param callback - The callback.
+   * @param options - Index information options
    */
-  indexes(ns: string, options: unknown, callback: Callback<Document[]>): void;
+  indexes(
+    ns: string,
+    options?: IndexInformationOptions
+  ): Promise<IndexDefinition[]>;
 
   /**
    * Creates an index
@@ -376,23 +386,20 @@ export interface DataService {
    * @param ns - The namespace.
    * @param spec - The index specification.
    * @param options - The options.
-   * @param callback - The callback.
    */
   createIndex(
     ns: string,
     spec: IndexSpecification,
-    options: CreateIndexesOptions,
-    callback: Callback<string>
-  ): void;
+    options: CreateIndexesOptions
+  ): Promise<string>;
 
   /**
    * Drops an index from a collection
    *
    * @param ns - The namespace.
    * @param name - The index name.
-   * @param callback - The callback.
    */
-  dropIndex(ns: string, name: string, callback: Callback<Document>): void;
+  dropIndex(ns: string, name: string): Promise<Document>;
 
   /*** Aggregation ***/
 
@@ -1238,30 +1245,25 @@ export class DataServiceImpl implements DataService {
     );
   }
 
-  createIndex(
+  async createIndex(
     ns: string,
     spec: IndexSpecification,
-    options: CreateIndexesOptions,
-    callback: Callback<string>
-  ): void {
+    options: CreateIndexesOptions
+  ): Promise<string> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_037),
       'Running createIndex',
       { ns, spec, options }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.createIndex.bind(coll)))(
-      spec,
-      options,
-      (error, result) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const result = await coll.createIndex(spec, options);
+      logop(null, result);
+      return result;
+    } catch (err) {
+      logop(err);
+      throw this._translateErrorMessage(err);
+    }
   }
 
   deleteOne(
@@ -1387,21 +1389,21 @@ export class DataServiceImpl implements DataService {
     });
   }
 
-  dropIndex(ns: string, name: string, callback: Callback<Document>): void {
+  async dropIndex(ns: string, name: string): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_060),
       'Running dropIndex',
       { ns, name }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(coll.dropIndex.bind(coll))(name, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      callback(null, result);
-    });
+    try {
+      const result = await coll.dropIndex(name);
+      logop(null, result);
+      return result;
+    } catch (err) {
+      logop(err);
+      throw this._translateErrorMessage(err);
+    }
   }
 
   aggregateCursor(
@@ -1416,12 +1418,12 @@ export class DataServiceImpl implements DataService {
     return this._collection(ns, 'CRUD').aggregate(pipeline, options);
   }
 
-  aggregate(
+  aggregate<T = Document>(
     ns: string,
     pipeline: Document[],
     options: AggregateOptions = {},
     executionOptions?: ExecutionOptions
-  ): Promise<Document[]> {
+  ): Promise<T[]> {
     let cursor: AggregationCursor;
     return this._cancellableOperation(
       async (session?: ClientSession) => {
@@ -1580,24 +1582,80 @@ export class DataServiceImpl implements DataService {
     );
   }
 
-  indexes(ns: string, options: unknown, callback: Callback<Document[]>): void {
+  private async _indexStats(ns: string) {
+    try {
+      const stats = await this.aggregate<IndexStats>(ns, [
+        { $indexStats: {} },
+        {
+          $project: {
+            name: 1,
+            usageHost: '$host',
+            usageCount: '$accesses.ops',
+            usageSince: '$accesses.since',
+          },
+        },
+      ]);
+
+      return Object.fromEntries(
+        stats.map((index) => {
+          return [index.name, index];
+        })
+      );
+    } catch (err) {
+      if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
+        return {};
+      }
+      throw err;
+    }
+  }
+
+  private async _indexSizes(ns: string): Promise<Record<string, number>> {
+    try {
+      return (await this._collection(ns, 'META').stats()).indexSizes;
+    } catch (err) {
+      if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
+        return {};
+      }
+      throw err;
+    }
+  }
+
+  async indexes(
+    ns: string,
+    options?: IndexInformationOptions
+  ): Promise<IndexDefinition[]> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_047),
       'Listing indexes',
       { ns }
     );
-    getIndexes(
-      this._initializedClient('META'),
-      ns,
-      (error: Error | undefined, data: IndexDetails[]) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, data);
-      }
-    );
+    try {
+      const [indexes, indexStats, indexSizes] = await Promise.all([
+        this._collection(ns, 'CRUD').indexes(options) as Promise<IndexInfo[]>,
+        this._indexStats(ns),
+        this._indexSizes(ns),
+      ]);
+
+      const maxSize = Math.max(...Object.values(indexSizes));
+
+      const result = indexes.map((index) => {
+        const name = index.name;
+        return createIndexDefinition(
+          ns,
+          index,
+          indexStats[name],
+          indexSizes[name],
+          maxSize
+        );
+      });
+
+      logop(null);
+
+      return result;
+    } catch (err) {
+      logop(err);
+      throw this._translateErrorMessage(err);
+    }
   }
 
   async instance(): Promise<InstanceDetails> {

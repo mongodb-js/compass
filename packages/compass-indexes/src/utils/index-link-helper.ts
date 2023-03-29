@@ -29,6 +29,6 @@ const HELP_URLS = {
  *
  * @param {String} section - The name of the section to open.
  */
-export default function getIndexHelpLink(section: keyof typeof HELP_URLS) {
-  return HELP_URLS[section] || null;
+export default function getIndexHelpLink(section = 'UNKNOWN') {
+  return (HELP_URLS as Record<string, string | null>)[section] ?? null;
 }
