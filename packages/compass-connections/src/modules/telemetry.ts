@@ -164,7 +164,7 @@ export function trackConnectionAttemptEvent({
 
 export function trackNewConnectionEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
-  dataService: Pick<DataService, 'instance' | 'currentTopologyType'>
+  dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>
 ): void {
   try {
     const callback = async () => {
@@ -186,7 +186,7 @@ export function trackNewConnectionEvent(
         server_version: build.version,
         server_arch: host.arch,
         server_os_family: host.os_family,
-        topology_type: dataService.currentTopologyType(),
+        topology_type: dataService.getCurrentTopologyType(),
       };
       return trackEvent;
     };

@@ -1,8 +1,10 @@
 import React, { useCallback } from 'react';
 
 import {
+  Body,
   Checkbox,
   Select,
+  Label,
   Option,
   css,
   spacing,
@@ -16,8 +18,24 @@ const formStyles = css({
   paddingTop: spacing[3],
 });
 
+const optionsHeadingStyles = css({
+  fontWeight: 'bold',
+  marginTop: spacing[3],
+});
+
+const inlineFieldStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing[2],
+});
+
+const inlineLabelStyles = css({
+  fontWeight: 'normal',
+});
+
 const delimiterSelectStyles = css({
-  margin: `${spacing[3]}px 0`,
+  minWidth: '120px', // fit all options without wrapping
 });
 
 const checkboxStyles = css({
@@ -30,19 +48,19 @@ const delimiters: {
 }[] = [
   {
     value: ',',
-    label: 'comma',
+    label: 'Comma',
   },
   {
     value: '\t',
-    label: 'tab',
+    label: 'Tab',
   },
   {
     value: ';',
-    label: 'semicolon',
+    label: 'Semicolon',
   },
   {
     value: ' ',
-    label: 'space',
+    label: 'Space',
   },
 ];
 
@@ -82,26 +100,39 @@ function ImportOptions({
         fileName={fileName}
         selectImportFileName={selectImportFileName}
       />
+      <Body as="h3" className={optionsHeadingStyles}>
+        Options
+      </Body>
       {isCSV && (
         <>
-          <Select
-            className={delimiterSelectStyles}
-            label="Delimiter"
-            id="import-delimiter-select"
-            data-testid="import-delimiter-select"
-            onChange={(delimiter: string) =>
-              void setDelimiter(delimiter as CSVDelimiter)
-            }
-            value={delimiter}
-            allowDeselect={false}
-            size="small"
-          >
-            {delimiters.map(({ value, label }) => (
-              <Option key={value} value={value}>
-                {label}
-              </Option>
-            ))}
-          </Select>
+          <div className={inlineFieldStyles}>
+            <Label
+              id="import-delimiter-label"
+              htmlFor="import-delimiter-select"
+              className={inlineLabelStyles}
+            >
+              Select delimiter
+            </Label>
+            <Select
+              className={delimiterSelectStyles}
+              id="import-delimiter-select"
+              aria-labelledby="import-delimiter-label"
+              aria-label="Delimiter"
+              data-testid="import-delimiter-select"
+              onChange={(delimiter: string) =>
+                void setDelimiter(delimiter as CSVDelimiter)
+              }
+              value={delimiter}
+              allowDeselect={false}
+              size="small"
+            >
+              {delimiters.map(({ value, label }) => (
+                <Option key={value} value={value}>
+                  {label}
+                </Option>
+              ))}
+            </Select>
+          </div>
           <Checkbox
             className={checkboxStyles}
             checked={ignoreBlanks}

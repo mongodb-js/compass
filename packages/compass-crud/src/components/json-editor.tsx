@@ -15,12 +15,11 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
-
 import {
   createDocumentAutocompleter,
-  JSONEditor as Editor,
+  CodemirrorMultilineEditor,
 } from '@mongodb-js/compass-editor';
-import type { EditorView } from '@mongodb-js/compass-editor';
+import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 
 const editorStyles = css({
@@ -42,6 +41,11 @@ const editorDarkModeStyles = css({
   '& .cm-gutters': {
     backgroundColor: `${palette.gray.dark4} !important`,
   },
+});
+
+const actionsGroupStyles = css({
+  paddingTop: spacing[2],
+  paddingRight: spacing[2],
 });
 
 export type JSONEditorProps = {
@@ -69,7 +73,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   fields = [],
 }) => {
   const darkMode = useDarkMode();
-  const editorRef = useRef<EditorView>();
+  const editorRef = useRef<EditorRef>(null);
   const [editing, setEditing] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
   const [value, setValue] = useState<string>(() => doc.toEJSON());
@@ -145,9 +149,9 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }
 
     if (isExpanded) {
-      Editor.unfoldAll(editorRef.current);
+      editorRef.current.unfoldAll();
     } else {
-      Editor.foldAll(editorRef.current);
+      editorRef.current.foldAll();
     }
   }, [isExpanded]);
 
@@ -157,39 +161,59 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
 
   const isEditable = editable && !deleting && !isTimeSeries;
 
+  const actions = useMemo<Action[]>(() => {
+    if (editing) {
+      return [];
+    }
+
+    return [
+      isEditable && {
+        icon: 'Edit',
+        label: 'Edit',
+        action() {
+          setEditing(true);
+        },
+      },
+      {
+        icon: 'Copy',
+        label: 'Copy',
+        action() {
+          handleCopy();
+          return true;
+        },
+      },
+      isEditable && {
+        icon: 'Clone',
+        label: 'Clone',
+        action: handleClone,
+      },
+      isEditable && {
+        icon: 'Trash',
+        label: 'Delete',
+        action() {
+          setDeleting(true);
+        },
+      },
+    ].filter(Boolean) as Action[];
+  }, [editing, handleClone, handleCopy, isEditable]);
+
   return (
     <div data-testid="editable-json">
-      <Editor
+      <CodemirrorMultilineEditor
+        ref={editorRef}
+        language="json"
         text={value}
         onChangeText={onChange}
+        // Document list card uses its own custom actions
+        copyable={false}
+        formattable={false}
+        customActions={actions}
         readOnly={!editing}
         showLineNumbers={editing}
         className={cx(editorStyles, darkMode && editorDarkModeStyles)}
-        onLoad={(editor) => {
-          editorRef.current = editor;
-        }}
+        actionsClassName={actionsGroupStyles}
         completer={completer}
       />
-      {!editing && (
-        <DocumentList.DocumentActionsGroup
-          onEdit={
-            isEditable
-              ? () => {
-                  setEditing(true);
-                }
-              : undefined
-          }
-          onCopy={handleCopy}
-          onRemove={
-            isEditable
-              ? () => {
-                  setDeleting(true);
-                }
-              : undefined
-          }
-          onClone={isEditable ? handleClone : undefined}
-        />
-      )}
       <DocumentList.DocumentEditActionsFooter
         doc={doc}
         alwaysForceUpdate

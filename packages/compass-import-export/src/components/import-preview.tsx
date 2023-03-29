@@ -10,12 +10,12 @@ import {
   cx,
   spacing,
   Label,
-  Placeholder,
   palette,
   Tooltip,
   Icon,
   Select,
   Option,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import { createDebug } from '../utils/logger';
@@ -33,8 +33,12 @@ const columnHeaderStyles = css({
   alignItems: 'flex-start',
 });
 
-const mixedCellStyles = css({
+const mixedCellStylesLight = css({
   backgroundColor: palette.yellow.light3,
+});
+
+const mixedCellStylesDark = css({
+  backgroundColor: palette.yellow.dark3,
 });
 
 const columnNameStyles = css({
@@ -75,10 +79,17 @@ const fieldTypeContainerStyles = css({
   gap: spacing[1],
 });
 
-const infoIconCSS = css({
+const infoIconCSSCommon = css({
   // align the icon relative to the selectbox
   height: `${spacing[3]}px`,
+});
+
+const infoIconCSSLight = css({
   color: palette.gray.dark2,
+});
+
+const infoIconCSSDark = css({
+  color: palette.gray.light2,
 });
 
 const typesListCSS = css({
@@ -145,6 +156,8 @@ function MixedWarning({
   result: CSVField;
   selectedType: CSVParsableFieldType;
 }) {
+  const darkMode = useDarkMode();
+
   return (
     <Tooltip
       align="top"
@@ -153,7 +166,12 @@ function MixedWarning({
       trigger={({ children, ...props }) => (
         <div {...props}>
           {children}
-          <div className={infoIconCSS}>
+          <div
+            className={cx(
+              infoIconCSSCommon,
+              darkMode ? infoIconCSSDark : infoIconCSSLight
+            )}
+          >
             <Icon glyph="InfoWithCircle"></Icon>
           </div>
         </div>
@@ -182,98 +200,21 @@ function MixedWarning({
   );
 }
 
-function FieldHeader(
-  field: Field,
-  analyzed: boolean,
-  onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void,
-  setFieldType: (fieldPath: string, fieldType: string) => void
-) {
-  return (
-    <TableHeader
-      key={`col-${field.path}`}
-      className={cx(needsMixedWarning(field) && mixedCellStyles)}
-      label={
-        <div
-          className={columnHeaderStyles}
-          data-testid={`preview-field-header-${field.path}`}
-        >
-          {field.type !== 'placeholder' && (
-            <>
-              <div className={columnNameStyles}>
-                <Checkbox
-                  aria-labelledby={`toggle-import-field-label-${field.path}`}
-                  id={`toggle-import-field-checkbox-${field.path}`}
-                  data-testid={`toggle-import-field-checkbox-${field.path}`}
-                  aria-label={
-                    field.checked
-                      ? `${field.path} values will be imported`
-                      : `Values for ${field.path} will be ignored`
-                  }
-                  checked={field.checked}
-                  title={
-                    field.checked
-                      ? `${field.path} values will be imported`
-                      : `Values for ${field.path} will be ignored`
-                  }
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    onFieldCheckedChanged(field.path, !!e.target.checked)
-                  }
-                />
-                <Label
-                  id={`toggle-import-field-label-${field.path}`}
-                  className={fieldPathHeaderStyles}
-                  htmlFor={`toggle-import-field-checkbox-${field.path}`}
-                >
-                  <span title={field.path}>{field.path}</span>
-                </Label>
-              </div>
-              <div className={fieldTypeContainerStyles}>
-                {analyzed ? (
-                  <>
-                    <SelectFieldType
-                      fieldPath={field.path}
-                      selectedType={field.type}
-                      onChange={(newType: string) =>
-                        setFieldType(field.path, newType)
-                      }
-                    />
-                    {field.result && needsMixedWarning(field) && (
-                      <MixedWarning
-                        result={field.result}
-                        selectedType={field.type}
-                      />
-                    )}
-                  </>
-                ) : (
-                  <Placeholder
-                    width={spacing[3] * 9}
-                    data-testid={`import-preview-placeholder-${field.path}`}
-                  />
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      }
-    />
-  );
-}
-
 function ImportPreview({
   fields,
   values,
   onFieldCheckedChanged,
   setFieldType,
   loaded,
-  analyzed,
 }: {
   fields: Field[];
   values: string[][];
   onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
   setFieldType: (fieldPath: string, fieldType: string) => void;
   loaded: boolean;
-  analyzed: boolean;
 }) {
+  const darkMode = useDarkMode();
+
   if (!loaded) {
     debug('Preview unavailable: not loaded yet');
     return null;
@@ -289,65 +230,117 @@ function ImportPreview({
 
   const gapOrFields: (string | Field)[] = ['', ...fields];
 
+  const mixedCellStyles = darkMode ? mixedCellStylesDark : mixedCellStylesLight;
+
   return (
-    <>
-      <Body weight="medium">Specify Fields and Types</Body>
-      <Table
-        data={values}
-        columns={gapOrFields.map((field) => {
-          if (typeof field !== 'string' && 'path' in field) {
-            return FieldHeader(
-              field,
-              analyzed,
-              onFieldCheckedChanged,
-              setFieldType
-            );
-          } else {
-            return (
-              <TableHeader
-                key="row-index"
-                label=""
-                className={rowIndexStyles}
-              />
-            );
-          }
-        })}
-      >
-        {({ datum: values, index: rowIndex }) => (
-          <Row>
-            <Cell
-              className={cx(cellContainerStyles, rowIndexStyles)}
-              key={`rowindex-${rowIndex}`}
-            >
-              {rowIndex + 1}
-            </Cell>
-            {fields.map(({ path }, fieldIndex) => (
-              <Cell
-                className={cx(
-                  cellContainerStyles,
-                  needsMixedWarning(fields[fieldIndex]) && mixedCellStyles
-                )}
-                key={`item-${path}-${fieldIndex}`}
-              >
+    <Table
+      data={values}
+      columns={gapOrFields.map((field) => {
+        if (typeof field !== 'string' && 'path' in field) {
+          return (
+            <TableHeader
+              key={`col-${field.path}`}
+              className={cx(needsMixedWarning(field) && mixedCellStyles)}
+              label={
                 <div
-                  className={cx(
-                    cellStyles,
-                    !fields[fieldIndex].checked && cellUncheckedStyles
-                  )}
-                  title={`${values[fieldIndex] || 'empty string'}`}
+                  className={columnHeaderStyles}
+                  data-testid={`preview-field-header-${field.path}`}
                 >
-                  {values[fieldIndex] === '' ? (
-                    <i>empty string</i>
-                  ) : (
-                    values[fieldIndex]
+                  {field.type !== 'placeholder' && (
+                    <>
+                      <div className={columnNameStyles}>
+                        <Checkbox
+                          aria-labelledby={`toggle-import-field-label-${field.path}`}
+                          id={`toggle-import-field-checkbox-${field.path}`}
+                          data-testid={`toggle-import-field-checkbox-${field.path}`}
+                          aria-label={
+                            field.checked
+                              ? `${field.path} values will be imported`
+                              : `Values for ${field.path} will be ignored`
+                          }
+                          checked={field.checked}
+                          title={
+                            field.checked
+                              ? `${field.path} values will be imported`
+                              : `Values for ${field.path} will be ignored`
+                          }
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            onFieldCheckedChanged(
+                              field.path,
+                              !!e.target.checked
+                            )
+                          }
+                        />
+                        <Label
+                          id={`toggle-import-field-label-${field.path}`}
+                          className={fieldPathHeaderStyles}
+                          htmlFor={`toggle-import-field-checkbox-${field.path}`}
+                        >
+                          <span title={field.path}>{field.path}</span>
+                        </Label>
+                      </div>
+                      <div className={fieldTypeContainerStyles}>
+                        <SelectFieldType
+                          fieldPath={field.path}
+                          selectedType={field.type}
+                          onChange={(newType: string) =>
+                            setFieldType(field.path, newType)
+                          }
+                        />
+                        {field.result && needsMixedWarning(field) && (
+                          <MixedWarning
+                            result={field.result}
+                            selectedType={field.type}
+                          />
+                        )}
+                      </div>
+                    </>
                   )}
                 </div>
-              </Cell>
-            ))}
-          </Row>
-        )}
-      </Table>
-    </>
+              }
+            />
+          );
+        } else {
+          return (
+            <TableHeader key="row-index" label="" className={rowIndexStyles} />
+          );
+        }
+      })}
+    >
+      {({ datum: values, index: rowIndex }) => (
+        <Row>
+          <Cell
+            className={cx(cellContainerStyles, rowIndexStyles)}
+            key={`rowindex-${rowIndex}`}
+          >
+            {rowIndex + 1}
+          </Cell>
+          {fields.map(({ path }, fieldIndex) => (
+            <Cell
+              className={cx(
+                cellContainerStyles,
+                needsMixedWarning(fields[fieldIndex]) && mixedCellStyles
+              )}
+              key={`item-${path}-${fieldIndex}`}
+            >
+              <div
+                className={cx(
+                  cellStyles,
+                  !fields[fieldIndex].checked && cellUncheckedStyles
+                )}
+                title={`${values[fieldIndex] || 'empty string'}`}
+              >
+                {values[fieldIndex] === '' ? (
+                  <i>empty string</i>
+                ) : (
+                  values[fieldIndex]
+                )}
+              </div>
+            </Cell>
+          ))}
+        </Row>
+      )}
+    </Table>
   );
 }
 

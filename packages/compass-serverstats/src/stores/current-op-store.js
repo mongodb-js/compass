@@ -52,10 +52,8 @@ const CurrentOpStore = Reflux.createStore({
   },
 
   killOp: function(id) {
-    this.dataService.command('admin', { killOp: 1, op: id }, (err) => {
-      if (err) {
-        Actions.dbError({'op': 'currentOp', 'error': err });
-      }
+    this.dataService.killOp(id).catch((err) => {
+      Actions.dbError({ op: 'currentOp', error: err });
     });
   },
 

@@ -10,6 +10,8 @@ import {
   STAGE_OPERATORS,
 } from '@mongodb-js/mongodb-constants';
 
+const DEFAULT_SERVER_VERSION = '999.999.999';
+
 const ALL_COMPLETIONS = [
   ...ACCUMULATORS,
   ...BSON_TYPES,
@@ -61,7 +63,7 @@ export function createCompletionFilter(
 ) {
   const currentServerVersion =
     serverVersion.match(/^(?<version>\d+?\.\d+?\.\d+?)/)?.groups?.version ??
-    serverVersion;
+    DEFAULT_SERVER_VERSION;
   return ({ value, version: minServerVersion, meta }: Completion) => {
     return (
       value.toLowerCase().startsWith(prefix.toLowerCase()) &&
@@ -136,7 +138,7 @@ export function completer(
   options: CompleteOptions = {},
   completions: Completion[] = ALL_COMPLETIONS
 ): CompletionResult[] {
-  const { serverVersion = '999.999.999', fields = [], meta } = options;
+  const { serverVersion = DEFAULT_SERVER_VERSION, fields = [], meta } = options;
   const completionsFilter = createCompletionFilter(prefix, serverVersion, meta);
   const completionsWithFields = ([] as Completion[]).concat(
     completions,

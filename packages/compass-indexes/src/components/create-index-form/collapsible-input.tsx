@@ -1,5 +1,5 @@
 import { CollapsibleFieldSet, TextInput } from '@mongodb-js/compass-components';
-import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules/create-index';
@@ -54,14 +54,13 @@ export const CollapsibleInput: React.FunctionComponent<
       disabled={disabled}
     >
       {type === 'code' ? (
-        <Editor
-          text={value}
+        <CodemirrorMultilineEditor
           data-testid={inputId}
-          variant={EditorVariant.Shell}
+          text={value}
           onChangeText={(newVal) => {
             onChange(name, newVal);
           }}
-          name={inputId}
+          id={inputId}
           aria-labelledby={id}
           readOnly={disabled}
         />

@@ -554,8 +554,8 @@ describe('CSFLE / QE', function () {
         expect(json).to.include('30303030');
         expect(json).to.include('__safeContent__');
 
-        await browser.hover('[data-testid="editable-json"]');
-        await browser.clickVisible('[data-testid="edit-document-button"]');
+        await browser.hover(Selectors.JSONDocumentCard);
+        await browser.clickVisible(Selectors.JSONEditDocumentButton);
 
         const newjson = JSON.stringify({
           ...JSON.parse(json),
