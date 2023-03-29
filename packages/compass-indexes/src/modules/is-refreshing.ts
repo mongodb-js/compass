@@ -38,7 +38,7 @@ export const refreshIndexes = (): ThunkAction<
   Actions
 > => {
   return (dispatch) => {
-    dispatch(fetchIndexes());
+    void dispatch(fetchIndexes());
     dispatch({
       type: ActionTypes.RefreshStarted,
     });

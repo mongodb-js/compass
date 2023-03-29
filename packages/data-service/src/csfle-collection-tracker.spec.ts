@@ -51,7 +51,6 @@ describe('CSFLECollectionTracker', function () {
           kmsProviders: { local: { key: 'A'.repeat(128) } },
           keyVaultNamespace: `${dbName}.kv`,
           extraOptions: {
-            // @ts-expect-error next driver release has types
             cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
           },
           ...autoEncryption,
@@ -62,7 +61,7 @@ describe('CSFLECollectionTracker', function () {
     const someKey1 = (await dataService.createDataKey('local')) as Binary;
     const someKey2 = (await dataService.createDataKey('local')) as Binary;
     return [
-      (dataService as DataServiceImpl).getCSFLECollectionTracker(),
+      (dataService as DataServiceImpl)['_getCSFLECollectionTracker'](),
       dataService,
       someKey1,
       someKey2,

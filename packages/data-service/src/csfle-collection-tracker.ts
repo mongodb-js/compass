@@ -66,6 +66,11 @@ export interface CSFLECollectionTracker {
   knownSchemaForCollection(
     ns: string
   ): Promise<{ hasSchema: boolean; encryptedFields: CSFLEEncryptedFieldsSet }>;
+
+  updateCollectionInfo(
+    namespace: string,
+    result: CollectionInfoNameOnly & Partial<CollectionInfo>
+  ): void;
 }
 
 class CSFLEEncryptedFieldsSetImpl implements CSFLEEncryptedFieldsSet {
@@ -242,10 +247,6 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     this._dataService = dataService;
     this._crudClient = crudClient;
 
-    this._dataService.on(
-      'collectionInfoFetched',
-      this._updateCollectionInfoFromDataService.bind(this)
-    );
     this._processClientSchemaDefinitions();
 
     const { autoEncrypter } = this._crudClient.options;
@@ -362,16 +363,10 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     return info;
   }
 
-  _updateCollectionInfoFromDataService(
-    opts: { databaseName: string; nameOnly?: boolean },
+  updateCollectionInfo(
+    ns: string,
     result: CollectionInfoNameOnly & Partial<CollectionInfo>
   ): void {
-    if (opts.nameOnly) {
-      // This listCollections result does not contain information that is useful for us.
-      return;
-    }
-
-    const ns = `${opts.databaseName}.${result.name}`;
     log.info(
       mongoLogId(1_001_000_121),
       'CSFLECollectionTracker',

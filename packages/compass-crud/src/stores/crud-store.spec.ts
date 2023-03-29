@@ -811,9 +811,9 @@ describe('store', function () {
             .yields(null, {});
           isUpdateAllowedStub = sinon.stub().resolves(false);
           sinon.stub(dataService, 'getCSFLEMode').returns('enabled');
-          sinon.stub(dataService, 'getCSFLECollectionTracker').returns({
-            isUpdateAllowed: isUpdateAllowedStub,
-          });
+          sinon
+            .stub(dataService, 'isUpdateAllowed')
+            .callsFake(isUpdateAllowedStub);
         });
 
         it('rejects the update and emits update-error', async function () {
@@ -962,9 +962,9 @@ describe('store', function () {
             .yields(null, {});
           isUpdateAllowedStub = sinon.stub().resolves(false);
           sinon.stub(dataService, 'getCSFLEMode').returns('enabled');
-          sinon.stub(dataService, 'getCSFLECollectionTracker').returns({
-            isUpdateAllowed: isUpdateAllowedStub,
-          });
+          sinon
+            .stub(dataService, 'isUpdateAllowed')
+            .callsFake(isUpdateAllowedStub);
         });
 
         it('rejects the update and emits update-error', async function () {
@@ -1339,14 +1339,11 @@ describe('store', function () {
       beforeEach(function () {
         knownSchemaForCollection = sinon.stub();
         isUpdateAllowed = sinon.stub();
-        const csfleCollectionTracker = {
-          knownSchemaForCollection,
-          isUpdateAllowed,
-        };
         getCSFLEMode = sinon.stub(dataService, 'getCSFLEMode');
         sinon
-          .stub(dataService, 'getCSFLECollectionTracker')
-          .returns(csfleCollectionTracker);
+          .stub(dataService, 'knownSchemaForCollection')
+          .callsFake(knownSchemaForCollection);
+        sinon.stub(dataService, 'isUpdateAllowed').callsFake(isUpdateAllowed);
       });
 
       afterEach(function () {

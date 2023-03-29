@@ -43,7 +43,7 @@ describe('create index module', function () {
       clearErrorSpy = null;
       emitSpy = null;
     });
-    it('errors if fields are undefined', function () {
+    it('errors if fields are undefined', async function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
           type: ErrorActionTypes.HandleError,
@@ -54,10 +54,10 @@ describe('create index module', function () {
       const state = () => ({
         fields: [{ name: '', type: '' }],
       });
-      createIndex()(dispatch, state);
+      await createIndex()(dispatch, state);
       expect(errorSpy.calledOnce).to.equal(true);
     });
-    it('errors if TTL is not number', function () {
+    it('errors if TTL is not number', async function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
           type: ErrorActionTypes.HandleError,
@@ -69,10 +69,10 @@ describe('create index module', function () {
         fields: [{ name: 'abc', type: 'def' }],
         options: createOptions({ expireAfterSeconds: 'abc' }),
       });
-      createIndex()(dispatch, state);
+      await createIndex()(dispatch, state);
       expect(errorSpy.calledOnce).to.equal(true);
     });
-    it('errors if PFE is not JSON', function () {
+    it('errors if PFE is not JSON', async function () {
       const dispatch = (res) => {
         expect(res).to.have.property('type', ErrorActionTypes.HandleError);
         expect(res)
@@ -84,10 +84,10 @@ describe('create index module', function () {
         fields: [{ name: 'abc', type: 'def' }],
         options: createOptions({ partialFilterExpression: 'abc' }),
       });
-      createIndex()(dispatch, state);
+      await createIndex()(dispatch, state);
       expect(errorSpy.calledOnce).to.equal(true);
     });
-    it('calls createIndex with correct options', function () {
+    it('calls createIndex with correct options', async function () {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           switch (res.type) {
@@ -126,7 +126,7 @@ describe('create index module', function () {
         },
         namespace: 'db.coll',
         dataService: {
-          createIndex: (ns, spec, options, cb) => {
+          createIndex: (ns, spec, options) => {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
@@ -139,11 +139,11 @@ describe('create index module', function () {
               unique: true,
               sparse: true,
             });
-            cb(null);
+            return Promise.resolve();
           },
         },
       });
-      createIndex()(dispatch, state);
+      await createIndex()(dispatch, state);
       expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(inProgressSpy.calledTwice).to.equal(
@@ -156,7 +156,7 @@ describe('create index module', function () {
       );
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
-    it('does not generate name if empty', function () {
+    it('does not generate name if empty', async function () {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           switch (res.type) {
@@ -193,7 +193,7 @@ describe('create index module', function () {
           emit: emitSpy,
         },
         dataService: {
-          createIndex: (ns, spec, options, cb) => {
+          createIndex: (ns, spec, options) => {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
@@ -204,11 +204,11 @@ describe('create index module', function () {
               partialFilterExpression: { a: 1 },
               unique: true,
             });
-            cb(null);
+            return Promise.resolve();
           },
         },
       });
-      createIndex()(dispatch, state);
+      await createIndex()(dispatch, state);
       expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(inProgressSpy.calledTwice).to.equal(
@@ -221,7 +221,7 @@ describe('create index module', function () {
       );
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
-    it('handles error in createIndex', function () {
+    it('handles error in createIndex', async function () {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           switch (res.type) {
@@ -256,17 +256,17 @@ describe('create index module', function () {
         namespace: 'db.coll',
         appRegistry: {},
         dataService: {
-          createIndex: (ns, spec, options, cb) => {
+          createIndex: (ns, spec, options) => {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
               name: 'test name',
             });
-            cb({ message: 'test err' });
+            return Promise.reject({ message: 'test err' });
           },
         },
       });
-      createIndex()(dispatch, state);
+      await createIndex()(dispatch, state);
       expect(inProgressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'

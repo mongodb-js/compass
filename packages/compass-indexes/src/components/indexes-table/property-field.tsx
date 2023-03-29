@@ -20,7 +20,7 @@ const containerStyles = css({
   alignItems: 'baseline',
 });
 
-const partialTooltip = (partialFilterExpression: JSON) => {
+const partialTooltip = (partialFilterExpression: unknown) => {
   return `partialFilterExpression: ${JSON.stringify(partialFilterExpression)}`;
 };
 
@@ -29,13 +29,13 @@ const ttlTooltip = (expireAfterSeconds: number) => {
 };
 
 export const getPropertyTooltip = (
-  property: IndexDefinition['properties'][0],
+  property: string | undefined,
   extra: IndexDefinition['extra']
 ): string | null => {
   return property === 'ttl'
     ? ttlTooltip(extra.expireAfterSeconds as number)
     : property === 'partial'
-    ? partialTooltip(extra.partialFilterExpression as JSON)
+    ? partialTooltip(extra.partialFilterExpression)
     : null;
 };
 
@@ -95,12 +95,12 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
 
   return (
     <div className={containerStyles}>
-      {properties.map((property) => {
+      {properties?.map((property) => {
         return (
           <PropertyBadgeWithTooltip
             key={property}
             text={property}
-            link={getIndexHelpLink(property.toUpperCase() as any) ?? '#'}
+            link={getIndexHelpLink(property?.toUpperCase()) ?? '#'}
             tooltip={getPropertyTooltip(property, extra)}
           />
         );
@@ -108,7 +108,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
           text={cardinality}
-          link={getIndexHelpLink(cardinality.toUpperCase() as any) ?? '#'}
+          link={getIndexHelpLink(cardinality?.toUpperCase()) ?? '#'}
         />
       )}
       {extra.status === 'inprogress' && (
