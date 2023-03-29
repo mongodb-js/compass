@@ -1,7 +1,6 @@
 import path from 'path';
 import chai from 'chai';
 import { promises as fs } from 'fs';
-import os from 'os';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
@@ -920,86 +919,6 @@ describe('Collection import', function () {
       Selectors.closeToastButton(Selectors.ImportToast)
     );
     await toastElement.waitForDisplayed({ reverse: true });
-  });
-
-  describe('importing a large file', function () {
-    let csvFilePath: string;
-    let tmpdir: string;
-
-    beforeEach(async function () {
-      // Create temp file with 10 million documents.
-      let tenMillionDocuments = '_id,name,info\n';
-      for (let i = 0; i < 10_000_000; i++) {
-        tenMillionDocuments += `${i},name-${i},info-{i}\n`;
-      }
-
-      tmpdir = path.join(
-        os.tmpdir(),
-        `test-import-large-file-${Date.now().toString(32)}`
-      );
-      await fs.mkdir(tmpdir, { recursive: true });
-      csvFilePath = path.join(tmpdir, 'large-file.csv');
-
-      await fs.writeFile(csvFilePath, tenMillionDocuments);
-    });
-
-    afterEach(async function () {
-      await fs.rmdir(tmpdir, { recursive: true });
-    });
-
-    it('can be aborted', async function () {
-      await browser.navigateToCollectionTab(
-        'test',
-        'import-abort',
-        'Documents'
-      );
-
-      // Open the import modal.
-      await browser.clickVisible(Selectors.AddDataButton);
-      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
-      await insertDocumentOption.waitForDisplayed();
-      await browser.clickVisible(Selectors.ImportFileOption);
-
-      // Select the file.
-      await browser.selectFile(Selectors.ImportFileInput, csvFilePath);
-
-      // Wait for the modal to appear.
-      const importModal = await browser.$(Selectors.ImportModal);
-      await importModal.waitForDisplayed();
-
-      // Skip the analyze fields
-      await browser.clickVisible(Selectors.ImportSkipAnalyze);
-
-      // Confirm import.
-      await browser.clickVisible(Selectors.ImportConfirm);
-
-      // Wait for the in progress toast to appear and click stop.
-      await browser.clickVisible(Selectors.ImportToastAbort);
-
-      // Wait for the abort toast to appear.
-      await browser
-        .$(Selectors.closeToastButton(Selectors.ImportToast))
-        .waitForDisplayed();
-
-      const toastElement = await browser.$(Selectors.ImportToast);
-      // Check it displays that the import was aborted.
-      const toastText = await toastElement.getText();
-      expect(toastText).to.include('Import aborted.');
-
-      const messageElement = await browser.$(
-        Selectors.DocumentListActionBarMessage
-      );
-      const documentsText = await messageElement.getText();
-      expect(documentsText).to.not.equal('1 – 20 of 10000000');
-      const result = await getFirstListDocument(browser);
-      expect(result._id).to.exist;
-
-      // Close toast.
-      await browser.clickVisible(
-        Selectors.closeToastButton(Selectors.ImportToast)
-      );
-      await toastElement.waitForDisplayed({ reverse: true });
-    });
   });
 
   describe('aborting an import', function () {
