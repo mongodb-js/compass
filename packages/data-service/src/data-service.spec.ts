@@ -312,16 +312,11 @@ describe('DataService', function () {
           );
       });
 
-      it('removes an index from a collection', function (done) {
+      it('removes an index from a collection', async function () {
         const namespace = testNamespace;
-        dataService.dropIndex(namespace, 'a_1', function (error) {
-          assert.equal(null, error);
-          dataService.indexes(namespace, {}, function (err, indexes) {
-            assert.equal(null, err);
-            expect(indexes).to.not.have.property('name', 'a_1');
-            done();
-          });
-        });
+        await dataService.dropIndex(namespace, 'a_1');
+        const indexes = await dataService.indexes(namespace);
+        expect(indexes).to.not.have.property('name', 'a_1');
       });
     });
 
@@ -761,48 +756,33 @@ describe('DataService', function () {
 
     describe('#createIndex', function () {
       context('when options are provided', function () {
-        it('creates a new index with the provided options', function (done) {
+        it('creates a new index with the provided options', async function () {
           const namespace = testNamespace;
           const spec = { a: 1 };
           const options = { unique: true };
-          dataService.createIndex(namespace, spec, options, function (error) {
-            assert.equal(null, error);
-            dataService.indexes(namespace, {}, function (err, indexes) {
-              assert.equal(null, err);
-              expect(indexes.length).to.equal(2);
-              done();
-            });
-          });
+          await dataService.createIndex(namespace, spec, options);
+          const indexes = await dataService.indexes(namespace, {});
+          expect(indexes.length).to.equal(2);
         });
       });
 
       context('when no options are provided', function () {
-        it('creates a new single index', function (done) {
+        it('creates a new single index', async function () {
           const namespace = testNamespace;
           const spec = { b: 1 };
           const options = {};
-          dataService.createIndex(namespace, spec, options, function (error) {
-            assert.equal(null, error);
-            dataService.indexes(namespace, {}, function (err, indexes) {
-              assert.equal(null, err);
-              expect(indexes.length).to.equal(2);
-              done();
-            });
-          });
+          await dataService.createIndex(namespace, spec, options);
+          const indexes = await dataService.indexes(namespace, {});
+          expect(indexes.length).to.equal(2);
         });
 
-        it('creates a new compound index', function (done) {
+        it('creates a new compound index', async function () {
           const namespace = testNamespace;
           const spec = { a: -1, b: 1 };
           const options = {};
-          dataService.createIndex(namespace, spec, options, function (error) {
-            assert.equal(null, error);
-            dataService.indexes(namespace, {}, function (err, indexes) {
-              assert.equal(null, err);
-              expect(indexes.length).to.equal(2);
-              done();
-            });
-          });
+          await dataService.createIndex(namespace, spec, options);
+          const indexes = await dataService.indexes(namespace, {});
+          expect(indexes.length).to.equal(2);
         });
       });
     });
@@ -822,13 +802,10 @@ describe('DataService', function () {
     });
 
     describe('#indexes', function () {
-      it('returns the indexes', function (done) {
-        dataService.indexes(testNamespace, {}, function (err, indexes) {
-          assert.equal(null, err);
-          expect(indexes[0].name).to.equal('_id_');
-          expect(indexes[0].size).to.be.a('number');
-          done();
-        });
+      it('returns the indexes', async function () {
+        const indexes = await dataService.indexes(testNamespace);
+        expect(indexes[0].name).to.equal('_id_');
+        expect(indexes[0].size).to.be.a('number');
       });
     });
 
