@@ -211,17 +211,10 @@ describe('DataService', function () {
         }
       });
 
-      it('drops a collection', function (done) {
-        dataService.dropCollection(`${testDatabaseName}.bar`, function (error) {
-          assert.equal(null, error);
-          dataService
-            .listCollections(testDatabaseName, {})
-            .then(function (items) {
-              expect(items).to.not.include({ name: 'bar', options: {} });
-              done();
-            })
-            .catch(done);
-        });
+      it('drops a collection', async function () {
+        await dataService.dropCollection(`${testDatabaseName}.bar`);
+        const items = await dataService.listCollections(testDatabaseName);
+        expect(items).to.not.include({ name: 'bar', options: {} });
       });
 
       it('drops a collection with fle2 options', async function () {
@@ -256,14 +249,7 @@ describe('DataService', function () {
         expect(items).to.include('enxcol_.fle2.ecc');
         expect(items).to.include('enxcol_.fle2.ecoc');
 
-        await new Promise<void>((resolve, reject) => {
-          dataService.dropCollection(
-            `${testDatabaseName}.fle2`,
-            function (error) {
-              error ? reject(error) : resolve();
-            }
-          );
-        });
+        await dataService.dropCollection(`${testDatabaseName}.fle2`);
 
         items = (
           await mongoClient
@@ -271,6 +257,7 @@ describe('DataService', function () {
             .listCollections({}, { nameOnly: true })
             .toArray()
         ).map(({ name }) => name);
+
         expect(items).to.not.include('fle2');
         expect(items).to.not.include('enxcol_.fle2.esc');
         expect(items).to.not.include('enxcol_.fle2.ecc');
@@ -587,16 +574,12 @@ describe('DataService', function () {
 
     describe('#collectionStats', function () {
       context('when the collection is not a system collection', function () {
-        it('returns an object with the collection stats', function (done) {
-          dataService.collectionStats(
-            `${testDatabaseName}`,
-            testCollectionName,
-            function (err, stats) {
-              assert.equal(null, err);
-              expect(stats.name).to.equal(testCollectionName);
-              done();
-            }
+        it('returns an object with the collection stats', async function () {
+          const stats = await dataService.collectionStats(
+            testDatabaseName,
+            testCollectionName
           );
+          expect(stats.name).to.equal(testCollectionName);
         });
       });
     });
@@ -617,12 +600,9 @@ describe('DataService', function () {
     });
 
     describe('#updateCollection', function () {
-      it('returns the update result', function (done) {
-        dataService.updateCollection(testNamespace, {}, function (err, result) {
-          assert.equal(null, err);
-          expect(result.ok).to.equal(1.0);
-          done();
-        });
+      it('returns the update result', async function () {
+        const result = await dataService.updateCollection(testNamespace);
+        expect(result.ok).to.equal(1);
       });
     });
 
@@ -731,26 +711,15 @@ describe('DataService', function () {
         await mongoClient.db(testDatabaseName).dropCollection('foo');
       });
 
-      it('creates a new collection', function (done) {
+      it('creates a new collection', async function () {
         const options = {};
-        dataService.createCollection(
-          `${testDatabaseName}.foo`,
-          options,
-          function (error) {
-            if (error) {
-              done(error);
-              return;
-            }
-            dataService
-              .collectionInfo(testDatabaseName, 'foo')
-              .then((collInfo) => {
-                expect(collInfo).to.have.property('name', 'foo');
-                expect(collInfo).to.have.property('type', 'collection');
-                done();
-              })
-              .catch(done);
-          }
+        await dataService.createCollection(`${testDatabaseName}.foo`, options);
+        const collInfo = await dataService.collectionInfo(
+          testDatabaseName,
+          'foo'
         );
+        expect(collInfo).to.have.property('name', 'foo');
+        expect(collInfo).to.have.property('type', 'collection');
       });
     });
 
@@ -1014,52 +983,6 @@ describe('DataService', function () {
         assert.equal(docs.length, 2);
         assert.strictEqual(docs[0].a, undefined);
         assert.strictEqual(docs[1].a, undefined);
-      });
-    });
-
-    describe('#collections', function () {
-      context('when no readonly views exist', function () {
-        it('returns the collections', function (done) {
-          dataService['_collections'](
-            `${testDatabaseName}`,
-            function (err, collections) {
-              assert.equal(null, err);
-              expect(collections[0].name).to.not.equal(undefined);
-              done();
-            }
-          );
-        });
-      });
-
-      context('when readonly views exist', function () {
-        afterEach(async function () {
-          await mongoClient.db(testDatabaseName).dropCollection('readonlyfoo');
-          await mongoClient.db(testDatabaseName).dropCollection('system.views');
-        });
-
-        it('returns empty stats for the readonly views', function (done) {
-          const pipeline = [{ $match: { name: testCollectionName } }];
-          const options = { viewOn: testCollectionName, pipeline: pipeline };
-          dataService.createCollection(
-            `${testDatabaseName}.readonlyfoo`,
-            options,
-            function (error) {
-              if (error) {
-                assert.notEqual(null, error.message);
-                done();
-              } else {
-                dataService['_collections'](
-                  `${testDatabaseName}`,
-                  function (err, collections) {
-                    assert.equal(null, err);
-                    expect(collections[0].name).to.not.equal(undefined);
-                    done();
-                  }
-                );
-              }
-            }
-          );
-        });
       });
     });
 
@@ -1646,7 +1569,7 @@ describe('DataService', function () {
         expect(dataService._initializedClient('META')).to.equal(b);
       });
 
-      it('resets clients after updateCollection', function (done) {
+      it('resets clients after updateCollection', async function () {
         const mockConfig = {
           commands: {
             collMod: { ok: 1 },
@@ -1659,30 +1582,26 @@ describe('DataService', function () {
             },
           },
         };
-        const dataService: any = createDataServiceWithMockedClient(mockConfig);
+        const dataService = createDataServiceWithMockedClient(mockConfig);
         // Ensure that _crudClient and _metadataClient differ
-        const fakeCrudClient = (
-          createDataServiceWithMockedClient(mockConfig) as any
-        )._crudClient;
-        dataService._crudClient = fakeCrudClient;
+        const fakeCrudClient =
+          createDataServiceWithMockedClient(mockConfig)['_crudClient'];
 
-        const fakeClonedClient = (
-          createDataServiceWithMockedClient(mockConfig) as any
-        )._crudClient;
-        fakeCrudClient[createClonedClient] = sinon
-          .stub()
-          .resolves(fakeClonedClient);
+        dataService['_crudClient'] = fakeCrudClient;
 
-        dataService.updateCollection(
-          'test.test',
-          {
-            validator: { $jsonSchema: {} },
-          },
-          (err) => {
-            expect(dataService._crudClient).to.equal(fakeClonedClient);
-            done(err);
-          }
-        );
+        const fakeClonedClient =
+          createDataServiceWithMockedClient(mockConfig)['_crudClient'];
+
+        if (fakeCrudClient) {
+          fakeCrudClient[createClonedClient] = sinon
+            .stub()
+            .resolves(fakeClonedClient);
+        }
+
+        await dataService.updateCollection('test.test', {
+          validator: { $jsonSchema: {} },
+        });
+        expect(dataService['_crudClient']).to.equal(fakeClonedClient);
       });
     });
   });

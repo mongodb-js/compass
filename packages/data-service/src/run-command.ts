@@ -1,4 +1,10 @@
-import type { Document, Db, RunCommandOptions, ServerSessionId } from 'mongodb';
+import type {
+  Document,
+  Db,
+  RunCommandOptions,
+  ServerSessionId,
+  CollStats,
+} from 'mongodb';
 import { ReadPreference } from 'mongodb';
 import type { Binary } from 'bson';
 
@@ -152,6 +158,11 @@ interface RunDiagnosticsCommand {
   (db: Db, spec: { top: 1 }, options?: RunCommandOptions): Promise<{
     totals: Record<string, unknown>;
   }>;
+  (
+    db: Db,
+    spec: { collStats: string },
+    options?: RunCommandOptions
+  ): Promise<CollStats>;
 }
 
 export type ListDatabasesOptions = {
@@ -273,6 +284,11 @@ interface RunAdministrationCommand {
     spec: { currentOp: 1; $all?: boolean },
     options?: RunCommandOptions
   ): Promise<{ inprog: Array<Document> }>;
+  (
+    db: Db,
+    spec: { collMod: string; [flags: string]: unknown },
+    options?: RunCommandOptions
+  ): Promise<Document>;
 }
 
 /**

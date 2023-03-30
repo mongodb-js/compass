@@ -1,6 +1,5 @@
 import { callbackify } from 'util';
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
-import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
 import type {
@@ -44,6 +43,7 @@ import type {
   TopologyType,
   Db,
   IndexInformationOptions,
+  CollectionInfo,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -276,42 +276,36 @@ export interface DataService {
    *
    * @param databaseName - The database name.
    * @param collectionName - The collection name.
-   * @param callback - The callback.
    */
   collectionStats(
     databaseName: string,
-    collectionName: string,
-    callback: Callback<CollectionStats>
-  ): void;
+    collectionName: string
+  ): Promise<CollectionStats>;
 
   /**
    * Creates a collection
    *
    * @param ns - The namespace.
    * @param options - The options.
-   * @param callback - The callback.
    */
   createCollection(
     ns: string,
-    options: CreateCollectionOptions,
-    callback: Callback<Collection<Document>>
-  ): void;
+    options: CreateCollectionOptions
+  ): Promise<Collection<Document>>;
 
   /**
    * Update a collection.
    *
    * @param ns - The namespace.
    * @param flags - The flags.
-   * @param callback - The callback.
    */
   updateCollection(
     ns: string,
     // Collection name to update that will be passed to the collMod command will
     // be derived from the provided namespace, this is why we are explicitly
     // prohibiting to pass collMod flag here
-    flags: Document & { collMod?: never },
-    callback: Callback<Document>
-  ): void;
+    flags: Document & { collMod?: never }
+  ): Promise<Document>;
 
   /**
    * Drops a collection from a database
@@ -319,7 +313,7 @@ export interface DataService {
    * @param ns - The namespace.
    * @param callback - The callback.
    */
-  dropCollection(ns: string, callback: Callback<boolean>): void;
+  dropCollection(ns: string): Promise<boolean>;
 
   /**
    * Count the number of documents in the collection.
@@ -778,35 +772,10 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  private _collections(
+  async collectionStats(
     databaseName: string,
-    callback: Callback<CollectionStats[]>
-  ): void {
-    if (databaseName === 'system') {
-      return callback(null, []);
-    }
-    this._collectionNames(databaseName, (error, names) => {
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      // @ts-expect-error async typings are not nice :(
-      async.parallel(
-        (names || []).map((name) => {
-          return (done: Callback<CollectionStats>) => {
-            this.collectionStats(databaseName, name, done);
-          };
-        }),
-        callback
-      );
-    });
-  }
-
-  collectionStats(
-    databaseName: string,
-    collectionName: string,
-    callback: Callback<CollectionStats>
-  ): void {
+    collectionName: string
+  ): Promise<CollectionStats> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_031),
       'Fetching collection info',
@@ -817,20 +786,17 @@ export class DataServiceImpl implements DataService {
     // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
     // we can switch this over to using the CRUD client instead.
     const db = this._database(databaseName, 'META');
-    callbackify(db.command.bind(db))(
-      { collStats: collectionName, verbose: true },
-      (error, data) => {
-        logop(error);
-        if (error && !error.message.includes('is a view, not a collection')) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(
-          null,
-          this._buildCollectionStats(databaseName, collectionName, data || {})
-        );
+    try {
+      const data = await runCommand(db, { collStats: collectionName });
+      logop(null, data);
+      return this._buildCollectionStats(databaseName, collectionName, data);
+    } catch (error) {
+      logop(error);
+      if (!(error as Error).message.includes('is a view, not a collection')) {
+        throw this._translateErrorMessage(error);
       }
-    );
+      return this._buildCollectionStats(databaseName, collectionName, {});
+    }
   }
 
   async collectionInfo(
@@ -1218,31 +1184,25 @@ export class DataServiceImpl implements DataService {
     );
   }
 
-  createCollection(
+  async createCollection(
     ns: string,
-    options: CreateCollectionOptions,
-    callback: Callback<Collection<Document>>
-  ): void {
-    const collectionName = this._collectionName(ns);
-    const db = this._database(ns, 'CRUD');
+    options: CreateCollectionOptions
+  ): Promise<Collection<Document>> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_036),
       'Running createCollection',
       { ns, options }
     );
-
-    callbackify(allArgumentsMandatory(db.createCollection.bind(db)))(
-      collectionName,
-      options,
-      (error: any, result: any) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    const collectionName = this._collectionName(ns);
+    const db = this._database(ns, 'CRUD');
+    try {
+      const result = await db.createCollection(collectionName, options);
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   async createIndex(
@@ -1340,7 +1300,7 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  dropCollection(ns: string, callback: Callback<boolean>): void {
+  async dropCollection(ns: string): Promise<boolean> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_059),
       'Running dropCollection',
@@ -1351,25 +1311,27 @@ export class DataServiceImpl implements DataService {
     const collName = this._collectionName(ns);
     const coll = db.collection(collName);
 
-    const cursor = db.listCollections({ name: collName }, { nameOnly: false });
-    callbackify(cursor.toArray.bind(cursor))((_errIgnore, result) => {
-      const options: DropCollectionOptions = {};
-      const encryptedFieldsInfo = result?.[0]?.options?.encryptedFields;
-      if (encryptedFieldsInfo) {
-        options.encryptedFields = encryptedFieldsInfo;
-      }
-      callbackify(allArgumentsMandatory(coll.drop.bind(coll)))(
-        options,
-        (error, result) => {
-          logop(error, result);
-          if (error) {
-            // @ts-expect-error Callback without result...
-            return callback(this._translateErrorMessage(error));
-          }
-          callback(null, result);
-        }
-      );
-    });
+    let result: CollectionInfo | null = null;
+    try {
+      [result] = await db
+        .listCollections({ name: collName }, { nameOnly: false })
+        .toArray();
+    } catch {
+      // ignore
+    }
+    const options: DropCollectionOptions = {};
+    const encryptedFieldsInfo = result?.options?.encryptedFields;
+    if (encryptedFieldsInfo) {
+      options.encryptedFields = encryptedFieldsInfo;
+    }
+    try {
+      const result = await coll.drop(options);
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   dropDatabase(name: string, callback: Callback<boolean>): void {
@@ -1739,14 +1701,13 @@ export class DataServiceImpl implements DataService {
     );
   }
 
-  updateCollection(
+  async updateCollection(
     ns: string,
     // Collection name to update that will be passed to the collMod command will
     // be derived from the provided namespace, this is why we are explicitly
     // prohibiting to pass collMod flag here
-    flags: Document & { collMod?: never },
-    callback: Callback<Document>
-  ): void {
+    flags: Document & { collMod?: never } = {}
+  ): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_050),
       'Running updateCollection',
@@ -1754,30 +1715,22 @@ export class DataServiceImpl implements DataService {
     );
     const collectionName = this._collectionName(ns);
     const db = this._database(ns, 'CRUD');
-    // Order of arguments is important here, collMod is a command name and it
-    // should always be the first one in the object
-    const command = {
-      collMod: collectionName,
-      ...flags,
-    };
-    callbackify(db.command.bind(db))(command, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      // Reset the CSFLE-enabled client (if any) to clear
-      // any collection metadata caches that might still be active.
-      this._resetCRUDClient().then(
-        () => {
-          callback(null, result);
-        },
-        (error: any) => {
-          // @ts-expect-error Callback without result...
-          callback(this._translateErrorMessage(error));
-        }
-      );
-    });
+    try {
+      const result = await runCommand(db, {
+        // Order of arguments is important here, collMod is a command name and it
+        // should always be the first one in the object
+        collMod: collectionName,
+        ...flags,
+      });
+      // Reset the CSFLE-enabled client (if any) to clear any collection
+      // metadata caches that might still be active.
+      await this._resetCRUDClient();
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   bulkWrite(

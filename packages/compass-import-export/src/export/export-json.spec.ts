@@ -28,8 +28,8 @@ const testNS = `${testDB}.test-col`;
 
 describe('exportJSON', function () {
   let dataService: DataService;
-  let dropCollection;
-  let createCollection;
+  let dropCollection: DataService['dropCollection'];
+  let createCollection: DataService['createCollection'];
   let insertOne: any;
   let insertMany: any;
   let tmpdir: string;
@@ -47,12 +47,8 @@ describe('exportJSON', function () {
       connectionString: 'mongodb://localhost:27018/local',
     });
 
-    dropCollection = promisify(dataService.dropCollection.bind(dataService));
-
-    createCollection = promisify(
-      dataService.createCollection.bind(dataService)
-    );
-
+    dropCollection = dataService.dropCollection.bind(dataService);
+    createCollection = dataService.createCollection.bind(dataService);
     insertOne = promisify(dataService.insertOne.bind(dataService));
     insertMany = promisify(dataService.insertMany.bind(dataService));
 

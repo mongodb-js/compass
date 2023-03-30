@@ -1,11 +1,13 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import { appRegistryActivated } from '../modules/app-registry';
 import { dataServiceConnected } from '../modules/data-service';
 import reducer, { open } from '../modules/drop-collection/drop-collection';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
+  store.dispatch(appRegistryActivated(appRegistry));
   /**
    * Set the data service in the store when connected.
    *

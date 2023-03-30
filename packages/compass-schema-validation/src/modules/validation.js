@@ -393,7 +393,7 @@ export function validationFromCollection(err, { validation } = {}) {
  * @returns {Function} The function.
  */
 export const saveValidation = (validation) => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
     const namespace = state.namespace;
@@ -411,21 +411,20 @@ export const saveValidation = (validation) => {
         validation_level: validation.validationLevel,
       };
       track('Schema Validation Updated', trackEvent);
-      dataService.updateCollection(
-        `${namespace.database}.${namespace.collection}`,
-        {
-          validator: savedValidation.validator,
-          validationAction: savedValidation.validationAction,
-          validationLevel: savedValidation.validationLevel,
-        },
-        (error) => {
-          if (error) {
-            return dispatch(validationSaveFailed(error));
+      try {
+        await dataService.updateCollection(
+          `${namespace.database}.${namespace.collection}`,
+          {
+            validator: savedValidation.validator,
+            validationAction: savedValidation.validationAction,
+            validationLevel: savedValidation.validationLevel,
           }
-
-          return dispatch(fetchValidation(namespace));
-        }
-      );
+        );
+      } catch (error) {
+        dispatch(validationSaveFailed(error));
+      } finally {
+        dispatch(fetchValidation(namespace));
+      }
     }
   };
 };

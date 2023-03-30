@@ -2,11 +2,9 @@ import os from 'os';
 import _ from 'lodash';
 import assert from 'assert';
 import { EJSON } from 'bson';
-import type { Document } from 'bson';
 import { MongoBulkWriteError } from 'mongodb';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import { Readable } from 'stream';
 import chai from 'chai';
 import sinon from 'sinon';
@@ -34,24 +32,18 @@ chai.use(chaiAsPromised);
 
 describe('importCSV', function () {
   let dataService: DataService;
-  let dropCollection;
-  let createCollection;
-  let updateCollection: (ns: string, options: any) => Promise<Document>;
+  let dropCollection: DataService['dropCollection'];
+  let createCollection: DataService['createCollection'];
+  let updateCollection: DataService['updateCollection'];
 
   beforeEach(async function () {
     dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
 
-    dropCollection = promisify(dataService.dropCollection.bind(dataService));
-
-    createCollection = promisify(
-      dataService.createCollection.bind(dataService)
-    );
-
-    updateCollection = promisify(
-      dataService.updateCollection.bind(dataService)
-    );
+    dropCollection = dataService.dropCollection.bind(dataService);
+    createCollection = dataService.createCollection.bind(dataService);
+    updateCollection = dataService.updateCollection.bind(dataService);
 
     try {
       await dropCollection('db.col');

@@ -25,11 +25,7 @@ describe('export [module]', function () {
       const TEST_COLLECTION_NAME = 'local.foobar';
 
       afterEach(async function () {
-        const dropCollection = promisify(dataService.dropCollection).bind(
-          dataService
-        );
-
-        await dropCollection(TEST_COLLECTION_NAME);
+        await dataService.dropCollection(TEST_COLLECTION_NAME);
         await dataService.disconnect().catch((e) => {
           console.error('Failed to disconnet:', e);
         });
@@ -40,12 +36,9 @@ describe('export [module]', function () {
           connectionString: 'mongodb://localhost:27018/local',
         });
 
-        const createCollection = promisify(dataService.createCollection).bind(
-          dataService
-        );
         const insertMany = promisify(dataService.insertMany).bind(dataService);
 
-        await createCollection(TEST_COLLECTION_NAME, {});
+        await dataService.createCollection(TEST_COLLECTION_NAME, {});
         await insertMany(
           TEST_COLLECTION_NAME,
           [
@@ -63,11 +56,13 @@ describe('export [module]', function () {
 
         // Manually awaiting a thunk to make sure that store is ready for the
         // tests
-        await actions.openExport({
-          namespace: TEST_COLLECTION_NAME,
-          query: {},
-          count: 0,
-        })(store.dispatch, store.getState);
+        await store.dispatch(
+          actions.openExport({
+            namespace: TEST_COLLECTION_NAME,
+            query: {},
+            count: 0,
+          })
+        );
       });
 
       async function configureAndStartExport(

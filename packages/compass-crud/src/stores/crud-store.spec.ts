@@ -1,5 +1,6 @@
 import util from 'util';
 import Connection from 'mongodb-connection-model';
+import type { DataService } from 'mongodb-data-service';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
@@ -115,9 +116,9 @@ function waitForState(store, cb, timeout) {
 describe('store', function () {
   this.timeout(5000);
 
-  let dataService;
-  let createCollection;
-  let dropCollection;
+  let dataService: DataService;
+  let createCollection: DataService['createCollection'];
+  let dropCollection: DataService['dropCollection'];
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
@@ -128,12 +129,8 @@ describe('store', function () {
     const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect(info.connectionOptions);
 
-    createCollection = util.promisify(
-      dataService.createCollection.bind(dataService)
-    );
-    dropCollection = util.promisify(
-      dataService.dropCollection.bind(dataService)
-    );
+    createCollection = dataService.createCollection.bind(dataService);
+    dropCollection = dataService.dropCollection.bind(dataService);
 
     // Add some validation so that we can test what happens when insert/update
     // fails below.

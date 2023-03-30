@@ -2,6 +2,7 @@ import util from 'util';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import Connection from 'mongodb-connection-model';
+import type { DataService } from 'mongodb-data-service';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 
 import {
@@ -30,7 +31,7 @@ function delay(ms) {
 describe('cancellable-queries', function () {
   this.timeout(5000);
 
-  let dataService;
+  let dataService: DataService;
   let abortController;
   let signal;
   let currentOpsByNS;
@@ -42,12 +43,8 @@ describe('cancellable-queries', function () {
     const insertOne = util.promisify(dataService.insertOne.bind(dataService));
     const insertMany = util.promisify(dataService.insertMany.bind(dataService));
     const deleteMany = util.promisify(dataService.deleteMany.bind(dataService));
-    const createCollection = util.promisify(
-      dataService.createCollection.bind(dataService)
-    );
-    const dropCollection = util.promisify(
-      dataService.dropCollection.bind(dataService)
-    );
+    const createCollection = dataService.createCollection.bind(dataService);
+    const dropCollection = dataService.dropCollection.bind(dataService);
 
     currentOpsByNS = async function (ns) {
       const ops = await dataService.currentOp(false);
