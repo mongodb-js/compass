@@ -87,7 +87,7 @@ const CurrentOpStore = Reflux.createStore({
     let error = null; let response;
 
     try {
-      response = this.dataService.currentOp(false);
+      response = await this.dataService.currentOp(false);
     } catch (err) {
       error = err;
     }

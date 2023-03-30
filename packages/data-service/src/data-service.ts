@@ -1818,7 +1818,7 @@ export class DataServiceImpl implements DataService {
     );
     const admin = this._database('admin', 'META');
     try {
-      const result = runCommand(admin, { serverStatus: 1 });
+      const result = await runCommand(admin, { serverStatus: 1 });
       logop(null, result);
       return result;
     } catch (error) {
@@ -1831,7 +1831,7 @@ export class DataServiceImpl implements DataService {
     const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
     const adminDb = this._database('admin', 'META');
     try {
-      const result = runCommand(adminDb, { top: 1 });
+      const result = await runCommand(adminDb, { top: 1 });
       logop(null, result);
       return result;
     } catch (error) {

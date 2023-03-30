@@ -32,7 +32,7 @@ const ServerStatsStore = Reflux.createStore({
     }
     let error = null; let doc;
     try {
-      doc = this.dataService.serverStatus();
+      doc = await this.dataService.serverStatus();
     } catch (err) {
       error = err;
     }
