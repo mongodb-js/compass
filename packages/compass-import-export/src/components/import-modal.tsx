@@ -153,10 +153,6 @@ function ImportModal({
     React
   );
 
-  const handleImportBtnClicked = useCallback(() => {
-    startImport();
-  }, [startImport]);
-
   if (isOpen && !fileName && errors.length === 0) {
     // Show the file input when we don't have a file to import yet.
     return (
@@ -221,7 +217,7 @@ function ImportModal({
       <ModalFooter>
         <Button
           data-testid="import-button"
-          onClick={handleImportBtnClicked}
+          onClick={startImport}
           disabled={
             !fileName ||
             status === STARTED ||

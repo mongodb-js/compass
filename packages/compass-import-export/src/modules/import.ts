@@ -265,14 +265,16 @@ export const startImport = () => {
     const errors: ErrorJSON[] = [];
 
     let errorLogFilePath;
+    let errorLogWriteStream: fs.WriteStream | undefined;
     try {
       errorLogFilePath = await getErrorLogPath(fileName);
+
+      errorLogWriteStream = errorLogFilePath
+        ? fs.createWriteStream(errorLogFilePath)
+        : undefined;
     } catch (err: any) {
       errors.push(err as Error);
     }
-    const errorLogWriteStream = errorLogFilePath
-      ? fs.createWriteStream(errorLogFilePath)
-      : undefined;
 
     log.info(
       mongoLogId(1001000080),
