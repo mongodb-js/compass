@@ -117,8 +117,6 @@ describe('store', function () {
   this.timeout(5000);
 
   let dataService: DataService;
-  let createCollection: DataService['createCollection'];
-  let dropCollection: DataService['dropCollection'];
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
@@ -129,19 +127,16 @@ describe('store', function () {
     const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect(info.connectionOptions);
 
-    createCollection = dataService.createCollection.bind(dataService);
-    dropCollection = dataService.dropCollection.bind(dataService);
-
     // Add some validation so that we can test what happens when insert/update
     // fails below.
 
     try {
-      await dropCollection('compass-crud.test');
+      await dataService.dropCollection('compass-crud.test');
     } catch (err) {
       // noop
     }
 
-    await createCollection('compass-crud.test', {
+    await dataService.createCollection('compass-crud.test', {
       validator: {
         $jsonSchema: {
           bsonType: 'object',
@@ -1796,12 +1791,12 @@ describe('store', function () {
         store.setState({ isTimeSeries: true });
 
         try {
-          await dropCollection('compass-crud.timeseries');
+          await dataService.dropCollection('compass-crud.timeseries');
         } catch (err) {
           // noop
         }
 
-        await createCollection('compass-crud.timeseries', {
+        await dataService.createCollection('compass-crud.timeseries', {
           timeseries: { timeField: 'timestamp ' },
         });
       });

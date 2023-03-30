@@ -29,25 +29,18 @@ chai.use(chaiAsPromised);
 
 describe('importJSON', function () {
   let dataService: DataService;
-  let dropCollection: DataService['dropCollection'];
-  let createCollection: DataService['createCollection'];
-  let updateCollection: DataService['updateCollection'];
 
   beforeEach(async function () {
     dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
 
-    dropCollection = dataService.dropCollection.bind(dataService);
-    createCollection = dataService.createCollection.bind(dataService);
-    updateCollection = dataService.updateCollection.bind(dataService);
-
     try {
-      await dropCollection('db.col');
+      await dataService.dropCollection('db.col');
     } catch (err) {
       // ignore
     }
-    await createCollection('db.col', {});
+    await dataService.createCollection('db.col', {});
   });
 
   afterEach(async function () {
@@ -451,7 +444,7 @@ describe('importJSON', function () {
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
-    await updateCollection(ns, {
+    await dataService.updateCollection(ns, {
       validator: {
         $jsonSchema: {
           required: ['xxx'],
@@ -485,7 +478,7 @@ describe('importJSON', function () {
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
-    await updateCollection(ns, {
+    await dataService.updateCollection(ns, {
       validator: {
         $jsonSchema: {
           required: ['xxx'],
