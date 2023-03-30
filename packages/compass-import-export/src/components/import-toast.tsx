@@ -1,18 +1,14 @@
-import React, { useEffect, useRef } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import path from 'path';
 
-import type { RootImportState } from '../stores/import-store';
-import type { ProcessStatus } from '../constants/process-status';
-import { cancelImport } from '../modules/import';
 import { ImportToastBody } from './import-toast-body';
 import { openFile } from '../utils/open-file';
 
 const importToastId = 'import-toast';
 const toastMessageCharacterLimit = 200;
 
-function showInProgressToast({
+export function showInProgressToast({
   fileName,
   cancelImport,
   docsWritten,
@@ -38,7 +34,7 @@ function showInProgressToast({
   });
 }
 
-function showStartingToast({
+export function showStartingToast({
   fileName,
   cancelImport,
 }: {
@@ -59,7 +55,7 @@ function showStartingToast({
   });
 }
 
-function showCompletedToast({ docsWritten }: { docsWritten: number }) {
+export function showCompletedToast({ docsWritten }: { docsWritten: number }) {
   openToast(importToastId, {
     title: 'Import completed.',
     body: `${docsWritten} documents written.`,
@@ -85,13 +81,13 @@ function getToastErrorsText(errors: Error[]) {
   return errorsText;
 }
 
-function showCompletedWithErrorsToast({
+export function showCompletedWithErrorsToast({
   errors,
   docsWritten,
   docsProcessed,
   errorLogFilePath,
 }: {
-  errorLogFilePath: string;
+  errorLogFilePath?: string;
   errors: Error[];
   docsWritten: number;
   docsProcessed: number;
@@ -102,7 +98,9 @@ function showCompletedWithErrorsToast({
     body: (
       <ImportToastBody
         statusMessage={statusMessage}
-        actionHandler={() => void openFile(errorLogFilePath)}
+        actionHandler={
+          errorLogFilePath ? () => void openFile(errorLogFilePath) : undefined
+        }
         actionText="view log"
       />
     ),
@@ -110,11 +108,11 @@ function showCompletedWithErrorsToast({
   });
 }
 
-function showCancelledToast({
+export function showCancelledToast({
   errorLogFilePath,
   errors,
 }: {
-  errorLogFilePath: string;
+  errorLogFilePath?: string;
   errors: Error[];
 }) {
   if (errors.length > 0) {
@@ -124,7 +122,9 @@ function showCancelledToast({
       body: (
         <ImportToastBody
           statusMessage={statusMessage}
-          actionHandler={() => void openFile(errorLogFilePath)}
+          actionHandler={
+            errorLogFilePath ? () => void openFile(errorLogFilePath) : undefined
+          }
           actionText="view log"
         />
       ),
@@ -135,121 +135,15 @@ function showCancelledToast({
 
   openToast(importToastId, {
     title: 'Import aborted.',
-    body: null,
+    body: <></>,
     variant: 'warning',
   });
 }
 
-function showFailedToast(err: Error | undefined) {
+export function showFailedToast(err: Error | undefined) {
   openToast(importToastId, {
     title: 'Failed to import with the following error:',
     body: err?.message,
     variant: 'warning',
   });
 }
-
-function useImportToast({
-  cancelImport,
-  docsWritten,
-  errorLogFilePath,
-  docsProcessed,
-  status,
-  errors,
-  fileName,
-}: {
-  cancelImport: () => void;
-  docsWritten: number;
-  errorLogFilePath: string;
-  docsProcessed: number;
-  status: ProcessStatus;
-  errors: Error[];
-  fileName: string;
-}) {
-  useEffect(() => {
-    if (status === 'STARTED') {
-      if (docsProcessed > 0) {
-        showInProgressToast({
-          cancelImport,
-          docsWritten,
-          fileName,
-        });
-      } else {
-        showStartingToast({
-          cancelImport,
-          fileName,
-        });
-      }
-    } else if (status === 'COMPLETED') {
-      if (errors.length > 0) {
-        showCompletedWithErrorsToast({
-          docsWritten,
-          errors,
-          docsProcessed,
-          errorLogFilePath: errorLogFilePath,
-        });
-      } else {
-        showCompletedToast({
-          docsWritten,
-        });
-      }
-    } else if (status === 'CANCELED') {
-      showCancelledToast({
-        errors,
-        errorLogFilePath: errorLogFilePath,
-      });
-    } else if (status === 'FAILED') {
-      showFailedToast(errors[0]);
-    }
-  }, [
-    status,
-    docsProcessed,
-    docsWritten,
-    fileName,
-    errorLogFilePath,
-    errors,
-    cancelImport,
-  ]);
-
-  const abortIfInProgress = useRef(() => {
-    /* noop */
-  });
-  useEffect(() => {
-    abortIfInProgress.current = () => {
-      // When the component is dismounted, we abort the import if
-      // it's in progress and update the toast.
-      if (status === 'STARTED') {
-        cancelImport();
-        showCancelledToast({
-          errors,
-          errorLogFilePath: errorLogFilePath,
-        });
-      }
-    };
-  }, [errors, errorLogFilePath, cancelImport, status]);
-
-  useEffect(() => {
-    return () => {
-      // Abort the import operation when it's in progress and the import is going away.
-      abortIfInProgress.current?.();
-    };
-  }, []);
-
-  // We return null as we're using this hook as a standalone component.
-  return null;
-}
-
-const mapStateToProps = (state: RootImportState) => ({
-  errors: state.importData.errors,
-  fileName: state.importData.fileName,
-  status: state.importData.status,
-  docsWritten: state.importData.docsWritten,
-  errorLogFilePath: state.importData.errorLogFilePath,
-  docsProcessed: state.importData.docsProcessed,
-  stopOnErrors: state.importData.stopOnErrors,
-});
-
-const ConnectedImportToast = connect(mapStateToProps, {
-  cancelImport,
-})(useImportToast);
-
-export { ConnectedImportToast as ImportToast };

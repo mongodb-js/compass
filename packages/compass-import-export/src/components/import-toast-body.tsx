@@ -32,21 +32,23 @@ export function ImportToastBody({
   actionText,
 }: {
   statusMessage: string;
-  actionHandler: () => void;
+  actionHandler?: () => void;
   actionText: string;
 }) {
   return (
     <>
       <span>{statusMessage}</span>
-      <Link
-        as="button"
-        data-testid={`toast-action-${actionText}`}
-        onClick={actionHandler}
-        hideExternalIcon
-        className={toastActionStyles}
-      >
-        {actionText}
-      </Link>
+      {!!actionHandler && (
+        <Link
+          as="button"
+          data-testid={`toast-action-${actionText}`}
+          onClick={actionHandler}
+          hideExternalIcon
+          className={toastActionStyles}
+        >
+          {actionText}
+        </Link>
+      )}
     </>
   );
 }

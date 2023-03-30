@@ -49,6 +49,14 @@ import type {
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
+import {
+  showCancelledToast,
+  showCompletedToast,
+  showCompletedWithErrorsToast,
+  showFailedToast,
+  showInProgressToast,
+  showStartingToast,
+} from '../components/import-toast';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -304,6 +312,11 @@ export const startImport = () => {
       })
     );
 
+    showStartingToast({
+      cancelImport,
+      fileName,
+    });
+
     let promise: Promise<ImportResult>;
 
     const errorCallback = (err: ErrorJSON) => {
@@ -334,6 +347,13 @@ export const startImport = () => {
         // so that the errors aren't overridden.
         return;
       }
+
+      showInProgressToast({
+        cancelImport,
+        docsWritten,
+        fileName,
+      });
+
       dispatch(
         onProgress({
           docsWritten,
@@ -393,6 +413,8 @@ export const startImport = () => {
       });
       debug('Error while importing:', err.stack);
 
+      showFailedToast(err);
+
       return dispatch(onFailed(err));
     } finally {
       importDone = true;
@@ -416,6 +438,26 @@ export const startImport = () => {
       docsProcessed: result.docsProcessed,
     });
 
+    if (result.aborted) {
+      showCancelledToast({
+        errors,
+        errorLogFilePath: errorLogFilePath,
+      });
+    } else {
+      if (errors.length > 0) {
+        showCompletedWithErrorsToast({
+          docsWritten: result.docsWritten,
+          errors,
+          docsProcessed: result.docsProcessed,
+          errorLogFilePath: errorLogFilePath,
+        });
+      } else {
+        showCompletedToast({
+          docsWritten: result.docsWritten,
+        });
+      }
+    }
+
     dispatch(
       onFinished({
         aborted: !!result.aborted,
@@ -437,7 +479,11 @@ export const startImport = () => {
       hasExcluded: exclude.length > 0,
       hasTransformed: transform.length > 0,
     };
-    dispatch(globalAppRegistryEmit('import-finished', payload));
+
+    // Don't emit when the data service is disconnected.
+    if (dataService === state.dataService.dataService) {
+      dispatch(globalAppRegistryEmit('import-finished', payload));
+    }
   };
 };
 
