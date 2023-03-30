@@ -149,7 +149,9 @@ interface RunDiagnosticsCommand {
     spec: { serverStatus: 1 },
     options?: RunCommandOptions
   ): Promise<Document>;
-  (db: Db, spec: { top: 1 }, options?: RunCommandOptions): Promise<Document>;
+  (db: Db, spec: { top: 1 }, options?: RunCommandOptions): Promise<{
+    totals: Record<string, unknown>;
+  }>;
 }
 
 export type ListDatabasesOptions = {
@@ -266,6 +268,11 @@ interface RunAdministrationCommand {
     spec: { killOp: 1; id: number; comment?: string },
     options?: RunCommandOptions
   ): Promise<{ info: string; ok: 1 }>;
+  (
+    db: Db,
+    spec: { currentOp: 1; $all?: boolean },
+    options?: RunCommandOptions
+  ): Promise<{ inprog: Array<Document> }>;
 }
 
 /**

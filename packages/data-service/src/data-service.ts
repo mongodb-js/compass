@@ -223,19 +223,19 @@ export interface DataService {
    * @param includeAll - if true also list currently idle operations in the result.
    * @param callback - The callback.
    */
-  currentOp(includeAll: boolean, callback: Callback<Document>): void;
+  currentOp(includeAll: boolean): Promise<{ inprog: Document }>;
 
   /**
-   * Returns the result of serverStats.
+   * Returns the result of serverStatus.
    */
-  serverstats(callback: Callback<Document>): void;
+  serverStatus(): Promise<Document>;
 
   /**
    * Returns the result of top.
    *
    * @param callback - the callback.
    */
-  top(callback: Callback<Document>): void;
+  top(): Promise<{ totals: Record<string, unknown> }>;
 
   /**
    * Kills operation by operation id
@@ -1788,78 +1788,56 @@ export class DataServiceImpl implements DataService {
     return this._collection(ns, 'CRUD').bulkWrite(operations, options);
   }
 
-  currentOp(includeAll: boolean, callback: Callback<Document>): void {
+  async currentOp(includeAll: boolean): Promise<{ inprog: Document[] }> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_053),
       'Running currentOp'
     );
     const db = this._database('admin', 'META');
-
-    callbackify(db.command.bind(db))(
-      { currentOp: 1, $all: includeAll },
-      (error, result) => {
-        logop(error);
-        if (error) {
-          const logop = this._startLogOp(
-            mongoLogId(1_001_000_054),
-            'Searching $cmd.sys.inprog manually'
-          );
-          const coll = db.collection('$cmd.sys.inprog');
-
-          callbackify(
-            (coll.findOne as (filter: Document) => Promise<Document>).bind(coll)
-          )({ $all: includeAll }, (error2, result2) => {
-            logop(error2);
-            if (error2) {
-              // @ts-expect-error Callback without result...
-              return callback(this._translateErrorMessage(error2));
-            }
-            callback(null, result2);
-          });
-          return;
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const cmdResult = await runCommand(db, {
+        currentOp: 1,
+        $all: includeAll,
+      });
+      logop(null, cmdResult);
+      return cmdResult;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   getLastSeenTopology(): null | TopologyDescription {
     return this._lastSeenTopology;
   }
 
-  serverstats(callback: Callback<Document>): void {
+  async serverStatus(): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_061),
-      'Running serverStats'
+      'Running serverStatus'
     );
     const admin = this._database('admin', 'META');
-    void runCommand(admin, { serverStatus: 1 }).then(
-      (result) => {
-        logop(null);
-        callback(null, result);
-      },
-      (error) => {
-        logop(error);
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-    );
+    try {
+      const result = await runCommand(admin, { serverStatus: 1 });
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
-  top(callback: Callback<Document>): void {
+  async top(): Promise<{ totals: Record<string, unknown> }> {
     const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
     const adminDb = this._database('admin', 'META');
-    void runCommand(adminDb, { top: 1 }).then(
-      (result) => {
-        logop(null);
-        callback(null, result);
-      },
-      (error) => {
-        logop(error);
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-    );
+    try {
+      const result = await runCommand(adminDb, { top: 1 });
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   createView(

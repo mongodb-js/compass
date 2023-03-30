@@ -48,10 +48,9 @@ describe('cancellable-queries', function () {
     const dropCollection = util.promisify(
       dataService.dropCollection.bind(dataService)
     );
-    const currentOp = util.promisify(dataService.currentOp.bind(dataService));
 
     currentOpsByNS = async function (ns) {
-      const ops = await currentOp(false);
+      const ops = await dataService.currentOp(false);
       return ops.inprog.filter((op) => op.ns === ns);
     };
 

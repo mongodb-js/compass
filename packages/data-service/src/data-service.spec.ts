@@ -1064,38 +1064,26 @@ describe('DataService', function () {
     });
 
     describe('#currentOp', function () {
-      it('returns an object with the currentOp', function (done) {
-        dataService.currentOp(true, function (err, result) {
-          assert.equal(null, err);
-          expect(result.inprog).to.not.equal(undefined); // TODO: are these tests enough?
-          done();
-        });
+      it('returns an object with the currentOp', async function () {
+        const result = await dataService.currentOp(true);
+        expect(result.inprog).to.not.equal(undefined); // TODO: are these tests enough?
       });
     });
 
-    describe('#serverstats', function () {
-      it('returns an object with the serverstats', function (done) {
-        dataService.serverstats(function (err, result) {
-          assert.equal(null, err);
-          expect(result.ok).to.equal(1);
-          done();
-        });
+    describe('#serverStatus', function () {
+      it('returns an object with the serverstats', async function () {
+        const result = await dataService.serverStatus();
+        expect(result.ok).to.equal(1);
       });
     });
 
     describe('#top', function () {
-      it('returns an object with the results from top', function (done) {
-        dataService.top(function (err, result) {
-          if (dataService.isMongos()) {
-            assert(err);
-            expect(err.message).to.contain('top');
-            done();
-            return;
-          }
-          assert.equal(null, err);
-          expect(result.ok).to.equal(1);
-          done();
-        });
+      it('returns an object with the results from top', async function () {
+        if (dataService.isMongos()) {
+          await expect(() => dataService.top()).to.be.rejectedWith(/top/);
+        } else {
+          expect(await dataService.top()).to.have.property('ok', 1);
+        }
       });
     });
 
