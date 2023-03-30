@@ -313,7 +313,7 @@ export const startImport = () => {
     );
 
     showStartingToast({
-      cancelImport,
+      cancelImport: () => dispatch(cancelImport()),
       fileName,
     });
 
@@ -349,7 +349,7 @@ export const startImport = () => {
       }
 
       showInProgressToast({
-        cancelImport,
+        cancelImport: () => dispatch(cancelImport()),
         docsWritten,
         fileName,
       });
