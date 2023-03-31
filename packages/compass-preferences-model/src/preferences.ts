@@ -20,6 +20,7 @@ export type FeatureFlags = {
   lgDarkmode?: boolean;
   debugUseCsfleSchemaMap?: boolean;
   useNewExportBackend?: boolean;
+  useStageWizard?: boolean;
 };
 
 export type UserConfigurablePreferences = FeatureFlags & {
@@ -271,6 +272,23 @@ const featureFlagsProps: Required<{
     description: {
       short: 'New Export Backend',
       long: 'Use the new backend api for exporting documents.',
+    },
+  },
+
+  /**
+   * Feature flag for enabling the use of Stage Wizard
+   * in the Pipeline Builder. Epic: COMPASS-5817
+   */
+  useStageWizard: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Stage Wizard',
+      long: 'Create aggregation stages using Wizard.',
     },
   },
 };

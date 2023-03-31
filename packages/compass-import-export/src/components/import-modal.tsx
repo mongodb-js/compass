@@ -7,8 +7,13 @@ import {
   ModalFooter,
   ModalHeader,
   css,
+  cx,
   spacing,
   FormFieldContainer,
+  Body,
+  Link,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
@@ -25,12 +30,14 @@ import {
 import type { ProcessStatus } from '../constants/process-status';
 import ProgressBar from './progress-bar';
 import { ImportPreview } from './import-preview';
+import ImportPreviewLoader from './import-preview-loader';
 import { ImportOptions } from './import-options';
 import type { AcceptedFileType } from '../constants/file-types';
 import formatNumber from '../utils/format-number';
 import {
   startImport,
   cancelImport,
+  skipCSVAnalyze,
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,
@@ -61,11 +68,25 @@ const closeButtonStyles = css({
   marginRight: spacing[2],
 });
 
+const fieldsHeadingStyles = css({
+  fontWeight: 'bold',
+  paddingBottom: spacing[2],
+});
+
+const fieldsHeadingStylesDark = css({
+  borderBottom: `2px solid ${palette.gray.dark2}`,
+});
+
+const fieldsHeadingStylesLight = css({
+  borderBottom: `2px solid ${palette.gray.light2}`,
+});
+
 type ImportModalProps = {
   isOpen: boolean;
   ns: string;
   startImport: () => void;
   cancelImport: () => void;
+  skipCSVAnalyze: () => void;
   closeImport: () => void;
   errors: Error[];
   status: ProcessStatus;
@@ -91,6 +112,9 @@ type ImportModalProps = {
   docsWritten: number;
   guesstimatedDocsTotal: number;
   guesstimatedDocsProcessed: number;
+
+  analyzeBytesProcessed: number;
+  analyzeBytesTotal: number;
 
   /**
    * See `<ImportPreview />`
@@ -140,19 +164,14 @@ function ImportModal({
   previewLoaded,
   csvAnalyzed,
 }: ImportModalProps) {
+  const darkMode = useDarkMode();
+
   const modalBodyRef = useRef<HTMLDivElement>(null);
-  const handleCancel = useCallback(() => {
-    cancelImport();
-  }, [cancelImport]);
 
   const handleClose = useCallback(() => {
-    handleCancel();
+    cancelImport();
     closeImport();
-  }, [closeImport, handleCancel]);
-
-  const handleImportBtnClicked = useCallback(() => {
-    startImport();
-  }, [startImport]);
+  }, [closeImport, cancelImport]);
 
   // docsTotal is set to actual value only at the very end of processing a
   // stream of documents
@@ -218,14 +237,29 @@ function ImportModal({
         />
         {fileType === 'csv' && (
           <FormFieldContainer>
-            <ImportPreview
-              loaded={previewLoaded}
-              analyzed={csvAnalyzed}
-              onFieldCheckedChanged={toggleIncludeField}
-              setFieldType={setFieldType}
-              values={values}
-              fields={fields as FieldFromCSV[]}
-            />
+            <Body
+              as="h3"
+              className={cx(
+                fieldsHeadingStyles,
+                darkMode ? fieldsHeadingStylesDark : fieldsHeadingStylesLight
+              )}
+            >
+              Specify Fields and Types{' '}
+              <Link href="https://www.mongodb.com/docs/mongodb-shell/reference/data-types/">
+                Learn more about data types
+              </Link>
+            </Body>
+            {csvAnalyzed ? (
+              <ImportPreview
+                loaded={previewLoaded}
+                onFieldCheckedChanged={toggleIncludeField}
+                setFieldType={setFieldType}
+                values={values}
+                fields={fields as FieldFromCSV[]}
+              />
+            ) : (
+              <ImportPreviewLoader />
+            )}
           </FormFieldContainer>
         )}
         <ProgressBar
@@ -269,7 +303,7 @@ function ImportModal({
           <>
             <Button
               data-testid="import-button"
-              onClick={handleImportBtnClicked}
+              onClick={startImport}
               disabled={
                 !fileName ||
                 status === STARTED ||
@@ -308,6 +342,8 @@ const mapStateToProps = (state: RootImportState) => ({
   docsWritten: state.importData.docsWritten,
   guesstimatedDocsTotal: state.importData.guesstimatedDocsTotal,
   guesstimatedDocsProcessed: state.importData.guesstimatedDocsProcessed,
+  analyzeBytesProcessed: state.importData.analyzeBytesProcessed,
+  analyzeBytesTotal: state.importData.analyzeBytesTotal,
   delimiter: state.importData.delimiter,
   stopOnErrors: state.importData.stopOnErrors,
   ignoreBlanks: state.importData.ignoreBlanks,
@@ -323,6 +359,7 @@ const mapStateToProps = (state: RootImportState) => ({
 export default connect(mapStateToProps, {
   startImport,
   cancelImport,
+  skipCSVAnalyze,
   selectImportFileName,
   setDelimiter,
   setStopOnErrors,

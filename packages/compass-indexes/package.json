@@ -63,7 +63,6 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.6",
     "bson": "^5.0.1",
     "compass-preferences-model": "^2.7.0",
-    "mongodb-index-model": "^4.1.2",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -77,7 +76,7 @@
     "chai": "^4.2.0",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^22.3.3",
+    "electron": "^22.0.2",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.5",
@@ -107,7 +106,6 @@
     "@mongodb-js/compass-logging": "^1.1.4",
     "@mongodb-js/mongodb-redux-common": "^2.0.6",
     "bson": "^5.0.1",
-    "compass-preferences-model": "^2.7.0",
-    "mongodb-index-model": "^4.1.2"
+    "compass-preferences-model": "^2.7.0"
   }
 }

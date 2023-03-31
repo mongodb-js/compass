@@ -31,7 +31,7 @@ const editorContainerStyles = css({
   height: '100%',
 });
 
-const editorStyles = css({
+const codeEditorContainerStyles = css({
   flex: 1,
   flexShrink: 0,
   margin: 0,
@@ -47,8 +47,12 @@ const editorContainerStylesLight = css({
   background: palette.gray.light3,
 });
 
-const aceEditorStyles = css({
-  minHeight: '160px',
+// We use custom color here so need to disable default one that we use
+// everywhere else
+const codeEditorStyles = css({
+  '& .cm-editor': {
+    background: 'transparent !important',
+  },
 });
 
 const bannerStyles = css({
@@ -146,16 +150,15 @@ export const StageEditor = ({
         className
       )}
     >
-      <div className={editorStyles}>
+      <div className={codeEditorContainerStyles}>
         <CodemirrorMultilineEditor
           ref={editorRef}
           text={stageValue ?? ''}
           onChangeText={(value: string) => {
             onChange(index, value);
           }}
-          className={aceEditorStyles}
+          className={codeEditorStyles}
           id={`aggregations-stage-editor-${index}`}
-          minLines={5}
           completer={completer}
           annotations={annotations}
           onBlur={onBlurEditor}

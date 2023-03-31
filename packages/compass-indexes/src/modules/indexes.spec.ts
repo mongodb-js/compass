@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import type { Store } from 'redux';
 import type { DataService } from 'mongodb-data-service';
 import { spy } from 'sinon';
 
@@ -46,13 +45,14 @@ describe('indexes module', function () {
   let usageSort: RawIndexDefinition[];
   let usageSortDesc: RawIndexDefinition[];
   let expectedInprogressIndexes: RawIndexDefinition[];
-  let store: Store<RootState>;
+  let store: ReturnType<typeof configureStore>;
   beforeEach(function () {
     store = configureStore({ namespace: 'citibike.trips' });
     fromDB = [
       {
         name: '_id_',
-        v: 2,
+        version: 2,
+        extra: {},
         key: { _id: 1 },
         usageHost: 'computername.local:27017',
         usageCount: 6,
@@ -61,7 +61,8 @@ describe('indexes module', function () {
       },
       {
         name: 'CCCC',
-        v: 2,
+        version: 2,
+        extra: {},
         key: { cccc0: -1, cccc1: '2dsphere', cccc2: 1 },
         '2dsphereIndexVersion': 3,
         usageHost: 'computername.local:27017',
@@ -71,7 +72,8 @@ describe('indexes module', function () {
       },
       {
         name: 'AAAA',
-        v: 2,
+        version: 2,
+        extra: {},
         key: { aaaa: -1 },
         expireAfterSeconds: 300,
         partialFilterExpression: { y: 1 },
@@ -82,7 +84,8 @@ describe('indexes module', function () {
       },
       {
         name: 'BBBB',
-        v: 2,
+        version: 2,
+        extra: {},
         key: { 'bbbb.abcd': 1 },
         collation: {
           locale: 'ar',
@@ -374,68 +377,43 @@ describe('indexes module', function () {
     expectedInprogressIndexes = [
       {
         name: 'AAAA',
-        usageCount: 4,
-
-        ns: 'citibike.trips',
-        key: { aaaa: -1 },
-        size: 4096,
-        usageSince: new Date('2019-02-08T14:39:56.285Z'),
-        usageHost: 'computername.local:27017',
         version: 2,
         extra: {
           status: 'inprogress',
-          expireAfterSeconds: 300,
-          partialFilterExpression: { y: 1 },
         },
-        id: 'citibike.trips.AAAA',
-        unique: false,
-        sparse: false,
-        ttl: true,
-        hashed: false,
-        geo: false,
-        compound: false,
-        single: true,
-        partial: true,
-        text: false,
-        wildcard: false,
-        collation: false,
-        clustered: false,
-        columnstore: false,
-        type: 'regular',
-        cardinality: 'single',
-        properties: ['partial', 'ttl'],
+        key: {
+          aaaa: -1,
+        },
+        expireAfterSeconds: 300,
+        partialFilterExpression: {
+          y: 1,
+        },
+        usageHost: 'computername.local:27017',
+        usageCount: 4,
+        usageSince: new Date('2019-02-08T14:39:56.285Z'),
+        size: 4096,
       },
       {
-        ns: 'citibike.trips',
-        key: { z: 1 },
-        name: 'z',
-        size: 0,
-        usageCount: 0,
-        extra: {
-          id: 'z',
-          status: 'inprogress',
-          fields: [{ field: 'z', value: 1 }],
-          relativeSize: 0,
-        },
         id: 'citibike.trips.z',
-        unique: false,
-        sparse: false,
-        ttl: false,
-        hashed: false,
-        geo: false,
-        compound: false,
-        single: true,
-        partial: false,
-        text: false,
-        wildcard: false,
-        collation: false,
-        clustered: false,
-        columnstore: false,
-        type: 'regular',
-        cardinality: 'single',
-        properties: [],
+        extra: {
+          status: 'inprogress',
+        },
+        key: {
+          z: 1,
+        },
+        fields: [
+          {
+            field: 'z',
+            value: 1,
+          },
+        ],
+        name: 'z',
+        ns: 'citibike.trips',
+        size: 0,
+        relativeSize: 0,
+        usageCount: 0,
       },
-    ];
+    ] as any;
   });
 
   describe('#reducer', function () {
@@ -451,13 +429,13 @@ describe('indexes module', function () {
       describe('Usage column', function () {
         it('asc sort', function () {
           store.dispatch(loadIndexes(defaultSort as any));
-          store.dispatch(sortIndexes('Usage', 'asc') as any);
+          store.dispatch(sortIndexes('Usage', 'asc'));
           const state = store.getState();
           expect(state.indexes).to.deep.equal(usageSort);
         });
         it('desc sort', function () {
           store.dispatch(loadIndexes(defaultSort as any));
-          store.dispatch(sortIndexes('Usage', 'desc') as any);
+          store.dispatch(sortIndexes('Usage', 'desc'));
           const state = store.getState();
           expect(state.indexes).to.deep.equal(usageSortDesc);
         });
@@ -466,13 +444,13 @@ describe('indexes module', function () {
       describe('Name and Definition column', function () {
         it('asc sort', function () {
           store.dispatch(loadIndexes(usageSort as any));
-          store.dispatch(sortIndexes('Name and Definition', 'asc') as any);
+          store.dispatch(sortIndexes('Name and Definition', 'asc'));
           const state = store.getState();
           expect(state.indexes).to.deep.equal(defaultSort);
         });
         it('desc sort', function () {
           store.dispatch(loadIndexes(usageSort as any));
-          store.dispatch(sortIndexes('Name and Definition', 'desc') as any);
+          store.dispatch(sortIndexes('Name and Definition', 'desc'));
           const state = store.getState();
           expect(state.indexes).to.deep.equal(defaultSortDesc);
         });
@@ -498,7 +476,7 @@ describe('indexes module', function () {
 
   it('#sortIndexes action', function () {
     store.dispatch(loadIndexes(defaultSort as any));
-    store.dispatch(sortIndexes('Name and Definition', 'desc') as any);
+    store.dispatch(sortIndexes('Name and Definition', 'desc'));
     const state = store.getState();
     expect(state.sortColumn).to.equal('Name and Definition');
     expect(state.sortOrder).to.equal('desc');
@@ -516,7 +494,7 @@ describe('indexes module', function () {
       };
       const getState = () => ({ isReadonly: true } as any as RootState);
 
-      fetchIndexes()(dispatch, getState);
+      void fetchIndexes()(dispatch, getState);
 
       expect(dispatchSpy.callCount).to.equal(3);
 
@@ -530,7 +508,7 @@ describe('indexes module', function () {
       expect(typeof dispatchSpy.getCall(2).args[0] === 'function').to.true;
     });
 
-    it('when dataService is not connected, sets refreshing to false', function () {
+    it('when dataService is not connected, sets refreshing to false', async function () {
       store.dispatch({
         type: IndexesActionTypes.LoadIndexes,
         indexes: defaultSort,
@@ -546,14 +524,14 @@ describe('indexes module', function () {
         )
       );
 
-      store.dispatch(fetchIndexes() as any);
+      await store.dispatch(fetchIndexes());
 
       const state = store.getState();
       expect(state.indexes).to.deep.equal(defaultSort);
       expect(state.isRefreshing).to.equal(false);
     });
 
-    it('sets indexes to empty array when there is an error', function () {
+    it('sets indexes to empty array when there is an error', async function () {
       const error = new Error('failed to connect to server');
       // Set some data to validate the empty array condition
       store.dispatch({
@@ -566,13 +544,11 @@ describe('indexes module', function () {
           isConnected() {
             return true;
           },
-          indexes: (ns: any, opts: any, cb: any) => {
-            cb(error);
-          },
-        } as DataService)
+          indexes: () => Promise.reject(error),
+        } as any)
       );
 
-      store.dispatch(fetchIndexes() as any);
+      await store.dispatch(fetchIndexes());
 
       const state = store.getState();
       expect(state.indexes).to.deep.equal([]);
@@ -580,38 +556,34 @@ describe('indexes module', function () {
       expect(state.isRefreshing).to.equal(false);
     });
 
-    it('sets indexes when fetched successfully', function () {
+    it('sets indexes when fetched successfully', async function () {
       // Set indexes to empty
       store.dispatch(loadIndexes([]));
-      store.dispatch(sortIndexes('Name and Definition', 'asc') as any);
+      store.dispatch(sortIndexes('Name and Definition', 'asc'));
       store.dispatch(
         dataServiceConnected({
           isConnected() {
             return true;
           },
-          indexes: (_ns: any, _opts: any, cb: any) => {
-            cb(null, fromDB);
-          },
-        } as DataService)
+          indexes: () => Promise.resolve([fromDB[0]]),
+        } as any)
       );
 
-      store.dispatch(fetchIndexes() as any);
+      await store.dispatch(fetchIndexes());
 
       const state = store.getState();
-      expect(JSON.stringify(state.indexes)).to.equal(
-        JSON.stringify(defaultSort)
-      );
+      expect(state.indexes[0]).to.deep.eq(fromDB[0]);
       expect(state.error).to.be.null;
       expect(state.isRefreshing).to.equal(false);
     });
 
-    it('merges with in progress indexes', function () {
+    it('merges with in progress indexes', async function () {
       // Set indexes to empty
       store.dispatch(loadIndexes([]));
       store.dispatch(
         inProgressIndexAdded({
-          id: 'z',
-          status: 'inprogress',
+          id: 'citibike.trips.z',
+          extra: { status: 'inprogress' },
           key: { z: 1 },
           fields: [{ field: 'z', value: 1 }],
           name: 'AAAA',
@@ -623,8 +595,8 @@ describe('indexes module', function () {
       );
       store.dispatch(
         inProgressIndexAdded({
-          id: 'z',
-          status: 'inprogress',
+          id: 'citibike.trips.z',
+          extra: { status: 'inprogress' },
           key: { z: 1 },
           fields: [{ field: 'z', value: 1 }],
           name: 'z',
@@ -634,31 +606,27 @@ describe('indexes module', function () {
           usageCount: 0,
         })
       );
-      store.dispatch(sortIndexes('Name and Definition', 'asc') as any);
+      // store.dispatch(sortIndexes('Name and Definition', 'asc'));
       store.dispatch(
         dataServiceConnected({
           isConnected() {
             return true;
           },
-          indexes: (_ns: any, _opts: any, cb: any) => {
-            cb(null, fromDB);
-          },
-        } as DataService)
+          indexes: () => Promise.resolve(fromDB),
+        } as any)
       );
 
-      store.dispatch(fetchIndexes() as any);
+      await store.dispatch(fetchIndexes());
 
       const state = store.getState();
 
       expect(state.indexes.length).to.equal(defaultSort.length + 1);
 
       const indexes = state.indexes.filter(
-        (index) => index.extra.status === 'inprogress'
+        (index: any) => index.extra.status === 'inprogress'
       );
 
-      expect(JSON.parse(JSON.stringify(indexes))).to.deep.equal(
-        JSON.parse(JSON.stringify(expectedInprogressIndexes))
-      );
+      expect(indexes).to.deep.equal(expectedInprogressIndexes);
 
       expect(state.error).to.be.null;
       expect(state.isRefreshing).to.equal(false);

@@ -11,6 +11,7 @@ const devFeatureFlagFields = [
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
   'useNewExportBackend',
+  'useStageWizard',
 ] as const;
 
 export const publicFeatureFlagFields = ['lgDarkmode'] as const;

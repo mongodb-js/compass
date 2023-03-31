@@ -43,6 +43,14 @@ const editorContainerStyles = css({
   overflow: 'hidden',
 });
 
+// We use custom color here so need to disable default one that we use
+// everywhere else
+const codeEditorStyles = css({
+  '& .cm-editor': {
+    background: 'transparent !important',
+  },
+});
+
 const errorContainerStyles = css({
   flex: 'none',
   marginTop: 'auto',
@@ -133,6 +141,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           completer={completer}
           minLines={16}
           onBlur={onBlurEditor}
+          className={codeEditorStyles}
         />
       </div>
       {showErrorContainer && (

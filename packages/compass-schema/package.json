@@ -110,7 +110,7 @@
     "mongodb-data-service": "^22.5.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-util": "^0.0.3",
-    "mongodb-schema": "^10.0.0",
+    "mongodb-schema": "^10.0.1",
     "numeral": "^1.5.6",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",

@@ -92,7 +92,9 @@ const prepareIndex = ({
     }, '');
   return {
     id: inProgressIndexId,
-    status: 'inprogress',
+    extra: {
+      status: 'inprogress',
+    },
     key: spec,
     fields: inProgressIndexFields,
     name: inProgressIndexName,
@@ -109,7 +111,7 @@ const prepareIndex = ({
  * @returns {Function} The thunk function.
  */
 export const createIndex = () => {
-  return (dispatch: Dispatch, getState: () => RootState) => {
+  return async (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const spec = {} as CreateIndexSpec;
 
@@ -245,35 +247,29 @@ export const createIndex = () => {
           .length > 0,
     };
 
-    state.dataService?.createIndex(
-      ns,
-      spec as IndexSpecification,
-      options,
-      (createErr) => {
-        if (createErr) {
-          dispatch(toggleInProgress(false));
-          dispatch(handleError(createErr as Error));
-          dispatch(
-            localAppRegistryEmit('in-progress-indexes-failed', {
-              inProgressIndexId: inProgressIndex.id,
-              error: createErr.message,
-            })
-          );
-          return;
-        }
-
-        track('Index Created', trackEvent);
-        dispatch(resetForm());
-        dispatch(toggleInProgress(false));
-        dispatch(toggleIsVisible(false));
-        dispatch(
-          localAppRegistryEmit(
-            'in-progress-indexes-removed',
-            inProgressIndex.id
-          )
-        );
-        dispatch(localAppRegistryEmit('refresh-data'));
-      }
-    );
+    try {
+      await state.dataService?.createIndex(
+        ns,
+        spec as IndexSpecification,
+        options
+      );
+      track('Index Created', trackEvent);
+      dispatch(resetForm());
+      dispatch(toggleInProgress(false));
+      dispatch(toggleIsVisible(false));
+      dispatch(
+        localAppRegistryEmit('in-progress-indexes-removed', inProgressIndex.id)
+      );
+      dispatch(localAppRegistryEmit('refresh-data'));
+    } catch (err) {
+      dispatch(toggleInProgress(false));
+      dispatch(handleError(err as Error));
+      dispatch(
+        localAppRegistryEmit('in-progress-indexes-failed', {
+          inProgressIndexId: inProgressIndex.id,
+          error: (err as Error).message,
+        })
+      );
+    }
   };
 };

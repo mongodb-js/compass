@@ -12,12 +12,10 @@ describe('ExplainSummary [Component]', function () {
   const inMemorySort = true;
   const indexType = 'COVERED';
   const index = {
-    fields: {
-      serialize: () => [
-        { field: 'field1', value: 'value1' },
-        { field: 'field2', value: 'value2' },
-      ],
-    },
+    fields: [
+      { field: 'field1', value: 'value1' },
+      { field: 'field2', value: 'value2' },
+    ],
   };
 
   beforeEach(function () {

@@ -1,4 +1,4 @@
-import type { Document, Db, RunCommandOptions } from 'mongodb';
+import type { Document, Db, RunCommandOptions, ServerSessionId } from 'mongodb';
 import { ReadPreference } from 'mongodb';
 import type { Binary } from 'bson';
 
@@ -104,6 +104,9 @@ export type DbStats = {
   fsTotalSize: number;
 };
 
+/**
+ * @see {@link https://www.mongodb.com/docs/manual/reference/command/nav-diagnostic/}
+ */
 interface RunDiagnosticsCommand {
   (
     db: Db,
@@ -141,6 +144,14 @@ interface RunDiagnosticsCommand {
     options?: RunCommandOptions
   ): Promise<AtlasVersionInfo>;
   (db: Db, spec: { ping: 1 }, options?: RunCommandOptions): Promise<unknown>;
+  (
+    db: Db,
+    spec: { serverStatus: 1 },
+    options?: RunCommandOptions
+  ): Promise<Document>;
+  (db: Db, spec: { top: 1 }, options?: RunCommandOptions): Promise<{
+    totals: Record<string, unknown>;
+  }>;
 }
 
 export type ListDatabasesOptions = {
@@ -212,6 +223,9 @@ export type ListCollectionsResult<CollectionType> = {
   cursor: { firstBatch: CollectionType };
 };
 
+/**
+ * @see {@link https://www.mongodb.com/docs/manual/reference/command/nav-administration/}
+ */
 interface RunAdministrationCommand {
   <Parameters extends Record<string, unknown>>(
     db: Db,
@@ -251,12 +265,31 @@ interface RunAdministrationCommand {
   ): Promise<ListCollectionsResult<CollectionInfoNameOnly>>;
   (
     db: Db,
-    spec: { killSessions: unknown[] },
+    spec: { killOp: 1; id: number; comment?: string },
+    options?: RunCommandOptions
+  ): Promise<{ info: string; ok: 1 }>;
+  (
+    db: Db,
+    spec: { currentOp: 1; $all?: boolean },
+    options?: RunCommandOptions
+  ): Promise<{ inprog: Array<Document> }>;
+}
+
+/**
+ * @see {@link https://www.mongodb.com/docs/v6.0/reference/command/nav-sessions/}
+ */
+interface RunSessionCommand {
+  (
+    db: Db,
+    spec: { killSessions: ServerSessionId[] },
     options?: RunCommandOptions
   ): Promise<unknown>;
 }
 
-interface RunCommand extends RunDiagnosticsCommand, RunAdministrationCommand {}
+interface RunCommand
+  extends RunDiagnosticsCommand,
+    RunAdministrationCommand,
+    RunSessionCommand {}
 
 /**
  * Runs command against provided database using db.command. Provides a better

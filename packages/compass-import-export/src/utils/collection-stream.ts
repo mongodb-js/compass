@@ -295,24 +295,3 @@ export const createCollectionWriteStream = function (
 ) {
   return new WritableCollectionStream(dataService, ns, stopOnErrors);
 };
-
-export const createReadableCollectionStream = function (
-  dataService: DataService,
-  ns: string,
-  spec: {
-    filter: Document;
-    limit?: number;
-    skip?: number;
-  } = { filter: {} },
-  projection = {}
-) {
-  const { limit, skip } = spec;
-
-  return dataService
-    .findCursor(ns, spec.filter || {}, {
-      projection,
-      limit,
-      skip,
-    })
-    .stream();
-};

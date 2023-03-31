@@ -229,16 +229,9 @@ const configureStore = (options: ConfigureStoreOptions) => {
       store.dispatch(fieldsChanged(fields.aceFields));
     });
 
-    localAppRegistry.on(
-      'indexes-changed',
-      (ixs: { getAttributes(...args: any[]): IndexInfo }[]) => {
-        store.dispatch(
-          indexesFetched(
-            ixs.map((index) => index.getAttributes({ props: true }, true))
-          )
-        );
-      }
-    );
+    localAppRegistry.on('indexes-changed', (indexes: IndexInfo[]) => {
+      store.dispatch(indexesFetched(indexes));
+    });
   }
 
   if (options.globalAppRegistry) {
