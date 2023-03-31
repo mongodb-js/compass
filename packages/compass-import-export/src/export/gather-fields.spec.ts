@@ -348,8 +348,6 @@ const testDoc = {
 // TODO(COMPASS-6426): Add more tests.
 describe('gatherFields', function () {
   let dataService: DataService;
-  let dropCollection;
-  let createCollection;
   let insertOne;
 
   // We insert documents only once for all of the tests.
@@ -358,20 +356,14 @@ describe('gatherFields', function () {
       connectionString: 'mongodb://localhost:27018/local',
     });
 
-    dropCollection = promisify(dataService.dropCollection.bind(dataService));
-
-    createCollection = promisify(
-      dataService.createCollection.bind(dataService)
-    );
-
     insertOne = promisify(dataService.insertOne.bind(dataService));
 
     try {
-      await dropCollection(testNS);
+      await dataService.dropCollection(testNS);
     } catch (err) {
       // ignore
     }
-    await createCollection(testNS, {});
+    await dataService.createCollection(testNS, {});
 
     await insertOne(testNS, testDoc, {});
   });

@@ -2,6 +2,7 @@ import util from 'util';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import Connection from 'mongodb-connection-model';
+import type { DataService } from 'mongodb-data-service';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 
 import {
@@ -30,7 +31,7 @@ function delay(ms) {
 describe('cancellable-queries', function () {
   this.timeout(5000);
 
-  let dataService;
+  let dataService: DataService;
   let abortController;
   let signal;
   let currentOpsByNS;
@@ -42,12 +43,6 @@ describe('cancellable-queries', function () {
     const insertOne = util.promisify(dataService.insertOne.bind(dataService));
     const insertMany = util.promisify(dataService.insertMany.bind(dataService));
     const deleteMany = util.promisify(dataService.deleteMany.bind(dataService));
-    const createCollection = util.promisify(
-      dataService.createCollection.bind(dataService)
-    );
-    const dropCollection = util.promisify(
-      dataService.dropCollection.bind(dataService)
-    );
 
     currentOpsByNS = async function (ns) {
       const ops = await dataService.currentOp(false);
@@ -57,18 +52,18 @@ describe('cancellable-queries', function () {
     const docs = [...Array(1000).keys()].map((i) => ({ i }));
 
     try {
-      await dropCollection('cancel.numbers');
+      await dataService.dropCollection('cancel.numbers');
     } catch (err) {
       // noop
     }
     await insertMany('cancel.numbers', docs, {});
 
     try {
-      await dropCollection('cancel.empty');
+      await dataService.dropCollection('cancel.empty');
     } catch (err) {
       // noop
     }
-    await createCollection('cancel.empty', {});
+    await dataService.createCollection('cancel.empty', {});
 
     // define a shard key for the cancel.shared collection
     await deleteMany('config.collections', { _id: 'cancel.sharded' }, {});
