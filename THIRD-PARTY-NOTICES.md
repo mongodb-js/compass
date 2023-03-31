@@ -209,6 +209,7 @@ This document was automatically generated on Fri Mar 31 2023.
 | [convert-source-map](#convert-source-map-1.8.0) | 1.8.0 | MIT |
 | [core-js](#core-js-3.17.3) | 3.17.3 | MIT |
 | [core-util-is](#core-util-is-1.0.2) | 1.0.2 | MIT |
+| [cpu-features](#cpu-features-0.0.4) | 0.0.4 | MIT |
 | [crelt](#crelt-1.0.5) | 1.0.5 | MIT |
 | [cross-fetch](#cross-fetch-3.1.5) | 3.1.5 | MIT |
 | [crypt](#crypt-0.0.2) | 0.0.2 | BSD-3-Clause |
@@ -589,12 +590,10 @@ This document was automatically generated on Fri Mar 31 2023.
 | [source-map](#source-map-0.5.7) | 0.5.7 | BSD-3-Clause |
 | [sparse-bitfield](#sparse-bitfield-3.0.3) | 3.0.3 | MIT |
 | [sprintf](#sprintf-0.1.3) | 0.1.3 | BSD-3-Clause |
-| [ssh2](#ssh2-0.8.9) | 0.8.9 | MIT |
-| [ssh2-streams](#ssh2-streams-0.4.10) | 0.4.10 | MIT |
+| [ssh2](#ssh2-1.11.0) | 1.11.0 | MIT |
 | [sshpk](#sshpk-1.16.1) | 1.16.1 | MIT |
 | [stream-chain](#stream-chain-2.2.5) | 2.2.5 | BSD-3-Clause |
 | [stream-json](#stream-json-1.7.5) | 1.7.5 | BSD-3-Clause |
-| [streamsearch](#streamsearch-0.1.2) | 0.1.2 | MIT |
 | [string_decoder](#string_decoder-1.1.1) | 1.1.1 | MIT |
 | [string_decoder](#string_decoder-0.10.31) | 0.10.31 | MIT |
 | [string_decoder](#string_decoder-1.3.0) | 1.3.0 | MIT |
@@ -18979,6 +18978,39 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 
+```
+
+<a id="cpu-features-0.0.4"></a>
+### cpu-features 0.0.4
+
+**License**: MIT
+
+**Author**: Brian White <mscdex@mscdex.net>
+
+**Repository**: https://github.com/mscdex/cpu-features.git
+
+**License Text**:
+
+```
+Copyright Brian White. All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
 ```
 
 <a id="crelt-1.0.5"></a>
@@ -42794,8 +42826,8 @@ THE SOFTWARE.
 
 **Repository**: https://github.com/maritz/node-sprintf.git
 
-<a id="ssh2-0.8.9"></a>
-### ssh2 0.8.9
+<a id="ssh2-1.11.0"></a>
+### ssh2 1.11.0
 
 **License**: MIT
 
@@ -42807,39 +42839,6 @@ THE SOFTWARE.
 
 ```
 Copyright Brian White. All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to
-deal in the Software without restriction, including without limitation the
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-sell copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-IN THE SOFTWARE.
-```
-
-<a id="ssh2-streams-0.4.10"></a>
-### ssh2-streams 0.4.10
-
-**License**: MIT
-
-**Author**: Brian White <mscdex@mscdex.net>
-
-**Repository**: http://github.com/mscdex/ssh2-streams.git
-
-**License Text**:
-
-```
-Copyright 2014 Brian White. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
@@ -42966,39 +42965,6 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-```
-
-<a id="streamsearch-0.1.2"></a>
-### streamsearch 0.1.2
-
-**License**: MIT
-
-**Author**: Brian White <mscdex@mscdex.net>
-
-**Repository**: http://github.com/mscdex/streamsearch.git
-
-**License Text**:
-
-```
-Copyright Brian White. All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to
-deal in the Software without restriction, including without limitation the
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-sell copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-IN THE SOFTWARE.
 ```
 
 <a id="string_decoder-1.1.1"></a>
