@@ -294,6 +294,21 @@ export interface DataService {
   ): Promise<Collection<Document>>;
 
   /**
+   * Create a new view.
+   *
+   * @param name - The collectionName for the view.
+   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param pipeline - The agggregation pipeline for the view.
+   * @param options - Options e.g. collation.
+   */
+  createView(
+    name: string,
+    sourceNs: string,
+    pipeline: Document[],
+    options: CreateCollectionOptions
+  ): Promise<Collection<Document>>;
+
+  /**
    * Update a collection.
    *
    * @param ns - The namespace.
@@ -619,23 +634,6 @@ export interface DataService {
     filter: Filter<Document>,
     options: DeleteOptions,
     callback: Callback<DeleteResult>
-  ): void;
-
-  /**
-   * Create a new view.
-   *
-   * @param name - The collectionName for the view.
-   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
-   * @param pipeline - The agggregation pipeline for the view.
-   * @param options - Options e.g. collation.
-   * @param callback - The callback.
-   */
-  createView(
-    name: string,
-    sourceNs: string,
-    pipeline: Document[],
-    options: CreateCollectionOptions,
-    callback: Callback<Collection<Document>>
   ): void;
 
   /**
@@ -1793,13 +1791,12 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  createView(
+  async createView(
     name: string,
     sourceNs: string,
     pipeline: Document[],
-    options: CreateCollectionOptions,
-    callback: Callback<Collection<Document>>
-  ): void {
+    options: CreateCollectionOptions
+  ): Promise<Collection<Document>> {
     options.viewOn = this._collectionName(sourceNs);
     options.pipeline = pipeline;
 
@@ -1816,18 +1813,14 @@ export class DataServiceImpl implements DataService {
 
     const db = this._database(sourceNs, 'CRUD');
 
-    callbackify(allArgumentsMandatory(db.createCollection.bind(db)))(
-      name,
-      options,
-      (error, result) => {
-        logop(error, result);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const result = await db.createCollection(name, options);
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   sample(

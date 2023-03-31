@@ -133,7 +133,7 @@ export const open = (sourceNs, sourcePipeline, duplicate) => ({
  * @returns {Function} The thunk function.
  */
 export const createView = () => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     debug('creating view!');
     const state = getState();
     const ds = state.dataService.dataService;
@@ -155,28 +155,23 @@ export const createView = () => {
         viewPipeline,
         options
       );
-      ds.createView(viewName, viewSource, viewPipeline, options, (e) => {
-        if (e) {
-          debug('error creating view', e);
-          return stopWithError(dispatch, e);
-        }
-        debug('View created!');
-        track('Aggregation Saved As View', { num_stages: viewPipeline.length });
-        dispatch(
-          globalAppRegistryEmit('compass:aggregations:create-view', {
-            numStages: viewPipeline.length,
-          })
-        );
-        dispatch(
-          globalAppRegistryEmit(
-            'aggregations-open-result-namespace',
-            `${database}.${viewName}`
-          )
-        );
-        dispatch(reset());
-      });
+      await ds.createView(viewName, viewSource, viewPipeline, options);
+      debug('View created!');
+      track('Aggregation Saved As View', { num_stages: viewPipeline.length });
+      dispatch(
+        globalAppRegistryEmit('compass:aggregations:create-view', {
+          numStages: viewPipeline.length,
+        })
+      );
+      dispatch(
+        globalAppRegistryEmit(
+          'aggregations-open-result-namespace',
+          `${database}.${viewName}`
+        )
+      );
+      dispatch(reset());
     } catch (e) {
-      debug('Unexpected error creating view', e);
+      debug('error creating view', e);
       return stopWithError(dispatch, e);
     }
   };
