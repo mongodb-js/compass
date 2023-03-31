@@ -1,6 +1,5 @@
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
-const { promisify } = require('util');
 const toNs = require('mongodb-ns');
 const { getProperties } = require('./collection-properties');
 

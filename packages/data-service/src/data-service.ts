@@ -1795,7 +1795,7 @@ export class DataServiceImpl implements DataService {
     name: string,
     sourceNs: string,
     pipeline: Document[],
-    options: CreateCollectionOptions
+    options: CreateCollectionOptions = {}
   ): Promise<Collection<Document>> {
     options.viewOn = this._collectionName(sourceNs);
     options.pipeline = pipeline;

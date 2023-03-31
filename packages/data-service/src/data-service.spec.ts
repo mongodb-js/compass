@@ -960,16 +960,11 @@ describe('DataService', function () {
           .dropCollection('testViewSourceColl');
       });
 
-      it('creates a new view', function (done) {
-        dataService.createView(
+      it('creates a new view', async function () {
+        await dataService.createView(
           'myView',
           `${testDatabaseName}.testViewSourceColl`,
-          [{ $project: { a: 0 } }],
-          {},
-          function (err) {
-            if (err) return done(err);
-            done();
-          }
+          [{ $project: { a: 0 } }]
         );
       });
 

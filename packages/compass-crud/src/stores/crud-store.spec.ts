@@ -2008,17 +2008,25 @@ describe('store', function () {
         ],
         {},
         (err) => {
-          if (err) return done(err);
-          dataService.createView(
-            'testview',
-            'compass-crud.test',
-            [{ $sort: { cat: 1 } }],
-            {},
-            (createViewError) => {
-              if (createViewError) return done(createViewError);
-              done();
-            }
-          );
+          if (err) {
+            return done(err);
+          }
+
+          dataService
+            .createView(
+              'testview',
+              'compass-crud.test',
+              [{ $sort: { cat: 1 } }],
+              {}
+            )
+            .then(
+              () => {
+                done();
+              },
+              (createViewError) => {
+                done(createViewError);
+              }
+            );
         }
       );
     });

@@ -67,7 +67,7 @@ describe('create collection module', function () {
     };
 
     it('creates a simple collection', async function () {
-      const createCollectionSpy = sinon.spy((ns, options, cb) => cb(null, {}));
+      const createCollectionSpy = sinon.spy(() => Promise.resolve({}));
 
       const dispatched = await testCreateCollection(
         createCollectionSpy,
@@ -84,7 +84,7 @@ describe('create collection module', function () {
     });
 
     it('creates a capped collection', async function () {
-      const createCollectionSpy = sinon.spy((ns, options, cb) => cb(null, {}));
+      const createCollectionSpy = sinon.spy(() => Promise.resolve({}));
 
       const dispatched = await testCreateCollection(
         createCollectionSpy,
@@ -111,7 +111,7 @@ describe('create collection module', function () {
     });
 
     it('creates a time-series collection', async function () {
-      const createCollectionSpy = sinon.spy((ns, options, cb) => cb(null, {}));
+      const createCollectionSpy = sinon.spy(() => Promise.resolve({}));
 
       const dispatched = await testCreateCollection(
         createCollectionSpy,
@@ -136,7 +136,7 @@ describe('create collection module', function () {
     });
 
     it('creates a time-series collection with collation', async function () {
-      const createCollectionSpy = sinon.spy((ns, options, cb) => cb(null, {}));
+      const createCollectionSpy = sinon.spy(() => Promise.resolve({}));
 
       const dispatched = await testCreateCollection(
         createCollectionSpy,
@@ -167,7 +167,7 @@ describe('create collection module', function () {
     });
 
     it('creates a collection with collation', async function () {
-      const createCollectionSpy = sinon.spy((ns, options, cb) => cb(null, {}));
+      const createCollectionSpy = sinon.spy(() => Promise.resolve({}));
 
       const dispatched = await testCreateCollection(
         createCollectionSpy,
@@ -193,7 +193,7 @@ describe('create collection module', function () {
 
     it('handles errors from data service', async function () {
       const err = new Error('error');
-      const createCollectionSpy = sinon.spy((ns, options, cb) => cb(err));
+      const createCollectionSpy = sinon.spy(() => Promise.reject(err));
 
       const dispatched = await testCreateCollection(
         createCollectionSpy,
