@@ -46,7 +46,7 @@ function ImportFileInput({
       id="import-file"
       onChange={handleChooseFile}
       values={values}
-      variant="SMALL"
+      variant="small"
       backend={backend}
     />
   );
