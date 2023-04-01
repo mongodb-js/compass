@@ -1720,10 +1720,10 @@ export class DataServiceImpl implements DataService {
         collMod: collectionName,
         ...flags,
       });
+      logop(null, result);
       // Reset the CSFLE-enabled client (if any) to clear any collection
       // metadata caches that might still be active.
       await this._resetCRUDClient();
-      logop(null, result);
       return result;
     } catch (error) {
       logop(error);

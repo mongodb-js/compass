@@ -420,10 +420,9 @@ export const saveValidation = (validation) => {
             validationLevel: savedValidation.validationLevel,
           }
         );
+        dispatch(fetchValidation(namespace));
       } catch (error) {
         dispatch(validationSaveFailed(error));
-      } finally {
-        dispatch(fetchValidation(namespace));
       }
     }
   };
