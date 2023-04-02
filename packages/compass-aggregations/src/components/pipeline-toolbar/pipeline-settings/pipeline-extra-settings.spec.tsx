@@ -19,6 +19,7 @@ const renderPipelineExtraSettings = (
       onToggleAutoPreview={() => {}}
       onChangePipelineMode={() => {}}
       onToggleSettings={() => {}}
+      onToggleSidePanel={() => {}}
       {...props}
     />
   );
@@ -64,5 +65,29 @@ describe('PipelineExtraSettings', function () {
     renderPipelineExtraSettings();
     const container = screen.getByTestId('pipeline-toolbar-extra-settings');
     expect(within(container).getByTestId('pipeline-builder-toggle')).to.exist;
+  });
+
+  it('calls onToggleSidePanel when clicked', function () {
+    const onToggleSidePanelSpy = spy();
+    renderPipelineExtraSettings({ onToggleSidePanel: onToggleSidePanelSpy });
+    const container = screen.getByTestId('pipeline-toolbar-extra-settings');
+    const button = within(container).getByTestId(
+      'pipeline-toolbar-side-panel-button'
+    );
+    expect(button).to.exist;
+    expect(onToggleSidePanelSpy.calledOnce).to.be.false;
+    userEvent.click(button);
+    expect(onToggleSidePanelSpy.calledOnce).to.be.true;
+  });
+
+  it('disables toggle side panel button in text mode', function () {
+    renderPipelineExtraSettings({
+      pipelineMode: 'as-text',
+    });
+    expect(
+      screen
+        .getByTestId('pipeline-toolbar-side-panel-button')
+        .getAttribute('aria-disabled')
+    ).to.equal('true');
   });
 });

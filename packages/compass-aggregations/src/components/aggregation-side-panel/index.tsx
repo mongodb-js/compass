@@ -56,10 +56,13 @@ type AggregationSidePanelProps = {
   onCloseSidePanel: () => void;
 };
 
-function AggregationSidePanel({ onCloseSidePanel }: AggregationSidePanelProps) {
+export const AggregationSidePanel = ({
+  onCloseSidePanel,
+}: AggregationSidePanelProps) => {
   const darkMode = useDarkMode();
   return (
     <KeylineCard
+      data-testid="aggregation-side-panel"
       className={cx(containerStyles, darkMode && darkModeContainerStyles)}
     >
       <div className={headerStyles}>
@@ -83,7 +86,7 @@ function AggregationSidePanel({ onCloseSidePanel }: AggregationSidePanelProps) {
       </div>
     </KeylineCard>
   );
-}
+};
 
 export default connect(null, {
   onCloseSidePanel: toggleSidePanel,
