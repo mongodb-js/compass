@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  css,
-  spacing,
-  palette,
-  useDarkMode,
-  cx,
-} from '@mongodb-js/compass-components';
+import { css, KeylineCard } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
@@ -16,19 +10,10 @@ import type { RootState } from '../../../modules';
 
 const containerStyles = css({
   display: 'flex',
-  marginLeft: spacing[3],
-  marginRight: spacing[3],
   height: '100%',
-
-  // align with stage editor design
-  border: `1px solid ${palette.gray.light2}`,
-  borderRadius: '4px',
-  boxShadow: `1px 1px 1px ${palette.gray.light2}`,
-});
-
-const containerDarkStyles = css({
-  borderColor: palette.gray.dark2,
-  boxShadow: `1px 1px 1px ${palette.gray.dark2}`,
+  borderBottomLeftRadius: 0,
+  borderBottomRightRadius: 0,
+  borderBottom: 'none',
 });
 
 const noPreviewEditorStyles = css({
@@ -50,25 +35,20 @@ const containerDataTestId = 'pipeline-as-text-workspace';
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
 > = ({ isAutoPreview }) => {
-  const darkMode = useDarkMode();
-
   if (!isAutoPreview) {
     return (
-      <div
+      <KeylineCard
         data-testid={containerDataTestId}
-        className={cx(containerStyles, darkMode && containerDarkStyles)}
+        className={containerStyles}
       >
         <div className={noPreviewEditorStyles}>
           <PipelineEditor />
         </div>
-      </div>
+      </KeylineCard>
     );
   }
   return (
-    <div
-      data-testid={containerDataTestId}
-      className={cx(containerStyles, darkMode && containerDarkStyles)}
-    >
+    <KeylineCard data-testid={containerDataTestId} className={containerStyles}>
       <Resizable
         defaultSize={{
           width: '50%',
@@ -88,7 +68,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
       <div className={resultsStyles}>
         <PipelinePreview />
       </div>
-    </div>
+    </KeylineCard>
   );
 };
 

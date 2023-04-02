@@ -16,6 +16,7 @@ import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { toggleSidePanel } from '../../../modules/side-panel';
 
 const containerStyles = css({
   display: 'flex',
@@ -42,6 +43,7 @@ type PipelineExtraSettingsProps = {
   onToggleAutoPreview: (newVal: boolean) => void;
   onChangePipelineMode: (newVal: PipelineMode) => void;
   onToggleSettings: () => void;
+  onToggleSidePanel: () => void;
 };
 
 export const PipelineExtraSettings: React.FunctionComponent<
@@ -53,6 +55,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleAutoPreview,
   onChangePipelineMode,
   onToggleSettings,
+  onToggleSidePanel,
 }) => {
   return (
     <div
@@ -103,6 +106,15 @@ export const PipelineExtraSettings: React.FunctionComponent<
         </SegmentedControlOption>
       </SegmentedControl>
       <IconButton
+        title="Toggle Side Panel"
+        aria-label="Toggle Side Panel"
+        onClick={() => onToggleSidePanel()}
+        data-testid="pipeline-toolbar-side-panel-button"
+        disabled={pipelineMode === 'as-text'}
+      >
+        <Icon glyph="Filter" />
+      </IconButton>
+      <IconButton
         title="More Settings"
         aria-label="More Settings"
         onClick={() => onToggleSettings()}
@@ -126,6 +138,7 @@ const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
   onChangePipelineMode: changePipelineMode,
   onToggleSettings: toggleSettingsIsExpanded,
+  onToggleSidePanel: toggleSidePanel,
 };
 
 export default connect(mapState, mapDispatch)(PipelineExtraSettings);
