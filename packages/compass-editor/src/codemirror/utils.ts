@@ -1,6 +1,7 @@
 import { completeAnyWord, ifIn } from '@codemirror/autocomplete';
 import type { CompletionContext } from '@codemirror/autocomplete';
 import { syntaxTree } from '@codemirror/language';
+import type { EditorState } from '@codemirror/state';
 
 export const completeWordsInString = ifIn(['String'], completeAnyWord);
 
@@ -9,6 +10,49 @@ export function resolveTokenAtCursor(context: CompletionContext) {
 }
 
 export type Token = ReturnType<typeof resolveTokenAtCursor>;
+
+export function aggLink(op: string): string {
+  op = op.replace(/^\$/, '');
+  return `<a target="_blank" href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/${op}/">$${op}</a>`;
+}
+
+export function padLines(str: string, pad = '  ') {
+  return str
+    .split('\n')
+    .map((line) => `${pad}${line}`)
+    .join('\n');
+}
+
+export function* parents(token: Token) {
+  let parent: Token | null = token;
+  while ((parent = parent.parent)) {
+    yield parent;
+  }
+}
+
+export function removeQuotes(str: string) {
+  return str.replace(/(^('|")|('|")$)/g, '');
+}
+
+// lezer tokens are immutable, we check position in syntax tree to make sure we
+// are looking at the same token
+export function isTokenEqual(a: Token, b: Token) {
+  return a.from === b.from && a.to === b.to;
+}
+
+export function getPropertyNameFromPropertyToken(
+  editorState: EditorState,
+  propertyToken: Token
+): string {
+  if (!propertyToken.firstChild) {
+    return '';
+  }
+  return removeQuotes(getTokenText(editorState, propertyToken.firstChild));
+}
+
+export function getTokenText(editorState: EditorState, token: Token) {
+  return editorState.sliceDoc(token.from, token.to);
+}
 
 /**
  * Returns the list of possible ancestors of the token.

@@ -304,6 +304,17 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         fontWeight: 'bold',
         textDecoration: 'none',
       },
+      '& .cm-tooltip .completion-info p': {
+        margin: 0,
+        marginTop: `${spacing[2]}px`,
+        marginBottom: `${spacing[2]}px`,
+      },
+      '& .cm-tooltip .completion-info p:first-child': {
+        marginTop: 0,
+      },
+      '& .cm-tooltip .completion-info p:last-child': {
+        marginBottom: 0,
+      },
       '& .cm-widgetBuffer': {
         // Default is text-top which causes weird 1px added to the line height
         // when widget (in our case this is placeholder widget) is shown in the

@@ -3,49 +3,14 @@ import { STAGE_OPERATOR_NAMES } from '@mongodb-js/mongodb-constants';
 import type { CompleteOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
 import type { Token } from './utils';
+import { parents } from './utils';
+import { getPropertyNameFromPropertyToken, isTokenEqual } from './utils';
+import { aggLink, padLines } from './utils';
 import { createCompletionResultForIdPrefix } from './ace-compat-autocompleter';
 import { createAceCompatAutocompleter } from './ace-compat-autocompleter';
 import { createStageAutocompleter } from './stage-autocompleter';
 
 const StageOperatorNames = new Set(STAGE_OPERATOR_NAMES as string[]);
-
-function* parents(token: Token) {
-  let parent: Token | null = token;
-  while ((parent = parent.parent)) {
-    yield parent;
-  }
-}
-
-function removeQuotes(str: string) {
-  return str.replace(/(^('|")|('|")$)/g, '');
-}
-
-// lezer tokens are immutable, we check position in syntax tree to make sure we
-// are looking at the same token
-function isTokenEqual(a: Token, b: Token) {
-  return a.from === b.from && a.to === b.to;
-}
-
-function getPropertyNameFromPropertyToken(
-  editorState: EditorState,
-  propertyToken: Token
-): string {
-  if (!propertyToken.firstChild) {
-    return '';
-  }
-  return removeQuotes(getTokenText(editorState, propertyToken.firstChild));
-}
-
-function padLines(str: string, pad = '  ') {
-  return str
-    .split('\n')
-    .map((line) => `${pad}${line}`)
-    .join('\n');
-}
-
-function getTokenText(editorState: EditorState, token: Token) {
-  return editorState.sliceDoc(token.from, token.to);
-}
 
 function getStageNameForToken(
   editorState: EditorState,
@@ -93,6 +58,11 @@ export function createAggregationAutocompleter(
           const opName = completion.value;
           return {
             ...completion,
+            ...(completion.description && {
+              description:
+                `<p>${aggLink(opName)} pipeline stage</p>` +
+                `<p>${completion.description}</p>`,
+            }),
             ...(completion.snippet && {
               snippet: !isInsideBlock
                 ? `{\n${padLines(`${opName}: ${completion.snippet}`)}\n}`
