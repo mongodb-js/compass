@@ -201,9 +201,6 @@ const onFileSelectError = (error: Error) => ({
 async function getErrorLogPath(fileName: string) {
   // Create the error log output file.
   const userDataPath = getUserDataFolderPath();
-  if (!userDataPath) {
-    throw new Error('cannot access user data for error log generation');
-  }
   const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
   await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
 
@@ -259,6 +256,9 @@ export const startImport = () => {
         ? fs.createWriteStream(errorLogFilePath)
         : undefined;
     } catch (err: any) {
+      (err as Error).message = `unable to create import error log file: ${
+        (err as Error).message
+      }`;
       errors.push(err as Error);
     }
 
