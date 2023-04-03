@@ -32,6 +32,7 @@ const containerStyles = css({
   paddingBottom: spacing[2],
   gap: spacing[2],
   marginRight: spacing[1],
+  borderRadius: spacing[2],
 });
 
 const containerDarkStyles = css({

@@ -11,9 +11,6 @@ import type { RootState } from '../../../modules';
 const containerStyles = css({
   display: 'flex',
   height: '100%',
-  borderBottomLeftRadius: 0,
-  borderBottomRightRadius: 0,
-  borderBottom: 'none',
 });
 
 const noPreviewEditorStyles = css({
