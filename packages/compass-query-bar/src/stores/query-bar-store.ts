@@ -11,13 +11,14 @@ import {
   changeSchemaFields,
   pickValuesFromFields,
   applyFilterChange,
+  applyFromHistory,
 } from './query-bar-reducer';
 
 type QueryBarStoreOptions = {
   serverVersion: string;
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
-  query: Record<QueryProperty, unknown>;
+  query: Partial<Record<QueryProperty, unknown>>;
 };
 
 function createStore(options: Partial<QueryBarStoreOptions> = {}) {
@@ -45,7 +46,11 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
   });
 
   localAppRegistry?.on('query-bar-change-filter', (evt: ChangeFilterEvent) => {
-    store.dispatch(applyFilterChange(evt) as any);
+    store.dispatch(applyFilterChange(evt));
+  });
+
+  localAppRegistry?.on('query-history-run-query', (query) => {
+    store.dispatch(applyFromHistory(query));
   });
 
   (store as any).getCurrentQuery = () => {

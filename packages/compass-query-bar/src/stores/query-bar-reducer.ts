@@ -160,6 +160,7 @@ enum QueryBarActions {
   SetQuery = 'compass-query-bar/SetQuery',
   ApplyQuery = 'compass-query-bar/ApplyQuery',
   ResetQuery = 'compass-query-bar/ResetQuery',
+  ApplyFromHistory = 'compass-query-bar/ApplyFromHistory',
 }
 
 type ToggleQueryOptionsAction = {
@@ -291,6 +292,15 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
   };
 };
 
+type ApplyFromHistoryAction = {
+  type: QueryBarActions.ApplyFromHistory;
+  query: unknown;
+};
+
+export const applyFromHistory = (query: unknown): ApplyFromHistoryAction => {
+  return { type: QueryBarActions.ApplyFromHistory, query };
+};
+
 export const queryBarReducer: Reducer<QueryBarState> = (
   state = INITIAL_STATE,
   action
@@ -357,6 +367,18 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     return {
       ...state,
       schemaFields: action.fields,
+    };
+  }
+
+  if (
+    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
+  ) {
+    return {
+      ...state,
+      fields: mapQueryToValidQueryFields({
+        ...DEFAULT_FIELD_VALUES,
+        ...(action.query ?? {}),
+      }),
     };
   }
 
