@@ -20,9 +20,7 @@ function getGlobalConfigPaths(): string[] {
 
   switch (process.platform) {
     case 'win32':
-      if (process.execPath === process.argv[1]) {
-        paths.push(path.resolve(process.execPath, '..', 'mongodb-compass.cfg'));
-      }
+      paths.push(path.resolve(process.execPath, '..', 'mongodb-compass.cfg'));
       break;
     default:
       paths.push('/etc/mongodb-compass.conf');
