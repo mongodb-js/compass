@@ -5,11 +5,12 @@ import thunk from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 
 import reducer from '../modules';
+import { globalAppRegistryActivated } from '../modules/compass';
 import {
   dataServiceConnected,
-  globalAppRegistryActivated,
-} from '../modules/compass';
-import { cancelImport, openImport } from '../modules/import';
+  dataServiceDisconnected,
+} from '../modules/compass/data-service';
+import { openImport } from '../modules/import';
 
 const _store = createStore(reducer, applyMiddleware(thunk));
 
@@ -34,7 +35,7 @@ const store = Object.assign(_store, {
 
     // Abort the import operation when it's in progress.
     globalAppRegistry.on('data-service-disconnected', () => {
-      store.dispatch(cancelImport() as unknown as AnyAction);
+      store.dispatch(dataServiceDisconnected());
     });
 
     globalAppRegistry.on('open-import', ({ namespace }) => {

@@ -57,11 +57,13 @@ export async function importJSON({
     objectMode: true,
     transform: function (chunk: any, encoding, callback) {
       ++numProcessed;
-      progressCallback?.({
-        bytesProcessed: byteCounter.total,
-        docsProcessed: numProcessed,
-        docsWritten: collectionStream.docsWritten,
-      });
+      if (!abortSignal?.aborted) {
+        progressCallback?.({
+          bytesProcessed: byteCounter.total,
+          docsProcessed: numProcessed,
+          docsWritten: collectionStream.docsWritten,
+        });
+      }
       try {
         // make sure files parsed as jsonl only contain objects with no arrays and simple values
         // (this will either stop the entire import and throw or just skip this
