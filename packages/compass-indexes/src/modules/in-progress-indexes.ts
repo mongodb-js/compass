@@ -1,6 +1,5 @@
 import type { AnyAction } from 'redux';
 import type { CreateIndexSpec } from './create-index';
-import type { IndexFieldsDefinition } from './indexes';
 
 /**
  * In progress indexes added action name.
@@ -22,21 +21,23 @@ export const IN_PROGRESS_INDEXES_FAILED =
 
 export type InProgressIndex = {
   id: string;
-  status: 'inprogress' | 'failed';
   key: CreateIndexSpec;
-  fields: IndexFieldsDefinition[];
+  fields: { field: string; value: string | number }[];
   name: string;
   ns: string;
   size: number;
   relativeSize: number;
   usageCount: number;
-  error?: string;
+  extra: {
+    status: 'inprogress' | 'failed';
+    error?: string;
+  };
 };
 
 /**
  * The initial state of the in progress indexes.
  */
-export const INITIAL_STATE = [];
+export const INITIAL_STATE: InProgressIndex[] = [];
 
 /**
  * Reducer function for handle the in progress indexes state changes.
@@ -51,20 +52,23 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
     return [...state, action.inProgressIndex];
   }
   if (action.type === IN_PROGRESS_INDEXES_REMOVED) {
-    return [
-      ...state.filter(
-        (item: InProgressIndex) => item.id !== action.inProgressIndexId
-      ),
-    ];
+    return state.filter(
+      (item: InProgressIndex) => item.id !== action.inProgressIndexId
+    );
   }
   if (action.type === IN_PROGRESS_INDEXES_FAILED) {
     const newState = [...state];
     const idx = newState.findIndex(
       (item: InProgressIndex) => item.id === action.inProgressIndexId
     );
-    const failedIndex: InProgressIndex = newState[idx];
-    failedIndex.status = 'failed';
-    failedIndex.error = action.error;
+    newState[idx] = {
+      ...newState[idx],
+      extra: {
+        ...newState[idx].extra,
+        status: 'failed',
+        error: 'error',
+      },
+    };
     return newState;
   }
   return state;

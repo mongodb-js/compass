@@ -23,6 +23,13 @@ const containerStyles = css({
   marginLeft: 'auto',
 });
 
+const formItemSmallStyles = css({
+  display: 'flex',
+  flexFirection: 'row',
+  alignItems: 'center',
+  gap: spacing[1],
+});
+
 const formItemHorizontalStyles = css({
   display: 'flex',
 });
@@ -37,8 +44,25 @@ const removeFileButtonStyles = css({
   marginLeft: spacing[1],
 });
 
-const buttonStyles = css({
-  width: '100%',
+const buttonSmallStyles = css({
+  border: 'none',
+  background: 'none',
+  fontWeight: 'normal',
+
+  '&:hover': {
+    background: 'none',
+    boxShadow: 'none',
+  },
+  '&:active': {
+    background: 'none',
+    boxShadow: 'none',
+  },
+});
+
+const buttonDefaultStyles = css({
+  // We !important here to override the LeafyGreen button width
+  // that is applied after this.
+  width: '100% !important',
 });
 
 const buttonTextStyle = css({
@@ -101,10 +125,7 @@ const disabledDescriptionDarkStyles = css({
   color: palette.gray.light1,
 });
 
-export enum Variant {
-  Horizontal = 'HORIZONTAL',
-  Vertical = 'VERTICAL',
-}
+type FileInputVariant = 'default' | 'small' | 'vertical';
 
 // https://www.electronjs.org/docs/latest/api/file-object
 type FileWithPath = File & {
@@ -135,7 +156,7 @@ function FileInput({
   optionalMessage,
   error = false,
   errorMessage,
-  variant = 'HORIZONTAL',
+  variant = 'default',
   showFileOnNewLine = false,
   link,
   description,
@@ -155,7 +176,7 @@ function FileInput({
   optionalMessage?: string;
   error?: boolean;
   errorMessage?: string;
-  variant?: 'HORIZONTAL' | 'VERTICAL';
+  variant?: FileInputVariant;
   link?: string;
   description?: string;
   showFileOnNewLine?: boolean;
@@ -234,16 +255,26 @@ function FileInput({
 
   const valuesAsString = useMemo(() => JSON.stringify(values), [values]);
 
+  const leftGlyph =
+    variant === 'small' ? undefined : (
+      <Icon glyph="AddFile" title={null} fill="currentColor" />
+    );
+  const rightGlyph =
+    variant === 'small' ? (
+      <Icon glyph="Edit" title={null} fill="currentColor" />
+    ) : undefined;
+
   return (
     <div className={cx(containerStyles, className)}>
       <div
         className={cx({
-          [formItemHorizontalStyles]: variant === Variant.Horizontal,
+          [formItemSmallStyles]: variant === 'small',
+          [formItemHorizontalStyles]: variant === 'default',
         })}
       >
         <div
           className={cx({
-            [labelHorizontalStyles]: variant === Variant.Horizontal,
+            [labelHorizontalStyles]: variant === 'default',
           })}
         >
           <Label htmlFor={`${id}_file_input`} disabled={disabled}>
@@ -283,11 +314,14 @@ function FileInput({
         <Button
           id={id}
           data-testid="file-input-button"
-          className={buttonStyles}
+          className={
+            variant === 'small' ? buttonSmallStyles : buttonDefaultStyles
+          }
           disabled={disabled}
           onClick={handleOpenFileInput}
           title="Select a file"
-          leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
+          leftGlyph={leftGlyph}
+          rightGlyph={rightGlyph}
         >
           <span className={buttonTextStyle}>{buttonText}</span>
         </Button>

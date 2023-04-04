@@ -5,13 +5,9 @@ import {
   createAceCompatAutocompleter,
   createCompletionResultForIdPrefix,
 } from './ace-compat-autocompleter';
-import { completeWordsInString } from './utils';
+import { aggLink, completeWordsInString } from './utils';
 import { createQueryAutocompleter } from './query-autocompleter';
 
-/**
- * Autocompleter for the document object, only autocompletes field names in the
- * appropriate format (either escaped or not) both for javascript and json modes
- */
 export const createStageAutocompleter = ({
   stageOperator,
   ...options
@@ -36,6 +32,15 @@ export const createStageAutocompleter = ({
         ? (['accumulator', 'accumulator:*'] as const)
         : []),
     ],
+  }).map((completion) => {
+    if (completion.meta?.startsWith('expr:')) {
+      return {
+        ...completion,
+        description: `<p>${aggLink(completion.value)} pipeline operator</p>`,
+      };
+    }
+
+    return completion;
   });
 
   return createAceCompatAutocompleter({

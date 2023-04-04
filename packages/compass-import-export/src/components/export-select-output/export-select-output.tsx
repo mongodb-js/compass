@@ -144,7 +144,7 @@ class ExportSelectOutput extends PureComponent<ExportSelectOutputProps> {
             onChange={this.handleChooseFile}
             values={values}
             className={fileInputStyles}
-            variant="VERTICAL"
+            variant="vertical"
             backend={this.fileInputBackend}
             accept={`.${this.props.fileType}`}
           />

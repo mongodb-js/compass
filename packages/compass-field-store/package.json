@@ -52,7 +52,7 @@
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "test-ci-electron": "echo \"TODO(COMPASS-5555): These tests are broken and disabled for now\"",
+    "test-ci-electron": "npm run test-electron",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
@@ -70,7 +70,7 @@
     "hadron-app-registry": "^9.0.5",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb-schema": "^10.0.0",
+    "mongodb-schema": "^10.0.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "redux": "^4.2.1",

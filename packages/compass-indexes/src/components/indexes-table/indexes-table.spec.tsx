@@ -7,7 +7,7 @@ import { spy } from 'sinon';
 import { IndexesTable } from './indexes-table';
 import type { IndexDefinition } from '../../modules/indexes';
 
-const indexes: IndexDefinition[] = [
+const indexes = [
   {
     ns: 'db.coll',
     cardinality: 'single',
@@ -17,16 +17,12 @@ const indexes: IndexDefinition[] = [
     type: 'hashed',
     extra: {},
     properties: ['unique'],
-    fields: {
-      serialize() {
-        return [
-          {
-            field: '_id',
-            value: 1,
-          },
-        ];
+    fields: [
+      {
+        field: '_id',
+        value: 1,
       },
-    },
+    ],
     usageCount: 10,
   },
   {
@@ -38,20 +34,16 @@ const indexes: IndexDefinition[] = [
     type: 'text',
     extra: {},
     properties: [],
-    fields: {
-      serialize() {
-        return [
-          {
-            field: 'album_id',
-            value: 1,
-          },
-          {
-            field: 'artist_id',
-            value: -1,
-          },
-        ];
+    fields: [
+      {
+        field: 'album_id',
+        value: 1,
       },
-    },
+      {
+        field: 'artist_id',
+        value: -1,
+      },
+    ],
     usageCount: 15,
   },
   {
@@ -68,16 +60,12 @@ const indexes: IndexDefinition[] = [
       },
     },
     properties: ['ttl', 'partial'],
-    fields: {
-      serialize() {
-        return [
-          {
-            field: 'views',
-            value: 1,
-          },
-        ];
+    fields: [
+      {
+        field: 'views',
+        value: 1,
       },
-    },
+    ],
     usageCount: 20,
   },
   {
@@ -94,19 +82,15 @@ const indexes: IndexDefinition[] = [
       },
     },
     properties: [],
-    fields: {
-      serialize() {
-        return [
-          {
-            field: '$**',
-            value: 1,
-          },
-        ];
+    fields: [
+      {
+        field: '$**',
+        value: 1,
       },
-    },
+    ],
     usageCount: 25,
   },
-];
+] as IndexDefinition[];
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof IndexesTable>> = {}

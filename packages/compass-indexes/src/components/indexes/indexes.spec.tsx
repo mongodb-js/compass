@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-
+import type { IndexDefinition } from '../../modules/indexes';
 import { Indexes } from './indexes';
 
 const renderIndexes = (
@@ -96,19 +96,15 @@ describe('Indexes Component', function () {
           type: 'hashed',
           extra: {},
           properties: ['unique'],
-          fields: {
-            serialize() {
-              return [
-                {
-                  field: '_id',
-                  value: 1,
-                },
-              ];
+          fields: [
+            {
+              field: '_id',
+              value: 1,
             },
-          },
+          ],
           usageCount: 20,
         },
-      ],
+      ] as IndexDefinition[],
       isReadonlyView: false,
       error: undefined,
     });
@@ -130,16 +126,12 @@ describe('Indexes Component', function () {
           type: 'hashed',
           extra: {},
           properties: ['unique'],
-          fields: {
-            serialize() {
-              return [
-                {
-                  field: '_id',
-                  value: 1,
-                },
-              ];
+          fields: [
+            {
+              field: '_id',
+              value: 1,
             },
-          },
+          ],
           usageCount: 20,
         },
         {
@@ -153,19 +145,15 @@ describe('Indexes Component', function () {
             status: 'inprogress',
           },
           properties: [],
-          fields: {
-            serialize() {
-              return [
-                {
-                  field: 'item',
-                  value: 1,
-                },
-              ];
+          fields: [
+            {
+              field: 'item',
+              value: 1,
             },
-          },
+          ],
           usageCount: 0,
         },
-      ],
+      ] as IndexDefinition[],
       isReadonlyView: false,
       error: undefined,
     });
@@ -196,16 +184,12 @@ describe('Indexes Component', function () {
           type: 'hashed',
           extra: {},
           properties: ['unique'],
-          fields: {
-            serialize() {
-              return [
-                {
-                  field: '_id',
-                  value: 1,
-                },
-              ];
+          fields: [
+            {
+              field: '_id',
+              value: 1,
             },
-          },
+          ],
           usageCount: 20,
         },
         {
@@ -220,19 +204,15 @@ describe('Indexes Component', function () {
             error: 'Error message',
           },
           properties: [],
-          fields: {
-            serialize() {
-              return [
-                {
-                  field: 'item',
-                  value: 1,
-                },
-              ];
+          fields: [
+            {
+              field: 'item',
+              value: 1,
             },
-          },
+          ],
           usageCount: 0,
         },
-      ],
+      ] as IndexDefinition[],
       isReadonlyView: false,
       error: undefined,
     });

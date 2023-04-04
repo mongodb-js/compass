@@ -183,6 +183,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '&': {
         color: editorPalette[theme].color,
         backgroundColor: editorPalette[theme].backgroundColor,
+        maxHeight: '100%',
       },
       '& .cm-scroller': {
         fontSize: '13px',
@@ -302,6 +303,17 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         color: editorPalette[theme].autocompleteMatchColor,
         fontWeight: 'bold',
         textDecoration: 'none',
+      },
+      '& .cm-tooltip .completion-info p': {
+        margin: 0,
+        marginTop: `${spacing[2]}px`,
+        marginBottom: `${spacing[2]}px`,
+      },
+      '& .cm-tooltip .completion-info p:first-child': {
+        marginTop: 0,
+      },
+      '& .cm-tooltip .completion-info p:last-child': {
+        marginBottom: 0,
       },
       '& .cm-widgetBuffer': {
         // Default is text-top which causes weird 1px added to the line height
@@ -675,8 +687,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           lineHeight: `${lineHeight}px`,
           ...(maxLines && {
             maxHeight: `${maxLines * lineHeight}px`,
-            overflowY: 'auto',
           }),
+          height: '100%',
+          overflowY: 'auto',
         },
         '& .cm-content, & .cm-gutter': {
           ...(minLines && { minHeight: `${minLines * lineHeight}px` }),
@@ -963,6 +976,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         width: '100%',
         minHeight: Math.max(lineHeight, (minLines ?? 0) * lineHeight),
         position: 'relative',
+        maxHeight: '100%',
       }}
     >
       <div
@@ -1259,15 +1273,13 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       >
         {/* Separate scrollable container for editor so that action buttons can */}
         {/* stay in one place when scrolling */}
-        <div>
-          <BaseEditor
-            ref={editorRef}
-            className={editorClassName}
-            language="javascript"
-            minLines={10}
-            {...props}
-          ></BaseEditor>
-        </div>
+        <BaseEditor
+          ref={editorRef}
+          className={editorClassName}
+          language="javascript"
+          minLines={10}
+          {...props}
+        ></BaseEditor>
         {actions.length > 0 && (
           <div
             className={cx(

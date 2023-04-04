@@ -13,15 +13,6 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 
-interface IndexModel {
-  fields: {
-    serialize: () => {
-      field: string;
-      value: unknown;
-    }[];
-  };
-}
-
 const EXECUTION_STATS_HELP_LINK =
   'https://www.mongodb.com/docs/upcoming/reference/explain-results/#mongodb-data-explain.executionStats';
 
@@ -34,12 +25,12 @@ interface ExplainSummaryProps {
   executionTimeMillis: number;
   inMemorySort: boolean;
   indexType: IndexType;
-  index?: IndexModel;
+  index?: { fields: { field: string; value: unknown }[] };
 }
 
 const SummaryIndexStat: React.FC<{
   indexType: IndexType;
-  index?: IndexModel;
+  index?: { fields: { field: string; value: unknown }[] };
   className?: string;
 }> = ({ indexType, index, className }) => {
   const darkMode = useDarkMode();
@@ -90,7 +81,7 @@ const SummaryIndexStat: React.FC<{
       {index ? (
         <IndexKeysBadge
           data-testid="summary-index-stat-badge"
-          keys={index.fields.serialize()}
+          keys={index.fields}
         ></IndexKeysBadge>
       ) : null}
     </div>

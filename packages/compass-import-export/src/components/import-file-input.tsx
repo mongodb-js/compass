@@ -42,11 +42,11 @@ function ImportFileInput({
   return (
     <FileInput
       autoOpen={autoOpen}
-      label="Select File"
+      label="Import file:"
       id="import-file"
       onChange={handleChooseFile}
       values={values}
-      variant="VERTICAL"
+      variant="small"
       backend={backend}
     />
   );

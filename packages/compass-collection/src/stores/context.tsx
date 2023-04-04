@@ -6,7 +6,6 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import type { Role } from 'hadron-app-registry';
-import ConnectionString from 'mongodb-connection-string-url';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:compass-collection:context'
@@ -21,9 +20,7 @@ function getCurrentlyConnectedUri(dataService: DataService) {
   let connectionStringUrl;
 
   try {
-    connectionStringUrl = new ConnectionString(
-      dataService.getConnectionOptions().connectionString
-    );
+    connectionStringUrl = dataService.getConnectionString().clone();
   } catch (e) {
     return '<uri>';
   }

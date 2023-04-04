@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 import { DEFAULT_QUERY_VALUES } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import {
+  applyFromHistory,
   applyQuery,
   changeField,
   changeSchemaFields,
@@ -172,6 +173,34 @@ describe('queryBarReducer', function () {
       const fields = [{ name: 'a' }, { name: 'b' }, { name: 'c' }];
       store.dispatch(changeSchemaFields(fields));
       expect(store.getState()).to.have.property('schemaFields').deep.eq(fields);
+    });
+  });
+
+  describe('applyFromHistory', function () {
+    it('should reset query to whatever was passed in the action', function () {
+      const store = createStore();
+      const newQuery = {
+        filter: { _id: 2 },
+        sort: { _id: -1 },
+      };
+
+      store.dispatch(applyFromHistory(newQuery));
+
+      expect(store.getState())
+        .to.have.nested.property('fields.filter.value')
+        .deep.eq(newQuery.filter);
+      expect(store.getState()).to.have.nested.property(
+        'fields.filter.string',
+        '{_id: 2}'
+      );
+
+      expect(store.getState())
+        .to.have.nested.property('fields.sort.value')
+        .deep.eq(newQuery.sort);
+      expect(store.getState()).to.have.nested.property(
+        'fields.sort.string',
+        '{_id: -1}'
+      );
     });
   });
 });

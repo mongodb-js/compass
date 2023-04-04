@@ -11,7 +11,11 @@ const renderBuilderWorkspace = (
 ) => {
   return render(
     <Provider store={configureStore()}>
-      <PipelineBuilderWorkspace pipelineMode="as-text" {...props} />
+      <PipelineBuilderWorkspace
+        isPanelOpen={false}
+        pipelineMode="as-text"
+        {...props}
+      />
     </Provider>
   );
 };
@@ -29,5 +33,19 @@ describe('PipelineBuilderWorkspace', function () {
     const container = screen.getByTestId('pipeline-builder-workspace');
     expect(within(container).getByTestId('pipeline-as-text-workspace')).to
       .exist;
+  });
+
+  it('renders side panel when enabled in builder ui mode', function () {
+    renderBuilderWorkspace({ pipelineMode: 'builder-ui', isPanelOpen: true });
+    const container = screen.getByTestId('pipeline-builder-workspace');
+    expect(within(container).getByTestId('aggregation-side-panel')).to.exist;
+  });
+
+  it('does not render side panel when enabled in as text mode', function () {
+    renderBuilderWorkspace({ pipelineMode: 'as-text', isPanelOpen: true });
+    const container = screen.getByTestId('pipeline-builder-workspace');
+    expect(() => {
+      within(container).getByTestId('aggregation-side-panel');
+    }).to.throw;
   });
 });

@@ -173,12 +173,7 @@ export const createCollection = (data, kind = 'Collection') => {
 
       const options = await handleFLE2Options(ds, data.options);
 
-      const collection = await new Promise((resolve, reject) => {
-        ds.createCollection(namespace, options, (err, coll) => {
-          if (err) reject(err);
-          else resolve(coll);
-        });
-      });
+      const collection = await ds.createCollection(namespace, options);
 
       const trackEvent = {
         is_capped: !!data.options.capped,

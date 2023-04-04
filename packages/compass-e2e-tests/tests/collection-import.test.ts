@@ -569,7 +569,7 @@ describe('Collection import', function () {
     const importDelimiterSelectButton = await browser.$(
       Selectors.ImportDelimiterSelect
     );
-    expect(await importDelimiterSelectButton.getText()).to.equal('semicolon');
+    expect(await importDelimiterSelectButton.getText()).to.equal('Semicolon');
 
     // wait for it to finish analyzing
     await browser.$(Selectors.ImportConfirm).waitForDisplayed();
@@ -705,7 +705,7 @@ describe('Collection import', function () {
     const importDelimiterSelectButton = await browser.$(
       Selectors.ImportDelimiterSelect
     );
-    expect(await importDelimiterSelectButton.getText()).to.equal('semicolon');
+    expect(await importDelimiterSelectButton.getText()).to.equal('Semicolon');
 
     // but let's break it anyway
     await importDelimiterSelectButton.waitForDisplayed();
@@ -714,7 +714,7 @@ describe('Collection import', function () {
       Selectors.ImportDelimiterMenu
     );
     await importDelimiterSelectMenu.waitForDisplayed();
-    const delimiterSelectSpan = await importDelimiterSelectMenu.$('span=comma');
+    const delimiterSelectSpan = await importDelimiterSelectMenu.$('span=Comma');
     await delimiterSelectSpan.waitForDisplayed();
     await delimiterSelectSpan.click();
 

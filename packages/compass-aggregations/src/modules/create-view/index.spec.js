@@ -40,8 +40,8 @@ describe('create view module', function () {
           dataService: { dataService: 'ds' },
         });
 
-        before(function () {
-          createView()(dispatchSpy, getState);
+        before(async function () {
+          await createView()(dispatchSpy, getState);
         });
 
         it.skip('dispatches the clear action and handle error actions', function () {

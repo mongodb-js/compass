@@ -76,100 +76,108 @@ const TopStore = Reflux.createStore({
   },
 
   // Calculate list as current hottest collection (like Cloud and system top)
-  topDelta: function() {
+  topDelta: async function() {
     // early return in mongos since top command is not available
     if (this.isMongos) {
       return;
     }
 
-    if (this.dataService) {
-      this.dataService.top((error, response) => {
-        // Trigger error banner changes
-        if (error === null && this.errored.length > 0 && this.errored[this.errored.length - 1] !== null) { // Trigger error removal
-          Actions.dbError({'op': 'top', 'error': null });
-        } else if (error !== null) {
-          Actions.dbError({'op': 'top', 'error': error });
-        }
-        this.errored.push(error);
-        // Update op list if error
-        if (error !== null || this.starting) {
-          this.allOps.push([]);
-        }
-
-        // Update op list if no error
-        let totals = [];
-        if (error === null) {
-          // If response is empty, send empty list
-          let doc = {};
-          if (response !== undefined && ('totals' in response)) {
-            doc = response.totals;
-          }
-          const numCores = global.hadronApp.instance.host.cpu_cores;
-          const cadence = 1000000; // Can safetly assume we're polling 1x/sec TODO
-          const t2s = {};
-          for (let collname in doc) { // eslint-disable-line prefer-const
-            // Ignore special collections
-            if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
-              continue;
-            }
-            const value = doc[collname];
-            if (!('readLock' in value) || !('writeLock' in value) || !('total' in value)) {
-              debug('Error: top response from DB missing fields', value);
-            }
-            t2s[collname] = {
-              'loadPercentR': value.readLock.time,
-              'loadPercentL': value.writeLock.time,
-              'loadPercent': value.total.time
-            };
-          }
-          // Must skip first data point in order to show deltas.
-          if (this.starting) {
-            this.t1s = t2s;
-            this.starting = false;
-            return;
-          }
-          // Calculate system load per collection
-          for (let collname in t2s) { // eslint-disable-line prefer-const
-            if (!t2s.hasOwnProperty(collname)) {
-              continue;
-            }
-            const t1 = collname in this.t1s ? this.t1s[collname] : {'loadPercent': 0, 'loadPercentR': 0, 'loadPercentL': 0};
-            const t2 = t2s[collname];
-
-            const tDelta = t2.loadPercent - t1.loadPercent;
-
-            const loadL = tDelta === 0 ? 0 : round(((t2.loadPercentL - t1.loadPercentL) / tDelta) * 100, 0);
-            const loadR = tDelta === 0 ? 0 : round(((t2.loadPercentR - t1.loadPercentR) / tDelta) * 100, 0);
-
-            totals.push({
-              'collectionName': collname,
-              'loadPercent': round((tDelta * 100) / (cadence * numCores), 2), // System load.
-              'loadPercentR': loadR,
-              'loadPercentL': loadL
-            });
-          }
-          this.t1s = t2s;
-          // Sort
-          totals.sort(function(a, b) {
-            const f = (b.loadPercent < a.loadPercent) ? -1 : 0;
-            return (a.loadPercent < b.loadPercent) ? 1 : f;
-          });
-          // Add current state to all
-          this.allOps.push(totals);
-        }
-        if (this.isPaused) {
-          totals = this.allOps[this.endPause];
-          error = this.errored[this.endPause];
-        } else {
-          this.endPause = this.allOps.length;
-        }
-        // This handled by mouseover function completely
-        if (this.inOverlay) {
-          return;
-        }
-        this.trigger(error, totals);
-      });
+    if (!this.dataService) {
+      return;
     }
+
+    let error = null; let response;
+
+    try {
+      response = await this.dataService.top();
+    } catch (err) {
+      error = err;
+    }
+
+    // Trigger error banner changes
+    if (error === null && this.errored.length > 0 && this.errored[this.errored.length - 1] !== null) { // Trigger error removal
+      Actions.dbError({'op': 'top', 'error': null });
+    } else if (error !== null) {
+      Actions.dbError({'op': 'top', 'error': error });
+    }
+    this.errored.push(error);
+    // Update op list if error
+    if (error !== null || this.starting) {
+      this.allOps.push([]);
+    }
+
+    // Update op list if no error
+    let totals = [];
+    if (error === null) {
+      // If response is empty, send empty list
+      let doc = {};
+      if (response !== undefined && ('totals' in response)) {
+        doc = response.totals;
+      }
+      const numCores = global.hadronApp.instance.host.cpu_cores;
+      const cadence = 1000000; // Can safetly assume we're polling 1x/sec TODO
+      const t2s = {};
+      for (let collname in doc) { // eslint-disable-line prefer-const
+        // Ignore special collections
+        if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
+          continue;
+        }
+        const value = doc[collname];
+        if (!('readLock' in value) || !('writeLock' in value) || !('total' in value)) {
+          debug('Error: top response from DB missing fields', value);
+        }
+        t2s[collname] = {
+          'loadPercentR': value.readLock.time,
+          'loadPercentL': value.writeLock.time,
+          'loadPercent': value.total.time
+        };
+      }
+      // Must skip first data point in order to show deltas.
+      if (this.starting) {
+        this.t1s = t2s;
+        this.starting = false;
+        return;
+      }
+      // Calculate system load per collection
+      for (let collname in t2s) { // eslint-disable-line prefer-const
+        if (!t2s.hasOwnProperty(collname)) {
+          continue;
+        }
+        const t1 = collname in this.t1s ? this.t1s[collname] : {'loadPercent': 0, 'loadPercentR': 0, 'loadPercentL': 0};
+        const t2 = t2s[collname];
+
+        const tDelta = t2.loadPercent - t1.loadPercent;
+
+        const loadL = tDelta === 0 ? 0 : round(((t2.loadPercentL - t1.loadPercentL) / tDelta) * 100, 0);
+        const loadR = tDelta === 0 ? 0 : round(((t2.loadPercentR - t1.loadPercentR) / tDelta) * 100, 0);
+
+        totals.push({
+          'collectionName': collname,
+          'loadPercent': round((tDelta * 100) / (cadence * numCores), 2), // System load.
+          'loadPercentR': loadR,
+          'loadPercentL': loadL
+        });
+      }
+      this.t1s = t2s;
+      // Sort
+      totals.sort(function(a, b) {
+        const f = (b.loadPercent < a.loadPercent) ? -1 : 0;
+        return (a.loadPercent < b.loadPercent) ? 1 : f;
+      });
+      // Add current state to all
+      this.allOps.push(totals);
+    }
+    if (this.isPaused) {
+      totals = this.allOps[this.endPause];
+      error = this.errored[this.endPause];
+    } else {
+      this.endPause = this.allOps.length;
+    }
+    // This handled by mouseover function completely
+    if (this.inOverlay) {
+      return;
+    }
+    this.trigger(error, totals);
   }
 });
 

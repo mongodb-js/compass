@@ -56,6 +56,8 @@ const configureStore = (options = {}) => {
       });
     },
 
+    // TODO(COMPASS-6691): This (and probably all the other actions in this
+    // store) actually executes two times when clicking on an item in the list
     runQuery(query) {
       const existingQuery = this.state.items.find((item) => {
         return _.isEqual(comparableQuery(item), query);
@@ -67,7 +69,7 @@ const configureStore = (options = {}) => {
           screen: 'documents',
         });
       }
-      this.localAppRegistry.emit('compass:query-history:run-query', query);
+      this.localAppRegistry.emit('query-history-run-query', query);
     },
 
     getInitialState() {

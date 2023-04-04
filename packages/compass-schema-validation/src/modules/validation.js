@@ -5,8 +5,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { clearSampleDocuments } from './sample-documents';
 import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
-import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { isEqual, pick, isObject } from 'lodash';
+import { isEqual, pick } from 'lodash';
 
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
@@ -331,59 +330,6 @@ export const syntaxErrorOccurred = (syntaxError) => ({
 });
 
 /**
- * Send metrics.
- *
- * @param {Function} dispatch - Dispatch.
- * @param {Object} dataService - Data service.
- * @param {Object} namespace - Namespace.
- * @param {Object} validation - Validation.
- * @param {String} registryEvent - Registry event.
- *
- * @returns {Function} The function.
- */
-const sendMetrics = (
-  dispatch,
-  dataService,
-  namespace,
-  validation,
-  registryEvent
-) =>
-  dataService.database(namespace.database, {}, (errorDB, res) => {
-    let collectionSize = 0;
-    let ruleCount = 0;
-    let validator = validation.validator;
-
-    if (!errorDB) {
-      const collection = res.collections.find(
-        (coll) => coll.name === namespace.collection
-      );
-
-      collectionSize = collection.document_count;
-    }
-
-    try {
-      if (!isObject(validator)) {
-        validator = queryParser.parseFilter(validator);
-      }
-
-      ruleCount = Object.keys(validator).length;
-    } catch (error) {
-      // In case of a parsing error set ruleCount to -1 to indicate the problem
-      ruleCount = -1;
-    }
-
-    return dispatch(
-      globalAppRegistryEmit(registryEvent, {
-        ruleCount,
-        validationLevel: validation.validationLevel,
-        validationAction: validation.validationAction,
-        jsonSchema: !!validator.$jsonSchema,
-        collectionSize,
-      })
-    );
-  });
-
-/**
  * Fetch validation.
  *
  * @param {Object} namespace - Namespace.
@@ -409,14 +355,6 @@ export const fetchValidation = (namespace) => {
           dispatch(isLoadedChanged(true));
           return;
         }
-
-        sendMetrics(
-          dispatch,
-          dataService,
-          namespace,
-          validation,
-          'schema-validation-fetched'
-        );
 
         validation.validator = EJSON.stringify(validation.validator, null, 2);
 
@@ -455,7 +393,7 @@ export function validationFromCollection(err, { validation } = {}) {
  * @returns {Function} The function.
  */
 export const saveValidation = (validation) => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
     const namespace = state.namespace;
@@ -473,28 +411,19 @@ export const saveValidation = (validation) => {
         validation_level: validation.validationLevel,
       };
       track('Schema Validation Updated', trackEvent);
-      sendMetrics(
-        dispatch,
-        dataService,
-        namespace,
-        validation,
-        'schema-validation-saved'
-      );
-      dataService.updateCollection(
-        `${namespace.database}.${namespace.collection}`,
-        {
-          validator: savedValidation.validator,
-          validationAction: savedValidation.validationAction,
-          validationLevel: savedValidation.validationLevel,
-        },
-        (error) => {
-          if (error) {
-            return dispatch(validationSaveFailed(error));
+      try {
+        await dataService.updateCollection(
+          `${namespace.database}.${namespace.collection}`,
+          {
+            validator: savedValidation.validator,
+            validationAction: savedValidation.validationAction,
+            validationLevel: savedValidation.validationLevel,
           }
-
-          return dispatch(fetchValidation(namespace));
-        }
-      );
+        );
+        dispatch(fetchValidation(namespace));
+      } catch (error) {
+        dispatch(validationSaveFailed(error));
+      }
     }
   };
 };
@@ -536,18 +465,5 @@ export const activateValidation = () => {
     const namespace = state.namespace;
 
     dispatch(fetchValidation(namespace));
-
-    const dataService = state.dataService.dataService;
-    const validation = state.validation; // this is almost certainly still the initial state
-
-    if (dataService) {
-      sendMetrics(
-        dispatch,
-        dataService,
-        namespace,
-        validation,
-        'schema-validation-activated'
-      );
-    }
   };
 };
