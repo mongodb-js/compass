@@ -78,6 +78,30 @@ describe('useToast', function () {
     expect(screen.queryByText('My Toast')).to.not.exist;
   });
 
+  it('is dismissible by default', async function () {
+    render(
+      <ToastArea>
+        <OpenToastButton
+          namespace="ns-1"
+          id="toast-1"
+          title="My Toast"
+          body="Toast body"
+          variant={ToastVariant.Success}
+        />
+        <CloseToastButton namespace="ns-1" id="toast-1" />
+      </ToastArea>
+    );
+
+    fireEvent.click(screen.getByText('Open Toast'));
+
+    await screen.findByText('My Toast');
+    screen.getByText('Toast body');
+
+    fireEvent.click(screen.getByLabelText('Close Message'));
+
+    expect(screen.queryByText('My Toast')).to.not.exist;
+  });
+
   describe('with timeout', function () {
     it('closes a toast after timeout expires', async function () {
       render(

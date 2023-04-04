@@ -552,16 +552,17 @@ export const incompleteSchemaForClonedDocMsg =
 export const ImportModal = '[data-testid="import-modal"]';
 export const ImportDelimiterSelect = '[data-testid="import-delimiter-select"]';
 export const ImportDelimiterMenu = '[id="import-delimiter-select-menu"]';
+export const ImportStopOnErrorsCheckbox =
+  '[data-testid="import-stop-on-errors"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
+export const ImportSkipAnalyze = '[data-testid="skip-csv-analyze-button"]';
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
-export const ImportCancel =
-  '[data-testid="import-modal"] [data-testid="cancel-button"]';
-export const ImportDone =
-  '[data-testid="import-modal"] [data-testid="done-button"]';
-export const ImportErrorBox = '[data-testid="import-error-box"]';
+export const ImportToast = '[data-testid="toast-import-toast"]';
+export const ImportToastAbort =
+  '[data-testid="toast-import-toast"] [data-testid="toast-action-stop"]';
 
 export const importPreviewFieldHeaderField = (fieldName: string): string => {
   return `[data-testid="import-preview-field-type-select-menu-${fieldName}"]`;

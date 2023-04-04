@@ -45,7 +45,12 @@ describe('import [module]', function () {
   describe('#openImport', function () {
     it('sets isInProgressMessageOpen to true when import is in progress and does not open', function () {
       const abortController = new AbortController();
-      mockStore.dispatch(onStarted(abortController));
+      mockStore.dispatch(
+        onStarted({
+          abortController,
+          errorLogFilePath: 'test',
+        })
+      );
 
       expect(mockStore.getState().importData.status).to.equal('STARTED');
       expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
@@ -101,13 +106,13 @@ describe('import [module]', function () {
       const noExistFile = path.join(__dirname, 'no-exist.json');
 
       expect(mockStore.getState().importData.fileName).to.equal('');
+      expect(mockStore.getState().importData.errors.length).to.equal(0);
 
       await mockStore.dispatch(selectImportFileName(noExistFile));
 
       expect(mockStore.getState().importData.fileName).to.equal('');
 
       expect(mockStore.getState().importData.errors.length).to.equal(1);
-      expect(mockStore.getState().importData.status).to.equal('FAILED');
     });
   });
 });

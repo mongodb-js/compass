@@ -172,6 +172,10 @@ class CompassApplication {
     ipcMain.handle('coverage', () => {
       return (global as any).__coverage__;
     });
+
+    ipcMain.handle('compass:appName', () => {
+      return app.getName();
+    });
   }
 
   private static setupUserDirectory(): void {
