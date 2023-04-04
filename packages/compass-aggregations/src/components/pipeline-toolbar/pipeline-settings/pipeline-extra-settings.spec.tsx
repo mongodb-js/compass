@@ -7,6 +7,8 @@ import type { SinonSandbox } from 'sinon';
 import { spy, createSandbox } from 'sinon';
 
 import { PipelineExtraSettings } from './pipeline-extra-settings';
+import preferences from 'compass-preferences-model';
+import sinon from 'sinon';
 
 const renderPipelineExtraSettings = (
   props: Partial<ComponentProps<typeof PipelineExtraSettings>> = {}
@@ -67,27 +69,40 @@ describe('PipelineExtraSettings', function () {
     expect(within(container).getByTestId('pipeline-builder-toggle')).to.exist;
   });
 
-  it('calls onToggleSidePanel when clicked', function () {
-    const onToggleSidePanelSpy = spy();
-    renderPipelineExtraSettings({ onToggleSidePanel: onToggleSidePanelSpy });
-    const container = screen.getByTestId('pipeline-toolbar-extra-settings');
-    const button = within(container).getByTestId(
-      'pipeline-toolbar-side-panel-button'
-    );
-    expect(button).to.exist;
-    expect(onToggleSidePanelSpy.calledOnce).to.be.false;
-    userEvent.click(button);
-    expect(onToggleSidePanelSpy.calledOnce).to.be.true;
-  });
-
-  it('disables toggle side panel button in text mode', function () {
-    renderPipelineExtraSettings({
-      pipelineMode: 'as-text',
+  describe('stage wizard', function () {
+    let sandbox: sinon.SinonSandbox;
+    beforeEach(function () {
+      sandbox = sinon.createSandbox();
+      sandbox
+        .stub(preferences, 'getPreferences')
+        .returns({ useStageWizard: true } as any);
     });
-    expect(
-      screen
-        .getByTestId('pipeline-toolbar-side-panel-button')
-        .getAttribute('aria-disabled')
-    ).to.equal('true');
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    it('calls onToggleSidePanel when clicked', function () {
+      const onToggleSidePanelSpy = spy();
+      renderPipelineExtraSettings({ onToggleSidePanel: onToggleSidePanelSpy });
+      const container = screen.getByTestId('pipeline-toolbar-extra-settings');
+      const button = within(container).getByTestId(
+        'pipeline-toolbar-side-panel-button'
+      );
+      expect(button).to.exist;
+      expect(onToggleSidePanelSpy.calledOnce).to.be.false;
+      userEvent.click(button);
+      expect(onToggleSidePanelSpy.calledOnce).to.be.true;
+    });
+
+    it('disables toggle side panel button in text mode', function () {
+      renderPipelineExtraSettings({
+        pipelineMode: 'as-text',
+      });
+      expect(
+        screen
+          .getByTestId('pipeline-toolbar-side-panel-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
   });
 });
