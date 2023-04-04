@@ -19,8 +19,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { createDebug } from '../utils/logger';
-import type { CSVParsableFieldType } from '../utils/csv';
-import { CSVFieldTypeLabels } from '../utils/csv';
+import type { CSVParsableFieldType } from '../csv/csv-types';
+import { CSVFieldTypeLabels } from '../csv/csv-types';
 import type { CSVField } from '../import/analyze-csv-fields';
 
 const debug = createDebug('import-preview');

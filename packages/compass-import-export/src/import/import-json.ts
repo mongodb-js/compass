@@ -13,8 +13,8 @@ import {
   makeImportResult,
   processParseError,
   processWriteStreamErrors,
-} from '../utils/import';
-import type { ImportResult, ErrorJSON, ImportProgress } from '../utils/import';
+} from './import-utils';
+import type { ImportResult, ErrorJSON, ImportProgress } from './import-types';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';

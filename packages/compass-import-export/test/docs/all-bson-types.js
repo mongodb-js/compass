@@ -21,6 +21,7 @@ export default [
     string: 'Hello, world!', // String, 2, string
     object: { key: 'value' }, // Object, 3, object
     array: [1, 2, 3], // Array, 4, array
+    // TODO: this is not being formatted in a way that gets seen by the parser. comes out as blank/null somehow
     binData: new Binary(Buffer.from([1, 2, 3])), // Binary data, 5, binData
     // Undefined, 6, undefined (deprecated)
     objectId: new ObjectId(), // ObjectId, 7, objectId

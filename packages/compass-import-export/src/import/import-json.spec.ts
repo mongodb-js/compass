@@ -20,7 +20,7 @@ import { connect } from 'mongodb-data-service';
 
 import { fixtures } from '../../test/fixtures';
 
-import type { ErrorJSON } from '../utils/import';
+import type { ErrorJSON } from './import-types';
 
 import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';

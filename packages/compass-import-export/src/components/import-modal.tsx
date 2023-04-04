@@ -50,7 +50,7 @@ import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
-import type { CSVParsableFieldType } from '../utils/csv';
+import type { CSVParsableFieldType } from '../csv/csv-types';
 
 /**
  * Progress messages.

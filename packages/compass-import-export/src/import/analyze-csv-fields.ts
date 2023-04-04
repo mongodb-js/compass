@@ -8,8 +8,8 @@ import type {
   Delimiter,
   CSVDetectableFieldType,
   CSVParsableFieldType,
-} from '../utils/csv';
-import { csvHeaderNameToFieldName, detectFieldType } from '../utils/csv';
+} from '../csv/csv-types';
+import { csvHeaderNameToFieldName, detectCSVFieldType } from '../csv/csv-utils';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
 
@@ -81,15 +81,15 @@ function initResultFields(
 }
 
 function addRowToResult(
-  fields: CSVField[],
+  fields: Record<string, CSVField>,
   rowNum: number,
   data: string[],
   ignoreEmptyStrings?: boolean
 ) {
-  for (const field of fields) {
+  for (const [name, field] of Object.entries(fields)) {
     for (const columnIndex of field.columnIndexes) {
       const original = data[columnIndex] ?? '';
-      const type = detectFieldType(original, ignoreEmptyStrings);
+      const type = detectCSVFieldType(original, name, ignoreEmptyStrings);
 
       if (!field.types[type]) {
         field.types[type] = {
@@ -152,8 +152,6 @@ export async function analyzeCSVFields({
     aborted: false,
   };
 
-  let fields: CSVField[];
-
   const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, { delimiter });
 
   let numRows = 0;
@@ -173,9 +171,13 @@ export async function analyzeCSVFields({
         }
 
         initResultFields(result, headerFields);
-        fields = Object.values(result.fields);
       } else {
-        addRowToResult(fields, result.totalRows, chunk, ignoreEmptyStrings);
+        addRowToResult(
+          result.fields,
+          result.totalRows,
+          chunk,
+          ignoreEmptyStrings
+        );
         result.totalRows = numRows;
 
         progressCallback?.({

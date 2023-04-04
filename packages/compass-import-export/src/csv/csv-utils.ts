@@ -11,116 +11,195 @@ import {
   Timestamp,
   Decimal128,
   UUID,
+  EJSON,
 } from 'bson';
 
-export const supportedDelimiters = [',', '\t', ';', ' '];
-export type Delimiter = typeof supportedDelimiters[number];
+import type {
+  Delimiter,
+  Linebreak,
+  PathPart,
+  CSVDetectableFieldType,
+  CSVParsableFieldType,
+  IncludedFields,
+  CSVValue,
+} from './csv-types';
 
-// the subset of bson types that we can detect
-export type CSVDetectableFieldType =
-  | 'int'
-  | 'long'
-  | 'double'
-  | 'boolean'
-  | 'date'
-  | 'string'
-  | 'null'
-  | 'undefined';
+export function formatCSVValue(
+  value: string,
+  {
+    delimiter,
+    escapeLinebreaks = false,
+  }: {
+    delimiter: Delimiter;
+    escapeLinebreaks?: boolean;
+  }
+) {
 
-// the subset of bson types that we can parse
-export type CSVParsableFieldType =
-  | CSVDetectableFieldType
-  | 'objectId'
-  | 'binData'
-  | 'uuid'
-  | 'md5'
-  | 'timestamp'
-  | 'decimal'
-  | 'regex'
-  | 'number' // like 'mixed', but for use when everything is an int, long or double.
-  | 'mixed';
+  console.log(value, '=>', value.replace(/"/g, '""'));
+  value = value.replace(/"/g, '""');
 
-export const CSVFieldTypeLabels: Record<CSVParsableFieldType, string> = {
-  int: 'Int32',
-  long: 'Long',
-  double: 'Double',
-  boolean: 'Boolean',
-  date: 'Date',
-  string: 'String',
-  null: 'Null',
-  undefined: 'Undefined',
-  objectId: 'ObjectId',
-  binData: 'Binary',
-  uuid: 'UUID',
-  md5: 'MD5',
-  timestamp: 'Timestamp',
-  decimal: 'Decimal128',
-  regex: 'RegExpr',
-  number: 'Number',
-  mixed: 'Mixed',
-};
 
-export type IncludedFields = Record<string, CSVParsableFieldType>;
+  if (escapeLinebreaks) {
+    // This should only really be necessary for values that started out as
+    // arbitrary strings. Usually our conversion to a string takes care of this.
+    // ie. numbers are never going to have line breaks in them and
+    // EJSON.stringify() takes care of it.
+    // (Yes CSV has no standard way of escaping line breaks or anything other
+    //  than double quotes.)
+    value = value.replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+  }
 
-export type CSVValue =
-  | Double
-  | Int32
-  | Long
-  | Date
-  | boolean
-  | string
-  | null
-  | Binary
-  | Timestamp
-  | ObjectId
-  | BSONRegExp
-  | Decimal128
-  | UUID;
+  if (value.indexOf(delimiter) !== -1 || value.indexOf('"') !== -1) {
+    // Put quotes around a value if it contains the delimiter or an escaped
+    // quote. This will also affect EJSON objects and arrays
+    value = `"${value}"`;
+  }
+
+  return value;
+}
+
+export function formatCSVLine(
+  values: string[],
+  {
+    delimiter,
+    linebreak,
+  }: {
+    delimiter: Delimiter;
+    linebreak: Linebreak;
+  }
+) {
+  return `${values.join(delimiter)}${linebreak}`;
+}
+
+export function stringifyCSVValue(
+  value: any,
+  {
+    delimiter,
+  }: {
+    delimiter: Delimiter;
+  }
+): string {
+  if ([null, undefined].includes(value as null | undefined)) {
+    return '';
+  }
+
+  const bsonType = value._bsontype;
+
+  if (!bsonType) {
+    if (typeof value === 'string') {
+      return formatCSVValue(value, {
+        delimiter,
+        escapeLinebreaks: true,
+      });
+    }
+
+    if (Object.prototype.toString.call(value) === '[object Date]') {
+      return value.toISOString();
+    }
+
+    if (['number', 'boolean'].includes(typeof value)) {
+      return formatCSVValue(value.toString() as string, {
+        delimiter,
+      });
+    }
+
+    // Arrays and plain objects that somehow made it here plus unforeseen things
+    // that don't have a _bsontype.
+    return formatCSVValue(EJSON.stringify(value), { delimiter });
+  }
+
+  if (value.toHexString) {
+    // ObjectId and UUID both have toHexString() which does exactly what we want
+    return value.toHexString();
+  }
+
+  if (bsonType === 'Binary') {
+    return formatCSVValue(value.toString() as string, {
+      delimiter,
+      escapeLinebreaks: true,
+    });
+  }
+
+  if (bsonType === 'BSONRegExp') {
+    const bsonregex = value as BSONRegExp;
+    return formatCSVValue(`/${bsonregex.pattern}/${bsonregex.options}`, {
+      delimiter,
+    });
+  }
+
+  if (bsonType === 'Decimal128') {
+    // This should turn it into a number string with exponent
+    return value.toString();
+  }
+
+  if (bsonType === 'Timestamp') {
+    // This should turn it into a number string
+    return value.toString();
+  }
+
+  // Code, MinKey, MaxKey, DBRef and whatever new types get added
+  return formatCSVValue(EJSON.stringify(value), { delimiter });
+}
 
 export function csvHeaderNameToFieldName(name: string) {
   return name.replace(/\[\d+\]/g, '');
 }
-
-// NOTE: The fact that PathPart has an "index" property in one case and "name"
-// in the other rather than just one shared "value" is deliberate. It forces us
-// to explicitly handle each case because more likely than not we want the two
-// cases disambiguated when parsing or formatting.
-export type PathPart =
-  | {
-      type: 'index';
-      index: number;
-    }
-  | {
-      type: 'field';
-      name: string;
-    };
 
 const MIN_INT = -2147483648;
 const MAX_INT = 2147483647;
 const MIN_LONG = BigInt('-9223372036854775808');
 const MAX_LONG = BigInt('9223372036854775807');
 // from papaparse: https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1024
-const FLOAT = /^\s*-?(\d+\.?|\.\d+|\d+\.\d+)([eE][-+]?\d+)?\s*$/;
+const FLOAT_REGEX = /^\s*-?(\d+\.?|\.\d+|\d+\.\d+)([eE][-+]?\d+)?\s*$/;
 // from papaparse: https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1025
-const ISO_DATE =
-  /^((\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)))$/;
+const ISO_DATE_REGEX =
+  /^((\d{4}-[01]\d-[0-3]\d[T ][0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)))$/;
+const DATEONLY_REGEX = /^\d{4}-[01]\d-[0-3]\d$/;
+// a regular expression for detecting regular expressions
+const REGEX_REGEX = /^\/.*\/\w*$/;
+// from js-bson: https://github.com/mongodb/js-bson/blob/5b837a9e5019016529a83700f3ba3065d5e53e80/src/objectid.ts#L6
+const OBJECTID_REGEX = /^[0-9a-fA-F]{24}$/;
+// from js-bson: https://github.com/mongodb/js-bson/blob/5b837a9e5019016529a83700f3ba3065d5e53e80/src/uuid_utils.ts#L5
+const UUID_REGEX =
+  /^(?:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15})$/i;
 const TRUTHY_STRINGS = ['t', 'true', 'TRUE', 'True'];
 const FALSY_STRINGS = ['f', 'false', 'FALSE', 'False'];
 const NULL_STRINGS = ['Null', 'NULL', 'null'];
 
-export function detectFieldType(
+const parenthesis = {
+  '{': '}',
+  '[': ']',
+};
+
+function isEJSON(value: string) {
+  return (
+    value.length &&
+    ['{', '['].includes(value[0]) &&
+    value[value.length - 1] === parenthesis[value[0] as '{' | '[']
+  );
+}
+
+export function detectCSVFieldType(
   value: string,
+  name: string,
   ignoreEmptyStrings?: boolean
 ): CSVDetectableFieldType {
+  // for some types we can go further and also look at the field name
+  if (name === '_id' && OBJECTID_REGEX.test(value)) {
+    return 'objectId';
+  }
+
   if (value === '') {
     return ignoreEmptyStrings ? 'undefined' : 'string';
+  } else if (isEJSON(value)) {
+    return 'ejson';
   } else if (NULL_STRINGS.includes(value)) {
     return 'null';
   } else if (TRUTHY_STRINGS.includes(value)) {
     return 'boolean';
   } else if (FALSY_STRINGS.includes(value)) {
     return 'boolean';
-  } else if (FLOAT.test(value)) {
+  } else if (FLOAT_REGEX.test(value)) {
     // first separate floating point numbers from integers
 
     // 1.0 should be double
@@ -146,8 +225,12 @@ export function detectFieldType(
 
     // really big integers will remain as strings
     return 'string';
-  } else if (ISO_DATE.test(value)) {
+  } else if (ISO_DATE_REGEX.test(value) || DATEONLY_REGEX.test(value)) {
     return 'date';
+  } else if (UUID_REGEX.test(value)) {
+    return 'uuid';
+  } else if (REGEX_REGEX.test(value)) {
+    return 'regex';
   }
 
   return 'string';
@@ -206,7 +289,7 @@ export function placeValue(
   }
 }
 
-export function makeDoc(
+export function makeDocFromCSV(
   chunk: Record<string, string>,
   header: string[],
   parsedHeader: Record<string, PathPart[]>,
@@ -240,10 +323,10 @@ export function makeDoc(
 
     let type = included[fieldName];
     if (type === 'mixed') {
-      type = detectFieldType(original, ignoreEmptyStrings);
+      type = detectCSVFieldType(original, fieldName, ignoreEmptyStrings);
     }
     if (type === 'number') {
-      type = detectFieldType(original, ignoreEmptyStrings);
+      type = detectCSVFieldType(original, fieldName, ignoreEmptyStrings);
       if (!['int', 'long', 'double'].includes(type)) {
         throw new Error(
           `"${original}" is not a number (found "${type}") [Col ${index}]`
@@ -254,7 +337,7 @@ export function makeDoc(
     const path = parsedHeader[name];
 
     try {
-      const value = parseValue(original, type);
+      const value = parseCSVValue(original, type);
 
       placeValue(doc, path, value, true);
     } catch (err: unknown) {
@@ -267,7 +350,7 @@ export function makeDoc(
   return doc;
 }
 
-export function parseValue(
+export function parseCSVValue(
   value: string,
   type: CSVParsableFieldType
 ): CSVValue {
@@ -310,7 +393,7 @@ export function parseValue(
 
   if (type === 'date') {
     let date;
-    if (ISO_DATE.test(value)) {
+    if (ISO_DATE_REGEX.test(value)) {
       // iso string
       date = new Date(value);
     } else if (!isNaN(+value)) {
@@ -374,14 +457,26 @@ export function parseValue(
   }
 
   if (type === 'regex') {
-    return new BSONRegExp(value);
+    const match = value.match(/^\/(.*)\/(.*)$/);
+    if (!match) {
+      throw new Error(`${value} is not a regular expression`);
+    }
+    return new BSONRegExp(match[1], match[2]);
+  }
+
+  if (type === 'ejson') {
+    // This works for arrays or objects that got stringified by mongoexport and
+    // also for the fallback exportCSV() has for types like javascript,
+    // javascriptWithScope, dbref, minkey and maxkey where we don't have a
+    // better way to turn values into strings.
+    return EJSON.parse(value);
   }
 
   // By default leave it as a string
   return value;
 }
 
-export function parseHeaderName(value: string): PathPart[] {
+export function parseCSVHeaderName(value: string): PathPart[] {
   const parts: PathPart[] = [];
 
   let previousType: 'field' | 'index' = 'field';
@@ -464,7 +559,7 @@ export function parseHeaderName(value: string): PathPart[] {
   return parts;
 }
 
-export function formatHeaderName(path: PathPart[]): string {
+export function formatCSVHeaderName(path: PathPart[]): string {
   return path
     .map((part, index) => {
       if (part.type === 'field') {

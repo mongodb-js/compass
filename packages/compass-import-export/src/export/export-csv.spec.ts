@@ -15,7 +15,7 @@ import { connect } from 'mongodb-data-service';
 
 import { fixtures } from '../../test/fixtures';
 
-import { exportCSVFromQuery, exportCSVFromAggregation } from './export-csv';
+import { exportCSVFromQuery } from './export-csv';
 import { guessFileType } from '../import/guess-filetype';
 import { analyzeCSVFields } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
@@ -62,10 +62,11 @@ describe('exportCSV', function () {
     }
   });
 
-  it.only('exports all bson types', async function () {
+  it('exports all bson types', async function () {
     await insertMany('db.col', allTypesDoc, {});
 
     const output = temp.createWriteStream();
+    // TODO: exportCSVFromAggregation
     const result = await exportCSVFromQuery({
       ns: 'db.col',
       dataService,
@@ -93,6 +94,7 @@ describe('exportCSV', function () {
         });
 
         const output = temp.createWriteStream();
+        // TODO: exportCSVFromAggregation
         const result = await exportCSVFromQuery({
           ns: 'db.col',
           dataService,
@@ -114,6 +116,7 @@ describe('exportCSV', function () {
     it(`exports ${basename}`, async function () {
       const totalRows = await analyzeAndImportCSV(null, filepath, dataService);
       const output = temp.createWriteStream();
+      // TODO: exportCSVFromAggregation
       const result = await exportCSVFromQuery({
         ns: 'db.col',
         dataService,
@@ -161,6 +164,7 @@ describe('exportCSV', function () {
     it(`correctly exports ${type}`, async function () {
       const totalRows = await analyzeAndImportCSV(type, filepath, dataService);
       const output = temp.createWriteStream();
+      // TODO: exportCSVFromAggregation
       const result = await exportCSVFromQuery({
         ns: 'db.col',
         dataService,

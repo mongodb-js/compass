@@ -24,9 +24,9 @@ import { fixtures } from '../../test/fixtures';
 import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
 import { importCSV } from './import-csv';
-import { formatHeaderName } from '../utils/csv';
-import type { PathPart } from '../utils/csv';
-import type { ErrorJSON } from '../utils/import';
+import { formatCSVHeaderName } from '../csv/csv-utils';
+import type { PathPart } from '../csv/csv-types';
+import type { ErrorJSON } from '../import/import-types';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -965,7 +965,7 @@ function checkType(path: PathPart[], value: any, type: string) {
     return;
   }
 
-  const joinedPath = formatHeaderName(path);
+  const joinedPath = formatCSVHeaderName(path);
 
   switch (type) {
     case 'boolean':

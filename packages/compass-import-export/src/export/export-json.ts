@@ -7,7 +7,11 @@ import type { DataService } from 'mongodb-data-service';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { AggregationCursor, FindCursor } from 'mongodb';
 
-import type { ExportAggregation, ExportQuery, ExportResult } from './types';
+import type {
+  ExportAggregation,
+  ExportQuery,
+  ExportResult,
+} from './export-types';
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('export-json');
