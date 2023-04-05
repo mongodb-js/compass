@@ -337,7 +337,6 @@ export const changeStageValue = (
         stageEditor: { stages },
       },
     } = getState();
-    // Todo: Check if this can be skipped by simply adding idxInPipeline to stages in store
     const idxInPipeline = storeIndexToPipelineIndex(stages, id);
 
     const stage = pipelineBuilder.getStage(idxInPipeline);
