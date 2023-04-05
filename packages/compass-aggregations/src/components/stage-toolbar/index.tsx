@@ -159,6 +159,9 @@ type StageToolbarOwnProps = Pick<
 export default connect(
   (state: RootState, ownProps: StageToolbarOwnProps) => {
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    if (stage.type !== 'stage') {
+      throw new Error('Expected stage to be BuilderStage');
+    }
     return {
       isAutoPreviewing: !!state.autoPreview,
       hasSyntaxError: hasSyntaxError(stage),

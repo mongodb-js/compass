@@ -103,6 +103,10 @@ export default withPreferences(
       }
     ) => {
       const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+      if (stage.type !== 'stage') {
+        throw new Error('Expected stage to be BuilderStage');
+      }
+
       const stages = filterStageOperators({
         serverVersion: state.serverVersion,
         env: state.env,

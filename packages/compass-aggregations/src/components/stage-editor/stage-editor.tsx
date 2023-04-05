@@ -197,6 +197,9 @@ export default connect(
     const stages = state.pipelineBuilder.stageEditor.stages;
     const stage = stages[ownProps.index];
     const num_stages = stages.length;
+    if (stage.type !== 'stage') {
+      throw new Error('Expected stage to be BuilderStage');
+    }
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,

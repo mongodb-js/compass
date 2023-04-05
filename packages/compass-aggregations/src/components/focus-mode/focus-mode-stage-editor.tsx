@@ -76,6 +76,9 @@ const mapState = ({
   },
 }: RootState) => {
   const currentStage = stages[stageIndex];
+  if (currentStage && currentStage.type !== 'stage') {
+    throw new Error('Expected currentStage to be BuilderStage');
+  }
   return {
     index: stageIndex,
     operator: currentStage?.stageOperator,

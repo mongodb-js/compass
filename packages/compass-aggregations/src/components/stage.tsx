@@ -278,6 +278,9 @@ type StageOwnProps = {
 
 export default connect((state: RootState, ownProps: StageOwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+  if (stage.type !== 'stage') {
+    throw new Error('Expected stage to be BuilderStage');
+  }
   return {
     id: stage.id,
     isEnabled: !stage.disabled,

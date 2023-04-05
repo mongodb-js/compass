@@ -1,14 +1,15 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import Stage from '../stage';
 import type { StageProps } from '../stage';
 import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
 import {
   addStage,
+  addWizardStage,
   moveStage,
 } from '../../modules/pipeline-builder/stage-editor';
+import type { WizardStageAddAction } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 import { css } from '@mongodb-js/compass-components';
 
@@ -23,6 +24,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import StageOrWizard from '../stage-or-wizard';
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
@@ -47,6 +49,9 @@ type PipelineBuilderUIWorkspaceProps = {
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
+  onWizardStageAddAfterend: (
+    params: Omit<WizardStageAddAction, 'type' | 'after'> & { after?: number }
+  ) => void;
 };
 
 type SortableItemProps = {
@@ -69,7 +74,7 @@ const SortableItem = ({
 }: SortableItemProps) => {
   return (
     <div className={stageContainerStyles}>
-      <Stage index={idx} {...props}></Stage>
+      <StageOrWizard index={idx} {...props} />
       {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
     </div>
   );
@@ -139,7 +144,13 @@ const SortableList = ({
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   PipelineBuilderUIWorkspaceProps
-> = ({ stageIds, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
+> = ({
+  stageIds,
+  editViewName,
+  onStageMoveEnd,
+  onStageAddAfterEnd,
+  onWizardStageAddAfterend,
+}) => {
   return (
     <div data-testid="pipeline-builder-ui-workspace">
       <div className={pipelineWorkspaceContainerStyles}>
@@ -155,7 +166,13 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
           <SortableList
             stageIds={stageIds}
             onStageMoveEnd={onStageMoveEnd}
-            onStageAddAfterEnd={onStageAddAfterEnd}
+            onStageAddAfterEnd={(after) =>
+              onWizardStageAddAfterend({
+                usecaseId: 1,
+                formValues: [],
+                after,
+              })
+            }
           />
           <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
         </div>
@@ -174,6 +191,7 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onStageMoveEnd: moveStage,
   onStageAddAfterEnd: addStage,
+  onWizardStageAddAfterend: addWizardStage,
 };
 
 export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);

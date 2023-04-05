@@ -30,9 +30,12 @@ const ToggleStage = ({
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    if (stage.type !== 'stage') {
+      throw new Error('Expected stage to be BuilderStage');
+    }
     return {
-      isEnabled:
-        !state.pipelineBuilder.stageEditor.stages[ownProps.index].disabled,
+      isEnabled: !stage.disabled,
     };
   },
   { onChange: changeStageDisabled }
