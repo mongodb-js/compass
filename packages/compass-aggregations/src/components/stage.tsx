@@ -29,10 +29,6 @@ import {
 } from '../utils/local-storage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import { assertReduxStage } from '../utils/errors';
-import {
-  ReduxStage,
-  WizardStage,
-} from '../modules/pipeline-builder/stage-editor';
 
 const stageStyles = css({
   position: 'relative',

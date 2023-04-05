@@ -129,6 +129,19 @@ export type WizardStageAddAction = {
   after: number;
 };
 
+export function storeIndexToPipelineIndex(
+  stages: StageEditorState['stages'],
+  indexInStore: number,
+  { includeIndex } = { includeIndex: false }
+): number {
+  const endBound = includeIndex ? indexInStore + 1 : indexInStore;
+  const considerableStages = stages.slice(0, endBound);
+  const totalWizards = considerableStages.filter(
+    ({ type }) => type === 'wizard'
+  );
+  return indexInStore - totalWizards.length;
+}
+
 function canRunStage(stage?: ReduxStage, allowOut = false): boolean {
   return (
     !!stage &&
@@ -161,10 +174,7 @@ export const loadStagePreview = (
     const pipeline = stages.filter(
       (stage): stage is ReduxStage => stage.type === 'stage'
     );
-    const wizardsUntilIdx = stages
-      .slice(0, idx)
-      .filter(({ type }) => type === 'wizard');
-    const idxInPipeline = idx - wizardsUntilIdx.length;
+    const idxInPipeline = storeIndexToPipelineIndex(stages, idx);
 
     // Ignoring the state of the stage, always try to stop current preview fetch
     pipelineBuilder.cancelPreviewForStage(idxInPipeline);
@@ -265,10 +275,7 @@ export const runStage = (
     const pipelineFromStore = stages.filter(
       (stage): stage is ReduxStage => stage.type === 'stage'
     );
-    const wizardsUntilId = stages
-      .slice(0, idx)
-      .filter(({ type }) => type === 'wizard');
-    const idxInPipeline = idx - wizardsUntilId.length;
+    const idxInPipeline = storeIndexToPipelineIndex(stages, idx);
 
     const stageInStore = pipelineFromStore[idx];
 
@@ -331,10 +338,7 @@ export const changeStageValue = (
       },
     } = getState();
     // Todo: Check if this can be skipped by simply adding idxInPipeline to stages in store
-    const wizardsUntilId = stages
-      .slice(0, id)
-      .filter(({ type }) => type === 'wizard');
-    const idxInPipeline = id - wizardsUntilId.length;
+    const idxInPipeline = storeIndexToPipelineIndex(stages, id);
 
     const stage = pipelineBuilder.getStage(idxInPipeline);
     if (!stage) {
@@ -406,10 +410,7 @@ export const changeStageOperator = (
       },
     } = getState();
 
-    const wizardsUntilId = stages
-      .slice(0, id)
-      .filter(({ type }) => type === 'wizard');
-    const idxInPipeline = id - wizardsUntilId.length;
+    const idxInPipeline = storeIndexToPipelineIndex(stages, id);
 
     const stage = pipelineBuilder.getStage(idxInPipeline);
     const stageInStore = stages[id];
@@ -473,10 +474,7 @@ export const changeStageDisabled = (
         stageEditor: { stages },
       },
     } = getState();
-    const wizardsUntilId = stages
-      .slice(0, id)
-      .filter(({ type }) => type === 'wizard');
-    const idxInPipeline = id - wizardsUntilId.length;
+    const idxInPipeline = storeIndexToPipelineIndex(stages, id);
 
     const stage = pipelineBuilder.getStage(idxInPipeline);
     if (!stage) {
@@ -513,10 +511,9 @@ export const addStage = (
       },
     } = getState();
     const addAfter = after ?? stages.length;
-    const wizardsUntilAfter = stages
-      .slice(0, addAfter + 1)
-      .filter(({ type }) => type === 'wizard');
-    const addAfterIdxInPipeline = addAfter - wizardsUntilAfter.length;
+    const addAfterIdxInPipeline = storeIndexToPipelineIndex(stages, addAfter, {
+      includeIndex: true,
+    });
 
     const stage = pipelineBuilder.addStage(addAfterIdxInPipeline);
     track('Aggregation Edited', {
@@ -543,10 +540,9 @@ export const removeStage = (
       },
     } = getState();
     const num_stages = stages.length;
-    const wizardsBeforeAt = stages
-      .slice(0, at)
-      .filter(({ type }) => type === 'wizard');
-    const atIdxInPipeline = at - wizardsBeforeAt.length;
+    const atIdxInPipeline = storeIndexToPipelineIndex(stages, at, {
+      includeIndex: true,
+    });
 
     pipelineBuilder.cancelPreviewForStage(atIdxInPipeline);
     const stage = pipelineBuilder.removeStage(atIdxInPipeline);
@@ -575,8 +571,10 @@ export const moveStage = (
         stageEditor: { stages },
       },
     } = getState();
-    const stageAtFrom = stages[from];
-    const pipelineWasNotModified = stageAtFrom.type === 'wizard';
+    const fromIdxInPipeline = storeIndexToPipelineIndex(stages, from);
+    const toIdxInPipeline = storeIndexToPipelineIndex(stages, to);
+    const pipelineWasNotModified =
+      stages[from].type === 'wizard' || fromIdxInPipeline === toIdxInPipeline;
 
     if (pipelineWasNotModified) {
       dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
@@ -584,15 +582,6 @@ export const moveStage = (
       const pipeline = stages.filter(
         (stage): stage is ReduxStage => stage.type === 'stage'
       );
-      const wizardsUntilFromIdx = stages
-        .slice(0, from)
-        .filter(({ type }) => type === 'wizard');
-      const fromIdxInPipeline = from - wizardsUntilFromIdx.length;
-
-      const wizardsUntilToIdx = stages
-        .slice(0, to)
-        .filter(({ type }) => type === 'wizard');
-      const toIdxInPipeline = to - wizardsUntilToIdx.length;
 
       track('Aggregation Edited', {
         num_stages: pipeline.length,
