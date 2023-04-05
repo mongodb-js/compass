@@ -203,9 +203,7 @@ export const FocusModeStageInput = connect(
     }
 
     const previousStage = stages[previousStageIndex];
-    if (previousStage.type !== 'stage') {
-      throw new Error('Expected previousStage to be BuilderStage');
-    }
+    assertReduxStage(previousStage);
 
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
       env,

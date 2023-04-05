@@ -39,7 +39,7 @@ export const enum StageEditorActionTypes {
   StageAdded = 'compass-aggregations/pipeline-builder/stage-editor/StageAdded',
   StageRemoved = 'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
   StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
-  WizardStageAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardStageAdded',
+  WizardAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardAdded',
 }
 
 export type StagePreviewFetchAction = {
@@ -122,8 +122,8 @@ export type StageMoveAction = {
   to: number;
 };
 
-export type WizardStageAddAction = {
-  type: StageEditorActionTypes.WizardStageAdded;
+export type WizardAddedAction = {
+  type: StageEditorActionTypes.WizardAdded;
   usecaseId: number;
   formValues: unknown;
   after: number;
@@ -598,16 +598,13 @@ export const moveStage = (
   };
 };
 
-export type AddWizardStageParams = Omit<
-  WizardStageAddAction,
-  'type' | 'after'
-> & {
+export type AddWizardParams = Omit<WizardAddedAction, 'type' | 'after'> & {
   after?: number;
 };
 
-export const addWizardStage = (
-  params: AddWizardStageParams
-): PipelineBuilderThunkAction<void, WizardStageAddAction> => {
+export const addWizard = (
+  params: AddWizardParams
+): PipelineBuilderThunkAction<void, WizardAddedAction> => {
   return (dispatch, getState) => {
     const {
       pipelineBuilder: {
@@ -616,13 +613,13 @@ export const addWizardStage = (
     } = getState();
     dispatch({
       ...params,
-      type: StageEditorActionTypes.WizardStageAdded,
+      type: StageEditorActionTypes.WizardAdded,
       after: params.after ?? stages.length,
     });
   };
 };
 
-export const removeWizardStage = (at: number): StageRemoveAction => ({
+export const removeWizard = (at: number): StageRemoveAction => ({
   type: StageEditorActionTypes.StageRemoved,
   at,
 });
@@ -641,7 +638,7 @@ export type ReduxStage = {
   empty: boolean;
 };
 
-export type WizardStage = {
+export type Wizard = {
   id: number;
   type: 'wizard';
   usecaseId: number;
@@ -650,7 +647,7 @@ export type WizardStage = {
 
 export type StageEditorState = {
   stageIds: number[];
-  stages: (ReduxStage | WizardStage)[];
+  stages: (ReduxStage | Wizard)[];
 };
 
 export function mapBuilderStageToStoreStage(stage: Stage): ReduxStage {
@@ -896,12 +893,7 @@ const reducer: Reducer<StageEditorState> = (
     };
   }
 
-  if (
-    isAction<WizardStageAddAction>(
-      action,
-      StageEditorActionTypes.WizardStageAdded
-    )
-  ) {
+  if (isAction<WizardAddedAction>(action, StageEditorActionTypes.WizardAdded)) {
     const { after, usecaseId, formValues } = action;
     const stages = [...state.stages];
     stages.splice(after + 1, 0, {

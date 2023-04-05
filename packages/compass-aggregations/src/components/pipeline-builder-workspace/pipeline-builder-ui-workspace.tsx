@@ -6,10 +6,10 @@ import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
 import {
   addStage,
-  addWizardStage,
+  addWizard,
   moveStage,
 } from '../../modules/pipeline-builder/stage-editor';
-import type { AddWizardStageParams } from '../../modules/pipeline-builder/stage-editor';
+import type { AddWizardParams } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 import { css } from '@mongodb-js/compass-components';
 
@@ -49,7 +49,7 @@ type PipelineBuilderUIWorkspaceProps = {
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
-  onWizardStageAddAfterend: (params: AddWizardStageParams) => void;
+  onWizardStageAddAfterend: (params: AddWizardParams) => void;
 };
 
 type SortableItemProps = {
@@ -189,7 +189,7 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onStageMoveEnd: moveStage,
   onStageAddAfterEnd: addStage,
-  onWizardStageAddAfterend: addWizardStage,
+  onWizardStageAddAfterend: addWizard,
 };
 
 export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);

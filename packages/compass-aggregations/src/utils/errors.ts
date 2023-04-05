@@ -1,6 +1,6 @@
 import type {
   ReduxStage,
-  WizardStage,
+  Wizard,
 } from '../modules/pipeline-builder/stage-editor';
 
 export class InvalidStageTypeError extends Error {
@@ -10,7 +10,7 @@ export class InvalidStageTypeError extends Error {
 }
 
 export function assertReduxStage(
-  stage: WizardStage | ReduxStage
+  stage: Wizard | ReduxStage
 ): asserts stage is ReduxStage {
   if (stage && stage.type !== 'stage') {
     throw new InvalidStageTypeError('Expected stage to be a ReduxStage');

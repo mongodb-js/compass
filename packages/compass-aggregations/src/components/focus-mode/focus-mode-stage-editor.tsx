@@ -7,6 +7,7 @@ import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
 import { PIPELINE_HELP_URI } from '../../constants';
+import { assertReduxStage } from '../../utils/errors';
 
 const containerStyles = css({
   height: '100%',
@@ -76,9 +77,7 @@ const mapState = ({
   },
 }: RootState) => {
   const currentStage = stages[stageIndex];
-  if (currentStage && currentStage.type !== 'stage') {
-    throw new Error('Expected currentStage to be BuilderStage');
-  }
+  assertReduxStage(currentStage);
   return {
     index: stageIndex,
     operator: currentStage?.stageOperator,
