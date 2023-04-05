@@ -20,6 +20,7 @@ import {
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
 import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
+import { assertReduxStage } from '../../utils/errors';
 
 const stagePreviewStyles = css({
   display: 'flex',
@@ -147,9 +148,7 @@ type OwnProps = {
 
 const mapState = (state: RootState, ownProps: OwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-  if (stage.type !== 'stage') {
-    throw new Error('Expected stage to be BuilderStage');
-  }
+  assertReduxStage(stage);
   const destinationNamespace = getDestinationNamespaceFromStage(
     state.namespace,
     parseShellBSON(`{

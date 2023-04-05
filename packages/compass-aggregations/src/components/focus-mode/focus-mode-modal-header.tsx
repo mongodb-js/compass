@@ -21,6 +21,7 @@ import {
   selectFocusModeStage,
 } from '../../modules/focus-mode';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
+import { assertReduxStage } from '../../utils/errors';
 
 type Stage = {
   idxInStore: number;
@@ -104,7 +105,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
     const idx = stages.findIndex((stage) => stage.idxInStore === stageIndex);
     const prevStageIdx = stages[idx - 1].idxInStore;
-    console.log(`onPreviousStage - ${prevStageIdx}`);
     onStageSelect(prevStageIdx);
   };
 
@@ -115,7 +115,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
     const idx = stages.findIndex((stage) => stage.idxInStore === stageIndex);
     const nextStageIdx = stages[idx + 1].idxInStore;
-    console.log(`onNextStage - ${nextStageIdx}`);
     onStageSelect(nextStageIdx);
   };
 
@@ -315,10 +314,7 @@ export default connect(
       },
     } = state;
     const stage = stages[stageIndex];
-
-    if (stage && stage.type !== 'stage') {
-      throw new Error('Expected stage to be BuilderStage');
-    }
+    assertReduxStage(stage);
 
     return {
       stageIndex,

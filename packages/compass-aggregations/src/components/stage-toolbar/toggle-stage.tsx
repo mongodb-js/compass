@@ -3,6 +3,7 @@ import { Toggle } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
+import { assertReduxStage } from '../../utils/errors';
 
 const ToggleStage = ({
   index,
@@ -31,9 +32,7 @@ const ToggleStage = ({
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-    if (stage.type !== 'stage') {
-      throw new Error('Expected stage to be BuilderStage');
-    }
+    assertReduxStage(stage);
     return {
       isEnabled: !stage.disabled,
     };

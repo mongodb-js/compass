@@ -39,11 +39,7 @@ export const enum StageEditorActionTypes {
   StageAdded = 'compass-aggregations/pipeline-builder/stage-editor/StageAdded',
   StageRemoved = 'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
   StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
-}
-
-export const enum StageWizardActionTypes {
-  WizardStageAdded = 'compass-aggregations/stage-wizard/WizardStageAdded',
-  WizardStageRemoved = 'compass-aggregation/stage-wizard/WizardStageRemoved',
+  WizardStageAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardStageAdded',
 }
 
 export type StagePreviewFetchAction = {
@@ -127,18 +123,13 @@ export type StageMoveAction = {
 };
 
 export type WizardStageAddAction = {
-  type: StageWizardActionTypes.WizardStageAdded;
+  type: StageEditorActionTypes.WizardStageAdded;
   usecaseId: number;
   formValues: unknown;
   after: number;
 };
 
-export type WizardStageRemoveAction = {
-  type: StageWizardActionTypes.WizardStageRemoved;
-  at: number;
-};
-
-function canRunStage(stage?: BuilderStage, allowOut = false): boolean {
+function canRunStage(stage?: ReduxStage, allowOut = false): boolean {
   return (
     !!stage &&
     (stage.disabled ||
@@ -168,7 +159,7 @@ export const loadStagePreview = (
     } = getState();
 
     const pipeline = stages.filter(
-      (stage): stage is BuilderStage => stage.type === 'stage'
+      (stage): stage is ReduxStage => stage.type === 'stage'
     );
     const wizardsUntilIdx = stages
       .slice(0, idx)
@@ -272,7 +263,7 @@ export const runStage = (
     } = getState();
 
     const pipelineFromStore = stages.filter(
-      (stage): stage is BuilderStage => stage.type === 'stage'
+      (stage): stage is ReduxStage => stage.type === 'stage'
     );
     const wizardsUntilId = stages
       .slice(0, idx)
@@ -591,7 +582,7 @@ export const moveStage = (
       dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
     } else {
       const pipeline = stages.filter(
-        (stage): stage is BuilderStage => stage.type === 'stage'
+        (stage): stage is ReduxStage => stage.type === 'stage'
       );
       const wizardsUntilFromIdx = stages
         .slice(0, from)
@@ -618,8 +609,15 @@ export const moveStage = (
   };
 };
 
+export type AddWizardStageParams = Omit<
+  WizardStageAddAction,
+  'type' | 'after'
+> & {
+  after?: number;
+};
+
 export const addWizardStage = (
-  params: Omit<WizardStageAddAction, 'type' | 'after'> & { after?: number }
+  params: AddWizardStageParams
 ): PipelineBuilderThunkAction<void, WizardStageAddAction> => {
   return (dispatch, getState) => {
     const {
@@ -629,18 +627,18 @@ export const addWizardStage = (
     } = getState();
     dispatch({
       ...params,
-      type: StageWizardActionTypes.WizardStageAdded,
+      type: StageEditorActionTypes.WizardStageAdded,
       after: params.after ?? stages.length,
     });
   };
 };
 
-export const removeWizardStage = (at: number): WizardStageRemoveAction => ({
-  type: StageWizardActionTypes.WizardStageRemoved,
+export const removeWizardStage = (at: number): StageRemoveAction => ({
+  type: StageEditorActionTypes.StageRemoved,
   at,
 });
 
-export type BuilderStage = {
+export type ReduxStage = {
   id: number;
   type: 'stage';
   stageOperator: string | null;
@@ -663,10 +661,10 @@ export type WizardStage = {
 
 export type StageEditorState = {
   stageIds: number[];
-  stages: (BuilderStage | WizardStage)[];
+  stages: (ReduxStage | WizardStage)[];
 };
 
-export function mapBuilderStageToStoreStage(stage: Stage): BuilderStage {
+export function mapBuilderStageToStoreStage(stage: Stage): ReduxStage {
   return {
     id: stage.id,
     type: 'stage',
@@ -912,7 +910,7 @@ const reducer: Reducer<StageEditorState> = (
   if (
     isAction<WizardStageAddAction>(
       action,
-      StageWizardActionTypes.WizardStageAdded
+      StageEditorActionTypes.WizardStageAdded
     )
   ) {
     const { after, usecaseId, formValues } = action;
@@ -928,21 +926,6 @@ const reducer: Reducer<StageEditorState> = (
       ...state,
       stages,
       stageIds: stages.map((stage) => stage.id),
-    };
-  }
-
-  if (
-    isAction<WizardStageRemoveAction>(
-      action,
-      StageWizardActionTypes.WizardStageRemoved
-    )
-  ) {
-    const stages = [...state.stages];
-    stages.splice(action.at, 1);
-    return {
-      ...state,
-      stageIds: stages.map((stage) => stage.id),
-      stages,
     };
   }
 

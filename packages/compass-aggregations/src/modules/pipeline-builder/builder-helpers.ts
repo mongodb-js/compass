@@ -2,7 +2,7 @@ import type { PipelineBuilderThunkAction, RootState } from '..';
 import { getStageOperator } from '../../utils/stage';
 import type { PipelineBuilder } from './pipeline-builder';
 import { loadPreviewForStagesFrom } from './stage-editor';
-import type { BuilderStage } from './stage-editor';
+import type { ReduxStage } from './stage-editor';
 import { loadPreviewForPipeline } from './text-editor-pipeline';
 
 export const updatePipelinePreview =
@@ -68,7 +68,7 @@ export function getPipelineStageOperatorsFromBuilderState(
     state.pipelineBuilder.pipelineMode === 'builder-ui'
       ? state.pipelineBuilder.stageEditor.stages
           .filter(
-            (stage): stage is BuilderStage =>
+            (stage): stage is ReduxStage =>
               stage.type === 'stage' && !stage.disabled
           )
           .map((stage) => stage.stageOperator)
@@ -85,7 +85,7 @@ export function getIsPipelineInvalidFromBuilderState(
 ): boolean {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages
-      .filter((stage): stage is BuilderStage => stage.type === 'stage')
+      .filter((stage): stage is ReduxStage => stage.type === 'stage')
       .some(
         (stage) =>
           !stage.empty &&

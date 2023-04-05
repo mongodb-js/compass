@@ -10,7 +10,6 @@ type WizardProps = {
 };
 
 const Wizard = ({ id }: WizardProps) => {
-  console.log(id);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { setNodeRef, transform, transition, listeners, isDragging } =
     useSortable({

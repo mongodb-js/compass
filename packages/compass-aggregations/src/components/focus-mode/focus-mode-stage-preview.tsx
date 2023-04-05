@@ -19,7 +19,7 @@ import {
   isMissingAtlasStageSupport,
   isOutputStage,
 } from '../../utils/stage';
-import type { BuilderStage } from '../../modules/pipeline-builder/stage-editor';
+import { assertReduxStage } from '../../utils/errors';
 
 const containerStyles = css({
   display: 'flex',
@@ -246,9 +246,7 @@ export const FocusModeStageOutput = connect(
       return {};
     }
     const stage = stages[stageIndex];
-    if (stage.type !== 'stage') {
-      throw new Error('Expected stage to be BuilderStage');
-    }
+    assertReduxStage(stage);
 
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
       env,

@@ -17,6 +17,7 @@ import StageOperatorSelect from './stage-operator-select';
 import { hasSyntaxError } from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
+import { assertReduxStage } from '../../utils/errors';
 
 const toolbarStyles = css({
   width: '100%',
@@ -159,9 +160,7 @@ type StageToolbarOwnProps = Pick<
 export default connect(
   (state: RootState, ownProps: StageToolbarOwnProps) => {
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-    if (stage.type !== 'stage') {
-      throw new Error('Expected stage to be BuilderStage');
-    }
+    assertReduxStage(stage);
     return {
       isAutoPreviewing: !!state.autoPreview,
       hasSyntaxError: hasSyntaxError(stage),

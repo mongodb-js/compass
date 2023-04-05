@@ -19,6 +19,7 @@ import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
+import { assertReduxStage } from '../../utils/errors';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -197,9 +198,7 @@ export default connect(
     const stages = state.pipelineBuilder.stageEditor.stages;
     const stage = stages[ownProps.index];
     const num_stages = stages.length;
-    if (stage.type !== 'stage') {
-      throw new Error('Expected stage to be BuilderStage');
-    }
+    assertReduxStage(stage);
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,

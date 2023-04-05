@@ -14,6 +14,7 @@ import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor
 
 import { filterStageOperators } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
+import { assertReduxStage } from '../../utils/errors';
 
 const inputWidth = spacing[7] * 2;
 
@@ -103,9 +104,7 @@ export default withPreferences(
       }
     ) => {
       const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-      if (stage.type !== 'stage') {
-        throw new Error('Expected stage to be BuilderStage');
-      }
+      assertReduxStage(stage);
 
       const stages = filterStageOperators({
         serverVersion: state.serverVersion,

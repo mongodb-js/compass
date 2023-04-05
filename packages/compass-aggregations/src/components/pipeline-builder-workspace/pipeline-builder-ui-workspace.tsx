@@ -9,7 +9,7 @@ import {
   addWizardStage,
   moveStage,
 } from '../../modules/pipeline-builder/stage-editor';
-import type { WizardStageAddAction } from '../../modules/pipeline-builder/stage-editor';
+import type { AddWizardStageParams } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 import { css } from '@mongodb-js/compass-components';
 
@@ -49,9 +49,7 @@ type PipelineBuilderUIWorkspaceProps = {
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
-  onWizardStageAddAfterend: (
-    params: Omit<WizardStageAddAction, 'type' | 'after'> & { after?: number }
-  ) => void;
+  onWizardStageAddAfterend: (params: AddWizardStageParams) => void;
 };
 
 type SortableItemProps = {
