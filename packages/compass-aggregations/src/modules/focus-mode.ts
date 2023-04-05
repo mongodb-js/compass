@@ -75,7 +75,9 @@ export const enableFocusMode = (
 ): PipelineBuilderThunkAction<void, FocusModeEnabledAction> => {
   return (dispatch, getState) => {
     track('Focus Mode Opened', {
-      num_stages: getState().pipelineBuilder.stageEditor.stages.length,
+      num_stages: getState().pipelineBuilder.stageEditor.stages.filter(
+        ({ type }) => type === 'stage'
+      ).length,
     });
     dispatch({
       type: ActionTypes.FocusModeEnabled,

@@ -12,6 +12,7 @@ import {
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { generate } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
+import { getId } from './stage-ids';
 
 function createStageNode({
   key,
@@ -34,12 +35,6 @@ function createStageNode({
       } as t.ObjectProperty,
     ],
   };
-}
-
-let id = 0;
-
-function getId() {
-  return id++;
 }
 
 export default class Stage {
