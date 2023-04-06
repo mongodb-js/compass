@@ -13,8 +13,8 @@ import {
   addStage,
   removeStage,
 } from '../../modules/pipeline-builder/stage-editor';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
-import { assertReduxStage } from '../../utils/errors';
 
 const menuItemStyles = css({
   display: 'flex',
@@ -101,8 +101,9 @@ export const OptionMenu = ({
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
-    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-    assertReduxStage(stage);
+    const stage = state.pipelineBuilder.stageEditor.stages[
+      ownProps.index
+    ] as ReduxStage;
     return {
       isExpanded: !stage.collapsed,
     };

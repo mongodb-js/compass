@@ -17,8 +17,7 @@ import StageOperatorSelect from './stage-operator-select';
 import { hasSyntaxError } from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
-import { assertReduxStage } from '../../utils/errors';
-import { storeIndexToPipelineIndex } from '../../modules/pipeline-builder/stage-editor';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 
 const toolbarStyles = css({
   width: '100%',
@@ -167,10 +166,9 @@ export default connect(
         stageEditor: { stages },
       },
     } = state;
-    const stage = stages[ownProps.index];
-    assertReduxStage(stage);
+    const stage = stages[ownProps.index] as ReduxStage;
     return {
-      idxInPipeline: storeIndexToPipelineIndex(stages, ownProps.index),
+      idxInPipeline: stage.idxInPipeline,
       isAutoPreviewing: !!state.autoPreview,
       hasSyntaxError: hasSyntaxError(stage),
       hasServerError: !!stage.serverError,

@@ -21,7 +21,7 @@ import {
   selectFocusModeStage,
 } from '../../modules/focus-mode';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
-import { assertReduxStage } from '../../utils/errors';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 
 type Stage = {
   idxInStore: number;
@@ -313,8 +313,7 @@ export default connect(
         stageEditor: { stages },
       },
     } = state;
-    const stage = stages[stageIndex];
-    assertReduxStage(stage);
+    const stage = stages[stageIndex] as ReduxStage;
 
     return {
       stageIndex,

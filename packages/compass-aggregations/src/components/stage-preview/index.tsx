@@ -19,7 +19,7 @@ import LoadingOverlay from '../loading-overlay';
 import { AtlasStagePreview } from './atlas-stage-preview';
 import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
-import { assertReduxStage } from '../../utils/errors';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 
 const centeredContent = css({
   display: 'flex',
@@ -191,8 +191,9 @@ export function StagePreview(props: StagePreviewProps) {
 }
 
 export default connect((state: RootState, ownProps: { index: number }) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-  assertReduxStage(stage);
+  const stage = state.pipelineBuilder.stageEditor.stages[
+    ownProps.index
+  ] as ReduxStage;
   const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
     state.env,
     stage.stageOperator,

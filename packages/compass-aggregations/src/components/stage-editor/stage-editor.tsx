@@ -16,10 +16,10 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
-import { assertReduxStage } from '../../utils/errors';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -196,9 +196,8 @@ export const StageEditor = ({
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
     const stages = state.pipelineBuilder.stageEditor.stages;
-    const stage = stages[ownProps.index];
+    const stage = stages[ownProps.index] as ReduxStage;
     const num_stages = stages.length;
-    assertReduxStage(stage);
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,

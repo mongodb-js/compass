@@ -2,8 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { IconButton, Icon } from '@mongodb-js/compass-components';
 import { changeStageCollapsed } from '../../modules/pipeline-builder/stage-editor';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
-import { assertReduxStage } from '../../utils/errors';
 
 const StageCollapser = ({
   index,
@@ -28,8 +28,9 @@ const StageCollapser = ({
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
-    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-    assertReduxStage(stage);
+    const stage = state.pipelineBuilder.stageEditor.stages[
+      ownProps.index
+    ] as ReduxStage;
     return {
       isExpanded: !stage.collapsed,
     };

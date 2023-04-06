@@ -11,10 +11,10 @@ import {
 
 import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 
 import { filterStageOperators } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
-import { assertReduxStage } from '../../utils/errors';
 
 const inputWidth = spacing[7] * 2;
 
@@ -103,8 +103,9 @@ export default withPreferences(
         ) => void;
       }
     ) => {
-      const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-      assertReduxStage(stage);
+      const stage = state.pipelineBuilder.stageEditor.stages[
+        ownProps.index
+      ] as ReduxStage;
 
       const stages = filterStageOperators({
         serverVersion: state.serverVersion,

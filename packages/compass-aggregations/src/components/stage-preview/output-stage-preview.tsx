@@ -11,6 +11,7 @@ import {
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
 import { viewOutResults } from '../../modules/out-results-fn';
 import { runStage } from '../../modules/pipeline-builder/stage-editor';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
@@ -20,7 +21,6 @@ import {
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
 import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
-import { assertReduxStage } from '../../utils/errors';
 
 const stagePreviewStyles = css({
   display: 'flex',
@@ -147,8 +147,9 @@ type OwnProps = {
 };
 
 const mapState = (state: RootState, ownProps: OwnProps) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-  assertReduxStage(stage);
+  const stage = state.pipelineBuilder.stageEditor.stages[
+    ownProps.index
+  ] as ReduxStage;
   const destinationNamespace = getDestinationNamespaceFromStage(
     state.namespace,
     parseShellBSON(`{

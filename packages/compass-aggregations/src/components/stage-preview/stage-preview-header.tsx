@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Body, Link, Tooltip, css } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
-import { assertReduxStage } from '../../utils/errors';
+import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
 
 const toolbarTextStyles = css({
   whiteSpace: 'nowrap',
@@ -86,8 +86,9 @@ function StagePreviewHeader({
 }
 
 export default connect((state: RootState, ownProps: { index: number }) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-  assertReduxStage(stage);
+  const stage = state.pipelineBuilder.stageEditor.stages[
+    ownProps.index
+  ] as ReduxStage;
   const stageInfo = getStageInfo(
     state.namespace,
     stage.stageOperator,
