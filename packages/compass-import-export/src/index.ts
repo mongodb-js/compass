@@ -2,6 +2,7 @@ import Plugin from './plugin';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
 import exportStore from './stores/export-store';
+import { store as newExportStore } from './stores/new-export-store';
 import importStore from './stores/import-store';
 
 import type AppRegistry from 'hadron-app-registry';
@@ -29,6 +30,7 @@ const EXPORT_ROLE = {
 function activate(appRegistry: AppRegistry): void {
   appRegistry.registerRole('Global.Modal', EXPORT_ROLE);
   appRegistry.registerStore('ExportModal.Store', exportStore);
+  appRegistry.registerStore('NewExportModal.Store', newExportStore);
   appRegistry.registerRole('Global.Modal', IMPORT_ROLE);
   appRegistry.registerStore('ImportModal.Store', importStore);
 }
@@ -40,6 +42,7 @@ function activate(appRegistry: AppRegistry): void {
 function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('Global.Modal', EXPORT_ROLE);
   appRegistry.deregisterStore('ExportModal.Store');
+  appRegistry.deregisterStore('NewExportModal.Store');
   appRegistry.deregisterRole('Global.Modal', IMPORT_ROLE);
   appRegistry.deregisterStore('ImportModal.Store');
 }
