@@ -142,9 +142,7 @@ export function storeIndexToPipelineIndex(
 ): number {
   const endBound = includeIndex ? indexInStore + 1 : indexInStore;
   const considerableStages = stages.slice(0, endBound);
-  const totalWizards = considerableStages.filter(
-    ({ type }) => type === 'wizard'
-  );
+  const totalWizards = wizardsFromStore(considerableStages);
   return indexInStore - totalWizards.length;
 }
 

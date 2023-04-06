@@ -1,7 +1,7 @@
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import { getStageOperator } from '../../utils/stage';
 import type { PipelineBuilder } from './pipeline-builder';
-import { loadPreviewForStagesFrom } from './stage-editor';
+import { loadPreviewForStagesFrom, pipelineFromStore } from './stage-editor';
 import type { ReduxStage } from './stage-editor';
 import { loadPreviewForPipeline } from './text-editor-pipeline';
 
@@ -84,14 +84,12 @@ export function getIsPipelineInvalidFromBuilderState(
   includeServerErrors = true
 ): boolean {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
-    return state.pipelineBuilder.stageEditor.stages
-      .filter((stage): stage is ReduxStage => stage.type === 'stage')
-      .some(
-        (stage) =>
-          !stage.empty &&
-          !stage.disabled &&
-          (stage.syntaxError || (stage.serverError && includeServerErrors))
-      );
+    return pipelineFromStore(state.pipelineBuilder.stageEditor.stages).some(
+      (stage) =>
+        !stage.empty &&
+        !stage.disabled &&
+        (stage.syntaxError || (stage.serverError && includeServerErrors))
+    );
   }
   const { serverError, syntaxErrors } =
     state.pipelineBuilder.textEditor.pipeline;

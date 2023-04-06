@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
-import { addStage } from './pipeline-builder/stage-editor';
+import { addStage, pipelineFromStore } from './pipeline-builder/stage-editor';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -75,8 +75,8 @@ export const enableFocusMode = (
 ): PipelineBuilderThunkAction<void, FocusModeEnabledAction> => {
   return (dispatch, getState) => {
     track('Focus Mode Opened', {
-      num_stages: getState().pipelineBuilder.stageEditor.stages.filter(
-        ({ type }) => type === 'stage'
+      num_stages: pipelineFromStore(
+        getState().pipelineBuilder.stageEditor.stages
       ).length,
     });
     dispatch({
