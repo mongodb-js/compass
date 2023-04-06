@@ -31,7 +31,12 @@ export type CSVDetectableFieldType =
   | 'regex'
   | 'minKey'
   | 'maxKey'
-  | 'ejson' // not a real type, but the fallback for otherwise unserializable values
+  // ejson is not a real type, but the fallback for otherwise unserializable
+  // values like javascript, javascriptWithCode, DBRef (which itself is just a
+  // convention, not a type) and whatever new types get added. It also covers
+  // arrays and objects exported by mongoexport. So we detect those as ejson and
+  // then we can import them.
+  | 'ejson'
   | 'null'
   | 'undefined';
 
