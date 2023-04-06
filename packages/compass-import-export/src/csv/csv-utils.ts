@@ -143,7 +143,7 @@ export function stringifyCSVValue(
     return '$MaxKey';
   }
 
-  // Symbol, Code, DBRef and whatever new types get added
+  // Code, DBRef and whatever new types get added
   return formatCSVValue(EJSON.stringify(value), { delimiter });
 }
 

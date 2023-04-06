@@ -30,7 +30,7 @@ export default [
     regex: new BSONRegExp('pattern', 'i'), // Regular Expression, 11, regex
     // DBPointer, 12, dbPointer (deprecated)
     javascript: new Code('function() {}'), // JavaScript, 13, javascript
-    //symbol: new BSONSymbol('symbol'), // Symbol, 14, symbol (deprecated)
+    // Symbol, 14, symbol (deprecated)
     javascriptWithScope: new Code('function() {}', { foo: 1, bar: 'a' }), // JavaScript code with scope 15 "javascriptWithScope" Deprecated in MongoDB 4.4.
     int: new Int32(12345), // 32-bit integer, 16, "int"
     timestamp: new Timestamp(new Long('7218556297505931265')), // Timestamp, 17, timestamp
