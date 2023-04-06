@@ -689,9 +689,7 @@ describe('Collection import', function () {
     await toastElement.waitForDisplayed();
     await browser.waitUntil(async function () {
       const toastText = await toastElement.getText();
-      return toastText.includes(
-        'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
-      );
+      return toastText.includes('"2818" is not an ObjectId');
     });
     await browser
       .$(Selectors.closeToastButton(Selectors.ImportToast))
