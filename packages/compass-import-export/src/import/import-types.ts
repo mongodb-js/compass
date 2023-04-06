@@ -20,14 +20,6 @@ export type ErrorJSON = {
   code?: string | number;
   op?: any;
   errorInfo?: Document;
-  /*
-  e.index = index;
-  e.code = code;
-  e.op = op;
-  e.errInfo = errInfo;
-  // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/#mongodb-data-BulkWriteResult.writeErrors
-  e.name = index && op ? 'WriteError' : 'WriteConcernError';
-*/
 };
 
 export type ImportProgress = {
