@@ -40,6 +40,7 @@ export const enum StageEditorActionTypes {
   StageRemoved = 'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
   StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
   WizardAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardAdded',
+  WizardFormChange = 'compass-aggregations/pipeline-builder/stage-wizard/WizardFormChange',
 }
 
 export type StagePreviewFetchAction = {
@@ -124,9 +125,14 @@ export type StageMoveAction = {
 
 export type WizardAddedAction = {
   type: StageEditorActionTypes.WizardAdded;
-  usecaseId: number;
-  formValues: unknown;
+  wizard: Wizard;
   after: number;
+};
+
+export type WizardFormChangeAction = {
+  type: StageEditorActionTypes.WizardFormChange;
+  at: number;
+  formValues: unknown;
 };
 
 export function storeIndexToPipelineIndex(
@@ -140,6 +146,16 @@ export function storeIndexToPipelineIndex(
     ({ type }) => type === 'wizard'
   );
   return indexInStore - totalWizards.length;
+}
+
+export function pipelineFromStore(
+  stages: StageEditorState['stages']
+): ReduxStage[] {
+  return stages.filter((stage): stage is ReduxStage => stage.type === 'stage');
+}
+
+export function wizardsFromStore(stages: StageEditorState['stages']): Wizard[] {
+  return stages.filter((stage): stage is Wizard => stage.type === 'wizard');
 }
 
 function canRunStage(stage?: ReduxStage, allowOut = false): boolean {
@@ -171,9 +187,7 @@ export const loadStagePreview = (
       autoPreview,
     } = getState();
 
-    const pipeline = stages.filter(
-      (stage): stage is ReduxStage => stage.type === 'stage'
-    );
+    const pipeline = pipelineFromStore(stages);
     const idxInPipeline = storeIndexToPipelineIndex(stages, idx);
 
     // Ignoring the state of the stage, always try to stop current preview fetch
@@ -272,25 +286,19 @@ export const runStage = (
       },
     } = getState();
 
-    const pipelineFromStore = stages.filter(
-      (stage): stage is ReduxStage => stage.type === 'stage'
-    );
+    const pipeline = pipelineFromStore(stages);
     const idxInPipeline = storeIndexToPipelineIndex(stages, idx);
 
-    const stageInStore = pipelineFromStore[idx];
+    const stage = pipeline[idx];
 
-    if (
-      !dataService ||
-      stageInStore.type !== 'stage' ||
-      stageInStore.disabled
-    ) {
+    if (!dataService || stage.type !== 'stage' || stage.disabled) {
       return;
     }
 
     if (
       // Only run stage if all previous ones are valid (otherwise it will fail
       // anyway)
-      !pipelineFromStore.slice(0, idxInPipeline + 1).every((stage) => {
+      !pipeline.slice(0, idxInPipeline + 1).every((stage) => {
         return canRunStage(stage, true);
       })
     ) {
@@ -438,7 +446,7 @@ export const changeStageOperator = (
     stage.changeOperator(newVal);
 
     track('Aggregation Edited', {
-      num_stages: stages.length,
+      num_stages: pipelineFromStore(stages).length,
       stage_action: 'stage_renamed',
       stage_name: stage.operator,
       stage_index: idxInPipeline + 1,
@@ -516,7 +524,7 @@ export const addStage = (
 
     const stage = pipelineBuilder.addStage(addAfterIdxInPipeline);
     track('Aggregation Edited', {
-      num_stages: getState().pipelineBuilder.stageEditor.stages.length,
+      num_stages: pipelineFromStore(stages).length,
       stage_action: 'stage_added',
       stage_index: stage.id + 1,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
@@ -538,7 +546,7 @@ export const removeStage = (
         stageEditor: { stages },
       },
     } = getState();
-    const num_stages = stages.length;
+    const num_stages = pipelineFromStore(stages).length;
     const atIdxInPipeline = storeIndexToPipelineIndex(stages, at, {
       includeIndex: true,
     });
@@ -578,9 +586,7 @@ export const moveStage = (
     if (pipelineWasNotModified) {
       dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
     } else {
-      const pipeline = stages.filter(
-        (stage): stage is ReduxStage => stage.type === 'stage'
-      );
+      const pipeline = pipelineFromStore(stages);
 
       track('Aggregation Edited', {
         num_stages: pipeline.length,
@@ -597,7 +603,9 @@ export const moveStage = (
   };
 };
 
-export type AddWizardParams = Omit<WizardAddedAction, 'type' | 'after'> & {
+export type AddWizardParams = {
+  usecaseId: number;
+  formValues: unknown;
   after?: number;
 };
 
@@ -610,8 +618,16 @@ export const addWizard = (
         stageEditor: { stages },
       },
     } = getState();
+
+    const wizard: Wizard = {
+      id: getId(),
+      type: 'wizard',
+      usecaseId: params.usecaseId,
+      formValues: params.formValues,
+    };
+
     dispatch({
-      ...params,
+      wizard,
       type: StageEditorActionTypes.WizardAdded,
       after: params.after ?? stages.length,
     });
@@ -621,6 +637,15 @@ export const addWizard = (
 export const removeWizard = (at: number): StageRemoveAction => ({
   type: StageEditorActionTypes.StageRemoved,
   at,
+});
+
+export const updateWizardForm = (
+  at: number,
+  formValues: unknown
+): WizardFormChangeAction => ({
+  type: StageEditorActionTypes.WizardFormChange,
+  at,
+  formValues,
 });
 
 export type ReduxStage = {
@@ -893,19 +918,36 @@ const reducer: Reducer<StageEditorState> = (
   }
 
   if (isAction<WizardAddedAction>(action, StageEditorActionTypes.WizardAdded)) {
-    const { after, usecaseId, formValues } = action;
+    const { after, wizard } = action;
     const stages = [...state.stages];
-    stages.splice(after + 1, 0, {
-      id: getId(),
-      type: 'wizard',
-      usecaseId,
-      formValues,
-    });
+    stages.splice(after + 1, 0, wizard);
 
     return {
       ...state,
       stages,
       stageIds: stages.map((stage) => stage.id),
+    };
+  }
+
+  if (
+    isAction<WizardFormChangeAction>(
+      action,
+      StageEditorActionTypes.WizardFormChange
+    )
+  ) {
+    const { at, formValues } = action;
+    const stages = [
+      ...state.stages.slice(0, at),
+      {
+        ...state.stages[at],
+        formValues,
+      },
+      ...state.stages.slice(at + 1),
+    ];
+
+    return {
+      ...state,
+      stages,
     };
   }
 
