@@ -30,8 +30,6 @@ chai.use(chaiAsPromised);
 
 describe('exportCSV', function () {
   let dataService: DataService;
-  let dropCollection: any;
-  let createCollection: any;
   let insertMany: any;
 
   beforeEach(async function () {
@@ -39,20 +37,14 @@ describe('exportCSV', function () {
       connectionString: 'mongodb://localhost:27018/local',
     });
 
-    dropCollection = promisify(dataService.dropCollection.bind(dataService));
-
-    createCollection = promisify(
-      dataService.createCollection.bind(dataService)
-    );
-
     insertMany = promisify(dataService.insertMany.bind(dataService));
 
     try {
-      await dropCollection('db.col');
+      await dataService.dropCollection('db.col');
     } catch (err) {
       // ignore
     }
-    await createCollection('db.col', {});
+    await dataService.createCollection('db.col', {});
   });
 
   afterEach(async function () {
