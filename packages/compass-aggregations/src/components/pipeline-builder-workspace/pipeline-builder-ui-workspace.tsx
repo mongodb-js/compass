@@ -1,15 +1,14 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import Stage from '../stage';
 import type { StageProps } from '../stage';
 import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
 import {
   addStage,
-  addWizard,
   moveStage,
 } from '../../modules/pipeline-builder/stage-editor';
-import type { AddWizardParams } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 import { css } from '@mongodb-js/compass-components';
 
@@ -24,7 +23,6 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import StageOrWizard from '../stage-or-wizard';
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
@@ -49,7 +47,6 @@ type PipelineBuilderUIWorkspaceProps = {
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
-  onWizardStageAddAfterend: (params: AddWizardParams) => void;
 };
 
 type SortableItemProps = {
@@ -72,7 +69,7 @@ const SortableItem = ({
 }: SortableItemProps) => {
   return (
     <div className={stageContainerStyles}>
-      <StageOrWizard index={idx} {...props} />
+      <Stage index={idx} {...props}></Stage>
       {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
     </div>
   );
@@ -142,13 +139,7 @@ const SortableList = ({
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   PipelineBuilderUIWorkspaceProps
-> = ({
-  stageIds,
-  editViewName,
-  onStageMoveEnd,
-  onStageAddAfterEnd,
-  onWizardStageAddAfterend,
-}) => {
+> = ({ stageIds, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
   return (
     <div data-testid="pipeline-builder-ui-workspace">
       <div className={pipelineWorkspaceContainerStyles}>
@@ -164,13 +155,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
           <SortableList
             stageIds={stageIds}
             onStageMoveEnd={onStageMoveEnd}
-            onStageAddAfterEnd={(after) =>
-              onWizardStageAddAfterend({
-                usecaseId: 1,
-                formValues: [],
-                after,
-              })
-            }
+            onStageAddAfterEnd={onStageAddAfterEnd}
           />
           <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
         </div>
@@ -189,7 +174,6 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onStageMoveEnd: moveStage,
   onStageAddAfterEnd: addStage,
-  onWizardStageAddAfterend: addWizard,
 };
 
 export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);

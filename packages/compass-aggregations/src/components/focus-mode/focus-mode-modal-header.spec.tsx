@@ -27,7 +27,20 @@ describe('FocusModeModalHeader', function () {
       <FocusModeModalHeader
         isEnabled
         stageIndex={0}
-        stages={['$match', '$limit', '$project']}
+        stages={[
+          {
+            idxInStore: 0,
+            stageOperator: '$match',
+          },
+          {
+            idxInStore: 1,
+            stageOperator: '$limit',
+          },
+          {
+            idxInStore: 2,
+            stageOperator: '$project',
+          },
+        ]}
         onAddStageClick={noop}
         onStageSelect={noop}
         onStageDisabledToggleClick={noop}
