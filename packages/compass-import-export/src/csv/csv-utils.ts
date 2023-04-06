@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import assert from 'assert';
-import type { Document } from 'mongodb';
+import type { Document } from 'bson';
 import {
   Double,
   Int32,
@@ -12,6 +12,8 @@ import {
   Decimal128,
   UUID,
   EJSON,
+  MinKey,
+  MaxKey,
 } from 'bson';
 
 import type {
@@ -34,10 +36,7 @@ export function formatCSVValue(
     escapeLinebreaks?: boolean;
   }
 ) {
-
-  console.log(value, '=>', value.replace(/"/g, '""'));
   value = value.replace(/"/g, '""');
-
 
   if (escapeLinebreaks) {
     // This should only really be necessary for values that started out as
@@ -114,10 +113,7 @@ export function stringifyCSVValue(
   }
 
   if (bsonType === 'Binary') {
-    return formatCSVValue(value.toString() as string, {
-      delimiter,
-      escapeLinebreaks: true,
-    });
+    return EJSON.stringify(value.value());
   }
 
   if (bsonType === 'BSONRegExp') {
@@ -137,7 +133,17 @@ export function stringifyCSVValue(
     return value.toString();
   }
 
-  // Code, MinKey, MaxKey, DBRef and whatever new types get added
+  if (bsonType === 'MinKey') {
+    // Same as mongoexport
+    return '$MinKey';
+  }
+
+  if (bsonType === 'MaxKey') {
+    // Same as mongoexport
+    return '$MaxKey';
+  }
+
+  // Symbol, Code, DBRef and whatever new types get added
   return formatCSVValue(EJSON.stringify(value), { delimiter });
 }
 
@@ -158,7 +164,8 @@ const DATEONLY_REGEX = /^\d{4}-[01]\d-[0-3]\d$/;
 // a regular expression for detecting regular expressions
 const REGEX_REGEX = /^\/.*\/\w*$/;
 // from js-bson: https://github.com/mongodb/js-bson/blob/5b837a9e5019016529a83700f3ba3065d5e53e80/src/objectid.ts#L6
-const OBJECTID_REGEX = /^[0-9a-fA-F]{24}$/;
+// this also supports mongoexport's format
+const OBJECTID_REGEX = /^(ObjectId\()?([0-9a-fA-F]{24})\)?$/;
 // from js-bson: https://github.com/mongodb/js-bson/blob/5b837a9e5019016529a83700f3ba3065d5e53e80/src/uuid_utils.ts#L5
 const UUID_REGEX =
   /^(?:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15})$/i;
@@ -191,15 +198,25 @@ export function detectCSVFieldType(
 
   if (value === '') {
     return ignoreEmptyStrings ? 'undefined' : 'string';
-  } else if (isEJSON(value)) {
+  }
+
+  if (isEJSON(value)) {
     return 'ejson';
-  } else if (NULL_STRINGS.includes(value)) {
+  }
+
+  if (NULL_STRINGS.includes(value)) {
     return 'null';
-  } else if (TRUTHY_STRINGS.includes(value)) {
+  }
+
+  if (TRUTHY_STRINGS.includes(value)) {
     return 'boolean';
-  } else if (FALSY_STRINGS.includes(value)) {
+  }
+
+  if (FALSY_STRINGS.includes(value)) {
     return 'boolean';
-  } else if (FLOAT_REGEX.test(value)) {
+  }
+
+  if (FLOAT_REGEX.test(value)) {
     // first separate floating point numbers from integers
 
     // 1.0 should be double
@@ -225,12 +242,28 @@ export function detectCSVFieldType(
 
     // really big integers will remain as strings
     return 'string';
-  } else if (ISO_DATE_REGEX.test(value) || DATEONLY_REGEX.test(value)) {
+  }
+
+  if (ISO_DATE_REGEX.test(value) || DATEONLY_REGEX.test(value)) {
     return 'date';
-  } else if (UUID_REGEX.test(value)) {
+  }
+
+  if (UUID_REGEX.test(value)) {
     return 'uuid';
-  } else if (REGEX_REGEX.test(value)) {
+  }
+
+  if (REGEX_REGEX.test(value)) {
     return 'regex';
+  }
+
+  if (value === '$MinKey') {
+    // support mongoexport's way of exporting minKey
+    return 'minKey';
+  }
+
+  if (value === '$MaxKey') {
+    // support mongoexport's way of exporting maxKey
+    return 'maxKey';
   }
 
   return 'string';
@@ -379,7 +412,8 @@ export function parseCSVValue(
   }
 
   if (type === 'boolean') {
-    // only using '1' and '0' when explicitly parsing, not when detecting so that those are left as ints
+    // only using '1' and '0' when explicitly parsing, not when detecting so
+    // that those are left as ints
     if (TRUTHY_STRINGS.includes(value) || value === '1') {
       return true;
     }
@@ -418,25 +452,65 @@ export function parseCSVValue(
     // At the time of writing the only way to get here is if the user selects
     // mixed and it detects the type as null. Null is not an option in the
     // dropdown.
-    return null;
+    if (NULL_STRINGS.includes(value)) {
+      return null;
+    } else {
+      throw new Error(`"${value}" is not null`);
+    }
+  }
+
+  if (type === 'uuid') {
+    // NOTE: this can throw
+    return new UUID(value);
+  }
+
+  if (type === 'regex') {
+    const match = value.match(/^\/(.*)\/(.*)$/);
+    if (!match) {
+      throw new Error(`"${value}" is not a regular expression`);
+    }
+    return new BSONRegExp(match[1], match[2]);
+  }
+
+  if (type === 'minKey') {
+    if (value === '$MinKey') {
+      return new MinKey();
+    } else {
+      throw new Error(`"${value}" is not $MinKey`);
+    }
+  }
+
+  if (type === 'maxKey') {
+    if (value === '$MaxKey') {
+      return new MaxKey();
+    } else {
+      throw new Error(`"${value}" is not $MaxKey`);
+    }
+  }
+
+  if (type === 'ejson') {
+    // This works for arrays or objects that got stringified by mongoexport and
+    // also for the fallback exportCSV() has for types like symbol, javascript,
+    // javascriptWithScope and dbref where we don't have a better way to turn
+    // values into strings. Furthermore it also helps for the cases where
+    // mongoexport uses EJSON stringify and we don't. ie. Timestamp.
+    return EJSON.parse(value);
+  }
+
+  if (type === 'objectId') {
+    const match = value.match(OBJECTID_REGEX);
+    if (!match) {
+      throw new Error(`"${value}" is not an ObjectId`);
+    }
+    return new ObjectId(match[2]);
   }
 
   // The rest (other than the string fallback at the bottom) can't be detected
   // at the the time of writing, so the user will have to explicitly select it
   // from the dropdown.
 
-  if (type === 'objectId') {
-    // NOTE: this can throw
-    return new ObjectId(value);
-  }
-
   if (type === 'binData') {
     return new Binary(Buffer.from(value), Binary.SUBTYPE_DEFAULT);
-  }
-
-  if (type === 'uuid') {
-    // NOTE: this can throw
-    return new UUID(value);
   }
 
   if (type === 'md5') {
@@ -454,22 +528,6 @@ export function parseCSVValue(
   if (type === 'decimal') {
     // NOTE: this can throw
     return Decimal128.fromString(value);
-  }
-
-  if (type === 'regex') {
-    const match = value.match(/^\/(.*)\/(.*)$/);
-    if (!match) {
-      throw new Error(`${value} is not a regular expression`);
-    }
-    return new BSONRegExp(match[1], match[2]);
-  }
-
-  if (type === 'ejson') {
-    // This works for arrays or objects that got stringified by mongoexport and
-    // also for the fallback exportCSV() has for types like javascript,
-    // javascriptWithScope, dbref, minkey and maxkey where we don't have a
-    // better way to turn values into strings.
-    return EJSON.parse(value);
   }
 
   // By default leave it as a string

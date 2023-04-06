@@ -27,6 +27,8 @@ import {
   formatCSVValue,
   formatCSVLine,
   stringifyCSVValue,
+  csvHeaderNameToFieldName,
+  formatCSVHeaderName,
 } from './csv-utils';
 import type { IncludedFields, PathPart } from './csv-types';
 
@@ -84,25 +86,117 @@ describe('stringifyCSVValue', function () {
     expect(stringifyCSVValue('foo\r\nbar', options)).to.equal('foo\\r\\nbar');
   });
 
-  it('stringifies date');
+  it('stringifies date', function () {
+    expect(
+      stringifyCSVValue(new Date('2019-02-08T10:21:49.176Z'), options)
+    ).to.equal('2019-02-08T10:21:49.176Z');
+  });
 
-  it('stringifies number');
-  it('stringifies boolean');
-  it('stringifies object');
-  it('stringifies array');
-  it('stringifies objectId');
-  it('stringifies uuid');
-  it('stringifies binary');
-  it('stringifies regexp');
-  it('stringifies decimal128');
-  it('stringifies timestamp');
-  it('stringifies code');
-  it('stringifies minkey');
-  it('stringifies maxkey');
-  it('stringifies dbref');
+  it('stringifies number', function () {
+    expect(stringifyCSVValue(1, options)).to.equal('1');
+    expect(stringifyCSVValue(1.2, options)).to.equal('1.2');
+  });
+
+  it('stringifies boolean', function () {
+    expect(stringifyCSVValue(true, options)).to.equal('true');
+    expect(stringifyCSVValue(false, options)).to.equal('false');
+  });
+
+  it('stringifies object', function () {
+    expect(stringifyCSVValue({}, options)).to.equal('{}');
+    expect(stringifyCSVValue({ foo: 1 }, options)).to.equal('"{""foo"":1}"');
+  });
+
+  it('stringifies array', function () {
+    expect(stringifyCSVValue([], options)).to.equal('[]');
+    expect(stringifyCSVValue([1, 2, 3], options)).to.equal('"[1,2,3]"');
+  });
+
+  it('stringifies objectId', function () {
+    expect(
+      stringifyCSVValue(new ObjectId('5ab901c29ee65f5c8550c5b9'), options)
+    ).to.equal('5ab901c29ee65f5c8550c5b9');
+  });
+
+  it('stringifies uuid', function () {
+    expect(
+      stringifyCSVValue(
+        new UUID('0908fcbe-ad5f-4aac-bcb7-1584288467ac'),
+        options
+      )
+    ).to.equal('0908fcbe-ad5f-4aac-bcb7-1584288467ac');
+  });
+
+  it('stringifies binary', function () {
+    expect(
+      stringifyCSVValue(new Binary('c//SZESzTGmQ6OfR38A11A=='), options)
+    ).to.equal('"c//SZESzTGmQ6OfR38A11A=="');
+  });
+
+  it('stringifies regexp', function () {
+    expect(stringifyCSVValue(new BSONRegExp('pattern', 'i'), options)).to.equal(
+      '/pattern/i'
+    );
+  });
+
+  it('stringifies decimal128', function () {
+    expect(
+      stringifyCSVValue(
+        new Decimal128(
+          Buffer.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+        ),
+        options
+      )
+    ).to.equal('5.477284286264328586719275128128001E-4088');
+  });
+
+  it('stringifies timestamp', function () {
+    expect(
+      stringifyCSVValue(new Timestamp(new Long('1680624461218')), options)
+    ).to.equal('1680624461218');
+  });
+
+  it('stringifies code', function () {
+    expect(stringifyCSVValue(new Code('function() {}'), options)).to.equal(
+      '"{""$code"":""function() {}""}"'
+    );
+    expect(
+      stringifyCSVValue(
+        new Code('function() {}', { foo: 1, bar: 'a' }),
+        options
+      )
+    ).to.equal(
+      '"{""$code"":""function() {}"",""$scope"":{""foo"":1,""bar"":""a""}}"'
+    );
+  });
+
+  it('stringifies minkey', function () {
+    expect(stringifyCSVValue(new MinKey(), options)).to.equal('$MinKey');
+  });
+
+  it('stringifies maxkey', function () {
+    expect(stringifyCSVValue(new MaxKey(), options)).to.equal('$MaxKey');
+  });
+
+  it('stringifies dbref', function () {
+    expect(
+      stringifyCSVValue(
+        new DBRef('namespace', new ObjectId('642c4ce5e013234c1d9dd9ad')),
+        options
+      )
+    ).to.equal(
+      '"{""$ref"":""namespace"",""$id"":{""$oid"":""642c4ce5e013234c1d9dd9ad""}}"'
+    );
+  });
 });
 
-//describe('csvHeaderNameToFieldName'); // TODO
+describe('csvHeaderNameToFieldName', function () {
+  it('strips array components', function () {
+    expect(csvHeaderNameToFieldName('array[0]')).to.equal('array');
+    expect(csvHeaderNameToFieldName('array')).to.equal('array');
+    expect(csvHeaderNameToFieldName('foo[3].bar[1]')).to.equal('foo.bar');
+  });
+});
 
 describe('detectCSVFieldType', function () {
   const name = 'foo';
@@ -530,11 +624,9 @@ describe('parseCSVValue', function () {
     expect(parseCSVValue('Null', 'null')).to.deep.equal(null);
     expect(parseCSVValue('NULL', 'null')).to.deep.equal(null);
 
-    // But really it will make anything null if the user says the column is null
-    // (We don't currently allow users to select null, so you can only get here
-    // by selecting Mixed and it detecting null)
-    expect(parseCSVValue('dsfsd', 'null')).to.deep.equal(null);
-    expect(parseCSVValue('1234', 'null')).to.deep.equal(null);
+    expect(() => parseCSVValue('dsfsd', 'null')).to.throw(
+      '"dsfsd" is not null'
+    );
   });
 
   it('parses string', function () {
@@ -560,10 +652,16 @@ describe('parseCSVValue', function () {
   });
 
   it('parses objectId', function () {
-    expect(() => parseCSVValue('1', 'objectId')).to.throw(BSONError);
+    expect(() => parseCSVValue('1', 'objectId')).to.throw(
+      '"1" is not an ObjectId'
+    );
     expect(parseCSVValue('63dbc32d12a39d2a72941813', 'objectId')).to.deep.equal(
       new ObjectId('63dbc32d12a39d2a72941813')
     );
+
+    expect(
+      parseCSVValue('ObjectId(63dbc32d12a39d2a72941813)', 'objectId')
+    ).to.deep.equal(new ObjectId('63dbc32d12a39d2a72941813'));
   });
 
   it('parses regex', function () {
@@ -618,6 +716,20 @@ describe('parseCSVValue', function () {
         'ejson'
       )
     ).to.deep.equal(new DBRef('namespace', new ObjectId()));
+  });
+
+  it('parses minkey', function () {
+    expect(parseCSVValue('$MinKey', 'minKey')).to.deep.equal(new MinKey());
+    expect(() => parseCSVValue('$MaxKey', 'minKey')).to.throw(
+      '"$MaxKey" is not $MinKey'
+    );
+  });
+
+  it('parses maxkey', function () {
+    expect(parseCSVValue('$MaxKey', 'maxKey')).to.deep.equal(new MaxKey());
+    expect(() => parseCSVValue('$MinKey', 'maxKey')).to.throw(
+      '"$MinKey" is not $MaxKey'
+    );
   });
 
   it('leaves all other bson types as strings', function () {
@@ -721,4 +833,16 @@ describe('parseCSVHeaderName', function () {
   });
 });
 
-//describe('formatCSVHeaderName'); // TODO
+describe('formatCSVHeaderName', function () {
+  it('joins path parts together', function () {
+    const pathParts: PathPart[] = [
+      { type: 'field', name: 'foo' },
+      { type: 'index', index: 0 },
+      { type: 'field', name: 'bar' },
+      { type: 'index', index: 1 },
+      { type: 'index', index: 2 },
+    ];
+
+    expect(formatCSVHeaderName(pathParts)).to.equal('foo[0].bar[1][2]');
+  });
+});

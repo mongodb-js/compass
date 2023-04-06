@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import type { Document } from 'mongodb';
 import type { PathPart } from '../csv/csv-types';
 
 export function lookupValueForPath(

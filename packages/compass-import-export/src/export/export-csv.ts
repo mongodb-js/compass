@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import fs from 'fs';
 import { EJSON } from 'bson';
+import type { Document } from 'bson';
 import { pipeline } from 'stream/promises';
 import temp from 'temp';
 import { Transform } from 'stream';
@@ -89,9 +89,6 @@ class CSVRowStream extends Transform {
           delimiter: this.delimiter,
         })
       );
-
-      const headers = this.columns.map((path) => formatCSVHeaderName(path));
-      console.log(_.zipObject(headers, values));
 
       const line = formatCSVLine(values, {
         delimiter: this.delimiter,
@@ -285,16 +282,12 @@ export async function exportCSVFromQuery({
 }) {
   debug('exportJSONFromQuery()', { ns: toNS(ns) });
 
-  const findCursor = dataService.findCursor(
-    ns,
-    (query.filter ?? {}) as Document,
-    {
-      projection: query.projection,
-      sort: query.sort,
-      limit: query.limit,
-      skip: query.skip,
-    }
-  );
+  const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
+    projection: query.projection,
+    sort: query.sort,
+    limit: query.limit,
+    skip: query.skip,
+  });
 
   const { filename, input, columns } = await loadEJSONFileAndColumns({
     cursor: findCursor,

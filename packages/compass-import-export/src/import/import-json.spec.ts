@@ -600,7 +600,11 @@ describe('importJSON', function () {
       jsonVariant: 'json',
     });
 
-    const docs = await dataService.find(ns, {}, { promoteValues: false });
+    const docs = await dataService.find(
+      ns,
+      {},
+      { promoteValues: false, bsonRegExp: true }
+    );
 
     expect(docs).to.have.length(3);
 
@@ -653,7 +657,11 @@ describe('importJSON', function () {
       jsonVariant: 'json',
     });
 
-    const docs = await dataService.find(ns, {}, { promoteValues: false });
+    const docs = await dataService.find(
+      ns,
+      {},
+      { promoteValues: false, bsonRegExp: true }
+    );
 
     expect(docs).to.have.length(3);
 

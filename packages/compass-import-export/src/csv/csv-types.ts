@@ -8,6 +8,8 @@ import type {
   Timestamp,
   Decimal128,
   UUID,
+  MinKey,
+  MaxKey,
 } from 'bson';
 
 export const supportedDelimiters = [',', '\t', ';', ' '];
@@ -27,6 +29,8 @@ export type CSVDetectableFieldType =
   | 'objectId'
   | 'uuid'
   | 'regex'
+  | 'minKey'
+  | 'maxKey'
   | 'ejson' // not a real type, but the fallback for otherwise unserializable values
   | 'null'
   | 'undefined';
@@ -57,6 +61,8 @@ export const CSVFieldTypeLabels: Record<CSVParsableFieldType, string> = {
   timestamp: 'Timestamp',
   decimal: 'Decimal128',
   regex: 'RegExpr',
+  minKey: 'MinKey',
+  maxKey: 'MaxKey',
   ejson: 'EJSON',
   number: 'Number',
   mixed: 'Mixed',
@@ -77,7 +83,9 @@ export type CSVValue =
   | ObjectId
   | BSONRegExp
   | Decimal128
-  | UUID;
+  | UUID
+  | MinKey
+  | MaxKey;
 
 // NOTE: The fact that PathPart has an "index" property in one case and "name"
 // in the other rather than just one shared "value" is deliberate. It forces us

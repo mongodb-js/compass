@@ -1,3 +1,5 @@
+import type { Document } from 'bson';
+
 import type {
   CollectionStreamStats,
   CollectionStreamProgressError,
