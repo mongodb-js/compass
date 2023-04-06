@@ -178,11 +178,6 @@ class ColumnStream extends Transform {
   }
 
   getColumns() {
-    // TODO: In case of very large arrays or objects we should probably have a
-    // threshold where we don't expand the fields into separate columns and rather
-    // just dump the top-level fields as EJSON. We might as well add an option for
-    // opting in to that by default. We can also error out and then the user has
-    // to select the other option and try again?
     return this.columnRecorder.columns;
   }
 }
