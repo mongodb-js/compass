@@ -81,7 +81,9 @@ class CSVRowStream extends Transform {
     cb: (err: null | Error, ejson?: any) => void
   ) {
     this.docsWritten++;
-    //debug('CSVRowStream', { chunk });
+    // We don't debug on every line passed as it will significantly slow down the
+    // export, however this is useful when diagnosing issues.
+    // debug('CSVRowStream', { chunk });
     try {
       const row = this.columns.map((path) => lookupValueForPath(chunk, path));
       const values = row.map((value) =>
