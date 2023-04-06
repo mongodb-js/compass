@@ -1,5 +1,6 @@
 import util from 'util';
 import Connection from 'mongodb-connection-model';
+import type { DataService } from 'mongodb-data-service';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
@@ -115,9 +116,7 @@ function waitForState(store, cb, timeout) {
 describe('store', function () {
   this.timeout(5000);
 
-  let dataService;
-  let createCollection;
-  let dropCollection;
+  let dataService: DataService;
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
@@ -128,23 +127,16 @@ describe('store', function () {
     const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect(info.connectionOptions);
 
-    createCollection = util.promisify(
-      dataService.createCollection.bind(dataService)
-    );
-    dropCollection = util.promisify(
-      dataService.dropCollection.bind(dataService)
-    );
-
     // Add some validation so that we can test what happens when insert/update
     // fails below.
 
     try {
-      await dropCollection('compass-crud.test');
+      await dataService.dropCollection('compass-crud.test');
     } catch (err) {
       // noop
     }
 
-    await createCollection('compass-crud.test', {
+    await dataService.createCollection('compass-crud.test', {
       validator: {
         $jsonSchema: {
           bsonType: 'object',
@@ -1799,12 +1791,12 @@ describe('store', function () {
         store.setState({ isTimeSeries: true });
 
         try {
-          await dropCollection('compass-crud.timeseries');
+          await dataService.dropCollection('compass-crud.timeseries');
         } catch (err) {
           // noop
         }
 
-        await createCollection('compass-crud.timeseries', {
+        await dataService.createCollection('compass-crud.timeseries', {
           timeseries: { timeField: 'timestamp ' },
         });
       });
@@ -2016,17 +2008,25 @@ describe('store', function () {
         ],
         {},
         (err) => {
-          if (err) return done(err);
-          dataService.createView(
-            'testview',
-            'compass-crud.test',
-            [{ $sort: { cat: 1 } }],
-            {},
-            (createViewError) => {
-              if (createViewError) return done(createViewError);
-              done();
-            }
-          );
+          if (err) {
+            return done(err);
+          }
+
+          dataService
+            .createView(
+              'testview',
+              'compass-crud.test',
+              [{ $sort: { cat: 1 } }],
+              {}
+            )
+            .then(
+              () => {
+                done();
+              },
+              (createViewError) => {
+                done(createViewError);
+              }
+            );
         }
       );
     });

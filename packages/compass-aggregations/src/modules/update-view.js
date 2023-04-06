@@ -62,7 +62,7 @@ export const dismissViewError = () => ({
  * @returns {Function} The function.
  */
 export const updateView = () => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     dispatch(dismissViewError());
 
     const state = getState();
@@ -79,26 +79,19 @@ export const updateView = () => {
 
     try {
       debug('calling data-service.updateCollection', viewNamespace);
-      ds.updateCollection(viewNamespace, options, (e) => {
-        if (e) {
-          debug('error updating view', e);
-          dispatch(updateViewErrorOccured(e));
-          return;
-        }
-
-        dispatch(globalAppRegistryEmit('refresh-data'));
-        track('View Updated', {
-          num_stages: viewPipeline.length,
-          editor_view_type: mapPipelineModeToEditorViewType(state),
-        });
-        debug('selecting namespace', viewNamespace);
-        dispatch(
-          globalAppRegistryEmit(
-            'aggregations-open-view-after-update',
-            viewNamespace
-          )
-        );
+      await ds.updateCollection(viewNamespace, options);
+      dispatch(globalAppRegistryEmit('refresh-data'));
+      track('View Updated', {
+        num_stages: viewPipeline.length,
+        editor_view_type: mapPipelineModeToEditorViewType(state),
       });
+      debug('selecting namespace', viewNamespace);
+      dispatch(
+        globalAppRegistryEmit(
+          'aggregations-open-view-after-update',
+          viewNamespace
+        )
+      );
     } catch (e) {
       debug('Unexpected error updating view', e);
       dispatch(updateViewErrorOccured(e));

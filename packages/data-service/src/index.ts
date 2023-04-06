@@ -38,3 +38,4 @@ export {
 };
 
 export type { ExplainExecuteOptions } from './data-service';
+export type { IndexDefinition } from './index-detail-helper';

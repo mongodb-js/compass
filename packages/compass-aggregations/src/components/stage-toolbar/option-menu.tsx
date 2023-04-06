@@ -44,6 +44,7 @@ export const OptionMenu = ({
               data-testid="stage-option-menu-button"
               onClick={onClick}
               aria-label="More options"
+              title="More options"
             >
               <Icon glyph="Ellipsis" size="small"></Icon>
             </IconButton>

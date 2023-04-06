@@ -76,7 +76,9 @@ export function ImportPreviewLoader({
         can skip this step and manually assign field types at any point during
         the process.
       </Body>
-      <Button onClick={skipCSVAnalyze}>Skip</Button>
+      <Button data-testid="skip-csv-analyze-button" onClick={skipCSVAnalyze}>
+        Skip
+      </Button>
     </div>
   );
 }

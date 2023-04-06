@@ -15,7 +15,7 @@ export const APP_REGISTRY_ACTIVATED = `${PREFIX}/APP_REGISTRY_ACTIVATED`;
 /**
  * The initial state.
  */
-export const INITIAL_STATE = null;
+export const INITIAL_STATE: AppRegistry | null = null;
 
 /**
  * Reducer function for handle state changes to the app registry.

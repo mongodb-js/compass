@@ -211,17 +211,10 @@ describe('DataService', function () {
         }
       });
 
-      it('drops a collection', function (done) {
-        dataService.dropCollection(`${testDatabaseName}.bar`, function (error) {
-          assert.equal(null, error);
-          dataService
-            .listCollections(testDatabaseName, {})
-            .then(function (items) {
-              expect(items).to.not.include({ name: 'bar', options: {} });
-              done();
-            })
-            .catch(done);
-        });
+      it('drops a collection', async function () {
+        await dataService.dropCollection(`${testDatabaseName}.bar`);
+        const items = await dataService.listCollections(testDatabaseName);
+        expect(items).to.not.include({ name: 'bar', options: {} });
       });
 
       it('drops a collection with fle2 options', async function () {
@@ -256,14 +249,7 @@ describe('DataService', function () {
         expect(items).to.include('enxcol_.fle2.ecc');
         expect(items).to.include('enxcol_.fle2.ecoc');
 
-        await new Promise<void>((resolve, reject) => {
-          dataService.dropCollection(
-            `${testDatabaseName}.fle2`,
-            function (error) {
-              error ? reject(error) : resolve();
-            }
-          );
-        });
+        await dataService.dropCollection(`${testDatabaseName}.fle2`);
 
         items = (
           await mongoClient
@@ -271,6 +257,7 @@ describe('DataService', function () {
             .listCollections({}, { nameOnly: true })
             .toArray()
         ).map(({ name }) => name);
+
         expect(items).to.not.include('fle2');
         expect(items).to.not.include('enxcol_.fle2.esc');
         expect(items).to.not.include('enxcol_.fle2.ecc');
@@ -312,16 +299,11 @@ describe('DataService', function () {
           );
       });
 
-      it('removes an index from a collection', function (done) {
+      it('removes an index from a collection', async function () {
         const namespace = testNamespace;
-        dataService.dropIndex(namespace, 'a_1', function (error) {
-          assert.equal(null, error);
-          dataService.indexes(namespace, {}, function (err, indexes) {
-            assert.equal(null, err);
-            expect(indexes).to.not.have.property('name', 'a_1');
-            done();
-          });
-        });
+        await dataService.dropIndex(namespace, 'a_1');
+        const indexes = await dataService.indexes(namespace);
+        expect(indexes).to.not.have.property('name', 'a_1');
       });
     });
 
@@ -592,16 +574,12 @@ describe('DataService', function () {
 
     describe('#collectionStats', function () {
       context('when the collection is not a system collection', function () {
-        it('returns an object with the collection stats', function (done) {
-          dataService.collectionStats(
-            `${testDatabaseName}`,
-            testCollectionName,
-            function (err, stats) {
-              assert.equal(null, err);
-              expect(stats.name).to.equal(testCollectionName);
-              done();
-            }
+        it('returns an object with the collection stats', async function () {
+          const stats = await dataService.collectionStats(
+            testDatabaseName,
+            testCollectionName
           );
+          expect(stats.name).to.equal(testCollectionName);
         });
       });
     });
@@ -622,12 +600,9 @@ describe('DataService', function () {
     });
 
     describe('#updateCollection', function () {
-      it('returns the update result', function (done) {
-        dataService.updateCollection(testNamespace, {}, function (err, result) {
-          assert.equal(null, err);
-          expect(result.ok).to.equal(1.0);
-          done();
-        });
+      it('returns the update result', async function () {
+        const result = await dataService.updateCollection(testNamespace);
+        expect(result.ok).to.equal(1);
       });
     });
 
@@ -736,73 +711,47 @@ describe('DataService', function () {
         await mongoClient.db(testDatabaseName).dropCollection('foo');
       });
 
-      it('creates a new collection', function (done) {
+      it('creates a new collection', async function () {
         const options = {};
-        dataService.createCollection(
-          `${testDatabaseName}.foo`,
-          options,
-          function (error) {
-            if (error) {
-              done(error);
-              return;
-            }
-            dataService
-              .collectionInfo(testDatabaseName, 'foo')
-              .then((collInfo) => {
-                expect(collInfo).to.have.property('name', 'foo');
-                expect(collInfo).to.have.property('type', 'collection');
-                done();
-              })
-              .catch(done);
-          }
+        await dataService.createCollection(`${testDatabaseName}.foo`, options);
+        const collInfo = await dataService.collectionInfo(
+          testDatabaseName,
+          'foo'
         );
+        expect(collInfo).to.have.property('name', 'foo');
+        expect(collInfo).to.have.property('type', 'collection');
       });
     });
 
     describe('#createIndex', function () {
       context('when options are provided', function () {
-        it('creates a new index with the provided options', function (done) {
+        it('creates a new index with the provided options', async function () {
           const namespace = testNamespace;
           const spec = { a: 1 };
           const options = { unique: true };
-          dataService.createIndex(namespace, spec, options, function (error) {
-            assert.equal(null, error);
-            dataService.indexes(namespace, {}, function (err, indexes) {
-              assert.equal(null, err);
-              expect(indexes.length).to.equal(2);
-              done();
-            });
-          });
+          await dataService.createIndex(namespace, spec, options);
+          const indexes = await dataService.indexes(namespace, {});
+          expect(indexes.length).to.equal(2);
         });
       });
 
       context('when no options are provided', function () {
-        it('creates a new single index', function (done) {
+        it('creates a new single index', async function () {
           const namespace = testNamespace;
           const spec = { b: 1 };
           const options = {};
-          dataService.createIndex(namespace, spec, options, function (error) {
-            assert.equal(null, error);
-            dataService.indexes(namespace, {}, function (err, indexes) {
-              assert.equal(null, err);
-              expect(indexes.length).to.equal(2);
-              done();
-            });
-          });
+          await dataService.createIndex(namespace, spec, options);
+          const indexes = await dataService.indexes(namespace, {});
+          expect(indexes.length).to.equal(2);
         });
 
-        it('creates a new compound index', function (done) {
+        it('creates a new compound index', async function () {
           const namespace = testNamespace;
           const spec = { a: -1, b: 1 };
           const options = {};
-          dataService.createIndex(namespace, spec, options, function (error) {
-            assert.equal(null, error);
-            dataService.indexes(namespace, {}, function (err, indexes) {
-              assert.equal(null, err);
-              expect(indexes.length).to.equal(2);
-              done();
-            });
-          });
+          await dataService.createIndex(namespace, spec, options);
+          const indexes = await dataService.indexes(namespace, {});
+          expect(indexes.length).to.equal(2);
         });
       });
     });
@@ -822,13 +771,10 @@ describe('DataService', function () {
     });
 
     describe('#indexes', function () {
-      it('returns the indexes', function (done) {
-        dataService.indexes(testNamespace, {}, function (err, indexes) {
-          assert.equal(null, err);
-          expect(indexes[0].name).to.equal('_id_');
-          expect(indexes[0].size).to.be.a('number');
-          done();
-        });
+      it('returns the indexes', async function () {
+        const indexes = await dataService.indexes(testNamespace);
+        expect(indexes[0].name).to.equal('_id_');
+        expect(indexes[0].size).to.be.a('number');
       });
     });
 
@@ -1014,16 +960,11 @@ describe('DataService', function () {
           .dropCollection('testViewSourceColl');
       });
 
-      it('creates a new view', function (done) {
-        dataService.createView(
+      it('creates a new view', async function () {
+        await dataService.createView(
           'myView',
           `${testDatabaseName}.testViewSourceColl`,
-          [{ $project: { a: 0 } }],
-          {},
-          function (err) {
-            if (err) return done(err);
-            done();
-          }
+          [{ $project: { a: 0 } }]
         );
       });
 
@@ -1040,85 +981,27 @@ describe('DataService', function () {
       });
     });
 
-    describe('#collections', function () {
-      context('when no readonly views exist', function () {
-        it('returns the collections', function (done) {
-          dataService['_collections'](
-            `${testDatabaseName}`,
-            function (err, collections) {
-              assert.equal(null, err);
-              expect(collections[0].name).to.not.equal(undefined);
-              done();
-            }
-          );
-        });
-      });
-
-      context('when readonly views exist', function () {
-        afterEach(async function () {
-          await mongoClient.db(testDatabaseName).dropCollection('readonlyfoo');
-          await mongoClient.db(testDatabaseName).dropCollection('system.views');
-        });
-
-        it('returns empty stats for the readonly views', function (done) {
-          const pipeline = [{ $match: { name: testCollectionName } }];
-          const options = { viewOn: testCollectionName, pipeline: pipeline };
-          dataService.createCollection(
-            `${testDatabaseName}.readonlyfoo`,
-            options,
-            function (error) {
-              if (error) {
-                assert.notEqual(null, error.message);
-                done();
-              } else {
-                dataService['_collections'](
-                  `${testDatabaseName}`,
-                  function (err, collections) {
-                    assert.equal(null, err);
-                    expect(collections[0].name).to.not.equal(undefined);
-                    done();
-                  }
-                );
-              }
-            }
-          );
-        });
-      });
-    });
-
     describe('#currentOp', function () {
-      it('returns an object with the currentOp', function (done) {
-        dataService.currentOp(true, function (err, result) {
-          assert.equal(null, err);
-          expect(result.inprog).to.not.equal(undefined); // TODO: are these tests enough?
-          done();
-        });
+      it('returns an object with the currentOp', async function () {
+        const result = await dataService.currentOp(true);
+        expect(result.inprog).to.not.equal(undefined); // TODO: are these tests enough?
       });
     });
 
-    describe('#serverstats', function () {
-      it('returns an object with the serverstats', function (done) {
-        dataService.serverstats(function (err, result) {
-          assert.equal(null, err);
-          expect(result.ok).to.equal(1);
-          done();
-        });
+    describe('#serverStatus', function () {
+      it('returns an object with the serverstats', async function () {
+        const result = await dataService.serverStatus();
+        expect(result.ok).to.equal(1);
       });
     });
 
     describe('#top', function () {
-      it('returns an object with the results from top', function (done) {
-        dataService.top(function (err, result) {
-          if (dataService.isMongos()) {
-            assert(err);
-            expect(err.message).to.contain('top');
-            done();
-            return;
-          }
-          assert.equal(null, err);
-          expect(result.ok).to.equal(1);
-          done();
-        });
+      it('returns an object with the results from top', async function () {
+        if (dataService.isMongos()) {
+          await expect(() => dataService.top()).to.be.rejectedWith(/top/);
+        } else {
+          expect(await dataService.top()).to.have.property('ok', 1);
+        }
       });
     });
 
@@ -1681,7 +1564,7 @@ describe('DataService', function () {
         expect(dataService._initializedClient('META')).to.equal(b);
       });
 
-      it('resets clients after updateCollection', function (done) {
+      it('resets clients after updateCollection', async function () {
         const mockConfig = {
           commands: {
             collMod: { ok: 1 },
@@ -1694,30 +1577,26 @@ describe('DataService', function () {
             },
           },
         };
-        const dataService: any = createDataServiceWithMockedClient(mockConfig);
+        const dataService = createDataServiceWithMockedClient(mockConfig);
         // Ensure that _crudClient and _metadataClient differ
-        const fakeCrudClient = (
-          createDataServiceWithMockedClient(mockConfig) as any
-        )._crudClient;
-        dataService._crudClient = fakeCrudClient;
+        const fakeCrudClient =
+          createDataServiceWithMockedClient(mockConfig)['_crudClient'];
 
-        const fakeClonedClient = (
-          createDataServiceWithMockedClient(mockConfig) as any
-        )._crudClient;
-        fakeCrudClient[createClonedClient] = sinon
-          .stub()
-          .resolves(fakeClonedClient);
+        dataService['_crudClient'] = fakeCrudClient;
 
-        dataService.updateCollection(
-          'test.test',
-          {
-            validator: { $jsonSchema: {} },
-          },
-          (err) => {
-            expect(dataService._crudClient).to.equal(fakeClonedClient);
-            done(err);
-          }
-        );
+        const fakeClonedClient =
+          createDataServiceWithMockedClient(mockConfig)['_crudClient'];
+
+        if (fakeCrudClient) {
+          fakeCrudClient[createClonedClient] = sinon
+            .stub()
+            .resolves(fakeClonedClient);
+        }
+
+        await dataService.updateCollection('test.test', {
+          validator: { $jsonSchema: {} },
+        });
+        expect(dataService['_crudClient']).to.equal(fakeClonedClient);
       });
     });
   });

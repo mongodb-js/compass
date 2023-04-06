@@ -4,27 +4,20 @@ import type { AnyAction } from 'redux';
 /**
  * Action for the dataService connection.
  */
-export const DATA_SERVICE_CONNECTED = 'import-export/ns/DATA_SERVICE_CONNECTED';
+export const DATA_SERVICE_CONNECTED =
+  'import-export/data-service/DATA_SERVICE_CONNECTED';
+export const DATA_SERVICE_DISCONNECTED =
+  'import-export/data-service/DATA_SERVICE_DISCONNECTED';
 
 type State = {
   dataService?: DataService;
   error?: Error;
 };
 
-/**
- * The initial dataService state.
- */
-const INITIAL_STATE: State = {};
+function getInitialState(): State {
+  return {};
+}
 
-/**
- * Create a ns changed action.
- *
- * @param {Object} error - dataService connection error
- *
- * @param {DataService} dataService - data service instance.
- *
- * @returns {Object} The action.
- */
 export const dataServiceConnected = (
   error: Error | undefined,
   dataService: DataService
@@ -36,20 +29,24 @@ export const dataServiceConnected = (
   };
 };
 
-/**
- * Handle ns changes on the state.
- *
- * @param {String} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {String} The state.
- */
-const reducer = (state: State = INITIAL_STATE, action: AnyAction): State => {
+export const dataServiceDisconnected = () => {
+  return {
+    type: DATA_SERVICE_DISCONNECTED,
+  };
+};
+
+const reducer = (
+  state: State = getInitialState(),
+  action: AnyAction
+): State => {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,
       dataService: action.dataService,
     };
+  }
+  if (action.type === DATA_SERVICE_DISCONNECTED) {
+    return getInitialState();
   }
   return state;
 };

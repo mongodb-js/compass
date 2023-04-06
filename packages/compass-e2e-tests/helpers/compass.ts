@@ -128,6 +128,7 @@ export class Compass {
   logs: LogEntry[];
   logPath?: string;
   userDataPath?: string;
+  appName?: string;
 
   constructor(
     browser: CompassBrowser,
@@ -200,6 +201,11 @@ export class Compass {
     this.userDataPath = await this.browser.execute(() => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       return require('electron').ipcRenderer.invoke('compass:userDataPath');
+    });
+
+    this.appName = await this.browser.execute(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      return require('electron').ipcRenderer.invoke('compass:appName');
     });
   }
 

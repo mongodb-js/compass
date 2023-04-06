@@ -19,6 +19,11 @@ type ToastProperties = {
   variant: ToastVariant;
   progress?: number;
   timeout?: number;
+  dismissible?: boolean;
+};
+
+const defaultToastProperties: Partial<ToastProperties> = {
+  dismissible: true,
 };
 
 interface ToastActions {
@@ -34,7 +39,10 @@ class GlobalToastState implements ToastActions {
   };
   openToast(id: string, toastProperties: ToastProperties): void {
     this.clearTimeout(id);
-    this.toasts.set(id, toastProperties);
+    this.toasts.set(id, {
+      ...defaultToastProperties,
+      ...toastProperties,
+    });
     if (toastProperties.timeout) {
       this.timeouts.set(
         id,
@@ -128,7 +136,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
     <ToastContext.Provider value={toastActions}>
       <>{children}</>
       <>
-        {toasts.map(([id, { title, body, variant, progress }]) => (
+        {toasts.map(([id, { dismissible, title, body, variant, progress }]) => (
           <Toast
             className={toastStyles}
             key={id}
@@ -138,7 +146,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
             variant={variant}
             progress={progress}
             open={true}
-            close={() => closeToast(id)}
+            close={dismissible ? () => closeToast(id) : undefined}
           />
         ))}
       </>

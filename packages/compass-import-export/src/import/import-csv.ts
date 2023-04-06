@@ -94,11 +94,13 @@ export async function importCSV({
       // got written. This way progress updates continue even if every row
       // fails to parse.
       ++numProcessed;
-      progressCallback?.({
-        bytesProcessed: byteCounter.total,
-        docsProcessed: numProcessed,
-        docsWritten: collectionStream.docsWritten,
-      });
+      if (!abortSignal?.aborted) {
+        progressCallback?.({
+          bytesProcessed: byteCounter.total,
+          docsProcessed: numProcessed,
+          docsWritten: collectionStream.docsWritten,
+        });
+      }
 
       try {
         const doc = makeDocFromCSV(chunk, headerFields, parsedHeader, fields, {

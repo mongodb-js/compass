@@ -57,11 +57,13 @@ export async function importJSON({
     objectMode: true,
     transform: function (chunk: any, encoding, callback) {
       ++numProcessed;
-      progressCallback?.({
-        bytesProcessed: byteCounter.total,
-        docsProcessed: numProcessed,
-        docsWritten: collectionStream.docsWritten,
-      });
+      if (!abortSignal?.aborted) {
+        progressCallback?.({
+          bytesProcessed: byteCounter.total,
+          docsProcessed: numProcessed,
+          docsWritten: collectionStream.docsWritten,
+        });
+      }
       try {
         // make sure files parsed as jsonl only contain objects with no arrays and simple values
         // (this will either stop the entire import and throw or just skip this
@@ -71,6 +73,14 @@ export async function importJSON({
         }
 
         const doc = EJSON.deserialize(chunk.value);
+        if (process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT === 'true') {
+          setTimeout(() => {
+            callback(null, doc);
+          }, 2000);
+
+          return;
+        }
+
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({

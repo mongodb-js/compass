@@ -31,7 +31,7 @@ describe('drop index module', function () {
       clearErrorSpy = null;
       emitSpy = null;
     });
-    it('calls dropIndex with correct options', function () {
+    it('calls dropIndex with correct options', async function () {
       const dispatch = (res) => {
         if (typeof res !== 'function') {
           switch (res.type) {
@@ -62,14 +62,14 @@ describe('drop index module', function () {
         },
         namespace: 'db.coll',
         dataService: {
-          dropIndex: (ns, indexName, cb) => {
+          dropIndex: (ns, indexName) => {
             expect(ns).to.equal('db.coll');
             expect(indexName).to.equal('index name');
-            cb(null);
+            return Promise.resolve();
           },
         },
       });
-      dropIndex('index name')(dispatch, state);
+      await dropIndex('index name')(dispatch, state);
       expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(progressSpy.calledTwice).to.equal(
@@ -82,7 +82,7 @@ describe('drop index module', function () {
       );
       expect(errorSpy.calledOnce).to.equal(false, 'error should not be called');
     });
-    it('handles error in dropIndex', function () {
+    it('handles error in dropIndex', async function () {
       const dispatch = (res) => {
         switch (res.type) {
           case TOGGLE_IN_PROGRESS:
@@ -108,14 +108,14 @@ describe('drop index module', function () {
         },
         namespace: 'db.coll',
         dataService: {
-          dropIndex: (ns, indexName, cb) => {
+          dropIndex: (ns, indexName) => {
             expect(ns).to.equal('db.coll');
             expect(indexName).to.equal('index name');
-            cb({ message: 'test err' });
+            return Promise.reject({ message: 'test err' });
           },
         },
       });
-      dropIndex('index name')(dispatch, state);
+      await dropIndex('index name')(dispatch, state);
       expect(progressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'

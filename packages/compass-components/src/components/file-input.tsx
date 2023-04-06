@@ -59,12 +59,10 @@ const buttonSmallStyles = css({
   },
 });
 
-const buttonHorizontalStyles = css({
-  width: '100%',
-});
-
-const buttonVerticalStyles = css({
-  width: '100%',
+const buttonDefaultStyles = css({
+  // We !important here to override the LeafyGreen button width
+  // that is applied after this.
+  width: '100% !important',
 });
 
 const buttonTextStyle = css({
@@ -127,11 +125,7 @@ const disabledDescriptionDarkStyles = css({
   color: palette.gray.light1,
 });
 
-export enum Variant {
-  Small = 'SMALL',
-  Horizontal = 'HORIZONTAL',
-  Vertical = 'VERTICAL',
-}
+type FileInputVariant = 'default' | 'small' | 'vertical';
 
 // https://www.electronjs.org/docs/latest/api/file-object
 type FileWithPath = File & {
@@ -162,7 +156,7 @@ function FileInput({
   optionalMessage,
   error = false,
   errorMessage,
-  variant = 'HORIZONTAL',
+  variant = 'default',
   showFileOnNewLine = false,
   link,
   description,
@@ -182,7 +176,7 @@ function FileInput({
   optionalMessage?: string;
   error?: boolean;
   errorMessage?: string;
-  variant?: 'SMALL' | 'HORIZONTAL' | 'VERTICAL';
+  variant?: FileInputVariant;
   link?: string;
   description?: string;
   showFileOnNewLine?: boolean;
@@ -262,11 +256,11 @@ function FileInput({
   const valuesAsString = useMemo(() => JSON.stringify(values), [values]);
 
   const leftGlyph =
-    variant === Variant.Small ? undefined : (
+    variant === 'small' ? undefined : (
       <Icon glyph="AddFile" title={null} fill="currentColor" />
     );
   const rightGlyph =
-    variant === Variant.Small ? (
+    variant === 'small' ? (
       <Icon glyph="Edit" title={null} fill="currentColor" />
     ) : undefined;
 
@@ -274,13 +268,13 @@ function FileInput({
     <div className={cx(containerStyles, className)}>
       <div
         className={cx({
-          [formItemSmallStyles]: variant === Variant.Small,
-          [formItemHorizontalStyles]: variant === Variant.Horizontal,
+          [formItemSmallStyles]: variant === 'small',
+          [formItemHorizontalStyles]: variant === 'default',
         })}
       >
         <div
           className={cx({
-            [labelHorizontalStyles]: variant === Variant.Horizontal,
+            [labelHorizontalStyles]: variant === 'default',
           })}
         >
           <Label htmlFor={`${id}_file_input`} disabled={disabled}>
@@ -320,11 +314,9 @@ function FileInput({
         <Button
           id={id}
           data-testid="file-input-button"
-          className={cx({
-            [buttonSmallStyles]: variant === Variant.Small,
-            [buttonHorizontalStyles]: variant === Variant.Horizontal,
-            [buttonVerticalStyles]: variant === Variant.Vertical,
-          })}
+          className={
+            variant === 'small' ? buttonSmallStyles : buttonDefaultStyles
+          }
           disabled={disabled}
           onClick={handleOpenFileInput}
           title="Select a file"

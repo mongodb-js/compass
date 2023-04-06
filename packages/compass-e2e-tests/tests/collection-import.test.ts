@@ -1,5 +1,7 @@
 import path from 'path';
 import chai from 'chai';
+import { promises as fs } from 'fs';
+
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
@@ -26,16 +28,21 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   const importModal = await browser.$(Selectors.ImportModal);
   await importModal.waitForDisplayed();
 
-  // Confirm
+  // Confirm import.
   await browser.clickVisible(Selectors.ImportConfirm);
 
-  // wait for the done button to appear and then click it
-  const doneButton = await browser.$(Selectors.ImportDone);
-  await doneButton.waitForDisplayed();
-  await browser.clickVisible(Selectors.ImportDone);
+  // Wait for the modal to go away.
+  await importModal.waitForDisplayed({ reverse: true });
 
-  // wait for the modal to go away
-  await importModal.waitForDisplayed({ reverse: false });
+  // Wait for the done toast to appear and close it.
+  const toastElement = await browser.$(Selectors.ImportToast);
+  await toastElement.waitForDisplayed();
+  await browser
+    .$(Selectors.closeToastButton(Selectors.ImportToast))
+    .waitForDisplayed();
+  await browser.clickVisible(Selectors.closeToastButton(Selectors.ImportToast));
+
+  await toastElement.waitForDisplayed({ reverse: true });
 }
 
 async function selectFieldType(
@@ -428,20 +435,25 @@ describe('Collection import', function () {
     const importModal = await browser.$(Selectors.ImportModal);
     await importModal.waitForDisplayed();
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the error message to appear
-    const errorElement = await browser.$(Selectors.ImportErrorBox);
-    await errorElement.waitForDisplayed();
-    const errorText = await errorElement.getText();
-    expect(errorText).to.match(/^Parser has expected a value/);
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: true });
 
-    // click the cancel button
-    await browser.clickVisible(Selectors.ImportCancel);
-
-    // wait for the modal to go away
-    await importModal.waitForDisplayed({ reverse: false });
+    // Wait for the error toast to appear and close it.
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    const errorText = await toastElement.getText();
+    expect(errorText).to.include('Failed to import with the following error');
+    expect(errorText).to.include('Parser has expected a value');
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
   });
 
   it('supports CSV files', async function () {
@@ -494,17 +506,22 @@ describe('Collection import', function () {
     // deselect a field
     await unselectFieldName(browser, 'license');
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the done button to appear and then click it
-    const doneButton = await browser.$(Selectors.ImportDone);
-    await doneButton.waitForDisplayed();
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: true });
 
-    await browser.clickVisible(Selectors.ImportDone);
-
-    // wait for the modal to go away
-    await importModal.waitForDisplayed({ reverse: false });
+    // Wait for the done toast to appear and close it.
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -592,17 +609,22 @@ describe('Collection import', function () {
       await selectFieldType(browser, fieldName, fieldType);
     }
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the done button to appear and then click it
-    const doneButton = await browser.$(Selectors.ImportDone);
-    await doneButton.waitForDisplayed();
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: true });
 
-    await browser.clickVisible(Selectors.ImportDone);
-
-    // wait for the modal to go away
-    await importModal.waitForDisplayed({ reverse: false });
+    // Wait for the done toast to appear and close it.
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -656,22 +678,28 @@ describe('Collection import', function () {
     // pick an incompatible type
     await selectFieldType(browser, 'id', 'ObjectId');
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the error message to appear
-    const errorElement = await browser.$(Selectors.ImportErrorBox);
-    await errorElement.waitForDisplayed();
-    const errorText = await errorElement.getText();
-    expect(errorText).to.equal(
-      'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: true });
+
+    // Wait for the error toast to appear and close it.
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser.waitUntil(async function () {
+      const toastText = await toastElement.getText();
+      return toastText.includes(
+        'Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer'
+      );
+    });
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
     );
-
-    // click the done button
-    await browser.clickVisible(Selectors.ImportDone);
-
-    // wait for the modal to go away
-    await importModal.waitForDisplayed({ reverse: false });
+    await toastElement.waitForDisplayed({ reverse: true });
   });
 
   it('allows changing the delimiter', async function () {
@@ -727,17 +755,22 @@ describe('Collection import', function () {
       await selectFieldType(browser, fieldName, fieldType);
     }
 
-    // confirm
+    // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
-    // wait for the done button to appear and then click it
-    const doneButton = await browser.$(Selectors.ImportDone);
-    await doneButton.waitForDisplayed();
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: true });
 
-    await browser.clickVisible(Selectors.ImportDone);
-
-    // wait for the modal to go away
-    await importModal.waitForDisplayed({ reverse: false });
+    // Wait for the done toast to appear and close it.
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
 
     const messageElement = await browser.$(
       Selectors.DocumentListActionBarMessage
@@ -755,6 +788,228 @@ describe('Collection import', function () {
     expect(result).to.deep.equal({
       'amount;description;category;name;order;color;date':
         '"18080;;9;anything;9;;12-01-2016"',
+    });
+  });
+
+  it('stops on errors and displays the first error', async function () {
+    const jsonPath = path.resolve(
+      __dirname,
+      '..',
+      'fixtures',
+      'three-documents.json'
+    );
+
+    await browser.navigateToCollectionTab(
+      'test',
+      'import-stop-first-error',
+      'Documents'
+    );
+
+    // First import it (so that the next import will conflict _ids).
+    await importJSONFile(browser, jsonPath);
+
+    // Open the import modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.ImportFileOption);
+
+    // select the file
+    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+
+    // wait for the modal to appear
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // Click the stop on errors checkbox.
+    const stopOnErrorsCheckbox = await browser.$(
+      Selectors.ImportStopOnErrorsCheckbox
+    );
+    const stopOnErrorsLabel = await stopOnErrorsCheckbox.parentElement();
+    await stopOnErrorsLabel.click();
+
+    // Confirm import.
+    await browser.clickVisible(Selectors.ImportConfirm);
+
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: true });
+
+    // Wait for the error toast to appear and close it.
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    const toastText = await toastElement.getText();
+    expect(toastText).to.include('Failed to import with the following error:');
+    expect(toastText).to.include('E11000 duplicate key error collection');
+
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
+  });
+
+  it('shows a log file with the errors', async function () {
+    const fileName = 'three-documents.json';
+    const jsonPath = path.resolve(__dirname, '..', 'fixtures', fileName);
+
+    await browser.navigateToCollectionTab(
+      'test',
+      'import-with-errors',
+      'Documents'
+    );
+
+    // First import it (so that the next import will conflict _ids).
+    await importJSONFile(browser, jsonPath);
+
+    // Open the import modal.
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.ImportFileOption);
+
+    // Select the file.
+    await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+
+    // Wait for the modal to appear.
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // Confirm import.
+    await browser.clickVisible(Selectors.ImportConfirm);
+
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: true });
+
+    // Wait for the error toast to appear.
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+
+    // Displays first two errors in the toast and view log.
+    const toastText = await toastElement.getText();
+    expect(toastText).to.include(
+      'Import completed 0/3 with the following errors:'
+    );
+    expect(
+      (toastText.match(/E11000 duplicate key error collection/g) || []).length
+    ).to.equal(2);
+    expect(toastText).to.include('VIEW LOG');
+
+    const logFilePath = path.resolve(
+      compass.userDataPath || '',
+      compass.appName || '',
+      'ImportErrorLogs',
+      `import-${fileName}.log`
+    );
+    await expect(fs.stat(logFilePath)).to.not.be.rejected;
+
+    // Check the log file contents for 3 errors.
+    const logFileContent = await fs.readFile(logFilePath, 'utf-8');
+    const errorCount = (
+      logFileContent.match(/E11000 duplicate key error collection/g) || []
+    ).length;
+    expect(errorCount).to.equal(4);
+
+    // Close toast.
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
+  });
+
+  describe('aborting an import', function () {
+    beforeEach(async function () {
+      process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
+
+      // 16116 documents.
+      const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
+
+      await browser.navigateToCollectionTab(
+        'test',
+        'import-abort',
+        'Documents'
+      );
+
+      // Open the import modal.
+      await browser.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+      await insertDocumentOption.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportFileOption);
+
+      // Select the file.
+      await browser.selectFile(Selectors.ImportFileInput, csvPath);
+
+      // Wait for the modal to appear.
+      const importModal = await browser.$(Selectors.ImportModal);
+      await importModal.waitForDisplayed();
+
+      // Confirm import.
+      await browser.clickVisible(Selectors.ImportConfirm);
+    });
+
+    afterEach(function () {
+      delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
+    });
+
+    it('aborts an in progress import', async function () {
+      // Wait for the in progress toast to appear and click stop.
+      await browser.clickVisible(Selectors.ImportToastAbort);
+
+      // Wait for the done toast to appear.
+      const toastElement = await browser.$(Selectors.ImportToast);
+      await toastElement.waitForDisplayed();
+      await browser
+        .$(Selectors.closeToastButton(Selectors.ImportToast))
+        .waitForDisplayed();
+
+      // Check it displays that the import was aborted.
+      const toastText = await toastElement.getText();
+      expect(toastText).to.include('Import aborted.');
+
+      // Check at least one and fewer than 16116 documents were imported.
+      const messageElement = await browser.$(
+        Selectors.DocumentListActionBarMessage
+      );
+      const documentsText = await messageElement.getText();
+      expect(documentsText).to.not.equal('1 – 20 of 16116');
+      const result = await getFirstListDocument(browser);
+      expect(result._id).to.exist;
+
+      // Close toast.
+      await browser.clickVisible(
+        Selectors.closeToastButton(Selectors.ImportToast)
+      );
+      await toastElement.waitForDisplayed({ reverse: true });
+    });
+
+    it('aborts when disconnected', async function () {
+      // Wait for the in progress toast to appear.
+      await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
+
+      await browser.disconnect();
+      await browser
+        .$(Selectors.SidebarTitle)
+        .waitForDisplayed({ reverse: true });
+
+      // Wait for the aborted toast to appear.
+      await browser
+        .$(Selectors.closeToastButton(Selectors.ImportToast))
+        .waitForDisplayed();
+
+      const toastElement = await browser.$(Selectors.ImportToast);
+      // Check it displays that the import was aborted.
+      const toastText = await toastElement.getText();
+      expect(toastText).to.include('Import aborted.');
+
+      // Close toast.
+      await browser.clickVisible(
+        Selectors.closeToastButton(Selectors.ImportToast)
+      );
+      await toastElement.waitForDisplayed({ reverse: true });
     });
   });
 });

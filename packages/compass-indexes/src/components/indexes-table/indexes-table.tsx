@@ -180,7 +180,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
                 className={cx(nestedRowCellStyles, cellStyles)}
                 colSpan={canDeleteIndex ? 6 : 5}
               >
-                <IndexKeysBadge keys={index.fields.serialize()} />
+                <IndexKeysBadge keys={index.fields} />
               </Cell>
             </Row>
           </Row>

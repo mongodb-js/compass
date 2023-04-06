@@ -308,12 +308,20 @@ export function getDatabasesByRoles(
   return [...results];
 }
 
-function isNotAuthorized(err: AnyError) {
+export function isNotAuthorized(err: any) {
   if (!err) {
     return false;
   }
-  const msg = err.message || JSON.stringify(err);
+  const msg = (err as Error).message || JSON.stringify(err);
   return new RegExp('not (authorized|allowed)').test(msg);
+}
+
+export function isNotSupportedPipelineStage(err: any) {
+  if (!err) {
+    return false;
+  }
+  const msg = (err as Error).message || JSON.stringify(err);
+  return msg.match(/Unrecognized pipeline stage name/);
 }
 
 function ignoreNotAuthorized<T>(fallback: T): (err: AnyError) => Promise<T> {

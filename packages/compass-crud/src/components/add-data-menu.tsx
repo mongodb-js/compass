@@ -34,7 +34,7 @@ function AddDataMenuButton({
       buttonProps={{
         size: 'xsmall',
         variant: 'primary',
-        leftGlyph: <Icon glyph="Download" />,
+        leftGlyph: <Icon glyph="PlusWithCircle" />,
         disabled: isDisabled,
       }}
     ></DropdownMenuButton>

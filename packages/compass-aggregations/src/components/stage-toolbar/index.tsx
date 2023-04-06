@@ -139,6 +139,7 @@ export function StageToolbar({
         <IconButton
           onClick={onOpenFocusMode}
           aria-label="Open stage in focus mode"
+          title="Open stage in focus mode"
           data-testid="focus-mode-button"
           data-guide-cue-ref="focus-mode-button"
         >

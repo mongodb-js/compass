@@ -402,11 +402,8 @@ export const openExport =
     // avoid a possibly expensive re-count.
     count?: number;
     aggregation?: ExportAggregationType;
-  }): ThunkAction<void, RootExportState, void, AnyAction> =>
-  async (
-    dispatch: ThunkDispatch<RootExportState, void, AnyAction>,
-    getState: () => RootExportState
-  ) => {
+  }): ThunkAction<Promise<void>, RootExportState, void, AnyAction> =>
+  async (dispatch, getState) => {
     const isAggregation = !!aggregation;
     track('Export Opened', { type: isAggregation ? 'aggregation' : 'query' });
     const {

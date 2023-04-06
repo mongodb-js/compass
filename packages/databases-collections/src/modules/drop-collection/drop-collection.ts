@@ -1,8 +1,6 @@
 import { combineReducers } from 'redux';
 import type { AnyAction } from 'redux';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type AppRegistry from 'hadron-app-registry';
-
+import type { ThunkAction } from 'redux-thunk';
 import isRunning, {
   toggleIsRunning,
   INITIAL_STATE as IS_RUNNING_INITIAL_STATE,
@@ -21,6 +19,7 @@ import error, {
 } from '../error';
 import { reset, RESET } from '../reset';
 import dataService from '../data-service';
+import appRegistry from '../app-registry';
 
 /**
  * Open action name.
@@ -28,6 +27,7 @@ import dataService from '../data-service';
 const OPEN = 'databases-collections/drop-collection/OPEN';
 
 const reducer = combineReducers({
+  appRegistry,
   isRunning,
   isVisible,
   name,
@@ -67,17 +67,6 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
 export default rootReducer;
 
 /**
- * Stop progress and set the error.
- */
-const stopWithError = (
-  dispatch: ThunkDispatch<RootState, void, AnyAction>,
-  err: Error
-) => {
-  dispatch(toggleIsRunning(false));
-  return dispatch(handleError(err));
-};
-
-/**
  * Open create collection action creator.
  */
 export const open = (collectionName: string, dbName: string) => ({
@@ -90,15 +79,12 @@ export const open = (collectionName: string, dbName: string) => ({
  * The drop collection action.
  */
 export const dropCollection = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   AnyAction
 > => {
-  return (
-    dispatch: ThunkDispatch<RootState, void, AnyAction>,
-    getState: () => RootState
-  ) => {
+  return async (dispatch, getState) => {
     const state = getState();
     const ds = state.dataService.dataService;
     const collectionName = state.name;
@@ -113,21 +99,14 @@ export const dropCollection = (): ThunkAction<
     try {
       dispatch(toggleIsRunning(true));
       const namespace = `${dbName}.${collectionName}`;
-      ds.dropCollection(namespace, (e: any) => {
-        if (e) {
-          return stopWithError(dispatch, e);
-        }
-        ((global as any).hadronApp?.appRegistry as AppRegistry).emit(
-          'collection-dropped',
-          namespace
-        );
-        ((global as any).hadronApp?.appRegistry as AppRegistry).emit(
-          'refresh-data'
-        );
-        dispatch(reset());
-      });
-    } catch (e: any) {
-      return stopWithError(dispatch, e as Error);
+      await ds.dropCollection(namespace);
+      const { appRegistry } = getState();
+      appRegistry?.emit('collection-dropped', namespace);
+      appRegistry?.emit('refresh-data');
+      dispatch(reset());
+    } catch (e) {
+      dispatch(toggleIsRunning(false));
+      dispatch(handleError(e as Error));
     }
   };
 };

@@ -28,8 +28,6 @@ const testNS = `${testDB}.test-col`;
 
 describe('exportJSON', function () {
   let dataService: DataService;
-  let dropCollection;
-  let createCollection;
   let insertOne: any;
   let insertMany: any;
   let tmpdir: string;
@@ -47,21 +45,15 @@ describe('exportJSON', function () {
       connectionString: 'mongodb://localhost:27018/local',
     });
 
-    dropCollection = promisify(dataService.dropCollection.bind(dataService));
-
-    createCollection = promisify(
-      dataService.createCollection.bind(dataService)
-    );
-
     insertOne = promisify(dataService.insertOne.bind(dataService));
     insertMany = promisify(dataService.insertMany.bind(dataService));
 
     try {
-      await dropCollection(testNS);
+      await dataService.dropCollection(testNS);
     } catch (err) {
       // ignore
     }
-    await createCollection(testNS, {});
+    await dataService.createCollection(testNS, {});
   });
 
   afterEach(async function () {

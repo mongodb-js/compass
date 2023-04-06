@@ -1,6 +1,5 @@
 import { callbackify } from 'util';
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
-import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
 import type {
@@ -43,6 +42,8 @@ import type {
   TopologyDescriptionChangedEvent,
   TopologyType,
   Db,
+  IndexInformationOptions,
+  CollectionInfo,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -51,6 +52,10 @@ import type {
   ConnectionOptions,
 } from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
+import {
+  isNotAuthorized,
+  isNotSupportedPipelineStage,
+} from './instance-detail-helper';
 import {
   adaptCollectionInfo,
   adaptDatabaseInfo,
@@ -63,7 +68,7 @@ import {
 import { redactConnectionString } from './redact';
 import type { CloneableMongoClient } from './connect-mongo-client';
 import connectMongoClient, { createClonedClient } from './connect-mongo-client';
-import type { Callback, CollectionStats, IndexDetails } from './types';
+import type { Callback, CollectionStats } from './types';
 import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
@@ -76,6 +81,12 @@ import {
   createCancelError,
   isCancelError,
 } from '@mongodb-js/compass-utils';
+import type {
+  IndexDefinition,
+  IndexStats,
+  IndexInfo,
+} from './index-detail-helper';
+import { createIndexDefinition } from './index-detail-helper';
 
 // TODO: remove try/catch and refactor encryption related types
 // when the Node bundles native binding distributions
@@ -91,9 +102,6 @@ try {
 } catch (e) {
   console.warn(e);
 }
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { fetch: getIndexes } = require('mongodb-index-model');
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-DATA-SERVICE'
@@ -215,19 +223,19 @@ export interface DataService {
    * @param includeAll - if true also list currently idle operations in the result.
    * @param callback - The callback.
    */
-  currentOp(includeAll: boolean, callback: Callback<Document>): void;
+  currentOp(includeAll: boolean): Promise<{ inprog: Document }>;
 
   /**
-   * Returns the result of serverStats.
+   * Returns the result of serverStatus.
    */
-  serverstats(callback: Callback<Document>): void;
+  serverStatus(): Promise<Document>;
 
   /**
    * Returns the result of top.
    *
    * @param callback - the callback.
    */
-  top(callback: Callback<Document>): void;
+  top(): Promise<{ totals: Record<string, unknown> }>;
 
   /**
    * Kills operation by operation id
@@ -268,42 +276,51 @@ export interface DataService {
    *
    * @param databaseName - The database name.
    * @param collectionName - The collection name.
-   * @param callback - The callback.
    */
   collectionStats(
     databaseName: string,
-    collectionName: string,
-    callback: Callback<CollectionStats>
-  ): void;
+    collectionName: string
+  ): Promise<CollectionStats>;
 
   /**
    * Creates a collection
    *
    * @param ns - The namespace.
    * @param options - The options.
-   * @param callback - The callback.
    */
   createCollection(
     ns: string,
-    options: CreateCollectionOptions,
-    callback: Callback<Collection<Document>>
-  ): void;
+    options: CreateCollectionOptions
+  ): Promise<Collection<Document>>;
+
+  /**
+   * Create a new view.
+   *
+   * @param name - The collectionName for the view.
+   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
+   * @param pipeline - The agggregation pipeline for the view.
+   * @param options - Options e.g. collation.
+   */
+  createView(
+    name: string,
+    sourceNs: string,
+    pipeline: Document[],
+    options: CreateCollectionOptions
+  ): Promise<Collection<Document>>;
 
   /**
    * Update a collection.
    *
    * @param ns - The namespace.
    * @param flags - The flags.
-   * @param callback - The callback.
    */
   updateCollection(
     ns: string,
     // Collection name to update that will be passed to the collMod command will
     // be derived from the provided namespace, this is why we are explicitly
     // prohibiting to pass collMod flag here
-    flags: Document & { collMod?: never },
-    callback: Callback<Document>
-  ): void;
+    flags: Document & { collMod?: never }
+  ): Promise<Document>;
 
   /**
    * Drops a collection from a database
@@ -311,7 +328,7 @@ export interface DataService {
    * @param ns - The namespace.
    * @param callback - The callback.
    */
-  dropCollection(ns: string, callback: Callback<boolean>): void;
+  dropCollection(ns: string): Promise<boolean>;
 
   /**
    * Count the number of documents in the collection.
@@ -365,10 +382,12 @@ export interface DataService {
    * Get the indexes for the collection.
    *
    * @param ns - The collection namespace.
-   * @param options - The options (unused).
-   * @param callback - The callback.
+   * @param options - Index information options
    */
-  indexes(ns: string, options: unknown, callback: Callback<Document[]>): void;
+  indexes(
+    ns: string,
+    options?: IndexInformationOptions
+  ): Promise<IndexDefinition[]>;
 
   /**
    * Creates an index
@@ -376,23 +395,20 @@ export interface DataService {
    * @param ns - The namespace.
    * @param spec - The index specification.
    * @param options - The options.
-   * @param callback - The callback.
    */
   createIndex(
     ns: string,
     spec: IndexSpecification,
-    options: CreateIndexesOptions,
-    callback: Callback<string>
-  ): void;
+    options: CreateIndexesOptions
+  ): Promise<string>;
 
   /**
    * Drops an index from a collection
    *
    * @param ns - The namespace.
    * @param name - The index name.
-   * @param callback - The callback.
    */
-  dropIndex(ns: string, name: string, callback: Callback<Document>): void;
+  dropIndex(ns: string, name: string): Promise<Document>;
 
   /*** Aggregation ***/
 
@@ -621,23 +637,6 @@ export interface DataService {
   ): void;
 
   /**
-   * Create a new view.
-   *
-   * @param name - The collectionName for the view.
-   * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
-   * @param pipeline - The agggregation pipeline for the view.
-   * @param options - Options e.g. collation.
-   * @param callback - The callback.
-   */
-  createView(
-    name: string,
-    sourceNs: string,
-    pipeline: Document[],
-    options: CreateCollectionOptions,
-    callback: Callback<Collection<Document>>
-  ): void;
-
-  /**
    * Helper method to check whether or not error is caused by dataService
    * operation being aborted
    *
@@ -771,35 +770,10 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  private _collections(
+  async collectionStats(
     databaseName: string,
-    callback: Callback<CollectionStats[]>
-  ): void {
-    if (databaseName === 'system') {
-      return callback(null, []);
-    }
-    this._collectionNames(databaseName, (error, names) => {
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      // @ts-expect-error async typings are not nice :(
-      async.parallel(
-        (names || []).map((name) => {
-          return (done: Callback<CollectionStats>) => {
-            this.collectionStats(databaseName, name, done);
-          };
-        }),
-        callback
-      );
-    });
-  }
-
-  collectionStats(
-    databaseName: string,
-    collectionName: string,
-    callback: Callback<CollectionStats>
-  ): void {
+    collectionName: string
+  ): Promise<CollectionStats> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_031),
       'Fetching collection info',
@@ -810,20 +784,17 @@ export class DataServiceImpl implements DataService {
     // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
     // we can switch this over to using the CRUD client instead.
     const db = this._database(databaseName, 'META');
-    callbackify(db.command.bind(db))(
-      { collStats: collectionName, verbose: true },
-      (error, data) => {
-        logop(error);
-        if (error && !error.message.includes('is a view, not a collection')) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(
-          null,
-          this._buildCollectionStats(databaseName, collectionName, data || {})
-        );
+    try {
+      const data = await runCommand(db, { collStats: collectionName });
+      logop(null, data);
+      return this._buildCollectionStats(databaseName, collectionName, data);
+    } catch (error) {
+      logop(error);
+      if (!(error as Error).message.includes('is a view, not a collection')) {
+        throw this._translateErrorMessage(error);
       }
-    );
+      return this._buildCollectionStats(databaseName, collectionName, {});
+    }
   }
 
   async collectionInfo(
@@ -1211,57 +1182,46 @@ export class DataServiceImpl implements DataService {
     );
   }
 
-  createCollection(
+  async createCollection(
     ns: string,
-    options: CreateCollectionOptions,
-    callback: Callback<Collection<Document>>
-  ): void {
-    const collectionName = this._collectionName(ns);
-    const db = this._database(ns, 'CRUD');
+    options: CreateCollectionOptions
+  ): Promise<Collection<Document>> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_036),
       'Running createCollection',
       { ns, options }
     );
-
-    callbackify(allArgumentsMandatory(db.createCollection.bind(db)))(
-      collectionName,
-      options,
-      (error: any, result: any) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    const collectionName = this._collectionName(ns);
+    const db = this._database(ns, 'CRUD');
+    try {
+      const result = await db.createCollection(collectionName, options);
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
-  createIndex(
+  async createIndex(
     ns: string,
     spec: IndexSpecification,
-    options: CreateIndexesOptions,
-    callback: Callback<string>
-  ): void {
+    options: CreateIndexesOptions
+  ): Promise<string> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_037),
       'Running createIndex',
       { ns, spec, options }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.createIndex.bind(coll)))(
-      spec,
-      options,
-      (error, result) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const result = await coll.createIndex(spec, options);
+      logop(null, result);
+      return result;
+    } catch (err) {
+      logop(err);
+      throw this._translateErrorMessage(err);
+    }
   }
 
   deleteOne(
@@ -1338,7 +1298,7 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  dropCollection(ns: string, callback: Callback<boolean>): void {
+  async dropCollection(ns: string): Promise<boolean> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_059),
       'Running dropCollection',
@@ -1349,25 +1309,27 @@ export class DataServiceImpl implements DataService {
     const collName = this._collectionName(ns);
     const coll = db.collection(collName);
 
-    const cursor = db.listCollections({ name: collName }, { nameOnly: false });
-    callbackify(cursor.toArray.bind(cursor))((_errIgnore, result) => {
-      const options: DropCollectionOptions = {};
-      const encryptedFieldsInfo = result?.[0]?.options?.encryptedFields;
-      if (encryptedFieldsInfo) {
-        options.encryptedFields = encryptedFieldsInfo;
-      }
-      callbackify(allArgumentsMandatory(coll.drop.bind(coll)))(
-        options,
-        (error, result) => {
-          logop(error, result);
-          if (error) {
-            // @ts-expect-error Callback without result...
-            return callback(this._translateErrorMessage(error));
-          }
-          callback(null, result);
-        }
-      );
-    });
+    let result: CollectionInfo | null = null;
+    try {
+      [result] = await db
+        .listCollections({ name: collName }, { nameOnly: false })
+        .toArray();
+    } catch {
+      // ignore
+    }
+    const options: DropCollectionOptions = {};
+    const encryptedFieldsInfo = result?.options?.encryptedFields;
+    if (encryptedFieldsInfo) {
+      options.encryptedFields = encryptedFieldsInfo;
+    }
+    try {
+      const result = await coll.drop(options);
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   dropDatabase(name: string, callback: Callback<boolean>): void {
@@ -1387,21 +1349,21 @@ export class DataServiceImpl implements DataService {
     });
   }
 
-  dropIndex(ns: string, name: string, callback: Callback<Document>): void {
+  async dropIndex(ns: string, name: string): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_060),
       'Running dropIndex',
       { ns, name }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(coll.dropIndex.bind(coll))(name, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      callback(null, result);
-    });
+    try {
+      const result = await coll.dropIndex(name);
+      logop(null, result);
+      return result;
+    } catch (err) {
+      logop(err);
+      throw this._translateErrorMessage(err);
+    }
   }
 
   aggregateCursor(
@@ -1416,12 +1378,12 @@ export class DataServiceImpl implements DataService {
     return this._collection(ns, 'CRUD').aggregate(pipeline, options);
   }
 
-  aggregate(
+  aggregate<T = Document>(
     ns: string,
     pipeline: Document[],
     options: AggregateOptions = {},
     executionOptions?: ExecutionOptions
-  ): Promise<Document[]> {
+  ): Promise<T[]> {
     let cursor: AggregationCursor;
     return this._cancellableOperation(
       async (session?: ClientSession) => {
@@ -1580,24 +1542,80 @@ export class DataServiceImpl implements DataService {
     );
   }
 
-  indexes(ns: string, options: unknown, callback: Callback<Document[]>): void {
+  private async _indexStats(ns: string) {
+    try {
+      const stats = await this.aggregate<IndexStats>(ns, [
+        { $indexStats: {} },
+        {
+          $project: {
+            name: 1,
+            usageHost: '$host',
+            usageCount: '$accesses.ops',
+            usageSince: '$accesses.since',
+          },
+        },
+      ]);
+
+      return Object.fromEntries(
+        stats.map((index) => {
+          return [index.name, index];
+        })
+      );
+    } catch (err) {
+      if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
+        return {};
+      }
+      throw err;
+    }
+  }
+
+  private async _indexSizes(ns: string): Promise<Record<string, number>> {
+    try {
+      return (await this._collection(ns, 'META').stats()).indexSizes;
+    } catch (err) {
+      if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
+        return {};
+      }
+      throw err;
+    }
+  }
+
+  async indexes(
+    ns: string,
+    options?: IndexInformationOptions
+  ): Promise<IndexDefinition[]> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_047),
       'Listing indexes',
       { ns }
     );
-    getIndexes(
-      this._initializedClient('META'),
-      ns,
-      (error: Error | undefined, data: IndexDetails[]) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, data);
-      }
-    );
+    try {
+      const [indexes, indexStats, indexSizes] = await Promise.all([
+        this._collection(ns, 'CRUD').indexes(options) as Promise<IndexInfo[]>,
+        this._indexStats(ns),
+        this._indexSizes(ns),
+      ]);
+
+      const maxSize = Math.max(...Object.values(indexSizes));
+
+      const result = indexes.map((index) => {
+        const name = index.name;
+        return createIndexDefinition(
+          ns,
+          index,
+          indexStats[name],
+          indexSizes[name],
+          maxSize
+        );
+      });
+
+      logop(null);
+
+      return result;
+    } catch (err) {
+      logop(err);
+      throw this._translateErrorMessage(err);
+    }
   }
 
   async instance(): Promise<InstanceDetails> {
@@ -1681,14 +1699,13 @@ export class DataServiceImpl implements DataService {
     );
   }
 
-  updateCollection(
+  async updateCollection(
     ns: string,
     // Collection name to update that will be passed to the collMod command will
     // be derived from the provided namespace, this is why we are explicitly
     // prohibiting to pass collMod flag here
-    flags: Document & { collMod?: never },
-    callback: Callback<Document>
-  ): void {
+    flags: Document & { collMod?: never } = {}
+  ): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_050),
       'Running updateCollection',
@@ -1696,30 +1713,22 @@ export class DataServiceImpl implements DataService {
     );
     const collectionName = this._collectionName(ns);
     const db = this._database(ns, 'CRUD');
-    // Order of arguments is important here, collMod is a command name and it
-    // should always be the first one in the object
-    const command = {
-      collMod: collectionName,
-      ...flags,
-    };
-    callbackify(db.command.bind(db))(command, (error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      // Reset the CSFLE-enabled client (if any) to clear
-      // any collection metadata caches that might still be active.
-      this._resetCRUDClient().then(
-        () => {
-          callback(null, result);
-        },
-        (error: any) => {
-          // @ts-expect-error Callback without result...
-          callback(this._translateErrorMessage(error));
-        }
-      );
-    });
+    try {
+      const result = await runCommand(db, {
+        // Order of arguments is important here, collMod is a command name and it
+        // should always be the first one in the object
+        collMod: collectionName,
+        ...flags,
+      });
+      logop(null, result);
+      // Reset the CSFLE-enabled client (if any) to clear any collection
+      // metadata caches that might still be active.
+      await this._resetCRUDClient();
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   bulkWrite(
@@ -1730,87 +1739,64 @@ export class DataServiceImpl implements DataService {
     return this._collection(ns, 'CRUD').bulkWrite(operations, options);
   }
 
-  currentOp(includeAll: boolean, callback: Callback<Document>): void {
+  async currentOp(includeAll: boolean): Promise<{ inprog: Document[] }> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_053),
       'Running currentOp'
     );
     const db = this._database('admin', 'META');
-
-    callbackify(db.command.bind(db))(
-      { currentOp: 1, $all: includeAll },
-      (error, result) => {
-        logop(error);
-        if (error) {
-          const logop = this._startLogOp(
-            mongoLogId(1_001_000_054),
-            'Searching $cmd.sys.inprog manually'
-          );
-          const coll = db.collection('$cmd.sys.inprog');
-
-          callbackify(
-            (coll.findOne as (filter: Document) => Promise<Document>).bind(coll)
-          )({ $all: includeAll }, (error2, result2) => {
-            logop(error2);
-            if (error2) {
-              // @ts-expect-error Callback without result...
-              return callback(this._translateErrorMessage(error2));
-            }
-            callback(null, result2);
-          });
-          return;
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const cmdResult = await runCommand(db, {
+        currentOp: 1,
+        $all: includeAll,
+      });
+      logop(null, cmdResult);
+      return cmdResult;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   getLastSeenTopology(): null | TopologyDescription {
     return this._lastSeenTopology;
   }
 
-  serverstats(callback: Callback<Document>): void {
+  async serverStatus(): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_061),
-      'Running serverStats'
+      'Running serverStatus'
     );
     const admin = this._database('admin', 'META');
-    void runCommand(admin, { serverStatus: 1 }).then(
-      (result) => {
-        logop(null);
-        callback(null, result);
-      },
-      (error) => {
-        logop(error);
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-    );
+    try {
+      const result = await runCommand(admin, { serverStatus: 1 });
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
-  top(callback: Callback<Document>): void {
+  async top(): Promise<{ totals: Record<string, unknown> }> {
     const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
     const adminDb = this._database('admin', 'META');
-    void runCommand(adminDb, { top: 1 }).then(
-      (result) => {
-        logop(null);
-        callback(null, result);
-      },
-      (error) => {
-        logop(error);
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-    );
+    try {
+      const result = await runCommand(adminDb, { top: 1 });
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
-  createView(
+  async createView(
     name: string,
     sourceNs: string,
     pipeline: Document[],
-    options: CreateCollectionOptions,
-    callback: Callback<Collection<Document>>
-  ): void {
+    options: CreateCollectionOptions = {}
+  ): Promise<Collection<Document>> {
     options.viewOn = this._collectionName(sourceNs);
     options.pipeline = pipeline;
 
@@ -1827,18 +1813,14 @@ export class DataServiceImpl implements DataService {
 
     const db = this._database(sourceNs, 'CRUD');
 
-    callbackify(allArgumentsMandatory(db.createCollection.bind(db)))(
-      name,
-      options,
-      (error, result) => {
-        logop(error, result);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const result = await db.createCollection(name, options);
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   sample(

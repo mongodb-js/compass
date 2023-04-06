@@ -16,6 +16,8 @@ import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { toggleSidePanel } from '../../../modules/side-panel';
+import { usePreference } from 'compass-preferences-model';
 
 const containerStyles = css({
   display: 'flex',
@@ -42,6 +44,7 @@ type PipelineExtraSettingsProps = {
   onToggleAutoPreview: (newVal: boolean) => void;
   onChangePipelineMode: (newVal: PipelineMode) => void;
   onToggleSettings: () => void;
+  onToggleSidePanel: () => void;
 };
 
 export const PipelineExtraSettings: React.FunctionComponent<
@@ -53,7 +56,9 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleAutoPreview,
   onChangePipelineMode,
   onToggleSettings,
+  onToggleSidePanel,
 }) => {
+  const showStageWizard = usePreference('useStageWizard', React);
   return (
     <div
       className={containerStyles}
@@ -102,6 +107,17 @@ export const PipelineExtraSettings: React.FunctionComponent<
           Text
         </SegmentedControlOption>
       </SegmentedControl>
+      {showStageWizard && (
+        <IconButton
+          title="Toggle Side Panel"
+          aria-label="Toggle Side Panel"
+          onClick={() => onToggleSidePanel()}
+          data-testid="pipeline-toolbar-side-panel-button"
+          disabled={pipelineMode === 'as-text'}
+        >
+          <Icon glyph="Filter" />
+        </IconButton>
+      )}
       <IconButton
         title="More Settings"
         aria-label="More Settings"
@@ -126,6 +142,7 @@ const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
   onChangePipelineMode: changePipelineMode,
   onToggleSettings: toggleSettingsIsExpanded,
+  onToggleSidePanel: toggleSidePanel,
 };
 
 export default connect(mapState, mapDispatch)(PipelineExtraSettings);

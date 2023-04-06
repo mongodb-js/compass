@@ -21,9 +21,9 @@ describe('large-limit module', function () {
     let getStateMock;
     let updateCollectionFake = sinon.fake();
 
-    beforeEach(function () {
+    beforeEach(async function () {
       dispatchFake = sinon.fake();
-      updateCollectionFake = sinon.fake.yields(null);
+      updateCollectionFake = sinon.fake.resolves();
       stateMock = {
         pipelineBuilder: { pipelineMode: 'builder-ui' },
         focusMode: { isEnabled: false },
@@ -38,7 +38,7 @@ describe('large-limit module', function () {
       getStateMock = () => stateMock;
 
       const runUpdateView = updateView();
-      runUpdateView(dispatchFake, getStateMock, thunkArg);
+      await runUpdateView(dispatchFake, getStateMock, thunkArg);
     });
 
     it('first it calls to dismiss any existing error', function () {
@@ -72,15 +72,15 @@ describe('large-limit module', function () {
     });
 
     describe('when the dataservice updateCollection errors', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
         stateMock.dataService.dataService = {
-          updateCollection: sinon.fake.yields(
+          updateCollection: sinon.fake.rejects(
             new Error('lacking grocery stores open on Sundays')
           ),
         };
         getStateMock = () => stateMock;
         const runUpdateView = updateView();
-        runUpdateView(dispatchFake, getStateMock, thunkArg);
+        await runUpdateView(dispatchFake, getStateMock, thunkArg);
       });
 
       it('dispatches the updateViewErrorOccured action with an error', function () {
