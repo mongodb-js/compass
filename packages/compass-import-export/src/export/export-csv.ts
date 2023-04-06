@@ -103,7 +103,7 @@ class CSVRowStream extends Transform {
 }
 
 // You probably want to use exportCSVFromAggregation() or exportCSVFromQuery() rather
-export async function exportCSV({
+async function _exportCSV({
   output,
   abortSignal,
   input,
@@ -259,7 +259,7 @@ export async function exportCSVFromAggregation({
   });
 
   try {
-    return await exportCSV({
+    return await _exportCSV({
       ...exportOptions,
       input,
       columns,
@@ -296,7 +296,7 @@ export async function exportCSVFromQuery({
   });
 
   try {
-    return await exportCSV({
+    return await _exportCSV({
       ...exportOptions,
       input,
       columns,
