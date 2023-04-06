@@ -10,7 +10,6 @@ import {
   MaxKey,
   MinKey,
   ObjectId,
-  //Symbol as BSONSymbol,
   Timestamp,
   UUID,
 } from 'bson';
