@@ -57,6 +57,23 @@ describe('exportCSV', function () {
 
   // TODO: test constructing find queries and aggregations
 
+  it('exports an empty collection', async function () {
+    const output = temp.createWriteStream();
+    const result = await exportCSVFromQuery({
+      ns: 'db.col',
+      dataService,
+      output,
+    });
+    expect(result).to.deep.equal({
+      docsWritten: 0,
+      aborted: false,
+    });
+
+    const text = replaceId(await fs.promises.readFile(output.path, 'utf8'));
+    // no columns, so just the linebreak at the end of the empty header row
+    expect(text).to.equal('\n');
+  });
+
   it('exports all bson types', async function () {
     await insertMany('db.col', allTypesDoc, {});
 
