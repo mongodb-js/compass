@@ -15,6 +15,7 @@ import {
   DBRef,
   MinKey,
   MaxKey,
+  BSONSymbol,
 } from 'bson';
 import { BSONError } from 'bson';
 
@@ -95,6 +96,14 @@ describe('stringifyCSVValue', function () {
   it('stringifies number', function () {
     expect(stringifyCSVValue(1, options)).to.equal('1');
     expect(stringifyCSVValue(1.2, options)).to.equal('1.2');
+
+    expect(stringifyCSVValue(new Int32('1'), options)).to.equal('1');
+    expect(stringifyCSVValue(new Int32('1'), options)).to.equal('1');
+    expect(stringifyCSVValue(new Double(1.2), options)).to.equal('1.2');
+
+    expect(stringifyCSVValue(new Long('123456789123456784'), options)).to.equal(
+      '123456789123456784'
+    );
   });
 
   it('stringifies boolean', function () {
@@ -186,6 +195,12 @@ describe('stringifyCSVValue', function () {
       )
     ).to.equal(
       '"{""$ref"":""namespace"",""$id"":{""$oid"":""642c4ce5e013234c1d9dd9ad""}}"'
+    );
+  });
+
+  it('stringifies symbol', function () {
+    expect(stringifyCSVValue(new BSONSymbol('symbol'), options)).to.equal(
+      '"{""$symbol"":""symbol""}"'
     );
   });
 });
@@ -306,6 +321,7 @@ describe('detectCSVFieldType', function () {
         name
       )
     ).to.equal('ejson');
+    expect(detectCSVFieldType('{"$symbol":"symbol"}', name)).to.equal('ejson');
   });
 
   it('defaults to string for everything else', function () {
@@ -716,6 +732,10 @@ describe('parseCSVValue', function () {
         'ejson'
       )
     ).to.deep.equal(new DBRef('namespace', new ObjectId()));
+
+    expect(parseCSVValue('{"$symbol":"symbol"}', 'ejson')).to.deep.equal(
+      new BSONSymbol('symbol')
+    );
   });
 
   it('parses minkey', function () {

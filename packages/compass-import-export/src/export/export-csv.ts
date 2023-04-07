@@ -83,7 +83,7 @@ class CSVRowStream extends Transform {
     this.docsWritten++;
     // We don't debug on every line passed as it will significantly slow down the
     // export, however this is useful when diagnosing issues.
-    // debug('CSVRowStream', { chunk });
+    //debug('CSVRowStream', { chunk });
     try {
       const row = this.columns.map((path) => lookupValueForPath(chunk, path));
       const values = row.map((value) =>
@@ -91,6 +91,11 @@ class CSVRowStream extends Transform {
           delimiter: this.delimiter,
         })
       );
+
+      // We don't debug on every line passed as it will significantly slow down the
+      // export, however this is useful when diagnosing issues.
+      //const doc = _.zipObject(this.columns.map(formatCSVHeaderName), values);
+      //console.dir(doc, { depth: Infinity });
 
       const line = formatCSVLine(values, {
         delimiter: this.delimiter,
@@ -150,8 +155,13 @@ class EJSONStream extends Transform {
     enc: unknown,
     cb: (err: null | Error, ejson: any) => void
   ) {
+    // We don't debug on every line passed as it will significantly slow down the
+    // export, however this is useful when diagnosing issues.
     //debug('EJSONStream', { chunk });
-    cb(null, EJSON.deserialize(chunk.value, { relaxed: true }));
+    // We need relaxed: false so that BSONSymbols and possibly other values will
+    // be bson values and not strings or numbers. That way we can unambiguously
+    // serialize them.
+    cb(null, EJSON.deserialize(chunk.value, { relaxed: false }));
   }
 }
 
@@ -172,6 +182,8 @@ class ColumnStream extends Transform {
     enc: unknown,
     cb: (err: null | Error, ejson: any) => void
   ) {
+    // We don't debug on every line passed as it will significantly slow down the
+    // export, however this is useful when diagnosing issues.
     //debug('ColumnStream', { chunk });
     this.columnRecorder.addToColumns(chunk);
     this.progressCallback?.(this.docsProcessed, 'DOWNLOAD');
@@ -243,6 +255,8 @@ export async function exportCSVFromAggregation({
   aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
     aggregationOptions.maxTimeMS
   );
+  aggregationOptions.promoteValues = false;
+  aggregationOptions.bsonRegExp = true;
   const aggregationCursor = dataService.aggregateCursor(
     ns,
     stages,
@@ -284,6 +298,8 @@ export async function exportCSVFromQuery({
     sort: query.sort,
     limit: query.limit,
     skip: query.skip,
+    promoteValues: false,
+    bsonRegExp: true,
   });
 
   const { filename, input, columns } = await loadEJSONFileAndColumns({

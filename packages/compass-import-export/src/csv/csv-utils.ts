@@ -85,6 +85,7 @@ export function stringifyCSVValue(
   const bsonType = value._bsontype;
 
   if (!bsonType) {
+    // Even when parsing with relaxed: false string values remain strings
     if (typeof value === 'string') {
       return formatCSVValue(value, {
         delimiter,
@@ -96,6 +97,8 @@ export function stringifyCSVValue(
       return value.toISOString();
     }
 
+    // When parsing with relaxed: false we won't see numbers here, but it is
+    // good to keep it here so that this function works in both scenarios.
     if (['number', 'boolean'].includes(typeof value)) {
       return formatCSVValue(value.toString() as string, {
         delimiter,
@@ -110,6 +113,10 @@ export function stringifyCSVValue(
   if (value.toHexString) {
     // ObjectId and UUID both have toHexString() which does exactly what we want
     return value.toHexString();
+  }
+
+  if (bsonType === 'Long') {
+    return value.toString();
   }
 
   if (bsonType === 'Binary') {
@@ -143,7 +150,7 @@ export function stringifyCSVValue(
     return '$MaxKey';
   }
 
-  // Code, DBRef and whatever new types get added
+  // BSONSymbol, Code, DBRef and whatever new types get added
   return formatCSVValue(EJSON.stringify(value), { delimiter });
 }
 
