@@ -441,8 +441,8 @@ describe('stageEditor', function () {
             '$match'
           );
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(
+            // eslint-disable-next-line @typescript-eslint/unbound-method
             store.pipelineBuilder.moveStage
           ).to.have.been.calledWithExactly(fromIdx, toIdx);
         });
@@ -456,16 +456,16 @@ describe('stageEditor', function () {
             const store = createStore(undefined, { mixedWithWizards: true });
             [
               {
-                fromIdx: 0,
-                fromIdxInPipeline: 0,
+                fromIdx: 1,
+                fromIdxInPipeline: 1,
                 toIdx: 4,
                 toIdxInPipeline: 2,
               },
               /* moving back the stage */ {
                 fromIdx: 4,
                 fromIdxInPipeline: 2,
-                toIdx: 0,
-                toIdxInPipeline: 0,
+                toIdx: 1,
+                toIdxInPipeline: 1,
               },
             ].forEach(function ({
               fromIdx,
@@ -475,18 +475,18 @@ describe('stageEditor', function () {
             }) {
               expect(store.getState().stages[fromIdx]).to.have.property(
                 'stageOperator',
-                '$match'
+                '$limit'
               );
 
               store.dispatch(moveStage(fromIdx, toIdx));
 
               expect(store.getState().stages[toIdx]).to.have.property(
                 'stageOperator',
-                '$match'
+                '$limit'
               );
 
-              // eslint-disable-next-line @typescript-eslint/unbound-method
               expect(
+                // eslint-disable-next-line @typescript-eslint/unbound-method
                 store.pipelineBuilder.moveStage
               ).to.have.been.calledWithExactly(
                 fromIdxInPipeline,
@@ -496,7 +496,62 @@ describe('stageEditor', function () {
           });
         });
         context(
-          'but there were no stages in between fromIdx and toIdx(including)',
+          'and there are stages in between fromIdx and toIdx(excluding)',
+          function () {
+            it('should move the stage in store and also in pipeline', function () {
+              const store = createStore(undefined, { mixedWithWizards: true });
+              [
+                {
+                  fromIdx: 1,
+                  fromIdxInPipeline: 1,
+                  toIdx: 5,
+                  toIdxInPipeline: 2,
+                },
+                /* moving back the stage */ {
+                  fromIdx: 5,
+                  fromIdxInPipeline: 2,
+                  toIdx: 1,
+                  toIdxInPipeline: 1,
+                },
+              ].forEach(function ({
+                fromIdx,
+                fromIdxInPipeline,
+                toIdx,
+                toIdxInPipeline,
+              }) {
+                expect(store.getState().stages[fromIdx]).to.have.property(
+                  'stageOperator',
+                  '$limit'
+                );
+                expect(store.getState().stages[toIdx]).to.have.property(
+                  'type',
+                  'wizard'
+                );
+
+                store.dispatch(moveStage(fromIdx, toIdx));
+
+                expect(store.getState().stages[fromIdx]).to.have.property(
+                  'type',
+                  'wizard'
+                );
+                expect(store.getState().stages[toIdx]).to.have.property(
+                  'stageOperator',
+                  '$limit'
+                );
+
+                expect(
+                  // eslint-disable-next-line @typescript-eslint/unbound-method
+                  store.pipelineBuilder.moveStage
+                ).to.have.been.calledWithExactly(
+                  fromIdxInPipeline,
+                  toIdxInPipeline
+                );
+              });
+            });
+          }
+        );
+        context(
+          'and there no stages in between fromIdx and toIdx(including)',
           function () {
             it('should move the stage in store but should do nothing in pipeline', function () {
               const store = createStore(undefined, { mixedWithWizards: true });
@@ -680,8 +735,8 @@ describe('stageEditor', function () {
           store.dispatch(changeStageValue(0, '{ foo: '));
           // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(
+            // eslint-disable-next-line @typescript-eslint/unbound-method
             store.pipelineBuilder.cancelPreviewForStage
           ).to.have.been.calledThrice; // Three times for three stages in the pipeline
         });
@@ -722,8 +777,8 @@ describe('stageEditor', function () {
             store.dispatch(changeStageDisabled(idxToRun, true));
             Sinon.resetHistory();
             await store.dispatch(runStage(idxToRun));
-            // eslint-disable-next-line @typescript-eslint/unbound-method
             expect(
+              // eslint-disable-next-line @typescript-eslint/unbound-method
               store.pipelineBuilder.getPipelineFromStages
             ).not.to.be.called;
           });
@@ -732,8 +787,8 @@ describe('stageEditor', function () {
             store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
             Sinon.resetHistory();
             await store.dispatch(runStage(idxToRun));
-            // eslint-disable-next-line @typescript-eslint/unbound-method
             expect(
+              // eslint-disable-next-line @typescript-eslint/unbound-method
               store.pipelineBuilder.getPipelineFromStages
             ).not.to.be.called;
           });
@@ -747,8 +802,8 @@ describe('stageEditor', function () {
             store.dispatch(changeStageDisabled(invalidIdx, true));
             Sinon.resetHistory();
             await store.dispatch(runStage(idxToRun));
-            // eslint-disable-next-line @typescript-eslint/unbound-method
             expect(
+              // eslint-disable-next-line @typescript-eslint/unbound-method
               store.pipelineBuilder.getPipelineFromStages
             ).to.be.calledWithExactly(
               store.pipelineBuilder.stages.slice(0, idxToRunInPipeline + 1)

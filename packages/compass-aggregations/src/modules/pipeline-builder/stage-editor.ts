@@ -618,7 +618,12 @@ export const moveStage = (
     const toIdxInPipeline =
       stageAtToIdx.type === 'stage'
         ? stageAtToIdx.idxInPipeline
-        : storeIndexToPipelineIndex(stages, from, { includeIndex: from < to });
+        : // storeIndexToPipelineIndex calculates the pipeline index in reference
+          // to the start of the list. When a stage is being moved from the front
+          // of the list towards the back then the list is shifted to the left by 1
+          // and thus there is one additional item to be considered when we
+          // calculate the pipeline index corresponding to the provided index.
+          storeIndexToPipelineIndex(stages, to, { includeIndex: from < to });
 
     const pipelineWasNotModified =
       stageAtFromIdx.type === 'wizard' ||
