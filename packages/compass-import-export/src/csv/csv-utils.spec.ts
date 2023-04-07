@@ -143,7 +143,9 @@ describe('stringifyCSVValue', function () {
   it('stringifies binary', function () {
     expect(
       stringifyCSVValue(new Binary('c//SZESzTGmQ6OfR38A11A=='), options)
-    ).to.equal('"c//SZESzTGmQ6OfR38A11A=="');
+    ).to.equal('Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09');
+
+    expect(stringifyCSVValue(new Binary('",\n'), options)).to.equal('IiwK');
   });
 
   it('stringifies regexp', function () {
@@ -655,7 +657,7 @@ describe('parseCSVValue', function () {
 
   it('parses binData', function () {
     expect(parseCSVValue('123', 'binData')).to.deep.equal(
-      new Binary(Buffer.from('123'), Binary.SUBTYPE_DEFAULT)
+      new Binary(Buffer.from('123', 'base64'), Binary.SUBTYPE_DEFAULT)
     );
   });
 
@@ -667,7 +669,7 @@ describe('parseCSVValue', function () {
 
   it('parses md5', function () {
     expect(parseCSVValue('1', 'md5')).to.deep.equal(
-      new Binary(Buffer.from('1'), Binary.SUBTYPE_MD5)
+      new Binary(Buffer.from('1', 'base64'), Binary.SUBTYPE_MD5)
     );
   });
 

@@ -122,7 +122,9 @@ export function stringifyCSVValue(
   }
 
   if (bsonType === 'Binary') {
-    return EJSON.stringify(value.value(), { relaxed: false });
+    // This should base64 encode the value which can't contain the delimiter,
+    // line breaks or quotes
+    return value.toJSON() as string;
   }
 
   if (bsonType === 'BSONRegExp') {
@@ -521,11 +523,11 @@ export function parseCSVValue(
   // from the dropdown.
 
   if (type === 'binData') {
-    return new Binary(Buffer.from(value), Binary.SUBTYPE_DEFAULT);
+    return new Binary(Buffer.from(value, 'base64'), Binary.SUBTYPE_DEFAULT);
   }
 
   if (type === 'md5') {
-    return new Binary(Buffer.from(value), Binary.SUBTYPE_MD5);
+    return new Binary(Buffer.from(value, 'base64'), Binary.SUBTYPE_MD5);
   }
 
   if (type === 'timestamp') {
