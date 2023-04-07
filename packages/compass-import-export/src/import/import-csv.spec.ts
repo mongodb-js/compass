@@ -693,7 +693,12 @@ describe('importCSV', function () {
 
     const errors = errorCallback.args.map((args) => args[0]);
 
-    expect(errors).to.deep.equal(expectedErrors);
+    try {
+      expect(errors).to.deep.equal(expectedErrors);
+    } catch (err: any) {
+      console.log(JSON.stringify({ errors, expectedErrors }, null, 2));
+      throw err;
+    }
 
     const errorsText = await fs.promises.readFile(output.path, 'utf8');
     expect(errorsText).to.equal(formatErrorLines(expectedErrors));
@@ -810,7 +815,12 @@ describe('importCSV', function () {
 
     const errors = errorCallback.args.map((args) => args[0]);
 
-    expect(errors).to.deep.equal(expectedErrors);
+    try {
+      expect(errors).to.deep.equal(expectedErrors);
+    } catch (err: any) {
+      console.log(JSON.stringify({ errors, expectedErrors }, null, 2));
+      throw err;
+    }
 
     const errorsText = await fs.promises.readFile(output.path, 'utf8');
     expect(errorsText).to.equal(formatErrorLines(expectedErrors));
