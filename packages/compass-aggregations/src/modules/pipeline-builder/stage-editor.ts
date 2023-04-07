@@ -611,30 +611,31 @@ export const moveStage = (
         stageEditor: { stages },
       },
     } = getState();
+
     const stageAtFromIdx = stages[from];
     const stageAtToIdx = stages[to];
 
-    const fromIdxInPipeline =
-      stageAtFromIdx.type === 'stage' ? stageAtFromIdx.idxInPipeline : -1;
     const toIdxInPipeline =
-      stageAtToIdx.type === 'stage' ? stageAtToIdx.idxInPipeline : -1;
+      stageAtToIdx.type === 'stage'
+        ? stageAtToIdx.idxInPipeline
+        : storeIndexToPipelineIndex(stages, from, { includeIndex: from < to });
+
     const pipelineWasNotModified =
-      stages[from].type === 'wizard' || fromIdxInPipeline === toIdxInPipeline;
+      stageAtFromIdx.type === 'wizard' ||
+      stageAtFromIdx.idxInPipeline === toIdxInPipeline;
 
     if (pipelineWasNotModified) {
       dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
     } else {
-      const pipeline = pipelineFromStore(stages);
-
       track('Aggregation Edited', {
-        num_stages: pipeline.length,
+        num_stages: pipelineFromStore(stages).length,
         stage_action: 'stage_reordered',
-        stage_name: pipeline[fromIdxInPipeline].stageOperator,
-        stage_index: fromIdxInPipeline + 1,
+        stage_name: stageAtFromIdx.stageOperator,
+        stage_index: stageAtFromIdx.idxInPipeline + 1,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
       });
 
-      pipelineBuilder.moveStage(fromIdxInPipeline, toIdxInPipeline);
+      pipelineBuilder.moveStage(stageAtFromIdx.idxInPipeline, toIdxInPipeline);
       dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
       dispatch(loadPreviewForStagesFrom(Math.min(from, to)));
     }
@@ -680,11 +681,25 @@ export const removeWizard = (at: number): WizardRemoveAction => ({
 export const updateWizardForm = (
   at: number,
   formValues: unknown
-): WizardFormChangeAction => ({
-  type: StageEditorActionTypes.WizardFormChange,
-  at,
-  formValues,
-});
+): PipelineBuilderThunkAction<void, WizardFormChangeAction> => {
+  return (dispatch, getState) => {
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+    const itemAtIdx = stages[at];
+    if (itemAtIdx.type !== 'wizard') {
+      return;
+    }
+
+    dispatch({
+      type: StageEditorActionTypes.WizardFormChange,
+      at,
+      formValues,
+    });
+  };
+};
 
 export type ReduxStage = {
   id: number;

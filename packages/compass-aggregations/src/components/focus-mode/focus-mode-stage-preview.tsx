@@ -191,7 +191,7 @@ export const FocusModeStageInput = connect(
     const previousStageIndex =
       stages
         .slice(0, stageIndex)
-        .map((stage, index) => ({ index, stage }))
+        .map((stage, index) => ({ stage, index }))
         .filter(({ stage }) => stage.type === 'stage' && !stage.disabled)
         .pop()?.index ?? null;
 
