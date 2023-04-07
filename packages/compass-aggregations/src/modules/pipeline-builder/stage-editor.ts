@@ -549,6 +549,8 @@ export const addStage = (
     } = getState();
     const addAfter = after ?? stages.length;
     const addAfterIdxInPipeline = storeIndexToPipelineIndex(stages, addAfter, {
+      // The item at afterIndex could be a wizard hence we need to consider
+      // that while calculating the corresponding afterIdx in pipeline
       includeIndex: true,
     });
 
