@@ -121,7 +121,7 @@ export async function exportJSONFromAggregation({
 }) {
   debug('exportJSONFromAggregation()', { ns: toNS(ns) });
 
-  const { stages, options: aggregationOptions } = aggregation;
+  const { stages, options: aggregationOptions = {} } = aggregation;
   aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
     aggregationOptions.maxTimeMS
   );

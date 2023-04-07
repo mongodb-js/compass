@@ -2,7 +2,7 @@ import type { AggregateOptions, Document, Sort } from 'mongodb';
 
 export type ExportAggregation = {
   stages: Document[];
-  options: AggregateOptions;
+  options?: AggregateOptions;
 };
 
 export type ExportQuery = {

@@ -35,9 +35,9 @@ const debug = createDebug('export-csv');
 // (DOWNLOAD), then we write the header row, then process that temp file in
 // order to write each row's cells in the correct column order (WRITE). ie
 // progress counts up from 1 to however many documents are being exported twice.
-type CSVExportPhase = 'DOWNLOAD' | 'WRITE';
+export type CSVExportPhase = 'DOWNLOAD' | 'WRITE';
 
-type ProgressCallback = (index: number, phase: CSVExportPhase) => void;
+export type ProgressCallback = (index: number, phase: CSVExportPhase) => void;
 
 type ExportCSVOptions = {
   input: Readable;
@@ -134,10 +134,21 @@ async function _exportCSV({
     progressCallback,
   });
 
-  await pipeline(
-    [input, rowStream, output],
-    ...(abortSignal ? [{ signal: abortSignal }] : [])
-  );
+  try {
+    await pipeline(
+      [input, rowStream, output],
+      ...(abortSignal ? [{ signal: abortSignal }] : [])
+    );
+  } catch (err: any) {
+    if (err.code === 'ABORT_ERR') {
+      return {
+        docsWritten: rowStream.docsWritten,
+        aborted: true,
+      };
+    }
+
+    throw err;
+  }
 
   return {
     docsWritten: rowStream.docsWritten,
@@ -186,8 +197,8 @@ class ColumnStream extends Transform {
     // export, however this is useful when diagnosing issues.
     //debug('ColumnStream', { chunk });
     this.columnRecorder.addToColumns(chunk);
-    this.progressCallback?.(this.docsProcessed, 'DOWNLOAD');
     this.docsProcessed++;
+    this.progressCallback?.(this.docsProcessed, 'DOWNLOAD');
     cb(null, `${EJSON.stringify(chunk, { relaxed: true })}\n`);
   }
 
@@ -244,14 +255,14 @@ export async function exportCSVFromAggregation({
   aggregation,
   dataService,
   ...exportOptions
-}: Omit<ExportCSVOptions, 'input' | 'column'> & {
+}: Omit<ExportCSVOptions, 'input' | 'columns'> & {
   ns: string;
   dataService: DataService;
   aggregation: ExportAggregation;
 }) {
   debug('exportJSONFromAggregation()', { ns: toNS(ns) });
 
-  const { stages, options: aggregationOptions } = aggregation;
+  const { stages, options: aggregationOptions = {} } = aggregation;
   aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
     aggregationOptions.maxTimeMS
   );
@@ -263,21 +274,39 @@ export async function exportCSVFromAggregation({
     aggregationOptions
   );
 
-  const { filename, input, columns } = await loadEJSONFileAndColumns({
-    cursor: aggregationCursor,
-    abortSignal: exportOptions.abortSignal,
-    progressCallback: exportOptions.progressCallback,
-  });
-
+  let filename, input, columns;
   try {
+    try {
+      ({ filename, input, columns } = await loadEJSONFileAndColumns({
+        cursor: aggregationCursor,
+        abortSignal: exportOptions.abortSignal,
+        progressCallback: exportOptions.progressCallback,
+      }));
+    } catch (err: any) {
+      if (err.code === 'ABORT_ERR') {
+        // aborted while still in the download phase, so no docs written yet
+        return {
+          docsWritten: 0,
+          aborted: true,
+        };
+      }
+      throw err;
+    } finally {
+      // at this point we don't need the cursor anymore, because we've
+      // downloaded all the rows to a temporary file
+      void aggregationCursor.close();
+    }
+
     return await _exportCSV({
       ...exportOptions,
       input,
       columns,
     });
   } finally {
-    void aggregationCursor.close();
-    void fs.promises.rm(filename);
+    if (filename) {
+      // clean up the temporary file
+      void fs.promises.rm(filename);
+    }
   }
 }
 
@@ -302,20 +331,39 @@ export async function exportCSVFromQuery({
     bsonRegExp: true,
   });
 
-  const { filename, input, columns } = await loadEJSONFileAndColumns({
-    cursor: findCursor,
-    abortSignal: exportOptions.abortSignal,
-    progressCallback: exportOptions.progressCallback,
-  });
+  let filename, input, columns;
 
   try {
+    try {
+      ({ filename, input, columns } = await loadEJSONFileAndColumns({
+        cursor: findCursor,
+        abortSignal: exportOptions.abortSignal,
+        progressCallback: exportOptions.progressCallback,
+      }));
+    } catch (err: any) {
+      if (err.code === 'ABORT_ERR') {
+        // aborted while still in the download phase, so no docs written yet
+        return {
+          docsWritten: 0,
+          aborted: true,
+        };
+      }
+      throw err;
+    } finally {
+      // at this point we don't need the cursor anymore, because we've
+      // downloaded all the rows to a temporary file
+      void findCursor.close();
+    }
+
     return await _exportCSV({
       ...exportOptions,
       input,
       columns,
     });
   } finally {
-    void findCursor.close();
-    void fs.promises.rm(filename);
+    if (filename) {
+      // clean up the temporary file
+      void fs.promises.rm(filename);
+    }
   }
 }
