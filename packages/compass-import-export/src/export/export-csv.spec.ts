@@ -28,7 +28,7 @@ const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe('exportCSV', function () {
+describe.only('exportCSV', function () {
   let dataService: DataService;
   let insertMany: any;
 
@@ -78,7 +78,6 @@ describe('exportCSV', function () {
     await insertMany('db.col', allTypesDoc, {});
 
     const output = temp.createWriteStream();
-    // TODO: exportCSVFromAggregation
     const result = await exportCSVFromQuery({
       ns: 'db.col',
       dataService,
@@ -110,7 +109,6 @@ describe('exportCSV', function () {
         });
 
         const output = temp.createWriteStream();
-        // TODO: exportCSVFromAggregation
         const result = await exportCSVFromQuery({
           ns: 'db.col',
           dataService,
@@ -142,7 +140,6 @@ describe('exportCSV', function () {
     it(`exports ${basename}`, async function () {
       const totalRows = await analyzeAndImportCSV(null, filepath, dataService);
       const output = temp.createWriteStream();
-      // TODO: exportCSVFromAggregation
       const result = await exportCSVFromQuery({
         ns: 'db.col',
         dataService,
@@ -168,10 +165,8 @@ describe('exportCSV', function () {
     }
 
     it(`correctly exports ${type}`, async function () {
-      // TODO: set the field types if necessary just like how the user would
       const totalRows = await analyzeAndImportCSV(type, filepath, dataService);
       const output = temp.createWriteStream();
-      // TODO: exportCSVFromAggregation
       const result = await exportCSVFromQuery({
         ns: 'db.col',
         dataService,
@@ -224,10 +219,9 @@ async function analyzeAndImportCSV(
 
     // Some types we can't detect, but we can parse it if the user
     // manually selects it.
-    // TODO: md5
     if (
       type &&
-      ['binData', 'decimal', 'objectId', 'timestamp'].includes(type)
+      ['binData', 'decimal', 'objectId', 'timestamp', 'md5'].includes(type)
     ) {
       return type as CSVParsableFieldType;
     }
