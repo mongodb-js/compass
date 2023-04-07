@@ -107,7 +107,13 @@ export function stringifyCSVValue(
 
     // Arrays and plain objects that somehow made it here plus unforeseen things
     // that don't have a _bsontype.
-    return formatCSVValue(EJSON.stringify(value), { delimiter });
+    return formatCSVValue(EJSON.stringify(value, { relaxed: false }), {
+      delimiter,
+    });
+  }
+
+  if (['Long', 'Int32', 'Double'].includes(bsonType as string)) {
+    return value.toString();
   }
 
   if (value.toHexString) {
@@ -115,12 +121,8 @@ export function stringifyCSVValue(
     return value.toHexString();
   }
 
-  if (bsonType === 'Long') {
-    return value.toString();
-  }
-
   if (bsonType === 'Binary') {
-    return EJSON.stringify(value.value());
+    return EJSON.stringify(value.value(), { relaxed: false });
   }
 
   if (bsonType === 'BSONRegExp') {
@@ -151,7 +153,9 @@ export function stringifyCSVValue(
   }
 
   // BSONSymbol, Code, DBRef and whatever new types get added
-  return formatCSVValue(EJSON.stringify(value), { delimiter });
+  return formatCSVValue(EJSON.stringify(value, { relaxed: false }), {
+    delimiter,
+  });
 }
 
 export function csvHeaderNameToFieldName(name: string) {

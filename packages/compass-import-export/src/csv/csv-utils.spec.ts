@@ -113,12 +113,16 @@ describe('stringifyCSVValue', function () {
 
   it('stringifies object', function () {
     expect(stringifyCSVValue({}, options)).to.equal('{}');
-    expect(stringifyCSVValue({ foo: 1 }, options)).to.equal('"{""foo"":1}"');
+    expect(stringifyCSVValue({ foo: 1 }, options)).to.equal(
+      '"{""foo"":{""$numberInt"":""1""}}"'
+    );
   });
 
   it('stringifies array', function () {
     expect(stringifyCSVValue([], options)).to.equal('[]');
-    expect(stringifyCSVValue([1, 2, 3], options)).to.equal('"[1,2,3]"');
+    expect(stringifyCSVValue([1, 2, 3], options)).to.equal(
+      '"[{""$numberInt"":""1""},{""$numberInt"":""2""},{""$numberInt"":""3""}]"'
+    );
   });
 
   it('stringifies objectId', function () {
@@ -175,7 +179,7 @@ describe('stringifyCSVValue', function () {
         options
       )
     ).to.equal(
-      '"{""$code"":""function() {}"",""$scope"":{""foo"":1,""bar"":""a""}}"'
+      '"{""$code"":""function() {}"",""$scope"":{""foo"":{""$numberInt"":""1""},""bar"":""a""}}"'
     );
   });
 
