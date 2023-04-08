@@ -688,12 +688,10 @@ describe('importCSV', function () {
 
     const errorLog = await fs.promises.readFile(output.path, 'utf8');
     expect(errorLog).to.equal(
-      expectedErrors.map((e) => JSON.stringify(e)).join('\n') + '\n'
+      expectedErrors.map((e) => JSON.stringify(e)).join(os.EOL) + os.EOL
     );
 
-    const errors = errorCallback.args.map((args) =>
-      _.pick(args[0], ['name', 'message'])
-    );
+    const errors = errorCallback.args.map((args) => args[0]);
 
     try {
       expect(errors).to.deep.equal(expectedErrors);
@@ -812,12 +810,10 @@ describe('importCSV', function () {
 
     const errorLog = await fs.promises.readFile(output.path, 'utf8');
     expect(errorLog).to.equal(
-      expectedErrors.map((e) => JSON.stringify(e)).join('\n') + '\n'
+      expectedErrors.map((e) => JSON.stringify(e)).join(os.EOL) + os.EOL
     );
 
-    const errors = errorCallback.args.map((args) =>
-      _.pick(args[0], ['name', 'message', 'index', 'code'])
-    );
+    const errors = errorCallback.args.map((args) => args[0]);
 
     try {
       expect(errors).to.deep.equal(expectedErrors);
