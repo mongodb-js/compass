@@ -691,7 +691,9 @@ describe('importCSV', function () {
       expectedErrors.map((e) => JSON.stringify(e)).join('\n') + '\n'
     );
 
-    const errors = errorCallback.args.map((args) => args[0]);
+    const errors = errorCallback.args.map((args) =>
+      _.pick(args[0], ['name', 'message'])
+    );
 
     try {
       expect(errors).to.deep.equal(expectedErrors);
@@ -813,7 +815,9 @@ describe('importCSV', function () {
       expectedErrors.map((e) => JSON.stringify(e)).join('\n') + '\n'
     );
 
-    const errors = errorCallback.args.map((args) => args[0]);
+    const errors = errorCallback.args.map((args) =>
+      _.pick(args[0], ['name', 'message', 'index', 'code'])
+    );
 
     try {
       expect(errors).to.deep.equal(expectedErrors);
