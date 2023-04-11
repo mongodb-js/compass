@@ -2,7 +2,7 @@ import type { DataService } from 'mongodb-data-service';
 import mongodbSchema from 'mongodb-schema';
 import type { SchemaField } from 'mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
-import type { Document } from 'mongodb';
+import type { Document, FindOptions } from 'mongodb';
 
 import { createDebug } from '../utils/logger';
 
@@ -118,9 +118,7 @@ function schemaToPaths(
   return paths;
 }
 
-type Projection = {
-  [field: string]: boolean | Projection;
-};
+type Projection = FindOptions['projection'];
 
 export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
   const projection: Projection = {};
@@ -138,7 +136,7 @@ export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
         current[fieldName] = {};
       }
 
-      current = current[fieldName] as Projection;
+      current = current[fieldName];
     }
   }
 

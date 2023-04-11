@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -10,6 +10,10 @@ import {
 
 import type { ExportStatus, FieldsToExportOption } from '../modules/new-export';
 import type { RootExportState } from '../stores/new-export-store';
+import { createProjectionFromSchemaFields } from '../export/gather-fields';
+import type { SchemaPath } from '../export/gather-fields';
+import type { ExportAggregation, ExportQuery } from '../export/export-types';
+import { newGetQueryAsShellJSString } from '../utils/get-shell-js';
 
 const codeStyles = css({
   marginBottom: spacing[2],
@@ -17,8 +21,9 @@ const codeStyles = css({
 
 type ExportCodeViewProps = {
   ns: string;
-  query: any; // todo types from Le Roux's pr
-  aggregation: any; // todo types from Le Roux's pr
+  query: ExportQuery;
+  aggregation: ExportAggregation;
+  fields: SchemaPath[];
   selectedFieldOption: undefined | FieldsToExportOption;
   exportFullCollection?: boolean;
   status: ExportStatus;
@@ -27,10 +32,32 @@ type ExportCodeViewProps = {
 function ExportCodeView({
   ns,
   query,
+  fields,
   aggregation,
   exportFullCollection,
   selectedFieldOption,
 }: ExportCodeViewProps) {
+  const code = useMemo(() => {
+    if (aggregation) {
+      return JSON.stringify(aggregation);
+    }
+
+    if (selectedFieldOption === 'select-fields') {
+      return newGetQueryAsShellJSString({
+        query: {
+          ...query,
+          project: createProjectionFromSchemaFields(fields),
+        },
+        ns,
+      });
+    }
+
+    return newGetQueryAsShellJSString({
+      query,
+      ns,
+    });
+  }, [aggregation, fields, query, ns, selectedFieldOption]);
+
   return (
     <>
       <Body>
@@ -47,7 +74,7 @@ function ExportCodeView({
           </Banner>
         )}
       <Code className={codeStyles} language="javascript" copyable>
-        {aggregation ? JSON.stringify(aggregation) : JSON.stringify(query)}
+        {code}
       </Code>
     </>
   );
@@ -56,6 +83,7 @@ function ExportCodeView({
 const ConnectedExportCodeView = connect(
   (state: RootExportState) => ({
     ns: state.export.namespace,
+    fields: state.export.fieldsToExport,
     query: state.export.query,
     aggregation: state.export.aggregation,
     exportFullCollection: state.export.exportFullCollection,

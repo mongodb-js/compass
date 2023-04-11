@@ -32,7 +32,7 @@ import {
   backToSelectFieldOptions,
   backToSelectFieldsToExport,
   readyToExport,
-  startExport,
+  runExport,
 } from '../modules/new-export';
 import type { ExportStatus, FieldsToExportOption } from '../modules/new-export';
 import type { RootExportState } from '../stores/new-export-store';
@@ -153,7 +153,7 @@ type ExportModalProps = {
   isFieldsToExportLoading: boolean;
   selectFieldsToExport: () => void;
   readyToExport: () => void;
-  startExport: () => void;
+  runExport: () => void;
   backToSelectFieldOptions: () => void;
   backToSelectFieldsToExport: () => void;
   exportFullCollection?: boolean;
@@ -170,7 +170,7 @@ function ExportModal({
   selectedFieldOption,
   selectFieldsToExport,
   readyToExport,
-  startExport,
+  runExport,
   isOpen,
   closeExport,
   status,
@@ -332,7 +332,7 @@ function ExportModal({
         {status === 'ready-to-export' && (
           <Button
             data-testid="export-button"
-            onClick={startExport}
+            onClick={runExport}
             // disabled={
             //   !fileName
             // }
@@ -383,7 +383,7 @@ const ConnectedExportModal = connect(
     backToSelectFieldOptions,
     backToSelectFieldsToExport,
     readyToExport,
-    startExport,
+    runExport,
   }
 )(ExportModal);
 

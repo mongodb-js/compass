@@ -292,38 +292,30 @@ function ExportSelectFields({
               {/* <Row key={field.field} id={field.field}> */}
               {/* <div>test1</div> */}
               {/* TODO: Use content with fallback  */}
-              <FadeInPlaceholder
-                // className={fadeInPlaceholderStyles}
-                isContentReady={!field.isLoadingPlaceholder}
-                // contentContainerProps={{ style }}
-                // fallbackContainerProps={{ style }}
-                // fallbackContainerProps={{ style: {
-                //   minHeight: '20px',
-                // } }}
-                fallback={() => field.component}
-                content={() => (
-                  <Row>
-                    <Cell className={smallCellContainerStyle}>
-                      <div>
-                        <Checkbox
-                          title={`${field.checked ? 'Exclude' : 'Include'} ${
-                            field.field
-                          } in exported collection`}
-                          aria-label={`${
-                            field.checked ? 'Exclude' : 'Include'
-                          } ${field.field} in exported collection`}
-                          checked={field.checked}
-                          name={field.field}
-                          onChange={handleFieldCheckboxChange}
-                        />
-                      </div>
-                    </Cell>
-                    <Cell>
-                      <Body>{field.field}</Body>
-                    </Cell>
-                  </Row>
-                )}
-              />
+              {field.isLoadingPlaceholder ? (
+                field.component
+              ) : (
+                <Row>
+                  <Cell className={smallCellContainerStyle}>
+                    <div>
+                      <Checkbox
+                        title={`${field.checked ? 'Exclude' : 'Include'} ${
+                          field.field
+                        } in exported collection`}
+                        aria-label={`${field.checked ? 'Exclude' : 'Include'} ${
+                          field.field
+                        } in exported collection`}
+                        checked={field.checked}
+                        name={field.field}
+                        onChange={handleFieldCheckboxChange}
+                      />
+                    </div>
+                  </Cell>
+                  <Cell>
+                    <Body>{field.field}</Body>
+                  </Cell>
+                </Row>
+              )}
               {/* </Row> */}
               {field.index === fieldKeys.length - 1 &&
                 !field.isLoadingPlaceholder && (
@@ -369,6 +361,7 @@ export { ExportSelectFields };
 
 const ConnectedExportSelectFields = connect(
   (state: RootExportState) => ({
+    // TODO: Better gather fields types
     fields: state.export.fieldsToExport,
     isLoading: !!state.export.fieldsToExportAbortController,
   }),

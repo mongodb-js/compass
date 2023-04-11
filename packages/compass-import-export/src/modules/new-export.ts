@@ -4,6 +4,11 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { gatherFields } from '../export/gather-fields';
 import type { RootExportState } from '../stores/new-export-store';
 import type { SchemaPath } from '../export/gather-fields';
+import type {
+  ExportAggregation,
+  ExportQuery,
+  ExportResult,
+} from '../export/export-types';
 
 type FieldsToExport = {
   [fieldId: string]: {
@@ -14,7 +19,7 @@ type FieldsToExport = {
 
 // Fields can only be prefixed with one '$'. Otherwise $
 // is not allowed, so this should be a safe separator.
-const SplittingSymbol = '$$$$$SEPERATOR$$$$$';
+const SplittingSymbol = '$$$$';
 function getIdForSchemaPath(schemaPath: SchemaPath) {
   return schemaPath.join(SplittingSymbol.toString());
 }
@@ -38,8 +43,6 @@ export const selectFieldsToExport = createAsyncThunk<
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // const response = await client.get('/fakeApi/todos')
-    // return response.todos
     const schemaPaths = await gatherFields({
       ns: namespace,
       abortSignal: fieldsToExportAbortController?.signal,
@@ -58,43 +61,29 @@ export const selectFieldsToExport = createAsyncThunk<
       };
     }
 
-    // return fields.map
-
     return fields;
-
-    // thunkApi.getState();
-
-    // return {};
   }
 );
 
 export const runExport = createAsyncThunk(
   'export/run-export',
-  async (): Promise<FieldsToExport> => {
-    // const response = await client.get('/fakeApi/todos')
-    // return response.todos
-    // const fields = await gatherFields({
-    //   ns
-    // });
+  async (): Promise<ExportResult> => {
+    // TODO(COMPASS-6580): run export
 
-    // TODO: run export
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    return {};
+    return {
+      docsWritten: 0,
+      aborted: true,
+    };
   }
 );
 
 type ExportOptions = {
   namespace: string;
-  query:
-    | {
-        filter: any;
-        project?: any;
-      }
-    | undefined;
+  query: ExportQuery | undefined;
   exportFullCollection?: boolean;
-  aggregation?: {
-    pipeline: any[];
-  };
+  aggregation?: ExportAggregation;
   fieldsToExport: FieldsToExport;
 
   selectedFieldOption: undefined | FieldsToExportOption;
@@ -171,22 +160,9 @@ export const exportSlice = createSlice({
 
       state.isOpen = false;
     },
-    // TODO: startExport : clear fieldsToExportAbortController if it's in progress
     closeInProgressMessage: (state) => {
       state.isInProgressMessageOpen = false;
     },
-    // selectFieldsToExport: (
-    //   state,
-    //   action: PayloadAction<FieldsToExportOption>
-    // ) => {
-    //   state.selectedFieldOption = action.payload;
-    //   state.status =
-    //     action.payload === 'all-fields'
-    //       ? 'ready-to-export'
-    //       : 'select-fields-to-export';
-    //   // TODO: If select fields to export lets load the fields to export.
-    //   state.fieldsToExportAbortController = new AbortController();
-    // },
     backToSelectFieldOptions: (state) => {
       state.status = 'select-field-options';
     },
@@ -213,10 +189,6 @@ export const exportSlice = createSlice({
 
       // TODO: If select fields to export lets load the fields to export.
       state.fieldsToExportAbortController = new AbortController();
-
-      // state.status = 'select-fields-to-export';
-      // fetchFieldsToSelect
-      // return 'ok';
     });
     builder.addCase(selectFieldsToExport.rejected, (state, action) => {
       state.errorLoadingFieldsToExport = action.error.message;
@@ -228,6 +200,7 @@ export const exportSlice = createSlice({
       state.fieldsToExport = action.payload;
       state.fieldsToExportAbortController = undefined;
     });
+    // TODO: runExport : clear fieldsToExportAbortController if it's in progress
     builder.addCase(runExport.pending, (state, action) => {
       // TODO
     });
@@ -239,7 +212,6 @@ export const {
   openExport,
   closeExport,
   closeInProgressMessage,
-  // selectFieldsToExport,
   backToSelectFieldOptions,
   backToSelectFieldsToExport,
   updateSelectedFields,
