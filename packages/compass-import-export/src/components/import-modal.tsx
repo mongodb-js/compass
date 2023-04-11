@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
+  ErrorSummary,
   Modal,
   ModalBody,
   ModalFooter,
@@ -35,7 +36,6 @@ import {
   toggleIncludeField,
   setFieldType,
 } from '../modules/import';
-import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
@@ -212,7 +212,9 @@ function ImportModal({
             )}
           </FormFieldContainer>
         )}
-        <ImportErrorList errors={errors} />
+        {errors.length > 0 && (
+          <ErrorSummary errors={errors.map((error) => error.message)} />
+        )}
       </ModalBody>
       <ModalFooter>
         <Button
