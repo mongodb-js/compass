@@ -177,6 +177,12 @@ describe('CSFLE / QE', function () {
         await refresh(browser);
       });
 
+      afterEach(async function () {
+        if (compass) {
+          await afterTest(compass, this.currentTest);
+        }
+      });
+
       it('can create a fle2 collection with encryptedFields', async function () {
         await browser.navigateToDatabaseTab(databaseName, 'Collections');
 
@@ -313,6 +319,9 @@ describe('CSFLE / QE', function () {
       });
 
       afterEach(async function () {
+        if (compass) {
+          await afterTest(compass, this.currentTest);
+        }
         await plainMongo.db(databaseName).dropDatabase();
         await plainMongo.close();
       });
