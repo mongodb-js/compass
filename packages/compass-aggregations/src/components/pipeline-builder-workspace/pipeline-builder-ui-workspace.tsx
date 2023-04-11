@@ -23,6 +23,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import StageWizard from '../stage-wizard';
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
@@ -43,6 +44,7 @@ const stageContainerStyles = css({
 });
 
 type PipelineBuilderUIWorkspaceProps = {
+  useCaseId?: string;
   stageIds: number[];
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
@@ -139,7 +141,13 @@ const SortableList = ({
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   PipelineBuilderUIWorkspaceProps
-> = ({ stageIds, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
+> = ({
+  stageIds,
+  useCaseId,
+  editViewName,
+  onStageMoveEnd,
+  onStageAddAfterEnd,
+}) => {
   return (
     <div data-testid="pipeline-builder-ui-workspace">
       <div className={pipelineWorkspaceContainerStyles}>
@@ -157,6 +165,17 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
             onStageMoveEnd={onStageMoveEnd}
             onStageAddAfterEnd={onStageAddAfterEnd}
           />
+
+          {useCaseId && (
+            <>
+              <AddStage
+                onAddStage={() => onStageAddAfterEnd()}
+                variant="icon"
+              />
+              <StageWizard id={useCaseId} />
+            </>
+          )}
+
           <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
         </div>
       </div>
@@ -168,6 +187,7 @@ const mapState = (state: RootState) => {
   return {
     stageIds: state.pipelineBuilder.stageEditor.stageIds,
     editViewName: state.editViewName,
+    useCaseId: state.sidePanel.useCase?.id,
   };
 };
 

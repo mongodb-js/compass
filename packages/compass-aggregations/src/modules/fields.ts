@@ -1,5 +1,13 @@
 import type { AnyAction } from 'redux';
 
+type Field = {
+  name: string;
+  value: string;
+  score: number;
+  meta: string;
+  version: string;
+};
+
 /**
  * Fields changed action.
  */
@@ -8,17 +16,12 @@ export const FIELDS_CHANGED = 'aggregations/fields/FIELDS_CHANGED';
 /**
  * The initial state.
  */
-export const INITIAL_STATE = [] as { name: string }[];
+export const INITIAL_STATE: Field[] = [];
 
-/**
- * Reducer function for handle state changes to fields.
- *
- * @param {Array} state - The fields state.
- * @param {Object} action - The action.
- *
- * @returns {Array} The new state.
- */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): Field[] {
   if (action.type === FIELDS_CHANGED) {
     return action.fields;
   }

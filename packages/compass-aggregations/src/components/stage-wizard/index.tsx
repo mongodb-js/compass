@@ -6,9 +6,13 @@ import {
   css,
   KeylineCard,
   spacing,
+  WarningSummary,
 } from '@mongodb-js/compass-components';
 import type { StageWizardUseCase } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { STAGE_WIZARD_USE_CASES } from '../aggregation-side-panel/stage-wizard-use-cases';
+import { connect } from 'react-redux';
+import { applyUseCase, cancelUseCase } from '../../modules/side-panel';
+import type { RootState } from '../../modules';
 
 const containerStyles = css({
   padding: spacing[3],
@@ -37,11 +41,17 @@ const cardActionStyles = css({
 
 type StageWizardProps = {
   id: string;
+  syntaxError?: SyntaxError;
   onCancel: () => void;
   onApply: () => void;
 };
 
-export const StageWizard = ({ id, onCancel, onApply }: StageWizardProps) => {
+export const StageWizard = ({
+  id,
+  syntaxError,
+  onCancel,
+  onApply,
+}: StageWizardProps) => {
   const useCase = useMemo<StageWizardUseCase | undefined>(() => {
     return STAGE_WIZARD_USE_CASES.find((useCase) => useCase.id === id);
   }, [id]);
@@ -58,9 +68,10 @@ export const StageWizard = ({ id, onCancel, onApply }: StageWizardProps) => {
       </div>
       <useCase.wizardComponent />
       <div className={cardFooterStyles}>
+        {syntaxError && <WarningSummary warnings={[syntaxError.message]} />}
         <div className={cardActionStyles}>
           <Button onClick={onCancel}>Cancel</Button>
-          <Button onClick={onApply} variant="primary">
+          <Button onClick={onApply} variant="primary" disabled={!!syntaxError}>
             Apply
           </Button>
         </div>
@@ -69,4 +80,12 @@ export const StageWizard = ({ id, onCancel, onApply }: StageWizardProps) => {
   );
 };
 
-export default StageWizard;
+export default connect(
+  (state: RootState) => ({
+    syntaxError: state.sidePanel.useCase?.syntaxError,
+  }),
+  {
+    onCancel: cancelUseCase,
+    onApply: applyUseCase,
+  }
+)(StageWizard);

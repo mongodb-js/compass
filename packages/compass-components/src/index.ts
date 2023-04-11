@@ -169,3 +169,4 @@ export {
   KeyboardShortcut,
 } from './hooks/use-hotkeys';
 export { rafraf } from './utils/rafraf';
+export { ComboboxWithCustomOption } from './components/combobox-with-custom-option';
