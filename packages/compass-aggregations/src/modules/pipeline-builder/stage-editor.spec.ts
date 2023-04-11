@@ -17,7 +17,7 @@ import {
   addWizard,
   updateWizardForm,
 } from './stage-editor';
-import type { StageEditorState, ReduxStage, Wizard } from './stage-editor';
+import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
 import reducer from '../';
 import { PipelineStorage } from '../../utils/pipeline-storage';
 import Sinon from 'sinon';
@@ -25,7 +25,7 @@ import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
 
-const MATCH_STAGE: ReduxStage = mapBuilderStageToStoreStage(
+const MATCH_STAGE: StoreStage = mapBuilderStageToStoreStage(
   {
     id: 1,
     operator: '$match',
@@ -37,7 +37,7 @@ const MATCH_STAGE: ReduxStage = mapBuilderStageToStoreStage(
   0
 );
 
-const LIMIT_STAGE: ReduxStage = mapBuilderStageToStoreStage(
+const LIMIT_STAGE: StoreStage = mapBuilderStageToStoreStage(
   {
     id: 2,
     operator: '$limit',
@@ -49,7 +49,7 @@ const LIMIT_STAGE: ReduxStage = mapBuilderStageToStoreStage(
   1
 );
 
-const OUT_STAGE: ReduxStage = mapBuilderStageToStoreStage(
+const OUT_STAGE: StoreStage = mapBuilderStageToStoreStage(
   {
     id: 3,
     operator: '$out',
