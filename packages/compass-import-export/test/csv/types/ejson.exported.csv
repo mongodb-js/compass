@@ -1,0 +1,8 @@
+_id,ejson.foo,notes,ejson[0],ejson[1],ejson[2],ejson
+1,1,object,,,,
+2,,array,1,2,3,
+3,,code,,,,"{""$code"":""function() {}""}"
+4,,minkey,,,,$MinKey
+5,,maxkey,,,,$MaxKey
+6,,dbref,,,,"{""$ref"":""namespace"",""$id"":{""$oid"":""642af890571e13e609f9069a""}}"
+7,,timestamp from mongoexport,,,,7184833429773484033

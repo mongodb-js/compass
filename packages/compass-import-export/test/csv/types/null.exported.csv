@@ -1,0 +1,3 @@
+_id,null,notes
+1,,old compass export writes the string Null
+2,,mongoexport writes a blank string

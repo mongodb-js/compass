@@ -1,0 +1,3 @@
+_id,a,foo[0],foo[1],foo[2],z,notes
+1,a,1,2,3,z,foo is an array of simple values
+2,a,1,,,z,foo is not always of the same length

@@ -18,7 +18,7 @@ import { connect } from 'mongodb-data-service';
 
 import { fixtures } from '../../test/fixtures';
 
-import type { ErrorJSON } from '../utils/import';
+import type { ErrorJSON } from './import-types';
 
 import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';
@@ -585,7 +585,11 @@ describe('importJSON', function () {
       jsonVariant: 'json',
     });
 
-    const docs = await dataService.find(ns, {}, { promoteValues: false });
+    const docs = await dataService.find(
+      ns,
+      {},
+      { promoteValues: false, bsonRegExp: true }
+    );
 
     expect(docs).to.have.length(3);
 
@@ -638,7 +642,11 @@ describe('importJSON', function () {
       jsonVariant: 'json',
     });
 
-    const docs = await dataService.find(ns, {}, { promoteValues: false });
+    const docs = await dataService.find(
+      ns,
+      {},
+      { promoteValues: false, bsonRegExp: true }
+    );
 
     expect(docs).to.have.length(3);
 

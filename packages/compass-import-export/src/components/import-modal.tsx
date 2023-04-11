@@ -39,7 +39,7 @@ import {
 import type { RootImportState } from '../stores/import-store';
 import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
-import type { CSVParsableFieldType } from '../utils/csv';
+import type { CSVParsableFieldType } from '../csv/csv-types';
 
 const closeButtonStyles = css({
   marginRight: spacing[2],

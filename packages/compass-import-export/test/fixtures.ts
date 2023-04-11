@@ -9,8 +9,6 @@ function getCSVByType(): Record<string, string> {
     'decimal',
     'double',
     'int',
-    'javascript',
-    'javascriptWithScope',
     'long',
     'maxKey',
     'minKey',
@@ -19,8 +17,10 @@ function getCSVByType(): Record<string, string> {
     'objectId',
     'regex',
     'string',
-    'symbol',
     'timestamp',
+    'md5',
+    'uuid',
+    'ejson', // the fallback when exporting various types
     'number', // actually a mix of all number types
     'mixed', // mix of a bunch of different types
   ].reduce((memo: Record<string, string>, type: string) => {
@@ -75,6 +75,8 @@ const fixtures = {
   JSON_SINGLE_DOC: path.join(__dirname, 'json-single-doc.json'),
   CSV_FLAT_HEADERS: path.join(__dirname, 'csv-flat-headers.csv'),
   JSONL: path.join(__dirname, 'jsonl.jsonl'),
+
+  allTypes: path.join(__dirname, 'docs', 'all-bson-types.js'),
 
   // CSV files by BSON type
   csvByType: getCSVByType(),
