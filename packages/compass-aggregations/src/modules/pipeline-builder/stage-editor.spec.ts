@@ -77,7 +77,7 @@ function createStore({
   };
 }
 
-describe.only('stageEditor', function () {
+describe('stageEditor', function () {
   let store: ReturnType<typeof createStore>;
 
   beforeEach(function () {
