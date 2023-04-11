@@ -110,8 +110,7 @@ export type ChangeStageDisabledAction = {
 export type StageAddAction = {
   type: StageEditorActionTypes.StageAdded;
   after: number;
-  afterIdxInPipeline: number;
-  stage: Stage;
+  stage: StoreStage;
 };
 
 export type StageRemoveAction = {
@@ -288,10 +287,8 @@ export const loadPreviewForStagesFrom = (
   return (dispatch, getState) => {
     getState()
       .pipelineBuilder.stageEditor.stages.slice(from)
-      .forEach(({ type }, index) => {
-        if (type === 'stage') {
-          void dispatch(loadStagePreview(from + index));
-        }
+      .forEach((_, id) => {
+        void dispatch(loadStagePreview(from + id));
       });
   };
 };
@@ -564,8 +561,7 @@ export const addStage = (
     dispatch({
       type: StageEditorActionTypes.StageAdded,
       after: addAfter,
-      afterIdxInPipeline: addAfterIdxInPipeline,
-      stage,
+      stage: mapBuilderStageToStoreStage(stage, addAfterIdxInPipeline),
     });
   };
 };
@@ -628,7 +624,13 @@ export const moveStage = (
           storeIndexToPipelineIndex(stages, to, { includeIndex: from < to });
 
     const pipelineWasNotModified =
+      // This stage being moved is a wizard and moving it will not incur any
+      // change in actual pipeline
       stageAtFromIdx.type === 'wizard' ||
+      // Although the "stage" moved but it did not jump any other stages,
+      // just the wizards which is why the resulting toIdxInPipeline is
+      // same as the fromIdxInPipeline and hence no change in actual pipeline
+      // ever happened.
       stageAtFromIdx.idxInPipeline === toIdxInPipeline;
 
     if (pipelineWasNotModified) {
@@ -951,11 +953,7 @@ const reducer: Reducer<StageEditorState> = (
   if (isAction<StageAddAction>(action, StageEditorActionTypes.StageAdded)) {
     const after = action.after;
     const stages = [...state.stages];
-    stages.splice(
-      after + 1,
-      0,
-      mapBuilderStageToStoreStage(action.stage, action.afterIdxInPipeline + 1)
-    );
+    stages.splice(after + 1, 0, action.stage);
 
     return {
       ...state,

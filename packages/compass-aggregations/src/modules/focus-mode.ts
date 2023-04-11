@@ -93,7 +93,8 @@ export const disableFocusMode = (): PipelineBuilderThunkAction<
   return (dispatch, getState) => {
     const state = getState();
     track('Focus Mode Closed', {
-      num_stages: state.pipelineBuilder.stageEditor.stages.length,
+      num_stages: pipelineFromStore(state.pipelineBuilder.stageEditor.stages)
+        .length,
       duration: Number(
         (Date.now() - (state.focusMode.openedAt ?? 0)).toFixed(1)
       ),
