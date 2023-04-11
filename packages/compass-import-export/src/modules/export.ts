@@ -401,13 +401,13 @@ export const openExport =
     // Optional pre supplied count, this helps us show progress.
     count?: number;
     aggregation?: ExportAggregationType;
-  }): ThunkAction<void, RootExportState, void, AnyAction> =>
-  (dispatch) => {
+  }) =>
+  (dispatch: Dispatch) => {
     const isAggregation = !!aggregation;
     track('Export Opened', { type: isAggregation ? 'aggregation' : 'query' });
 
     let count = null;
-    if (maybeCount) {
+    if (maybeCount !== undefined) {
       count = maybeCount;
     }
     dispatch(nsChanged(namespace));

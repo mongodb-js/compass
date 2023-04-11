@@ -56,7 +56,7 @@ describe('export [module]', function () {
 
         // Manually awaiting a thunk to make sure that store is ready for the
         // tests
-        await store.dispatch(
+        store.dispatch(
           actions.openExport({
             namespace: TEST_COLLECTION_NAME,
             query: {},
@@ -70,7 +70,14 @@ describe('export [module]', function () {
         fileType,
         tempFile
       ) {
-        store.dispatch(actions.openExport('foo.bar', { filter: {} }, 0, null));
+        store.dispatch(
+          actions.openExport({
+            namespace: TEST_COLLECTION_NAME,
+            query: { filter: {} },
+            count: 0,
+            aggregation: undefined,
+          })
+        );
         store.dispatch(actions.updateSelectedFields(selectedFields));
         store.dispatch(actions.selectExportFileName(tempFile));
         store.dispatch(actions.selectExportFileType(fileType));
