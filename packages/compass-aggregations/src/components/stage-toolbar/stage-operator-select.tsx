@@ -11,7 +11,7 @@ import {
 
 import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
-import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 import { filterStageOperators } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
@@ -105,7 +105,7 @@ export default withPreferences(
     ) => {
       const stage = state.pipelineBuilder.stageEditor.stages[
         ownProps.index
-      ] as ReduxStage;
+      ] as StoreStage;
 
       const stages = filterStageOperators({
         serverVersion: state.serverVersion,

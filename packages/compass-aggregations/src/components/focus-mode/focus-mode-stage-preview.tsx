@@ -19,7 +19,7 @@ import {
   isMissingAtlasStageSupport,
   isOutputStage,
 } from '../../utils/stage';
-import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   display: 'flex',
@@ -202,7 +202,7 @@ export const FocusModeStageInput = connect(
       };
     }
 
-    const previousStage = stages[previousStageIndex] as ReduxStage;
+    const previousStage = stages[previousStageIndex] as StoreStage;
 
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
       env,
@@ -242,7 +242,7 @@ export const FocusModeStageOutput = connect(
     if (stageIndex === -1) {
       return {};
     }
-    const stage = stages[stageIndex] as ReduxStage;
+    const stage = stages[stageIndex] as StoreStage;
 
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
       env,

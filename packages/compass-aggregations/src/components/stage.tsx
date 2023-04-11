@@ -28,7 +28,7 @@ import {
   hasSeenFocusModeGuideCue,
 } from '../utils/local-storage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import type { ReduxStage } from '../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
 
 const stageStyles = css({
   position: 'relative',
@@ -280,7 +280,7 @@ type StageOwnProps = {
 export default connect((state: RootState, ownProps: StageOwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[
     ownProps.index
-  ] as ReduxStage;
+  ] as StoreStage;
 
   return {
     id: stage.id,

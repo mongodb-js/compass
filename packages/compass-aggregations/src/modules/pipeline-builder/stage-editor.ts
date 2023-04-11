@@ -41,7 +41,7 @@ export const enum StageEditorActionTypes {
   StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
   WizardAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardAdded',
   WizardRemoved = 'compass-aggregations/pipeline-builder/stage-wizard/WizardRemoved',
-  WizardFormChange = 'compass-aggregations/pipeline-builder/stage-wizard/WizardFormChange',
+  WizardFormChanged = 'compass-aggregations/pipeline-builder/stage-wizard/WizardFormChanged',
 }
 
 export type StagePreviewFetchAction = {
@@ -137,7 +137,7 @@ export type WizardRemoveAction = {
 };
 
 export type WizardFormChangeAction = {
-  type: StageEditorActionTypes.WizardFormChange;
+  type: StageEditorActionTypes.WizardFormChanged;
   at: number;
   formValues: unknown;
 };
@@ -155,8 +155,8 @@ export function storeIndexToPipelineIndex(
 
 export function pipelineFromStore(
   stages: StageEditorState['stages']
-): ReduxStage[] {
-  return stages.filter((stage): stage is ReduxStage => stage.type === 'stage');
+): StoreStage[] {
+  return stages.filter((stage): stage is StoreStage => stage.type === 'stage');
 }
 
 export function wizardsFromStore(stages: StageEditorState['stages']): Wizard[] {
@@ -181,7 +181,7 @@ function remapPipelineStageIndexesInStore() {
   };
 }
 
-function canRunStage(stage?: ReduxStage, allowOut = false): boolean {
+function canRunStage(stage?: StoreStage, allowOut = false): boolean {
   return (
     !!stage &&
     (stage.disabled ||
@@ -701,14 +701,14 @@ export const updateWizardForm = (
     }
 
     dispatch({
-      type: StageEditorActionTypes.WizardFormChange,
+      type: StageEditorActionTypes.WizardFormChanged,
       at,
       formValues,
     });
   };
 };
 
-export type ReduxStage = {
+export type StoreStage = {
   id: number;
   idxInPipeline: number;
   type: 'stage';
@@ -732,13 +732,13 @@ export type Wizard = {
 
 export type StageEditorState = {
   stageIds: number[];
-  stages: (ReduxStage | Wizard)[];
+  stages: (StoreStage | Wizard)[];
 };
 
 export function mapBuilderStageToStoreStage(
   stage: Stage,
   idxInPipeline: number
-): ReduxStage {
+): StoreStage {
   return {
     id: stage.id,
     idxInPipeline,
@@ -1003,7 +1003,7 @@ const reducer: Reducer<StageEditorState> = (
   if (
     isAction<WizardFormChangeAction>(
       action,
-      StageEditorActionTypes.WizardFormChange
+      StageEditorActionTypes.WizardFormChanged
     )
   ) {
     const { at, formValues } = action;

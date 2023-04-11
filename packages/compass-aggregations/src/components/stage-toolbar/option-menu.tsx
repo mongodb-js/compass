@@ -13,7 +13,7 @@ import {
   addStage,
   removeStage,
 } from '../../modules/pipeline-builder/stage-editor';
-import type { ReduxStage } from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 
 const menuItemStyles = css({
@@ -103,7 +103,7 @@ export default connect(
   (state: RootState, ownProps: { index: number }) => {
     const stage = state.pipelineBuilder.stageEditor.stages[
       ownProps.index
-    ] as ReduxStage;
+    ] as StoreStage;
     return {
       isExpanded: !stage.collapsed,
     };
