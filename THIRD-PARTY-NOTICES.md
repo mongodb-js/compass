@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Tue Apr 04 2023.
+This document was automatically generated on Tue Apr 11 2023.
 
 ## List of dependencies
 
@@ -293,7 +293,7 @@ This document was automatically generated on Tue Apr 04 2023.
 | [hoek](#hoek-4.2.1) | 4.2.1 | BSD-3-Clause |
 | [hoist-non-react-statics](#hoist-non-react-statics-3.3.2) | 3.3.2 | BSD-3-Clause |
 | [html-tokenize](#html-tokenize-2.0.1) | 2.0.1 | MIT |
-| [http-cache-semantics](#http-cache-semantics-4.1.0) | 4.1.0 | BSD-2-Clause |
+| [http-cache-semantics](#http-cache-semantics-4.1.1) | 4.1.1 | BSD-2-Clause |
 | [http-signature](#http-signature-1.2.0) | 1.2.0 | MIT |
 | [ieee754](#ieee754-1.2.1) | 1.2.1 | BSD-3-Clause |
 | [imurmurhash](#imurmurhash-0.1.4) | 0.1.4 | MIT |
@@ -22437,8 +22437,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="http-cache-semantics-4.1.0"></a>
-### http-cache-semantics 4.1.0
+<a id="http-cache-semantics-4.1.1"></a>
+### http-cache-semantics 4.1.1
 
 **License**: BSD-2-Clause
 

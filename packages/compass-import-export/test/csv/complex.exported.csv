@@ -1,0 +1,4 @@
+_id,foo,notes,foo[0],foo[1].bar,foo[2].bar.baz
+1,1,simple value,,,
+2,,single element array,1,,
+3,,three element array where first value is simple; second value is object with one field; third value is object with object with one field,1,1,1

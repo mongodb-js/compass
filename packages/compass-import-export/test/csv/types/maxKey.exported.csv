@@ -1,0 +1,2 @@
+_id,maxKey,notes
+1,$MaxKey,matches mongoexport
