@@ -13,7 +13,11 @@ describe('Aggregations [Component]', function () {
   beforeEach(function () {
     component = mount(
       <Provider store={configureStore()}>
-        <Aggregations />
+        <Aggregations
+          showExportButton={true}
+          showRunButton={true}
+          showExplainButton={true}
+        />
       </Provider>
     );
   });
