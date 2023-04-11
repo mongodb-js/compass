@@ -22,16 +22,15 @@ import reducer from '../';
 import { PipelineStorage } from '../../utils/pipeline-storage';
 import Sinon from 'sinon';
 
-function createStore(
+function createStore({
   pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}, {$out: 'match-and-limit'}]`,
-  extraOptions: {
-    mixedWithWizards: boolean;
-    dataService?: { error: Error | null; dataService: DataService | null };
-  }
-) {
-  const { mixedWithWizards, dataService } = extraOptions || {
-    mixedWithWizards: false,
-  };
+  wizards = [],
+  dataService,
+}: {
+  pipelineSource?: string;
+  wizards?: { at: number }[];
+  dataService?: { error: Error | null; dataService: DataService | null };
+}) {
   const pipelineBuilder = Sinon.spy(
     new PipelineBuilder({} as DataService, pipelineSource)
   ) as unknown as PipelineBuilder;
@@ -39,30 +38,16 @@ function createStore(
   const stagesInStore: StageEditorState['stages'] = pipelineBuilder.stages.map(
     mapBuilderStageToStoreStage
   );
-  if (mixedWithWizards) {
-    stagesInStore.splice(
-      2,
-      0,
-      {
+
+  if (wizards.length) {
+    for (const { at } of wizards) {
+      stagesInStore.splice(at, 0, {
         id: stagesInStore.length,
         type: 'wizard',
         usecaseId: stagesInStore.length,
         formValues: [],
-      },
-      {
-        id: stagesInStore.length + 1,
-        type: 'wizard',
-        usecaseId: stagesInStore.length + 1,
-        formValues: [],
-      }
-    );
-
-    stagesInStore.splice(5, 0, {
-      id: stagesInStore.length,
-      type: 'wizard',
-      usecaseId: stagesInStore.length,
-      formValues: [],
-    });
+      });
+    }
   }
 
   const store = createReduxStore(
@@ -92,11 +77,11 @@ function createStore(
   };
 }
 
-describe('stageEditor', function () {
+describe.only('stageEditor', function () {
   let store: ReturnType<typeof createStore>;
 
   beforeEach(function () {
-    store = createStore(undefined, { mixedWithWizards: false });
+    store = createStore({});
   });
 
   describe('changeStageOperator', function () {
@@ -122,9 +107,12 @@ describe('stageEditor', function () {
     context(
       'when there are wizards in state and item at index is a stage',
       function () {
+        beforeEach(function () {
+          store = createStore({ wizards: [{ at: 2 }, { at: 3 }, { at: 5 }] });
+        });
+
         context('and item at index is stage', function () {
           it('should update stage operator', function () {
-            const store = createStore(undefined, { mixedWithWizards: true });
             const idxToBeUpdated = 4;
             const pipelineIdxToBeUpdated = 2;
             expect(store.getState().stages[idxToBeUpdated]).to.have.property(
@@ -148,7 +136,6 @@ describe('stageEditor', function () {
 
         context('and item at index is a wizard', function () {
           it('should not do anything', function () {
-            const store = createStore(undefined, { mixedWithWizards: true });
             store.dispatch(changeStageOperator(2, '$match'));
 
             // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -223,25 +210,20 @@ describe('stageEditor', function () {
     [
       {
         contextTitle: 'when there are no wizards in state',
-        mixedWithWizards: false,
+        wizards: [],
         idx: 2,
         idxInPipeline: 2,
       },
       {
         contextTitle: 'when there are wizards in state',
-        mixedWithWizards: true,
+        wizards: [{ at: 2 }, { at: 3 }, { at: 5 }],
         idx: 4,
         idxInPipeline: 2,
       },
-    ].forEach(function ({
-      contextTitle,
-      mixedWithWizards,
-      idx,
-      idxInPipeline,
-    }) {
+    ].forEach(function ({ contextTitle, wizards, idx, idxInPipeline }) {
       context(contextTitle, function () {
         it('should update stage value', function () {
-          const store = createStore(undefined, { mixedWithWizards });
+          const store = createStore({ wizards });
           expect(store.getState().stages[idx]).to.have.property(
             'value',
             '"match-and-limit"'
@@ -277,25 +259,20 @@ describe('stageEditor', function () {
     [
       {
         contextTitle: 'when there are no wizards in state',
-        mixedWithWizards: false,
+        wizards: [],
         idx: 1,
         idxInPipeline: 1,
       },
       {
         contextTitle: 'when there are wizards in state',
-        mixedWithWizards: true,
+        wizards: [{ at: 2 }, { at: 3 }, { at: 5 }],
         idx: 4,
         idxInPipeline: 2,
       },
-    ].forEach(function ({
-      contextTitle,
-      mixedWithWizards,
-      idx,
-      idxInPipeline,
-    }) {
+    ].forEach(function ({ contextTitle, wizards, idx, idxInPipeline }) {
       context(contextTitle, function () {
         it('should update stage disabled state', function () {
-          const store = createStore(undefined, { mixedWithWizards });
+          const store = createStore({ wizards });
           expect(store.getState().stages[idx]).to.have.property(
             'disabled',
             false
@@ -321,7 +298,7 @@ describe('stageEditor', function () {
     [
       {
         contextTitle: 'when there are no wizards in state',
-        mixedWithWizards: false,
+        wizards: [],
         // Hard coded based on the number of wizards
         // added in create store method.
         expectedStoreStagesLength: 3,
@@ -329,19 +306,19 @@ describe('stageEditor', function () {
       },
       {
         contextTitle: 'when there are wizards in state',
-        mixedWithWizards: true,
+        wizards: [{ at: 2 }, { at: 3 }, { at: 5 }],
         expectedStoreStagesLength: 6,
         expectedPipelineLength: 3,
       },
     ].forEach(function ({
       contextTitle,
-      mixedWithWizards,
+      wizards,
       expectedStoreStagesLength,
       expectedPipelineLength,
     }) {
       context(contextTitle, function () {
         it('should add stage at the end of the pipeline when no argument provided', function () {
-          const store = createStore(undefined, { mixedWithWizards });
+          const store = createStore({ wizards });
           expect(store.getState().stages).to.have.lengthOf(
             expectedStoreStagesLength
           );
@@ -362,33 +339,33 @@ describe('stageEditor', function () {
     [
       {
         contextTitle: 'when there are no wizards in state',
-        mixedWithWizards: false,
+        wizards: [],
         afterIdx: 1,
         afterIdxInPipeline: 1,
       },
       {
         contextTitle:
           'when there are wizards in state and item at after index is a stage',
-        mixedWithWizards: true,
+        wizards: [{ at: 2 }, { at: 3 }, { at: 5 }],
         afterIdx: 4,
         afterIdxInPipeline: 2,
       },
       {
         contextTitle:
           'when there are wizards in state and item at after index is a wizard',
-        mixedWithWizards: true,
+        wizards: [{ at: 2 }, { at: 3 }, { at: 5 }],
         afterIdx: 2,
         afterIdxInPipeline: 1,
       },
     ].forEach(function ({
       afterIdx,
       contextTitle,
-      mixedWithWizards,
+      wizards,
       afterIdxInPipeline,
     }) {
       context(contextTitle, function () {
         it('should add stage after index in state and in pipeline', function () {
-          const store = createStore(undefined, { mixedWithWizards });
+          const store = createStore({ wizards });
           expect(store.getState().stages).to.have.lengthOf(
             store.getState().stages.length
           );
@@ -450,10 +427,12 @@ describe('stageEditor', function () {
     });
 
     context('when there are wizards in state', function () {
+      beforeEach(function () {
+        store = createStore({ wizards: [{ at: 2 }, { at: 3 }, { at: 5 }] });
+      });
       context('and item at fromIdx is a stage', function () {
         context('and item at toIdx is also a stage', function () {
           it('should move the stage in store and also in pipeline', function () {
-            const store = createStore(undefined, { mixedWithWizards: true });
             [
               {
                 fromIdx: 1,
@@ -499,7 +478,6 @@ describe('stageEditor', function () {
           'and there are stages in between fromIdx and toIdx(excluding)',
           function () {
             it('should move the stage in store and also in pipeline', function () {
-              const store = createStore(undefined, { mixedWithWizards: true });
               [
                 {
                   fromIdx: 1,
@@ -554,7 +532,6 @@ describe('stageEditor', function () {
           'and there no stages in between fromIdx and toIdx(including)',
           function () {
             it('should move the stage in store but should do nothing in pipeline', function () {
-              const store = createStore(undefined, { mixedWithWizards: true });
               [
                 {
                   fromIdx: 1,
@@ -586,7 +563,6 @@ describe('stageEditor', function () {
       });
       context('and item at fromIdx is a wizard', function () {
         it('should move the stage in store but should do nothing in pipeline', function () {
-          const store = createStore(undefined, { mixedWithWizards: true });
           [
             {
               fromIdx: 5,
@@ -621,68 +597,64 @@ describe('stageEditor', function () {
     [
       {
         contextTitle: 'when there are no wizards in state',
-        mixedWithWizards: false,
+        wizards: [],
         removeAt: 0,
         expectedLength: 3,
       },
       {
         contextTitle: 'when there are wizards in state',
-        mixedWithWizards: true,
+        wizards: [{ at: 2 }, { at: 3 }, { at: 5 }],
         removeAt: 0,
         expectedLength: 6,
       },
-    ].forEach(
-      ({ contextTitle, mixedWithWizards, removeAt, expectedLength }) => {
-        context(contextTitle, function () {
-          it('should remove stage from store as well as pipeline', function () {
-            const store = createStore(undefined, { mixedWithWizards });
-            expect(store.getState().stages).to.have.lengthOf(expectedLength);
-            expect(store.getState().stages[removeAt]).to.have.property(
-              'stageOperator',
-              '$match'
-            );
+    ].forEach(({ contextTitle, wizards, removeAt, expectedLength }) => {
+      context(contextTitle, function () {
+        it('should remove stage from store as well as pipeline', function () {
+          const store = createStore({ wizards });
+          expect(store.getState().stages).to.have.lengthOf(expectedLength);
+          expect(store.getState().stages[removeAt]).to.have.property(
+            'stageOperator',
+            '$match'
+          );
 
-            store.dispatch(removeStage(removeAt));
+          store.dispatch(removeStage(removeAt));
 
-            expect(store.getState().stages).to.have.lengthOf(
-              expectedLength - 1
-            );
-            expect(store.getState().stages[removeAt]).to.have.property(
-              'stageOperator',
-              '$limit'
-            );
+          expect(store.getState().stages).to.have.lengthOf(expectedLength - 1);
+          expect(store.getState().stages[removeAt]).to.have.property(
+            'stageOperator',
+            '$limit'
+          );
 
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            expect(store.pipelineBuilder.removeStage).to.be.calledWithExactly(
-              removeAt
-            );
-            expect(store.pipelineBuilder.stages[removeAt]).to.have.property(
-              'operator',
-              '$limit'
-            );
-          });
+          // eslint-disable-next-line @typescript-eslint/unbound-method
+          expect(store.pipelineBuilder.removeStage).to.be.calledWithExactly(
+            removeAt
+          );
+          expect(store.pipelineBuilder.stages[removeAt]).to.have.property(
+            'operator',
+            '$limit'
+          );
         });
-      }
-    );
+      });
+    });
   });
 
   describe('loadStagePreview', function () {
     [
       {
         contextTitle: 'when there are no wizards in state',
-        mixedWithWizards: false,
+        wizards: [],
       },
       {
         contextTitle: 'when there are wizards in state',
-        mixedWithWizards: true,
+        wizards: [{ at: 2 }, { at: 3 }, { at: 5 }],
       },
-    ].forEach(({ contextTitle, mixedWithWizards }) => {
+    ].forEach(({ contextTitle, wizards }) => {
       context(contextTitle, function () {
         beforeEach(function () {
-          store = createStore(undefined, { mixedWithWizards });
+          store = createStore({ wizards });
         });
 
-        if (mixedWithWizards) {
+        if (wizards.length) {
           it('should do nothing if the provided index is of a wizard', async function () {
             await store.dispatch(loadStagePreview(2));
             // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -748,29 +720,23 @@ describe('stageEditor', function () {
     [
       {
         contextTitle: 'when there are no wizards in state',
-        mixedWithWizards: false,
+        wizards: [],
         idxToRun: 2,
         idxToRunInPipeline: 2,
         invalidIdx: 1,
       },
       {
         contextTitle: 'when there are wizards in state',
-        mixedWithWizards: true,
+        wizards: [{ at: 2 }, { at: 3 }, { at: 5 }],
         idxToRun: 4,
         idxToRunInPipeline: 2,
         invalidIdx: 1,
       },
     ].forEach(
-      ({
-        contextTitle,
-        mixedWithWizards,
-        idxToRun,
-        invalidIdx,
-        idxToRunInPipeline,
-      }) => {
+      ({ contextTitle, wizards, idxToRun, invalidIdx, idxToRunInPipeline }) => {
         context(contextTitle, function () {
           beforeEach(function () {
-            store = createStore(undefined, { mixedWithWizards });
+            store = createStore({ wizards });
           });
 
           it('should not run aggregation for disabled stage', async function () {
@@ -794,8 +760,8 @@ describe('stageEditor', function () {
           });
 
           it('should run aggregation if invalid previous stages are disabled', async function () {
-            const store = createStore(undefined, {
-              mixedWithWizards,
+            const store = createStore({
+              wizards,
               dataService: { error: null, dataService: <DataService>{} },
             });
             store.dispatch(changeStageValue(invalidIdx, '{ foo: '));
