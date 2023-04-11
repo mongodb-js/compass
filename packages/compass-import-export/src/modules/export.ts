@@ -398,27 +398,17 @@ export const openExport =
   }: {
     namespace: string;
     query: ExportQueryType;
-    // Optional pre supplied count to shortcut and
-    // avoid a possibly expensive re-count.
+    // Optional pre supplied count, this helps us show progress.
     count?: number;
     aggregation?: ExportAggregationType;
-  }): ThunkAction<Promise<void>, RootExportState, void, AnyAction> =>
-  async (dispatch, getState) => {
+  }): ThunkAction<void, RootExportState, void, AnyAction> =>
+  (dispatch) => {
     const isAggregation = !!aggregation;
     track('Export Opened', { type: isAggregation ? 'aggregation' : 'query' });
-    const {
-      dataService: { dataService },
-    } = getState();
 
     let count = null;
-    try {
-      count =
-        maybeCount ??
-        (!isAggregation
-          ? await fetchDocumentCount(dataService!, namespace, query)
-          : null);
-    } catch (e: unknown) {
-      dispatch(onError(e as Error));
+    if (maybeCount) {
+      count = maybeCount;
     }
     dispatch(nsChanged(namespace));
     dispatch(onModalOpen({ namespace, query, count, aggregation }));
@@ -495,7 +485,6 @@ export const startExport =
         type: exportData.fileType,
         columns: columns,
         output: dest,
-        totalNumberOfDocuments: numDocsToExport,
       });
 
       const throttledProgress = throttle(

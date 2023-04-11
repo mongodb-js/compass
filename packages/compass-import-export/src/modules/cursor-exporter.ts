@@ -17,7 +17,6 @@ export class CursorExporter extends EventEmitter {
   private _output: stream.Writable;
   private _formatter;
   private _columns: Array<string> | boolean;
-  private _totalNumberOfDocuments: number;
   private _exportedDocuments = 0;
   private _cursorStream: stream.Readable;
   constructor(opts: CursorExporterOpts) {
@@ -28,7 +27,6 @@ export class CursorExporter extends EventEmitter {
       opts.type === 'csv' ? createCSVFormatter : createJSONFormatter;
     this._output = opts.output;
     this._columns = opts.columns ? opts.columns : true;
-    this._totalNumberOfDocuments = opts.totalNumberOfDocuments || 0;
   }
 
   async start(): Promise<void> {
