@@ -4,8 +4,8 @@ import Papa from 'papaparse';
 import StreamJSON from 'stream-json';
 
 import { createDebug } from '../utils/logger';
-import { supportedDelimiters } from '../utils/csv';
-import type { Delimiter } from '../utils/csv';
+import { supportedDelimiters } from '../csv/csv-types';
+import type { Delimiter } from '../csv/csv-types';
 import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('import-guess-filetype');

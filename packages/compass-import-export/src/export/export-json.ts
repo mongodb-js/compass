@@ -5,44 +5,23 @@ import type { Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import type {
-  AggregationCursor,
-  AggregateOptions,
-  Document,
-  FindCursor,
-  Sort,
-} from 'mongodb';
+import type { AggregationCursor, FindCursor } from 'mongodb';
 
+import type {
+  ExportAggregation,
+  ExportQuery,
+  ExportResult,
+} from './export-types';
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('export-json');
 
-export type ExportAggregation = {
-  stages: Document[];
-  options: AggregateOptions;
-};
-
-export type ExportQuery = {
-  filter: Document;
-  sort?: Sort;
-  limit?: number;
-  skip?: number;
-  projection?: Document;
-};
-
 type ExportJSONOptions = {
-  dataService: DataService;
-  ns: string;
   output: Writable;
   abortSignal?: AbortSignal;
   input: FindCursor | AggregationCursor;
   progressCallback?: (index: number) => void;
   variant: 'default' | 'relaxed' | 'canonical';
-};
-
-type ExportJSONResult = {
-  docsWritten: number;
-  aborted: boolean;
 };
 
 function getEJSONOptionsForVariant(
@@ -61,15 +40,12 @@ function getEJSONOptionsForVariant(
 }
 
 export async function exportJSON({
-  ns,
   output,
   abortSignal,
   input,
   progressCallback,
   variant,
-}: ExportJSONOptions): Promise<ExportJSONResult> {
-  debug('exportJSON()', { ns: toNS(ns) });
-
+}: ExportJSONOptions): Promise<ExportResult> {
   let docsWritten = 0;
 
   const ejsonOptions = getEJSONOptionsForVariant(variant);
@@ -92,7 +68,6 @@ export async function exportJSON({
           EJSON.stringify(chunk, ejsonOptions, 2)
         }`;
 
-        debug('transform', doc);
         callback(null, doc);
       } catch (err: any) {
         callback(err);
@@ -134,14 +109,19 @@ export async function exportJSON({
   };
 }
 
-export async function exportJSONFromAggregation(
-  options: Omit<ExportJSONOptions, 'input'> & {
-    aggregation: ExportAggregation;
-  }
-) {
-  const { dataService, ns, aggregation } = options;
+export async function exportJSONFromAggregation({
+  ns,
+  aggregation,
+  dataService,
+  ...exportOptions
+}: Omit<ExportJSONOptions, 'input'> & {
+  ns: string;
+  dataService: DataService;
+  aggregation: ExportAggregation;
+}) {
+  debug('exportJSONFromAggregation()', { ns: toNS(ns) });
 
-  const { stages, options: aggregationOptions } = aggregation;
+  const { stages, options: aggregationOptions = {} } = aggregation;
   aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
     aggregationOptions.maxTimeMS
   );
@@ -152,17 +132,22 @@ export async function exportJSONFromAggregation(
   );
 
   return await exportJSON({
-    ...options,
+    ...exportOptions,
     input: aggregationCursor,
   });
 }
 
-export async function exportJSONFromQuery(
-  options: Omit<ExportJSONOptions, 'input'> & {
-    query?: ExportQuery;
-  }
-) {
-  const { dataService, ns, query = { filter: {} } } = options;
+export async function exportJSONFromQuery({
+  ns,
+  query = { filter: {} },
+  dataService,
+  ...exportOptions
+}: Omit<ExportJSONOptions, 'input'> & {
+  ns: string;
+  dataService: DataService;
+  query?: ExportQuery;
+}) {
+  debug('exportJSONFromQuery()', { ns: toNS(ns) });
 
   const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
     projection: query.projection,
@@ -172,7 +157,7 @@ export async function exportJSONFromQuery(
   });
 
   return await exportJSON({
-    ...options,
+    ...exportOptions,
     input: findCursor,
   });
 }

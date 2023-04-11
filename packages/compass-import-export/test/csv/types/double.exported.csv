@@ -1,0 +1,15 @@
+_id,double,notes
+1,1,
+2,1.2,
+3,-1,
+4,-1.2,
+5,1,
+6,1.2,
+7,1,
+8,1e-15,a very small number close to 0
+9,1.0000000000000002,the smallest number > 1
+10,5e-324,Smallest subnormal double
+11,1.7976931348623157e+308,Max. Double
+12,-1.0000000000000002,
+13,-5e-324,
+14,-1.7976931348623157e+308,

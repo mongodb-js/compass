@@ -3,8 +3,8 @@ import Papa from 'papaparse';
 import stripBomStream from 'strip-bom-stream';
 
 import { createDebug } from '../utils/logger';
-import type { Delimiter } from '../utils/csv';
-import { csvHeaderNameToFieldName } from '../utils/csv';
+import type { Delimiter } from '../csv/csv-types';
+import { csvHeaderNameToFieldName } from '../csv/csv-utils';
 import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('list-csv-fields');

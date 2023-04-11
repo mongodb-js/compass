@@ -83,12 +83,10 @@ describe('analyzeCSVFields', function () {
         'decimal',
         'javascript',
         'javascriptWithScope',
-        'maxKey',
-        'minKey',
         'objectId',
-        'regex',
         'timestamp',
         'symbol',
+        'md5',
       ].includes(type)
     ) {
       continue;
@@ -109,12 +107,11 @@ describe('analyzeCSVFields', function () {
 
     if (type === 'date') {
       // the date test file contains an example of a date as an iso string, an
-      // example of a date as an int64 value and a date-only yyyy-mm-dd stribg.
-      // Obviously with no other context the number is detected as a long, and
-      // the non-iso-date string is just a string, so in those cases it will be
-      // up to the user to explicitly select Date as the column's type when
-      // importing.
-      expectedTypes = ['date', 'long', 'string'];
+      // example of a date as an int64 value and a date-only yyyy-mm-dd strig.
+      // Obviously with no other context the number is detected as a long, so in
+      // those cases it will be up to the user to explicitly select Date as the
+      // column's type when importing.
+      expectedTypes = ['date', 'long'];
       expectedDetected = 'mixed';
     }
 
