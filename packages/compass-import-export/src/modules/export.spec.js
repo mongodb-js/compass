@@ -53,9 +53,6 @@ describe('export [module]', function () {
 
         store.dispatch(dataServiceConnected(null, dataService));
         store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-
-        // Manually awaiting a thunk to make sure that store is ready for the
-        // tests
         store.dispatch(
           actions.openExport({
             namespace: TEST_COLLECTION_NAME,
