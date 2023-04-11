@@ -8,7 +8,7 @@ import {
   dataServiceConnected,
   dataServiceDisconnected,
 } from '../modules/compass/data-service';
-import { exportReducer, setExportIsOpen } from '../modules/new-export';
+import { exportReducer, openExport } from '../modules/new-export';
 
 export const store = Object.assign(
   configureStore({
@@ -50,14 +50,23 @@ export const store = Object.assign(
         ({
           // TODO: Options and other things.
           namespace,
+          query,
+          exportFullCollection,
+          aggregation,
         }) => {
-          // TODO: If already in progress show the in progress modal.
-          store.dispatch(setExportIsOpen(true));
+          store.dispatch(
+            openExport({
+              namespace,
+              query,
+              exportFullCollection,
+              aggregation,
+            })
+          );
         }
       );
     },
   }
 );
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type RootExportState = ReturnType<typeof store.getState>;
+export type ExportAppDispatch = typeof store.dispatch;

@@ -26,35 +26,46 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
-import { setExportIsOpen } from '../modules/new-export';
-import type { RootState } from '../stores/new-export-store';
+import {
+  closeExport,
+  selectFieldsToExport,
+  backToSelectFieldOptions,
+  backToSelectFieldsToExport,
+  readyToExport,
+  startExport,
+} from '../modules/new-export';
+import type { ExportStatus, FieldsToExportOption } from '../modules/new-export';
+import type { RootExportState } from '../stores/new-export-store';
 import { SelectFileType } from './select-file-type';
+import { ConnectedExportSelectFields } from './export-select-fields';
+import { ExportCodeView } from './export-code-view';
 
 type ExportFileTypes = 'json' | 'csv';
-type FieldsToExport = 'all-fields' | 'select-fields';
 
 function useExport(): [
   {
     fileType: ExportFileTypes;
-    fieldsToExport: FieldsToExport;
+    fieldsToExportOption: FieldsToExportOption;
   },
   {
     setFileType: (fileType: ExportFileTypes) => void;
-    setFieldsToExport: (fieldsToExport: FieldsToExport) => void;
+    setFieldsToExportOption: (
+      fieldsToExportOption: FieldsToExportOption
+    ) => void;
   }
 ] {
   const [fileType, setFileType] = useState<ExportFileTypes>('json');
-  const [fieldsToExport, setFieldsToExport] =
-    useState<FieldsToExport>('all-fields');
+  const [fieldsToExportOption, setFieldsToExportOption] =
+    useState<FieldsToExportOption>('all-fields');
 
   return [
     {
       fileType,
-      fieldsToExport,
+      fieldsToExportOption,
     },
     {
       setFileType,
-      setFieldsToExport,
+      setFieldsToExportOption,
     },
   ];
 }
@@ -68,15 +79,26 @@ const closeButtonStyles = css({
   marginRight: spacing[2],
 });
 
+const messageBannerStyles = css({
+  marginTop: spacing[3],
+});
+
+const modalBodyStyles = css({
+  paddingTop: spacing[3],
+});
+
 const selectFieldsToExportId = 'select-fields-to-export';
 const selectFieldsToExportLabelId = 'select-fields-to-export-label';
 function FieldsToExportOptions({
-  fieldsToExport,
-  setFieldsToExport,
+  fieldsToExportOption,
+  setFieldsToExportOption,
 }: {
-  fieldsToExport: FieldsToExport;
-  setFieldsToExport: (fieldsToExport: FieldsToExport) => void;
+  fieldsToExportOption: FieldsToExportOption;
+  setFieldsToExportOption: (fieldsToExportOption: FieldsToExportOption) => void;
 }) {
+  const [showProjectInfoMessage, setShowProjectInfoMessage] =
+    useState<boolean>(true);
+
   return (
     <>
       <Label htmlFor={selectFieldsToExportId} id={selectFieldsToExportLabelId}>
@@ -89,13 +111,13 @@ function FieldsToExportOptions({
         onChange={({
           target: { value },
         }: React.ChangeEvent<HTMLInputElement>) =>
-          setFieldsToExport(value as FieldsToExport)
+          setFieldsToExportOption(value as FieldsToExportOption)
         }
       >
         <RadioBox
           data-testid="select-file-type-json"
           value="all-fields"
-          checked={fieldsToExport === 'all-fields'}
+          checked={fieldsToExportOption === 'all-fields'}
         >
           All fields
         </RadioBox>
@@ -103,11 +125,21 @@ function FieldsToExportOptions({
           className={selectFieldsRadioBoxStyles}
           data-testid="select-file-type-csv"
           value="select-fields"
-          checked={fieldsToExport === 'select-fields'}
+          checked={fieldsToExportOption === 'select-fields'}
         >
           Select fields in table
         </RadioBox>
       </RadioBoxGroup>
+      {showProjectInfoMessage && (
+        <Banner
+          className={messageBannerStyles}
+          dismissible
+          onClose={() => setShowProjectInfoMessage(false)}
+        >
+          You can also use the Project field in the query bar to specify which
+          fields to return or export.
+        </Banner>
+      )}
     </>
   );
 }
@@ -115,21 +147,55 @@ function FieldsToExportOptions({
 type ExportModalProps = {
   ns: string;
   isOpen: boolean;
-  setExportIsOpen: (isOpen: boolean) => void;
+  query: any; // todo types from Le Roux's pr
+  aggregation: any; // todo types from Le Roux's pr
+  selectedFieldOption: undefined | FieldsToExportOption;
+  isFieldsToExportLoading: boolean;
+  selectFieldsToExport: () => void;
+  readyToExport: () => void;
+  startExport: () => void;
+  backToSelectFieldOptions: () => void;
+  backToSelectFieldsToExport: () => void;
+  exportFullCollection?: boolean;
+  closeExport: () => void;
+  status: ExportStatus;
 };
 
 function ExportModal({
   ns,
+  query,
+  aggregation,
+  exportFullCollection,
+  isFieldsToExportLoading,
+  selectedFieldOption,
+  selectFieldsToExport,
+  readyToExport,
+  startExport,
   isOpen,
-  setExportIsOpen,
-}: ExportModalProps): JSX.Element {
+  closeExport,
+  status,
+  backToSelectFieldOptions,
+  backToSelectFieldsToExport,
+}: ExportModalProps) {
   // const darkMode = useDarkMode();
 
   // const isOpen = useExportSelector(selectExportIsOpen);
   // const dispatch = useExportDispatch();
 
-  const [{ fileType, fieldsToExport }, { setFileType, setFieldsToExport }] =
-    useExport();
+  const [
+    { fileType, fieldsToExportOption },
+    { setFileType, setFieldsToExportOption },
+  ] = useExport();
+
+  // const
+
+  // const currentView = useMemo<ExportModalViews>(() => {
+  //   // if () {
+
+  //   // }
+
+  //   return 'ready-to-export';
+  // }, [ exportFullCollection, fieldsToExport ]);
 
   // useEffect(() => {
   //   function onSelectNamespace(meta: { namespace: string }) {
@@ -140,18 +206,13 @@ function ExportModal({
   //   }
 
   //   globalAppRegistry.on('open-export', ({ namespace }) => {
-  //     store.dispatch(setExportIsOpen(namespace));
+  //     store.dispatch(closeExport(namespace));
   //   });
 
   //   return () => {
   //     globalAppRegistry.removeListener('open-export', onSelectNamespace);
   //   };
   // }, [ isOpen ]);
-
-  const handleClose = useCallback(() => {
-    // cancelExport(); // TODO: cancel export
-    setExportIsOpen(false);
-  }, [setExportIsOpen]);
 
   // useTrackOnChange(
   //   'COMPASS-IMPORT-EXPORT-UI',
@@ -165,70 +226,164 @@ function ExportModal({
   //   React
   // );
 
+  // const
+
+  const onClickBack = useCallback(() => {
+    if (status === 'ready-to-export' && selectedFieldOption !== 'all-fields') {
+      backToSelectFieldsToExport();
+      // TODO: Set status back one.
+      return;
+    }
+    // Set status to select-field-options.
+    backToSelectFieldOptions();
+  }, [
+    status,
+    backToSelectFieldOptions,
+    selectedFieldOption,
+    backToSelectFieldsToExport,
+  ]);
+
+  const onClickSelectFieldOptionsNext = useCallback(() => {
+    if (fieldsToExportOption === 'all-fields') {
+      readyToExport();
+    }
+    selectFieldsToExport();
+  }, [readyToExport, selectFieldsToExport, fieldsToExportOption]);
+
   return (
     <Modal
       open={isOpen}
-      setOpen={handleClose}
+      setOpen={closeExport}
       data-testid="export-modal"
       // TODO: Large on the table view?
       // size={fileType === 'csv' ? 'large' : 'small'}
     >
-      <ModalHeader title="Export" subtitle={`Collection ${ns}`} />
-      <ModalBody>
-        <SelectFileType
-          fileType={fileType}
-          label="Export File Type"
-          onSelected={setFileType}
-        />
-        <FieldsToExportOptions
-          fieldsToExport={fieldsToExport}
-          setFieldsToExport={setFieldsToExport}
-        />
-        {fileType === 'csv' && (
-          <Banner
-          // variant="warning"
-          >
-            Exporting with CSV may lose type information and is not suitable for
-            backing up your data.{' '}
-            <Link
-              href="https://www.mongodb.com/docs/compass/current/import-export/#export-data-from-a-collection"
-              target="_blank"
-            >
-              Learn more
-            </Link>
-          </Banner>
+      <ModalHeader
+        title="Export"
+        subtitle={aggregation ? `Aggregation on ${ns}` : `Collection ${ns}`}
+      />
+      <ModalBody className={modalBodyStyles}>
+        {/* If it's not the select field options, show the  */}
+        {status === 'select-field-options' && (
+          <>
+            <ExportCodeView />
+            <FieldsToExportOptions
+              fieldsToExportOption={fieldsToExportOption}
+              setFieldsToExportOption={setFieldsToExportOption}
+            />
+          </>
+        )}
+        {status === 'select-fields-to-export' && (
+          <ConnectedExportSelectFields />
+        )}
+        {status === 'ready-to-export' && (
+          <>
+            <ExportCodeView />
+            {/* TODO: ensure this is a good comparison check */}
+            {!!query?.project && (
+              <Banner>
+                Only projected fields will be exported. To export all fields, go
+                back and leave the PROJECT field empty.
+              </Banner>
+            )}
+            <SelectFileType
+              fileType={fileType}
+              label="Export File Type"
+              onSelected={setFileType}
+            />
+            {fileType === 'csv' && (
+              <Banner className={messageBannerStyles}>
+                Exporting with CSV may lose type information and is not suitable
+                for backing up your data.{' '}
+                <Link
+                  href="https://www.mongodb.com/docs/compass/current/import-export/#export-data-from-a-collection"
+                  target="_blank"
+                >
+                  Learn more
+                </Link>
+              </Banner>
+            )}
+          </>
         )}
       </ModalBody>
       <ModalFooter>
-        <Button
-          data-testid="export-button"
-          onClick={() => alert('start export')}
-          // disabled={
-          //   !fileName
-          // }
-          variant="primary"
-        >
-          Export
-        </Button>
-        <Button
-          className={closeButtonStyles}
-          data-testid="cancel-button"
-          onClick={handleClose}
-        >
-          Cancel
-        </Button>
+        {status === 'select-field-options' && (
+          <Button
+            // data-testid="select-field-options-next-button"
+            onClick={onClickSelectFieldOptionsNext}
+            variant="primary"
+          >
+            Next
+          </Button>
+        )}
+        {status === 'select-fields-to-export' && (
+          <Button
+            // data-testid="select-fields-next-button"
+            // onClick={() => alert('selected fields to export')}
+            onClick={readyToExport}
+            // TODO: Disable until loaded or at least one selected field.
+            disabled={isFieldsToExportLoading}
+            variant="primary"
+          >
+            Next
+          </Button>
+        )}
+
+        {status === 'ready-to-export' && (
+          <Button
+            data-testid="export-button"
+            onClick={startExport}
+            // disabled={
+            //   !fileName
+            // }
+            variant="primary"
+          >
+            Export…
+          </Button>
+        )}
+        {((status === 'ready-to-export' && !!selectedFieldOption) ||
+          status === 'select-fields-to-export') && (
+          <Button
+            className={closeButtonStyles}
+            // data-testid="export-back-button"
+            onClick={onClickBack}
+          >
+            Back
+          </Button>
+        )}
+        {((status === 'ready-to-export' && !selectedFieldOption) ||
+          status === 'select-field-options') && (
+          <Button
+            className={closeButtonStyles}
+            // data-testid="export-cancel-button"
+            onClick={closeExport}
+          >
+            Cancel
+          </Button>
+        )}
       </ModalFooter>
     </Modal>
   );
 }
 
 const ConnectedExportModal = connect(
-  (state: RootState) => ({
+  (state: RootExportState) => ({
     isOpen: state.export.isOpen,
-    ns: state.ns,
+    ns: state.export.namespace,
+    query: state.export.query,
+    aggregation: state.export.aggregation,
+    exportFullCollection: state.export.exportFullCollection,
+    isFieldsToExportLoading: !!state.export.fieldsToExportAbortController,
+    status: state.export.status,
+    selectedFieldOption: state.export.selectedFieldOption,
   }),
   {
-    setExportIsOpen,
+    closeExport,
+    selectFieldsToExport,
+    backToSelectFieldOptions,
+    backToSelectFieldsToExport,
+    readyToExport,
+    startExport,
   }
 )(ExportModal);
 

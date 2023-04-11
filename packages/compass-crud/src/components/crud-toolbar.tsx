@@ -102,7 +102,7 @@ export type CrudToolbarProps = {
   localAppRegistry: AppRegistry;
   onApplyClicked: () => void;
   onResetClicked: () => void;
-  openExportFileDialog: () => void;
+  openExportFileDialog: (exportFullCollection?: boolean) => void;
   outdated: boolean;
   page: number;
   readonly: boolean;
@@ -194,17 +194,19 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               instanceDescription={instanceDescription}
             />
           )}
+          {/* TODO(COMPASS-6580): Remove feature flag, use next export. */}
           {useNewExport ? (
             <DropdownMenuButton<ExportDataOption>
               data-testid="export-collection-button"
               actions={exportDataActions}
               // TODO: Separate actions/emits for actions.
-              onAction={openExportFileDialog}
+              onAction={(action: ExportDataOption) =>
+                openExportFileDialog(action === 'export-full-collection')
+              }
               buttonText="Export Data"
               buttonProps={{
                 className: exportCollectionButtonStyles,
                 size: 'xsmall',
-                // variant: 'primary',
                 leftGlyph: <Icon glyph="Export" />,
               }}
             />
@@ -214,7 +216,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               leftGlyph={<Icon glyph="Export" />}
               data-testid="export-collection-button"
               size="xsmall"
-              onClick={openExportFileDialog}
+              onClick={() => openExportFileDialog(undefined)}
             >
               Export Collection
             </Button>

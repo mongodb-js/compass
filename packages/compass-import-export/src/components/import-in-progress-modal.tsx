@@ -15,7 +15,7 @@ type InProgressModalProps = {
   isInProgressMessageOpen: boolean;
 };
 
-function InProgressModal({
+function ImportInProgressModal({
   closeInProgressMessage,
   isInProgressMessageOpen,
 }: InProgressModalProps) {
@@ -41,4 +41,4 @@ const mapStateToProps = (state: RootImportState) => ({
 });
 export default connect(mapStateToProps, {
   closeInProgressMessage,
-})(InProgressModal);
+})(ImportInProgressModal);

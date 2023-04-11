@@ -344,10 +344,11 @@ store.onActivated = (appRegistry: AppRegistry) => {
       if (activeTab) {
         const crudStore = activeTab.localAppRegistry.getStore('CRUD.Store');
         const { query: crudQuery, count } = crudStore.state;
-        const { filter, limit, skip } = crudQuery;
+        const { filter, project, collation, limit, skip, sort } = crudQuery;
         appRegistry.emit('open-export', {
+          exportFullCollection: true,
           namespace: activeTab.namespace,
-          query: { filter, limit, skip },
+          query: { filter, project, collation, limit, skip, sort },
           count,
         });
       }

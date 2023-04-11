@@ -24,7 +24,9 @@ import {
   DOCUMENTS_STATUS_FETCHED_CUSTOM,
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
 } from '../constants/documents-statuses';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import preferences, {
+  capMaxTimeMSAtPreferenceLimit,
+} from 'compass-preferences-model';
 
 import type { DataService } from 'mongodb-data-service';
 import type {
@@ -973,8 +975,23 @@ class CrudStoreImpl
    * Open an export file dialog from compass-import-export-plugin.
    * Emits a global app registry event the plugin listens to.
    */
-  openExportFileDialog() {
-    // Only three query fields that export modal will handle
+  openExportFileDialog(exportFullCollection?: boolean) {
+    // TODO(COMPASS-6580): Remove feature flag, use next export.
+    if (preferences.getPreferences().useNewExport) {
+      const { filter, project, collation, limit, skip, sort } =
+        this.state.query;
+
+      this.globalAppRegistry.emit('open-export', {
+        namespace: this.state.ns,
+        query: { filter, project, collation, limit, skip, sort },
+        // Pass the doc count to the export modal so we can avoid re-counting.
+        count: this.state.count,
+        exportFullCollection,
+      });
+      return;
+    }
+
+    // Currently, only three query fields that export modal will handle.
     const { filter, limit, skip } = this.state.query;
     this.globalAppRegistry.emit('open-export', {
       namespace: this.state.ns,

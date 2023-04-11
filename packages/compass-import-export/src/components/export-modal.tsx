@@ -342,6 +342,7 @@ function ExportModal({
         )}
         {exportStep === FIELDS && (
           <ExportSelectFields
+            isLoading={false}
             fields={fields}
             updateSelectedFields={updateSelectedFields}
           />

@@ -11,7 +11,7 @@ const debug = createDebug('export-json');
 type AnalyzeSchemaOptions = {
   dataService: DataService;
   ns: string;
-  abortSignal: AbortSignal;
+  abortSignal?: AbortSignal;
   filter?: Document;
   sampleSize: number;
 };
@@ -62,7 +62,7 @@ async function analyzeSchema({
 type GatherFieldsOptions = {
   dataService: DataService;
   ns: string;
-  abortSignal: AbortSignal;
+  abortSignal?: AbortSignal;
   filter?: Document;
   progressCallback?: (index: number) => void;
   sampleSize: number;
