@@ -406,10 +406,7 @@ export const openExport =
     const isAggregation = !!aggregation;
     track('Export Opened', { type: isAggregation ? 'aggregation' : 'query' });
 
-    let count = null;
-    if (maybeCount !== undefined) {
-      count = maybeCount;
-    }
+    const count = maybeCount ?? null;
     dispatch(nsChanged(namespace));
     dispatch(onModalOpen({ namespace, query, count, aggregation }));
   };
