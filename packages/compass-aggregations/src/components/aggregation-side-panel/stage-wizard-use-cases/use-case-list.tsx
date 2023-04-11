@@ -24,6 +24,7 @@ const UseCaseList = ({ onSelect }: { onSelect: (id: string) => void }) => {
       {STAGE_WIZARD_USE_CASES.map(({ title, stageOperator, id }, index) => {
         return (
           <KeylineCard
+            data-testid={`use-case-${id}`}
             key={index}
             onClick={() => onSelect(id)}
             className={cardStyles}

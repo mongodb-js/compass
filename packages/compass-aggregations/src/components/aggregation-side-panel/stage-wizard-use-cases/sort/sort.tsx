@@ -57,7 +57,9 @@ const mapSortFormDataToStageValue = (
   formData: SortFieldState[]
 ): Record<string, number> => {
   return formData.reduce((acc, sort) => {
-    acc[sort.field] = sort.direction === 'Asc' ? 1 : -1;
+    if (sort.field) {
+      acc[sort.field] = sort.direction === 'Asc' ? 1 : -1;
+    }
     return acc;
   }, {} as Record<string, number>);
 };
@@ -87,6 +89,7 @@ export const SortForm = ({
     newFormData[index].field = value;
     setFormData(newFormData);
   };
+
   const onSelectDirection = (index: number, value: SortDirection) => {
     const newFormData = [...formData];
     newFormData[index].direction = value;
@@ -101,6 +104,7 @@ export const SortForm = ({
     });
     setFormData(newData);
   };
+
   const removeItem = (at: number) => {
     const newData = [...formData];
     newData.splice(at, 1);
