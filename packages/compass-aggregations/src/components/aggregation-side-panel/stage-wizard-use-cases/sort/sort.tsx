@@ -11,7 +11,6 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../../modules';
-import type { Field } from '..';
 
 const SORT_DIRECTION_OPTIONS = [
   {
@@ -67,7 +66,7 @@ export const SortForm = ({
   fields,
   onChange,
 }: {
-  fields: Field[];
+  fields: string[];
   onChange: (value: string) => void;
 }) => {
   const [formData, setFormData] = useState<SortFieldState[]>([
@@ -113,13 +112,7 @@ export const SortForm = ({
   const comboboxStyles = useMemo(() => {
     return {
       width: `calc(${String(
-        Math.max(
-          ...fields
-            .map((x) => x.name)
-            .map((label) => {
-              return label.length;
-            })
-        )
+        Math.max(...fields.map((label) => label.length))
       )}ch)`,
     };
   }, [fields]);
@@ -142,7 +135,7 @@ export const SortForm = ({
             clearable={false}
             value={sort.field}
             onChange={(value: string | null) => onSelectField(index, value)}
-            options={fields.map((field) => field.name)}
+            options={fields}
             optionLabel="Field:"
           />
           <Body>in</Body>
@@ -180,5 +173,5 @@ export const SortForm = ({
 };
 
 export default connect((state: RootState) => ({
-  fields: state.fields.map((x) => ({ name: x.name, value: x.value })),
+  fields: state.fields.map((x) => x.name),
 }))(SortForm);

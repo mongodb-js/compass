@@ -11,11 +11,6 @@ export type StageWizardUseCase = {
   serverVersion?: string;
 };
 
-export type Field = {
-  name: string;
-  value: string;
-};
-
 export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
   {
     id: 'sort',
