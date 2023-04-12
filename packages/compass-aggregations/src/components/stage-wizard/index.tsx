@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Badge,
   Body,
@@ -47,7 +47,8 @@ const cardActionStyles = css({
 type StageWizardProps = {
   index: number;
   useCaseId: string;
-  syntaxError?: SyntaxError;
+  value: string | null;
+  syntaxError: SyntaxError | null;
   onChange: (value: string) => void;
   onCancel: () => void;
   onApply: () => void;
@@ -55,18 +56,34 @@ type StageWizardProps = {
 
 export const StageWizard = ({
   useCaseId,
+  value,
   syntaxError,
   onChange,
   onCancel,
   onApply,
 }: StageWizardProps) => {
+  const [formError, setFormError] = useState<Error | null>(null);
   const useCase = useMemo<StageWizardUseCase | undefined>(() => {
     return STAGE_WIZARD_USE_CASES.find((useCase) => useCase.id === useCaseId);
   }, [useCaseId]);
 
+  const onChangeWizard = useCallback(
+    (value: string, error: Error | null) => {
+      if (!error) {
+        setFormError(null);
+        return onChange(value);
+      }
+      setFormError(error);
+    },
+    [setFormError, onChange]
+  );
+
   if (!useCase) {
     return null;
   }
+
+  const error = syntaxError || formError;
+  const isApplyDisabled = !!error || !value;
 
   return (
     <KeylineCard className={containerStyles}>
@@ -74,12 +91,16 @@ export const StageWizard = ({
         <Body weight="medium">{useCase.title}</Body>
         <Badge>{useCase.stageOperator}</Badge>
       </div>
-      <useCase.wizardComponent onChange={onChange} />
+      <useCase.wizardComponent onChange={onChangeWizard} />
       <div className={cardFooterStyles}>
-        {syntaxError && <WarningSummary warnings={[syntaxError.message]} />}
+        {value && error && <WarningSummary warnings={[error?.message]} />}
         <div className={cardActionStyles}>
           <Button onClick={onCancel}>Cancel</Button>
-          <Button onClick={onApply} variant="primary" disabled={!!syntaxError}>
+          <Button
+            onClick={onApply}
+            variant="primary"
+            disabled={isApplyDisabled}
+          >
             Apply
           </Button>
         </div>
@@ -94,14 +115,15 @@ type WizardOwnProps = {
 
 export default connect(
   (state: RootState, ownProps: WizardOwnProps) => {
-    const stage = state.pipelineBuilder.stageEditor.stages[
+    const wizard = state.pipelineBuilder.stageEditor.stages[
       ownProps.index
     ] as Wizard;
 
     return {
-      id: stage.id,
-      error: stage.error,
-      useCaseId: stage.useCaseId,
+      id: wizard.id,
+      syntaxError: wizard.syntaxError,
+      useCaseId: wizard.useCaseId,
+      value: wizard.value,
     };
   },
   (dispatch: PipelineBuilderThunkDispatch, ownProps: WizardOwnProps) => ({

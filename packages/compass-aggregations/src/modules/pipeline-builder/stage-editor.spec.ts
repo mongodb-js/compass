@@ -873,7 +873,7 @@ describe('stageEditor', function () {
       const itemAtIndex = store.getState().stages[3] as Wizard;
       expect(itemAtIndex.type).to.equal('wizard');
       expect(itemAtIndex.value).to.equal(`{ name: value }`);
-      expect(itemAtIndex.error?.message).to.equal(
+      expect(itemAtIndex.syntaxError?.message).to.equal(
         'Source expression is invalid'
       );
     });
@@ -894,7 +894,7 @@ describe('stageEditor', function () {
       const wizard = store.getState().stages[3] as Wizard;
       expect(wizard.type).to.equal('wizard');
       expect(wizard.value).to.deep.equal('{ name: -1 }');
-      expect(wizard.error).to.be.undefined;
+      expect(wizard.syntaxError).to.be.undefined;
 
       store.dispatch(convertWizardToStage(3));
 
@@ -918,7 +918,7 @@ describe('stageEditor', function () {
 
       const wizard = store.getState().stages[3] as Wizard;
       expect(wizard.type).to.equal('wizard');
-      expect(wizard.error).to.not.be.undefined;
+      expect(wizard.syntaxError).to.not.be.undefined;
     });
   });
 });

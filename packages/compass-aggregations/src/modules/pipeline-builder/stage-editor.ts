@@ -141,8 +141,8 @@ type WizardRemoveAction = {
 type WizardChangeAction = {
   type: StageEditorActionTypes.WizardChanged;
   at: number;
-  value?: string;
-  error?: SyntaxError;
+  value: string | null;
+  syntaxError: SyntaxError | null;
 };
 
 type WizardToStageAction = {
@@ -685,6 +685,7 @@ export const addWizard = (
       useCaseId,
       stageOperator,
       value: null,
+      syntaxError: null,
     };
 
     dispatch({
@@ -721,13 +722,14 @@ export const updateWizardValue = (
         type: StageEditorActionTypes.WizardChanged,
         at,
         value,
+        syntaxError: null,
       });
     } catch (e) {
       dispatch({
         type: StageEditorActionTypes.WizardChanged,
         at,
         value,
-        error: e as SyntaxError,
+        syntaxError: e as SyntaxError,
       });
     }
   };
@@ -750,15 +752,16 @@ export const convertWizardToStage = (
       return;
     }
 
-    const isInvalid = itemAtIdx.error || !itemAtIdx.value;
+    const isInvalid = itemAtIdx.syntaxError || !itemAtIdx.value;
     if (isInvalid) {
       const error =
-        itemAtIdx.error ||
+        itemAtIdx.syntaxError ||
         new SyntaxError('Cannot convert empty wizard to stage');
       dispatch({
         type: StageEditorActionTypes.WizardChanged,
         at,
-        error,
+        value: itemAtIdx.value,
+        syntaxError: error,
       });
       return;
     }
@@ -799,7 +802,7 @@ export type Wizard = {
   useCaseId: string;
   stageOperator: string;
   value: string | null;
-  error?: SyntaxError;
+  syntaxError: SyntaxError | null;
 };
 
 export type StageIdAndType = { id: number; type: 'stage' | 'wizard' };
@@ -1079,13 +1082,13 @@ const reducer: Reducer<StageEditorState> = (
   if (
     isAction<WizardChangeAction>(action, StageEditorActionTypes.WizardChanged)
   ) {
-    const { at, value, error } = action;
+    const { at, value, syntaxError } = action;
     const stages = [
       ...state.stages.slice(0, at),
       {
         ...state.stages[at],
         value,
-        error,
+        syntaxError,
       },
       ...state.stages.slice(at + 1),
     ];

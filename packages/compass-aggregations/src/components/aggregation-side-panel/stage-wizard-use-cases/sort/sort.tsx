@@ -67,7 +67,7 @@ export const SortForm = ({
   onChange,
 }: {
   fields: string[];
-  onChange: (value: string) => void;
+  onChange: (value: string, error: Error | null) => void;
 }) => {
   const [formData, setFormData] = useState<SortFieldState[]>([
     {
@@ -78,7 +78,12 @@ export const SortForm = ({
 
   useEffect(() => {
     const stageValue = mapSortFormDataToStageValue(formData);
-    onChange(JSON.stringify(stageValue));
+    onChange(
+      JSON.stringify(stageValue),
+      Object.keys(stageValue).length === 0
+        ? new Error('No field selected')
+        : null
+    );
   }, [formData, onChange]);
 
   const onSelectField = (index: number, value: string | null) => {

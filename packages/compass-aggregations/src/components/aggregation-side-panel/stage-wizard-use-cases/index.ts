@@ -6,7 +6,7 @@ export type StageWizardUseCase = {
   title: string;
   stageOperator: string;
   wizardComponent: React.FunctionComponent<{
-    onChange: (value: string) => void;
+    onChange: (value: string, validationError: Error | null) => void;
   }>;
   serverVersion?: string;
 };

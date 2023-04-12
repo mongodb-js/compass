@@ -14,6 +14,8 @@ const renderStageWizard = (
       onApply={() => {}}
       onCancel={() => {}}
       onChange={() => {}}
+      syntaxError={null}
+      value={null}
       useCaseId="test"
       index={0}
       {...props}
@@ -66,7 +68,8 @@ describe('stage wizard card', function () {
 
   it('calls onApply when apply button is clicked', function () {
     const onApply = sinon.spy();
-    renderStageWizard({ onApply });
+    renderStageWizard({ onApply, value: '{}' });
+
     screen
       .getByRole('button', {
         name: /apply/i,
