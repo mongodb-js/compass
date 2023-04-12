@@ -55,6 +55,7 @@ type StageWizardProps = {
 };
 
 export const StageWizard = ({
+  index,
   useCaseId,
   value,
   syntaxError,
@@ -86,17 +87,26 @@ export const StageWizard = ({
   const isApplyDisabled = !!error || !value;
 
   return (
-    <KeylineCard className={containerStyles}>
+    <KeylineCard
+      data-testid="wizard-card"
+      data-wizard-index={index}
+      className={containerStyles}
+    >
       <div className={headerStyles}>
         <Body weight="medium">{useCase.title}</Body>
         <Badge>{useCase.stageOperator}</Badge>
       </div>
-      <useCase.wizardComponent onChange={onChangeWizard} />
+      <div data-testid="wizard-form">
+        <useCase.wizardComponent onChange={onChangeWizard} />
+      </div>
       <div className={cardFooterStyles}>
         {value && error && <WarningSummary warnings={[error?.message]} />}
         <div className={cardActionStyles}>
-          <Button onClick={onCancel}>Cancel</Button>
+          <Button data-testid="wizard-cancel-action" onClick={onCancel}>
+            Cancel
+          </Button>
           <Button
+            data-testid="wizard-apply-action"
             onClick={onApply}
             variant="primary"
             disabled={isApplyDisabled}

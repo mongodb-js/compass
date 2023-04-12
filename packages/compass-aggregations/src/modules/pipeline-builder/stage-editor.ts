@@ -833,7 +833,7 @@ export function mapBuilderStageToStoreStage(
 }
 
 export function mapStoreStagesToStageIdAndType(
-  stages: Pick<StoreStage | Wizard, 'id' | 'type'>[]
+  stages: Pick<StageEditorState['stages'][number], 'id' | 'type'>[]
 ): Array<{ id: number; type: 'stage' | 'wizard' }> {
   return stages.map(({ id, type }) => ({ id, type }));
 }
