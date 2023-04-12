@@ -15,13 +15,14 @@ function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
     {} as DataService,
     pipelineSource
   );
+  const stages = pipelineBuilder.stages.map(mapBuilderStageToStoreStage);
   return createReduxStore(
     reducer,
     {
       pipelineBuilder: {
         stageEditor: {
-          stageIds: pipelineBuilder.stages.map((stage) => stage.id),
-          stages: pipelineBuilder.stages.map(mapBuilderStageToStoreStage),
+          stagesIdAndType: stages.map(({ id, type }) => ({ id, type })),
+          stages,
         },
       },
     },

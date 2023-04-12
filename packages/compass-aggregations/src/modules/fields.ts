@@ -2,10 +2,6 @@ import type { AnyAction } from 'redux';
 
 type Field = {
   name: string;
-  value: string;
-  score: number;
-  meta: string;
-  version: string;
 };
 
 /**

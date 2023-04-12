@@ -145,6 +145,10 @@ const configureStore = (options: ConfigureStoreOptions) => {
   );
   const pipelineStorage = new PipelineStorage();
 
+  const stages = pipelineBuilder.stages.map((stage, idx) =>
+    mapBuilderStageToStoreStage(stage, idx)
+  );
+
   const store = createStore(
     reducer,
     {
@@ -187,10 +191,8 @@ const configureStore = (options: ConfigureStoreOptions) => {
       outResultsFn: options.outResultsFn,
       pipelineBuilder: {
         stageEditor: {
-          stages: pipelineBuilder.stages.map((stage, idx) =>
-            mapBuilderStageToStoreStage(stage, idx)
-          ),
-          stageIds: pipelineBuilder.stages.map((stage) => stage.id),
+          stages,
+          stagesIdAndType: stages.map(({ id, type }) => ({ id, type })),
         },
       },
       sourceName: options.sourceName,

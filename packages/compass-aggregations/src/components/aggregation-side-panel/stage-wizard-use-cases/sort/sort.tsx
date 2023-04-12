@@ -12,7 +12,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../../modules';
 import type { Field } from '..';
-import { changeUseCaseValue } from '../../../../modules/side-panel';
 
 const SORT_DIRECTION_OPTIONS = [
   {
@@ -180,11 +179,6 @@ export const SortForm = ({
   );
 };
 
-export default connect(
-  (state: RootState) => ({
-    fields: state.fields.map((x) => ({ name: x.name, value: x.value })),
-  }),
-  {
-    onChange: changeUseCaseValue,
-  }
-)(SortForm);
+export default connect((state: RootState) => ({
+  fields: state.fields.map((x) => ({ name: x.name, value: x.value })),
+}))(SortForm);

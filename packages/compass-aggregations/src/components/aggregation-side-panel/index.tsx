@@ -11,9 +11,10 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { selectUseCase, toggleSidePanel } from '../../modules/side-panel';
+import { toggleSidePanel } from '../../modules/side-panel';
 import { STAGE_WIZARD_USE_CASES, UseCaseList } from './stage-wizard-use-cases';
 import { FeedbackLink } from './feedback-link';
+import { addWizard } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   height: '100%',
@@ -108,5 +109,5 @@ export const AggregationSidePanel = ({
 
 export default connect(null, {
   onCloseSidePanel: toggleSidePanel,
-  onSelectUseCase: selectUseCase,
+  onSelectUseCase: addWizard,
 })(AggregationSidePanel);

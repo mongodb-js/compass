@@ -11,8 +11,13 @@ import {
 import type { StageWizardUseCase } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { STAGE_WIZARD_USE_CASES } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { connect } from 'react-redux';
-import { applyUseCase, cancelUseCase } from '../../modules/side-panel';
-import type { RootState } from '../../modules';
+import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
+import {
+  convertWizardToStage,
+  removeWizard,
+  updateWizardValue,
+} from '../../modules/pipeline-builder/stage-editor';
+import type { Wizard } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   padding: spacing[3],
@@ -40,21 +45,24 @@ const cardActionStyles = css({
 });
 
 type StageWizardProps = {
-  id: string;
+  index: number;
+  useCaseId: string;
   syntaxError?: SyntaxError;
+  onChange: (value: string) => void;
   onCancel: () => void;
   onApply: () => void;
 };
 
 export const StageWizard = ({
-  id,
+  useCaseId,
   syntaxError,
+  onChange,
   onCancel,
   onApply,
 }: StageWizardProps) => {
   const useCase = useMemo<StageWizardUseCase | undefined>(() => {
-    return STAGE_WIZARD_USE_CASES.find((useCase) => useCase.id === id);
-  }, [id]);
+    return STAGE_WIZARD_USE_CASES.find((useCase) => useCase.id === useCaseId);
+  }, [useCaseId]);
 
   if (!useCase) {
     return null;
@@ -66,7 +74,7 @@ export const StageWizard = ({
         <Body weight="medium">{useCase.title}</Body>
         <Badge>{useCase.stageOperator}</Badge>
       </div>
-      <useCase.wizardComponent />
+      <useCase.wizardComponent onChange={onChange} />
       <div className={cardFooterStyles}>
         {syntaxError && <WarningSummary warnings={[syntaxError.message]} />}
         <div className={cardActionStyles}>
@@ -80,12 +88,26 @@ export const StageWizard = ({
   );
 };
 
+type WizardOwnProps = {
+  index: number;
+};
+
 export default connect(
-  (state: RootState) => ({
-    syntaxError: state.sidePanel.useCase?.syntaxError,
-  }),
-  {
-    onCancel: cancelUseCase,
-    onApply: applyUseCase,
-  }
+  (state: RootState, ownProps: WizardOwnProps) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[
+      ownProps.index
+    ] as Wizard;
+
+    return {
+      id: stage.id,
+      error: stage.error,
+      useCaseId: stage.useCaseId,
+    };
+  },
+  (dispatch: PipelineBuilderThunkDispatch, ownProps: WizardOwnProps) => ({
+    onChange: (value: string) =>
+      dispatch(updateWizardValue(ownProps.index, value)),
+    onCancel: () => dispatch(removeWizard(ownProps.index)),
+    onApply: () => dispatch(convertWizardToStage(ownProps.index)),
+  })
 )(StageWizard);

@@ -15,7 +15,7 @@ import {
   mapBuilderStageToStoreStage,
   runStage,
   addWizard,
-  updateWizardForm,
+  updateWizardValue,
 } from './stage-editor';
 import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
 import reducer from '../';
@@ -64,8 +64,9 @@ const OUT_STAGE: StoreStage = mapBuilderStageToStoreStage(
 const createWizard = (): Wizard => ({
   id: getId(),
   type: 'wizard',
-  usecaseId: getId(),
-  formValues: [],
+  useCaseId: '$sort',
+  stageOperator: '$sort',
+  value: null,
 });
 
 const PIPELINE = [MATCH_STAGE, LIMIT_STAGE, OUT_STAGE];
@@ -98,7 +99,7 @@ function createStore({
       },
       pipelineBuilder: {
         stageEditor: {
-          stageIds: stages.map(({ id }) => id),
+          stagesIdAndType: stages.map(({ id, type }) => ({ id, type })),
           stages: stages,
         },
       },
@@ -835,7 +836,7 @@ describe('stageEditor', function () {
     it('adds a wizard to the end of the stages when no index is provided', function () {
       expect(store.getState().stages).to.have.lengthOf(3);
 
-      store.dispatch(addWizard({ usecaseId: 1, formValues: [] }));
+      store.dispatch(addWizard('sort', '$sort'));
 
       expect(store.getState().stages).to.have.lengthOf(4);
       expect(store.pipelineBuilder.stages).to.have.lengthOf(3);
@@ -844,7 +845,7 @@ describe('stageEditor', function () {
     it('adds a wizard at the provided index', function () {
       expect(store.getState().stages).to.have.lengthOf(3);
 
-      store.dispatch(addWizard({ usecaseId: 1, formValues: [], after: 1 }));
+      store.dispatch(addWizard('sort', '$sort'));
 
       expect(store.getState().stages[2].type).to.equal('wizard');
       expect(store.getState().stages).to.have.lengthOf(4);
@@ -852,20 +853,20 @@ describe('stageEditor', function () {
     });
   });
 
-  describe('updateWizardForm', function () {
+  describe('updateWizardValue', function () {
     it('modifies the form values of wizard if there is a wizard at provided index', function () {
-      store.dispatch(addWizard({ usecaseId: 1, formValues: [] }));
-      store.dispatch(updateWizardForm(3, [{ name: 'Test' }]));
+      store.dispatch(addWizard('sort', '$sort'));
+      store.dispatch(updateWizardValue(3, JSON.stringify({ name: 'Test' })));
 
       const itemAtIndex = store.getState().stages[3];
       expect(itemAtIndex.type).to.equal('wizard');
-      expect((itemAtIndex as Wizard).formValues).to.deep.equal([
-        { name: 'Test' },
-      ]);
+      expect((itemAtIndex as Wizard).value).to.deep.equal(
+        JSON.stringify({ name: 'Test' })
+      );
     });
 
     it('does nothing if item at provided index is not a wizard', function () {
-      store.dispatch(updateWizardForm(0, [{ name: 'Test' }]));
+      store.dispatch(updateWizardValue(0, JSON.stringify({ name: 'Test' })));
 
       const itemAtIndex = store.getState().stages[0];
       expect((itemAtIndex as any).formValues).to.be.undefined;
