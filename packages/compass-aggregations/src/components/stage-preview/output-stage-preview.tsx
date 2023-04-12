@@ -11,6 +11,7 @@ import {
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
 import { viewOutResults } from '../../modules/out-results-fn';
 import { runStage } from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
@@ -146,7 +147,9 @@ type OwnProps = {
 };
 
 const mapState = (state: RootState, ownProps: OwnProps) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+  const stage = state.pipelineBuilder.stageEditor.stages[
+    ownProps.index
+  ] as StoreStage;
   const destinationNamespace = getDestinationNamespaceFromStage(
     state.namespace,
     parseShellBSON(`{

@@ -187,8 +187,8 @@ const configureStore = (options: ConfigureStoreOptions) => {
       outResultsFn: options.outResultsFn,
       pipelineBuilder: {
         stageEditor: {
-          stages: pipelineBuilder.stages.map((stage) =>
-            mapBuilderStageToStoreStage(stage)
+          stages: pipelineBuilder.stages.map((stage, idx) =>
+            mapBuilderStageToStoreStage(stage, idx)
           ),
           stageIds: pipelineBuilder.stages.map((stage) => stage.id),
         },

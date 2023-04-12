@@ -1,0 +1,8 @@
+ejson,notes
+"{""foo"":1}",object
+"[1,2,3]",array
+"{""$code"":""function() {}""}",code
+"{""$minKey"":1}",minkey
+"{""$maxKey"":1}",maxkey
+"{""$ref"":""namespace"",""$id"":{""$oid"":""642af890571e13e609f9069a""}}",dbref
+"{""$timestamp"": { ""t"": 1672849392, ""i"": 1 }}",timestamp from mongoexport

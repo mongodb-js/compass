@@ -1,21 +1,13 @@
 import os from 'os';
 import type { Writable } from 'stream';
-import type {
-  CollectionStreamStats,
-  CollectionStreamProgressError,
-  WritableCollectionStream,
-} from '../utils/collection-stream';
-import { createDebug } from './logger';
+
+import type { ImportResult, ErrorJSON } from './import-types';
+
+import type { WritableCollectionStream } from '../utils/collection-stream';
+
+import { createDebug } from '../utils/logger';
 
 const debug = createDebug('import');
-
-export type ImportResult = {
-  aborted?: boolean;
-  dbErrors: CollectionStreamProgressError[];
-  dbStats: CollectionStreamStats;
-  docsWritten: number;
-  docsProcessed: number;
-};
 
 export function makeImportResult(
   collectionStream: WritableCollectionStream,
@@ -39,23 +31,6 @@ export function makeImportResult(
   return result;
 }
 
-export type ErrorJSON = {
-  name: string;
-  message: string;
-  index?: number;
-  code?: string | number;
-  op?: any;
-  errorInfo?: Document;
-  /*
-  e.index = index;
-  e.code = code;
-  e.op = op;
-  e.errInfo = errInfo;
-  // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/#mongodb-data-BulkWriteResult.writeErrors
-  e.name = index && op ? 'WriteError' : 'WriteConcernError';
-*/
-};
-
 export function errorToJSON(error: any): ErrorJSON {
   const obj: ErrorJSON = {
     name: error.name,
@@ -70,12 +45,6 @@ export function errorToJSON(error: any): ErrorJSON {
 
   return obj;
 }
-
-export type ImportProgress = {
-  bytesProcessed: number;
-  docsProcessed: number;
-  docsWritten: number;
-};
 
 export async function processWriteStreamErrors({
   collectionStream,

@@ -7,14 +7,14 @@ import type { DataService } from 'mongodb-data-service';
 import stripBomStream from 'strip-bom-stream';
 
 import { createCollectionWriteStream } from '../utils/collection-stream';
-import { makeDoc, parseHeaderName } from '../utils/csv';
+import { makeDocFromCSV, parseCSVHeaderName } from '../csv/csv-utils';
 import {
   makeImportResult,
   processParseError,
   processWriteStreamErrors,
-} from '../utils/import';
-import type { Delimiter, IncludedFields, PathPart } from '../utils/csv';
-import type { ImportResult, ErrorJSON, ImportProgress } from '../utils/import';
+} from './import-utils';
+import type { Delimiter, IncludedFields, PathPart } from '../csv/csv-types';
+import type { ImportResult, ErrorJSON, ImportProgress } from './import-types';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
@@ -73,13 +73,13 @@ export async function importCSV({
         parsedHeader = {};
         for (const [index, name] of headerFields.entries()) {
           try {
-            parsedHeader[name] = parseHeaderName(name);
+            parsedHeader[name] = parseCSVHeaderName(name);
           } catch (err: unknown) {
             // rethrow with the row and column indexes appended to aid debugging
             (err as Error).message = `${
               (err as Error).message
             } [Col ${index}][Row 0]`;
-            debug('parseHeaderName error', (err as Error).message);
+            debug('parseCSVHeaderName error', (err as Error).message);
 
             // If this fails, the whole file will stop processing regardless of
             // the value of stopOnErrors because it is not recoverable if we
@@ -103,7 +103,7 @@ export async function importCSV({
       }
 
       try {
-        const doc = makeDoc(chunk, headerFields, parsedHeader, fields, {
+        const doc = makeDocFromCSV(chunk, headerFields, parsedHeader, fields, {
           ignoreEmptyStrings,
         });
         callback(null, doc);
