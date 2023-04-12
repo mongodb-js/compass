@@ -6,25 +6,16 @@ import { expect } from 'chai';
 import { SortForm } from './sort';
 import sinon from 'sinon';
 
-const fields = [
-  {
-    name: 'street',
-    value: 'street',
-  },
-  {
-    name: 'city',
-    value: 'city',
-  },
-  {
-    name: 'zip',
-    value: 'zip',
-  },
-];
-
 const renderSortForm = (
   props: Partial<ComponentProps<typeof SortForm>> = {}
 ) => {
-  return render(<SortForm fields={fields} onChange={() => {}} {...props} />);
+  return render(
+    <SortForm
+      fields={['street', 'city', 'zip']}
+      onChange={() => {}}
+      {...props}
+    />
+  );
 };
 
 const changeFormGroupValues = (
@@ -151,10 +142,18 @@ describe('sort', function () {
       expect(addButtons[1]).to.exist;
 
       userEvent.click(addButtons[0]);
+
+      // We added a new item after index 0
+      const addedSortItem = screen.getByTestId('sort-form-1');
+      changeFormGroupValues(addedSortItem, {
+        field: 'city',
+        direction: 'desc',
+      });
+
       expect(onChange.lastCall.args[0]).to.equal(
         JSON.stringify({
           street: 1,
-          '': 1,
+          city: -1,
           zip: -1,
         })
       );

@@ -669,7 +669,8 @@ export type AddWizardParams = {
 
 export const addWizard = (
   useCaseId: string,
-  stageOperator: string
+  stageOperator: string,
+  after?: number
 ): PipelineBuilderThunkAction<void, WizardAddAction> => {
   return (dispatch, getState) => {
     const {
@@ -689,7 +690,7 @@ export const addWizard = (
     dispatch({
       wizard,
       type: StageEditorActionTypes.WizardAdded,
-      after: stages.length,
+      after: after ?? stages.length,
     });
   };
 };

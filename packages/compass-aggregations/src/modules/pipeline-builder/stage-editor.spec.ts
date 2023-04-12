@@ -845,7 +845,7 @@ describe('stageEditor', function () {
     it('adds a wizard at the provided index', function () {
       expect(store.getState().stages).to.have.lengthOf(3);
 
-      store.dispatch(addWizard('sort', '$sort'));
+      store.dispatch(addWizard('sort', '$sort', 1));
 
       expect(store.getState().stages[2].type).to.equal('wizard');
       expect(store.getState().stages).to.have.lengthOf(4);
