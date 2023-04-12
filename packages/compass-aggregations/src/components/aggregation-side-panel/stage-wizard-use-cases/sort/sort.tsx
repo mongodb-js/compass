@@ -178,5 +178,5 @@ export const SortForm = ({
 };
 
 export default connect((state: RootState) => ({
-  fields: state.fields.map((x) => x.name),
+  fields: state.fields.map((x: { name: string }) => x.name),
 }))(SortForm);

@@ -68,6 +68,7 @@ const createWizard = (): Wizard => ({
   useCaseId: '$sort',
   stageOperator: '$sort',
   value: null,
+  syntaxError: null,
 });
 
 const PIPELINE = [MATCH_STAGE, LIMIT_STAGE, OUT_STAGE];
@@ -894,7 +895,7 @@ describe('stageEditor', function () {
       const wizard = store.getState().stages[3] as Wizard;
       expect(wizard.type).to.equal('wizard');
       expect(wizard.value).to.deep.equal('{ name: -1 }');
-      expect(wizard.syntaxError).to.be.undefined;
+      expect(wizard.syntaxError).to.be.null;
 
       store.dispatch(convertWizardToStage(3));
 
@@ -918,7 +919,7 @@ describe('stageEditor', function () {
 
       const wizard = store.getState().stages[3] as Wizard;
       expect(wizard.type).to.equal('wizard');
-      expect(wizard.syntaxError).to.not.be.undefined;
+      expect(wizard.syntaxError).to.not.be.null;
     });
   });
 });
