@@ -7,6 +7,7 @@ import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
 import { PIPELINE_HELP_URI } from '../../constants';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   height: '100%',
@@ -75,7 +76,7 @@ const mapState = ({
     stageEditor: { stages },
   },
 }: RootState) => {
-  const currentStage = stages[stageIndex];
+  const currentStage = stages[stageIndex] as StoreStage;
   return {
     index: stageIndex,
     operator: currentStage?.stageOperator,
