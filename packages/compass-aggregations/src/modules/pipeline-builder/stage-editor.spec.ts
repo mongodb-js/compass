@@ -16,6 +16,7 @@ import {
   runStage,
   addWizard,
   updateWizardValue,
+  convertWizardToStage,
 } from './stage-editor';
 import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
 import reducer from '../';
@@ -865,11 +866,59 @@ describe('stageEditor', function () {
       );
     });
 
+    it('validates the wizard value', function () {
+      store.dispatch(addWizard('sort', '$sort'));
+      store.dispatch(updateWizardValue(3, `{ name: value }`));
+
+      const itemAtIndex = store.getState().stages[3] as Wizard;
+      expect(itemAtIndex.type).to.equal('wizard');
+      expect(itemAtIndex.value).to.equal(`{ name: value }`);
+      expect(itemAtIndex.error?.message).to.equal(
+        'Source expression is invalid'
+      );
+    });
+
     it('does nothing if item at provided index is not a wizard', function () {
       store.dispatch(updateWizardValue(0, JSON.stringify({ name: 'Test' })));
 
       const itemAtIndex = store.getState().stages[0];
       expect((itemAtIndex as any).formValues).to.be.undefined;
+    });
+  });
+
+  describe('convertWizardToStage', function () {
+    it('converts wizard to stage', function () {
+      store.dispatch(addWizard('sort', '$sort'));
+      store.dispatch(updateWizardValue(3, '{ name: -1 }'));
+
+      const wizard = store.getState().stages[3] as Wizard;
+      expect(wizard.type).to.equal('wizard');
+      expect(wizard.value).to.deep.equal('{ name: -1 }');
+      expect(wizard.error).to.be.undefined;
+
+      store.dispatch(convertWizardToStage(3));
+
+      const stage = store.getState().stages[3] as StoreStage;
+      expect(stage.type).to.equal('stage');
+      expect(stage.stageOperator).to.equal('$sort');
+      expect(stage.value).to.deep.equal('{ name: -1 }');
+    });
+
+    it('does nothing if item at provided index is not a wizard', function () {
+      store.dispatch(convertWizardToStage(0));
+      const itemAtIndex = store.getState().stages[0];
+      expect(itemAtIndex.type).to.equal('stage');
+    });
+
+    it('does nothing if wizard has error', function () {
+      store.dispatch(addWizard('sort', '$sort'));
+      store.dispatch(updateWizardValue(3, '{ name: something }'));
+
+      store.dispatch(convertWizardToStage(3));
+
+      const wizard = store.getState().stages[3] as Wizard;
+      expect(wizard.type).to.equal('wizard');
+      expect(wizard.error).to.not.be.undefined;
     });
   });
 });

@@ -726,6 +726,7 @@ export const updateWizardValue = (
       dispatch({
         type: StageEditorActionTypes.WizardChanged,
         at,
+        value,
         error: e as SyntaxError,
       });
     }
@@ -749,11 +750,15 @@ export const convertWizardToStage = (
       return;
     }
 
-    if (!itemAtIdx.value) {
+    const isInvalid = itemAtIdx.error || !itemAtIdx.value;
+    if (isInvalid) {
+      const error =
+        itemAtIdx.error ||
+        new SyntaxError('Cannot convert empty wizard to stage');
       dispatch({
         type: StageEditorActionTypes.WizardChanged,
         at,
-        error: new SyntaxError('Cannot convert empty wizard to stage'),
+        error,
       });
       return;
     }
@@ -761,7 +766,7 @@ export const convertWizardToStage = (
     const afterStageIndex = storeIndexToPipelineIndex(stages, at);
     const stage = pipelineBuilder.addStage(afterStageIndex);
     stage.changeOperator(itemAtIdx.stageOperator);
-    stage.changeValue(prettify(itemAtIdx.value));
+    stage.changeValue(prettify(itemAtIdx.value as string));
 
     dispatch({
       type: StageEditorActionTypes.WizardToStageClicked,
