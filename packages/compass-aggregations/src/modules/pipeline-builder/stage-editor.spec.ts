@@ -13,6 +13,7 @@ import {
   removeStage,
   loadStagePreview,
   mapBuilderStageToStoreStage,
+  mapStoreStagesToStageIdAndType,
   runStage,
   addWizard,
   updateWizardValue,
@@ -101,8 +102,8 @@ function createStore({
       },
       pipelineBuilder: {
         stageEditor: {
-          stagesIdAndType: stages.map(({ id, type }) => ({ id, type })),
-          stages: stages,
+          stages,
+          stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
         },
       },
     },

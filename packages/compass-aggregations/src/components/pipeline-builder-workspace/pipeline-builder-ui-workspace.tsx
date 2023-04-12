@@ -54,7 +54,7 @@ type SortableItemProps = {
   idx: number;
   isLastStage: boolean;
   onStageAddAfter: (after?: number) => void;
-  type: 'stage' | 'wizard';
+  type: StageIdAndType['type'];
 };
 
 type SortableListProps = {

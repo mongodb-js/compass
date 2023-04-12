@@ -37,7 +37,7 @@ export const ComboboxWithCustomOption = <M extends boolean>({
       );
     }
     return _opts;
-  }, [options, search]);
+  }, [options, search, optionLabel]);
   return (
     <Combobox
       {...props}

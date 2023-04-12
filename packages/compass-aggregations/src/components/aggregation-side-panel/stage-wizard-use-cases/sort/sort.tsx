@@ -54,12 +54,12 @@ const sortDirectionStyles = css({
 const mapSortFormDataToStageValue = (
   formData: SortFieldState[]
 ): Record<string, number> => {
-  return formData.reduce((acc, sort) => {
+  return formData.reduce<Record<string, number>>((acc, sort) => {
     if (sort.field) {
       acc[sort.field] = sort.direction === 'Asc' ? 1 : -1;
     }
     return acc;
-  }, {} as Record<string, number>);
+  }, {});
 };
 
 export const SortForm = ({

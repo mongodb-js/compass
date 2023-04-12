@@ -6,7 +6,11 @@ import thunk from 'redux-thunk';
 import reducer from '..';
 import { getPipelineStageOperatorsFromBuilderState } from './builder-helpers';
 import { PipelineBuilder } from './pipeline-builder';
-import { addStage, mapBuilderStageToStoreStage } from './stage-editor';
+import {
+  addStage,
+  mapBuilderStageToStoreStage,
+  mapStoreStagesToStageIdAndType,
+} from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
 import { PipelineStorage } from '../../utils/pipeline-storage';
 
@@ -21,8 +25,8 @@ function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
     {
       pipelineBuilder: {
         stageEditor: {
-          stagesIdAndType: stages.map(({ id, type }) => ({ id, type })),
           stages,
+          stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
         },
       },
     },

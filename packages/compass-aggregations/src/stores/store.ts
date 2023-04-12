@@ -12,7 +12,10 @@ import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import type { StoredPipeline } from '../utils/pipeline-storage';
 import { PipelineStorage } from '../utils/pipeline-storage';
-import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
+import {
+  mapBuilderStageToStoreStage,
+  mapStoreStagesToStageIdAndType,
+} from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
@@ -148,6 +151,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
   const stages = pipelineBuilder.stages.map((stage, idx) =>
     mapBuilderStageToStoreStage(stage, idx)
   );
+  const stagesIdAndType = mapStoreStagesToStageIdAndType(stages);
 
   const store = createStore(
     reducer,
@@ -192,7 +196,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       pipelineBuilder: {
         stageEditor: {
           stages,
-          stagesIdAndType: stages.map(({ id, type }) => ({ id, type })),
+          stagesIdAndType,
         },
       },
       sourceName: options.sourceName,
