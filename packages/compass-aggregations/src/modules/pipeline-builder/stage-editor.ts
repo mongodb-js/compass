@@ -1,6 +1,7 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { prettify } from '@mongodb-js/compass-editor';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
@@ -15,7 +16,7 @@ import {
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
-import type { PipelineParserError } from './pipeline-parser/utils';
+import { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
@@ -43,6 +44,7 @@ export const enum StageEditorActionTypes {
   WizardAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardAdded',
   WizardRemoved = 'compass-aggregations/pipeline-builder/stage-wizard/WizardRemoved',
   WizardChanged = 'compass-aggregations/pipeline-builder/stage-wizard/WizardChanged',
+  WizardToStageClicked = 'compass-aggregations/pipeline-builder/stage-wizard/wizardToStageClicked',
 }
 
 export type StagePreviewFetchAction = {
@@ -125,22 +127,28 @@ export type StageMoveAction = {
   to: number;
 };
 
-export type WizardAddAction = {
+type WizardAddAction = {
   type: StageEditorActionTypes.WizardAdded;
   wizard: Wizard;
   after: number;
 };
 
-export type WizardRemoveAction = {
+type WizardRemoveAction = {
   type: StageEditorActionTypes.WizardRemoved;
   at: number;
 };
 
-export type WizardChangeAction = {
+type WizardChangeAction = {
   type: StageEditorActionTypes.WizardChanged;
   at: number;
   value?: string;
   error?: SyntaxError;
+};
+
+type WizardToStageAction = {
+  type: StageEditorActionTypes.WizardToStageClicked;
+  at: number;
+  stage: StoreStage;
 };
 
 export function storeIndexToPipelineIndex(
@@ -725,8 +733,11 @@ export const updateWizardValue = (
 
 export const convertWizardToStage = (
   at: number
-): PipelineBuilderThunkAction<void, WizardChangeAction> => {
-  return (dispatch, getState) => {
+): PipelineBuilderThunkAction<
+  void,
+  WizardChangeAction | WizardToStageAction
+> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -737,7 +748,27 @@ export const convertWizardToStage = (
       return;
     }
 
-    console.log('convertWizardToStage', itemAtIdx);
+    if (!itemAtIdx.value) {
+      dispatch({
+        type: StageEditorActionTypes.WizardChanged,
+        at,
+        error: new SyntaxError('Cannot convert empty wizard to stage'),
+      });
+      return;
+    }
+
+    const afterStageIndex = storeIndexToPipelineIndex(stages, at);
+    const stage = pipelineBuilder.addStage(afterStageIndex);
+    stage.changeOperator(itemAtIdx.stageOperator);
+    stage.changeValue(prettify(itemAtIdx.value));
+
+    dispatch({
+      type: StageEditorActionTypes.WizardToStageClicked,
+      at,
+      stage: mapBuilderStageToStoreStage(stage, afterStageIndex),
+    });
+
+    dispatch(loadPreviewForStagesFrom(at));
   };
 };
 
@@ -1056,6 +1087,23 @@ const reducer: Reducer<StageEditorState> = (
     return {
       ...state,
       stages,
+    };
+  }
+
+  if (
+    isAction<WizardToStageAction>(
+      action,
+      StageEditorActionTypes.WizardToStageClicked
+    )
+  ) {
+    const at = action.at;
+    const stages = [...state.stages];
+    stages.splice(at, 1, action.stage);
+
+    return {
+      ...state,
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
+      stages: stages.map(remapPipelineStageIndexesInStore()),
     };
   }
 
