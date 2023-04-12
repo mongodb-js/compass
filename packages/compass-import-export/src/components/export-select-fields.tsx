@@ -10,7 +10,7 @@ import {
   Button,
   Checkbox,
   Disclaimer,
-  FadeInPlaceholder,
+  ErrorSummary,
   Icon,
   Placeholder,
   Table,
@@ -23,8 +23,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
-import { updateSelectedFields } from '../modules/new-export';
-import type { RootExportState } from '../stores/new-export-store';
+import { selectFieldsToExport, updateSelectedFields } from '../modules/export';
+import type { FieldsToExport } from '../modules/export';
+import type { RootExportState } from '../stores/export-store';
 
 const headerContainerStyles = css({
   display: 'flex',
@@ -55,43 +56,30 @@ const enterToAddStyles = css({
   marginLeft: spacing[2],
 });
 
-const placeholderListStyles = css({
-  maskImage: 'linear-gradient(to bottom, black 30%, transparent 95%)',
+const placeholderStyles = css({
+  margin: spacing[2],
 });
 
-const placeholderStyles = css({
-  margin: `${spacing[2]}px ${spacing[2]}px`,
+const retryButtonContainerStyles = css({
+  margin: spacing[2],
+  textAlign: 'center',
 });
 
 const placeholdersCount = 6;
 
-function LoadingSelectFieldsPlaceholder() {
-  const items = useMemo(() => {
-    return Array.from({ length: placeholdersCount }, (_, idx) => (
-      <Placeholder
-        className={placeholderStyles}
-        style={{
-          // Fade to transparent as we go down.
-          opacity: (placeholdersCount - idx) / placeholdersCount,
-        }}
-        key={idx}
-        minChar={30}
-        maxChar={40}
-      />
-    ));
-  }, []);
-  return <div className={placeholderListStyles}>{items}</div>;
-}
-
 type ExportSelectFieldsProps = {
   isLoading: boolean;
-  fields: Record<string, boolean>;
-  updateSelectedFields: (selectedFields: Record<string, boolean>) => void;
+  errorLoadingFieldsToExport?: string;
+  fields: FieldsToExport;
+  selectFieldsToExport: () => void; // Used to retry fetching fields when fetching the fields fails.
+  updateSelectedFields: (selectedFields: FieldsToExport) => void;
 };
 
 function ExportSelectFields({
+  errorLoadingFieldsToExport,
   isLoading,
   fields,
+  selectFieldsToExport,
   updateSelectedFields,
 }: ExportSelectFieldsProps) {
   const newFieldRef = useRef<HTMLInputElement | null>(null);
@@ -117,7 +105,8 @@ function ExportSelectFields({
   const handleFieldCheckboxChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       const newFields = Object.assign({}, fields);
-      newFields[`${evt.target.name}`] = !newFields[`${evt.target.name}`];
+      newFields[`${evt.target.name}`].selected =
+        !newFields[`${evt.target.name}`];
       updateSelectedFields(newFields);
     },
     [updateSelectedFields, fields]
@@ -127,9 +116,9 @@ function ExportSelectFields({
     const newFields = Object.assign({}, fields);
 
     if (isEveryFieldChecked) {
-      Object.keys(newFields).map((f) => (newFields[f] = false));
+      Object.keys(newFields).map((f) => (newFields[f].selected = false));
     } else {
-      Object.keys(newFields).map((f) => (newFields[f] = true));
+      Object.keys(newFields).map((f) => (newFields[f].selected = true));
     }
 
     updateSelectedFields(newFields);
@@ -139,8 +128,12 @@ function ExportSelectFields({
     (evt) => {
       if (evt.key === 'Enter') {
         const obj = {
-          [evt.target.value]: 1,
+          [evt.target.value]: {
+            selected: true,
+            fieldPath: evt.target.value.split('.'),
+          },
         };
+
         // Assign current entry to the end of the fields list.
         const newFields = Object.assign({}, fields, obj);
 
@@ -158,35 +151,8 @@ function ExportSelectFields({
       checked: false,
       field: `loading-placeholder-${idx}`,
       index: idx,
-      // component: <div
-
-      // key={idx}
-      // style={{
-      //   position: 'relative',
-      //   height: 30,
-      //   background: 'purple',
-      // }}
-      // >
-      //   <Placeholder
-      //     className={placeholderStyles}
-      //     style={{
-      //       // Fade to transparent as we go down.
-      //       opacity: (placeholdersCount - idx) / placeholdersCount
-      //     }}
-      //     key={idx}
-      //     minChar={30}
-      //     maxChar={40}
-      //   />
-      // </div>as (JSX.Element | null)
-
       component: (
-        <Row
-          style={{
-            position: 'relative',
-            height: 30,
-            background: 'purple',
-          }}
-        >
+        <Row>
           <Cell>
             <Placeholder
               className={placeholderStyles}
@@ -288,10 +254,7 @@ function ExportSelectFields({
           ]}
         >
           {({ datum: field }) => (
-            <div className="testeststestset">
-              {/* <Row key={field.field} id={field.field}> */}
-              {/* <div>test1</div> */}
-              {/* TODO: Use content with fallback  */}
+            <>
               {field.isLoadingPlaceholder ? (
                 field.component
               ) : (
@@ -316,7 +279,6 @@ function ExportSelectFields({
                   </Cell>
                 </Row>
               )}
-              {/* </Row> */}
               {field.index === fieldKeys.length - 1 &&
                 !field.isLoadingPlaceholder && (
                   <Row key=".__add-new-field">
@@ -325,8 +287,8 @@ function ExportSelectFields({
                     </Cell>
                     <Cell>
                       <TextInput
-                        // NOTE: Leafygreen gives an error with only aria-label for a text input.
-                        aria-labelledby=""
+                        // NOTE: LeafyGreen gives an error with only aria-label for a text input.
+                        // aria-labelledby=""
                         aria-label="Enter a field to include in the export"
                         type="text"
                         className={textInputStyles}
@@ -343,32 +305,33 @@ function ExportSelectFields({
                     </Cell>
                   </Row>
                 )}
-            </div>
+            </>
           )}
         </Table>
-        {/* {isLoading && (
-          // <div>
-          //   loading fields
-          // </div>
-          <LoadingSelectFieldsPlaceholder />
-        )} */}
       </div>
+      {!!errorLoadingFieldsToExport && (
+        <div className={retryButtonContainerStyles}>
+          <ErrorSummary
+            errors={`Unable to load fields to export: ${errorLoadingFieldsToExport}`}
+            onAction={selectFieldsToExport}
+            actionText="Retry"
+          />
+        </div>
+      )}
     </>
   );
 }
 
-export { ExportSelectFields };
-
 const ConnectedExportSelectFields = connect(
   (state: RootExportState) => ({
-    // TODO: Better gather fields types
+    errorLoadingFieldsToExport: state.export.errorLoadingFieldsToExport,
     fields: state.export.fieldsToExport,
     isLoading: !!state.export.fieldsToExportAbortController,
   }),
   {
+    selectFieldsToExport,
     updateSelectedFields: updateSelectedFields,
   }
 )(ExportSelectFields);
 
-// TODO(COMPASS-6580): Update naming and remove the unused export.
-export { ConnectedExportSelectFields };
+export { ConnectedExportSelectFields as ExportSelectFields };

@@ -150,7 +150,7 @@ export async function exportJSONFromQuery({
   debug('exportJSONFromQuery()', { ns: toNS(ns) });
 
   const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
-    project: query.project,
+    projection: query.projection,
     sort: query.sort,
     limit: query.limit,
     skip: query.skip,

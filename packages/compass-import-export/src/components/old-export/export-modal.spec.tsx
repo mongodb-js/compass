@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 
-import store from '../stores/export-store';
+import store from '../../stores/old-export-store';
 import ExportModal from './export-modal';
 
 function renderModal() {

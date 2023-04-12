@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { stringify } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
 
-import type { ExportQueryType } from '../modules/export';
+import type { ExportQueryType } from '../modules/old-export';
 import type { ExportQuery } from '../export/export-types';
 
 export function getQueryAsShellJSString(ns: string, spec: ExportQueryType) {
@@ -21,6 +21,7 @@ export function getQueryAsShellJSString(ns: string, spec: ExportQueryType) {
   return ret;
 }
 
+// TODO(COMPASS-6582): Rename and remove old function.
 export function newGetQueryAsShellJSString({
   ns,
   query,
@@ -30,8 +31,8 @@ export function newGetQueryAsShellJSString({
 }) {
   let ret = `db.getCollection("${toNS(ns).collection}").find(\n`;
   ret += `  ${stringify(query.filter ? query.filter : {}) || ''}`;
-  if (query.project) {
-    ret += `,\n  ${stringify(query.project) || ''}`;
+  if (query.projection) {
+    ret += `,\n  ${stringify(query.projection) || ''}`;
   }
   ret += '\n)';
   if (query.sort) {
@@ -39,7 +40,7 @@ export function newGetQueryAsShellJSString({
       _.isObject(query.sort) && !Array.isArray(query.sort)
         ? stringify(query.sort as Record<string, unknown>) || ''
         : JSON.stringify(query.sort)
-    })`; // typeof query.sort === 'string' ? query.sort : (stringify(query.sort) || '')})`;
+    })`;
   }
   if (query.limit) {
     ret += `.limit(${query.limit})`;

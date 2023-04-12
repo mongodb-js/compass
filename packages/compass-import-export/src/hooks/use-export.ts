@@ -4,7 +4,7 @@ import type { TypedUseSelectorHook } from 'react-redux';
 import type {
   RootExportState,
   ExportAppDispatch,
-} from '../stores/new-export-store';
+} from '../stores/export-store';
 
 export const useExportDispatch: () => ExportAppDispatch = useDispatch;
 export const useExportSelector: TypedUseSelectorHook<RootExportState> =

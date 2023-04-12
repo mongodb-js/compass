@@ -7,8 +7,8 @@ import {
   ModalHeader,
 } from '@mongodb-js/compass-components';
 
-import { closeInProgressMessage } from '../modules/new-export';
-import type { RootExportState } from '../stores/new-export-store';
+import { closeInProgressMessage } from '../modules/export';
+import type { RootExportState } from '../stores/export-store';
 
 type InProgressModalProps = {
   closeInProgressMessage?: () => void;

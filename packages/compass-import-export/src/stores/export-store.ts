@@ -1,54 +1,72 @@
 import type AppRegistry from 'hadron-app-registry';
-import { createStore, applyMiddleware } from 'redux';
-import type { Store, AnyAction } from 'redux';
-import thunk from 'redux-thunk';
+import { configureStore } from '@reduxjs/toolkit';
 import type { DataService } from 'mongodb-data-service';
 
-import reducer from '../modules';
+import { ns, globalAppRegistry, dataService } from '../modules/compass';
+import { globalAppRegistryActivated } from '../modules/compass/global-app-registry';
 import {
   dataServiceConnected,
-  globalAppRegistryActivated,
-} from '../modules/compass';
-import { openExport } from '../modules/export';
+  dataServiceDisconnected,
+} from '../modules/compass/data-service';
+import { exportReducer, openExport } from '../modules/export';
 
-const _store = createStore(reducer, applyMiddleware(thunk));
+export const store = Object.assign(
+  configureStore({
+    reducer: {
+      // TODO: Do we need the app registry in the store?
+      globalAppRegistry,
+      dataService,
+      // TODO: Do we need the namespace in the store? It can be passed on the open export action?
+      // Maybe if it's opened with the menu option.
+      ns,
+      export: exportReducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        // Currently we are storing the app registry and data service in the store.
+        // These are not serializable so we disable these default middleware checks.
+        immutableCheck: false,
+        serializableCheck: false,
+      }),
+  }),
+  {
+    onActivated(globalAppRegistry: AppRegistry) {
+      store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
+      globalAppRegistry.on(
+        'data-service-connected',
+        (err: Error | undefined, dataService: DataService) => {
+          store.dispatch(dataServiceConnected(err, dataService));
+        }
+      );
 
-type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
+      // Abort the export operation when it's in progress.
+      globalAppRegistry.on('data-service-disconnected', () => {
+        store.dispatch(dataServiceDisconnected());
+      });
 
-export type RootExportActions = StoreActions<typeof _store>;
+      globalAppRegistry.on(
+        'open-export',
+        ({
+          // TODO: Options and other things.
+          namespace,
+          query,
+          exportFullCollection,
+          aggregation,
+        }) => {
+          store.dispatch(
+            openExport({
+              namespace,
+              query,
+              exportFullCollection,
+              aggregation,
+            })
+          );
+        }
+      );
+    },
+  }
+);
 
-export type RootExportState = StoreState<typeof _store>;
-
-const store = Object.assign(_store, {
-  onActivated(globalAppRegistry: AppRegistry) {
-    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-
-    globalAppRegistry.on(
-      'data-service-connected',
-      (err: Error | undefined, dataService: DataService) => {
-        store.dispatch(dataServiceConnected(err, dataService));
-      }
-    );
-
-    globalAppRegistry.on(
-      'open-export',
-      ({ namespace, query, count, aggregation }) => {
-        // TODO: Once we update our redux usage to use `configureStore` from `@reduxjs/toolkit`
-        // we should be able to remove this type cast as the thunk action will
-        // be properly accepted in the store dispatch typing.
-        store.dispatch(
-          openExport({
-            namespace,
-            query,
-            count,
-            aggregation,
-          }) as unknown as AnyAction
-        );
-      }
-    );
-  },
-});
-
-export default store;
+export type RootExportState = ReturnType<typeof store.getState>;
+export type ExportAppDispatch = typeof store.dispatch;

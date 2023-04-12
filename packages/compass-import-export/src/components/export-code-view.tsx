@@ -8,10 +8,13 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import type { ExportStatus, FieldsToExportOption } from '../modules/new-export';
-import type { RootExportState } from '../stores/new-export-store';
+import type {
+  ExportStatus,
+  FieldsToExportOption,
+  FieldsToExport,
+} from '../modules/export';
+import type { RootExportState } from '../stores/export-store';
 import { createProjectionFromSchemaFields } from '../export/gather-fields';
-import type { SchemaPath } from '../export/gather-fields';
 import type { ExportAggregation, ExportQuery } from '../export/export-types';
 import { newGetQueryAsShellJSString } from '../utils/get-shell-js';
 
@@ -21,9 +24,9 @@ const codeStyles = css({
 
 type ExportCodeViewProps = {
   ns: string;
-  query: ExportQuery;
-  aggregation: ExportAggregation;
-  fields: SchemaPath[];
+  query?: ExportQuery;
+  aggregation?: ExportAggregation;
+  fields: FieldsToExport;
   selectedFieldOption: undefined | FieldsToExportOption;
   exportFullCollection?: boolean;
   status: ExportStatus;
@@ -45,15 +48,23 @@ function ExportCodeView({
     if (selectedFieldOption === 'select-fields') {
       return newGetQueryAsShellJSString({
         query: {
-          ...query,
-          project: createProjectionFromSchemaFields(fields),
+          ...(query ?? {
+            filter: {},
+          }),
+          projection: createProjectionFromSchemaFields(
+            Object.values(fields)
+              .filter((field) => field.selected)
+              .map((field) => field.fieldPath)
+          ),
         },
         ns,
       });
     }
 
     return newGetQueryAsShellJSString({
-      query,
+      query: query ?? {
+        filter: {},
+      },
       ns,
     });
   }, [aggregation, fields, query, ns, selectedFieldOption]);
@@ -66,8 +77,8 @@ function ExportCodeView({
       {!!aggregation &&
         !exportFullCollection &&
         !!selectedFieldOption &&
-        query.project &&
-        Object.keys(query.project).length > 0 && (
+        query?.projection &&
+        Object.keys(query.projection).length > 0 && (
           <Banner>
             Only projected fields will be exported. To export all fields, go
             back and leave the PROJECT field empty.
