@@ -54,3 +54,5 @@ export * from './select-option';
 export * from './codemirror';
 export * from './drop-collection-from-sidebar';
 export * from './drop-database-from-sidebar';
+export * from './open-aggregation-side-panel';
+export * from './close-aggregation-side-panel';

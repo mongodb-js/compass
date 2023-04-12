@@ -850,6 +850,11 @@ export const AggregationAsTextPreviewMerge =
 export const AggregationAsTextPreviewAtlasOperator =
   '[data-testid="stage-preview-missing-search-support"]';
 
+// Aggregation Wizard
+export const AggregationSidePanelToggleButton =
+  '[data-testid="pipeline-toolbar-side-panel-button"]';
+export const AggregationSidePanel = '[data-testid="aggregation-side-panel"]';
+
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
 export const SchemaFieldList = '[data-testid="schema-field-list"]';

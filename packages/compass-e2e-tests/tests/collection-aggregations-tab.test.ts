@@ -190,7 +190,7 @@ describe('Collection aggregations tab', function () {
 
   before(async function () {
     compass = await beforeTests({
-      extraSpawnArgs: ['--show-focus-mode'],
+      extraSpawnArgs: ['--show-focus-mode', '--use-stage-wizard'],
     });
     browser = compass.browser;
   });
@@ -1469,6 +1469,39 @@ describe('Collection aggregations tab', function () {
       await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '10');
 
       await guideCue.waitForDisplayed({ reverse: true });
+    });
+  });
+
+  describe('aggregation wizard', function () {
+    beforeEach(async function () {
+      await browser.openAggregationSidePanel();
+    });
+
+    it('should toggle the aggregation side panel', async function () {
+      await browser.closeAggregationSidePanel();
+      await browser.openAggregationSidePanel();
+    });
+
+    it.skip(
+      'should show a guidecue when the aggregation panel is opened for the first time'
+    );
+    it.skip('should show a list of usecases in the aggregation side panel');
+
+    it.skip(
+      'should add a stage wizard in the end of the list of the stages for a clicked usecase in the aggregation side panel'
+    );
+    it.skip(
+      'should dismiss the stage wizard when clicked on "Cancel" button on stage wizard'
+    );
+
+    describe.skip('usecase interaction ($sort)', function () {
+      it('should be able to modify a usecase form');
+      it(
+        'should disable the apply button and show errors when the form is in an invalid state'
+      );
+      it(
+        "should convert the wizard to a stage, inserted at the wizard's index when the usecase form is valid"
+      );
     });
   });
 
