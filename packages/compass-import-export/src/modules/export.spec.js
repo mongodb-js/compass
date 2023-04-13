@@ -24,13 +24,6 @@ describe('export [module]', function () {
       let dataService;
       const TEST_COLLECTION_NAME = 'local.foobar';
 
-      afterEach(async function () {
-        await dataService.dropCollection(TEST_COLLECTION_NAME);
-        await dataService.disconnect().catch((e) => {
-          console.error('Failed to disconnet:', e);
-        });
-      });
-
       beforeEach(async function () {
         dataService = await connect({
           connectionString: 'mongodb://localhost:27018/local',
@@ -60,6 +53,21 @@ describe('export [module]', function () {
             count: 0,
           })
         );
+      });
+
+      afterEach(async function () {
+        if (dataService) {
+          try {
+            await dataService.dropCollection(TEST_COLLECTION_NAME);
+          } catch (err) {
+            // ignore
+          }
+          try {
+            await dataService.disconnect();
+          } catch (err) {
+            // ignore
+          }
+        }
       });
 
       async function configureAndStartExport(

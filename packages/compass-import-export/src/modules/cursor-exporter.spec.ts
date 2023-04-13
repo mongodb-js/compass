@@ -45,8 +45,16 @@ describe('CursorExporter', function () {
       cursor = collection.aggregate([{ $match: { first_name: 'John' } }]);
     });
     afterEach(async function () {
-      await collection.drop();
-      await client.close();
+      try {
+        await collection.drop();
+      } catch (err) {
+        // ignore
+      }
+      try {
+        await client.close();
+      } catch (err) {
+        // ignore
+      }
     });
     it('should export AggregateCursor', async function () {
       const opts: CursorExporterOpts = {
@@ -73,8 +81,16 @@ describe('CursorExporter', function () {
       cursor = collection.find();
     });
     afterEach(async function () {
-      await collection.drop();
-      await client.close();
+      try {
+        await collection.drop();
+      } catch (err) {
+        // ignore
+      }
+      try {
+        await client.close();
+      } catch (err) {
+        // ignore
+      }
     });
     it.skip('should cancel streaming', async function () {
       // TODO: Implement this test. Tried many approaches with no success.
