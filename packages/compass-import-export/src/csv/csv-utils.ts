@@ -192,11 +192,20 @@ const parenthesis = {
 };
 
 function isEJSON(value: string) {
-  return (
+  if (
     value.length &&
     ['{', '['].includes(value[0]) &&
     value[value.length - 1] === parenthesis[value[0] as '{' | '[']
-  );
+  ) {
+    try {
+      JSON.parse(value);
+    } catch (err) {
+      return false;
+    }
+    return true;
+  }
+
+  return false;
 }
 
 export function detectCSVFieldType(
