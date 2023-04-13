@@ -313,6 +313,18 @@ describe('createProjectionFromSchemaFields', function () {
         pineapple: true,
       },
     });
+
+    expect(
+      createProjectionFromSchemaFields([['pen', 'pineapple', 'apple', 'pen']])
+    ).to.deep.equal({
+      pen: {
+        pineapple: {
+          apple: {
+            pen: true,
+          },
+        },
+      },
+    });
   });
 });
 
