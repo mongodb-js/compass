@@ -76,7 +76,11 @@ describe('cancellable-queries', function () {
 
   after(async function () {
     if (dataService) {
-      await dataService.disconnect();
+      try {
+        await dataService.disconnect();
+      } catch (err) {
+        // ignore
+      }
     }
   });
 
