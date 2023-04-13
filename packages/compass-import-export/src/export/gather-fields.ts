@@ -16,8 +16,8 @@ const debug = createDebug('export-json');
 // Array of path components. ie. { foo: { bar: { baz:  1 } } } results in ['foo', 'bar', 'baz']
 type SchemaPath = string[];
 
-// TODO: we should just export all the types from mongodb-schema and update
-// them. Or alternatively move schemaToPaths() there. COMPASS-6720
+// TODO(COMPASS-6720): we should just export all the types from mongodb-schema
+// and update them. Or alternatively move schemaToPaths() there.
 type BSONSchemaField = {
   name: string;
   path: string;
@@ -161,9 +161,10 @@ async function _gatherFields({
     }
   }
 
-  // TODO: finalizeSchema() inside schema analyzer replaces the fields object
-  // internally with something of a different type. We should fix that by making
-  // a different final result object that matches the type we want. COMPASS-6720
+  // TODO(COMPASS-6720): finalizeSchema() inside schema analyzer replaces the
+  // fields object internally with something of a different type. We should fix
+  // that by making a different final result object that matches the type we
+  // want.
   const fields = (
     (schemaAnalyzer.getResult() as any).fields as BSONSchemaField[]
   ).filter((field) => !isInternalFieldPath(field.path));
