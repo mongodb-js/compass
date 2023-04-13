@@ -1,19 +1,12 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import {
-  Banner,
-  Body,
-  Code,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
 
 import type { FieldsToExportOption, FieldsToExport } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
 import { createProjectionFromSchemaFields } from '../export/gather-fields';
 import type { ExportQuery } from '../export/export-types';
 import { newGetQueryAsShellJSString } from '../utils/get-shell-js';
-import { queryHasProjection } from '../utils/query-has-projection';
 
 const containerStyles = css({
   marginBottom: spacing[3],
@@ -60,12 +53,6 @@ function ExportCodeView({
   return (
     <div className={containerStyles}>
       <Body>Export results from the query below</Body>
-      {!selectedFieldOption && !!query && queryHasProjection(query) && (
-        <Banner>
-          Only projected fields will be exported. To export all fields, go back
-          and leave the PROJECT field empty.
-        </Banner>
-      )}
       <Code data-testid="export-code-view-code" language="javascript" copyable>
         {code}
       </Code>

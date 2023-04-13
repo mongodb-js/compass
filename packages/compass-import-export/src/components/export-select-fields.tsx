@@ -62,7 +62,7 @@ const enterToAddStyles = css({
 });
 
 const placeholderStyles = css({
-  margin: spacing[2],
+  margin: spacing[1],
 });
 
 const retryButtonContainerStyles = css({

@@ -57,7 +57,11 @@ export const store = Object.assign(
           store.dispatch(
             openExport({
               namespace,
-              query,
+              query: {
+                // TODO: Fix hack, maybe use project everywhere.
+                ...query,
+                ...(query?.project ? { projection: query.project } : {}),
+              },
               exportFullCollection,
               aggregation,
             })
