@@ -2,6 +2,7 @@ import React from 'react';
 import { Toggle } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 
 const ToggleStage = ({
@@ -30,9 +31,11 @@ const ToggleStage = ({
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[
+      ownProps.index
+    ] as StoreStage;
     return {
-      isEnabled:
-        !state.pipelineBuilder.stageEditor.stages[ownProps.index].disabled,
+      isEnabled: !stage.disabled,
     };
   },
   { onChange: changeStageDisabled }

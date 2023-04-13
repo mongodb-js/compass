@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Stage from '../stage';
-import type { StageProps } from '../stage';
 import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
+import type { StageIdAndType } from '../../modules/pipeline-builder/stage-editor';
 import {
   addStage,
   moveStage,
@@ -23,6 +23,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import Wizard from '../stage-wizard';
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
@@ -43,7 +44,7 @@ const stageContainerStyles = css({
 });
 
 type PipelineBuilderUIWorkspaceProps = {
-  stageIds: number[];
+  stagesIdAndType: StageIdAndType[];
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
@@ -53,10 +54,11 @@ type SortableItemProps = {
   idx: number;
   isLastStage: boolean;
   onStageAddAfter: (after?: number) => void;
-} & Partial<StageProps>;
+  type: StageIdAndType['type'];
+};
 
 type SortableListProps = {
-  stageIds: number[];
+  stagesIdAndType: StageIdAndType[];
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
 };
@@ -65,18 +67,18 @@ const SortableItem = ({
   idx,
   isLastStage,
   onStageAddAfter,
-  ...props
+  type,
 }: SortableItemProps) => {
   return (
     <div className={stageContainerStyles}>
-      <Stage index={idx} {...props}></Stage>
+      {type === 'stage' ? <Stage index={idx} /> : <Wizard index={idx} />}
       {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
     </div>
   );
 };
 
 const SortableList = ({
-  stageIds,
+  stagesIdAndType,
   onStageMoveEnd,
   onStageAddAfterEnd,
 }: SortableListProps) => {
@@ -85,7 +87,7 @@ const SortableList = ({
   // They must be strings or numbers bigger than 0.
   // It's important that the items prop passed to SortableContext
   // be sorted in the same order in which the items are rendered.
-  const items = stageIds.map((id) => id + 1);
+  const items = stagesIdAndType.map(({ id }) => id + 1);
   const sensors = useSensors(
     useSensor(MouseSensor, {
       // Require the mouse to move by 10 pixels before activating.
@@ -106,11 +108,11 @@ const SortableList = ({
 
   const onSortEnd = useCallback(
     ({ oldIndex, newIndex }) => {
-      const from = stageIds.findIndex((id) => id + 1 === oldIndex);
-      const to = stageIds.findIndex((id) => id + 1 === newIndex);
+      const from = stagesIdAndType.findIndex(({ id }) => id + 1 === oldIndex);
+      const to = stagesIdAndType.findIndex(({ id }) => id + 1 === newIndex);
       onStageMoveEnd(from, to);
     },
-    [onStageMoveEnd, stageIds]
+    [onStageMoveEnd, stagesIdAndType]
   );
 
   return (
@@ -124,11 +126,12 @@ const SortableList = ({
       }}
     >
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        {stageIds.map((id, index) => (
+        {stagesIdAndType.map(({ id, type }, index) => (
           <SortableItem
             key={`stage-${id}`}
             idx={index}
-            isLastStage={index === stageIds.length - 1}
+            type={type}
+            isLastStage={index === stagesIdAndType.length - 1}
             onStageAddAfter={() => onStageAddAfterEnd(index)}
           />
         ))}
@@ -139,24 +142,25 @@ const SortableList = ({
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   PipelineBuilderUIWorkspaceProps
-> = ({ stageIds, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
+> = ({ stagesIdAndType, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
   return (
     <div data-testid="pipeline-builder-ui-workspace">
       <div className={pipelineWorkspaceContainerStyles}>
         <div className={pipelineWorkspaceStyles}>
           {editViewName && <ModifySourceBanner editViewName={editViewName} />}
           <PipelineBuilderInputDocuments />
-          {stageIds.length !== 0 && (
+          {stagesIdAndType.length !== 0 && (
             <AddStage
               onAddStage={() => onStageAddAfterEnd(-1)}
               variant="icon"
             />
           )}
           <SortableList
-            stageIds={stageIds}
+            stagesIdAndType={stagesIdAndType}
             onStageMoveEnd={onStageMoveEnd}
             onStageAddAfterEnd={onStageAddAfterEnd}
           />
+
           <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
         </div>
       </div>
@@ -166,7 +170,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
 
 const mapState = (state: RootState) => {
   return {
-    stageIds: state.pipelineBuilder.stageEditor.stageIds,
+    stagesIdAndType: state.pipelineBuilder.stageEditor.stagesIdAndType,
     editViewName: state.editViewName,
   };
 };

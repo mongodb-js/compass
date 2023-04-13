@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Body,
   css,
@@ -12,6 +12,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { toggleSidePanel } from '../../modules/side-panel';
+import { STAGE_WIZARD_USE_CASES, UseCaseList } from './stage-wizard-use-cases';
+import { FeedbackLink } from './feedback-link';
+import { addWizard } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   height: '100%',
@@ -22,6 +25,9 @@ const containerStyles = css({
   borderBottomLeftRadius: 0,
   borderBottom: 'none',
   backgroundColor: palette.gray.light3,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[2],
 });
 
 const darkModeContainerStyles = css({
@@ -47,19 +53,31 @@ const titleStylesLight = css({
 
 const contentStyles = css({
   display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  height: '100%',
+  flexDirection: 'column',
+  gap: spacing[2],
+  overflow: 'auto',
+  paddingBottom: spacing[3],
 });
 
 type AggregationSidePanelProps = {
+  onSelectUseCase: (id: string, stageOperator: string) => void;
   onCloseSidePanel: () => void;
 };
 
 export const AggregationSidePanel = ({
   onCloseSidePanel,
+  onSelectUseCase,
 }: AggregationSidePanelProps) => {
   const darkMode = useDarkMode();
+
+  const onSelect = useCallback((id: string) => {
+    const useCase = STAGE_WIZARD_USE_CASES.find((useCase) => useCase.id === id);
+    if (!useCase) {
+      return;
+    }
+    onSelectUseCase(id, useCase.stageOperator);
+  }, []);
+
   return (
     <KeylineCard
       data-testid="aggregation-side-panel"
@@ -82,7 +100,8 @@ export const AggregationSidePanel = ({
         </IconButton>
       </div>
       <div className={contentStyles}>
-        <Body>Feature in progress ...</Body>
+        <UseCaseList onSelect={onSelect} />
+        <FeedbackLink />
       </div>
     </KeylineCard>
   );
@@ -90,4 +109,5 @@ export const AggregationSidePanel = ({
 
 export default connect(null, {
   onCloseSidePanel: toggleSidePanel,
+  onSelectUseCase: addWizard,
 })(AggregationSidePanel);

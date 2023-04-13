@@ -17,6 +17,7 @@ import StageOperatorSelect from './stage-operator-select';
 import { hasSyntaxError } from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const toolbarStyles = css({
   width: '100%',
@@ -84,6 +85,7 @@ const rightStyles = css({
 
 type StageToolbarProps = {
   index: number;
+  idxInPipeline: number;
   isAutoPreviewing?: boolean;
   hasSyntaxError?: boolean;
   hasServerError?: boolean;
@@ -104,6 +106,7 @@ const COLLAPSED_TEXT =
 
 export function StageToolbar({
   index,
+  idxInPipeline,
   hasSyntaxError,
   hasServerError,
   isCollapsed,
@@ -126,7 +129,7 @@ export function StageToolbar({
     >
       <div className={leftStyles}>
         <StageCollapser index={index} />
-        <Body weight="medium">Stage {index + 1}</Body>
+        <Body weight="medium">Stage {idxInPipeline + 1}</Body>
         <div className={selectStyles}>
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
@@ -158,8 +161,14 @@ type StageToolbarOwnProps = Pick<
 
 export default connect(
   (state: RootState, ownProps: StageToolbarOwnProps) => {
-    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = state;
+    const stage = stages[ownProps.index] as StoreStage;
     return {
+      idxInPipeline: stage.idxInPipeline,
       isAutoPreviewing: !!state.autoPreview,
       hasSyntaxError: hasSyntaxError(stage),
       hasServerError: !!stage.serverError,

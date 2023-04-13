@@ -1,6 +1,7 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { prettify } from '@mongodb-js/compass-editor';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
@@ -16,11 +17,13 @@ import {
 } from './pipeline-preview-manager';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
+import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isOutputStage } from '../../utils/stage';
 import { mapPipelineModeToEditorViewType } from './builder-helpers';
+import { getId } from './stage-ids';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
@@ -38,6 +41,10 @@ export const enum StageEditorActionTypes {
   StageAdded = 'compass-aggregations/pipeline-builder/stage-editor/StageAdded',
   StageRemoved = 'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
   StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
+  WizardAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardAdded',
+  WizardRemoved = 'compass-aggregations/pipeline-builder/stage-wizard/WizardRemoved',
+  WizardChanged = 'compass-aggregations/pipeline-builder/stage-wizard/WizardChanged',
+  WizardToStageClicked = 'compass-aggregations/pipeline-builder/stage-wizard/wizardToStageClicked',
 }
 
 export type StagePreviewFetchAction = {
@@ -105,8 +112,8 @@ export type ChangeStageDisabledAction = {
 
 export type StageAddAction = {
   type: StageEditorActionTypes.StageAdded;
-  after?: number;
-  stage: Stage;
+  after: number;
+  stage: StoreStage;
 };
 
 export type StageRemoveAction = {
@@ -120,10 +127,70 @@ export type StageMoveAction = {
   to: number;
 };
 
-function canRunStage(
-  stage?: StageEditorState['stages'][number],
-  allowOut = false
-): boolean {
+type WizardAddAction = {
+  type: StageEditorActionTypes.WizardAdded;
+  wizard: Wizard;
+  after: number;
+};
+
+type WizardRemoveAction = {
+  type: StageEditorActionTypes.WizardRemoved;
+  at: number;
+};
+
+type WizardChangeAction = {
+  type: StageEditorActionTypes.WizardChanged;
+  at: number;
+  value: string | null;
+  syntaxError: SyntaxError | null;
+};
+
+type WizardToStageAction = {
+  type: StageEditorActionTypes.WizardToStageClicked;
+  at: number;
+  stage: StoreStage;
+};
+
+export function storeIndexToPipelineIndex(
+  stages: StageEditorState['stages'],
+  indexInStore: number,
+  { includeIndex } = { includeIndex: false }
+): number {
+  const endBound = includeIndex ? indexInStore + 1 : indexInStore;
+  const considerableStages = stages.slice(0, endBound);
+  const totalWizards = wizardsFromStore(considerableStages);
+  return indexInStore - totalWizards.length;
+}
+
+export function pipelineFromStore(
+  stages: StageEditorState['stages']
+): StoreStage[] {
+  return stages.filter((stage): stage is StoreStage => stage.type === 'stage');
+}
+
+export function wizardsFromStore(stages: StageEditorState['stages']): Wizard[] {
+  return stages.filter((stage): stage is Wizard => stage.type === 'wizard');
+}
+
+function remapPipelineStageIndexesInStore() {
+  let totalWizardsEncountered = 0;
+  return function (
+    stage: StageEditorState['stages'][number],
+    idx: number
+  ): StageEditorState['stages'][number] {
+    if (stage.type === 'wizard') {
+      totalWizardsEncountered += 1;
+      return stage;
+    } else {
+      return {
+        ...stage,
+        idxInPipeline: idx - totalWizardsEncountered,
+      };
+    }
+  };
+}
+
+function canRunStage(stage?: StoreStage, allowOut = false): boolean {
   return (
     !!stage &&
     (stage.disabled ||
@@ -152,17 +219,23 @@ export const loadStagePreview = (
       autoPreview,
     } = getState();
 
+    const stage = stages[idx];
+    if (!stage || stage.type !== 'stage') {
+      return;
+    }
+
+    const { idxInPipeline } = stage;
     // Ignoring the state of the stage, always try to stop current preview fetch
-    pipelineBuilder.cancelPreviewForStage(idx);
+    pipelineBuilder.cancelPreviewForStage(idxInPipeline);
 
     const canFetchPreviewForStage =
       autoPreview &&
-      !stages[idx].disabled &&
+      !stage.disabled &&
       // Only run stage if all previous ones are valid (otherwise it will fail
       // anyway)
-      stages.slice(0, idx + 1).every((stage) => {
-        return canRunStage(stage);
-      });
+      pipelineFromStore(stages.slice(0, idx + 1)).every((stage) =>
+        canRunStage(stage)
+      );
 
     if (!canFetchPreviewForStage) {
       dispatch({
@@ -196,7 +269,7 @@ export const loadStagePreview = (
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForStage(
-        idx,
+        idxInPipeline,
         namespace,
         options
       );
@@ -245,28 +318,27 @@ export const runStage = (
       },
     } = getState();
 
-    if (!dataService) {
-      return;
-    }
-
-    if (stages[idx].disabled) {
-      return;
-    }
-
+    const stage = stages[idx];
     if (
+      !dataService ||
+      !stage ||
+      stage.type !== 'stage' ||
+      stage.disabled ||
       // Only run stage if all previous ones are valid (otherwise it will fail
       // anyway)
-      !stages.slice(0, idx + 1).every((stage) => {
-        return canRunStage(stage, true);
-      })
+      !pipelineFromStore(stages.slice(0, idx + 1)).every((stage) =>
+        canRunStage(stage, true)
+      )
     ) {
       return;
     }
 
+    const { idxInPipeline } = stage;
+
     try {
       dispatch({ type: StageEditorActionTypes.StageRun, id: idx });
       const pipeline = pipelineBuilder.getPipelineFromStages(
-        pipelineBuilder.stages.slice(0, idx + 1)
+        pipelineBuilder.stages.slice(0, idxInPipeline + 1)
       );
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
@@ -298,13 +370,23 @@ export const changeStageValue = (
   newVal: string
 ): PipelineBuilderThunkAction<void, ChangeStageValueAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
-    const stage = pipelineBuilder.getStage(id);
-    if (!stage) {
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+
+    const stageInStore = stages[id];
+    if (!stageInStore || stageInStore.type !== 'stage') {
       return;
     }
-    if (stage.value === newVal) {
+
+    const { idxInPipeline } = stageInStore;
+    const stage = pipelineBuilder.getStage(idxInPipeline);
+    if (!stage || stage.value === newVal) {
       return;
     }
+
     stage.changeValue(newVal);
     dispatch({ type: StageEditorActionTypes.StageValueChange, id, stage });
     dispatch(loadPreviewForStagesFrom(id));
@@ -360,16 +442,6 @@ export const changeStageOperator = (
   ChangeStageOperatorAction
 > => {
   return (dispatch, getState, { pipelineBuilder }) => {
-    const stage = pipelineBuilder.getStage(id);
-
-    if (!stage) {
-      return;
-    }
-
-    if (stage.operator === newVal) {
-      return;
-    }
-
     const {
       env,
       comments,
@@ -378,8 +450,19 @@ export const changeStageOperator = (
       },
     } = getState();
 
+    const stageInStore = stages[id];
+    if (!stageInStore || stageInStore.type !== 'stage') {
+      return;
+    }
+
+    const { idxInPipeline } = stageInStore;
+    const stage = pipelineBuilder.getStage(idxInPipeline);
+    if (!stage || stage.operator === newVal) {
+      return;
+    }
+
     const currentSnippet = getStageSnippet(
-      stages[id].stageOperator,
+      stageInStore.stageOperator,
       env,
       comments,
       // We're getting escaped snippet here because on insert to the editor, it
@@ -389,15 +472,15 @@ export const changeStageOperator = (
       true
     ).trim();
 
-    const currentValue = stages[id].value?.trim();
+    const currentValue = stageInStore.value?.trim();
 
     stage.changeOperator(newVal);
 
     track('Aggregation Edited', {
-      num_stages: stages.length,
+      num_stages: pipelineFromStore(stages).length,
       stage_action: 'stage_renamed',
       stage_name: stage.operator,
-      stage_index: id + 1,
+      stage_index: idxInPipeline + 1,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
 
@@ -424,10 +507,23 @@ export const changeStageDisabled = (
   newVal: boolean
 ): PipelineBuilderThunkAction<void, ChangeStageDisabledAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
-    const stage = pipelineBuilder.getStage(id);
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+
+    const stageInStore = stages[id];
+    if (!stageInStore || stageInStore.type !== 'stage') {
+      return;
+    }
+
+    const { idxInPipeline } = stageInStore;
+    const stage = pipelineBuilder.getStage(idxInPipeline);
     if (!stage) {
       return;
     }
+
     stage.changeDisabled(newVal);
     dispatch({
       type: StageEditorActionTypes.StageDisabledChange,
@@ -453,14 +549,30 @@ export const addStage = (
   after?: number
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
-    const stage = pipelineBuilder.addStage(after);
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+    const addAfter = after ?? stages.length;
+    const addAfterIdxInPipeline = storeIndexToPipelineIndex(stages, addAfter, {
+      // The item at afterIndex could be a wizard hence we need to consider
+      // that while calculating the corresponding afterIdx in pipeline
+      includeIndex: true,
+    });
+
+    const stage = pipelineBuilder.addStage(addAfterIdxInPipeline);
     track('Aggregation Edited', {
-      num_stages: getState().pipelineBuilder.stageEditor.stages.length,
+      num_stages: pipelineFromStore(stages).length,
       stage_action: 'stage_added',
       stage_index: stage.id + 1,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
-    dispatch({ type: StageEditorActionTypes.StageAdded, after, stage });
+    dispatch({
+      type: StageEditorActionTypes.StageAdded,
+      after: addAfter,
+      stage: mapBuilderStageToStoreStage(stage, addAfterIdxInPipeline),
+    });
   };
 };
 
@@ -468,13 +580,25 @@ export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
-    const num_stages = getState().pipelineBuilder.stageEditor.stages.length;
-    const stage = pipelineBuilder.removeStage(at);
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+    const stageInStore = stages[at];
+    if (!stageInStore || stageInStore.type !== 'stage') {
+      return;
+    }
+
+    const { idxInPipeline } = stageInStore;
+
+    pipelineBuilder.cancelPreviewForStage(idxInPipeline);
+    const stage = pipelineBuilder.removeStage(idxInPipeline);
     track('Aggregation Edited', {
-      num_stages,
+      num_stages: pipelineFromStore(stages).length,
       stage_action: 'stage_deleted',
       stage_name: stage.operator,
-      stage_index: at + 1,
+      stage_index: idxInPipeline + 1,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
@@ -490,41 +614,212 @@ export const moveStage = (
     if (from === to) {
       return;
     }
-    const pipeline = getState().pipelineBuilder.stageEditor.stages;
-    track('Aggregation Edited', {
-      num_stages: pipeline.length,
-      stage_action: 'stage_reordered',
-      stage_name: pipeline[from].stageOperator,
-      stage_index: from + 1,
-      editor_view_type: mapPipelineModeToEditorViewType(getState()),
-    });
-    pipelineBuilder.moveStage(from, to);
-    dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
-    dispatch(loadPreviewForStagesFrom(Math.min(from, to)));
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+
+    const stageAtFromIdx = stages[from];
+    const stageAtToIdx = stages[to];
+
+    const toIdxInPipeline =
+      stageAtToIdx.type === 'stage'
+        ? stageAtToIdx.idxInPipeline
+        : // storeIndexToPipelineIndex calculates the pipeline index in reference
+          // to the start of the list. When a stage is being moved from the front
+          // of the list towards the back then the list is shifted to the left by 1
+          // and thus there is one additional item to be considered when we
+          // calculate the pipeline index corresponding to the provided index.
+          storeIndexToPipelineIndex(stages, to, { includeIndex: from < to });
+
+    const pipelineWasNotModified =
+      // This stage being moved is a wizard and moving it will not incur any
+      // change in actual pipeline
+      stageAtFromIdx.type === 'wizard' ||
+      // Although the "stage" moved but it did not jump any other stages,
+      // just the wizards which is why the resulting toIdxInPipeline is
+      // same as the fromIdxInPipeline and hence no change in actual pipeline
+      // ever happened.
+      stageAtFromIdx.idxInPipeline === toIdxInPipeline;
+
+    if (pipelineWasNotModified) {
+      dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
+    } else {
+      track('Aggregation Edited', {
+        num_stages: pipelineFromStore(stages).length,
+        stage_action: 'stage_reordered',
+        stage_name: stageAtFromIdx.stageOperator,
+        stage_index: stageAtFromIdx.idxInPipeline + 1,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      });
+
+      pipelineBuilder.moveStage(stageAtFromIdx.idxInPipeline, toIdxInPipeline);
+      dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
+      dispatch(loadPreviewForStagesFrom(Math.min(from, to)));
+    }
   };
 };
 
+export type AddWizardParams = {
+  usecaseId: number;
+  formValues: unknown;
+  after?: number;
+};
+
+export const addWizard = (
+  useCaseId: string,
+  stageOperator: string,
+  after?: number
+): PipelineBuilderThunkAction<void, WizardAddAction> => {
+  return (dispatch, getState) => {
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+
+    const wizard: Wizard = {
+      id: getId(),
+      type: 'wizard',
+      useCaseId,
+      stageOperator,
+      value: null,
+      syntaxError: null,
+    };
+
+    dispatch({
+      wizard,
+      type: StageEditorActionTypes.WizardAdded,
+      after: after ?? stages.length,
+    });
+  };
+};
+
+export const removeWizard = (at: number): WizardRemoveAction => ({
+  type: StageEditorActionTypes.WizardRemoved,
+  at,
+});
+
+export const updateWizardValue = (
+  at: number,
+  value: string
+): PipelineBuilderThunkAction<void, WizardChangeAction> => {
+  return (dispatch, getState) => {
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+    const itemAtIdx = stages[at];
+    if (itemAtIdx.type !== 'wizard') {
+      return;
+    }
+
+    try {
+      parseShellBSON(value);
+      dispatch({
+        type: StageEditorActionTypes.WizardChanged,
+        at,
+        value,
+        syntaxError: null,
+      });
+    } catch (e) {
+      dispatch({
+        type: StageEditorActionTypes.WizardChanged,
+        at,
+        value,
+        syntaxError: e as SyntaxError,
+      });
+    }
+  };
+};
+
+export const convertWizardToStage = (
+  at: number
+): PipelineBuilderThunkAction<
+  void,
+  WizardChangeAction | WizardToStageAction
+> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+    const itemAtIdx = stages[at];
+    if (itemAtIdx.type !== 'wizard') {
+      return;
+    }
+
+    const isInvalid = itemAtIdx.syntaxError || !itemAtIdx.value;
+    if (isInvalid) {
+      const error =
+        itemAtIdx.syntaxError ||
+        new SyntaxError('Cannot convert empty wizard to stage');
+      dispatch({
+        type: StageEditorActionTypes.WizardChanged,
+        at,
+        value: itemAtIdx.value,
+        syntaxError: error,
+      });
+      return;
+    }
+
+    const afterStageIndex = storeIndexToPipelineIndex(stages, at);
+    const stage = pipelineBuilder.addStage(afterStageIndex);
+    stage.changeOperator(itemAtIdx.stageOperator);
+    stage.changeValue(prettify(itemAtIdx.value as string));
+
+    dispatch({
+      type: StageEditorActionTypes.WizardToStageClicked,
+      at,
+      stage: mapBuilderStageToStoreStage(stage, afterStageIndex),
+    });
+
+    dispatch(loadPreviewForStagesFrom(at));
+  };
+};
+
+export type StoreStage = {
+  id: number;
+  idxInPipeline: number;
+  type: 'stage';
+  stageOperator: string | null;
+  value: string | null;
+  syntaxError: PipelineParserError | null;
+  serverError: MongoServerError | null;
+  loading: boolean;
+  previewDocs: Document[] | null;
+  collapsed: boolean;
+  disabled: boolean;
+  empty: boolean;
+};
+
+export type Wizard = {
+  id: number;
+  type: 'wizard';
+  useCaseId: string;
+  stageOperator: string;
+  value: string | null;
+  syntaxError: SyntaxError | null;
+};
+
+export type StageIdAndType = { id: number; type: 'stage' | 'wizard' };
+
 export type StageEditorState = {
-  stageIds: number[];
-  stages: {
-    id: number;
-    stageOperator: string | null;
-    value: string | null;
-    syntaxError: PipelineParserError | null;
-    serverError: MongoServerError | null;
-    loading: boolean;
-    previewDocs: Document[] | null;
-    collapsed: boolean;
-    disabled: boolean;
-    empty: boolean;
-  }[];
+  stagesIdAndType: StageIdAndType[];
+  stages: (StoreStage | Wizard)[];
 };
 
 export function mapBuilderStageToStoreStage(
-  stage: Stage
-): StageEditorState['stages'][number] {
+  stage: Stage,
+  idxInPipeline: number
+): StoreStage {
   return {
     id: stage.id,
+    idxInPipeline,
+    type: 'stage',
     stageOperator: stage.operator,
     value: stage.value,
     syntaxError: stage.syntaxError,
@@ -537,8 +832,14 @@ export function mapBuilderStageToStoreStage(
   };
 }
 
+export function mapStoreStagesToStageIdAndType(
+  stages: Pick<StageEditorState['stages'][number], 'id' | 'type'>[]
+): Array<{ id: number; type: 'stage' | 'wizard' }> {
+  return stages.map(({ id, type }) => ({ id, type }));
+}
+
 const reducer: Reducer<StageEditorState> = (
-  state = { stageIds: [], stages: [] },
+  state = { stagesIdAndType: [], stages: [] },
   action
 ) => {
   if (
@@ -549,11 +850,11 @@ const reducer: Reducer<StageEditorState> = (
       PipelineModeActionTypes.PipelineModeToggled
     )
   ) {
-    const stages = action.stages.map((stage: Stage) => {
-      return mapBuilderStageToStoreStage(stage);
+    const stages = action.stages.map((stage: Stage, idx: number) => {
+      return mapBuilderStageToStoreStage(stage, idx);
     });
     return {
-      stageIds: stages.map((stage: Stage) => stage.id),
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
       stages,
     };
   }
@@ -731,25 +1032,27 @@ const reducer: Reducer<StageEditorState> = (
   }
 
   if (isAction<StageAddAction>(action, StageEditorActionTypes.StageAdded)) {
-    const after = action.after ?? state.stages.length;
+    const after = action.after;
     const stages = [...state.stages];
-    stages.splice(after + 1, 0, mapBuilderStageToStoreStage(action.stage));
+    stages.splice(after + 1, 0, action.stage);
+
     return {
       ...state,
-      stageIds: stages.map((stage) => stage.id),
-      stages,
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
+      stages: stages.map(remapPipelineStageIndexesInStore()),
     };
   }
 
   if (
-    isAction<StageRemoveAction>(action, StageEditorActionTypes.StageRemoved)
+    isAction<StageRemoveAction>(action, StageEditorActionTypes.StageRemoved) ||
+    isAction<WizardRemoveAction>(action, StageEditorActionTypes.WizardRemoved)
   ) {
     const stages = [...state.stages];
     stages.splice(action.at, 1);
     return {
       ...state,
-      stageIds: stages.map((stage) => stage.id),
-      stages,
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
+      stages: stages.map(remapPipelineStageIndexesInStore()),
     };
   }
 
@@ -759,8 +1062,57 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(action.to, 0, movedStage);
     return {
       ...state,
-      stageIds: stages.map((stage) => stage.id),
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
+      stages: stages.map(remapPipelineStageIndexesInStore()),
+    };
+  }
+
+  if (isAction<WizardAddAction>(action, StageEditorActionTypes.WizardAdded)) {
+    const { after, wizard } = action;
+    const stages = [...state.stages];
+    stages.splice(after + 1, 0, wizard);
+
+    return {
+      ...state,
       stages,
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
+    };
+  }
+
+  if (
+    isAction<WizardChangeAction>(action, StageEditorActionTypes.WizardChanged)
+  ) {
+    const { at, value, syntaxError } = action;
+    const stages = [
+      ...state.stages.slice(0, at),
+      {
+        ...state.stages[at],
+        value,
+        syntaxError,
+      },
+      ...state.stages.slice(at + 1),
+    ];
+
+    return {
+      ...state,
+      stages,
+    };
+  }
+
+  if (
+    isAction<WizardToStageAction>(
+      action,
+      StageEditorActionTypes.WizardToStageClicked
+    )
+  ) {
+    const at = action.at;
+    const stages = [...state.stages];
+    stages.splice(at, 1, action.stage);
+
+    return {
+      ...state,
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
+      stages: stages.map(remapPipelineStageIndexesInStore()),
     };
   }
 

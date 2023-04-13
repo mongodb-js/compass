@@ -3,8 +3,6 @@ import type { ComponentProps } from 'react';
 import { StageWizard } from './index';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import configureStore from '../../../test/configure-store';
-import { Provider } from 'react-redux';
 import sinon from 'sinon';
 import * as StageWizardUseCases from '../aggregation-side-panel/stage-wizard-use-cases';
 
@@ -12,14 +10,16 @@ const renderStageWizard = (
   props: Partial<ComponentProps<typeof StageWizard>> = {}
 ) => {
   return render(
-    <Provider store={configureStore()}>
-      <StageWizard
-        onApply={() => {}}
-        onCancel={() => {}}
-        id="test"
-        {...props}
-      />
-    </Provider>
+    <StageWizard
+      onApply={() => {}}
+      onCancel={() => {}}
+      onChange={() => {}}
+      syntaxError={null}
+      value={null}
+      useCaseId="test"
+      index={0}
+      {...props}
+    />
   );
 };
 
@@ -68,7 +68,8 @@ describe('stage wizard card', function () {
 
   it('calls onApply when apply button is clicked', function () {
     const onApply = sinon.spy();
-    renderStageWizard({ onApply });
+    renderStageWizard({ onApply, value: '{}' });
+
     screen
       .getByRole('button', {
         name: /apply/i,
