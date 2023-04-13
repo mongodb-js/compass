@@ -199,7 +199,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             <DropdownMenuButton<ExportDataOption>
               data-testid="export-collection-button"
               actions={exportDataActions}
-              // TODO: Separate actions/emits for actions.
               onAction={(action: ExportDataOption) =>
                 openExportFileDialog(action === 'export-full-collection')
               }

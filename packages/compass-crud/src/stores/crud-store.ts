@@ -976,7 +976,7 @@ class CrudStoreImpl
    * Emits a global app registry event the plugin listens to.
    */
   openExportFileDialog(exportFullCollection?: boolean) {
-    // TODO(COMPASS-6580): Remove feature flag, use next export.
+    // TODO(COMPASS-6580): Remove feature flag, use new export.
     if (preferences.getPreferences().useNewExport) {
       const { filter, project, collation, limit, skip, sort } =
         this.state.query;
@@ -984,8 +984,6 @@ class CrudStoreImpl
       this.globalAppRegistry.emit('open-export', {
         namespace: this.state.ns,
         query: { filter, project, collation, limit, skip, sort },
-        // Pass the doc count to the export modal so we can avoid re-counting.
-        count: this.state.count,
         exportFullCollection,
       });
       return;

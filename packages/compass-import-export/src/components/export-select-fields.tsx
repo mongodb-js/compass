@@ -298,8 +298,6 @@ function ExportSelectFields({
                     </Cell>
                     <Cell>
                       <TextInput
-                        // NOTE: LeafyGreen gives an error with only aria-label for a text input.
-                        // aria-labelledby=""
                         aria-label="Enter a field to include in the export"
                         type="text"
                         className={textInputStyles}

@@ -2,7 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { configureStore } from '@reduxjs/toolkit';
 import type { DataService } from 'mongodb-data-service';
 
-import { ns, globalAppRegistry, dataService } from '../modules/compass';
+import { globalAppRegistry, dataService } from '../modules/compass';
 import { globalAppRegistryActivated } from '../modules/compass/global-app-registry';
 import {
   dataServiceConnected,
@@ -13,12 +13,8 @@ import { exportReducer, openExport } from '../modules/export';
 export const store = Object.assign(
   configureStore({
     reducer: {
-      // TODO: Do we need the app registry in the store?
       globalAppRegistry,
       dataService,
-      // TODO: Do we need the namespace in the store? It can be passed on the open export action?
-      // Maybe if it's opened with the menu option.
-      ns,
       export: exportReducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -47,18 +43,12 @@ export const store = Object.assign(
 
       globalAppRegistry.on(
         'open-export',
-        ({
-          // TODO: Options and other things.
-          namespace,
-          query,
-          exportFullCollection,
-          aggregation,
-        }) => {
+        ({ namespace, query, exportFullCollection, aggregation }) => {
           store.dispatch(
             openExport({
               namespace,
               query: {
-                // TODO: Fix hack, maybe use project everywhere.
+                // In the query bar we use `project` instead of `projection`.
                 ...query,
                 ...(query?.project ? { projection: query.project } : {}),
               },
