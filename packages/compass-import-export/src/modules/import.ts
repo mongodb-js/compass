@@ -309,14 +309,17 @@ export const startImport = () => {
 
     const progressCallback = _.throttle(function ({
       docsWritten,
+      bytesProcessed,
     }: {
-      docsProcessed: number;
       docsWritten: number;
+      bytesProcessed: number;
     }) {
       showInProgressToast({
         cancelImport: () => dispatch(cancelImport()),
         docsWritten,
         fileName,
+        bytesProcessed,
+        bytesTotal: fileSize,
       });
     },
     1000);

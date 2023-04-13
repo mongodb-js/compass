@@ -12,12 +12,17 @@ export function showInProgressToast({
   fileName,
   cancelImport,
   docsWritten,
+  bytesProcessed,
+  bytesTotal,
 }: {
   fileName: string;
   cancelImport: () => void;
   docsWritten: number;
+  bytesProcessed: number;
+  bytesTotal: number;
 }) {
   // Update the toast with the new progress.
+  const progress = bytesTotal ? bytesProcessed / bytesTotal : undefined;
   openToast(importToastId, {
     title: `Importing ${path.basename(fileName)}…`,
     body: (
@@ -29,6 +34,7 @@ export function showInProgressToast({
         actionText="stop"
       />
     ),
+    progress,
     variant: 'progress',
     dismissible: false,
   });
