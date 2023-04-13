@@ -1,4 +1,6 @@
 /* eslint-disable mocha/max-top-level-suites */
+import _ from 'lodash';
+import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
@@ -9,6 +11,11 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
+
+import type { CSVParsableFieldType } from '../csv/csv-types';
+import { guessFileType } from '../import/guess-filetype';
+import { importCSV } from '../import/import-csv';
+import { analyzeCSVFields } from '../import/analyze-csv-fields';
 
 import { fixtures } from '../../test/fixtures';
 
@@ -213,6 +220,42 @@ describe('gatherFields', function () {
     }
   }
 
+  for (const filepath of Object.values(fixtures.csv)) {
+    const basename = path.basename(filepath);
+
+    it(`gathers the fields for ${basename}`, async function () {
+      const totalRows = await analyzeAndImportCSV(null, filepath, dataService);
+
+      // sanity check
+      expect(totalRows).to.be.gt(0);
+
+      const abortController = new AbortController();
+      const abortSignal = abortController.signal;
+      const progressCallback = sinon.spy();
+
+      const result = await gatherFieldsFromQuery({
+        abortSignal,
+        progressCallback,
+        ns: testNS,
+        query: { filter: {} },
+        sampleSize: 1000,
+        dataService,
+      });
+
+      expect(progressCallback).to.callCount(totalRows);
+
+      for (const [index, args] of progressCallback.args.entries()) {
+        expect(args[0]).to.equal(index + 1);
+      }
+
+      const expectedResultPath = filepath.replace(
+        /\.((jsonl?)|(csv))$/,
+        '.gathered.json'
+      );
+      await compareResult(result, expectedResultPath);
+    });
+  }
+
   it('responds to abortSignal.aborted', async function () {
     await insertDocs();
 
@@ -302,4 +345,59 @@ async function compareResult(result: any, expectedPath: string) {
     console.log(JSON.stringify(result, null, 2));
     throw err;
   }
+}
+
+async function analyzeAndImportCSV(
+  type: string | null,
+  filepath: string,
+  dataService: DataService
+) {
+  const typeResult = await guessFileType({
+    input: fs.createReadStream(filepath),
+  });
+  assert(typeResult.type === 'csv');
+
+  const csvDelimiter = typeResult.csvDelimiter;
+  const analyzeResult = await analyzeCSVFields({
+    input: fs.createReadStream(filepath),
+    delimiter: csvDelimiter,
+    ignoreEmptyStrings: true,
+  });
+
+  const totalRows = analyzeResult.totalRows;
+  const fields = _.mapValues(analyzeResult.fields, (field, name) => {
+    if (['something', 'something_else', 'notes'].includes(name)) {
+      return field.detected;
+    }
+
+    // For the date.csv file the date field is (correctly) detected as
+    // "mixed" due to the mix of an iso date string and an int64 format
+    // date. In that case the user would have to explicitly select Date to
+    // make it a date which is what we're testing here.
+    if (type === 'date') {
+      return 'date';
+    }
+
+    // Some types we can't detect, but we can parse it if the user
+    // manually selects it.
+    if (
+      type &&
+      ['binData', 'decimal', 'objectId', 'timestamp', 'md5'].includes(type)
+    ) {
+      return type as CSVParsableFieldType;
+    }
+
+    return field.detected;
+  });
+
+  await importCSV({
+    dataService,
+    ns: testNS,
+    fields,
+    input: fs.createReadStream(filepath),
+    delimiter: csvDelimiter,
+    ignoreEmptyStrings: true,
+  });
+
+  return totalRows;
 }

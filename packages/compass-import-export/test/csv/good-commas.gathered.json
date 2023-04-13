@@ -1,0 +1,9 @@
+{
+  "paths": [["_id"], ["value"]],
+  "docsProcessed": 3,
+  "aborted": false,
+  "projection": {
+    "_id": true,
+    "value": true
+  }
+}
