@@ -5,6 +5,8 @@ export async function closeAggregationSidePanel(
   browser: CompassBrowser
 ): Promise<void> {
   const aggSidePanel = await browser.$(Selectors.AggregationSidePanel);
-  await browser.clickVisible(Selectors.AggregationSidePanelToggleButton);
-  await aggSidePanel.waitForDisplayed({ reverse: true });
+  if (await aggSidePanel.isExisting()) {
+    await browser.clickVisible(Selectors.AggregationSidePanelToggleButton);
+    await aggSidePanel.waitForDisplayed({ reverse: true });
+  }
 }

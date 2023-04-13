@@ -1473,35 +1473,59 @@ describe('Collection aggregations tab', function () {
   });
 
   describe('aggregation wizard', function () {
-    beforeEach(async function () {
-      await browser.openAggregationSidePanel();
-    });
-
     it('should toggle the aggregation side panel', async function () {
-      await browser.closeAggregationSidePanel();
       await browser.openAggregationSidePanel();
+      const useCases = await browser.$$(Selectors.AggregationWizardUseCases);
+      expect(useCases).to.have.length.greaterThan(0);
+      await browser.closeAggregationSidePanel();
     });
 
     it.skip(
       'should show a guidecue when the aggregation panel is opened for the first time'
     );
-    it.skip('should show a list of usecases in the aggregation side panel');
 
-    it.skip(
-      'should add a stage wizard in the end of the list of the stages for a clicked usecase in the aggregation side panel'
-    );
-    it.skip(
-      'should dismiss the stage wizard when clicked on "Cancel" button on stage wizard'
-    );
+    it('should add a stage wizard in the end of the list of the stages when a usecase is clicked in the aggregation side panel', async function () {
+      const stages = await browser.$$(Selectors.StageCard);
+      await browser.addWizard('sort', stages.length);
+    });
 
-    describe.skip('usecase interaction ($sort)', function () {
-      it('should be able to modify a usecase form');
-      it(
-        'should disable the apply button and show errors when the form is in an invalid state'
+    it('should dismiss the stage wizard when clicked on "Cancel" button on stage wizard', async function () {
+      const stages = await browser.$$(Selectors.StageCard);
+      await browser.addWizard('sort', stages.length);
+      const wizardCard = await browser.$(
+        Selectors.AggregationWizardCardAtIndex(stages.length)
       );
-      it(
-        "should convert the wizard to a stage, inserted at the wizard's index when the usecase form is valid"
+
+      await browser.clickVisible(Selectors.AggregationWizardDismissButton);
+      await wizardCard.waitForDisplayed({ reverse: true });
+    });
+
+    it("should be able to convert a wizard ($sort wizard) to a stage, inserted at the wizard's index", async function () {
+      const stages = await browser.$$(Selectors.StageCard);
+      const oldLength = stages.length;
+      await browser.addWizard('sort', oldLength);
+
+      await browser.setComboBoxValue(
+        // 0 because at this point we only have one row of fields to be selected
+        Selectors.AggregationWizardSortFormField(0),
+        Selectors.AggregationWizardSortFormFieldListbox(0),
+        'name'
       );
+
+      await browser.selectOption(
+        Selectors.AggregationWizardSortFormDirectionSelect(0),
+        'Ascending'
+      );
+
+      await browser.clickVisible(Selectors.AggregationWizardApplyButton);
+
+      const stageCard = await browser.$(Selectors.StageCardAtIndex(oldLength));
+      await stageCard.waitForDisplayed();
+
+      const stageContent = await browser
+        .$(Selectors.stageContent(oldLength))
+        .getText();
+      expect(stageContent).to.equal('{ name: 1 }');
     });
   });
 

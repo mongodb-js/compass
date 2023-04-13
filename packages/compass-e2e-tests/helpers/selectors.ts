@@ -672,6 +672,8 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 
 // Aggregations tab
 export const StageCard = '[data-testid="stage-card"]';
+export const StageCardAtIndex = (idx: number) =>
+  `${StageCard}[data-stage-index="${idx}"]`;
 export const CreateNewPipelineMenuButton =
   '[data-testid="create-new-menu-show-actions"]';
 export const AggregationAdditionalOptionsButton =
@@ -854,6 +856,31 @@ export const AggregationAsTextPreviewAtlasOperator =
 export const AggregationSidePanelToggleButton =
   '[data-testid="pipeline-toolbar-side-panel-button"]';
 export const AggregationSidePanel = '[data-testid="aggregation-side-panel"]';
+export const AggregationWizardUseCases = `${AggregationSidePanel} [data-testid^="use-case-"]`;
+export const AggregationWizardUseCase = (id: string) =>
+  `${AggregationSidePanel} [data-testid="use-case-${id}"]`;
+
+export const AggregationWizardCard = '[data-testid="wizard-card"]';
+export const AggregationWizardCardAtIndex = (idx: number) =>
+  `[data-testid="wizard-card"][data-wizard-index="${idx}"]`;
+export const AggregationWizardDismissButton =
+  '[data-testid="wizard-cancel-action"]';
+export const AggregationWizardApplyButton =
+  '[data-testid="wizard-apply-action"]';
+
+export const AggregationWizardSortForm = (idx: number) =>
+  `${AggregationWizardCard} [data-testid="sort-form-${idx}"]`;
+export const AggregationWizardSortFormField = (idx: number) =>
+  `${AggregationWizardSortForm(
+    idx
+  )} [data-testid="sort-form-${idx}-field"] [role="combobox"] input`;
+export const AggregationWizardSortFormFieldListbox = (idx: number) =>
+  `.sort-form-${idx}-field-combobox [role="listbox"]`;
+
+export const AggregationWizardSortFormDirectionSelect = (idx: number) =>
+  `${AggregationWizardSortForm(
+    idx
+  )} [data-testid="sort-form-${idx}-direction"]`;
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';

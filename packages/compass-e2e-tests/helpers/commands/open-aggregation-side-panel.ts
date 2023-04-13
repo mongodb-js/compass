@@ -4,7 +4,9 @@ import * as Selectors from '../selectors';
 export async function openAggregationSidePanel(
   browser: CompassBrowser
 ): Promise<void> {
-  await browser.clickVisible(Selectors.AggregationSidePanelToggleButton);
   const aggSidePanel = await browser.$(Selectors.AggregationSidePanel);
-  await aggSidePanel.waitForDisplayed();
+  if (!(await aggSidePanel.isExisting())) {
+    await browser.clickVisible(Selectors.AggregationSidePanelToggleButton);
+    await aggSidePanel.waitForDisplayed();
+  }
 }
