@@ -1,6 +1,7 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { prettify } from '@mongodb-js/compass-editor';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
@@ -16,6 +17,7 @@ import {
 } from './pipeline-preview-manager';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
+import { parseShellBSON } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -41,7 +43,8 @@ export const enum StageEditorActionTypes {
   StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
   WizardAdded = 'compass-aggregations/pipeline-builder/stage-wizard/WizardAdded',
   WizardRemoved = 'compass-aggregations/pipeline-builder/stage-wizard/WizardRemoved',
-  WizardFormChanged = 'compass-aggregations/pipeline-builder/stage-wizard/WizardFormChanged',
+  WizardChanged = 'compass-aggregations/pipeline-builder/stage-wizard/WizardChanged',
+  WizardToStageClicked = 'compass-aggregations/pipeline-builder/stage-wizard/wizardToStageClicked',
 }
 
 export type StagePreviewFetchAction = {
@@ -124,21 +127,28 @@ export type StageMoveAction = {
   to: number;
 };
 
-export type WizardAddAction = {
+type WizardAddAction = {
   type: StageEditorActionTypes.WizardAdded;
   wizard: Wizard;
   after: number;
 };
 
-export type WizardRemoveAction = {
+type WizardRemoveAction = {
   type: StageEditorActionTypes.WizardRemoved;
   at: number;
 };
 
-export type WizardFormChangeAction = {
-  type: StageEditorActionTypes.WizardFormChanged;
+type WizardChangeAction = {
+  type: StageEditorActionTypes.WizardChanged;
   at: number;
-  formValues: unknown;
+  value: string | null;
+  syntaxError: SyntaxError | null;
+};
+
+type WizardToStageAction = {
+  type: StageEditorActionTypes.WizardToStageClicked;
+  at: number;
+  stage: StoreStage;
 };
 
 export function storeIndexToPipelineIndex(
@@ -658,7 +668,9 @@ export type AddWizardParams = {
 };
 
 export const addWizard = (
-  params: AddWizardParams
+  useCaseId: string,
+  stageOperator: string,
+  after?: number
 ): PipelineBuilderThunkAction<void, WizardAddAction> => {
   return (dispatch, getState) => {
     const {
@@ -670,14 +682,16 @@ export const addWizard = (
     const wizard: Wizard = {
       id: getId(),
       type: 'wizard',
-      usecaseId: params.usecaseId,
-      formValues: params.formValues,
+      useCaseId,
+      stageOperator,
+      value: null,
+      syntaxError: null,
     };
 
     dispatch({
       wizard,
       type: StageEditorActionTypes.WizardAdded,
-      after: params.after ?? stages.length,
+      after: after ?? stages.length,
     });
   };
 };
@@ -687,10 +701,10 @@ export const removeWizard = (at: number): WizardRemoveAction => ({
   at,
 });
 
-export const updateWizardForm = (
+export const updateWizardValue = (
   at: number,
-  formValues: unknown
-): PipelineBuilderThunkAction<void, WizardFormChangeAction> => {
+  value: string
+): PipelineBuilderThunkAction<void, WizardChangeAction> => {
   return (dispatch, getState) => {
     const {
       pipelineBuilder: {
@@ -702,11 +716,68 @@ export const updateWizardForm = (
       return;
     }
 
+    try {
+      parseShellBSON(value);
+      dispatch({
+        type: StageEditorActionTypes.WizardChanged,
+        at,
+        value,
+        syntaxError: null,
+      });
+    } catch (e) {
+      dispatch({
+        type: StageEditorActionTypes.WizardChanged,
+        at,
+        value,
+        syntaxError: e as SyntaxError,
+      });
+    }
+  };
+};
+
+export const convertWizardToStage = (
+  at: number
+): PipelineBuilderThunkAction<
+  void,
+  WizardChangeAction | WizardToStageAction
+> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const {
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = getState();
+    const itemAtIdx = stages[at];
+    if (itemAtIdx.type !== 'wizard') {
+      return;
+    }
+
+    const isInvalid = itemAtIdx.syntaxError || !itemAtIdx.value;
+    if (isInvalid) {
+      const error =
+        itemAtIdx.syntaxError ||
+        new SyntaxError('Cannot convert empty wizard to stage');
+      dispatch({
+        type: StageEditorActionTypes.WizardChanged,
+        at,
+        value: itemAtIdx.value,
+        syntaxError: error,
+      });
+      return;
+    }
+
+    const afterStageIndex = storeIndexToPipelineIndex(stages, at);
+    const stage = pipelineBuilder.addStage(afterStageIndex);
+    stage.changeOperator(itemAtIdx.stageOperator);
+    stage.changeValue(prettify(itemAtIdx.value as string));
+
     dispatch({
-      type: StageEditorActionTypes.WizardFormChanged,
+      type: StageEditorActionTypes.WizardToStageClicked,
       at,
-      formValues,
+      stage: mapBuilderStageToStoreStage(stage, afterStageIndex),
     });
+
+    dispatch(loadPreviewForStagesFrom(at));
   };
 };
 
@@ -728,12 +799,16 @@ export type StoreStage = {
 export type Wizard = {
   id: number;
   type: 'wizard';
-  usecaseId: number;
-  formValues: unknown;
+  useCaseId: string;
+  stageOperator: string;
+  value: string | null;
+  syntaxError: SyntaxError | null;
 };
 
+export type StageIdAndType = { id: number; type: 'stage' | 'wizard' };
+
 export type StageEditorState = {
-  stageIds: number[];
+  stagesIdAndType: StageIdAndType[];
   stages: (StoreStage | Wizard)[];
 };
 
@@ -757,8 +832,14 @@ export function mapBuilderStageToStoreStage(
   };
 }
 
+export function mapStoreStagesToStageIdAndType(
+  stages: Pick<StageEditorState['stages'][number], 'id' | 'type'>[]
+): Array<{ id: number; type: 'stage' | 'wizard' }> {
+  return stages.map(({ id, type }) => ({ id, type }));
+}
+
 const reducer: Reducer<StageEditorState> = (
-  state = { stageIds: [], stages: [] },
+  state = { stagesIdAndType: [], stages: [] },
   action
 ) => {
   if (
@@ -773,7 +854,7 @@ const reducer: Reducer<StageEditorState> = (
       return mapBuilderStageToStoreStage(stage, idx);
     });
     return {
-      stageIds: stages.map((stage: Stage) => stage.id),
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
       stages,
     };
   }
@@ -957,7 +1038,7 @@ const reducer: Reducer<StageEditorState> = (
 
     return {
       ...state,
-      stageIds: stages.map((stage) => stage.id),
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
       stages: stages.map(remapPipelineStageIndexesInStore()),
     };
   }
@@ -970,7 +1051,7 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(action.at, 1);
     return {
       ...state,
-      stageIds: stages.map((stage) => stage.id),
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
       stages: stages.map(remapPipelineStageIndexesInStore()),
     };
   }
@@ -981,7 +1062,7 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(action.to, 0, movedStage);
     return {
       ...state,
-      stageIds: stages.map((stage) => stage.id),
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
       stages: stages.map(remapPipelineStageIndexesInStore()),
     };
   }
@@ -994,22 +1075,20 @@ const reducer: Reducer<StageEditorState> = (
     return {
       ...state,
       stages,
-      stageIds: stages.map((stage) => stage.id),
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
     };
   }
 
   if (
-    isAction<WizardFormChangeAction>(
-      action,
-      StageEditorActionTypes.WizardFormChanged
-    )
+    isAction<WizardChangeAction>(action, StageEditorActionTypes.WizardChanged)
   ) {
-    const { at, formValues } = action;
+    const { at, value, syntaxError } = action;
     const stages = [
       ...state.stages.slice(0, at),
       {
         ...state.stages[at],
-        formValues,
+        value,
+        syntaxError,
       },
       ...state.stages.slice(at + 1),
     ];
@@ -1017,6 +1096,23 @@ const reducer: Reducer<StageEditorState> = (
     return {
       ...state,
       stages,
+    };
+  }
+
+  if (
+    isAction<WizardToStageAction>(
+      action,
+      StageEditorActionTypes.WizardToStageClicked
+    )
+  ) {
+    const at = action.at;
+    const stages = [...state.stages];
+    stages.splice(at, 1, action.stage);
+
+    return {
+      ...state,
+      stagesIdAndType: mapStoreStagesToStageIdAndType(stages),
+      stages: stages.map(remapPipelineStageIndexesInStore()),
     };
   }
 

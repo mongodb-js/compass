@@ -11,6 +11,12 @@ const SOURCE_PIPELINE = [
   { $out: 'out' },
 ];
 
+const stagesIdAndType = [
+  { id: 1, type: 'stage' },
+  { id: 2, type: 'stage' },
+  { id: 3, type: 'stage' },
+];
+
 const renderPipelineBuilderUIWorkspace = (props = {}, options = {}) => {
   render(
     <Provider
@@ -19,7 +25,10 @@ const renderPipelineBuilderUIWorkspace = (props = {}, options = {}) => {
         ...options,
       })}
     >
-      <PipelineBuilderUIWorkspace stageIds={[1, 2, 3]} {...props} />
+      <PipelineBuilderUIWorkspace
+        stagesIdAndType={stagesIdAndType}
+        {...props}
+      />
     </Provider>
   );
 };
