@@ -11,6 +11,7 @@ import type {
 } from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
 
+// TODO(COMPASS-6426): Update the fields to export type based on the gather fields result type.
 export type FieldsToExport = {
   [fieldId: string]: {
     fieldPath: SchemaPath;
@@ -20,9 +21,12 @@ export type FieldsToExport = {
 
 // Fields can only be prefixed with one '$'. Otherwise $
 // is not allowed, so this should be a safe separator.
-const SplittingSymbol = '$$$$';
+const FieldSplittingSymbol = '$$$$';
 function getIdForSchemaPath(schemaPath: SchemaPath) {
-  return schemaPath.join(SplittingSymbol.toString());
+  return schemaPath.join(FieldSplittingSymbol);
+}
+export function getLabelForFieldId(fieldId: string) {
+  return fieldId.split(FieldSplittingSymbol).join('.');
 }
 
 export const selectFieldsToExport = createAsyncThunk<
@@ -31,27 +35,27 @@ export const selectFieldsToExport = createAsyncThunk<
   { state: RootExportState }
 >(
   'export/select-fields-to-export',
-  async (_, { getState }): Promise<FieldsToExport> => {
+  async (_, { getState, rejectWithValue }): Promise<FieldsToExport> => {
     const {
-      export: { namespace, fieldsToExportAbortController },
+      export: { query, namespace, fieldsToExportAbortController },
       dataService: { dataService },
     } = getState();
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    // TODO(COMPASS-6426): Update the interface of this method, pass the whole query.
     const schemaPaths = await gatherFields({
       ns: namespace,
       abortSignal: fieldsToExportAbortController?.signal,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       dataService: dataService!,
-      // TODO: Query.
-      // Don't need to do for aggregations.
+      filter: query?.filter || {},
       sampleSize: 10, // TODO: Decide default size.
     });
 
-    // TODO: If aborted, or new abort controller, don't fulfill?
+    // If aborted, or new abort controller, don't fulfill.
     if (fieldsToExportAbortController?.signal.aborted) {
-      // TODO: Reject with value?
+      rejectWithValue('aborted');
     }
 
     const fields: FieldsToExport = {};
@@ -104,7 +108,7 @@ export type ExportState = {
   isInProgressMessageOpen: boolean;
 
   status: ExportStatus;
-  errorLoadingFieldsToExport: string | undefined; // TODO: Display this error
+  errorLoadingFieldsToExport: string | undefined;
   fieldsToExportAbortController: AbortController | undefined;
 } & ExportOptions;
 
@@ -165,6 +169,9 @@ export const exportSlice = createSlice({
       state.isInProgressMessageOpen = false;
     },
     backToSelectFieldOptions: (state) => {
+      state.fieldsToExportAbortController?.abort();
+      state.fieldsToExportAbortController = undefined;
+      state.selectedFieldOption = undefined;
       state.status = 'select-field-options';
     },
     backToSelectFieldsToExport: (state) => {
@@ -173,7 +180,10 @@ export const exportSlice = createSlice({
     updateSelectedFields: (state, action: PayloadAction<FieldsToExport>) => {
       state.fieldsToExport = action.payload;
     },
-    readyToExport: (state) => {
+    readyToExport: (state, action: PayloadAction<'all-fields' | undefined>) => {
+      if (action.payload === 'all-fields') {
+        state.selectedFieldOption = 'all-fields';
+      }
       state.status = 'ready-to-export';
     },
   },
@@ -185,17 +195,14 @@ export const exportSlice = createSlice({
 
       // Clear existing if it's in progress.
       state.fieldsToExportAbortController?.abort();
-
-      // TODO: If select fields to export lets load the fields to export.
       state.fieldsToExportAbortController = new AbortController();
     });
     builder.addCase(selectFieldsToExport.rejected, (state, action) => {
-      if (state.fieldsToExportAbortController?.signal.aborted) {
-        // todo
+      if (action.payload === 'aborted') {
+        // Ignore when the selecting fields was cancelled.
+        return;
       }
       state.errorLoadingFieldsToExport = action.error.message;
-      // TODO: If it was rejected because of aborted don't unset abort controller.
-      // We can have a rejectedWithValue for that.
       state.fieldsToExportAbortController = undefined;
     });
     builder.addCase(selectFieldsToExport.fulfilled, (state, action) => {

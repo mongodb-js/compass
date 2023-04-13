@@ -3,17 +3,15 @@ import { connect } from 'react-redux';
 import {
   Banner,
   Button,
-  Label,
   Link,
   ModalBody,
   ModalHeader,
   ModalFooter,
   Modal,
-  RadioBox,
-  RadioBoxGroup,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 import {
   closeExport,
@@ -30,6 +28,7 @@ import { ExportSelectFields } from './export-select-fields';
 import { ExportCodeView } from './export-code-view';
 import type { ExportAggregation, ExportQuery } from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
+import { FieldsToExportOptions } from './export-field-options';
 
 type ExportFileTypes = 'json' | 'csv';
 
@@ -61,11 +60,6 @@ function useExport(): [
   ];
 }
 
-const selectFieldsRadioBoxStyles = css({
-  // Keep the label from going to two lines.
-  whiteSpace: 'nowrap',
-});
-
 const closeButtonStyles = css({
   marginRight: spacing[2],
 });
@@ -78,63 +72,6 @@ const modalBodyStyles = css({
   paddingTop: spacing[3],
 });
 
-const selectFieldsToExportId = 'select-fields-to-export';
-const selectFieldsToExportLabelId = 'select-fields-to-export-label';
-function FieldsToExportOptions({
-  fieldsToExportOption,
-  setFieldsToExportOption,
-}: {
-  fieldsToExportOption: FieldsToExportOption;
-  setFieldsToExportOption: (fieldsToExportOption: FieldsToExportOption) => void;
-}) {
-  const [showProjectInfoMessage, setShowProjectInfoMessage] =
-    useState<boolean>(true);
-
-  return (
-    <>
-      <Label htmlFor={selectFieldsToExportId} id={selectFieldsToExportLabelId}>
-        Fields to export
-      </Label>
-      <RadioBoxGroup
-        aria-labelledby={selectFieldsToExportLabelId}
-        data-testid="select-file-type"
-        id={selectFieldsToExportId}
-        onChange={({
-          target: { value },
-        }: React.ChangeEvent<HTMLInputElement>) =>
-          setFieldsToExportOption(value as FieldsToExportOption)
-        }
-      >
-        <RadioBox
-          data-testid="select-file-type-json"
-          value="all-fields"
-          checked={fieldsToExportOption === 'all-fields'}
-        >
-          All fields
-        </RadioBox>
-        <RadioBox
-          className={selectFieldsRadioBoxStyles}
-          data-testid="select-file-type-csv"
-          value="select-fields"
-          checked={fieldsToExportOption === 'select-fields'}
-        >
-          Select fields in table
-        </RadioBox>
-      </RadioBoxGroup>
-      {showProjectInfoMessage && (
-        <Banner
-          className={messageBannerStyles}
-          dismissible
-          onClose={() => setShowProjectInfoMessage(false)}
-        >
-          You can also use the Project field in the query bar to specify which
-          fields to return or export.
-        </Banner>
-      )}
-    </>
-  );
-}
-
 type ExportModalProps = {
   ns: string;
   isOpen: boolean;
@@ -144,7 +81,7 @@ type ExportModalProps = {
   selectedFieldOption: undefined | FieldsToExportOption;
   isFieldsToExportLoading: boolean;
   selectFieldsToExport: () => void;
-  readyToExport: () => void;
+  readyToExport: (selectedFieldOption?: 'all-fields') => void;
   runExport: () => void;
   backToSelectFieldOptions: () => void;
   backToSelectFieldsToExport: () => void;
@@ -173,25 +110,23 @@ function ExportModal({
     { setFileType, setFieldsToExportOption },
   ] = useExport();
 
-  // useTrackOnChange(
-  //   'COMPASS-IMPORT-EXPORT-UI',
-  //   (track) => {
-  //     if (isOpen) {
-  //       track('Screen', { name: 'export_modal' });
-  //     }
-  //   },
-  //   [isOpen],
-  //   undefined,
-  //   React
-  // );
+  useTrackOnChange(
+    'COMPASS-IMPORT-EXPORT-UI',
+    (track) => {
+      if (isOpen) {
+        track('Screen', { name: 'export_modal' });
+      }
+    },
+    [isOpen],
+    undefined,
+    React
+  );
 
   const onClickBack = useCallback(() => {
     if (status === 'ready-to-export' && selectedFieldOption !== 'all-fields') {
       backToSelectFieldsToExport();
-      // TODO: Set status back one.
       return;
     }
-    // Set status to select-field-options.
     backToSelectFieldOptions();
   }, [
     status,
@@ -202,7 +137,8 @@ function ExportModal({
 
   const onClickSelectFieldOptionsNext = useCallback(() => {
     if (fieldsToExportOption === 'all-fields') {
-      readyToExport();
+      readyToExport('all-fields');
+      return;
     }
     selectFieldsToExport();
   }, [readyToExport, selectFieldsToExport, fieldsToExportOption]);
@@ -216,7 +152,7 @@ function ExportModal({
       <ModalBody className={modalBodyStyles}>
         {status === 'select-field-options' && (
           <>
-            <ExportCodeView />
+            {!exportFullCollection && !aggregation && <ExportCodeView />}
             <FieldsToExportOptions
               fieldsToExportOption={fieldsToExportOption}
               setFieldsToExportOption={setFieldsToExportOption}
@@ -226,16 +162,17 @@ function ExportModal({
         {status === 'select-fields-to-export' && <ExportSelectFields />}
         {status === 'ready-to-export' && (
           <>
-            <ExportCodeView />
-            {!aggregation &&
-              !exportFullCollection &&
-              query &&
-              queryHasProjection(query) && (
-                <Banner>
-                  Only projected fields will be exported. To export all fields,
-                  go back and leave the PROJECT field empty.
-                </Banner>
-              )}
+            {!aggregation && !exportFullCollection && (
+              <>
+                <ExportCodeView />
+                {query && queryHasProjection(query) && (
+                  <Banner>
+                    Only projected fields will be exported. To export all
+                    fields, go back and leave the PROJECT field empty.
+                  </Banner>
+                )}
+              </>
+            )}
             <SelectFileType
               fileType={fileType}
               label="Export File Type"
@@ -258,17 +195,13 @@ function ExportModal({
       </ModalBody>
       <ModalFooter>
         {status === 'select-field-options' && (
-          <Button
-            // data-testid="select-field-options-next-button"
-            onClick={onClickSelectFieldOptionsNext}
-            variant="primary"
-          >
+          <Button onClick={onClickSelectFieldOptionsNext} variant="primary">
             Next
           </Button>
         )}
         {status === 'select-fields-to-export' && (
           <Button
-            onClick={readyToExport}
+            onClick={() => readyToExport()}
             disabled={isFieldsToExportLoading}
             variant="primary"
           >

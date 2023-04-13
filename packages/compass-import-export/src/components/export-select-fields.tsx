@@ -20,10 +20,15 @@ import {
   TextInput,
   css,
   spacing,
+  Label,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
-import { selectFieldsToExport, updateSelectedFields } from '../modules/export';
+import {
+  getLabelForFieldId,
+  selectFieldsToExport,
+  updateSelectedFields,
+} from '../modules/export';
 import type { FieldsToExport } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
 
@@ -92,7 +97,7 @@ function ExportSelectFields({
   const fieldKeys = useMemo(() => Object.keys(fields), [fields]);
 
   const isEveryFieldChecked = useMemo(() => {
-    return Object.keys(fields).every((f) => fields[f]);
+    return Object.keys(fields).every((f) => fields[f].selected);
   }, [fields]);
 
   const onAddNewFieldButtonClicked = useCallback(() => {
@@ -106,7 +111,7 @@ function ExportSelectFields({
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       const newFields = Object.assign({}, fields);
       newFields[`${evt.target.name}`].selected =
-        !newFields[`${evt.target.name}`];
+        !newFields[`${evt.target.name}`].selected;
       updateSelectedFields(newFields);
     },
     [updateSelectedFields, fields]
@@ -138,7 +143,7 @@ function ExportSelectFields({
         const newFields = Object.assign({}, fields, obj);
 
         // TODO: This forces a re-render of the whole component/table.
-        // We probably want a targetted way to do that.
+        // We want a targeted way to do that.
         updateSelectedFields(newFields);
       }
     },
@@ -149,7 +154,8 @@ function ExportSelectFields({
     return Array.from({ length: placeholdersCount }, (_, idx) => ({
       isLoadingPlaceholder: true,
       checked: false,
-      field: `loading-placeholder-${idx}`,
+      fieldKey: `loading-placeholder-${idx}`,
+      fieldLabel: `loading-placeholder-${idx}`,
       index: idx,
       component: (
         <Row>
@@ -221,11 +227,12 @@ function ExportSelectFields({
           data={
             isLoading
               ? loadingPlaceholderItems
-              : fieldKeys.map((field, index) => ({
+              : fieldKeys.map((fieldKey, index) => ({
+                  fieldKey,
+                  fieldLabel: getLabelForFieldId(fieldKey),
                   isLoadingPlaceholder: false,
                   component: null,
-                  checked: !!fields[field],
-                  field,
+                  checked: !!fields[fieldKey].selected,
                   index,
                 }))
           }
@@ -262,20 +269,24 @@ function ExportSelectFields({
                   <Cell className={smallCellContainerStyle}>
                     <div>
                       <Checkbox
-                        title={`${field.checked ? 'Exclude' : 'Include'} ${
-                          field.field
-                        } in exported collection`}
                         aria-label={`${field.checked ? 'Exclude' : 'Include'} ${
-                          field.field
+                          field.fieldLabel
                         } in exported collection`}
+                        aria-labelledby={`export-field-checkbox-${field.fieldKey}-label`}
+                        id={`export-field-checkbox-${field.fieldKey}`}
                         checked={field.checked}
-                        name={field.field}
+                        name={field.fieldKey}
                         onChange={handleFieldCheckboxChange}
                       />
                     </div>
                   </Cell>
                   <Cell>
-                    <Body>{field.field}</Body>
+                    <Label
+                      htmlFor={`export-field-checkbox-${field.fieldKey}`}
+                      id={`export-field-checkbox-${field.fieldKey}-label`}
+                    >
+                      {field.fieldLabel}
+                    </Label>
                   </Cell>
                 </Row>
               )}

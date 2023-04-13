@@ -127,12 +127,12 @@ export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
     let current = projection;
     for (const [index, fieldName] of fieldPath.entries()) {
       // Set the projection when it's the last index.
-      if (index === fieldPath.length) {
+      if (index === fieldPath.length - 1) {
         current[fieldName] = true;
         break;
       }
 
-      if (!current[fieldName]) {
+      if (!current[fieldName] || typeof current[fieldName] === 'boolean') {
         current[fieldName] = {};
       }
 

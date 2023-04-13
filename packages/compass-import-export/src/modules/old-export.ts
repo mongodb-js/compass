@@ -411,7 +411,6 @@ export const openExport =
     } = getState();
 
     let count = null;
-    console.log('aaa, got maybeCount', maybeCount);
     try {
       count =
         maybeCount ??
