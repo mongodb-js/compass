@@ -16,7 +16,6 @@ import { importJSON } from '../import/import-json';
 import {
   gatherFieldsFromQuery,
   createProjectionFromSchemaFields,
-  gatherFieldsFromAggregation,
 } from './gather-fields';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
@@ -142,53 +141,6 @@ describe('gatherFields', function () {
           ['o'],
           ['p'],
         ],
-      });
-    });
-  });
-
-  describe('gatherFieldsFromAggregation', function () {
-    it('gathers the fields for an empty collection', async function () {
-      const result = await gatherFieldsFromAggregation({
-        ns: testNS,
-        aggregation: { stages: [] },
-        dataService,
-      });
-
-      expect(result).to.deep.equal({
-        aborted: false,
-        docsProcessed: 0,
-        paths: [],
-      });
-    });
-
-    it('gathers fields for an aggregation', async function () {
-      await insertDocs();
-
-      const result = await gatherFieldsFromAggregation({
-        ns: testNS,
-        aggregation: {
-          stages: [
-            {
-              $group: {
-                _id: null,
-                count: { $count: {} },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-              },
-            },
-          ],
-          options: {},
-        },
-        dataService,
-      });
-
-      expect(result).to.deep.equal({
-        aborted: false,
-        docsProcessed: 1,
-        paths: [['count']],
       });
     });
   });

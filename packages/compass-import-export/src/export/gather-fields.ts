@@ -6,9 +6,8 @@ import { SchemaAnalyzer } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import toNS from 'mongodb-ns';
 import { isInternalFieldPath } from 'hadron-document';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
-import type { ExportAggregation, ExportQuery } from './export-types';
+import type { ExportQuery } from './export-types';
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('export-json');
@@ -124,8 +123,7 @@ type GatherFieldsResult = {
   aborted: boolean;
 };
 
-// You probably want to use gatherFieldsFromAggregation() or
-// gatherFieldsFromQuery() rather
+// You probably want to use gatherFieldsFromQuery() rather
 async function _gatherFields({
   input,
   abortSignal,
@@ -173,56 +171,6 @@ async function _gatherFields({
     paths: schemaToPaths(fields),
     ...result,
   };
-}
-
-// At the time of writing the export UI won't use this code with an aggregation,
-// so this is just included for completeness. ie. we can determine the list of
-// fields for any find query or aggregation.
-export async function gatherFieldsFromAggregation({
-  ns,
-  dataService,
-  aggregation,
-  sampleSize,
-  ...exportOptions
-}: Omit<GatherFieldsOptions, 'input'> & {
-  ns: string;
-  dataService: DataService;
-  aggregation: ExportAggregation;
-  sampleSize?: number;
-}) {
-  debug('gatherFieldsFromAggregation()', { ns: toNS(ns) });
-
-  const { stages, options: aggregationOptions = {} } = aggregation;
-  aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
-    aggregationOptions.maxTimeMS
-  );
-
-  // optionally sample
-  const sampleStages = stages.slice();
-  if (sampleSize && sampleSize > 0) {
-    sampleStages.push({
-      $sample: {
-        size: sampleSize,
-      },
-    });
-  }
-
-  const aggregationCursor = dataService.aggregateCursor(
-    ns,
-    sampleStages,
-    aggregationOptions
-  );
-
-  const input = aggregationCursor.stream();
-
-  try {
-    return await _gatherFields({
-      input,
-      ...exportOptions,
-    });
-  } finally {
-    void aggregationCursor.close();
-  }
 }
 
 function capLimitToSampleSize(limit?: number, sampleSize?: number) {
