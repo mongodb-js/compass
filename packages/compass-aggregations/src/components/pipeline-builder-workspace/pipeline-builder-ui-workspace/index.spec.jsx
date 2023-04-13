@@ -2,8 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import configureStore from '../../../test/configure-store';
-import PipelineBuilderUIWorkspace from './pipeline-builder-ui-workspace';
+import configureStore from '../../../../test/configure-store';
+import PipelineBuilderUIWorkspace from '.';
 
 const SOURCE_PIPELINE = [
   { $match: { _id: 1 } },
