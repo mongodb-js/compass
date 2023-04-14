@@ -15,7 +15,7 @@ import { CursorExporter } from './cursor-exporter';
 import type { AcceptedFileType } from '../constants/file-types';
 import type { ProcessStatus } from '../constants/process-status';
 import type { ExportStep } from '../constants/export-step';
-import type { RootExportState } from '../stores/export-store';
+import type { RootExportState } from '../stores/legacy-export-store';
 
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'

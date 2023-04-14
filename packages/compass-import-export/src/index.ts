@@ -1,7 +1,7 @@
 import Plugin from './plugin';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
-import exportStore from './stores/export-store';
+import exportStore from './stores/legacy-export-store';
 import importStore from './stores/import-store';
 
 import type AppRegistry from 'hadron-app-registry';

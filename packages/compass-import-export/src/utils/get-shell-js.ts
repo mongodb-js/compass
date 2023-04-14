@@ -1,7 +1,7 @@
 import { stringify } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
 
-import type { ExportQueryType } from '../modules/export';
+import type { ExportQueryType } from '../modules/legacy-export';
 
 export function getQueryAsShellJSString(ns: string, spec: ExportQueryType) {
   let ret = `db.${toNS(ns).collection}.find(\n`;
