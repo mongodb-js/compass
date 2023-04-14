@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Thu Apr 13 2023.
+This document was automatically generated on Fri Apr 14 2023.
 
 ## List of dependencies
 
@@ -497,7 +497,7 @@ This document was automatically generated on Thu Apr 13 2023.
 | [mongodb-query-util](#mongodb-query-util-0.0.3) | 0.0.3 | Apache-2.0 |
 | [mongodb-query-util](#mongodb-query-util-0.2.1) | 0.2.1 | Apache-2.0 |
 | [mongodb-redact](#mongodb-redact-0.2.2) | 0.2.2 | Apache-2.0 |
-| [mongodb-schema](#mongodb-schema-10.0.1) | 10.0.1 | Apache-2.0 |
+| [mongodb-schema](#mongodb-schema-10.0.2) | 10.0.2 | Apache-2.0 |
 | [mongodb-url](#mongodb-url-3.0.3) | 3.0.3 | Apache-2.0 |
 | [ms](#ms-2.1.2) | 2.1.2 | MIT |
 | [ms](#ms-2.0.0) | 2.0.0 | MIT |
@@ -33068,8 +33068,8 @@ limitations under the License.
 
 ```
 
-<a id="mongodb-schema-10.0.1"></a>
-### mongodb-schema 10.0.1
+<a id="mongodb-schema-10.0.2"></a>
+### mongodb-schema 10.0.2
 
 **License**: Apache-2.0
 
