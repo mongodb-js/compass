@@ -330,6 +330,11 @@ describe('detectCSVFieldType', function () {
     expect(detectCSVFieldType('{"$symbol":"symbol"}', name)).to.equal('ejson');
   });
 
+  it('returns string if a value looks like EJSON at first but does not parse', function () {
+    expect(detectCSVFieldType('{foo:1}', name)).to.equal('string');
+    expect(detectCSVFieldType("['foo']", name)).to.equal('string');
+  });
+
   it('defaults to string for everything else', function () {
     expect(detectCSVFieldType('what even is this?', name)).to.equal('string');
   });
