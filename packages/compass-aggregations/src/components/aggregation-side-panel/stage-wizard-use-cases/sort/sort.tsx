@@ -154,7 +154,7 @@ export const SortForm = ({
               className={sortDirectionStyles}
               allowDeselect={false}
               aria-label="Select direction"
-              // usePortal={false}
+              usePortal={false}
               value={sort.direction}
               onChange={(value: string) =>
                 onSelectDirection(index, value as SortDirection)
