@@ -6,7 +6,7 @@ export async function addWizard(
   usecaseId: string,
   index: number
 ): Promise<void> {
-  await browser.openAggregationSidePanel();
+  await browser.toggleAggregationSidePanel('opened');
   await browser.clickVisible(Selectors.AggregationWizardUseCase(usecaseId));
 
   const wizardCard = await browser.$(

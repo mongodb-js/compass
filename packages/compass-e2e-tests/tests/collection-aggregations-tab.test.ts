@@ -1474,15 +1474,11 @@ describe('Collection aggregations tab', function () {
 
   describe('aggregation wizard', function () {
     it('should toggle the aggregation side panel', async function () {
-      await browser.openAggregationSidePanel();
+      await browser.toggleAggregationSidePanel('opened');
       const useCases = await browser.$$(Selectors.AggregationWizardUseCases);
       expect(useCases).to.have.length.greaterThan(0);
-      await browser.closeAggregationSidePanel();
+      await browser.toggleAggregationSidePanel('closed');
     });
-
-    it.skip(
-      'should show a guidecue when the aggregation panel is opened for the first time'
-    );
 
     it('should add a stage wizard in the end of the list of the stages when a usecase is clicked in the aggregation side panel', async function () {
       const stages = await browser.$$(Selectors.StageCard);
