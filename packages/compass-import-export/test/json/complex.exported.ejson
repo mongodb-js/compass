@@ -1,17 +1,17 @@
 [{
   "_id": {
-    "$oid": "63f656c128ff7868ed701ca6"
+    "$oid": "63f656c128ff7868ed701ca3"
   },
   "author": "arnold-j",
   "content": "Message-ID: <17334447.1075857585446.JavaMail.evans@thyme>\r\nDate: Thu, 16 Nov 2000 09:30:00 -0800 (PST)\r\nFrom: msagel@home.com\r\nTo: jarnold@enron.com\r\nSubject: Status\r\nMime-Version: 1.0\r\nContent-Type: text/plain; charset=ANSI_X3.4-1968\r\nContent-Transfer-Encoding: 7bit\r\nX-From: \"Mark Sagel\" <msagel@home.com>\r\nX-To: \"John Arnold\" <jarnold@enron.com>\r\nX-cc: \r\nX-bcc: \r\nX-Folder: \\John_Arnold_Dec2000\\Notes Folders\\Notes inbox\r\nX-Origin: Arnold-J\r\nX-FileName: Jarnold.nsf\r\n\r\nJohn:\n?\nI'm not really sure what happened between us.? I was  under the impression \nafter my visit to Houston that we were about to enter into  a trial agreement \nfor my advisory work.? Somehow,?this never  occurred.? Did I say or do \nsomething wrong to screw this  up???\n?\nI don't know if you've blown this whole thing off, but I still  hope you are \ninterested in trying?to create an arrangement.? As a  courtesy, here is my \nreport from this past weekend.? If you are no longer  interested in my work, \nplease tell me so.??Best wishes,\n?\nMark Sagel\nPsytech Analytics\n(410)308-0245? \n - energy2000-1112.doc",
   "date": {
-    "$date": "2000-11-16T17:30:00Z"
+    "$date": "2000-11-16T17:30:00.000Z"
   },
   "emailData": {
     "bcc": [],
     "cc": [],
     "dateSent": {
-      "$date": "2000-11-16T17:30:00Z"
+      "$date": "2000-11-16T17:30:00.000Z"
     },
     "folderPath": "notes_inbox",
     "from": "msagel@home.com",
@@ -1531,18 +1531,18 @@
 },
 {
   "_id": {
-    "$oid": "63f656c128ff7868ed701ca7"
+    "$oid": "63f656c128ff7868ed701ca3"
   },
   "author": "arnold-j",
   "content": "Message-ID: <19171686.1075857585034.JavaMail.evans@thyme>\r\nDate: Fri, 8 Dec 2000 05:05:00 -0800 (PST)\r\nFrom: slafontaine@globalp.com\r\nTo: john.arnold@enron.com\r\nSubject: re:summer inverses\r\nMime-Version: 1.0\r\nContent-Type: text/plain; charset=us-ascii\r\nContent-Transfer-Encoding: 7bit\r\nX-From: slafontaine@globalp.com\r\nX-To: John.Arnold@enron.com\r\nX-cc: \r\nX-bcc: \r\nX-Folder: \\John_Arnold_Dec2000\\Notes Folders\\Notes inbox\r\nX-Origin: Arnold-J\r\nX-FileName: Jarnold.nsf\r\n\r\ni suck-hope youve made more money in natgas last 3 weeks than i have. mkt shud\nbe getting bearish feb forward-cuz we already have the weather upon us-fuel\nswitching and the rest shud invert the whole curve not just dec cash to jan \nand\nfeb forward???? have a good weekend john\n",
   "date": {
-    "$date": "2000-12-08T13:05:00Z"
+    "$date": "2000-12-08T13:05:00.000Z"
   },
   "emailData": {
     "bcc": [],
     "cc": [],
     "dateSent": {
-      "$date": "2000-12-08T13:05:00Z"
+      "$date": "2000-12-08T13:05:00.000Z"
     },
     "folderPath": "notes_inbox",
     "from": "slafontaine@globalp.com",

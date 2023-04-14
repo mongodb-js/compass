@@ -6,6 +6,7 @@ import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { AggregationCursor, FindCursor } from 'mongodb';
+import { objectToIdiomaticEJSON } from 'hadron-document';
 
 import type {
   ExportAggregation,
@@ -63,12 +64,13 @@ export async function exportJSON({
       ++docsWritten;
       progressCallback?.(docsWritten);
       try {
-        const doc = `${
-          (docsWritten > 1 ? ',\n' : '') +
-          EJSON.stringify(chunk, ejsonOptions, 2)
-        }`;
+        const doc: string =
+          variant === 'default'
+            ? objectToIdiomaticEJSON(chunk, { indent: 2 })
+            : EJSON.stringify(chunk, undefined, 2, ejsonOptions);
+        const line = `${docsWritten > 1 ? ',\n' : ''}${doc}`;
 
-        callback(null, doc);
+        callback(null, line);
       } catch (err: any) {
         callback(err);
       }
