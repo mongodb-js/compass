@@ -16,6 +16,9 @@ import { STAGE_WIZARD_USE_CASES, UseCaseList } from './stage-wizard-use-cases';
 import { FeedbackLink } from './feedback-link';
 import { addWizard } from '../../modules/pipeline-builder/stage-editor';
 
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+
 const containerStyles = css({
   height: '100%',
   paddingLeft: spacing[2],
@@ -70,13 +73,21 @@ export const AggregationSidePanel = ({
 }: AggregationSidePanelProps) => {
   const darkMode = useDarkMode();
 
-  const onSelect = useCallback((id: string) => {
-    const useCase = STAGE_WIZARD_USE_CASES.find((useCase) => useCase.id === id);
-    if (!useCase) {
-      return;
-    }
-    onSelectUseCase(id, useCase.stageOperator);
-  }, []);
+  const onSelect = useCallback(
+    (id: string) => {
+      const useCase = STAGE_WIZARD_USE_CASES.find(
+        (useCase) => useCase.id === id
+      );
+      if (!useCase) {
+        return;
+      }
+      onSelectUseCase(id, useCase.stageOperator);
+      track('Aggregation Use Case Added', {
+        drag_and_drop: false,
+      });
+    },
+    [track]
+  );
 
   return (
     <KeylineCard

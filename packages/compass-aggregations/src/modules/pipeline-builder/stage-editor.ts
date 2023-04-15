@@ -771,6 +771,15 @@ export const convertWizardToStage = (
     stage.changeOperator(itemAtIdx.stageOperator);
     stage.changeValue(prettify(itemAtIdx.value as string));
 
+    track('Aggregation Edited', {
+      num_stages: pipelineFromStore(stages).length + 1,
+      stage_action: 'stage_added',
+      stage_name: stage.operator,
+      stage_index: afterStageIndex + 1,
+      editor_view_type: 'stage',
+    });
+    track('Aggregation Use Case Saved');
+
     dispatch({
       type: StageEditorActionTypes.WizardToStageClicked,
       at,
