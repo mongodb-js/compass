@@ -1,6 +1,10 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { ProjectForm } from './project';
+import {
+  ProjectForm,
+  mapProjectFormStateToStageValue,
+  PLACEHOLDER_TEXT,
+} from './project';
 import type { HOCProps } from './project';
 import { render, screen, within, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -29,7 +33,7 @@ const setFieldValue = (
   const comboboxField = within(screen.getByTestId(formRowTestId)).getByRole(
     'textbox',
     {
-      name: /select field names/i,
+      name: new RegExp(PLACEHOLDER_TEXT, 'i'),
     }
   );
   userEvent.click(comboboxField);
@@ -169,7 +173,7 @@ describe('project', function () {
     expect(
       within(formRows[0])
         .getByRole('textbox', {
-          name: /select field names/i,
+          name: new RegExp(PLACEHOLDER_TEXT, 'i'),
         })
         .getAttribute('value')
     ).to.equal('street');
@@ -177,7 +181,7 @@ describe('project', function () {
     expect(
       within(formRows[1])
         .getByRole('textbox', {
-          name: /select field names/i,
+          name: new RegExp(PLACEHOLDER_TEXT, 'i'),
         })
         .getAttribute('value')
     ).to.equal('city');
@@ -185,7 +189,7 @@ describe('project', function () {
     expect(
       within(formRows[2])
         .getByRole('textbox', {
-          name: /select field names/i,
+          name: new RegExp(PLACEHOLDER_TEXT, 'i'),
         })
         .getAttribute('value')
     ).to.equal('zip');
@@ -200,36 +204,37 @@ describe('project', function () {
         function () {
           it('calls the props.onChange with form state converted to a project stage', function () {
             const onChangeSpy = sinon.spy();
+            const op = variant === 'exclude' ? 0 : 1;
             renderForm({ variant, onChange: onChangeSpy });
             setFieldValue('street', variant, 0);
             expect(onChangeSpy).to.have.been.calledWithExactly(
-              JSON.stringify({ street: variant === 'include' ? 1 : -1 }),
+              JSON.stringify({ street: op }),
               null
             );
 
             setFieldValue('city', variant, 0);
             expect(onChangeSpy.lastCall).to.have.been.calledWithExactly(
-              JSON.stringify({ city: variant === 'include' ? 1 : -1 }),
+              JSON.stringify({ city: op }),
               null
             );
 
             addRow(0, variant);
             expect(onChangeSpy.lastCall).to.have.been.calledWithExactly(
-              JSON.stringify({ city: variant === 'include' ? 1 : -1 }),
+              JSON.stringify({ city: op }),
               null
             );
 
             setFieldValue('city', variant, 1);
             expect(onChangeSpy.lastCall).to.have.been.calledWithExactly(
-              JSON.stringify({ city: variant === 'include' ? 1 : -1 }),
+              JSON.stringify({ city: op }),
               null
             );
 
             setFieldValue('zip', variant, 1);
             expect(onChangeSpy.lastCall).to.have.been.calledWithExactly(
               JSON.stringify({
-                city: variant === 'include' ? 1 : -1,
-                zip: variant === 'include' ? 1 : -1,
+                city: op,
+                zip: op,
               }),
               null
             );
@@ -251,6 +256,37 @@ describe('project', function () {
           });
         }
       );
+    });
+  });
+
+  describe('mapProjectFormStateToStageValue', function () {
+    const variants: Array<HOCProps['variant']> = ['include', 'exclude'];
+    variants.forEach(function (variant) {
+      context(`when variant is ${variant}`, function () {
+        it('should return correct project stage for provided form state', function () {
+          const op = variant === 'exclude' ? 0 : 1;
+          expect(mapProjectFormStateToStageValue(variant, [])).to.deep.equal(
+            {}
+          );
+
+          expect(
+            mapProjectFormStateToStageValue(variant, [null, null])
+          ).to.deep.equal({});
+
+          expect(
+            mapProjectFormStateToStageValue(variant, ['field1', null, 'field2'])
+          ).to.deep.equal({ field1: op, field2: op });
+
+          expect(
+            mapProjectFormStateToStageValue(variant, [
+              'field1',
+              null,
+              'field2',
+              'field1',
+            ])
+          ).to.deep.equal({ field1: op, field2: op });
+        });
+      });
     });
   });
 });

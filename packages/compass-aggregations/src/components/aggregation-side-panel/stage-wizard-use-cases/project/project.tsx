@@ -30,19 +30,19 @@ export type ProjectProps = ProjectOwnProps & HOCProps & MapStateProps;
 type ProjectFormState = (string | null)[];
 
 // Helpers
-const PLACEHOLDER_TEXT = 'Select field name';
+export const PLACEHOLDER_TEXT = 'Select field name';
 
-const mapProjectFormStateToStageValue = (
+export const mapProjectFormStateToStageValue = (
   variant: HOCProps['variant'],
   formState: ProjectFormState
 ) => {
-  return formState.reduce<{ [field: string]: 1 | -1 }>((projection, field) => {
+  return formState.reduce<{ [field: string]: 1 | 0 }>((projection, field) => {
     if (field === null) {
       return projection;
     } else {
       return {
         ...projection,
-        [field]: variant === 'include' ? 1 : -1,
+        [field]: variant === 'include' ? 1 : 0,
       };
     }
   }, {});
