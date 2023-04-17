@@ -61,12 +61,13 @@ import {
 import type { Diagnostic } from '@codemirror/lint';
 import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
 import type { CompletionSource } from '@codemirror/autocomplete';
-import { snippetCompletion } from '@codemirror/autocomplete';
 import {
+  acceptCompletion,
   autocompletion,
   completionKeymap,
   closeBrackets,
   closeBracketsKeymap,
+  snippetCompletion,
 } from '@codemirror/autocomplete';
 import type { IconGlyph } from '@mongodb-js/compass-components';
 import {
@@ -90,6 +91,7 @@ import {
 } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
+
 import { prettify as _prettify } from './prettify';
 import { ActionButton, FormatIcon } from './actions';
 
@@ -730,7 +732,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     editorViewRef
   );
 
-  const autocomletionExtension = useCodemirrorExtensionCompartment(
+  const autocompletionExtension = useCodemirrorExtensionCompartment(
     () => {
       return completer
         ? autocompletion({
@@ -801,7 +803,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
-        autocomletionExtension,
+        autocompletionExtension,
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
@@ -809,9 +811,13 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         lineHeightExtension,
         themeConfigExtension,
         placeholderExtension,
-        // User provided commands should take precendece over default keybindings
+        // User provided commands should take precedence over default keybindings.
         commandsExtension,
         keymap.of([
+          {
+            key: 'Tab',
+            run: acceptCompletion,
+          },
           {
             key: 'Ctrl-Shift-b',
             run: prettify,
@@ -886,7 +892,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     lineNumbersExtension,
     readOnlyExtension,
     themeConfigExtension,
-    autocomletionExtension,
+    autocompletionExtension,
     lineHeightExtension,
     activeLineExtension,
     placeholderExtension,
