@@ -1,0 +1,125 @@
+[{
+  "_id": {
+    "$oid": "123456789012345678901234"
+  },
+  "double": 1.2,
+  "string": "Hello, world!",
+  "object": {
+    "key": "value"
+  },
+  "array": [
+    1,
+    2,
+    3
+  ],
+  "binData": {
+    "$binary": {
+      "base64": "AQID",
+      "subType": "00"
+    }
+  },
+  "objectId": {
+    "$oid": "123456789012345678901234"
+  },
+  "boolean": true,
+  "date": {
+    "$date": "2023-04-05T13:25:08.445Z"
+  },
+  "null": null,
+  "regex": {
+    "$regularExpression": {
+      "pattern": "pattern",
+      "options": "i"
+    }
+  },
+  "javascript": {
+    "$code": "function() {}"
+  },
+  "symbol": "symbol",
+  "javascriptWithScope": {
+    "$code": "function() {}",
+    "$scope": {
+      "foo": 1,
+      "bar": "a"
+    }
+  },
+  "int": 12345,
+  "timestamp": {
+    "$timestamp": {
+      "t": 1680701109,
+      "i": 1
+    }
+  },
+  "long": 123456789123456780,
+  "decimal": {
+    "$numberDecimal": "5.477284286264328586719275128128001E-4088"
+  },
+  "minKey": {
+    "$minKey": 1
+  },
+  "maxKey": {
+    "$maxKey": 1
+  },
+  "binaries": {
+    "generic": {
+      "$binary": {
+        "base64": "AQID",
+        "subType": "00"
+      }
+    },
+    "functionData": {
+      "$binary": {
+        "base64": "Ly84PQ==",
+        "subType": "01"
+      }
+    },
+    "binaryOld": {
+      "$binary": {
+        "base64": "Ly84PQ==",
+        "subType": "02"
+      }
+    },
+    "uuidOld": {
+      "$binary": {
+        "base64": "Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09",
+        "subType": "03"
+      }
+    },
+    "uuid": {
+      "$binary": {
+        "base64": "qqqqqqqqSqqqqqqqqqqqqg==",
+        "subType": "04"
+      }
+    },
+    "md5": {
+      "$binary": {
+        "base64": "Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09",
+        "subType": "05"
+      }
+    },
+    "encrypted": {
+      "$binary": {
+        "base64": "Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09",
+        "subType": "06"
+      }
+    },
+    "compressedTimeSeries": {
+      "$binary": {
+        "base64": "Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09",
+        "subType": "07"
+      }
+    },
+    "custom": {
+      "$binary": {
+        "base64": "Ly84PQ==",
+        "subType": "80"
+      }
+    }
+  },
+  "dbRef": {
+    "$ref": "namespace",
+    "$id": {
+      "$oid": "123456789012345678901234"
+    }
+  }
+}]
