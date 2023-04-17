@@ -29,7 +29,7 @@ export type ProjectProps = ProjectOwnProps & HOCProps & MapStateProps;
 type ProjectFormState = (string | null)[];
 
 // Helpers
-const PLACEHOLDER_TEXT = 'Select field names';
+const PLACEHOLDER_TEXT = 'Select field name';
 
 const mapProjectFormStateToStageValue = (
   variant: HOCProps['variant'],
