@@ -1,10 +1,10 @@
-import { SelectFileType } from '../select-file-type';
+import { SelectFileType } from '../../select-file-type';
 import toNS from 'mongodb-ns';
 import ProgressBar from '../progress-bar';
-import { FILETYPE } from '../../constants/export-step';
+import { FILETYPE } from '../../../constants/export-step';
 import styles from './export-select-output.module.less';
 import React, { PureComponent } from 'react';
-import createStyler from '../../utils/styler';
+import createStyler from '../../../utils/styler';
 import PropTypes from 'prop-types';
 import {
   STARTED,
@@ -13,7 +13,7 @@ import {
   FAILED,
   UNSPECIFIED,
   COMPLETED_WITH_ERRORS,
-} from '../../constants/process-status';
+} from '../../../constants/process-status';
 import type { FileInputBackend } from '@mongodb-js/compass-components';
 import {
   css,

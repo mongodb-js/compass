@@ -9,7 +9,7 @@ import {
   dataServiceConnected,
   globalAppRegistryActivated,
 } from '../modules/compass';
-import { openExport } from '../modules/export';
+import { openExport } from '../modules/legacy-export';
 
 const _store = createStore(reducer, applyMiddleware(thunk));
 

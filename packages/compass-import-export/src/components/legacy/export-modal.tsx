@@ -20,12 +20,12 @@ import {
 import ExportSelectOutput from './export-select-output';
 import { ExportSelectFields } from './export-select-fields';
 import ErrorBox from './error-box';
-import revealFile from '../utils/reveal-file';
-import formatNumber from '../utils/format-number';
-import { STARTED, COMPLETED } from '../constants/process-status';
-import type { ProcessStatus } from '../constants/process-status';
-import { QUERY, FIELDS, FILETYPE } from '../constants/export-step';
-import type { ExportStep } from '../constants/export-step';
+import revealFile from '../../utils/reveal-file';
+import formatNumber from '../../utils/format-number';
+import { STARTED, COMPLETED } from '../../constants/process-status';
+import type { ProcessStatus } from '../../constants/process-status';
+import { QUERY, FIELDS, FILETYPE } from '../../constants/export-step';
+import type { ExportStep } from '../../constants/export-step';
 import {
   closeExport,
   startExport,
@@ -36,10 +36,10 @@ import {
   selectExportFileType,
   selectExportFileName,
   toggleFullCollection,
-} from '../modules/export';
-import type { ExportQueryType } from '../modules/export';
-import type { RootExportState } from '../stores/export-store';
-import { getQueryAsShellJSString } from '../utils/get-shell-js';
+} from '../../modules/legacy-export';
+import type { ExportQueryType } from '../../modules/legacy-export';
+import type { RootExportState } from '../../stores/legacy-export-store';
+import { getQueryAsShellJSString } from '../../utils/get-shell-js';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const optionRadioStyles = css({
