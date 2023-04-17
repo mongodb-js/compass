@@ -9,6 +9,7 @@ import {
   css,
   palette,
   spacing,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 // Types
@@ -72,6 +73,9 @@ export const ProjectForm = ({
   onChange,
 }: ProjectProps) => {
   const [projectFields, setProjectFields] = useState<ProjectFormState>([null]);
+  const isDarkMode = useDarkMode();
+  const iconColor = isDarkMode ? palette.white : palette.black;
+
   const comboboxStyles = useMemo(() => {
     const placeholderLength = PLACEHOLDER_TEXT.length;
     return {
@@ -140,11 +144,11 @@ export const ProjectForm = ({
             />
           </div>
           <IconButton aria-label="Add" onClick={() => addItem(index)}>
-            <Icon color={palette.black} glyph="Plus" />
+            <Icon color={iconColor} glyph="Plus" />
           </IconButton>
           {index !== 0 && (
             <IconButton aria-label="Remove" onClick={() => removeItem(index)}>
-              <Icon color={palette.black} glyph="Minus" />
+              <Icon color={iconColor} glyph="Minus" />
             </IconButton>
           )}
         </div>

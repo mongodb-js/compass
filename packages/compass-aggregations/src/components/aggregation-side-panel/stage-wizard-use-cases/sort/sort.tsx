@@ -8,6 +8,7 @@ import {
   css,
   ComboboxWithCustomOption,
   palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -74,6 +75,8 @@ export const SortForm = ({
       direction: 'Asc',
     },
   ]);
+  const isDarkMode = useDarkMode();
+  const iconColor = isDarkMode ? palette.white : palette.black;
 
   useEffect(() => {
     const stageValue = mapSortFormDataToStageValue(formData);
@@ -170,11 +173,11 @@ export const SortForm = ({
           </div>
           <Body>order</Body>
           <IconButton aria-label="Add" onClick={() => addItem(index)}>
-            <Icon color={palette.black} glyph="Plus" />
+            <Icon color={iconColor} glyph="Plus" />
           </IconButton>
           {formData.length > 1 && (
             <IconButton aria-label="Remove" onClick={() => removeItem(index)}>
-              <Icon color={palette.black} glyph="Minus" />
+              <Icon color={iconColor} glyph="Minus" />
             </IconButton>
           )}
         </div>
