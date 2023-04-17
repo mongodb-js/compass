@@ -7,6 +7,7 @@ import {
   spacing,
   css,
   ComboboxWithCustomOption,
+  palette,
 } from '@mongodb-js/compass-components';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -169,11 +170,11 @@ export const SortForm = ({
           </div>
           <Body>order</Body>
           <IconButton aria-label="Add" onClick={() => addItem(index)}>
-            <Icon glyph="Plus" />
+            <Icon color={palette.black} glyph="Plus" />
           </IconButton>
           {formData.length > 1 && (
             <IconButton aria-label="Remove" onClick={() => removeItem(index)}>
-              <Icon glyph="Minus" />
+              <Icon color={palette.black} glyph="Minus" />
             </IconButton>
           )}
         </div>
