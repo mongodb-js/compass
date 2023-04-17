@@ -117,7 +117,7 @@ export const SortForm = ({
   const comboboxStyles = useMemo(() => {
     return {
       width: `calc(${String(
-        Math.max(...fields.map((label) => label.length))
+        Math.max(...fields.map((label) => label.length), 10)
       )}ch)`,
     };
   }, [fields]);
@@ -133,35 +133,42 @@ export const SortForm = ({
           <Body className={labelStyles}>
             {index === 0 ? 'Sort documents by' : 'and'}
           </Body>
-          <ComboboxWithCustomOption
-            style={comboboxStyles}
-            aria-label="Select a field"
-            size="default"
-            clearable={false}
-            value={sort.field}
-            onChange={(value: string | null) => onSelectField(index, value)}
-            options={fields}
-            optionLabel="Field:"
-          />
+          <div data-testid={`sort-form-${index}-field`}>
+            <ComboboxWithCustomOption
+              style={comboboxStyles}
+              aria-label="Select a field"
+              size="default"
+              clearable={false}
+              value={sort.field}
+              onChange={(value: string | null) => onSelectField(index, value)}
+              options={fields}
+              optionLabel="Field:"
+              // Used for testing to access the popover for a stage
+              popoverClassName={`sort-form-${index}-field-combobox`}
+            />
+          </div>
           <Body>in</Body>
-          {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
-          <Select
-            className={sortDirectionStyles}
-            allowDeselect={false}
-            aria-label="Select direction"
-            value={sort.direction}
-            onChange={(value: string) =>
-              onSelectDirection(index, value as SortDirection)
-            }
-          >
-            {SORT_DIRECTION_OPTIONS.map((sort, index) => {
-              return (
-                <Option key={index} value={sort.value}>
-                  {sort.label}
-                </Option>
-              );
-            })}
-          </Select>
+          <div data-testid={`sort-form-${index}-direction`}>
+            {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
+            <Select
+              className={sortDirectionStyles}
+              allowDeselect={false}
+              aria-label="Select direction"
+              usePortal={false}
+              value={sort.direction}
+              onChange={(value: string) =>
+                onSelectDirection(index, value as SortDirection)
+              }
+            >
+              {SORT_DIRECTION_OPTIONS.map((sort, index) => {
+                return (
+                  <Option key={index} value={sort.value}>
+                    {sort.label}
+                  </Option>
+                );
+              })}
+            </Select>
+          </div>
           <Body>order</Body>
           <IconButton aria-label="Add" onClick={() => addItem(index)}>
             <Icon glyph="Plus" />

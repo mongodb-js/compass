@@ -54,3 +54,6 @@ export * from './select-option';
 export * from './codemirror';
 export * from './drop-collection-from-sidebar';
 export * from './drop-database-from-sidebar';
+export * from './toggle-aggregation-side-panel';
+export * from './add-wizard';
+export * from './set-combo-box-value';

@@ -95,7 +95,7 @@ describe('sort', function () {
       });
       userEvent.click(addButton);
       expect(screen.getByTestId('sort-form-1')).to.exist;
-      sortFormItems = screen.getAllByTestId(/sort-form-\d+/);
+      sortFormItems = screen.getAllByTestId(/sort-form-\d+$/);
 
       changeFormGroupValues(sortFormItems[0], {
         field: 'street',

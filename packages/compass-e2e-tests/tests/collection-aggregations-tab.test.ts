@@ -190,7 +190,7 @@ describe('Collection aggregations tab', function () {
 
   before(async function () {
     compass = await beforeTests({
-      extraSpawnArgs: ['--show-focus-mode'],
+      extraSpawnArgs: ['--show-focus-mode', '--use-stage-wizard'],
     });
     browser = compass.browser;
   });
@@ -1469,6 +1469,59 @@ describe('Collection aggregations tab', function () {
       await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), '10');
 
       await guideCue.waitForDisplayed({ reverse: true });
+    });
+  });
+
+  describe('aggregation wizard', function () {
+    it('should toggle the aggregation side panel', async function () {
+      await browser.toggleAggregationSidePanel('opened');
+      const useCases = await browser.$$(Selectors.AggregationWizardUseCases);
+      expect(useCases).to.have.length.greaterThan(0);
+      await browser.toggleAggregationSidePanel('closed');
+    });
+
+    it('should add a stage wizard in the end of the list of the stages when a usecase is clicked in the aggregation side panel', async function () {
+      const stages = await browser.$$(Selectors.StageCard);
+      await browser.addWizard('sort', stages.length);
+    });
+
+    it('should dismiss the stage wizard when clicked on "Cancel" button on stage wizard', async function () {
+      const stages = await browser.$$(Selectors.StageCard);
+      await browser.addWizard('sort', stages.length);
+      const wizardCard = await browser.$(
+        Selectors.AggregationWizardCardAtIndex(stages.length)
+      );
+
+      await browser.clickVisible(Selectors.AggregationWizardDismissButton);
+      await wizardCard.waitForDisplayed({ reverse: true });
+    });
+
+    it("should be able to convert a wizard ($sort wizard) to a stage, inserted at the wizard's index", async function () {
+      const stages = await browser.$$(Selectors.StageCard);
+      const oldLength = stages.length;
+      await browser.addWizard('sort', oldLength);
+
+      await browser.setComboBoxValue(
+        // 0 because at this point we only have one row of fields to be selected
+        Selectors.AggregationWizardSortFormField(0),
+        Selectors.AggregationWizardSortFormFieldListbox(0),
+        'name'
+      );
+
+      await browser.selectOption(
+        Selectors.AggregationWizardSortFormDirectionSelect(0),
+        'Ascending'
+      );
+
+      await browser.clickVisible(Selectors.AggregationWizardApplyButton);
+
+      const stageCard = await browser.$(Selectors.StageCardAtIndex(oldLength));
+      await stageCard.waitForDisplayed();
+
+      const stageContent = await browser
+        .$(Selectors.stageContent(oldLength))
+        .getText();
+      expect(stageContent).to.equal('{ name: 1 }');
     });
   });
 
