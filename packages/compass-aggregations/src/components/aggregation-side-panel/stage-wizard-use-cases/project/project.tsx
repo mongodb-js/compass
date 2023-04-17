@@ -7,6 +7,7 @@ import {
   Icon,
   IconButton,
   css,
+  palette,
   spacing,
 } from '@mongodb-js/compass-components';
 
@@ -139,11 +140,11 @@ export const ProjectForm = ({
             />
           </div>
           <IconButton aria-label="Add" onClick={() => addItem(index)}>
-            <Icon glyph="Plus" />
+            <Icon color={palette.black} glyph="Plus" />
           </IconButton>
           {index !== 0 && (
             <IconButton aria-label="Remove" onClick={() => removeItem(index)}>
-              <Icon glyph="Minus" />
+              <Icon color={palette.black} glyph="Minus" />
             </IconButton>
           )}
         </div>
