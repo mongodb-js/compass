@@ -3,7 +3,7 @@ import { Transform } from 'stream';
 import { pipeline } from 'stream/promises';
 import type { DataService } from 'mongodb-data-service';
 import { SchemaAnalyzer } from 'mongodb-schema';
-import type { Document } from 'mongodb';
+import type { Document, FindOptions } from 'mongodb';
 import toNS from 'mongodb-ns';
 import { isInternalFieldPath } from 'hadron-document';
 
@@ -13,7 +13,7 @@ import { createDebug } from '../utils/logger';
 const debug = createDebug('export-json');
 
 // Array of path components. ie. { foo: { bar: { baz:  1 } } } results in ['foo', 'bar', 'baz']
-type SchemaPath = string[];
+export type SchemaPath = string[];
 
 // TODO(COMPASS-6720): we should just export all the types from mongodb-schema
 // and update them. Or alternatively move schemaToPaths() there.
@@ -71,15 +71,13 @@ function schemaToPaths(
   return paths;
 }
 
-type Projection = {
-  [field: string]: boolean | Projection;
-};
+type Projection = FindOptions['projection'];
 
 export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
   const projection: Projection = {};
 
   for (const fieldPath of fields) {
-    let current: Projection = projection;
+    let current: Document = projection;
     for (const [index, fieldName] of fieldPath.entries()) {
       // Set the projection when it's the last index.
       if (index === fieldPath.length - 1) {
@@ -102,7 +100,7 @@ export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
         break;
       }
 
-      current = current[fieldName] as Projection;
+      current = current[fieldName];
     }
   }
 
@@ -200,7 +198,7 @@ export async function gatherFieldsFromQuery({
   dataService: DataService;
   query?: ExportQuery;
   sampleSize?: number;
-}) {
+}): ReturnType<typeof _gatherFields> {
   debug('gatherFieldsFromQuery()', { ns: toNS(ns) });
 
   const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
