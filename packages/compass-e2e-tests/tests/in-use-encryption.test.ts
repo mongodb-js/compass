@@ -148,7 +148,7 @@ describe('CSFLE / QE', function () {
       }
 
       // temporarily disable for latest-alpha because the CSFLE fails until updated
-      if (!serverSatisfies('< 6.x.x', true)) {
+      if (!serverSatisfies('<= 6.x.x', true)) {
         return this.skip();
       }
     });
