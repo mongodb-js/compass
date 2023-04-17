@@ -30,7 +30,7 @@ const headerStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[2],
-  padding: spacing[2],
+  padding: spacing[3],
   cursor: 'grab',
 });
 

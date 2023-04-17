@@ -189,7 +189,7 @@ function Stage({
 
   const setContainerRef = useCallback(
     (ref: HTMLDivElement) => {
-      setNodeRef?.(ref);
+      setNodeRef(ref);
       containerRef.current = ref;
     },
     [containerRef, setNodeRef]

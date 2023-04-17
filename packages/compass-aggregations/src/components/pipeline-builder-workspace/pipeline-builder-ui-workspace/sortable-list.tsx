@@ -26,9 +26,9 @@ const sortableItemStyles = css({
 });
 
 export type SortableProps = {
-  style?: React.CSSProperties;
-  setNodeRef?: (node: HTMLElement | null) => void;
-  listeners?: SyntheticListenerMap;
+  style: React.CSSProperties;
+  setNodeRef: (node: HTMLElement | null) => void;
+  listeners: SyntheticListenerMap | undefined;
 };
 
 type SortableItemProps = {
