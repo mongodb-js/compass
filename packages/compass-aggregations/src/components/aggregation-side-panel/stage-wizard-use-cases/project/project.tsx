@@ -76,7 +76,7 @@ export const ProjectForm = ({
     const placeholderLength = PLACEHOLDER_TEXT.length;
     return {
       width: `calc(${String(
-        Math.max(placeholderLength, ...fields.map((label) => label.length))
+        Math.max(placeholderLength, ...fields.map((label) => label.length)) + 1 // +1 is to ensure some extra buffer on right
       )}ch)`,
     };
   }, [fields]);
