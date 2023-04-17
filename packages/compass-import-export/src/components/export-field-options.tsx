@@ -69,8 +69,8 @@ function FieldsToExportOptions({
           dismissible
           onClose={() => setShowProjectInfoMessage(false)}
         >
-          You can also use the <strong>Project</strong> field in the query bar
-          to specify which fields to return or export.
+          You can also use the <b>Project</b> field in the query bar to specify
+          which fields to return or export.
         </Banner>
       )}
     </>

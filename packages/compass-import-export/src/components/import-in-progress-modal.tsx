@@ -11,7 +11,7 @@ import { closeInProgressMessage } from '../modules/import';
 import type { RootImportState } from '../stores/import-store';
 
 type ImportInProgressModalProps = {
-  closeInProgressMessage?: () => void;
+  closeInProgressMessage: () => void;
   isInProgressMessageOpen: boolean;
 };
 

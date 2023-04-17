@@ -168,8 +168,7 @@ function ExportModal({
                 {query && queryHasProjection(query) && (
                   <Banner>
                     Only projected fields will be exported. To export all
-                    fields, go back and leave the <strong>Project</strong> field
-                    empty.
+                    fields, go back and leave the <b>Project</b> field empty.
                   </Banner>
                 )}
               </>

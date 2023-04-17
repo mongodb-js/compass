@@ -439,8 +439,6 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
       ExportActionTypes.ToggleFieldToExport
     )
   ) {
-    // TODO: Check if this is inside of a field that is already exported or toggled off.
-    // We should toggle the parent on in if it is toggled off.
     return {
       ...state,
       fieldsToExport: {
@@ -456,8 +454,6 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
   if (
     isAction<AddFieldToExportAction>(action, ExportActionTypes.AddFieldToExport)
   ) {
-    // TODO: Check if this is inside of a field that is already exported or toggled off.
-    // We should toggle the parent on in if it is toggled off.
     return {
       ...state,
       fieldsToExport: {
