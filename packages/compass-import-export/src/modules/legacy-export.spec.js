@@ -10,7 +10,6 @@ import FILE_TYPES from '../constants/file-types';
 import reducer, * as actions from './legacy-export';
 import store from '../stores/legacy-export-store';
 import { connect } from 'mongodb-data-service';
-import { promisify } from 'util';
 import { once } from 'events';
 import { dataServiceConnected, globalAppRegistryActivated } from './compass';
 describe('export [module]', function () {
@@ -29,20 +28,14 @@ describe('export [module]', function () {
           connectionString: 'mongodb://localhost:27018/local',
         });
 
-        const insertMany = promisify(dataService.insertMany).bind(dataService);
-
         await dataService.createCollection(TEST_COLLECTION_NAME, {});
-        await insertMany(
-          TEST_COLLECTION_NAME,
-          [
-            {
-              _id: 'foo',
-              first_name: 'John',
-              last_name: 'Appleseed',
-            },
-          ],
-          {}
-        );
+        await dataService.insertMany(TEST_COLLECTION_NAME, [
+          {
+            _id: 'foo',
+            first_name: 'John',
+            last_name: 'Appleseed',
+          },
+        ]);
 
         store.dispatch(dataServiceConnected(null, dataService));
         store.dispatch(globalAppRegistryActivated(globalAppRegistry));
