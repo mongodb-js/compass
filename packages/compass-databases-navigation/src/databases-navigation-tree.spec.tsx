@@ -110,13 +110,14 @@ describe('DatabasesNavigationTree', function () {
     });
   });
 
-  describe('when isReadOnly is false or undefined', function () {
+  describe('when readOnly is false', function () {
     it('should show all database actions on hover', function () {
       render(
         <DatabasesNavigationTree
           databases={databases}
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
+          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -136,6 +137,7 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
+          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -154,6 +156,7 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar.meow"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
+          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -177,6 +180,7 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
+          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -195,7 +199,7 @@ describe('DatabasesNavigationTree', function () {
     });
   });
 
-  describe('when isReadOnly is true', function () {
+  describe('when readOnly is true', function () {
     it('should not show database actions', function () {
       render(
         <DatabasesNavigationTree
@@ -203,7 +207,8 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
-          isReadOnly
+          isWritable
+          readOnly
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -222,7 +227,8 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
-          isReadOnly
+          isWritable
+          readOnly
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -241,6 +247,7 @@ describe('DatabasesNavigationTree', function () {
           databases={databases}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
+          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -258,6 +265,7 @@ describe('DatabasesNavigationTree', function () {
           expanded={{ bar: true }}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
+          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -276,6 +284,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -293,6 +302,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -313,6 +323,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -334,6 +345,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -358,6 +370,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -380,6 +393,7 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
+            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
