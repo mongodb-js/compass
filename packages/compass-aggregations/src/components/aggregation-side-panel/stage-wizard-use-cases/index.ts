@@ -1,7 +1,6 @@
 import UseCaseList from './use-case-list';
 import SortUseCase from './sort/sort';
-import ProjectIncludeUseCase from './project/project-include';
-import ProjectExcludeUseCase from './project/project-exclude';
+import ProjectUseCase from './project/project';
 
 export type StageWizardUseCase = {
   id: string;
@@ -23,16 +22,10 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
     wizardComponent: SortUseCase,
   },
   {
-    id: 'project-include',
-    title: 'Include a subset of fields on my documents',
+    id: 'project',
+    title: 'Include or exclude a subset of fields from my documents',
     stageOperator: '$project',
-    wizardComponent: ProjectIncludeUseCase,
-  },
-  {
-    id: 'project-exclude',
-    title: 'Exclude a subset of fields on my documents',
-    stageOperator: '$project',
-    wizardComponent: ProjectExcludeUseCase,
+    wizardComponent: ProjectUseCase,
   },
 ];
 

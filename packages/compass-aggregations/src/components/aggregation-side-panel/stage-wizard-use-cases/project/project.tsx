@@ -1,39 +1,29 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../../modules';
 import {
-  Body,
   ComboboxWithCustomOption,
-  Icon,
-  IconButton,
+  Select,
+  Option,
   css,
-  palette,
   spacing,
-  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 // Types
 export type ProjectOwnProps = {
   onChange: (value: string, error: Error | null) => void;
 };
+type MapStateProps = { fields: string[] };
+export type ProjectProps = ProjectOwnProps & MapStateProps;
 
-export type HOCProps = {
-  variant: 'include' | 'exclude';
-};
-
-type MapStateProps = {
-  fields: string[];
-};
-
-export type ProjectProps = ProjectOwnProps & HOCProps & MapStateProps;
-
-type ProjectFormState = (string | null)[];
+type ProjectFormState = string[];
+type ProjectionType = 'include' | 'exclude';
 
 // Helpers
-export const PLACEHOLDER_TEXT = 'Select field name';
+export const COMBOBOX_PLACEHOLDER_TEXT = 'Select field name';
 
 export const mapProjectFormStateToStageValue = (
-  variant: HOCProps['variant'],
+  projectionType: ProjectionType,
   formState: ProjectFormState
 ) => {
   return formState.reduce<{ [field: string]: 1 | 0 }>((projection, field) => {
@@ -42,13 +32,19 @@ export const mapProjectFormStateToStageValue = (
     } else {
       return {
         ...projection,
-        [field]: variant === 'include' ? 1 : 0,
+        [field]: projectionType === 'include' ? 1 : 0,
       };
     }
   }, {});
 };
 
 // Components
+const containerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[2],
+});
+
 const formGroupStyles = css({
   display: 'flex',
   justifyContent: 'flex-start',
@@ -56,37 +52,20 @@ const formGroupStyles = css({
   gap: spacing[2],
 });
 
-const labelStyles = css({
-  minWidth: '140px',
-  textAlign: 'right',
-});
+const selectStyles = css({ minWidth: '120px' });
 
-const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[2],
-});
+const comboboxStyles = css({ width: '371px' });
 
-export const ProjectForm = ({
-  fields,
-  variant = 'include',
-  onChange,
-}: ProjectProps) => {
-  const [projectFields, setProjectFields] = useState<ProjectFormState>([null]);
-  const isDarkMode = useDarkMode();
-  const iconColor = isDarkMode ? palette.white : palette.black;
-
-  const comboboxStyles = useMemo(() => {
-    const placeholderLength = PLACEHOLDER_TEXT.length;
-    return {
-      width: `calc(${String(
-        Math.max(placeholderLength, ...fields.map((label) => label.length)) + 1 // +1 is to ensure some extra buffer on right
-      )}ch)`,
-    };
-  }, [fields]);
+export const ProjectForm = ({ fields, onChange }: ProjectProps) => {
+  const [projectionType, setProjectionType] =
+    useState<ProjectionType>('include');
+  const [projectFields, setProjectFields] = useState<ProjectFormState>([]);
 
   useEffect(() => {
-    const stageValue = mapProjectFormStateToStageValue(variant, projectFields);
+    const stageValue = mapProjectFormStateToStageValue(
+      projectionType,
+      projectFields
+    );
 
     onChange(
       JSON.stringify(stageValue),
@@ -94,65 +73,48 @@ export const ProjectForm = ({
         ? new Error('No field selected')
         : null
     );
-  }, [projectFields, onChange, variant]);
+  }, [projectFields, onChange, projectionType]);
 
-  const variantText = variant === 'include' ? 'Include' : 'Exclude';
-
-  const onSelectField = (index: number, value: string | null) => {
-    if (!value) return;
-    const nextProjectFields = [...projectFields];
-    nextProjectFields[index] = value;
-    setProjectFields(nextProjectFields);
-  };
-
-  const addItem = (at: number) => {
-    const nextProjectFields = [...projectFields];
-    nextProjectFields.splice(at + 1, 0, null);
-    setProjectFields(nextProjectFields);
-  };
-
-  const removeItem = (at: number) => {
-    const nextProjectFields = [...projectFields];
-    nextProjectFields.splice(at, 1);
+  const onSelectField = (value: string[]) => {
+    const nextProjectFields = [...value];
     setProjectFields(nextProjectFields);
   };
 
   return (
     <div className={containerStyles}>
-      {projectFields.map((fieldValue, index) => (
-        <div
-          className={formGroupStyles}
-          key={`project-${variant}-form-${index}`}
-          data-testid={`project-${variant}-form-${index}`}
-        >
-          <Body className={labelStyles}>
-            {index === 0 ? variantText : 'and'}
-          </Body>
-          <div data-testid={`project-${variant}-form-${index}-field`}>
-            <ComboboxWithCustomOption
-              placeholder={PLACEHOLDER_TEXT}
-              style={comboboxStyles}
-              aria-label={PLACEHOLDER_TEXT}
-              size="default"
-              clearable={false}
-              value={fieldValue}
-              onChange={(value: string | null) => onSelectField(index, value)}
-              options={fields}
-              optionLabel="Field:"
-              // Used for testing to access the popover for a stage
-              popoverClassName={`project-${variant}-form-${index}-field-combobox`}
-            />
-          </div>
-          <IconButton aria-label="Add" onClick={() => addItem(index)}>
-            <Icon color={iconColor} glyph="Plus" />
-          </IconButton>
-          {index !== 0 && (
-            <IconButton aria-label="Remove" onClick={() => removeItem(index)}>
-              <Icon color={iconColor} glyph="Minus" />
-            </IconButton>
-          )}
+      <div className={formGroupStyles} data-testid="project-form">
+        <div data-testid="project-form-projection">
+          {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
+          <Select
+            className={selectStyles}
+            allowDeselect={false}
+            aria-label="Select projection type"
+            usePortal={true}
+            value={projectionType}
+            onChange={(value) => setProjectionType(value as ProjectionType)}
+          >
+            <Option value="include">Include</Option>
+            <Option value="exclude">Exclude</Option>
+          </Select>
         </div>
-      ))}
+        <div data-testid="project-form-field">
+          <ComboboxWithCustomOption<true>
+            placeholder={COMBOBOX_PLACEHOLDER_TEXT}
+            className={comboboxStyles}
+            aria-label={COMBOBOX_PLACEHOLDER_TEXT}
+            size="default"
+            clearable={false}
+            multiselect={true}
+            value={projectFields}
+            onChange={onSelectField}
+            options={fields}
+            optionLabel="Field:"
+            overflow="scroll-x"
+            // Used for testing to access the popover for a stage
+            popoverClassName="project-form-field-combobox"
+          />
+        </div>
+      </div>
     </div>
   );
 };

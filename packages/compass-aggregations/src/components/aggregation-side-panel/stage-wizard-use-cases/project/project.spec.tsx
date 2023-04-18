@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react';
 import {
   ProjectForm,
   mapProjectFormStateToStageValue,
-  PLACEHOLDER_TEXT,
+  COMBOBOX_PLACEHOLDER_TEXT,
 } from './project';
 import type { HOCProps } from './project';
 import { render, screen, within, cleanup } from '@testing-library/react';
@@ -33,7 +33,7 @@ const setFieldValue = (
   const comboboxField = within(screen.getByTestId(formRowTestId)).getByRole(
     'textbox',
     {
-      name: new RegExp(PLACEHOLDER_TEXT, 'i'),
+      name: new RegExp(COMBOBOX_PLACEHOLDER_TEXT, 'i'),
     }
   );
   userEvent.click(comboboxField);
@@ -173,7 +173,7 @@ describe('project', function () {
     expect(
       within(formRows[0])
         .getByRole('textbox', {
-          name: new RegExp(PLACEHOLDER_TEXT, 'i'),
+          name: new RegExp(COMBOBOX_PLACEHOLDER_TEXT, 'i'),
         })
         .getAttribute('value')
     ).to.equal('street');
@@ -181,7 +181,7 @@ describe('project', function () {
     expect(
       within(formRows[1])
         .getByRole('textbox', {
-          name: new RegExp(PLACEHOLDER_TEXT, 'i'),
+          name: new RegExp(COMBOBOX_PLACEHOLDER_TEXT, 'i'),
         })
         .getAttribute('value')
     ).to.equal('city');
@@ -189,7 +189,7 @@ describe('project', function () {
     expect(
       within(formRows[2])
         .getByRole('textbox', {
-          name: new RegExp(PLACEHOLDER_TEXT, 'i'),
+          name: new RegExp(COMBOBOX_PLACEHOLDER_TEXT, 'i'),
         })
         .getAttribute('value')
     ).to.equal('zip');
