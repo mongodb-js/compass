@@ -69,7 +69,7 @@ export function getIndexProperties(
     properties.push('partial');
   }
 
-  if (index.extra.expireAfterSeconds > -1) {
+  if (Number(index.extra.expireAfterSeconds) > -1) {
     properties.push('ttl');
   }
 
