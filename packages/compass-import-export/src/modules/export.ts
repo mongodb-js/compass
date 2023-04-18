@@ -18,14 +18,8 @@ export type FieldsToExport = {
   };
 };
 
-// Fields can only be prefixed with one '$'. Otherwise $
-// is not allowed, so this should be a safe separator.
-const FieldSplittingSymbol = '$$$$';
 export function getIdForSchemaPath(schemaPath: SchemaPath) {
-  return schemaPath.join(FieldSplittingSymbol);
-}
-export function getLabelForFieldId(fieldId: string) {
-  return fieldId.split(FieldSplittingSymbol).join('.');
+  return JSON.stringify(schemaPath);
 }
 
 function isAction<A extends AnyAction>(
