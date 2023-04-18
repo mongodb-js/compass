@@ -57,7 +57,7 @@ export type ExportState = {
   fieldsToExportAbortController: AbortController | undefined;
 } & ExportOptions;
 
-const initialState: ExportState = {
+export const initialState: ExportState = {
   isOpen: false,
   isInProgressMessageOpen: false,
   status: undefined,

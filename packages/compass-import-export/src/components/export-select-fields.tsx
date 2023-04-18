@@ -245,6 +245,7 @@ function ExportSelectFields({
           <Button
             variant="primary"
             leftGlyph={<Icon glyph="Plus" />}
+            data-testid="export-add-new-field-button"
             size="xsmall"
             disabled={isLoading}
             onClick={onAddNewFieldButtonClicked}
