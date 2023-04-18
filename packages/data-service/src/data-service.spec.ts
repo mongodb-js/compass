@@ -5,8 +5,6 @@ import type { Sort } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
-import util from 'util';
-
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
 import type {
@@ -165,11 +163,7 @@ describe('DataService', function () {
     describe('#deleteOne', function () {
       it('deletes the document from the collection', async function () {
         await dataService.insertOne(testNamespace, { a: 500 });
-        await util.promisify(dataService.deleteOne.bind(dataService))(
-          testNamespace,
-          { a: 500 },
-          {}
-        );
+        await dataService.deleteOne(testNamespace, { a: 500 });
         const docs = await dataService.find(testNamespace, { a: 500 });
         expect(docs.length).to.equal(0);
       });
@@ -280,11 +274,7 @@ describe('DataService', function () {
     describe('#deleteMany', function () {
       it('deletes the document from the collection', async function () {
         await dataService.insertOne(testNamespace, { a: 500 });
-        await util.promisify(dataService.deleteMany.bind(dataService))(
-          testNamespace,
-          { a: 500 },
-          {}
-        );
+        await dataService.deleteMany(testNamespace, { a: 500 });
         const docs = await dataService.find(testNamespace, { a: 500 });
         expect(docs.length).to.equal(0);
       });

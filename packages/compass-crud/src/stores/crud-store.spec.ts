@@ -529,7 +529,7 @@ describe('store', function () {
       beforeEach(function () {
         sinon
           .stub(dataService, 'deleteOne')
-          .yields({ message: 'error happened' });
+          .rejects({ message: 'error happened' });
       });
 
       it('sets the error for the document', function (done) {
@@ -565,8 +565,8 @@ describe('store', function () {
       });
     });
 
-    afterEach(function (done) {
-      dataService.deleteMany('compass-crud.test', {}, {}, done);
+    afterEach(function () {
+      return dataService.deleteMany('compass-crud.test', {});
     });
 
     context('when there is no error', function () {
@@ -991,8 +991,8 @@ describe('store', function () {
     });
 
     context('when there is no error', function () {
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       context('when the document matches the filter', function () {
@@ -1055,8 +1055,8 @@ describe('store', function () {
           store.state.insert.jsonDoc = jsonDoc;
         });
 
-        afterEach(function (done) {
-          dataService.deleteMany('compass-crud.test', {}, {}, done);
+        afterEach(function () {
+          return dataService.deleteMany('compass-crud.test', {});
         });
 
         it('does not insert the document', async function () {
@@ -1085,8 +1085,8 @@ describe('store', function () {
           store.state.insert.jsonDoc = jsonDoc;
         });
 
-        afterEach(function (done) {
-          dataService.deleteMany('compass-crud.test', {}, {}, done);
+        afterEach(function () {
+          return dataService.deleteMany('compass-crud.test', {});
         });
 
         it('does not insert the document', async function () {
@@ -1129,8 +1129,8 @@ describe('store', function () {
     });
 
     context('when there is no error', function () {
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       context('when the documents match the filter', function () {
@@ -1252,8 +1252,8 @@ describe('store', function () {
         store.state.insert.jsonDoc = JSON.stringify(docs);
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       it('does not insert the document', async function () {
@@ -1573,8 +1573,8 @@ describe('store', function () {
         await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       context('when there is no error', function () {
@@ -1648,13 +1648,10 @@ describe('store', function () {
         });
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany(
-          'config.collections',
-          { _id: 'compass-crud.test' },
-          {},
-          done
-        );
+      afterEach(function () {
+        return dataService.deleteMany('config.collections', {
+          _id: 'compass-crud.test',
+        });
       });
 
       it('looks up the shard keys', async function () {
@@ -1692,8 +1689,8 @@ describe('store', function () {
         await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       it('sets the state as not editable', async function () {
@@ -1729,8 +1726,8 @@ describe('store', function () {
         await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       it('resets the state as editable', async function () {
@@ -1881,8 +1878,8 @@ describe('store', function () {
       await dataService.insertMany('compass-crud.test', docs);
     });
 
-    afterEach(function (done) {
-      dataService.deleteMany('compass-crud.test', {}, {}, done);
+    afterEach(function () {
+      return dataService.deleteMany('compass-crud.test', {});
     });
 
     it('does nothing for negative page numbers', async function () {
@@ -1990,11 +1987,9 @@ describe('store', function () {
       );
     });
 
-    afterEach(function (done) {
-      dataService.deleteMany('compass-crud.test', {}, {}, (err) => {
-        if (err) return done(err);
-        dataService.dropView('compass-crud.testview', done);
-      });
+    afterEach(async function () {
+      await dataService.deleteMany('compass-crud.test', {});
+      await dataService.dropCollection('compass-crud.testview');
     });
 
     it('returns documents in view order', async function () {
