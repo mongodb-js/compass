@@ -283,19 +283,27 @@ describe('gatherFields', function () {
 
 describe('createProjectionFromSchemaFields', function () {
   it('builds projections', function () {
-    expect(createProjectionFromSchemaFields([])).to.deep.equal({});
+    expect(createProjectionFromSchemaFields([])).to.deep.equal({
+      _id: false,
+    });
 
     expect(createProjectionFromSchemaFields([['foo']])).to.deep.equal({
+      _id: false,
       foo: true,
     });
 
     expect(
       createProjectionFromSchemaFields([['foo'], ['foo', 'bar']])
-    ).to.deep.equal({ foo: true });
+    ).to.deep.equal({ foo: true, _id: false });
 
     expect(
       createProjectionFromSchemaFields([['foo', 'bar'], ['foo']])
-    ).to.deep.equal({ foo: true });
+    ).to.deep.equal({ foo: true, _id: false });
+
+    expect(createProjectionFromSchemaFields([['_id'], ['foo']])).to.deep.equal({
+      foo: true,
+      _id: true,
+    });
 
     expect(
       createProjectionFromSchemaFields([
@@ -303,6 +311,7 @@ describe('createProjectionFromSchemaFields', function () {
         ['fruit', 'pineapple'],
       ])
     ).to.deep.equal({
+      _id: false,
       fruit: {
         banana: true,
         pineapple: true,
@@ -312,6 +321,7 @@ describe('createProjectionFromSchemaFields', function () {
     expect(
       createProjectionFromSchemaFields([['pen', 'pineapple', 'apple', 'pen']])
     ).to.deep.equal({
+      _id: false,
       pen: {
         pineapple: {
           apple: {
