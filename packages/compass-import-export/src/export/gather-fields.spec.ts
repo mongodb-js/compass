@@ -288,6 +288,7 @@ describe('createProjectionFromSchemaFields', function () {
     });
 
     expect(createProjectionFromSchemaFields([['foo']])).to.deep.equal({
+      _id: false,
       foo: true,
     });
 
