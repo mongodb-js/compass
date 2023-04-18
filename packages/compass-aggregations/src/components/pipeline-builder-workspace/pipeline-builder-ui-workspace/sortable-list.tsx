@@ -1,17 +1,6 @@
 import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
-import Stage from '../stage';
-import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
-import AddStage from '../add-stage';
-import ModifySourceBanner from '../modify-source-banner';
-import type { StageIdAndType } from '../../modules/pipeline-builder/stage-editor';
-import {
-  addStage,
-  moveStage,
-} from '../../modules/pipeline-builder/stage-editor';
-import type { RootState } from '../../modules';
+import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 import { css } from '@mongodb-js/compass-components';
-
 import {
   DndContext,
   MouseSensor,
@@ -21,40 +10,68 @@ import {
 } from '@dnd-kit/core';
 import {
   SortableContext,
+  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import Wizard from '../stage-wizard';
+import { CSS as cssDndKit } from '@dnd-kit/utilities';
+import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
-const pipelineWorkspaceContainerStyles = css({
-  position: 'relative',
-  width: '100%',
-  height: '100%',
-});
+import Stage from '../../stage';
+import Wizard from '../../stage-wizard';
+import AddStage from '../../add-stage';
 
-const pipelineWorkspaceStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-  flexGrow: 1,
-});
-
-const stageContainerStyles = css({
+const sortableItemStyles = css({
   display: 'flex',
   flexDirection: 'column',
 });
 
-type PipelineBuilderUIWorkspaceProps = {
-  stagesIdAndType: StageIdAndType[];
-  editViewName?: string;
-  onStageMoveEnd: (from: number, to: number) => void;
-  onStageAddAfterEnd: (after?: number) => void;
+export type SortableProps = {
+  style: React.CSSProperties;
+  setNodeRef: (node: HTMLElement | null) => void;
+  listeners: SyntheticListenerMap | undefined;
 };
 
 type SortableItemProps = {
-  idx: number;
+  id: number;
+  index: number;
   isLastStage: boolean;
   onStageAddAfter: (after?: number) => void;
   type: StageIdAndType['type'];
+};
+
+const SortableItem = ({
+  id,
+  index,
+  isLastStage,
+  onStageAddAfter,
+  type,
+}: SortableItemProps) => {
+  const { setNodeRef, transform, transition, listeners, isDragging } =
+    useSortable({
+      id: id + 1,
+    });
+  const style = {
+    transform: cssDndKit.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 1 : 0,
+  };
+
+  const sortableProps: SortableProps = {
+    setNodeRef,
+    style,
+    listeners,
+  };
+
+  return (
+    <div className={sortableItemStyles}>
+      {type === 'stage' ? (
+        <Stage index={index} {...sortableProps} />
+      ) : (
+        <Wizard index={index} {...sortableProps} />
+      )}
+      {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
+    </div>
+  );
 };
 
 type SortableListProps = {
@@ -63,21 +80,7 @@ type SortableListProps = {
   onStageAddAfterEnd: (after?: number) => void;
 };
 
-const SortableItem = ({
-  idx,
-  isLastStage,
-  onStageAddAfter,
-  type,
-}: SortableItemProps) => {
-  return (
-    <div className={stageContainerStyles}>
-      {type === 'stage' ? <Stage index={idx} /> : <Wizard index={idx} />}
-      {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
-    </div>
-  );
-};
-
-const SortableList = ({
+export const SortableList = ({
   stagesIdAndType,
   onStageMoveEnd,
   onStageAddAfterEnd,
@@ -129,7 +132,8 @@ const SortableList = ({
         {stagesIdAndType.map(({ id, type }, index) => (
           <SortableItem
             key={`stage-${id}`}
-            idx={index}
+            id={id}
+            index={index}
             type={type}
             isLastStage={index === stagesIdAndType.length - 1}
             onStageAddAfter={() => onStageAddAfterEnd(index)}
@@ -139,45 +143,3 @@ const SortableList = ({
     </DndContext>
   );
 };
-
-export const PipelineBuilderUIWorkspace: React.FunctionComponent<
-  PipelineBuilderUIWorkspaceProps
-> = ({ stagesIdAndType, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
-  return (
-    <div data-testid="pipeline-builder-ui-workspace">
-      <div className={pipelineWorkspaceContainerStyles}>
-        <div className={pipelineWorkspaceStyles}>
-          {editViewName && <ModifySourceBanner editViewName={editViewName} />}
-          <PipelineBuilderInputDocuments />
-          {stagesIdAndType.length !== 0 && (
-            <AddStage
-              onAddStage={() => onStageAddAfterEnd(-1)}
-              variant="icon"
-            />
-          )}
-          <SortableList
-            stagesIdAndType={stagesIdAndType}
-            onStageMoveEnd={onStageMoveEnd}
-            onStageAddAfterEnd={onStageAddAfterEnd}
-          />
-
-          <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const mapState = (state: RootState) => {
-  return {
-    stagesIdAndType: state.pipelineBuilder.stageEditor.stagesIdAndType,
-    editViewName: state.editViewName,
-  };
-};
-
-const mapDispatch = {
-  onStageMoveEnd: moveStage,
-  onStageAddAfterEnd: addStage,
-};
-
-export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);

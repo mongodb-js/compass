@@ -12,9 +12,6 @@ import {
   rafraf,
 } from '@mongodb-js/compass-components';
 
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS as cssDndKit } from '@dnd-kit/utilities';
-
 import type { RootState } from '../modules';
 
 import ResizeHandle from './resize-handle';
@@ -29,6 +26,7 @@ import {
 } from '../utils/local-storage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
+import type { SortableProps } from './pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 
 const stageStyles = css({
   position: 'relative',
@@ -136,8 +134,7 @@ function ResizableEditor({
 
 const DEFAULT_OPACITY = 0.6;
 
-export type StageProps = {
-  id: number;
+export type StageProps = SortableProps & {
   index: number;
   isEnabled: boolean;
   isExpanded: boolean;
@@ -171,13 +168,13 @@ const useFocusModeGuideCue = (stageIndex: number) => {
 };
 
 function Stage({
-  id,
   index,
   isEnabled,
   isExpanded,
   hasSyntaxError,
   hasServerError,
   isAutoPreviewing,
+  ...sortableProps
 }: StageProps) {
   const editorRef = useRef<EditorRef>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -187,15 +184,8 @@ function Stage({
     useFocusModeGuideCue(index);
 
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
-  const { setNodeRef, transform, transition, listeners, isDragging } =
-    useSortable({
-      id: id + 1,
-    });
-  const style = {
-    transform: cssDndKit.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 1 : 0,
-  };
+
+  const { setNodeRef, style, listeners } = sortableProps;
 
   const setContainerRef = useCallback(
     (ref: HTMLDivElement) => {
@@ -283,7 +273,6 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
   ] as StoreStage;
 
   return {
-    id: stage.id,
     isEnabled: !stage.disabled,
     isExpanded: !stage.collapsed,
     hasSyntaxError: hasSyntaxError(stage),

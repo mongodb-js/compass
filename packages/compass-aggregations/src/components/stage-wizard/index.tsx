@@ -18,9 +18,9 @@ import {
   updateWizardValue,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { Wizard } from '../../modules/pipeline-builder/stage-editor';
+import type { SortableProps } from '../pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 
 const containerStyles = css({
-  padding: spacing[3],
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
@@ -30,6 +30,15 @@ const headerStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[2],
+  padding: spacing[3],
+  cursor: 'grab',
+});
+
+const wizardContentStyles = css({
+  padding: spacing[3],
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
 });
 
 const cardFooterStyles = css({
@@ -44,7 +53,7 @@ const cardActionStyles = css({
   marginLeft: 'auto',
 });
 
-type StageWizardProps = {
+type StageWizardProps = SortableProps & {
   index: number;
   useCaseId: string;
   value: string | null;
@@ -62,6 +71,7 @@ export const StageWizard = ({
   onChange,
   onCancel,
   onApply,
+  ...sortableProps
 }: StageWizardProps) => {
   const [formError, setFormError] = useState<Error | null>(null);
   const useCase = useMemo<StageWizardUseCase | undefined>(() => {
@@ -86,36 +96,46 @@ export const StageWizard = ({
   const error = syntaxError || formError;
   const isApplyDisabled = !!error || !value;
 
+  const { setNodeRef, style, listeners } = sortableProps;
+
   return (
-    <KeylineCard
-      data-testid="wizard-card"
-      data-wizard-index={index}
-      className={containerStyles}
-    >
-      <div className={headerStyles}>
-        <Body weight="medium">{useCase.title}</Body>
-        <Badge>{useCase.stageOperator}</Badge>
-      </div>
-      <div data-testid="wizard-form">
-        <useCase.wizardComponent onChange={onChangeWizard} />
-      </div>
-      <div className={cardFooterStyles}>
-        {value && error && <WarningSummary warnings={[error?.message]} />}
-        <div className={cardActionStyles}>
-          <Button data-testid="wizard-cancel-action" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button
-            data-testid="wizard-apply-action"
-            onClick={onApply}
-            variant="primary"
-            disabled={isApplyDisabled}
-          >
-            Apply
-          </Button>
+    <div ref={setNodeRef} style={style}>
+      <KeylineCard
+        data-testid="wizard-card"
+        data-wizard-index={index}
+        className={containerStyles}
+      >
+        <div {...listeners}>
+          <div className={headerStyles}>
+            <Body weight="medium">{useCase.title}</Body>
+            <Badge>{useCase.stageOperator}</Badge>
+          </div>
         </div>
-      </div>
-    </KeylineCard>
+        <div className={wizardContentStyles}>
+          <div data-testid="wizard-form">
+            <useCase.wizardComponent onChange={onChangeWizard} />
+          </div>
+          <div className={cardFooterStyles}>
+            <div>
+              {value && error && <WarningSummary warnings={[error?.message]} />}
+            </div>
+            <div className={cardActionStyles}>
+              <Button data-testid="wizard-cancel-action" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button
+                data-testid="wizard-apply-action"
+                onClick={onApply}
+                variant="primary"
+                disabled={isApplyDisabled}
+              >
+                Apply
+              </Button>
+            </div>
+          </div>
+        </div>
+      </KeylineCard>
+    </div>
   );
 };
 

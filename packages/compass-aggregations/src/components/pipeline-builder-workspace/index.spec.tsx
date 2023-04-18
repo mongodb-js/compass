@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import configureStore from '../../../test/configure-store';
-import { PipelineBuilderWorkspace } from './pipeline-builder-workspace';
+import { PipelineBuilderWorkspace } from '.';
 
 const renderBuilderWorkspace = (
   props: Partial<ComponentProps<typeof PipelineBuilderWorkspace>> = {}

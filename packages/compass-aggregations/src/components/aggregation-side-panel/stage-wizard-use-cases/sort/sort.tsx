@@ -43,7 +43,7 @@ const formGroupStyles = css({
 });
 
 const labelStyles = css({
-  minWidth: '140px',
+  minWidth: `${'Sort documents by'.length}ch`,
   textAlign: 'right',
 });
 
