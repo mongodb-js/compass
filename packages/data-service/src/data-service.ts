@@ -371,10 +371,9 @@ export interface DataService {
   /**
    * Drops a database
    *
-   * @param name - The database name.
-   * @param callback - The callback.
+   * @param name - The database name
    */
-  dropDatabase(name: string, callback: Callback<boolean>): void;
+  dropDatabase(name: string): Promise<boolean>;
 
   /*** Indexes ***/
 
@@ -1332,21 +1331,21 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  dropDatabase(name: string, callback: Callback<boolean>): void {
+  async dropDatabase(name: string): Promise<boolean> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_040),
       'Running dropDatabase',
       { db: name }
     );
     const db = this._database(name, 'CRUD');
-    callbackify(db.dropDatabase.bind(db))((error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      callback(null, result);
-    });
+    try {
+      const result = await db.dropDatabase();
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   async dropIndex(ns: string, name: string): Promise<Document> {

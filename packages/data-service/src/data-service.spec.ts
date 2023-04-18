@@ -272,17 +272,10 @@ describe('DataService', function () {
         await mongoClient.db(dbName).createCollection('testing');
       });
 
-      it('drops a database', function (done) {
-        dataService.dropDatabase(dbName, function (error) {
-          assert.equal(null, error);
-          dataService
-            .listDatabases()
-            .then(function (dbs) {
-              expect(dbs).to.not.have.property('name', 'mangoDB');
-              done();
-            })
-            .catch(done);
-        });
+      it('drops a database', async function () {
+        await dataService.dropDatabase(dbName);
+        const dbs = await dataService.listDatabases();
+        expect(dbs).to.not.have.property('name', 'mangoDB');
       });
     });
 

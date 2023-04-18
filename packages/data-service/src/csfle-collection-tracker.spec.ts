@@ -22,7 +22,7 @@ describe('CSFLECollectionTracker', function () {
   });
 
   afterEach(async function () {
-    await new Promise((done) => dataService.dropDatabase(dbName, done));
+    await dataService.dropDatabase(dbName);
     await dataService.disconnect();
   });
 
