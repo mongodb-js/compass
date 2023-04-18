@@ -1,4 +1,3 @@
-import util from 'util';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import Connection from 'mongodb-connection-model';
@@ -40,8 +39,6 @@ describe('cancellable-queries', function () {
     const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect(info.connectionOptions);
 
-    const deleteMany = util.promisify(dataService.deleteMany.bind(dataService));
-
     currentOpsByNS = async function (ns) {
       const ops = await dataService.currentOp(false);
       return ops.inprog.filter((op) => op.ns === ns);
@@ -64,7 +61,9 @@ describe('cancellable-queries', function () {
     await dataService.createCollection('cancel.empty', {});
 
     // define a shard key for the cancel.shared collection
-    await deleteMany('config.collections', { _id: 'cancel.sharded' }, {});
+    await dataService.deleteMany('config.collections', {
+      _id: 'cancel.sharded',
+    } as any);
     await dataService.insertOne(
       'config.collections',
       { _id: 'cancel.sharded', key: { a: 1 } },

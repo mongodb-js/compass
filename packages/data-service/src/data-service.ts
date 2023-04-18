@@ -1,4 +1,3 @@
-import { callbackify } from 'util';
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
@@ -604,14 +603,12 @@ export interface DataService {
    * @param ns - The namespace.
    * @param filter - The filter.
    * @param options - The options.
-   * @param callback - The callback.
    */
   deleteOne(
     ns: string,
     filter: Filter<Document>,
-    options: DeleteOptions,
-    callback: Callback<DeleteResult>
-  ): void;
+    options?: DeleteOptions
+  ): Promise<DeleteResult>;
 
   /**
    * Deletes multiple documents from a collection.
@@ -619,14 +616,12 @@ export interface DataService {
    * @param ns - The namespace.
    * @param filter - The filter.
    * @param options - The options.
-   * @param callback - The callback.
    */
   deleteMany(
     ns: string,
     filter: Filter<Document>,
-    options: DeleteOptions,
-    callback: Callback<DeleteResult>
-  ): void;
+    options?: DeleteOptions
+  ): Promise<DeleteResult>;
 
   /**
    * Helper method to check whether or not error is caused by dataService
@@ -669,14 +664,6 @@ export interface DataService {
    * Retuns a list of configured KMS providers for the current connection
    */
   configuredKMSProviders(): string[];
-}
-
-// Make arguments of a function mandatory for TS; This makes working
-// with util.callbackify easier.
-function allArgumentsMandatory<F extends (...args: any[]) => any>(
-  fn: F
-): F extends (...args: infer A) => infer R ? (...args: Required<A>) => R : F {
-  return fn as any;
 }
 
 export class DataServiceImpl implements DataService {
@@ -1216,56 +1203,46 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  deleteOne(
+  async deleteOne(
     ns: string,
     filter: Filter<Document>,
-    options: DeleteOptions,
-    callback: Callback<DeleteResult>
-  ): void {
+    options?: DeleteOptions
+  ): Promise<DeleteResult> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_038),
       'Running deleteOne',
       { ns }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.deleteOne.bind(coll)))(
-      filter,
-      options,
-      (error, result) => {
-        logop(error, result);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const result = await coll.deleteOne(filter, options);
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
-  deleteMany(
+  async deleteMany(
     ns: string,
     filter: Filter<Document>,
-    options: DeleteOptions,
-    callback: Callback<DeleteResult>
-  ): void {
+    options?: DeleteOptions
+  ): Promise<DeleteResult> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_039),
       'Running deleteMany',
       { ns }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.deleteMany.bind(coll)))(
-      filter,
-      options,
-      (error, result) => {
-        logop(error, result);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const result = await coll.deleteMany(filter, options);
+      logop(null, result);
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   async disconnect(): Promise<void> {
