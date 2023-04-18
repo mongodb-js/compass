@@ -104,6 +104,12 @@ export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
     }
   }
 
+  // When _id isn't explicitly passed then we assume it's not
+  // intended to be in the results.
+  if (projection._id === undefined) {
+    projection._id = false;
+  }
+
   return projection;
 }
 
