@@ -1104,10 +1104,6 @@ class CrudStoreImpl
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
-      // Since we are inserting a bunch of documents and we need to rerun all
-      // the queries and counts for them, let's just refresh the whole set of
-      // documents.
-      void this.refreshDocuments();
     } catch (error) {
       this.setState({
         insert: {
@@ -1122,6 +1118,11 @@ class CrudStoreImpl
         },
       });
     }
+
+    // Since we are inserting a bunch of documents and we need to rerun all
+    // the queries and counts for them, let's just refresh the whole set of
+    // documents.
+    void this.refreshDocuments();
   }
 
   /**
@@ -1158,7 +1159,6 @@ class CrudStoreImpl
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
-      void this.refreshDocuments();
     } catch (error) {
       this.setState({
         insert: {
@@ -1172,7 +1172,10 @@ class CrudStoreImpl
           isCommentNeeded: this.state.insert.isCommentNeeded,
         },
       });
+      return;
     }
+
+    void this.refreshDocuments();
   }
 
   /**
