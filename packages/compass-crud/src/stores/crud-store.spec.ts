@@ -653,7 +653,7 @@ describe('store', function () {
       beforeEach(function () {
         sinon
           .stub(dataService, 'findOneAndUpdate')
-          .yields({ message: 'error happened' });
+          .throws({ message: 'error happened' });
       });
 
       it('sets the error for the document', function (done) {
@@ -676,7 +676,7 @@ describe('store', function () {
         hadronDoc.elements.at(1).rename('new name');
         sinon
           .stub(dataService, 'findOneAndUpdate')
-          .yields({ message: 'error happened' });
+          .throws({ message: 'error happened' });
       });
 
       it('sets the error for the document', function (done) {
@@ -695,7 +695,7 @@ describe('store', function () {
 
       beforeEach(function () {
         hadronDoc.elements.at(1).rename('new name');
-        sinon.stub(dataService, 'findOneAndUpdate').yields(null, null);
+        sinon.stub(dataService, 'findOneAndUpdate').resolves(null);
       });
 
       it('sets the update blocked for the document', function (done) {
@@ -714,7 +714,7 @@ describe('store', function () {
 
       beforeEach(function () {
         hadronDoc.get('name').edit('Desert Sand');
-        stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
+        stub = sinon.stub(dataService, 'findOneAndUpdate').resolves({});
       });
 
       it('has the original value for the edited value in the query', async function () {
@@ -742,7 +742,7 @@ describe('store', function () {
         beforeEach(function () {
           store.state.shardKeys = { yes: 1 };
           hadronDoc.get('name').edit('Desert Sand');
-          stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
+          stub = sinon.stub(dataService, 'findOneAndUpdate').resolves({});
         });
 
         afterEach(function () {
@@ -797,10 +797,10 @@ describe('store', function () {
           hadronDoc.get('name').edit('Desert Sand');
           findOneAndReplaceStub = sinon
             .stub(dataService, 'findOneAndReplace')
-            .yields(null, {});
+            .resolves({});
           findOneAndUpdateStub = sinon
             .stub(dataService, 'findOneAndUpdate')
-            .yields(null, {});
+            .resolves({});
           isUpdateAllowedStub = sinon.stub().resolves(false);
           sinon.stub(dataService, 'getCSFLEMode').returns('enabled');
           sinon
@@ -869,7 +869,7 @@ describe('store', function () {
       beforeEach(function () {
         sinon
           .stub(dataService, 'findOneAndReplace')
-          .yields({ message: 'error happened' });
+          .rejects({ message: 'error happened' });
       });
 
       it('sets the error for the document', function (done) {
@@ -889,7 +889,7 @@ describe('store', function () {
 
       beforeEach(function () {
         hadronDoc.get('name').edit('Desert Sand');
-        stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
+        stub = sinon.stub(dataService, 'findOneAndReplace').resolves({});
       });
 
       it('has the original value for the edited value in the query', async function () {
@@ -912,7 +912,7 @@ describe('store', function () {
         beforeEach(function () {
           store.state.shardKeys = { yes: 1 };
           hadronDoc.get('name').edit('Desert Sand');
-          stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
+          stub = sinon.stub(dataService, 'findOneAndReplace').resolves({});
         });
 
         afterEach(function () {
@@ -948,10 +948,10 @@ describe('store', function () {
           hadronDoc.get('name').edit('Desert Sand');
           findOneAndReplaceStub = sinon
             .stub(dataService, 'findOneAndReplace')
-            .yields(null, {});
+            .resolves({});
           findOneAndUpdateStub = sinon
             .stub(dataService, 'findOneAndUpdate')
-            .yields(null, {});
+            .resolves({});
           isUpdateAllowedStub = sinon.stub().resolves(false);
           sinon.stub(dataService, 'getCSFLEMode').returns('enabled');
           sinon
@@ -2066,8 +2066,8 @@ describe('store', function () {
 
     it('does the original findAndModify operation and nothing more if it succeeds', async function () {
       const document = { _id: 1234 };
-      const stub = sinon.stub().callsFake((ds, ns, opts, cb) => {
-        cb(undefined, document);
+      const stub = sinon.stub().callsFake(() => {
+        return [undefined, document];
       });
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
@@ -2087,8 +2087,8 @@ describe('store', function () {
 
     it('does the original findAndModify operation and nothing more if it fails with a non-FLE error', async function () {
       const err = new Error('failed');
-      const stub = sinon.stub().callsFake((ds, ns, opts, cb) => {
-        cb(err);
+      const stub = sinon.stub().callsFake(() => {
+        return [err];
       });
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
@@ -2110,11 +2110,11 @@ describe('store', function () {
       const document = { _id: 1234 };
       const err = Object.assign(new Error('failed'), { code: 6371402 });
       const stub = sinon.stub();
-      stub.onFirstCall().callsFake((ds, ns, opts, cb) => {
-        cb(err);
+      stub.onFirstCall().callsFake(() => {
+        return [err];
       });
-      stub.onSecondCall().callsFake((ds, ns, opts, cb) => {
-        cb(undefined, document);
+      stub.onSecondCall().callsFake(() => {
+        return [undefined, document];
       });
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
@@ -2150,11 +2150,11 @@ describe('store', function () {
       const document = { _id: 1234 };
       const err = Object.assign(new Error('failed'), { code: 6371402 });
       const stub = sinon.stub();
-      stub.onFirstCall().callsFake((ds, ns, opts, cb) => {
-        cb(err);
+      stub.onFirstCall().callsFake(() => {
+        return [err];
       });
-      stub.onSecondCall().callsFake((ds, ns, opts, cb) => {
-        cb(undefined, document);
+      stub.onSecondCall().callsFake(() => {
+        return [undefined, document];
       });
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
