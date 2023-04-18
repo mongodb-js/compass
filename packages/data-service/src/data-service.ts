@@ -560,14 +560,12 @@ export interface DataService {
    * @param ns - The namespace.
    * @param doc - The document to insert.
    * @param options - The options.
-   * @param callback - The callback.
    */
   insertOne(
     ns: string,
     doc: Document,
-    options: InsertOneOptions,
-    callback: Callback<InsertOneResult<Document>>
-  ): void;
+    options?: InsertOneOptions
+  ): Promise<InsertOneResult<Document>>;
 
   /**
    * Inserts multiple documents into the collection.
@@ -580,9 +578,8 @@ export interface DataService {
   insertMany(
     ns: string,
     docs: Document[],
-    options: BulkWriteOptions,
-    callback: Callback<InsertManyResult<Document>>
-  ): void;
+    options?: BulkWriteOptions
+  ): Promise<InsertManyResult<Document>>;
 
   /**
    * Performs multiple write operations with controls for order of execution.
@@ -1627,59 +1624,49 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  insertOne(
+  async insertOne(
     ns: string,
     doc: Document,
-    options: InsertOneOptions,
-    callback: Callback<InsertOneResult<Document>>
-  ): void {
+    options?: InsertOneOptions
+  ): Promise<InsertOneResult<Document>> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_048),
       'Running insertOne',
       { ns }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.insertOne.bind(coll)))(
-      doc,
-      options,
-      (error, result) => {
-        logop(error, { acknowledged: result?.acknowledged });
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const result = await coll.insertOne(doc, options);
+      logop(null, { acknowledged: result?.acknowledged });
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
-  insertMany(
+  async insertMany(
     ns: string,
     docs: Document[],
-    options: BulkWriteOptions,
-    callback: Callback<InsertManyResult<Document>>
-  ): void {
+    options?: BulkWriteOptions
+  ): Promise<InsertManyResult<Document>> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_049),
       'Running insertMany',
       { ns }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.insertMany.bind(coll)))(
-      docs,
-      options,
-      (error, result) => {
-        logop(error, {
-          acknowledged: result?.acknowledged,
-          insertedCount: result?.insertedCount,
-        });
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    try {
+      const result = await coll.insertMany(docs, options);
+      logop(null, {
+        acknowledged: result?.acknowledged,
+        insertedCount: result?.insertedCount,
+      });
+      return result;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   async updateCollection(

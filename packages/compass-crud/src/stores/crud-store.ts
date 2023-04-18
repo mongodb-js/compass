@@ -1088,7 +1088,7 @@ class CrudStoreImpl
   /**
    * Insert a single document.
    */
-  insertMany() {
+  async insertMany() {
     const docs = HadronDocument.FromEJSONArray(
       this.state.insert.jsonDoc ?? ''
     ).map((doc) => doc.generateObject());
@@ -1097,21 +1097,8 @@ class CrudStoreImpl
       multiple: docs.length > 1,
     });
 
-    this.dataService.insertMany(this.state.ns, docs, {}, (error) => {
-      if (error) {
-        return this.setState({
-          insert: {
-            doc: new Document({}),
-            jsonDoc: this.state.insert.jsonDoc,
-            jsonView: true,
-            message: error.message,
-            csfleState: this.state.insert.csfleState,
-            mode: ERROR,
-            isOpen: true,
-            isCommentNeeded: this.state.insert.isCommentNeeded,
-          },
-        });
-      }
+    try {
+      await this.dataService.insertMany(this.state.ns, docs);
       // track mode for analytics events
       const payload = {
         ns: this.state.ns,
@@ -1128,7 +1115,20 @@ class CrudStoreImpl
       // the queries and counts for them, let's just refresh the whole set of
       // documents.
       void this.refreshDocuments();
-    });
+    } catch (error) {
+      this.setState({
+        insert: {
+          doc: new Document({}),
+          jsonDoc: this.state.insert.jsonDoc,
+          jsonView: true,
+          message: (error as Error).message,
+          csfleState: this.state.insert.csfleState,
+          mode: ERROR,
+          isOpen: true,
+          isCommentNeeded: this.state.insert.isCommentNeeded,
+        },
+      });
+    }
   }
 
   /**
@@ -1136,7 +1136,7 @@ class CrudStoreImpl
    * Parse document from Json Insert View Modal or generate object from hadron document
    * view to insert.
    */
-  insertDocument() {
+  async insertDocument() {
     track('Document Inserted', {
       mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
       multiple: false,
@@ -1151,22 +1151,8 @@ class CrudStoreImpl
     } else {
       doc = this.state.insert.doc!.generateObject();
     }
-
-    this.dataService.insertOne(this.state.ns, doc, {}, (error) => {
-      if (error) {
-        return this.setState({
-          insert: {
-            doc: this.state.insert.doc,
-            jsonDoc: this.state.insert.jsonDoc,
-            jsonView: this.state.insert.jsonView,
-            message: error.message,
-            csfleState: this.state.insert.csfleState,
-            mode: ERROR,
-            isOpen: true,
-            isCommentNeeded: this.state.insert.isCommentNeeded,
-          },
-        });
-      }
+    try {
+      await this.dataService.insertOne(this.state.ns, doc);
 
       const payload = {
         ns: this.state.ns,
@@ -1180,7 +1166,20 @@ class CrudStoreImpl
 
       this.state.insert = this.getInitialInsertState();
       void this.refreshDocuments();
-    });
+    } catch (error) {
+      this.setState({
+        insert: {
+          doc: this.state.insert.doc,
+          jsonDoc: this.state.insert.jsonDoc,
+          jsonView: this.state.insert.jsonView,
+          message: (error as Error).message,
+          csfleState: this.state.insert.csfleState,
+          mode: ERROR,
+          isOpen: true,
+          isCommentNeeded: this.state.insert.isCommentNeeded,
+        },
+      });
+    }
   }
 
   /**

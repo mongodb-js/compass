@@ -163,39 +163,15 @@ describe('DataService', function () {
     });
 
     describe('#deleteOne', function () {
-      it('deletes the document from the collection', function (done) {
-        dataService.insertOne(
+      it('deletes the document from the collection', async function () {
+        await dataService.insertOne(testNamespace, { a: 500 });
+        await util.promisify(dataService.deleteOne.bind(dataService))(
           testNamespace,
-          {
-            a: 500,
-          },
-          {},
-          function (err) {
-            assert.equal(null, err);
-            dataService.deleteOne(
-              testNamespace,
-              {
-                a: 500,
-              },
-              {},
-              function (er) {
-                assert.equal(null, er);
-                void dataService
-                  .find(
-                    testNamespace,
-                    {
-                      a: 500,
-                    },
-                    {}
-                  )
-                  .then(function (docs) {
-                    expect(docs.length).to.equal(0);
-                    done();
-                  });
-              }
-            );
-          }
+          { a: 500 },
+          {}
         );
+        const docs = await dataService.find(testNamespace, { a: 500 });
+        expect(docs.length).to.equal(0);
       });
     });
 
@@ -302,39 +278,15 @@ describe('DataService', function () {
     });
 
     describe('#deleteMany', function () {
-      it('deletes the document from the collection', function (done) {
-        dataService.insertOne(
+      it('deletes the document from the collection', async function () {
+        await dataService.insertOne(testNamespace, { a: 500 });
+        await util.promisify(dataService.deleteMany.bind(dataService))(
           testNamespace,
-          {
-            a: 500,
-          },
-          {},
-          function (err) {
-            assert.equal(null, err);
-            dataService.deleteMany(
-              testNamespace,
-              {
-                a: 500,
-              },
-              {},
-              function (er) {
-                assert.equal(null, er);
-                void dataService
-                  .find(
-                    testNamespace,
-                    {
-                      a: 500,
-                    },
-                    {}
-                  )
-                  .then(function (docs) {
-                    expect(docs.length).to.equal(0);
-                    done();
-                  });
-              }
-            );
-          }
+          { a: 500 },
+          {}
         );
+        const docs = await dataService.find(testNamespace, { a: 500 });
+        expect(docs.length).to.equal(0);
       });
     });
 
@@ -494,14 +446,10 @@ describe('DataService', function () {
       const id = new ObjectId();
 
       it('returns the updated document', async function () {
-        await util.promisify(dataService.insertOne.bind(dataService))(
-          testNamespace,
-          {
-            _id: id,
-            a: 500,
-          },
-          {}
-        );
+        await dataService.insertOne(testNamespace, {
+          _id: id,
+          a: 500,
+        });
         const result = await dataService.findOneAndReplace(
           testNamespace,
           { _id: id },
@@ -518,11 +466,7 @@ describe('DataService', function () {
       const id = new ObjectId();
 
       it('returns the updated document', async function () {
-        await util.promisify(dataService.insertOne.bind(dataService))(
-          testNamespace,
-          { _id: id, a: 500 },
-          {}
-        );
+        await dataService.insertOne(testNamespace, { _id: id, a: 500 });
         const result = await dataService.findOneAndUpdate(
           testNamespace,
           { _id: id },
@@ -742,61 +686,18 @@ describe('DataService', function () {
     });
 
     describe('#insertOne', function () {
-      it('inserts the document into the collection', function (done) {
-        dataService.insertOne(
-          testNamespace,
-          {
-            a: 500,
-          },
-          {},
-          function (err) {
-            assert.equal(null, err);
-            void dataService
-              .find(
-                testNamespace,
-                {
-                  a: 500,
-                },
-                {}
-              )
-              .then(function (docs) {
-                expect(docs.length).to.equal(1);
-                done();
-              });
-          }
-        );
+      it('inserts the document into the collection', async function () {
+        await dataService.insertOne(testNamespace, { a: 500 });
+        const docs = await dataService.find(testNamespace, { a: 500 });
+        expect(docs.length).to.equal(1);
       });
     });
 
     describe('#insertMany', function () {
-      it('inserts the documents into the collection', function (done) {
-        dataService.insertMany(
-          testNamespace,
-          [
-            {
-              a: 500,
-            },
-            {
-              a: 500,
-            },
-          ],
-          {},
-          function (err) {
-            assert.equal(null, err);
-            void dataService
-              .find(
-                testNamespace,
-                {
-                  a: 500,
-                },
-                {}
-              )
-              .then(function (docs) {
-                expect(docs.length).to.equal(2);
-                done();
-              });
-          }
-        );
+      it('inserts the documents into the collection', async function () {
+        await dataService.insertMany(testNamespace, [{ a: 500 }, { a: 500 }]);
+        const docs = await dataService.find(testNamespace, { a: 500 });
+        expect(docs.length).to.equal(2);
       });
     });
 

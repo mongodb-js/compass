@@ -547,7 +547,7 @@ describe('store', function () {
     let store;
     let actions;
 
-    beforeEach(function (done) {
+    beforeEach(async function () {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -559,15 +559,10 @@ describe('store', function () {
         actions: actions,
         namespace: 'compass-crud.test',
       });
-      dataService.insertOne(
-        'compass-crud.test',
-        {
-          _id: 'testing',
-          name: 'Depeche Mode',
-        },
-        {},
-        done
-      );
+      await dataService.insertOne('compass-crud.test', {
+        _id: 'testing',
+        name: 'Depeche Mode',
+      });
     });
 
     afterEach(function (done) {
@@ -1562,7 +1557,7 @@ describe('store', function () {
       let store;
       let actions;
 
-      beforeEach(function (done) {
+      beforeEach(async function () {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1575,12 +1570,7 @@ describe('store', function () {
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
         });
-        dataService.insertOne(
-          'compass-crud.test',
-          { name: 'testing' },
-          {},
-          done
-        );
+        await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
       afterEach(function (done) {
@@ -1639,7 +1629,7 @@ describe('store', function () {
       let store;
       let actions;
 
-      beforeEach(function (done) {
+      beforeEach(async function () {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1652,12 +1642,10 @@ describe('store', function () {
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
         });
-        dataService.insertOne(
-          'config.collections',
-          { _id: 'compass-crud.test', key: { a: 1 } },
-          {},
-          done
-        );
+        await dataService.insertOne('config.collections', {
+          _id: 'compass-crud.test',
+          key: { a: 1 },
+        });
       });
 
       afterEach(function (done) {
@@ -1685,7 +1673,7 @@ describe('store', function () {
       let store;
       let actions;
 
-      beforeEach(function (done) {
+      beforeEach(async function () {
         actions = configureActions();
         store = configureStore({
           query: { project: { _id: 0 } },
@@ -1701,12 +1689,7 @@ describe('store', function () {
         });
 
         store.setState({ query: { project: { _id: 0 } } });
-        dataService.insertOne(
-          'compass-crud.test',
-          { name: 'testing' },
-          {},
-          done
-        );
+        await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
       afterEach(function (done) {
@@ -1728,7 +1711,7 @@ describe('store', function () {
       let store;
       let actions;
 
-      beforeEach(function (done) {
+      beforeEach(async function () {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1743,12 +1726,7 @@ describe('store', function () {
         });
 
         store.setState({ isEditable: false });
-        dataService.insertOne(
-          'compass-crud.test',
-          { name: 'testing' },
-          {},
-          done
-        );
+        await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
       afterEach(function (done) {
@@ -1883,7 +1861,7 @@ describe('store', function () {
     let actions;
     let findSpy;
 
-    beforeEach(function (done) {
+    beforeEach(async function () {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1900,7 +1878,7 @@ describe('store', function () {
       findSpy = sinon.spy(store.dataService, 'find');
 
       const docs = [...Array(1000).keys()].map((i) => ({ i }));
-      dataService.insertMany('compass-crud.test', docs, {}, done);
+      await dataService.insertMany('compass-crud.test', docs);
     });
 
     afterEach(function (done) {
@@ -1985,7 +1963,7 @@ describe('store', function () {
     let store;
     let actions;
 
-    beforeEach(function (done) {
+    beforeEach(async function () {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1998,36 +1976,17 @@ describe('store', function () {
         namespace: 'compass-crud.testview',
         noRefreshOnConfigure: true,
       });
-      dataService.insertMany(
+      await dataService.insertMany('compass-crud.test', [
+        { _id: '001', cat: 'nori' },
+        { _id: '002', cat: 'chashu' },
+        { _id: '003', cat: 'amy' },
+        { _id: '004', cat: 'pia' },
+      ]);
+      await dataService.createView(
+        'testview',
         'compass-crud.test',
-        [
-          { _id: '001', cat: 'nori' },
-          { _id: '002', cat: 'chashu' },
-          { _id: '003', cat: 'amy' },
-          { _id: '004', cat: 'pia' },
-        ],
-        {},
-        (err) => {
-          if (err) {
-            return done(err);
-          }
-
-          dataService
-            .createView(
-              'testview',
-              'compass-crud.test',
-              [{ $sort: { cat: 1 } }],
-              {}
-            )
-            .then(
-              () => {
-                done();
-              },
-              (createViewError) => {
-                done(createViewError);
-              }
-            );
-        }
+        [{ $sort: { cat: 1 } }],
+        {}
       );
     });
 

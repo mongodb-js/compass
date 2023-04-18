@@ -40,8 +40,6 @@ describe('cancellable-queries', function () {
     const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect(info.connectionOptions);
 
-    const insertOne = util.promisify(dataService.insertOne.bind(dataService));
-    const insertMany = util.promisify(dataService.insertMany.bind(dataService));
     const deleteMany = util.promisify(dataService.deleteMany.bind(dataService));
 
     currentOpsByNS = async function (ns) {
@@ -56,7 +54,7 @@ describe('cancellable-queries', function () {
     } catch (err) {
       // noop
     }
-    await insertMany('cancel.numbers', docs, {});
+    await dataService.insertMany('cancel.numbers', docs, {});
 
     try {
       await dataService.dropCollection('cancel.empty');
@@ -67,7 +65,7 @@ describe('cancellable-queries', function () {
 
     // define a shard key for the cancel.shared collection
     await deleteMany('config.collections', { _id: 'cancel.sharded' }, {});
-    await insertOne(
+    await dataService.insertOne(
       'config.collections',
       { _id: 'cancel.sharded', key: { a: 1 } },
       {}
