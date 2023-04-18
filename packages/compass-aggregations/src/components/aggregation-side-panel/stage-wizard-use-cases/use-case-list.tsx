@@ -1,12 +1,13 @@
 import React from 'react';
 import {
-  Badge,
   Body,
   css,
   KeylineCard,
+  Link,
   spacing,
 } from '@mongodb-js/compass-components';
 import { STAGE_WIZARD_USE_CASES } from '.';
+import { getStageHelpLink } from '../../../utils/stage';
 
 const cardStyles = css({
   cursor: 'pointer',
@@ -30,7 +31,12 @@ const UseCaseList = ({ onSelect }: { onSelect: (id: string) => void }) => {
             className={cardStyles}
           >
             <Body className={cardTitleStyles}>{title}</Body>
-            <Badge>{stageOperator}</Badge>
+            <Link
+              target="_blank"
+              href={getStageHelpLink(stageOperator) as string}
+            >
+              {stageOperator}
+            </Link>
           </KeylineCard>
         );
       })}

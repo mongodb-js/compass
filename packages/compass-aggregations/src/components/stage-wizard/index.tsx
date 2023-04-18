@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
-  Badge,
   Body,
   Button,
   css,
   KeylineCard,
+  Link,
   spacing,
   WarningSummary,
 } from '@mongodb-js/compass-components';
@@ -17,7 +17,12 @@ import {
   removeWizard,
   updateWizardValue,
 } from '../../modules/pipeline-builder/stage-editor';
-import type { Wizard } from '../../modules/pipeline-builder/stage-editor';
+import type {
+  StoreStage,
+  Wizard,
+} from '../../modules/pipeline-builder/stage-editor';
+import { getSchema } from '../../utils/get-schema';
+import { getStageHelpLink } from '../../utils/stage';
 
 const containerStyles = css({
   padding: spacing[3],
@@ -49,6 +54,7 @@ type StageWizardProps = {
   useCaseId: string;
   value: string | null;
   syntaxError: SyntaxError | null;
+  fields: string[];
   onChange: (value: string) => void;
   onCancel: () => void;
   onApply: () => void;
@@ -59,6 +65,7 @@ export const StageWizard = ({
   useCaseId,
   value,
   syntaxError,
+  fields,
   onChange,
   onCancel,
   onApply,
@@ -94,10 +101,15 @@ export const StageWizard = ({
     >
       <div className={headerStyles}>
         <Body weight="medium">{useCase.title}</Body>
-        <Badge>{useCase.stageOperator}</Badge>
+        <Link
+          target="_blank"
+          href={getStageHelpLink(useCase.stageOperator) as string}
+        >
+          {useCase.stageOperator}
+        </Link>
       </div>
       <div data-testid="wizard-form">
-        <useCase.wizardComponent onChange={onChangeWizard} />
+        <useCase.wizardComponent fields={fields} onChange={onChangeWizard} />
       </div>
       <div className={cardFooterStyles}>
         {value && error && <WarningSummary warnings={[error?.message]} />}
@@ -125,15 +137,37 @@ type WizardOwnProps = {
 
 export default connect(
   (state: RootState, ownProps: WizardOwnProps) => {
-    const wizard = state.pipelineBuilder.stageEditor.stages[
-      ownProps.index
-    ] as Wizard;
+    const {
+      autoPreview,
+      fields: initialFields,
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = state;
+
+    const wizard = stages[ownProps.index] as Wizard;
+
+    const previousStage = stages
+      .slice(0, ownProps.index)
+      .reverse()
+      .find((x) => x.type === 'stage' && !x.disabled) as StoreStage | undefined;
+
+    const mappedInitialFields = initialFields.map(
+      (x: { name: string }) => x.name
+    );
+    const previousStageFields = getSchema(previousStage?.previewDocs ?? []);
+
+    const fields =
+      previousStageFields.length > 0 && autoPreview
+        ? previousStageFields
+        : mappedInitialFields;
 
     return {
       id: wizard.id,
       syntaxError: wizard.syntaxError,
       useCaseId: wizard.useCaseId,
       value: wizard.value,
+      fields,
     };
   },
   (dispatch: PipelineBuilderThunkDispatch, ownProps: WizardOwnProps) => ({
