@@ -499,15 +499,13 @@ export interface DataService {
    * @param filter - The filter.
    * @param replacement - The replacement doc.
    * @param options - The query options.
-   * @param callback - The callback.
    */
   findOneAndReplace(
     ns: string,
     filter: Filter<Document>,
     replacement: Document,
-    options: FindOneAndReplaceOptions,
-    callback: Callback<Document>
-  ): void;
+    options?: FindOneAndReplaceOptions
+  ): Promise<Document | null>;
 
   /**
    * Find one document and update it with the update operations.
@@ -516,15 +514,13 @@ export interface DataService {
    * @param filter - The filter.
    * @param update - The update operations doc.
    * @param options - The query options.
-   * @param callback - The callback.
    */
   findOneAndUpdate(
     ns: string,
     filter: Filter<Document>,
     update: Document,
-    options: FindOneAndUpdateOptions,
-    callback: Callback<Document>
-  ): void;
+    options?: FindOneAndUpdateOptions
+  ): Promise<Document | null>;
 
   /**
    * Count the number of documents in the collection for the provided filter
@@ -1425,60 +1421,48 @@ export class DataServiceImpl implements DataService {
     return this._collection(ns, 'CRUD').find(filter, options);
   }
 
-  findOneAndReplace(
+  async findOneAndReplace(
     ns: string,
     filter: Filter<Document>,
     replacement: Document,
-    options: FindOneAndReplaceOptions,
-    callback: Callback<Document>
-  ): void {
+    options: FindOneAndReplaceOptions
+  ): Promise<Document | null> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_044),
       'Running findOneAndReplace',
       { ns }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.findOneAndReplace.bind(coll)))(
-      filter,
-      replacement,
-      options,
-      (error, result) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result.value!);
-      }
-    );
+    try {
+      const result = await coll.findOneAndReplace(filter, replacement, options);
+      logop(null);
+      return result.value;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
-  findOneAndUpdate(
+  async findOneAndUpdate(
     ns: string,
     filter: Filter<Document>,
     update: Document,
-    options: FindOneAndUpdateOptions,
-    callback: Callback<Document>
-  ): void {
+    options: FindOneAndUpdateOptions
+  ): Promise<Document | null> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_045),
       'Running findOneAndUpdate',
       { ns }
     );
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.findOneAndUpdate.bind(coll)))(
-      filter,
-      update,
-      options,
-      (error, result) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result.value!);
-      }
-    );
+    try {
+      const result = await coll.findOneAndUpdate(filter, update, options);
+      logop(null);
+      return result.value;
+    } catch (error) {
+      logop(error);
+      throw this._translateErrorMessage(error);
+    }
   }
 
   explainFind(

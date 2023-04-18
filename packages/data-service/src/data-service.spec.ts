@@ -5,6 +5,7 @@ import type { Sort } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import sinon from 'sinon';
 import { v4 as uuid } from 'uuid';
+import util from 'util';
 
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
@@ -492,76 +493,45 @@ describe('DataService', function () {
     describe('#findOneAndReplace', function () {
       const id = new ObjectId();
 
-      it('returns the updated document', function (done) {
-        dataService.insertOne(
+      it('returns the updated document', async function () {
+        await util.promisify(dataService.insertOne.bind(dataService))(
           testNamespace,
           {
             _id: id,
             a: 500,
           },
-          {},
-          function (err) {
-            assert.equal(null, err);
-            dataService.findOneAndReplace(
-              testNamespace,
-              {
-                _id: id,
-              },
-              {
-                b: 5,
-              },
-              {
-                returnDocument: 'after',
-              },
-              function (error, result) {
-                expect(error).to.equal(null);
-                expect(result._id.toString()).to.deep.equal(id.toString());
-                expect(result.b).to.equal(5);
-                expect(result).to.not.haveOwnProperty('a');
-                done();
-              }
-            );
-          }
+          {}
         );
+        const result = await dataService.findOneAndReplace(
+          testNamespace,
+          { _id: id },
+          { b: 5 },
+          { returnDocument: 'after' }
+        );
+        expect(result._id.toString()).to.deep.equal(id.toString());
+        expect(result.b).to.equal(5);
+        expect(result).to.not.haveOwnProperty('a');
       });
     });
 
     describe('#findOneAndUpdate', function () {
       const id = new ObjectId();
 
-      it('returns the updated document', function (done) {
-        dataService.insertOne(
+      it('returns the updated document', async function () {
+        await util.promisify(dataService.insertOne.bind(dataService))(
           testNamespace,
-          {
-            _id: id,
-            a: 500,
-          },
-          {},
-          function (err) {
-            assert.equal(null, err);
-            dataService.findOneAndUpdate(
-              testNamespace,
-              {
-                _id: id,
-              },
-              {
-                $set: {
-                  b: 5,
-                },
-              },
-              {
-                returnDocument: 'after',
-              },
-              function (error, result) {
-                expect(error).to.equal(null);
-                expect(result._id.toString()).to.deep.equal(id.toString());
-                expect(result.b).to.equal(5);
-                expect(result).to.haveOwnProperty('a');
-                done();
-              }
-            );
-          }
+          { _id: id, a: 500 },
+          {}
         );
+        const result = await dataService.findOneAndUpdate(
+          testNamespace,
+          { _id: id },
+          { $set: { b: 5 } },
+          { returnDocument: 'after' }
+        );
+        expect(result._id.toString()).to.deep.equal(id.toString());
+        expect(result.b).to.equal(5);
+        expect(result).to.haveOwnProperty('a');
       });
     });
 

@@ -634,8 +634,15 @@ class CrudStoreImpl
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        (ds, ns, opts, cb) => {
-          ds.findOneAndUpdate(ns, query, updateDoc, opts, cb);
+        async (ds, ns, opts) => {
+          try {
+            return [
+              undefined,
+              await ds.findOneAndUpdate(ns, query, updateDoc, opts),
+            ] as ErrorOrResult;
+          } catch (error) {
+            return [error, undefined] as ErrorOrResult;
+          }
         }
       );
 
@@ -732,12 +739,18 @@ class CrudStoreImpl
       );
       debug('Performing findOneAndReplace', { query, object });
 
-      // eslint-disable-next-line no-shadow
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        (ds, ns, opts, cb) => {
-          ds.findOneAndReplace(ns, query, object, opts, cb);
+        async (ds, ns, opts) => {
+          try {
+            return [
+              undefined,
+              await ds.findOneAndReplace(ns, query, object, opts),
+            ] as ErrorOrResult;
+          } catch (error) {
+            return [error, undefined] as ErrorOrResult;
+          }
         }
       );
       if (error) {
@@ -1575,14 +1588,12 @@ export async function findAndModifyWithFLEFallback(
   doFindAndModify: (
     ds: DataService,
     ns: string,
-    opts: { returnDocument: 'before' | 'after'; promoteValues: false },
-    cb: (error: { message: string } | undefined | null, doc: BSONObject) => void
-  ) => void
+    opts: { returnDocument: 'before' | 'after'; promoteValues: false }
+  ) => Promise<ErrorOrResult>
 ): Promise<ErrorOrResult> {
   const opts = { returnDocument: 'after', promoteValues: false } as const;
-  let [error, d] = await new Promise<ErrorOrResult>((resolve) => {
-    doFindAndModify(ds, ns, opts, (...cbArgs) => resolve(cbArgs as any));
-  });
+
+  let [error, d] = await doFindAndModify(ds, ns, opts);
   const originalError = error;
 
   // 6371402 is "'findAndModify with encryption only supports new: false'"
@@ -1592,9 +1603,7 @@ export async function findAndModifyWithFLEFallback(
       returnDocument: 'before',
       promoteValues: false,
     } as const;
-    [error, d] = await new Promise((resolve) => {
-      doFindAndModify(ds, ns, fallbackOpts, (...cbArgs) => resolve(cbArgs));
-    });
+    [error, d] = await doFindAndModify(ds, ns, fallbackOpts);
 
     if (!error) {
       let docs;
