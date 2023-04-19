@@ -96,7 +96,7 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
         ],
         [
           require.resolve('@babel/plugin-proposal-decorators'),
-          { legacy: true },
+          { version: '2023-01' },
         ],
         args.coverage && [
           'istanbul',
