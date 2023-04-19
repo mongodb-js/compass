@@ -160,7 +160,6 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   __TEST_REACT_WINDOW_OVERSCAN = null,
 }) => {
   const listRef = useRef<List | null>(null);
-
   const id = useId();
 
   const items: TreeItem[] = useMemo(() => {
