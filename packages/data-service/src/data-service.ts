@@ -1312,7 +1312,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await db.dropDatabase();
   }
 
-  @op(mongoLogId(1_001_000_180), ([ns, name], result) => {
+  @op(mongoLogId(1_001_000_182), ([ns, name], result) => {
     return { ns, name, ...(result && { result }) };
   })
   async dropIndex(ns: string, name: string): Promise<Document> {
