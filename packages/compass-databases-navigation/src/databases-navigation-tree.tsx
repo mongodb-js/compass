@@ -68,8 +68,8 @@ type ListItemData = {
   isReadOnly: boolean;
   activeNamespace: string;
   currentTabbable?: string;
-  onDatabaseExpand(id: string, isExpanded: boolean): void;
-  onNamespaceAction(namespace: string, action: Actions): void;
+  onDatabaseExpand(this: void, id: string, isExpanded: boolean): void;
+  onNamespaceAction(this: void, namespace: string, action: Actions): void;
 };
 
 const collectionItemContainer = css({
@@ -81,7 +81,6 @@ const NavigationItem = memo<{
   style: React.CSSProperties;
   data: ListItemData;
 }>(function NavigationItem({ index, style, data }) {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const {
     items,
     isReadOnly,

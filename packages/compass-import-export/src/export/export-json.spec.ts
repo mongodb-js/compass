@@ -2,7 +2,6 @@ import os from 'os';
 import { EJSON } from 'bson';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -37,8 +36,6 @@ function replaceIds(text: string) {
 
 describe('exportJSON', function () {
   let dataService: DataService;
-  let insertOne: any;
-  let insertMany: any;
   let tmpdir: string;
 
   // Insert documents once for all of the tests.
@@ -53,9 +50,6 @@ describe('exportJSON', function () {
     dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
-
-    insertOne = promisify(dataService.insertOne.bind(dataService));
-    insertMany = promisify(dataService.insertMany.bind(dataService));
 
     try {
       await dataService.dropCollection(testNS);
@@ -73,7 +67,7 @@ describe('exportJSON', function () {
   });
 
   it('exports to the output stream', async function () {
-    await insertOne(testNS, { testDoc: true }, {});
+    await dataService.insertOne(testNS, { testDoc: true });
 
     const abortController = new AbortController();
     const tempWriteStream = temp.createWriteStream();
@@ -93,7 +87,7 @@ describe('exportJSON', function () {
 
   for (const variant of ['default', 'relaxed', 'canonical'] as const) {
     it(`exports all types for variant=${variant}`, async function () {
-      await insertMany(testNS, allTypesDocs, {});
+      await dataService.insertMany(testNS, allTypesDocs);
 
       const tempWriteStream = temp.createWriteStream();
 
@@ -174,7 +168,7 @@ describe('exportJSON', function () {
           console.log(importedText);
           throw err;
         }
-        await insertMany(testNS, ejsonToInsert, {});
+        await dataService.insertMany(testNS, ejsonToInsert);
 
         const output = fs.createWriteStream(resultPath);
         const stats = await exportJSONFromQuery({
@@ -284,7 +278,7 @@ describe('exportJSON', function () {
         name,
       })
     );
-    await insertMany(testNS, docs, {});
+    await dataService.insertMany(testNS, docs);
 
     const abortController = new AbortController();
     const resultPath = path.join(tmpdir, 'test-aggregations.exported.json');
@@ -411,7 +405,7 @@ describe('exportJSON', function () {
   });
 
   it('throws when the write output errors', async function () {
-    await insertOne(testNS, { testDoc: true }, {});
+    await dataService.insertOne(testNS, { testDoc: true });
     const abortController = new AbortController();
 
     const mockWriteStream = new Writable({
@@ -438,8 +432,8 @@ describe('exportJSON', function () {
         name,
       })
     );
-    await insertMany(testNS, docs, {});
-    await insertOne(testNS, { testDoc: true }, {});
+    await dataService.insertMany(testNS, docs);
+    await dataService.insertOne(testNS, { testDoc: true });
 
     const resultPath = path.join(
       tmpdir,

@@ -2,7 +2,6 @@ import _ from 'lodash';
 import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import { Readable, Writable } from 'stream';
 import chai from 'chai';
 import sinon from 'sinon';
@@ -35,14 +34,11 @@ chai.use(chaiAsPromised);
 
 describe('exportCSV', function () {
   let dataService: DataService;
-  let insertMany: any;
 
   beforeEach(async function () {
     dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
-
-    insertMany = promisify(dataService.insertMany.bind(dataService));
 
     try {
       await dataService.dropCollection('db.col');
@@ -85,7 +81,7 @@ describe('exportCSV', function () {
   it('exports all bson types', async function () {
     const progressCallback = sinon.spy();
 
-    await insertMany('db.col', allTypesDoc, {});
+    await dataService.insertMany('db.col', allTypesDoc);
 
     const output = temp.createWriteStream();
     const result = await exportCSVFromQuery({
@@ -207,11 +203,11 @@ describe('exportCSV', function () {
   }
 
   async function insertDocs() {
-    const docs: Document = [];
+    const docs: Document[] = [];
     for (let i = 0; i < 1000; i++) {
       docs.push({ i, name: `name-${leadingZeroes(i, 4)}` });
     }
-    await insertMany('db.col', docs, {});
+    await dataService.insertMany('db.col', docs);
   }
 
   it('exports find queries', async function () {

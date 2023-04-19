@@ -529,7 +529,7 @@ describe('store', function () {
       beforeEach(function () {
         sinon
           .stub(dataService, 'deleteOne')
-          .yields({ message: 'error happened' });
+          .rejects({ message: 'error happened' });
       });
 
       it('sets the error for the document', function (done) {
@@ -547,7 +547,7 @@ describe('store', function () {
     let store;
     let actions;
 
-    beforeEach(function (done) {
+    beforeEach(async function () {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -559,19 +559,14 @@ describe('store', function () {
         actions: actions,
         namespace: 'compass-crud.test',
       });
-      dataService.insertOne(
-        'compass-crud.test',
-        {
-          _id: 'testing',
-          name: 'Depeche Mode',
-        },
-        {},
-        done
-      );
+      await dataService.insertOne('compass-crud.test', {
+        _id: 'testing',
+        name: 'Depeche Mode',
+      });
     });
 
-    afterEach(function (done) {
-      dataService.deleteMany('compass-crud.test', {}, {}, done);
+    afterEach(function () {
+      return dataService.deleteMany('compass-crud.test', {});
     });
 
     context('when there is no error', function () {
@@ -653,7 +648,7 @@ describe('store', function () {
       beforeEach(function () {
         sinon
           .stub(dataService, 'findOneAndUpdate')
-          .yields({ message: 'error happened' });
+          .throws({ message: 'error happened' });
       });
 
       it('sets the error for the document', function (done) {
@@ -676,7 +671,7 @@ describe('store', function () {
         hadronDoc.elements.at(1).rename('new name');
         sinon
           .stub(dataService, 'findOneAndUpdate')
-          .yields({ message: 'error happened' });
+          .throws({ message: 'error happened' });
       });
 
       it('sets the error for the document', function (done) {
@@ -695,7 +690,7 @@ describe('store', function () {
 
       beforeEach(function () {
         hadronDoc.elements.at(1).rename('new name');
-        sinon.stub(dataService, 'findOneAndUpdate').yields(null, null);
+        sinon.stub(dataService, 'findOneAndUpdate').resolves(null);
       });
 
       it('sets the update blocked for the document', function (done) {
@@ -714,7 +709,7 @@ describe('store', function () {
 
       beforeEach(function () {
         hadronDoc.get('name').edit('Desert Sand');
-        stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
+        stub = sinon.stub(dataService, 'findOneAndUpdate').resolves({});
       });
 
       it('has the original value for the edited value in the query', async function () {
@@ -742,7 +737,7 @@ describe('store', function () {
         beforeEach(function () {
           store.state.shardKeys = { yes: 1 };
           hadronDoc.get('name').edit('Desert Sand');
-          stub = sinon.stub(dataService, 'findOneAndUpdate').yields(null, {});
+          stub = sinon.stub(dataService, 'findOneAndUpdate').resolves({});
         });
 
         afterEach(function () {
@@ -797,10 +792,10 @@ describe('store', function () {
           hadronDoc.get('name').edit('Desert Sand');
           findOneAndReplaceStub = sinon
             .stub(dataService, 'findOneAndReplace')
-            .yields(null, {});
+            .resolves({});
           findOneAndUpdateStub = sinon
             .stub(dataService, 'findOneAndUpdate')
-            .yields(null, {});
+            .resolves({});
           isUpdateAllowedStub = sinon.stub().resolves(false);
           sinon.stub(dataService, 'getCSFLEMode').returns('enabled');
           sinon
@@ -869,7 +864,7 @@ describe('store', function () {
       beforeEach(function () {
         sinon
           .stub(dataService, 'findOneAndReplace')
-          .yields({ message: 'error happened' });
+          .rejects({ message: 'error happened' });
       });
 
       it('sets the error for the document', function (done) {
@@ -889,7 +884,7 @@ describe('store', function () {
 
       beforeEach(function () {
         hadronDoc.get('name').edit('Desert Sand');
-        stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
+        stub = sinon.stub(dataService, 'findOneAndReplace').resolves({});
       });
 
       it('has the original value for the edited value in the query', async function () {
@@ -912,7 +907,7 @@ describe('store', function () {
         beforeEach(function () {
           store.state.shardKeys = { yes: 1 };
           hadronDoc.get('name').edit('Desert Sand');
-          stub = sinon.stub(dataService, 'findOneAndReplace').yields(null, {});
+          stub = sinon.stub(dataService, 'findOneAndReplace').resolves({});
         });
 
         afterEach(function () {
@@ -948,10 +943,10 @@ describe('store', function () {
           hadronDoc.get('name').edit('Desert Sand');
           findOneAndReplaceStub = sinon
             .stub(dataService, 'findOneAndReplace')
-            .yields(null, {});
+            .resolves({});
           findOneAndUpdateStub = sinon
             .stub(dataService, 'findOneAndUpdate')
-            .yields(null, {});
+            .resolves({});
           isUpdateAllowedStub = sinon.stub().resolves(false);
           sinon.stub(dataService, 'getCSFLEMode').returns('enabled');
           sinon
@@ -996,8 +991,8 @@ describe('store', function () {
     });
 
     context('when there is no error', function () {
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       context('when the document matches the filter', function () {
@@ -1060,8 +1055,8 @@ describe('store', function () {
           store.state.insert.jsonDoc = jsonDoc;
         });
 
-        afterEach(function (done) {
-          dataService.deleteMany('compass-crud.test', {}, {}, done);
+        afterEach(function () {
+          return dataService.deleteMany('compass-crud.test', {});
         });
 
         it('does not insert the document', async function () {
@@ -1090,8 +1085,8 @@ describe('store', function () {
           store.state.insert.jsonDoc = jsonDoc;
         });
 
-        afterEach(function (done) {
-          dataService.deleteMany('compass-crud.test', {}, {}, done);
+        afterEach(function () {
+          return dataService.deleteMany('compass-crud.test', {});
         });
 
         it('does not insert the document', async function () {
@@ -1134,8 +1129,8 @@ describe('store', function () {
     });
 
     context('when there is no error', function () {
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       context('when the documents match the filter', function () {
@@ -1257,8 +1252,8 @@ describe('store', function () {
         store.state.insert.jsonDoc = JSON.stringify(docs);
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       it('does not insert the document', async function () {
@@ -1562,7 +1557,7 @@ describe('store', function () {
       let store;
       let actions;
 
-      beforeEach(function (done) {
+      beforeEach(async function () {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1575,16 +1570,11 @@ describe('store', function () {
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
         });
-        dataService.insertOne(
-          'compass-crud.test',
-          { name: 'testing' },
-          {},
-          done
-        );
+        await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       context('when there is no error', function () {
@@ -1639,7 +1629,7 @@ describe('store', function () {
       let store;
       let actions;
 
-      beforeEach(function (done) {
+      beforeEach(async function () {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1652,21 +1642,16 @@ describe('store', function () {
           namespace: 'compass-crud.test',
           noRefreshOnConfigure: true,
         });
-        dataService.insertOne(
-          'config.collections',
-          { _id: 'compass-crud.test', key: { a: 1 } },
-          {},
-          done
-        );
+        await dataService.insertOne('config.collections', {
+          _id: 'compass-crud.test',
+          key: { a: 1 },
+        });
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany(
-          'config.collections',
-          { _id: 'compass-crud.test' },
-          {},
-          done
-        );
+      afterEach(function () {
+        return dataService.deleteMany('config.collections', {
+          _id: 'compass-crud.test',
+        });
       });
 
       it('looks up the shard keys', async function () {
@@ -1685,7 +1670,7 @@ describe('store', function () {
       let store;
       let actions;
 
-      beforeEach(function (done) {
+      beforeEach(async function () {
         actions = configureActions();
         store = configureStore({
           query: { project: { _id: 0 } },
@@ -1701,16 +1686,11 @@ describe('store', function () {
         });
 
         store.setState({ query: { project: { _id: 0 } } });
-        dataService.insertOne(
-          'compass-crud.test',
-          { name: 'testing' },
-          {},
-          done
-        );
+        await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       it('sets the state as not editable', async function () {
@@ -1728,7 +1708,7 @@ describe('store', function () {
       let store;
       let actions;
 
-      beforeEach(function (done) {
+      beforeEach(async function () {
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -1743,16 +1723,11 @@ describe('store', function () {
         });
 
         store.setState({ isEditable: false });
-        dataService.insertOne(
-          'compass-crud.test',
-          { name: 'testing' },
-          {},
-          done
-        );
+        await dataService.insertOne('compass-crud.test', { name: 'testing' });
       });
 
-      afterEach(function (done) {
-        dataService.deleteMany('compass-crud.test', {}, {}, done);
+      afterEach(function () {
+        return dataService.deleteMany('compass-crud.test', {});
       });
 
       it('resets the state as editable', async function () {
@@ -1883,7 +1858,7 @@ describe('store', function () {
     let actions;
     let findSpy;
 
-    beforeEach(function (done) {
+    beforeEach(async function () {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1900,11 +1875,11 @@ describe('store', function () {
       findSpy = sinon.spy(store.dataService, 'find');
 
       const docs = [...Array(1000).keys()].map((i) => ({ i }));
-      dataService.insertMany('compass-crud.test', docs, {}, done);
+      await dataService.insertMany('compass-crud.test', docs);
     });
 
-    afterEach(function (done) {
-      dataService.deleteMany('compass-crud.test', {}, {}, done);
+    afterEach(function () {
+      return dataService.deleteMany('compass-crud.test', {});
     });
 
     it('does nothing for negative page numbers', async function () {
@@ -1985,7 +1960,7 @@ describe('store', function () {
     let store;
     let actions;
 
-    beforeEach(function (done) {
+    beforeEach(async function () {
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1998,44 +1973,23 @@ describe('store', function () {
         namespace: 'compass-crud.testview',
         noRefreshOnConfigure: true,
       });
-      dataService.insertMany(
+      await dataService.insertMany('compass-crud.test', [
+        { _id: '001', cat: 'nori' },
+        { _id: '002', cat: 'chashu' },
+        { _id: '003', cat: 'amy' },
+        { _id: '004', cat: 'pia' },
+      ]);
+      await dataService.createView(
+        'testview',
         'compass-crud.test',
-        [
-          { _id: '001', cat: 'nori' },
-          { _id: '002', cat: 'chashu' },
-          { _id: '003', cat: 'amy' },
-          { _id: '004', cat: 'pia' },
-        ],
-        {},
-        (err) => {
-          if (err) {
-            return done(err);
-          }
-
-          dataService
-            .createView(
-              'testview',
-              'compass-crud.test',
-              [{ $sort: { cat: 1 } }],
-              {}
-            )
-            .then(
-              () => {
-                done();
-              },
-              (createViewError) => {
-                done(createViewError);
-              }
-            );
-        }
+        [{ $sort: { cat: 1 } }],
+        {}
       );
     });
 
-    afterEach(function (done) {
-      dataService.deleteMany('compass-crud.test', {}, {}, (err) => {
-        if (err) return done(err);
-        dataService.dropView('compass-crud.testview', done);
-      });
+    afterEach(async function () {
+      await dataService.deleteMany('compass-crud.test', {});
+      await dataService.dropCollection('compass-crud.testview');
     });
 
     it('returns documents in view order', async function () {
@@ -2066,8 +2020,8 @@ describe('store', function () {
 
     it('does the original findAndModify operation and nothing more if it succeeds', async function () {
       const document = { _id: 1234 };
-      const stub = sinon.stub().callsFake((ds, ns, opts, cb) => {
-        cb(undefined, document);
+      const stub = sinon.stub().callsFake(() => {
+        return [undefined, document];
       });
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
@@ -2087,8 +2041,8 @@ describe('store', function () {
 
     it('does the original findAndModify operation and nothing more if it fails with a non-FLE error', async function () {
       const err = new Error('failed');
-      const stub = sinon.stub().callsFake((ds, ns, opts, cb) => {
-        cb(err);
+      const stub = sinon.stub().callsFake(() => {
+        return [err];
       });
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
@@ -2110,11 +2064,11 @@ describe('store', function () {
       const document = { _id: 1234 };
       const err = Object.assign(new Error('failed'), { code: 6371402 });
       const stub = sinon.stub();
-      stub.onFirstCall().callsFake((ds, ns, opts, cb) => {
-        cb(err);
+      stub.onFirstCall().callsFake(() => {
+        return [err];
       });
-      stub.onSecondCall().callsFake((ds, ns, opts, cb) => {
-        cb(undefined, document);
+      stub.onSecondCall().callsFake(() => {
+        return [undefined, document];
       });
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
@@ -2150,11 +2104,11 @@ describe('store', function () {
       const document = { _id: 1234 };
       const err = Object.assign(new Error('failed'), { code: 6371402 });
       const stub = sinon.stub();
-      stub.onFirstCall().callsFake((ds, ns, opts, cb) => {
-        cb(err);
+      stub.onFirstCall().callsFake(() => {
+        return [err];
       });
-      stub.onSecondCall().callsFake((ds, ns, opts, cb) => {
-        cb(undefined, document);
+      stub.onSecondCall().callsFake(() => {
+        return [undefined, document];
       });
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,

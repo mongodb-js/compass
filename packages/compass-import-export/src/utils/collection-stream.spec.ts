@@ -40,20 +40,14 @@ function getDataService({
       });
     },
 
-    insertOne: (
-      ns: string,
-      doc: any,
-      options: any,
-      callback: (err: Error | null, result?: any) => void
-    ) => {
+    insertOne: () => {
       if (throwErrors) {
         const error = new Error('fake insertOne error');
         delete error.stack; // slows down tests due to excess output
-        callback(error);
-        return;
+        return Promise.reject(error);
       }
 
-      callback(null, { acknowledged: true });
+      return Promise.resolve({ acknowledged: true });
     },
   };
 }
