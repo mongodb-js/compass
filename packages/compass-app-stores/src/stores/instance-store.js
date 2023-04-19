@@ -271,7 +271,7 @@ store.onActivated = (appRegistry) => {
 
     const db = instance.databases.get(database);
     if (db) {
-      await db.fetchCollections({ dataService, fetchInfo: true, force: true });
+      await db.fetchCollectionsDetails({ dataService, force: true });
     }
   });
 
