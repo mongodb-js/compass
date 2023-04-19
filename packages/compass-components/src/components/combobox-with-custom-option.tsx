@@ -18,16 +18,20 @@ export const ComboboxWithCustomOption = <M extends boolean>({
   multiselect = false as M,
   ...props
 }: ComboboxWithCustomOptionProps<M>) => {
+  const [customOptions, setCustomOptions] = useState<string[]>([]);
   const [search, setSearch] = useState('');
+
   const comboboxOptions = useMemo(() => {
-    const _opts = options.map((option, index) => (
+    const totalOptions = [...options, ...customOptions];
+    const _opts = totalOptions.map((option, index) => (
       <ComboboxOption
         key={`combobox-option-${index}`}
         value={option}
         displayName={option}
       />
     ));
-    if (search && !options.includes(search)) {
+
+    if (search && !totalOptions.includes(search)) {
       _opts.push(
         <ComboboxOption
           key={`combobox-option-new`}
@@ -37,7 +41,8 @@ export const ComboboxWithCustomOption = <M extends boolean>({
       );
     }
     return _opts;
-  }, [options, search, optionLabel]);
+  }, [options, customOptions, search, optionLabel]);
+
   return (
     <Combobox
       {...props}
@@ -46,9 +51,18 @@ export const ComboboxWithCustomOption = <M extends boolean>({
       onChange={(value: string | string[] | null) => {
         if (!onChange) return;
         if (multiselect) {
-          (onChange as onChangeType<true>)(value as SelectValueType<true>);
+          const multiSelectValues = value as SelectValueType<true>;
+          const customOptions = multiSelectValues.filter(
+            (value) => !options.includes(value)
+          );
+          setCustomOptions(customOptions);
+          (onChange as onChangeType<true>)(multiSelectValues);
         } else {
-          (onChange as onChangeType<false>)(value as SelectValueType<false>);
+          const selectValue = value as SelectValueType<false>;
+          if (selectValue && !options.includes(selectValue)) {
+            setCustomOptions([selectValue]);
+          }
+          (onChange as onChangeType<false>)(selectValue);
         }
       }}
     >
