@@ -3,7 +3,6 @@ import _ from 'lodash';
 import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import type { Document } from 'bson';
 import chai from 'chai';
 import sinon from 'sinon';
@@ -35,14 +34,11 @@ const testNS = 'gather-fields-test.test-col';
 
 describe('gatherFields', function () {
   let dataService: DataService;
-  let insertMany: any;
 
   beforeEach(async function () {
     dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
-
-    insertMany = promisify(dataService.insertMany.bind(dataService));
 
     try {
       await dataService.dropCollection(testNS);
@@ -65,11 +61,11 @@ describe('gatherFields', function () {
   }
 
   async function insertDocs() {
-    const docs: Document = [];
+    const docs: Document[] = [];
     for (let i = 0; i < 1000; i++) {
       docs.push({ i, name: `name-${leadingZeroes(i, 4)}` });
     }
-    await insertMany(testNS, docs, {});
+    await dataService.insertMany(testNS, docs);
   }
 
   describe('gatherFieldsFromQuery', function () {
@@ -88,11 +84,11 @@ describe('gatherFields', function () {
     });
 
     it('treats sampleSize as optional', async function () {
-      const docs: Document = [];
+      const docs: Document[] = [];
       for (let i = 0; i < 1001; i++) {
         docs.push({ i });
       }
-      await insertMany(testNS, docs, {});
+      await dataService.insertMany(testNS, docs);
 
       const result = await gatherFieldsFromQuery({
         ns: testNS,
@@ -108,14 +104,14 @@ describe('gatherFields', function () {
     });
 
     it('works with all find parameters', async function () {
-      const docs: Document = [];
+      const docs: Document[] = [];
       for (let i = 0; i < 26; i++) {
         const doc: Document = { index: i };
         const letter = String.fromCharCode('a'.charCodeAt(0) + i);
         doc[letter] = true;
         docs.push(doc);
       }
-      await insertMany(testNS, docs, {});
+      await dataService.insertMany(testNS, docs);
 
       const result = await gatherFieldsFromQuery({
         ns: testNS,
@@ -153,7 +149,7 @@ describe('gatherFields', function () {
   });
 
   it('gathers all bson types', async function () {
-    await insertMany(testNS, allTypesDoc, {});
+    await dataService.insertMany(testNS, allTypesDoc, {});
 
     const abortController = new AbortController();
     const abortSignal = abortController.signal;
@@ -283,19 +279,27 @@ describe('gatherFields', function () {
 
 describe('createProjectionFromSchemaFields', function () {
   it('builds projections', function () {
-    expect(createProjectionFromSchemaFields([])).to.deep.equal({});
+    expect(createProjectionFromSchemaFields([])).to.deep.equal({
+      _id: false,
+    });
 
     expect(createProjectionFromSchemaFields([['foo']])).to.deep.equal({
+      _id: false,
       foo: true,
     });
 
     expect(
       createProjectionFromSchemaFields([['foo'], ['foo', 'bar']])
-    ).to.deep.equal({ foo: true });
+    ).to.deep.equal({ foo: true, _id: false });
 
     expect(
       createProjectionFromSchemaFields([['foo', 'bar'], ['foo']])
-    ).to.deep.equal({ foo: true });
+    ).to.deep.equal({ foo: true, _id: false });
+
+    expect(createProjectionFromSchemaFields([['_id'], ['foo']])).to.deep.equal({
+      foo: true,
+      _id: true,
+    });
 
     expect(
       createProjectionFromSchemaFields([
@@ -303,6 +307,7 @@ describe('createProjectionFromSchemaFields', function () {
         ['fruit', 'pineapple'],
       ])
     ).to.deep.equal({
+      _id: false,
       fruit: {
         banana: true,
         pineapple: true,
@@ -312,6 +317,7 @@ describe('createProjectionFromSchemaFields', function () {
     expect(
       createProjectionFromSchemaFields([['pen', 'pineapple', 'apple', 'pen']])
     ).to.deep.equal({
+      _id: false,
       pen: {
         pineapple: {
           apple: {
