@@ -672,7 +672,7 @@ const maybePickNs = ([ns]: unknown[]) => {
   }
 };
 
-const isPromise = <T>(val: any): val is Promise<T> => {
+const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {
   return 'then' in val && typeof val.then === 'function';
 };
 
@@ -742,7 +742,7 @@ function op<T extends unknown[], K>(
       };
       try {
         const result = target.call(this, ...args);
-        if (isPromise<K extends Promise<infer R> ? R : never>(result)) {
+        if (isPromiseLike<K extends Promise<infer R> ? R : never>(result)) {
           return result.then(handleResult, handleError) as K;
         } else {
           return handleResult(result);
