@@ -21,9 +21,7 @@ const getObjectKeys = (record: Document) => {
 
     if (value && typeof value === 'object') {
       const isBson = value._bsontype;
-      if (isBson) {
-        keys.push(key);
-      } else {
+      if (!isBson) {
         const nestedKeys = Array.isArray(value)
           ? getArrayKeys(value)
           : getObjectKeys(value);

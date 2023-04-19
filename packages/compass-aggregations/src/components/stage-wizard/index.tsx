@@ -173,7 +173,7 @@ export default connect(
     const previousStage = stages
       .slice(0, ownProps.index)
       .reverse()
-      .find((x) => x.type === 'stage' && !x.disabled) as StoreStage | undefined;
+      .find((x): x is StoreStage => x.type === 'stage' && !x.disabled);
 
     const mappedInitialFields = initialFields.map(
       (x: { name: string }) => x.name
