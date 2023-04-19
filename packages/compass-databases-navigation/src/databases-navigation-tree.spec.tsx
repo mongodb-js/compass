@@ -117,7 +117,6 @@ describe('DatabasesNavigationTree', function () {
           databases={databases}
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
-          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -137,7 +136,6 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
-          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -156,7 +154,6 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar.meow"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
-          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -180,7 +177,6 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
-          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -207,8 +203,7 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
-          isWritable
-          readOnly
+          isReadOnly
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -227,8 +222,7 @@ describe('DatabasesNavigationTree', function () {
           activeNamespace="bar.bwok"
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
-          isWritable
-          readOnly
+          isReadOnly
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -247,7 +241,6 @@ describe('DatabasesNavigationTree', function () {
           databases={databases}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
-          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -265,7 +258,6 @@ describe('DatabasesNavigationTree', function () {
           expanded={{ bar: true }}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
-          isWritable
           {...TEST_VIRTUAL_PROPS}
         ></DatabasesNavigationTree>
       );
@@ -284,7 +276,6 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
-            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -302,7 +293,6 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="foo"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
-            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -323,7 +313,6 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
-            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -345,7 +334,6 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.meow"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
-            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -370,7 +358,6 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
-            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );
@@ -393,7 +380,6 @@ describe('DatabasesNavigationTree', function () {
             activeNamespace="bar.bwok"
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
-            isWritable
             {...TEST_VIRTUAL_PROPS}
           ></DatabasesNavigationTree>
         );

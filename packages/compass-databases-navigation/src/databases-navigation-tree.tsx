@@ -142,18 +142,14 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   onDatabaseExpand(id: string, isExpanded: boolean): void;
   onNamespaceAction(namespace: string, action: Actions): void;
   activeNamespace?: string;
-  readOnly?: boolean;
-  isDataLake?: boolean;
-  isWritable?: boolean;
+  isReadOnly?: boolean;
 }> = ({
   databases,
   expanded = {},
-  isDataLake,
-  isWritable,
   activeNamespace = '',
   onDatabaseExpand,
   onNamespaceAction,
-  readOnly,
+  isReadOnly = false,
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error ignoring test props so they are not part of the interface
   __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH = null,
@@ -164,7 +160,6 @@ const DatabasesNavigationTree: React.FunctionComponent<{
   // @ts-expect-error ignoring test props so they are not part of the interface
   __TEST_REACT_WINDOW_OVERSCAN = null,
 }) => {
-  const isReadOnly = readOnly || isDataLake || !isWritable;
   const listRef = useRef<List | null>(null);
   const id = useId();
 

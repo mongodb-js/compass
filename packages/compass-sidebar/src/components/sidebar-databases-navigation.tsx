@@ -8,6 +8,22 @@ import toNS from 'mongodb-ns';
 import { toggleDatabaseExpanded } from '../modules/databases';
 import { withPreferences } from 'compass-preferences-model';
 
+function SidebarDatabasesNavigation(
+  dbNavigationProps: React.ComponentProps<typeof DatabasesNavigationTree> & {
+    readOnly?: boolean;
+    isDataLake?: boolean;
+    isWritable?: boolean;
+  }
+) {
+  const isReadOnly =
+    dbNavigationProps.readOnly ||
+    dbNavigationProps.isDataLake ||
+    !dbNavigationProps.isWritable;
+  return (
+    <DatabasesNavigationTree {...dbNavigationProps} isReadOnly={isReadOnly} />
+  );
+}
+
 function mapStateToProps(state: any) {
   // TODO: type state
   const {
@@ -79,4 +95,4 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
 export default connect(mapStateToProps, {
   onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
-})(withPreferences(DatabasesNavigationTree, ['readOnly'], React));
+})(withPreferences(SidebarDatabasesNavigation, ['readOnly'], React));
