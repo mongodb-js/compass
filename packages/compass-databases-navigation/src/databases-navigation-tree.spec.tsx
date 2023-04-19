@@ -110,7 +110,7 @@ describe('DatabasesNavigationTree', function () {
     });
   });
 
-  describe('when readOnly is false', function () {
+  describe('when isReadOnly is false or undefined', function () {
     it('should show all database actions on hover', function () {
       render(
         <DatabasesNavigationTree
@@ -195,7 +195,7 @@ describe('DatabasesNavigationTree', function () {
     });
   });
 
-  describe('when readOnly is true', function () {
+  describe('when isReadOnly is true', function () {
     it('should not show database actions', function () {
       render(
         <DatabasesNavigationTree
