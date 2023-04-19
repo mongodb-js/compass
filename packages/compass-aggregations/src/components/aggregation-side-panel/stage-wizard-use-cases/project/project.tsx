@@ -17,10 +17,11 @@ type MapStateProps = { fields: string[] };
 export type ProjectProps = ProjectOwnProps & MapStateProps;
 
 type ProjectFormState = string[];
-type ProjectionType = 'include' | 'exclude';
+export type ProjectionType = 'include' | 'exclude';
 
 // Helpers
-export const COMBOBOX_PLACEHOLDER_TEXT = 'Select field name';
+export const SELECT_PLACEHOLDER_TEXT = 'Select projection type';
+export const COMBOBOX_PLACEHOLDER_TEXT = 'Select field names';
 
 export const mapProjectFormStateToStageValue = (
   projectionType: ProjectionType,
@@ -83,37 +84,34 @@ export const ProjectForm = ({ fields, onChange }: ProjectProps) => {
   return (
     <div className={containerStyles}>
       <div className={formGroupStyles} data-testid="project-form">
-        <div data-testid="project-form-projection">
-          {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
-          <Select
-            className={selectStyles}
-            allowDeselect={false}
-            aria-label="Select projection type"
-            usePortal={true}
-            value={projectionType}
-            onChange={(value) => setProjectionType(value as ProjectionType)}
-          >
-            <Option value="include">Include</Option>
-            <Option value="exclude">Exclude</Option>
-          </Select>
-        </div>
-        <div data-testid="project-form-field">
-          <ComboboxWithCustomOption<true>
-            placeholder={COMBOBOX_PLACEHOLDER_TEXT}
-            className={comboboxStyles}
-            aria-label={COMBOBOX_PLACEHOLDER_TEXT}
-            size="default"
-            clearable={false}
-            multiselect={true}
-            value={projectFields}
-            onChange={onSelectField}
-            options={fields}
-            optionLabel="Field:"
-            overflow="scroll-x"
-            // Used for testing to access the popover for a stage
-            popoverClassName="project-form-field-combobox"
-          />
-        </div>
+        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
+        <Select
+          data-testid="project-form-projection"
+          className={selectStyles}
+          allowDeselect={false}
+          aria-label={SELECT_PLACEHOLDER_TEXT}
+          value={projectionType}
+          onChange={(value) => setProjectionType(value as ProjectionType)}
+        >
+          <Option value="include">Include</Option>
+          <Option value="exclude">Exclude</Option>
+        </Select>
+        <ComboboxWithCustomOption<true>
+          data-testid="project-form-field"
+          placeholder={COMBOBOX_PLACEHOLDER_TEXT}
+          className={comboboxStyles}
+          aria-label={COMBOBOX_PLACEHOLDER_TEXT}
+          size="default"
+          clearable={false}
+          multiselect={true}
+          value={projectFields}
+          onChange={onSelectField}
+          options={fields}
+          optionLabel="Field:"
+          overflow="scroll-x"
+          // Used for testing to access the popover for a stage
+          popoverClassName="project-form-field-combobox"
+        />
       </div>
     </div>
   );
