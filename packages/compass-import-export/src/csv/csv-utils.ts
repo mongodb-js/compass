@@ -24,6 +24,7 @@ import type {
   CSVParsableFieldType,
   IncludedFields,
   CSVValue,
+  CSVFieldTypeInfo,
 } from './csv-types';
 
 export function formatCSVValue(
@@ -212,7 +213,7 @@ export function detectCSVFieldType(
   value: string,
   name: string,
   ignoreEmptyStrings?: boolean
-): CSVDetectableFieldType {
+): CSVDetectableFieldType | 'undefined' {
   // for some types we can go further and also look at the field name
   if (name === '_id' && OBJECTID_REGEX.test(value)) {
     return 'objectId';
@@ -378,10 +379,18 @@ export function makeDocFromCSV(
 
     let type = included[fieldName];
     if (type === 'mixed') {
-      type = detectCSVFieldType(original, fieldName, ignoreEmptyStrings);
+      type = detectCSVFieldType(
+        original,
+        fieldName,
+        ignoreEmptyStrings
+      ) as CSVParsableFieldType;
     }
     if (type === 'number') {
-      type = detectCSVFieldType(original, fieldName, ignoreEmptyStrings);
+      type = detectCSVFieldType(
+        original,
+        fieldName,
+        ignoreEmptyStrings
+      ) as CSVParsableFieldType;
       if (!['int', 'long', 'double'].includes(type)) {
         throw new Error(
           `"${original}" is not a number (found "${type}") [Col ${index}]`
@@ -649,4 +658,100 @@ export function formatCSVHeaderName(path: PathPart[]): string {
       }
     })
     .join('');
+}
+
+const NUMBER_TYPES: CSVParsableFieldType[] = ['int', 'long', 'double'];
+
+export function isCompatibleCSVFieldType(
+  selectedType: CSVParsableFieldType,
+  type: CSVParsableFieldType | 'undefined'
+) {
+  if (type === 'undefined') {
+    // Blanks that are mixed in are always OK because they will be ignored
+    // separately depending on the Ignore empty strings option. This does leave
+    // the edge case where the entire column is always blank which has to be
+    // handed separately.
+    return true;
+  }
+
+  if (selectedType === 'string') {
+    // we can leave anything as a string
+    return true;
+  }
+
+  if (selectedType === 'mixed') {
+    // anything can be processed as mixed
+    return true;
+  }
+
+  if (selectedType === 'number') {
+    // only number type can be a number
+    return NUMBER_TYPES.includes(type);
+  }
+
+  if (selectedType === 'double') {
+    // any number type can be a double
+    return NUMBER_TYPES.includes(type);
+  }
+
+  if (selectedType === 'decimal') {
+    // any number type can be made a decimal
+    return NUMBER_TYPES.includes(type);
+  }
+
+  if (selectedType === 'long') {
+    // only int32 and long can both be long
+    return ['int', 'long'].includes(type);
+  }
+
+  if (selectedType === 'date') {
+    // dates and longs can be dates
+    if (['date', 'long'].includes(type)) {
+      return true;
+    }
+
+    // Our date type detection isn't perfect and `new Date(someString)` can take
+    // a surprising amount of stuff and kick out a date, so just allow users to
+    // try their luck. The parsing code will check that it made some date, at
+    // least.
+    if (NUMBER_TYPES.includes(type) || type === 'string') {
+      return true;
+    }
+
+    return false;
+  }
+
+  if (selectedType === 'timestamp') {
+    // we can only parse longs as timestamps
+    return type === 'long';
+  }
+
+  // The constructors for all these things can take various things (more than we
+  // can detect), so just allow the user to try anything for. It will produce
+  // parse errors if things won't work anyway.
+  if (['objectId', 'uuid', 'md5', 'binData'].includes(selectedType)) {
+    return true;
+  }
+
+  // By default the type has to match what it detected. This should cover:
+  // *  boolean, minKey, maxKey and null where we can only parse it to a boolean
+  //    if it matches the strings use to detect
+  // * ejson where we check if it parses as part of the detection
+  // * regex where we check that we can parse it as part of detection
+  return type === selectedType;
+}
+
+export function findBrokenCSVTypeExample(
+  types: Record<CSVDetectableFieldType | 'undefined', CSVFieldTypeInfo>,
+  selectedType: CSVParsableFieldType
+) {
+  for (const [type, info] of Object.entries(types) as [
+    type: CSVParsableFieldType | 'undefined',
+    info: CSVFieldTypeInfo
+  ][]) {
+    if (!isCompatibleCSVFieldType(selectedType, type)) {
+      return info;
+    }
+  }
+  return null;
 }

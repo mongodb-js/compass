@@ -35,16 +35,13 @@ import { globalAppRegistryEmit, nsChanged } from './compass';
 import type { ProcessStatus } from '../constants/process-status';
 import type { RootImportState } from '../stores/import-store';
 import type { AcceptedFileType } from '../constants/file-types';
-import type { CSVParsableFieldType } from '../csv/csv-types';
+import type { CSVParsableFieldType, CSVField } from '../csv/csv-types';
 import type { ErrorJSON, ImportResult } from '../import/import-types';
 import { csvHeaderNameToFieldName } from '../csv/csv-utils';
 import { guessFileType } from '../import/guess-filetype';
 import { listCSVFields } from '../import/list-csv-fields';
 import { analyzeCSVFields } from '../import/analyze-csv-fields';
-import type {
-  AnalyzeCSVFieldsResult,
-  CSVField,
-} from '../import/analyze-csv-fields';
+import type { AnalyzeCSVFieldsResult } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
@@ -563,18 +560,7 @@ const loadTypes = (
 
         const csvField = unknownField as FieldFromCSV;
 
-        let detected = result.fields[csvField.path].detected;
-        if (detected === 'undefined') {
-          // This is a bit of an edge case. If a column is always empty and
-          // "Ignore empty strings" is checked, we'll detect "undefined".
-          // We'll never actually insert undefined due to the checkbox, but
-          // undefined as a bson type is deprecated so it might give the wrong
-          // impression. We could select any type in the selectbox, so the
-          // choice of making it null is arbitrary.
-          detected = 'null';
-        }
-
-        csvField.type = detected;
+        csvField.type = result.fields[csvField.path].detected;
 
         csvField.result = result.fields[csvField.path];
       }
