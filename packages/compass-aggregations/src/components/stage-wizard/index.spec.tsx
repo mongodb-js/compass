@@ -18,6 +18,9 @@ const renderStageWizard = (
       value={null}
       useCaseId="test"
       index={0}
+      setNodeRef={() => {}}
+      style={{}}
+      listeners={undefined}
       {...props}
     />
   );

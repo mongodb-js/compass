@@ -1,17 +1,17 @@
 import type AppRegistry from 'hadron-app-registry';
-import { createStore, applyMiddleware } from 'redux';
-import type { Store, AnyAction } from 'redux';
-import thunk from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import type { Store, AnyAction } from 'redux';
 
-import reducer from '../modules';
+import { globalAppRegistryActivated } from '../modules/compass/global-app-registry';
 import {
   dataServiceConnected,
-  globalAppRegistryActivated,
-} from '../modules/compass';
-import { openExport } from '../modules/export';
+  dataServiceDisconnected,
+} from '../modules/compass/data-service';
+import { rootExportReducer, openExport } from '../modules/export';
 
-const _store = createStore(reducer, applyMiddleware(thunk));
+const _store = createStore(rootExportReducer, applyMiddleware(thunk));
 
 type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
 
@@ -32,23 +32,29 @@ const store = Object.assign(_store, {
       }
     );
 
+    // Abort the export operation when it's in progress.
+    globalAppRegistry.on('data-service-disconnected', () => {
+      store.dispatch(dataServiceDisconnected());
+    });
+
     globalAppRegistry.on(
       'open-export',
-      ({ namespace, query, count, aggregation }) => {
-        // TODO: Once we update our redux usage to use `configureStore` from `@reduxjs/toolkit`
-        // we should be able to remove this type cast as the thunk action will
-        // be properly accepted in the store dispatch typing.
+      ({ namespace, query, exportFullCollection, aggregation }) => {
         store.dispatch(
           openExport({
             namespace,
-            query,
-            count,
+            query: {
+              // In the query bar we use `project` instead of `projection`.
+              ...query,
+              ...(query?.project ? { projection: query.project } : {}),
+            },
+            exportFullCollection,
             aggregation,
-          }) as unknown as AnyAction
+          })
         );
       }
     );
   },
 });
 
-export default store;
+export { store };

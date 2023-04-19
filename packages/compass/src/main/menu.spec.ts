@@ -139,7 +139,7 @@ describe('CompassMenu', function () {
         {
           label: '&Connect',
           submenu: [
-            { label: 'New &Connection', accelerator: 'CmdOrCtrl+N' },
+            { label: 'New &Window', accelerator: 'CmdOrCtrl+N' },
             { label: '&Disconnect' },
             { type: 'separator' },
             { label: '&Import Saved Connections' },
@@ -208,7 +208,7 @@ describe('CompassMenu', function () {
           {
             label: '&Connect',
             submenu: [
-              { label: 'New &Connection', accelerator: 'CmdOrCtrl+N' },
+              { label: 'New &Window', accelerator: 'CmdOrCtrl+N' },
               { label: '&Disconnect' },
               { type: 'separator' },
               { label: '&Import Saved Connections' },

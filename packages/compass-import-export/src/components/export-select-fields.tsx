@@ -5,11 +5,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-
 import {
   Body,
   Button,
+  Checkbox,
+  Disclaimer,
+  ErrorSummary,
   Icon,
+  Placeholder,
   Table,
   TableHeader,
   Row,
@@ -17,15 +20,26 @@ import {
   TextInput,
   css,
   spacing,
-  Checkbox,
-  Disclaimer,
+  Label,
 } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
+
+import {
+  selectFieldsToExport,
+  toggleFieldToExport,
+  addFieldToExport,
+  toggleExportAllSelectedFields,
+  getIdForSchemaPath,
+} from '../modules/export';
+import type { FieldsToExport } from '../modules/export';
+import type { RootExportState } from '../stores/export-store';
+import type { SchemaPath } from '../export/gather-fields';
 
 const headerContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   marginBottom: spacing[3],
-  marginTop: spacing[3],
+  marginTop: spacing[2],
   gap: spacing[2],
 });
 
@@ -50,14 +64,85 @@ const enterToAddStyles = css({
   marginLeft: spacing[2],
 });
 
+const placeholderStyles = css({
+  margin: spacing[1],
+});
+
+const retryButtonContainerStyles = css({
+  margin: spacing[2],
+  textAlign: 'center',
+});
+
+const addNewFieldRowStyles = css({
+  marginBottom: spacing[5],
+});
+
+const loadingPlaceholderCount = 6;
+const loadingPlaceholderItems = Array.from({
+  length: loadingPlaceholderCount,
+}).map((value, index) => index);
+
+function LoadingTable() {
+  return (
+    <Table
+      data={loadingPlaceholderItems}
+      columns={[
+        <TableHeader
+          className={smallCellContainerStyle}
+          key="checkbox"
+          label={
+            <Checkbox
+              aria-label="Select all fields"
+              disabled
+              checked={false}
+              onChange={() => {
+                /* noop */
+              }}
+            />
+          }
+        />,
+        <TableHeader key="field-name" label="Field Name" />,
+      ]}
+    >
+      {({ datum: index }) => (
+        <Row>
+          <Cell>
+            <Placeholder
+              className={placeholderStyles}
+              style={{
+                // Fade to transparent as we go down.
+                opacity:
+                  (loadingPlaceholderCount - index) / loadingPlaceholderCount,
+              }}
+              key={index}
+              minChar={30}
+              maxChar={40}
+            />
+          </Cell>
+        </Row>
+      )}
+    </Table>
+  );
+}
+
 type ExportSelectFieldsProps = {
-  fields: Record<string, boolean>;
-  updateSelectedFields: (selectedFields: Record<string, boolean>) => void;
+  isLoading: boolean;
+  errorLoadingFieldsToExport?: string;
+  fields: FieldsToExport;
+  selectFieldsToExport: () => void; // Used to retry fetching fields when fetching the fields fails.
+  addFieldToExport: (path: SchemaPath) => void;
+  toggleFieldToExport: (fieldId: string, selected: boolean) => void;
+  toggleExportAllSelectedFields: () => void;
 };
 
 function ExportSelectFields({
+  errorLoadingFieldsToExport,
+  isLoading,
   fields,
-  updateSelectedFields,
+  addFieldToExport,
+  selectFieldsToExport,
+  toggleFieldToExport,
+  toggleExportAllSelectedFields,
 }: ExportSelectFieldsProps) {
   const newFieldRef = useRef<HTMLInputElement | null>(null);
 
@@ -69,7 +154,7 @@ function ExportSelectFields({
   const fieldKeys = useMemo(() => Object.keys(fields), [fields]);
 
   const isEveryFieldChecked = useMemo(() => {
-    return Object.keys(fields).every((f) => fields[f]);
+    return Object.keys(fields).every((f) => fields[f].selected);
   }, [fields]);
 
   const onAddNewFieldButtonClicked = useCallback(() => {
@@ -81,38 +166,21 @@ function ExportSelectFields({
 
   const handleFieldCheckboxChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
-      const newFields = Object.assign({}, fields);
-      newFields[`${evt.target.name}`] = !newFields[`${evt.target.name}`];
-      updateSelectedFields(newFields);
+      toggleFieldToExport(
+        `${evt.target.name}`,
+        !fields[`${evt.target.name}`].selected
+      );
     },
-    [updateSelectedFields, fields]
+    [toggleFieldToExport, fields]
   );
-
-  const handleHeaderCheckboxChange = useCallback(() => {
-    const newFields = Object.assign({}, fields);
-
-    if (isEveryFieldChecked) {
-      Object.keys(newFields).map((f) => (newFields[f] = false));
-    } else {
-      Object.keys(newFields).map((f) => (newFields[f] = true));
-    }
-
-    updateSelectedFields(newFields);
-  }, [isEveryFieldChecked, updateSelectedFields, fields]);
 
   const handleAddFieldSubmit = useCallback(
     (evt) => {
       if (evt.key === 'Enter') {
-        const obj = {
-          [evt.target.value]: 1,
-        };
-        // Assign current entry to the end of the fields list.
-        const newFields = Object.assign({}, fields, obj);
-
-        updateSelectedFields(newFields);
+        addFieldToExport(evt.target.value.split('.') as SchemaPath);
       }
     },
-    [updateSelectedFields, fields]
+    [addFieldToExport]
   );
 
   useEffect(() => {
@@ -140,19 +208,46 @@ function ExportSelectFields({
     lastRenderedFieldsLength.current = fieldKeys.length;
   }, [fieldKeys]);
 
+  const fieldsToRender = useMemo(() => {
+    return fieldKeys
+      .filter(
+        // When a key has a parent that is already checked it will
+        // already be included in the projection, so we hide them.
+        (fieldKey) => {
+          const path: SchemaPath = [];
+          for (const fieldName of fields[fieldKey].path) {
+            path.push(fieldName);
+            const fieldId = getIdForSchemaPath(path);
+            if (fields[fieldId]?.selected && fieldId !== fieldKey) {
+              return false;
+            }
+          }
+          return true;
+        }
+      )
+      .map((fieldKey, index) => ({
+        fieldKey,
+        fieldLabel: fields[fieldKey].path.join('.'),
+        checked: !!fields[fieldKey].selected,
+        index,
+      }));
+  }, [fields, fieldKeys]);
+
   return (
     <>
       <div className={headerContainerStyles}>
         <Body weight="medium">Select Fields</Body>
         <Body>
-          The fields displayed are from a sample of documents in the collection.
-          To ensure all fields are exported, add missing field names.
+          The fields in the table below are from a <b>sample</b> of documents in
+          the collection. Add missing fields you want to export.
         </Body>
         <div>
           <Button
             variant="primary"
             leftGlyph={<Icon glyph="Plus" />}
+            data-testid="export-add-new-field-button"
             size="xsmall"
+            disabled={isLoading}
             onClick={onAddNewFieldButtonClicked}
           >
             Add new field
@@ -161,89 +256,119 @@ function ExportSelectFields({
       </div>
 
       <div className={tableContainerStyles}>
-        <Table
-          data={fieldKeys.map((field, index) => ({
-            checked: !!fields[field],
-            field,
-            index,
-          }))}
-          columns={[
-            <TableHeader
-              className={smallCellContainerStyle}
-              key="checkbox"
-              label={
-                <Checkbox
-                  aria-label={
-                    isEveryFieldChecked
-                      ? 'Deselect all fields'
-                      : 'Select all fields'
-                  }
-                  title={
-                    isEveryFieldChecked
-                      ? 'Deselect all fields'
-                      : 'Select all fields'
-                  }
-                  checked={isEveryFieldChecked}
-                  onChange={handleHeaderCheckboxChange}
-                />
-              }
-            />,
-            <TableHeader key="field-name" label="Field Name" />,
-          ]}
-        >
-          {({ datum: field }) => (
-            <>
-              <Row key={field.field}>
-                <Cell className={smallCellContainerStyle}>
-                  <div>
-                    <Checkbox
-                      title={`${field.checked ? 'Exclude' : 'Include'} ${
-                        field.field
-                      } in exported collection`}
-                      aria-label={`${field.checked ? 'Exclude' : 'Include'} ${
-                        field.field
-                      } in exported collection`}
-                      checked={field.checked}
-                      name={field.field}
-                      onChange={handleFieldCheckboxChange}
-                    />
-                  </div>
-                </Cell>
-                <Cell>
-                  <Body>{field.field}</Body>
-                </Cell>
-              </Row>
-              {field.index === fieldKeys.length - 1 && (
-                <Row key=".__add-new-field">
+        {isLoading ? (
+          <LoadingTable />
+        ) : (
+          <Table
+            data={fieldsToRender}
+            columns={[
+              <TableHeader
+                className={smallCellContainerStyle}
+                key="checkbox"
+                label={
+                  <Checkbox
+                    aria-label={
+                      isEveryFieldChecked
+                        ? 'Deselect all fields'
+                        : 'Select all fields'
+                    }
+                    title={
+                      isEveryFieldChecked
+                        ? 'Deselect all fields'
+                        : 'Select all fields'
+                    }
+                    checked={isEveryFieldChecked}
+                    onChange={toggleExportAllSelectedFields}
+                  />
+                }
+              />,
+              <TableHeader key="field-name" label="Field Name" />,
+            ]}
+          >
+            {({ datum: field }) => (
+              <>
+                <Row>
                   <Cell className={smallCellContainerStyle}>
-                    <div />
-                  </Cell>
-                  <Cell>
-                    <TextInput
-                      // NOTE: Leafygreen gives an error with only aria-label for a text input.
-                      aria-labelledby=""
-                      aria-label="Enter a field to include in the export"
-                      type="text"
-                      className={textInputStyles}
-                      ref={newFieldRef}
-                      placeholder="Add field"
-                      onKeyDown={handleAddFieldSubmit}
-                      sizeVariant="small"
-                    />
-                    <div className={enterToAddStyles}>
-                      <Disclaimer>
-                        Press &quot;Enter&quot; to add field
-                      </Disclaimer>
+                    <div>
+                      <Checkbox
+                        aria-label={`${field.checked ? 'Exclude' : 'Include'} ${
+                          field.fieldLabel
+                        } in exported collection`}
+                        aria-labelledby={`export-field-checkbox-${field.fieldKey}-label`}
+                        id={`export-field-checkbox-${field.fieldKey}`}
+                        checked={field.checked}
+                        name={field.fieldKey}
+                        onChange={handleFieldCheckboxChange}
+                      />
                     </div>
                   </Cell>
+                  <Cell>
+                    <Label
+                      htmlFor={`export-field-checkbox-${field.fieldKey}`}
+                      id={`export-field-checkbox-${field.fieldKey}-label`}
+                    >
+                      {field.fieldLabel}
+                    </Label>
+                  </Cell>
                 </Row>
-              )}
-            </>
-          )}
-        </Table>
+                {field.index === fieldsToRender.length - 1 && (
+                  <Row className={addNewFieldRowStyles} key=".__add-new-field">
+                    <Cell className={smallCellContainerStyle}>
+                      <div />
+                    </Cell>
+                    <Cell>
+                      <TextInput
+                        // NOTE: LeafyGreen gives an error with only aria-label for a text input.
+                        aria-labelledby=""
+                        aria-label="Enter a field to include in the export"
+                        type="text"
+                        className={textInputStyles}
+                        ref={newFieldRef}
+                        placeholder="Add field"
+                        onKeyDown={handleAddFieldSubmit}
+                        sizeVariant="small"
+                      />
+                      <div className={enterToAddStyles}>
+                        <Disclaimer>
+                          Press &quot;Enter&quot; to add field
+                        </Disclaimer>
+                      </div>
+                    </Cell>
+                  </Row>
+                )}
+              </>
+            )}
+          </Table>
+        )}
       </div>
+      {!!errorLoadingFieldsToExport && (
+        <div className={retryButtonContainerStyles}>
+          <ErrorSummary
+            errors={`Unable to load fields to export: ${errorLoadingFieldsToExport}`}
+            onAction={selectFieldsToExport}
+            actionText="Retry"
+          />
+        </div>
+      )}
     </>
   );
 }
 
-export { ExportSelectFields };
+const ConnectedExportSelectFields = connect(
+  (state: RootExportState) => ({
+    errorLoadingFieldsToExport: state.export.errorLoadingFieldsToExport,
+    fields: state.export.fieldsToExport,
+    isLoading: !!state.export.fieldsToExportAbortController,
+  }),
+  {
+    selectFieldsToExport,
+    addFieldToExport,
+    toggleFieldToExport,
+    toggleExportAllSelectedFields,
+  }
+)(ExportSelectFields);
+
+export {
+  ConnectedExportSelectFields as ExportSelectFields,
+  ExportSelectFields as UnconnectedExportSelectFields,
+};
