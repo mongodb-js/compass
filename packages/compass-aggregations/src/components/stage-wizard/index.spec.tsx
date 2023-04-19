@@ -21,6 +21,7 @@ const renderStageWizard = (
       setNodeRef={() => {}}
       style={{}}
       listeners={undefined}
+      fields={[]}
       {...props}
     />
   );
