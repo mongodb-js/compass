@@ -102,7 +102,7 @@ export const ProjectForm = ({ fields, onChange }: ProjectProps) => {
           className={comboboxStyles}
           aria-label={COMBOBOX_PLACEHOLDER_TEXT}
           size="default"
-          clearable={false}
+          clearable={true}
           multiselect={true}
           value={projectFields}
           onChange={onSelectField}
