@@ -2,7 +2,7 @@ import React from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import path from 'path';
 
-import { ImportToastBody } from './import-toast-body';
+import { ToastBody } from './toast-body';
 import { openFile } from '../utils/open-file';
 
 const importToastId = 'import-toast';
@@ -26,7 +26,7 @@ export function showInProgressToast({
   openToast(importToastId, {
     title: `Importing ${path.basename(fileName)}…`,
     body: (
-      <ImportToastBody
+      <ToastBody
         statusMessage={`${docsWritten} document${
           docsWritten !== 1 ? 's' : ''
         } written.`}
@@ -50,7 +50,7 @@ export function showStartingToast({
   openToast(importToastId, {
     title: `Importing ${path.basename(fileName)}…`,
     body: (
-      <ImportToastBody
+      <ToastBody
         statusMessage="Starting…"
         actionHandler={cancelImport}
         actionText="stop"
@@ -102,7 +102,7 @@ export function showCompletedWithErrorsToast({
   openToast(importToastId, {
     title: `Import completed ${docsWritten}/${docsProcessed} with the following errors:`,
     body: (
-      <ImportToastBody
+      <ToastBody
         statusMessage={statusMessage}
         actionHandler={
           errorLogFilePath ? () => void openFile(errorLogFilePath) : undefined
@@ -126,7 +126,7 @@ export function showCancelledToast({
     openToast(importToastId, {
       title: 'Import aborted with the following errors:',
       body: (
-        <ImportToastBody
+        <ToastBody
           statusMessage={statusMessage}
           actionHandler={
             errorLogFilePath ? () => void openFile(errorLogFilePath) : undefined

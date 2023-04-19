@@ -206,4 +206,8 @@ describe('export [module]', function () {
       ).to.not.equal(undefined);
     });
   });
+
+  // TODO:
+  // - runExport tests
+  // - closeExport tests
 });

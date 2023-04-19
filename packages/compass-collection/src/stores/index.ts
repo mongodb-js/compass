@@ -345,7 +345,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
       if (activeTab) {
         const crudStore = activeTab.localAppRegistry.getStore('CRUD.Store');
         const { query: crudQuery, count } = crudStore.state;
-        // TODO(COMPASS-6580): Remove feature flag, use new export.
+        // TODO(COMPASS-6582): Remove feature flag, use new export.
         if (preferences.getPreferences().useNewExport) {
           const { filter, project, collation, limit, skip, sort } = crudQuery;
           appRegistry.emit('open-export', {

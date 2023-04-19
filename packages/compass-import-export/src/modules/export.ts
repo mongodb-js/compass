@@ -2,14 +2,39 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import { combineReducers } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import fs from 'fs';
+import _ from 'lodash';
 
 import { gatherFieldsFromQuery } from '../export/gather-fields';
 import type { SchemaPath } from '../export/gather-fields';
-import type { ExportAggregation, ExportQuery } from '../export/export-types';
+import type {
+  ExportAggregation,
+  ExportQuery,
+  ExportResult,
+} from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
 import { globalAppRegistry, dataService } from '../modules/compass';
+import { globalAppRegistryEmit } from './compass';
+import {
+  exportCSVFromAggregation,
+  exportCSVFromQuery,
+} from '../export/export-csv';
+import type { CSVExportPhase } from '../export/export-csv';
+import {
+  showCompletedToast,
+  showCancelledToast,
+  showFailedToast,
+  showInProgressToast,
+  showStartingToast,
+} from '../components/export-toast';
+import {
+  exportJSONFromAggregation,
+  exportJSONFromQuery,
+} from '../export/export-json';
 
-const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+const { track, log, mongoLogId, debug } = createLoggerAndTelemetry(
+  'COMPASS-IMPORT-EXPORT-UI'
+);
 
 export type FieldsToExport = {
   [fieldId: string]: {
@@ -51,10 +76,11 @@ export type FieldsToExportOption = 'all-fields' | 'select-fields';
 export type ExportState = {
   isOpen: boolean;
   isInProgressMessageOpen: boolean;
-
   status: ExportStatus;
   errorLoadingFieldsToExport: string | undefined;
   fieldsToExportAbortController: AbortController | undefined;
+  exportAbortController: AbortController | undefined;
+  exportFileError: string | undefined;
 } & ExportOptions;
 
 export const initialState: ExportState = {
@@ -71,6 +97,8 @@ export const initialState: ExportState = {
   selectedFieldOption: undefined,
   exportFullCollection: undefined,
   aggregation: undefined,
+  exportAbortController: undefined,
+  exportFileError: undefined,
 };
 
 const enum ExportActionTypes {
@@ -91,6 +119,10 @@ const enum ExportActionTypes {
   FetchFieldsToExportError = 'compass-import-export/export/FetchFieldsToExportError',
 
   RunExport = 'compass-import-export/export/RunExport',
+  ExportFileError = 'compass-import-export/export/ExportFileError',
+  CancelExport = 'compass-import-export/export/CancelExport',
+  RunExportError = 'compass-import-export/export/RunExportError',
+  RunExportSuccess = 'compass-import-export/export/RunExportSuccess',
 }
 
 type OpenExportAction = {
@@ -191,8 +223,32 @@ export const readyToExport = (): ReadyToExportAction => ({
   type: ExportActionTypes.ReadyToExport,
 });
 
+type ExportFileErrorAction = {
+  type: ExportActionTypes.ExportFileError;
+  errorMessage: string;
+};
+
 type RunExportAction = {
   type: ExportActionTypes.RunExport;
+  exportAbortController: AbortController;
+};
+
+type CancelExportAction = {
+  type: ExportActionTypes.CancelExport;
+};
+
+const cancelExport = (): CancelExportAction => ({
+  type: ExportActionTypes.CancelExport,
+});
+
+type RunExportErrorAction = {
+  type: ExportActionTypes.RunExportError;
+  error: Error;
+};
+
+type RunExportSuccessAction = {
+  type: ExportActionTypes.RunExportSuccess;
+  aborted: boolean;
 };
 
 export const selectFieldsToExport = (): ExportThunkAction<
@@ -257,18 +313,175 @@ export const selectFieldsToExport = (): ExportThunkAction<
   };
 };
 
-export const runExport = (): ExportThunkAction<
+export const runExport = ({
+  filePath,
+  fileType,
+}: {
+  filePath: string;
+  fileType: 'csv' | 'json';
+}): ExportThunkAction<
   Promise<void>,
-  RunExportAction
+  | RunExportAction
+  | ExportFileErrorAction
+  | ReturnType<typeof globalAppRegistryEmit>
+  | CancelExportAction
+  | RunExportErrorAction
+  | RunExportSuccessAction
 > => {
-  return async (dispatch) => {
-    // TODO(COMPASS-6580): Run export.
+  return async (dispatch, getState) => {
+    let outputWriteStream: fs.WriteStream;
+    try {
+      outputWriteStream = fs.createWriteStream(filePath);
+    } catch (err: any) {
+      dispatch({
+        type: ExportActionTypes.ExportFileError,
+        errorMessage: err?.message || 'Error creating output file.',
+      });
+      return;
+    }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const {
+      export: {
+        query,
+        namespace,
+        aggregation,
+        exportFullCollection,
+        selectedFieldOption,
+      },
+      dataService: { dataService },
+    } = getState();
+
+    const exportAbortController = new AbortController();
 
     dispatch({
       type: ExportActionTypes.RunExport,
+      exportAbortController,
     });
+
+    showStartingToast({
+      cancelExport: () => dispatch(cancelExport()),
+      namespace,
+    });
+
+    let exportSucceeded = false;
+
+    const progressCallback = _.throttle(function (
+      index: number,
+      csvPhase?: CSVExportPhase
+    ) {
+      // TODO: on some csv phase display something else?
+      showInProgressToast({
+        cancelExport: () => dispatch(cancelExport()),
+        docsWritten: index,
+        filePath,
+        namespace,
+      });
+    },
+    1000);
+
+    let promise: Promise<ExportResult>;
+
+    const baseExportOptions = {
+      ns: namespace,
+      abortSignal: exportAbortController.signal,
+      dataService,
+      progressCallback,
+      output: outputWriteStream,
+    };
+
+    if (aggregation) {
+      if (fileType === 'csv') {
+        promise = exportCSVFromAggregation({
+          ...baseExportOptions,
+          aggregation,
+        });
+      } else {
+        promise = exportJSONFromAggregation({
+          ...baseExportOptions,
+          aggregation,
+          variant: 'default',
+        });
+      }
+    } else {
+      if (fileType === 'csv') {
+        promise = exportCSVFromQuery({
+          ...baseExportOptions,
+          query,
+        });
+      } else {
+        promise = exportJSONFromQuery({
+          ...baseExportOptions,
+          query,
+          variant: 'default',
+        });
+      }
+    }
+
+    let exportResult: ExportResult | undefined;
+    try {
+      exportResult = await promise;
+
+      log.info(mongoLogId(1001000086), 'Export', 'Finished export', {
+        namespace,
+        docsWritten: exportResult.docsWritten,
+        filePath,
+      });
+
+      exportSucceeded = true;
+      progressCallback.flush();
+    } catch (err: any) {
+      debug('Error while exporting:', err.stack);
+      log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
+        namespace,
+        error: (err as Error)?.message,
+      });
+      dispatch({
+        type: ExportActionTypes.RunExportError,
+        error: err,
+      });
+      showFailedToast(err);
+    } finally {
+      outputWriteStream.close();
+    }
+
+    track('Export Completed', {
+      type: aggregation ? 'aggregation' : 'query',
+      all_docs: exportFullCollection,
+      field_option: selectedFieldOption,
+      file_type: fileType,
+      all_fields: selectedFieldOption === 'all-fields',
+      number_of_docs: exportResult?.docsWritten,
+      success: exportSucceeded,
+    });
+
+    if (!exportSucceeded) {
+      return;
+    }
+
+    if (exportResult?.aborted) {
+      showCancelledToast();
+    } else {
+      showCompletedToast({
+        docsWritten: exportResult?.docsWritten ?? 0,
+        filePath,
+      });
+    }
+
+    dispatch({
+      type: ExportActionTypes.RunExportSuccess,
+      aborted: exportAbortController.signal.aborted || !!exportResult?.aborted,
+    });
+
+    // Don't emit when the data service is disconnected or not the same.
+    if (dataService === getState().dataService.dataService) {
+      dispatch(
+        globalAppRegistryEmit(
+          'export-finished',
+          exportResult?.docsWritten,
+          fileType
+        )
+      );
+    }
   };
 };
 
@@ -300,6 +513,7 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
       fieldsToExport: {},
       errorLoadingFieldsToExport: undefined,
       selectedFieldOption: undefined,
+      exportFileError: undefined,
       namespace: action.namespace,
       exportFullCollection: action.exportFullCollection,
       query: action.query,
@@ -487,9 +701,49 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
 
   if (isAction<RunExportAction>(action, ExportActionTypes.RunExport)) {
     state.fieldsToExportAbortController?.abort();
+    state.exportAbortController?.abort();
     return {
       ...state,
       isOpen: false,
+      status: 'in-progress',
+      exportAbortController: action.exportAbortController,
+    };
+  }
+
+  if (
+    isAction<ExportFileErrorAction>(action, ExportActionTypes.ExportFileError)
+  ) {
+    return {
+      ...state,
+      exportFileError: action.errorMessage,
+    };
+  }
+
+  if (isAction<CancelExportAction>(action, ExportActionTypes.CancelExport)) {
+    state.exportAbortController?.abort();
+    return {
+      ...state,
+      exportAbortController: undefined,
+    };
+  }
+
+  if (
+    isAction<RunExportErrorAction>(action, ExportActionTypes.RunExportError)
+  ) {
+    return {
+      ...state,
+      status: undefined,
+      exportAbortController: undefined,
+    };
+  }
+
+  if (
+    isAction<RunExportSuccessAction>(action, ExportActionTypes.RunExportSuccess)
+  ) {
+    return {
+      ...state,
+      status: undefined,
+      exportAbortController: undefined,
     };
   }
 
