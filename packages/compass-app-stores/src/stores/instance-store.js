@@ -261,7 +261,7 @@ store.onActivated = (appRegistry) => {
   });
 
   // Event emitted when the Collections grid needs to be refreshed
-  // with new collections or collection info for existing ones.
+  // with new collections or collection stats for existing ones.
   appRegistry.on('refresh-collections', async ({ ns }) => {
     const { instance, dataService } = store.getState();
     const { database } = toNS(ns);
