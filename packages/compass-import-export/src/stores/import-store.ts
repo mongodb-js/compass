@@ -10,7 +10,7 @@ import {
   dataServiceConnected,
   dataServiceDisconnected,
 } from '../modules/compass/data-service';
-import { openImport, closeImport } from '../modules/import';
+import { openImport } from '../modules/import';
 
 const _store = createStore(reducer, applyMiddleware(thunk));
 
