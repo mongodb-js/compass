@@ -41,9 +41,9 @@ export const detectableFieldTypes = [
 ] as const;
 export type CSVDetectableFieldType = typeof detectableFieldTypes[number];
 
-// NOTE: 'undefined' exists internally for ignored empty strings which is why it is
-// part of CSVDetectableFieldType, but it is deprecated as a bson type so we
-// can't actually parse it.
+// NOTE: 'undefined' exists internally for ignored empty strings, but it is
+// deprecated as a bson type so we can't actually parse it, so it is left out of
+// detectable and parsable field types.
 
 // the subset of bson types that we can parse
 export const parsableFieldTypes = [
