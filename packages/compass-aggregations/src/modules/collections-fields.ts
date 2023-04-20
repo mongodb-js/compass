@@ -152,6 +152,7 @@ export const fetchCollectionFields = (
         ...collectionInfo,
         fields: [],
         isLoading: true,
+        error: undefined,
       },
     });
 
