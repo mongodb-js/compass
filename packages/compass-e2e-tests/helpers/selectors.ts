@@ -558,6 +558,8 @@ export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
 export const ImportSkipAnalyze = '[data-testid="skip-csv-analyze-button"]';
+export const ImportAnalyzeError =
+  '[data-testid="import-modal"] [data-testid="analyze-error"]';
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
 export const ImportToast = '[data-testid="toast-import-toast"]';

@@ -651,6 +651,32 @@ describe('Collection import', function () {
     });
   });
 
+  it('displays an error for a CSV file with incompatible encoding', async function () {
+    const csvPath = path.resolve(__dirname, '..', 'fixtures', 'latin1.csv');
+
+    await browser.navigateToCollectionTab('test', 'latin1', 'Documents');
+
+    // open the import modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.ImportFileOption);
+
+    // Select the file.
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+
+    // Wait for the modal to appear.
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // make sure that there's an error
+    const errorElement = await browser.$(Selectors.ImportAnalyzeError);
+    await errorElement.waitForDisplayed();
+    expect(await errorElement.getText()).to.equal(
+      'The encoded data was not valid for encoding utf-8'
+    );
+  });
+
   it('displays an error if an incompatible type is chosen for a column', async function () {
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
