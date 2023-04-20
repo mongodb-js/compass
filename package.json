@@ -58,7 +58,7 @@
     "@mongodb-js/bump-monorepo-packages": "^0.2.1",
     "@testing-library/dom": "^8.11.1",
     "@webpack-cli/serve": "^0.2.0",
-    "babel-loader": "^7.1.5",
+    "babel-loader": "^9.1.2",
     "husky": "^8.0.3",
     "lerna": "^4.0.0",
     "node-gyp": "^8.4.1"
