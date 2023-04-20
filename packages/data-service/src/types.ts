@@ -1,11 +1,4 @@
-import type { AnyError, CollStats } from 'mongodb';
-
-export interface Callback<R> {
-  (
-    err: Error | AnyError | { message: string } | null | undefined,
-    result: R
-  ): void;
-}
+import type { CollStats } from 'mongodb';
 
 export interface CollectionStats {
   ns: string;
