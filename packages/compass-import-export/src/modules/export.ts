@@ -593,6 +593,7 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
   ) {
     return {
       ...state,
+      errorLoadingFieldsToExport: undefined,
       selectedFieldOption: 'select-fields',
       status: 'select-fields-to-export',
     };
