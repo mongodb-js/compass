@@ -70,7 +70,7 @@ const selectFields = (fields: string[]) => {
   );
 };
 
-describe.only('project', function () {
+describe('project', function () {
   afterEach(cleanup);
 
   it('renders a project form', function () {
