@@ -5,6 +5,8 @@ import { getSchema } from '../utils/get-schema';
 import toNS from 'mongodb-ns';
 import { isEqual } from 'lodash';
 
+const FETCH_SCHEMA_MAX_TIME_MS = 5000;
+
 type CollectionType = 'collection' | 'view';
 export type CollectionInfo = {
   name: string;
@@ -39,6 +41,7 @@ export type CollectionData = {
   isLoading: boolean;
   type: CollectionType;
   fields: string[];
+  error?: Error;
 };
 
 type State = Record<string, CollectionData>;
@@ -161,9 +164,19 @@ export const fetchCollectionFields = (
           ? await dataService.find(
               namespaceToQuery,
               {},
-              { sort: { $natural: -1 }, limit: 1 }
+              {
+                sort: { $natural: -1 },
+                limit: 1,
+                maxTimeMS: FETCH_SCHEMA_MAX_TIME_MS,
+              }
             )
-          : await dataService.sample(namespaceToQuery, { size: 1 });
+          : await dataService.sample(
+              namespaceToQuery,
+              { size: 1 },
+              {
+                maxTimeMS: FETCH_SCHEMA_MAX_TIME_MS,
+              }
+            );
 
       dispatch({
         type: ActionTypes.CollectionDataUpdated,
@@ -182,6 +195,7 @@ export const fetchCollectionFields = (
           ...collectionInfo,
           fields: [],
           isLoading: false,
+          error: e as Error,
         },
       });
     }

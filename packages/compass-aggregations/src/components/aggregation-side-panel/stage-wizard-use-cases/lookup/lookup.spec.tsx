@@ -232,7 +232,23 @@ describe('lookup', function () {
     it('renders text to select collection first if foreign field combobox is opened', function () {
       renderLookupForm();
       openComboBox(/select foreign field/i);
-      expect(screen.getByText('Select a collection first')).to.exist;
+      expect(screen.getByText('Select a collection first.')).to.exist;
+    });
+
+    it('renders error if fails to fetch fields', function () {
+      renderLookupForm({
+        collectionsFields: {
+          test: {
+            fields: [],
+            isLoading: false,
+            type: 'collection',
+            error: new Error('Failed to fetch fields'),
+          },
+        },
+      });
+      setComboboxValue(/select collection/i, 'test');
+      openComboBox(/select foreign field/i);
+      expect(screen.getByText('Failed to fetch fields')).to.exist;
     });
   });
 });

@@ -99,7 +99,7 @@ export const LookupForm = ({
 
   const collectionInfo = useMemo(
     () => collectionsFields[formData.from],
-    [formData.from]
+    [formData.from, collectionsFields]
   );
 
   return (
@@ -130,10 +130,21 @@ export const LookupForm = ({
           onChange={(value: string | null) =>
             onSelectOption('foreignField', value)
           }
-          searchState={collectionInfo?.isLoading ? 'loading' : 'unset'}
+          searchState={(() => {
+            if (collectionInfo?.isLoading) {
+              return 'loading';
+            }
+            if (collectionInfo?.error) {
+              return 'error';
+            }
+            return 'unset';
+          })()}
           searchLoadingMessage="Fetching fields ..."
+          searchErrorMessage={
+            collectionInfo?.error?.message ?? 'Count not fetch fields'
+          }
           searchEmptyMessage={
-            !formData.from ? 'Select a collection first' : undefined
+            !formData.from ? 'Select a collection first.' : undefined
           }
           options={collectionInfo?.fields ?? []}
           optionLabel="Field:"
