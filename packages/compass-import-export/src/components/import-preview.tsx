@@ -94,6 +94,16 @@ const infoIconCSSDark = css({
   color: palette.gray.light2,
 });
 
+const warningIconCSSCommon = infoIconCSSCommon;
+
+const warningIconCSSLight = css({
+  color: palette.red.base,
+});
+
+const warningIconCSSDark = css({
+  color: palette.red.light1,
+});
+
 const typesListCSS = css({
   margin: `${spacing[3]}px 0`,
 });
@@ -187,6 +197,21 @@ function InfoIcon() {
   );
 }
 
+function WarningIcon() {
+  const darkMode = useDarkMode();
+
+  return (
+    <div
+      className={cx(
+        warningIconCSSCommon,
+        darkMode ? warningIconCSSDark : warningIconCSSLight
+      )}
+    >
+      <Icon glyph="Warning"></Icon>
+    </div>
+  );
+}
+
 function MixedWarning({
   result,
   selectedType,
@@ -246,7 +271,7 @@ function TypeWarning({
   const value =
     example.firstValue.length < MAX_STRING_LENGTH
       ? example.firstValue
-      : example.firstValue.slice(0, MAX_STRING_LENGTH) + '…';
+      : `${example.firstValue.slice(0, MAX_STRING_LENGTH)}…`;
 
   return (
     <Tooltip
@@ -256,7 +281,7 @@ function TypeWarning({
       trigger={({ children, ...props }) => (
         <div {...props}>
           {children}
-          <InfoIcon />
+          <WarningIcon />
         </div>
       )}
     >
@@ -273,9 +298,9 @@ function TypeWarning({
           })}
         </ul>
         <Body as="p">
-          Row {example.firstRowIndex}, column {example.firstColumnIndex}{' '}
-          contains the value <i>&quot;{value}&quot;</i>. This will cause an
-          error for type {CSVFieldTypeLabels[selectedType]}.
+          Row {example.firstRowIndex + 1} contains the value{' '}
+          <i>&quot;{value}&quot;</i>. This will cause an error for type{' '}
+          {CSVFieldTypeLabels[selectedType]}.
         </Body>
       </>
     </Tooltip>
