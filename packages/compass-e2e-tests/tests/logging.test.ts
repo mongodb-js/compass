@@ -266,7 +266,7 @@ describe('Logging and Telemetry integration', function () {
           c: 'COMPASS-DATA-SERVICE',
           id: 1_001_000_024,
           ctx: 'Connection 0',
-          msg: 'Fetched instance information',
+          msg: 'Running instance',
           attr: (actual: any) => {
             const { dataLake, genuineMongoDB } = actual;
             expect({ dataLake, genuineMongoDB }).to.deep.equal({
