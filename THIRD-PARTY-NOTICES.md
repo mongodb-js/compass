@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Wed Apr 19 2023.
+This document was automatically generated on Thu Apr 20 2023.
 
 ## List of dependencies
 
@@ -59,34 +59,34 @@ This document was automatically generated on Wed Apr 19 2023.
 | [@aws-sdk/util-uri-escape](#@aws-sdk/util-uri-escape-3.201.0) | 3.201.0 | Apache-2.0 |
 | [@aws-sdk/util-user-agent-node](#@aws-sdk/util-user-agent-node-3.267.0) | 3.267.0 | Apache-2.0 |
 | [@aws-sdk/util-utf8](#@aws-sdk/util-utf8-3.254.0) | 3.254.0 | Apache-2.0 |
-| [@babel/code-frame](#@babel/code-frame-7.18.6) | 7.18.6 | MIT |
-| [@babel/compat-data](#@babel/compat-data-7.18.6) | 7.18.6 | MIT |
+| [@babel/code-frame](#@babel/code-frame-7.21.4) | 7.21.4 | MIT |
+| [@babel/compat-data](#@babel/compat-data-7.21.4) | 7.21.4 | MIT |
 | [@babel/core](#@babel/core-7.16.0) | 7.16.0 | MIT |
-| [@babel/generator](#@babel/generator-7.19.5) | 7.19.5 | MIT |
-| [@babel/helper-compilation-targets](#@babel/helper-compilation-targets-7.18.6) | 7.18.6 | MIT |
-| [@babel/helper-environment-visitor](#@babel/helper-environment-visitor-7.18.6) | 7.18.6 | MIT |
-| [@babel/helper-function-name](#@babel/helper-function-name-7.18.6) | 7.18.6 | MIT |
+| [@babel/generator](#@babel/generator-7.21.4) | 7.21.4 | MIT |
+| [@babel/helper-compilation-targets](#@babel/helper-compilation-targets-7.21.4) | 7.21.4 | MIT |
+| [@babel/helper-environment-visitor](#@babel/helper-environment-visitor-7.18.9) | 7.18.9 | MIT |
+| [@babel/helper-function-name](#@babel/helper-function-name-7.21.0) | 7.21.0 | MIT |
 | [@babel/helper-hoist-variables](#@babel/helper-hoist-variables-7.18.6) | 7.18.6 | MIT |
-| [@babel/helper-module-imports](#@babel/helper-module-imports-7.18.6) | 7.18.6 | MIT |
-| [@babel/helper-module-transforms](#@babel/helper-module-transforms-7.18.6) | 7.18.6 | MIT |
-| [@babel/helper-plugin-utils](#@babel/helper-plugin-utils-7.18.6) | 7.18.6 | MIT |
-| [@babel/helper-simple-access](#@babel/helper-simple-access-7.18.6) | 7.18.6 | MIT |
+| [@babel/helper-module-imports](#@babel/helper-module-imports-7.21.4) | 7.21.4 | MIT |
+| [@babel/helper-module-transforms](#@babel/helper-module-transforms-7.21.2) | 7.21.2 | MIT |
+| [@babel/helper-plugin-utils](#@babel/helper-plugin-utils-7.20.2) | 7.20.2 | MIT |
+| [@babel/helper-simple-access](#@babel/helper-simple-access-7.20.2) | 7.20.2 | MIT |
 | [@babel/helper-split-export-declaration](#@babel/helper-split-export-declaration-7.18.6) | 7.18.6 | MIT |
 | [@babel/helper-string-parser](#@babel/helper-string-parser-7.19.4) | 7.19.4 | MIT |
 | [@babel/helper-validator-identifier](#@babel/helper-validator-identifier-7.19.1) | 7.19.1 | MIT |
-| [@babel/helper-validator-option](#@babel/helper-validator-option-7.18.6) | 7.18.6 | MIT |
-| [@babel/helpers](#@babel/helpers-7.18.6) | 7.18.6 | MIT |
+| [@babel/helper-validator-option](#@babel/helper-validator-option-7.21.0) | 7.21.0 | MIT |
+| [@babel/helpers](#@babel/helpers-7.21.0) | 7.21.0 | MIT |
 | [@babel/highlight](#@babel/highlight-7.18.6) | 7.18.6 | MIT |
 | [@babel/parser](#@babel/parser-7.16.0) | 7.16.0 | MIT |
-| [@babel/parser](#@babel/parser-7.18.6) | 7.18.6 | MIT |
+| [@babel/parser](#@babel/parser-7.21.4) | 7.21.4 | MIT |
 | [@babel/parser](#@babel/parser-7.19.4) | 7.19.4 | MIT |
-| [@babel/plugin-transform-destructuring](#@babel/plugin-transform-destructuring-7.17.3) | 7.17.3 | MIT |
-| [@babel/plugin-transform-parameters](#@babel/plugin-transform-parameters-7.16.7) | 7.16.7 | MIT |
-| [@babel/plugin-transform-shorthand-properties](#@babel/plugin-transform-shorthand-properties-7.16.7) | 7.16.7 | MIT |
-| [@babel/runtime](#@babel/runtime-7.18.6) | 7.18.6 | MIT |
-| [@babel/template](#@babel/template-7.18.6) | 7.18.6 | MIT |
-| [@babel/traverse](#@babel/traverse-7.18.6) | 7.18.6 | MIT |
-| [@babel/types](#@babel/types-7.19.4) | 7.19.4 | MIT |
+| [@babel/plugin-transform-destructuring](#@babel/plugin-transform-destructuring-7.21.3) | 7.21.3 | MIT |
+| [@babel/plugin-transform-parameters](#@babel/plugin-transform-parameters-7.21.3) | 7.21.3 | MIT |
+| [@babel/plugin-transform-shorthand-properties](#@babel/plugin-transform-shorthand-properties-7.18.6) | 7.18.6 | MIT |
+| [@babel/runtime](#@babel/runtime-7.21.0) | 7.21.0 | MIT |
+| [@babel/template](#@babel/template-7.20.7) | 7.20.7 | MIT |
+| [@babel/traverse](#@babel/traverse-7.21.4) | 7.21.4 | MIT |
+| [@babel/types](#@babel/types-7.21.4) | 7.21.4 | MIT |
 | [@codemirror/autocomplete](#@codemirror/autocomplete-6.4.0) | 6.4.0 | MIT |
 | [@codemirror/commands](#@codemirror/commands-6.1.2) | 6.1.2 | MIT |
 | [@codemirror/lang-javascript](#@codemirror/lang-javascript-6.1.2) | 6.1.2 | MIT |
@@ -114,7 +114,7 @@ This document was automatically generated on Wed Apr 19 2023.
 | [@jridgewell/resolve-uri](#@jridgewell/resolve-uri-3.1.0) | 3.1.0 | MIT |
 | [@jridgewell/set-array](#@jridgewell/set-array-1.1.2) | 1.1.2 | MIT |
 | [@jridgewell/sourcemap-codec](#@jridgewell/sourcemap-codec-1.4.14) | 1.4.14 | MIT |
-| [@jridgewell/trace-mapping](#@jridgewell/trace-mapping-0.3.14) | 0.3.14 | MIT |
+| [@jridgewell/trace-mapping](#@jridgewell/trace-mapping-0.3.18) | 0.3.18 | MIT |
 | [@lezer/common](#@lezer/common-1.0.2) | 1.0.2 | MIT |
 | [@lezer/highlight](#@lezer/highlight-1.1.3) | 1.1.3 | MIT |
 | [@lezer/javascript](#@lezer/javascript-1.3.2) | 1.3.2 | MIT |
@@ -328,7 +328,7 @@ This document was automatically generated on Wed Apr 19 2023.
 | [json-buffer](#json-buffer-3.0.1) | 3.0.1 | MIT |
 | [json-schema-traverse](#json-schema-traverse-0.4.1) | 0.4.1 | MIT |
 | [json-stringify-safe](#json-stringify-safe-5.0.1) | 5.0.1 | ISC |
-| [json5](#json5-2.2.1) | 2.2.1 | MIT |
+| [json5](#json5-2.2.3) | 2.2.3 | MIT |
 | [jsprim](#jsprim-1.4.1) | 1.4.1 | MIT |
 | [kerberos](#kerberos-2.0.0) | 2.0.0 | Apache-2.0 |
 | [key-tree-store](#key-tree-store-1.3.0) | 1.3.0 | MIT |
@@ -466,6 +466,7 @@ This document was automatically generated on Wed Apr 19 2023.
 | [lodash.uniq](#lodash.uniq-4.5.0) | 4.5.0 | MIT |
 | [lodash.uniqueid](#lodash.uniqueid-3.2.0) | 3.2.0 | MIT |
 | [lowercase-keys](#lowercase-keys-2.0.0) | 2.0.0 | MIT |
+| [lru-cache](#lru-cache-5.1.1) | 5.1.1 | ISC |
 | [lru-cache](#lru-cache-6.0.0) | 6.0.0 | ISC |
 | [marky](#marky-1.2.2) | 1.2.2 | Apache-2.0 |
 | [matches-selector](#matches-selector-0.0.1) | 0.0.1 | MIT |
@@ -640,6 +641,7 @@ This document was automatically generated on Wed Apr 19 2023.
 | [write-file-atomic](#write-file-atomic-3.0.3) | 3.0.3 | ISC |
 | [xtend](#xtend-4.0.2) | 4.0.2 | MIT |
 | [yallist](#yallist-4.0.0) | 4.0.0 | ISC |
+| [yallist](#yallist-3.1.1) | 3.1.1 | ISC |
 | [yargs-parser](#yargs-parser-21.1.1) | 21.1.1 | ISC |
 
 ## Details
@@ -11843,8 +11845,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@babel/code-frame-7.18.6"></a>
-### @babel/code-frame 7.18.6
+<a id="@babel/code-frame-7.21.4"></a>
+### @babel/code-frame 7.21.4
 
 **License**: MIT
 
@@ -11880,8 +11882,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/compat-data-7.18.6"></a>
-### @babel/compat-data 7.18.6
+<a id="@babel/compat-data-7.21.4"></a>
+### @babel/compat-data 7.21.4
 
 **License**: MIT
 
@@ -11954,8 +11956,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/generator-7.19.5"></a>
-### @babel/generator 7.19.5
+<a id="@babel/generator-7.21.4"></a>
+### @babel/generator 7.21.4
 
 **License**: MIT
 
@@ -11991,8 +11993,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-compilation-targets-7.18.6"></a>
-### @babel/helper-compilation-targets 7.18.6
+<a id="@babel/helper-compilation-targets-7.21.4"></a>
+### @babel/helper-compilation-targets 7.21.4
 
 **License**: MIT
 
@@ -12028,8 +12030,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-environment-visitor-7.18.6"></a>
-### @babel/helper-environment-visitor 7.18.6
+<a id="@babel/helper-environment-visitor-7.18.9"></a>
+### @babel/helper-environment-visitor 7.18.9
 
 **License**: MIT
 
@@ -12065,8 +12067,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-function-name-7.18.6"></a>
-### @babel/helper-function-name 7.18.6
+<a id="@babel/helper-function-name-7.21.0"></a>
+### @babel/helper-function-name 7.21.0
 
 **License**: MIT
 
@@ -12139,8 +12141,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-module-imports-7.18.6"></a>
-### @babel/helper-module-imports 7.18.6
+<a id="@babel/helper-module-imports-7.21.4"></a>
+### @babel/helper-module-imports 7.21.4
 
 **License**: MIT
 
@@ -12176,8 +12178,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-module-transforms-7.18.6"></a>
-### @babel/helper-module-transforms 7.18.6
+<a id="@babel/helper-module-transforms-7.21.2"></a>
+### @babel/helper-module-transforms 7.21.2
 
 **License**: MIT
 
@@ -12213,8 +12215,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-plugin-utils-7.18.6"></a>
-### @babel/helper-plugin-utils 7.18.6
+<a id="@babel/helper-plugin-utils-7.20.2"></a>
+### @babel/helper-plugin-utils 7.20.2
 
 **License**: MIT
 
@@ -12250,8 +12252,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-simple-access-7.18.6"></a>
-### @babel/helper-simple-access 7.18.6
+<a id="@babel/helper-simple-access-7.20.2"></a>
+### @babel/helper-simple-access 7.20.2
 
 **License**: MIT
 
@@ -12398,8 +12400,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-validator-option-7.18.6"></a>
-### @babel/helper-validator-option 7.18.6
+<a id="@babel/helper-validator-option-7.21.0"></a>
+### @babel/helper-validator-option 7.21.0
 
 **License**: MIT
 
@@ -12435,8 +12437,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helpers-7.18.6"></a>
-### @babel/helpers 7.18.6
+<a id="@babel/helpers-7.21.0"></a>
+### @babel/helpers 7.21.0
 
 **License**: MIT
 
@@ -12543,8 +12545,8 @@ THE SOFTWARE.
 
 ```
 
-<a id="@babel/parser-7.18.6"></a>
-### @babel/parser 7.18.6
+<a id="@babel/parser-7.21.4"></a>
+### @babel/parser 7.21.4
 
 **License**: MIT
 
@@ -12611,8 +12613,8 @@ THE SOFTWARE.
 
 ```
 
-<a id="@babel/plugin-transform-destructuring-7.17.3"></a>
-### @babel/plugin-transform-destructuring 7.17.3
+<a id="@babel/plugin-transform-destructuring-7.21.3"></a>
+### @babel/plugin-transform-destructuring 7.21.3
 
 **License**: MIT
 
@@ -12648,8 +12650,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/plugin-transform-parameters-7.16.7"></a>
-### @babel/plugin-transform-parameters 7.16.7
+<a id="@babel/plugin-transform-parameters-7.21.3"></a>
+### @babel/plugin-transform-parameters 7.21.3
 
 **License**: MIT
 
@@ -12685,8 +12687,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/plugin-transform-shorthand-properties-7.16.7"></a>
-### @babel/plugin-transform-shorthand-properties 7.16.7
+<a id="@babel/plugin-transform-shorthand-properties-7.18.6"></a>
+### @babel/plugin-transform-shorthand-properties 7.18.6
 
 **License**: MIT
 
@@ -12722,8 +12724,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/runtime-7.18.6"></a>
-### @babel/runtime 7.18.6
+<a id="@babel/runtime-7.21.0"></a>
+### @babel/runtime 7.21.0
 
 **License**: MIT
 
@@ -12759,8 +12761,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/template-7.18.6"></a>
-### @babel/template 7.18.6
+<a id="@babel/template-7.20.7"></a>
+### @babel/template 7.20.7
 
 **License**: MIT
 
@@ -12796,8 +12798,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/traverse-7.18.6"></a>
-### @babel/traverse 7.18.6
+<a id="@babel/traverse-7.21.4"></a>
+### @babel/traverse 7.21.4
 
 **License**: MIT
 
@@ -12833,8 +12835,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/types-7.19.4"></a>
-### @babel/types 7.19.4
+<a id="@babel/types-7.21.4"></a>
+### @babel/types 7.21.4
 
 **License**: MIT
 
@@ -13816,8 +13818,8 @@ THE SOFTWARE.
 
 ```
 
-<a id="@jridgewell/trace-mapping-0.3.14"></a>
-### @jridgewell/trace-mapping 0.3.14
+<a id="@jridgewell/trace-mapping-0.3.18"></a>
+### @jridgewell/trace-mapping 0.3.18
 
 **License**: MIT
 
@@ -23589,8 +23591,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ```
 
-<a id="json5-2.2.1"></a>
-### json5 2.2.1
+<a id="json5-2.2.3"></a>
+### json5 2.2.3
 
 **License**: MIT
 
@@ -29751,6 +29753,36 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+```
+
+<a id="lru-cache-5.1.1"></a>
+### lru-cache 5.1.1
+
+**License**: ISC
+
+**Author**: Isaac Z. Schlueter <i@izs.me>
+
+**Repository**: git://github.com/isaacs/node-lru-cache.git
+
+**License Text**:
+
+```
+The ISC License
+
+Copyright (c) Isaac Z. Schlueter and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ```
 
@@ -44808,6 +44840,36 @@ THE SOFTWARE.
 
 <a id="yallist-4.0.0"></a>
 ### yallist 4.0.0
+
+**License**: ISC
+
+**Author**: Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
+
+**Repository**: git+https://github.com/isaacs/yallist.git
+
+**License Text**:
+
+```
+The ISC License
+
+Copyright (c) Isaac Z. Schlueter and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+```
+
+<a id="yallist-3.1.1"></a>
+### yallist 3.1.1
 
 **License**: ISC
 
