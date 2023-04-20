@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import type { RootState } from '../../../../modules';
+
 import {
   ComboboxWithCustomOption,
   Select,
@@ -57,7 +56,7 @@ const selectStyles = css({ minWidth: '120px' });
 
 const comboboxStyles = css({ width: '371px' });
 
-export const ProjectForm = ({ fields, onChange }: ProjectProps) => {
+const ProjectForm = ({ fields, onChange }: ProjectProps) => {
   const [projectionType, setProjectionType] =
     useState<ProjectionType>('include');
   const [projectFields, setProjectFields] = useState<ProjectFormState>([]);
@@ -117,6 +116,4 @@ export const ProjectForm = ({ fields, onChange }: ProjectProps) => {
   );
 };
 
-export default connect((state: RootState) => ({
-  fields: state.fields.map((x: { name: string }) => x.name),
-}))(ProjectForm);
+export default ProjectForm;

@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import {
-  ProjectForm,
+import ProjectForm, {
   mapProjectFormStateToStageValue,
   COMBOBOX_PLACEHOLDER_TEXT,
 } from './project';
