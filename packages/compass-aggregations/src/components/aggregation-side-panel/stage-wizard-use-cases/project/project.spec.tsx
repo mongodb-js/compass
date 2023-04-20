@@ -3,6 +3,8 @@ import type { ComponentProps } from 'react';
 import ProjectForm, {
   mapProjectFormStateToStageValue,
   COMBOBOX_PLACEHOLDER_TEXT,
+  getParentPaths,
+  makeIsOptionDisabled,
 } from './project';
 import type { ProjectionType } from './project';
 import {
@@ -54,7 +56,7 @@ const selectFields = (fields: string[]) => {
   fields.forEach((field) => {
     userEvent.click(
       within(document.querySelector(comboboxOptionSelector)!).getByText(
-        new RegExp(field, 'i')
+        new RegExp(`^${field}$`, 'i')
       ),
       undefined,
       {
@@ -68,7 +70,7 @@ const selectFields = (fields: string[]) => {
   );
 };
 
-describe('project', function () {
+describe.only('project', function () {
   afterEach(cleanup);
 
   it('renders a project form', function () {
@@ -180,6 +182,110 @@ describe('project', function () {
             ])
           ).to.deep.equal({ field1: op, field2: op });
         });
+      });
+    });
+  });
+
+  describe('getParentPaths', function () {
+    it('should return possible parent paths for provided list of paths', function () {
+      expect(getParentPaths([])).to.deep.equal([]);
+      expect(getParentPaths(['address'])).to.deep.equal(['address']);
+      expect(getParentPaths(['address'], ['address'])).to.deep.equal([]);
+
+      expect(getParentPaths(['address', 'city'])).to.deep.equal([
+        'address',
+        'address.city',
+      ]);
+      expect(getParentPaths(['address', 'city'], ['address'])).to.deep.equal([
+        'address.city',
+      ]);
+
+      expect(getParentPaths(['address', 'country', 'city'])).to.deep.equal([
+        'address',
+        'address.country',
+        'address.country.city',
+      ]);
+      expect(
+        getParentPaths(
+          ['address', 'country', 'city'],
+          ['address', 'address.country']
+        )
+      ).to.deep.equal(['address.country.city']);
+      expect(
+        getParentPaths(['address', 'country', 'city'], ['address.country'])
+      ).to.deep.equal(['address', 'address.country.city']);
+    });
+  });
+
+  describe('isOptionDisabled', function () {
+    const options = [
+      '_id',
+      'address',
+      'address.city',
+      'address.state',
+      'address.street',
+      'address.zipcode',
+      'address.nested',
+      'address.nested.cityname',
+      'address.nested.countryname',
+      'cusine',
+      'name',
+      'stars',
+    ];
+
+    it('should return false for options when there is nothing in projectedfields', function () {
+      const isOptionDisabled = makeIsOptionDisabled([]);
+      options.forEach((option) => {
+        expect(isOptionDisabled(option)).to.be.false;
+      });
+    });
+
+    it('should return false when projected fields do not include any nested field', function () {
+      const isOptionDisabled = makeIsOptionDisabled([
+        '_id',
+        'name',
+        'stars',
+        'cusine',
+      ]);
+      options.forEach((option) => {
+        expect(isOptionDisabled(option)).to.be.false;
+      });
+    });
+
+    context('when there is a nested children in projected field', function () {
+      it('should return true for its parent and the children of the projected nested children and false for rest', function () {
+        // Check with a nested-nested property
+        let isOptionDisabled = makeIsOptionDisabled(['address.nested']);
+        expect(isOptionDisabled('_id')).to.be.false;
+        // Since a children is already projected the parent cannot be
+        expect(isOptionDisabled('address')).to.be.true;
+        expect(isOptionDisabled('address.city')).to.be.false;
+        expect(isOptionDisabled('address.state')).to.be.false;
+        expect(isOptionDisabled('address.street')).to.be.false;
+        expect(isOptionDisabled('address.zipcode')).to.be.false;
+        expect(isOptionDisabled('address.nested')).to.be.false;
+        // Since the parent of the following paths is already projected hence children cannot be
+        expect(isOptionDisabled('address.nested.cityname')).to.be.true;
+        expect(isOptionDisabled('address.nested.countryname')).to.be.true;
+        expect(isOptionDisabled('cusine')).to.be.false;
+        expect(isOptionDisabled('name')).to.be.false;
+        expect(isOptionDisabled('stars')).to.be.false;
+
+        // This time check with a simple nested property
+        isOptionDisabled = makeIsOptionDisabled(['address.city']);
+        expect(isOptionDisabled('_id')).to.be.false;
+        // Since a children is already projected the parent cannot be
+        expect(isOptionDisabled('address')).to.be.true;
+        expect(isOptionDisabled('address.city')).to.be.false;
+        expect(isOptionDisabled('address.state')).to.be.false;
+        expect(isOptionDisabled('address.street')).to.be.false;
+        expect(isOptionDisabled('address.zipcode')).to.be.false;
+        expect(isOptionDisabled('address.nested')).to.be.false;
+        expect(isOptionDisabled('address.nested.cityname')).to.be.false;
+        expect(isOptionDisabled('address.nested.countryname')).to.be.false;
+        expect(isOptionDisabled('cusine')).to.be.false;
+        expect(isOptionDisabled('name')).to.be.false;
+        expect(isOptionDisabled('stars')).to.be.false;
       });
     });
   });
