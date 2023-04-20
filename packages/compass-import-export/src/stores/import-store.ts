@@ -36,7 +36,6 @@ const store = Object.assign(_store, {
     // Abort the import operation when it's in progress.
     globalAppRegistry.on('data-service-disconnected', () => {
       store.dispatch(dataServiceDisconnected());
-      store.dispatch(closeImport());
     });
 
     globalAppRegistry.on('open-import', ({ namespace }) => {

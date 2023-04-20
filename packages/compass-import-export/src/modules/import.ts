@@ -1111,6 +1111,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       ...state,
       analyzeAbortController: undefined,
       abortController: undefined,
+      isOpen: false,
     };
   }
 
