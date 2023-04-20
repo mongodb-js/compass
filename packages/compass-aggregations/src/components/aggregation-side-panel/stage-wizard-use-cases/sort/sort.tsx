@@ -9,8 +9,6 @@ import {
   ComboboxWithCustomOption,
 } from '@mongodb-js/compass-components';
 import React, { useEffect, useMemo, useState } from 'react';
-import { connect } from 'react-redux';
-import type { RootState } from '../../../../modules';
 
 const SORT_DIRECTION_OPTIONS = [
   {
@@ -43,7 +41,7 @@ const formGroupStyles = css({
 });
 
 const labelStyles = css({
-  minWidth: '140px',
+  minWidth: `${'Sort documents by'.length}ch`,
   textAlign: 'right',
 });
 
@@ -184,6 +182,4 @@ export const SortForm = ({
   );
 };
 
-export default connect((state: RootState) => ({
-  fields: state.fields.map((x: { name: string }) => x.name),
-}))(SortForm);
+export default SortForm;

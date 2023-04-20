@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type AppRegistry from 'hadron-app-registry';
 
 import isRunning, {
   toggleIsRunning,
@@ -18,6 +17,7 @@ import error, {
 import { reset, RESET } from '../reset';
 import dataService from '../data-service';
 import name, { INITIAL_STATE as NAME_INITIAL_STATE } from './name';
+import appRegistry from '../app-registry';
 
 /**
  * Open action name.
@@ -33,6 +33,7 @@ const reducer = combineReducers({
   name,
   error,
   dataService,
+  appRegistry,
 });
 
 export type RootState = ReturnType<typeof reducer>;
@@ -64,17 +65,6 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
 export default rootReducer;
 
 /**
- * Stop progress and set the error.
- */
-const stopWithError = (
-  dispatch: ThunkDispatch<RootState, void, AnyAction>,
-  err: Error
-) => {
-  dispatch(toggleIsRunning(false));
-  return dispatch(handleError(err));
-};
-
-/**
  * Open drop database action creator.
  */
 export const open = (dbName: string) => ({
@@ -86,12 +76,12 @@ export const open = (dbName: string) => ({
  * The drop database action.
  */
 export const dropDatabase = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   AnyAction
 > => {
-  return (
+  return async (
     dispatch: ThunkDispatch<RootState, void, AnyAction>,
     getState: () => RootState
   ) => {
@@ -107,21 +97,14 @@ export const dropDatabase = (): ThunkAction<
 
     try {
       dispatch(toggleIsRunning(true));
-      ds.dropDatabase(dbName, (e: any) => {
-        if (e) {
-          return stopWithError(dispatch, e);
-        }
-        ((global as any).hadronApp?.appRegistry as AppRegistry).emit(
-          'database-dropped',
-          dbName
-        );
-        ((global as any).hadronApp?.appRegistry as AppRegistry).emit(
-          'refresh-data'
-        );
-        dispatch(reset());
-      });
+      await ds.dropDatabase(dbName);
+      const { appRegistry } = getState();
+      appRegistry?.emit('database-dropped', dbName);
+      appRegistry?.emit('refresh-data');
+      dispatch(reset());
     } catch (e: any) {
-      return stopWithError(dispatch, e as Error);
+      dispatch(toggleIsRunning(false));
+      dispatch(handleError(e));
     }
   };
 };

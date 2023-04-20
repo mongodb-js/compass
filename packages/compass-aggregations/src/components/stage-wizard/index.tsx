@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
-  Badge,
   Body,
   Button,
   css,
   KeylineCard,
+  Link,
   spacing,
   WarningSummary,
 } from '@mongodb-js/compass-components';
@@ -17,10 +17,15 @@ import {
   removeWizard,
   updateWizardValue,
 } from '../../modules/pipeline-builder/stage-editor';
-import type { Wizard } from '../../modules/pipeline-builder/stage-editor';
+import type {
+  StoreStage,
+  Wizard,
+} from '../../modules/pipeline-builder/stage-editor';
+import { getSchema } from '../../utils/get-schema';
+import { getStageHelpLink } from '../../utils/stage';
+import type { SortableProps } from '../pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 
 const containerStyles = css({
-  padding: spacing[3],
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
@@ -30,6 +35,15 @@ const headerStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[2],
+  padding: spacing[3],
+  cursor: 'grab',
+});
+
+const wizardContentStyles = css({
+  padding: spacing[3],
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
 });
 
 const cardFooterStyles = css({
@@ -44,11 +58,12 @@ const cardActionStyles = css({
   marginLeft: 'auto',
 });
 
-type StageWizardProps = {
+type StageWizardProps = SortableProps & {
   index: number;
   useCaseId: string;
   value: string | null;
   syntaxError: SyntaxError | null;
+  fields: string[];
   onChange: (value: string) => void;
   onCancel: () => void;
   onApply: () => void;
@@ -59,9 +74,11 @@ export const StageWizard = ({
   useCaseId,
   value,
   syntaxError,
+  fields,
   onChange,
   onCancel,
   onApply,
+  ...sortableProps
 }: StageWizardProps) => {
   const [formError, setFormError] = useState<Error | null>(null);
   const useCase = useMemo<StageWizardUseCase | undefined>(() => {
@@ -86,36 +103,54 @@ export const StageWizard = ({
   const error = syntaxError || formError;
   const isApplyDisabled = !!error || !value;
 
+  const { setNodeRef, style, listeners } = sortableProps;
+
   return (
-    <KeylineCard
-      data-testid="wizard-card"
-      data-wizard-index={index}
-      className={containerStyles}
-    >
-      <div className={headerStyles}>
-        <Body weight="medium">{useCase.title}</Body>
-        <Badge>{useCase.stageOperator}</Badge>
-      </div>
-      <div data-testid="wizard-form">
-        <useCase.wizardComponent onChange={onChangeWizard} />
-      </div>
-      <div className={cardFooterStyles}>
-        {value && error && <WarningSummary warnings={[error?.message]} />}
-        <div className={cardActionStyles}>
-          <Button data-testid="wizard-cancel-action" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button
-            data-testid="wizard-apply-action"
-            onClick={onApply}
-            variant="primary"
-            disabled={isApplyDisabled}
-          >
-            Apply
-          </Button>
+    <div ref={setNodeRef} style={style}>
+      <KeylineCard
+        data-testid="wizard-card"
+        data-wizard-index={index}
+        className={containerStyles}
+      >
+        <div {...listeners}>
+          <div className={headerStyles}>
+            <Body weight="medium">{useCase.title}</Body>
+            <Link
+              target="_blank"
+              href={getStageHelpLink(useCase.stageOperator) as string}
+            >
+              {useCase.stageOperator}
+            </Link>
+          </div>
         </div>
-      </div>
-    </KeylineCard>
+        <div className={wizardContentStyles}>
+          <div data-testid="wizard-form">
+            <useCase.wizardComponent
+              fields={fields}
+              onChange={onChangeWizard}
+            />
+          </div>
+          <div className={cardFooterStyles}>
+            <div>
+              {value && error && <WarningSummary warnings={[error?.message]} />}
+            </div>
+            <div className={cardActionStyles}>
+              <Button data-testid="wizard-cancel-action" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button
+                data-testid="wizard-apply-action"
+                onClick={onApply}
+                variant="primary"
+                disabled={isApplyDisabled}
+              >
+                Apply
+              </Button>
+            </div>
+          </div>
+        </div>
+      </KeylineCard>
+    </div>
   );
 };
 
@@ -125,15 +160,37 @@ type WizardOwnProps = {
 
 export default connect(
   (state: RootState, ownProps: WizardOwnProps) => {
-    const wizard = state.pipelineBuilder.stageEditor.stages[
-      ownProps.index
-    ] as Wizard;
+    const {
+      autoPreview,
+      fields: initialFields,
+      pipelineBuilder: {
+        stageEditor: { stages },
+      },
+    } = state;
+
+    const wizard = stages[ownProps.index] as Wizard;
+
+    const previousStage = stages
+      .slice(0, ownProps.index)
+      .reverse()
+      .find((x): x is StoreStage => x.type === 'stage' && !x.disabled);
+
+    const mappedInitialFields = initialFields.map(
+      (x: { name: string }) => x.name
+    );
+    const previousStageFields = getSchema(previousStage?.previewDocs ?? []);
+
+    const fields =
+      previousStageFields.length > 0 && autoPreview
+        ? previousStageFields
+        : mappedInitialFields;
 
     return {
       id: wizard.id,
       syntaxError: wizard.syntaxError,
       useCaseId: wizard.useCaseId,
       value: wizard.value,
+      fields,
     };
   },
   (dispatch: PipelineBuilderThunkDispatch, ownProps: WizardOwnProps) => ({

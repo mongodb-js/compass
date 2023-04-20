@@ -18,14 +18,8 @@ export type FieldsToExport = {
   };
 };
 
-// Fields can only be prefixed with one '$'. Otherwise $
-// is not allowed, so this should be a safe separator.
-const FieldSplittingSymbol = '$$$$';
 export function getIdForSchemaPath(schemaPath: SchemaPath) {
-  return schemaPath.join(FieldSplittingSymbol);
-}
-export function getLabelForFieldId(fieldId: string) {
-  return fieldId.split(FieldSplittingSymbol).join('.');
+  return JSON.stringify(schemaPath);
 }
 
 function isAction<A extends AnyAction>(
@@ -63,7 +57,7 @@ export type ExportState = {
   fieldsToExportAbortController: AbortController | undefined;
 } & ExportOptions;
 
-const initialState: ExportState = {
+export const initialState: ExportState = {
   isOpen: false,
   isInProgressMessageOpen: false,
   status: undefined,
@@ -154,13 +148,13 @@ type FetchFieldsToExportAction = {
 
 type FetchFieldsToExportErrorAction = {
   type: ExportActionTypes.FetchFieldsToExportError;
-  aborted?: boolean;
   errorMessage?: string;
 };
 
 type FetchFieldsToExportSuccessAction = {
   type: ExportActionTypes.FetchFieldsToExportSuccess;
   fieldsToExport: FieldsToExport;
+  aborted?: boolean;
 };
 
 type ToggleFieldToExportAction = {
@@ -225,8 +219,10 @@ export const selectFieldsToExport = (): ExportThunkAction<
       dataService: { dataService },
     } = getState();
 
+    let gatherFieldsResult: Awaited<ReturnType<typeof gatherFieldsFromQuery>>;
+
     try {
-      const gatherFieldsResult = await gatherFieldsFromQuery({
+      gatherFieldsResult = await gatherFieldsFromQuery({
         ns: namespace,
         abortSignal: fieldsToExportAbortController.signal,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -234,45 +230,30 @@ export const selectFieldsToExport = (): ExportThunkAction<
         query,
         sampleSize: 50,
       });
-
-      if (
-        fieldsToExportAbortController.signal.aborted ||
-        gatherFieldsResult.aborted
-      ) {
-        dispatch({
-          type: ExportActionTypes.FetchFieldsToExportError,
-          aborted: true,
-        });
-        return;
-      }
-
-      const fields: FieldsToExport = {};
-      for (const schemaPath of gatherFieldsResult.paths) {
-        fields[getIdForSchemaPath(schemaPath)] = {
-          path: schemaPath,
-          // We start all of the fields as unchecked.
-          selected: false,
-        };
-      }
-
-      dispatch({
-        type: ExportActionTypes.FetchFieldsToExportSuccess,
-        fieldsToExport: fields,
-      });
     } catch (err: any) {
-      if (fieldsToExportAbortController.signal.aborted) {
-        dispatch({
-          type: ExportActionTypes.FetchFieldsToExportError,
-          aborted: true,
-        });
-        return;
-      }
-
       dispatch({
         type: ExportActionTypes.FetchFieldsToExportError,
         errorMessage: err?.message,
       });
+      return;
     }
+
+    const fields: FieldsToExport = {};
+    for (const schemaPath of gatherFieldsResult.paths) {
+      fields[getIdForSchemaPath(schemaPath)] = {
+        path: schemaPath,
+        // We start all of the fields as unchecked.
+        selected: false,
+      };
+    }
+
+    dispatch({
+      type: ExportActionTypes.FetchFieldsToExportSuccess,
+      fieldsToExport: fields,
+      aborted:
+        fieldsToExportAbortController.signal.aborted ||
+        gatherFieldsResult.aborted,
+    });
   };
 };
 
@@ -380,11 +361,6 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
       ExportActionTypes.FetchFieldsToExportError
     )
   ) {
-    if (action.aborted) {
-      // Ignore when the selecting fields was cancelled.
-      return state;
-    }
-
     return {
       ...state,
       errorLoadingFieldsToExport: action.errorMessage,
@@ -398,6 +374,13 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
       ExportActionTypes.FetchFieldsToExportSuccess
     )
   ) {
+    if (action.aborted) {
+      // Ignore when the selecting fields was cancelled.
+      // Currently we don't let the user intentionally skip fetching fields, so an abort
+      // would come from closing the modal or performing a different way of exporting.
+      return state;
+    }
+
     return {
       ...state,
       fieldsToExport: action.fieldsToExport,

@@ -533,36 +533,29 @@ class CrudStoreImpl
    *
    * @param {Document} doc - The hadron document.
    */
-  removeDocument(doc: Document) {
+  async removeDocument(doc: Document) {
     track('Document Deleted', { mode: this.modeForTelemetry() });
     const id = doc.getId();
     if (id !== undefined) {
       doc.emit('remove-start');
-      this.dataService.deleteOne(
-        this.state.ns,
-        { _id: id } as any,
-        {},
-        (error) => {
-          if (error) {
-            // emit on the document(list view) and success state(json view)
-            doc.emit('remove-error', error.message);
-            this.trigger(this.state);
-          } else {
-            // emit on the document(list view) and success state(json view)
-            doc.emit('remove-success');
-
-            const payload = { view: this.state.view, ns: this.state.ns };
-            this.localAppRegistry.emit('document-deleted', payload);
-            this.globalAppRegistry.emit('document-deleted', payload);
-            const index = this.findDocumentIndex(doc);
-            this.state.docs?.splice(index, 1);
-            this.setState({
-              count: this.state.count === null ? null : this.state.count - 1,
-              end: Math.max(this.state.end - 1, 0),
-            });
-          }
-        }
-      );
+      try {
+        await this.dataService.deleteOne(this.state.ns, { _id: id } as any);
+        // emit on the document(list view) and success state(json view)
+        doc.emit('remove-success');
+        const payload = { view: this.state.view, ns: this.state.ns };
+        this.localAppRegistry.emit('document-deleted', payload);
+        this.globalAppRegistry.emit('document-deleted', payload);
+        const index = this.findDocumentIndex(doc);
+        this.state.docs?.splice(index, 1);
+        this.setState({
+          count: this.state.count === null ? null : this.state.count - 1,
+          end: Math.max(this.state.end - 1, 0),
+        });
+      } catch (error) {
+        // emit on the document(list view) and success state(json view)
+        doc.emit('remove-error', (error as Error).message);
+        this.trigger(this.state);
+      }
     } else {
       doc.emit('remove-error', DELETE_ERROR);
       this.trigger(this.state);
@@ -637,8 +630,15 @@ class CrudStoreImpl
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        (ds, ns, opts, cb) => {
-          ds.findOneAndUpdate(ns, query, updateDoc, opts, cb);
+        async (ds, ns, opts) => {
+          try {
+            return [
+              undefined,
+              await ds.findOneAndUpdate(ns, query, updateDoc, opts),
+            ] as ErrorOrResult;
+          } catch (error) {
+            return [error, undefined] as ErrorOrResult;
+          }
         }
       );
 
@@ -735,12 +735,18 @@ class CrudStoreImpl
       );
       debug('Performing findOneAndReplace', { query, object });
 
-      // eslint-disable-next-line no-shadow
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        (ds, ns, opts, cb) => {
-          ds.findOneAndReplace(ns, query, object, opts, cb);
+        async (ds, ns, opts) => {
+          try {
+            return [
+              undefined,
+              await ds.findOneAndReplace(ns, query, object, opts),
+            ] as ErrorOrResult;
+          } catch (error) {
+            return [error, undefined] as ErrorOrResult;
+          }
         }
       );
       if (error) {
@@ -1091,7 +1097,7 @@ class CrudStoreImpl
   /**
    * Insert a single document.
    */
-  insertMany() {
+  async insertMany() {
     const docs = HadronDocument.FromEJSONArray(
       this.state.insert.jsonDoc ?? ''
     ).map((doc) => doc.generateObject());
@@ -1100,21 +1106,8 @@ class CrudStoreImpl
       multiple: docs.length > 1,
     });
 
-    this.dataService.insertMany(this.state.ns, docs, {}, (error) => {
-      if (error) {
-        return this.setState({
-          insert: {
-            doc: new Document({}),
-            jsonDoc: this.state.insert.jsonDoc,
-            jsonView: true,
-            message: error.message,
-            csfleState: this.state.insert.csfleState,
-            mode: ERROR,
-            isOpen: true,
-            isCommentNeeded: this.state.insert.isCommentNeeded,
-          },
-        });
-      }
+    try {
+      await this.dataService.insertMany(this.state.ns, docs);
       // track mode for analytics events
       const payload = {
         ns: this.state.ns,
@@ -1127,11 +1120,25 @@ class CrudStoreImpl
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
-      // Since we are inserting a bunch of documents and we need to rerun all
-      // the queries and counts for them, let's just refresh the whole set of
-      // documents.
-      void this.refreshDocuments();
-    });
+    } catch (error) {
+      this.setState({
+        insert: {
+          doc: new Document({}),
+          jsonDoc: this.state.insert.jsonDoc,
+          jsonView: true,
+          message: (error as Error).message,
+          csfleState: this.state.insert.csfleState,
+          mode: ERROR,
+          isOpen: true,
+          isCommentNeeded: this.state.insert.isCommentNeeded,
+        },
+      });
+    }
+
+    // Since we are inserting a bunch of documents and we need to rerun all
+    // the queries and counts for them, let's just refresh the whole set of
+    // documents.
+    void this.refreshDocuments();
   }
 
   /**
@@ -1139,7 +1146,7 @@ class CrudStoreImpl
    * Parse document from Json Insert View Modal or generate object from hadron document
    * view to insert.
    */
-  insertDocument() {
+  async insertDocument() {
     track('Document Inserted', {
       mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
       multiple: false,
@@ -1154,22 +1161,8 @@ class CrudStoreImpl
     } else {
       doc = this.state.insert.doc!.generateObject();
     }
-
-    this.dataService.insertOne(this.state.ns, doc, {}, (error) => {
-      if (error) {
-        return this.setState({
-          insert: {
-            doc: this.state.insert.doc,
-            jsonDoc: this.state.insert.jsonDoc,
-            jsonView: this.state.insert.jsonView,
-            message: error.message,
-            csfleState: this.state.insert.csfleState,
-            mode: ERROR,
-            isOpen: true,
-            isCommentNeeded: this.state.insert.isCommentNeeded,
-          },
-        });
-      }
+    try {
+      await this.dataService.insertOne(this.state.ns, doc);
 
       const payload = {
         ns: this.state.ns,
@@ -1182,8 +1175,23 @@ class CrudStoreImpl
       this.globalAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
-      void this.refreshDocuments();
-    });
+    } catch (error) {
+      this.setState({
+        insert: {
+          doc: this.state.insert.doc,
+          jsonDoc: this.state.insert.jsonDoc,
+          jsonView: this.state.insert.jsonView,
+          message: (error as Error).message,
+          csfleState: this.state.insert.csfleState,
+          mode: ERROR,
+          isOpen: true,
+          isCommentNeeded: this.state.insert.isCommentNeeded,
+        },
+      });
+      return;
+    }
+
+    void this.refreshDocuments();
   }
 
   /**
@@ -1591,14 +1599,12 @@ export async function findAndModifyWithFLEFallback(
   doFindAndModify: (
     ds: DataService,
     ns: string,
-    opts: { returnDocument: 'before' | 'after'; promoteValues: false },
-    cb: (error: { message: string } | undefined | null, doc: BSONObject) => void
-  ) => void
+    opts: { returnDocument: 'before' | 'after'; promoteValues: false }
+  ) => Promise<ErrorOrResult>
 ): Promise<ErrorOrResult> {
   const opts = { returnDocument: 'after', promoteValues: false } as const;
-  let [error, d] = await new Promise<ErrorOrResult>((resolve) => {
-    doFindAndModify(ds, ns, opts, (...cbArgs) => resolve(cbArgs as any));
-  });
+
+  let [error, d] = await doFindAndModify(ds, ns, opts);
   const originalError = error;
 
   // 6371402 is "'findAndModify with encryption only supports new: false'"
@@ -1608,9 +1614,7 @@ export async function findAndModifyWithFLEFallback(
       returnDocument: 'before',
       promoteValues: false,
     } as const;
-    [error, d] = await new Promise((resolve) => {
-      doFindAndModify(ds, ns, fallbackOpts, (...cbArgs) => resolve(cbArgs));
-    });
+    [error, d] = await doFindAndModify(ds, ns, fallbackOpts);
 
     if (!error) {
       let docs;

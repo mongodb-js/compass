@@ -25,7 +25,6 @@ import {
 import { connect } from 'react-redux';
 
 import {
-  getLabelForFieldId,
   selectFieldsToExport,
   toggleFieldToExport,
   addFieldToExport,
@@ -78,10 +77,10 @@ const addNewFieldRowStyles = css({
   marginBottom: spacing[5],
 });
 
-const placeholdersCount = 6;
-const loadingPlaceholderItems = Array.from({ length: placeholdersCount }).map(
-  (value, index) => index
-);
+const loadingPlaceholderCount = 6;
+const loadingPlaceholderItems = Array.from({
+  length: loadingPlaceholderCount,
+}).map((value, index) => index);
 
 function LoadingTable() {
   return (
@@ -112,7 +111,8 @@ function LoadingTable() {
               className={placeholderStyles}
               style={{
                 // Fade to transparent as we go down.
-                opacity: (placeholdersCount - index) / placeholdersCount,
+                opacity:
+                  (loadingPlaceholderCount - index) / loadingPlaceholderCount,
               }}
               key={index}
               minChar={30}
@@ -227,7 +227,7 @@ function ExportSelectFields({
       )
       .map((fieldKey, index) => ({
         fieldKey,
-        fieldLabel: getLabelForFieldId(fieldKey),
+        fieldLabel: fields[fieldKey].path.join('.'),
         checked: !!fields[fieldKey].selected,
         index,
       }));
@@ -245,6 +245,7 @@ function ExportSelectFields({
           <Button
             variant="primary"
             leftGlyph={<Icon glyph="Plus" />}
+            data-testid="export-add-new-field-button"
             size="xsmall"
             disabled={isLoading}
             onClick={onAddNewFieldButtonClicked}
