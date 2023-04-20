@@ -152,8 +152,8 @@ type CloseInProgressMessageAction = {
   type: ExportActionTypes.CloseInProgressMessage;
 };
 
-export const closeInProgressMessage = (): CloseExportAction => ({
-  type: ExportActionTypes.CloseExport,
+export const closeInProgressMessage = (): CloseInProgressMessageAction => ({
+  type: ExportActionTypes.CloseInProgressMessage,
 });
 
 type SelectFieldsToExportAction = {
