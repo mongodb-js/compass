@@ -7,11 +7,13 @@ import {
   ComboboxWithCustomOption,
   ComboboxOption,
 } from '@mongodb-js/compass-components';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../../modules';
 import { fetchCollectionFields } from '../../../../modules/collections-fields';
 import type { CollectionData } from '../../../../modules/collections-fields';
+
+const LOOKUP_TITLE = 'Join documents in';
 
 type LookupFormState = {
   from: string;
@@ -27,7 +29,7 @@ const containerStyles = css({
 });
 
 const titleStyles = css({
-  minWidth: `${'Join documents in'.length}ch`,
+  minWidth: `${LOOKUP_TITLE.length}ch`,
   textAlign: 'right',
 });
 
@@ -59,32 +61,17 @@ export const LookupForm = ({
     localField: '',
   });
 
-  useEffect(() => {
-    if (formData.from) {
-      onSelectCollection(formData.from);
-    }
-  }, [formData.from, onSelectCollection]);
-
-  useEffect(() => {
-    const anyEmptyValue = Object.values(formData).some((x) => !x);
-    onChange(
-      JSON.stringify(formData),
-      anyEmptyValue ? new Error('Enter all the fields') : null
-    );
-  }, [formData, onChange]);
-
   const onSelectOption = useCallback(
     (option: keyof LookupFormState, value: string | null) => {
       if (value === null) {
         return;
       }
 
-      const newData: LookupFormState = { ...formData, [option]: value };
-
       // We set the "as" form field if:
       // 1. The value was not set initially and
       // 2. The value was set initially programmatically and
       //  was not changed by the user or the value is empty
+      const newData: LookupFormState = { ...formData, [option]: value };
       if (
         option === 'from' &&
         (!formData.as || formData.from === formData.as)
@@ -92,20 +79,32 @@ export const LookupForm = ({
         newData.as = value;
       }
 
+      // Call onChange with the new value and an error if any of the fields is empty
+      const anyEmptyValue = Object.values(newData).some((x) => !x);
+      onChange(
+        JSON.stringify(newData),
+        anyEmptyValue ? new Error('Enter all the fields') : null
+      );
+
+      // Fetch the fields of the selected collection if it was changed
+      if (option === 'from' && newData.from) {
+        onSelectCollection(newData.from);
+      }
+
       setFormData(newData);
     },
-    [formData, setFormData]
+    [formData, setFormData, onChange]
   );
 
   const collectionInfo = useMemo(
-    () => collectionsFields[formData.from],
+    () => (formData.from ? collectionsFields[formData.from] : null),
     [formData.from, collectionsFields]
   );
 
   return (
     <div className={containerStyles}>
       <div className={formGroup}>
-        <Body className={titleStyles}>Join documents in</Body>
+        <Body className={titleStyles}>{LOOKUP_TITLE}</Body>
         <Combobox
           aria-label="Select collection"
           placeholder="Select collection"
