@@ -54,7 +54,11 @@ const formGroupStyles = css({
 
 const selectStyles = css({ minWidth: '120px' });
 
-const comboboxStyles = css({ width: '371px' });
+// Because our combobox renders with a horizontal scroll
+// for selected items, we render it with an appropriate
+// width to make it easier for user to glance at larger
+// set of options
+const comboboxStyles = css({ width: '350px' });
 
 const ProjectForm = ({ fields, onChange }: ProjectProps) => {
   const [projectionType, setProjectionType] =
