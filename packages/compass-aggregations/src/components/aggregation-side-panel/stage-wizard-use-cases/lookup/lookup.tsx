@@ -7,10 +7,11 @@ import {
   ComboboxWithCustomOption,
   ComboboxOption,
 } from '@mongodb-js/compass-components';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../../modules';
 import { fetchCollectionFields } from '../../../../modules/collections-fields';
+import type { CollectionData } from '../../../../modules/collections-fields';
 
 type LookupFormState = {
   from: string;
@@ -47,7 +48,7 @@ export const LookupForm = ({
   onChange,
 }: {
   fields: string[];
-  collectionsFields: Record<string, { isLoading: boolean; fields: string[] }>;
+  collectionsFields: Record<string, CollectionData>;
   onSelectCollection: (collection: string) => void;
   onChange: (value: string, error: Error | null) => void;
 }) => {
@@ -72,28 +73,34 @@ export const LookupForm = ({
     );
   }, [formData, onChange]);
 
-  const onSelectOption = (
-    option: keyof LookupFormState,
-    value: string | null
-  ) => {
-    if (value === null) {
-      return;
-    }
+  const onSelectOption = useCallback(
+    (option: keyof LookupFormState, value: string | null) => {
+      if (value === null) {
+        return;
+      }
 
-    const newData: LookupFormState = { ...formData, [option]: value };
+      const newData: LookupFormState = { ...formData, [option]: value };
 
-    // We set the "as" form field if:
-    // 1. The value was not set initially and
-    // 2. The value was set initially programmatically and
-    //  was not changed by the user or the value is empty
-    if (option === 'from' && (!formData.as || formData.from === formData.as)) {
-      newData.as = value;
-    }
+      // We set the "as" form field if:
+      // 1. The value was not set initially and
+      // 2. The value was set initially programmatically and
+      //  was not changed by the user or the value is empty
+      if (
+        option === 'from' &&
+        (!formData.as || formData.from === formData.as)
+      ) {
+        newData.as = value;
+      }
 
-    setFormData(newData);
-  };
+      setFormData(newData);
+    },
+    [formData, setFormData]
+  );
 
-  const collectionInfo = collectionsFields[formData.from];
+  const collectionInfo = useMemo(
+    () => collectionsFields[formData.from],
+    [formData.from]
+  );
 
   return (
     <div className={containerStyles}>

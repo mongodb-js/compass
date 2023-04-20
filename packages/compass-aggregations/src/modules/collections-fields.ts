@@ -11,7 +11,7 @@ export type CollectionInfo = {
   type: CollectionType;
 };
 
-enum ActionTypes {
+export enum ActionTypes {
   CollectionsFetch = 'compass-aggregations/collectionsFetched',
   CollectionFieldsFetched = 'compass-aggregations/collectionFieldsFetched',
   CollectionDataUpdated = 'compass-aggregations/collectionDataUpdated',
@@ -35,7 +35,7 @@ type CollectionDataUpdatedAction = {
   data: CollectionData;
 };
 
-type CollectionData = {
+export type CollectionData = {
   isLoading: boolean;
   type: CollectionType;
   fields: string[];
