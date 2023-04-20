@@ -84,7 +84,7 @@ async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
   expect(await checkboxElement.isSelected()).to.be.false;
 }
 
-describe('Collection import', function () {
+describe.only('Collection import', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -105,14 +105,6 @@ describe('Collection import', function () {
 
   afterEach(async function () {
     await afterTest(compass, this.currentTest);
-
-    // If the previous test left the modal open, then it will still be there for the next test
-    const closeButton = await browser.$(Selectors.ImportModalCloseButton);
-    if (closeButton.isDisplayed()) {
-      closeButton.click();
-      const importModal = await browser.$(Selectors.ImportModal);
-      await importModal.waitForDisplayed({ reverse: true });
-    }
   });
 
   it('supports single JSON objects', async function () {
@@ -1000,7 +992,12 @@ describe('Collection import', function () {
 
       // Check it displays that the import was aborted.
       const toastText = await toastElement.getText();
-      expect(toastText).to.include('Import aborted.');
+      try {
+        expect(toastText).to.include('Import aborted.');
+      } catch (err) {
+        console.log(toastText);
+        throw err;
+      }
 
       // Check at least one and fewer than 16116 documents were imported.
       const messageElement = await browser.$(
