@@ -5,7 +5,10 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import fs from 'fs';
 import _ from 'lodash';
 
-import { gatherFieldsFromQuery } from '../export/gather-fields';
+import {
+  createProjectionFromSchemaFields,
+  gatherFieldsFromQuery,
+} from '../export/gather-fields';
 import type { SchemaPath } from '../export/gather-fields';
 import type {
   ExportAggregation,
@@ -31,6 +34,7 @@ import {
   exportJSONFromAggregation,
   exportJSONFromQuery,
 } from '../export/export-json';
+import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
 
 const { track, log, mongoLogId, debug } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'
@@ -101,7 +105,7 @@ export const initialState: ExportState = {
   exportFileError: undefined,
 };
 
-const enum ExportActionTypes {
+export const enum ExportActionTypes {
   OpenExport = 'compass-import-export/export/OpenExport',
   CloseExport = 'compass-import-export/export/CloseExport',
   CloseInProgressMessage = 'compass-import-export/export/CloseInProgressMessage',
@@ -237,7 +241,7 @@ type CancelExportAction = {
   type: ExportActionTypes.CancelExport;
 };
 
-const cancelExport = (): CancelExportAction => ({
+export const cancelExport = (): CancelExportAction => ({
   type: ExportActionTypes.CancelExport,
 });
 
@@ -287,6 +291,12 @@ export const selectFieldsToExport = (): ExportThunkAction<
         sampleSize: 50,
       });
     } catch (err: any) {
+      log.error(
+        mongoLogId(1_001_000_184),
+        'Export',
+        'Failed to gather fields for selecting for export',
+        err
+      );
       dispatch({
         type: ExportActionTypes.FetchFieldsToExportError,
         errorMessage: err?.message,
@@ -342,14 +352,40 @@ export const runExport = ({
 
     const {
       export: {
-        query,
+        query: _query,
         namespace,
+        fieldsToExport,
         aggregation,
         exportFullCollection,
         selectedFieldOption,
       },
       dataService: { dataService },
     } = getState();
+
+    const query =
+      selectedFieldOption === 'select-fields'
+        ? {
+            ...(_query ?? {
+              filter: {},
+            }),
+            projection: createProjectionFromSchemaFields(
+              Object.values(fieldsToExport)
+                .filter((field) => field.selected)
+                .map((field) => field.path)
+            ),
+          }
+        : _query;
+
+    log.info(mongoLogId(1_001_000_181), 'Export', 'Start export', {
+      namespace,
+      filePath,
+      fileType,
+      exportFullCollection,
+      fieldsToExport,
+      aggregation,
+      query,
+      selectedFieldOption,
+    });
 
     const exportAbortController = new AbortController();
 
@@ -369,12 +405,12 @@ export const runExport = ({
       index: number,
       csvPhase?: CSVExportPhase
     ) {
-      // TODO: on some csv phase display something else?
       showInProgressToast({
         cancelExport: () => dispatch(cancelExport()),
         docsWritten: index,
         filePath,
         namespace,
+        csvPhase,
       });
     },
     1000);
@@ -384,7 +420,7 @@ export const runExport = ({
     const baseExportOptions = {
       ns: namespace,
       abortSignal: exportAbortController.signal,
-      dataService,
+      dataService: dataService!,
       progressCallback,
       output: outputWriteStream,
     };
@@ -421,7 +457,7 @@ export const runExport = ({
     try {
       exportResult = await promise;
 
-      log.info(mongoLogId(1001000086), 'Export', 'Finished export', {
+      log.info(mongoLogId(1_001_000_182), 'Export', 'Finished export', {
         namespace,
         docsWritten: exportResult.docsWritten,
         filePath,
@@ -431,7 +467,7 @@ export const runExport = ({
       progressCallback.flush();
     } catch (err: any) {
       debug('Error while exporting:', err.stack);
-      log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
+      log.error(mongoLogId(1_001_000_183), 'Export', 'Export failed', {
         namespace,
         error: (err as Error)?.message,
       });
@@ -459,7 +495,10 @@ export const runExport = ({
     }
 
     if (exportResult?.aborted) {
-      showCancelledToast();
+      showCancelledToast({
+        docsWritten: exportResult?.docsWritten ?? 0,
+        filePath,
+      });
     } else {
       showCompletedToast({
         docsWritten: exportResult?.docsWritten ?? 0,
@@ -521,12 +560,15 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
     };
   }
 
-  if (isAction<CloseExportAction>(action, ExportActionTypes.CloseExport)) {
+  if (
+    isAction<CloseExportAction>(action, ExportActionTypes.CloseExport) ||
+    action.type === DATA_SERVICE_DISCONNECTED
+  ) {
     // Cancel any ongoing operations.
     state.fieldsToExportAbortController?.abort();
+    state.exportAbortController?.abort();
     return {
       ...state,
-      fieldsToExportAbortController: undefined,
       isOpen: false,
     };
   }

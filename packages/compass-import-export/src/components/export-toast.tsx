@@ -4,33 +4,46 @@ import path from 'path';
 
 import { ToastBody } from './toast-body';
 import revealFile from '../utils/reveal-file';
+import type { CSVExportPhase } from '../export/export-csv';
 
 const exportToastId = 'export-toast';
+
+const docsWrittenText = (docsWritten: number) => {
+  return `${docsWritten} document${docsWritten !== 1 ? 's' : ''} written.`;
+};
 
 export function showInProgressToast({
   filePath,
   namespace,
   cancelExport,
   docsWritten,
+  csvPhase,
 }: {
   filePath: string;
   namespace: string;
   cancelExport: () => void;
   docsWritten: number;
+  csvPhase?: CSVExportPhase;
 }) {
+  let statusMessage = docsWrittenText(docsWritten);
+
+  if (csvPhase === 'DOWNLOAD') {
+    statusMessage = `Processing documents before exporting, ${docsWritten} document${
+      docsWritten !== 1 ? 's' : ''
+    } processed.`;
+  }
+
   // Update the toast with the new progress.
   openToast(exportToastId, {
-    title: `Export ${namespace} to ${path.basename(filePath)}…`,
+    title: `Exporting "${namespace}" to ${path.basename(filePath)}…`,
     body: (
       <ToastBody
-        statusMessage={`${docsWritten} document${
-          docsWritten !== 1 ? 's' : ''
-        } written.`}
+        statusMessage={statusMessage}
         actionHandler={cancelExport}
         actionText="stop"
       />
     ),
-    progress: undefined, // Don't show progress as we don't have the count of the documents.
+    progress: undefined, // Don't show progress as there is no total document count.
     variant: 'progress',
     dismissible: false,
   });
@@ -44,7 +57,7 @@ export function showStartingToast({
   cancelExport: () => void;
 }) {
   openToast(exportToastId, {
-    title: `Exporting ${namespace}…`,
+    title: `Exporting "${namespace}"…`,
     body: (
       <ToastBody
         statusMessage="Starting…"
@@ -68,9 +81,7 @@ export function showCompletedToast({
     title: 'Export completed.',
     body: (
       <ToastBody
-        statusMessage={`${docsWritten} document${
-          docsWritten !== 1 ? 's' : ''
-        } written.`}
+        statusMessage={docsWrittenText(docsWritten)}
         actionHandler={() => revealFile(filePath)}
         actionText="show file"
       />
@@ -79,10 +90,25 @@ export function showCompletedToast({
   });
 }
 
-export function showCancelledToast() {
+export function showCancelledToast({
+  docsWritten,
+  filePath,
+}: {
+  filePath: string;
+  docsWritten: number;
+}) {
   openToast(exportToastId, {
     title: 'Export aborted.',
-    body: <></>,
+    body:
+      docsWritten > 0 ? (
+        <ToastBody
+          statusMessage={docsWrittenText(docsWritten)}
+          actionHandler={() => revealFile(filePath)}
+          actionText="show file"
+        />
+      ) : (
+        <></>
+      ),
     variant: 'warning',
   });
 }
