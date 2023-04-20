@@ -56,7 +56,7 @@
     "pretest-electron": "npm run start-test-mdb-server",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "posttest-electron": "npm run stop-test-mdb-server",
-    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "posttest-ci": "node ../../scripts/killall-mongo.js",
