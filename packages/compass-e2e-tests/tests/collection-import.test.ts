@@ -105,6 +105,14 @@ describe('Collection import', function () {
 
   afterEach(async function () {
     await afterTest(compass, this.currentTest);
+
+    // If the previous test left the modal open, then it will still be there for the next test
+    const closeButton = await browser.$(Selectors.ImportModalCloseButton);
+    if (closeButton.isDisplayed()) {
+      closeButton.click();
+      const importModal = await browser.$(Selectors.ImportModal);
+      await importModal.waitForDisplayed({ reverse: true });
+    }
   });
 
   it('supports single JSON objects', async function () {

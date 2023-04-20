@@ -566,6 +566,8 @@ export const ImportToast = '[data-testid="toast-import-toast"]';
 export const ImportToastAbort =
   '[data-testid="toast-import-toast"] [data-testid="toast-action-stop"]';
 
+export const ImportModalCloseButton = `${ImportModal} [aria-label*="Close"]`;
+
 export const importPreviewFieldHeaderField = (fieldName: string): string => {
   return `[data-testid="import-preview-field-type-select-menu-${fieldName}"]`;
 };
