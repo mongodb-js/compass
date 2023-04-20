@@ -727,15 +727,15 @@ export function isCompatibleCSVFieldType(
   }
 
   // The constructors for all these things can take various things (more than we
-  // can detect), so just allow the user to try anything for. It will produce
-  // parse errors if things won't work anyway.
+  // can detect), so just allow the user to try anything. It will produce parse
+  // errors if things won't work anyway.
   if (['objectId', 'uuid', 'md5', 'binData'].includes(selectedType)) {
     return true;
   }
 
   // By default the type has to match what it detected. This should cover:
   // *  boolean, minKey, maxKey and null where we can only parse it to a boolean
-  //    if it matches the strings use to detect
+  //    if it matches the strings used to detect
   // * ejson where we check if it parses as part of the detection
   // * regex where we check that we can parse it as part of detection
   return type === selectedType;
