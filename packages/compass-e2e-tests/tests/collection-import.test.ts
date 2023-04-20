@@ -84,7 +84,7 @@ async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
   expect(await checkboxElement.isSelected()).to.be.false;
 }
 
-describe.only('Collection import', function () {
+describe('Collection import', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
