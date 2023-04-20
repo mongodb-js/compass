@@ -1,7 +1,9 @@
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
-import { PipelineBuilderThunkAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { getSchema } from '../utils/get-schema';
+import toNS from 'mongodb-ns';
+import { isEqual } from 'lodash';
 
 type CollectionType = 'collection' | 'view';
 export type CollectionInfo = {
@@ -11,12 +13,20 @@ export type CollectionInfo = {
 
 enum ActionTypes {
   CollectionsFetch = 'compass-aggregations/collectionsFetched',
+  CollectionFieldsFetched = 'compass-aggregations/collectionFieldsFetched',
   CollectionDataUpdated = 'compass-aggregations/collectionDataUpdated',
 }
 
 type CollectionsFetchedAction = {
   type: ActionTypes.CollectionsFetch;
-  collections: CollectionInfo[];
+  data: State;
+};
+
+type CollectionFieldsFetchedAction = {
+  type: ActionTypes.CollectionFieldsFetched;
+  collection: string;
+  fields: string[];
+  collectionType: CollectionType;
 };
 
 type CollectionDataUpdatedAction = {
@@ -42,12 +52,7 @@ export default function reducer(
   if (
     isAction<CollectionsFetchedAction>(action, ActionTypes.CollectionsFetch)
   ) {
-    return Object.fromEntries(
-      action.collections.map((c) => [
-        c.name,
-        { isLoading: false, type: c.type, fields: [] },
-      ])
-    );
+    return action.data;
   }
 
   if (
@@ -62,19 +67,65 @@ export default function reducer(
     };
   }
 
+  if (
+    isAction<CollectionFieldsFetchedAction>(
+      action,
+      ActionTypes.CollectionFieldsFetched
+    )
+  ) {
+    return {
+      ...state,
+      [action.collection]: {
+        isLoading: false,
+        fields: action.fields,
+        type: action.collectionType,
+      },
+    };
+  }
+
   return state;
 }
 
 export const setCollections = (
   collections: CollectionInfo[]
-): CollectionsFetchedAction => ({
-  type: ActionTypes.CollectionsFetch,
-  collections,
+): PipelineBuilderThunkAction<void, CollectionsFetchedAction> => {
+  return (dispatch, getState) => {
+    const currentData = getState().collectionsFields;
+
+    const newData: State = {};
+    collections.forEach(({ name, type }) => {
+      newData[name] = currentData[name] ?? {
+        fields: [],
+        isLoading: false,
+        type,
+      };
+    });
+
+    if (isEqual(Object.keys(currentData), Object.keys(newData))) {
+      return;
+    }
+
+    dispatch({
+      type: ActionTypes.CollectionsFetch,
+      data: newData,
+    });
+  };
+};
+
+export const setCollectionFields = (
+  collection: string,
+  collectionType: CollectionType,
+  fields: string[]
+): CollectionFieldsFetchedAction => ({
+  type: ActionTypes.CollectionFieldsFetched,
+  collection,
+  fields,
+  collectionType,
 });
 
 export const fetchCollectionFields = (
   collection: string
-): PipelineBuilderThunkAction<void, CollectionDataUpdatedAction> => {
+): PipelineBuilderThunkAction<Promise<void>, CollectionDataUpdatedAction> => {
   return async (dispatch, getState) => {
     const {
       collectionsFields,
@@ -86,17 +137,8 @@ export const fetchCollectionFields = (
       return;
     }
 
-    // If we have the fields already, we don't do anything
     const collectionInfo = collectionsFields[collection];
     if (collectionInfo && collectionInfo.fields.length > 0) {
-      dispatch({
-        type: ActionTypes.CollectionDataUpdated,
-        collection,
-        data: {
-          ...collectionInfo,
-          isLoading: false,
-        },
-      });
       return;
     }
 
@@ -110,25 +152,38 @@ export const fetchCollectionFields = (
       },
     });
 
-    const documents =
-      collectionInfo.type === 'collection'
-        ? await dataService.find(
-            namespace,
-            {},
-            { sort: { $natural: -1 }, limit: 1 }
-          )
-        : await dataService.sample(namespace, { size: 1 });
+    try {
+      const { database } = toNS(namespace);
+      const namespaceToQuery = `${database}.${collection}`;
 
-    console.log({ documents, d: getSchema(documents) });
+      const documents =
+        collectionInfo.type === 'collection'
+          ? await dataService.find(
+              namespaceToQuery,
+              {},
+              { sort: { $natural: -1 }, limit: 1 }
+            )
+          : await dataService.sample(namespaceToQuery, { size: 1 });
 
-    dispatch({
-      type: ActionTypes.CollectionDataUpdated,
-      collection,
-      data: {
-        ...collectionInfo,
-        fields: getSchema(documents),
-        isLoading: false,
-      },
-    });
+      dispatch({
+        type: ActionTypes.CollectionDataUpdated,
+        collection,
+        data: {
+          ...collectionInfo,
+          fields: getSchema(documents),
+          isLoading: false,
+        },
+      });
+    } catch (e) {
+      dispatch({
+        type: ActionTypes.CollectionDataUpdated,
+        collection,
+        data: {
+          ...collectionInfo,
+          fields: [],
+          isLoading: false,
+        },
+      });
+    }
   };
 };

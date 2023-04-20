@@ -7,7 +7,7 @@ import {
   ComboboxWithCustomOption,
   ComboboxOption,
 } from '@mongodb-js/compass-components';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../../modules';
 import { fetchCollectionFields } from '../../../../modules/collections-fields';
@@ -21,25 +21,24 @@ type LookupFormState = {
 
 const containerStyles = css({
   display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
+  flexDirection: 'column',
   gap: spacing[2],
-  flexWrap: 'wrap',
 });
 
-const formElementWithText = css({
+const titleStyles = css({
+  minWidth: `${'Join documents in'.length}ch`,
+  textAlign: 'right',
+});
+
+const formGroup = css({
   display: 'flex',
   gap: spacing[2],
   alignItems: 'center',
 });
 
-const comboboxStyles = (fields: string[]) => {
-  return {
-    width: `calc(${String(
-      Math.max(...fields.map((label) => label.length), 10)
-    )}ch)`,
-  };
-};
+const inputFieldStyles = css({
+  width: '300px',
+});
 
 export const LookupForm = ({
   fields,
@@ -61,62 +60,51 @@ export const LookupForm = ({
 
   useEffect(() => {
     if (formData.from) {
-      console.log(formData.from);
       onSelectCollection(formData.from);
     }
   }, [formData.from, onSelectCollection]);
 
   useEffect(() => {
-    onChange(JSON.stringify(formData), null);
+    const anyEmptyValue = Object.values(formData).some((x) => !x);
+    onChange(
+      JSON.stringify(formData),
+      anyEmptyValue ? new Error('Enter all the fields') : null
+    );
   }, [formData, onChange]);
 
   const onSelectOption = (
     option: keyof LookupFormState,
     value: string | null
   ) => {
-    if (!value) {
+    if (value === null) {
       return;
     }
 
     const newData: LookupFormState = { ...formData, [option]: value };
 
     // We set the "as" form field if:
-    // 1. The value was not set initially.
-    // 2. The value was set initially by us programmatically
-    //  and was not changed by the user.
-    if ((option === 'from' && !formData.as) || formData.from === formData.as) {
+    // 1. The value was not set initially and
+    // 2. The value was set initially programmatically and
+    //  was not changed by the user or the value is empty
+    if (option === 'from' && (!formData.as || formData.from === formData.as)) {
       newData.as = value;
     }
 
     setFormData(newData);
   };
 
-  console.log(collectionsFields);
-
   const collectionInfo = collectionsFields[formData.from];
-
-  const collectionsComboboxStyles = useMemo(
-    () => comboboxStyles(Object.keys(collectionsFields)),
-    [collectionsFields]
-  );
-  const localFieldsComboboxStyles = useMemo(
-    () => comboboxStyles(fields),
-    [fields]
-  );
-  const foreignFieldsComboboxStyles = useMemo(
-    () => comboboxStyles(fields),
-    [fields]
-  );
 
   return (
     <div className={containerStyles}>
-      <div className={formElementWithText}>
-        <Body>Join documents in</Body>
+      <div className={formGroup}>
+        <Body className={titleStyles}>Join documents in</Body>
         <Combobox
           aria-label="Select collection"
+          placeholder="Select collection"
           value={formData.from}
           clearable={false}
-          style={collectionsComboboxStyles}
+          className={inputFieldStyles}
           onChange={(value: string | null) => onSelectOption('from', value)}
         >
           {Object.keys(collectionsFields).map((coll, index) => (
@@ -124,11 +112,12 @@ export const LookupForm = ({
           ))}
         </Combobox>
       </div>
-      <div className={formElementWithText}>
-        <Body>where</Body>
+      <div className={formGroup}>
+        <Body className={titleStyles}>where</Body>
         <ComboboxWithCustomOption
-          style={foreignFieldsComboboxStyles}
+          className={inputFieldStyles}
           aria-label="Select foreign field"
+          placeholder="Select foreign field"
           size="default"
           clearable={false}
           onChange={(value: string | null) =>
@@ -136,15 +125,19 @@ export const LookupForm = ({
           }
           searchState={collectionInfo?.isLoading ? 'loading' : 'unset'}
           searchLoadingMessage="Fetching fields ..."
+          searchEmptyMessage={
+            !formData.from ? 'Select a collection first' : undefined
+          }
           options={collectionInfo?.fields ?? []}
           optionLabel="Field:"
         />
       </div>
-      <div className={formElementWithText}>
-        <Body>matches</Body>
+      <div className={formGroup}>
+        <Body className={titleStyles}>matches</Body>
         <ComboboxWithCustomOption
-          style={localFieldsComboboxStyles}
+          className={inputFieldStyles}
           aria-label="Select local field"
+          placeholder="Select local field"
           size="default"
           clearable={false}
           onChange={(value: string | null) =>
@@ -154,26 +147,26 @@ export const LookupForm = ({
           optionLabel="Field:"
         />
       </div>
-      <div className={formElementWithText}>
-        <Body>in</Body>
-        <TextInput
-          value={formData.as}
-          aria-label="Name of the array"
-          placeholder="Name of the array"
-          onChange={(e) => onSelectOption('as', e.target.value)}
-        />
+      <div className={formGroup}>
+        <Body className={titleStyles}>in</Body>
+        <div className={inputFieldStyles}>
+          <TextInput
+            value={formData.as}
+            title="Name of the array"
+            aria-label="Name of the array"
+            placeholder="Name of the array"
+            onChange={(e) => onSelectOption('as', e.target.value)}
+          />
+        </div>
       </div>
     </div>
   );
 };
 
 export default connect(
-  (state: RootState) => {
-    const collectionsFields = state.collectionsFields;
-    return {
-      collectionsFields,
-    };
-  },
+  (state: RootState) => ({
+    collectionsFields: state.collectionsFields,
+  }),
   {
     onSelectCollection: fetchCollectionFields,
   }
