@@ -481,6 +481,7 @@ This document was automatically generated on Fri Apr 21 2023.
 | [mimic-response](#mimic-response-2.1.0) | 2.1.0 | MIT |
 | [minimatch](#minimatch-3.1.2) | 3.1.2 | ISC |
 | [minimist](#minimist-1.2.6) | 1.2.6 | MIT |
+| [mkdirp](#mkdirp-0.5.6) | 0.5.6 | MIT |
 | [mkdirp-classic](#mkdirp-classic-0.5.3) | 0.5.3 | MIT |
 | [modify-filename](#modify-filename-1.1.0) | 1.1.0 | MIT |
 | [moment](#moment-2.29.1) | 2.29.1 | MIT |
@@ -568,6 +569,7 @@ This document was automatically generated on Fri Apr 21 2023.
 | [resolve-mongodb-srv](#resolve-mongodb-srv-1.1.2) | 1.1.2 | Apache-2.0 |
 | [responselike](#responselike-2.0.0) | 2.0.0 | MIT |
 | [rimraf](#rimraf-3.0.2) | 3.0.2 | ISC |
+| [rimraf](#rimraf-2.6.3) | 2.6.3 | ISC |
 | [safe-buffer](#safe-buffer-5.2.1) | 5.2.1 | MIT |
 | [safe-buffer](#safe-buffer-5.1.2) | 5.1.2 | MIT |
 | [safer-buffer](#safer-buffer-2.1.2) | 2.1.2 | MIT |
@@ -611,6 +613,7 @@ This document was automatically generated on Fri Apr 21 2023.
 | [tabbable](#tabbable-5.3.3) | 5.3.3 | MIT |
 | [tar-fs](#tar-fs-2.1.1) | 2.1.1 | MIT |
 | [tar-stream](#tar-stream-1.6.2) | 1.6.2 | MIT |
+| [temp](#temp-0.9.4) | 0.9.4 | MIT |
 | [text-table](#text-table-0.2.0) | 0.2.0 | MIT |
 | [through](#through-2.3.8) | 2.3.8 | MIT |
 | [tiny-emitter](#tiny-emitter-2.1.0) | 2.1.0 | MIT |
@@ -30593,6 +30596,42 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
+<a id="mkdirp-0.5.6"></a>
+### mkdirp 0.5.6
+
+**License**: MIT
+
+**Author**: James Halliday <mail@substack.net> (http://substack.net)
+
+**Repository**: https://github.com/substack/node-mkdirp.git
+
+**License Text**:
+
+```
+Copyright 2010 James Halliday (mail@substack.net)
+
+This project is free software released under the MIT/X11 license:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+```
+
 <a id="mkdirp-classic-0.5.3"></a>
 ### mkdirp-classic 0.5.3
 
@@ -42051,6 +42090,36 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ```
 
+<a id="rimraf-2.6.3"></a>
+### rimraf 2.6.3
+
+**License**: ISC
+
+**Author**: Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
+
+**Repository**: git://github.com/isaacs/rimraf.git
+
+**License Text**:
+
+```
+The ISC License
+
+Copyright (c) Isaac Z. Schlueter and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+```
+
 <a id="safe-buffer-5.2.1"></a>
 ### safe-buffer 5.2.1
 
@@ -43725,6 +43794,41 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+```
+
+<a id="temp-0.9.4"></a>
+### temp 0.9.4
+
+**License**: MIT
+
+**Author**: Bruce Williams <brwcodes@gmail.com>
+
+**Repository**: git://github.com/bruce/node-temp.git
+
+**License Text**:
+
+```
+The MIT License (MIT)
+
+Copyright (c) 2010-2014 Bruce Williams
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 ```
 
 <a id="text-table-0.2.0"></a>
