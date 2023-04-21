@@ -1,0 +1,2 @@
+_id,minKey,notes
+1,$MinKey,matches mongoexport

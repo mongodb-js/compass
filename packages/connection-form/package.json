@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -40,32 +40,32 @@
     "check-ci": "npm run check",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.7.0",
-    "@mongodb-js/compass-editor": "^0.6.0",
+    "@mongodb-js/compass-components": "^1.8.0",
+    "@mongodb-js/compass-editor": "^0.7.0",
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.7.0",
-    "@mongodb-js/compass-editor": "^0.6.0",
+    "@mongodb-js/compass-components": "^1.8.0",
+    "@mongodb-js/compass-editor": "^0.7.0",
     "@testing-library/react-hooks": "^7.0.2",
-    "compass-preferences-model": "^2.7.0",
+    "compass-preferences-model": "^2.8.0",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.5.0",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-query-parser": "^2.4.8"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.4",
-    "@mongodb-js/mocha-config-compass": "^1.1.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.5",
+    "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/tsconfig-compass": "^1.0.1",
+    "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -80,7 +80,7 @@
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
     "mongodb": "^5.1.0",
-    "mongodb-data-service": "^22.5.1",
+    "mongodb-data-service": "^22.6.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",

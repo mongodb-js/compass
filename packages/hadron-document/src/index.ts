@@ -5,7 +5,7 @@ import Element, {
 } from './element';
 import ElementEditor from './editor';
 import type { Editor } from './editor';
-import { getDefaultValueForType } from './utils';
+import { getDefaultValueForType, objectToIdiomaticEJSON } from './utils';
 
 export default Document;
 export type { Editor };
@@ -17,4 +17,5 @@ export {
   ElementEditor,
   isInternalFieldPath,
   getDefaultValueForType,
+  objectToIdiomaticEJSON,
 };

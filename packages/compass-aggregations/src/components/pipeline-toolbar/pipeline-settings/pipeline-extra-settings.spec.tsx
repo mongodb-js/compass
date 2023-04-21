@@ -18,6 +18,7 @@ const renderPipelineExtraSettings = (
       isAutoPreview={true}
       isPipelineModeDisabled={true}
       pipelineMode={'builder-ui'}
+      isSidePanelOpen={false}
       onToggleAutoPreview={() => {}}
       onChangePipelineMode={() => {}}
       onToggleSettings={() => {}}

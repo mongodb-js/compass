@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { ImportPreview } from './import-preview';
-import type { CSVParsableFieldType } from '../utils/csv';
+import type { CSVParsableFieldType } from '../csv/csv-types';
 
 const testText = '_id';
 

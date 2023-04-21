@@ -11,6 +11,7 @@ import {
 
 import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 import { filterStageOperators } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
@@ -102,7 +103,10 @@ export default withPreferences(
         ) => void;
       }
     ) => {
-      const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+      const stage = state.pipelineBuilder.stageEditor.stages[
+        ownProps.index
+      ] as StoreStage;
+
       const stages = filterStageOperators({
         serverVersion: state.serverVersion,
         env: state.env,

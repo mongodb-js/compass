@@ -19,6 +19,7 @@ import {
   isMissingAtlasStageSupport,
   isOutputStage,
 } from '../../utils/stage';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   display: 'flex',
@@ -191,7 +192,7 @@ export const FocusModeStageInput = connect(
       stages
         .slice(0, stageIndex)
         .map((stage, index) => ({ stage, index }))
-        .filter(({ stage }) => !stage.disabled)
+        .filter(({ stage }) => stage.type === 'stage' && !stage.disabled)
         .pop()?.index ?? null;
 
     if (previousStageIndex === null) {
@@ -201,7 +202,8 @@ export const FocusModeStageInput = connect(
       };
     }
 
-    const previousStage = stages[previousStageIndex];
+    const previousStage = stages[previousStageIndex] as StoreStage;
+
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
       env,
       previousStage.stageOperator,
@@ -240,7 +242,8 @@ export const FocusModeStageOutput = connect(
     if (stageIndex === -1) {
       return {};
     }
-    const stage = stages[stageIndex];
+    const stage = stages[stageIndex] as StoreStage;
+
     const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
       env,
       stage.stageOperator,

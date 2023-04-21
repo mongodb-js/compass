@@ -21,11 +21,13 @@ export default function reducer(
   state = INITIAL_STATE,
   action: AnyAction
 ): State {
-  if (isAction(action, ActionTypes.SidePanelToggled)) {
+  if (isAction<SidePanelToggledAction>(action, ActionTypes.SidePanelToggled)) {
     return {
+      ...state,
       isPanelOpen: !state.isPanelOpen,
     };
   }
+
   return state;
 }
 

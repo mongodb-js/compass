@@ -1,0 +1,22 @@
+{
+  "paths": [
+    ["_id"],
+    ["a"],
+    ["foo"],
+    ["foo", "bar"],
+    ["foo", "baz"],
+    ["foo", "baz", "quux"],
+    ["foo", "baz", "qux"],
+    ["notes"],
+    ["z"]
+  ],
+  "docsProcessed": 1,
+  "aborted": false,
+  "projection": {
+    "_id": true,
+    "a": true,
+    "foo": true,
+    "notes": true,
+    "z": true
+  }
+}

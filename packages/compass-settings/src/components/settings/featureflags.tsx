@@ -10,7 +10,7 @@ import preferences, { usePreference } from 'compass-preferences-model';
 const devFeatureFlagFields = [
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
-  'useNewExportBackend',
+  'useNewExport', // COMPASS-6580
   'useStageWizard',
 ] as const;
 

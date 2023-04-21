@@ -1,4 +1,3 @@
-import { callbackify } from 'util';
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
@@ -68,7 +67,7 @@ import {
 import { redactConnectionString } from './redact';
 import type { CloneableMongoClient } from './connect-mongo-client';
 import connectMongoClient, { createClonedClient } from './connect-mongo-client';
-import type { Callback, CollectionStats } from './types';
+import type { CollectionStats } from './types';
 import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
@@ -371,10 +370,9 @@ export interface DataService {
   /**
    * Drops a database
    *
-   * @param name - The database name.
-   * @param callback - The callback.
+   * @param name - The database name
    */
-  dropDatabase(name: string, callback: Callback<boolean>): void;
+  dropDatabase(name: string): Promise<boolean>;
 
   /*** Indexes ***/
 
@@ -500,15 +498,13 @@ export interface DataService {
    * @param filter - The filter.
    * @param replacement - The replacement doc.
    * @param options - The query options.
-   * @param callback - The callback.
    */
   findOneAndReplace(
     ns: string,
     filter: Filter<Document>,
     replacement: Document,
-    options: FindOneAndReplaceOptions,
-    callback: Callback<Document>
-  ): void;
+    options?: FindOneAndReplaceOptions
+  ): Promise<Document | null>;
 
   /**
    * Find one document and update it with the update operations.
@@ -517,15 +513,13 @@ export interface DataService {
    * @param filter - The filter.
    * @param update - The update operations doc.
    * @param options - The query options.
-   * @param callback - The callback.
    */
   findOneAndUpdate(
     ns: string,
     filter: Filter<Document>,
     update: Document,
-    options: FindOneAndUpdateOptions,
-    callback: Callback<Document>
-  ): void;
+    options?: FindOneAndUpdateOptions
+  ): Promise<Document | null>;
 
   /**
    * Count the number of documents in the collection for the provided filter
@@ -565,14 +559,12 @@ export interface DataService {
    * @param ns - The namespace.
    * @param doc - The document to insert.
    * @param options - The options.
-   * @param callback - The callback.
    */
   insertOne(
     ns: string,
     doc: Document,
-    options: InsertOneOptions,
-    callback: Callback<InsertOneResult<Document>>
-  ): void;
+    options?: InsertOneOptions
+  ): Promise<InsertOneResult<Document>>;
 
   /**
    * Inserts multiple documents into the collection.
@@ -585,9 +577,8 @@ export interface DataService {
   insertMany(
     ns: string,
     docs: Document[],
-    options: BulkWriteOptions,
-    callback: Callback<InsertManyResult<Document>>
-  ): void;
+    options?: BulkWriteOptions
+  ): Promise<InsertManyResult<Document>>;
 
   /**
    * Performs multiple write operations with controls for order of execution.
@@ -612,14 +603,12 @@ export interface DataService {
    * @param ns - The namespace.
    * @param filter - The filter.
    * @param options - The options.
-   * @param callback - The callback.
    */
   deleteOne(
     ns: string,
     filter: Filter<Document>,
-    options: DeleteOptions,
-    callback: Callback<DeleteResult>
-  ): void;
+    options?: DeleteOptions
+  ): Promise<DeleteResult>;
 
   /**
    * Deletes multiple documents from a collection.
@@ -627,14 +616,12 @@ export interface DataService {
    * @param ns - The namespace.
    * @param filter - The filter.
    * @param options - The options.
-   * @param callback - The callback.
    */
   deleteMany(
     ns: string,
     filter: Filter<Document>,
-    options: DeleteOptions,
-    callback: Callback<DeleteResult>
-  ): void;
+    options?: DeleteOptions
+  ): Promise<DeleteResult>;
 
   /**
    * Helper method to check whether or not error is caused by dataService
@@ -679,15 +666,95 @@ export interface DataService {
   configuredKMSProviders(): string[];
 }
 
-// Make arguments of a function mandatory for TS; This makes working
-// with util.callbackify easier.
-function allArgumentsMandatory<F extends (...args: any[]) => any>(
-  fn: F
-): F extends (...args: infer A) => infer R ? (...args: Required<A>) => R : F {
-  return fn as any;
+const maybePickNs = ([ns]: unknown[]) => {
+  if (typeof ns === 'string') {
+    return { ns };
+  }
+};
+
+const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {
+  return 'then' in val && typeof val.then === 'function';
+};
+
+/**
+ * Translates the error message to something human readable.
+ * @param error - The error.
+ * @returns The error with message translated.
+ */
+const translateErrorMessage = (error: any): Error | { message: string } => {
+  if (typeof error === 'string') {
+    error = { message: error };
+  } else if (!error.message) {
+    error.message = error.err || error.errmsg;
+  }
+  return error;
+};
+
+abstract class WithLogContext {
+  protected abstract _logCtx(): string;
 }
 
-export class DataServiceImpl implements DataService {
+/**
+ * Decorator to do standard op handling that is applied to every public method
+ * of the data service
+ *
+ * - transform error message before throwing
+ * - log method success / failure
+ */
+function op<T extends unknown[], K>(
+  logId: ReturnType<typeof mongoLogId>,
+  pickLogAttrs: (
+    args: T,
+    result?: K extends Promise<infer R> ? R : K
+  ) => unknown | undefined = maybePickNs
+) {
+  return function (
+    target: (this: WithLogContext, ...args: T) => K,
+    context: ClassMethodDecoratorContext<
+      WithLogContext,
+      (this: WithLogContext, ...args: T) => K
+    >
+  ) {
+    const opName = String(context.name);
+    return function (this: WithLogContext, ...args: T): K {
+      const handleResult = (result: any) => {
+        log.info(
+          logId,
+          this._logCtx(),
+          `Running ${opName}`,
+          pickLogAttrs(args, result)
+        );
+        return result;
+      };
+      const handleError = (error: any) => {
+        const err = translateErrorMessage(error);
+        log.error(
+          mongoLogId(1_001_000_058),
+          this._logCtx(),
+          'Failed to perform data service operation',
+          {
+            op: opName,
+            message: err,
+            ...(pickLogAttrs(args) ?? {}),
+          }
+        );
+        throw err;
+      };
+      try {
+        const result = target.call(this, ...args);
+        if (isPromiseLike<K extends Promise<infer R> ? R : never>(result)) {
+          return result.then(handleResult, handleError) as K;
+        } else {
+          return handleResult(result);
+        }
+      } catch (error) {
+        return handleError(error);
+      }
+    };
+  };
+}
+
+class DataServiceImpl extends WithLogContext implements DataService {
   private readonly _connectionOptions: Readonly<ConnectionOptions>;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
@@ -719,6 +786,7 @@ export class DataServiceImpl implements DataService {
   private _emitter = new EventEmitter();
 
   constructor(connectionOptions: Readonly<ConnectionOptions>) {
+    super();
     this._id = id++;
     this._connectionOptions = connectionOptions;
   }
@@ -739,7 +807,7 @@ export class DataServiceImpl implements DataService {
     return this._mongoClientConnectionOptions;
   }
 
-  private _logCtx(): string {
+  protected _logCtx(): string {
     return `Connection ${this._id}`;
   }
 
@@ -770,15 +838,13 @@ export class DataServiceImpl implements DataService {
     }
   }
 
+  @op(mongoLogId(1_001_000_178), ([dbName, collName], result) => {
+    return { ns: `${dbName}.${collName}`, ...(result && { result }) };
+  })
   async collectionStats(
     databaseName: string,
     collectionName: string
   ): Promise<CollectionStats> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_031),
-      'Fetching collection info',
-      { ns: `${databaseName}.${collectionName}` }
-    );
     // Note: The collStats command is not supported on CSFLE-enabled
     // clients, but the $collStats aggregation stage is.
     // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
@@ -786,29 +852,25 @@ export class DataServiceImpl implements DataService {
     const db = this._database(databaseName, 'META');
     try {
       const data = await runCommand(db, { collStats: collectionName });
-      logop(null, data);
       return this._buildCollectionStats(databaseName, collectionName, data);
     } catch (error) {
-      logop(error);
       if (!(error as Error).message.includes('is a view, not a collection')) {
-        throw this._translateErrorMessage(error);
+        throw error;
       }
       return this._buildCollectionStats(databaseName, collectionName, {});
     }
   }
 
+  @op(mongoLogId(1_001_000_179))
   async collectionInfo(
     dbName: string,
     collName: string
   ): Promise<ReturnType<typeof adaptCollectionInfo> | null> {
-    try {
-      const [collInfo] = await this.listCollections(dbName, { name: collName });
-      return collInfo ?? null;
-    } catch (err) {
-      throw this._translateErrorMessage(err);
-    }
+    const [collInfo] = await this._listCollections(dbName, { name: collName });
+    return adaptCollectionInfo({ db: dbName, ...collInfo }) ?? null;
   }
 
+  @op(mongoLogId(1_001_000_031))
   async killOp(id: number, comment?: string): Promise<Document> {
     const db = this._database('admin', 'META');
     return runCommand(db, { killOp: 1, id, comment });
@@ -826,23 +888,13 @@ export class DataServiceImpl implements DataService {
     return this.getLastSeenTopology()?.type ?? 'Unknown';
   }
 
+  @op(mongoLogId(1_001_000_100))
   private async _connectionStatus(): Promise<ConnectionStatusWithPrivileges> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_100),
-      'Running connectionStatus'
-    );
-    try {
-      const adminDb = this._database('admin', 'META');
-      const result = await runCommand(adminDb, {
-        connectionStatus: 1,
-        showPrivileges: true,
-      });
-      logop(null);
-      return result;
-    } catch (e) {
-      logop(e);
-      throw e;
-    }
+    const adminDb = this._database('admin', 'META');
+    return await runCommand(adminDb, {
+      connectionStatus: 1,
+      showPrivileges: true,
+    });
   }
 
   private async _getPrivilegesOrFallback(
@@ -874,6 +926,56 @@ export class DataServiceImpl implements DataService {
     return authenticatedUserRoles;
   }
 
+  private async _listCollections(
+    databaseName: string,
+    filter: Document = {},
+    { nameOnly }: { nameOnly?: true } = {}
+  ): Promise<Pick<CollectionInfo, 'name' | 'type'>[]> {
+    try {
+      const cursor = this._database(databaseName, 'CRUD').listCollections(
+        filter,
+        { nameOnly }
+      );
+      // Iterate instead of using .toArray() so we can emit
+      // collection info update events as they come in.
+      const results: Pick<CollectionInfo, 'name' | 'type'>[] = [];
+      for await (const result of cursor) {
+        if (!nameOnly) {
+          this._csfleCollectionTracker?.updateCollectionInfo(
+            `${databaseName}.${result.name}`,
+            result
+          );
+        }
+        results.push(result);
+      }
+      return results;
+    } catch (err) {
+      // Currently Compass should not fail if listCollections failed for
+      // any possible reason to preserve current behavior. We probably
+      // want this to check at least that what we got back is a server
+      // error and not a weird runtime issue on our side that can be
+      // swallowed in this case, ideally we know exactly what server
+      // errors we want to handle here and only avoid throwing in these
+      // cases
+      //
+      // TODO: https://jira.mongodb.org/browse/COMPASS-5275
+      log.warn(
+        mongoLogId(1_001_000_099),
+        this._logCtx(),
+        'Failed to run listCollections',
+        { message: (err as Error).message }
+      );
+      return [] as { name: string }[];
+    }
+  }
+
+  @op(mongoLogId(1_001_000_032), ([databaseName, , options], colls) => {
+    return {
+      db: databaseName,
+      nameOnly: options?.nameOnly ?? false,
+      ...(colls && { collectionsCount: colls.length }),
+    };
+  })
   async listCollections(
     databaseName: string,
     filter: Document = {},
@@ -887,50 +989,6 @@ export class DataServiceImpl implements DataService {
         | null;
     } = {}
   ): Promise<ReturnType<typeof adaptCollectionInfo>[]> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_032),
-      'Running listCollections',
-      { db: databaseName, nameOnly: nameOnly ?? false }
-    );
-
-    const db = this._database(databaseName, 'CRUD');
-
-    const listCollections = async () => {
-      try {
-        const cursor = db.listCollections(filter, { nameOnly });
-        // Iterate instead of using .toArray() so we can emit
-        // collection info update events as they come in.
-        const results = [];
-        for await (const result of cursor) {
-          if (!nameOnly) {
-            this._csfleCollectionTracker?.updateCollectionInfo(
-              `${databaseName}.${result.name}`,
-              result
-            );
-          }
-          results.push(result);
-        }
-        return results;
-      } catch (err) {
-        // Currently Compass should not fail if listCollections failed for
-        // any possible reason to preserve current behavior. We probably
-        // want this to check at least that what we got back is a server
-        // error and not a weird runtime issue on our side that can be
-        // swallowed in this case, ideally we know exactly what server
-        // errors we want to handle here and only avoid throwing in these
-        // cases
-        //
-        // TODO: https://jira.mongodb.org/browse/COMPASS-5275
-        log.warn(
-          mongoLogId(1_001_000_099),
-          this._logCtx(),
-          'Failed to run listCollections',
-          { message: (err as Error).message }
-        );
-        return [] as { name: string }[];
-      }
-    };
-
     const getCollectionsFromPrivileges = async () => {
       const databases = getPrivilegesByDatabaseAndCollection(
         await this._getPrivilegesOrFallback(privileges),
@@ -949,33 +1007,32 @@ export class DataServiceImpl implements DataService {
         .map((name) => ({ name }));
     };
 
-    try {
-      const [listedCollections, collectionsFromPrivileges] = await Promise.all([
-        listCollections(),
-        // If the filter is not empty, we can't meaningfully derive collections
-        // from privileges and filter them as the criteria might include any key
-        // from the listCollections result object and there is no such info in
-        // privileges. Because of that we are ignoring privileges completely if
-        // listCollections was called with a filter.
-        isEmptyObject(filter) ? getCollectionsFromPrivileges() : [],
-      ]);
+    const [listedCollections, collectionsFromPrivileges] = await Promise.all([
+      this._listCollections(databaseName, filter, { nameOnly }),
+      // If the filter is not empty, we can't meaningfully derive collections
+      // from privileges and filter them as the criteria might include any key
+      // from the listCollections result object and there is no such info in
+      // privileges. Because of that we are ignoring privileges completely if
+      // listCollections was called with a filter.
+      isEmptyObject(filter) ? getCollectionsFromPrivileges() : [],
+    ]);
 
-      const collections = uniqueBy(
-        // NB: Order is important, we want listed collections to take precedence
-        // if they were fetched successfully
-        [...collectionsFromPrivileges, ...listedCollections],
-        'name'
-      ).map((coll) => adaptCollectionInfo({ db: databaseName, ...coll }));
+    const collections = uniqueBy(
+      // NB: Order is important, we want listed collections to take precedence
+      // if they were fetched successfully
+      [...collectionsFromPrivileges, ...listedCollections],
+      'name'
+    ).map((coll) => adaptCollectionInfo({ db: databaseName, ...coll }));
 
-      logop(null, { collectionsCount: collections.length });
-
-      return collections;
-    } catch (err) {
-      logop(err);
-      throw err;
-    }
+    return collections;
   }
 
+  @op(mongoLogId(1_001_000_033), ([options], dbs) => {
+    return {
+      nameOnly: options?.nameOnly ?? false,
+      ...(dbs && { databasesCount: dbs.length }),
+    };
+  })
   async listDatabases({
     nameOnly,
     privileges = null,
@@ -989,12 +1046,6 @@ export class DataServiceImpl implements DataService {
       | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
       | null;
   } = {}): Promise<{ _id: string; name: string }[]> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_033),
-      'Running listDatabases',
-      { nameOnly: nameOnly ?? false }
-    );
-
     const adminDb = this._database('admin', 'CRUD');
 
     const listDatabases = async () => {
@@ -1056,30 +1107,23 @@ export class DataServiceImpl implements DataService {
       return databases.map((name) => ({ name }));
     };
 
-    try {
-      const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
-        await Promise.all([
-          listDatabases(),
-          getDatabasesFromPrivileges(),
-          getDatabasesFromRoles(),
-        ]);
+    const [listedDatabases, databasesFromPrivileges, databasesFromRoles] =
+      await Promise.all([
+        listDatabases(),
+        getDatabasesFromPrivileges(),
+        getDatabasesFromRoles(),
+      ]);
 
-      const databases = uniqueBy(
-        // NB: Order is important, we want listed collections to take precedence
-        // if they were fetched successfully
-        [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
-        'name'
-      ).map((db) => {
-        return { _id: db.name, name: db.name, ...adaptDatabaseInfo(db) };
-      });
+    const databases = uniqueBy(
+      // NB: Order is important, we want listed collections to take precedence
+      // if they were fetched successfully
+      [...databasesFromRoles, ...databasesFromPrivileges, ...listedDatabases],
+      'name'
+    ).map((db) => {
+      return { _id: db.name, name: db.name, ...adaptDatabaseInfo(db) };
+    });
 
-      logop(null, { databasesCount: databases.length });
-
-      return databases;
-    } catch (err) {
-      logop(err);
-      throw err;
-    }
+    return databases;
   }
 
   async connect(): Promise<void> {
@@ -1129,151 +1173,89 @@ export class DataServiceImpl implements DataService {
     }
   }
 
+  @op(mongoLogId(1_001_000_034))
   estimatedCount(
     ns: string,
     options: EstimatedDocumentCountOptions = {},
     executionOptions?: ExecutionOptions
   ): Promise<number> {
-    log.info(
-      mongoLogId(1_001_000_034),
-      this._logCtx(),
-      'Running estimatedCount',
-      { ns }
-    );
-
-    let _session: ClientSession | undefined;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
-        _session = session;
+      async (session) => {
         return this._collection(ns, 'CRUD').estimatedDocumentCount({
           ...options,
           session,
         });
       },
-      () => _session!.endSession(),
+      (session) => session.endSession(),
       executionOptions?.abortSignal
     );
   }
 
+  @op(mongoLogId(1_001_000_035))
   count(
     ns: string,
     filter: Filter<Document>,
     options: CountDocumentsOptions = {},
     executionOptions?: ExecutionOptions
   ): Promise<number> {
-    log.info(
-      mongoLogId(1_001_000_035),
-      this._logCtx(),
-      'Running countDocuments',
-      { ns }
-    );
-
-    let _session: ClientSession | undefined;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
-        _session = session;
+      async (session) => {
         return this._collection(ns, 'CRUD').countDocuments(filter, {
           ...options,
           session,
         });
       },
-      () => _session!.endSession(),
+      (session) => session.endSession(),
       executionOptions?.abortSignal
     );
   }
 
+  @op(mongoLogId(1_001_000_036), ([ns, options], result) => {
+    return { ns, options, ...(result && { result }) };
+  })
   async createCollection(
     ns: string,
     options: CreateCollectionOptions
   ): Promise<Collection<Document>> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_036),
-      'Running createCollection',
-      { ns, options }
-    );
     const collectionName = this._collectionName(ns);
     const db = this._database(ns, 'CRUD');
-    try {
-      const result = await db.createCollection(collectionName, options);
-      logop(null, result);
-      return result;
-    } catch (error) {
-      logop(error);
-      throw this._translateErrorMessage(error);
-    }
+    return await db.createCollection(collectionName, options);
   }
 
+  @op(mongoLogId(1_001_000_037), ([ns, spec, options], result) => {
+    return { ns, spec, options, ...(result && { result }) };
+  })
   async createIndex(
     ns: string,
     spec: IndexSpecification,
     options: CreateIndexesOptions
   ): Promise<string> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_037),
-      'Running createIndex',
-      { ns, spec, options }
-    );
     const coll = this._collection(ns, 'CRUD');
-    try {
-      const result = await coll.createIndex(spec, options);
-      logop(null, result);
-      return result;
-    } catch (err) {
-      logop(err);
-      throw this._translateErrorMessage(err);
-    }
+    return await coll.createIndex(spec, options);
   }
 
-  deleteOne(
+  @op(mongoLogId(1_001_000_038), ([ns], result) => {
+    return { ns, ...(result && { result }) };
+  })
+  async deleteOne(
     ns: string,
     filter: Filter<Document>,
-    options: DeleteOptions,
-    callback: Callback<DeleteResult>
-  ): void {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_038),
-      'Running deleteOne',
-      { ns }
-    );
+    options?: DeleteOptions
+  ): Promise<DeleteResult> {
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.deleteOne.bind(coll)))(
-      filter,
-      options,
-      (error, result) => {
-        logop(error, result);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    return await coll.deleteOne(filter, options);
   }
 
-  deleteMany(
+  @op(mongoLogId(1_001_000_039), ([ns], result) => {
+    return { ns, ...(result && { result }) };
+  })
+  async deleteMany(
     ns: string,
     filter: Filter<Document>,
-    options: DeleteOptions,
-    callback: Callback<DeleteResult>
-  ): void {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_039),
-      'Running deleteMany',
-      { ns }
-    );
+    options?: DeleteOptions
+  ): Promise<DeleteResult> {
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.deleteMany.bind(coll)))(
-      filter,
-      options,
-      (error, result) => {
-        logop(error, result);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    return await coll.deleteMany(filter, options);
   }
 
   async disconnect(): Promise<void> {
@@ -1298,13 +1280,10 @@ export class DataServiceImpl implements DataService {
     }
   }
 
+  @op(mongoLogId(1_001_000_059), ([ns], result) => {
+    return { ns, ...(result && { result }) };
+  })
   async dropCollection(ns: string): Promise<boolean> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_059),
-      'Running dropCollection',
-      { ns }
-    );
-
     const db = this._database(ns, 'CRUD');
     const collName = this._collectionName(ns);
     const coll = db.collection(collName);
@@ -1322,62 +1301,41 @@ export class DataServiceImpl implements DataService {
     if (encryptedFieldsInfo) {
       options.encryptedFields = encryptedFieldsInfo;
     }
-    try {
-      const result = await coll.drop(options);
-      logop(null, result);
-      return result;
-    } catch (error) {
-      logop(error);
-      throw this._translateErrorMessage(error);
-    }
+    return await coll.drop(options);
   }
 
-  dropDatabase(name: string, callback: Callback<boolean>): void {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_040),
-      'Running dropDatabase',
-      { db: name }
-    );
+  @op(mongoLogId(1_001_000_040), ([db], result) => {
+    return { db, ...(result && { result }) };
+  })
+  async dropDatabase(name: string): Promise<boolean> {
     const db = this._database(name, 'CRUD');
-    callbackify(db.dropDatabase.bind(db))((error, result) => {
-      logop(error, result);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateErrorMessage(error));
-      }
-      callback(null, result);
-    });
+    return await db.dropDatabase();
   }
 
+  @op(mongoLogId(1_001_000_182), ([ns, name], result) => {
+    return { ns, name, ...(result && { result }) };
+  })
   async dropIndex(ns: string, name: string): Promise<Document> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_060),
-      'Running dropIndex',
-      { ns, name }
-    );
     const coll = this._collection(ns, 'CRUD');
-    try {
-      const result = await coll.dropIndex(name);
-      logop(null, result);
-      return result;
-    } catch (err) {
-      logop(err);
-      throw this._translateErrorMessage(err);
-    }
+    return await coll.dropIndex(name);
   }
 
+  @op(mongoLogId(1_001_000_041), ([ns, pipeline]) => {
+    return { ns, stages: pipeline.map((stage) => Object.keys(stage)[0]) };
+  })
   aggregateCursor(
     ns: string,
     pipeline: Document[],
     options: AggregateOptions = {}
   ): AggregationCursor {
-    log.info(mongoLogId(1_001_000_041), this._logCtx(), 'Running aggregation', {
-      ns,
-      stages: pipeline.map((stage) => Object.keys(stage)[0]),
-    });
     return this._collection(ns, 'CRUD').aggregate(pipeline, options);
   }
 
+  // @ts-expect-error generic in the method trips up TS here resulting in
+  // Promise<unknown> is not assignable to Promise<Document[]>
+  @op(mongoLogId(1_001_000_181), ([ns, pipeline]) => {
+    return { ns, stages: pipeline.map((stage) => Object.keys(stage)[0]) };
+  })
   aggregate<T = Document>(
     ns: string,
     pipeline: Document[],
@@ -1387,7 +1345,10 @@ export class DataServiceImpl implements DataService {
     let cursor: AggregationCursor;
     return this._cancellableOperation(
       async (session?: ClientSession) => {
-        cursor = this.aggregateCursor(ns, pipeline, { ...options, session });
+        cursor = this._collection(ns, 'CRUD').aggregate(pipeline, {
+          ...options,
+          session,
+        });
         const results = await cursor.toArray();
         void cursor.close();
         return results;
@@ -1397,6 +1358,7 @@ export class DataServiceImpl implements DataService {
     );
   }
 
+  @op(mongoLogId(1_001_000_060))
   find(
     ns: string,
     filter: Filter<Document>,
@@ -1406,7 +1368,10 @@ export class DataServiceImpl implements DataService {
     let cursor: FindCursor;
     return this._cancellableOperation(
       async (session?: ClientSession) => {
-        cursor = this.findCursor(ns, filter, { ...options, session });
+        cursor = this._collection(ns, 'CRUD').find(filter, {
+          ...options,
+          session,
+        });
         const results = await cursor.toArray();
         void cursor.close();
         return results;
@@ -1416,72 +1381,45 @@ export class DataServiceImpl implements DataService {
     );
   }
 
+  @op(mongoLogId(1_001_000_043))
   findCursor(
     ns: string,
     filter: Filter<Document>,
     options: FindOptions = {}
   ): FindCursor {
-    log.info(mongoLogId(1_001_000_043), this._logCtx(), 'Running find', { ns });
-
     return this._collection(ns, 'CRUD').find(filter, options);
   }
 
-  findOneAndReplace(
+  @op(mongoLogId(1_001_000_044))
+  async findOneAndReplace(
     ns: string,
     filter: Filter<Document>,
     replacement: Document,
-    options: FindOneAndReplaceOptions,
-    callback: Callback<Document>
-  ): void {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_044),
-      'Running findOneAndReplace',
-      { ns }
-    );
+    options: FindOneAndReplaceOptions
+  ): Promise<Document | null> {
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.findOneAndReplace.bind(coll)))(
-      filter,
-      replacement,
-      options,
-      (error, result) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result.value!);
-      }
-    );
+    return (await coll.findOneAndReplace(filter, replacement, options)).value;
   }
 
-  findOneAndUpdate(
+  @op(mongoLogId(1_001_000_045))
+  async findOneAndUpdate(
     ns: string,
     filter: Filter<Document>,
     update: Document,
-    options: FindOneAndUpdateOptions,
-    callback: Callback<Document>
-  ): void {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_045),
-      'Running findOneAndUpdate',
-      { ns }
-    );
+    options: FindOneAndUpdateOptions
+  ): Promise<Document | null> {
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.findOneAndUpdate.bind(coll)))(
-      filter,
-      update,
-      options,
-      (error, result) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result.value!);
-      }
-    );
+    return (await coll.findOneAndUpdate(filter, update, options)).value;
   }
 
+  @op(mongoLogId(1_001_000_046), ([ns, , , executionOptions]) => {
+    return {
+      ns,
+      verbosity:
+        executionOptions?.explainVerbosity ||
+        mongodb.ExplainVerbosity.allPlansExecution,
+    };
+  })
   explainFind(
     ns: string,
     filter: Filter<Document>,
@@ -1492,17 +1430,13 @@ export class DataServiceImpl implements DataService {
       executionOptions?.explainVerbosity ||
       mongodb.ExplainVerbosity.allPlansExecution;
 
-    log.info(
-      mongoLogId(1_001_000_046),
-      this._logCtx(),
-      'Running find explain',
-      { ns, verbosity }
-    );
-
     let cursor: FindCursor;
     return this._cancellableOperation(
       async (session?: ClientSession) => {
-        cursor = this.findCursor(ns, filter, { ...options, session });
+        cursor = this._collection(ns, 'CRUD').find(filter, {
+          ...options,
+          session,
+        });
         const results = await cursor.explain(verbosity);
         void cursor.close();
         return results;
@@ -1512,6 +1446,14 @@ export class DataServiceImpl implements DataService {
     );
   }
 
+  @op(mongoLogId(1_001_000_177), ([ns, , , executionOptions]) => {
+    return {
+      ns,
+      verbosity:
+        executionOptions?.explainVerbosity ||
+        mongodb.ExplainVerbosity.allPlansExecution,
+    };
+  })
   explainAggregate(
     ns: string,
     pipeline: Document[],
@@ -1522,17 +1464,13 @@ export class DataServiceImpl implements DataService {
       executionOptions?.explainVerbosity ||
       mongodb.ExplainVerbosity.queryPlanner;
 
-    log.info(
-      mongoLogId(1_001_000_177),
-      this._logCtx(),
-      'Running aggregate explain',
-      { ns, verbosity }
-    );
-
     let cursor: AggregationCursor;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
-        cursor = this.aggregateCursor(ns, pipeline, { ...options, session });
+      async (session) => {
+        cursor = this._collection(ns, 'CRUD').aggregate(pipeline, {
+          ...options,
+          session,
+        });
         const results = await cursor.explain(verbosity);
         void cursor.close();
         return results;
@@ -1580,125 +1518,82 @@ export class DataServiceImpl implements DataService {
     }
   }
 
+  @op(mongoLogId(1_001_000_047))
   async indexes(
     ns: string,
     options?: IndexInformationOptions
   ): Promise<IndexDefinition[]> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_047),
-      'Listing indexes',
-      { ns }
-    );
-    try {
-      const [indexes, indexStats, indexSizes] = await Promise.all([
-        this._collection(ns, 'CRUD').indexes(options) as Promise<IndexInfo[]>,
-        this._indexStats(ns),
-        this._indexSizes(ns),
-      ]);
+    const [indexes, indexStats, indexSizes] = await Promise.all([
+      this._collection(ns, 'CRUD').indexes(options) as Promise<IndexInfo[]>,
+      this._indexStats(ns),
+      this._indexSizes(ns),
+    ]);
 
-      const maxSize = Math.max(...Object.values(indexSizes));
+    const maxSize = Math.max(...Object.values(indexSizes));
 
-      const result = indexes.map((index) => {
-        const name = index.name;
-        return createIndexDefinition(
-          ns,
-          index,
-          indexStats[name],
-          indexSizes[name],
-          maxSize
-        );
-      });
-
-      logop(null);
-
-      return result;
-    } catch (err) {
-      logop(err);
-      throw this._translateErrorMessage(err);
-    }
-  }
-
-  async instance(): Promise<InstanceDetails> {
-    try {
-      const instanceData = {
-        ...(await getInstance(this._initializedClient('META'))),
-        // Need to get the CSFLE flag from the CRUD client, not the META one
-        csfleMode: this.getCSFLEMode(),
-      };
-
-      log.info(
-        mongoLogId(1_001_000_024),
-        this._logCtx(),
-        'Fetched instance information',
-        {
-          serverVersion: instanceData.build.version,
-          genuineMongoDB: instanceData.genuineMongoDB,
-          dataLake: instanceData.dataLake,
-          featureCompatibilityVersion: instanceData.featureCompatibilityVersion,
-        }
+    return indexes.map((index) => {
+      const name = index.name;
+      return createIndexDefinition(
+        ns,
+        index,
+        indexStats[name],
+        indexSizes[name],
+        maxSize
       );
-
-      return instanceData;
-    } catch (err) {
-      throw this._translateErrorMessage(err);
-    }
+    });
   }
 
-  insertOne(
+  @op(mongoLogId(1_001_000_024), (_, instanceData) => {
+    if (instanceData) {
+      return {
+        serverVersion: instanceData.build.version,
+        genuineMongoDB: instanceData.genuineMongoDB,
+        dataLake: instanceData.dataLake,
+        featureCompatibilityVersion: instanceData.featureCompatibilityVersion,
+      };
+    }
+  })
+  async instance(): Promise<InstanceDetails> {
+    return {
+      ...(await getInstance(this._initializedClient('META'))),
+      // Need to get the CSFLE flag from the CRUD client, not the META one
+      csfleMode: this.getCSFLEMode(),
+    };
+  }
+
+  @op(mongoLogId(1_001_000_048), ([ns], result) => {
+    return { ns, ...(result && { acknowledged: result.acknowledged }) };
+  })
+  async insertOne(
     ns: string,
     doc: Document,
-    options: InsertOneOptions,
-    callback: Callback<InsertOneResult<Document>>
-  ): void {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_048),
-      'Running insertOne',
-      { ns }
-    );
+    options?: InsertOneOptions
+  ): Promise<InsertOneResult<Document>> {
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.insertOne.bind(coll)))(
-      doc,
-      options,
-      (error, result) => {
-        logop(error, { acknowledged: result?.acknowledged });
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    return await coll.insertOne(doc, options);
   }
 
-  insertMany(
+  @op(mongoLogId(1_001_000_049), ([ns], result) => {
+    return {
+      ns,
+      ...(result && {
+        acknowledged: result.acknowledged,
+        insertedCount: result.insertedCount,
+      }),
+    };
+  })
+  async insertMany(
     ns: string,
     docs: Document[],
-    options: BulkWriteOptions,
-    callback: Callback<InsertManyResult<Document>>
-  ): void {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_049),
-      'Running insertMany',
-      { ns }
-    );
+    options?: BulkWriteOptions
+  ): Promise<InsertManyResult<Document>> {
     const coll = this._collection(ns, 'CRUD');
-    callbackify(allArgumentsMandatory(coll.insertMany.bind(coll)))(
-      docs,
-      options,
-      (error, result) => {
-        logop(error, {
-          acknowledged: result?.acknowledged,
-          insertedCount: result?.insertedCount,
-        });
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateErrorMessage(error));
-        }
-        callback(null, result);
-      }
-    );
+    return await coll.insertMany(docs, options);
   }
 
+  @op(mongoLogId(1_001_000_050), ([ns], result) => {
+    return { ns, ...(result && { result }) };
+  })
   async updateCollection(
     ns: string,
     // Collection name to update that will be passed to the collMod command will
@@ -1706,29 +1601,18 @@ export class DataServiceImpl implements DataService {
     // prohibiting to pass collMod flag here
     flags: Document & { collMod?: never } = {}
   ): Promise<Document> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_050),
-      'Running updateCollection',
-      { ns }
-    );
     const collectionName = this._collectionName(ns);
     const db = this._database(ns, 'CRUD');
-    try {
-      const result = await runCommand(db, {
-        // Order of arguments is important here, collMod is a command name and it
-        // should always be the first one in the object
-        collMod: collectionName,
-        ...flags,
-      });
-      logop(null, result);
-      // Reset the CSFLE-enabled client (if any) to clear any collection
-      // metadata caches that might still be active.
-      await this._resetCRUDClient();
-      return result;
-    } catch (error) {
-      logop(error);
-      throw this._translateErrorMessage(error);
-    }
+    const result = await runCommand(db, {
+      // Order of arguments is important here, collMod is a command name and it
+      // should always be the first one in the object
+      collMod: collectionName,
+      ...flags,
+    });
+    // Reset the CSFLE-enabled client (if any) to clear any collection
+    // metadata caches that might still be active.
+    await this._resetCRUDClient();
+    return result;
   }
 
   bulkWrite(
@@ -1739,88 +1623,62 @@ export class DataServiceImpl implements DataService {
     return this._collection(ns, 'CRUD').bulkWrite(operations, options);
   }
 
+  @op(mongoLogId(1_001_000_053), (_, result) => {
+    return result ? { result } : undefined;
+  })
   async currentOp(includeAll: boolean): Promise<{ inprog: Document[] }> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_053),
-      'Running currentOp'
-    );
     const db = this._database('admin', 'META');
-    try {
-      const cmdResult = await runCommand(db, {
-        currentOp: 1,
-        $all: includeAll,
-      });
-      logop(null, cmdResult);
-      return cmdResult;
-    } catch (error) {
-      logop(error);
-      throw this._translateErrorMessage(error);
-    }
+    return await runCommand(db, {
+      currentOp: 1,
+      $all: includeAll,
+    });
   }
 
   getLastSeenTopology(): null | TopologyDescription {
     return this._lastSeenTopology;
   }
 
+  @op(mongoLogId(1_001_000_061), (_, result) => {
+    return result ? { result } : undefined;
+  })
   async serverStatus(): Promise<Document> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_061),
-      'Running serverStatus'
-    );
     const admin = this._database('admin', 'META');
-    try {
-      const result = await runCommand(admin, { serverStatus: 1 });
-      logop(null, result);
-      return result;
-    } catch (error) {
-      logop(error);
-      throw this._translateErrorMessage(error);
-    }
+    return await runCommand(admin, { serverStatus: 1 });
   }
 
+  @op(mongoLogId(1_001_000_062), (_, result) => {
+    return result ? { result } : undefined;
+  })
   async top(): Promise<{ totals: Record<string, unknown> }> {
-    const logop = this._startLogOp(mongoLogId(1_001_000_062), 'Running top');
     const adminDb = this._database('admin', 'META');
-    try {
-      const result = await runCommand(adminDb, { top: 1 });
-      logop(null, result);
-      return result;
-    } catch (error) {
-      logop(error);
-      throw this._translateErrorMessage(error);
-    }
+    return await runCommand(adminDb, { top: 1 });
   }
 
-  async createView(
-    name: string,
-    sourceNs: string,
-    pipeline: Document[],
-    options: CreateCollectionOptions = {}
-  ): Promise<Collection<Document>> {
-    options.viewOn = this._collectionName(sourceNs);
-    options.pipeline = pipeline;
-
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_055),
-      'Running createView',
-      {
+  @op(
+    mongoLogId(1_001_000_055),
+    ([name, sourceNs, pipeline, options], result) => {
+      return {
         name,
         sourceNs,
         stages: pipeline.map((stage) => Object.keys(stage)[0]),
         options,
-      }
-    );
-
-    const db = this._database(sourceNs, 'CRUD');
-
-    try {
-      const result = await db.createCollection(name, options);
-      logop(null, result);
-      return result;
-    } catch (error) {
-      logop(error);
-      throw this._translateErrorMessage(error);
+        ...(result && { result }),
+      };
     }
+  )
+  async createView(
+    name: string,
+    sourceNs: string,
+    pipeline: Document[],
+    options: Omit<CreateCollectionOptions, 'viewOn' | 'pipeline'> = {}
+  ): Promise<Collection<Document>> {
+    const createCollectionOptions: CreateCollectionOptions = {
+      ...options,
+      viewOn: this._collectionName(sourceNs),
+      pipeline,
+    };
+    const db = this._database(sourceNs, 'CRUD');
+    return await db.createCollection(name, createCollectionOptions);
   }
 
   sample(
@@ -1901,7 +1759,7 @@ export class DataServiceImpl implements DataService {
 
   private async _cancellableOperation<T>(
     start: (session?: ClientSession) => Promise<T>,
-    stop: () => Promise<void> = () => Promise.resolve(),
+    stop: (session: ClientSession) => Promise<void> = () => Promise.resolve(),
     abortSignal?: AbortSignal
   ): Promise<T> {
     if (!abortSignal) {
@@ -1918,31 +1776,20 @@ export class DataServiceImpl implements DataService {
     let result: T;
     const abort = async () => {
       const logAbortError = (error: Error) => {
-        try {
-          log.warn(
-            mongoLogId(1_001_000_140),
-            'CancelOp',
-            'Attempting to kill the operation failed',
-            { error: error.message }
-          );
-        } catch (e) {
-          // ignore
-        }
+        log.warn(
+          mongoLogId(1_001_000_140),
+          this._logCtx(),
+          'Attempting to kill the operation failed',
+          { error: error.message }
+        );
       };
-      await stop().catch(logAbortError);
+      await stop(session).catch(logAbortError);
       await this._killSessions(session).catch(logAbortError);
     };
 
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_179),
-      'Running cancellable operation'
-    );
-
     try {
       result = await raceWithAbort(start(session), abortSignal);
-      logop(null);
     } catch (err) {
-      logop(err);
       if (isCancelError(err)) {
         void abort();
       }
@@ -2148,23 +1995,14 @@ export class DataServiceImpl implements DataService {
     return this._getCSFLECollectionTracker().knownSchemaForCollection(ns);
   }
 
+  @op(mongoLogId(1_001_000_057))
   async databaseStats(
     name: string
   ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_057),
-      'Running databaseStats',
-      { db: name }
-    );
-    try {
-      const db = this._database(name, 'META');
-      const stats = await runCommand(db, { dbStats: 1 });
-      const normalized = adaptDatabaseInfo(stats);
-      return { name, ...normalized };
-    } catch (err) {
-      logop(err);
-      throw this._translateErrorMessage(err);
-    }
+    const db = this._database(name, 'META');
+    const stats = await runCommand(db, { dbStats: 1 });
+    const normalized = adaptDatabaseInfo(stats);
+    return { name, ...normalized };
   }
 
   /**
@@ -2224,33 +2062,6 @@ export class DataServiceImpl implements DataService {
   }
 
   /**
-   * Get all the collection names for a database.
-   *
-   * @param databaseName - The database name.
-   * @param callback - The callback.
-   */
-  private _collectionNames(
-    databaseName: string,
-    callback: Callback<string[]>
-  ): void {
-    // Since all we are interested in are collection names, we should
-    // pass nameOnly: true. This speeds things up when collections are
-    // actively being used because it means that the server has to
-    // acquire fewer locks on the collections:
-    // https://jira.mongodb.org/browse/SERVER-34244
-    this.listCollections(databaseName, {}, { nameOnly: true }).then(
-      (collections) => {
-        const names = collections?.map((c) => c.name);
-        callback(null, names);
-      },
-      (error) => {
-        // @ts-expect-error Callback without result...
-        callback(this._translateErrorMessage(error));
-      }
-    );
-  }
-
-  /**
    * Get the collection name from a namespace.
    *
    * @param ns - The namespace in database.collection format.
@@ -2279,22 +2090,6 @@ export class DataServiceImpl implements DataService {
     return [...evt.newDescription.servers.values()].some(
       (server: ServerDescription) => server.isWritable
     );
-  }
-
-  /**
-   * Translates the error message to something human readable.
-   *
-   * @param error - The error.
-   *
-   * @returns The error with message translated.
-   */
-  private _translateErrorMessage(error: any): Error | { message: string } {
-    if (typeof error === 'string') {
-      error = { message: error };
-    } else if (!error.message) {
-      error.message = error.err || error.errmsg;
-    }
-    return error;
   }
 
   private _cleanup(): void {
@@ -2331,37 +2126,6 @@ export class DataServiceImpl implements DataService {
     }
   }
 
-  private _startLogOp(
-    logId: ReturnType<typeof mongoLogId>,
-    op: string,
-    attr: any = {}
-  ): (error: any, result?: any) => void {
-    return (error: any, result: any) => {
-      if (error) {
-        const { message } = this._translateErrorMessage(error);
-        log.error(
-          mongoLogId(1_001_000_058),
-          this._logCtx(),
-          'Failed to perform data service operation',
-          {
-            op,
-            message,
-            ...attr,
-          }
-        );
-      } else {
-        if (result) {
-          attr = { ...attr, result };
-        }
-        if (Object.keys(attr).length > 0) {
-          log.info(logId, this._logCtx(), op, attr);
-        } else {
-          log.info(logId, this._logCtx(), op);
-        }
-      }
-    };
-  }
-
   configuredKMSProviders(): string[] {
     return configuredKMSProviders(
       this._connectionOptions.fleOptions?.autoEncryption
@@ -2384,26 +2148,15 @@ export class DataServiceImpl implements DataService {
     };
   }
 
+  @op(mongoLogId(1_001_000_123), ([provider]) => {
+    return { provider };
+  })
   async createDataKey(
     provider: any /* ClientEncryptionDataKeyProvider */,
     options?: any /* ClientEncryptionCreateDataKeyProviderOptions */
   ): Promise<Document> {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_123),
-      'Running createDataKey',
-      { provider }
-    );
-
     const clientEncryption = this._getClientEncryption();
-    let result;
-    try {
-      result = await clientEncryption.createDataKey(provider, options ?? {});
-    } catch (err) {
-      logop(err);
-      throw err;
-    }
-    logop(null);
-    return result;
+    return await clientEncryption.createDataKey(provider, options ?? {});
   }
 
   private _getClientEncryption() {
@@ -2432,21 +2185,24 @@ export class DataServiceImpl implements DataService {
         : undefined,
     });
   }
+
+  static {
+    type NoExtraProps<T, U> = U & {
+      [K in Exclude<keyof U, keyof T>]?: never;
+    };
+
+    const assertNoExtraProps = <T>(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _cls: new (...args: any[]) => NoExtraProps<DataService, T>
+    ) => {
+      // Checking that we are not exposing anything unexpected on our data service
+      // implementation. This file will not compile if there are more public methods
+      // on the DataServiceImpl than DataService interface allows
+    };
+
+    assertNoExtraProps(this);
+  }
 }
 
-type NoExtraProps<T, U> = U & {
-  [K in Exclude<keyof U, keyof T>]?: never;
-};
-
-function assertNoExtraProps<T>(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _cls: new (...args: any[]) => NoExtraProps<DataService, T>
-) {
-  // Checking that we are not exposing anything unexpected on our data service
-  // implementation. This file will not compile if there are more public methods
-  // on the DataServiceImpl than DataService interface allows
-}
-
-assertNoExtraProps(DataServiceImpl);
-
+export { DataServiceImpl };
 export default DataService;

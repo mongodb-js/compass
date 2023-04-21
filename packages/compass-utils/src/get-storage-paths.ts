@@ -4,7 +4,7 @@ export interface StoragePaths {
   basepath: string;
 }
 
-export function getStoragePaths(): StoragePaths | undefined {
+function getElectronApp() {
   let app;
 
   try {
@@ -17,6 +17,11 @@ export function getStoragePaths(): StoragePaths | undefined {
     }
   }
 
+  return app;
+}
+
+export function getStoragePaths(): StoragePaths | undefined {
+  const app = getElectronApp();
   if (!app) return undefined;
 
   const appName = app.getName();

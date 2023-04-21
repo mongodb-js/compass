@@ -2,7 +2,6 @@ import os from 'os';
 import { EJSON } from 'bson';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
@@ -12,6 +11,8 @@ import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
 import { Readable, Writable } from 'stream';
 import type { FindCursor } from 'mongodb';
+
+import allTypesDocs from '../../test/docs/all-bson-types';
 
 temp.track();
 
@@ -26,10 +27,15 @@ chai.use(chaiAsPromised);
 const testDB = 'export-json-test';
 const testNS = `${testDB}.test-col`;
 
+function replaceIds(text: string) {
+  return text.replace(
+    /"\$oid": "\w{24}"/g,
+    '"$oid": "123456789012345678901234"'
+  );
+}
+
 describe('exportJSON', function () {
   let dataService: DataService;
-  let insertOne: any;
-  let insertMany: any;
   let tmpdir: string;
 
   // Insert documents once for all of the tests.
@@ -44,9 +50,6 @@ describe('exportJSON', function () {
     dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
-
-    insertOne = promisify(dataService.insertOne.bind(dataService));
-    insertMany = promisify(dataService.insertMany.bind(dataService));
 
     try {
       await dataService.dropCollection(testNS);
@@ -64,7 +67,7 @@ describe('exportJSON', function () {
   });
 
   it('exports to the output stream', async function () {
-    await insertOne(testNS, { testDoc: true }, {});
+    await dataService.insertOne(testNS, { testDoc: true });
 
     const abortController = new AbortController();
     const tempWriteStream = temp.createWriteStream();
@@ -81,6 +84,56 @@ describe('exportJSON', function () {
     expect(tempWriteStream.bytesWritten).to.equal(78);
     expect(result.aborted).to.be.false;
   });
+
+  for (const variant of ['default', 'relaxed', 'canonical'] as const) {
+    it(`exports all types for variant=${variant}`, async function () {
+      await dataService.insertMany(testNS, allTypesDocs);
+
+      const tempWriteStream = temp.createWriteStream();
+
+      const result = await exportJSONFromQuery({
+        dataService,
+        ns: testNS,
+        output: tempWriteStream,
+        variant,
+      });
+
+      expect(result).to.deep.equal({
+        aborted: false,
+        docsWritten: 1,
+      });
+
+      const text = replaceIds(
+        await fs.promises.readFile(tempWriteStream.path, 'utf8')
+      );
+      const docs = EJSON.parse(text);
+
+      const expectedPath = fixtures.allTypes.replace(
+        /\.js$/,
+        `.exported.${variant}.ejson`
+      );
+      let expectedText;
+      let expectedDocs;
+      try {
+        expectedText = replaceIds(
+          await fs.promises.readFile(expectedPath, 'utf8')
+        );
+        expectedDocs = EJSON.parse(expectedText);
+      } catch (err) {
+        console.log(expectedPath);
+        console.log(text);
+        throw err;
+      }
+
+      try {
+        expect(text).to.deep.equal(expectedText);
+      } catch (err) {
+        console.log(text);
+        throw err;
+      }
+      expect(docs).to.deep.equal(expectedDocs);
+    });
+  }
 
   for (const fixtureType of ['json', 'jsonl'] as const) {
     for (const filepath of Object.values(fixtures[fixtureType])) {
@@ -115,7 +168,7 @@ describe('exportJSON', function () {
           console.log(importedText);
           throw err;
         }
-        await insertMany(testNS, ejsonToInsert, {});
+        await dataService.insertMany(testNS, ejsonToInsert);
 
         const output = fs.createWriteStream(resultPath);
         const stats = await exportJSONFromQuery({
@@ -189,10 +242,15 @@ describe('exportJSON', function () {
           basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
         ).to.deep.equal(ejsonToInsertWithout_id);
 
-        expect(
-          resultText,
-          basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
-        ).to.deep.equal(expectedText);
+        try {
+          expect(
+            resultText,
+            basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
+          ).to.deep.equal(expectedText);
+        } catch (err) {
+          console.log();
+          throw err;
+        }
       });
     }
   }
@@ -220,7 +278,7 @@ describe('exportJSON', function () {
         name,
       })
     );
-    await insertMany(testNS, docs, {});
+    await dataService.insertMany(testNS, docs);
 
     const abortController = new AbortController();
     const resultPath = path.join(tmpdir, 'test-aggregations.exported.json');
@@ -347,7 +405,7 @@ describe('exportJSON', function () {
   });
 
   it('throws when the write output errors', async function () {
-    await insertOne(testNS, { testDoc: true }, {});
+    await dataService.insertOne(testNS, { testDoc: true });
     const abortController = new AbortController();
 
     const mockWriteStream = new Writable({
@@ -374,8 +432,8 @@ describe('exportJSON', function () {
         name,
       })
     );
-    await insertMany(testNS, docs, {});
-    await insertOne(testNS, { testDoc: true }, {});
+    await dataService.insertMany(testNS, docs);
+    await dataService.insertOne(testNS, { testDoc: true });
 
     const resultPath = path.join(
       tmpdir,

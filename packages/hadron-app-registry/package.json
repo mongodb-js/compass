@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "9.0.5",
+  "version": "9.0.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -37,7 +37,7 @@
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
-    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
@@ -48,10 +48,10 @@
     "reflux": "^0.4.1"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.4",
-    "@mongodb-js/mocha-config-compass": "^1.1.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.5",
+    "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/tsconfig-compass": "^1.0.1",
+    "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/reflux": "^6.4.3",
@@ -62,6 +62,6 @@
     "mocha": "^10.2.0",
     "prettier": "^2.7.1",
     "sinon": "^9.0.0",
-    "typescript": "^4.8.3"
+    "typescript": "^5.0.4"
   }
 }

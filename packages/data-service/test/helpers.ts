@@ -1,5 +1,4 @@
 import type { MongoClient } from 'mongodb';
-import type { Callback } from '../src/types';
 
 export type ClientMockOptions = {
   hosts: [{ host: string; port: number }];
@@ -24,15 +23,7 @@ export function createMongoClientMock({
   clientOptions = {},
 }: Partial<ClientMockOptions> = {}): MongoClient {
   const db = {
-    command(spec: any, callback?: Callback<any>) {
-      if (typeof callback === 'function') {
-        db.command(spec)!.then(
-          (result) => callback(null, result),
-          (err) => callback(err, null)
-        );
-        return;
-      }
-
+    command(spec: any) {
       const cmd = Object.keys(spec).find((key) =>
         [
           'listDatabases',

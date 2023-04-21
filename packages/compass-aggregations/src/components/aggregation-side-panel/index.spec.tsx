@@ -12,7 +12,11 @@ const renderAggregationSidePanel = (
 ) => {
   return render(
     <Provider store={configureStore()}>
-      <AggregationSidePanel onCloseSidePanel={() => {}} {...props} />
+      <AggregationSidePanel
+        onSelectUseCase={() => {}}
+        onCloseSidePanel={() => {}}
+        {...props}
+      />
     </Provider>
   );
 };
@@ -32,6 +36,12 @@ describe('aggregation side panel', function () {
       renderAggregationSidePanel({ onCloseSidePanel });
       screen.getByLabelText('Hide Side Panel').click();
       expect(onCloseSidePanel).to.have.been.calledOnce;
+    });
+    it('calls onSelectUseCase when a use case is clicked', function () {
+      const onSelectUseCase = sinon.spy();
+      renderAggregationSidePanel({ onSelectUseCase });
+      screen.getByTestId('use-case-sort').click();
+      expect(onSelectUseCase).to.have.been.calledOnceWith('sort', '$sort');
     });
   });
 });

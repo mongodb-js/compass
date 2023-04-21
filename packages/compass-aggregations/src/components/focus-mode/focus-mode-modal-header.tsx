@@ -21,11 +21,17 @@ import {
   selectFocusModeStage,
 } from '../../modules/focus-mode';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+
+type Stage = {
+  idxInStore: number;
+  stageOperator: string | null;
+};
 
 type FocusModeModalHeaderProps = {
   stageIndex: number;
   isEnabled: boolean;
-  stages: (string | null)[];
+  stages: Stage[];
   onStageSelect: (index: number) => void;
   onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;
@@ -89,21 +95,27 @@ export const FocusModeModalHeader: React.FunctionComponent<
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const isFirst = stageIndex === 0;
-  const isLast = stages.length - 1 === stageIndex;
+  const isFirst = stages[0].idxInStore === stageIndex;
+  const isLast = stages[stages.length - 1].idxInStore === stageIndex;
 
   const onPreviousStage = () => {
     if (isFirst) {
       return;
     }
-    onStageSelect(stageIndex - 1);
+
+    const idx = stages.findIndex((stage) => stage.idxInStore === stageIndex);
+    const prevStageIdx = stages[idx - 1].idxInStore;
+    onStageSelect(prevStageIdx);
   };
 
   const onNextStage = () => {
     if (isLast) {
       return;
     }
-    onStageSelect(stageIndex + 1);
+
+    const idx = stages.findIndex((stage) => stage.idxInStore === stageIndex);
+    const nextStageIdx = stages[idx + 1].idxInStore;
+    onStageSelect(nextStageIdx);
   };
 
   const onAddStageBefore = () => {
@@ -121,13 +133,19 @@ export const FocusModeModalHeader: React.FunctionComponent<
   useHotkeys(ADD_STAGE_AFTER_HOTKEY, onAddStageAfter);
   useHotkeys(ADD_STAGE_BEFORE_HOTKEY, onAddStageBefore);
 
-  const stageSelectLabels = stages.map((stageName, index) => {
-    return `Stage ${index + 1}: ${stageName ?? 'select'}`;
-  });
+  const stageSelectLabels = stages.map(
+    ({ stageOperator, idxInStore }, index) => {
+      return {
+        label: `Stage ${index + 1}: ${stageOperator ?? 'select'}`,
+        value: idxInStore,
+      };
+    }
+  );
+
   const stageSelectStyle = {
     width: `calc(${String(
       Math.max(
-        ...stageSelectLabels.map((label) => {
+        ...stageSelectLabels.map(({ label }) => {
           return label.length;
         })
       )
@@ -180,9 +198,9 @@ export const FocusModeModalHeader: React.FunctionComponent<
             onStageSelect(Number(newVal));
           }}
         >
-          {stageSelectLabels.map((label, index) => {
+          {stageSelectLabels.map(({ label, value }) => {
             return (
-              <Option key={label} value={String(index)}>
+              <Option key={label} value={String(value)}>
                 {label}
               </Option>
             );
@@ -295,13 +313,20 @@ export default connect(
         stageEditor: { stages },
       },
     } = state;
-    const stage = stages[stageIndex];
+    const stage = stages[stageIndex] as StoreStage;
+
     return {
       stageIndex,
       isEnabled: !stage?.disabled,
-      stages: stages.map((stage) => {
-        return stage.stageOperator;
-      }),
+      stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
+        if (stage.type === 'stage') {
+          accumulator.push({
+            idxInStore,
+            stageOperator: stage.stageOperator,
+          });
+        }
+        return accumulator;
+      }, []),
     };
   },
   {

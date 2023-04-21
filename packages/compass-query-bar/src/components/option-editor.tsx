@@ -31,7 +31,17 @@ const editorStyles = css({
 });
 
 const editorWithErrorStyles = css({
-  borderColor: palette.red.base,
+  '&:after': {
+    position: 'absolute',
+    top: -1,
+    left: -1,
+    right: -1,
+    bottom: -1,
+    zIndex: 2,
+    borderRadius: spacing[1],
+    border: `1px solid ${palette.red.base}`,
+    pointerEvents: 'none',
+  },
   '&:focus-within': {
     borderColor: palette.gray.base,
   },
