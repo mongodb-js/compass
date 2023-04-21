@@ -1123,7 +1123,6 @@ type InlineEditorProps = Omit<
   | 'showScroll'
   | 'highlightActiveLine'
   | 'minLines'
-  | 'maxLines'
   | 'annotations'
 > &
   (
