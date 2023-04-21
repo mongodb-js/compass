@@ -1,662 +1,520 @@
-import throttle from 'lodash/throttle';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import fs from 'fs';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import type { AnyAction, Dispatch } from 'redux';
-import type { AggregateOptions, Document } from 'mongodb';
-import type { DataService } from 'mongodb-data-service';
+import type { Action, AnyAction, Reducer } from 'redux';
+import { combineReducers } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-import PROCESS_STATUS from '../constants/process-status';
-import EXPORT_STEP from '../constants/export-step';
-import { globalAppRegistryEmit, nsChanged } from './compass';
-import { loadFields, getSelectableFields } from './load-fields';
-import { CursorExporter } from './cursor-exporter';
-import type { AcceptedFileType } from '../constants/file-types';
-import type { ProcessStatus } from '../constants/process-status';
-import type { ExportStep } from '../constants/export-step';
-import type { RootExportState } from '../stores/export-store';
+import { gatherFieldsFromQuery } from '../export/gather-fields';
+import type { SchemaPath } from '../export/gather-fields';
+import type { ExportAggregation, ExportQuery } from '../export/export-types';
+import { queryHasProjection } from '../utils/query-has-projection';
+import { globalAppRegistry, dataService } from '../modules/compass';
 
-const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
-  'COMPASS-IMPORT-EXPORT-UI'
-);
+const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
-const PREFIX = 'import-export/export';
-
-export const STARTED = `${PREFIX}/STARTED`;
-export const CANCELED = `${PREFIX}/CANCELED`;
-
-export const PROGRESS = `${PREFIX}/PROGRESS`;
-export const FINISHED = `${PREFIX}/FINISHED`;
-export const ERROR = `${PREFIX}/ERROR`;
-
-export const SELECT_FILE_TYPE = `${PREFIX}/SELECT_FILE_TYPE`;
-export const SELECT_FILE_NAME = `${PREFIX}/SELECT_FILE_NAME`;
-
-export const ON_MODAL_OPEN = `${PREFIX}/ON_MODAL_OPEN`;
-export const CLOSE = `${PREFIX}/CLOSE`;
-
-export const CHANGE_EXPORT_STEP = `${PREFIX}/CHANGE_EXPORT_STEP`;
-
-export const UPDATE_ALL_FIELDS = `${PREFIX}/UPDATE_ALL_FIELDS`;
-export const UPDATE_SELECTED_FIELDS = `${PREFIX}/UPDATE_SELECTED_FIELDS`;
-
-export const QUERY_CHANGED = `${PREFIX}/QUERY_CHANGED`;
-export const TOGGLE_FULL_COLLECTION = `${PREFIX}/TOGGLE_FULL_COLLECTION`;
-
-export const RESET = `${PREFIX}/RESET`;
-
-export type ExportQueryType = {
-  filter?: Record<string, unknown>;
-  project?: Record<string, unknown>;
-  limit?: number;
-  skip?: number;
+export type FieldsToExport = {
+  [fieldId: string]: {
+    path: SchemaPath;
+    selected: boolean;
+  };
 };
 
-type ExportAggregationType = {
-  stages: Document[];
-  options: AggregateOptions;
+export function getIdForSchemaPath(schemaPath: SchemaPath) {
+  return JSON.stringify(schemaPath);
+}
+
+function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
+
+type ExportOptions = {
+  namespace: string;
+  query: ExportQuery | undefined;
+  exportFullCollection?: boolean;
+  aggregation?: ExportAggregation;
+  fieldsToExport: FieldsToExport;
+
+  selectedFieldOption: undefined | FieldsToExportOption;
 };
 
-/**
- * A full collection query.
- */
-const FULL_QUERY: ExportQueryType = {
-  filter: {},
-};
+export type ExportStatus =
+  | undefined
+  | 'select-field-options'
+  | 'select-fields-to-export'
+  | 'ready-to-export'
+  | 'select-file-output'
+  | 'in-progress';
+export type FieldsToExportOption = 'all-fields' | 'select-fields';
 
-type ExportFieldsType = Record<string, boolean>;
+export type ExportState = {
+  isOpen: boolean;
+  isInProgressMessageOpen: boolean;
 
-type State = {
-  isOpen?: boolean;
-  error?: Error | null;
-  count: number | null;
-  fileType: AcceptedFileType;
-  fileName: string;
-  ns: string; // Namespace
-  query: ExportQueryType | null;
-  status: ProcessStatus;
-  fields: ExportFieldsType;
-  allFields: ExportFieldsType;
-  exportedDocsCount?: number;
-  progress: number; // Progress percentage.
-  exportStep: ExportStep;
-  isFullCollection: boolean;
-  aggregation?: ExportAggregationType | null;
+  status: ExportStatus;
+  errorLoadingFieldsToExport: string | undefined;
+  fieldsToExportAbortController: AbortController | undefined;
+} & ExportOptions;
 
-  exporter?: CursorExporter;
-  dest?: fs.WriteStream;
-};
-
-const INITIAL_STATE: State = {
+export const initialState: ExportState = {
   isOpen: false,
-  exportStep: EXPORT_STEP.QUERY,
-  isFullCollection: false,
-  progress: 0,
-  query: null,
-  error: null,
-  ns: '',
-  fields: {},
-  allFields: {},
-  fileName: '',
-  fileType: 'json',
-  status: PROCESS_STATUS.UNSPECIFIED,
-  exportedDocsCount: 0,
-  count: 0,
-  aggregation: null,
+  isInProgressMessageOpen: false,
+  status: undefined,
+  namespace: '',
+  query: {
+    filter: {},
+  },
+  errorLoadingFieldsToExport: undefined,
+  fieldsToExport: {},
+  fieldsToExportAbortController: undefined,
+  selectedFieldOption: undefined,
+  exportFullCollection: undefined,
+  aggregation: undefined,
 };
 
-export const onStarted = (
-  exporter: CursorExporter,
-  dest: fs.WriteStream,
-  count: number | null
-) => ({
-  type: STARTED,
-  exporter: exporter,
-  dest: dest,
-  count: count,
+const enum ExportActionTypes {
+  OpenExport = 'compass-import-export/export/OpenExport',
+  CloseExport = 'compass-import-export/export/CloseExport',
+  CloseInProgressMessage = 'compass-import-export/export/CloseInProgressMessage',
+  BackToSelectFieldOptions = 'compass-import-export/export/BackToSelectFieldOptions',
+  BackToSelectFieldsToExport = 'compass-import-export/export/BackToSelectFieldsToExport',
+  ReadyToExport = 'compass-import-export/export/ReadyToExport',
+
+  ToggleFieldToExport = 'compass-import-export/export/ToggleFieldToExport',
+  AddFieldToExport = 'compass-import-export/export/AddFieldToExport',
+  ToggleExportAllSelectedFields = 'compass-import-export/export/ToggleExportAllSelectedFields',
+
+  SelectFieldsToExport = 'compass-import-export/export/SelectFieldsToExport',
+  FetchFieldsToExport = 'compass-import-export/export/FetchFieldsToExport',
+  FetchFieldsToExportSuccess = 'compass-import-export/export/FetchFieldsToExportSuccess',
+  FetchFieldsToExportError = 'compass-import-export/export/FetchFieldsToExportError',
+
+  RunExport = 'compass-import-export/export/RunExport',
+}
+
+type OpenExportAction = {
+  type: ExportActionTypes.OpenExport;
+} & Omit<ExportOptions, 'fieldsToExport' | 'selectedFieldOption'>;
+
+export const openExport = (
+  exportOptions: Omit<OpenExportAction, 'type'>
+): OpenExportAction => ({
+  type: ExportActionTypes.OpenExport,
+  ...exportOptions,
 });
 
-export const onProgress = (progress: number, exportedDocsCount: number) => ({
-  type: PROGRESS,
-  progress: progress,
-  exportedDocsCount: exportedDocsCount,
-});
-
-export const onFinished = (exportedDocsCount: number) => ({
-  type: FINISHED,
-  exportedDocsCount: exportedDocsCount,
-});
-
-export const onError = (error: Error) => ({
-  type: ERROR,
-  error: error,
-});
-
-export const reset = () => {
-  return { type: RESET };
+type CloseExportAction = {
+  type: ExportActionTypes.CloseExport;
 };
 
-const reducer = (state: State = INITIAL_STATE, action: AnyAction): State => {
-  if (action.type === RESET) {
-    return { ...INITIAL_STATE };
+export const closeExport = (): CloseExportAction => ({
+  type: ExportActionTypes.CloseExport,
+});
+
+type CloseInProgressMessageAction = {
+  type: ExportActionTypes.CloseInProgressMessage;
+};
+
+export const closeInProgressMessage = (): CloseExportAction => ({
+  type: ExportActionTypes.CloseExport,
+});
+
+type SelectFieldsToExportAction = {
+  type: ExportActionTypes.SelectFieldsToExport;
+};
+
+type BackToSelectFieldOptionsAction = {
+  type: ExportActionTypes.BackToSelectFieldOptions;
+};
+
+export const backToSelectFieldOptions = (): BackToSelectFieldOptionsAction => ({
+  type: ExportActionTypes.BackToSelectFieldOptions,
+});
+
+type BackToSelectFieldsToExportAction = {
+  type: ExportActionTypes.BackToSelectFieldsToExport;
+};
+
+export const backToSelectFieldsToExport =
+  (): BackToSelectFieldsToExportAction => ({
+    type: ExportActionTypes.BackToSelectFieldsToExport,
+  });
+
+type FetchFieldsToExportAction = {
+  type: ExportActionTypes.FetchFieldsToExport;
+  fieldsToExportAbortController: AbortController;
+};
+
+type FetchFieldsToExportErrorAction = {
+  type: ExportActionTypes.FetchFieldsToExportError;
+  errorMessage?: string;
+};
+
+type FetchFieldsToExportSuccessAction = {
+  type: ExportActionTypes.FetchFieldsToExportSuccess;
+  fieldsToExport: FieldsToExport;
+  aborted?: boolean;
+};
+
+type ToggleFieldToExportAction = {
+  type: ExportActionTypes.ToggleFieldToExport;
+  fieldId: string;
+};
+export const toggleFieldToExport = (fieldId: string) => ({
+  type: ExportActionTypes.ToggleFieldToExport,
+  fieldId,
+});
+
+type ToggleExportAllSelectedFieldsAction = {
+  type: ExportActionTypes.ToggleExportAllSelectedFields;
+};
+export const toggleExportAllSelectedFields = () => ({
+  type: ExportActionTypes.ToggleExportAllSelectedFields,
+});
+
+type AddFieldToExportAction = {
+  type: ExportActionTypes.AddFieldToExport;
+  path: SchemaPath;
+};
+export const addFieldToExport = (path: SchemaPath) => ({
+  type: ExportActionTypes.AddFieldToExport,
+  path,
+});
+
+type ReadyToExportAction = {
+  type: ExportActionTypes.ReadyToExport;
+  selectedFieldOption?: 'all-fields';
+};
+
+export const readyToExport = (): ReadyToExportAction => ({
+  type: ExportActionTypes.ReadyToExport,
+});
+
+type RunExportAction = {
+  type: ExportActionTypes.RunExport;
+};
+
+export const selectFieldsToExport = (): ExportThunkAction<
+  Promise<void>,
+  | SelectFieldsToExportAction
+  | FetchFieldsToExportAction
+  | FetchFieldsToExportErrorAction
+  | FetchFieldsToExportSuccessAction
+> => {
+  return async (dispatch, getState) => {
+    dispatch({
+      type: ExportActionTypes.SelectFieldsToExport,
+    });
+
+    const fieldsToExportAbortController = new AbortController();
+
+    dispatch({
+      type: ExportActionTypes.FetchFieldsToExport,
+      fieldsToExportAbortController,
+    });
+
+    const {
+      export: { query, namespace },
+      dataService: { dataService },
+    } = getState();
+
+    let gatherFieldsResult: Awaited<ReturnType<typeof gatherFieldsFromQuery>>;
+
+    try {
+      gatherFieldsResult = await gatherFieldsFromQuery({
+        ns: namespace,
+        abortSignal: fieldsToExportAbortController.signal,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        dataService: dataService!,
+        query,
+        sampleSize: 50,
+      });
+    } catch (err: any) {
+      dispatch({
+        type: ExportActionTypes.FetchFieldsToExportError,
+        errorMessage: err?.message,
+      });
+      return;
+    }
+
+    const fields: FieldsToExport = {};
+    for (const schemaPath of gatherFieldsResult.paths) {
+      fields[getIdForSchemaPath(schemaPath)] = {
+        path: schemaPath,
+        // We start all of the fields as unchecked.
+        selected: false,
+      };
+    }
+
+    dispatch({
+      type: ExportActionTypes.FetchFieldsToExportSuccess,
+      fieldsToExport: fields,
+      aborted:
+        fieldsToExportAbortController.signal.aborted ||
+        gatherFieldsResult.aborted,
+    });
+  };
+};
+
+export const runExport = (): ExportThunkAction<
+  Promise<void>,
+  RunExportAction
+> => {
+  return async (dispatch) => {
+    // TODO(COMPASS-6580): Run export.
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    dispatch({
+      type: ExportActionTypes.RunExport,
+    });
+  };
+};
+
+const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
+  if (isAction<OpenExportAction>(action, ExportActionTypes.OpenExport)) {
+    // When an export is already in progress show the in progress modal.
+    if (state.status === 'in-progress') {
+      return {
+        ...state,
+        isInProgressMessageOpen: true,
+      };
+    }
+
+    track('Export Opened', {
+      type: action.aggregation ? 'aggregation' : 'query',
+    });
+
+    return {
+      ...initialState,
+      status:
+        !!action.aggregation ||
+        !!action.exportFullCollection ||
+        !action.query ||
+        !!queryHasProjection(action.query)
+          ? 'ready-to-export'
+          : 'select-field-options',
+      isInProgressMessageOpen: false,
+      isOpen: true,
+      fieldsToExport: {},
+      errorLoadingFieldsToExport: undefined,
+      selectedFieldOption: undefined,
+      namespace: action.namespace,
+      exportFullCollection: action.exportFullCollection,
+      query: action.query,
+      aggregation: action.aggregation,
+    };
   }
 
-  if (action.type === TOGGLE_FULL_COLLECTION) {
+  if (isAction<CloseExportAction>(action, ExportActionTypes.CloseExport)) {
+    // Cancel any ongoing operations.
+    state.fieldsToExportAbortController?.abort();
     return {
       ...state,
-      isFullCollection: !state.isFullCollection,
+      fieldsToExportAbortController: undefined,
+      isOpen: false,
     };
   }
 
-  if (action.type === ON_MODAL_OPEN) {
-    const newState = {
-      ...INITIAL_STATE,
-      count: action.count,
-      query: action.query || null,
-      aggregation: action.aggregation || null,
-      isOpen: true,
+  if (
+    isAction<CloseInProgressMessageAction>(
+      action,
+      ExportActionTypes.CloseInProgressMessage
+    )
+  ) {
+    return {
+      ...state,
+      isInProgressMessageOpen: false,
     };
+  }
 
-    if (action.aggregation) {
-      newState.exportStep = EXPORT_STEP.FILETYPE;
+  if (
+    isAction<SelectFieldsToExportAction>(
+      action,
+      ExportActionTypes.SelectFieldsToExport
+    )
+  ) {
+    return {
+      ...state,
+      selectedFieldOption: 'select-fields',
+      status: 'select-fields-to-export',
+    };
+  }
+
+  if (
+    isAction<FetchFieldsToExportAction>(
+      action,
+      ExportActionTypes.FetchFieldsToExport
+    )
+  ) {
+    state.fieldsToExportAbortController?.abort();
+    return {
+      ...state,
+      fieldsToExportAbortController: action.fieldsToExportAbortController,
+    };
+  }
+
+  if (
+    isAction<FetchFieldsToExportErrorAction>(
+      action,
+      ExportActionTypes.FetchFieldsToExportError
+    )
+  ) {
+    return {
+      ...state,
+      errorLoadingFieldsToExport: action.errorMessage,
+      fieldsToExportAbortController: undefined,
+    };
+  }
+
+  if (
+    isAction<FetchFieldsToExportSuccessAction>(
+      action,
+      ExportActionTypes.FetchFieldsToExportSuccess
+    )
+  ) {
+    if (action.aborted) {
+      // Ignore when the selecting fields was cancelled.
+      // Currently we don't let the user intentionally skip fetching fields, so an abort
+      // would come from closing the modal or performing a different way of exporting.
+      return state;
     }
-    return newState;
+
+    return {
+      ...state,
+      fieldsToExport: action.fieldsToExport,
+      fieldsToExportAbortController: undefined,
+    };
   }
 
-  if (action.type === CLOSE) {
+  if (
+    isAction<BackToSelectFieldOptionsAction>(
+      action,
+      ExportActionTypes.BackToSelectFieldOptions
+    )
+  ) {
+    state.fieldsToExportAbortController?.abort();
+
+    return {
+      ...state,
+      fieldsToExportAbortController: undefined,
+      selectedFieldOption: undefined,
+      status: 'select-field-options',
+    };
+  }
+
+  if (
+    isAction<BackToSelectFieldsToExportAction>(
+      action,
+      ExportActionTypes.BackToSelectFieldsToExport
+    )
+  ) {
+    return {
+      ...state,
+      status: 'select-fields-to-export',
+    };
+  }
+
+  if (
+    isAction<ToggleFieldToExportAction>(
+      action,
+      ExportActionTypes.ToggleFieldToExport
+    )
+  ) {
+    return {
+      ...state,
+      fieldsToExport: {
+        ...state.fieldsToExport,
+        [action.fieldId]: {
+          ...state.fieldsToExport[action.fieldId],
+          selected: !state.fieldsToExport[action.fieldId].selected,
+        },
+      },
+    };
+  }
+
+  if (
+    isAction<AddFieldToExportAction>(action, ExportActionTypes.AddFieldToExport)
+  ) {
+    return {
+      ...state,
+      fieldsToExport: {
+        ...state.fieldsToExport,
+        [getIdForSchemaPath(action.path)]: {
+          path: action.path,
+          selected: true,
+        },
+      },
+    };
+  }
+
+  if (
+    isAction<ToggleExportAllSelectedFieldsAction>(
+      action,
+      ExportActionTypes.ToggleExportAllSelectedFields
+    )
+  ) {
+    const newFieldsToExport: FieldsToExport = {};
+
+    const areAllSelected = Object.values(state.fieldsToExport).every(
+      (field) => field.selected
+    );
+
+    Object.entries(state.fieldsToExport).map(([fieldId, field]) => {
+      newFieldsToExport[fieldId] = {
+        ...field,
+        selected: !areAllSelected,
+      };
+    });
+
+    return {
+      ...state,
+      fieldsToExport: newFieldsToExport,
+    };
+  }
+
+  if (isAction<ReadyToExportAction>(action, ExportActionTypes.ReadyToExport)) {
+    return {
+      ...state,
+      status: 'ready-to-export',
+      selectedFieldOption:
+        action.selectedFieldOption === 'all-fields'
+          ? action.selectedFieldOption
+          : state.selectedFieldOption,
+    };
+  }
+
+  if (isAction<RunExportAction>(action, ExportActionTypes.RunExport)) {
+    state.fieldsToExportAbortController?.abort();
     return {
       ...state,
       isOpen: false,
     };
   }
 
-  if (action.type === STARTED) {
-    return {
-      ...state,
-      error: null,
-      progress: 0,
-      status: PROCESS_STATUS.STARTED,
-      exporter: action.exporter,
-      dest: action.dest,
-      count: action.count,
-    };
-  }
-
-  if (action.type === PROGRESS) {
-    return {
-      ...state,
-      progress: action.progress,
-      exportedDocsCount: action.exportedDocsCount,
-    };
-  }
-
-  if (action.type === FINISHED) {
-    const isComplete = !(
-      state.error || state.status === PROCESS_STATUS.CANCELED
-    );
-    return {
-      ...state,
-      status: isComplete ? PROCESS_STATUS.COMPLETED : state.status,
-      exportedDocsCount: action.exportedDocsCount,
-      exporter: undefined,
-      dest: undefined,
-    };
-  }
-
-  if (action.type === CANCELED) {
-    return {
-      ...state,
-      status: PROCESS_STATUS.CANCELED,
-      exporter: undefined,
-      dest: undefined,
-    };
-  }
-
-  if (action.type === UPDATE_SELECTED_FIELDS) {
-    return {
-      ...state,
-      fields: action.fields,
-    };
-  }
-
-  if (action.type === UPDATE_ALL_FIELDS) {
-    return {
-      ...state,
-      allFields: action.fields,
-    };
-  }
-
-  if (action.type === SELECT_FILE_NAME) {
-    return {
-      ...state,
-      fileName: action.fileName,
-      status: PROCESS_STATUS.UNSPECIFIED,
-      exportedDocsCount: 0,
-      exporter: undefined,
-      dest: undefined,
-    };
-  }
-
-  if (action.type === SELECT_FILE_TYPE) {
-    return {
-      ...state,
-      fileType: action.fileType,
-    };
-  }
-
-  if (action.type === CHANGE_EXPORT_STEP) {
-    return {
-      ...state,
-      exportStep: action.status,
-    };
-  }
-
-  if (action.type === ERROR) {
-    return {
-      ...state,
-      error: action.error,
-      status: PROCESS_STATUS.FAILED,
-    };
-  }
-
   return state;
 };
 
-/**
- * Toggle the full collection flag.
- * @api public
- */
-export const toggleFullCollection = () => ({
-  type: TOGGLE_FULL_COLLECTION,
+const rootExportReducer = combineReducers({
+  export: exportReducer,
+  globalAppRegistry,
+  dataService,
 });
 
-/**
- * Select the file type of the export.
- */
-export const selectExportFileType = (fileType: AcceptedFileType) => ({
-  type: SELECT_FILE_TYPE,
-  fileType: fileType,
-});
+export type RootState = ReturnType<typeof rootExportReducer>;
 
-/**
- * Select the file name to export to
- */
-export const selectExportFileName = (fileName: string) => ({
-  type: SELECT_FILE_NAME,
-  fileName: fileName,
-});
+export type ExportThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
+  RootState,
+  void,
+  A
+>;
 
-/**
- * Change the query.
- */
-export const queryChanged = (query: ExportQueryType) => ({
-  type: QUERY_CHANGED,
-  query: query,
-});
+export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootState,
+  void,
+  A
+>;
 
-/**
- * Populate export modal data on open.
- */
-export const onModalOpen = ({
-  namespace,
-  count,
-  query,
-  aggregation,
-}: {
-  namespace: string;
-  query?: ExportQueryType;
-  count?: number | null;
-  aggregation?: ExportAggregationType;
-}) => ({
-  type: ON_MODAL_OPEN,
-  namespace,
-  count,
-  query,
-  aggregation,
-});
-
-/**
- * Close the export modal.
- * @api public
- */
-export const closeExport = () => ({
-  type: CLOSE,
-});
-
-/**
- * Update export fields (list of truncated, selectable field names)
- * @api public
- * @param {Object} fields: currently selected/disselected fields to be exported
- */
-export const updateSelectedFields = (fields: ExportFieldsType) => ({
-  type: UPDATE_SELECTED_FIELDS,
-  fields: fields,
-});
-
-/**
- * Update export fields (list of full field names)
- * @api public
- * @param {Object} fields: currently selected/disselected fields to be exported
- */
-export const updateAllFields = (fields: ExportFieldsType) => ({
-  type: UPDATE_ALL_FIELDS,
-  fields: fields,
-});
-
-/**
- * Select fields to be exported
- * @api public
- * @param {String} status: next step in export
- */
-export const changeExportStep = (step: ExportStep) => ({
-  type: CHANGE_EXPORT_STEP,
-  status: step,
-});
-
-const fetchDocumentCount = async (
-  dataService: DataService,
-  ns: string,
-  query: ExportQueryType
-) => {
-  // When there is no filter/limit/skip try to use the estimated count.
-  if (
-    (!query.filter || Object.keys(query.filter).length < 1) &&
-    !query.limit &&
-    !query.skip
-  ) {
-    try {
-      const count = await dataService.estimatedCount(ns, {});
-      return count;
-    } catch (estimatedCountErr) {
-      // `estimatedDocumentCount` is currently unsupported for
-      // views and time-series collections, so we can fallback to a full
-      // count in these cases and ignore this error.
-    }
-  }
-
-  const count = dataService.count(ns, query.filter || {}, {
-    ...(query.limit ? { limit: query.limit } : {}),
-    ...(query.skip ? { skip: query.skip } : {}),
-  });
-  return count;
-};
-
-/**
- * Open the export modal.
- * Counts the documents to be exported given the current query on modal open to
- * provide user with accurate export data
- *
- * @api public
- */
-export const openExport =
-  ({
-    namespace,
-    query,
-    count: maybeCount,
-    aggregation,
-  }: {
-    namespace: string;
-    query: ExportQueryType;
-    // Optional pre supplied count, this helps us show progress.
-    count?: number;
-    aggregation?: ExportAggregationType;
-  }) =>
-  (dispatch: Dispatch) => {
-    const isAggregation = !!aggregation;
-    track('Export Opened', { type: isAggregation ? 'aggregation' : 'query' });
-
-    const count = maybeCount ?? null;
-    dispatch(nsChanged(namespace));
-    dispatch(onModalOpen({ namespace, query, count, aggregation }));
-  };
-
-const getQuery = (query: ExportQueryType | null, isFullCollection: boolean) => {
-  if (isFullCollection || !query) {
-    return FULL_QUERY;
-  }
-  return query;
-};
-
-export const sampleFields =
-  (): ThunkAction<void, RootExportState, void, AnyAction> =>
-  async (
-    dispatch: ThunkDispatch<RootExportState, void, AnyAction>,
-    getState: () => RootExportState
-  ) => {
-    const {
-      ns,
-      exportData,
-      dataService: { dataService },
-    } = getState();
-
-    const spec = getQuery(exportData.query, exportData.isFullCollection);
-
-    try {
-      const allFields = await loadFields(dataService!, ns, {
-        filter: spec.filter,
-        sampleSize: 50,
-      });
-      const selectedFields = getSelectableFields(allFields, {
-        maxDepth: 2,
-      });
-
-      dispatch(updateAllFields(allFields));
-      dispatch(updateSelectedFields(selectedFields));
-    } catch (err) {
-      // ignoring the error here so users can still insert
-      // fields manually
-      debug('failed to load fields', err);
-    }
-  };
-
-/**
- * Run the actual export to file.
- * @api public
- */
-export const startExport =
-  (): ThunkAction<void, RootExportState, void, AnyAction> =>
-  async (
-    dispatch: ThunkDispatch<RootExportState, void, AnyAction>,
-    getState: () => RootExportState
-  ) => {
-    const {
-      ns,
-      exportData,
-      dataService: { dataService },
-    } = getState();
-
-    let exportSucceded = true;
-
-    let numDocsActuallyExported = 0;
-    const { columns, source, numDocsToExport } = await getExportSource(
-      dataService!,
-      ns,
-      exportData
-    );
-    try {
-      const dest = fs.createWriteStream(exportData.fileName);
-      debug('executing pipeline');
-      const exporter = new CursorExporter({
-        cursor: source,
-        type: exportData.fileType,
-        columns: columns,
-        output: dest,
-      });
-
-      const throttledProgress = throttle(
-        ({
-          percentage,
-          transferred,
-        }: {
-          percentage: number;
-          transferred: number;
-        }) => {
-          dispatch(onProgress(percentage, transferred));
-        },
-        250
-      );
-
-      exporter.on('progress', function (transferred) {
-        let percent = 0;
-        if (numDocsToExport !== null && numDocsToExport > 0) {
-          percent = (transferred * 100) / numDocsToExport;
-        }
-        numDocsActuallyExported = transferred;
-
-        throttledProgress({
-          percentage: percent,
-          transferred,
-        });
-      });
-
-      dispatch(onStarted(exporter, dest, numDocsToExport));
-      await exporter.start();
-      log.info(mongoLogId(1001000086), 'Export', 'Finished export', {
-        ns,
-        numDocsToExport,
-        fileName: exportData.fileName,
-      });
-      dispatch(onFinished(numDocsActuallyExported));
-      /**
-       * TODO: lucas: For metrics:
-       *
-       * "resource": "Export",
-       * "action": "completed",
-       * "file_type": "<csv|json_array>",
-       * "num_docs": "<how many docs exported>",
-       * "full_collection": true|false
-       * "filter": true|false,
-       * "projection": true|false,
-       * "skip": true|false,
-       * "limit": true|false,
-       * "fields_selected": true|false
-       */
-      dispatch(
-        globalAppRegistryEmit(
-          'export-finished',
-          numDocsToExport,
-          exportData.fileType
-        )
-      );
-    } catch (err: unknown) {
-      log.error(mongoLogId(1001000085), 'Export', 'Export failed', {
-        ns,
-        error: (err as Error)?.message,
-      });
-      exportSucceded = false;
-      debug('error running export pipeline', err);
-      return dispatch(onError(err as Error));
-    } finally {
-      track('Export Completed', {
-        type: exportData.aggregation ? 'aggregation' : 'query',
-        all_docs: exportData.isFullCollection,
-        file_type: exportData.fileType,
-        all_fields: Object.values(exportData.fields).every(
-          (checked) => checked
-        ),
-        number_of_docs: numDocsToExport,
-        success: exportSucceded,
-      });
-    }
-  };
-
-const getExportSource = (
-  dataService: DataService,
-  ns: string,
-  exportData: State
-) => {
-  if (exportData.aggregation) {
-    const { stages, options } = exportData.aggregation;
-    options.maxTimeMS = capMaxTimeMSAtPreferenceLimit(options.maxTimeMS);
-    return {
-      columns: true,
-      source: dataService.aggregateCursor(ns, stages, options),
-      numDocsToExport: exportData.count,
-    };
-  }
-  return getQueryExportSource(
-    dataService,
-    ns,
-    exportData.query,
-    exportData.fields,
-    exportData.count,
-    exportData.isFullCollection
-  );
-};
-
-const getQueryExportSource = async (
-  dataService: DataService,
-  ns: string,
-  query: ExportQueryType | null,
-  fields: ExportFieldsType,
-  count: number | null,
-  isFullCollection: boolean
-) => {
-  const spec = getQuery(query, isFullCollection);
-  const numDocsToExport = isFullCollection
-    ? await fetchDocumentCount(dataService, ns, spec)
-    : count;
-  // filter out only the fields we want to include in our export data
-  const projection = Object.fromEntries(
-    Object.entries(fields).filter((keyAndValue) => keyAndValue[1])
-  );
-  if (
-    Object.keys(projection).length > 0 &&
-    (undefined === fields._id || !fields._id)
-  ) {
-    projection._id = false;
-  }
-  log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
-    ns,
-    numDocsToExport,
-    spec,
-    projection,
-  });
-  const source = dataService.findCursor(ns, spec.filter || {}, {
-    projection,
-    limit: spec.limit,
-    skip: spec.skip,
-  });
-  // Pick the columns that are going to be matched by the projection,
-  // where some prefix the field (e.g. ['a', 'a.b', 'a.b.c'] for 'a.b.c')
-  // has an entry in the projection object.
-  const columns = Object.keys(fields).filter((field) =>
-    field
-      .split('.')
-      .some(
-        (_part, index, parts) => projection[parts.slice(0, index + 1).join('.')]
-      )
-  );
-
-  return {
-    columns,
-    source,
-    numDocsToExport,
-  };
-};
-
-/**
- * Cancel the currently running export operation, if any.
- * @api public
- */
-export const cancelExport =
-  () => (dispatch: Dispatch, getState: () => RootExportState) => {
-    const { exportData } = getState();
-    const { exporter, dest } = exportData;
-
-    if (!exporter || !dest) {
-      debug('no active streams to cancel.');
-      return;
-    }
-    log.info(
-      mongoLogId(1001000088),
-      'Export',
-      'Cancelling export by user request'
-    );
-    exporter.cancel();
-
-    dispatch({ type: CANCELED });
-  };
-
-export default reducer;
+export { rootExportReducer };
