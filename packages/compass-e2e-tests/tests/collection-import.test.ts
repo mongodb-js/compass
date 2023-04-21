@@ -84,7 +84,7 @@ async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
   expect(await checkboxElement.isSelected()).to.be.false;
 }
 
-describe('Collection import', function () {
+describe.only('Collection import', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -97,6 +97,8 @@ describe('Collection import', function () {
     await createNumbersCollection();
     await createDummyCollections();
     await browser.connectWithConnectionString();
+
+    delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
   });
 
   after(async function () {
@@ -920,7 +922,11 @@ describe('Collection import', function () {
   });
 
   describe('aborting an import', function () {
-    beforeEach(async function () {
+    afterEach(function () {
+      delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
+    });
+
+    it('aborts an in progress import', async function () {
       process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
 
       // 16116 documents.
@@ -947,13 +953,7 @@ describe('Collection import', function () {
 
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);
-    });
 
-    afterEach(function () {
-      delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
-    });
-
-    it('aborts an in progress import', async function () {
       // Wait for the in progress toast to appear and click stop.
       await browser.clickVisible(Selectors.ImportToastAbort);
 
@@ -990,6 +990,32 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
+      process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
+
+      // 16116 documents.
+      const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
+
+      await browser.navigateToCollectionTab(
+        'test',
+        'import-abort',
+        'Documents'
+      );
+
+      // Open the import modal.
+      await browser.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+      await insertDocumentOption.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportFileOption);
+
+      // Select the file.
+      await browser.selectFile(Selectors.ImportFileInput, csvPath);
+
+      // Wait for the modal to appear.
+      const importModal = await browser.$(Selectors.ImportModal);
+      await importModal.waitForDisplayed();
+
+      // Confirm import.
+      await browser.clickVisible(Selectors.ImportConfirm);
       // Wait for the in progress toast to appear.
       await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
 
