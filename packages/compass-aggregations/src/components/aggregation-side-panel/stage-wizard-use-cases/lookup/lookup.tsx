@@ -87,13 +87,13 @@ export const LookupForm = ({
       );
 
       // Fetch the fields of the selected collection if it was changed
-      if (option === 'from' && newData.from) {
+      if (option === 'from' && newData.from !== formData.from) {
         onSelectCollection(newData.from);
       }
 
       setFormData(newData);
     },
-    [formData, setFormData, onChange]
+    [formData, setFormData, onChange, onSelectCollection]
   );
 
   const collectionInfo = useMemo(
