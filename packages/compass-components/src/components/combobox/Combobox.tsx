@@ -766,6 +766,10 @@ export function Combobox<M extends boolean>({
     updateFocusedChip,
   ]);
 
+  const handleClearButtonFocus = () => {
+    setHighlightedOption(null);
+  };
+
   /**
    * The rendered JSX for the input icons (clear, warn & caret)
    */
@@ -1007,10 +1011,6 @@ export function Combobox<M extends boolean>({
     setInputValue(value);
     // fire any filter function passed in
     onFilter?.(value);
-  };
-
-  const handleClearButtonFocus = () => {
-    setHighlightedOption(null);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

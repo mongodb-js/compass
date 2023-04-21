@@ -9,6 +9,7 @@ import type {
 type ComboboxWithCustomOptionProps<T extends boolean> = ComboboxProps<T> & {
   options: string[];
   optionLabel?: string;
+  isOptionDisabled?: (option: string) => boolean;
 };
 
 export const ComboboxWithCustomOption = <M extends boolean>({
@@ -16,6 +17,7 @@ export const ComboboxWithCustomOption = <M extends boolean>({
   options,
   optionLabel,
   multiselect = false as M,
+  isOptionDisabled,
   ...props
 }: ComboboxWithCustomOptionProps<M>) => {
   const [customOptions, setCustomOptions] = useState<string[]>([]);
@@ -25,6 +27,7 @@ export const ComboboxWithCustomOption = <M extends boolean>({
     const totalOptions = [...options, ...customOptions];
     const _opts = totalOptions.map((option, index) => (
       <ComboboxOption
+        disabled={isOptionDisabled ? isOptionDisabled(option) : false}
         key={`combobox-option-${index}`}
         value={option}
         displayName={option}
@@ -34,6 +37,7 @@ export const ComboboxWithCustomOption = <M extends boolean>({
     if (search && !totalOptions.includes(search)) {
       _opts.push(
         <ComboboxOption
+          disabled={isOptionDisabled ? isOptionDisabled(search) : false}
           key={`combobox-option-new`}
           value={search}
           displayName={optionLabel ? `${optionLabel} "${search}"` : search}
@@ -41,7 +45,7 @@ export const ComboboxWithCustomOption = <M extends boolean>({
       );
     }
     return _opts;
-  }, [options, customOptions, search, optionLabel]);
+  }, [options, customOptions, search, optionLabel, isOptionDisabled]);
 
   return (
     <Combobox
