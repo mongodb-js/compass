@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-instance",
   "productName": "Instance plugin",
   "description": "Compass instance plugin",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -50,24 +50,24 @@
     "check-ci": "npm run check",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.7.0",
-    "@mongodb-js/compass-logging": "^1.1.4",
-    "@mongodb-js/mongodb-redux-common": "^2.0.6",
+    "@mongodb-js/compass-components": "^1.8.0",
+    "@mongodb-js/compass-logging": "^1.1.5",
+    "@mongodb-js/mongodb-redux-common": "^2.0.7",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.4",
-    "@mongodb-js/mocha-config-compass": "^1.1.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.5",
+    "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.7",
+    "@mongodb-js/tsconfig-compass": "^1.0.2",
+    "@mongodb-js/webpack-config-compass": "^1.0.8",
     "@testing-library/react": "^12.1.4",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
@@ -76,7 +76,7 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.5",
+    "hadron-app-registry": "^9.0.6",
     "mocha": "^10.2.0",
     "nyc": "^15.0.0",
     "react": "^17.0.2",
@@ -87,8 +87,8 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.7.0",
-    "@mongodb-js/compass-logging": "^1.1.4",
-    "@mongodb-js/mongodb-redux-common": "^2.0.6"
+    "@mongodb-js/compass-components": "^1.8.0",
+    "@mongodb-js/compass-logging": "^1.1.5",
+    "@mongodb-js/mongodb-redux-common": "^2.0.7"
   }
 }

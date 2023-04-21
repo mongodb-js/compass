@@ -58,6 +58,12 @@ const fieldsHeadingStylesLight = css({
   borderBottom: `2px solid ${palette.gray.light2}`,
 });
 
+const analyzeContainerStyles = css({
+  // Remove double spacing between the analyze container and the form action
+  // buttons caused by analyze always being the last item when visible.
+  marginBottom: 0,
+});
+
 type ImportModalProps = {
   isOpen: boolean;
   ns: string;
@@ -94,6 +100,7 @@ type ImportModalProps = {
   setFieldType: (path: string, bsonType: string) => void;
   previewLoaded: boolean;
   csvAnalyzed: boolean;
+  analyzeError?: Error;
 };
 
 function ImportModal({
@@ -122,6 +129,7 @@ function ImportModal({
   setFieldType,
   previewLoaded,
   csvAnalyzed,
+  analyzeError,
 }: ImportModalProps) {
   const darkMode = useDarkMode();
 
@@ -185,8 +193,8 @@ function ImportModal({
           ignoreBlanks={ignoreBlanks}
           setIgnoreBlanks={setIgnoreBlanks}
         />
-        {fileType === 'csv' && (
-          <FormFieldContainer>
+        {fileType === 'csv' && !analyzeError && (
+          <FormFieldContainer className={analyzeContainerStyles}>
             <Body
               as="h3"
               className={cx(
@@ -214,6 +222,12 @@ function ImportModal({
         )}
         {errors.length > 0 && (
           <ErrorSummary errors={errors.map((error) => error.message)} />
+        )}
+        {analyzeError && (
+          <ErrorSummary
+            data-testid="analyze-error"
+            errors={[analyzeError.message]}
+          />
         )}
       </ModalBody>
       <ModalFooter>
@@ -258,6 +272,7 @@ const mapStateToProps = (state: RootImportState) => ({
   values: state.importData.values,
   previewLoaded: state.importData.previewLoaded,
   csvAnalyzed: state.importData.analyzeStatus === 'COMPLETED',
+  analyzeError: state.importData.analyzeError,
 });
 
 /**

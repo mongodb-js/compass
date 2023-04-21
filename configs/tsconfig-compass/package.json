@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/tsconfig-compass",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Shared Compass Typescript configuration",
   "license": "SSPL",
   "files": [

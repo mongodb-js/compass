@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "description": "Load and manage saved queries in Compass",
-  "version": "9.7.0",
+  "version": "9.8.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -50,33 +50,33 @@
     "check-ci": "npm run check",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.7.0",
-    "@mongodb-js/compass-logging": "^1.1.4",
-    "@mongodb-js/compass-utils": "^0.2.3",
+    "@mongodb-js/compass-components": "^1.8.0",
+    "@mongodb-js/compass-logging": "^1.1.5",
+    "@mongodb-js/compass-utils": "^0.3.0",
     "bson": "^5.0.1",
-    "storage-mixin": "^5.1.3"
+    "storage-mixin": "^5.1.4"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.7.0",
-    "@mongodb-js/compass-logging": "^1.1.4",
-    "@mongodb-js/compass-utils": "^0.2.3",
+    "@mongodb-js/compass-components": "^1.8.0",
+    "@mongodb-js/compass-logging": "^1.1.5",
+    "@mongodb-js/compass-utils": "^0.3.0",
     "bson": "^5.0.1",
     "react": "^17.0.2",
-    "storage-mixin": "^5.1.3"
+    "storage-mixin": "^5.1.4"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.4",
-    "@mongodb-js/mocha-config-compass": "^1.1.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.5",
+    "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.7",
+    "@mongodb-js/tsconfig-compass": "^1.0.2",
+    "@mongodb-js/webpack-config-compass": "^1.0.8",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "ampersand-model": "^8.0.1",
@@ -85,7 +85,7 @@
     "depcheck": "^1.4.1",
     "electron": "^22.0.2",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.5",
+    "hadron-app-registry": "^9.0.6",
     "lodash": "^4.17.15",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",

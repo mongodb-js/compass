@@ -584,6 +584,7 @@ const loadTypes = (
       );
       dispatch({
         type: ANALYZE_FAILED,
+        error: err,
       });
     }
   };
@@ -640,6 +641,12 @@ const loadCSVPreviewDocs = (): ThunkAction<
         'Failed to load preview docs',
         err
       );
+
+      // The most likely way to get here is if the file is not encoded as UTF8.
+      dispatch({
+        type: ANALYZE_FAILED,
+        error: err,
+      });
     }
   };
 };
@@ -1090,6 +1097,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       ...state,
       analyzeAbortController: undefined,
       abortController: undefined,
+      isOpen: false,
     };
   }
 
