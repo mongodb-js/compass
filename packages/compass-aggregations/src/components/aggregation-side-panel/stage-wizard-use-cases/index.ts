@@ -1,6 +1,7 @@
 import UseCaseList from './use-case-list';
 import SortUseCase from './sort/sort';
 import LookupUseCase from './lookup/lookup';
+import ProjectUseCase from './project/project';
 
 export type StageWizardUseCase = {
   id: string;
@@ -27,6 +28,12 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
       'Join documents from different collections to compare their field values',
     stageOperator: '$lookup',
     wizardComponent: LookupUseCase,
+  },
+  {
+    id: 'project',
+    title: 'Include or exclude a subset of fields from my documents',
+    stageOperator: '$project',
+    wizardComponent: ProjectUseCase,
   },
 ];
 
