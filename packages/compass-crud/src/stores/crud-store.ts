@@ -983,7 +983,7 @@ class CrudStoreImpl
    * Emits a global app registry event the plugin listens to.
    */
   openExportFileDialog(exportFullCollection?: boolean) {
-    // TODO(COMPASS-6580): Remove feature flag, use new export.
+    // TODO(COMPASS-6582): Remove feature flag, use new export.
     if (preferences.getPreferences().useNewExport) {
       const { filter, project, collation, limit, skip, sort } =
         this.state.query;

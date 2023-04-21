@@ -10,6 +10,7 @@ import {
   Modal,
   css,
   spacing,
+  createElectronFileInputBackend,
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
@@ -82,17 +83,22 @@ type ExportModalProps = {
   isFieldsToExportLoading: boolean;
   selectFieldsToExport: () => void;
   readyToExport: (selectedFieldOption?: 'all-fields') => void;
-  runExport: () => void;
+  runExport: (exportOptions: {
+    filePath: string;
+    fileType: 'csv' | 'json';
+  }) => void;
   backToSelectFieldOptions: () => void;
   backToSelectFieldsToExport: () => void;
   closeExport: () => void;
   status: ExportStatus;
+  exportFileError: string | undefined;
 };
 
 function ExportModal({
   ns,
   query,
   aggregation,
+  exportFileError,
   exportFullCollection,
   isFieldsToExportLoading,
   selectedFieldOption,
@@ -143,6 +149,29 @@ function ExportModal({
     selectFieldsToExport();
   }, [readyToExport, selectFieldsToExport, fieldsToExportOption]);
 
+  const onClickExport = useCallback(() => {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-var-requires
+    const electron: typeof import('@electron/remote') = require('@electron/remote');
+    const fileBackend = createElectronFileInputBackend(electron, 'save', {
+      title: 'Target output file',
+      defaultPath: `${ns}.${fileType}`,
+      buttonLabel: 'Select',
+    });
+
+    fileBackend.onFilesChosen((files: string[]) => {
+      if (files.length > 0) {
+        runExport({
+          filePath: files[0],
+          fileType,
+        });
+      }
+    });
+
+    fileBackend.openFileChooser({
+      multi: false,
+    });
+  }, [fileType, runExport, ns]);
+
   return (
     <Modal open={isOpen} setOpen={closeExport} data-testid="export-modal">
       <ModalHeader
@@ -190,6 +219,11 @@ function ExportModal({
                 </Link>
               </Banner>
             )}
+            {exportFileError && (
+              <Banner variant="danger" className={messageBannerStyles}>
+                Error creating output file: {exportFileError}
+              </Banner>
+            )}
           </>
         )}
       </ModalBody>
@@ -212,7 +246,7 @@ function ExportModal({
         {status === 'ready-to-export' && (
           <Button
             data-testid="export-button"
-            onClick={runExport}
+            onClick={onClickExport}
             variant="primary"
           >
             Export…
@@ -245,6 +279,7 @@ const ConnectedExportModal = connect(
     isFieldsToExportLoading: !!state.export.fieldsToExportAbortController,
     status: state.export.status,
     selectedFieldOption: state.export.selectedFieldOption,
+    exportFileError: state.export.exportFileError,
   }),
   {
     closeExport,

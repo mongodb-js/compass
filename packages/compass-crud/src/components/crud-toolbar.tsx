@@ -194,7 +194,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               instanceDescription={instanceDescription}
             />
           )}
-          {/* TODO(COMPASS-6580): Remove feature flag, use next export. */}
+          {/* TODO(COMPASS-6582): Remove feature flag, use next export. */}
           {useNewExport ? (
             <DropdownMenuButton<ExportDataOption>
               data-testid="export-collection-button"

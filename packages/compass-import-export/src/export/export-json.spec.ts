@@ -241,16 +241,10 @@ describe('exportJSON', function () {
           writtenResultDocs,
           basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
         ).to.deep.equal(ejsonToInsertWithout_id);
-
-        try {
-          expect(
-            resultText,
-            basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
-          ).to.deep.equal(expectedText);
-        } catch (err) {
-          console.log();
-          throw err;
-        }
+        expect(
+          resultText,
+          basename.replace(/\.((jsonl?)|(csv))$/, '.exported.ejson')
+        ).to.deep.equal(expectedText);
       });
     }
   }

@@ -9,7 +9,7 @@ import { ExportModal } from './components/export-modal';
 import ExportInProgressModal from './components/export-in-progress-modal';
 
 function ExportPlugin({ useNewExport }: { useNewExport: boolean }) {
-  // TODO(COMPASS-6580): Remove feature flag, use next export.
+  // TODO(COMPASS-6582): Remove feature flag, use next export.
   if (useNewExport) {
     return (
       <Provider store={newExportStore}>

@@ -26,7 +26,7 @@ const toastActionStyles = css({
 // is not recommended by LeafyGreen. We are showing actions in toasts
 // for the time being until we have a dedicated component for background
 // operation actions in Compass.
-export function ImportToastBody({
+export function ToastBody({
   statusMessage,
   actionHandler,
   actionText,
