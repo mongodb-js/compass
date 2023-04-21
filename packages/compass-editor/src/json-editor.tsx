@@ -80,7 +80,7 @@ import {
   useEffectOnChange,
   codePalette,
 } from '@mongodb-js/compass-components';
-import { javascriptLanguage } from '@codemirror/lang-javascript';
+import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension, TransactionSpec } from '@codemirror/state';
 import { Facet, Compartment, EditorState } from '@codemirror/state';
@@ -410,7 +410,7 @@ const highlightStyles = {
 } as const;
 
 // We don't have any other cases we need to support in a base editor
-type EditorLanguage = 'json' | 'javascript';
+type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
 
 export type Annotation = Pick<
   Diagnostic,
@@ -466,8 +466,9 @@ const javascriptExpression = javascriptLanguage.configure({
 });
 
 export const languages: Record<EditorLanguage, () => LanguageSupport> = {
-  json: json,
-  javascript() {
+  json,
+  javascript,
+  'javascript-expression': () => {
     return new LanguageSupport(javascriptExpression);
   },
 };
@@ -1091,10 +1092,7 @@ const prettify: Command = (editorView) => {
   const language = editorView.state.facet(languageName)[0];
   const doc = editorView.state.sliceDoc();
   try {
-    const formatted = _prettify(
-      doc,
-      language === 'json' ? 'json' : 'javascript-expression'
-    );
+    const formatted = _prettify(doc, language);
     if (formatted !== doc) {
       sheduleDispatch(editorView, {
         changes: {
@@ -1148,7 +1146,7 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
         showScroll={false}
         highlightActiveLine={false}
         className={cx(inlineStyles, className)}
-        language="javascript"
+        language="javascript-expression"
         {...props}
       ></BaseEditor>
     );
@@ -1297,7 +1295,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         <BaseEditor
           ref={editorRef}
           className={editorClassName}
-          language="javascript"
+          language="javascript-expression"
           minLines={10}
           {...props}
         ></BaseEditor>
