@@ -1320,3 +1320,4 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
 export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
+export type { CompletionSource as Completer };
