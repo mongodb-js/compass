@@ -967,7 +967,7 @@ describe('Collection import', function () {
       // Check it displays that the import was aborted.
       const toastText = await toastElement.getText();
       try {
-        expect(toastText).to.include('Import aborted.');
+        expect(toastText).to.include('Import aborted');
       } catch (err) {
         console.log(toastText);
         throw err;
@@ -1033,7 +1033,7 @@ describe('Collection import', function () {
       // Check it displays that the import was aborted.
       const toastText = await toastElement.getText();
       try {
-        expect(toastText).to.include('Import aborted.');
+        expect(toastText).to.include('Import aborted');
       } catch (err) {
         console.log(toastText);
         throw err;
