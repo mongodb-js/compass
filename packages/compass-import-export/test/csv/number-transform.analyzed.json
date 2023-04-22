@@ -1,6 +1,5 @@
 {
   "totalRows": 1,
-  "aborted": false,
   "fields": {
     "BOROUGH": {
       "types": {
@@ -180,7 +179,7 @@
         }
       },
       "columnIndexes": [14],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Special_District_2": {
       "types": {
@@ -192,7 +191,7 @@
         }
       },
       "columnIndexes": [15],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Work_Type": {
       "types": {
@@ -276,7 +275,7 @@
         }
       },
       "columnIndexes": [22],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Site_Fill": {
       "types": {
@@ -420,7 +419,7 @@
         }
       },
       "columnIndexes": [34],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Permittee's_Other_Title": {
       "types": {
@@ -432,7 +431,7 @@
         }
       },
       "columnIndexes": [35],
-      "detected": "undefined"
+      "detected": "string"
     },
     "HIC_License": {
       "types": {
@@ -444,7 +443,7 @@
         }
       },
       "columnIndexes": [36],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Site_Safety_Mgr's_First_Name": {
       "types": {
@@ -456,7 +455,7 @@
         }
       },
       "columnIndexes": [37],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Site_Safety_Mgr's_Last_Name": {
       "types": {
@@ -468,7 +467,7 @@
         }
       },
       "columnIndexes": [38],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Site_Safety_Mgr_Business_Name": {
       "types": {
@@ -480,7 +479,7 @@
         }
       },
       "columnIndexes": [39],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Superintendent_First_&_Last_Name": {
       "types": {
@@ -492,7 +491,7 @@
         }
       },
       "columnIndexes": [40],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Superintendent_Business_Name": {
       "types": {
@@ -504,7 +503,7 @@
         }
       },
       "columnIndexes": [41],
-      "detected": "undefined"
+      "detected": "string"
     },
     "Owner's_Business_Type": {
       "types": {
@@ -722,5 +721,6 @@
       "columnIndexes": [59],
       "detected": "string"
     }
-  }
+  },
+  "aborted": false
 }

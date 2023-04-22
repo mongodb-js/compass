@@ -30,24 +30,33 @@ import {
   stringifyCSVValue,
   csvHeaderNameToFieldName,
   formatCSVHeaderName,
+  isCompatibleCSVFieldType,
+  findBrokenCSVTypeExample,
 } from './csv-utils';
-import type { IncludedFields, PathPart } from './csv-types';
+import { detectableFieldTypes, parsableFieldTypes } from './csv-types';
+import type {
+  IncludedFields,
+  PathPart,
+  CSVDetectableFieldType,
+  CSVParsableFieldType,
+  CSVFieldTypeInfo,
+} from './csv-types';
 
 describe('formatCSVValue', function () {
   it('does not escape line breaks by default', function () {
-    const options = { delimiter: ',' };
+    const options = { delimiter: ',' as const };
     expect(formatCSVValue('\n', options)).to.equal('\n');
     expect(formatCSVValue('\r\n', options)).to.equal('\r\n');
   });
 
   it('escapes line breaks if escapeLineBreaks is true', function () {
-    const options = { delimiter: ',', escapeLinebreaks: true };
+    const options = { delimiter: ',' as const, escapeLinebreaks: true };
     expect(formatCSVValue('\n', options)).to.equal('\\n');
     expect(formatCSVValue('\r\n', options)).to.equal('\\r\\n');
   });
 
   it('wraps lines with quotes if it contains the delimiter or a quote', function () {
-    const options = { delimiter: ',' };
+    const options = { delimiter: ',' as const };
     expect(formatCSVValue('foo', options)).to.equal('foo'); // neither
     expect(formatCSVValue('hello, there', options)).to.equal('"hello, there"'); // delimiter
     expect(formatCSVValue('foo""bar', options)).to.equal('"foo""""bar"'); // quote
@@ -69,7 +78,7 @@ describe('formatCSVLine', function () {
 });
 
 describe('stringifyCSVValue', function () {
-  const options = { delimiter: ',' };
+  const options = { delimiter: ',' as const };
 
   it('stringifies null', function () {
     expect(stringifyCSVValue(null, options)).to.equal('');
@@ -875,5 +884,262 @@ describe('formatCSVHeaderName', function () {
     ];
 
     expect(formatCSVHeaderName(pathParts)).to.equal('foo[0].bar[1][2]');
+  });
+});
+
+function compareTypes(
+  selectedType: CSVParsableFieldType,
+  types: (CSVParsableFieldType | 'undefined')[],
+  expected: (CSVParsableFieldType | 'undefined')[]
+) {
+  types.sort();
+  expected.sort();
+  try {
+    expect(types, selectedType).to.deep.equal(expected);
+  } catch (err) {
+    console.dir(types);
+    throw err;
+  }
+}
+
+describe('isCompatibleCSVFieldType', function () {
+  for (const selectedType of parsableFieldTypes) {
+    it(`works for ${selectedType}`, function () {
+      const valid: (CSVParsableFieldType | 'undefined')[] = [];
+      for (const type of [...detectableFieldTypes, 'undefined'] as (
+        | CSVDetectableFieldType
+        | 'undefined'
+      )[]) {
+        if (isCompatibleCSVFieldType(selectedType, type)) {
+          valid.push(type);
+        }
+      }
+
+      switch (selectedType) {
+        case 'int':
+          compareTypes(selectedType, valid, ['int', 'undefined']);
+          break;
+
+        case 'long':
+          compareTypes(selectedType, valid, ['int', 'long', 'undefined']);
+          break;
+
+        case 'double':
+          compareTypes(selectedType, valid, [
+            'double',
+            'int',
+            'long',
+            'undefined',
+          ]);
+          break;
+
+        case 'boolean':
+          compareTypes(selectedType, valid, ['boolean', 'undefined']);
+          break;
+
+        case 'date':
+          compareTypes(selectedType, valid, [
+            'date',
+            'double',
+            'int',
+            'long',
+            'string',
+            'undefined',
+          ]);
+          break;
+
+        case 'string':
+          compareTypes(selectedType, valid, [
+            'boolean',
+            'date',
+            'double',
+            'ejson',
+            'int',
+            'long',
+            'maxKey',
+            'minKey',
+            'null',
+            'objectId',
+            'regex',
+            'string',
+            'undefined',
+            'uuid',
+          ]);
+          break;
+
+        case 'null':
+          compareTypes(selectedType, valid, ['null', 'undefined']);
+          break;
+
+        case 'objectId':
+          compareTypes(selectedType, valid, [
+            'boolean',
+            'date',
+            'double',
+            'ejson',
+            'int',
+            'long',
+            'maxKey',
+            'minKey',
+            'null',
+            'objectId',
+            'regex',
+            'string',
+            'undefined',
+            'uuid',
+          ]);
+          break;
+
+        case 'binData':
+          compareTypes(selectedType, valid, [
+            'boolean',
+            'date',
+            'double',
+            'ejson',
+            'int',
+            'long',
+            'maxKey',
+            'minKey',
+            'null',
+            'objectId',
+            'regex',
+            'string',
+            'undefined',
+            'uuid',
+          ]);
+          break;
+
+        case 'uuid':
+          compareTypes(selectedType, valid, [
+            'boolean',
+            'date',
+            'double',
+            'ejson',
+            'int',
+            'long',
+            'maxKey',
+            'minKey',
+            'null',
+            'objectId',
+            'regex',
+            'string',
+            'undefined',
+            'uuid',
+          ]);
+          break;
+
+        case 'md5':
+          compareTypes(selectedType, valid, [
+            'boolean',
+            'date',
+            'double',
+            'ejson',
+            'int',
+            'long',
+            'maxKey',
+            'minKey',
+            'null',
+            'objectId',
+            'regex',
+            'string',
+            'undefined',
+            'uuid',
+          ]);
+          break;
+
+        case 'timestamp':
+          compareTypes(selectedType, valid, ['long', 'undefined']);
+          break;
+
+        case 'decimal':
+          compareTypes(selectedType, valid, [
+            'double',
+            'int',
+            'long',
+            'undefined',
+          ]);
+          break;
+
+        case 'regex':
+          compareTypes(selectedType, valid, ['regex', 'undefined']);
+          break;
+
+        case 'minKey':
+          compareTypes(selectedType, valid, ['minKey', 'undefined']);
+          break;
+
+        case 'maxKey':
+          compareTypes(selectedType, valid, ['maxKey', 'undefined']);
+          break;
+
+        case 'ejson':
+          compareTypes(selectedType, valid, ['ejson', 'undefined']);
+          break;
+
+        case 'number':
+          compareTypes(selectedType, valid, [
+            'double',
+            'int',
+            'long',
+            'undefined',
+          ]);
+          break;
+
+        case 'mixed':
+          compareTypes(selectedType, valid, [
+            'boolean',
+            'date',
+            'double',
+            'ejson',
+            'int',
+            'long',
+            'maxKey',
+            'minKey',
+            'null',
+            'objectId',
+            'regex',
+            'string',
+            'undefined',
+            'uuid',
+          ]);
+          break;
+
+        default:
+          throw new Error(`Missing case for ${selectedType}`);
+      }
+    });
+  }
+});
+
+describe('findBrokenCSVTypeExample', function () {
+  it('returns the first detected field type that is not compatible', function () {
+    const types = {
+      string: {
+        count: 1,
+        firstRowIndex: 0,
+        firstColumnIndex: 0,
+        firstValue: 'foo',
+      },
+    } as Record<CSVDetectableFieldType | 'undefined', CSVFieldTypeInfo>;
+
+    expect(findBrokenCSVTypeExample(types, 'int')).to.deep.equal({
+      count: 1,
+      firstRowIndex: 0,
+      firstColumnIndex: 0,
+      firstValue: 'foo',
+    });
+  });
+
+  it('returns null if all detected field types are compatible', function () {
+    const types = {
+      string: {
+        count: 1,
+        firstRowIndex: 0,
+        firstColumnIndex: 0,
+        firstValue: 'foo',
+      },
+    } as Record<CSVDetectableFieldType | 'undefined', CSVFieldTypeInfo>;
+
+    expect(findBrokenCSVTypeExample(types, 'string')).to.deep.equal(null);
   });
 });

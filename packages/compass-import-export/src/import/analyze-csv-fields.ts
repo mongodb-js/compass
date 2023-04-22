@@ -8,6 +8,8 @@ import type {
   Delimiter,
   CSVDetectableFieldType,
   CSVParsableFieldType,
+  CSVField,
+  CSVFieldTypeInfo,
 } from '../csv/csv-types';
 import { csvHeaderNameToFieldName, detectCSVFieldType } from '../csv/csv-utils';
 import { Utf8Validator } from '../utils/utf8-validator';
@@ -25,33 +27,6 @@ type AnalyzeCSVFieldsOptions = {
   progressCallback?: (progress: AnalyzeProgress) => void;
   ignoreEmptyStrings?: boolean;
 };
-
-type CSVFieldTypeInfo = {
-  // How many cells in the file matched this type.
-  count: number;
-
-  // The line in the file where this field was first detected to be of this
-  // type. This is so the field type selector can immediately present that line
-  // or document as a counter example if the user selects an incompatible field
-  // type.
-  firstRowIndex: number;
-  firstColumnIndex: number;
-  firstValue: string;
-};
-
-/*
-For each field we need the detected types and the column positions. This helps
-with accounting for all column indexes, but also the fact that we'd have higher
-counts than the number of rows. ie. foo[0],foo[1] means twice as many fields as
-rows once it becomes field foo and so does foo[0].bar,foo[1].bar once it becomes
-foo.bar.
-*/
-export type CSVField = {
-  types: Record<CSVDetectableFieldType, CSVFieldTypeInfo>;
-  columnIndexes: number[];
-  detected: CSVParsableFieldType;
-};
-
 export type AnalyzeCSVFieldsResult = {
   totalRows: number;
   aborted: boolean;
@@ -109,6 +84,16 @@ function pickFieldType(field: CSVField): CSVParsableFieldType {
   const types = Object.keys(field.types);
 
   if (types.length === 1) {
+    // This is a bit of an edge case. If a column is always empty and
+    // "Ignore empty strings" is checked, we'll detect "undefined".
+    // We'll never actually insert undefined due to the checkbox, but
+    // undefined as a bson type is deprecated so it might give the wrong
+    // impression. We could select any type in the selectbox, so the
+    // choice of making it string is arbitrary.
+    if (types[0] === 'undefined') {
+      return 'string';
+    }
+
     // If there's only one detected type, go with that.
     return types[0] as CSVDetectableFieldType;
   }
