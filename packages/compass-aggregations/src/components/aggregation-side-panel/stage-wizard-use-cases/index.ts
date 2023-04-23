@@ -1,6 +1,7 @@
 import UseCaseList from './use-case-list';
 import SortUseCase from './sort/sort';
 import ProjectUseCase from './project/project';
+import GroupWithStatistics from './group/group-with-statistics';
 
 export type StageWizardUseCase = {
   id: string;
@@ -26,6 +27,12 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
     title: 'Include or exclude a subset of fields from my documents',
     stageOperator: '$project',
     wizardComponent: ProjectUseCase,
+  },
+  {
+    id: 'group-with-statistics',
+    title: 'Compute values within the groups I create',
+    stageOperator: '$group',
+    wizardComponent: GroupWithStatistics,
   },
 ];
 
