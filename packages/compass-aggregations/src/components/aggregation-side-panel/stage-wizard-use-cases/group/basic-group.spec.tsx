@@ -40,25 +40,42 @@ describe('basic group', function () {
     userEvent.click(b);
     userEvent.click(c);
     expect(onChange.lastCall.args[0]).to.equal(
-      JSON.stringify({ _id: ['$a', '$b', '$c'] })
+      JSON.stringify({
+        _id: {
+          a: '$a',
+          b: '$b',
+          c: '$c',
+        },
+      })
     );
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect a
     userEvent.click(a);
     expect(onChange.lastCall.args[0]).to.equal(
-      JSON.stringify({ _id: ['$b', '$c'] })
+      JSON.stringify({
+        _id: {
+          b: '$b',
+          c: '$c',
+        },
+      })
     );
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect b
     userEvent.click(b);
-    expect(onChange.lastCall.args[0]).to.equal(JSON.stringify({ _id: '$c' }));
+    expect(onChange.lastCall.args[0]).to.equal(
+      JSON.stringify({
+        _id: {
+          c: '$c',
+        },
+      })
+    );
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect c
     userEvent.click(c);
-    expect(onChange.lastCall.args[0]).to.equal(JSON.stringify({ _id: [] }));
+    expect(onChange.lastCall.args[0]).to.equal(JSON.stringify({ _id: {} }));
     expect(onChange.lastCall.args[1]).to.be.an.instanceOf(Error);
   });
 });
