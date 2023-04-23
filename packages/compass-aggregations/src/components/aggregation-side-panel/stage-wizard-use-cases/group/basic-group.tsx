@@ -15,7 +15,9 @@ const containerStyles = css({
 const comboboxStyles = css({ width: '350px' });
 
 const mapGroupFormStateToStageValue = (formState: string[]) => {
-  const fields = Object.fromEntries(formState.map((x) => [x, `$${x}`]));
+  const fields = Object.fromEntries(
+    formState.map((x) => [x.replace(/\./g, '_'), `$${x}`])
+  );
   return {
     _id: fields,
   };
