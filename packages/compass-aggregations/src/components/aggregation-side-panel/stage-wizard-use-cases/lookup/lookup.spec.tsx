@@ -1,10 +1,14 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { LookupForm } from './lookup';
 import sinon from 'sinon';
+import {
+  setComboboxValue,
+  openComboBox,
+  setInputElementValue,
+} from '../../../../../test/form-helper';
 
 const renderLookupForm = (
   props: Partial<ComponentProps<typeof LookupForm>> = {}
@@ -18,35 +22,6 @@ const renderLookupForm = (
       {...props}
     />
   );
-};
-
-const openComboBox = (name: RegExp) => {
-  const combobox = screen.getByRole('textbox', {
-    name,
-  });
-  combobox.click();
-  return combobox;
-};
-
-const setComboboxValue = (name: RegExp, value: string) => {
-  const combobox = openComboBox(name);
-  userEvent.click(combobox);
-  const menuId = `#${combobox.getAttribute('aria-controls')}`;
-  userEvent.click(
-    within(document.querySelector(menuId)!).getByText(new RegExp(value, 'i')),
-    undefined,
-    {
-      skipPointerEventsCheck: true,
-    }
-  );
-};
-
-const setInputElementValue = (name: RegExp, value: string) => {
-  const input = screen.getByRole('textbox', {
-    name,
-  });
-  userEvent.clear(input);
-  userEvent.type(input, value);
 };
 
 describe('lookup', function () {

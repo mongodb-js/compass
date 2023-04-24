@@ -11,6 +11,7 @@ import {
 import React, { useState } from 'react';
 import { sortBy } from 'lodash';
 import type { Document } from 'mongodb';
+import { mapFieldToPropertyName, mapFieldsToGroupId } from '../utils';
 
 const STATISTIC_ACCUMULATORS = sortBy(
   [
@@ -76,32 +77,13 @@ type GroupWithStatisticsFormData = {
   groupAccumulators: GroupAccumulators[];
 };
 
-// todo: move to wizard utils
-const _sanitizeFieldName = (name: string): string => {
-  return name.replace(/\./g, '_');
-};
-// todo: move to wizard utils
-const _mapFieldsToId = (fields: string[]) => {
-  if (fields.length === 0) {
-    return null;
-  }
-
-  if (fields.length === 1) {
-    return `$${fields[0]}`;
-  }
-
-  return Object.fromEntries(
-    fields.map((x) => [_sanitizeFieldName(x), `$${x}`])
-  );
-};
-
 const _getGroupAccumulatorKey = ({ field, accumulator }: GroupAccumulators) => {
   // _id is by default the grouping key. So, we can not use this
   // field as an property name.
   if (field === '_id') {
-    return `${accumulator}_id`;
+    return `${accumulator.replace(/\$/g, '')}_id`;
   }
-  return _sanitizeFieldName(field);
+  return mapFieldToPropertyName(field);
 };
 
 const _getGroupAccumulatorValue = ({
@@ -122,7 +104,7 @@ const mapGroupFormStateToStageValue = (
       .map((x) => [_getGroupAccumulatorKey(x), _getGroupAccumulatorValue(x)])
   );
   return {
-    _id: _mapFieldsToId(data.groupFields),
+    _id: mapFieldsToGroupId(data.groupFields),
     ...values,
   };
 };
