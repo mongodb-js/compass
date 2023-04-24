@@ -1,30 +1,46 @@
 import {
-  Body,
-  spacing,
   css,
+  Body,
+  Icon,
   Select,
   Option,
-  ComboboxWithCustomOption,
+  spacing,
   IconButton,
-  Icon,
+  ComboboxWithCustomOption,
 } from '@mongodb-js/compass-components';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { sortBy } from 'lodash';
 import type { Document } from 'mongodb';
 
-const STATISTIC_ACCUMULATORS = [
-  {
-    label: 'Average',
-    value: 'avg',
-  },
-  {
-    label: 'Sum',
-    value: 'sum',
-  },
-  {
-    label: 'Count',
-    value: 'count',
-  },
-] as const;
+const STATISTIC_ACCUMULATORS = sortBy(
+  [
+    {
+      label: 'Average',
+      value: '$avg',
+    },
+    {
+      label: 'Minimum',
+      value: '$min',
+    },
+    {
+      label: 'Standard Deviation',
+      value: '$stdDevPop',
+    },
+    {
+      label: 'Count',
+      value: '$count',
+    },
+    {
+      label: 'Maximum',
+      value: '$max',
+    },
+    {
+      label: 'Sum',
+      value: '$sum',
+    },
+  ],
+  'label'
+);
 
 const containerStyles = css({
   display: 'flex',
@@ -43,23 +59,28 @@ const groupLabelStyles = css({
   textAlign: 'right',
 });
 
-const selectStyles = css({ minWidth: '120px' });
+const selectStyles = css({
+  width: `${String(
+    Math.max(...STATISTIC_ACCUMULATORS.map(({ label }) => label.length))
+  )}ch`,
+});
 const comboboxStyles = css({ width: '300px' });
 
-type GroupValue = {
+type GroupAccumulators = {
   field: string;
   accumulator: string;
 };
 
 type GroupWithStatisticsFormData = {
   groupFields: string[];
-  groupValues: GroupValue[];
+  groupAccumulators: GroupAccumulators[];
 };
 
+// todo: move to wizard utils
 const _sanitizeFieldName = (name: string): string => {
   return name.replace(/\./g, '_');
 };
-
+// todo: move to wizard utils
 const _mapFieldsToId = (fields: string[]) => {
   if (fields.length === 0) {
     return null;
@@ -74,16 +95,21 @@ const _mapFieldsToId = (fields: string[]) => {
   );
 };
 
-const _getGroupKey = ({ field, accumulator }: GroupValue) => {
+const _getGroupAccumulatorKey = ({ field, accumulator }: GroupAccumulators) => {
+  // _id is by default the grouping key. So, we can not use this
+  // field as an property name.
   if (field === '_id') {
     return `${accumulator}_id`;
   }
   return _sanitizeFieldName(field);
 };
 
-const _getGroupValue = ({ field, accumulator }: GroupValue) => {
+const _getGroupAccumulatorValue = ({
+  field,
+  accumulator,
+}: GroupAccumulators) => {
   return {
-    [`$${accumulator}`]: accumulator === 'count' ? {} : `$${field}`,
+    [accumulator]: accumulator === '$count' ? {} : `$${field}`,
   };
 };
 
@@ -91,29 +117,28 @@ const mapGroupFormStateToStageValue = (
   data: GroupWithStatisticsFormData
 ): Document => {
   const values = Object.fromEntries(
-    data.groupValues
+    data.groupAccumulators
       .filter((x) => x.accumulator && x.field)
-      .map((x) => [[_getGroupKey(x)], _getGroupValue(x)])
+      .map((x) => [_getGroupAccumulatorKey(x), _getGroupAccumulatorValue(x)])
   );
-
   return {
     _id: _mapFieldsToId(data.groupFields),
     ...values,
   };
 };
 
-const GroupValues = ({
+const GroupAccumulatorForm = ({
   onChange,
   data,
   fields,
 }: {
-  onChange: (value: GroupValue[]) => void;
-  data: GroupValue[];
+  onChange: (value: GroupAccumulators[]) => void;
+  data: GroupAccumulators[];
   fields: string[];
 }) => {
   const onChangeGroup = (
     index: number,
-    key: keyof GroupValue,
+    key: keyof GroupAccumulators,
     value: string | null
   ) => {
     if (!value) {
@@ -205,7 +230,7 @@ export const GroupWithStatistics = ({
 }) => {
   const [formData, setFormData] = useState<GroupWithStatisticsFormData>({
     groupFields: [],
-    groupValues: [
+    groupAccumulators: [
       {
         field: '',
         accumulator: '',
@@ -213,35 +238,31 @@ export const GroupWithStatistics = ({
     ],
   });
 
-  useEffect(() => {
+  const onChangeValue = <T extends keyof GroupWithStatisticsFormData>(
+    key: T,
+    value: GroupWithStatisticsFormData[T]
+  ) => {
+    const newData = {
+      ...formData,
+      [key]: value,
+    };
+    setFormData(newData);
+
     const isValuesEmpty =
-      formData.groupValues.filter((x) => x.accumulator && x.field).length === 0;
+      newData.groupAccumulators.filter((x) => x.accumulator && x.field)
+        .length === 0;
     onChange(
-      JSON.stringify(mapGroupFormStateToStageValue(formData)),
-      isValuesEmpty ? new Error('Select group items') : null
+      JSON.stringify(mapGroupFormStateToStageValue(newData)),
+      isValuesEmpty ? new Error('Select one group accumulator') : null
     );
-  }, [formData]);
-
-  const onChangeGroupValues = (groupValues: GroupValue[]) => {
-    setFormData({
-      ...formData,
-      groupValues,
-    });
-  };
-
-  const onChangeGroupFields = (groupFields: string[]) => {
-    setFormData({
-      ...formData,
-      groupFields,
-    });
   };
 
   return (
     <div className={containerStyles}>
-      <GroupValues
+      <GroupAccumulatorForm
         fields={fields}
-        data={formData.groupValues}
-        onChange={(values) => onChangeGroupValues(values)}
+        data={formData.groupAccumulators}
+        onChange={(val) => onChangeValue('groupAccumulators', val)}
       />
       <div className={groupRowStyles}>
         <Body className={groupLabelStyles}>grouped by</Body>
@@ -253,7 +274,7 @@ export const GroupWithStatistics = ({
           clearable={true}
           multiselect={true}
           value={formData.groupFields}
-          onChange={(val: string[]) => onChangeGroupFields(val)}
+          onChange={(val: string[]) => onChangeValue('groupFields', val)}
           options={fields}
           optionLabel="Field:"
           overflow="scroll-x"
