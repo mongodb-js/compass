@@ -335,7 +335,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       const element = await browser.$(Selectors.ValidationEditor);
       await element.waitForDisplayed();
 
-      await browser.setAceValue(
+      await browser.setCodemirrorEditorValue(
         Selectors.ValidationEditor,
         '{ $jsonSchema: {} }'
       );
