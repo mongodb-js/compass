@@ -429,6 +429,7 @@ type EditorProps = {
   lineHeight?: number;
   placeholder?: string;
   commands?: readonly KeyBinding[];
+  initialJSONFoldAll?: boolean;
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
@@ -576,6 +577,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     lineHeight = 16,
     placeholder: placeholderString,
     commands,
+    initialJSONFoldAll: _initialJSONFoldAll = true,
     ...props
   },
   ref
@@ -593,6 +595,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     height: 0,
     hasScroll: false,
   });
+  const initialJSONFoldAll = useRef(_initialJSONFoldAll);
 
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
@@ -866,7 +869,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       const isSyntaxTreeAvailable =
         syntaxTreeAvailable(editor.state, docLength) ||
         forceParsing(editor, docLength, 150);
-      if (isSyntaxTreeAvailable) {
+      if (initialJSONFoldAll.current && isSyntaxTreeAvailable) {
         foldAll(editor);
       } else {
         // warn: document is to big to be parsed and folded, this is not a critical issue, just a ui problem
