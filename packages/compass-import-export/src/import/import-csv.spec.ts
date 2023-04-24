@@ -2,11 +2,9 @@ import os from 'os';
 import _ from 'lodash';
 import assert from 'assert';
 import { EJSON } from 'bson';
-import type { Document } from 'bson';
 import { MongoBulkWriteError } from 'mongodb';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 import { Readable } from 'stream';
 import chai from 'chai';
 import sinon from 'sinon';
@@ -24,9 +22,9 @@ import { fixtures } from '../../test/fixtures';
 import { guessFileType } from './guess-filetype';
 import { analyzeCSVFields } from './analyze-csv-fields';
 import { importCSV } from './import-csv';
-import { formatHeaderName } from '../utils/csv';
-import type { PathPart } from '../utils/csv';
-import type { ErrorJSON } from '../utils/import';
+import { formatCSVHeaderName } from '../csv/csv-utils';
+import type { CSVParsableFieldType, PathPart } from '../csv/csv-types';
+import type { ErrorJSON } from '../import/import-types';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -34,31 +32,18 @@ chai.use(chaiAsPromised);
 
 describe('importCSV', function () {
   let dataService: DataService;
-  let dropCollection;
-  let createCollection;
-  let updateCollection: (ns: string, options: any) => Promise<Document>;
 
   beforeEach(async function () {
     dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
 
-    dropCollection = promisify(dataService.dropCollection.bind(dataService));
-
-    createCollection = promisify(
-      dataService.createCollection.bind(dataService)
-    );
-
-    updateCollection = promisify(
-      dataService.updateCollection.bind(dataService)
-    );
-
     try {
-      await dropCollection('db.col');
+      await dataService.dropCollection('db.col');
     } catch (err) {
       // ignore
     }
-    await createCollection('db.col', {});
+    await dataService.createCollection('db.col', {});
   });
 
   afterEach(async function () {
@@ -188,24 +173,6 @@ describe('importCSV', function () {
       continue;
     }
 
-    // not all types are bi-directional (yet)
-    if (
-      [
-        'binData',
-        'decimal',
-        'javascript',
-        'javascriptWithScope',
-        'maxKey',
-        'minKey',
-        'objectId',
-        'regex',
-        'timestamp',
-        'symbol',
-      ].includes(type)
-    ) {
-      continue;
-    }
-
     it(`correctly imports ${type} (ignoreEmptyStrings=true)`, async function () {
       const typeResult = await guessFileType({
         input: fs.createReadStream(filepath),
@@ -225,14 +192,29 @@ describe('importCSV', function () {
       const ns = 'db.col';
 
       const totalRows = analyzeResult.totalRows;
-      const fields = _.mapValues(
-        analyzeResult.fields,
+      const fields = _.mapValues(analyzeResult.fields, (field, name) => {
+        if (['something', 'something_else', 'notes'].includes(name)) {
+          return field.detected;
+        }
+
         // For the date.csv file the date field is (correctly) detected as
         // "mixed" due to the mix of an iso date string and an int64 format
         // date. In that case the user would have to explicitly select Date to
         // make it a date which is what we're testing here.
-        (field) => (type === 'date' ? 'date' : field.detected)
-      );
+        if (type === 'date') {
+          return 'date';
+        }
+
+        // Some types we can't detect, but we can parse it if the user
+        // manually selects it.
+        if (
+          ['binData', 'decimal', 'objectId', 'timestamp', 'md5'].includes(type)
+        ) {
+          return type as CSVParsableFieldType;
+        }
+
+        return field.detected;
+      });
 
       const output = temp.createWriteStream();
 
@@ -247,6 +229,9 @@ describe('importCSV', function () {
         progressCallback,
         ignoreEmptyStrings: true,
       });
+
+      const errorLog = await fs.promises.readFile(output.path, 'utf8');
+      expect(errorLog).to.equal('');
 
       expect(result).to.deep.equal({
         docsProcessed: totalRows,
@@ -264,7 +249,11 @@ describe('importCSV', function () {
         },
       });
 
-      const docs = await dataService.find(ns, {}, { promoteValues: false });
+      const docs = await dataService.find(
+        ns,
+        {},
+        { promoteValues: false, bsonRegExp: true }
+      );
 
       expect(docs).to.have.length(totalRows);
 
@@ -319,6 +308,9 @@ describe('importCSV', function () {
       ignoreEmptyStrings: false,
     });
 
+    const errorLog = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorLog).to.equal('');
+
     expect(result).to.deep.equal({
       docsProcessed: totalRows,
       docsWritten: totalRows,
@@ -335,7 +327,11 @@ describe('importCSV', function () {
       },
     });
 
-    const docs = await dataService.find(ns, {}, { promoteValues: false });
+    const docs = await dataService.find(
+      ns,
+      {},
+      { promoteValues: false, bsonRegExp: true }
+    );
 
     expect(docs).to.have.length(totalRows);
 
@@ -346,7 +342,7 @@ describe('importCSV', function () {
     expect(docs).to.deep.equal([
       {
         null: null, // interpreted as null
-        notes: 'compass export writes the string Null',
+        notes: 'old compass export writes the string Null',
       },
       {
         null: '', // interpreted as a blank string due to ignoreEmptyStrings: false
@@ -382,6 +378,9 @@ describe('importCSV', function () {
       output,
       progressCallback,
     });
+
+    const errorLog = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorLog).to.equal('');
 
     expect(result).to.deep.equal({
       docsProcessed: 2000,
@@ -434,6 +433,9 @@ describe('importCSV', function () {
       output,
     });
 
+    const errorLog = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorLog).to.equal('');
+
     const docs: any[] = await dataService.find(ns, {});
 
     expect(docs).to.have.length(1);
@@ -474,6 +476,9 @@ describe('importCSV', function () {
       output,
     });
 
+    const errorLog = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorLog).to.equal('');
+
     const docs: any[] = await dataService.find(ns, {});
 
     expect(docs).to.have.length(1);
@@ -506,6 +511,9 @@ describe('importCSV', function () {
       output,
     });
 
+    const errorLog = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorLog).to.equal('');
+
     const docs: any[] = await dataService.find(ns, {});
 
     expect(docs).to.have.length(1);
@@ -535,6 +543,9 @@ describe('importCSV', function () {
       input: Readable.from(lines.join('\n')),
       output,
     });
+
+    const errorLog = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorLog).to.equal('');
 
     const docs: any[] = await dataService.find(ns, {});
 
@@ -675,9 +686,19 @@ describe('importCSV', function () {
       },
     ];
 
+    const errorLog = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorLog).to.equal(
+      expectedErrors.map((e) => JSON.stringify(e)).join(os.EOL) + os.EOL
+    );
+
     const errors = errorCallback.args.map((args) => args[0]);
 
-    expect(errors).to.deep.equal(expectedErrors);
+    try {
+      expect(errors).to.deep.equal(expectedErrors);
+    } catch (err: any) {
+      console.log(JSON.stringify({ errors, expectedErrors }, null, 2));
+      throw err;
+    }
 
     const errorsText = await fs.promises.readFile(output.path, 'utf8');
     expect(errorsText).to.equal(formatErrorLines(expectedErrors));
@@ -697,7 +718,7 @@ describe('importCSV', function () {
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
-    await updateCollection(ns, {
+    await dataService.updateCollection(ns, {
       validator: {
         $jsonSchema: {
           required: ['xxx'],
@@ -736,7 +757,7 @@ describe('importCSV', function () {
     const progressCallback = sinon.spy();
     const errorCallback = sinon.spy();
 
-    await updateCollection(ns, {
+    await dataService.updateCollection(ns, {
       validator: {
         $jsonSchema: {
           required: ['xxx'],
@@ -787,9 +808,19 @@ describe('importCSV', function () {
       },
     ];
 
+    const errorLog = await fs.promises.readFile(output.path, 'utf8');
+    expect(errorLog).to.equal(
+      expectedErrors.map((e) => JSON.stringify(e)).join(os.EOL) + os.EOL
+    );
+
     const errors = errorCallback.args.map((args) => args[0]);
 
-    expect(errors).to.deep.equal(expectedErrors);
+    try {
+      expect(errors).to.deep.equal(expectedErrors);
+    } catch (err: any) {
+      console.log(JSON.stringify({ errors, expectedErrors }, null, 2));
+      throw err;
+    }
 
     const errorsText = await fs.promises.readFile(output.path, 'utf8');
     expect(errorsText).to.equal(formatErrorLines(expectedErrors));
@@ -855,7 +886,11 @@ describe('importCSV', function () {
       delimiter: ',',
     });
 
-    const docs = await dataService.find(ns, {}, { promoteValues: false });
+    const docs = await dataService.find(
+      ns,
+      {},
+      { promoteValues: false, bsonRegExp: true }
+    );
 
     expect(docs).to.have.length(3);
 
@@ -940,7 +975,11 @@ describe('importCSV', function () {
       delimiter: ',',
     });
 
-    const docs = await dataService.find(ns, {}, { promoteValues: false });
+    const docs = await dataService.find(
+      ns,
+      {},
+      { promoteValues: false, bsonRegExp: true }
+    );
 
     expect(docs).to.have.length(3);
 
@@ -952,20 +991,24 @@ describe('importCSV', function () {
 
 function checkType(path: PathPart[], value: any, type: string) {
   if (Array.isArray(value)) {
-    for (const [index, child] of value.entries()) {
-      checkType([...path, { type: 'index', index }], child, type);
+    if (type !== 'ejson') {
+      for (const [index, child] of value.entries()) {
+        checkType([...path, { type: 'index', index }], child, type);
+      }
     }
     return;
   }
 
-  if (_.isObject(value) && !(value as any)._bsontype) {
-    for (const [name, child] of Object.entries(value)) {
-      checkType([...path, { type: 'field', name }], child, type);
+  if (_.isPlainObject(value) && !value._bsontype) {
+    if (type !== 'ejson') {
+      for (const [name, child] of Object.entries(value)) {
+        checkType([...path, { type: 'field', name }], child, type);
+      }
     }
     return;
   }
 
-  const joinedPath = formatHeaderName(path);
+  const joinedPath = formatCSVHeaderName(path);
 
   switch (type) {
     case 'boolean':
@@ -994,8 +1037,53 @@ function checkType(path: PathPart[], value: any, type: string) {
       expect(value._bsontype, joinedPath).to.equal('Long');
       break;
 
+    case 'binData':
+      expect(value._bsontype, joinedPath).to.equal('Binary');
+      expect(value.sub_type, joinedPath).to.equal(0); // generic
+      break;
+
+    case 'uuid':
+      expect(value._bsontype, joinedPath).to.equal('Binary');
+      expect(value.sub_type, joinedPath).to.equal(4);
+      break;
+
+    case 'md5':
+      expect(value._bsontype, joinedPath).to.equal('Binary');
+      expect(value.sub_type, joinedPath).to.equal(5);
+      break;
+
+    case 'decimal':
+      expect(value._bsontype, joinedPath).to.equal('Decimal128');
+      break;
+
+    case 'objectId':
+      expect(value._bsontype, joinedPath).to.equal('ObjectId');
+      break;
+
+    case 'timestamp':
+      expect(value._bsontype, joinedPath).to.equal('Timestamp');
+      break;
+
+    case 'regex':
+      expect(value._bsontype, joinedPath).to.equal('BSONRegExp');
+      break;
+
+    case 'minKey':
+      expect(value._bsontype, joinedPath).to.equal('MinKey');
+      break;
+
+    case 'maxKey':
+      expect(value._bsontype, joinedPath).to.equal('MaxKey');
+      break;
+
     case 'null':
       expect(value, joinedPath).to.equal(null);
+      break;
+
+    case 'ejson':
+      // simple objects and arrays are already checked recursively above, so
+      // only bson values should end up here
+      expect(value, joinedPath).to.have.property('_bsontype');
       break;
 
     case 'number': // useful for the mixed numbers test

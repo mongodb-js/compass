@@ -1,78 +1,40 @@
+import type { Readable } from 'stream';
+import { Transform } from 'stream';
+import { pipeline } from 'stream/promises';
 import type { DataService } from 'mongodb-data-service';
-import mongodbSchema from 'mongodb-schema';
-import type { SchemaField } from 'mongodb-schema';
+import { SchemaAnalyzer } from 'mongodb-schema';
+import type { Document, FindOptions } from 'mongodb';
+import toNS from 'mongodb-ns';
 import { isInternalFieldPath } from 'hadron-document';
-import type { Document } from 'mongodb';
 
+import type { ExportQuery } from './export-types';
 import { createDebug } from '../utils/logger';
 
 const debug = createDebug('export-json');
 
-type AnalyzeSchemaOptions = {
-  dataService: DataService;
-  ns: string;
-  abortSignal: AbortSignal;
-  filter?: Document;
-  sampleSize: number;
-};
-
-async function analyzeSchema({
-  dataService,
-  ns,
-  abortSignal,
-  filter,
-  sampleSize,
-}: AnalyzeSchemaOptions) {
-  try {
-    // TODO(COMPASS-6426): Should we use the other aspects of the query in this sample. (project/sort/limit/skip)
-    const docs = await dataService.sample(
-      ns,
-      {
-        query: filter,
-        ...(sampleSize
-          ? {
-              size: sampleSize,
-            }
-          : {}),
-      },
-      {
-        promoteValues: false,
-      },
-      {
-        abortSignal,
-      }
-    );
-    const schemaData = await mongodbSchema(docs);
-    schemaData.fields = schemaData.fields.filter(
-      ({ path }: { path: string }) => !isInternalFieldPath(path)
-    );
-
-    return schemaData;
-  } catch (err) {
-    if (dataService.isCancelError(err)) {
-      debug('caught background operation terminated error', err);
-      return null;
-    }
-
-    debug('schema analysis failed', err);
-    throw err;
-  }
-}
-
-type GatherFieldsOptions = {
-  dataService: DataService;
-  ns: string;
-  abortSignal: AbortSignal;
-  filter?: Document;
-  progressCallback?: (index: number) => void;
-  sampleSize: number;
-};
-
 // Array of path components. ie. { foo: { bar: { baz:  1 } } } results in ['foo', 'bar', 'baz']
 export type SchemaPath = string[];
 
+// TODO(COMPASS-6720): we should just export all the types from mongodb-schema
+// and update them. Or alternatively move schemaToPaths() there.
+type BSONSchemaField = {
+  name: string;
+  path: string;
+  bsonType?: string;
+  types: BSONSchemaField[];
+};
+
+type ArraySchemaType = {
+  types: BSONSchemaField[];
+};
+
+type DocumentSchemaType = BSONSchemaField & {
+  fields: BSONSchemaField[];
+  types: BSONSchemaField[];
+};
+
 function schemaToPaths(
-  fields: SchemaField[],
+  fields: BSONSchemaField[],
   parent: string[] = []
 ): SchemaPath[] {
   const paths: string[][] = [];
@@ -82,35 +44,26 @@ function schemaToPaths(
     paths.push(path);
 
     // Recurse on doc.
-    const doc = field.types.find(
-      (f) =>
-        (
-          f as unknown as {
-            bsonType: string;
-          }
-        ).bsonType === 'Document'
-    );
+    const doc = field.types.find((f) => f.bsonType === 'Document') as
+      | DocumentSchemaType
+      | undefined;
+
     if (doc) {
-      paths.push(
-        ...schemaToPaths(((doc as any).fields ?? []) as SchemaField[], path)
-      );
+      paths.push(...schemaToPaths(doc.fields, path));
     }
 
     // Recurse on array.
-    const array = field.types.find(
-      (f) =>
-        (
-          f as unknown as {
-            bsonType: string;
-          }
-        ).bsonType === 'Array'
-    );
+    const array = field.types.find((f) => f.bsonType === 'Array') as
+      | ArraySchemaType
+      | undefined;
+
     if (array) {
-      const arrayDoc = (array as any).types.find(
-        (f: { bsonType?: string }) => f.bsonType === 'Document'
-      );
+      const arrayDoc = array.types.find((f) => f.bsonType === 'Document') as
+        | DocumentSchemaType
+        | undefined;
+
       if (arrayDoc) {
-        paths.push(...schemaToPaths(arrayDoc.fields ?? [], path));
+        paths.push(...schemaToPaths(arrayDoc.fields, path));
       }
     }
   }
@@ -118,18 +71,19 @@ function schemaToPaths(
   return paths;
 }
 
-type Projection = {
-  [field: string]: boolean | Projection;
-};
+type Projection = FindOptions['projection'];
 
 export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
   const projection: Projection = {};
 
   for (const fieldPath of fields) {
-    let current = projection;
+    let current: Document = projection;
     for (const [index, fieldName] of fieldPath.entries()) {
       // Set the projection when it's the last index.
-      if (index === fieldPath.length) {
+      if (index === fieldPath.length - 1) {
+        // If we previously encountered ['foo', 'bar'], then ['foo'] after that,
+        // this will override it so you get all of 'foo'. ie. it should be the
+        // most inclusive
         current[fieldName] = true;
         break;
       }
@@ -138,32 +92,141 @@ export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
         current[fieldName] = {};
       }
 
-      current = current[fieldName] as Projection;
+      // Only descend if we're adding to a {}. Don't try and add on to a true.
+      // ie. keep the projection as inclusive as possible. So if we already
+      // encountered ['foo'], then ['foo', 'bar'] and ['foo', 'bar', 'baz'] will
+      // be ignored.
+      if (current[fieldName] === true) {
+        break;
+      }
+
+      current = current[fieldName];
     }
+  }
+
+  // When _id isn't explicitly passed then we assume it's not
+  // intended to be in the results.
+  if (projection._id === undefined) {
+    projection._id = false;
   }
 
   return projection;
 }
 
-// TODO(COMPASS-6426): We will fill out the rest of this function and
-// start using the progress callback.
-export async function gatherFields({
-  dataService,
-  ns,
+type ProgressCallback = (index: number) => void;
+
+type GatherFieldsOptions = {
+  input: Readable;
+  abortSignal?: AbortSignal;
+  progressCallback?: ProgressCallback;
+};
+
+type GatherFieldsResult = {
+  docsProcessed: number;
+  paths: SchemaPath[];
+  aborted: boolean;
+};
+
+// You probably want to use gatherFieldsFromQuery() rather
+async function _gatherFields({
+  input,
   abortSignal,
-  filter,
-  // progressCallback, // TODO(COMPASS-6426)
-  sampleSize,
-}: GatherFieldsOptions): Promise<SchemaPath[]> {
-  const schema = await analyzeSchema({
-    dataService,
-    abortSignal,
-    ns,
-    filter,
-    sampleSize,
+  progressCallback,
+}: GatherFieldsOptions): Promise<GatherFieldsResult> {
+  const schemaAnalyzer = new SchemaAnalyzer();
+
+  const result = {
+    docsProcessed: 0,
+    aborted: false,
+  };
+
+  const analyzeStream = new Transform({
+    objectMode: true,
+    transform: (doc: Document, encoding, callback) => {
+      schemaAnalyzer.analyzeDoc(doc);
+      result.docsProcessed++;
+      progressCallback?.(result.docsProcessed);
+      callback();
+    },
   });
 
-  const paths = schemaToPaths(schema?.fields ?? []);
+  try {
+    await pipeline(
+      [input, analyzeStream],
+      ...(abortSignal ? [{ signal: abortSignal }] : [])
+    );
+  } catch (err: any) {
+    if (err.code === 'ABORT_ERR') {
+      result.aborted = true;
+    } else {
+      throw err;
+    }
+  }
 
-  return paths;
+  // TODO(COMPASS-6720): finalizeSchema() inside schema analyzer replaces the
+  // fields object internally with something of a different type. We should fix
+  // that by making a different final result object that matches the type we
+  // want.
+  const fields = (
+    (schemaAnalyzer.getResult() as any).fields as BSONSchemaField[]
+  ).filter((field) => !isInternalFieldPath(field.path));
+
+  return {
+    paths: schemaToPaths(fields),
+    ...result,
+  };
+}
+
+function capLimitToSampleSize(limit?: number, sampleSize?: number) {
+  if (limit) {
+    if (sampleSize) {
+      return Math.min(limit, sampleSize);
+    } else {
+      return limit;
+    }
+  } else {
+    if (sampleSize) {
+      return sampleSize;
+    } else {
+      return undefined;
+    }
+  }
+}
+
+export async function gatherFieldsFromQuery({
+  ns,
+  dataService,
+  query = { filter: {} },
+  sampleSize,
+  ...exportOptions
+}: Omit<GatherFieldsOptions, 'input'> & {
+  ns: string;
+  dataService: DataService;
+  query?: ExportQuery;
+  sampleSize?: number;
+}): ReturnType<typeof _gatherFields> {
+  debug('gatherFieldsFromQuery()', { ns: toNS(ns) });
+
+  const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
+    // At the time of writing the export UI won't use this code if there is a
+    // projection, but we might as well pass it along if it is there, then this
+    // function can give you the unique set of fields for any find query.
+    projection: query.projection,
+    sort: query.sort,
+    // We optionally sample by setting a limit, but the user could have also
+    // specified a limit so we might have to combine them somehow
+    limit: capLimitToSampleSize(query.limit, sampleSize),
+    skip: query.skip,
+  });
+
+  const input = findCursor.stream();
+
+  try {
+    return await _gatherFields({
+      input,
+      ...exportOptions,
+    });
+  } finally {
+    void findCursor.close();
+  }
 }

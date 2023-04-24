@@ -1,6 +1,5 @@
 const AmpersandModel = require('ampersand-model');
 const AmpersandCollection = require('ampersand-collection');
-const { promisify } = require('util');
 const toNs = require('mongodb-ns');
 const { getProperties } = require('./collection-properties');
 
@@ -247,14 +246,11 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     if (!shouldFetch(this.status, force)) {
       return;
     }
-    const collectionStatsAsync = promisify(
-      dataService.collectionStats.bind(dataService)
-    );
     try {
       const newStatus = this.status === 'initial' ? 'fetching' : 'refreshing';
       this.set({ status: newStatus });
       const [collStats, collectionInfo] = await Promise.all([
-        collectionStatsAsync(this.database, this.name),
+        dataService.collectionStats(this.database, this.name),
         fetchInfo ? dataService.collectionInfo(this.database, this.name) : null,
       ]);
       this.set({

@@ -15,7 +15,11 @@ import {
   Banner,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
+import {
+  changeStageValue,
+  pipelineFromStore,
+} from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
@@ -195,8 +199,8 @@ export const StageEditor = ({
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
     const stages = state.pipelineBuilder.stageEditor.stages;
-    const stage = stages[ownProps.index];
-    const num_stages = stages.length;
+    const stage = stages[ownProps.index] as StoreStage;
+    const num_stages = pipelineFromStore(stages).length;
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,

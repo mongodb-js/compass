@@ -21,7 +21,27 @@ export function mapMongoDBCompletionToCodemirrorCompletion(
         ? completion.value
         : wrapField(completion.value, escape === 'always'),
     detail: completion.meta?.startsWith('field') ? 'field' : completion.meta,
-    info: completion.description,
+    info() {
+      if (!completion.description) {
+        return null;
+      }
+
+      const infoNode = document.createElement('div');
+      infoNode.classList.add('completion-info');
+      infoNode.addEventListener('mousedown', (evt) => {
+        // If we are clicking a link inside the info block, we have to prevent
+        // default browser behavior that will remove the focus from the editor
+        // and cause the autocompleter to dissapear before browser handles the
+        // actual click. This is very similar to how codemirror handles clicks
+        // on the list items
+        // @see {@link https://github.com/codemirror/autocomplete/blob/82480a7d51d60ad933808e42f6189d841a5a6bc8/src/tooltip.ts#L96-L97}
+        if ((evt.target as HTMLElement).nodeName === 'A') {
+          evt.preventDefault();
+        }
+      });
+      infoNode.innerHTML = completion.description;
+      return infoNode;
+    },
   };
 
   if (completion.snippet) {

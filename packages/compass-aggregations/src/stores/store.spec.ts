@@ -92,7 +92,10 @@ describe('Aggregation Store', function () {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { aggregationWorkspaceId, dataService, ...state } =
             store.getState();
-          state.pipelineBuilder.stageEditor = { stages: [], stageIds: [] };
+          state.pipelineBuilder.stageEditor = {
+            stages: [],
+            stagesIdAndType: [],
+          };
           delete state.pipeline;
           expect(state).to.deep.equal({
             outResultsFn: INITIAL_STATE.outResultsFn,
@@ -131,6 +134,8 @@ describe('Aggregation Store', function () {
             indexes: INITIAL_STATE.indexes,
             pipelineBuilder: INITIAL_STATE.pipelineBuilder,
             focusMode: INITIAL_STATE.focusMode,
+            sidePanel: INITIAL_STATE.sidePanel,
+            collectionsFields: INITIAL_STATE.collectionsFields,
           });
         });
       });

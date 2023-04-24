@@ -6,6 +6,7 @@ import type { AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
+import preferences from 'compass-preferences-model';
 
 import appRegistry, {
   appRegistryActivated,
@@ -344,10 +345,23 @@ store.onActivated = (appRegistry: AppRegistry) => {
       if (activeTab) {
         const crudStore = activeTab.localAppRegistry.getStore('CRUD.Store');
         const { query: crudQuery, count } = crudStore.state;
-        const { filter, limit, skip } = crudQuery;
+        // TODO(COMPASS-6582): Remove feature flag, use new export.
+        if (preferences.getPreferences().useNewExport) {
+          const { filter, project, collation, limit, skip, sort } = crudQuery;
+          appRegistry.emit('open-export', {
+            exportFullCollection: true,
+            namespace: activeTab.namespace,
+            query: { filter, project, collation, limit, skip, sort },
+            count,
+          });
+          return;
+        }
+
+        const { filter, project, collation, limit, skip, sort } = crudQuery;
         appRegistry.emit('open-export', {
+          exportFullCollection: true,
           namespace: activeTab.namespace,
-          query: { filter, limit, skip },
+          query: { filter, project, collation, limit, skip, sort },
           count,
         });
       }

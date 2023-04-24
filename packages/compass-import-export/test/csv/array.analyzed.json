@@ -34,7 +34,7 @@
     },
     "bar": {
       "columnIndexes": [4, 5],
-      "detected": "undefined",
+      "detected": "string",
       "types": {
         "undefined": {
           "count": 4,

@@ -287,7 +287,7 @@ async function createWorkspace({
         'test-electron': 'xvfb-maybe electron-mocha --no-sandbox',
       }),
       'test-cov':
-        'nyc -x "**/*.spec.*" --reporter=lcov --reporter=text --reporter=html npm run test',
+        'nyc --compact=false --produce-source-map=false -x "**/*.spec.*" --reporter=lcov --reporter=text --reporter=html npm run test',
       'test-watch': 'npm run test -- --watch',
       'test-ci': 'npm run test-cov',
       ...(isPlugin && { 'test-ci-electron': 'npm run test-electron' }),

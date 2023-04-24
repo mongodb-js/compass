@@ -13,6 +13,7 @@ import {
   addStage,
   removeStage,
 } from '../../modules/pipeline-builder/stage-editor';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 
 const menuItemStyles = css({
@@ -44,6 +45,7 @@ export const OptionMenu = ({
               data-testid="stage-option-menu-button"
               onClick={onClick}
               aria-label="More options"
+              title="More options"
             >
               <Icon glyph="Ellipsis" size="small"></Icon>
             </IconButton>
@@ -99,9 +101,11 @@ export const OptionMenu = ({
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[
+      ownProps.index
+    ] as StoreStage;
     return {
-      isExpanded:
-        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed,
+      isExpanded: !stage.collapsed,
     };
   },
   {

@@ -38,6 +38,8 @@ import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { PipelineStorage } from '../utils/pipeline-storage';
 import focusMode from './focus-mode';
+import sidePanel from './side-panel';
+import collectionsFields from './collections-fields';
 
 /**
  * The main application reducer.
@@ -81,6 +83,8 @@ const rootReducer = combineReducers({
   indexes,
   pipelineBuilder,
   focusMode,
+  sidePanel,
+  collectionsFields,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

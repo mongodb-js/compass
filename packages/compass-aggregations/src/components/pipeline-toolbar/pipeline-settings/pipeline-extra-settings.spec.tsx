@@ -7,6 +7,8 @@ import type { SinonSandbox } from 'sinon';
 import { spy, createSandbox } from 'sinon';
 
 import { PipelineExtraSettings } from './pipeline-extra-settings';
+import preferences from 'compass-preferences-model';
+import sinon from 'sinon';
 
 const renderPipelineExtraSettings = (
   props: Partial<ComponentProps<typeof PipelineExtraSettings>> = {}
@@ -16,9 +18,11 @@ const renderPipelineExtraSettings = (
       isAutoPreview={true}
       isPipelineModeDisabled={true}
       pipelineMode={'builder-ui'}
+      isSidePanelOpen={false}
       onToggleAutoPreview={() => {}}
       onChangePipelineMode={() => {}}
       onToggleSettings={() => {}}
+      onToggleSidePanel={() => {}}
       {...props}
     />
   );
@@ -64,5 +68,42 @@ describe('PipelineExtraSettings', function () {
     renderPipelineExtraSettings();
     const container = screen.getByTestId('pipeline-toolbar-extra-settings');
     expect(within(container).getByTestId('pipeline-builder-toggle')).to.exist;
+  });
+
+  describe('stage wizard', function () {
+    let sandbox: sinon.SinonSandbox;
+    beforeEach(function () {
+      sandbox = sinon.createSandbox();
+      sandbox
+        .stub(preferences, 'getPreferences')
+        .returns({ useStageWizard: true } as any);
+    });
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    it('calls onToggleSidePanel when clicked', function () {
+      const onToggleSidePanelSpy = spy();
+      renderPipelineExtraSettings({ onToggleSidePanel: onToggleSidePanelSpy });
+      const container = screen.getByTestId('pipeline-toolbar-extra-settings');
+      const button = within(container).getByTestId(
+        'pipeline-toolbar-side-panel-button'
+      );
+      expect(button).to.exist;
+      expect(onToggleSidePanelSpy.calledOnce).to.be.false;
+      userEvent.click(button);
+      expect(onToggleSidePanelSpy.calledOnce).to.be.true;
+    });
+
+    it('disables toggle side panel button in text mode', function () {
+      renderPipelineExtraSettings({
+        pipelineMode: 'as-text',
+      });
+      expect(
+        screen
+          .getByTestId('pipeline-toolbar-side-panel-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
   });
 });

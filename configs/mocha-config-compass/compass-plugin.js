@@ -1,7 +1,12 @@
 const path = require('path');
+const reactConfig = require('./react');
 
 module.exports = {
-  ...require('./react'),
+  ...reactConfig,
+  require: [
+    ...reactConfig.require,
+    path.resolve(__dirname, 'register', 'electron-renderer-register.js'),
+  ],
   // electron-mocha config options (ignored when run with just mocha)
   // https://github.com/jprichardson/electron-mocha
   renderer: true,

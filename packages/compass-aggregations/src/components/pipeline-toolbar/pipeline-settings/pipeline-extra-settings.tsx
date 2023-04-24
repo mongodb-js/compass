@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -16,6 +16,11 @@ import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { toggleSidePanel } from '../../../modules/side-panel';
+import { usePreference } from 'compass-preferences-model';
+
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
   display: 'flex',
@@ -38,22 +43,34 @@ const toggleLabelStyles = css({
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
   isPipelineModeDisabled: boolean;
+  isSidePanelOpen: boolean;
   pipelineMode: PipelineMode;
   onToggleAutoPreview: (newVal: boolean) => void;
   onChangePipelineMode: (newVal: PipelineMode) => void;
   onToggleSettings: () => void;
+  onToggleSidePanel: () => void;
 };
 
 export const PipelineExtraSettings: React.FunctionComponent<
   PipelineExtraSettingsProps
 > = ({
   isAutoPreview,
+  isSidePanelOpen,
   isPipelineModeDisabled,
   pipelineMode,
   onToggleAutoPreview,
   onChangePipelineMode,
   onToggleSettings,
+  onToggleSidePanel,
 }) => {
+  const showStageWizard = usePreference('useStageWizard', React);
+
+  useEffect(() => {
+    if (isSidePanelOpen) {
+      track('Aggregation Side Panel Opened');
+    }
+  }, [isSidePanelOpen]);
+
   return (
     <div
       className={containerStyles}
@@ -102,6 +119,17 @@ export const PipelineExtraSettings: React.FunctionComponent<
           Text
         </SegmentedControlOption>
       </SegmentedControl>
+      {showStageWizard && (
+        <IconButton
+          title="Toggle Side Panel"
+          aria-label="Toggle Side Panel"
+          onClick={() => onToggleSidePanel()}
+          data-testid="pipeline-toolbar-side-panel-button"
+          disabled={pipelineMode === 'as-text'}
+        >
+          <Icon glyph="Filter" />
+        </IconButton>
+      )}
       <IconButton
         title="More Settings"
         aria-label="More Settings"
@@ -119,6 +147,7 @@ const mapState = (state: RootState) => {
     isAutoPreview: state.autoPreview,
     isPipelineModeDisabled: getIsPipelineInvalidFromBuilderState(state, false),
     pipelineMode: state.pipelineBuilder.pipelineMode,
+    isSidePanelOpen: state.sidePanel.isPanelOpen,
   };
 };
 
@@ -126,6 +155,7 @@ const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
   onChangePipelineMode: changePipelineMode,
   onToggleSettings: toggleSettingsIsExpanded,
+  onToggleSidePanel: toggleSidePanel,
 };
 
 export default connect(mapState, mapDispatch)(PipelineExtraSettings);

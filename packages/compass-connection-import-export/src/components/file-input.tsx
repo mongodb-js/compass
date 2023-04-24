@@ -43,7 +43,7 @@ export function FileInput({
       onChange={onChangeFiles}
       id="conn-import-export-file-input"
       accept=".json"
-      variant="VERTICAL"
+      variant="vertical"
       values={value ? [value] : []}
       backend={backend}
     />

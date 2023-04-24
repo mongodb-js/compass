@@ -92,39 +92,6 @@ export const getContext = function (path) {
   };
 };
 
-export const getDataService = function (done) {
-  const foarSpy = sinon.spy();
-  const foauSpy = sinon.spy();
-  const iSpy = sinon.spy();
-  const dSpy = sinon.spy();
-  return {
-    foarSpy: foarSpy,
-    findOneAndReplace: (ns, filter, obj, prefs, handleResult) => {
-      foarSpy(filter, obj);
-      handleResult(null, obj);
-      done();
-    },
-    foauSpy: foauSpy,
-    findOneAndUpdate: (ns, filter, obj, prefs, handleResult) => {
-      foauSpy(filter, obj);
-      handleResult(null, obj);
-      done();
-    },
-    iSpy: iSpy,
-    insertOne: (ns, obj, prefs, handleResult) => {
-      iSpy(obj);
-      handleResult(null);
-      done();
-    },
-    dSpy: dSpy,
-    deleteOne: (ns, filter, prefs, handleResult) => {
-      dSpy(filter);
-      handleResult(null, 1);
-      done();
-    },
-  };
-};
-
 export const checkPageRange = function (
   error: any,
   documents: any[],
@@ -184,7 +151,6 @@ export default {
   getActions: getActions,
   getColumnApi: getColumnApi,
   getContext: getContext,
-  getDataService: getDataService,
   notCalledExcept: notCalledExcept,
   NUM_DOCS: NUM_DOCS,
   expectedDocs: expectedDocs,

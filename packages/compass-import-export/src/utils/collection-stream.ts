@@ -10,7 +10,6 @@ import type {
   BulkWriteResult,
 } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
-import { promisify } from 'util';
 
 import { createDebug } from './logger';
 
@@ -141,9 +140,6 @@ export class WritableCollectionStream extends Writable {
 
     if (this.batch.length === 0) {
       debug('%d docs written', this.docsWritten);
-      if (debug.enabled) {
-        this.printJobStats();
-      }
       return callback();
     }
 
@@ -182,11 +178,7 @@ export class WritableCollectionStream extends Writable {
 
         for (const doc of documents) {
           try {
-            await promisify(this.dataService.insertOne.bind(this.dataService))(
-              this.ns,
-              doc,
-              {}
-            );
+            await this.dataService.insertOne(this.ns, doc);
             nInserted += 1;
           } catch (insertOneByOneError: any) {
             this._errors.push(insertOneByOneError as Error);
@@ -216,10 +208,6 @@ export class WritableCollectionStream extends Writable {
     this.docsWritten = this._stats.nInserted;
     this.docsProcessed += documents.length;
     this._batchCounter++;
-
-    if (debug.enabled) {
-      this.printJobStats();
-    }
 
     const progressStats: CollectionStreamProgress = {
       docsWritten: this.docsWritten,

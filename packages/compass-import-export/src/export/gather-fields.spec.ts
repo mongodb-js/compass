@@ -1,15 +1,30 @@
-import { promisify } from 'util';
-import { ObjectId } from 'bson';
+/* eslint-disable mocha/max-top-level-suites */
+import _ from 'lodash';
+import assert from 'assert';
+import fs from 'fs';
+import path from 'path';
+import type { Document } from 'bson';
 import chai from 'chai';
+import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
-import temp from 'temp';
 import { connect } from 'mongodb-data-service';
 import type { DataService } from 'mongodb-data-service';
 
-temp.track();
+import type { CSVParsableFieldType } from '../csv/csv-types';
+import { guessFileType } from '../import/guess-filetype';
+import { importCSV } from '../import/import-csv';
+import { analyzeCSVFields } from '../import/analyze-csv-fields';
 
-import { gatherFields } from './gather-fields';
+import { fixtures } from '../../test/fixtures';
+
+import { importJSON } from '../import/import-json';
+import {
+  gatherFieldsFromQuery,
+  createProjectionFromSchemaFields,
+} from './gather-fields';
+
+import allTypesDoc from '../../test/docs/all-bson-types';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -17,414 +32,378 @@ chai.use(chaiAsPromised);
 
 const testNS = 'gather-fields-test.test-col';
 
-const testDoc = {
-  _id: new ObjectId(),
-  author: 'test-pineapple',
-  content: 'Message-ID',
-  date: new Date(),
-  emailData: {
-    bcc: [],
-    cc: [],
-    dateSent: new Date(),
-    folderPath: 'notes_inbox',
-    from: 'test@mongodb.com',
-    relativeFilePath: 'test',
-    subject: '3 - URGENT - TO PREVENT LOSS OF INFORMATION',
-    to: ['test@mongodb.com'],
-    username: 'test-pineapple',
-  },
-  name: '3 - URGENT - TO PREVENT LOSS OF INFORMATION',
-  dataset: 'Test Email Corpus',
-  analysis: {
-    comprehend: {
-      keyPhrases: [
-        {
-          beginOffset: 2,
-          endOffset: 32,
-          score: 0.9801133871078491,
-          text: 'Critical Migration Information',
-        },
-        {
-          beginOffset: 35,
-          endOffset: 36,
-          score: 0.9828231930732727,
-          text: '1',
-        },
-        {
-          beginOffset: 38,
-          endOffset: 75,
-          score: 0.9618716239929199,
-          text: 'Your scheduled Outlook Migration Date',
-        },
-        {
-          beginOffset: 79,
-          endOffset: 90,
-          score: 0.9782861471176147,
-          text: 'THE EVENING',
-        },
-        {
-          beginOffset: 96,
-          endOffset: 106,
-          score: 0.9138829708099365,
-          text: 'May 15th 2',
-        },
-        {
-          beginOffset: 126,
-          endOffset: 143,
-          score: 0.8311862349510193,
-          text: 'the "Save My Data',
-        },
-        {
-          beginOffset: 145,
-          endOffset: 151,
-          score: 0.9614133238792419,
-          text: 'button',
-        },
-        {
-          beginOffset: 153,
-          endOffset: 162,
-          score: 0.6064049601554871,
-          text: 'only once',
-        },
-        {
-          beginOffset: 175,
-          endOffset: 206,
-          score: 0.9907944798469543,
-          text: 'your  pre-migration information',
-        },
-        {
-          beginOffset: 208,
-          endOffset: 209,
-          score: 0.970913827419281,
-          text: '3',
-        },
-        {
-          beginOffset: 236,
-          endOffset: 247,
-          score: 0.9991198182106018,
-          text: 'the network',
-        },
-        {
-          beginOffset: 265,
-          endOffset: 275,
-          score: 0.9944455027580261,
-          text: 'the button',
-        },
-        {
-          beginOffset: 277,
-          endOffset: 278,
-          score: 0.9433309435844421,
-          text: '4',
-        },
-        {
-          beginOffset: 283,
-          endOffset: 295,
-          score: 0.9702776074409485,
-          text: 'a POP-UP BOX',
-        },
-        {
-          beginOffset: 322,
-          endOffset: 352,
-          score: 0.8611568808555603,
-          text: '"ABORT, CANCEL OR TRUST SIGNER',
-        },
-        {
-          beginOffset: 370,
-          endOffset: 382,
-          score: 0.9448421001434326,
-          text: 'TRUST SIGNER',
-        },
-        {
-          beginOffset: 384,
-          endOffset: 385,
-          score: 0.9619488716125488,
-          text: '5',
-        },
-        {
-          beginOffset: 387,
-          endOffset: 402,
-          score: 0.9868628978729248,
-          text: 'Any information',
-        },
-        {
-          beginOffset: 414,
-          endOffset: 440,
-          score: 0.9584202766418457,
-          text: 'your Personal Address Book',
-        },
-        {
-          beginOffset: 442,
-          endOffset: 461,
-          score: 0.820638120174408,
-          text: 'Journal or calendar',
-        },
-        {
-          beginOffset: 482,
-          endOffset: 492,
-          score: 0.9989721775054932,
-          text: 'the button',
-        },
-        {
-          beginOffset: 532,
-          endOffset: 539,
-          score: 0.9980337023735046,
-          text: 'Outlook',
-        },
-        {
-          beginOffset: 571,
-          endOffset: 572,
-          score: 0.9880209565162659,
-          text: '6',
-        },
-        {
-          beginOffset: 583,
-          endOffset: 594,
-          score: 0.9972444176673889,
-          text: 'this button',
-        },
-        {
-          beginOffset: 613,
-          endOffset: 627,
-          score: 0.9981719851493835,
-          text: 'your migration',
-        },
-        {
-          beginOffset: 631,
-          endOffset: 638,
-          score: 0.9910996556282043,
-          text: 'Outlook',
-        },
-        {
-          beginOffset: 640,
-          endOffset: 655,
-          score: 0.9995373487472534,
-          text: 'Your  migration',
-        },
-        {
-          beginOffset: 675,
-          endOffset: 686,
-          score: 0.9996880292892456,
-          text: 'the evening',
-        },
-        {
-          beginOffset: 690,
-          endOffset: 709,
-          score: 0.9982566237449646,
-          text: 'your migration date',
-        },
-        {
-          beginOffset: 718,
-          endOffset: 725,
-          score: 0.7851428389549255,
-          text: 'Failure',
-        },
-        {
-          beginOffset: 738,
-          endOffset: 748,
-          score: 0.9842444062232971,
-          text: 'the button',
-        },
-        {
-          beginOffset: 772,
-          endOffset: 785,
-          score: 0.8071909546852112,
-          text: 'your Calendar',
-        },
-        {
-          beginOffset: 788,
-          endOffset: 796,
-          score: 0.9351513981819153,
-          text: 'Contacts',
-        },
-        {
-          beginOffset: 798,
-          endOffset: 805,
-          score: 0.6346553564071655,
-          text: 'Journal',
-        },
-        {
-          beginOffset: 810,
-          endOffset: 826,
-          score: 0.9847718477249146,
-          text: 'ToDo information',
-        },
-        {
-          beginOffset: 841,
-          endOffset: 848,
-          score: 0.8981707096099854,
-          text: 'Outlook',
-        },
-        {
-          beginOffset: 849,
-          endOffset: 856,
-          score: 0.9995452761650085,
-          text: 'the day',
-        },
-        {
-          beginOffset: 860,
-          endOffset: 875,
-          score: 0.9979895949363708,
-          text: 'your  migration',
-        },
-        {
-          beginOffset: 896,
-          endOffset: 916,
-          score: 0.798109769821167,
-          text: 'up to a 2 week delay',
-        },
-        {
-          beginOffset: 928,
-          endOffset: 945,
-          score: 0.9976459741592407,
-          text: 'this  information',
-        },
-        {
-          beginOffset: 965,
-          endOffset: 975,
-          score: 0.9922436475753784,
-          text: 'any errors',
-        },
-        {
-          beginOffset: 991,
-          endOffset: 1012,
-          score: 0.793780505657196,
-          text: 'the resolution center',
-        },
-        {
-          beginOffset: 1013,
-          endOffset: 1028,
-          score: 0.850317120552063,
-          text: '@  phone number',
-        },
-      ],
-      entities: [
-        {
-          beginOffset: 96,
-          endOffset: 104,
-          score: 0.9771835207939148,
-          text: 'May 15th',
-          type: 'DATE',
-        },
-        {
-          beginOffset: 532,
-          endOffset: 539,
-          score: 0.8434097170829773,
-          text: 'Outlook',
-          type: 'TITLE',
-        },
-        {
-          beginOffset: 631,
-          endOffset: 638,
-          score: 0.9702088236808777,
-          text: 'Outlook',
-          type: 'TITLE',
-        },
-        {
-          beginOffset: 841,
-          endOffset: 848,
-          score: 0.9701331257820129,
-          text: 'Outlook',
-          type: 'TITLE',
-        },
-        {
-          beginOffset: 904,
-          endOffset: 910,
-          score: 0.9733402132987976,
-          text: '2 week',
-          type: 'QUANTITY',
-        },
-        {
-          beginOffset: 1016,
-          endOffset: 1028,
-          score: 0.9999939799308777,
-          text: 'phone number',
-          type: 'OTHER',
-        },
-      ],
-    },
-  },
-};
-
-// TODO(COMPASS-6426): Add more tests.
 describe('gatherFields', function () {
   let dataService: DataService;
-  let dropCollection;
-  let createCollection;
-  let insertOne;
 
-  // We insert documents only once for all of the tests.
-  before(async function () {
+  beforeEach(async function () {
     dataService = await connect({
       connectionString: 'mongodb://localhost:27018/local',
     });
 
-    dropCollection = promisify(dataService.dropCollection.bind(dataService));
-
-    createCollection = promisify(
-      dataService.createCollection.bind(dataService)
-    );
-
-    insertOne = promisify(dataService.insertOne.bind(dataService));
-
     try {
-      await dropCollection(testNS);
+      await dataService.dropCollection(testNS);
     } catch (err) {
       // ignore
     }
-    await createCollection(testNS, {});
-
-    await insertOne(testNS, testDoc, {});
+    await dataService.createCollection(testNS, {});
   });
 
-  after(async function () {
-    await dataService.disconnect();
+  afterEach(async function () {
+    try {
+      await dataService.disconnect();
+    } catch (err) {
+      // ignore
+    }
   });
 
-  it('returns the schema for a more complex example', async function () {
+  function leadingZeroes(num: number, size: number): string {
+    return `000000000${num}`.slice(-size);
+  }
+
+  async function insertDocs() {
+    const docs: Document[] = [];
+    for (let i = 0; i < 1000; i++) {
+      docs.push({ i, name: `name-${leadingZeroes(i, 4)}` });
+    }
+    await dataService.insertMany(testNS, docs);
+  }
+
+  describe('gatherFieldsFromQuery', function () {
+    it('gathers the fields for an empty collection', async function () {
+      const result = await gatherFieldsFromQuery({
+        ns: testNS,
+        query: { filter: {} },
+        dataService,
+      });
+
+      expect(result).to.deep.equal({
+        aborted: false,
+        docsProcessed: 0,
+        paths: [],
+      });
+    });
+
+    it('treats sampleSize as optional', async function () {
+      const docs: Document[] = [];
+      for (let i = 0; i < 1001; i++) {
+        docs.push({ i });
+      }
+      await dataService.insertMany(testNS, docs);
+
+      const result = await gatherFieldsFromQuery({
+        ns: testNS,
+        query: { filter: {} },
+        dataService,
+      });
+
+      expect(result).to.deep.equal({
+        aborted: false,
+        docsProcessed: 1001,
+        paths: [['_id'], ['i']],
+      });
+    });
+
+    it('works with all find parameters', async function () {
+      const docs: Document[] = [];
+      for (let i = 0; i < 26; i++) {
+        const doc: Document = { index: i };
+        const letter = String.fromCharCode('a'.charCodeAt(0) + i);
+        doc[letter] = true;
+        docs.push(doc);
+      }
+      await dataService.insertMany(testNS, docs);
+
+      const result = await gatherFieldsFromQuery({
+        ns: testNS,
+        query: {
+          filter: { index: { $gt: 1 } },
+          skip: 10,
+          limit: 10,
+          sort: {
+            index: -1,
+          },
+          projection: { _id: false },
+        },
+        dataService,
+      });
+
+      expect(result).to.deep.equal({
+        aborted: false,
+        docsProcessed: 10,
+        // paths are unaffected by the sort order because the schema analyzer will sort them anyway
+        paths: [
+          ['g'],
+          ['h'],
+          ['i'],
+          ['index'],
+          ['j'],
+          ['k'],
+          ['l'],
+          ['m'],
+          ['n'],
+          ['o'],
+          ['p'],
+        ],
+      });
+    });
+  });
+
+  it('gathers all bson types', async function () {
+    await dataService.insertMany(testNS, allTypesDoc, {});
+
     const abortController = new AbortController();
     const abortSignal = abortController.signal;
+    const progressCallback = sinon.spy();
 
-    const paths = await gatherFields({
+    const result = await gatherFieldsFromQuery({
       abortSignal,
-      progressCallback: () => {},
+      progressCallback,
       ns: testNS,
-      filter: {},
+      query: { filter: {} },
       sampleSize: 1000,
       dataService,
     });
 
-    const expectedPaths = [
-      ['_id'],
-      ['analysis'],
-      ['analysis', 'comprehend'],
-      ['analysis', 'comprehend', 'entities'],
-      ['analysis', 'comprehend', 'entities', 'beginOffset'],
-      ['analysis', 'comprehend', 'entities', 'endOffset'],
-      ['analysis', 'comprehend', 'entities', 'score'],
-      ['analysis', 'comprehend', 'entities', 'text'],
-      ['analysis', 'comprehend', 'entities', 'type'],
-      ['analysis', 'comprehend', 'keyPhrases'],
-      ['analysis', 'comprehend', 'keyPhrases', 'beginOffset'],
-      ['analysis', 'comprehend', 'keyPhrases', 'endOffset'],
-      ['analysis', 'comprehend', 'keyPhrases', 'score'],
-      ['analysis', 'comprehend', 'keyPhrases', 'text'],
-      ['author'],
-      ['content'],
-      ['dataset'],
-      ['date'],
-      ['emailData'],
-      ['emailData', 'bcc'],
-      ['emailData', 'cc'],
-      ['emailData', 'dateSent'],
-      ['emailData', 'folderPath'],
-      ['emailData', 'from'],
-      ['emailData', 'relativeFilePath'],
-      ['emailData', 'subject'],
-      ['emailData', 'to'],
-      ['emailData', 'username'],
-      ['name'],
-    ];
+    const expectedResultPath = fixtures.allTypes.replace(
+      /\.js$/,
+      '.gathered.json'
+    );
+    await compareResult(result, expectedResultPath);
+  });
 
-    expect(paths).to.deep.equal(expectedPaths);
+  for (const jsonVariant of ['json', 'jsonl'] as const) {
+    for (const filepath of Object.values(
+      fixtures[jsonVariant] as Record<string, string>
+    )) {
+      const basename = path.basename(filepath);
+
+      it(`gathers the fields for ${basename}`, async function () {
+        const { docsWritten } = await importJSON({
+          dataService,
+          ns: testNS,
+          input: fs.createReadStream(filepath),
+          jsonVariant,
+        });
+
+        // sanity check
+        expect(docsWritten).to.be.gt(0);
+
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const progressCallback = sinon.spy();
+
+        const result = await gatherFieldsFromQuery({
+          abortSignal,
+          progressCallback,
+          ns: testNS,
+          query: { filter: {} },
+          sampleSize: 1000,
+          dataService,
+        });
+
+        expect(progressCallback).to.callCount(docsWritten);
+
+        for (const [index, args] of progressCallback.args.entries()) {
+          expect(args[0]).to.equal(index + 1);
+        }
+
+        const expectedResultPath = filepath.replace(
+          /\.((jsonl?)|(csv))$/,
+          '.gathered.json'
+        );
+        await compareResult(result, expectedResultPath);
+      });
+    }
+  }
+
+  for (const filepath of Object.values(fixtures.csv)) {
+    const basename = path.basename(filepath);
+
+    it(`gathers the fields for ${basename}`, async function () {
+      const totalRows = await analyzeAndImportCSV(null, filepath, dataService);
+
+      // sanity check
+      expect(totalRows).to.be.gt(0);
+
+      const abortController = new AbortController();
+      const abortSignal = abortController.signal;
+      const progressCallback = sinon.spy();
+
+      const result = await gatherFieldsFromQuery({
+        abortSignal,
+        progressCallback,
+        ns: testNS,
+        query: { filter: {} },
+        sampleSize: 1000,
+        dataService,
+      });
+
+      expect(progressCallback).to.callCount(totalRows);
+
+      for (const [index, args] of progressCallback.args.entries()) {
+        expect(args[0]).to.equal(index + 1);
+      }
+
+      const expectedResultPath = filepath.replace(
+        /\.((jsonl?)|(csv))$/,
+        '.gathered.json'
+      );
+      await compareResult(result, expectedResultPath);
+    });
+  }
+
+  it('responds to abortSignal.aborted', async function () {
+    await insertDocs();
+
+    const abortController = new AbortController();
+    const progressCallback = function () {
+      if (!abortController.signal.aborted) {
+        abortController.abort();
+      }
+    };
+
+    const result = await gatherFieldsFromQuery({
+      dataService,
+      ns: testNS,
+      abortSignal: abortController.signal,
+      progressCallback,
+    });
+
+    expect(result).to.deep.equal({
+      docsProcessed: 1,
+      aborted: true,
+      paths: [['_id'], ['i'], ['name']],
+    });
   });
 });
+
+describe('createProjectionFromSchemaFields', function () {
+  it('builds projections', function () {
+    expect(createProjectionFromSchemaFields([])).to.deep.equal({
+      _id: false,
+    });
+
+    expect(createProjectionFromSchemaFields([['foo']])).to.deep.equal({
+      _id: false,
+      foo: true,
+    });
+
+    expect(
+      createProjectionFromSchemaFields([['foo'], ['foo', 'bar']])
+    ).to.deep.equal({ foo: true, _id: false });
+
+    expect(
+      createProjectionFromSchemaFields([['foo', 'bar'], ['foo']])
+    ).to.deep.equal({ foo: true, _id: false });
+
+    expect(createProjectionFromSchemaFields([['_id'], ['foo']])).to.deep.equal({
+      foo: true,
+      _id: true,
+    });
+
+    expect(
+      createProjectionFromSchemaFields([
+        ['fruit', 'banana'],
+        ['fruit', 'pineapple'],
+      ])
+    ).to.deep.equal({
+      _id: false,
+      fruit: {
+        banana: true,
+        pineapple: true,
+      },
+    });
+
+    expect(
+      createProjectionFromSchemaFields([['pen', 'pineapple', 'apple', 'pen']])
+    ).to.deep.equal({
+      _id: false,
+      pen: {
+        pineapple: {
+          apple: {
+            pen: true,
+          },
+        },
+      },
+    });
+  });
+});
+
+async function compareResult(result: any, expectedPath: string) {
+  // test the projection while at it
+  result.projection = createProjectionFromSchemaFields(result.paths);
+
+  let expectedText: string;
+  let expectedResult: any;
+  try {
+    expectedText = await fs.promises.readFile(expectedPath, 'utf8');
+    expectedResult = JSON.parse(expectedText);
+  } catch (err) {
+    console.log(expectedPath);
+    console.log(JSON.stringify(result, null, 2));
+    throw err;
+  }
+
+  try {
+    expect(result).to.deep.equal(expectedResult);
+  } catch (err) {
+    console.log(expectedPath);
+    console.log(JSON.stringify(result, null, 2));
+    throw err;
+  }
+}
+
+async function analyzeAndImportCSV(
+  type: string | null,
+  filepath: string,
+  dataService: DataService
+) {
+  const typeResult = await guessFileType({
+    input: fs.createReadStream(filepath),
+  });
+  assert(typeResult.type === 'csv');
+
+  const csvDelimiter = typeResult.csvDelimiter;
+  const analyzeResult = await analyzeCSVFields({
+    input: fs.createReadStream(filepath),
+    delimiter: csvDelimiter,
+    ignoreEmptyStrings: true,
+  });
+
+  const totalRows = analyzeResult.totalRows;
+  const fields = _.mapValues(analyzeResult.fields, (field, name) => {
+    if (['something', 'something_else', 'notes'].includes(name)) {
+      return field.detected;
+    }
+
+    // For the date.csv file the date field is (correctly) detected as
+    // "mixed" due to the mix of an iso date string and an int64 format
+    // date. In that case the user would have to explicitly select Date to
+    // make it a date which is what we're testing here.
+    if (type === 'date') {
+      return 'date';
+    }
+
+    // Some types we can't detect, but we can parse it if the user
+    // manually selects it.
+    if (
+      type &&
+      ['binData', 'decimal', 'objectId', 'timestamp', 'md5'].includes(type)
+    ) {
+      return type as CSVParsableFieldType;
+    }
+
+    return field.detected;
+  });
+
+  await importCSV({
+    dataService,
+    ns: testNS,
+    fields,
+    input: fs.createReadStream(filepath),
+    delimiter: csvDelimiter,
+    ignoreEmptyStrings: true,
+  });
+
+  return totalRows;
+}

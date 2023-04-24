@@ -12,7 +12,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -49,18 +49,18 @@
     "check-ci": "npm run check",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "test-ci-electron": "echo \"TODO(COMPASS-5555): These tests are broken and disabled for now\"",
+    "test-ci-electron": "npm run test-electron",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.4",
-    "@mongodb-js/mocha-config-compass": "^1.1.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.5",
+    "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.7",
+    "@mongodb-js/tsconfig-compass": "^1.0.2",
+    "@mongodb-js/webpack-config-compass": "^1.0.8",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
@@ -68,7 +68,7 @@
     "debug": "^4.3.1",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^9.0.5",
+    "hadron-app-registry": "^9.0.6",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.1.0",
@@ -79,9 +79,9 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "mongodb-instance-model": "^12.5.1"
+    "mongodb-instance-model": "^12.6.0"
   },
   "peerDependencies": {
-    "mongodb-instance-model": "^12.5.1"
+    "mongodb-instance-model": "^12.6.0"
   }
 }

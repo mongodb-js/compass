@@ -22,7 +22,7 @@ describe('CSFLECollectionTracker', function () {
   });
 
   afterEach(async function () {
-    await new Promise((done) => dataService.dropDatabase(dbName, done));
+    await dataService.dropDatabase(dbName);
     await dataService.disconnect();
   });
 
@@ -446,15 +446,16 @@ describe('CSFLECollectionTracker', function () {
 
       it('ensures that writes fail when server validation has been removed in the background', async function () {
         //await metadataClient.db(dbName).collection('test2').insertOne({ a: 1 });
-        const err = await new Promise<{ message: string }>((resolve) => {
-          dataService.findOneAndUpdate(
+        let err;
+        try {
+          await dataService.findOneAndUpdate(
             `${dbName}.test2`,
             {},
-            { $set: { a: '2' } },
-            {},
-            resolve
+            { $set: { a: '2' } }
           );
-        });
+        } catch (error) {
+          err = error;
+        }
         expect(err).to.be.instanceOf(Error);
         expect(err.message).to.match(
           /\[Compass\] Missing encrypted field information of collection/
@@ -470,15 +471,16 @@ describe('CSFLECollectionTracker', function () {
             fields: [{ path: 'b', keyId: SOME_UUID1, bsonType: 'string' }],
           },
         });
-        const err = await new Promise<{ message: string }>((resolve) => {
-          dataService.findOneAndUpdate(
+        let err;
+        try {
+          await dataService.findOneAndUpdate(
             `${dbName}.test2`,
             {},
-            { $set: { a: '2' } },
-            {},
-            resolve
+            { $set: { a: '2' } }
           );
-        });
+        } catch (error) {
+          err = error;
+        }
         expect(err).to.be.instanceOf(Error);
         expect(err.message).to.match(
           /\[Compass\] Missing encrypted field 'a' of collection/
@@ -490,15 +492,11 @@ describe('CSFLECollectionTracker', function () {
           'CRUD'
         );
         await crudClient.db(dbName).collection('test4').insertOne({ a: 1 });
-        await new Promise((resolve) => {
-          dataService.findOneAndUpdate(
-            `${dbName}.test4`,
-            {},
-            { $set: { a: 2 } },
-            {},
-            resolve
-          );
-        });
+        await dataService.findOneAndUpdate(
+          `${dbName}.test4`,
+          {},
+          { $set: { a: 2 } }
+        );
         const result = await crudClient
           .db(dbName)
           .collection('test4')

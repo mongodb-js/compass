@@ -4,8 +4,8 @@ import Papa from 'papaparse';
 import StreamJSON from 'stream-json';
 
 import { createDebug } from '../utils/logger';
-import { supportedDelimiters } from '../utils/csv';
-import type { Delimiter } from '../utils/csv';
+import { supportedDelimiters } from '../csv/csv-types';
+import type { Delimiter } from '../csv/csv-types';
 import { Utf8Validator } from '../utils/utf8-validator';
 
 const debug = createDebug('import-guess-filetype');
@@ -79,10 +79,10 @@ function hasDelimiterError({
   );
 }
 
-function redetectDelimiter({ data }: { data: string[] }): string {
+function redetectDelimiter({ data }: { data: string[] }): Delimiter {
   for (const char of data[0]) {
-    if (supportedDelimiters.includes(char)) {
-      return char;
+    if ((supportedDelimiters as unknown as string[]).includes(char)) {
+      return char as Delimiter;
     }
   }
 
@@ -117,7 +117,7 @@ function detectCSV(
       Papa.parse(input, {
         // NOTE: parsing without header: true otherwise the delimiter detection
         // can't fail and will always detect ,
-        delimitersToGuess: supportedDelimiters,
+        delimitersToGuess: supportedDelimiters as unknown as string[],
         step: function (results: Papa.ParseStepResult<string[]>) {
           ++lines;
           debug('detectCSV:step', lines, results);
@@ -125,7 +125,7 @@ function detectCSV(
             if (hasDelimiterError(results)) {
               csvDelimiter = redetectDelimiter(results);
             } else {
-              csvDelimiter = results.meta.delimiter;
+              csvDelimiter = results.meta.delimiter as Delimiter;
             }
           }
           // must be at least two lines for header row and data

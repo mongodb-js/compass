@@ -146,6 +146,11 @@ describe('CSFLE / QE', function () {
       if (!serverSatisfies('>= 6.0.0', true)) {
         return this.skip();
       }
+
+      // temporarily disable for latest-alpha because the CSFLE fails until updated
+      if (!serverSatisfies('<= 6.x.x', true)) {
+        return this.skip();
+      }
     });
 
     describe('when fleEncryptedFieldsMap is not specified while connecting', function () {
@@ -175,6 +180,12 @@ describe('CSFLE / QE', function () {
           `db.getMongo().getDB('${databaseName}').createCollection('default')`
         );
         await refresh(browser);
+      });
+
+      afterEach(async function () {
+        if (compass) {
+          await afterTest(compass, this.currentTest);
+        }
       });
 
       it('can create a fle2 collection with encryptedFields', async function () {
@@ -313,6 +324,9 @@ describe('CSFLE / QE', function () {
       });
 
       afterEach(async function () {
+        if (compass) {
+          await afterTest(compass, this.currentTest);
+        }
         await plainMongo.db(databaseName).dropDatabase();
         await plainMongo.close();
       });

@@ -19,11 +19,13 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { createDebug } from '../utils/logger';
-import type { CSVParsableFieldType } from '../utils/csv';
-import { CSVFieldTypeLabels } from '../utils/csv';
-import type { CSVField } from '../import/analyze-csv-fields';
+import type { CSVParsableFieldType, CSVField } from '../csv/csv-types';
+import { CSVFieldTypeLabels } from '../csv/csv-types';
+import { findBrokenCSVTypeExample } from '../csv/csv-utils';
 
 const debug = createDebug('import-preview');
+
+const MAX_STRING_LENGTH = 80;
 
 const columnHeaderStyles = css({
   display: 'flex',
@@ -33,11 +35,11 @@ const columnHeaderStyles = css({
   alignItems: 'flex-start',
 });
 
-const mixedCellStylesLight = css({
+const warningCellStylesLight = css({
   backgroundColor: palette.yellow.light3,
 });
 
-const mixedCellStylesDark = css({
+const warningCellStylesDark = css({
   backgroundColor: palette.yellow.dark3,
 });
 
@@ -92,6 +94,16 @@ const infoIconCSSDark = css({
   color: palette.gray.light2,
 });
 
+const warningIconCSSCommon = infoIconCSSCommon;
+
+const warningIconCSSLight = css({
+  color: palette.red.base,
+});
+
+const warningIconCSSDark = css({
+  color: palette.red.light1,
+});
+
 const typesListCSS = css({
   margin: `${spacing[3]}px 0`,
 });
@@ -99,6 +111,13 @@ const typesListCSS = css({
 const selectStyles = css({
   minWidth: spacing[3] * 9,
 });
+
+function fieldTypeName(type: CSVParsableFieldType | 'undefined') {
+  if (type === 'undefined') {
+    return 'Blank';
+  }
+  return CSVFieldTypeLabels[type];
+}
 
 function needsMixedWarning(field: Field) {
   // Only show the warning for mixed and number types and once the user manually
@@ -108,6 +127,20 @@ function needsMixedWarning(field: Field) {
     ['mixed', 'number'].includes(field.result.detected) &&
     field.result.detected === field.type
   );
+}
+
+function needsTypeWarning(field: Field) {
+  return !!(
+    field.result &&
+    findBrokenCSVTypeExample(
+      field.result.types,
+      field.type as CSVParsableFieldType
+    )
+  );
+}
+
+function needsWarning(field: Field) {
+  return needsMixedWarning(field) || needsTypeWarning(field);
 }
 
 function SelectFieldType({
@@ -149,6 +182,36 @@ type Field = {
   result?: CSVField;
 };
 
+function InfoIcon() {
+  const darkMode = useDarkMode();
+
+  return (
+    <div
+      className={cx(
+        infoIconCSSCommon,
+        darkMode ? infoIconCSSDark : infoIconCSSLight
+      )}
+    >
+      <Icon glyph="InfoWithCircle"></Icon>
+    </div>
+  );
+}
+
+function WarningIcon() {
+  const darkMode = useDarkMode();
+
+  return (
+    <div
+      className={cx(
+        warningIconCSSCommon,
+        darkMode ? warningIconCSSDark : warningIconCSSLight
+      )}
+    >
+      <Icon glyph="Warning"></Icon>
+    </div>
+  );
+}
+
 function MixedWarning({
   result,
   selectedType,
@@ -156,8 +219,6 @@ function MixedWarning({
   result: CSVField;
   selectedType: CSVParsableFieldType;
 }) {
-  const darkMode = useDarkMode();
-
   return (
     <Tooltip
       align="top"
@@ -166,14 +227,7 @@ function MixedWarning({
       trigger={({ children, ...props }) => (
         <div {...props}>
           {children}
-          <div
-            className={cx(
-              infoIconCSSCommon,
-              darkMode ? infoIconCSSDark : infoIconCSSLight
-            )}
-          >
-            <Icon glyph="InfoWithCircle"></Icon>
-          </div>
+          <InfoIcon />
         </div>
       )}
     >
@@ -189,12 +243,65 @@ function MixedWarning({
           {Object.entries(result.types).map(([type, info]) => {
             return (
               <li key={type}>
-                {type} * {info.count}
+                {fieldTypeName(type as CSVParsableFieldType | 'undefined')} *{' '}
+                {info.count}
               </li>
             );
           })}
         </ul>
         <Body>To standardize your data, select a different type.</Body>
+      </>
+    </Tooltip>
+  );
+}
+
+function TypeWarning({
+  result,
+  selectedType,
+}: {
+  result: CSVField;
+  selectedType: CSVParsableFieldType;
+}) {
+  const example = findBrokenCSVTypeExample(result.types, selectedType);
+
+  if (!example) {
+    return null;
+  }
+
+  const value =
+    example.firstValue.length < MAX_STRING_LENGTH
+      ? example.firstValue
+      : `${example.firstValue.slice(0, MAX_STRING_LENGTH)}…`;
+
+  return (
+    <Tooltip
+      align="top"
+      justify="middle"
+      delay={500}
+      trigger={({ children, ...props }) => (
+        <div {...props}>
+          {children}
+          <WarningIcon />
+        </div>
+      )}
+    >
+      <>
+        <Body as="p">This field has these detected types:</Body>
+        <ul className={typesListCSS}>
+          {Object.entries(result.types).map(([type, info]) => {
+            return (
+              <li key={type}>
+                {fieldTypeName(type as CSVParsableFieldType | 'undefined')} *{' '}
+                {info.count}
+              </li>
+            );
+          })}
+        </ul>
+        <Body as="p">
+          Row {example.firstRowIndex + 1} contains the value{' '}
+          <i>&quot;{value}&quot;</i>. This will cause an error for type{' '}
+          {CSVFieldTypeLabels[selectedType]}.
+        </Body>
       </>
     </Tooltip>
   );
@@ -230,7 +337,9 @@ function ImportPreview({
 
   const gapOrFields: (string | Field)[] = ['', ...fields];
 
-  const mixedCellStyles = darkMode ? mixedCellStylesDark : mixedCellStylesLight;
+  const warningCellStyles = darkMode
+    ? warningCellStylesDark
+    : warningCellStylesLight;
 
   return (
     <Table
@@ -240,7 +349,7 @@ function ImportPreview({
           return (
             <TableHeader
               key={`col-${field.path}`}
-              className={cx(needsMixedWarning(field) && mixedCellStyles)}
+              className={cx(needsWarning(field) && warningCellStyles)}
               label={
                 <div
                   className={columnHeaderStyles}
@@ -293,6 +402,12 @@ function ImportPreview({
                             selectedType={field.type}
                           />
                         )}
+                        {field.result && needsTypeWarning(field) && (
+                          <TypeWarning
+                            result={field.result}
+                            selectedType={field.type}
+                          />
+                        )}
                       </div>
                     </>
                   )}
@@ -319,7 +434,7 @@ function ImportPreview({
             <Cell
               className={cx(
                 cellContainerStyles,
-                needsMixedWarning(fields[fieldIndex]) && mixedCellStyles
+                needsWarning(fields[fieldIndex]) && warningCellStyles
               )}
               key={`item-${path}-${fieldIndex}`}
             >

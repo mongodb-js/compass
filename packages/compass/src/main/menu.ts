@@ -87,7 +87,7 @@ function connectItem(
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
   return {
-    label: 'New &Connection',
+    label: 'New &Window',
     accelerator: 'CmdOrCtrl+N',
     click() {
       app.emit('show-connect-window');
@@ -541,7 +541,7 @@ class CompassMenu {
       app.dock.setMenu(
         Menu.buildFromTemplate([
           {
-            label: 'New Connection',
+            label: 'New Window',
             click: () => {
               this.app.emit('show-connect-window');
             },

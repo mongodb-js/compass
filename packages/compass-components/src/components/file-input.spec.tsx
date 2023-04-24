@@ -11,10 +11,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 
-import FileInput, {
-  createElectronFileInputBackend,
-  Variant,
-} from './file-input';
+import FileInput, { createElectronFileInputBackend } from './file-input';
 
 describe('FileInput', function () {
   let spy;
@@ -92,26 +89,26 @@ describe('FileInput', function () {
     expect(button.textContent).to.equal('a.png, b.png');
   });
 
-  it('supports Variant.Vertical', function () {
+  it('supports variant vertical', function () {
     render(
       <FileInput
         id="file-input"
         label="Select something"
         onChange={spy}
-        variant={Variant.Vertical}
+        variant="vertical"
       />
     );
 
     // how do we test this since it is just different css?
   });
 
-  it('supports Variant.Horizontal', function () {
+  it('supports variant default', function () {
     render(
       <FileInput
         id="file-input"
         label="Select something"
         onChange={spy}
-        variant={Variant.Horizontal}
+        variant="default"
       />
     );
 
@@ -124,7 +121,6 @@ describe('FileInput', function () {
         id="file-input"
         label="Select something"
         onChange={spy}
-        variant={Variant.Horizontal}
         error
       />
     );
@@ -138,7 +134,6 @@ describe('FileInput', function () {
         id="file-input"
         label="Select something"
         onChange={spy}
-        variant={Variant.Horizontal}
         link="http://google.com/"
       />
     );
@@ -153,7 +148,6 @@ describe('FileInput', function () {
         id="file-input"
         label="Select something"
         onChange={spy}
-        variant={Variant.Horizontal}
         description={'Learn more'}
       />
     );
@@ -168,7 +162,6 @@ describe('FileInput', function () {
         id="file-input"
         label="Select something"
         onChange={spy}
-        variant={Variant.Horizontal}
         link="http://google.com/"
         description={'Learn more'}
       />

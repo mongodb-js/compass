@@ -5,10 +5,11 @@ import thunk from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 
 import reducer from '../modules';
+import { globalAppRegistryActivated } from '../modules/compass';
 import {
   dataServiceConnected,
-  globalAppRegistryActivated,
-} from '../modules/compass';
+  dataServiceDisconnected,
+} from '../modules/compass/data-service';
 import { openImport } from '../modules/import';
 
 const _store = createStore(reducer, applyMiddleware(thunk));
@@ -31,6 +32,11 @@ const store = Object.assign(_store, {
         store.dispatch(dataServiceConnected(err, dataService));
       }
     );
+
+    // Abort the import operation when it's in progress.
+    globalAppRegistry.on('data-service-disconnected', () => {
+      store.dispatch(dataServiceDisconnected());
+    });
 
     globalAppRegistry.on('open-import', ({ namespace }) => {
       // TODO: Once we update our redux usage to use `configureStore` from `@reduxjs/toolkit`

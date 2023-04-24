@@ -61,12 +61,13 @@ import {
 import type { Diagnostic } from '@codemirror/lint';
 import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
 import type { CompletionSource } from '@codemirror/autocomplete';
-import { snippetCompletion } from '@codemirror/autocomplete';
 import {
+  acceptCompletion,
   autocompletion,
   completionKeymap,
   closeBrackets,
   closeBracketsKeymap,
+  snippetCompletion,
 } from '@codemirror/autocomplete';
 import type { IconGlyph } from '@mongodb-js/compass-components';
 import {
@@ -90,6 +91,7 @@ import {
 } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
 import { rgba } from 'polished';
+
 import { prettify as _prettify } from './prettify';
 import { ActionButton, FormatIcon } from './actions';
 
@@ -183,6 +185,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '&': {
         color: editorPalette[theme].color,
         backgroundColor: editorPalette[theme].backgroundColor,
+        maxHeight: '100%',
       },
       '& .cm-scroller': {
         fontSize: '13px',
@@ -302,6 +305,17 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         color: editorPalette[theme].autocompleteMatchColor,
         fontWeight: 'bold',
         textDecoration: 'none',
+      },
+      '& .cm-tooltip .completion-info p': {
+        margin: 0,
+        marginTop: `${spacing[2]}px`,
+        marginBottom: `${spacing[2]}px`,
+      },
+      '& .cm-tooltip .completion-info p:first-child': {
+        marginTop: 0,
+      },
+      '& .cm-tooltip .completion-info p:last-child': {
+        marginBottom: 0,
       },
       '& .cm-widgetBuffer': {
         // Default is text-top which causes weird 1px added to the line height
@@ -675,8 +689,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           lineHeight: `${lineHeight}px`,
           ...(maxLines && {
             maxHeight: `${maxLines * lineHeight}px`,
-            overflowY: 'auto',
           }),
+          height: '100%',
+          overflowY: 'auto',
         },
         '& .cm-content, & .cm-gutter': {
           ...(minLines && { minHeight: `${minLines * lineHeight}px` }),
@@ -717,7 +732,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     editorViewRef
   );
 
-  const autocomletionExtension = useCodemirrorExtensionCompartment(
+  const autocompletionExtension = useCodemirrorExtensionCompartment(
     () => {
       return completer
         ? autocompletion({
@@ -788,7 +803,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
-        autocomletionExtension,
+        autocompletionExtension,
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
@@ -796,9 +811,13 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         lineHeightExtension,
         themeConfigExtension,
         placeholderExtension,
-        // User provided commands should take precendece over default keybindings
+        // User provided commands should take precedence over default keybindings.
         commandsExtension,
         keymap.of([
+          {
+            key: 'Tab',
+            run: acceptCompletion,
+          },
           {
             key: 'Ctrl-Shift-b',
             run: prettify,
@@ -873,7 +892,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     lineNumbersExtension,
     readOnlyExtension,
     themeConfigExtension,
-    autocomletionExtension,
+    autocompletionExtension,
     lineHeightExtension,
     activeLineExtension,
     placeholderExtension,
@@ -963,6 +982,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         width: '100%',
         minHeight: Math.max(lineHeight, (minLines ?? 0) * lineHeight),
         position: 'relative',
+        maxHeight: '100%',
       }}
     >
       <div
@@ -1259,15 +1279,13 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       >
         {/* Separate scrollable container for editor so that action buttons can */}
         {/* stay in one place when scrolling */}
-        <div>
-          <BaseEditor
-            ref={editorRef}
-            className={editorClassName}
-            language="javascript"
-            minLines={10}
-            {...props}
-          ></BaseEditor>
-        </div>
+        <BaseEditor
+          ref={editorRef}
+          className={editorClassName}
+          language="javascript"
+          minLines={10}
+          {...props}
+        ></BaseEditor>
         {actions.length > 0 && (
           <div
             className={cx(
