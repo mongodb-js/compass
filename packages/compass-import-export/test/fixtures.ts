@@ -35,6 +35,7 @@ const fixtures = {
     javascript: path.join(__dirname, 'other', 'javascript'),
     text: path.join(__dirname, 'other', 'hello.txt'),
     empty: path.join(__dirname, 'other', 'empty'),
+    paths: path.join(__dirname, 'other', 'paths.json'),
   },
 
   // csv
