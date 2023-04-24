@@ -101,6 +101,19 @@ const DATA = [
     ],
     output: ['_id', 'address', 'address.number', 'address.street', 'data'],
   },
+  {
+    useCase: 'nested array with scaler values',
+    input: [
+      {
+        meta: {
+          common: {
+            artists: ['some user'],
+          },
+        },
+      },
+    ],
+    output: ['meta', 'meta.common', 'meta.common.artists'],
+  },
 ];
 
 describe('get schema', function () {
