@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import { UnconnectedExportSelectFields as ExportSelectFields } from './export-select-fields';
 import { getIdForSchemaPath } from '../modules/export';
+import type { FieldsToExport } from '../modules/export';
 
 const retryButtonText = 'Retry';
 const addNewFieldButtonId = 'export-add-new-field-button';
@@ -123,7 +124,7 @@ describe('ExportSelectFields [Component]', function () {
   describe('with 100+ documents', function () {
     beforeEach(function () {
       const countFieldsToRender = 220;
-      const fields = {};
+      const fields: FieldsToExport = {};
       for (let i = 0; i < countFieldsToRender; i++) {
         fields[getIdForSchemaPath([`field-${i}`])] = {
           path: [`field-${i}`],
