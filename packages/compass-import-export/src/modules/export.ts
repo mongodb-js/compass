@@ -376,7 +376,7 @@ export const runExport = ({
           }
         : _query;
 
-    log.info(mongoLogId(1_001_000_181), 'Export', 'Start export', {
+    log.info(mongoLogId(1_001_000_185), 'Export', 'Start export', {
       namespace,
       filePath,
       fileType,
@@ -457,7 +457,7 @@ export const runExport = ({
     try {
       exportResult = await promise;
 
-      log.info(mongoLogId(1_001_000_182), 'Export', 'Finished export', {
+      log.info(mongoLogId(1_001_000_186), 'Export', 'Finished export', {
         namespace,
         docsWritten: exportResult.docsWritten,
         filePath,
@@ -467,7 +467,7 @@ export const runExport = ({
       progressCallback.flush();
     } catch (err: any) {
       debug('Error while exporting:', err.stack);
-      log.error(mongoLogId(1_001_000_183), 'Export', 'Export failed', {
+      log.error(mongoLogId(1_001_000_187), 'Export', 'Export failed', {
         namespace,
         error: (err as Error)?.message,
       });
