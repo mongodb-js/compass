@@ -6,6 +6,7 @@ import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
 
 import ValidationEditor from '../validation-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 describe('ValidationEditor [Component]', function () {
   context('when it is an editable mode', function () {
@@ -57,7 +58,9 @@ describe('ValidationEditor [Component]', function () {
 
     it('renders the wrapper div', function () {
       expect(component.find('ValidationEditor')).to.be.present();
-      expect(component.find('ReactAce').props().readOnly).to.be.equal(false);
+      expect(
+        component.find(CodemirrorMultilineEditor).props().readOnly
+      ).to.be.equal(false);
     });
   });
 
@@ -109,7 +112,9 @@ describe('ValidationEditor [Component]', function () {
     });
 
     it('renders the wrapper div', function () {
-      expect(component.find('ReactAce').props().readOnly).to.be.equal(true);
+      expect(
+        component.find(CodemirrorMultilineEditor).props().readOnly
+      ).to.be.equal(true);
     });
   });
 });
