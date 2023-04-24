@@ -1,5 +1,6 @@
 import UseCaseList from './use-case-list';
 import SortUseCase from './sort/sort';
+import LookupUseCase from './lookup/lookup';
 import ProjectUseCase from './project/project';
 import BasicGroupUseCase from './group/basic-group';
 
@@ -21,6 +22,13 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
       'Sort documents in [ascending/descending] order based on a single or a set of fields',
     stageOperator: '$sort',
     wizardComponent: SortUseCase,
+  },
+  {
+    id: 'lookup',
+    title:
+      'Join documents from different collections to compare their field values',
+    stageOperator: '$lookup',
+    wizardComponent: LookupUseCase,
   },
   {
     id: 'project',

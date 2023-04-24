@@ -2,6 +2,7 @@ import type { Document } from 'mongodb';
 
 const getArrayKeys = (records: Document[]) => {
   return records
+    .filter((x) => typeof x === 'object')
     .map((item) => getObjectKeys(item))
     .flat()
     .filter((x, i, a) => a.indexOf(x) === i)
