@@ -60,7 +60,7 @@
     "@mongodb-js/compass-components": "^1.8.0",
     "@mongodb-js/compass-logging": "^1.1.5",
     "@mongodb-js/compass-query-history": "^9.8.0",
-    "bson": "^5.0.1",
+    "bson": "^5.2.0",
     "react": "^17.0.2"
   },
   "dependencies": {
@@ -68,7 +68,7 @@
     "@mongodb-js/compass-components": "^1.8.0",
     "@mongodb-js/compass-logging": "^1.1.5",
     "@mongodb-js/compass-query-history": "^9.8.0",
-    "bson": "^5.0.1"
+    "bson": "^5.2.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.5",

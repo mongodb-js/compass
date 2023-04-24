@@ -169,11 +169,11 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongosh/node-runtime-worker-thread": "^1.8.0",
+    "@mongosh/node-runtime-worker-thread": "^1.8.1",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
     "keytar": "^7.9.0",
-    "mongodb-client-encryption": "^2.6.0",
+    "mongodb-client-encryption": "^2.7.1",
     "os-dns-native": "^1.2.0",
     "system-ca": "^1.0.2"
   },
@@ -218,7 +218,7 @@
     "analytics-node": "^5.1.2",
     "app-migrations": "^3.1.5",
     "async": "^3.2.0",
-    "bson": "^5.0.1",
+    "bson": "^5.2.0",
     "chai": "^4.3.4",
     "chalk": "^4.1.1",
     "clean-stack": "^2.0.0",
@@ -249,7 +249,7 @@
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",
     "mocha": "^10.2.0",
-    "mongodb": "^5.1.0",
+    "mongodb": "^5.3.0",
     "mongodb-connection-model": "^22.3.0",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-data-service": "^22.6.0",
