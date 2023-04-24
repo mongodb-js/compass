@@ -20,6 +20,11 @@ import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpe
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
 import type { ENVS } from '@mongodb-js/mongodb-constants';
+import {
+  setCollectionFields,
+  setCollections,
+} from '../modules/collections-fields';
+import type { CollectionInfo } from '../modules/collections-fields';
 
 export type ConfigureStoreOptions = {
   /**
@@ -112,6 +117,11 @@ export type ConfigureStoreOptions = {
    * Initial pipeline text to be used by the aggregation builder
    */
   pipelineText: string;
+  /**
+   * List of all the collections in the current database. It is used inside
+   * the stage wizard to populate the dropdown for $lookup use-case.
+   */
+  collections: CollectionInfo[];
 }>;
 
 const configureStore = (options: ConfigureStoreOptions) => {
@@ -264,11 +274,69 @@ const configureStore = (options: ConfigureStoreOptions) => {
     store.dispatch(openStoredPipeline(options.aggregation, false));
   }
 
+  handleDatabaseCollections(store, options);
+  if (options.fields) {
+    store.dispatch(
+      setCollectionFields(
+        collection,
+        options.sourceName ? 'view' : 'collection',
+        options.fields.map((x) => x.name)
+      )
+    );
+  }
+
   refreshInput();
 
   store.dispatch(updatePipelinePreview());
 
   return store;
+};
+
+type DbModel = {
+  collections: Array<{
+    _id: string;
+    type: 'collection' | 'view';
+  }>;
+};
+
+const handleDatabaseCollections = (
+  store: ReturnType<typeof configureStore>,
+  options: Pick<
+    ConfigureStoreOptions,
+    'namespace' | 'globalAppRegistry' | 'collections'
+  >
+) => {
+  const { namespace, globalAppRegistry, collections } = options;
+
+  // Give precedence to passed list of collection
+  if (collections && collections.length > 0) {
+    store.dispatch(setCollections(collections));
+  }
+
+  if (globalAppRegistry) {
+    const instance = (
+      globalAppRegistry.getStore('App.InstanceStore') as Store | undefined
+    )?.getState().instance;
+    const ns = toNS(namespace);
+    const db = instance?.databases?.get(ns.database);
+    if (!db) {
+      return;
+    }
+
+    const onDatabaseCollectionStatusChange = (dbModel: DbModel) => {
+      const collections = dbModel.collections.map((x) => ({
+        name: toNS(x._id).collection,
+        type: x.type,
+      }));
+
+      store.dispatch(setCollections(collections ?? []));
+    };
+
+    onDatabaseCollectionStatusChange(db);
+    db.on('change:collectionsStatus', (model: DbModel) => {
+      onDatabaseCollectionStatusChange(model);
+    });
+  }
 };
 
 export default configureStore;
