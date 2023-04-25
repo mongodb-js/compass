@@ -47,6 +47,8 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[2],
+  width: 'max-content',
+  maxWidth: '100%',
 });
 
 const groupRowStyles = css({
@@ -56,7 +58,7 @@ const groupRowStyles = css({
 });
 
 const groupLabelStyles = css({
-  width: '100px',
+  minWidth: '100px',
   textAlign: 'right',
 });
 
@@ -65,7 +67,8 @@ const selectStyles = css({
     Math.max(...STATISTIC_ACCUMULATORS.map(({ label }) => label.length))
   )}ch`,
 });
-const comboboxStyles = css({ width: '300px' });
+const accumulatorFieldcomboboxStyles = css({ width: '300px' });
+const groupFieldscomboboxStyles = css({ width: '100%' });
 
 type GroupAccumulators = {
   field: string;
@@ -147,7 +150,7 @@ const GroupAccumulatorForm = ({
   };
 
   return (
-    <>
+    <div className={containerStyles}>
       {data.map(({ accumulator, field }, index) => {
         return (
           <div className={groupRowStyles} key={index}>
@@ -174,7 +177,7 @@ const GroupAccumulatorForm = ({
             </Select>
             <Body>of</Body>
             <ComboboxWithCustomOption
-              className={comboboxStyles}
+              className={accumulatorFieldcomboboxStyles}
               aria-label="Select a field"
               size="default"
               clearable={false}
@@ -199,7 +202,7 @@ const GroupAccumulatorForm = ({
           </div>
         );
       })}
-    </>
+    </div>
   );
 };
 
@@ -250,7 +253,7 @@ export const GroupWithStatistics = ({
         <Body className={groupLabelStyles}>grouped by</Body>
         <ComboboxWithCustomOption<true>
           placeholder={'Select field names'}
-          className={comboboxStyles}
+          className={groupFieldscomboboxStyles}
           aria-label={'Select field names'}
           size="default"
           clearable={true}
