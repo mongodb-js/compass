@@ -979,8 +979,7 @@ describe('Collection import', function () {
       );
       const documentsText = await messageElement.getText();
       expect(documentsText).to.not.equal('1 – 20 of 16116');
-      const result = await getFirstListDocument(browser);
-      expect(result._id).to.exist;
+      expect(documentsText).to.not.include('16116');
 
       // Close toast.
       await browser.clickVisible(
