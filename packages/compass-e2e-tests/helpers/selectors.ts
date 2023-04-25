@@ -317,6 +317,10 @@ export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
 export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
 export const CollectionHeaderFLE2Badge =
   '[data-testid="collection-header-badge-fle2"]';
+export const CreateCollectionFLE2EncryptedFields =
+  '[data-testid="fle2-encryptedFields"]';
+export const CreateCollectionFLE2KeyEncryptionKey =
+  '[data-testid="fle2-keyEncryptionKey"]';
 
 export const CreateCollectionTimeseriesCheckboxLabel =
   '[data-testid="time-series-fields"] [data-testid="time-series-fields-label"]';
