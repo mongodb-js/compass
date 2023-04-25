@@ -467,6 +467,12 @@ export const languages: Record<EditorLanguage, () => LanguageSupport> = {
 
 export const languageName = Facet.define<EditorLanguage>({});
 
+async function wait(ms?: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 /**
  * Codemirror editor throws when the state update is being applied while another
  * one is in progress and doesn't give us a way to schedule updates otherwise.
@@ -477,22 +483,20 @@ export const languageName = Facet.define<EditorLanguage>({});
  *
  * [0]: https://discuss.codemirror.net/t/should-dispatched-transactions-be-added-to-a-queue/4610/4
  */
-function sheduleDispatch(
+async function sheduleDispatch(
   editorView: EditorView,
   transactions: TransactionSpec | TransactionSpec[],
   signal?: AbortSignal
-) {
-  if (signal?.aborted) {
-    return;
+): Promise<boolean> {
+  while ((editorView as any).updateState != 0) {
+    if (signal?.aborted) {
+      return false;
+    }
+    await wait();
   }
-  if ((editorView as any).updateState != 0) {
-    setTimeout(() => {
-      sheduleDispatch(editorView, transactions, signal);
-    });
-  } else {
-    transactions = Array.isArray(transactions) ? transactions : [transactions];
-    editorView.dispatch(...transactions);
-  }
+  transactions = Array.isArray(transactions) ? transactions : [transactions];
+  editorView.dispatch(...transactions);
+  return true;
 }
 
 /**
@@ -525,7 +529,7 @@ function useCodemirrorExtensionCompartment<T>(
 
     const controller = new AbortController();
 
-    sheduleDispatch(
+    void sheduleDispatch(
       editorViewRef.current,
       {
         effects: compartmentRef.current?.reconfigure(
@@ -916,7 +920,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     ) {
       const controller = new AbortController();
 
-      sheduleDispatch(
+      void sheduleDispatch(
         editorViewRef.current,
         {
           changes: {
@@ -942,7 +946,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
     const controller = new AbortController();
 
-    sheduleDispatch(
+    void sheduleDispatch(
       editorViewRef.current,
       {
         effects: setDiagnosticsEffect.of(annotations ?? []),
@@ -1052,7 +1056,7 @@ const foldAll: Command = (editor) => {
     },
   });
   if (foldableProperties.length > 0) {
-    sheduleDispatch(editor, {
+    void sheduleDispatch(editor, {
       effects: foldableProperties.map((range) => {
         return foldEffect.of(range);
       }),
@@ -1080,7 +1084,7 @@ const prettify: Command = (editorView) => {
       language === 'json' ? 'json' : 'javascript-expression'
     );
     if (formatted !== doc) {
-      sheduleDispatch(editorView, {
+      void sheduleDispatch(editorView, {
         changes: {
           from: 0,
           to: editorView.state.doc.length,
@@ -1305,3 +1309,31 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
 export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
+
+/**
+ * Sets the editor value, use this with RTL like this:
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * setCodemirrorEditorValue(screen.getByTestId('editor-test-id'), 'my text');
+ * ```
+ */
+export async function setCodemirrorEditorValue(
+  element: HTMLElement | string | null,
+  text: string
+): Promise<void> {
+  if (typeof element === 'string') {
+    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
+  }
+  if (!element || !element.hasAttribute('data-codemirror')) {
+    throw new Error('Cannot find editor container');
+  }
+  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
+  await sheduleDispatch(editorView, {
+    changes: {
+      from: 0,
+      to: editorView.state.doc.length,
+      insert: text,
+    },
+  });
+}
