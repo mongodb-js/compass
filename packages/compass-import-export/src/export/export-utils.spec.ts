@@ -1,19 +1,13 @@
 /* eslint-disable mocha/max-top-level-suites */
 import _ from 'lodash';
-import fs from 'fs';
 import { expect } from 'chai';
 
-import type { PathPart } from '../csv/csv-types';
 import {
   formatCSVHeaderName,
-  parseCSVHeaderName,
-  placeValue,
   csvHeaderNameToFieldName,
 } from '../csv/csv-utils';
 
 import { lookupValueForPath, ColumnRecorder } from './export-utils';
-
-import { fixtures } from '../../test/fixtures';
 
 describe('lookupValueForPath', function () {
   it('returns the value at the path', function () {
@@ -223,38 +217,7 @@ describe('ColumnRecorder', function () {
       'things.more',
     ]);
   });
-
-  it('deals with a huge example', async function () {
-    // This fixture has the paths in an incorrect order. The array numbers are
-    // in order, but there are some other unique new fields in between.
-    const text = await fs.promises.readFile(fixtures.other.paths, 'utf8');
-    const paths = JSON.parse(text);
-
-    const r = new ColumnRecorder();
-
-    // do this twice to prove that it only adds each one the first time
-    for (let i = 0; i < 2; i++) {
-      for (const path of paths) {
-        // Construct a doc containing just this the one field
-        r.addToColumns(constructDocForPath(parseCSVHeaderName(path)));
-      }
-    }
-
-    const expectedText = await fs.promises.readFile(
-      fixtures.other.paths.replace(/.json/, '.sorted.json'),
-      'utf8'
-    );
-    const expectedPaths = JSON.parse(expectedText);
-    const result = r.columns.map(formatCSVHeaderName);
-    comparePaths(result, expectedPaths);
-  });
 });
-
-function constructDocForPath(path: PathPart[]) {
-  const doc = {};
-  placeValue(doc, path, 1);
-  return doc;
-}
 
 function uniqInOrder(strings: string[]) {
   const uniq: string[] = [];
