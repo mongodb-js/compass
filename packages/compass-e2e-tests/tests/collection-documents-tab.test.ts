@@ -550,7 +550,10 @@ FindIterable<Document> result = collection.find(filter);`);
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor and insert the document
-    await browser.setAceValue(Selectors.InsertJSONEditor, '{ "i": 10042 }');
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertJSONEditor,
+      '{ "i": 10042 }'
+    );
     const insertConfirm = await browser.$(Selectors.InsertConfirm);
     await insertConfirm.waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);

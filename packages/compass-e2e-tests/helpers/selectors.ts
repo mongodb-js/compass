@@ -536,8 +536,7 @@ export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-
 export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
-export const InsertJSONEditor =
-  '[data-testid="insert-document-modal"] .ace_editor';
+export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
 export const InsertCancel =
