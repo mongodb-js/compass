@@ -63,11 +63,7 @@ function FLE2Fields({
   configuredKMSProviders,
 }) {
   const [keyEncryptionKeyEditorText, setKeyEncryptionKeyEditorText] = useState(
-    () => {
-      return (
-        fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]
-      );
-    }
+    fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]
   );
 
   return (
