@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-editor",
-  "description": "Reusable Compass editor component based on ace-editor with MongoDB-specific ace modes, themes, and autocompleters",
+  "description": "Reusable Compass editor component based on codemirror editor, themes, and autocompleters",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -77,10 +77,8 @@
     "@lezer/highlight": "^1.1.3",
     "@mongodb-js/compass-components": "^1.8.0",
     "@mongodb-js/mongodb-constants": "^0.2.1",
-    "ace-builds": "^1.11.2",
     "polished": "^4.2.2",
     "prettier": "^2.7.1",
-    "react-ace": "^9.5.0",
     "semver": "^7.3.8"
   }
 }

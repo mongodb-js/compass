@@ -88,8 +88,7 @@
     "react-window": "^1.8.6"
   },
   "peerDependencies": {
-    "react": "^17.0.2",
-    "react-ace": "^9.5.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.5",
@@ -111,7 +110,6 @@
     "nyc": "^15.0.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",
-    "react-ace": "^9.5.0",
     "react-dom": "^17.0.2",
     "reflux": "^0.4.1",
     "rimraf": "^3.0.2",
