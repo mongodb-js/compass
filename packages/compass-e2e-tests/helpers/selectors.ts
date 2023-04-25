@@ -319,6 +319,10 @@ export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
 export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
 export const CollectionHeaderFLE2Badge =
   '[data-testid="collection-header-badge-fle2"]';
+export const CreateCollectionFLE2EncryptedFields =
+  '[data-testid="fle2-encryptedFields"]';
+export const CreateCollectionFLE2KeyEncryptionKey =
+  '[data-testid="fle2-keyEncryptionKey"]';
 
 export const CreateCollectionTimeseriesCheckboxLabel =
   '[data-testid="time-series-fields"] [data-testid="time-series-fields-label"]';
@@ -538,8 +542,7 @@ export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-
 export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
-export const InsertJSONEditor =
-  '[data-testid="insert-document-modal"] .ace_editor';
+export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
 export const InsertCancel =

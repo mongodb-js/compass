@@ -5,7 +5,7 @@ export async function setValidation(
   browser: CompassBrowser,
   value: string
 ): Promise<void> {
-  await browser.setAceValue(Selectors.ValidationEditor, value);
+  await browser.setCodemirrorEditorValue(Selectors.ValidationEditor, value);
 
   // it should eventually detect that the text changed
   const validationActionMessageElement = await browser.$(

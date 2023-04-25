@@ -1,6 +1,10 @@
 import _ from 'lodash';
 import type { Document } from 'mongodb';
 import type { PathPart } from '../csv/csv-types';
+import {
+  csvHeaderNameToFieldName,
+  formatCSVHeaderName,
+} from '../csv/csv-utils';
 
 export function lookupValueForPath(
   row: Document,
@@ -76,6 +80,26 @@ export class ColumnRecorder {
     return JSON.stringify(path);
   }
 
+  findInsertIndex(path: PathPart[]) {
+    const headerName = formatCSVHeaderName(path);
+    const fieldName = csvHeaderNameToFieldName(headerName);
+    let lastIndex = -1;
+    for (const [columnIndex, column] of this.columns.entries()) {
+      const columnHeaderName = formatCSVHeaderName(column);
+      const columnFieldName = csvHeaderNameToFieldName(columnHeaderName);
+
+      if (columnFieldName === fieldName) {
+        lastIndex = columnIndex;
+      }
+    }
+
+    if (lastIndex !== -1) {
+      return lastIndex + 1;
+    }
+
+    return this.columns.length;
+  }
+
   addToColumns(value: any, path: PathPart[] = []) {
     // Something to keep in mind is that with arrays and objects we could
     // potentially have an enormous amount of distinct paths. In that case we
@@ -94,7 +118,7 @@ export class ColumnRecorder {
       const cacheKey = this.cacheKey(path);
       if (!this.columnCache[cacheKey]) {
         this.columnCache[cacheKey] = true;
-        this.columns.push(path);
+        this.columns.splice(this.findInsertIndex(path), 0, path);
       }
     }
   }

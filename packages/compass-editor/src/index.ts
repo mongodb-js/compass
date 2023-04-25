@@ -22,6 +22,7 @@ export type {
   Annotation,
   Action,
   EditorRef,
+  Completer,
 } from './json-editor';
 export { SyntaxHighlight } from './syntax-highlight';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
