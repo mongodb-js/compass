@@ -9,7 +9,7 @@ const parseDocument = (_doc = '') => {
   const doc = _doc.replace('${}', '');
   const editor = new EditorView({
     doc,
-    extensions: [languages.javascript()],
+    extensions: languages['javascript-expression'](),
   });
   const context = new CompletionContext(editor.state, pos, false);
   const token = resolveTokenAtCursor(context);

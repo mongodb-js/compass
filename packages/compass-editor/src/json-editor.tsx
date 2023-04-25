@@ -80,7 +80,7 @@ import {
   useEffectOnChange,
   codePalette,
 } from '@mongodb-js/compass-components';
-import { javascriptLanguage } from '@codemirror/lang-javascript';
+import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension, TransactionSpec } from '@codemirror/state';
 import { Facet, Compartment, EditorState } from '@codemirror/state';
@@ -110,6 +110,10 @@ const hiddenScrollStyle = css({
   },
 });
 
+function isReadOnly(state: EditorState): boolean {
+  return state.facet(EditorState.readOnly);
+}
+
 // Breaks keyboard navigation out of the editor, but we want that
 const breakFocusOutBinding: KeyBinding = {
   // https://codemirror.net/examples/tab/
@@ -118,6 +122,9 @@ const breakFocusOutBinding: KeyBinding = {
   // in browser devtools for example). We want to just input tab symbol in that
   // case
   run({ state, dispatch }) {
+    if (isReadOnly(state)) {
+      return false;
+    }
     dispatch(
       state.update(state.replaceSelection('\t'), {
         scrollIntoView: true,
@@ -403,7 +410,7 @@ const highlightStyles = {
 } as const;
 
 // We don't have any other cases we need to support in a base editor
-type EditorLanguage = 'json' | 'javascript';
+type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
 
 export type Annotation = Pick<
   Diagnostic,
@@ -460,8 +467,9 @@ const javascriptExpression = javascriptLanguage.configure({
 });
 
 export const languages: Record<EditorLanguage, () => LanguageSupport> = {
-  json: json,
-  javascript() {
+  json,
+  javascript,
+  'javascript-expression': () => {
     return new LanguageSupport(javascriptExpression);
   },
 };
@@ -690,9 +698,10 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       return EditorView.theme({
         '& .cm-scroller': {
           lineHeight: `${lineHeight}px`,
-          ...(maxLines && {
-            maxHeight: `${maxLines * lineHeight}px`,
-          }),
+          ...(maxLines &&
+            maxLines < Infinity && {
+              maxHeight: `${maxLines * lineHeight}px`,
+            }),
           height: '100%',
           overflowY: 'auto',
         },
@@ -819,7 +828,12 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         keymap.of([
           {
             key: 'Tab',
-            run: acceptCompletion,
+            run(context) {
+              if (isReadOnly(context.state)) {
+                return false;
+              }
+              return acceptCompletion(context);
+            },
           },
           {
             key: 'Ctrl-Shift-b',
@@ -1021,6 +1035,9 @@ function isTopNode(node?: any): boolean {
 }
 
 const applySnippet = (editor: EditorView, template: string): boolean => {
+  if (isReadOnly(editor.state)) {
+    return false;
+  }
   const completion = snippetCompletion(template, { label: template });
   if (typeof completion.apply === 'function') {
     completion.apply(editor, completion, 0, editor.state.doc.length);
@@ -1071,17 +1088,14 @@ const copyAll: Command = (editorView) => {
 
 const prettify: Command = (editorView) => {
   // Can't prettify a read-only document
-  if (editorView.state.facet(EditorState.readOnly)) {
+  if (isReadOnly(editorView.state)) {
     return false;
   }
 
   const language = editorView.state.facet(languageName)[0];
   const doc = editorView.state.sliceDoc();
   try {
-    const formatted = _prettify(
-      doc,
-      language === 'json' ? 'json' : 'javascript-expression'
-    );
+    const formatted = _prettify(doc, language);
     if (formatted !== doc) {
       sheduleDispatch(editorView, {
         changes: {
@@ -1110,7 +1124,6 @@ type InlineEditorProps = Omit<
   | 'showScroll'
   | 'highlightActiveLine'
   | 'minLines'
-  | 'maxLines'
   | 'annotations'
 > &
   (
@@ -1136,7 +1149,7 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
         showScroll={false}
         highlightActiveLine={false}
         className={cx(inlineStyles, className)}
-        language="javascript"
+        language="javascript-expression"
         {...props}
       ></BaseEditor>
     );
@@ -1285,7 +1298,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         <BaseEditor
           ref={editorRef}
           className={editorClassName}
-          language="javascript"
+          language="javascript-expression"
           minLines={10}
           {...props}
         ></BaseEditor>
@@ -1308,3 +1321,4 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
 export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
+export type { CompletionSource as Completer };
