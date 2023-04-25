@@ -1,7 +1,11 @@
 /* eslint-disable mocha/max-top-level-suites */
+import _ from 'lodash';
 import { expect } from 'chai';
 
-import { formatCSVHeaderName } from '../csv/csv-utils';
+import {
+  formatCSVHeaderName,
+  csvHeaderNameToFieldName,
+} from '../csv/csv-utils';
 
 import { lookupValueForPath, ColumnRecorder } from './export-utils';
 
@@ -138,12 +142,13 @@ describe('ColumnRecorder', function () {
 
     // formatting the result as strings is lossless and gives us something a bit
     // more compact to compare
-    expect(r.columns.map(formatCSVHeaderName)).to.deep.equal([
+    const result = r.columns.map(formatCSVHeaderName);
+    comparePaths(result, [
       'foo',
-      'foo.bar',
       'foo[0]',
       'foo[1]',
       'foo[2]',
+      'foo.bar',
       'x[0]',
       'x[1]',
       'x[2]',
@@ -153,4 +158,101 @@ describe('ColumnRecorder', function () {
       'x[1].y[0]',
     ]);
   });
+
+  it('deals with a more complex example', function () {
+    const r = new ColumnRecorder();
+
+    // do this twice to prove that it only adds each one the first time
+    for (let i = 0; i < 2; i++) {
+      r.addToColumns({ amenities: ['a'] });
+      r.addToColumns({ price: 1 });
+      r.addToColumns({ security_deposit: 2 });
+      r.addToColumns({ amenities: ['a', 'b'] });
+    }
+
+    const result = r.columns.map(formatCSVHeaderName);
+
+    comparePaths(result, [
+      'amenities[0]',
+      'amenities[1]',
+      'price',
+      'security_deposit',
+    ]);
+  });
+
+  it('deals with arrays of arrays', function () {
+    const r = new ColumnRecorder();
+
+    // do this twice to prove that it only adds each one the first time
+    for (let i = 0; i < 2; i++) {
+      r.addToColumns({ food: ['a'] });
+      r.addToColumns({ food: { bar: ['a', { lol: 'yup' }] } });
+      r.addToColumns({ things: ['a'] });
+      r.addToColumns({ food: { bar: ['a'] } });
+      r.addToColumns({ food: ['a', 'b'] });
+      r.addToColumns({ food: { bar: ['a', 'b'] } });
+      r.addToColumns({ food: { bar: { baz: ['a'] } } });
+      r.addToColumns({ food: ['a', 'b', 'c'] });
+      r.addToColumns({ things: ['a', 'b'] });
+      r.addToColumns({ food: { bar: { baz: ['a', 'b'] } } });
+      r.addToColumns({ food: { bar: ['a', 'b', 'c'] } });
+      r.addToColumns({ things: { more: 'things' } });
+      r.addToColumns({ food: { bar: 1 } });
+    }
+
+    const result = r.columns.map(formatCSVHeaderName);
+    comparePaths(result, [
+      'food[0]',
+      'food[1]',
+      'food[2]',
+      'food.bar[0]',
+      'food.bar[1]',
+      'food.bar[2]',
+      'food.bar',
+      'food.bar[1].lol',
+      'things[0]',
+      'things[1]',
+      'food.bar.baz[0]',
+      'food.bar.baz[1]',
+      'things.more',
+    ]);
+  });
 });
+
+function uniqInOrder(strings: string[]) {
+  const uniq: string[] = [];
+  if (strings.length) {
+    uniq.push(strings[0]);
+  }
+  for (let i = 1; i < strings.length; i++) {
+    const a = strings[i - 1];
+    const b = strings[i];
+    if (b !== a) {
+      uniq.push(b);
+    }
+  }
+  return uniq;
+}
+
+function comparePaths(result: string[], expectedResult: string[]) {
+  try {
+    expect(result).to.deep.equal(expectedResult);
+  } catch (err) {
+    console.log(JSON.stringify(result, null, 2));
+    throw err;
+  }
+
+  // What matters most is that all the fields that map to the same unique
+  // field are adjacent to each other because that's how we're going to
+  // display them in the import preview. If that's not the case, then the import
+  // preview will be very broken.
+  const names = result.map(csvHeaderNameToFieldName);
+  const uniq = _.uniq(names);
+  const uniqAdjacent = uniqInOrder(names);
+  try {
+    expect(uniq).to.deep.equal(uniqAdjacent);
+  } catch (err) {
+    console.log({ uniq, uniqAdjacent });
+    throw err;
+  }
+}

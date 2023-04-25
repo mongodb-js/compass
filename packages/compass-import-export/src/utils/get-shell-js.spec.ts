@@ -16,6 +16,7 @@ describe('#getQueryAsShellJSString', function () {
 )`;
     expect(ret).to.equal(expected);
   });
+
   it('should support simple ObjectId', function () {
     const ret = getQueryAsShellJSString('lucas.pets', {
       filter: { _id: new ObjectId('deadbeefdeadbeefdeadbeef') },
@@ -25,6 +26,7 @@ describe('#getQueryAsShellJSString', function () {
 )`;
     expect(ret).to.equal(expected);
   });
+
   it('should support a projection', function () {
     const ret = getQueryAsShellJSString('lucas.pets', {
       filter: { name: 'Arlo' },
@@ -36,6 +38,7 @@ describe('#getQueryAsShellJSString', function () {
 )`;
     expect(ret).to.equal(expected);
   });
+
   it('should support a skip', function () {
     const ret = getQueryAsShellJSString('lucas.pets', {
       filter: { name: 'Arlo' },
@@ -49,6 +52,7 @@ describe('#getQueryAsShellJSString', function () {
 
     expect(ret).to.equal(expected);
   });
+
   it('should support a limit', function () {
     const ret = getQueryAsShellJSString('lucas.pets', {
       filter: { name: 'Arlo' },
@@ -79,6 +83,7 @@ describe('#newGetQueryAsShellJSString', function () {
 )`;
     expect(ret).to.equal(expected);
   });
+
   it('should support simple ObjectId', function () {
     const ret = newGetQueryAsShellJSString({
       ns: 'lucas.pets',
@@ -91,6 +96,7 @@ describe('#newGetQueryAsShellJSString', function () {
 )`;
     expect(ret).to.equal(expected);
   });
+
   it('should support a projection', function () {
     const ret = newGetQueryAsShellJSString({
       ns: 'lucas.pets',
@@ -105,6 +111,7 @@ describe('#newGetQueryAsShellJSString', function () {
 )`;
     expect(ret).to.equal(expected);
   });
+
   it('should support a skip', function () {
     const ret = newGetQueryAsShellJSString({
       ns: 'lucas.pets',
@@ -121,6 +128,7 @@ describe('#newGetQueryAsShellJSString', function () {
 
     expect(ret).to.equal(expected);
   });
+
   it('should support a limit', function () {
     const ret = newGetQueryAsShellJSString({
       ns: 'lucas.pets',
@@ -132,6 +140,27 @@ describe('#newGetQueryAsShellJSString', function () {
       },
     });
     const expected = `db.getCollection("pets").find(
+  {name: 'Arlo'},
+  {name: 1}
+).limit(100).skip(1)`;
+
+    expect(ret).to.equal(expected);
+  });
+
+  it('should support collation', function () {
+    const ret = newGetQueryAsShellJSString({
+      ns: 'lucas.pets',
+      query: {
+        filter: { name: 'Arlo' },
+        collation: { locale: 'simple' },
+        projection: { name: 1 },
+        limit: 100,
+        skip: 1,
+      },
+    });
+    const expected = `db.getCollection("pets").collate(
+  {locale: 'simple'}
+).find(
   {name: 'Arlo'},
   {name: 1}
 ).limit(100).skip(1)`;

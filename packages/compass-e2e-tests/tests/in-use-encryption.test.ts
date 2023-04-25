@@ -396,7 +396,7 @@ describe('CSFLE / QE', function () {
         await insertDialog.waitForDisplayed();
 
         // set the text in the editor
-        await browser.setAceValue(
+        await browser.setCodemirrorEditorValue(
           Selectors.InsertJSONEditor,
           '{ "phoneNumber": "30303030", "name": "Person X" }'
         );
@@ -717,7 +717,7 @@ describe('CSFLE / QE', function () {
         await insertDialog.waitForDisplayed();
 
         // set the text in the editor
-        await browser.setAceValue(
+        await browser.setCodemirrorEditorValue(
           Selectors.InsertJSONEditor,
           '{ "phoneNumber": "30303030", "faxNumber": "30303030", "name": "Third" }'
         );

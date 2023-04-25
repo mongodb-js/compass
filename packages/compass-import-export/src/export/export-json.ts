@@ -121,7 +121,7 @@ export async function exportJSONFromAggregation({
   dataService: DataService;
   aggregation: ExportAggregation;
 }) {
-  debug('exportJSONFromAggregation()', { ns: toNS(ns) });
+  debug('exportJSONFromAggregation()', { ns: toNS(ns), aggregation });
 
   const { stages, options: aggregationOptions = {} } = aggregation;
   aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
@@ -149,13 +149,14 @@ export async function exportJSONFromQuery({
   dataService: DataService;
   query?: ExportQuery;
 }) {
-  debug('exportJSONFromQuery()', { ns: toNS(ns) });
+  debug('exportJSONFromQuery()', { ns: toNS(ns), query });
 
   const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
     projection: query.projection,
     sort: query.sort,
     limit: query.limit,
     skip: query.skip,
+    collation: query.collation,
   });
 
   return await exportJSON({
