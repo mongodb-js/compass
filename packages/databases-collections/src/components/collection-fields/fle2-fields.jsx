@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   FormFieldContainer,
@@ -8,7 +8,7 @@ import {
   RadioBox,
   RadioBoxGroup,
 } from '@mongodb-js/compass-components';
-import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 const HELP_URL_FLE2 = 'https://dochub.mongodb.org/core/rqe-encrypted-fields';
 
@@ -62,6 +62,14 @@ function FLE2Fields({
   fle2,
   configuredKMSProviders,
 }) {
+  const [keyEncryptionKeyEditorText, setKeyEncryptionKeyEditorText] = useState(
+    () => {
+      return (
+        fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]
+      );
+    }
+  );
+
   return (
     <CollapsibleFieldSet
       toggled={isFLE2}
@@ -81,15 +89,13 @@ function FLE2Fields({
           Indicate which fields should be encrypted and whether they should be
           queryable.
         </Description>
-        <Editor
-          variant={EditorVariant.Shell}
+        <CodemirrorMultilineEditor
           id={queryableEncryptedFieldsEditorId}
-          name="fle2.encryptedFields"
-          value={fle2.encryptedFields}
-          data-testid="fle2-encryptedFields"
+          text={fle2.encryptedFields}
           onChangeText={(newText) =>
             onChangeField('fle2.encryptedFields', newText)
           }
+          data-testid="fle2-encryptedFields"
         />
       </FormFieldContainer>
 
@@ -135,18 +141,14 @@ function FLE2Fields({
           Specify which key encryption key to use for creating new data
           encryption keys.
         </Description>
-        <Editor
-          variant={EditorVariant.Shell}
+        <CodemirrorMultilineEditor
           id={keyEncryptionKeyEditorId}
-          name="fle2.keyEncryptionKey"
-          defaultValue={keyEncryptionKeyTemplate[fle2.kmsProvider]}
-          value={
-            fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]
-          }
+          text={keyEncryptionKeyEditorText}
+          onChangeText={(newText) => {
+            setKeyEncryptionKeyEditorText(newText);
+            onChangeField('fle2.keyEncryptionKey', newText);
+          }}
           data-testid="fle2-keyEncryptionKey"
-          onChangeText={(newText) =>
-            onChangeField('fle2.keyEncryptionKey', newText)
-          }
         />
       </FormFieldContainer>
     </CollapsibleFieldSet>
