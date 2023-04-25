@@ -6,6 +6,7 @@ import {
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { mapFieldsToGroupId } from '../utils';
+import type { WizardComponentProps } from '..';
 
 const containerStyles = css({
   display: 'flex',
@@ -21,13 +22,8 @@ const mapGroupFormStateToStageValue = (formState: string[]) => {
   };
 };
 
-export const BasicGroup = ({
-  fields,
-  onChange,
-}: {
-  fields: string[];
-  onChange: (value: string, error: Error | null) => void;
-}) => {
+export const BasicGroup = ({ fields, onChange }: WizardComponentProps) => {
+  const fieldnames = fields.map((field) => field.name);
   const [groupFields, setGroupFields] = useState<string[]>([]);
 
   const onChangeFields = (data: string[]) => {
@@ -51,7 +47,7 @@ export const BasicGroup = ({
         multiselect={true}
         value={groupFields}
         onChange={onChangeFields}
-        options={fields}
+        options={fieldnames}
         optionLabel="Field:"
         overflow="scroll-x"
       />

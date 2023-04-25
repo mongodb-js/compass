@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import {
   ComboboxWithCustomOption,
@@ -7,14 +7,9 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import type { WizardComponentProps } from '..';
 
 // Types
-export type ProjectOwnProps = {
-  onChange: (value: string, error: Error | null) => void;
-};
-type MapStateProps = { fields: string[] };
-export type ProjectProps = ProjectOwnProps & MapStateProps;
-
 type ProjectFormState = string[];
 export type ProjectionType = 'include' | 'exclude';
 
@@ -99,7 +94,8 @@ const selectStyles = css({ minWidth: '120px' });
 // set of options
 const comboboxStyles = css({ width: '350px' });
 
-const ProjectForm = ({ fields, onChange }: ProjectProps) => {
+const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
+  const fieldNames = fields.map(({ name }) => name);
   const [projectionType, setProjectionType] =
     useState<ProjectionType>('include');
   const [projectFields, setProjectFields] = useState<ProjectFormState>([]);
@@ -148,7 +144,7 @@ const ProjectForm = ({ fields, onChange }: ProjectProps) => {
           multiselect={true}
           value={projectFields}
           onChange={onSelectField}
-          options={fields}
+          options={fieldNames}
           optionLabel="Field:"
           overflow="scroll-x"
           isOptionDisabled={makeIsOptionDisabled(projectFields)}
