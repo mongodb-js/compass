@@ -1,4 +1,9 @@
-import type { AggregateOptions, Document, Sort } from 'mongodb';
+import type {
+  AggregateOptions,
+  Document,
+  Sort,
+  CollationOptions,
+} from 'mongodb';
 
 export type ExportAggregation = {
   stages: Document[];
@@ -11,6 +16,7 @@ export type ExportQuery = {
   limit?: number;
   skip?: number;
   projection?: Document;
+  collation?: CollationOptions;
 };
 
 export type ExportResult = {
