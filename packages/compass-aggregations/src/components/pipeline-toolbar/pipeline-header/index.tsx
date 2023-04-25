@@ -110,6 +110,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
                 aria-label="Open saved pipelines"
                 aria-haspopup="true"
                 aria-expanded={isSavedPipelineVisible ? true : undefined}
+                title="Saved Pipelines"
                 type="button"
                 ref={ref}
               >
