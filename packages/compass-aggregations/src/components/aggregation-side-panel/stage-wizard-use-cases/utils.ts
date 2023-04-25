@@ -1,5 +1,6 @@
 export const mapFieldToPropertyName = (field: string) => {
-  return field.replace(/\./g, '_');
+  // replace leading dollar and all dots
+  return field.replace(/^\$/, '').replace(/\./g, '_');
 };
 
 export const mapFieldsToGroupId = (fields: string[]) => {

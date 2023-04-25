@@ -12,7 +12,13 @@ import {
 describe('group with statistics', function () {
   context('renders a group form', function () {
     beforeEach(function () {
-      render(<GroupWithStatistics fields={[]} onChange={() => {}} />);
+      render(
+        <GroupWithStatistics
+          serverVersion="5.0.0"
+          fields={[]}
+          onChange={() => {}}
+        />
+      );
     });
     it('renders labels', function () {
       expect(screen.getByText('Calculate')).to.exist;
@@ -65,6 +71,7 @@ describe('group with statistics', function () {
       onChange = sinon.spy();
       render(
         <GroupWithStatistics
+          serverVersion="5.0.0"
           onChange={onChange}
           fields={['address', 'street', 'name', 'initials', 'orders']}
         />

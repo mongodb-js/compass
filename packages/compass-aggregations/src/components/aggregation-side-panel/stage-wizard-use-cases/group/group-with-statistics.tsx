@@ -8,40 +8,61 @@ import {
   IconButton,
   ComboboxWithCustomOption,
 } from '@mongodb-js/compass-components';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { connect } from 'react-redux';
 import { sortBy } from 'lodash';
+import { ACCUMULATORS as MDB_ACCUMULATORS } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
+import semver from 'semver';
 import { mapFieldToPropertyName, mapFieldsToGroupId } from '../utils';
+import type { RootState } from '../../../../modules';
 
-const STATISTIC_ACCUMULATORS = sortBy(
-  [
-    {
-      label: 'Average',
-      value: '$avg',
-    },
-    {
-      label: 'Minimum',
-      value: '$min',
-    },
-    {
-      label: 'Standard Deviation',
-      value: '$stdDevPop',
-    },
-    {
-      label: 'Count',
-      value: '$count',
-    },
-    {
-      label: 'Maximum',
-      value: '$max',
-    },
-    {
-      label: 'Sum',
-      value: '$sum',
-    },
-  ],
-  'label'
-);
+type StatisticAccumulator = {
+  label: string;
+  value: typeof MDB_ACCUMULATORS[number]['value'];
+};
+type Accumulator = StatisticAccumulator & {
+  version: string;
+};
+
+const STATISTIC_ACCUMULATORS: StatisticAccumulator[] = [
+  {
+    label: 'Average',
+    value: '$avg',
+  },
+  {
+    label: 'Minimum',
+    value: '$min',
+  },
+  {
+    label: 'Standard Deviation',
+    value: '$stdDevPop',
+  },
+  {
+    label: 'Count',
+    value: '$count',
+  },
+  {
+    label: 'Maximum',
+    value: '$max',
+  },
+  {
+    label: 'Sum',
+    value: '$sum',
+  },
+];
+const ACCUMULATORS = sortBy(STATISTIC_ACCUMULATORS, 'label')
+  .map((acc) => {
+    const source = MDB_ACCUMULATORS.find((x) => x.value === acc.value);
+    if (source) {
+      return {
+        ...acc,
+        version: source.version,
+      };
+    }
+    return false;
+  })
+  .filter(Boolean) as Accumulator[];
 
 const containerStyles = css({
   display: 'flex',
@@ -64,7 +85,7 @@ const groupLabelStyles = css({
 
 const selectStyles = css({
   width: `${String(
-    Math.max(...STATISTIC_ACCUMULATORS.map(({ label }) => label.length))
+    Math.max(...ACCUMULATORS.map(({ label }) => label.length))
   )}ch`,
 });
 const accumulatorFieldcomboboxStyles = css({ width: '300px' });
@@ -113,13 +134,15 @@ const mapGroupFormStateToStageValue = (
 };
 
 const GroupAccumulatorForm = ({
-  onChange,
-  data,
   fields,
+  serverVersion,
+  data,
+  onChange,
 }: {
-  onChange: (value: GroupAccumulators[]) => void;
-  data: GroupAccumulators[];
   fields: string[];
+  serverVersion: string;
+  data: GroupAccumulators[];
+  onChange: (value: GroupAccumulators[]) => void;
 }) => {
   const onChangeGroup = (
     index: number,
@@ -149,6 +172,11 @@ const GroupAccumulatorForm = ({
     onChange(newData);
   };
 
+  const accumulators = useMemo(
+    () => ACCUMULATORS.filter((x) => semver.gte(serverVersion, x.version)),
+    [serverVersion]
+  );
+
   return (
     <div className={containerStyles}>
       {data.map(({ accumulator, field }, index) => {
@@ -167,7 +195,7 @@ const GroupAccumulatorForm = ({
                 onChangeGroup(index, 'accumulator', value)
               }
             >
-              {STATISTIC_ACCUMULATORS.map((x, i) => {
+              {accumulators.map((x, i) => {
                 return (
                   <Option value={x.value} key={i}>
                     {x.label}
@@ -208,9 +236,11 @@ const GroupAccumulatorForm = ({
 
 export const GroupWithStatistics = ({
   fields,
+  serverVersion,
   onChange,
 }: {
   fields: string[];
+  serverVersion: string;
   onChange: (value: string, error: Error | null) => void;
 }) => {
   const [formData, setFormData] = useState<GroupWithStatisticsFormData>({
@@ -245,6 +275,7 @@ export const GroupWithStatistics = ({
   return (
     <div className={containerStyles}>
       <GroupAccumulatorForm
+        serverVersion={serverVersion}
         fields={fields}
         data={formData.groupAccumulators}
         onChange={(val) => onChangeValue('groupAccumulators', val)}
@@ -269,4 +300,6 @@ export const GroupWithStatistics = ({
   );
 };
 
-export default GroupWithStatistics;
+export default connect(({ serverVersion }: RootState) => ({
+  serverVersion,
+}))(GroupWithStatistics);
