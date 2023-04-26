@@ -101,6 +101,8 @@ export const ConnectionFormInputFLELocalKey =
   '[data-testid="csfle-kms-local-key"]';
 export const ConnectionFormInputFLEEncryptedFieldsMap =
   '[data-testid="connection-csfle-encrypted-fields-map"]';
+export const ConnectionFormInputFLEEncryptedFieldsMapEditor =
+  '[data-testid="encrypted-fields-map-editor"]';
 
 export const ConnectionFormSSLConnectionRadios =
   '#tls-radio-box-group input[type="radio"]';

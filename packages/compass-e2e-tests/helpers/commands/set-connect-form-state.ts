@@ -158,8 +158,8 @@ export async function setConnectFormState(
   }
   if (state.fleEncryptedFieldsMap) {
     // set the text in the editor
-    await browser.setAceValue(
-      Selectors.ConnectionFormInputFLEEncryptedFieldsMap,
+    await browser.setCodemirrorEditorValue(
+      Selectors.ConnectionFormInputFLEEncryptedFieldsMapEditor,
       state.fleEncryptedFieldsMap
     );
   }
