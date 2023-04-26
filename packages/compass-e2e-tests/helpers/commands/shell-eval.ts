@@ -21,7 +21,7 @@ export async function shellEval(
 
   const command = parse === true ? `JSON.stringify(${str})` : str;
 
-  await browser.setAceValue(Selectors.ShellInputEditor, command);
+  await browser.setCodemirrorEditorValue(Selectors.ShellInputEditor, command);
   await browser.keys(['Enter']);
 
   // wait until more output appears
@@ -30,11 +30,23 @@ export async function shellEval(
     return lines.length > numLines;
   });
 
-  const shellOutputElements = await browser.$$(Selectors.ShellOutput);
-  const output = await shellOutputElements[
-    shellOutputElements.length - 1
-  ].getText();
+  const output = await browser.getCodemirrorEditorTextAll(
+    Selectors.ShellContent
+  );
+
+  const shellInputText = output.pop();
+
+  // TODO: add a proper data-testid to the browser-repl component
+  if (shellInputText !== '') {
+    throw new Error('Expected shell input to be empty');
+  }
+
   let result = Array.isArray(output) ? output.pop() : output;
+
+  if (typeof result === 'undefined') {
+    throw new Error('No shell output found');
+  }
+
   if (parse === true) {
     try {
       result = JSON.parse(result.replace(/(^['"]|['"]$)/g, ''));
@@ -47,5 +59,5 @@ export async function shellEval(
 
   await browser.hideShell();
 
-  return result;
+  return result as string;
 }

@@ -371,7 +371,6 @@ export const DropCollectionDropButton =
 export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
-export const ShellInput = '[data-testid="shell-content"] .ace_content';
 // TODO: add a proper data-testid to the editor component
 export const ShellInputEditor = '[id^="mongosh-ace-"]';
 export const ShellOutput =
