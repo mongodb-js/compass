@@ -5,9 +5,15 @@ import ProjectUseCase from './project/project';
 import BasicGroupUseCase from './group/basic-group';
 import GroupWithStatistics from './group/group-with-statistics';
 import MatchUseCase from './match/match';
+import type { TypeCastTypes } from 'hadron-type-checker';
+
+export type Fields = {
+  name: string;
+  type: TypeCastTypes;
+}[];
 
 export type WizardComponentProps = {
-  fields: { name: string; type: string }[];
+  fields: Fields;
   onChange: (value: string, validationError: Error | null) => void;
 };
 

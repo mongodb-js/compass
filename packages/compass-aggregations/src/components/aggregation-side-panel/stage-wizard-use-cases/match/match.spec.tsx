@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { Double, Int32, Long, Timestamp } from 'bson';
 
-import { createGroup } from './groups';
-import { createCondition } from './conditions';
+import { createGroup } from './group';
+import { createCondition } from './condition';
 import {
   mapCondition,
   mapGroups,
@@ -15,8 +15,8 @@ import type {
   MappedCondition,
 } from './match';
 
-describe.only('match', function () {
-  describe.only('helper functions', function () {
+describe('match', function () {
+  describe('helper functions', function () {
     describe('#mapCondition', function () {
       it('should return a correctly mapped condition', function () {
         const examples = new Map<MatchCondition, MappedCondition>();
