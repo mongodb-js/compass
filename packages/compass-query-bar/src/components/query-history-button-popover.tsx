@@ -73,6 +73,7 @@ const QueryHistoryButtonPopover: React.FunctionComponent<QueryHistoryProps> = ({
             className={openQueryHistoryButtonStyles}
             aria-label="Open query history"
             aria-haspopup="true"
+            title="Query History"
             tabIndex={0}
             aria-expanded={showQueryHistory ? true : undefined}
             type="button"

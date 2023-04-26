@@ -68,7 +68,7 @@ export const setupCodemirrorCompleter = <
   window.document.body.appendChild(el);
   const editor = new EditorView({
     doc: '',
-    extensions: [languages.javascript()],
+    extensions: [languages['javascript-expression']()],
     parent: el,
   });
   const getCompletions = (text = '', ...args: Parameters<T>) => {

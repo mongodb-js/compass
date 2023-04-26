@@ -176,8 +176,8 @@ export async function addCollection(
 
   if (collectionOptions && collectionOptions.encryptedFields) {
     await browser.clickVisible(Selectors.CreateCollectionFLE2CheckboxLabel);
-    await browser.setAceValue(
-      Selectors.CreateCollectionFLE2,
+    await browser.setCodemirrorEditorValue(
+      Selectors.CreateCollectionFLE2EncryptedFields,
       collectionOptions.encryptedFields
     );
   }

@@ -82,6 +82,9 @@ const loadingPlaceholderItems = Array.from({
   length: loadingPlaceholderCount,
 }).map((value, index) => index);
 
+const MAX_FIELDS_TO_SHOW_DEFAULT = 100;
+const FIELDS_TO_SHOW_INCREASE = 100;
+
 function LoadingTable() {
   return (
     <Table
@@ -146,6 +149,10 @@ function ExportSelectFields({
 }: ExportSelectFieldsProps) {
   const newFieldRef = useRef<HTMLInputElement | null>(null);
 
+  const [maxFieldsToShow, setMaxFieldsToShow] = useState<number>(
+    MAX_FIELDS_TO_SHOW_DEFAULT
+  );
+
   // Track the fields length so we know when to auto-focus
   // the add field input when a new field is added.
   const lastRenderedFieldsLength = useRef(0);
@@ -208,13 +215,21 @@ function ExportSelectFields({
     lastRenderedFieldsLength.current = fieldKeys.length;
   }, [fieldKeys]);
 
-  const fieldsToRender = useMemo(() => {
-    return fieldKeys
+  const { fieldsToRender, hasMoreFieldsToShow } = useMemo(() => {
+    let fieldsShown = 0;
+    let hasMoreFieldsToShow = false;
+    const fieldsToRender = fieldKeys
       .filter(
         // When a key has a parent that is already checked it will
         // already be included in the projection, so we hide them.
         (fieldKey) => {
           const path: SchemaPath = [];
+          if (hasMoreFieldsToShow && fieldsShown >= maxFieldsToShow) {
+            // We limit the amount of fields shown so that
+            // we don't freeze when rendering a lot of fields.
+            return false;
+          }
+
           for (const fieldName of fields[fieldKey].path) {
             path.push(fieldName);
             const fieldId = getIdForSchemaPath(path);
@@ -222,6 +237,14 @@ function ExportSelectFields({
               return false;
             }
           }
+
+          if (fieldsShown >= maxFieldsToShow) {
+            hasMoreFieldsToShow = true;
+            return false;
+          }
+
+          fieldsShown++;
+
           return true;
         }
       )
@@ -231,7 +254,12 @@ function ExportSelectFields({
         checked: !!fields[fieldKey].selected,
         index,
       }));
-  }, [fields, fieldKeys]);
+
+    return {
+      fieldsToRender,
+      hasMoreFieldsToShow,
+    };
+  }, [fields, fieldKeys, maxFieldsToShow]);
 
   return (
     <>
@@ -255,7 +283,10 @@ function ExportSelectFields({
         </div>
       </div>
 
-      <div className={tableContainerStyles}>
+      <div
+        className={tableContainerStyles}
+        data-testid="export-fields-table-container"
+      >
         {isLoading ? (
           <LoadingTable />
         ) : (
@@ -312,29 +343,56 @@ function ExportSelectFields({
                   </Cell>
                 </Row>
                 {field.index === fieldsToRender.length - 1 && (
-                  <Row className={addNewFieldRowStyles} key=".__add-new-field">
-                    <Cell className={smallCellContainerStyle}>
-                      <div />
-                    </Cell>
-                    <Cell>
-                      <TextInput
-                        // NOTE: LeafyGreen gives an error with only aria-label for a text input.
-                        aria-labelledby=""
-                        aria-label="Enter a field to include in the export"
-                        type="text"
-                        className={textInputStyles}
-                        ref={newFieldRef}
-                        placeholder="Add field"
-                        onKeyDown={handleAddFieldSubmit}
-                        sizeVariant="small"
-                      />
-                      <div className={enterToAddStyles}>
-                        <Disclaimer>
-                          Press &quot;Enter&quot; to add field
-                        </Disclaimer>
-                      </div>
-                    </Cell>
-                  </Row>
+                  <>
+                    {hasMoreFieldsToShow && (
+                      <Row
+                        className={addNewFieldRowStyles}
+                        key=".__show-more-fields"
+                      >
+                        <Cell className={smallCellContainerStyle}>
+                          <div />
+                        </Cell>
+                        <Cell>
+                          <Button
+                            data-testid="show-more-fields-export-button"
+                            onClick={() =>
+                              setMaxFieldsToShow(
+                                maxFieldsToShow + FIELDS_TO_SHOW_INCREASE
+                              )
+                            }
+                            size="small"
+                          >
+                            Show {FIELDS_TO_SHOW_INCREASE} more fields
+                          </Button>
+                        </Cell>
+                      </Row>
+                    )}
+                    <Row
+                      className={addNewFieldRowStyles}
+                      key=".__add-new-field"
+                    >
+                      <Cell className={smallCellContainerStyle}>
+                        <div />
+                      </Cell>
+                      <Cell>
+                        <TextInput
+                          aria-labelledby="enter-to-add-field-export"
+                          aria-label="Enter a field to include in the export"
+                          type="text"
+                          className={textInputStyles}
+                          ref={newFieldRef}
+                          placeholder="Add field"
+                          onKeyDown={handleAddFieldSubmit}
+                          sizeVariant="small"
+                        />
+                        <div className={enterToAddStyles}>
+                          <Disclaimer id="enter-to-add-field-export">
+                            Press &quot;Enter&quot; to add field
+                          </Disclaimer>
+                        </div>
+                      </Cell>
+                    </Row>
+                  </>
                 )}
               </>
             )}
