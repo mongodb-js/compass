@@ -17,6 +17,9 @@ import semver from 'semver';
 import { mapFieldToPropertyName, mapFieldsToGroupId } from '../utils';
 import type { RootState } from '../../../../modules';
 
+const GROUP_FIELDS_LABEL = 'Select field names';
+const ACCUMULATOR_FIELD_LABEL = 'Select a field name';
+
 type StatisticAccumulator = {
   label: string;
   value: typeof MDB_ACCUMULATORS[number]['value'];
@@ -206,8 +209,8 @@ const GroupAccumulatorForm = ({
             <Body>of</Body>
             <ComboboxWithCustomOption
               className={accumulatorFieldcomboboxStyles}
-              aria-label="Select a field"
-              placeholder="Select a field name"
+              aria-label={ACCUMULATOR_FIELD_LABEL}
+              placeholder={ACCUMULATOR_FIELD_LABEL}
               size="default"
               clearable={false}
               value={field}
@@ -284,9 +287,9 @@ export const GroupWithStatistics = ({
       <div className={groupRowStyles}>
         <Body className={groupLabelStyles}>grouped by</Body>
         <ComboboxWithCustomOption<true>
-          placeholder={'Select field names'}
           className={groupFieldscomboboxStyles}
-          aria-label={'Select field names'}
+          aria-label={GROUP_FIELDS_LABEL}
+          placeholder={GROUP_FIELDS_LABEL}
           size="default"
           clearable={true}
           multiselect={true}

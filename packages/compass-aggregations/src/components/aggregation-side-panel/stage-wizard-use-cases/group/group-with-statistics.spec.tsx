@@ -34,7 +34,7 @@ describe('group with statistics', function () {
     it('renders accumulator field combobox', function () {
       expect(
         screen.getByRole('textbox', {
-          name: /select a field/i,
+          name: /select a field name/i,
         })
       ).to.exist;
     });
@@ -100,7 +100,7 @@ describe('group with statistics', function () {
         expect(onChange.lastCall.args[1]).to.not.be.null;
       });
       it('when selecting only field', function () {
-        setComboboxValue(/select a field/i, 'orders');
+        setComboboxValue(/select a field name/i, 'orders');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
@@ -110,7 +110,7 @@ describe('group with statistics', function () {
       });
       it('when selecting both - field and type', function () {
         setSelectValue(/select accumulator/i, 'sum');
-        setComboboxValue(/select a field/i, 'orders');
+        setComboboxValue(/select a field name/i, 'orders');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
