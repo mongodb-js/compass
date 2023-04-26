@@ -14,6 +14,7 @@ export { Editor } from './multiline-editor';
 export {
   CodemirrorInlineEditor,
   CodemirrorMultilineEditor,
+  setCodemirrorEditorValue,
 } from './json-editor';
 export type {
   EditorView,

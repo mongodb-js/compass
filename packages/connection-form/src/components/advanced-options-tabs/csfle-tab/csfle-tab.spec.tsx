@@ -11,7 +11,7 @@ import {
 } from '@testing-library/react';
 
 import type { ConnectionOptions } from 'mongodb-data-service';
-import { setEditorValue } from '@mongodb-js/compass-editor';
+import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';
@@ -126,7 +126,7 @@ describe('In-Use Encryption', function () {
   it('reports an error if the key vault namespace is not set', async function () {
     setInputValue('csfle-keyvault', '');
 
-    setEditorValue(
+    await setCodemirrorEditorValue(
       screen.getByTestId('encrypted-fields-map-editor'),
       '{ "db.coll": { fields: [] } }'
     );
@@ -137,7 +137,7 @@ describe('In-Use Encryption', function () {
   });
 
   it('allows to set encrypted fields map', async function () {
-    setEditorValue(
+    await setCodemirrorEditorValue(
       screen.getByTestId('encrypted-fields-map-editor'),
       '{ "db.coll": { fields: [{path: "foo", bsonType: "string", keyId: UUID("11d58b8a-0c6c-4d69-a0bd-70c6d9befae9") }] } }'
     );
@@ -171,7 +171,10 @@ describe('In-Use Encryption', function () {
   });
 
   it('reports an error if the encrypted fields map is not well formed', async function () {
-    setEditorValue(screen.getByTestId('encrypted-fields-map-editor'), '{');
+    await setCodemirrorEditorValue(
+      screen.getByTestId('encrypted-fields-map-editor'),
+      '{'
+    );
 
     await expectConnectionError('EncryptedFieldConfig is invalid');
   });
@@ -180,14 +183,14 @@ describe('In-Use Encryption', function () {
     fireEvent.click(screen.getByText('Local KMS'));
 
     expect(
-      screen.getByTestId('csfle-kms-local-key').closest('input').value
+      screen.getByTestId('csfle-kms-local-key').closest('input')?.value
     ).to.equal('');
 
     fireEvent.click(screen.getByTestId('generate-local-key-button'));
 
     const generatedLocalKey = screen
       .getByTestId('csfle-kms-local-key')
-      .closest('input').value;
+      .closest('input')?.value;
 
     expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
 

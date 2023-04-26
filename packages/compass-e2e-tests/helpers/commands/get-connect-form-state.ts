@@ -204,9 +204,8 @@ export async function getConnectFormState(
       Selectors.ConnectionFormInputFLEStoreCredentialsCheckbox
     ),
     fleKey: getValue(browser, Selectors.ConnectionFormInputFLELocalKMS),
-    fleEncryptedFieldsMap: getAceValue(
-      browser,
-      Selectors.ConnectionFormInputFLEEncryptedFieldsMap
+    fleEncryptedFieldsMap: browser.getCodemirrorEditorText(
+      Selectors.ConnectionFormInputFLEEncryptedFieldsMapEditor
     ),
   });
 
@@ -330,19 +329,6 @@ async function getValue(
   }
 
   const value = await element.getValue();
-  return value || null;
-}
-
-async function getAceValue(
-  browser: CompassBrowser,
-  selector: string
-): Promise<string | null> {
-  const aceEditor = await browser.$(`${selector} .ace_content`);
-  if (!(await aceEditor.isExisting())) {
-    return null;
-  }
-
-  const value = await aceEditor.getText();
   return value || null;
 }
 
