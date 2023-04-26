@@ -1,6 +1,6 @@
 import React from 'react';
 import Group from './group';
-import { createCondition } from './conditions';
+import { createCondition } from './condition';
 import type { MatchConditionGroup, MatchConditionGroups } from './match';
 import type { WizardComponentProps } from '..';
 
@@ -90,8 +90,8 @@ const Groups = ({
           key={group.id}
           fields={fields}
           nestingLevel={nestingLevel}
-          disableAddGroup={groups.length === 2}
-          disableRemoveGroup={groups.length === 1}
+          hideAddGroup={nestingLevel !== 0 || groups.length === 2}
+          disableRemoveGroup={nestingLevel === 0 && groups.length === 1}
           group={group}
           onGroupChange={(newGroup) => handleGroupChange(groupIdx, newGroup)}
           onRemoveGroupClick={() => handleRemoveGroupClick(groupIdx)}

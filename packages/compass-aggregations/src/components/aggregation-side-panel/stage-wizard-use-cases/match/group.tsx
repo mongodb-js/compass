@@ -11,8 +11,10 @@ import {
   Button,
 } from '@mongodb-js/compass-components';
 import Groups, { makeAddGroupHandler } from './groups';
-import Conditions from './conditions';
-import { CONDITION_CONTROLS_WIDTH } from './condition';
+import Condition, {
+  CONDITION_CONTROLS_WIDTH,
+  createCondition,
+} from './condition';
 import type { WizardComponentProps } from '..';
 import type {
   LogicalOperator,
@@ -25,7 +27,9 @@ import type {
 type GroupProps = {
   fields: WizardComponentProps['fields'];
   nestingLevel: number;
-  disableAddGroup: boolean;
+  // See: GroupHeaderProps['hideAddGroup']
+  hideAddGroup: boolean;
+  // See: GroupHeaderProps['disableRemoveGroup']
   disableRemoveGroup: boolean;
   group: MatchConditionGroup;
   onGroupChange: (changedGroup: MatchConditionGroup) => void;
@@ -34,18 +38,30 @@ type GroupProps = {
 };
 
 type GroupHeaderProps = {
+  /**
+   * Hides the Add icon button rendered in the header. We hide the Add icon
+   * button when the header is rendered for a group at nestingLevel === 0 or
+   * there are already two groups present at that particular level.
+   */
+  hideAddGroup: boolean;
+  /**
+   * Disables the Remove icon button. We disable the Remove icon button when the
+   * header is rendered for a group at nestingLevel === 0 and there is only one
+   * group present at that particular level.
+   */
+  disableRemoveGroup: boolean;
   operator: LogicalOperator;
-  disableAddBtn: boolean;
-  disableRemoveBtn: boolean;
   onOperatorChange: (operator: LogicalOperator) => void;
   onAddGroupClick: () => void;
   onRemoveGroupClick: () => void;
 };
 
 type GroupFooterProps = {
-  disableAddNestedGroup: boolean;
   onAddNestedGroupClick: () => void;
 };
+
+// Helpers
+const MAX_ALLOWED_NESTING = 3;
 
 // Components - GroupHeader
 const groupHeaderStyles = css({
@@ -55,8 +71,8 @@ const groupHeaderStyles = css({
 });
 
 const GroupHeader = ({
-  disableAddBtn,
-  disableRemoveBtn,
+  hideAddGroup,
+  disableRemoveGroup,
   operator,
   onOperatorChange,
   onAddGroupClick,
@@ -75,15 +91,13 @@ const GroupHeader = ({
         <SegmentedControlOption value="$or">OR</SegmentedControlOption>
       </SegmentedControl>
       <div>
+        {!hideAddGroup && (
+          <IconButton aria-label="Add Group" onClick={onAddGroupClick}>
+            <Icon glyph="Plus" />
+          </IconButton>
+        )}
         <IconButton
-          disabled={disableAddBtn}
-          aria-label="Add Group"
-          onClick={onAddGroupClick}
-        >
-          <Icon glyph="Plus" />
-        </IconButton>
-        <IconButton
-          disabled={disableRemoveBtn}
+          disabled={disableRemoveGroup}
           aria-label="Remove Group"
           onClick={onRemoveGroupClick}
         >
@@ -101,19 +115,10 @@ const groupFooterStyles = css({
   width: `calc(100% - ${CONDITION_CONTROLS_WIDTH})`,
 });
 
-const GroupFooter = ({
-  disableAddNestedGroup,
-  onAddNestedGroupClick,
-}: GroupFooterProps) => {
+const GroupFooter = ({ onAddNestedGroupClick }: GroupFooterProps) => {
   return (
     <div data-testid="match-group-footer" className={groupFooterStyles}>
-      <Button
-        as="button"
-        size="small"
-        type="button"
-        disabled={disableAddNestedGroup}
-        onClick={onAddNestedGroupClick}
-      >
+      <Button as="a" size="small" type="button" onClick={onAddNestedGroupClick}>
         ADD GROUP
       </Button>
     </div>
@@ -136,14 +141,15 @@ const nestedGroupStyles = css({
 const Group = ({
   fields,
   nestingLevel,
-  disableAddGroup,
+  hideAddGroup,
   disableRemoveGroup,
   group,
   onGroupChange,
   onRemoveGroupClick,
   onAddGroupClick,
 }: GroupProps) => {
-  const disableAddNestedGroup = nestingLevel === 3;
+  const hideAddNestedGroup =
+    group.groups.length === 2 || nestingLevel === MAX_ALLOWED_NESTING;
 
   const handleOperatorChange = (operator: LogicalOperator) => {
     onGroupChange({
@@ -162,11 +168,43 @@ const Group = ({
     }
   );
 
-  const handleConditionsChange = (newConditions: MatchCondition[]) =>
+  const handleAddConditionClick = (afterIdx: number) => {
+    const newConditions = [...group.conditions];
+    newConditions.splice(afterIdx + 1, 0, createCondition());
     onGroupChange({
       ...group,
       conditions: newConditions,
     });
+  };
+
+  const handleRemoveConditionClick = (atIdx: number) => {
+    if (group.conditions.length === 1) {
+      // We don't remove the last condition
+      // as there is no other way to add one.
+      // If user would like all conditions removed
+      // then they probably should remove the group
+      return;
+    }
+
+    const remainingConditions = [...group.conditions];
+    remainingConditions.splice(atIdx, 1);
+    onGroupChange({
+      ...group,
+      conditions: remainingConditions,
+    });
+  };
+
+  const handleConditionChange = (
+    conditionIdx: number,
+    newCondition: MatchCondition
+  ) => {
+    const newConditions = [...group.conditions];
+    newConditions[conditionIdx] = newCondition;
+    onGroupChange({
+      ...group,
+      conditions: newConditions,
+    });
+  };
 
   const handleNestedGroupsChange = (newGroups: MatchConditionGroups) =>
     onGroupChange({
@@ -180,28 +218,37 @@ const Group = ({
       className={cx(groupStyles, nestingLevel !== 0 && nestedGroupStyles)}
     >
       <GroupHeader
-        disableAddBtn={disableAddGroup}
-        disableRemoveBtn={disableRemoveGroup}
+        hideAddGroup={hideAddGroup}
+        disableRemoveGroup={disableRemoveGroup}
         operator={group.logicalOperator}
         onOperatorChange={handleOperatorChange}
         onAddGroupClick={onAddGroupClick}
         onRemoveGroupClick={onRemoveGroupClick}
       />
-      <Conditions
-        fields={fields}
-        conditions={group.conditions}
-        onConditionsChange={handleConditionsChange}
-      />
-      <GroupFooter
-        disableAddNestedGroup={disableAddNestedGroup}
-        onAddNestedGroupClick={handleAddNestedGroupClick}
-      />
+      {group.conditions.map((condition, conditionIdx) => (
+        <Condition
+          key={condition.id}
+          disableRemoveBtn={group.conditions.length === 1}
+          fields={fields}
+          condition={condition}
+          onConditionChange={(newCondition) =>
+            handleConditionChange(conditionIdx, newCondition)
+          }
+          onAddConditionClick={() => handleAddConditionClick(conditionIdx)}
+          onRemoveConditionClick={() =>
+            handleRemoveConditionClick(conditionIdx)
+          }
+        />
+      ))}
       <Groups
         nestingLevel={nestingLevel + 1}
         fields={fields}
         groups={group.groups}
         onGroupsChange={handleNestedGroupsChange}
       />
+      {!hideAddNestedGroup && (
+        <GroupFooter onAddNestedGroupClick={handleAddNestedGroupClick} />
+      )}
     </div>
   );
 };

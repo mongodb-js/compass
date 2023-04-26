@@ -25,6 +25,19 @@ export type ConditionProps = {
 };
 
 // Helpers
+export const createCondition = (() => {
+  let id = 1;
+  return (
+    condition: Omit<Partial<MatchCondition>, 'id'> = {}
+  ): MatchCondition => ({
+    id: id++,
+    field: '',
+    operator: '$eq',
+    value: '',
+    bsonType: '',
+    ...condition,
+  });
+})();
 
 // The current list of operators that we provide in the
 // form can not realistically work with the following types
