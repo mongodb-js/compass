@@ -17,16 +17,14 @@ async function selectExportFileTypeCSV(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeCSV);
 }
 
-describe.only('Collection export', function () {
+describe('Collection export legacy', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
 
   before(async function () {
     telemetry = await startTelemetryServer();
-    compass = await beforeTests({
-      extraSpawnArgs: ['--useNewExport=true'],
-    });
+    compass = await beforeTests();
     browser = compass.browser;
   });
 
@@ -48,97 +46,66 @@ describe.only('Collection export', function () {
   it('supports collection to CSV with a query filter', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
-    // Set a query that we'll use.
+    // set a query that we'll use
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
-    // Open the modal.
-    await browser.clickVisible(Selectors.ExportCollectionMenuButton);
-    const exportQueryOption = await browser.$(
-      Selectors.ExportCollectionQueryOption
-    );
-    await exportQueryOption.waitForDisplayed();
-    await browser.clickVisible(Selectors.ExportCollectionQueryOption);
+    // open the modal
+    await browser.clickVisible(Selectors.ExportCollectionButton);
     const exportModal = await browser.$(Selectors.ExportModal);
     await exportModal.waitForDisplayed();
 
-    // Make sure the query is shown in the modal.
+    // make sure the query is shown in the modal
     const exportModalQueryTextElement = await browser.$(
       Selectors.ExportModalCodePreview
     );
     expect(await exportModalQueryTextElement.getText()).to
-      .equal(`db.getCollection("numbers").find(
+      .equal(`db.numbers.find(
   {i: 5}
 )`);
 
-    await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
+    // go with the default option (Export query with filters)
+    await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
-    await browser.clickVisible(Selectors.ExportNextStepButton);
+    // don't change any field selections for now and export all of them
+    await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
-    // Click the checkbox to select all fields.
-    const selectAllFieldsCheckbox = await browser.$(
-      Selectors.ExportSelectAllFieldsCheckbox
-    );
-    const selectAllFieldsLabel = await selectAllFieldsCheckbox.parentElement();
-    await selectAllFieldsLabel.click();
-
-    await browser.clickVisible(Selectors.ExportNextStepButton);
-
-    expect(await exportModalQueryTextElement.getText()).to
-      .equal(`db.getCollection("numbers").find(
-  {i: 5},
-  {_id: true,i: true,j: true}
-)`);
-
-    // Select CSV.
+    // select CSV
     await selectExportFileTypeCSV(browser);
-
+    const filename = outputFilename('filtered-numbers.csv');
+    await browser.setExportFilename(filename);
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
-    const filename = outputFilename('filtered-numbers.csv');
-    await browser.setExportFilename(filename, true);
+    // wait for it to finish
+    const exportModalShowFileButtonElement = await browser.$(
+      Selectors.ExportModalShowFileButton
+    );
+    await exportModalShowFileButtonElement.waitForDisplayed();
 
-    // Wait for the modal to go away.
+    // clicking the button would open the file in finder/explorer/whatever
+    // which is probably not something we can check with webdriver. But we can
+    // check that the file exists.
+
+    // close the modal and wait for it to go away
+    await browser.clickVisible(Selectors.ExportModalCloseButton);
     const exportModalElement = await browser.$(Selectors.ExportModal);
     await exportModalElement.waitForDisplayed({
       reverse: true,
     });
 
-    // Wait for the export to finish and close the toast.
-    const toastElement = await browser.$(Selectors.ExportToast);
-    await toastElement.waitForDisplayed();
-
-    const exportShowFileButtonElement = await browser.$(
-      Selectors.ExportToastShowFile
-    );
-    await exportShowFileButtonElement.waitForDisplayed();
-
-    await browser
-      .$(Selectors.closeToastButton(Selectors.ExportToast))
-      .waitForDisplayed();
-    await browser.clickVisible(
-      Selectors.closeToastButton(Selectors.ExportToast)
-    );
-    await toastElement.waitForDisplayed({ reverse: true });
-
-    // Clicking the button would open the file in finder/explorer/whatever
-    // which is currently not something we can check with webdriver. But we can
-    // check that the file exists.
-
-    // Confirm that we exported what we expected to export.
+    // confirm that we exported what we expected to export
     const text = await fs.readFile(filename, 'utf-8');
     //  example:'_id,i\n6154788cc5f1fd4544fcedb1,5'
     const lines = text.split(/\r?\n/);
     expect(lines[0]).to.equal('_id,i,j');
     const fields = lines[1].split(',');
-    // First field is an auto generated _id, so always different.
+    // first field is an id, so always different
     expect(fields[1]).to.equal('5');
 
     const exportCompletedEvent = await telemetryEntry('Export Completed');
     expect(exportCompletedEvent).to.deep.equal({
       all_docs: false,
       file_type: 'csv',
-      field_count: 3,
-      field_option: 'select-fields',
+      all_fields: true,
       number_of_docs: 1,
       success: true,
       type: 'query',
@@ -213,8 +180,6 @@ describe.only('Collection export', function () {
       all_docs: true,
       file_type: 'csv',
       all_fields: true,
-      field_count: 3,
-      field_option: 'select-fields',
       number_of_docs: 1000,
       success: true,
       type: 'query',

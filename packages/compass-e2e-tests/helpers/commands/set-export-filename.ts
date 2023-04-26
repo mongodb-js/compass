@@ -8,7 +8,8 @@ chai.use(chaiAsPromised);
 
 export async function setExportFilename(
   browser: CompassBrowser,
-  filename: string
+  filename: string,
+  skipUIElementCheck?: boolean // TODO(COMPASS-6582): Remove this option an default to skipping the UI element check.
 ): Promise<void> {
   // make sure the file doesn't already exist
   await expect(fs.stat(filename)).to.be.rejected;
@@ -18,6 +19,12 @@ export async function setExportFilename(
       new CustomEvent('selectExportFileName', { detail: f })
     );
   }, filename);
+
+  if (skipUIElementCheck) {
+    // With the new export we use the electron file window directly (showSaveDialog) instead
+    // of using an html input element. So we don't have an element to check here.
+    return;
+  }
 
   await browser.waitUntil(async () => {
     const exportModalFileInput = await browser.$(

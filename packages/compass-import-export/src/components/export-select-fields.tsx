@@ -298,6 +298,7 @@ function ExportSelectFields({
                 key="checkbox"
                 label={
                   <Checkbox
+                    data-testid="export-fields-select-all-table-checkbox"
                     aria-label={
                       isEveryFieldChecked
                         ? 'Deselect all fields'

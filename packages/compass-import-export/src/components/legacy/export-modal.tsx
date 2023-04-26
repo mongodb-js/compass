@@ -118,7 +118,7 @@ function ExportOptions({
             queryViewerStyles,
             isFullCollection && queryViewerDisabledStyles
           )}
-          data-testid="query-viewer-wrapper"
+          data-testid="export-collection-code-preview-wrapper"
         >
           <Code copyable={false} language="js">
             {codeString}

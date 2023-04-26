@@ -362,6 +362,8 @@ export const runExport = ({
       dataService: { dataService },
     } = getState();
 
+    let fieldCount = 0;
+
     const query =
       selectedFieldOption === 'select-fields'
         ? {
@@ -371,7 +373,10 @@ export const runExport = ({
             projection: createProjectionFromSchemaFields(
               Object.values(fieldsToExport)
                 .filter((field) => field.selected)
-                .map((field) => field.path)
+                .map((field) => {
+                  fieldCount++;
+                  return field.path;
+                })
             ),
           }
         : _query;
@@ -485,7 +490,8 @@ export const runExport = ({
       all_docs: exportFullCollection,
       field_option: selectedFieldOption,
       file_type: fileType,
-      all_fields: selectedFieldOption === 'all-fields',
+      field_count:
+        selectedFieldOption === 'select-fields' ? fieldCount : undefined,
       number_of_docs: exportResult?.docsWritten,
       success: exportSucceeded,
     });
