@@ -207,6 +207,7 @@ const GroupAccumulatorForm = ({
             <ComboboxWithCustomOption
               className={accumulatorFieldcomboboxStyles}
               aria-label="Select a field"
+              placeholder="Select a field name"
               size="default"
               clearable={false}
               value={field}
