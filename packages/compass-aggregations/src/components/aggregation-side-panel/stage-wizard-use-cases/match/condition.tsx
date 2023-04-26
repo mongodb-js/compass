@@ -84,7 +84,7 @@ const MATCH_OPERATOR_LABELS: { operator: MatchOperator; label: string }[] = [
 ];
 
 // Components - Condition
-export const CONDITION_CONTROLS_WIDTH = '60px';
+export const CONDITION_CONTROLS_WIDTH = 60;
 
 const conditionContainerStyles = css({
   display: 'flex',
@@ -93,7 +93,7 @@ const conditionContainerStyles = css({
 });
 
 const fieldGroupStyles = css({
-  width: `calc(100% - ${CONDITION_CONTROLS_WIDTH})`,
+  width: `calc(100% - ${CONDITION_CONTROLS_WIDTH}px)`,
   display: 'flex',
   gap: spacing[2],
 });
@@ -104,7 +104,7 @@ const valueInputStyles = css({ flex: '1 0 20%' });
 const bsonTypeSelectStyles = css({ flex: '1 0 20%' });
 
 const conditionControlsStyles = css({
-  width: CONDITION_CONTROLS_WIDTH,
+  width: `${CONDITION_CONTROLS_WIDTH}px`,
   justifyContent: 'flex-end',
   display: 'flex',
 });

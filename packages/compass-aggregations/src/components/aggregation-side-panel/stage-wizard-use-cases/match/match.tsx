@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import TypeChecker from 'hadron-type-checker';
 import { css, spacing } from '@mongodb-js/compass-components';
 
-import Groups, { createGroup } from './groups';
 import type { WizardComponentProps } from '..';
 import queryParser from 'mongodb-query-parser';
+import Group, { makeGroupsHandlers, createGroup } from './group';
 
 // Types
 export type LogicalOperator = '$or' | '$and';
@@ -138,14 +138,29 @@ const MatchForm = ({ fields, onChange }: WizardComponentProps) => {
     }
   }, [matchGroups, onChange]);
 
+  const groupsHandlers = makeGroupsHandlers(matchGroups, (newGroups) =>
+    setMatchGroups(newGroups)
+  );
+
   return (
     <div className={formContainerStyles}>
-      <Groups
-        nestingLevel={0}
-        fields={fields}
-        groups={matchGroups}
-        onGroupsChange={(newGroups) => setMatchGroups(newGroups)}
-      />
+      {matchGroups.map((group, groupIdx) => (
+        <Group
+          key={group.id}
+          fields={fields}
+          nestingLevel={0}
+          disableAddGroup={matchGroups.length === 2}
+          disableRemoveGroup={matchGroups.length === 1}
+          group={group}
+          onGroupChange={(changedGroup) => {
+            groupsHandlers.handleGroupChange(groupIdx, changedGroup);
+          }}
+          onRemoveGroupClick={() =>
+            groupsHandlers.handleRemoveGroupClick(groupIdx)
+          }
+          onAddGroupClick={() => groupsHandlers.handleAddGroupClick()}
+        />
+      ))}
     </div>
   );
 };
