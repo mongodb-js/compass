@@ -46,6 +46,7 @@ function FieldsToExportOptions({
         }: React.ChangeEvent<HTMLInputElement>) =>
           setFieldsToExportOption(value as FieldsToExportOption)
         }
+        value={fieldsToExportOption}
       >
         <RadioBox
           id="export-query-all-fields-option"

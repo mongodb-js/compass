@@ -1041,8 +1041,8 @@ export const ExportModalCodePreview =
   '[data-testid="export-modal"] [data-testid="export-collection-code-preview-wrapper"]';
 export const ExportQuerySelectFieldsOption =
   '[data-testid="export-modal"] label[for="export-query-select-fields-option"]';
-// label[for="connection-authentication-method-DEFAULT-button"]
-//   '[data-testid="export-modal"] [data-testid="export-query-select-fields-option"]';
+export const ExportQueryAllFieldsOption =
+  '[data-testid="export-modal"] label[for="export-query-all-fields-option"]';
 export const ExportNextStepButton =
   '[data-testid="export-modal"] [data-testid="export-next-step-button"]';
 export const ExportSelectAllFieldsCheckbox =

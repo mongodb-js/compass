@@ -922,13 +922,15 @@ describe('Collection import', function () {
   });
 
   describe('aborting an import', function () {
+    beforeEach(function () {
+      process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
+    });
+
     afterEach(function () {
       delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
     });
 
     it('aborts an in progress import', async function () {
-      process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
-
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
@@ -989,8 +991,6 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
-      process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
-
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 

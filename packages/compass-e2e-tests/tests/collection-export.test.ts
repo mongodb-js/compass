@@ -45,7 +45,7 @@ describe.only('Collection export', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it('supports collection to CSV with a query filter', async function () {
+  it.only('supports collection to CSV with a query filter with a subset of fields', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // Set a query that we'll use.
@@ -53,10 +53,6 @@ describe.only('Collection export', function () {
 
     // Open the modal.
     await browser.clickVisible(Selectors.ExportCollectionMenuButton);
-    const exportQueryOption = await browser.$(
-      Selectors.ExportCollectionQueryOption
-    );
-    await exportQueryOption.waitForDisplayed();
     await browser.clickVisible(Selectors.ExportCollectionQueryOption);
     const exportModal = await browser.$(Selectors.ExportModal);
     await exportModal.waitForDisplayed();
@@ -70,23 +66,35 @@ describe.only('Collection export', function () {
   {i: 5}
 )`);
 
+    // Choose to export select fields.
     await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
-
     await browser.clickVisible(Selectors.ExportNextStepButton);
 
+    // Click to export the `i` and `j` fields.
+    const iFieldCheckbox = await browser
+      .$(Selectors.exportModalExportField('[\\"i\\"]'))
+      .parentElement();
+    await iFieldCheckbox.waitForExist();
+    await iFieldCheckbox.click();
+    const jFieldCheckbox = await browser
+      .$(Selectors.exportModalExportField('[\\"j\\"]'))
+      .parentElement();
+    await jFieldCheckbox.waitForExist();
+    await jFieldCheckbox.click();
+
     // Click the checkbox to select all fields.
-    const selectAllFieldsCheckbox = await browser.$(
-      Selectors.ExportSelectAllFieldsCheckbox
-    );
-    const selectAllFieldsLabel = await selectAllFieldsCheckbox.parentElement();
-    await selectAllFieldsLabel.click();
+    // const selectAllFieldsCheckbox = await browser.$(
+    //   Selectors.ExportSelectAllFieldsCheckbox
+    // );
+    // const selectAllFieldsLabel = await selectAllFieldsCheckbox.parentElement();
+    // await selectAllFieldsLabel.click();
 
     await browser.clickVisible(Selectors.ExportNextStepButton);
 
     expect(await exportModalQueryTextElement.getText()).to
       .equal(`db.getCollection("numbers").find(
   {i: 5},
-  {_id: true,i: true,j: true}
+  {i: true,j: true,_id: false}
 )`);
 
     // Select CSV.
@@ -111,10 +119,10 @@ describe.only('Collection export', function () {
       Selectors.ExportToastShowFile
     );
     await exportShowFileButtonElement.waitForDisplayed();
-
     await browser
       .$(Selectors.closeToastButton(Selectors.ExportToast))
       .waitForDisplayed();
+    // TODO: Remove extra close toast wait for displayed here and other.
     await browser.clickVisible(
       Selectors.closeToastButton(Selectors.ExportToast)
     );
@@ -123,6 +131,84 @@ describe.only('Collection export', function () {
     // Clicking the button would open the file in finder/explorer/whatever
     // which is currently not something we can check with webdriver. But we can
     // check that the file exists.
+
+    // Confirm that we exported what we expected to export.
+    const text = await fs.readFile(filename, 'utf-8');
+    // 'i,j\n5,0'
+    const lines = text.split(/\r?\n/);
+    expect(lines[0]).to.equal('i,j');
+    expect(lines[1]).to.equal('5,0');
+
+    const exportCompletedEvent = await telemetryEntry('Export Completed');
+    expect(exportCompletedEvent).to.deep.equal({
+      all_docs: false,
+      file_type: 'csv',
+      field_count: 2,
+      field_option: 'select-fields',
+      number_of_docs: 1,
+      success: true,
+      type: 'query',
+    });
+    expect(telemetry.screens()).to.include('export_modal');
+  });
+
+  it.only('supports collection to CSV with a query filter with all fields', async function () {
+    const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+
+    // Set a query that we'll use.
+    await browser.runFindOperation('Documents', '{ i: 5 }');
+
+    // Open the modal.
+    await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+    await browser.clickVisible(Selectors.ExportCollectionQueryOption);
+    const exportModal = await browser.$(Selectors.ExportModal);
+    await exportModal.waitForDisplayed();
+
+    const exportModalQueryTextElement = await browser.$(
+      Selectors.ExportModalCodePreview
+    );
+    expect(await exportModalQueryTextElement.getText()).to
+      .equal(`db.getCollection("numbers").find(
+  {i: 5}
+)`);
+
+    // Select export all fields.
+    await browser.clickVisible(Selectors.ExportQueryAllFieldsOption);
+    await browser.clickVisible(Selectors.ExportNextStepButton);
+
+    // Make sure the query is shown in the modal.
+    expect(await exportModalQueryTextElement.getText()).to
+      .equal(`db.getCollection("numbers").find(
+  {i: 5}
+)`);
+
+    // Select export CSV.
+    await selectExportFileTypeCSV(browser);
+    await browser.clickVisible(Selectors.ExportModalExportButton);
+    const filename = outputFilename('all-fields-numbers.csv');
+    await browser.setExportFilename(filename, true);
+
+    // Wait for the modal to go away.
+    const exportModalElement = await browser.$(Selectors.ExportModal);
+    await exportModalElement.waitForDisplayed({
+      reverse: true,
+    });
+
+    // Wait for the export to finish and close the toast.
+    const toastElement = await browser.$(Selectors.ExportToast);
+    await toastElement.waitForDisplayed();
+    const exportShowFileButtonElement = await browser.$(
+      Selectors.ExportToastShowFile
+    );
+    await exportShowFileButtonElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ExportToast))
+      .waitForDisplayed();
+    // TODO: Remove extra close toast wait for displayed here and other.
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ExportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
 
     // Confirm that we exported what we expected to export.
     const text = await fs.readFile(filename, 'utf-8');
@@ -137,8 +223,7 @@ describe.only('Collection export', function () {
     expect(exportCompletedEvent).to.deep.equal({
       all_docs: false,
       file_type: 'csv',
-      field_count: 3,
-      field_option: 'select-fields',
+      field_option: 'all-fields',
       number_of_docs: 1,
       success: true,
       type: 'query',
@@ -146,65 +231,54 @@ describe.only('Collection export', function () {
     expect(telemetry.screens()).to.include('export_modal');
   });
 
-  it('supports full collection to CSV with all fields', async function () {
+  it.only('supports full collection to CSV', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
-    // we're not going to use this query, but we're running it so we can make
-    // sure it gets ignored
+    // Set a query that we ignore.
     await browser.runFindOperation('Documents', '{ i: 5 }');
-    await browser.clickVisible(Selectors.ExportCollectionButton);
 
-    // open the modal
+    // Open the modal.
+    await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+    await browser.clickVisible(Selectors.ExportCollectionFullCollectionOption);
     const exportModal = await browser.$(Selectors.ExportModal);
     await exportModal.waitForDisplayed();
 
-    // make sure the filter query is shown
-    const exportModalQueryTextElement = await browser.$(
-      Selectors.ExportModalCodePreview
-    );
-    expect(await exportModalQueryTextElement.getText()).to
-      .equal(`db.numbers.find(
-  {i: 5}
-)`);
-
-    // export the entire collection
-    const fullCollectionRadio = await browser
-      .$(Selectors.ExportModalFullCollectionOption)
-      .parentElement();
-    await fullCollectionRadio.waitForExist();
-    await fullCollectionRadio.click();
-    await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
-
-    // export all fields
-    await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
-
-    // CSV file type
+    // Export the entire collection.
     await selectExportFileTypeCSV(browser);
-    const filename = outputFilename('all-numbers.csv');
-    await browser.setExportFilename(filename);
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
-    // wait for it to finish, then close the modal
-    const exportModalShowFileButtonElement = await browser.$(
-      Selectors.ExportModalShowFileButton
-    );
-    await exportModalShowFileButtonElement.waitForDisplayed();
-    await browser.clickVisible(Selectors.ExportModalCloseButton);
+    const filename = outputFilename('full-collection.csv');
+    await browser.setExportFilename(filename, true);
 
-    // the modal should go away
+    // Wait for the modal to go away.
     const exportModalElement = await browser.$(Selectors.ExportModal);
     await exportModalElement.waitForDisplayed({
       reverse: true,
     });
 
-    // confirm that we exported what we expected to
+    // Wait for the export to finish and close the toast.
+    const toastElement = await browser.$(Selectors.ExportToast);
+    await toastElement.waitForDisplayed();
+    const exportShowFileButtonElement = await browser.$(
+      Selectors.ExportToastShowFile
+    );
+    await exportShowFileButtonElement.waitForDisplayed();
+    // TODO: Remove extra close toast wait for displayed here and other.
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ExportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ExportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
+
+    // Make sure we exported what we expected to export.
     const text = await fs.readFile(filename, 'utf-8');
-    //  example:'_id,i\n6154788cc5f1fd4544fcedb1,0'
+    // Example:'i\n6154788cc5f1fd4544fcedb1,5,0'.
     const lines = text.split(/\r?\n/);
     expect(lines[0]).to.equal('_id,i,j');
     for (let i = 1; i <= 1000; ++i) {
       const fields = lines[i].split(',');
-      // first field is an id, so always different
       expect(fields[1]).to.equal((i - 1).toString());
     }
 
@@ -212,9 +286,6 @@ describe.only('Collection export', function () {
     expect(exportCompletedEvent).to.deep.equal({
       all_docs: true,
       file_type: 'csv',
-      all_fields: true,
-      field_count: 3,
-      field_option: 'select-fields',
       number_of_docs: 1000,
       success: true,
       type: 'query',
@@ -222,73 +293,7 @@ describe.only('Collection export', function () {
     expect(telemetry.screens()).to.include('export_modal');
   });
 
-  it('supports full collection to CSV with a subset of fields', async function () {
-    const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
-
-    await browser.clickVisible(Selectors.ExportCollectionButton);
-
-    // open the modal
-    const exportModal = await browser.$(Selectors.ExportModal);
-    await exportModal.waitForDisplayed();
-
-    // export the entire collection
-    const fullCollectionRadio = await browser
-      .$(Selectors.ExportModalFullCollectionOption)
-      .parentElement();
-    await fullCollectionRadio.waitForExist();
-    await fullCollectionRadio.click();
-    await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
-
-    // de-select _id to just export the i field
-    const idFieldCheckbox = await browser
-      .$(Selectors.exportModalExportField('_id'))
-      .parentElement();
-    await idFieldCheckbox.waitForExist();
-    await idFieldCheckbox.click();
-    await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
-
-    // CSV file type
-    await selectExportFileTypeCSV(browser);
-    const filename = outputFilename('numbers-only.csv');
-    await browser.setExportFilename(filename);
-    await browser.clickVisible(Selectors.ExportModalExportButton);
-
-    // wait for it to finish
-    const exportModalShowFileButtonElement = await browser.$(
-      Selectors.ExportModalShowFileButton
-    );
-    await exportModalShowFileButtonElement.waitForDisplayed();
-
-    // close the modal and wait for it to go away
-    await browser.clickVisible(Selectors.ExportModalCloseButton);
-    const exportModalElement = await browser.$(Selectors.ExportModal);
-    await exportModalElement.waitForDisplayed({
-      reverse: true,
-    });
-
-    // make sure we exported what we expected to export
-    const text = await fs.readFile(filename, 'utf-8');
-    //  example:'i\n6154788cc5f1fd4544fcedb1,0'
-    const lines = text.split(/\r?\n/);
-    expect(lines[0]).to.equal('i,j');
-    for (let i = 1; i <= 1000; ++i) {
-      const fields = lines[i].split(',');
-      expect(fields[0]).to.equal((i - 1).toString());
-    }
-
-    const exportCompletedEvent = await telemetryEntry('Export Completed');
-    expect(exportCompletedEvent).to.deep.equal({
-      all_docs: true,
-      file_type: 'csv',
-      all_fields: false,
-      number_of_docs: 1000,
-      success: true,
-      type: 'query',
-    });
-    expect(telemetry.screens()).to.include('export_modal');
-  });
-
-  it('supports collection to JSON with a query filter', async function () {
+  it('supports collection to JSON with a query filter with a subset of fields', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // set a query that we'll use
@@ -356,7 +361,7 @@ describe.only('Collection export', function () {
     expect(telemetry.screens()).to.include('export_modal');
   });
 
-  it('supports full collection to JSON with all fields', async function () {
+  it('supports collection to JSON with a query with all fields', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // we're not going to use this query, but we're running it so we can make
@@ -427,7 +432,7 @@ describe.only('Collection export', function () {
     expect(telemetry.screens()).to.include('export_modal');
   });
 
-  it('supports full collection to JSON with a subset of fields', async function () {
+  it('supports full collection to JSON', async function () {
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     await browser.clickVisible(Selectors.ExportCollectionButton);
@@ -495,4 +500,11 @@ describe.only('Collection export', function () {
     });
     expect(telemetry.screens()).to.include('export_modal');
   });
+
+  // TODO: Is export aggregation output tracked somewhere?
+
+  // TODO: Abort in progress.
+  // TODO: Abort when disconnecting.
+  // TODO: Export with collation + sort + limit + skip.
+  // TODO: Export with projection.
 });

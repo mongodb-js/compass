@@ -65,7 +65,7 @@ type ExportOptions = {
   aggregation?: ExportAggregation;
   fieldsToExport: FieldsToExport;
 
-  selectedFieldOption: undefined | FieldsToExportOption;
+  selectedFieldOption: FieldsToExportOption;
 };
 
 export type ExportStatus =
@@ -98,7 +98,7 @@ export const initialState: ExportState = {
   errorLoadingFieldsToExport: undefined,
   fieldsToExport: {},
   fieldsToExportAbortController: undefined,
-  selectedFieldOption: undefined,
+  selectedFieldOption: 'all-fields',
   exportFullCollection: undefined,
   aggregation: undefined,
   exportAbortController: undefined,
@@ -365,7 +365,11 @@ export const runExport = ({
     let fieldCount = 0;
 
     const query =
-      selectedFieldOption === 'select-fields'
+      exportFullCollection || aggregation
+        ? {
+            filter: {},
+          }
+        : selectedFieldOption === 'select-fields'
         ? {
             ...(_query ?? {
               filter: {},
@@ -488,7 +492,8 @@ export const runExport = ({
     track('Export Completed', {
       type: aggregation ? 'aggregation' : 'query',
       all_docs: exportFullCollection,
-      field_option: selectedFieldOption,
+      field_option:
+        exportFullCollection || aggregation ? undefined : selectedFieldOption,
       file_type: fileType,
       field_count:
         selectedFieldOption === 'select-fields' ? fieldCount : undefined,
@@ -557,7 +562,7 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
       isOpen: true,
       fieldsToExport: {},
       errorLoadingFieldsToExport: undefined,
-      selectedFieldOption: undefined,
+      selectedFieldOption: 'all-fields',
       exportFileError: undefined,
       namespace: action.namespace,
       exportFullCollection: action.exportFullCollection,
@@ -662,7 +667,6 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
     return {
       ...state,
       fieldsToExportAbortController: undefined,
-      selectedFieldOption: undefined,
       status: 'select-field-options',
     };
   }

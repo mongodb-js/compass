@@ -16,7 +16,7 @@ type ExportCodeViewProps = {
   ns: string;
   query?: ExportQuery;
   fields: FieldsToExport;
-  selectedFieldOption: undefined | FieldsToExportOption;
+  selectedFieldOption: FieldsToExportOption;
 };
 
 function ExportCodeView({

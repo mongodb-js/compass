@@ -79,7 +79,7 @@ type ExportModalProps = {
   query?: ExportQuery;
   exportFullCollection?: boolean;
   aggregation?: ExportAggregation;
-  selectedFieldOption: undefined | FieldsToExportOption;
+  selectedFieldOption: FieldsToExportOption;
   isFieldsToExportLoading: boolean;
   selectFieldsToExport: () => void;
   readyToExport: (selectedFieldOption?: 'all-fields') => void;
