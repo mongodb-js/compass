@@ -1,5 +1,5 @@
 {
-  "uniqueFields": ["foo", "foo.bar", "foo.bar.baz", "notes"],
+  "uniqueFields": ["foo", "foo[]", "foo[].bar", "foo[].bar.baz", "notes"],
   "headerFields": ["foo", "foo[0]", "foo[1].bar", "foo[2].bar.baz", "notes"],
   "preview": [
     ["1", "", "", "", "simple value"],

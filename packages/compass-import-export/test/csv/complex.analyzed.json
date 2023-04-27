@@ -1,26 +1,43 @@
 {
   "totalRows": 3,
-  "aborted": false,
   "fields": {
     "foo": {
       "types": {
         "int": {
-          "count": 3,
+          "count": 1,
           "firstRowIndex": 0,
           "firstColumnIndex": 0,
           "firstValue": "1"
         },
         "undefined": {
-          "count": 3,
-          "firstRowIndex": 0,
-          "firstColumnIndex": 1,
+          "count": 2,
+          "firstRowIndex": 1,
+          "firstColumnIndex": 0,
           "firstValue": ""
         }
       },
-      "columnIndexes": [0, 1],
+      "columnIndexes": [0],
       "detected": "int"
     },
-    "foo.bar": {
+    "foo[]": {
+      "types": {
+        "undefined": {
+          "count": 1,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 1,
+          "firstValue": ""
+        },
+        "int": {
+          "count": 2,
+          "firstRowIndex": 1,
+          "firstColumnIndex": 1,
+          "firstValue": "1"
+        }
+      },
+      "columnIndexes": [1],
+      "detected": "int"
+    },
+    "foo[].bar": {
       "types": {
         "undefined": {
           "count": 2,
@@ -38,7 +55,7 @@
       "columnIndexes": [2],
       "detected": "int"
     },
-    "foo.bar.baz": {
+    "foo[].bar.baz": {
       "types": {
         "undefined": {
           "count": 2,
@@ -68,5 +85,6 @@
       "columnIndexes": [4],
       "detected": "string"
     }
-  }
+  },
+  "aborted": false
 }

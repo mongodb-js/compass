@@ -91,6 +91,7 @@ export const ANALYZE_CANCELLED = `${PREFIX}/ANALYZE_CANCELLED`;
 export const ANALYZE_PROGRESS = `${PREFIX}/ANALYZE_PROGRESS`;
 
 export type FieldFromCSV = {
+  isArray: boolean;
   path: string;
   checked: boolean;
   type: CSVParsableFieldType;
@@ -100,11 +101,7 @@ type FieldFromJSON = {
   path: string;
   checked: boolean;
 };
-type PlaceholderField = {
-  path: string;
-  type: 'placeholder';
-};
-type FieldType = FieldFromJSON | FieldFromCSV | PlaceholderField;
+type FieldType = FieldFromJSON | FieldFromCSV;
 
 export type CSVDelimiter = ',' | '\t' | ';' | ' ';
 
@@ -499,7 +496,7 @@ export const skipCSVAnalyze = () => {
 };
 
 const loadTypes = (
-  fields: (FieldFromCSV | PlaceholderField)[],
+  fields: FieldFromCSV[],
   values: string[][]
 ): ThunkAction<Promise<void>, RootImportState, void, AnyAction> => {
   return async (
@@ -548,18 +545,7 @@ const loadTypes = (
         progressCallback,
       });
 
-      for (const unknownField of fields) {
-        // fields are both CSV fields (where you can assign a type and decide
-        // to include/exclude it) or placeholder ones.
-        // ie. for foo[0] we'll show a type dropdown (labelled "foo") which
-        // determines the types of all the elements in the array and for
-        // foo[1] we just leave a placeholder.
-        if ((unknownField as PlaceholderField).type === 'placeholder') {
-          continue;
-        }
-
-        const csvField = unknownField as FieldFromCSV;
-
+      for (const csvField of fields) {
         csvField.type = result.fields[csvField.path].detected;
 
         csvField.result = result.fields[csvField.path];
@@ -606,32 +592,54 @@ const loadCSVPreviewDocs = (): ThunkAction<
 
     try {
       const result = await listCSVFields({ input, delimiter });
-      const fieldMap: Record<string, true> = {};
 
-      const fields = result.headerFields.map(
-        (name): FieldFromCSV | PlaceholderField => {
-          const uniqueName = csvHeaderNameToFieldName(name);
-          // we already have a field for this flattened/unique name.
-          // (ie. this is an item inside an array and it is not the first
-          // element in that array)
-          if (fieldMap[uniqueName]) {
-            return {
-              path: name,
-              type: 'placeholder',
-            };
-          }
+      const fieldMap: Record<string, number[]> = {};
+      const fields: FieldFromCSV[] = [];
 
-          fieldMap[uniqueName] = true;
-
-          return {
+      // group the array fields' cells together so that large arrays don't kill
+      // performance and cause excessive horizontal scrolling
+      for (const [index, name] of result.headerFields.entries()) {
+        const uniqueName = csvHeaderNameToFieldName(name);
+        if (fieldMap[uniqueName]) {
+          fieldMap[uniqueName].push(index);
+        } else {
+          fieldMap[uniqueName] = [index];
+          fields.push({
+            // foo[] is an array, foo[].bar is not even though we group its
+            // preview items together.
+            isArray: uniqueName.endsWith('[]'),
             path: uniqueName,
             checked: true,
-            type: 'mixed', // will be detected by analyzeCSVFields
-          };
+            type: 'mixed',
+          });
         }
-      );
+      }
 
-      const values = result.preview;
+      const values: string[][] = [];
+      for (const row of result.preview) {
+        const transformed: string[] = [];
+        for (const field of fields) {
+          if (fieldMap[field.path].length === 1) {
+            // if this is either not an array or an array of length one, just
+            // use the value as is
+            const cellValue = row[fieldMap[field.path][0]];
+            transformed.push(cellValue);
+          } else {
+            // if multiple cells map to the same unique field, then join all the
+            // cells for the same unique field together into one array
+            const cellValues = fieldMap[field.path]
+              .map((index) => row[index])
+              .filter((value) => value.length > 0);
+            // present values in foo[] as an array
+            // present values in foo[].bar as just a list of examples
+            const previewText = field.isArray
+              ? JSON.stringify(cellValues, null, 2)
+              : cellValues.join(', ');
+            transformed.push(previewText);
+          }
+        }
+        values.push(transformed);
+      }
 
       await dispatch(loadTypes(fields, values));
     } catch (err) {
@@ -822,21 +830,9 @@ export const closeInProgressMessage = () => ({
   type: CLOSE_IN_PROGRESS_MESSAGE,
 });
 
-function nonPlaceholderFields(
-  fields: FieldType[]
-): (FieldFromCSV | FieldFromJSON)[] {
+function csvFields(fields: (FieldFromCSV | FieldFromJSON)[]): FieldFromCSV[] {
   return fields.filter(
-    (field) => (field as PlaceholderField).type !== 'placeholder'
-  ) as unknown as (FieldFromCSV | FieldFromJSON)[];
-}
-
-function csvFields(
-  fields: (FieldFromCSV | FieldFromJSON | PlaceholderField)[]
-): FieldFromCSV[] {
-  return fields.filter(
-    (field) =>
-      (field as PlaceholderField).type !== 'placeholder' &&
-      (field as FieldFromCSV).type !== undefined
+    (field) => (field as FieldFromCSV).type !== undefined
   ) as unknown as FieldFromCSV[];
 }
 
@@ -903,11 +899,9 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       exclude: [],
     };
 
-    newState.transform = (
-      newState.fields as (FieldFromCSV | PlaceholderField)[]
-    )
-      .filter((field) => field.type !== 'placeholder' && field.checked)
-      .map((field) => [field.path, field.type as CSVParsableFieldType]);
+    newState.transform = (newState.fields as FieldFromCSV[])
+      .filter((field) => field.checked)
+      .map((field) => [field.path, field.type]);
 
     return newState;
   }
@@ -934,7 +928,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       field.type,
     ]);
 
-    newState.exclude = nonPlaceholderFields(newState.fields)
+    newState.exclude = newState.fields
       .filter((field) => !field.checked)
       .map((field) => field.path);
 
@@ -970,7 +964,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       .filter((field) => field.checked)
       .map((field) => [field.path, field.type]);
 
-    newState.exclude = nonPlaceholderFields(newState.fields)
+    newState.exclude = newState.fields
       .filter((field) => !field.checked)
       .map((field) => field.path);
 

@@ -65,6 +65,7 @@ export async function createDummyCollections(): Promise<void> {
   promises.push(createBlankCollection(db, 'json-file'));
   promises.push(createBlankCollection(db, 'extended-json-file'));
   promises.push(createBlankCollection(db, 'csv-file'));
+  promises.push(createBlankCollection(db, 'array-documents'));
   promises.push(createBlankCollection(db, 'bom-csv-file'));
   promises.push(createBlankCollection(db, 'latin1'));
   promises.push(createBlankCollection(db, 'broken-delimiter'));

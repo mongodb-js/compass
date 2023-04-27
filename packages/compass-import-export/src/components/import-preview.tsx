@@ -25,7 +25,11 @@ import { findBrokenCSVTypeExample } from '../csv/csv-utils';
 
 const debug = createDebug('import-preview');
 
-const MAX_STRING_LENGTH = 80;
+// the max length of a value in the preview
+const MAX_VALUE_LENGTH = 80;
+
+// the max length in a cell in the preview table
+const MAX_PREVIEW_LENGTH = 1000;
 
 const columnHeaderStyles = css({
   display: 'flex',
@@ -112,6 +116,11 @@ const selectStyles = css({
   minWidth: spacing[3] * 9,
 });
 
+const arrayTextStyles = css({
+  fontWeight: 'normal',
+  whiteSpace: 'nowrap',
+});
+
 function fieldTypeName(type: CSVParsableFieldType | 'undefined') {
   if (type === 'undefined') {
     return 'Blank';
@@ -131,11 +140,7 @@ function needsMixedWarning(field: Field) {
 
 function needsTypeWarning(field: Field) {
   return !!(
-    field.result &&
-    findBrokenCSVTypeExample(
-      field.result.types,
-      field.type as CSVParsableFieldType
-    )
+    field.result && findBrokenCSVTypeExample(field.result.types, field.type)
   );
 }
 
@@ -176,8 +181,9 @@ function SelectFieldType({
 }
 
 type Field = {
+  isArray?: boolean;
   path: string;
-  type: CSVParsableFieldType | 'placeholder';
+  type: CSVParsableFieldType;
   checked: boolean;
   result?: CSVField;
 };
@@ -274,9 +280,9 @@ function TypeWarning({
   }
 
   const value =
-    example.firstValue.length < MAX_STRING_LENGTH
+    example.firstValue.length < MAX_VALUE_LENGTH
       ? example.firstValue
-      : `${example.firstValue.slice(0, MAX_STRING_LENGTH)}…`;
+      : `${example.firstValue.slice(0, MAX_VALUE_LENGTH)}…`;
 
   return (
     <Tooltip
@@ -313,6 +319,18 @@ function TypeWarning({
   );
 }
 
+function capStringLength(value: any): string {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  if (value.length > MAX_PREVIEW_LENGTH) {
+    return value.substring(0, MAX_PREVIEW_LENGTH) + '…';
+  }
+
+  return value;
+}
+
 function FieldTypeHeading({
   field,
   onFieldCheckedChanged,
@@ -322,10 +340,6 @@ function FieldTypeHeading({
   onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
   setFieldType: (fieldPath: string, fieldType: string) => void;
 }) {
-  if (field.type === 'placeholder') {
-    return null;
-  }
-
   const children = (
     <div>
       <div className={columnNameStyles}>
@@ -350,13 +364,14 @@ function FieldTypeHeading({
         />
         <Label
           id={`toggle-import-field-label-${field.path}`}
-          className={fieldPathHeaderStyles}
+          className={cx('import-field-label', fieldPathHeaderStyles)}
           htmlFor={`toggle-import-field-checkbox-${field.path}`}
         >
           <span title={field.path}>{field.path}</span>
         </Label>
       </div>
       <div className={fieldTypeContainerStyles}>
+        {field.isArray && <span className={arrayTextStyles}>Array of</span>}
         <SelectFieldType
           fieldPath={field.path}
           selectedType={field.type}
@@ -472,12 +487,14 @@ function ImportPreview({
                   cellStyles,
                   !fields[fieldIndex].checked && cellUncheckedStyles
                 )}
-                title={`${values[fieldIndex] || 'empty string'}`}
+                title={`${
+                  capStringLength(values[fieldIndex]) || 'empty string'
+                }`}
               >
                 {values[fieldIndex] === '' ? (
                   <i>empty string</i>
                 ) : (
-                  values[fieldIndex]
+                  capStringLength(values[fieldIndex])
                 )}
               </div>
             </Cell>
