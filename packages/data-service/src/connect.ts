@@ -5,7 +5,7 @@ import { DataServiceImpl } from './data-service';
 
 export default async function connect(
   connectionOptions: ConnectionOptions,
-  logger: DataServiceImplLogger
+  logger?: DataServiceImplLogger
 ): Promise<DataService> {
   const dataService = new DataServiceImpl(connectionOptions, logger);
   await dataService.connect();
