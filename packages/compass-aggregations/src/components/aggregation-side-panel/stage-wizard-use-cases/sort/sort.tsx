@@ -61,11 +61,8 @@ const mapSortFormDataToStageValue = (
   }, {});
 };
 
-export const SortForm = ({
-  fields: fieldsWithTypes,
-  onChange,
-}: WizardComponentProps) => {
-  const fields = fieldsWithTypes.map((field) => field.name);
+export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
+  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [formData, setFormData] = useState<SortFieldState[]>([
     {
       field: '',
@@ -114,10 +111,10 @@ export const SortForm = ({
   const comboboxStyles = useMemo(() => {
     return {
       width: `calc(${String(
-        Math.max(...fields.map((label) => label.length), 10)
+        Math.max(...fieldNames.map((label) => label.length), 10)
       )}ch)`,
     };
-  }, [fields]);
+  }, [fieldNames]);
 
   return (
     <div className={containerStyles}>
@@ -138,7 +135,7 @@ export const SortForm = ({
               clearable={false}
               value={sort.field}
               onChange={(value: string | null) => onSelectField(index, value)}
-              options={fields}
+              options={fieldNames}
               optionLabel="Field:"
               // Used for testing to access the popover for a stage
               popoverClassName={`sort-form-${index}-field-combobox`}

@@ -95,7 +95,7 @@ const selectStyles = css({ minWidth: '120px' });
 const comboboxStyles = css({ width: '350px' });
 
 const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
-  const fieldNames = fields.map(({ name }) => name);
+  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [projectionType, setProjectionType] =
     useState<ProjectionType>('include');
   const [projectFields, setProjectFields] = useState<ProjectFormState>([]);

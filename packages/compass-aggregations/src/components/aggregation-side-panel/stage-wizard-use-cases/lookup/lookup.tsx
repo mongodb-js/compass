@@ -52,12 +52,12 @@ type MappedProps = {
 type LookupProps = LookupOwnProps & MappedProps;
 
 export const LookupForm = ({
-  fields: fieldWithTypes,
+  fields,
   collectionsFields,
   onSelectCollection,
   onChange,
 }: LookupProps) => {
-  const fields = fieldWithTypes.map((field) => field.name);
+  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [formData, setFormData] = useState<LookupFormState>({
     as: '',
     from: '',
@@ -164,7 +164,7 @@ export const LookupForm = ({
           onChange={(value: string | null) =>
             onSelectOption('localField', value)
           }
-          options={fields}
+          options={fieldNames}
           optionLabel="Field:"
         />
       </div>

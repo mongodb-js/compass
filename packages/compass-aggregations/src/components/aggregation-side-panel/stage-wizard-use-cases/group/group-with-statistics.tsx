@@ -16,6 +16,7 @@ import type { Document } from 'mongodb';
 import semver from 'semver';
 import { mapFieldToPropertyName, mapFieldsToGroupId } from '../utils';
 import type { RootState } from '../../../../modules';
+import type { WizardComponentProps } from '..';
 
 const GROUP_FIELDS_LABEL = 'Select field names';
 const ACCUMULATOR_FIELD_LABEL = 'Select a field name';
@@ -93,6 +94,9 @@ const selectStyles = css({
 });
 const accumulatorFieldcomboboxStyles = css({ width: '300px' });
 const groupFieldscomboboxStyles = css({ width: '100%' });
+
+type GroupOwnProps = WizardComponentProps;
+type MapStateProps = { serverVersion: string };
 
 type GroupAccumulators = {
   field: string;
@@ -242,11 +246,8 @@ export const GroupWithStatistics = ({
   fields,
   serverVersion,
   onChange,
-}: {
-  fields: string[];
-  serverVersion: string;
-  onChange: (value: string, error: Error | null) => void;
-}) => {
+}: GroupOwnProps & MapStateProps) => {
+  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [formData, setFormData] = useState<GroupWithStatisticsFormData>({
     groupFields: [],
     groupAccumulators: [
@@ -280,7 +281,7 @@ export const GroupWithStatistics = ({
     <div className={containerStyles}>
       <GroupAccumulatorForm
         serverVersion={serverVersion}
-        fields={fields}
+        fields={fieldNames}
         data={formData.groupAccumulators}
         onChange={(val) => onChangeValue('groupAccumulators', val)}
       />
@@ -295,7 +296,7 @@ export const GroupWithStatistics = ({
           multiselect={true}
           value={formData.groupFields}
           onChange={(val: string[]) => onChangeValue('groupFields', val)}
-          options={fields}
+          options={fieldNames}
           optionLabel="Field:"
           overflow="scroll-x"
         />

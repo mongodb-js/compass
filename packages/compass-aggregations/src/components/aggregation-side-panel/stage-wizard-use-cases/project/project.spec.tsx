@@ -13,17 +13,27 @@ import {
   setSelectValue,
   setMultiSelectComboboxValues,
 } from '../../../../../test/form-helper';
+import type { Fields } from '..';
+
+const SAMPLE_FIELDS: Fields = [
+  {
+    name: 'street',
+    type: 'String',
+  },
+  {
+    name: 'city',
+    type: 'String',
+  },
+  {
+    name: 'zip',
+    type: 'String',
+  },
+];
 
 const renderForm = (
   props: Partial<ComponentProps<typeof ProjectForm>> = {}
 ) => {
-  render(
-    <ProjectForm
-      fields={['street', 'city', 'zip']}
-      onChange={() => {}}
-      {...props}
-    />
-  );
+  render(<ProjectForm fields={SAMPLE_FIELDS} onChange={() => {}} {...props} />);
 };
 
 describe('project', function () {
