@@ -1,14 +1,13 @@
 import type {
   ConnectionInfo,
-  ConnectionOptions,
   DataService,
   ConnectionStorage,
+  connect,
 } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-
 import type { ConnectionAttempt } from '../modules/connection-attempt';
 import { createConnectionAttempt } from '../modules/connection-attempt';
 import {
@@ -18,12 +17,16 @@ import {
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-
 import { ToastVariant, useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
 );
+
+type ConnectFn = typeof connect;
+
+export type { ConnectFn };
 
 export function createNewConnectionInfo(): ConnectionInfo {
   return {
@@ -187,7 +190,7 @@ export function useConnections({
   isConnected: boolean;
   connectionStorage: ConnectionStorage;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
+  connectFn: ConnectFn;
   appName: string;
 }): {
   state: State;

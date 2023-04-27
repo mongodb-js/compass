@@ -11,7 +11,6 @@ import {
   getDataLake,
 } from 'mongodb-build-info';
 import toNS from 'mongodb-ns';
-import createLogger from '@mongodb-js/compass-logging';
 
 import type {
   AtlasVersionInfo,
@@ -25,8 +24,7 @@ import type {
   HostInfo,
 } from './run-command';
 import { runCommand } from './run-command';
-
-const { debug } = createLogger('COMPASS-CONNECT');
+import { debug } from './logger';
 
 type BuildInfoDetails = {
   isEnterprise: boolean;

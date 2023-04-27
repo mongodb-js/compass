@@ -13,13 +13,9 @@ export class ConnectionAttempt {
   _cancelled: Promise<void>;
   _cancelConnectionAttempt?: () => void;
   _closed = false;
-  _connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
   _dataService: DataService | null = null;
 
-  constructor(
-    connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>
-  ) {
-    this._connectFn = connectFn;
+  constructor(private _connectFn: typeof connect) {
     this._cancelled = new Promise((resolve) => {
       this._cancelConnectionAttempt = () => resolve();
     });
@@ -58,7 +54,7 @@ export class ConnectionAttempt {
     }
 
     try {
-      this._dataService = await this._connectFn(connectionOptions);
+      this._dataService = await this._connectFn(connectionOptions, log.unbound);
       return this._dataService;
     } catch (err) {
       if (isConnectionAttemptTerminatedError(err as Error)) {
