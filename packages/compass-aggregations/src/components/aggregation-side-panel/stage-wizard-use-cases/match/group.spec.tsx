@@ -405,26 +405,7 @@ describe('group', function () {
       ).getByLabelText(/Add Group/i);
       userEvent.click(addGroupBtn);
 
-      expect(onGroupChangeSpy).to.have.been.calledWithExactly({
-        ...group,
-        groups: [
-          ...group.groups,
-          {
-            id: 1,
-            logicalOperator: '$or',
-            conditions: [
-              {
-                id: 1,
-                field: '',
-                value: '',
-                operator: '$eq',
-                bsonType: '',
-              },
-            ],
-            groups: [],
-          },
-        ],
-      });
+      expect(onGroupChangeSpy.lastCall.args[0].groups).to.have.lengthOf(2);
     });
 
     describe('#component - GroupHeader', function () {

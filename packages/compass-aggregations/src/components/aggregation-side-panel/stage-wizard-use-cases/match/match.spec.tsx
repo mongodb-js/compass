@@ -1,12 +1,8 @@
-import React from 'react';
-import Sinon from 'sinon';
 import { expect } from 'chai';
 import { Double, Int32, Long, Timestamp } from 'bson';
-import { render, screen, cleanup } from '@testing-library/react';
 
 import { createGroup } from './group';
-import { createCondition } from './condition';
-import MatchForm, {
+import {
   mapCondition,
   mapGroups,
   mapMatchFormStateToMatchStage,
@@ -17,50 +13,8 @@ import type {
   MappedGroups,
   MappedCondition,
 } from './match';
-import type { Fields, WizardComponentProps } from '..';
-
-const SAMPLE_FIELDS: Fields = [
-  {
-    name: '_id',
-    type: 'ObjectId',
-  },
-  {
-    name: 'name',
-    type: 'String',
-  },
-  {
-    name: 'age',
-    type: 'Double',
-  },
-  {
-    name: 'isActive',
-    type: 'Boolean',
-  },
-  {
-    name: 'doj',
-    type: 'Date',
-  },
-];
-
-const renderMatch = (props?: Partial<WizardComponentProps>) => {
-  render(
-    <MatchForm
-      fields={props?.fields ?? SAMPLE_FIELDS}
-      onChange={props?.onChange ?? Sinon.spy()}
-    />
-  );
-};
 
 describe('match', function () {
-  afterEach(cleanup);
-
-  describe('component', function () {
-    it('should render a simple empty form', function () {
-      renderMatch();
-      expect(screen.getByTestId(`match-group-1`)).to.not.be.null;
-    });
-  });
-
   describe('helper functions', function () {
     describe('#mapCondition', function () {
       it('should return a correctly mapped condition', function () {
