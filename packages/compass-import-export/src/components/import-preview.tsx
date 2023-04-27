@@ -381,12 +381,9 @@ function FieldTypeHeading({
           {children}
         </TypeWarning>
       );
-    } else {
-      return children;
     }
-  } else {
-    return children;
   }
+  return children;
 }
 
 function ImportPreview({
