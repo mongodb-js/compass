@@ -1,6 +1,7 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
+import userEvent from '@testing-library/user-event';
 import { render, screen, cleanup } from '@testing-library/react';
 
 import Condition, {
@@ -8,16 +9,15 @@ import Condition, {
   OPERATOR_SELECT_LABEL,
   TYPE_SELECT_LABEL,
   VALUE_INPUT_LABEL,
-  createCondition,
+  makeCreateCondition,
 } from './condition';
-import type { ConditionProps } from './condition';
-import type { Fields } from '..';
 import {
   setComboboxValue,
   setInputElementValue,
   setSelectValue,
 } from '../../../../../test/form-helper';
-import userEvent from '@testing-library/user-event';
+import type { ConditionProps, CreateConditionFn } from './condition';
+import type { Fields } from '..';
 
 const SAMPLE_FIELDS: Fields = [
   {
@@ -42,12 +42,15 @@ const SAMPLE_FIELDS: Fields = [
   },
 ];
 
-const renderCondition = (props?: Partial<ConditionProps>) => {
+const renderCondition = (
+  props: Partial<ConditionProps>,
+  createCondition: CreateConditionFn
+) => {
   render(
     <Condition
       fields={SAMPLE_FIELDS}
       disableRemoveBtn={false}
-      condition={createCondition(props?.condition)}
+      condition={createCondition(props.condition)}
       onConditionChange={Sinon.spy()}
       onAddConditionClick={Sinon.spy()}
       onRemoveConditionClick={Sinon.spy()}
@@ -56,13 +59,29 @@ const renderCondition = (props?: Partial<ConditionProps>) => {
   );
 };
 
-describe.only('condition', function () {
+describe('condition', function () {
+  let createCondition: CreateConditionFn;
+
+  beforeEach(function () {
+    createCondition = makeCreateCondition();
+  });
+
   afterEach(cleanup);
 
   describe('#helpers - createCondition', function () {
     it('should return a condition object with an incremental id', function () {
       expect(createCondition().id).to.equal(1);
       expect(createCondition().id).to.equal(2);
+    });
+
+    it('should return a an empty condition object when no data is provided', function () {
+      expect(createCondition()).to.deep.equal({
+        id: 1,
+        field: '',
+        operator: '$eq',
+        value: '',
+        bsonType: '',
+      });
     });
 
     it('should return a condition object with partial data applied to it', function () {
@@ -78,7 +97,7 @@ describe.only('condition', function () {
   describe('#component', function () {
     it('should render a set of fields and controls for a condition', function () {
       const condition = createCondition();
-      renderCondition({ condition });
+      renderCondition({ condition }, createCondition);
       expect(
         screen.getByTestId(`match-condition-${condition.id}-field-combobox`)
       ).to.exist;
@@ -103,7 +122,10 @@ describe.only('condition', function () {
     it('should call onConditionChange with updated condition when a field is selected', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
-      renderCondition({ condition, onConditionChange: onChangeSpy });
+      renderCondition(
+        { condition, onConditionChange: onChangeSpy },
+        createCondition
+      );
 
       const fieldCombobox = screen.getByTestId(
         `match-condition-${condition.id}-field-combobox`
@@ -135,7 +157,10 @@ describe.only('condition', function () {
     it('should call onConditionChange with updated condition when an operator selected', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
-      renderCondition({ condition, onConditionChange: onChangeSpy });
+      renderCondition(
+        { condition, onConditionChange: onChangeSpy },
+        createCondition
+      );
 
       const operatorSelect = screen.getByTestId(
         `match-condition-${condition.id}-operator-select`
@@ -165,7 +190,10 @@ describe.only('condition', function () {
     it('should call onConditionChange with updated condition when a value is typed', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
-      renderCondition({ condition, onConditionChange: onChangeSpy });
+      renderCondition(
+        { condition, onConditionChange: onChangeSpy },
+        createCondition
+      );
 
       const valueInput = screen.getByTestId(
         `match-condition-${condition.id}-value-input`
@@ -191,7 +219,10 @@ describe.only('condition', function () {
     it('should call onConditionChange with updated condition when a type is selected', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
-      renderCondition({ condition, onConditionChange: onChangeSpy });
+      renderCondition(
+        { condition, onConditionChange: onChangeSpy },
+        createCondition
+      );
 
       const typeSelect = screen.getByTestId(
         `match-condition-${condition.id}-type-select`
@@ -207,10 +238,13 @@ describe.only('condition', function () {
     it('should call onAddConditionClick on click of Add condition button', function () {
       const condition = createCondition();
       const onAddConditionClickSpy = Sinon.spy();
-      renderCondition({
-        condition,
-        onAddConditionClick: onAddConditionClickSpy,
-      });
+      renderCondition(
+        {
+          condition,
+          onAddConditionClick: onAddConditionClickSpy,
+        },
+        createCondition
+      );
       userEvent.click(
         screen.getByTestId(`match-condition-${condition.id}-add`)
       );
@@ -221,10 +255,13 @@ describe.only('condition', function () {
     it('should call onRemoveConditionClick on click of Remove condition button', function () {
       const condition = createCondition();
       const onRemoveConditionClickSpy = Sinon.spy();
-      renderCondition({
-        condition,
-        onRemoveConditionClick: onRemoveConditionClickSpy,
-      });
+      renderCondition(
+        {
+          condition,
+          onRemoveConditionClick: onRemoveConditionClickSpy,
+        },
+        createCondition
+      );
       userEvent.click(
         screen.getByTestId(`match-condition-${condition.id}-remove`)
       );

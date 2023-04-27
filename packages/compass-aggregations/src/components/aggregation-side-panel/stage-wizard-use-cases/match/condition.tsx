@@ -24,8 +24,18 @@ export type ConditionProps = {
   onRemoveConditionClick: () => void;
 };
 
+export type CreateConditionFn = (
+  condition?: Partial<MatchCondition>
+) => MatchCondition;
+
 // Helpers
-export const createCondition = (() => {
+
+/**
+ * Returns a function to create a condition with incremental ids. Consider using
+ * already created `createCondition` below instead of making another one
+ * yourself. This function is exported primarily to aid in testing.
+ */
+export const makeCreateCondition = (): CreateConditionFn => {
   let id = 1;
   return (
     condition: Omit<Partial<MatchCondition>, 'id'> = {}
@@ -36,7 +46,9 @@ export const createCondition = (() => {
     value: condition.value ?? '',
     bsonType: condition.bsonType ?? '',
   });
-})();
+};
+
+export const createCondition = makeCreateCondition();
 
 // The current list of operators that we provide in the
 // form can not realistically work with the following types
@@ -104,7 +116,7 @@ const fieldGroupStyles = css({
 const fieldComboboxStyles = css({ flex: '1 1 50%' });
 const operatorSelectStyles = css({ flex: '1 0 90px' });
 const valueInputStyles = css({ flex: '1 0 20%' });
-const bsonTypeSelectStyles = css({ flex: '1 0 20%' });
+const bsonTypeSelectStyles = css({ flex: '1 0 15%' });
 
 const conditionControlsStyles = css({
   width: `${CONDITION_CONTROLS_WIDTH}px`,

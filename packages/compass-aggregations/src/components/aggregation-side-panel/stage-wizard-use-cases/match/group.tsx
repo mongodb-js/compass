@@ -14,6 +14,7 @@ import Condition, {
   CONDITION_CONTROLS_WIDTH,
   createCondition,
 } from './condition';
+import type { CreateConditionFn } from './condition';
 import type { WizardComponentProps } from '..';
 import type {
   LogicalOperator,
@@ -23,7 +24,8 @@ import type {
 } from './match';
 
 // Types
-type GroupHeaderProps = {
+export type GroupHeaderProps = {
+  dataTestId: string;
   /**
    * Disables the Add icon button rendered in the header. We disable the Add
    * icon button when the header is rendered for a group at nestingLevel === 0
@@ -42,11 +44,12 @@ type GroupHeaderProps = {
   onRemoveGroupClick: () => void;
 };
 
-type GroupFooterProps = {
+export type GroupFooterProps = {
+  dataTestId: string;
   onAddNestedGroupClick: () => void;
 };
 
-type GroupProps = {
+export type GroupProps = {
   fields: WizardComponentProps['fields'];
   nestingLevel: number;
   // See: GroupHeaderProps['disableAddGroup']
@@ -59,10 +62,21 @@ type GroupProps = {
   onAddGroupClick: () => void;
 };
 
+export type CreateGroupFn = (
+  group?: Partial<MatchConditionGroup>
+) => MatchConditionGroup;
+
 // Helpers
 const MAX_ALLOWED_NESTING = 3;
 
-export const createGroup = (() => {
+/**
+ * Returns a function to create a group with incremental ids. Consider using
+ * already created `createGroup` below instead of making another one yourself.
+ * This function is exported primarily to aid in testing.
+ */
+export const makeCreateGroup = (
+  createCondition: CreateConditionFn
+): CreateGroupFn => {
   let id = 1;
   return (
     group: Omit<Partial<MatchConditionGroup>, 'id'> = {}
@@ -73,16 +87,21 @@ export const createGroup = (() => {
     groups: [],
     ...group,
   });
-})();
+};
+
+export const createGroup = makeCreateGroup(createCondition);
 
 export const makeGroupsHandlers = (
   groups: MatchConditionGroups,
   onGroupsChange: (newGroups: MatchConditionGroups) => void
 ) => ({
   handleGroupChange(groupIdx: number, newGroup: MatchConditionGroup) {
+    if (!groups[groupIdx]) {
+      return;
+    }
+
     const newGroups = [...groups];
     newGroups[groupIdx] = newGroup;
-
     // Update the other group's logicalOperator
     // if the current group operator is updated
     const otherGroupIdx = groupIdx === 0 ? 1 : 0;
@@ -96,6 +115,10 @@ export const makeGroupsHandlers = (
   },
 
   handleRemoveGroupClick(groupIdx: number) {
+    if (!groups[groupIdx]) {
+      return;
+    }
+
     const remainingGroups = [...groups];
     remainingGroups.splice(groupIdx, 1);
     onGroupsChange(remainingGroups);
@@ -127,7 +150,8 @@ const groupHeaderStyles = css({
   width: `calc(100% - ${CONDITION_CONTROLS_WIDTH})`,
 });
 
-const GroupHeader = ({
+export const GroupHeader = ({
+  dataTestId,
   disableAddGroup,
   disableRemoveGroup,
   operator,
@@ -136,7 +160,7 @@ const GroupHeader = ({
   onRemoveGroupClick,
 }: GroupHeaderProps) => {
   return (
-    <div data-testid="match-group-header" className={groupHeaderStyles}>
+    <div data-testid={dataTestId} className={groupHeaderStyles}>
       <SegmentedControl
         size="small"
         value={operator}
@@ -177,9 +201,12 @@ const groupFooterStyles = css({
   width: `calc(100% - ${CONDITION_CONTROLS_WIDTH + spacing[2]}px)`,
 });
 
-const GroupFooter = ({ onAddNestedGroupClick }: GroupFooterProps) => {
+const GroupFooter = ({
+  dataTestId,
+  onAddNestedGroupClick,
+}: GroupFooterProps) => {
   return (
-    <div data-testid="match-group-footer" className={groupFooterStyles}>
+    <div data-testid={dataTestId} className={groupFooterStyles}>
       <Button
         variant="default"
         size="xsmall"
@@ -205,6 +232,11 @@ const conditionContainerStyles = cx(
     paddingRight: spacing[2],
   })
 );
+
+const nestedGroupsContainerStyles = (groupsLength: number) =>
+  css({
+    display: groupsLength === 0 ? 'none' : 'block',
+  });
 
 const nestedGroupStyles = (nestingLevel: number) => {
   if (nestingLevel === 0) {
@@ -237,8 +269,8 @@ const Group = ({
   onRemoveGroupClick,
   onAddGroupClick,
 }: GroupProps) => {
-  const hideFooterControls =
-    group.groups.length >= 1 || nestingLevel === MAX_ALLOWED_NESTING;
+  const showFooterControls =
+    nestingLevel < MAX_ALLOWED_NESTING && group.groups.length === 0;
 
   const handleOperatorChange = (operator: LogicalOperator) => {
     onGroupChange({
@@ -298,6 +330,7 @@ const Group = ({
       className={cx(groupStyles, nestedGroupStyles(nestingLevel))}
     >
       <GroupHeader
+        dataTestId={`match-group-${group.id}-header`}
         disableAddGroup={disableAddGroup}
         disableRemoveGroup={disableRemoveGroup}
         operator={group.logicalOperator}
@@ -305,7 +338,10 @@ const Group = ({
         onRemoveGroupClick={onRemoveGroupClick}
         onAddGroupClick={onAddGroupClick}
       />
-      <div className={conditionContainerStyles}>
+      <div
+        data-testid={`match-group-${group.id}-conditions`}
+        className={conditionContainerStyles}
+      >
         {group.conditions.map((condition, conditionIdx) => (
           <Condition
             key={condition.id}
@@ -322,25 +358,31 @@ const Group = ({
           />
         ))}
       </div>
-      {group.groups.map((nestedGroup, groupIdx) => (
-        <Group
-          key={nestedGroup.id}
-          fields={fields}
-          nestingLevel={nestingLevel + 1}
-          disableAddGroup={group.groups.length === 2}
-          disableRemoveGroup={false}
-          group={nestedGroup}
-          onGroupChange={(changedGroup) => {
-            nestedGroupHandlers.handleGroupChange(groupIdx, changedGroup);
-          }}
-          onRemoveGroupClick={() =>
-            nestedGroupHandlers.handleRemoveGroupClick(groupIdx)
-          }
-          onAddGroupClick={() => nestedGroupHandlers.handleAddGroupClick()}
-        />
-      ))}
-      {!hideFooterControls && (
+      <div
+        data-testid={`match-group-${group.id}-nested-groups`}
+        className={nestedGroupsContainerStyles(group.groups.length)}
+      >
+        {group.groups.map((nestedGroup, groupIdx) => (
+          <Group
+            key={nestedGroup.id}
+            fields={fields}
+            nestingLevel={nestingLevel + 1}
+            disableAddGroup={group.groups.length === 2}
+            disableRemoveGroup={false}
+            group={nestedGroup}
+            onGroupChange={(changedGroup) => {
+              nestedGroupHandlers.handleGroupChange(groupIdx, changedGroup);
+            }}
+            onRemoveGroupClick={() =>
+              nestedGroupHandlers.handleRemoveGroupClick(groupIdx)
+            }
+            onAddGroupClick={() => nestedGroupHandlers.handleAddGroupClick()}
+          />
+        ))}
+      </div>
+      {showFooterControls && (
         <GroupFooter
+          dataTestId={`match-group-${group.id}-footer`}
           onAddNestedGroupClick={() =>
             nestedGroupHandlers.handleAddGroupClick()
           }
