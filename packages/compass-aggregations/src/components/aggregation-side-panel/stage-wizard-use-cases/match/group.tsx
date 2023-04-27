@@ -235,7 +235,9 @@ const conditionContainerStyles = cx(
 
 const nestedGroupsContainerStyles = (groupsLength: number) =>
   css({
-    display: groupsLength === 0 ? 'none' : 'block',
+    gap: spacing[3],
+    display: groupsLength === 0 ? 'none' : 'flex',
+    flexDirection: 'column',
   });
 
 const nestedGroupStyles = (nestingLevel: number) => {
