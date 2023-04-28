@@ -857,23 +857,17 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const indexSizes: {
       [indexName: string]: number;
     } = {};
-    const clusterTimeseriesStats: {
-      [statName: string]: number;
-    } = {};
 
     let maxSize = 0;
     let unscaledCollSize = 0;
 
     let nindexes = 0;
-    let timeseriesBucketsNs: string | undefined;
-    let timeseriesTotalBucketSize = 0;
 
     for (const shardResult of collStats) {
       const shardStorageStats = shardResult.storageStats;
 
       // We don't know the order that we will encounter the count and size, so we save them
-      // until we've iterated through all the fields before updating unscaledCollSize
-      // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
+      // until we've iterated through all the fields before updating unscaledCollSize.
       const countField = shardStorageStats.count;
       const shardObjCount = typeof countField !== 'undefined' ? countField : 0;
 
@@ -896,28 +890,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // Fields that are copied from the first shard only, because they need to
           // match across shards.
           result[fieldName] ??= shardStorageStats[fieldName];
-        } else if (fieldName === 'timeseries') {
-          const shardTimeseriesStats: Document = shardStorageStats[fieldName];
-          for (const [timeseriesStatName, timeseriesStat] of Object.entries(
-            shardTimeseriesStats
-          )) {
-            if (typeof timeseriesStat === 'string') {
-              if (!timeseriesBucketsNs) {
-                timeseriesBucketsNs = timeseriesStat;
-              }
-            } else if (timeseriesStatName === 'avgBucketSize') {
-              timeseriesTotalBucketSize +=
-                coerceToJSNumber(shardTimeseriesStats.bucketCount) *
-                coerceToJSNumber(timeseriesStat);
-            } else {
-              // Simple summation for other types of stats.
-              if (clusterTimeseriesStats[timeseriesStatName] === undefined) {
-                clusterTimeseriesStats[timeseriesStatName] = 0;
-              }
-              clusterTimeseriesStats[timeseriesStatName] +=
-                coerceToJSNumber(timeseriesStat);
-            }
-          }
         } else if (
           // NOTE: `numOrphanDocs` is new in 6.0. `totalSize` is new in 4.4.
           [
@@ -987,16 +959,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     for (const [countField, count] of Object.entries(counts)) {
       result[countField] = count;
     }
-    if (timeseriesBucketsNs && Object.keys(clusterTimeseriesStats).length > 0) {
-      result.timeseries = {
-        ...clusterTimeseriesStats,
-        // Average across all the shards.
-        avgBucketSize: clusterTimeseriesStats.bucketCount
-          ? timeseriesTotalBucketSize / clusterTimeseriesStats.bucketCount
-          : 0,
-        bucketsNs: timeseriesBucketsNs,
-      };
-    }
+
     result.indexSizes = {};
     for (const [indexName, indexSize] of Object.entries(indexSizes)) {
       // Scale the index sizes with the scale option passed by the user.
