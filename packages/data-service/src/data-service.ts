@@ -86,6 +86,7 @@ import type {
   IndexInfo,
 } from './index-detail-helper';
 import { createIndexDefinition } from './index-detail-helper';
+import { coerceToJSNumber } from './coerce-to-js-number-helper';
 
 // TODO: remove try/catch and refactor encryption related types
 // when the Node bundles native binding distributions
@@ -218,11 +219,8 @@ export interface DataService {
 
   /**
    * Returns the results of currentOp.
-   *
-   * @param includeAll - if true also list currently idle operations in the result.
-   * @param callback - The callback.
    */
-  currentOp(includeAll: boolean): Promise<{ inprog: Document }>;
+  currentOp(): Promise<{ inprog: Document }>;
 
   /**
    * Returns the result of serverStatus.
@@ -838,6 +836,189 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   }
 
+  /**
+   * Build a single scaled collection stats result document from the
+   * potentially multiple documents returned from the `$collStats` aggregation
+   * result.
+   * We specify an empty `storageStats: {}` document
+   * to use the default scale factor of 1 for the various size data.
+   */
+  private async _aggregateCollStats(collStats: Document[], ns: string) {
+    const result: Document = {
+      ok: 1,
+    };
+
+    const shardStats: {
+      [shardId: string]: Document;
+    } = {};
+    const counts: {
+      [fieldName: string]: number;
+    } = {};
+    const indexSizes: {
+      [indexName: string]: number;
+    } = {};
+    const clusterTimeseriesStats: {
+      [statName: string]: number;
+    } = {};
+
+    let maxSize = 0;
+    let unscaledCollSize = 0;
+
+    let nindexes = 0;
+    let timeseriesBucketsNs: string | undefined;
+    let timeseriesTotalBucketSize = 0;
+
+    for (const shardResult of collStats) {
+      const shardStorageStats = shardResult.storageStats;
+
+      // We don't know the order that we will encounter the count and size, so we save them
+      // until we've iterated through all the fields before updating unscaledCollSize
+      // Timeseries bucket collection does not provide 'count' or 'avgObjSize'.
+      const countField = shardStorageStats.count;
+      const shardObjCount = typeof countField !== 'undefined' ? countField : 0;
+
+      for (const fieldName of Object.keys(shardStorageStats)) {
+        if (
+          ['ns', 'ok', 'lastExtentSize', 'paddingFactor'].includes(fieldName)
+        ) {
+          continue;
+        }
+        if (
+          [
+            'userFlags',
+            'capped',
+            'max',
+            'paddingFactorNote',
+            'indexDetails',
+            'wiredTiger',
+          ].includes(fieldName)
+        ) {
+          // Fields that are copied from the first shard only, because they need to
+          // match across shards.
+          result[fieldName] ??= shardStorageStats[fieldName];
+        } else if (fieldName === 'timeseries') {
+          const shardTimeseriesStats: Document = shardStorageStats[fieldName];
+          for (const [timeseriesStatName, timeseriesStat] of Object.entries(
+            shardTimeseriesStats
+          )) {
+            if (typeof timeseriesStat === 'string') {
+              if (!timeseriesBucketsNs) {
+                timeseriesBucketsNs = timeseriesStat;
+              }
+            } else if (timeseriesStatName === 'avgBucketSize') {
+              timeseriesTotalBucketSize +=
+                coerceToJSNumber(shardTimeseriesStats.bucketCount) *
+                coerceToJSNumber(timeseriesStat);
+            } else {
+              // Simple summation for other types of stats.
+              if (clusterTimeseriesStats[timeseriesStatName] === undefined) {
+                clusterTimeseriesStats[timeseriesStatName] = 0;
+              }
+              clusterTimeseriesStats[timeseriesStatName] +=
+                coerceToJSNumber(timeseriesStat);
+            }
+          }
+        } else if (
+          // NOTE: `numOrphanDocs` is new in 6.0. `totalSize` is new in 4.4.
+          [
+            'count',
+            'size',
+            'storageSize',
+            'totalIndexSize',
+            'totalSize',
+            'numOrphanDocs',
+          ].includes(fieldName)
+        ) {
+          if (counts[fieldName] === undefined) {
+            counts[fieldName] = 0;
+          }
+          counts[fieldName] += coerceToJSNumber(shardStorageStats[fieldName]);
+        } else if (fieldName === 'avgObjSize') {
+          const shardAvgObjSize = coerceToJSNumber(
+            shardStorageStats[fieldName]
+          );
+          unscaledCollSize += shardAvgObjSize * shardObjCount;
+        } else if (fieldName === 'maxSize') {
+          const shardMaxSize = coerceToJSNumber(shardStorageStats[fieldName]);
+          maxSize = Math.max(maxSize, shardMaxSize);
+        } else if (fieldName === 'indexSizes') {
+          for (const indexName of Object.keys(shardStorageStats[fieldName])) {
+            if (indexSizes[indexName] === undefined) {
+              indexSizes[indexName] = 0;
+            }
+            indexSizes[indexName] += coerceToJSNumber(
+              shardStorageStats[fieldName][indexName]
+            );
+          }
+        } else if (fieldName === 'nindexes') {
+          const shardIndexes = shardStorageStats[fieldName];
+
+          if (nindexes === 0) {
+            nindexes = shardIndexes;
+          } else if (shardIndexes > nindexes) {
+            // This hopefully means we're building an index.
+            nindexes = shardIndexes;
+          }
+        }
+      }
+    }
+
+    if (collStats[0].shard) {
+      result.shards = shardStats;
+    }
+
+    try {
+      result.sharded = !!(await this._collection(
+        'config.collections',
+        'CRUD'
+      ).findOne({
+        _id: ns as any,
+        // Dropped is gone on newer server versions, so check for !== true
+        // rather than for === false (SERVER-51880 and related).
+        dropped: { $ne: true },
+      }));
+    } catch (e) {
+      // A user might not have permissions to check the config. In which
+      // case we default to the potentially inaccurate check for multiple
+      // shard response documents to determine if the collection is sharded.
+      result.sharded = collStats.length > 1;
+    }
+
+    for (const [countField, count] of Object.entries(counts)) {
+      result[countField] = count;
+    }
+    if (timeseriesBucketsNs && Object.keys(clusterTimeseriesStats).length > 0) {
+      result.timeseries = {
+        ...clusterTimeseriesStats,
+        // Average across all the shards.
+        avgBucketSize: clusterTimeseriesStats.bucketCount
+          ? timeseriesTotalBucketSize / clusterTimeseriesStats.bucketCount
+          : 0,
+        bucketsNs: timeseriesBucketsNs,
+      };
+    }
+    result.indexSizes = {};
+    for (const [indexName, indexSize] of Object.entries(indexSizes)) {
+      // Scale the index sizes with the scale option passed by the user.
+      result.indexSizes[indexName] = indexSize;
+    }
+    // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
+    // raw size returned by the shard is affected by the command's scale parameter
+    if (counts.count > 0) {
+      result.avgObjSize = unscaledCollSize / counts.count;
+    } else {
+      result.avgObjSize = 0;
+    }
+    if (result.capped) {
+      result.maxSize = maxSize;
+    }
+    result.ns = ns;
+    result.nindexes = nindexes;
+    result.ok = 1;
+
+    return result;
+  }
+
   @op(mongoLogId(1_001_000_178), ([dbName, collName], result) => {
     return { ns: `${dbName}.${collName}`, ...(result && { result }) };
   })
@@ -845,20 +1026,22 @@ class DataServiceImpl extends WithLogContext implements DataService {
     databaseName: string,
     collectionName: string
   ): Promise<CollectionStats> {
-    // Note: The collStats command is not supported on CSFLE-enabled
-    // clients, but the $collStats aggregation stage is.
-    // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
-    // we can switch this over to using the CRUD client instead.
-    const db = this._database(databaseName, 'META');
-    try {
-      const data = await runCommand(db, { collStats: collectionName });
-      return this._buildCollectionStats(databaseName, collectionName, data);
-    } catch (error) {
-      if (!(error as Error).message.includes('is a view, not a collection')) {
-        throw error;
-      }
-      return this._buildCollectionStats(databaseName, collectionName, {});
+    const ns = `${databaseName}.${collectionName}`;
+    const coll = this._collection(ns, 'CRUD');
+    const collStats = await coll
+      .aggregate([{ $collStats: { storageStats: {} } }])
+      .toArray();
+
+    if (!collStats || collStats[0] === undefined) {
+      throw new Error(`Error running $collStats aggregation stage on ${ns}`);
     }
+
+    const aggregatedCollStats = await this._aggregateCollStats(collStats, ns);
+    return this._buildCollectionStats(
+      databaseName,
+      collectionName,
+      aggregatedCollStats
+    );
   }
 
   @op(mongoLogId(1_001_000_179))
@@ -1626,12 +1809,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_053), (_, result) => {
     return result ? { result } : undefined;
   })
-  async currentOp(includeAll: boolean): Promise<{ inprog: Document[] }> {
-    const db = this._database('admin', 'META');
-    return await runCommand(db, {
-      currentOp: 1,
-      $all: includeAll,
-    });
+  async currentOp(): Promise<{ inprog: Document[] }> {
+    const db = this._database('admin', 'CRUD');
+    const pipelineWithTruncateOps: Document[] = [
+      {
+        $currentOp: {
+          allUsers: true,
+          idleConnections: false,
+          truncateOps: false,
+        },
+      },
+    ];
+    const currentOp = await db.aggregate(pipelineWithTruncateOps).toArray();
+    return { inprog: currentOp };
   }
 
   getLastSeenTopology(): null | TopologyDescription {

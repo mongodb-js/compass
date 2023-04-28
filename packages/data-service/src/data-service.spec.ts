@@ -329,7 +329,12 @@ describe('DataService', function () {
         ];
 
         const promise = dataService
-          .aggregate(testNamespace, pipeline, {}, { abortSignal })
+          .aggregate(
+            testNamespace,
+            pipeline,
+            {},
+            { abortSignal: abortSignal as unknown as AbortSignal }
+          )
           .catch((err) => err);
         // cancel the operation
         abortController.abort();
@@ -396,7 +401,12 @@ describe('DataService', function () {
         };
 
         const promise = dataService
-          .find(testNamespace, filter, {}, { abortSignal })
+          .find(
+            testNamespace,
+            filter,
+            {},
+            { abortSignal: abortSignal as unknown as AbortSignal }
+          )
           .catch((err) => err);
         // cancel the operation
         abortController.abort();
@@ -446,8 +456,8 @@ describe('DataService', function () {
           { b: 5 },
           { returnDocument: 'after' }
         );
-        expect(result._id.toString()).to.deep.equal(id.toString());
-        expect(result.b).to.equal(5);
+        expect(result?._id.toString()).to.deep.equal(id.toString());
+        expect(result?.b).to.equal(5);
         expect(result).to.not.haveOwnProperty('a');
       });
     });
@@ -463,8 +473,8 @@ describe('DataService', function () {
           { $set: { b: 5 } },
           { returnDocument: 'after' }
         );
-        expect(result._id.toString()).to.deep.equal(id.toString());
-        expect(result.b).to.equal(5);
+        expect(result?._id.toString()).to.deep.equal(id.toString());
+        expect(result?.b).to.equal(5);
         expect(result).to.haveOwnProperty('a');
       });
     });
@@ -522,7 +532,11 @@ describe('DataService', function () {
         const abortSignal = abortController.signal;
 
         const promise = dataService
-          .estimatedCount(testNamespace, {}, { abortSignal })
+          .estimatedCount(
+            testNamespace,
+            {},
+            { abortSignal: abortSignal as unknown as AbortSignal }
+          )
           .catch((err) => err);
         // cancel the operation
         abortController.abort();
@@ -580,7 +594,12 @@ describe('DataService', function () {
         };
 
         const promise = dataService
-          .count(testNamespace, filter, {}, { abortSignal })
+          .count(
+            testNamespace,
+            filter,
+            {},
+            { abortSignal: abortSignal as unknown as AbortSignal }
+          )
           .catch((err) => err);
         // cancel the operation
         abortController.abort();
@@ -837,7 +856,7 @@ describe('DataService', function () {
 
     describe('#currentOp', function () {
       it('returns an object with the currentOp', async function () {
-        const result = await dataService.currentOp(true);
+        const result = await dataService.currentOp();
         expect(result.inprog).to.not.equal(undefined); // TODO: are these tests enough?
       });
     });
@@ -1071,7 +1090,7 @@ describe('DataService', function () {
         const response = await dataService['_cancellableOperation'](
           () => Promise.resolve(10),
           () => stop(),
-          abortSignal
+          abortSignal as unknown as AbortSignal
         );
         expect(response).to.equal(10);
         expect(stop.callCount).to.equal(0);
@@ -1084,7 +1103,7 @@ describe('DataService', function () {
         const promise = dataService['_cancellableOperation'](
           () => new Promise(() => {}),
           () => stop(),
-          abortSignal
+          abortSignal as unknown as AbortSignal
         ).catch((error) => error);
 
         abortController.abort();
