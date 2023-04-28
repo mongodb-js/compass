@@ -4,13 +4,7 @@ import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { render, screen, cleanup } from '@testing-library/react';
 
-import Condition, {
-  FIELD_SELECT_LABEL,
-  OPERATOR_SELECT_LABEL,
-  TYPE_SELECT_LABEL,
-  VALUE_INPUT_LABEL,
-  makeCreateCondition,
-} from './condition';
+import Condition, { LABELS, TEST_IDS, makeCreateCondition } from './condition';
 import {
   setComboboxValue,
   setInputElementValue,
@@ -98,25 +92,19 @@ describe('condition', function () {
     it('should render a set of fields and controls for a condition', function () {
       const condition = createCondition();
       renderCondition({ condition }, createCondition);
-      expect(
-        screen.getByTestId(`match-condition-${condition.id}-field-combobox`)
-      ).to.exist;
+      expect(screen.getByTestId(TEST_IDS.fieldCombobox(condition.id))).to.exist;
 
-      expect(
-        screen.getByTestId(`match-condition-${condition.id}-operator-select`)
-      ).to.exist;
-
-      expect(screen.getByTestId(`match-condition-${condition.id}-value-input`))
-        .to.exist;
-
-      expect(screen.getByTestId(`match-condition-${condition.id}-type-select`))
-        .to.exist;
-
-      expect(screen.getByTestId(`match-condition-${condition.id}-add`)).to
+      expect(screen.getByTestId(TEST_IDS.operatorSelect(condition.id))).to
         .exist;
 
-      expect(screen.getByTestId(`match-condition-${condition.id}-remove`)).to
+      expect(screen.getByTestId(TEST_IDS.operatorSelect(condition.id))).to
         .exist;
+
+      expect(screen.getByTestId(TEST_IDS.valueInput(condition.id))).to.exist;
+
+      expect(screen.getByTestId(TEST_IDS.addBtn(condition.id))).to.exist;
+
+      expect(screen.getByTestId(TEST_IDS.removeBtn(condition.id))).to.exist;
     });
 
     it('should call onConditionChange with updated condition when a field is selected', function () {
@@ -128,11 +116,11 @@ describe('condition', function () {
       );
 
       const fieldCombobox = screen.getByTestId(
-        `match-condition-${condition.id}-field-combobox`
+        TEST_IDS.fieldCombobox(condition.id)
       );
 
       setComboboxValue(
-        new RegExp(FIELD_SELECT_LABEL, 'i'),
+        new RegExp(LABELS.fieldCombobox, 'i'),
         '_id',
         fieldCombobox
       );
@@ -143,7 +131,7 @@ describe('condition', function () {
       });
 
       setComboboxValue(
-        new RegExp(FIELD_SELECT_LABEL, 'i'),
+        new RegExp(LABELS.fieldCombobox, 'i'),
         'age',
         fieldCombobox
       );
@@ -163,11 +151,11 @@ describe('condition', function () {
       );
 
       const operatorSelect = screen.getByTestId(
-        `match-condition-${condition.id}-operator-select`
+        TEST_IDS.operatorSelect(condition.id)
       );
 
       setSelectValue(
-        new RegExp(OPERATOR_SELECT_LABEL, 'i'),
+        new RegExp(LABELS.operatorSelect, 'i'),
         '!=',
         operatorSelect
       );
@@ -177,7 +165,7 @@ describe('condition', function () {
       });
 
       setSelectValue(
-        new RegExp(OPERATOR_SELECT_LABEL, 'i'),
+        new RegExp(LABELS.operatorSelect, 'i'),
         '>=',
         operatorSelect
       );
@@ -195,12 +183,10 @@ describe('condition', function () {
         createCondition
       );
 
-      const valueInput = screen.getByTestId(
-        `match-condition-${condition.id}-value-input`
-      );
+      const valueInput = screen.getByTestId(TEST_IDS.valueInput(condition.id));
 
       setInputElementValue(
-        new RegExp(VALUE_INPUT_LABEL, 'i'),
+        new RegExp(LABELS.valueInput, 'i'),
         'Compass',
         valueInput
       );
@@ -224,11 +210,9 @@ describe('condition', function () {
         createCondition
       );
 
-      const typeSelect = screen.getByTestId(
-        `match-condition-${condition.id}-type-select`
-      );
+      const typeSelect = screen.getByTestId(TEST_IDS.typeSelect(condition.id));
 
-      setSelectValue(new RegExp(TYPE_SELECT_LABEL, 'i'), 'Double', typeSelect);
+      setSelectValue(new RegExp(LABELS.typeSelect, 'i'), 'Double', typeSelect);
       expect(onChangeSpy).to.be.calledWithExactly({
         ...condition,
         bsonType: 'Double',
@@ -245,9 +229,7 @@ describe('condition', function () {
         },
         createCondition
       );
-      userEvent.click(
-        screen.getByTestId(`match-condition-${condition.id}-add`)
-      );
+      userEvent.click(screen.getByTestId(TEST_IDS.addBtn(condition.id)));
 
       expect(onAddConditionClickSpy).to.have.been.calledOnce;
     });
@@ -262,9 +244,7 @@ describe('condition', function () {
         },
         createCondition
       );
-      userEvent.click(
-        screen.getByTestId(`match-condition-${condition.id}-remove`)
-      );
+      userEvent.click(screen.getByTestId(TEST_IDS.removeBtn(condition.id)));
 
       expect(onRemoveConditionClickSpy).to.have.been.calledOnce;
     });

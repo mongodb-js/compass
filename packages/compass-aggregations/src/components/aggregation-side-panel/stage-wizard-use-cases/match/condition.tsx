@@ -29,6 +29,26 @@ export type CreateConditionFn = (
 ) => MatchCondition;
 
 // Helpers
+export const CONDITION_CONTROLS_WIDTH = 60;
+
+export const LABELS = {
+  fieldCombobox: 'Select a field',
+  operatorSelect: 'Select an operator',
+  valueInput: 'Expected value',
+  typeSelect: 'Select type',
+  addBtn: 'Add condition',
+  removeBtn: 'Remove condition',
+};
+
+export const TEST_IDS = {
+  condition: (id: number) => `match-condition-${id}`,
+  fieldCombobox: (id: number) => `match-condition-${id}-field-combobox`,
+  operatorSelect: (id: number) => `match-condition-${id}-operator-select`,
+  valueInput: (id: number) => `match-condition-${id}-value-input`,
+  typeSelect: (id: number) => `match-condition-${id}-type-select`,
+  addBtn: (id: number) => `match-condition-${id}-add`,
+  removeBtn: (id: number) => `match-condition-${id}-remove`,
+};
 
 /**
  * Returns a function to create a condition with incremental ids. Consider using
@@ -95,12 +115,6 @@ const MATCH_OPERATOR_LABELS: { operator: MatchOperator; label: string }[] = [
 ];
 
 // Components - Condition
-export const FIELD_SELECT_LABEL = 'Select a field';
-export const OPERATOR_SELECT_LABEL = 'Select an operator';
-export const VALUE_INPUT_LABEL = 'Expected value';
-export const TYPE_SELECT_LABEL = 'Select type';
-export const CONDITION_CONTROLS_WIDTH = 60;
-
 const conditionContainerStyles = css({
   display: 'flex',
   width: '100%',
@@ -161,19 +175,21 @@ const Condition = ({
     }
   };
 
+  const { id } = condition;
+
   return (
     <div
-      data-testid={`match-condition-${condition.id}`}
+      data-testid={TEST_IDS.condition(id)}
       className={conditionContainerStyles}
     >
       <div className={fieldGroupStyles}>
         <div
-          data-testid={`match-condition-${condition.id}-field-combobox`}
+          data-testid={TEST_IDS.fieldCombobox(id)}
           className={fieldComboboxStyles}
         >
           <ComboboxWithCustomOption
-            placeholder={FIELD_SELECT_LABEL}
-            aria-label={FIELD_SELECT_LABEL}
+            placeholder={LABELS.fieldCombobox}
+            aria-label={LABELS.fieldCombobox}
             size="default"
             clearable={false}
             value={condition.field}
@@ -181,19 +197,18 @@ const Condition = ({
             options={fieldNames}
             optionLabel="Field:"
             // Used for testing to access the popover for a stage
-            popoverClassName={`match-condition-${condition.id}-field-combobox`}
+            popoverClassName={TEST_IDS.fieldCombobox(id)}
           />
         </div>
         <div
-          data-testid={`match-condition-${condition.id}-operator-select`}
+          data-testid={TEST_IDS.operatorSelect(id)}
           className={operatorSelectStyles}
         >
           {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
           <Select
-            // className={operatorFieldStyles}
             size="default"
             allowDeselect={false}
-            aria-label={OPERATOR_SELECT_LABEL}
+            aria-label={LABELS.operatorSelect}
             usePortal={true}
             value={condition.operator}
             onChange={handleOperatorChange}
@@ -207,25 +222,22 @@ const Condition = ({
             })}
           </Select>
         </div>
-        <div
-          data-testid={`match-condition-${condition.id}-value-input`}
-          className={valueInputStyles}
-        >
+        <div data-testid={TEST_IDS.valueInput(id)} className={valueInputStyles}>
           <TextInput
-            placeholder={VALUE_INPUT_LABEL}
-            aria-label={VALUE_INPUT_LABEL}
+            placeholder={LABELS.valueInput}
+            aria-label={LABELS.valueInput}
             value={condition.value}
             onChange={handleValueChange}
           />
         </div>
         <div
-          data-testid={`match-condition-${condition.id}-type-select`}
+          data-testid={TEST_IDS.typeSelect(id)}
           className={bsonTypeSelectStyles}
         >
           {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
           <Select
             allowDeselect={false}
-            aria-label={TYPE_SELECT_LABEL}
+            aria-label={LABELS.typeSelect}
             usePortal={true}
             value={condition.bsonType}
             onChange={handleBsonTypeChange}
@@ -240,16 +252,16 @@ const Condition = ({
       </div>
       <div className={conditionControlsStyles}>
         <IconButton
-          data-testid={`match-condition-${condition.id}-add`}
-          aria-label="Add condition"
+          data-testid={TEST_IDS.addBtn(id)}
+          aria-label={LABELS.addBtn}
           onClick={onAddConditionClick}
         >
           <Icon glyph="Plus" />
         </IconButton>
         <IconButton
-          data-testid={`match-condition-${condition.id}-remove`}
+          data-testid={TEST_IDS.removeBtn(id)}
           disabled={disableRemoveBtn}
-          aria-label="Remove condition"
+          aria-label={LABELS.removeBtn}
           onClick={onRemoveConditionClick}
         >
           <Icon glyph="Minus" />
