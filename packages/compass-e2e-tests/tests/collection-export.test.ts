@@ -95,7 +95,7 @@ describe('Collection export', function () {
 
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
-    const filename = outputFilename('filtered-numbers.csv');
+    const filename = outputFilename('filtered-numbers-subset.csv');
     await browser.setExportFilename(filename, true);
 
     // Wait for the modal to go away.
@@ -330,7 +330,7 @@ describe('Collection export', function () {
 
     // Leave the file type on the default (JSON).
     await browser.clickVisible(Selectors.ExportModalExportButton);
-    const filename = outputFilename('filtered-numbers.json');
+    const filename = outputFilename('filtered-numbers-subset.json');
     await browser.setExportFilename(filename, true);
 
     // Wait for the modal to go away.
