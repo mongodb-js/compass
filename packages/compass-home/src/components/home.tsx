@@ -296,6 +296,8 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
+  console.log({ appRegistry });
+
   return (
     <>
       {isConnected && <Workspace namespace={namespace} />}

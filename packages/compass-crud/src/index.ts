@@ -10,18 +10,11 @@ import configureStore from './stores/crud-store';
 const COLLECTION_TAB_ROLE = {
   component: ConnectedDocumentList,
   name: 'Documents',
-  hasQueryHistory: true,
   order: 1,
   configureStore: configureStore,
   storeName: 'CRUD.Store',
   configureActions: configureActions,
   actionName: 'CRUD.Actions',
-};
-
-const DOCUMENT_ROLE = {
-  component: Document,
-  name: 'STANDARD',
-  order: 1,
 };
 
 /**
@@ -31,7 +24,6 @@ const DOCUMENT_ROLE = {
  */
 const activate = (appRegistry: AppRegistry): void => {
   appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  appRegistry.registerRole('CRUD.Document', DOCUMENT_ROLE);
 };
 
 /**
@@ -41,7 +33,6 @@ const activate = (appRegistry: AppRegistry): void => {
  */
 const deactivate = (appRegistry: AppRegistry): void => {
   appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
-  appRegistry.deregisterRole('CRUD.Document', DOCUMENT_ROLE);
 };
 
 export default DocumentList;

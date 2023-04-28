@@ -76,39 +76,49 @@ export type RootActions = StoreActions<typeof _store>;
 
 export type RootState = StoreState<typeof _store>;
 
+const onInstanceStatusChange = () => {
+  _store.dispatch({
+    type: 'instance-status-change',
+    instance: (_store as any).instance,
+  });
+};
+
+const onInstanceCreated = ({ instance }: { instance: any }) => {
+  _store.dispatch({ type: 'instance-status-change', instance });
+  instance.on('change:status', onInstanceStatusChange);
+};
+
+const onInstanceDestroyed = () => {
+  store.dispatch({ type: 'reset' });
+};
+
+const onOpenInstanceWorkspace = (tabName: string) => {
+  if (!tabName) {
+    store.dispatch({ type: 'change-tab', id: 0 });
+  } else {
+    const id = store.getState().tabs.findIndex((tab) => tab.name === tabName);
+    if (id !== -1) {
+      store.dispatch({ type: 'change-tab', id });
+    }
+  }
+};
+
 const store = Object.assign(_store, {
-  onActivated(globalAppRegistry: AppRegistry) {
+  onActivated({ globalAppRegistry }: { globalAppRegistry: AppRegistry }) {
     store.dispatch({
       type: 'app-registry-activated',
       appRegistry: globalAppRegistry,
     });
+
     store.dispatch(
       appRegistryReducer.globalAppRegistryActivated(globalAppRegistry)
     );
 
-    globalAppRegistry.on('instance-created', ({ instance }) => {
-      store.dispatch({ type: 'instance-status-change', instance });
-      instance.on('change:status', () => {
-        store.dispatch({ type: 'instance-status-change', instance });
-      });
-    });
+    globalAppRegistry.on('instance-created', onInstanceCreated);
 
-    globalAppRegistry.on('instance-destroyed', () => {
-      store.dispatch({ type: 'reset' });
-    });
+    globalAppRegistry.on('instance-destroyed', onInstanceDestroyed);
 
-    globalAppRegistry.on('open-instance-workspace', (tabName: string) => {
-      if (!tabName) {
-        store.dispatch({ type: 'change-tab', id: 0 });
-      } else {
-        const id = store
-          .getState()
-          .tabs.findIndex((tab) => tab.name === tabName);
-        if (id !== -1) {
-          store.dispatch({ type: 'change-tab', id });
-        }
-      }
-    });
+    globalAppRegistry.on('open-instance-workspace', onOpenInstanceWorkspace);
   },
 });
 

@@ -1,22 +1,28 @@
-import type AppRegistry from 'hadron-app-registry';
+import { registerHadronPlugin } from 'hadron-app-registry';
 import HomePlugin from './plugin';
 
 /**
  * Activate all the components in the Home package.
- * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
-function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerComponent('Home.Home', HomePlugin);
-}
-
-/**
- * Deactivate all the components in the Home package.
- * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
- **/
-function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterComponent('Home.Home');
+function activate(): void {
+  registerHadronPlugin({
+    name: 'Home',
+    component: HomePlugin,
+    onActivated({ globalAppRegistry }) {
+      return {
+        store: {
+          // Really not the purpose of this interface, but home plugin relies on
+          // direct access to appRegistry too much unfortunately
+          state: { appRegistry: globalAppRegistry },
+        },
+      };
+    },
+    onDeactivated() {
+      // noop
+    },
+  });
 }
 
 export default HomePlugin;
-export { activate, deactivate };
+export { activate };
 export { default as metadata } from '../package.json';

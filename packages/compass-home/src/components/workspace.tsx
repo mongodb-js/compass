@@ -50,6 +50,8 @@ export default function Workspace({
   const findInPageRole = useAppRegistryRole(AppRegistryRoles.FIND_IN_PAGE);
   const FindInPage = findInPageRole ? findInPageRole[0].component : null;
 
+  console.log('huh?', SidebarComponent);
+
   return (
     <>
       <div data-testid="home-view" className={verticalSplitStyles}>
