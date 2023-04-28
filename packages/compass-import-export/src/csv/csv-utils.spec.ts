@@ -221,10 +221,10 @@ describe('stringifyCSVValue', function () {
 });
 
 describe('csvHeaderNameToFieldName', function () {
-  it('strips array components', function () {
-    expect(csvHeaderNameToFieldName('array[0]')).to.equal('array');
+  it('strips array indexes', function () {
+    expect(csvHeaderNameToFieldName('array[0]')).to.equal('array[]');
     expect(csvHeaderNameToFieldName('array')).to.equal('array');
-    expect(csvHeaderNameToFieldName('foo[3].bar[1]')).to.equal('foo.bar');
+    expect(csvHeaderNameToFieldName('foo[3].bar[1]')).to.equal('foo[].bar[]');
   });
 });
 

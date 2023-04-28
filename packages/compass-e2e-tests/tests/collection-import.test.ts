@@ -561,6 +561,221 @@ describe('Collection import', function () {
     });
   });
 
+  it('supports CSV files with arrays, objects and arrays of objects', async function () {
+    const csvPath = path.resolve(
+      __dirname,
+      '..',
+      'fixtures',
+      'array-documents.csv'
+    );
+
+    await browser.navigateToCollectionTab(
+      'test',
+      'array-documents',
+      'Documents'
+    );
+
+    // open the import modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.ImportFileOption);
+
+    // Select the file.
+    // Unfortunately this opens a second open dialog and the one that got
+    // automatically opened when clicking on import file sticks around on top of
+    // everything :(
+    await browser.selectFile(Selectors.ImportFileInput, csvPath);
+
+    // Wait for the modal to appear.
+    const importModal = await browser.$(Selectors.ImportModal);
+    await importModal.waitForDisplayed();
+
+    // wait for it to finish analyzing
+    await browser.$(Selectors.ImportConfirm).waitForDisplayed();
+    await browser
+      .$(Selectors.importPreviewFieldHeaderField('_id'))
+      .waitForDisplayed();
+
+    // extract all the type fields and check them
+    const fieldNameElements = await browser.$$(Selectors.ImportFieldLabel);
+    const fieldNames = await Promise.all(
+      fieldNameElements.map((el) => el.getText())
+    );
+
+    try {
+      expect(fieldNames).to.deep.equal([
+        '_id',
+        'listing_url',
+        'name',
+        'summary',
+        'space',
+        'description',
+        'neighborhood_overview',
+        'notes',
+        'transit',
+        'access',
+        'interaction',
+        'house_rules',
+        'property_type',
+        'room_type',
+        'bed_type',
+        'minimum_nights',
+        'maximum_nights',
+        'cancellation_policy',
+        'last_scraped',
+        'calendar_last_scraped',
+        'first_review',
+        'last_review',
+        'accommodates',
+        'bedrooms',
+        'beds',
+        'number_of_reviews',
+        'bathrooms',
+        'amenities[]',
+        'price',
+        'weekly_price',
+        'monthly_price',
+        'cleaning_fee',
+        'extra_people',
+        'guests_included',
+        'images.thumbnail_url',
+        'images.medium_url',
+        'images.picture_url',
+        'images.xl_picture_url',
+        'host.host_id',
+        'host.host_url',
+        'host.host_name',
+        'host.host_location',
+        'host.host_about',
+        'host.host_response_time',
+        'host.host_thumbnail_url',
+        'host.host_picture_url',
+        'host.host_neighbourhood',
+        'host.host_response_rate',
+        'host.host_is_superhost',
+        'host.host_has_profile_pic',
+        'host.host_identity_verified',
+        'host.host_listings_count',
+        'host.host_total_listings_count',
+        'host.host_verifications[]',
+        'address.street',
+        'address.suburb',
+        'address.government_area',
+        'address.market',
+        'address.country',
+        'address.country_code',
+        'address.location.type',
+        'address.location.coordinates[]',
+        'address.location.is_location_exact',
+        'availability.availability_30',
+        'availability.availability_60',
+        'availability.availability_90',
+        'availability.availability_365',
+        'review_scores.review_scores_accuracy',
+        'review_scores.review_scores_cleanliness',
+        'review_scores.review_scores_checkin',
+        'review_scores.review_scores_communication',
+        'review_scores.review_scores_location',
+        'review_scores.review_scores_value',
+        'review_scores.review_scores_rating',
+        'reviews[]._id',
+        'reviews[].date',
+        'reviews[].listing_id',
+        'reviews[].reviewer_id',
+        'reviews[].reviewer_name',
+        'reviews[].comments',
+        'security_deposit',
+      ]);
+    } catch (err) {
+      console.log(JSON.stringify(fieldNames, null, 2));
+      throw err;
+    }
+
+    // Confirm import.
+    await browser.clickVisible(Selectors.ImportConfirm);
+
+    // Wait for the modal to go away.
+    await importModal.waitForDisplayed({ reverse: true });
+
+    // Wait for the done toast to appear and close it.
+    const toastElement = await browser.$(Selectors.ImportToast);
+    await toastElement.waitForDisplayed();
+    await browser
+      .$(Selectors.closeToastButton(Selectors.ImportToast))
+      .waitForDisplayed();
+    await browser.clickVisible(
+      Selectors.closeToastButton(Selectors.ImportToast)
+    );
+    await toastElement.waitForDisplayed({ reverse: true });
+
+    const messageElement = await browser.$(
+      Selectors.DocumentListActionBarMessage
+    );
+    const text = await messageElement.getText();
+    expect(text).to.equal('1 – 3 of 3');
+
+    // show the array and object fields
+    await browser.clickVisible(Selectors.ShowMoreFieldsButton);
+
+    const result = await getFirstListDocument(browser);
+
+    // The values are the text as they appear in the page, so numbers are
+    // strings, strings have double-quotes inside them and dates got formatted.
+    // Arrays and objects start off collapsed.
+    try {
+      expect(result).to.deep.equal({
+        _id: '1001265',
+        access: '"Pool, hot tub and tennis"',
+        accommodates: '2',
+        address: 'Object',
+        amenities: 'Array',
+        availability: 'Object',
+        bathrooms: '1',
+        bed_type: '"Real Bed"',
+        bedrooms: '1',
+        beds: '1',
+        calendar_last_scraped: '2019-03-06T05:00:00.000+00:00',
+        cancellation_policy: '"strict_14_with_grace_period"',
+        cleaning_fee: '100',
+        description:
+          '"A short distance from Honolulu\'s billion dollar mall, and the same dis…"',
+        extra_people: '0',
+        first_review: '2013-05-24T04:00:00.000+00:00',
+        guests_included: '1',
+        host: 'Object',
+        house_rules:
+          '"The general welfare and well being of all the community."',
+        images: 'Object',
+        interaction:
+          '"We try our best at creating, simple responsive management which never …"',
+        last_review: '2019-02-07T05:00:00.000+00:00',
+        last_scraped: '2019-03-06T05:00:00.000+00:00',
+        listing_url: '"https://www.airbnb.com/rooms/1001265"',
+        maximum_nights: '365',
+        minimum_nights: '3',
+        monthly_price: '2150',
+        name: '"Ocean View Waikiki Marina w/prkg"',
+        neighborhood_overview: '"You can breath ocean as well as aloha."',
+        number_of_reviews: '96',
+        price: '115',
+        property_type: '"Condominium"',
+        review_scores: 'Object',
+        reviews: 'Array',
+        room_type: '"Entire home/apt"',
+        space:
+          '"Great studio located on Ala Moana across the street from Yacht Harbor …"',
+        summary:
+          '"A short distance from Honolulu\'s billion dollar mall, and the same dis…"',
+        transit: '"Honolulu does have a very good air conditioned bus system."',
+        weekly_price: '650',
+      });
+    } catch (err) {
+      console.log(JSON.stringify(result, null, 2));
+      throw err;
+    }
+  });
+
   it('supports CSV files with BOM', async function () {
     const csvPath = path.resolve(
       __dirname,

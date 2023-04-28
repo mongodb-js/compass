@@ -36,9 +36,16 @@ describe('listCSVFields', function () {
       }
 
       const expectedResult = JSON.parse(text);
-      expect(result, basename.replace(/.csv$/, '.preview.json')).to.deep.equal(
-        expectedResult
-      );
+      try {
+        expect(
+          result,
+          basename.replace(/.csv$/, '.preview.json')
+        ).to.deep.equal(expectedResult);
+      } catch (err) {
+        console.log(resultPath);
+        console.log(JSON.stringify(result, null, 2));
+        throw err;
+      }
     });
   }
 

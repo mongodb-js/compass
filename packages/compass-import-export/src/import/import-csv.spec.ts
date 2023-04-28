@@ -498,7 +498,7 @@ describe('importCSV', function () {
     const ns = 'db.col';
 
     const fields = {
-      '': 'int',
+      '[]': 'int',
     } as const;
 
     const output = temp.createWriteStream();
@@ -611,32 +611,6 @@ describe('importCSV', function () {
     await expect(promise).to.be.rejectedWith(
       assert.AssertionError,
       'parent must be an object [Col 1][Row 1]'
-    );
-  });
-
-  it('errors when a field is simultaneously a simple value and an array (stopOnErrors=true)', async function () {
-    const lines = ['a,a[0]', '1,2'];
-
-    const ns = 'db.col';
-
-    const fields = {
-      a: 'int',
-    } as const;
-
-    const output = temp.createWriteStream();
-
-    const promise = importCSV({
-      dataService,
-      ns,
-      fields,
-      input: Readable.from(lines.join('\n')),
-      output,
-      stopOnErrors: true,
-    });
-
-    await expect(promise).to.be.rejectedWith(
-      assert.AssertionError,
-      'parent must be an array [Col 1][Row 1]'
     );
   });
 

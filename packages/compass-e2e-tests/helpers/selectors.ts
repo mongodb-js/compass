@@ -536,6 +536,7 @@ export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-butt
 export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="delete-button"]`;
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
+export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 
 // Insert Document modal
 
@@ -570,7 +571,8 @@ export const ImportConfirm =
 export const ImportToast = '[data-testid="toast-import-toast"]';
 export const ImportToastAbort =
   '[data-testid="toast-import-toast"] [data-testid="toast-action-stop"]';
-
+export const ImportFieldLabel =
+  '[data-testid="import-modal"] .import-field-label';
 export const ImportModalCloseButton = `${ImportModal} [aria-label*="Close"]`;
 
 export const importPreviewFieldHeaderField = (fieldName: string): string => {

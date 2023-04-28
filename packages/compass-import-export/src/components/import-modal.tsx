@@ -91,9 +91,10 @@ type ImportModalProps = {
    * See `<ImportPreview />`
    */
   fields: {
+    isArray?: boolean;
     path: string;
     checked?: boolean; // CSV placeholder fields don't have checked
-    type?: CSVParsableFieldType | 'placeholder'; // Only on csv imports.
+    type?: CSVParsableFieldType;
   }[];
   values: string[][];
   toggleIncludeField: (path: string) => void;
