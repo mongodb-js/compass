@@ -5,6 +5,10 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { SortForm } from './sort';
 import sinon from 'sinon';
+import {
+  setSelectValue,
+  setComboboxValue,
+} from '../../../../../test/form-helper';
 
 const renderSortForm = (
   props: Partial<ComponentProps<typeof SortForm>> = {}
@@ -16,41 +20,6 @@ const renderSortForm = (
       {...props}
     />
   );
-};
-
-const changeFormGroupValues = (
-  element: HTMLElement,
-  {
-    field,
-    direction,
-  }: {
-    field: string;
-    direction: string;
-  }
-) => {
-  const fieldCombobox = within(element).getByRole('textbox', {
-    name: /select a field/i,
-  });
-  const directionSelect = within(element).getByRole('button', {
-    name: /select direction/i,
-  });
-
-  const data = [
-    [fieldCombobox, field],
-    [directionSelect, direction],
-  ] as const;
-
-  data.forEach(([el, value]) => {
-    userEvent.click(el);
-    const menuId = `#${el.getAttribute('aria-controls')}`;
-    userEvent.click(
-      within(document.querySelector(menuId)!).getByText(new RegExp(value, 'i')),
-      undefined,
-      {
-        skipPointerEventsCheck: true,
-      }
-    );
-  });
 };
 
 describe('sort', function () {
@@ -97,14 +66,11 @@ describe('sort', function () {
       expect(screen.getByTestId('sort-form-1')).to.exist;
       sortFormItems = screen.getAllByTestId(/sort-form-\d+$/);
 
-      changeFormGroupValues(sortFormItems[0], {
-        field: 'street',
-        direction: 'asc',
-      });
-      changeFormGroupValues(sortFormItems[1], {
-        field: 'zip',
-        direction: 'desc',
-      });
+      setComboboxValue(/select a field/i, 'street', sortFormItems[0]);
+      setSelectValue(/select direction/i, 'asc', sortFormItems[0]);
+
+      setComboboxValue(/select a field/i, 'zip', sortFormItems[1]);
+      setSelectValue(/select direction/i, 'desc', sortFormItems[1]);
     });
 
     it('renders labels for each sort field', function () {
@@ -145,10 +111,9 @@ describe('sort', function () {
 
       // We added a new item after index 0
       const addedSortItem = screen.getByTestId('sort-form-1');
-      changeFormGroupValues(addedSortItem, {
-        field: 'city',
-        direction: 'desc',
-      });
+
+      setComboboxValue(/select a field/i, 'city', addedSortItem);
+      setSelectValue(/select direction/i, 'desc', addedSortItem);
 
       expect(onChange.lastCall.args[0]).to.equal(
         JSON.stringify({

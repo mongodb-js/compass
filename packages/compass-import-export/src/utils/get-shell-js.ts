@@ -29,7 +29,13 @@ export function newGetQueryAsShellJSString({
   ns: string;
   query: ExportQuery;
 }) {
-  let ret = `db.getCollection("${toNS(ns).collection}").find(\n`;
+  let ret = `db.getCollection("${toNS(ns).collection}")`;
+  if (query.collation) {
+    ret += `.collate(\n  ${
+      stringify(query.collation as unknown as Record<string, unknown>) || ''
+    }\n)`;
+  }
+  ret += `.find(\n`;
   ret += `  ${stringify(query.filter ? query.filter : {}) || ''}`;
   if (query.projection) {
     ret += `,\n  ${stringify(query.projection) || ''}`;

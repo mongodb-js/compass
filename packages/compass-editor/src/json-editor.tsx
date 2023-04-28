@@ -80,7 +80,7 @@ import {
   useEffectOnChange,
   codePalette,
 } from '@mongodb-js/compass-components';
-import { javascriptLanguage } from '@codemirror/lang-javascript';
+import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension, TransactionSpec } from '@codemirror/state';
 import { Facet, Compartment, EditorState } from '@codemirror/state';
@@ -110,6 +110,10 @@ const hiddenScrollStyle = css({
   },
 });
 
+function isReadOnly(state: EditorState): boolean {
+  return state.facet(EditorState.readOnly);
+}
+
 // Breaks keyboard navigation out of the editor, but we want that
 const breakFocusOutBinding: KeyBinding = {
   // https://codemirror.net/examples/tab/
@@ -118,6 +122,9 @@ const breakFocusOutBinding: KeyBinding = {
   // in browser devtools for example). We want to just input tab symbol in that
   // case
   run({ state, dispatch }) {
+    if (isReadOnly(state)) {
+      return false;
+    }
     dispatch(
       state.update(state.replaceSelection('\t'), {
         scrollIntoView: true,
@@ -403,7 +410,7 @@ const highlightStyles = {
 } as const;
 
 // We don't have any other cases we need to support in a base editor
-type EditorLanguage = 'json' | 'javascript';
+type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
 
 export type Annotation = Pick<
   Diagnostic,
@@ -460,13 +467,20 @@ const javascriptExpression = javascriptLanguage.configure({
 });
 
 export const languages: Record<EditorLanguage, () => LanguageSupport> = {
-  json: json,
-  javascript() {
+  json,
+  javascript,
+  'javascript-expression': () => {
     return new LanguageSupport(javascriptExpression);
   },
 };
 
 export const languageName = Facet.define<EditorLanguage>({});
+
+async function wait(ms?: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 /**
  * Codemirror editor throws when the state update is being applied while another
@@ -478,22 +492,20 @@ export const languageName = Facet.define<EditorLanguage>({});
  *
  * [0]: https://discuss.codemirror.net/t/should-dispatched-transactions-be-added-to-a-queue/4610/4
  */
-function sheduleDispatch(
+async function sheduleDispatch(
   editorView: EditorView,
   transactions: TransactionSpec | TransactionSpec[],
   signal?: AbortSignal
-) {
-  if (signal?.aborted) {
-    return;
+): Promise<boolean> {
+  while ((editorView as any).updateState != 0) {
+    if (signal?.aborted) {
+      return false;
+    }
+    await wait();
   }
-  if ((editorView as any).updateState != 0) {
-    setTimeout(() => {
-      sheduleDispatch(editorView, transactions, signal);
-    });
-  } else {
-    transactions = Array.isArray(transactions) ? transactions : [transactions];
-    editorView.dispatch(...transactions);
-  }
+  transactions = Array.isArray(transactions) ? transactions : [transactions];
+  editorView.dispatch(...transactions);
+  return true;
 }
 
 /**
@@ -526,7 +538,7 @@ function useCodemirrorExtensionCompartment<T>(
 
     const controller = new AbortController();
 
-    sheduleDispatch(
+    void sheduleDispatch(
       editorViewRef.current,
       {
         effects: compartmentRef.current?.reconfigure(
@@ -690,9 +702,10 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       return EditorView.theme({
         '& .cm-scroller': {
           lineHeight: `${lineHeight}px`,
-          ...(maxLines && {
-            maxHeight: `${maxLines * lineHeight}px`,
-          }),
+          ...(maxLines &&
+            maxLines < Infinity && {
+              maxHeight: `${maxLines * lineHeight}px`,
+            }),
           height: '100%',
           overflowY: 'auto',
         },
@@ -819,7 +832,12 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         keymap.of([
           {
             key: 'Tab',
-            run: acceptCompletion,
+            run(context) {
+              if (isReadOnly(context.state)) {
+                return false;
+              }
+              return acceptCompletion(context);
+            },
           },
           {
             key: 'Ctrl-Shift-b',
@@ -919,7 +937,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     ) {
       const controller = new AbortController();
 
-      sheduleDispatch(
+      void sheduleDispatch(
         editorViewRef.current,
         {
           changes: {
@@ -945,7 +963,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
     const controller = new AbortController();
 
-    sheduleDispatch(
+    void sheduleDispatch(
       editorViewRef.current,
       {
         effects: setDiagnosticsEffect.of(annotations ?? []),
@@ -1021,6 +1039,9 @@ function isTopNode(node?: any): boolean {
 }
 
 const applySnippet = (editor: EditorView, template: string): boolean => {
+  if (isReadOnly(editor.state)) {
+    return false;
+  }
   const completion = snippetCompletion(template, { label: template });
   if (typeof completion.apply === 'function') {
     completion.apply(editor, completion, 0, editor.state.doc.length);
@@ -1055,7 +1076,7 @@ const foldAll: Command = (editor) => {
     },
   });
   if (foldableProperties.length > 0) {
-    sheduleDispatch(editor, {
+    void sheduleDispatch(editor, {
       effects: foldableProperties.map((range) => {
         return foldEffect.of(range);
       }),
@@ -1071,19 +1092,16 @@ const copyAll: Command = (editorView) => {
 
 const prettify: Command = (editorView) => {
   // Can't prettify a read-only document
-  if (editorView.state.facet(EditorState.readOnly)) {
+  if (isReadOnly(editorView.state)) {
     return false;
   }
 
   const language = editorView.state.facet(languageName)[0];
   const doc = editorView.state.sliceDoc();
   try {
-    const formatted = _prettify(
-      doc,
-      language === 'json' ? 'json' : 'javascript-expression'
-    );
+    const formatted = _prettify(doc, language);
     if (formatted !== doc) {
-      sheduleDispatch(editorView, {
+      void sheduleDispatch(editorView, {
         changes: {
           from: 0,
           to: editorView.state.doc.length,
@@ -1110,7 +1128,6 @@ type InlineEditorProps = Omit<
   | 'showScroll'
   | 'highlightActiveLine'
   | 'minLines'
-  | 'maxLines'
   | 'annotations'
 > &
   (
@@ -1136,7 +1153,7 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
         showScroll={false}
         highlightActiveLine={false}
         className={cx(inlineStyles, className)}
-        language="javascript"
+        language="javascript-expression"
         {...props}
       ></BaseEditor>
     );
@@ -1285,7 +1302,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         <BaseEditor
           ref={editorRef}
           className={editorClassName}
-          language="javascript"
+          language="javascript-expression"
           minLines={10}
           {...props}
         ></BaseEditor>
@@ -1305,6 +1322,36 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
   }
 );
 
+/**
+ * Sets the editor value, use this with RTL like this:
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * setCodemirrorEditorValue(screen.getByTestId('editor-test-id'), 'my text');
+ * ```
+ */
+async function setCodemirrorEditorValue(
+  element: HTMLElement | string | null,
+  text: string
+): Promise<void> {
+  if (typeof element === 'string') {
+    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
+  }
+  if (!element || !element.hasAttribute('data-codemirror')) {
+    throw new Error('Cannot find editor container');
+  }
+  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
+  await sheduleDispatch(editorView, {
+    changes: {
+      from: 0,
+      to: editorView.state.doc.length,
+      insert: text,
+    },
+  });
+}
+
 export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
+export { setCodemirrorEditorValue };
+export type { CompletionSource as Completer };

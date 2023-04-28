@@ -3,6 +3,7 @@ import SortUseCase from './sort/sort';
 import LookupUseCase from './lookup/lookup';
 import ProjectUseCase from './project/project';
 import BasicGroupUseCase from './group/basic-group';
+import GroupWithStatistics from './group/group-with-statistics';
 
 export type StageWizardUseCase = {
   id: string;
@@ -41,6 +42,12 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
     title: 'Group my documents based on their field values',
     stageOperator: '$group',
     wizardComponent: BasicGroupUseCase,
+  },
+  {
+    id: 'group-with-statistics',
+    title: 'Compute values within the groups I create',
+    stageOperator: '$group',
+    wizardComponent: GroupWithStatistics,
   },
 ];
 

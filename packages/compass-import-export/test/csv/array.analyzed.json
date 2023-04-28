@@ -1,6 +1,5 @@
 {
   "totalRows": 2,
-  "aborted": false,
   "fields": {
     "a": {
       "types": {
@@ -14,7 +13,7 @@
       "columnIndexes": [0],
       "detected": "string"
     },
-    "foo": {
+    "foo[]": {
       "types": {
         "int": {
           "count": 4,
@@ -32,17 +31,17 @@
       "columnIndexes": [1, 2, 3],
       "detected": "int"
     },
-    "bar": {
-      "columnIndexes": [4, 5],
-      "detected": "string",
+    "bar[][]": {
       "types": {
         "undefined": {
           "count": 4,
-          "firstColumnIndex": 4,
           "firstRowIndex": 0,
+          "firstColumnIndex": 4,
           "firstValue": ""
         }
-      }
+      },
+      "columnIndexes": [4, 5],
+      "detected": "string"
     },
     "z": {
       "types": {
@@ -68,5 +67,6 @@
       "columnIndexes": [7],
       "detected": "string"
     }
-  }
+  },
+  "aborted": false
 }

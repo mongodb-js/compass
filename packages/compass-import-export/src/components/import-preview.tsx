@@ -25,7 +25,11 @@ import { findBrokenCSVTypeExample } from '../csv/csv-utils';
 
 const debug = createDebug('import-preview');
 
-const MAX_STRING_LENGTH = 80;
+// the max length of a value in the preview
+const MAX_VALUE_LENGTH = 80;
+
+// the max length in a cell in the preview table
+const MAX_PREVIEW_LENGTH = 1000;
 
 const columnHeaderStyles = css({
   display: 'flex',
@@ -112,6 +116,11 @@ const selectStyles = css({
   minWidth: spacing[3] * 9,
 });
 
+const arrayTextStyles = css({
+  fontWeight: 'normal',
+  whiteSpace: 'nowrap',
+});
+
 function fieldTypeName(type: CSVParsableFieldType | 'undefined') {
   if (type === 'undefined') {
     return 'Blank';
@@ -131,11 +140,7 @@ function needsMixedWarning(field: Field) {
 
 function needsTypeWarning(field: Field) {
   return !!(
-    field.result &&
-    findBrokenCSVTypeExample(
-      field.result.types,
-      field.type as CSVParsableFieldType
-    )
+    field.result && findBrokenCSVTypeExample(field.result.types, field.type)
   );
 }
 
@@ -176,8 +181,9 @@ function SelectFieldType({
 }
 
 type Field = {
+  isArray?: boolean;
   path: string;
-  type: CSVParsableFieldType | 'placeholder';
+  type: CSVParsableFieldType;
   checked: boolean;
   result?: CSVField;
 };
@@ -215,19 +221,22 @@ function WarningIcon() {
 function MixedWarning({
   result,
   selectedType,
+  children: triggerChildren,
 }: {
   result: CSVField;
   selectedType: CSVParsableFieldType;
+  children: React.ReactElement;
 }) {
   return (
     <Tooltip
       align="top"
       justify="middle"
       delay={500}
-      trigger={({ children, ...props }) => (
+      style={{ display: 'block' }}
+      trigger={({ children: tooltipChildren, ...props }) => (
         <div {...props}>
-          {children}
-          <InfoIcon />
+          {tooltipChildren}
+          {triggerChildren}
         </div>
       )}
     >
@@ -258,9 +267,11 @@ function MixedWarning({
 function TypeWarning({
   result,
   selectedType,
+  children: triggerChildren,
 }: {
   result: CSVField;
   selectedType: CSVParsableFieldType;
+  children: React.ReactElement;
 }) {
   const example = findBrokenCSVTypeExample(result.types, selectedType);
 
@@ -269,19 +280,20 @@ function TypeWarning({
   }
 
   const value =
-    example.firstValue.length < MAX_STRING_LENGTH
+    example.firstValue.length < MAX_VALUE_LENGTH
       ? example.firstValue
-      : `${example.firstValue.slice(0, MAX_STRING_LENGTH)}…`;
+      : `${example.firstValue.slice(0, MAX_VALUE_LENGTH)}…`;
 
   return (
     <Tooltip
       align="top"
       justify="middle"
       delay={500}
-      trigger={({ children, ...props }) => (
+      style={{ display: 'block' }}
+      trigger={({ children: tooltipChildren, ...props }) => (
         <div {...props}>
-          {children}
-          <WarningIcon />
+          {tooltipChildren}
+          {triggerChildren}
         </div>
       )}
     >
@@ -305,6 +317,88 @@ function TypeWarning({
       </>
     </Tooltip>
   );
+}
+
+function capStringLength(value: any): string {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  if (value.length > MAX_PREVIEW_LENGTH) {
+    return value.substring(0, MAX_PREVIEW_LENGTH) + '…';
+  }
+
+  return value;
+}
+
+function FieldTypeHeading({
+  field,
+  onFieldCheckedChanged,
+  setFieldType,
+}: {
+  field: Field;
+  onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
+  setFieldType: (fieldPath: string, fieldType: string) => void;
+}) {
+  const children = (
+    <div>
+      <div className={columnNameStyles}>
+        <Checkbox
+          aria-labelledby={`toggle-import-field-label-${field.path}`}
+          id={`toggle-import-field-checkbox-${field.path}`}
+          data-testid={`toggle-import-field-checkbox-${field.path}`}
+          aria-label={
+            field.checked
+              ? `${field.path} values will be imported`
+              : `Values for ${field.path} will be ignored`
+          }
+          checked={field.checked}
+          title={
+            field.checked
+              ? `${field.path} values will be imported`
+              : `Values for ${field.path} will be ignored`
+          }
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onFieldCheckedChanged(field.path, !!e.target.checked)
+          }
+        />
+        <Label
+          id={`toggle-import-field-label-${field.path}`}
+          className={cx('import-field-label', fieldPathHeaderStyles)}
+          htmlFor={`toggle-import-field-checkbox-${field.path}`}
+        >
+          <span title={field.path}>{field.path}</span>
+        </Label>
+      </div>
+      <div className={fieldTypeContainerStyles}>
+        {field.isArray && <span className={arrayTextStyles}>Array of</span>}
+        <SelectFieldType
+          fieldPath={field.path}
+          selectedType={field.type}
+          onChange={(newType: string) => setFieldType(field.path, newType)}
+        />
+        {field.result && needsMixedWarning(field) && <InfoIcon />}
+        {field.result && needsTypeWarning(field) && <WarningIcon />}
+      </div>
+    </div>
+  );
+
+  if (field.result) {
+    if (needsMixedWarning(field)) {
+      return (
+        <MixedWarning result={field.result} selectedType={field.type}>
+          {children}
+        </MixedWarning>
+      );
+    } else if (needsTypeWarning(field)) {
+      return (
+        <TypeWarning result={field.result} selectedType={field.type}>
+          {children}
+        </TypeWarning>
+      );
+    }
+  }
+  return children;
 }
 
 function ImportPreview({
@@ -351,66 +445,16 @@ function ImportPreview({
               key={`col-${field.path}`}
               className={cx(needsWarning(field) && warningCellStyles)}
               label={
+                // TODO(COMPASS-6766): move this div into FieldTypeHeading once we get rid of placeholders
                 <div
                   className={columnHeaderStyles}
                   data-testid={`preview-field-header-${field.path}`}
                 >
-                  {field.type !== 'placeholder' && (
-                    <>
-                      <div className={columnNameStyles}>
-                        <Checkbox
-                          aria-labelledby={`toggle-import-field-label-${field.path}`}
-                          id={`toggle-import-field-checkbox-${field.path}`}
-                          data-testid={`toggle-import-field-checkbox-${field.path}`}
-                          aria-label={
-                            field.checked
-                              ? `${field.path} values will be imported`
-                              : `Values for ${field.path} will be ignored`
-                          }
-                          checked={field.checked}
-                          title={
-                            field.checked
-                              ? `${field.path} values will be imported`
-                              : `Values for ${field.path} will be ignored`
-                          }
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            onFieldCheckedChanged(
-                              field.path,
-                              !!e.target.checked
-                            )
-                          }
-                        />
-                        <Label
-                          id={`toggle-import-field-label-${field.path}`}
-                          className={fieldPathHeaderStyles}
-                          htmlFor={`toggle-import-field-checkbox-${field.path}`}
-                        >
-                          <span title={field.path}>{field.path}</span>
-                        </Label>
-                      </div>
-                      <div className={fieldTypeContainerStyles}>
-                        <SelectFieldType
-                          fieldPath={field.path}
-                          selectedType={field.type}
-                          onChange={(newType: string) =>
-                            setFieldType(field.path, newType)
-                          }
-                        />
-                        {field.result && needsMixedWarning(field) && (
-                          <MixedWarning
-                            result={field.result}
-                            selectedType={field.type}
-                          />
-                        )}
-                        {field.result && needsTypeWarning(field) && (
-                          <TypeWarning
-                            result={field.result}
-                            selectedType={field.type}
-                          />
-                        )}
-                      </div>
-                    </>
-                  )}
+                  <FieldTypeHeading
+                    field={field}
+                    onFieldCheckedChanged={onFieldCheckedChanged}
+                    setFieldType={setFieldType}
+                  />
                 </div>
               }
             />
@@ -443,12 +487,14 @@ function ImportPreview({
                   cellStyles,
                   !fields[fieldIndex].checked && cellUncheckedStyles
                 )}
-                title={`${values[fieldIndex] || 'empty string'}`}
+                title={`${
+                  capStringLength(values[fieldIndex]) || 'empty string'
+                }`}
               >
                 {values[fieldIndex] === '' ? (
                   <i>empty string</i>
                 ) : (
-                  values[fieldIndex]
+                  capStringLength(values[fieldIndex])
                 )}
               </div>
             </Cell>

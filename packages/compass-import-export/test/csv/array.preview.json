@@ -1,5 +1,5 @@
 {
-  "uniqueFields": ["a", "foo", "bar", "z", "notes"],
+  "uniqueFields": ["a", "foo[]", "bar[][]", "z", "notes"],
   "headerFields": [
     "a",
     "foo[0]",

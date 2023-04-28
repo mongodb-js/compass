@@ -145,10 +145,10 @@ describe('ColumnRecorder', function () {
     const result = r.columns.map(formatCSVHeaderName);
     comparePaths(result, [
       'foo',
+      'foo.bar',
       'foo[0]',
       'foo[1]',
       'foo[2]',
-      'foo.bar',
       'x[0]',
       'x[1]',
       'x[2]',
@@ -208,13 +208,13 @@ describe('ColumnRecorder', function () {
       'food.bar[0]',
       'food.bar[1]',
       'food.bar[2]',
-      'food.bar',
       'food.bar[1].lol',
       'things[0]',
       'things[1]',
       'food.bar.baz[0]',
       'food.bar.baz[1]',
       'things.more',
+      'food.bar',
     ]);
   });
 });

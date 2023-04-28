@@ -162,7 +162,7 @@ export function stringifyCSVValue(
 }
 
 export function csvHeaderNameToFieldName(name: string) {
-  return name.replace(/\[\d+\]/g, '');
+  return name.replace(/\[\d+\]/g, '[]');
 }
 
 const MIN_INT = -2147483648;

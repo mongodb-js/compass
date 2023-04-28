@@ -101,6 +101,8 @@ export const ConnectionFormInputFLELocalKey =
   '[data-testid="csfle-kms-local-key"]';
 export const ConnectionFormInputFLEEncryptedFieldsMap =
   '[data-testid="connection-csfle-encrypted-fields-map"]';
+export const ConnectionFormInputFLEEncryptedFieldsMapEditor =
+  '[data-testid="encrypted-fields-map-editor"]';
 
 export const ConnectionFormSSLConnectionRadios =
   '#tls-radio-box-group input[type="radio"]';
@@ -317,6 +319,10 @@ export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
 export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
 export const CollectionHeaderFLE2Badge =
   '[data-testid="collection-header-badge-fle2"]';
+export const CreateCollectionFLE2EncryptedFields =
+  '[data-testid="fle2-encryptedFields"]';
+export const CreateCollectionFLE2KeyEncryptionKey =
+  '[data-testid="fle2-keyEncryptionKey"]';
 
 export const CreateCollectionTimeseriesCheckboxLabel =
   '[data-testid="time-series-fields"] [data-testid="time-series-fields-label"]';
@@ -530,6 +536,7 @@ export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-butt
 export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="delete-button"]`;
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
+export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 
 // Insert Document modal
 
@@ -564,7 +571,8 @@ export const ImportConfirm =
 export const ImportToast = '[data-testid="toast-import-toast"]';
 export const ImportToastAbort =
   '[data-testid="toast-import-toast"] [data-testid="toast-action-stop"]';
-
+export const ImportFieldLabel =
+  '[data-testid="import-modal"] .import-field-label';
 export const ImportModalCloseButton = `${ImportModal} [aria-label*="Close"]`;
 
 export const importPreviewFieldHeaderField = (fieldName: string): string => {
