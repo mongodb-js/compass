@@ -14,10 +14,8 @@ import {
   KeylineCard,
 } from '@mongodb-js/compass-components';
 import {
-  Editor,
-  EditorVariant,
-  EditorTextCompleter,
-  ValidationAutoCompleter,
+  CodemirrorMultilineEditor,
+  createValidationAutocompleter,
 } from '@mongodb-js/compass-editor';
 
 import { checkValidator } from '../../modules/validation';
@@ -63,6 +61,36 @@ const buttonStyles = css({
   marginLeft: spacing[2],
 });
 
+const ValidationCodeEditor = ({
+  text,
+  onChangeText,
+  readOnly,
+  fields,
+  serverVersion,
+}) => {
+  const completer = React.useMemo(() => {
+    return createValidationAutocompleter({ fields, serverVersion });
+  }, [fields, serverVersion]);
+
+  return (
+    <CodemirrorMultilineEditor
+      id="validation-code-editor"
+      text={text}
+      onChangeText={onChangeText}
+      readOnly={readOnly}
+      completer={completer}
+    />
+  );
+};
+
+ValidationCodeEditor.propTypes = {
+  text: PropTypes.string.isRequired,
+  onChangeText: PropTypes.func.isRequired,
+  readOnly: PropTypes.bool.isRequired,
+  fields: PropTypes.array,
+  serverVersion: PropTypes.string,
+};
+
 /**
  * The validation editor component.
  */
@@ -97,46 +125,10 @@ class ValidationEditor extends Component {
    */
   constructor(props) {
     super(props);
-    this.completer = new ValidationAutoCompleter(
-      props.serverVersion,
-      EditorTextCompleter,
-      props.fields
-    );
     this.debounceValidatorChanged = debounce((validator) => {
       this.props.clearSampleDocuments();
       this.trackValidator(validator);
     }, 750);
-  }
-
-  /**
-   * Should the component update?
-   *
-   * @param {Object} nextProps - The next properties.
-   *
-   * @returns {Boolean} If the component should update.
-   */
-  shouldComponentUpdate(nextProps) {
-    return (
-      nextProps.validation.validator !== this.props.validation.validator ||
-      nextProps.validation.validationAction !==
-        this.props.validation.validationAction ||
-      nextProps.validation.validationLevel !==
-        this.props.validation.validationLevel ||
-      nextProps.validation.error !== this.props.validation.error ||
-      nextProps.validation.syntaxError !== this.props.validation.syntaxError ||
-      nextProps.validation.isChanged !== this.props.validation.isChanged ||
-      nextProps.serverVersion !== this.props.serverVersion ||
-      nextProps.fields.length !== this.props.fields.length ||
-      nextProps.isEditable !== this.props.isEditable
-    );
-  }
-
-  /**
-   * If there are new fields update autocompleter with new fields.
-   */
-  componentDidUpdate() {
-    this.completer.update(this.props.fields);
-    this.completer.version = this.props.serverVersion;
   }
 
   /**
@@ -307,12 +299,14 @@ class ValidationEditor extends Component {
             darkMode ? editorStylesDark : editorStylesLight
           )}
         >
-          <Editor
-            variant={EditorVariant.Shell}
+          <ValidationCodeEditor
             text={validation.validator}
-            onChangeText={(text) => this.onValidatorChange(text)}
+            onChangeText={(text) => {
+              return this.onValidatorChange(text);
+            }}
             readOnly={!isEditable}
-            completer={this.completer}
+            fields={this.props.fields}
+            serverVersion={this.props.serverVersion}
           />
         </div>
         {this.renderValidationMessage()}

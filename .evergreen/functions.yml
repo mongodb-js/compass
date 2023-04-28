@@ -75,10 +75,12 @@ post:
         - src/.deps/.npm/_logs/*.log
         - src/packages/compass-e2e-tests/.log/**/*
         - src/packages/compass-e2e-tests/.nyc_output/coverage.json
-        - src/packages/compass-e2e-tests/.log/report.json
         - ~/.mongodb/runner/*.log
       remote_file: ${project}/${revision}_${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
+  - command: attach.results
+    params:
+      file_location: src/packages/compass-e2e-tests/.log/report.json
 
 functions:
   clone:
@@ -123,7 +125,7 @@ functions:
           node -v;
           echo "Using npm version:";
           npm -v;
-          
+
           echo "Using gcc version:"
           gcc --version;
           echo "Using g++ version:"

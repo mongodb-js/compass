@@ -12,14 +12,15 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { Editor } from '@mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 const errorContainerStyles = css({
   padding: spacing[3],
   width: '100%',
 });
 
-const ENCRYPTED_FIELDS_MAP_PLACEHOLDER = `{
+const ENCRYPTED_FIELDS_MAP_PLACEHOLDER = {
+  '$compass.rawText': `{
 /**
  * // Client-side encrypted fields map configuration:
  * 'database.collection': {
@@ -34,7 +35,8 @@ const ENCRYPTED_FIELDS_MAP_PLACEHOLDER = `{
  * }
  */
 }
-`;
+`,
+};
 
 const encryptedFieldsMapEditorId = 'encrypted-fields-map-editor-id';
 
@@ -51,26 +53,23 @@ function EncryptedFieldConfigInput({
   label: React.ReactNode;
   description: React.ReactNode;
 }): React.ReactElement {
-  const [hasEditedContent, setHasEditedContent] = useState(false);
-
-  if (encryptedFieldsMap === undefined && !hasEditedContent) {
-    encryptedFieldsMap = textToEncryptedFieldConfig(
-      ENCRYPTED_FIELDS_MAP_PLACEHOLDER
+  const [encryptedFieldsMapText, setEncryptedFieldsMapText] = useState(() => {
+    return encryptedFieldConfigToText(
+      encryptedFieldsMap ?? ENCRYPTED_FIELDS_MAP_PLACEHOLDER
     );
-  }
+  });
 
   return (
     <div data-testid="connection-csfle-encrypted-fields-map">
       <FormFieldContainer>
         <Label htmlFor={encryptedFieldsMapEditorId}>{label}</Label>
         <Description>{description}</Description>
-        <Editor
+        <CodemirrorMultilineEditor
           data-testid="encrypted-fields-map-editor"
-          variant="Shell"
           id={encryptedFieldsMapEditorId}
-          text={encryptedFieldConfigToText(encryptedFieldsMap)}
+          text={encryptedFieldsMapText}
           onChangeText={(newText) => {
-            setHasEditedContent(true);
+            setEncryptedFieldsMapText(newText);
             onChange(textToEncryptedFieldConfig(newText));
           }}
         />

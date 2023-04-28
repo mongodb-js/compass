@@ -125,7 +125,7 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
-    await browser.setAceValue(
+    await browser.setCodemirrorEditorValue(
       Selectors.InsertJSONEditor,
       '{ "foo": 10, "long": { "$numberLong": "99" } }'
     );
@@ -254,7 +254,7 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
-    await browser.setAceValue(Selectors.InsertJSONEditor, json);
+    await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
 
     // confirm
     const insertConfirm = await browser.$(Selectors.InsertConfirm);
@@ -305,7 +305,7 @@ describe('Collection import', function () {
     await insertDialog.waitForDisplayed();
 
     // set the text in the editor
-    await browser.setAceValue(Selectors.InsertJSONEditor, json);
+    await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
 
     // make sure that there's an error and that the insert button is disabled
     const errorElement = await browser.$(Selectors.InsertDialogErrorMessage);
@@ -979,8 +979,7 @@ describe('Collection import', function () {
       );
       const documentsText = await messageElement.getText();
       expect(documentsText).to.not.equal('1 – 20 of 16116');
-      const result = await getFirstListDocument(browser);
-      expect(result._id).to.exist;
+      expect(documentsText).to.not.include('16116');
 
       // Close toast.
       await browser.clickVisible(

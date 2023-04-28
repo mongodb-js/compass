@@ -1,8 +1,6 @@
-import React, { Component } from 'react';
-
+import React, { useState } from 'react';
 import { css, cx, palette, withDarkMode } from '@mongodb-js/compass-components';
-import type { AceEditor } from '@mongodb-js/compass-editor';
-import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 const minEditorHeight = 280;
 
@@ -42,62 +40,38 @@ type InsertJsonDocumentProps = {
   updateJsonDoc: (value: string) => void;
 };
 
-class InsertJsonDocument extends Component<InsertJsonDocumentProps> {
-  editor?: AceEditor;
+const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
+  darkMode,
+  jsonDoc,
+  isCommentNeeded,
+  updateJsonDoc,
+}) => {
+  const [text, setText] = useState(() => {
+    return isCommentNeeded ? `${EDITOR_COMMENT}${jsonDoc}` : jsonDoc;
+  });
 
-  componentDidMount() {
-    if (this.props.jsonDoc !== '') {
-      let value = this.props.jsonDoc;
+  const onChangeText = (value: string) => {
+    setText(value);
+    updateJsonDoc(value.split('*/\n').pop() ?? '');
+  };
 
-      if (this.props.isCommentNeeded) {
-        value = `${EDITOR_COMMENT}${value}`;
-      }
-
-      this.editor?.setValue(value);
-    }
-  }
-
-  shouldComponentUpdate(nextProps: InsertJsonDocumentProps) {
-    return nextProps.jsonDoc !== this.props.jsonDoc;
-  }
-
-  onChange(value: string) {
-    this.props.updateComment(value.includes(EDITOR_COMMENT));
-    this.props.updateJsonDoc(value.split('*/\n').pop() as string);
-  }
-
-  render() {
-    const darkMode = this.props.darkMode;
-    let value = this.props.jsonDoc;
-
-    if (this.props.isCommentNeeded) {
-      value = `${EDITOR_COMMENT}${this.props.jsonDoc}`;
-    }
-
-    return (
-      <div
-        className={cx(
-          editorContainerStyles,
-          darkMode ? editorContainerStylesDark : editorContainerStylesLight
-        )}
-      >
-        <Editor
-          className={editorStyles}
-          variant={EditorVariant.EJSON}
-          defaultValue={EDITOR_COMMENT}
-          text={value}
-          onChangeText={this.onChange.bind(this)}
-          options={{
-            highlightActiveLine: true,
-            highlightGutterLine: true,
-          }}
-          onLoad={(editor) => {
-            this.editor = editor;
-          }}
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div
+      className={cx(
+        editorContainerStyles,
+        darkMode ? editorContainerStylesDark : editorContainerStylesLight
+      )}
+    >
+      <CodemirrorMultilineEditor
+        data-testid="insert-document-json-editor"
+        language="json"
+        className={editorStyles}
+        text={text}
+        onChangeText={onChangeText}
+        initialJSONFoldAll={false}
+      />
+    </div>
+  );
+};
 
 export default withDarkMode(InsertJsonDocument);

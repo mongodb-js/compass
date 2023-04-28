@@ -215,19 +215,22 @@ function WarningIcon() {
 function MixedWarning({
   result,
   selectedType,
+  children: triggerChildren,
 }: {
   result: CSVField;
   selectedType: CSVParsableFieldType;
+  children: React.ReactElement;
 }) {
   return (
     <Tooltip
       align="top"
       justify="middle"
       delay={500}
-      trigger={({ children, ...props }) => (
+      style={{ display: 'block' }}
+      trigger={({ children: tooltipChildren, ...props }) => (
         <div {...props}>
-          {children}
-          <InfoIcon />
+          {tooltipChildren}
+          {triggerChildren}
         </div>
       )}
     >
@@ -258,9 +261,11 @@ function MixedWarning({
 function TypeWarning({
   result,
   selectedType,
+  children: triggerChildren,
 }: {
   result: CSVField;
   selectedType: CSVParsableFieldType;
+  children: React.ReactElement;
 }) {
   const example = findBrokenCSVTypeExample(result.types, selectedType);
 
@@ -278,10 +283,11 @@ function TypeWarning({
       align="top"
       justify="middle"
       delay={500}
-      trigger={({ children, ...props }) => (
+      style={{ display: 'block' }}
+      trigger={({ children: tooltipChildren, ...props }) => (
         <div {...props}>
-          {children}
-          <WarningIcon />
+          {tooltipChildren}
+          {triggerChildren}
         </div>
       )}
     >
@@ -305,6 +311,79 @@ function TypeWarning({
       </>
     </Tooltip>
   );
+}
+
+function FieldTypeHeading({
+  field,
+  onFieldCheckedChanged,
+  setFieldType,
+}: {
+  field: Field;
+  onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
+  setFieldType: (fieldPath: string, fieldType: string) => void;
+}) {
+  if (field.type === 'placeholder') {
+    return null;
+  }
+
+  const children = (
+    <div>
+      <div className={columnNameStyles}>
+        <Checkbox
+          aria-labelledby={`toggle-import-field-label-${field.path}`}
+          id={`toggle-import-field-checkbox-${field.path}`}
+          data-testid={`toggle-import-field-checkbox-${field.path}`}
+          aria-label={
+            field.checked
+              ? `${field.path} values will be imported`
+              : `Values for ${field.path} will be ignored`
+          }
+          checked={field.checked}
+          title={
+            field.checked
+              ? `${field.path} values will be imported`
+              : `Values for ${field.path} will be ignored`
+          }
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onFieldCheckedChanged(field.path, !!e.target.checked)
+          }
+        />
+        <Label
+          id={`toggle-import-field-label-${field.path}`}
+          className={fieldPathHeaderStyles}
+          htmlFor={`toggle-import-field-checkbox-${field.path}`}
+        >
+          <span title={field.path}>{field.path}</span>
+        </Label>
+      </div>
+      <div className={fieldTypeContainerStyles}>
+        <SelectFieldType
+          fieldPath={field.path}
+          selectedType={field.type}
+          onChange={(newType: string) => setFieldType(field.path, newType)}
+        />
+        {field.result && needsMixedWarning(field) && <InfoIcon />}
+        {field.result && needsTypeWarning(field) && <WarningIcon />}
+      </div>
+    </div>
+  );
+
+  if (field.result) {
+    if (needsMixedWarning(field)) {
+      return (
+        <MixedWarning result={field.result} selectedType={field.type}>
+          {children}
+        </MixedWarning>
+      );
+    } else if (needsTypeWarning(field)) {
+      return (
+        <TypeWarning result={field.result} selectedType={field.type}>
+          {children}
+        </TypeWarning>
+      );
+    }
+  }
+  return children;
 }
 
 function ImportPreview({
@@ -351,66 +430,16 @@ function ImportPreview({
               key={`col-${field.path}`}
               className={cx(needsWarning(field) && warningCellStyles)}
               label={
+                // TODO(COMPASS-6766): move this div into FieldTypeHeading once we get rid of placeholders
                 <div
                   className={columnHeaderStyles}
                   data-testid={`preview-field-header-${field.path}`}
                 >
-                  {field.type !== 'placeholder' && (
-                    <>
-                      <div className={columnNameStyles}>
-                        <Checkbox
-                          aria-labelledby={`toggle-import-field-label-${field.path}`}
-                          id={`toggle-import-field-checkbox-${field.path}`}
-                          data-testid={`toggle-import-field-checkbox-${field.path}`}
-                          aria-label={
-                            field.checked
-                              ? `${field.path} values will be imported`
-                              : `Values for ${field.path} will be ignored`
-                          }
-                          checked={field.checked}
-                          title={
-                            field.checked
-                              ? `${field.path} values will be imported`
-                              : `Values for ${field.path} will be ignored`
-                          }
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            onFieldCheckedChanged(
-                              field.path,
-                              !!e.target.checked
-                            )
-                          }
-                        />
-                        <Label
-                          id={`toggle-import-field-label-${field.path}`}
-                          className={fieldPathHeaderStyles}
-                          htmlFor={`toggle-import-field-checkbox-${field.path}`}
-                        >
-                          <span title={field.path}>{field.path}</span>
-                        </Label>
-                      </div>
-                      <div className={fieldTypeContainerStyles}>
-                        <SelectFieldType
-                          fieldPath={field.path}
-                          selectedType={field.type}
-                          onChange={(newType: string) =>
-                            setFieldType(field.path, newType)
-                          }
-                        />
-                        {field.result && needsMixedWarning(field) && (
-                          <MixedWarning
-                            result={field.result}
-                            selectedType={field.type}
-                          />
-                        )}
-                        {field.result && needsTypeWarning(field) && (
-                          <TypeWarning
-                            result={field.result}
-                            selectedType={field.type}
-                          />
-                        )}
-                      </div>
-                    </>
-                  )}
+                  <FieldTypeHeading
+                    field={field}
+                    onFieldCheckedChanged={onFieldCheckedChanged}
+                    setFieldType={setFieldType}
+                  />
                 </div>
               }
             />

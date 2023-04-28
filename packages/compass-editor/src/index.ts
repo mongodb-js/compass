@@ -14,6 +14,7 @@ export { Editor } from './multiline-editor';
 export {
   CodemirrorInlineEditor,
   CodemirrorMultilineEditor,
+  setCodemirrorEditorValue,
 } from './json-editor';
 export type {
   EditorView,
@@ -21,6 +22,7 @@ export type {
   Annotation,
   Action,
   EditorRef,
+  Completer,
 } from './json-editor';
 export { SyntaxHighlight } from './syntax-highlight';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
