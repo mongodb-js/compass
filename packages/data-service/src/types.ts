@@ -20,7 +20,6 @@ export interface CollectionStats {
   extent_last_size?: CollStats['lastExtentSize'];
   flags_user: CollStats['userFlags'];
   max_document_size?: CollStats['maxSize'];
-  size?: CollStats['size'];
   index_details: CollStats['indexDetails'];
   wired_tiger: Partial<CollStats['wiredTiger']>;
 }

@@ -38,7 +38,6 @@ interface Collection {
   extent_last_size: number;
   flags_user: number;
   max_document_size: number;
-  size: number;
   index_details: unknown;
   wired_tiger: unknown;
   isTimeSeries: boolean;

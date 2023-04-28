@@ -147,7 +147,6 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     extent_last_size: 'number',
     flags_user: 'number',
     max_document_size: 'number',
-    size: 'number',
     index_details: 'object',
     wired_tiger: 'object',
   },

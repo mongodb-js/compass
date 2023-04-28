@@ -843,14 +843,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
    * We specify an empty `storageStats: {}` document
    * to use the default scale factor of 1 for the various size data.
    */
-  private async _aggregateCollStats(collStats: Document[], ns: string) {
+  private _aggregateCollStats(collStats: Document[], ns: string) {
     const result: Document = {
       ok: 1,
     };
-
-    const shardStats: {
-      [shardId: string]: Document;
-    } = {};
     const counts: {
       [fieldName: string]: number;
     } = {};
@@ -879,10 +875,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
         }
         if (
           [
+            'numExtents',
             'userFlags',
             'capped',
             'max',
-            'paddingFactorNote',
             'indexDetails',
             'wiredTiger',
           ].includes(fieldName)
@@ -891,14 +887,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
           // match across shards.
           result[fieldName] ??= shardStorageStats[fieldName];
         } else if (
-          // NOTE: `numOrphanDocs` is new in 6.0. `totalSize` is new in 4.4.
           [
             'count',
             'size',
             'storageSize',
             'totalIndexSize',
-            'totalSize',
-            'numOrphanDocs',
+            'freeStorageSize',
           ].includes(fieldName)
         ) {
           if (counts[fieldName] === undefined) {
@@ -933,27 +927,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
           }
         }
       }
-    }
-
-    if (collStats[0].shard) {
-      result.shards = shardStats;
-    }
-
-    try {
-      result.sharded = !!(await this._collection(
-        'config.collections',
-        'CRUD'
-      ).findOne({
-        _id: ns as any,
-        // Dropped is gone on newer server versions, so check for !== true
-        // rather than for === false (SERVER-51880 and related).
-        dropped: { $ne: true },
-      }));
-    } catch (e) {
-      // A user might not have permissions to check the config. In which
-      // case we default to the potentially inaccurate check for multiple
-      // shard response documents to determine if the collection is sharded.
-      result.sharded = collStats.length > 1;
     }
 
     for (const [countField, count] of Object.entries(counts)) {
@@ -999,7 +972,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       throw new Error(`Error running $collStats aggregation stage on ${ns}`);
     }
 
-    const aggregatedCollStats = await this._aggregateCollStats(collStats, ns);
+    const aggregatedCollStats = this._aggregateCollStats(collStats, ns);
     return this._buildCollectionStats(
       databaseName,
       collectionName,
@@ -2188,7 +2161,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       extent_last_size: data.lastExtentSize,
       flags_user: data.userFlags,
       max_document_size: data.maxSize,
-      size: data.size,
       index_details: data.indexDetails || {},
       wired_tiger: data.wiredTiger || {},
     };
