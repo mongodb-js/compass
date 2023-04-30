@@ -46,9 +46,10 @@ function FieldsToExportOptions({
         }: React.ChangeEvent<HTMLInputElement>) =>
           setFieldsToExportOption(value as FieldsToExportOption)
         }
+        value={fieldsToExportOption}
       >
         <RadioBox
-          data-testid="select-file-type-json"
+          id="export-query-all-fields-option"
           value="all-fields"
           checked={fieldsToExportOption === 'all-fields'}
         >
@@ -56,7 +57,7 @@ function FieldsToExportOptions({
         </RadioBox>
         <RadioBox
           className={selectFieldsRadioBoxStyles}
-          data-testid="select-file-type-csv"
+          id="export-query-select-fields-option"
           value="select-fields"
           checked={fieldsToExportOption === 'select-fields'}
         >

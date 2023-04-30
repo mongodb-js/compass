@@ -32,9 +32,6 @@ declare module 'process' {
         HADRON_METRICS_SEGMENT_API_KEY?: string;
         HADRON_METRICS_SEGMENT_HOST?: string;
         HADRON_AUTO_UPDATE_ENDPOINT: string;
-
-        // Legacy feature flags. Add new feature flags to the preferences model directly!
-        COMPASS_LG_DARKMODE?: 'true' | 'false';
       }
     }
   }

@@ -30,8 +30,11 @@ describe('ExportCodeView [Component]', function () {
     });
 
     it('should render the query code', function () {
-      expect(screen.getByTestId('export-code-view-code')).to.be.visible;
-      const codeText = screen.getByTestId('export-code-view-code').textContent;
+      expect(screen.getByTestId('export-collection-code-preview-wrapper')).to.be
+        .visible;
+      const codeText = screen.getByTestId(
+        'export-collection-code-preview-wrapper'
+      ).textContent;
       expect(codeText).to.include('db.getCollection("zebra").find(');
       expect(screen.queryByText('Export results from the query below')).to.be
         .visible;
@@ -59,8 +62,11 @@ describe('ExportCodeView [Component]', function () {
     });
 
     it('should render the projection using the fields', function () {
-      expect(screen.getByTestId('export-code-view-code')).to.be.visible;
-      const codeText = screen.getByTestId('export-code-view-code').textContent;
+      expect(screen.getByTestId('export-collection-code-preview-wrapper')).to.be
+        .visible;
+      const codeText = screen.getByTestId(
+        'export-collection-code-preview-wrapper'
+      ).textContent;
       expect(codeText).to.include('name: true');
       expect(codeText).to.not.include('test: true');
     });
