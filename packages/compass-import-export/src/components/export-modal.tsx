@@ -227,7 +227,7 @@ function ExportModal({
               <>
                 <ExportCodeView />
                 {query && queryHasProjection(query) && (
-                  <Banner>
+                  <Banner data-testid="export-projection-banner">
                     Only projected fields will be exported. To export all
                     fields, go back and leave the <b>Project</b> field empty.
                   </Banner>
@@ -289,15 +289,24 @@ function ExportModal({
             Export…
           </Button>
         )}
-        {((status === 'ready-to-export' && !!selectedFieldOption) ||
+        {((status === 'ready-to-export' &&
+          !exportFullCollection &&
+          !aggregation) ||
           status === 'select-fields-to-export') && (
           <Button className={closeButtonStyles} onClick={onClickBack}>
             Back
           </Button>
         )}
-        {((status === 'ready-to-export' && !selectedFieldOption) ||
+        {((status === 'ready-to-export' &&
+          (aggregation ||
+            exportFullCollection ||
+            (query && queryHasProjection(query)))) ||
           status === 'select-field-options') && (
-          <Button className={closeButtonStyles} onClick={closeExport}>
+          <Button
+            data-testid="export-close-export-button"
+            className={closeButtonStyles}
+            onClick={closeExport}
+          >
             Cancel
           </Button>
         )}
