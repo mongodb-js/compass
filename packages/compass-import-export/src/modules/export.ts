@@ -492,8 +492,16 @@ export const runExport = ({
     track('Export Completed', {
       type: aggregation ? 'aggregation' : 'query',
       all_docs: exportFullCollection,
+      has_projection:
+        exportFullCollection || aggregation || !_query
+          ? undefined
+          : queryHasProjection(_query),
       field_option:
-        exportFullCollection || aggregation ? undefined : selectedFieldOption,
+        exportFullCollection ||
+        aggregation ||
+        (_query && queryHasProjection(_query))
+          ? undefined
+          : selectedFieldOption,
       file_type: fileType,
       field_count:
         selectedFieldOption === 'select-fields' ? fieldCount : undefined,
