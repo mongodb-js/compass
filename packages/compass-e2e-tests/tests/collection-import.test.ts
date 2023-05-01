@@ -1172,7 +1172,10 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
-      await browser.clickVisible(Selectors.ImportToastAbort);
+      // await browser.clickVisible(Selectors.ImportToastAbort);
+      const importAbortButton = await browser.$(Selectors.ImportToastAbort);
+      await importAbortButton.waitForDisplayed();
+      await importAbortButton.click();
 
       // Wait for the done toast to appear.
       const toastElement = await browser.$(Selectors.ImportToast);

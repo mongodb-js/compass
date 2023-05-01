@@ -350,6 +350,8 @@ export const runExport = ({
       return;
     }
 
+    const startTime = Date.now();
+
     const {
       export: {
         query: _query,
@@ -489,6 +491,9 @@ export const runExport = ({
       outputWriteStream.close();
     }
 
+    const aborted = !!(
+      exportAbortController.signal.aborted || exportResult?.aborted
+    );
     track('Export Completed', {
       type: aggregation ? 'aggregation' : 'query',
       all_docs: exportFullCollection,
@@ -507,6 +512,8 @@ export const runExport = ({
         selectedFieldOption === 'select-fields' ? fieldCount : undefined,
       number_of_docs: exportResult?.docsWritten,
       success: exportSucceeded,
+      stopped: aborted,
+      duration: Date.now() - startTime,
     });
 
     if (!exportSucceeded) {
@@ -527,7 +534,7 @@ export const runExport = ({
 
     dispatch({
       type: ExportActionTypes.RunExportSuccess,
-      aborted: exportAbortController.signal.aborted || !!exportResult?.aborted,
+      aborted,
     });
 
     // Don't emit when the data service is disconnected or not the same.
