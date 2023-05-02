@@ -89,7 +89,7 @@
     "lodash": "^4.17.15",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
-    "mongodb-query-parser": "^2.4.8",
+    "mongodb-query-parser": "^2.5.0",
     "nyc": "^15.0.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
