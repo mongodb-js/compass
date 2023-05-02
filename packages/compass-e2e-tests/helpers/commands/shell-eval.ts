@@ -27,12 +27,17 @@ export async function shellEval(
   // wait until more output appears
   await browser.waitUntil(async () => {
     const lines = await getOutputText(browser);
-    return lines.length > numLines;
+    return (
+      lines.length >
+      /**
+       * input line becomes an output line on enter press, so we are waiting
+       * for two new lines to appear, not just one
+       */
+      numLines + 1
+    );
   });
 
-  const output = await browser.getCodemirrorEditorTextAll(
-    Selectors.ShellContent
-  );
+  const output = await getOutputText(browser);
 
   let result = Array.isArray(output) ? output.pop() : output;
 
