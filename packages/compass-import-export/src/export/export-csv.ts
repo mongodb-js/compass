@@ -103,15 +103,6 @@ class CSVRowStream extends Transform {
       });
       this.progressCallback?.(this.docsWritten, 'WRITE');
 
-      if (process.env.COMPASS_E2E_TEST_EXPORT_ABORT_TIMEOUT === 'true') {
-        setTimeout(() => {
-          // Give the test more than enough time to click the abort before we continue.
-          cb(null, line);
-        }, 10000);
-
-        return;
-      }
-
       cb(null, line);
     } catch (err: any) {
       cb(err as Error);
@@ -209,15 +200,6 @@ class ColumnStream extends Transform {
     this.columnRecorder.addToColumns(chunk);
     this.docsProcessed++;
     this.progressCallback?.(this.docsProcessed, 'DOWNLOAD');
-
-    if (process.env.COMPASS_E2E_TEST_EXPORT_ABORT_TIMEOUT === 'true') {
-      setTimeout(() => {
-        // Give the test more than enough time to click the abort before we continue.
-        cb(null, `${EJSON.stringify(chunk, { relaxed: true })}\n`);
-      }, 10000);
-
-      return;
-    }
 
     cb(null, `${EJSON.stringify(chunk, { relaxed: true })}\n`);
   }

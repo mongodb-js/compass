@@ -534,13 +534,10 @@ describe('Collection export', function () {
       const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
       // Set a query that we'll use.
-      // await browser.runFindOperation('Documents', '{ i: { $gt: 5 } }');
-      // await browser.runFindOperation('Documents', '{ i: { $gt: 5 } }');
       await browser.runFindOperation(
         'Documents',
         '{ $where: "function() { sleep(100); return true; }" }'
       );
-      // { $where: "function() { sleep(10000); return true; }" }
 
       // Open the modal.
       await browser.clickVisible(Selectors.ExportCollectionMenuButton);
@@ -733,7 +730,7 @@ describe('Collection export', function () {
     it('supports collection to CSV with a complex query (sort, skip, limit, collation)', async function () {
       const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
-      // Set a query to use that has results that are impacted by the fields.
+      // Set a query to use with additional query fields, not just filter.
       await browser.runFindOperation('Documents', '', {
         sort: '{ iString: -1 }',
         skip: '2',
