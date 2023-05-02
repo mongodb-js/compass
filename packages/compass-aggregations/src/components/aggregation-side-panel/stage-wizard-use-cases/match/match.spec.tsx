@@ -1,1054 +1,177 @@
+import React from 'react';
 import { expect } from 'chai';
-import { Double, Int32, Long, Timestamp } from 'bson';
+import { render, screen, cleanup } from '@testing-library/react';
+import Sinon from 'sinon';
 
-import { createGroup } from './group';
-import {
-  mapCondition,
-  mapGroups,
-  mapMatchFormStateToMatchStage,
+import { LABELS as CONDITION_LABELS, makeCreateCondition } from './condition';
+import MatchForm, {
+  areUniqueClauses,
+  isNotEmptyCondition,
+  makeCompactGroupClause,
+  toConditionClause,
+  toGroupClause,
 } from './match';
-import type {
-  MatchConditionGroups,
-  MatchCondition,
-  MappedGroups,
-  MappedCondition,
-} from './match';
+import fixtures, { SAMPLE_FIELDS } from './fixtures';
+import type { CreateConditionFn } from './condition';
+import { LABELS as GROUP_LABELS } from './group';
+import { setComboboxValue } from '../../../../../test/form-helper';
 
 describe('match', function () {
-  describe('helper functions', function () {
-    describe('#mapCondition', function () {
-      it('should return a correctly mapped condition', function () {
-        const examples = new Map<MatchCondition, MappedCondition>();
-        examples.set(
+  let createCondition: CreateConditionFn;
+  beforeEach(function () {
+    createCondition = makeCreateCondition();
+  });
+
+  describe('#helpers - isNotEmptyCondition', function () {
+    it('should true when a condition have both field and bsonType', function () {
+      expect(
+        isNotEmptyCondition(
           createCondition({
-            operator: '$eq',
-            field: 'a1',
-            value: 'a1',
+            field: 'name',
             bsonType: 'String',
-          }),
-          { a1: 'a1' }
-        );
-        examples.set(
-          createCondition({
-            operator: '$eq',
-            field: 'a1',
-            value: 'true',
-            bsonType: 'Boolean',
-          }),
-          { a1: true }
-        );
-        examples.set(
-          createCondition({
-            operator: '$eq',
-            field: 'a1',
-            value: 'false',
-            bsonType: 'Boolean',
-          }),
-          { a1: false }
-        );
-        examples.set(
-          createCondition({
-            operator: '$eq',
-            field: 'a1',
-            value: '',
-            bsonType: 'Null',
-          }),
-          { a1: null }
-        );
-        examples.set(
-          createCondition({
-            operator: '$eq',
-            field: 'a1',
-            value: '',
-            bsonType: 'Undefined',
-          }),
-          { a1: undefined }
-        );
-        examples.set(
-          createCondition({
-            operator: '$gt',
-            field: 'a1',
-            value: '1',
-            bsonType: 'Double',
-          }),
-          { a1: { $gt: new Double(1) } }
-        );
-        examples.set(
-          createCondition({
-            operator: '$gte',
-            field: 'a1',
-            value: '1',
-            bsonType: 'Int32',
-          }),
-          { a1: { $gte: new Int32(1) } }
-        );
-        examples.set(
-          createCondition({
-            operator: '$lt',
-            field: 'a1',
-            value: '1',
-            bsonType: 'Int64',
-          }),
-          { a1: { $lt: Long.fromString('1') } }
-        );
-        examples.set(
-          createCondition({
-            operator: '$lte',
-            field: 'a1',
-            value: '01.28.1994',
-            bsonType: 'Date',
-          }),
-          { a1: { $lte: new Date('01.28.1994') } }
-        );
-        examples.set(
-          createCondition({
-            operator: '$ne',
-            field: 'a1',
-            value: '1',
-            bsonType: 'Timestamp',
-          }),
-          { a1: { $ne: new Timestamp(Long.fromNumber(1)) } }
-        );
-
-        for (const [condition, mappedCondition] of examples) {
-          expect(mapCondition(condition)).to.deep.equal(mappedCondition);
-        }
-      });
+          })
+        )
+      ).to.be.true;
     });
 
-    // This covers only the expectation of behaviour of function
-    // when passed a different value for allowConciseSyntax
-    // Other expectations are covered by #mapMatchFormStateToMatchStage
-    describe('#mapGroup', function () {
-      it('should return conditions with verbose syntax when instructed not to use concise syntax', function () {
-        const groups: MatchConditionGroups = [
-          createGroup({
-            logicalOperator: '$and',
-            conditions: [
-              createCondition({
-                field: 'name1',
-                value: 'name1',
-                bsonType: 'String',
-              }),
-              createCondition({
-                field: 'name2',
-                value: 'name2',
-                bsonType: 'String',
-              }),
-            ],
-            groups: [
-              createGroup({
-                logicalOperator: '$and',
-                conditions: [
-                  createCondition({
-                    field: 'name3',
-                    value: 'name3',
-                    bsonType: 'String',
-                  }),
-                  createCondition({
-                    field: 'name4',
-                    value: 'name4',
-                    bsonType: 'String',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ];
+    it('should return false when condition does not have any of bsonType or field', function () {
+      expect(
+        isNotEmptyCondition(
+          createCondition({
+            field: 'name',
+          })
+        )
+      ).to.be.false;
+      expect(
+        isNotEmptyCondition(
+          createCondition({
+            bsonType: 'String',
+          })
+        )
+      ).to.be.false;
+      expect(isNotEmptyCondition(createCondition())).to.be.false;
+    });
+  });
 
-        expect(mapGroups(groups, false)).to.deep.equal({
-          $and: [
-            { name1: 'name1' },
-            { name2: 'name2' },
-            {
-              $and: [{ name3: 'name3' }, { name4: 'name4' }],
-            },
-          ],
-        });
+  describe('#helpers - areUniqueClauses', function () {
+    it('should return true if keys of all the clauses in the provided list are unique otherwise false', function () {
+      expect(areUniqueClauses([{ name: 'Compass' }, { version: 'Standalone' }]))
+        .to.be.true;
+
+      expect(
+        areUniqueClauses([
+          { name: 'Compass' },
+          { version: 'Standalone' },
+          { name: 'Something-else' },
+        ])
+      ).to.be.false;
+
+      expect(
+        areUniqueClauses([
+          { name: 'Compass' },
+          { version: 'Standalone' },
+          { $and: [] },
+        ])
+      ).to.be.true;
+
+      expect(
+        areUniqueClauses([
+          { $and: [{ name: 'Compass' }, { version: 'Standalone' }] },
+          { $and: [] },
+        ])
+      ).to.be.false;
+    });
+  });
+
+  describe('#helpers - toConditionClause', function () {
+    it('should return a concise clause when operator is $eq', function () {
+      const condition = createCondition({
+        field: 'name',
+        value: 'Compass',
+        operator: '$eq',
+        bsonType: 'String',
       });
 
-      it('should return a concise syntax when instructed to', function () {
-        const groups: MatchConditionGroups = [
-          createGroup({
-            logicalOperator: '$and',
-            conditions: [
-              createCondition({
-                field: 'name1',
-                value: 'name1',
-                bsonType: 'String',
-              }),
-              createCondition({
-                field: 'name2',
-                value: 'name2',
-                bsonType: 'String',
-              }),
-            ],
-            groups: [
-              createGroup({
-                logicalOperator: '$and',
-                conditions: [
-                  createCondition({
-                    field: 'name3',
-                    value: 'name3',
-                    bsonType: 'String',
-                  }),
-                  createCondition({
-                    field: 'name4',
-                    value: 'name4',
-                    bsonType: 'String',
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ];
+      expect(toConditionClause(condition)).to.deep.equal({ name: 'Compass' });
+    });
 
-        expect(mapGroups(groups, true)).to.deep.equal({
-          name1: 'name1',
-          name2: 'name2',
-          name3: 'name3',
-          name4: 'name4',
+    it('should return a verbose clause when operator anything but $eq', function () {
+      const condition = createCondition({
+        field: 'name',
+        value: 'Compass',
+        operator: '$ne',
+        bsonType: 'String',
+      });
+
+      expect(toConditionClause(condition)).to.deep.equal({
+        name: { $ne: 'Compass' },
+      });
+      expect(
+        toConditionClause({ ...condition, operator: '$gt' })
+      ).to.deep.equal({ name: { $gt: 'Compass' } });
+      expect(
+        toConditionClause({ ...condition, operator: '$gte' })
+      ).to.deep.equal({ name: { $gte: 'Compass' } });
+      expect(
+        toConditionClause({ ...condition, operator: '$lt' })
+      ).to.deep.equal({ name: { $lt: 'Compass' } });
+      expect(
+        toConditionClause({ ...condition, operator: '$lte' })
+      ).to.deep.equal({ name: { $lte: 'Compass' } });
+    });
+  });
+
+  describe('#helpers - toGroupClause', function () {
+    fixtures.forEach(function ([
+      title,
+      group,
+      expectedVerboseClause,
+      expectedCompactClause,
+    ]) {
+      context(`when group is a ${title}`, function () {
+        it('should return a correct verbose clause for a MatchConditionGroup', function () {
+          const verboseClause = toGroupClause(group);
+          expect(verboseClause).to.deep.equal(expectedVerboseClause);
+        });
+
+        it('should return a compact clause for a verbose clause', function () {
+          const verboseClause = toGroupClause(group);
+          const compactClause = makeCompactGroupClause(verboseClause);
+          expect(compactClause).to.deep.equal(expectedCompactClause);
         });
       });
     });
+  });
 
-    describe('#mapMatchFormStateToMatchStage', function () {
-      it('should return an empty stage when provided state is empty', function () {
-        expect(mapMatchFormStateToMatchStage([])).to.deep.equal({});
-      });
+  describe('#component', function () {
+    afterEach(cleanup);
 
-      it('should return an empty stage when provided state has empty conditions', function () {
-        // See: isNotEmptyCondition function in match.tsx
-        const emptyConditionExamples: MatchConditionGroups[] = [
-          [createGroup({ logicalOperator: '$and', conditions: [] })],
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [createCondition()],
-            }),
-          ],
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({ field: 'Name' }),
-                createCondition({ bsonType: 'String' }),
-              ],
-            }),
-          ],
-          [
-            createGroup({ logicalOperator: '$and', conditions: [] }),
-            createGroup({ logicalOperator: '$or', conditions: [] }),
-          ],
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [createCondition()],
-            }),
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [createCondition()],
-            }),
-          ],
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({ field: 'Name' }),
-                createCondition({ bsonType: 'String' }),
-              ],
-            }),
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [
-                createCondition({ field: 'Name' }),
-                createCondition({ bsonType: 'String' }),
-              ],
-            }),
-          ],
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({ field: 'Name' }),
-                createCondition({ bsonType: 'String' }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [],
-                }),
-              ],
-            }),
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [
-                createCondition({ field: 'Name' }),
-                createCondition({ bsonType: 'String' }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [],
-                }),
-              ],
-            }),
-          ],
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({ field: 'Name' }),
-                createCondition({ bsonType: 'String' }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [createCondition()],
-                }),
-              ],
-            }),
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({ field: 'Name' }),
-                createCondition({ bsonType: 'String' }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [createCondition()],
-                }),
-              ],
-            }),
-          ],
-        ];
+    it('should render a group component with nesting level of 0', function () {
+      render(<MatchForm fields={SAMPLE_FIELDS} onChange={Sinon.spy()} />);
 
-        emptyConditionExamples.forEach((example) => {
-          expect(mapMatchFormStateToMatchStage(example)).to.deep.equal({});
-        });
-      });
+      const removeGroupBtn = screen.getByLabelText(
+        new RegExp(GROUP_LABELS.removeGroupBtn, 'i')
+      );
+      expect(removeGroupBtn.getAttribute('aria-disabled')).to.equal('true');
+    });
 
-      it('should return a stage using the concise syntax for $and whenever possible', function () {
-        // See: mapGroups function is match.tsx
-        const examples = new Map<MatchConditionGroups, MappedGroups>();
-        // Simple conditions
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'name1',
-                  value: 'name1',
-                  bsonType: 'String',
-                }),
-                createCondition({
-                  field: 'name2',
-                  value: 'name2',
-                  bsonType: 'String',
-                }),
-              ],
-            }),
-          ],
-          { name1: 'name1', name2: 'name2' }
-        );
+    it('should call onChange with converted stage value', function () {
+      const onChangeSpy = Sinon.spy();
+      render(<MatchForm fields={SAMPLE_FIELDS} onChange={onChangeSpy} />);
+      setComboboxValue(new RegExp(CONDITION_LABELS.fieldCombobox, 'i'), 'name');
+      expect(onChangeSpy.lastCall.args).deep.equal(["{\n name: ''\n}", null]);
+    });
 
-        // Nested but the nesting is with $and
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'name1',
-                  value: 'name1',
-                  bsonType: 'String',
-                }),
-                createCondition({
-                  field: 'name2',
-                  value: 'name2',
-                  bsonType: 'String',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$and',
-                  conditions: [
-                    createCondition({
-                      field: 'name3',
-                      value: 'name3',
-                      bsonType: 'String',
-                    }),
-                    createCondition({
-                      field: 'name4',
-                      value: 'name4',
-                      bsonType: 'String',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          { name1: 'name1', name2: 'name2', name3: 'name3', name4: 'name4' }
-        );
-
-        // Deeply nested but all with $and
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'name1',
-                  value: 'name1',
-                  bsonType: 'String',
-                }),
-                createCondition({
-                  field: 'name2',
-                  value: 'name2',
-                  bsonType: 'String',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$and',
-                  conditions: [
-                    createCondition({
-                      field: 'name3',
-                      value: 'name3',
-                      bsonType: 'String',
-                    }),
-                    createCondition({
-                      field: 'name4',
-                      value: 'name4',
-                      bsonType: 'String',
-                    }),
-                  ],
-                  groups: [
-                    createGroup({
-                      logicalOperator: '$and',
-                      conditions: [
-                        createCondition({
-                          field: 'name5',
-                          value: 'name5',
-                          bsonType: 'String',
-                        }),
-                        createCondition({
-                          field: 'name6',
-                          value: 'name6',
-                          bsonType: 'String',
-                        }),
-                      ],
-                      groups: [
-                        createGroup({
-                          logicalOperator: '$and',
-                          conditions: [
-                            createCondition({
-                              field: 'name7',
-                              value: 'name7',
-                              bsonType: 'String',
-                            }),
-                            createCondition({
-                              field: 'name8',
-                              value: 'name8',
-                              bsonType: 'String',
-                            }),
-                          ],
-                        }),
-                      ],
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          {
-            name1: 'name1',
-            name2: 'name2',
-            name3: 'name3',
-            name4: 'name4',
-            name5: 'name5',
-            name6: 'name6',
-            name7: 'name7',
-            name8: 'name8',
-          }
-        );
-
-        // $and at top level hence concise syntax only at top level
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'name1',
-                  value: 'name1',
-                  bsonType: 'String',
-                }),
-                createCondition({
-                  field: 'name2',
-                  value: 'name2',
-                  bsonType: 'String',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [
-                    createCondition({
-                      field: 'name3',
-                      value: 'name3',
-                      bsonType: 'String',
-                    }),
-                    createCondition({
-                      field: 'name4',
-                      value: 'name4',
-                      bsonType: 'String',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          {
-            name1: 'name1',
-            name2: 'name2',
-            $or: [{ name3: 'name3' }, { name4: 'name4' }],
-          }
-        );
-
-        // $and at top level hence concise syntax only at top level
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'name1',
-                  value: 'name1',
-                  bsonType: 'String',
-                }),
-                createCondition({
-                  field: 'name2',
-                  value: 'name2',
-                  bsonType: 'String',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [
-                    createCondition({
-                      field: 'name3',
-                      value: 'name3',
-                      bsonType: 'String',
-                    }),
-                    createCondition({
-                      field: 'name4',
-                      value: 'name4',
-                      bsonType: 'String',
-                    }),
-                  ],
-                }),
-                createGroup({
-                  logicalOperator: '$and',
-                  conditions: [
-                    createCondition({
-                      field: 'name3',
-                      value: 'name3',
-                      bsonType: 'String',
-                    }),
-                    createCondition({
-                      field: 'name4',
-                      value: 'name4',
-                      bsonType: 'String',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          {
-            name1: 'name1',
-            name2: 'name2',
-            $or: [{ name3: 'name3' }, { name4: 'name4' }],
-            $and: [{ name3: 'name3' }, { name4: 'name4' }],
-          }
-        );
-
-        // $and at top level hence concise syntax at top level
-        // another $and nested inside $or hence no concise syntax for that
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'name1',
-                  value: 'name1',
-                  bsonType: 'String',
-                }),
-                createCondition({
-                  field: 'name2',
-                  value: 'name2',
-                  bsonType: 'String',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [
-                    createCondition({
-                      field: 'name3',
-                      value: 'name3',
-                      bsonType: 'String',
-                    }),
-                    createCondition({
-                      field: 'name4',
-                      value: 'name4',
-                      bsonType: 'String',
-                    }),
-                  ],
-                  groups: [
-                    createGroup({
-                      logicalOperator: '$and',
-                      conditions: [
-                        createCondition({
-                          field: 'name5',
-                          value: 'name5',
-                          bsonType: 'String',
-                        }),
-                        createCondition({
-                          field: 'name6',
-                          value: 'name6',
-                          bsonType: 'String',
-                        }),
-                      ],
-                    }),
-                  ],
-                }),
-                createGroup({
-                  logicalOperator: '$and',
-                  conditions: [
-                    createCondition({
-                      field: 'name7',
-                      value: 'name7',
-                      bsonType: 'String',
-                    }),
-                    createCondition({
-                      field: 'name8',
-                      value: 'name8',
-                      bsonType: 'String',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          {
-            name1: 'name1',
-            name2: 'name2',
-            $or: [
-              { name3: 'name3' },
-              { name4: 'name4' },
-              { $and: [{ name5: 'name5' }, { name6: 'name6' }] },
-            ],
-            $and: [{ name7: 'name7' }, { name8: 'name8' }],
-          }
-        );
-
-        for (const [group, expectedStage] of examples) {
-          expect(mapMatchFormStateToMatchStage(group)).to.deep.equal(
-            expectedStage
-          );
-        }
-      });
-
-      it('should return a valid stage for provided form state', function () {
-        const examples = new Map<MatchConditionGroups, MappedGroups>();
-        // Simple $or
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-            }),
-          ],
-          { $or: [{ a1: 'a1' }, { a2: 'a2' }] }
-        );
-
-        // Simple $and
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-            }),
-          ],
-          { a1: 'a1', a2: 'a2' }
-        );
-
-        // Simple $or and $and
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-            }),
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-            }),
-          ],
-          {
-            $or: [{ a1: 'a1' }, { a2: 'a2' }],
-            $and: [{ a1: 'a1' }, { a2: 'a2' }],
-          }
-        );
-
-        // $and inside $or
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$and',
-                  conditions: [
-                    createCondition({
-                      field: 'a1',
-                      bsonType: 'String',
-                      value: 'a1',
-                    }),
-                    createCondition({
-                      field: 'a2',
-                      bsonType: 'String',
-                      value: 'a2',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          {
-            $or: [
-              { a1: 'a1' },
-              { a2: 'a2' },
-              { $and: [{ a1: 'a1' }, { a2: 'a2' }] },
-            ],
-          }
-        );
-
-        // $or inside $and
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [
-                    createCondition({
-                      field: 'a1',
-                      bsonType: 'String',
-                      value: 'a1',
-                    }),
-                    createCondition({
-                      field: 'a2',
-                      bsonType: 'String',
-                      value: 'a2',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          { a1: 'a1', a2: 'a2', $or: [{ a1: 'a1' }, { a2: 'a2' }] }
-        );
-
-        // $or inside $or
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [
-                    createCondition({
-                      field: 'a1',
-                      bsonType: 'String',
-                      value: 'a1',
-                    }),
-                    createCondition({
-                      field: 'a2',
-                      bsonType: 'String',
-                      value: 'a2',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          {
-            $or: [
-              { a1: 'a1' },
-              { a2: 'a2' },
-              { $or: [{ a1: 'a1' }, { a2: 'a2' }] },
-            ],
-          }
-        );
-
-        // $and inside $and
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$and',
-                  conditions: [
-                    createCondition({
-                      field: 'a1',
-                      bsonType: 'String',
-                      value: 'a3',
-                    }),
-                    createCondition({
-                      field: 'a2',
-                      bsonType: 'String',
-                      value: 'a4',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-            // Notice that since we use the concise syntax for the nested $ands
-            // the last condition with the same field name will have its value
-            // in the result set.
-          ],
-          { a1: 'a3', a2: 'a4' }
-        );
-
-        // $and inside $or alongside another $and
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-            }),
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$and',
-                  conditions: [
-                    createCondition({
-                      field: 'a1',
-                      bsonType: 'String',
-                      value: 'a1',
-                    }),
-                    createCondition({
-                      field: 'a2',
-                      bsonType: 'String',
-                      value: 'a2',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          {
-            $and: [{ a1: 'a1' }, { a2: 'a2' }],
-            $or: [
-              { a1: 'a1' },
-              { a2: 'a2' },
-              { $and: [{ a1: 'a1' }, { a2: 'a2' }] },
-            ],
-          }
-        );
-
-        // $or inside $and alongside another $or
-        examples.set(
-          [
-            createGroup({
-              logicalOperator: '$or',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-            }),
-            createGroup({
-              logicalOperator: '$and',
-              conditions: [
-                createCondition({
-                  field: 'a1',
-                  bsonType: 'String',
-                  value: 'a1',
-                }),
-                createCondition({
-                  field: 'a2',
-                  bsonType: 'String',
-                  value: 'a2',
-                }),
-              ],
-              groups: [
-                createGroup({
-                  logicalOperator: '$or',
-                  conditions: [
-                    createCondition({
-                      field: 'a1',
-                      bsonType: 'String',
-                      value: 'a1',
-                    }),
-                    createCondition({
-                      field: 'a2',
-                      bsonType: 'String',
-                      value: 'a2',
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-          {
-            $or: [{ a1: 'a1' }, { a2: 'a2' }],
-            $and: [
-              { a1: 'a1' },
-              { a2: 'a2' },
-              { $or: [{ a1: 'a1' }, { a2: 'a2' }] },
-            ],
-          }
-        );
-        for (const [group, expectedStage] of examples) {
-          expect(mapMatchFormStateToMatchStage(group)).to.deep.equal(
-            expectedStage
-          );
-        }
-      });
+    it('should call onChange with an error if there was an error during the conversion to stage', function () {
+      const onChangeSpy = Sinon.spy();
+      render(<MatchForm fields={SAMPLE_FIELDS} onChange={onChangeSpy} />);
+      // Setting the field to age will set the type to Double and without a
+      // correct value the conversion will fail which is why we will get an
+      // error
+      setComboboxValue(new RegExp(CONDITION_LABELS.fieldCombobox, 'i'), 'age');
+      const [jsString, error] = onChangeSpy.lastCall.args;
+      expect(jsString).to.equal('{}');
+      expect(error.message).to.equal("Value '' is not a valid Double value");
     });
   });
 });

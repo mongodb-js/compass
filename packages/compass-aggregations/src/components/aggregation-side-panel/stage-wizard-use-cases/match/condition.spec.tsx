@@ -10,31 +10,8 @@ import {
   setInputElementValue,
   setSelectValue,
 } from '../../../../../test/form-helper';
+import { SAMPLE_FIELDS } from './fixtures';
 import type { ConditionProps, CreateConditionFn } from './condition';
-import type { Fields } from '..';
-
-const SAMPLE_FIELDS: Fields = [
-  {
-    name: '_id',
-    type: 'ObjectId',
-  },
-  {
-    name: 'name',
-    type: 'String',
-  },
-  {
-    name: 'age',
-    type: 'Double',
-  },
-  {
-    name: 'isActive',
-    type: 'Boolean',
-  },
-  {
-    name: 'doj',
-    type: 'Date',
-  },
-];
 
 const renderCondition = (
   props: Partial<ConditionProps>,

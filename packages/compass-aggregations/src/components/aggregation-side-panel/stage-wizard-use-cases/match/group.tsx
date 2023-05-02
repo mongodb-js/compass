@@ -160,33 +160,26 @@ const conditionContainerStyles = cx(
   })
 );
 
-const nestedGroupsContainerStyles = (groupsLength: number) =>
-  css({
-    gap: spacing[3],
-    display: groupsLength === 0 ? 'none' : 'flex',
-    flexDirection: 'column',
-  });
+const nestedGroupsContainerStyles = css({
+  gap: spacing[3],
+  display: 'flex',
+  flexDirection: 'column',
+});
 
-const nestedGroupStyles = (nestingLevel: number) => {
-  if (nestingLevel === 0) {
-    return undefined;
-  } else if (nestingLevel === 1) {
-    return css({
-      border: `1px solid ${palette.gray.light2}`,
-      borderRadius: spacing[2],
-      padding: `${spacing[3]}px 0 ${spacing[3]}px ${spacing[4]}px`,
-    });
-  } else {
-    return css({
-      border: `1px solid ${palette.gray.light2}`,
-      borderRight: 0,
-      borderRadius: spacing[2],
-      borderTopRightRadius: 0,
-      borderBottomRightRadius: 0,
-      padding: `${spacing[3]}px 0 ${spacing[3]}px ${spacing[4]}px`,
-    });
-  }
-};
+const nestedGroupLevel1Styles = css({
+  border: `1px solid ${palette.gray.light2}`,
+  borderRadius: spacing[2],
+  padding: `${spacing[3]}px 0 ${spacing[3]}px ${spacing[4]}px`,
+});
+
+const nestedGroupLevelXStyles = css({
+  border: `1px solid ${palette.gray.light2}`,
+  borderRight: 0,
+  borderRadius: spacing[2],
+  borderTopRightRadius: 0,
+  borderBottomRightRadius: 0,
+  padding: `${spacing[3]}px 0 ${spacing[3]}px ${spacing[4]}px`,
+});
 
 const Group = ({
   fields,
@@ -279,7 +272,10 @@ const Group = ({
   return (
     <div
       data-testid={TEST_IDS.container(group.id)}
-      className={cx(groupStyles, nestedGroupStyles(nestingLevel))}
+      className={cx(groupStyles, {
+        [nestedGroupLevel1Styles]: nestingLevel === 1,
+        [nestedGroupLevelXStyles]: nestingLevel > 1,
+      })}
     >
       <GroupHeader
         groupId={group.id}
@@ -315,7 +311,7 @@ const Group = ({
       </div>
       <div
         data-testid={TEST_IDS.nestedGroupsContainer(group.id)}
-        className={nestedGroupsContainerStyles(group.groups.length)}
+        className={nestedGroupsContainerStyles}
       >
         {group.groups.map((nestedGroup, groupIdx) => (
           <Group

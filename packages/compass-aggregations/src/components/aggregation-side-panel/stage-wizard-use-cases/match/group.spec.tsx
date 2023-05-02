@@ -12,32 +12,9 @@ import {
   TEST_IDS as CONDITION_TEST_IDS,
   createCondition as createConditionPreScoped,
 } from './condition';
+import { SAMPLE_FIELDS } from './fixtures';
 import type { CreateConditionFn } from './condition';
 import type { CreateGroupFn, GroupProps } from './group';
-import type { Fields } from '..';
-
-const SAMPLE_FIELDS: Fields = [
-  {
-    name: '_id',
-    type: 'ObjectId',
-  },
-  {
-    name: 'name',
-    type: 'String',
-  },
-  {
-    name: 'age',
-    type: 'Double',
-  },
-  {
-    name: 'isActive',
-    type: 'Boolean',
-  },
-  {
-    name: 'doj',
-    type: 'Date',
-  },
-];
 
 describe('group', function () {
   let createCondition: CreateConditionFn;
