@@ -47,9 +47,6 @@ export type CreateGroupFn = (
 
 // Helpers
 const MAX_ALLOWED_NESTING = 3;
-const MAX_ALLOWED_SUB_GROUPS = 6;
-export const ADD_NESTED_GROUP_BTN_LABEL = 'Add nested group';
-export const REMOVE_GROUP_BTN_LABEL = 'Remove group';
 
 export const LABELS = {
   addNestedGroupBtn: 'Add nested group',
@@ -284,10 +281,7 @@ const Group = ({
         groupId={group.id}
         operator={group.logicalOperator}
         onOperatorChange={handleOperatorChange}
-        disableAddNestedGroup={
-          group.groups.length === MAX_ALLOWED_SUB_GROUPS ||
-          nestingLevel === MAX_ALLOWED_NESTING
-        }
+        disableAddNestedGroup={nestingLevel === MAX_ALLOWED_NESTING}
         onAddNestedGroupClick={handleAddNestedGroupClick}
         disableRemoveGroup={nestingLevel === 0}
         onRemoveGroupClick={onRemoveGroupClick}
