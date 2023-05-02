@@ -20,6 +20,10 @@ async function selectExportFileTypeCSV(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeCSV);
 }
 
+async function selectExportFileTypeJSON(browser: CompassBrowser) {
+  await browser.clickParent(Selectors.FileTypeJSON);
+}
+
 async function waitForExportToFinishAndCloseToast(browser: CompassBrowser) {
   // Wait for the export to finish and close the toast.
   const toastElement = await browser.$(Selectors.ExportToast);
@@ -47,7 +51,7 @@ async function toggleExportFieldCheckbox(
   await iFieldCheckbox.click();
 }
 
-describe('Collection export', function () {
+describe.only('Collection export', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -622,6 +626,89 @@ describe('Collection export', function () {
       expect(telemetry.screens()).to.include('export_modal');
     });
 
+    it('can abort an in progress JSON export', async function () {
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+
+      // Set a query that we'll use.
+      await browser.runFindOperation(
+        'Documents',
+        '{ $where: "function() { sleep(100); return true; }" }'
+      );
+
+      // Open the modal.
+      await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+      await browser.clickVisible(Selectors.ExportCollectionQueryOption);
+      const exportModal = await browser.$(Selectors.ExportModal);
+      await exportModal.waitForDisplayed();
+
+      // Choose to export select fields.
+      await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
+      await browser.clickVisible(Selectors.ExportNextStepButton);
+
+      // Click to export the `i` and `j` fields.
+      await toggleExportFieldCheckbox(browser, 'i');
+      await toggleExportFieldCheckbox(browser, 'j');
+
+      await browser.clickVisible(Selectors.ExportNextStepButton);
+
+      // File type defaults to JSON export.
+      await browser.clickVisible(Selectors.ExportModalExportButton);
+
+      const filename = outputFilename('aborted-export-test.json');
+      await browser.setExportFilename(filename, true);
+
+      // Wait for the modal to go away.
+      const exportModalElement = await browser.$(Selectors.ExportModal);
+      await exportModalElement.waitForDisplayed({
+        reverse: true,
+      });
+
+      // Wait for the export to start and then click stop.
+      const exportAbortButton = await browser.$(Selectors.ExportToastAbort);
+      await exportAbortButton.waitForDisplayed();
+      await exportAbortButton.click();
+
+      // Wait for the aborted toast to appear.
+      const toastElement = await browser.$(Selectors.ExportToast);
+      await toastElement.waitForDisplayed();
+      await browser
+        .$(Selectors.closeToastButton(Selectors.ExportToast))
+        .waitForDisplayed();
+
+      // Check it displays that the export was aborted.
+      const toastText = await toastElement.getText();
+      try {
+        expect(toastText).to.include('Export aborted');
+      } catch (err) {
+        console.log(toastText);
+        throw err;
+      }
+
+      // Close the toast.
+      await browser
+        .$(Selectors.closeToastButton(Selectors.ExportToast))
+        .waitForDisplayed();
+      await browser.clickVisible(
+        Selectors.closeToastButton(Selectors.ExportToast)
+      );
+      await toastElement.waitForDisplayed({ reverse: true });
+
+      const exportCompletedEvent = await telemetryEntry('Export Completed');
+      delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent).to.deep.equal({
+        all_docs: false,
+        file_type: 'json',
+        field_count: 2,
+        field_option: 'select-fields',
+        number_of_docs: 0,
+        has_projection: false,
+        success: true,
+        type: 'query',
+        stopped: true,
+      });
+      expect(telemetry.screens()).to.include('export_modal');
+    });
+
     it('aborts an in progress CSV export when disconnected', async function () {
       const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
@@ -806,6 +893,98 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'csv',
+        field_count: 2,
+        field_option: 'select-fields',
+        has_projection: false,
+        number_of_docs: 2,
+        success: true,
+        stopped: false,
+        type: 'query',
+      });
+    });
+
+    it('supports collection to JSON with a complex query (sort, skip, limit, collation)', async function () {
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+
+      // Set a query to use with additional query fields, not just filter.
+      await browser.runFindOperation('Documents', '', {
+        sort: '{ iString: -1 }',
+        skip: '2',
+        limit: '2',
+        collation: `{ locale: 'en_US', numericOrdering: true }`,
+      });
+
+      // Open the modal.
+      await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+      await browser.clickVisible(Selectors.ExportCollectionQueryOption);
+      const exportModal = await browser.$(Selectors.ExportModal);
+      await exportModal.waitForDisplayed();
+
+      // Make sure the query is shown in the modal.
+      const exportModalQueryTextElement = await browser.$(
+        Selectors.ExportModalCodePreview
+      );
+      expect(await exportModalQueryTextElement.getText()).to
+        .equal(`db.getCollection("numbers-strings").find(
+  {}
+).collation(
+  {locale: 'en_US',numericOrdering: true}
+).sort({iString: -1}).limit(2).skip(2)`);
+
+      // Choose to export select fields.
+      await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
+      await browser.clickVisible(Selectors.ExportNextStepButton);
+
+      // Click to export the `iString` and `j` fields.
+      await toggleExportFieldCheckbox(browser, 'iString');
+      await toggleExportFieldCheckbox(browser, 'j');
+
+      await browser.clickVisible(Selectors.ExportNextStepButton);
+
+      expect(await exportModalQueryTextElement.getText()).to
+        .equal(`db.getCollection("numbers-strings").find(
+  {},
+  {iString: true,j: true,_id: false}
+).collation(
+  {locale: 'en_US',numericOrdering: true}
+).sort({iString: -1}).limit(2).skip(2)`);
+
+      // Select JSON.
+      await selectExportFileTypeJSON(browser);
+
+      await browser.clickVisible(Selectors.ExportModalExportButton);
+
+      const filename = outputFilename('complex-query-numbers.json');
+      await browser.setExportFilename(filename, true);
+
+      // Wait for the modal to go away.
+      const exportModalElement = await browser.$(Selectors.ExportModal);
+      await exportModalElement.waitForDisplayed({
+        reverse: true,
+      });
+
+      await waitForExportToFinishAndCloseToast(browser);
+
+      // Clicking the button would open the file in finder/explorer/whatever
+      // which is currently not something we can check with webdriver. But we can
+      // check that the file exists.
+
+      // Confirm that we exported what we expected to export.
+      const text = await fs.readFile(filename, 'utf-8');
+      expect(text).to.equal(`[{
+  "iString": "140",
+  "j": 0
+},
+{
+  "iString": "120",
+  "j": 0
+}]`);
+
+      const exportCompletedEvent = await telemetryEntry('Export Completed');
+      delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent).to.deep.equal({
+        all_docs: false,
+        file_type: 'json',
         field_count: 2,
         field_option: 'select-fields',
         has_projection: false,

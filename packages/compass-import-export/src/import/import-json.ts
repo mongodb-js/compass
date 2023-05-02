@@ -77,7 +77,7 @@ export async function importJSON({
           setTimeout(() => {
             // Give the test more than enough time to click the abort before we continue.
             callback(null, doc);
-          }, 10000);
+          }, 5000);
 
           return;
         }

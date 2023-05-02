@@ -1145,7 +1145,7 @@ describe('Collection import', function () {
       delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
     });
 
-    it('aborts an in progress import', async function () {
+    it('aborts an in progress CSV import', async function () {
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
@@ -1172,9 +1172,72 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
-      const importAbortButton = await browser.$(Selectors.ImportToastAbort);
-      await importAbortButton.waitForDisplayed();
-      await importAbortButton.click();
+      await browser.clickVisible(Selectors.ImportToastAbort);
+
+      // Wait for the done toast to appear.
+      const toastElement = await browser.$(Selectors.ImportToast);
+      await toastElement.waitForDisplayed();
+      await browser
+        .$(Selectors.closeToastButton(Selectors.ImportToast))
+        .waitForDisplayed();
+
+      // Check it displays that the import was aborted.
+      const toastText = await toastElement.getText();
+      try {
+        expect(toastText).to.include('Import aborted');
+      } catch (err) {
+        console.log(toastText);
+        throw err;
+      }
+
+      // Check at least one and fewer than 16116 documents were imported.
+      const messageElement = await browser.$(
+        Selectors.DocumentListActionBarMessage
+      );
+      const documentsText = await messageElement.getText();
+      expect(documentsText).to.not.equal('1 – 20 of 16116');
+      expect(documentsText).to.not.include('16116');
+
+      // Close toast.
+      await browser.clickVisible(
+        Selectors.closeToastButton(Selectors.ImportToast)
+      );
+      await toastElement.waitForDisplayed({ reverse: true });
+    });
+
+    it('aborts an in progress JSON import', async function () {
+      // 16116 documents.
+      const jsonPath = path.resolve(
+        __dirname,
+        '..',
+        'fixtures',
+        'listings.json'
+      );
+
+      await browser.navigateToCollectionTab(
+        'test',
+        'import-abort',
+        'Documents'
+      );
+
+      // Open the import modal.
+      await browser.clickVisible(Selectors.AddDataButton);
+      const insertDocumentOption = await browser.$(Selectors.ImportFileOption);
+      await insertDocumentOption.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportFileOption);
+
+      // Select the file.
+      await browser.selectFile(Selectors.ImportFileInput, jsonPath);
+
+      // Wait for the modal to appear.
+      const importModal = await browser.$(Selectors.ImportModal);
+      await importModal.waitForDisplayed();
+
+      // Confirm import.
+      await browser.clickVisible(Selectors.ImportConfirm);
+
+      // Wait for the in progress toast to appear and click stop.
+      await browser.clickVisible(Selectors.ImportToastAbort);
 
       // Wait for the done toast to appear.
       const toastElement = await browser.$(Selectors.ImportToast);

@@ -106,6 +106,14 @@ export async function importCSV({
         const doc = makeDocFromCSV(chunk, headerFields, parsedHeader, fields, {
           ignoreEmptyStrings,
         });
+        if (process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT === 'true') {
+          setTimeout(() => {
+            // Give the test more than enough time to click the abort before we continue.
+            callback(null, doc);
+          }, 5000);
+
+          return;
+        }
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({
