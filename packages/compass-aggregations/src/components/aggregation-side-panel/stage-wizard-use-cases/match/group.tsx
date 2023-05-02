@@ -122,7 +122,9 @@ export const GroupHeader = ({
         <SegmentedControlOption value="$or">OR</SegmentedControlOption>
       </SegmentedControl>
       <div className={groupControlsStyles}>
+        {/* TODO: Remove the inline styles once design for nested group is finalized (COMPASS-6678) */}
         <Button
+          style={{ display: 'none' }}
           disabled={disableAddNestedGroup}
           variant="default"
           size="xsmall"
@@ -134,6 +136,7 @@ export const GroupHeader = ({
           ADD GROUP
         </Button>
         <IconButton
+          style={{ display: 'none' }}
           disabled={disableRemoveGroup}
           aria-label={LABELS.removeGroupBtn}
           data-testid={TEST_IDS.removeGroupBtn(groupId)}
