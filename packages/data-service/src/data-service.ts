@@ -854,9 +854,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       [indexName: string]: number;
     } = {};
 
-    let maxSize = 0;
     let unscaledCollSize = 0;
-
     let nindexes = 0;
 
     for (const shardResult of collStats) {
@@ -873,17 +871,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
         ) {
           continue;
         }
-        if (
-          [
-            'numExtents',
-            'userFlags',
-            'capped',
-            'max',
-            'indexDetails',
-            'wiredTiger',
-          ].includes(fieldName)
-        ) {
-          // Fields that are copied from the first shard only, because they need to
+        if (['capped'].includes(fieldName)) {
+          // Field that is copied from the first shard only, because it needs to
           // match across shards.
           result[fieldName] ??= shardStorageStats[fieldName];
         } else if (
@@ -904,9 +893,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
             shardStorageStats[fieldName]
           );
           unscaledCollSize += shardAvgObjSize * shardObjCount;
-        } else if (fieldName === 'maxSize') {
-          const shardMaxSize = coerceToJSNumber(shardStorageStats[fieldName]);
-          maxSize = Math.max(maxSize, shardMaxSize);
         } else if (fieldName === 'indexSizes') {
           for (const indexName of Object.keys(shardStorageStats[fieldName])) {
             if (indexSizes[indexName] === undefined) {
@@ -945,9 +931,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     } else {
       result.avgObjSize = 0;
     }
-    if (result.capped) {
-      result.maxSize = maxSize;
-    }
+
     result.ns = ns;
     result.nindexes = nindexes;
     result.ok = 1;
@@ -963,21 +947,29 @@ class DataServiceImpl extends WithLogContext implements DataService {
     collectionName: string
   ): Promise<CollectionStats> {
     const ns = `${databaseName}.${collectionName}`;
-    const coll = this._collection(ns, 'CRUD');
-    const collStats = await coll
-      .aggregate([{ $collStats: { storageStats: {} } }])
-      .toArray();
 
-    if (!collStats || collStats[0] === undefined) {
-      throw new Error(`Error running $collStats aggregation stage on ${ns}`);
+    try {
+      const coll = this._collection(ns, 'CRUD');
+      const collStats = await coll
+        .aggregate([{ $collStats: { storageStats: {} } }])
+        .toArray();
+
+      if (!collStats || collStats[0] === undefined) {
+        throw new Error(`Error running $collStats aggregation stage on ${ns}`);
+      }
+
+      const aggregatedCollStats = this._aggregateCollStats(collStats, ns);
+      return this._buildCollectionStats(
+        databaseName,
+        collectionName,
+        aggregatedCollStats
+      );
+    } catch (error) {
+      if (!(error as Error).message.includes('is a view, not a collection')) {
+        throw error;
+      }
+      return this._buildCollectionStats(databaseName, collectionName, {});
     }
-
-    const aggregatedCollStats = this._aggregateCollStats(collStats, ns);
-    return this._buildCollectionStats(
-      databaseName,
-      collectionName,
-      aggregatedCollStats
-    );
   }
 
   @op(mongoLogId(1_001_000_179))
@@ -2146,9 +2138,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       name: collectionName,
       database: databaseName,
       is_capped: data.capped,
-      max: data.max,
-      is_power_of_two: data.userFlags === 1,
-      index_sizes: data.indexSizes,
       document_count: data.count ?? 0,
       document_size: data.size,
       avg_document_size: data.avgObjSize ?? 0,
@@ -2156,13 +2145,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       free_storage_size: data.freeStorageSize ?? 0,
       index_count: data.nindexes ?? 0,
       index_size: data.totalIndexSize ?? 0,
-      padding_factor: data.paddingFactor,
-      extent_count: data.numExtents,
-      extent_last_size: data.lastExtentSize,
-      flags_user: data.userFlags,
-      max_document_size: data.maxSize,
-      index_details: data.indexDetails || {},
-      wired_tiger: data.wiredTiger || {},
     };
   }
 
