@@ -34,13 +34,6 @@ export async function shellEval(
     Selectors.ShellContent
   );
 
-  const shellInputText = output.pop();
-
-  // TODO: add a proper data-testid to the browser-repl component
-  if (shellInputText !== '') {
-    throw new Error('Expected shell input to be empty');
-  }
-
   let result = Array.isArray(output) ? output.pop() : output;
 
   if (typeof result === 'undefined') {
