@@ -81,6 +81,8 @@ const EXCLUDED_TYPES: TypeCastTypes[] = [
   'MinKey',
   'Object',
   'BSONSymbol',
+  'BSONRegExp',
+  'Timestamp',
 ];
 
 const CASTABLE_TYPES = TypeChecker.castableTypes(false).filter(
