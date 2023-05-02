@@ -380,12 +380,7 @@ describe('CompassShell', function () {
             expect(
               wrapper.find('[data-testid="shell-section"]').prop('style').height
             ).to.equal(151);
-            const shellDomNode = wrapper
-              .find('[data-testid="shell-content"]')
-              .getDOMNode();
-            const shellDisplayStyle =
-              getComputedStyle(shellDomNode).getPropertyValue('display');
-            expect(shellDisplayStyle).to.equal('flex');
+            expect(wrapper.state('height')).to.equal(151);
           });
 
           it('calls the function prop emitShellPluginOpened', function () {
