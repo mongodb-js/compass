@@ -281,7 +281,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
     // keep compat for the external plugin users
     externals: {
       ...toCommonJsExternal(sharedExternals),
-      ...toCommonJsExternal(Object.keys(peerDependencies)),
+      ...toCommonJsExternal(Object.keys(peerDependencies ?? {})),
       ...toCommonJsExternal(builtinModules),
     },
     resolve: {
