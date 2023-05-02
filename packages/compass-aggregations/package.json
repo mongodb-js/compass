@@ -49,6 +49,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.7",
     "bson": "^5.2.0",
     "compass-preferences-model": "^2.8.0",
+    "hadron-type-checker": "^7.0.2",
     "hadron-document": "^8.2.0",
     "react": "^17.0.2"
   },
@@ -109,6 +110,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.7",
     "bson": "^5.2.0",
     "compass-preferences-model": "^2.8.0",
+    "hadron-type-checker": "^7.0.2",
     "hadron-document": "^8.2.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",
