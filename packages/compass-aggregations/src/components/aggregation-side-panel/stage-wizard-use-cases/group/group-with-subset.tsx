@@ -14,7 +14,7 @@ import type { Document } from 'mongodb';
 import semver from 'semver';
 import {
   SORT_DIRECTION_OPTIONS,
-  mapFieldsToGroupId,
+  mapFieldsToAccumulatorValue,
   mapSortDataToStageValue,
 } from '../utils';
 import type { SortDirection } from '../utils';
@@ -154,11 +154,11 @@ export const mapGroupFormStateToStageValue = (
 
   if (numberOfRecords > 1) {
     return {
-      _id: mapFieldsToGroupId(data.groupFields),
+      _id: mapFieldsToAccumulatorValue(data.groupFields),
       data: {
         [mainAccumulator.nOperator.value]: {
           n: numberOfRecords,
-          [keyName]: mapFieldsToGroupId(projectFields),
+          [keyName]: mapFieldsToAccumulatorValue(projectFields),
           ...(mainAccumulator.needsSortFields
             ? {
                 sortBy,
@@ -171,10 +171,10 @@ export const mapGroupFormStateToStageValue = (
 
   if (mainAccumulator.needsSortFields) {
     return {
-      _id: mapFieldsToGroupId(data.groupFields),
+      _id: mapFieldsToAccumulatorValue(data.groupFields),
       data: {
         [mainAccumulator.value]: {
-          [keyName]: mapFieldsToGroupId(projectFields),
+          [keyName]: mapFieldsToAccumulatorValue(projectFields),
           sortBy,
         },
       },
@@ -182,9 +182,9 @@ export const mapGroupFormStateToStageValue = (
   }
 
   return {
-    _id: mapFieldsToGroupId(groupFields),
+    _id: mapFieldsToAccumulatorValue(groupFields),
     data: {
-      [mainAccumulator.value]: mapFieldsToGroupId(projectFields),
+      [mainAccumulator.value]: mapFieldsToAccumulatorValue(projectFields),
     },
   };
 };

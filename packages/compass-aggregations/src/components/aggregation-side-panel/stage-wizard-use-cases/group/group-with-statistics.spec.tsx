@@ -114,7 +114,7 @@ describe('group with statistics', function () {
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
-            orders: {
+            sum_orders: {
               $sum: '$orders',
             },
           })

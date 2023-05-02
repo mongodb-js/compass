@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { mapFieldToPropertyName, mapFieldsToGroupId } from './utils';
+import { mapFieldToPropertyName, mapFieldsToAccumulatorValue } from './utils';
 
 describe('wizard use-case utils', function () {
   context('mapFieldToPropertyName', function () {
@@ -24,17 +24,17 @@ describe('wizard use-case utils', function () {
     });
   });
 
-  context('mapFieldsToGroupId', function () {
+  context('mapFieldsToAccumulatorValue', function () {
     it('maps empty fields to null', function () {
-      expect(mapFieldsToGroupId([])).to.be.null;
+      expect(mapFieldsToAccumulatorValue([])).to.be.null;
     });
 
     it('maps fields with one item to a string value', function () {
-      expect(mapFieldsToGroupId(['username'])).to.equal('$username');
+      expect(mapFieldsToAccumulatorValue(['username'])).to.equal('$username');
     });
 
     it('maps fields with multiple items to an object value', function () {
-      expect(mapFieldsToGroupId(['username', 'email'])).to.deep.equal({
+      expect(mapFieldsToAccumulatorValue(['username', 'email'])).to.deep.equal({
         username: '$username',
         email: '$email',
       });

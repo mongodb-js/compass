@@ -3,7 +3,7 @@ export const mapFieldToPropertyName = (field: string) => {
   return field.replace(/^\$/, '').replace(/\./g, '_');
 };
 
-export const mapFieldsToGroupId = (fields: string[]) => {
+export const mapFieldsToAccumulatorValue = (fields: string[]) => {
   if (fields.length === 0) {
     return null;
   }
