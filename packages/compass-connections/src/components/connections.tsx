@@ -10,14 +10,9 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import ConnectionForm from '@mongodb-js/connection-form';
-import type {
-  ConnectionInfo,
-  ConnectionOptions,
-  DataService,
-} from 'mongodb-data-service';
+import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { ConnectionStorage, connect } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
 import { useConnections } from '../stores/connections-store';
@@ -27,6 +22,10 @@ import ConnectionList from './connection-list/connection-list';
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
 );
+
+type ConnectFn = typeof connect;
+
+export type { ConnectFn };
 
 const connectStyles = css({
   position: 'absolute',
@@ -68,7 +67,7 @@ function Connections({
   connectionStorage?: ConnectionStorage;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
-  connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
+  connectFn?: ConnectFn;
 }): React.ReactElement {
   const {
     state,

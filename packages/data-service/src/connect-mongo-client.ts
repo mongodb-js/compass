@@ -6,8 +6,6 @@ import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import EventEmitter from 'events';
 import { redactConnectionOptions, redactConnectionString } from './redact';
 import _ from 'lodash';
-
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { ConnectionOptions } from './connection-options';
 import {
   forceCloseTunnel,
@@ -15,8 +13,10 @@ import {
   waitForTunnelError,
 } from './ssh-tunnel';
 import { runCommand } from './run-command';
+import type { UnboundDataServiceImplLogger } from './logger';
+import { debug as _debug } from './logger';
 
-const { debug, log } = createLoggerAndTelemetry('COMPASS-CONNECT');
+const debug = _debug.extend('compass-connect');
 
 export const createClonedClient = Symbol('createClonedClient');
 export type CloneableMongoClient = MongoClient & {
@@ -25,7 +25,8 @@ export type CloneableMongoClient = MongoClient & {
 
 export default async function connectMongoClientCompass(
   connectionOptions: Readonly<ConnectionOptions>,
-  setupListeners: (client: MongoClient) => void
+  setupListeners: (client: MongoClient) => void,
+  logger?: UnboundDataServiceImplLogger
 ): Promise<
   [
     metadataClient: CloneableMongoClient,
@@ -61,7 +62,8 @@ export default async function connectMongoClientCompass(
   // If connectionOptions.sshTunnel is not defined, the tunnel
   // will also be undefined.
   const [tunnel, socks5Options] = await openSshTunnel(
-    connectionOptions.sshTunnel
+    connectionOptions.sshTunnel,
+    logger
   );
 
   if (socks5Options) {
@@ -77,7 +79,10 @@ export default async function connectMongoClientCompass(
   }
 
   const connectLogger = new EventEmitter();
-  hookLogger(connectLogger, log.unbound, 'compass', redactConnectionString);
+
+  if (logger) {
+    hookLogger(connectLogger, logger, 'compass', redactConnectionString);
+  }
 
   async function connectSingleClient(
     overrideOptions: DevtoolsConnectOptions
@@ -126,7 +131,7 @@ export default async function connectMongoClientCompass(
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
     await Promise.all([
-      forceCloseTunnel(tunnel),
+      forceCloseTunnel(tunnel, logger),
       crudClient?.close(),
       metadataClient?.close(),
     ]).catch(() => {

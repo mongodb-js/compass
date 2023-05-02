@@ -111,13 +111,16 @@ describe('DataService', function () {
 
     describe('#setupListeners', function () {
       it('emits log events for MongoClient heartbeat events', function () {
-        const dataService: any = new DataServiceImpl(null as any);
+        const logger = {
+          debug: sinon.spy(),
+          info: sinon.spy(),
+          warn: sinon.spy(),
+          error: sinon.spy(),
+          fatal: sinon.spy(),
+        };
+        const dataService: any = new DataServiceImpl(null as any, logger);
         const client: Pick<MongoClient, 'on' | 'emit'> =
           new EventEmitter() as any;
-        const logEntries: any[] = [];
-        process.on('compass:log', ({ line }) =>
-          logEntries.push(JSON.parse(line))
-        );
         dataService['_setupListeners'](client as MongoClient);
         const connectionId = 'localhost:27017';
         client.emit('serverHeartbeatSucceeded', {
@@ -151,7 +154,12 @@ describe('DataService', function () {
           duration: 800,
           failure: new Error('fail'),
         });
-        expect(logEntries.map((entry) => entry.attr)).to.deep.equal([
+        const logEntries = [
+          // Picking the attrs part of the log
+          ...logger.debug.args.map((args) => args[4]),
+          ...logger.warn.args.map((args) => args[4]),
+        ];
+        expect(logEntries).to.deep.equal([
           { connectionId, duration: 100 },
           { connectionId, duration: 400 },
           { connectionId, duration: 400, failure: 'fail' },

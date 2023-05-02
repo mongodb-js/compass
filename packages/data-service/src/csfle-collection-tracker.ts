@@ -8,9 +8,8 @@ import type {
 } from './run-command';
 import parseNamespace from 'mongodb-ns';
 import _ from 'lodash';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
+import type { UnboundDataServiceImplLogger } from './logger';
+import { mongoLogId } from './logger';
 
 /**
  * A list of field paths for a document.
@@ -237,21 +236,18 @@ function isOlderThan1Minute(oldDate: Date): boolean {
 
 export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
   _nsToInfo = new Map<string, CSFLECollectionInfo>();
-  _dataService: Pick<DataService, 'on' | 'listCollections'>;
-  _crudClient: MongoClient;
 
   constructor(
-    dataService: Pick<DataService, 'on' | 'listCollections'>,
-    crudClient: MongoClient
+    private _dataService: Pick<DataService, 'on' | 'listCollections'>,
+    private _crudClient: MongoClient,
+    private _logger?: UnboundDataServiceImplLogger
   ) {
-    this._dataService = dataService;
-    this._crudClient = crudClient;
-
     this._processClientSchemaDefinitions();
 
     const { autoEncrypter } = this._crudClient.options;
     if (autoEncrypter) {
-      log.info(
+      this._logger?.info(
+        'COMPASS-DATA-SERVICE',
         mongoLogId(1_001_000_118),
         'CSFLECollectionTracker',
         'Hooking AutoEncrypter metaDataClient property'
@@ -316,7 +312,8 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
       ...Object.keys(autoEncryption?.schemaMap ?? {}),
       ...Object.keys(autoEncryption?.encryptedFieldsMap ?? {}),
     ]) {
-      log.info(
+      this._logger?.info(
+        'COMPASS-DATA-SERVICE',
         mongoLogId(1_001_000_119),
         'CSFLECollectionTracker',
         'Processing client-side schema information',
@@ -336,7 +333,8 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
       !info.lastUpdated ||
       isOlderThan1Minute(info.lastUpdated)
     ) {
-      log.info(
+      this._logger?.info(
+        'COMPASS-DATA-SERVICE',
         mongoLogId(1_001_000_120),
         'CSFLECollectionTracker',
         'Refreshing listCollections cache',
@@ -367,7 +365,8 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     ns: string,
     result: CollectionInfoNameOnly & Partial<CollectionInfo>
   ): void {
-    log.info(
+    this._logger?.info(
+      'COMPASS-DATA-SERVICE',
       mongoLogId(1_001_000_121),
       'CSFLECollectionTracker',
       'Processing listCollections update',
@@ -411,7 +410,8 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
                   (collectionInfos ?? []) as CollectionInfo[]
                 );
                 if (err) {
-                  log.error(
+                  this._logger?.error(
+                    'COMPASS-DATA-SERVICE',
                     mongoLogId(1_001_000_122),
                     'CSFLECollectionTracker',
                     'Rejecting listCollections in hooked metaDataClient',
