@@ -158,11 +158,11 @@ describe('#newGetQueryAsShellJSString', function () {
         skip: 1,
       },
     });
-    const expected = `db.getCollection("pets").collate(
-  {locale: 'simple'}
-).find(
+    const expected = `db.getCollection("pets").find(
   {name: 'Arlo'},
   {name: 1}
+).collation(
+  {locale: 'simple'}
 ).limit(100).skip(1)`;
 
     expect(ret).to.equal(expected);
