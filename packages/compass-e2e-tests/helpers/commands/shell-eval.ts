@@ -21,23 +21,33 @@ export async function shellEval(
 
   const command = parse === true ? `JSON.stringify(${str})` : str;
 
-  await browser.setAceValue(Selectors.ShellInputEditor, command);
+  await browser.setCodemirrorEditorValue(Selectors.ShellInputEditor, command);
   await browser.keys(['Enter']);
 
   // wait until more output appears
   await browser.waitUntil(async () => {
     const lines = await getOutputText(browser);
-    return lines.length > numLines;
+    return (
+      lines.length >
+      /**
+       * input line becomes an output line on enter press, so we are waiting
+       * for two new lines to appear, not just one
+       */
+      numLines + 1
+    );
   });
 
-  const shellOutputElements = await browser.$$(Selectors.ShellOutput);
-  const output = await shellOutputElements[
-    shellOutputElements.length - 1
-  ].getText();
+  const output = await getOutputText(browser);
+
   let result = Array.isArray(output) ? output.pop() : output;
+
+  if (typeof result === 'undefined') {
+    throw new Error('No shell output found');
+  }
+
   if (parse === true) {
     try {
-      result = JSON.parse(result.replace(/(^['"]|['"]$)/g, ''));
+      result = JSON.parse(result);
     } catch (err) {
       // just leave it unparsed for now if there's a parse error because
       // that's really helpful when debugging
@@ -47,5 +57,5 @@ export async function shellEval(
 
   await browser.hideShell();
 
-  return result;
+  return result as string;
 }

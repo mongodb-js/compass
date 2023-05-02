@@ -10,6 +10,6 @@ export async function showShell(browser: CompassBrowser): Promise<void> {
       await browser.clickVisible(Selectors.ShellExpandButton);
     }
 
-    await browser.clickVisible(Selectors.ShellInput);
+    await browser.clickVisible(Selectors.ShellInputEditor);
   });
 }

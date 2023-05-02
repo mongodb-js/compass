@@ -60,14 +60,14 @@
     "@mongodb-js/compass-components": "^1.8.0",
     "@mongodb-js/compass-logging": "^1.1.5",
     "@mongodb-js/compass-utils": "^0.3.0",
-    "bson": "^5.0.1",
+    "bson": "^5.2.0",
     "storage-mixin": "^5.1.4"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.8.0",
     "@mongodb-js/compass-logging": "^1.1.5",
     "@mongodb-js/compass-utils": "^0.3.0",
-    "bson": "^5.0.1",
+    "bson": "^5.2.0",
     "react": "^17.0.2",
     "storage-mixin": "^5.1.4"
   },
