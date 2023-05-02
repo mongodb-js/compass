@@ -816,10 +816,4 @@ describe('Collection export', function () {
       });
     });
   });
-
-  // TODO(COMPASS-6731): Add tests for:
-  // - Abort in progress.
-  // - Abort when disconnecting.
-  // - Export with collation + sort + limit + skip.
-  // - Export with projection.
 });
