@@ -7,58 +7,58 @@ This document was automatically generated on Tue May 02 2023.
 
 | Name | Version | License |
 | --- | --- | --- |
-| [@aws-sdk/client-cognito-identity](#@aws-sdk/client-cognito-identity-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/client-sso](#@aws-sdk/client-sso-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/client-sso-oidc](#@aws-sdk/client-sso-oidc-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/client-sts](#@aws-sdk/client-sts-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/config-resolver](#@aws-sdk/config-resolver-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-cognito-identity](#@aws-sdk/credential-provider-cognito-identity-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-env](#@aws-sdk/credential-provider-env-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-imds](#@aws-sdk/credential-provider-imds-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-ini](#@aws-sdk/credential-provider-ini-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-node](#@aws-sdk/credential-provider-node-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-process](#@aws-sdk/credential-provider-process-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-sso](#@aws-sdk/credential-provider-sso-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-web-identity](#@aws-sdk/credential-provider-web-identity-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-providers](#@aws-sdk/credential-providers-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/hash-node](#@aws-sdk/hash-node-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/is-array-buffer](#@aws-sdk/is-array-buffer-3.201.0) | 3.201.0 | Apache-2.0 |
-| [@aws-sdk/middleware-content-length](#@aws-sdk/middleware-content-length-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-endpoint](#@aws-sdk/middleware-endpoint-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-host-header](#@aws-sdk/middleware-host-header-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-logger](#@aws-sdk/middleware-logger-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-recursion-detection](#@aws-sdk/middleware-recursion-detection-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-retry](#@aws-sdk/middleware-retry-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-sdk-sts](#@aws-sdk/middleware-sdk-sts-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-serde](#@aws-sdk/middleware-serde-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-signing](#@aws-sdk/middleware-signing-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-stack](#@aws-sdk/middleware-stack-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-user-agent](#@aws-sdk/middleware-user-agent-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/node-config-provider](#@aws-sdk/node-config-provider-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/node-http-handler](#@aws-sdk/node-http-handler-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/property-provider](#@aws-sdk/property-provider-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/protocol-http](#@aws-sdk/protocol-http-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/querystring-builder](#@aws-sdk/querystring-builder-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/querystring-parser](#@aws-sdk/querystring-parser-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/service-error-classification](#@aws-sdk/service-error-classification-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/shared-ini-file-loader](#@aws-sdk/shared-ini-file-loader-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/signature-v4](#@aws-sdk/signature-v4-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/smithy-client](#@aws-sdk/smithy-client-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/token-providers](#@aws-sdk/token-providers-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/types](#@aws-sdk/types-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/url-parser](#@aws-sdk/url-parser-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-base64](#@aws-sdk/util-base64-3.208.0) | 3.208.0 | Apache-2.0 |
-| [@aws-sdk/util-body-length-node](#@aws-sdk/util-body-length-node-3.208.0) | 3.208.0 | Apache-2.0 |
-| [@aws-sdk/util-buffer-from](#@aws-sdk/util-buffer-from-3.208.0) | 3.208.0 | Apache-2.0 |
-| [@aws-sdk/util-config-provider](#@aws-sdk/util-config-provider-3.208.0) | 3.208.0 | Apache-2.0 |
-| [@aws-sdk/util-defaults-mode-node](#@aws-sdk/util-defaults-mode-node-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-endpoints](#@aws-sdk/util-endpoints-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-hex-encoding](#@aws-sdk/util-hex-encoding-3.201.0) | 3.201.0 | Apache-2.0 |
-| [@aws-sdk/util-middleware](#@aws-sdk/util-middleware-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-retry](#@aws-sdk/util-retry-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-uri-escape](#@aws-sdk/util-uri-escape-3.201.0) | 3.201.0 | Apache-2.0 |
-| [@aws-sdk/util-user-agent-node](#@aws-sdk/util-user-agent-node-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-utf8](#@aws-sdk/util-utf8-3.254.0) | 3.254.0 | Apache-2.0 |
+| [@aws-sdk/client-cognito-identity](#@aws-sdk/client-cognito-identity-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/client-sso](#@aws-sdk/client-sso-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/client-sso-oidc](#@aws-sdk/client-sso-oidc-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/client-sts](#@aws-sdk/client-sts-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/config-resolver](#@aws-sdk/config-resolver-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-provider-cognito-identity](#@aws-sdk/credential-provider-cognito-identity-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/credential-provider-env](#@aws-sdk/credential-provider-env-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-provider-imds](#@aws-sdk/credential-provider-imds-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-provider-ini](#@aws-sdk/credential-provider-ini-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/credential-provider-node](#@aws-sdk/credential-provider-node-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/credential-provider-process](#@aws-sdk/credential-provider-process-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-provider-sso](#@aws-sdk/credential-provider-sso-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/credential-provider-web-identity](#@aws-sdk/credential-provider-web-identity-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-providers](#@aws-sdk/credential-providers-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/hash-node](#@aws-sdk/hash-node-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/is-array-buffer](#@aws-sdk/is-array-buffer-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-content-length](#@aws-sdk/middleware-content-length-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-endpoint](#@aws-sdk/middleware-endpoint-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-host-header](#@aws-sdk/middleware-host-header-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-logger](#@aws-sdk/middleware-logger-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-recursion-detection](#@aws-sdk/middleware-recursion-detection-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-retry](#@aws-sdk/middleware-retry-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-sdk-sts](#@aws-sdk/middleware-sdk-sts-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-serde](#@aws-sdk/middleware-serde-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-signing](#@aws-sdk/middleware-signing-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-stack](#@aws-sdk/middleware-stack-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-user-agent](#@aws-sdk/middleware-user-agent-3.319.0) | 3.319.0 | Apache-2.0 |
+| [@aws-sdk/node-config-provider](#@aws-sdk/node-config-provider-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/node-http-handler](#@aws-sdk/node-http-handler-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/property-provider](#@aws-sdk/property-provider-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/protocol-http](#@aws-sdk/protocol-http-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/querystring-builder](#@aws-sdk/querystring-builder-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/querystring-parser](#@aws-sdk/querystring-parser-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/service-error-classification](#@aws-sdk/service-error-classification-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/shared-ini-file-loader](#@aws-sdk/shared-ini-file-loader-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/signature-v4](#@aws-sdk/signature-v4-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/smithy-client](#@aws-sdk/smithy-client-3.316.0) | 3.316.0 | Apache-2.0 |
+| [@aws-sdk/token-providers](#@aws-sdk/token-providers-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/types](#@aws-sdk/types-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/url-parser](#@aws-sdk/url-parser-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-base64](#@aws-sdk/util-base64-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-body-length-node](#@aws-sdk/util-body-length-node-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-buffer-from](#@aws-sdk/util-buffer-from-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-config-provider](#@aws-sdk/util-config-provider-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-defaults-mode-node](#@aws-sdk/util-defaults-mode-node-3.316.0) | 3.316.0 | Apache-2.0 |
+| [@aws-sdk/util-endpoints](#@aws-sdk/util-endpoints-3.319.0) | 3.319.0 | Apache-2.0 |
+| [@aws-sdk/util-hex-encoding](#@aws-sdk/util-hex-encoding-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-middleware](#@aws-sdk/util-middleware-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-retry](#@aws-sdk/util-retry-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-uri-escape](#@aws-sdk/util-uri-escape-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-user-agent-node](#@aws-sdk/util-user-agent-node-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-utf8](#@aws-sdk/util-utf8-3.310.0) | 3.310.0 | Apache-2.0 |
 | [@babel/code-frame](#@babel/code-frame-7.21.4) | 7.21.4 | MIT |
 | [@babel/compat-data](#@babel/compat-data-7.21.4) | 7.21.4 | MIT |
 | [@babel/core](#@babel/core-7.16.0) | 7.16.0 | MIT |
@@ -176,7 +176,7 @@ This document was automatically generated on Tue May 02 2023.
 | [bl](#bl-4.1.0) | 4.1.0 | MIT |
 | [boom](#boom-4.3.1) | 4.3.1 | BSD-3-Clause |
 | [brace-expansion](#brace-expansion-1.1.11) | 1.1.11 | MIT |
-| [bson](#bson-5.0.1) | 5.0.1 | Apache-2.0 |
+| [bson](#bson-5.2.0) | 5.2.0 | Apache-2.0 |
 | [bson](#bson-1.1.6) | 1.1.6 | Apache-2.0 |
 | [bson](#bson-4.7.2) | 4.7.2 | Apache-2.0 |
 | [buffer](#buffer-5.7.1) | 5.7.1 | MIT |
@@ -258,7 +258,7 @@ This document was automatically generated on Tue May 02 2023.
 | [fast-deep-equal](#fast-deep-equal-2.0.1) | 2.0.1 | MIT |
 | [fast-json-stable-stringify](#fast-json-stable-stringify-2.1.0) | 2.1.0 | MIT |
 | [fast-memoize](#fast-memoize-2.5.2) | 2.5.2 | MIT |
-| [fast-xml-parser](#fast-xml-parser-4.0.11) | 4.0.11 | MIT |
+| [fast-xml-parser](#fast-xml-parser-4.1.2) | 4.1.2 | MIT |
 | [file-uri-to-path](#file-uri-to-path-1.0.0) | 1.0.0 | MIT |
 | [first-chunk-stream](#first-chunk-stream-3.0.0) | 3.0.0 | MIT |
 | [flat](#flat-5.0.0) | 5.0.0 | BSD-3-Clause |
@@ -485,10 +485,10 @@ This document was automatically generated on Tue May 02 2023.
 | [mkdirp-classic](#mkdirp-classic-0.5.3) | 0.5.3 | MIT |
 | [modify-filename](#modify-filename-1.1.0) | 1.1.0 | MIT |
 | [moment](#moment-2.29.1) | 2.29.1 | MIT |
-| [mongodb](#mongodb-5.1.0) | 5.1.0 | Apache-2.0 |
+| [mongodb](#mongodb-5.3.0) | 5.3.0 | Apache-2.0 |
 | [mongodb](#mongodb-3.6.9) | 3.6.9 | Apache-2.0 |
 | [mongodb-build-info](#mongodb-build-info-1.5.0) | 1.5.0 | Apache-2.0 |
-| [mongodb-client-encryption](#mongodb-client-encryption-2.6.0) | 2.6.0 | Apache-2.0 |
+| [mongodb-client-encryption](#mongodb-client-encryption-2.7.1) | 2.7.1 | Apache-2.0 |
 | [mongodb-cloud-info](#mongodb-cloud-info-1.1.3) | 1.1.3 | Apache-2.0 |
 | [mongodb-connection-string-url](#mongodb-connection-string-url-2.6.0) | 2.6.0 | Apache-2.0 |
 | [mongodb-js-errors](#mongodb-js-errors-0.3.3) | 0.3.3 | Apache-2.0 |
@@ -649,8 +649,8 @@ This document was automatically generated on Tue May 02 2023.
 
 ## Details
 
-<a id="@aws-sdk/client-cognito-identity-3.267.0"></a>
-### @aws-sdk/client-cognito-identity 3.267.0
+<a id="@aws-sdk/client-cognito-identity-3.321.1"></a>
+### @aws-sdk/client-cognito-identity 3.321.1
 
 **License**: Apache-2.0
 
@@ -865,8 +865,8 @@ This document was automatically generated on Tue May 02 2023.
 
 ```
 
-<a id="@aws-sdk/client-sso-3.267.0"></a>
-### @aws-sdk/client-sso 3.267.0
+<a id="@aws-sdk/client-sso-3.321.1"></a>
+### @aws-sdk/client-sso 3.321.1
 
 **License**: Apache-2.0
 
@@ -1081,8 +1081,8 @@ This document was automatically generated on Tue May 02 2023.
 
 ```
 
-<a id="@aws-sdk/client-sso-oidc-3.267.0"></a>
-### @aws-sdk/client-sso-oidc 3.267.0
+<a id="@aws-sdk/client-sso-oidc-3.321.1"></a>
+### @aws-sdk/client-sso-oidc 3.321.1
 
 **License**: Apache-2.0
 
@@ -1297,8 +1297,8 @@ This document was automatically generated on Tue May 02 2023.
 
 ```
 
-<a id="@aws-sdk/client-sts-3.267.0"></a>
-### @aws-sdk/client-sts 3.267.0
+<a id="@aws-sdk/client-sts-3.321.1"></a>
+### @aws-sdk/client-sts 3.321.1
 
 **License**: Apache-2.0
 
@@ -1513,8 +1513,8 @@ This document was automatically generated on Tue May 02 2023.
 
 ```
 
-<a id="@aws-sdk/config-resolver-3.267.0"></a>
-### @aws-sdk/config-resolver 3.267.0
+<a id="@aws-sdk/config-resolver-3.310.0"></a>
+### @aws-sdk/config-resolver 3.310.0
 
 **License**: Apache-2.0
 
@@ -1728,8 +1728,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-cognito-identity-3.267.0"></a>
-### @aws-sdk/credential-provider-cognito-identity 3.267.0
+<a id="@aws-sdk/credential-provider-cognito-identity-3.321.1"></a>
+### @aws-sdk/credential-provider-cognito-identity 3.321.1
 
 **License**: Apache-2.0
 
@@ -1944,8 +1944,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/credential-provider-env-3.267.0"></a>
-### @aws-sdk/credential-provider-env 3.267.0
+<a id="@aws-sdk/credential-provider-env-3.310.0"></a>
+### @aws-sdk/credential-provider-env 3.310.0
 
 **License**: Apache-2.0
 
@@ -2159,8 +2159,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-imds-3.267.0"></a>
-### @aws-sdk/credential-provider-imds 3.267.0
+<a id="@aws-sdk/credential-provider-imds-3.310.0"></a>
+### @aws-sdk/credential-provider-imds 3.310.0
 
 **License**: Apache-2.0
 
@@ -2374,8 +2374,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-ini-3.267.0"></a>
-### @aws-sdk/credential-provider-ini 3.267.0
+<a id="@aws-sdk/credential-provider-ini-3.321.1"></a>
+### @aws-sdk/credential-provider-ini 3.321.1
 
 **License**: Apache-2.0
 
@@ -2589,8 +2589,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-node-3.267.0"></a>
-### @aws-sdk/credential-provider-node 3.267.0
+<a id="@aws-sdk/credential-provider-node-3.321.1"></a>
+### @aws-sdk/credential-provider-node 3.321.1
 
 **License**: Apache-2.0
 
@@ -2804,8 +2804,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-process-3.267.0"></a>
-### @aws-sdk/credential-provider-process 3.267.0
+<a id="@aws-sdk/credential-provider-process-3.310.0"></a>
+### @aws-sdk/credential-provider-process 3.310.0
 
 **License**: Apache-2.0
 
@@ -3019,8 +3019,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-sso-3.267.0"></a>
-### @aws-sdk/credential-provider-sso 3.267.0
+<a id="@aws-sdk/credential-provider-sso-3.321.1"></a>
+### @aws-sdk/credential-provider-sso 3.321.1
 
 **License**: Apache-2.0
 
@@ -3234,8 +3234,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-web-identity-3.267.0"></a>
-### @aws-sdk/credential-provider-web-identity 3.267.0
+<a id="@aws-sdk/credential-provider-web-identity-3.310.0"></a>
+### @aws-sdk/credential-provider-web-identity 3.310.0
 
 **License**: Apache-2.0
 
@@ -3449,8 +3449,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-providers-3.267.0"></a>
-### @aws-sdk/credential-providers 3.267.0
+<a id="@aws-sdk/credential-providers-3.321.1"></a>
+### @aws-sdk/credential-providers 3.321.1
 
 **License**: Apache-2.0
 
@@ -3664,8 +3664,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/hash-node-3.267.0"></a>
-### @aws-sdk/hash-node 3.267.0
+<a id="@aws-sdk/hash-node-3.310.0"></a>
+### @aws-sdk/hash-node 3.310.0
 
 **License**: Apache-2.0
 
@@ -3879,8 +3879,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/is-array-buffer-3.201.0"></a>
-### @aws-sdk/is-array-buffer 3.201.0
+<a id="@aws-sdk/is-array-buffer-3.310.0"></a>
+### @aws-sdk/is-array-buffer 3.310.0
 
 **License**: Apache-2.0
 
@@ -4094,8 +4094,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-content-length-3.267.0"></a>
-### @aws-sdk/middleware-content-length 3.267.0
+<a id="@aws-sdk/middleware-content-length-3.310.0"></a>
+### @aws-sdk/middleware-content-length 3.310.0
 
 **License**: Apache-2.0
 
@@ -4309,8 +4309,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-endpoint-3.267.0"></a>
-### @aws-sdk/middleware-endpoint 3.267.0
+<a id="@aws-sdk/middleware-endpoint-3.310.0"></a>
+### @aws-sdk/middleware-endpoint 3.310.0
 
 **License**: Apache-2.0
 
@@ -4524,8 +4524,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-host-header-3.267.0"></a>
-### @aws-sdk/middleware-host-header 3.267.0
+<a id="@aws-sdk/middleware-host-header-3.310.0"></a>
+### @aws-sdk/middleware-host-header 3.310.0
 
 **License**: Apache-2.0
 
@@ -4740,8 +4740,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-logger-3.267.0"></a>
-### @aws-sdk/middleware-logger 3.267.0
+<a id="@aws-sdk/middleware-logger-3.310.0"></a>
+### @aws-sdk/middleware-logger 3.310.0
 
 **License**: Apache-2.0
 
@@ -4955,8 +4955,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-recursion-detection-3.267.0"></a>
-### @aws-sdk/middleware-recursion-detection 3.267.0
+<a id="@aws-sdk/middleware-recursion-detection-3.310.0"></a>
+### @aws-sdk/middleware-recursion-detection 3.310.0
 
 **License**: Apache-2.0
 
@@ -5171,8 +5171,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-retry-3.267.0"></a>
-### @aws-sdk/middleware-retry 3.267.0
+<a id="@aws-sdk/middleware-retry-3.310.0"></a>
+### @aws-sdk/middleware-retry 3.310.0
 
 **License**: Apache-2.0
 
@@ -5387,8 +5387,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-sdk-sts-3.267.0"></a>
-### @aws-sdk/middleware-sdk-sts 3.267.0
+<a id="@aws-sdk/middleware-sdk-sts-3.310.0"></a>
+### @aws-sdk/middleware-sdk-sts 3.310.0
 
 **License**: Apache-2.0
 
@@ -5603,8 +5603,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-serde-3.267.0"></a>
-### @aws-sdk/middleware-serde 3.267.0
+<a id="@aws-sdk/middleware-serde-3.310.0"></a>
+### @aws-sdk/middleware-serde 3.310.0
 
 **License**: Apache-2.0
 
@@ -5819,8 +5819,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-signing-3.267.0"></a>
-### @aws-sdk/middleware-signing 3.267.0
+<a id="@aws-sdk/middleware-signing-3.310.0"></a>
+### @aws-sdk/middleware-signing 3.310.0
 
 **License**: Apache-2.0
 
@@ -6034,8 +6034,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-stack-3.267.0"></a>
-### @aws-sdk/middleware-stack 3.267.0
+<a id="@aws-sdk/middleware-stack-3.310.0"></a>
+### @aws-sdk/middleware-stack 3.310.0
 
 **License**: Apache-2.0
 
@@ -6249,8 +6249,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-user-agent-3.267.0"></a>
-### @aws-sdk/middleware-user-agent 3.267.0
+<a id="@aws-sdk/middleware-user-agent-3.319.0"></a>
+### @aws-sdk/middleware-user-agent 3.319.0
 
 **License**: Apache-2.0
 
@@ -6465,8 +6465,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/node-config-provider-3.267.0"></a>
-### @aws-sdk/node-config-provider 3.267.0
+<a id="@aws-sdk/node-config-provider-3.310.0"></a>
+### @aws-sdk/node-config-provider 3.310.0
 
 **License**: Apache-2.0
 
@@ -6680,8 +6680,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/node-http-handler-3.267.0"></a>
-### @aws-sdk/node-http-handler 3.267.0
+<a id="@aws-sdk/node-http-handler-3.321.1"></a>
+### @aws-sdk/node-http-handler 3.321.1
 
 **License**: Apache-2.0
 
@@ -6895,8 +6895,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/property-provider-3.267.0"></a>
-### @aws-sdk/property-provider 3.267.0
+<a id="@aws-sdk/property-provider-3.310.0"></a>
+### @aws-sdk/property-provider 3.310.0
 
 **License**: Apache-2.0
 
@@ -7110,8 +7110,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/protocol-http-3.267.0"></a>
-### @aws-sdk/protocol-http 3.267.0
+<a id="@aws-sdk/protocol-http-3.310.0"></a>
+### @aws-sdk/protocol-http 3.310.0
 
 **License**: Apache-2.0
 
@@ -7326,8 +7326,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/querystring-builder-3.267.0"></a>
-### @aws-sdk/querystring-builder 3.267.0
+<a id="@aws-sdk/querystring-builder-3.310.0"></a>
+### @aws-sdk/querystring-builder 3.310.0
 
 **License**: Apache-2.0
 
@@ -7542,8 +7542,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/querystring-parser-3.267.0"></a>
-### @aws-sdk/querystring-parser 3.267.0
+<a id="@aws-sdk/querystring-parser-3.310.0"></a>
+### @aws-sdk/querystring-parser 3.310.0
 
 **License**: Apache-2.0
 
@@ -7758,8 +7758,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/service-error-classification-3.267.0"></a>
-### @aws-sdk/service-error-classification 3.267.0
+<a id="@aws-sdk/service-error-classification-3.310.0"></a>
+### @aws-sdk/service-error-classification 3.310.0
 
 **License**: Apache-2.0
 
@@ -7974,8 +7974,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/shared-ini-file-loader-3.267.0"></a>
-### @aws-sdk/shared-ini-file-loader 3.267.0
+<a id="@aws-sdk/shared-ini-file-loader-3.310.0"></a>
+### @aws-sdk/shared-ini-file-loader 3.310.0
 
 **License**: Apache-2.0
 
@@ -8189,8 +8189,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/signature-v4-3.267.0"></a>
-### @aws-sdk/signature-v4 3.267.0
+<a id="@aws-sdk/signature-v4-3.310.0"></a>
+### @aws-sdk/signature-v4 3.310.0
 
 **License**: Apache-2.0
 
@@ -8404,8 +8404,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/smithy-client-3.267.0"></a>
-### @aws-sdk/smithy-client 3.267.0
+<a id="@aws-sdk/smithy-client-3.316.0"></a>
+### @aws-sdk/smithy-client 3.316.0
 
 **License**: Apache-2.0
 
@@ -8620,8 +8620,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/token-providers-3.267.0"></a>
-### @aws-sdk/token-providers 3.267.0
+<a id="@aws-sdk/token-providers-3.321.1"></a>
+### @aws-sdk/token-providers 3.321.1
 
 **License**: Apache-2.0
 
@@ -8835,8 +8835,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/types-3.267.0"></a>
-### @aws-sdk/types 3.267.0
+<a id="@aws-sdk/types-3.310.0"></a>
+### @aws-sdk/types 3.310.0
 
 **License**: Apache-2.0
 
@@ -9050,8 +9050,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/url-parser-3.267.0"></a>
-### @aws-sdk/url-parser 3.267.0
+<a id="@aws-sdk/url-parser-3.310.0"></a>
+### @aws-sdk/url-parser 3.310.0
 
 **License**: Apache-2.0
 
@@ -9266,8 +9266,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/util-base64-3.208.0"></a>
-### @aws-sdk/util-base64 3.208.0
+<a id="@aws-sdk/util-base64-3.310.0"></a>
+### @aws-sdk/util-base64 3.310.0
 
 **License**: Apache-2.0
 
@@ -9481,8 +9481,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-body-length-node-3.208.0"></a>
-### @aws-sdk/util-body-length-node 3.208.0
+<a id="@aws-sdk/util-body-length-node-3.310.0"></a>
+### @aws-sdk/util-body-length-node 3.310.0
 
 **License**: Apache-2.0
 
@@ -9696,8 +9696,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-buffer-from-3.208.0"></a>
-### @aws-sdk/util-buffer-from 3.208.0
+<a id="@aws-sdk/util-buffer-from-3.310.0"></a>
+### @aws-sdk/util-buffer-from 3.310.0
 
 **License**: Apache-2.0
 
@@ -9911,8 +9911,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-config-provider-3.208.0"></a>
-### @aws-sdk/util-config-provider 3.208.0
+<a id="@aws-sdk/util-config-provider-3.310.0"></a>
+### @aws-sdk/util-config-provider 3.310.0
 
 **License**: Apache-2.0
 
@@ -10126,8 +10126,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-defaults-mode-node-3.267.0"></a>
-### @aws-sdk/util-defaults-mode-node 3.267.0
+<a id="@aws-sdk/util-defaults-mode-node-3.316.0"></a>
+### @aws-sdk/util-defaults-mode-node 3.316.0
 
 **License**: Apache-2.0
 
@@ -10342,8 +10342,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/util-endpoints-3.267.0"></a>
-### @aws-sdk/util-endpoints 3.267.0
+<a id="@aws-sdk/util-endpoints-3.319.0"></a>
+### @aws-sdk/util-endpoints 3.319.0
 
 **License**: Apache-2.0
 
@@ -10557,8 +10557,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-hex-encoding-3.201.0"></a>
-### @aws-sdk/util-hex-encoding 3.201.0
+<a id="@aws-sdk/util-hex-encoding-3.310.0"></a>
+### @aws-sdk/util-hex-encoding 3.310.0
 
 **License**: Apache-2.0
 
@@ -10772,8 +10772,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-middleware-3.267.0"></a>
-### @aws-sdk/util-middleware 3.267.0
+<a id="@aws-sdk/util-middleware-3.310.0"></a>
+### @aws-sdk/util-middleware 3.310.0
 
 **License**: Apache-2.0
 
@@ -10987,8 +10987,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-retry-3.267.0"></a>
-### @aws-sdk/util-retry 3.267.0
+<a id="@aws-sdk/util-retry-3.310.0"></a>
+### @aws-sdk/util-retry 3.310.0
 
 **License**: Apache-2.0
 
@@ -11202,8 +11202,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-uri-escape-3.201.0"></a>
-### @aws-sdk/util-uri-escape 3.201.0
+<a id="@aws-sdk/util-uri-escape-3.310.0"></a>
+### @aws-sdk/util-uri-escape 3.310.0
 
 **License**: Apache-2.0
 
@@ -11417,8 +11417,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-user-agent-node-3.267.0"></a>
-### @aws-sdk/util-user-agent-node 3.267.0
+<a id="@aws-sdk/util-user-agent-node-3.310.0"></a>
+### @aws-sdk/util-user-agent-node 3.310.0
 
 **License**: Apache-2.0
 
@@ -11633,8 +11633,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/util-utf8-3.254.0"></a>
-### @aws-sdk/util-utf8 3.254.0
+<a id="@aws-sdk/util-utf8-3.310.0"></a>
+### @aws-sdk/util-utf8 3.310.0
 
 **License**: Apache-2.0
 
@@ -17543,8 +17543,8 @@ SOFTWARE.
 
 ```
 
-<a id="bson-5.0.1"></a>
-### bson 5.0.1
+<a id="bson-5.2.0"></a>
+### bson 5.2.0
 
 **License**: Apache-2.0
 
@@ -21085,8 +21085,8 @@ SOFTWARE.
 
 ```
 
-<a id="fast-xml-parser-4.0.11"></a>
-### fast-xml-parser 4.0.11
+<a id="fast-xml-parser-4.1.2"></a>
+### fast-xml-parser 4.1.2
 
 **License**: MIT
 
@@ -30741,8 +30741,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="mongodb-5.1.0"></a>
-### mongodb 5.1.0
+<a id="mongodb-5.3.0"></a>
+### mongodb 5.3.0
 
 **License**: Apache-2.0
 
@@ -31385,8 +31385,8 @@ Apache License
 
 ```
 
-<a id="mongodb-client-encryption-2.6.0"></a>
-### mongodb-client-encryption 2.6.0
+<a id="mongodb-client-encryption-2.7.1"></a>
+### mongodb-client-encryption 2.7.1
 
 **License**: Apache-2.0
 
