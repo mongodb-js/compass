@@ -110,7 +110,7 @@ export async function importCSV({
           setTimeout(() => {
             // Give the test more than enough time to click the abort before we continue.
             callback(null, doc);
-          }, 5000);
+          }, 15000);
 
           return;
         }

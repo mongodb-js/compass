@@ -97,8 +97,6 @@ describe('Collection import', function () {
     await createNumbersCollection();
     await createDummyCollections();
     await browser.connectWithConnectionString();
-
-    delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
   });
 
   after(async function () {
