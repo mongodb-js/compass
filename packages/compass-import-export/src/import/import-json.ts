@@ -53,6 +53,11 @@ export async function importJSON({
 
   let numProcessed = 0;
 
+  if (process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT === 'true') {
+    // Give the test more than enough time to click the abort before we continue.
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+
   const docStream = new Transform({
     objectMode: true,
     transform: function (chunk: any, encoding, callback) {
@@ -77,7 +82,7 @@ export async function importJSON({
           setTimeout(() => {
             // Give the test more than enough time to click the abort before we continue.
             callback(null, doc);
-          }, 15000);
+          }, 5000);
 
           return;
         }
