@@ -102,6 +102,7 @@ class CSVRowStream extends Transform {
         linebreak: this.linebreak,
       });
       this.progressCallback?.(this.docsWritten, 'WRITE');
+
       cb(null, line);
     } catch (err: any) {
       cb(err as Error);
@@ -199,6 +200,7 @@ class ColumnStream extends Transform {
     this.columnRecorder.addToColumns(chunk);
     this.docsProcessed++;
     this.progressCallback?.(this.docsProcessed, 'DOWNLOAD');
+
     cb(null, `${EJSON.stringify(chunk, { relaxed: true })}\n`);
   }
 

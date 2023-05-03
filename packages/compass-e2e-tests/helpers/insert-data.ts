@@ -98,6 +98,22 @@ export async function createNumbersCollection(
     .insertMany([...Array(numberOfRecords).keys()].map((i) => ({ i, j: 0 })));
 }
 
+// Useful for testing collation with `numericOrdering`.
+export async function createNumbersStringCollection(
+  name = 'numbers-strings',
+  numberOfRecords = 10
+): Promise<void> {
+  const db = client.db('test');
+
+  await db.collection(name).insertMany(
+    [...Array(numberOfRecords).keys()].map((i) => ({
+      i,
+      iString: `${i * 20}`,
+      j: 0,
+    }))
+  );
+}
+
 export async function createMultipleCollections(): Promise<void> {
   const db = client.db('multiple-collections');
 

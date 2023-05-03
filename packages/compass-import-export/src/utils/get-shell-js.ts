@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { stringify } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
+import type { Document, SortDirection } from 'mongodb';
 
 import type { ExportQueryType } from '../modules/legacy-export';
 import type { ExportQuery } from '../export/export-types';
@@ -29,22 +30,20 @@ export function newGetQueryAsShellJSString({
   ns: string;
   query: ExportQuery;
 }) {
-  let ret = `db.getCollection("${toNS(ns).collection}")`;
-  if (query.collation) {
-    ret += `.collate(\n  ${
-      stringify(query.collation as unknown as Record<string, unknown>) || ''
-    }\n)`;
-  }
+  let ret = `db.getCollection('${toNS(ns).collection}')`;
   ret += `.find(\n`;
   ret += `  ${stringify(query.filter ? query.filter : {}) || ''}`;
   if (query.projection) {
     ret += `,\n  ${stringify(query.projection) || ''}`;
   }
   ret += '\n)';
+  if (query.collation) {
+    ret += `.collation(\n  ${stringify(query.collation as Document) || ''}\n)`;
+  }
   if (query.sort) {
     ret += `.sort(${
       _.isObject(query.sort) && !Array.isArray(query.sort)
-        ? stringify(query.sort as Record<string, unknown>) || ''
+        ? stringify(query.sort as Record<string, SortDirection>) || ''
         : JSON.stringify(query.sort)
     })`;
   }
