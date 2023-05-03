@@ -1170,7 +1170,13 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
+      const stopImportButton = browser.$(Selectors.ImportToastAbort);
+      await stopImportButton.waitForDisplayed();
       await browser.clickVisible(Selectors.ImportToastAbort);
+      if (await stopImportButton.isDisplayed()) {
+        // Clicking the abort was finicky on RHEL + Ubuntu, so we try twice.
+        await browser.clickVisible(Selectors.ImportToastAbort);
+      }
 
       // Wait for the done toast to appear.
       const toastElement = await browser.$(Selectors.ImportToast);
@@ -1235,7 +1241,13 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
+      const stopImportButton = browser.$(Selectors.ImportToastAbort);
+      await stopImportButton.waitForDisplayed();
       await browser.clickVisible(Selectors.ImportToastAbort);
+      if (await stopImportButton.isDisplayed()) {
+        // Clicking the abort was finicky on RHEL + Ubuntu, so we try twice.
+        await browser.clickVisible(Selectors.ImportToastAbort);
+      }
 
       // Wait for the done toast to appear.
       const toastElement = await browser.$(Selectors.ImportToast);
