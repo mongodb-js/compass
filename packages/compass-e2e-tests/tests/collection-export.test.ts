@@ -97,7 +97,7 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: 5}
 )`);
 
@@ -112,7 +112,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportNextStepButton);
 
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: 5},
   {i: true,j: true,_id: false}
 )`);
@@ -176,7 +176,7 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: 5}
 )`);
 
@@ -186,7 +186,7 @@ describe('Collection export', function () {
 
       // Make sure the query is shown in the modal.
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: 5}
 )`);
 
@@ -246,7 +246,7 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: {$gt: 5}},
   {_id: 0}
 )`);
@@ -361,7 +361,7 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: 5}
 )`);
 
@@ -376,7 +376,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportNextStepButton);
 
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: 5},
   {i: true,j: true,_id: false}
 )`);
@@ -436,7 +436,7 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: 5}
 )`);
 
@@ -446,7 +446,7 @@ describe('Collection export', function () {
 
       // Make sure the query is shown in the modal.
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers").find(
+        .equal(`db.getCollection('numbers').find(
   {i: 5}
 )`);
 
@@ -836,7 +836,7 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers-strings").find(
+        .equal(`db.getCollection('numbers-strings').find(
   {}
 ).collation(
   {locale: 'en_US',numericOrdering: true}
@@ -853,7 +853,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportNextStepButton);
 
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers-strings").find(
+        .equal(`db.getCollection('numbers-strings').find(
   {},
   {iString: true,j: true,_id: false}
 ).collation(
@@ -925,7 +925,7 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers-strings").find(
+        .equal(`db.getCollection('numbers-strings').find(
   {}
 ).collation(
   {locale: 'en_US',numericOrdering: true}
@@ -942,7 +942,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportNextStepButton);
 
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection("numbers-strings").find(
+        .equal(`db.getCollection('numbers-strings').find(
   {},
   {iString: true,j: true,_id: false}
 ).collation(

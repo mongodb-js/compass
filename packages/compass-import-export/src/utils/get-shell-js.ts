@@ -30,7 +30,7 @@ export function newGetQueryAsShellJSString({
   ns: string;
   query: ExportQuery;
 }) {
-  let ret = `db.getCollection("${toNS(ns).collection}")`;
+  let ret = `db.getCollection('${toNS(ns).collection}')`;
   ret += `.find(\n`;
   ret += `  ${stringify(query.filter ? query.filter : {}) || ''}`;
   if (query.projection) {
