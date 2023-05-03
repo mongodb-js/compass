@@ -51,7 +51,7 @@ jobs:
         with:
           token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
           commit-message: 'chore: update electron'
-          branch: ci/bump-packages
+          branch: ci/update-electron
           title: 'chore: update electron'
           body: |
             - Update electron
