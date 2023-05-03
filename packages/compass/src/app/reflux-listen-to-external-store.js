@@ -5,17 +5,14 @@ const Reflux = require('reflux');
 const pluginActivationCompleted = require('@mongodb-js/hadron-plugin-manager')
   .Action.pluginActivationCompleted;
 
-/**
- * defers attaching a store listener to a store until all packages have
- * been activated in the app registry.
- *
- * @param  {String}   storeKey      The registry key for the store
- * @param  {Function} callback      Callback to attach
- */
-Reflux.StoreMethods.listenToExternalStore = function (storeKey, callback) {
-  this.listenTo(pluginActivationCompleted, () => {
-    const store = app.appRegistry.getStore(storeKey);
-    this.listenTo(store, callback);
-    this.stopListeningTo(pluginActivationCompleted);
-  });
-};
+// defers attaching a store listener to a store until all packages have
+// been activated in the app registry.
+export function deferRefluxStoreListener() {
+  Reflux.StoreMethods.listenToExternalStore = function (storeKey, callback) {
+    this.listenTo(pluginActivationCompleted, () => {
+      const store = app.appRegistry.getStore(storeKey);
+      this.listenTo(store, callback);
+      this.stopListeningTo(pluginActivationCompleted);
+    });
+  };
+}

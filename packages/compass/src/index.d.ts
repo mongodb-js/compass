@@ -1,3 +1,24 @@
+declare module 'compass-user-model' {
+  type SerializedUser = {
+    id: string;
+    name?: string;
+    email?: string;
+    createdAt: string;
+    lastUsed: string;
+    avatarUrl?: string;
+    companyName?: string;
+    developer?: boolean;
+    twitter?: string;
+  };
+
+  class User {
+    static getOrCreate(string): Promise<User>;
+    serialize(): SerializedUser;
+    set(attributes: Partial<SerializedUser>);
+    trigger(event: 'sync');
+  }
+  export default User;
+}
 declare module '*.png' {
   declare const assetPath: string;
   export default assetPath;

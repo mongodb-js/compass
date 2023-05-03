@@ -35,7 +35,7 @@ module.exports = (_env, args) => {
 
   const rendererConfig = createElectronRendererConfig({
     ...opts,
-    entry: path.resolve(__dirname, 'src', 'app', 'index.jsx'),
+    entry: path.resolve(__dirname, 'src', 'app', 'index.ts'),
   });
 
   const externals = {
