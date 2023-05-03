@@ -27,7 +27,7 @@
     "server-info": "ts-node ./scripts/server-info.ts"
   },
   "devDependencies": {
-    "@electron/rebuild": "^3.2.10",
+    "@electron/rebuild": "^3.2.13",
     "@mongodb-js/eslint-config-compass": "^1.0.5",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
@@ -44,7 +44,7 @@
     "cross-spawn": "^7.0.3",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^22.0.2",
+    "electron": "^22.3.7",
     "eslint": "^7.25.0",
     "fast-glob": "^3.2.7",
     "glob": "^7.1.6",
