@@ -84,7 +84,6 @@ import type {
   IndexInfo,
 } from './index-detail-helper';
 import { createIndexDefinition } from './index-detail-helper';
-import { coerceToJSNumber } from './coerce-to-js-number-helper';
 import type {
   BoundLogger,
   DataServiceImplLogger,
@@ -863,109 +862,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   }
 
-  /**
-   * Build a single scaled collection stats result document from the
-   * potentially multiple documents returned from the `$collStats` aggregation
-   * result.
-   * We specify an empty `storageStats: {}` document
-   * to use the default scale factor of 1 for the various size data.
-   */
-  private _aggregateCollStats(collStats: Document[], ns: string) {
-    const result: Document = {
-      ok: 1,
-    };
-    const counts: {
-      [fieldName: string]: number;
-    } = {};
-    const indexSizes: {
-      [indexName: string]: number;
-    } = {};
-
-    let unscaledCollSize = 0;
-    let nindexes = 0;
-
-    for (const shardResult of collStats) {
-      const shardStorageStats = shardResult.storageStats;
-
-      // We don't know the order that we will encounter the count and size, so we save them
-      // until we've iterated through all the fields before updating unscaledCollSize.
-      const countField = shardStorageStats.count;
-      const shardObjCount = typeof countField !== 'undefined' ? countField : 0;
-
-      for (const fieldName of Object.keys(shardStorageStats)) {
-        if (
-          ['ns', 'ok', 'lastExtentSize', 'paddingFactor'].includes(fieldName)
-        ) {
-          continue;
-        }
-        if (['capped'].includes(fieldName)) {
-          // Field that is copied from the first shard only, because it needs to
-          // match across shards.
-          result[fieldName] ??= shardStorageStats[fieldName];
-        } else if (
-          [
-            'count',
-            'size',
-            'storageSize',
-            'totalIndexSize',
-            'freeStorageSize',
-          ].includes(fieldName)
-        ) {
-          if (counts[fieldName] === undefined) {
-            counts[fieldName] = 0;
-          }
-          counts[fieldName] += coerceToJSNumber(shardStorageStats[fieldName]);
-        } else if (fieldName === 'avgObjSize') {
-          const shardAvgObjSize = coerceToJSNumber(
-            shardStorageStats[fieldName]
-          );
-          unscaledCollSize += shardAvgObjSize * shardObjCount;
-        } else if (fieldName === 'indexSizes') {
-          for (const indexName of Object.keys(shardStorageStats[fieldName])) {
-            if (indexSizes[indexName] === undefined) {
-              indexSizes[indexName] = 0;
-            }
-            indexSizes[indexName] += coerceToJSNumber(
-              shardStorageStats[fieldName][indexName]
-            );
-          }
-        } else if (fieldName === 'nindexes') {
-          const shardIndexes = shardStorageStats[fieldName];
-
-          if (nindexes === 0) {
-            nindexes = shardIndexes;
-          } else if (shardIndexes > nindexes) {
-            // This hopefully means we're building an index.
-            nindexes = shardIndexes;
-          }
-        }
-      }
-    }
-
-    for (const [countField, count] of Object.entries(counts)) {
-      result[countField] = count;
-    }
-
-    result.indexSizes = {};
-    for (const [indexName, indexSize] of Object.entries(indexSizes)) {
-      // Scale the index sizes with the scale option passed by the user.
-      result.indexSizes[indexName] = indexSize;
-    }
-    // The unscaled avgObjSize for each shard is used to get the unscaledCollSize because the
-    // raw size returned by the shard is affected by the command's scale parameter
-    if (counts.count > 0) {
-      result.avgObjSize = unscaledCollSize / counts.count;
-    } else {
-      result.avgObjSize = 0;
-    }
-
-    result.ns = ns;
-    result.nindexes = nindexes;
-    result.ok = 1;
-
-    return result;
-  }
-
   @op(mongoLogId(1_001_000_178), ([dbName, collName], result) => {
     return { ns: `${dbName}.${collName}`, ...(result && { result }) };
   })
@@ -978,18 +874,98 @@ class DataServiceImpl extends WithLogContext implements DataService {
     try {
       const coll = this._collection(ns, 'CRUD');
       const collStats = await coll
-        .aggregate([{ $collStats: { storageStats: {} } }])
+        .aggregate([
+          { $collStats: { storageStats: {} } },
+          {
+            $facet: {
+              stats: [
+                {
+                  $group: {
+                    _id: null,
+                    capped: { $first: '$storageStats.capped' },
+                    count: { $sum: '$storageStats.count' },
+                    size: { $sum: { $toDouble: '$storageStats.size' } },
+                    storageSize: {
+                      $sum: { $toDouble: '$storageStats.storageSize' },
+                    },
+                    totalIndexSize: {
+                      $sum: { $toDouble: '$storageStats.totalIndexSize' },
+                    },
+                    freeStorageSize: {
+                      $sum: { $toDouble: '$storageStats.freeStorageSize' },
+                    },
+                    unscaledCollSize: {
+                      $sum: {
+                        $multiply: [
+                          { $toDouble: '$storageStats.avgObjSize' },
+                          { $toDouble: '$storageStats.count' },
+                        ],
+                      },
+                    },
+                    nindexes: { $max: '$storageStats.nindexes' },
+                  },
+                },
+                {
+                  $addFields: {
+                    // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+                    avgObjSize: {
+                      $cond: {
+                        if: { $ne: ['$count', 0] },
+                        then: {
+                          $divide: [
+                            '$unscaledCollSize',
+                            { $toDouble: '$count' },
+                          ],
+                        },
+                        else: 0,
+                      },
+                    },
+                  },
+                },
+              ],
+              indexSizes: [
+                // add objects of the form {a:1,b:2} on a per-key basis
+                {
+                  $project: {
+                    indexSizes: { $objectToArray: '$storageStats.indexSizes' },
+                  },
+                },
+                { $unwind: '$indexSizes' },
+                {
+                  $group: {
+                    _id: '$indexSizes.k',
+                    v: { $sum: { $toDouble: '$indexSizes.v' } },
+                  },
+                },
+                { $project: { k: '$_id', v: '$v', _id: 0 } },
+                { $group: { _id: null, indexSizes: { $push: '$$ROOT' } } },
+                { $project: { indexSizes: { $arrayToObject: '$indexSizes' } } },
+              ],
+            },
+          },
+          {
+            $replaceRoot: {
+              newRoot: {
+                $mergeObjects: [
+                  { $first: '$stats' },
+                  { $first: '$indexSizes' },
+                ],
+              },
+            },
+          },
+        ])
         .toArray();
 
       if (!collStats || collStats[0] === undefined) {
         throw new Error(`Error running $collStats aggregation stage on ${ns}`);
       }
 
-      const aggregatedCollStats = this._aggregateCollStats(collStats, ns);
+      collStats[0].ns = ns;
+
       return this._buildCollectionStats(
         databaseName,
         collectionName,
-        aggregatedCollStats
+        collStats[0]
       );
     } catch (error) {
       if (!(error as Error).message.includes('is a view, not a collection')) {
