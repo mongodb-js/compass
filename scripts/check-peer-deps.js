@@ -68,7 +68,7 @@ async function main() {
   const peerDependenciesWithoutReact = peerDependencies.filter((name) => {
     return !excludedFromProdDependencies.has(name);
   });
-  const extraneousInProdDeps = peerDependencies.filter((name) => {
+  const extraneousInProdDeps = prodDependencies.filter((name) => {
     return excludedFromProdDependencies.has(name);
   });
   const extraneousInDevDeps = devDependencies.filter((name) => {

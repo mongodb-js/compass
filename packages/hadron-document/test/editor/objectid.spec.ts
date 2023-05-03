@@ -46,7 +46,9 @@ describe('ObjectIdEditor', function () {
         });
 
         it('sets the invalid message', function () {
-          expect(element.invalidTypeMessage).to.include('String of 12 bytes');
+          expect(element.invalidTypeMessage).to.include(
+            'hex string must be 24 characters'
+          );
         });
       }
     );
@@ -93,7 +95,9 @@ describe('ObjectIdEditor', function () {
       });
 
       it('sets the invalid message', function () {
-        expect(element.invalidTypeMessage).to.include('String of 12 bytes');
+        expect(element.invalidTypeMessage).to.include(
+          'hex string must be 24 characters'
+        );
       });
     });
   });
@@ -143,7 +147,9 @@ describe('ObjectIdEditor', function () {
       });
 
       it('sets the invalid message', function () {
-        expect(element.invalidTypeMessage).to.include('String of 12 bytes');
+        expect(element.invalidTypeMessage).to.include(
+          'hex string must be 24 characters'
+        );
       });
     });
   });

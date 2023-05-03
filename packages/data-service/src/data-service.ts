@@ -1,5 +1,4 @@
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
 import type {
   AggregateOptions,
@@ -72,7 +71,6 @@ import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
-
 import * as mongodb from 'mongodb';
 import type { ClientEncryption as ClientEncryptionType } from 'mongodb-client-encryption';
 import {
@@ -87,6 +85,13 @@ import type {
 } from './index-detail-helper';
 import { createIndexDefinition } from './index-detail-helper';
 import { coerceToJSNumber } from './coerce-to-js-number-helper';
+import type {
+  BoundLogger,
+  DataServiceImplLogger,
+  MongoLogId,
+  UnboundDataServiceImplLogger,
+} from './logger';
+import { WithLogContext, debug, mongoLogId } from './logger';
 
 // TODO: remove try/catch and refactor encryption related types
 // when the Node bundles native binding distributions
@@ -102,10 +107,6 @@ try {
 } catch (e) {
   console.warn(e);
 }
-
-const { log, mongoLogId, debug } = createLoggerAndTelemetry(
-  'COMPASS-DATA-SERVICE'
-);
 
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
@@ -688,10 +689,6 @@ const translateErrorMessage = (error: any): Error | { message: string } => {
   return error;
 };
 
-abstract class WithLogContext {
-  protected abstract _logCtx(): string;
-}
-
 /**
  * Decorator to do standard op handling that is applied to every public method
  * of the data service
@@ -700,7 +697,7 @@ abstract class WithLogContext {
  * - log method success / failure
  */
 function op<T extends unknown[], K>(
-  logId: ReturnType<typeof mongoLogId>,
+  logId: MongoLogId,
   pickLogAttrs: (
     args: T,
     result?: K extends Promise<infer R> ? R : K
@@ -716,9 +713,8 @@ function op<T extends unknown[], K>(
     const opName = String(context.name);
     return function (this: WithLogContext, ...args: T): K {
       const handleResult = (result: any) => {
-        log.info(
+        this._logger.info(
           logId,
-          this._logCtx(),
           `Running ${opName}`,
           pickLogAttrs(args, result)
         );
@@ -726,9 +722,8 @@ function op<T extends unknown[], K>(
       };
       const handleError = (error: any) => {
         const err = translateErrorMessage(error);
-        log.error(
+        this._logger.error(
           mongoLogId(1_001_000_058),
-          this._logCtx(),
           'Failed to perform data service operation',
           {
             op: opName,
@@ -783,10 +778,46 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   private _emitter = new EventEmitter();
 
-  constructor(connectionOptions: Readonly<ConnectionOptions>) {
+  /**
+   * Directly used during data-service runtime, auto sets component and context
+   * with a connection id
+   */
+  protected _logger: BoundLogger;
+
+  /**
+   * To be passed to the connect-mongo-client
+   */
+  private _unboundLogger?: UnboundDataServiceImplLogger;
+
+  constructor(
+    connectionOptions: Readonly<ConnectionOptions>,
+    logger?: DataServiceImplLogger
+  ) {
     super();
     this._id = id++;
     this._connectionOptions = connectionOptions;
+    const logComponent = 'COMPASS-DATA-SERVICE';
+    const logCtx = `Connection ${this._id}`;
+    this._logger = {
+      debug: (logId, ...args) => {
+        return logger?.debug(logComponent, logId, logCtx, ...args);
+      },
+      info: (logId, ...args) => {
+        return logger?.info(logComponent, logId, logCtx, ...args);
+      },
+      warn: (logId, ...args) => {
+        return logger?.warn(logComponent, logId, logCtx, ...args);
+      },
+      error: (logId, ...args) => {
+        return logger?.error(logComponent, logId, logCtx, ...args);
+      },
+      fatal: (logId, ...args) => {
+        return logger?.fatal(logComponent, logId, logCtx, ...args);
+      },
+    };
+    if (logger) {
+      this._unboundLogger = Object.assign(logger, { mongoLogId });
+    }
   }
 
   on(...args: Parameters<DataService['on']>) {
@@ -805,10 +836,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return this._mongoClientConnectionOptions;
   }
 
-  protected _logCtx(): string {
-    return `Connection ${this._id}`;
-  }
-
   getConnectionOptions(): Readonly<ConnectionOptions> {
     return this._connectionOptions;
   }
@@ -818,7 +845,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   setCSFLEEnabled(enabled: boolean): void {
-    log.info(mongoLogId(1_001_000_117), this._logCtx(), 'Setting CSFLE mode', {
+    this._logger.info(mongoLogId(1_001_000_117), 'Setting CSFLE mode', {
       enabled,
     });
     this._useCRUDClient = enabled;
@@ -1070,9 +1097,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // cases
       //
       // TODO: https://jira.mongodb.org/browse/COMPASS-5275
-      log.warn(
+      this._logger.warn(
         mongoLogId(1_001_000_099),
-        this._logCtx(),
         'Failed to run listCollections',
         { message: (err as Error).message }
       );
@@ -1177,9 +1203,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // and only avoid throwing in these cases
         //
         // TODO: https://jira.mongodb.org/browse/COMPASS-5275
-        log.warn(
+        this._logger.warn(
           mongoLogId(1_001_000_098),
-          this._logCtx(),
           'Failed to run listDatabases',
           { message: (err as Error).message }
         );
@@ -1251,7 +1276,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     debug('connecting...');
     this._isConnecting = true;
 
-    log.info(mongoLogId(1_001_000_014), this._logCtx(), 'Connecting', {
+    this._logger.info(mongoLogId(1_001_000_014), 'Connecting', {
       url: redactConnectionString(this._connectionOptions.connectionString),
       csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
     });
@@ -1260,7 +1285,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       const [metadataClient, crudClient, tunnel, connectionOptions] =
         await connectMongoClient(
           this._connectionOptions,
-          this._setupListeners.bind(this)
+          this._setupListeners.bind(this),
+          this._unboundLogger
         );
 
       const attr = {
@@ -1268,7 +1294,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         isMongos: this.isMongos(),
       };
 
-      log.info(mongoLogId(1_001_000_015), this._logCtx(), 'Connected', attr);
+      this._logger.info(mongoLogId(1_001_000_015), 'Connected', attr);
       debug('connected!', attr);
 
       this._metadataClient = metadataClient;
@@ -1370,7 +1396,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   async disconnect(): Promise<void> {
-    log.info(mongoLogId(1_001_000_016), this._logCtx(), 'Disconnecting');
+    this._logger.info(mongoLogId(1_001_000_016), 'Disconnecting');
 
     try {
       await Promise.all([
@@ -1387,7 +1413,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       ]);
     } finally {
       this._cleanup();
-      log.info(mongoLogId(1_001_000_017), this._logCtx(), 'Fully closed');
+      this._logger.info(mongoLogId(1_001_000_017), 'Fully closed');
     }
   }
 
@@ -1894,9 +1920,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
     let result: T;
     const abort = async () => {
       const logAbortError = (error: Error) => {
-        log.warn(
+        this._logger.warn(
           mongoLogId(1_001_000_140),
-          this._logCtx(),
           'Attempting to kill the operation failed',
           { error: error.message }
         );
@@ -1926,9 +1951,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       client.on(
         'serverDescriptionChanged',
         (evt: ServerDescriptionChangedEvent) => {
-          log.info(
+          this._logger.info(
             mongoLogId(1_001_000_018),
-            this._logCtx(),
             'Server description changed',
             {
               address: evt.address,
@@ -1941,13 +1965,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
       );
 
       client.on('serverOpening', (evt: ServerOpeningEvent) => {
-        log.info(mongoLogId(1_001_000_019), this._logCtx(), 'Server opening', {
+        this._logger.info(mongoLogId(1_001_000_019), 'Server opening', {
           address: evt.address,
         });
       });
 
       client.on('serverClosed', (evt: ServerClosedEvent) => {
-        log.info(mongoLogId(1_001_000_020), this._logCtx(), 'Server closed', {
+        this._logger.info(mongoLogId(1_001_000_020), 'Server closed', {
           address: evt.address,
         });
       });
@@ -1962,9 +1986,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
             previousType: evt.previousDescription.type,
             newType: evt.newDescription.type,
           };
-          log.info(
+          this._logger.info(
             mongoLogId(1_001_000_021),
-            this._logCtx(),
             'Topology description changed',
             attr
           );
@@ -2005,17 +2028,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
               failure: null,
               duration: evt.duration,
             });
-            // TODO(COMPASS-6650): add debug to logging package
-            log.write({
-              s: 'D2',
-              id: mongoLogId(1_001_000_022),
-              ctx: this._logCtx(),
-              msg: 'Server heartbeat succeeded',
-              attr: {
+            this._logger.debug(
+              mongoLogId(1_001_000_022),
+              'Server heartbeat succeeded',
+              {
                 connectionId: evt.connectionId,
                 duration: evt.duration,
-              },
-            });
+              }
+            );
           }
         }
       );
@@ -2031,9 +2051,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
             failure: evt.failure.message,
             duration: evt.duration,
           });
-          log.warn(
+          this._logger.warn(
             mongoLogId(1_001_000_023),
-            this._logCtx(),
             'Server heartbeat failed',
             {
               connectionId: evt.connectionId,
@@ -2046,36 +2065,26 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
       client.on('commandSucceeded', (evt: CommandSucceededEvent) => {
         const { address, connectionId, duration, commandName } = evt;
-        // TODO(COMPASS-6650): add debug to logging package
-        log.write({
-          s: 'D2',
-          id: mongoLogId(1_001_000_029),
-          ctx: this._logCtx(),
-          msg: 'Driver command succeeded',
-          attr: {
+        this._logger.debug(
+          mongoLogId(1_001_000_029),
+          'Driver command succeeded',
+          {
             address,
             serverConnectionId: connectionId,
             duration,
             commandName,
-          },
-        });
+          }
+        );
       });
 
       client.on('commandFailed', (evt: CommandFailedEvent) => {
         const { address, connectionId, duration, commandName, failure } = evt;
-        // TODO(COMPASS-6650): add debug to logging package
-        log.write({
-          s: 'D1',
-          id: mongoLogId(1_001_000_030),
-          ctx: this._logCtx(),
-          msg: 'Driver command failed',
-          attr: {
-            address,
-            serverConnectionId: connectionId,
-            duration,
-            commandName,
-            failure: failure.message,
-          },
+        this._logger.debug(mongoLogId(1_001_000_030), 'Driver command failed', {
+          address,
+          serverConnectionId: connectionId,
+          duration,
+          commandName,
+          failure: failure.message,
         });
       });
     }

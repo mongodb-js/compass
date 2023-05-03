@@ -371,11 +371,8 @@ export const DropCollectionDropButton =
 export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
-export const ShellInput = '[data-testid="shell-content"] .ace_content';
-// TODO: add a proper data-testid to the editor component
-export const ShellInputEditor = '[id^="mongosh-ace-"]';
-export const ShellOutput =
-  '[data-testid="shell-content"] [data-codemirror="true"]';
+export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
+export const ShellOutput = '[data-testid="shell-output"]';
 
 // Query bar (Find, Schema, Explain Plan)
 export const QueryBarMenuActions = '#query-bar-menu-actions';
@@ -511,7 +508,13 @@ export const collectionHeaderTitle = (
 export const DocumentListActionBarMessage =
   '[data-testid="crud-document-count-display"]';
 export const ExportCollectionButton =
-  '[data-testid="export-collection-button"]';
+  '[data-testid="export-collection-button"]'; // TODO(COMPASS-6582): Remove.
+export const ExportCollectionMenuButton =
+  '[data-testid="crud-export-collection-show-actions"]';
+export const ExportCollectionQueryOption =
+  '[data-testid="crud-export-collection-export-query-action"]';
+export const ExportCollectionFullCollectionOption =
+  '[data-testid="crud-export-collection-export-full-collection-action"]';
 export const DocumentListFetching =
   '[data-testid="documents-content"] [data-testid="fetching-documents"]';
 export const DocumentListFetchingStopButton =
@@ -1039,25 +1042,38 @@ export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 
 // Export modal
 export const ExportModal = '[data-testid="export-modal"]';
-export const ExportModalQueryText =
-  '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"]';
+export const ExportModalCodePreview =
+  '[data-testid="export-modal"] [data-testid="export-collection-code-preview-wrapper"]';
+export const ExportQuerySelectFieldsOption =
+  '[data-testid="export-modal"] label[for="export-query-select-fields-option"]';
+export const ExportQueryAllFieldsOption =
+  '[data-testid="export-modal"] label[for="export-query-all-fields-option"]';
+export const ExportNextStepButton =
+  '[data-testid="export-modal"] [data-testid="export-next-step-button"]';
+export const ExportSelectAllFieldsCheckbox =
+  '[data-testid="export-modal"] [data-testid="export-fields-select-all-table-checkbox"]';
 export const ExportModalFullCollectionOption =
-  '[data-testid="export-modal"] [data-testid="export-full-collection"]';
+  '[data-testid="export-modal"] [data-testid="export-full-collection"]'; // TODO(COMPASS-6582): Remove.
 export const ExportModalSelectFieldsButton =
-  '[data-testid="export-modal"] [data-testid="select-fields-button"]';
+  '[data-testid="export-modal"] [data-testid="select-fields-button"]'; // TODO(COMPASS-6582): Remove.
 export const ExportModalSelectOutputButton =
-  '[data-testid="export-modal"] [data-testid="select-output-button"]';
+  '[data-testid="export-modal"] [data-testid="select-output-button"]'; // TODO(COMPASS-6582): Remove.
 export const ExportModalExportButton =
-  '[data-testid="export-modal"] [data-testid="export-button"]';
+  '[data-testid="export-modal"] [data-testid="export-button"]'; // TODO(COMPASS-6582): Remove.
 export const ExportModalShowFileButton =
-  '[data-testid="export-modal"] [data-testid="show-file-button"]';
+  '[data-testid="export-modal"] [data-testid="show-file-button"]'; // TODO(COMPASS-6582): Remove.
 export const ExportModalCloseButton =
-  '[data-testid="export-modal"] [data-testid="close-button"]';
+  '[data-testid="export-modal"] [data-testid="close-button"]'; // TODO(COMPASS-6582): Remove.
 export const ExportModalFileInput =
-  '[data-testid="export-modal"] #export-file_file_input';
+  '[data-testid="export-modal"] #export-file_file_input'; // // // // TODO(COMPASS-6582): Remove.
+export const ExportToast = '[data-testid="toast-export-toast"]';
+export const ExportToastAbort =
+  '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]'; // TODO: Add test that uses this.
+export const ExportToastShowFile =
+  '[data-testid="toast-export-toast"] [data-testid="toast-action-show file"]';
 
 export const exportModalExportField = (fieldName: string): string => {
-  return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
+  return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`; // TODO(COMPASS-6582): Remove.
 };
 
 // Export to language modal

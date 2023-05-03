@@ -27,7 +27,7 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "bson": "^5.0.1",
+    "bson": "^5.2.0",
     "lodash": "^4.17.15"
   },
   "devDependencies": {

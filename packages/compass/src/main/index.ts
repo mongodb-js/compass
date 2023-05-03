@@ -45,7 +45,6 @@ async function main(): Promise<void> {
   for (const [envvar, preference, preferenceValue] of [
     ['HADRON_ISOLATED', 'networkTraffic', false],
     ['HADRON_READONLY', 'readOnly', true],
-    ['COMPASS_LG_DARKMODE', 'lgDarkmode', true],
   ] as const) {
     if (process.env[envvar] === 'true') {
       globalPreferences.hardcoded = {

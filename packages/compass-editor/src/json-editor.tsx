@@ -1,25 +1,3 @@
-/**
- * TODO: We want to migrate all editors to codemirror from ace, as this involves
- * refactoring a decent amount of code in multiple places in the codebase, we
- * are starting with json editor as the first step because it supports the least
- * amount of functionality that other editors might need. The code in this file
- * should eventually become the new base-editor, when the following
- * functionality is covered:
- *
- * - [x] basic functionality: code highlighting for js and json, controlled /
- *       uncontrolled behavior, gutters, common hotkeys
- * - [x] leafygreen light and dark theme
- * - [x] inline mode (disabled gutter extensions and adjusted theme)
- * - [x] custom commands
- * - [ ] autocomplete
- *   - [x] query
- *   - [ ] stage
- *   - [ ] aggregation
- *   - [ ] validation
- * - [x] lint annotations (for agg. builder)
- *
- * https://jira.mongodb.org/browse/COMPASS-6481
- */
 import React, {
   useCallback,
   useEffect,

@@ -1,64 +1,64 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Fri Apr 28 2023.
+This document was automatically generated on Tue May 02 2023.
 
 ## List of dependencies
 
 | Name | Version | License |
 | --- | --- | --- |
-| [@aws-sdk/client-cognito-identity](#@aws-sdk/client-cognito-identity-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/client-sso](#@aws-sdk/client-sso-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/client-sso-oidc](#@aws-sdk/client-sso-oidc-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/client-sts](#@aws-sdk/client-sts-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/config-resolver](#@aws-sdk/config-resolver-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-cognito-identity](#@aws-sdk/credential-provider-cognito-identity-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-env](#@aws-sdk/credential-provider-env-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-imds](#@aws-sdk/credential-provider-imds-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-ini](#@aws-sdk/credential-provider-ini-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-node](#@aws-sdk/credential-provider-node-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-process](#@aws-sdk/credential-provider-process-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-sso](#@aws-sdk/credential-provider-sso-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-provider-web-identity](#@aws-sdk/credential-provider-web-identity-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/credential-providers](#@aws-sdk/credential-providers-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/hash-node](#@aws-sdk/hash-node-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/is-array-buffer](#@aws-sdk/is-array-buffer-3.201.0) | 3.201.0 | Apache-2.0 |
-| [@aws-sdk/middleware-content-length](#@aws-sdk/middleware-content-length-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-endpoint](#@aws-sdk/middleware-endpoint-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-host-header](#@aws-sdk/middleware-host-header-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-logger](#@aws-sdk/middleware-logger-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-recursion-detection](#@aws-sdk/middleware-recursion-detection-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-retry](#@aws-sdk/middleware-retry-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-sdk-sts](#@aws-sdk/middleware-sdk-sts-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-serde](#@aws-sdk/middleware-serde-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-signing](#@aws-sdk/middleware-signing-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-stack](#@aws-sdk/middleware-stack-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/middleware-user-agent](#@aws-sdk/middleware-user-agent-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/node-config-provider](#@aws-sdk/node-config-provider-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/node-http-handler](#@aws-sdk/node-http-handler-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/property-provider](#@aws-sdk/property-provider-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/protocol-http](#@aws-sdk/protocol-http-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/querystring-builder](#@aws-sdk/querystring-builder-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/querystring-parser](#@aws-sdk/querystring-parser-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/service-error-classification](#@aws-sdk/service-error-classification-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/shared-ini-file-loader](#@aws-sdk/shared-ini-file-loader-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/signature-v4](#@aws-sdk/signature-v4-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/smithy-client](#@aws-sdk/smithy-client-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/token-providers](#@aws-sdk/token-providers-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/types](#@aws-sdk/types-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/url-parser](#@aws-sdk/url-parser-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-base64](#@aws-sdk/util-base64-3.208.0) | 3.208.0 | Apache-2.0 |
-| [@aws-sdk/util-body-length-node](#@aws-sdk/util-body-length-node-3.208.0) | 3.208.0 | Apache-2.0 |
-| [@aws-sdk/util-buffer-from](#@aws-sdk/util-buffer-from-3.208.0) | 3.208.0 | Apache-2.0 |
-| [@aws-sdk/util-config-provider](#@aws-sdk/util-config-provider-3.208.0) | 3.208.0 | Apache-2.0 |
-| [@aws-sdk/util-defaults-mode-node](#@aws-sdk/util-defaults-mode-node-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-endpoints](#@aws-sdk/util-endpoints-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-hex-encoding](#@aws-sdk/util-hex-encoding-3.201.0) | 3.201.0 | Apache-2.0 |
-| [@aws-sdk/util-middleware](#@aws-sdk/util-middleware-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-retry](#@aws-sdk/util-retry-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-uri-escape](#@aws-sdk/util-uri-escape-3.201.0) | 3.201.0 | Apache-2.0 |
-| [@aws-sdk/util-user-agent-node](#@aws-sdk/util-user-agent-node-3.267.0) | 3.267.0 | Apache-2.0 |
-| [@aws-sdk/util-utf8](#@aws-sdk/util-utf8-3.254.0) | 3.254.0 | Apache-2.0 |
+| [@aws-sdk/client-cognito-identity](#@aws-sdk/client-cognito-identity-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/client-sso](#@aws-sdk/client-sso-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/client-sso-oidc](#@aws-sdk/client-sso-oidc-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/client-sts](#@aws-sdk/client-sts-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/config-resolver](#@aws-sdk/config-resolver-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-provider-cognito-identity](#@aws-sdk/credential-provider-cognito-identity-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/credential-provider-env](#@aws-sdk/credential-provider-env-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-provider-imds](#@aws-sdk/credential-provider-imds-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-provider-ini](#@aws-sdk/credential-provider-ini-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/credential-provider-node](#@aws-sdk/credential-provider-node-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/credential-provider-process](#@aws-sdk/credential-provider-process-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-provider-sso](#@aws-sdk/credential-provider-sso-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/credential-provider-web-identity](#@aws-sdk/credential-provider-web-identity-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/credential-providers](#@aws-sdk/credential-providers-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/hash-node](#@aws-sdk/hash-node-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/is-array-buffer](#@aws-sdk/is-array-buffer-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-content-length](#@aws-sdk/middleware-content-length-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-endpoint](#@aws-sdk/middleware-endpoint-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-host-header](#@aws-sdk/middleware-host-header-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-logger](#@aws-sdk/middleware-logger-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-recursion-detection](#@aws-sdk/middleware-recursion-detection-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-retry](#@aws-sdk/middleware-retry-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-sdk-sts](#@aws-sdk/middleware-sdk-sts-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-serde](#@aws-sdk/middleware-serde-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-signing](#@aws-sdk/middleware-signing-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-stack](#@aws-sdk/middleware-stack-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/middleware-user-agent](#@aws-sdk/middleware-user-agent-3.319.0) | 3.319.0 | Apache-2.0 |
+| [@aws-sdk/node-config-provider](#@aws-sdk/node-config-provider-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/node-http-handler](#@aws-sdk/node-http-handler-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/property-provider](#@aws-sdk/property-provider-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/protocol-http](#@aws-sdk/protocol-http-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/querystring-builder](#@aws-sdk/querystring-builder-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/querystring-parser](#@aws-sdk/querystring-parser-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/service-error-classification](#@aws-sdk/service-error-classification-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/shared-ini-file-loader](#@aws-sdk/shared-ini-file-loader-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/signature-v4](#@aws-sdk/signature-v4-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/smithy-client](#@aws-sdk/smithy-client-3.316.0) | 3.316.0 | Apache-2.0 |
+| [@aws-sdk/token-providers](#@aws-sdk/token-providers-3.321.1) | 3.321.1 | Apache-2.0 |
+| [@aws-sdk/types](#@aws-sdk/types-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/url-parser](#@aws-sdk/url-parser-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-base64](#@aws-sdk/util-base64-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-body-length-node](#@aws-sdk/util-body-length-node-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-buffer-from](#@aws-sdk/util-buffer-from-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-config-provider](#@aws-sdk/util-config-provider-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-defaults-mode-node](#@aws-sdk/util-defaults-mode-node-3.316.0) | 3.316.0 | Apache-2.0 |
+| [@aws-sdk/util-endpoints](#@aws-sdk/util-endpoints-3.319.0) | 3.319.0 | Apache-2.0 |
+| [@aws-sdk/util-hex-encoding](#@aws-sdk/util-hex-encoding-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-middleware](#@aws-sdk/util-middleware-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-retry](#@aws-sdk/util-retry-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-uri-escape](#@aws-sdk/util-uri-escape-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-user-agent-node](#@aws-sdk/util-user-agent-node-3.310.0) | 3.310.0 | Apache-2.0 |
+| [@aws-sdk/util-utf8](#@aws-sdk/util-utf8-3.310.0) | 3.310.0 | Apache-2.0 |
 | [@babel/code-frame](#@babel/code-frame-7.21.4) | 7.21.4 | MIT |
 | [@babel/compat-data](#@babel/compat-data-7.21.4) | 7.21.4 | MIT |
 | [@babel/core](#@babel/core-7.16.0) | 7.16.0 | MIT |
@@ -132,7 +132,6 @@ This document was automatically generated on Fri Apr 28 2023.
 | [@segment/loosely-validate-event](#@segment/loosely-validate-event-2.0.0) | 2.0.0 | MIT |
 | [@sindresorhus/is](#@sindresorhus/is-2.1.1) | 2.1.1 | MIT |
 | [@szmarczak/http-timer](#@szmarczak/http-timer-4.0.5) | 4.0.5 | MIT |
-| [ace-builds](#ace-builds-1.11.2) | 1.11.2 | BSD-3-Clause |
 | [acorn](#acorn-8.8.2) | 8.8.2 | MIT |
 | [ag-grid-community](#ag-grid-community-20.2.0) | 20.2.0 | MIT |
 | [ag-grid-react](#ag-grid-react-20.2.0) | 20.2.0 | MIT |
@@ -176,7 +175,7 @@ This document was automatically generated on Fri Apr 28 2023.
 | [bl](#bl-4.1.0) | 4.1.0 | MIT |
 | [boom](#boom-4.3.1) | 4.3.1 | BSD-3-Clause |
 | [brace-expansion](#brace-expansion-1.1.11) | 1.1.11 | MIT |
-| [bson](#bson-5.0.1) | 5.0.1 | Apache-2.0 |
+| [bson](#bson-5.2.0) | 5.2.0 | Apache-2.0 |
 | [bson](#bson-1.1.6) | 1.1.6 | Apache-2.0 |
 | [bson](#bson-4.7.2) | 4.7.2 | Apache-2.0 |
 | [buffer](#buffer-5.7.1) | 5.7.1 | MIT |
@@ -230,7 +229,6 @@ This document was automatically generated on Fri Apr 28 2023.
 | [delegate-events](#delegate-events-1.1.1) | 1.1.1 | MIT |
 | [denque](#denque-1.5.0) | 1.5.0 | Apache-2.0 |
 | [detect-libc](#detect-libc-2.0.1) | 2.0.1 | Apache-2.0 |
-| [diff-match-patch](#diff-match-patch-1.0.5) | 1.0.5 | Apache-2.0 |
 | [domify](#domify-1.4.1) | 1.4.1 | MIT |
 | [duplexer2](#duplexer2-0.1.4) | 0.1.4 | BSD-3-Clause |
 | [duplexer3](#duplexer3-0.1.4) | 0.1.4 | BSD-3-Clause |
@@ -258,7 +256,7 @@ This document was automatically generated on Fri Apr 28 2023.
 | [fast-deep-equal](#fast-deep-equal-2.0.1) | 2.0.1 | MIT |
 | [fast-json-stable-stringify](#fast-json-stable-stringify-2.1.0) | 2.1.0 | MIT |
 | [fast-memoize](#fast-memoize-2.5.2) | 2.5.2 | MIT |
-| [fast-xml-parser](#fast-xml-parser-4.0.11) | 4.0.11 | MIT |
+| [fast-xml-parser](#fast-xml-parser-4.1.2) | 4.1.2 | MIT |
 | [file-uri-to-path](#file-uri-to-path-1.0.0) | 1.0.0 | MIT |
 | [first-chunk-stream](#first-chunk-stream-3.0.0) | 3.0.0 | MIT |
 | [flat](#flat-5.0.0) | 5.0.0 | BSD-3-Clause |
@@ -485,17 +483,17 @@ This document was automatically generated on Fri Apr 28 2023.
 | [mkdirp-classic](#mkdirp-classic-0.5.3) | 0.5.3 | MIT |
 | [modify-filename](#modify-filename-1.1.0) | 1.1.0 | MIT |
 | [moment](#moment-2.29.1) | 2.29.1 | MIT |
-| [mongodb](#mongodb-5.1.0) | 5.1.0 | Apache-2.0 |
+| [mongodb](#mongodb-5.3.0) | 5.3.0 | Apache-2.0 |
 | [mongodb](#mongodb-3.6.9) | 3.6.9 | Apache-2.0 |
 | [mongodb-build-info](#mongodb-build-info-1.5.0) | 1.5.0 | Apache-2.0 |
-| [mongodb-client-encryption](#mongodb-client-encryption-2.6.0) | 2.6.0 | Apache-2.0 |
+| [mongodb-client-encryption](#mongodb-client-encryption-2.7.1) | 2.7.1 | Apache-2.0 |
 | [mongodb-cloud-info](#mongodb-cloud-info-1.1.3) | 1.1.3 | Apache-2.0 |
 | [mongodb-connection-string-url](#mongodb-connection-string-url-2.6.0) | 2.6.0 | Apache-2.0 |
 | [mongodb-js-errors](#mongodb-js-errors-0.3.3) | 0.3.3 | Apache-2.0 |
 | [mongodb-language-model](#mongodb-language-model-1.7.1) | 1.7.1 | Apache-2.0 |
-| [mongodb-log-writer](#mongodb-log-writer-1.1.5) | 1.1.5 | Apache-2.0 |
+| [mongodb-log-writer](#mongodb-log-writer-1.2.0) | 1.2.0 | Apache-2.0 |
 | [mongodb-ns](#mongodb-ns-2.4.0) | 2.4.0 | MIT |
-| [mongodb-query-parser](#mongodb-query-parser-2.4.8) | 2.4.8 | Apache-2.0 |
+| [mongodb-query-parser](#mongodb-query-parser-2.5.0) | 2.5.0 | Apache-2.0 |
 | [mongodb-query-util](#mongodb-query-util-0.0.3) | 0.0.3 | Apache-2.0 |
 | [mongodb-query-util](#mongodb-query-util-0.2.1) | 0.2.1 | Apache-2.0 |
 | [mongodb-redact](#mongodb-redact-0.2.2) | 0.2.2 | Apache-2.0 |
@@ -542,7 +540,6 @@ This document was automatically generated on Fri Apr 28 2023.
 | [rc](#rc-1.2.8) | 1.2.8 | MIT |
 | [re-resizable](#re-resizable-6.9.0) | 6.9.0 | MIT |
 | [react](#react-17.0.2) | 17.0.2 | MIT |
-| [react-ace](#react-ace-9.5.0) | 9.5.0 | MIT |
 | [react-dom](#react-dom-17.0.2) | 17.0.2 | MIT |
 | [react-hotkeys-hook](#react-hotkeys-hook-4.3.7) | 4.3.7 | MIT |
 | [react-intersection-observer](#react-intersection-observer-8.34.0) | 8.34.0 | MIT |
@@ -649,8 +646,8 @@ This document was automatically generated on Fri Apr 28 2023.
 
 ## Details
 
-<a id="@aws-sdk/client-cognito-identity-3.267.0"></a>
-### @aws-sdk/client-cognito-identity 3.267.0
+<a id="@aws-sdk/client-cognito-identity-3.321.1"></a>
+### @aws-sdk/client-cognito-identity 3.321.1
 
 **License**: Apache-2.0
 
@@ -865,8 +862,8 @@ This document was automatically generated on Fri Apr 28 2023.
 
 ```
 
-<a id="@aws-sdk/client-sso-3.267.0"></a>
-### @aws-sdk/client-sso 3.267.0
+<a id="@aws-sdk/client-sso-3.321.1"></a>
+### @aws-sdk/client-sso 3.321.1
 
 **License**: Apache-2.0
 
@@ -1081,8 +1078,8 @@ This document was automatically generated on Fri Apr 28 2023.
 
 ```
 
-<a id="@aws-sdk/client-sso-oidc-3.267.0"></a>
-### @aws-sdk/client-sso-oidc 3.267.0
+<a id="@aws-sdk/client-sso-oidc-3.321.1"></a>
+### @aws-sdk/client-sso-oidc 3.321.1
 
 **License**: Apache-2.0
 
@@ -1297,8 +1294,8 @@ This document was automatically generated on Fri Apr 28 2023.
 
 ```
 
-<a id="@aws-sdk/client-sts-3.267.0"></a>
-### @aws-sdk/client-sts 3.267.0
+<a id="@aws-sdk/client-sts-3.321.1"></a>
+### @aws-sdk/client-sts 3.321.1
 
 **License**: Apache-2.0
 
@@ -1513,8 +1510,8 @@ This document was automatically generated on Fri Apr 28 2023.
 
 ```
 
-<a id="@aws-sdk/config-resolver-3.267.0"></a>
-### @aws-sdk/config-resolver 3.267.0
+<a id="@aws-sdk/config-resolver-3.310.0"></a>
+### @aws-sdk/config-resolver 3.310.0
 
 **License**: Apache-2.0
 
@@ -1728,8 +1725,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-cognito-identity-3.267.0"></a>
-### @aws-sdk/credential-provider-cognito-identity 3.267.0
+<a id="@aws-sdk/credential-provider-cognito-identity-3.321.1"></a>
+### @aws-sdk/credential-provider-cognito-identity 3.321.1
 
 **License**: Apache-2.0
 
@@ -1944,8 +1941,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/credential-provider-env-3.267.0"></a>
-### @aws-sdk/credential-provider-env 3.267.0
+<a id="@aws-sdk/credential-provider-env-3.310.0"></a>
+### @aws-sdk/credential-provider-env 3.310.0
 
 **License**: Apache-2.0
 
@@ -2159,8 +2156,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-imds-3.267.0"></a>
-### @aws-sdk/credential-provider-imds 3.267.0
+<a id="@aws-sdk/credential-provider-imds-3.310.0"></a>
+### @aws-sdk/credential-provider-imds 3.310.0
 
 **License**: Apache-2.0
 
@@ -2374,8 +2371,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-ini-3.267.0"></a>
-### @aws-sdk/credential-provider-ini 3.267.0
+<a id="@aws-sdk/credential-provider-ini-3.321.1"></a>
+### @aws-sdk/credential-provider-ini 3.321.1
 
 **License**: Apache-2.0
 
@@ -2589,8 +2586,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-node-3.267.0"></a>
-### @aws-sdk/credential-provider-node 3.267.0
+<a id="@aws-sdk/credential-provider-node-3.321.1"></a>
+### @aws-sdk/credential-provider-node 3.321.1
 
 **License**: Apache-2.0
 
@@ -2804,8 +2801,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-process-3.267.0"></a>
-### @aws-sdk/credential-provider-process 3.267.0
+<a id="@aws-sdk/credential-provider-process-3.310.0"></a>
+### @aws-sdk/credential-provider-process 3.310.0
 
 **License**: Apache-2.0
 
@@ -3019,8 +3016,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-sso-3.267.0"></a>
-### @aws-sdk/credential-provider-sso 3.267.0
+<a id="@aws-sdk/credential-provider-sso-3.321.1"></a>
+### @aws-sdk/credential-provider-sso 3.321.1
 
 **License**: Apache-2.0
 
@@ -3234,8 +3231,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-provider-web-identity-3.267.0"></a>
-### @aws-sdk/credential-provider-web-identity 3.267.0
+<a id="@aws-sdk/credential-provider-web-identity-3.310.0"></a>
+### @aws-sdk/credential-provider-web-identity 3.310.0
 
 **License**: Apache-2.0
 
@@ -3449,8 +3446,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/credential-providers-3.267.0"></a>
-### @aws-sdk/credential-providers 3.267.0
+<a id="@aws-sdk/credential-providers-3.321.1"></a>
+### @aws-sdk/credential-providers 3.321.1
 
 **License**: Apache-2.0
 
@@ -3664,8 +3661,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/hash-node-3.267.0"></a>
-### @aws-sdk/hash-node 3.267.0
+<a id="@aws-sdk/hash-node-3.310.0"></a>
+### @aws-sdk/hash-node 3.310.0
 
 **License**: Apache-2.0
 
@@ -3879,8 +3876,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/is-array-buffer-3.201.0"></a>
-### @aws-sdk/is-array-buffer 3.201.0
+<a id="@aws-sdk/is-array-buffer-3.310.0"></a>
+### @aws-sdk/is-array-buffer 3.310.0
 
 **License**: Apache-2.0
 
@@ -4094,8 +4091,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-content-length-3.267.0"></a>
-### @aws-sdk/middleware-content-length 3.267.0
+<a id="@aws-sdk/middleware-content-length-3.310.0"></a>
+### @aws-sdk/middleware-content-length 3.310.0
 
 **License**: Apache-2.0
 
@@ -4309,8 +4306,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-endpoint-3.267.0"></a>
-### @aws-sdk/middleware-endpoint 3.267.0
+<a id="@aws-sdk/middleware-endpoint-3.310.0"></a>
+### @aws-sdk/middleware-endpoint 3.310.0
 
 **License**: Apache-2.0
 
@@ -4524,8 +4521,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-host-header-3.267.0"></a>
-### @aws-sdk/middleware-host-header 3.267.0
+<a id="@aws-sdk/middleware-host-header-3.310.0"></a>
+### @aws-sdk/middleware-host-header 3.310.0
 
 **License**: Apache-2.0
 
@@ -4740,8 +4737,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-logger-3.267.0"></a>
-### @aws-sdk/middleware-logger 3.267.0
+<a id="@aws-sdk/middleware-logger-3.310.0"></a>
+### @aws-sdk/middleware-logger 3.310.0
 
 **License**: Apache-2.0
 
@@ -4955,8 +4952,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-recursion-detection-3.267.0"></a>
-### @aws-sdk/middleware-recursion-detection 3.267.0
+<a id="@aws-sdk/middleware-recursion-detection-3.310.0"></a>
+### @aws-sdk/middleware-recursion-detection 3.310.0
 
 **License**: Apache-2.0
 
@@ -5171,8 +5168,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-retry-3.267.0"></a>
-### @aws-sdk/middleware-retry 3.267.0
+<a id="@aws-sdk/middleware-retry-3.310.0"></a>
+### @aws-sdk/middleware-retry 3.310.0
 
 **License**: Apache-2.0
 
@@ -5387,8 +5384,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-sdk-sts-3.267.0"></a>
-### @aws-sdk/middleware-sdk-sts 3.267.0
+<a id="@aws-sdk/middleware-sdk-sts-3.310.0"></a>
+### @aws-sdk/middleware-sdk-sts 3.310.0
 
 **License**: Apache-2.0
 
@@ -5603,8 +5600,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-serde-3.267.0"></a>
-### @aws-sdk/middleware-serde 3.267.0
+<a id="@aws-sdk/middleware-serde-3.310.0"></a>
+### @aws-sdk/middleware-serde 3.310.0
 
 **License**: Apache-2.0
 
@@ -5819,8 +5816,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/middleware-signing-3.267.0"></a>
-### @aws-sdk/middleware-signing 3.267.0
+<a id="@aws-sdk/middleware-signing-3.310.0"></a>
+### @aws-sdk/middleware-signing 3.310.0
 
 **License**: Apache-2.0
 
@@ -6034,8 +6031,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-stack-3.267.0"></a>
-### @aws-sdk/middleware-stack 3.267.0
+<a id="@aws-sdk/middleware-stack-3.310.0"></a>
+### @aws-sdk/middleware-stack 3.310.0
 
 **License**: Apache-2.0
 
@@ -6249,8 +6246,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/middleware-user-agent-3.267.0"></a>
-### @aws-sdk/middleware-user-agent 3.267.0
+<a id="@aws-sdk/middleware-user-agent-3.319.0"></a>
+### @aws-sdk/middleware-user-agent 3.319.0
 
 **License**: Apache-2.0
 
@@ -6465,8 +6462,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/node-config-provider-3.267.0"></a>
-### @aws-sdk/node-config-provider 3.267.0
+<a id="@aws-sdk/node-config-provider-3.310.0"></a>
+### @aws-sdk/node-config-provider 3.310.0
 
 **License**: Apache-2.0
 
@@ -6680,8 +6677,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/node-http-handler-3.267.0"></a>
-### @aws-sdk/node-http-handler 3.267.0
+<a id="@aws-sdk/node-http-handler-3.321.1"></a>
+### @aws-sdk/node-http-handler 3.321.1
 
 **License**: Apache-2.0
 
@@ -6895,8 +6892,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/property-provider-3.267.0"></a>
-### @aws-sdk/property-provider 3.267.0
+<a id="@aws-sdk/property-provider-3.310.0"></a>
+### @aws-sdk/property-provider 3.310.0
 
 **License**: Apache-2.0
 
@@ -7110,8 +7107,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/protocol-http-3.267.0"></a>
-### @aws-sdk/protocol-http 3.267.0
+<a id="@aws-sdk/protocol-http-3.310.0"></a>
+### @aws-sdk/protocol-http 3.310.0
 
 **License**: Apache-2.0
 
@@ -7326,8 +7323,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/querystring-builder-3.267.0"></a>
-### @aws-sdk/querystring-builder 3.267.0
+<a id="@aws-sdk/querystring-builder-3.310.0"></a>
+### @aws-sdk/querystring-builder 3.310.0
 
 **License**: Apache-2.0
 
@@ -7542,8 +7539,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/querystring-parser-3.267.0"></a>
-### @aws-sdk/querystring-parser 3.267.0
+<a id="@aws-sdk/querystring-parser-3.310.0"></a>
+### @aws-sdk/querystring-parser 3.310.0
 
 **License**: Apache-2.0
 
@@ -7758,8 +7755,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/service-error-classification-3.267.0"></a>
-### @aws-sdk/service-error-classification 3.267.0
+<a id="@aws-sdk/service-error-classification-3.310.0"></a>
+### @aws-sdk/service-error-classification 3.310.0
 
 **License**: Apache-2.0
 
@@ -7974,8 +7971,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/shared-ini-file-loader-3.267.0"></a>
-### @aws-sdk/shared-ini-file-loader 3.267.0
+<a id="@aws-sdk/shared-ini-file-loader-3.310.0"></a>
+### @aws-sdk/shared-ini-file-loader 3.310.0
 
 **License**: Apache-2.0
 
@@ -8189,8 +8186,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/signature-v4-3.267.0"></a>
-### @aws-sdk/signature-v4 3.267.0
+<a id="@aws-sdk/signature-v4-3.310.0"></a>
+### @aws-sdk/signature-v4 3.310.0
 
 **License**: Apache-2.0
 
@@ -8404,8 +8401,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/smithy-client-3.267.0"></a>
-### @aws-sdk/smithy-client 3.267.0
+<a id="@aws-sdk/smithy-client-3.316.0"></a>
+### @aws-sdk/smithy-client 3.316.0
 
 **License**: Apache-2.0
 
@@ -8620,8 +8617,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/token-providers-3.267.0"></a>
-### @aws-sdk/token-providers 3.267.0
+<a id="@aws-sdk/token-providers-3.321.1"></a>
+### @aws-sdk/token-providers 3.321.1
 
 **License**: Apache-2.0
 
@@ -8835,8 +8832,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/types-3.267.0"></a>
-### @aws-sdk/types 3.267.0
+<a id="@aws-sdk/types-3.310.0"></a>
+### @aws-sdk/types 3.310.0
 
 **License**: Apache-2.0
 
@@ -9050,8 +9047,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/url-parser-3.267.0"></a>
-### @aws-sdk/url-parser 3.267.0
+<a id="@aws-sdk/url-parser-3.310.0"></a>
+### @aws-sdk/url-parser 3.310.0
 
 **License**: Apache-2.0
 
@@ -9266,8 +9263,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/util-base64-3.208.0"></a>
-### @aws-sdk/util-base64 3.208.0
+<a id="@aws-sdk/util-base64-3.310.0"></a>
+### @aws-sdk/util-base64 3.310.0
 
 **License**: Apache-2.0
 
@@ -9481,8 +9478,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-body-length-node-3.208.0"></a>
-### @aws-sdk/util-body-length-node 3.208.0
+<a id="@aws-sdk/util-body-length-node-3.310.0"></a>
+### @aws-sdk/util-body-length-node 3.310.0
 
 **License**: Apache-2.0
 
@@ -9696,8 +9693,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-buffer-from-3.208.0"></a>
-### @aws-sdk/util-buffer-from 3.208.0
+<a id="@aws-sdk/util-buffer-from-3.310.0"></a>
+### @aws-sdk/util-buffer-from 3.310.0
 
 **License**: Apache-2.0
 
@@ -9911,8 +9908,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-config-provider-3.208.0"></a>
-### @aws-sdk/util-config-provider 3.208.0
+<a id="@aws-sdk/util-config-provider-3.310.0"></a>
+### @aws-sdk/util-config-provider 3.310.0
 
 **License**: Apache-2.0
 
@@ -10126,8 +10123,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-defaults-mode-node-3.267.0"></a>
-### @aws-sdk/util-defaults-mode-node 3.267.0
+<a id="@aws-sdk/util-defaults-mode-node-3.316.0"></a>
+### @aws-sdk/util-defaults-mode-node 3.316.0
 
 **License**: Apache-2.0
 
@@ -10342,8 +10339,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/util-endpoints-3.267.0"></a>
-### @aws-sdk/util-endpoints 3.267.0
+<a id="@aws-sdk/util-endpoints-3.319.0"></a>
+### @aws-sdk/util-endpoints 3.319.0
 
 **License**: Apache-2.0
 
@@ -10557,8 +10554,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-hex-encoding-3.201.0"></a>
-### @aws-sdk/util-hex-encoding 3.201.0
+<a id="@aws-sdk/util-hex-encoding-3.310.0"></a>
+### @aws-sdk/util-hex-encoding 3.310.0
 
 **License**: Apache-2.0
 
@@ -10772,8 +10769,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-middleware-3.267.0"></a>
-### @aws-sdk/util-middleware 3.267.0
+<a id="@aws-sdk/util-middleware-3.310.0"></a>
+### @aws-sdk/util-middleware 3.310.0
 
 **License**: Apache-2.0
 
@@ -10987,8 +10984,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-retry-3.267.0"></a>
-### @aws-sdk/util-retry 3.267.0
+<a id="@aws-sdk/util-retry-3.310.0"></a>
+### @aws-sdk/util-retry 3.310.0
 
 **License**: Apache-2.0
 
@@ -11202,8 +11199,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-uri-escape-3.201.0"></a>
-### @aws-sdk/util-uri-escape 3.201.0
+<a id="@aws-sdk/util-uri-escape-3.310.0"></a>
+### @aws-sdk/util-uri-escape 3.310.0
 
 **License**: Apache-2.0
 
@@ -11417,8 +11414,8 @@ Apache License
    limitations under the License.
 ```
 
-<a id="@aws-sdk/util-user-agent-node-3.267.0"></a>
-### @aws-sdk/util-user-agent-node 3.267.0
+<a id="@aws-sdk/util-user-agent-node-3.310.0"></a>
+### @aws-sdk/util-user-agent-node 3.310.0
 
 **License**: Apache-2.0
 
@@ -11633,8 +11630,8 @@ Apache License
 
 ```
 
-<a id="@aws-sdk/util-utf8-3.254.0"></a>
-### @aws-sdk/util-utf8 3.254.0
+<a id="@aws-sdk/util-utf8-3.310.0"></a>
+### @aws-sdk/util-utf8 3.310.0
 
 **License**: Apache-2.0
 
@@ -16052,43 +16049,6 @@ SOFTWARE.
 
 ```
 
-<a id="ace-builds-1.11.2"></a>
-### ace-builds 1.11.2
-
-**License**: BSD-3-Clause
-
-**Repository**: https://github.com/ajaxorg/ace-builds.git
-
-**License Text**:
-
-```
-Copyright (c) 2010, Ajax.org B.V.
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of Ajax.org B.V. nor the
-      names of its contributors may be used to endorse or promote products
-      derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL AJAX.ORG B.V. BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-```
-
 <a id="acorn-8.8.2"></a>
 ### acorn 8.8.2
 
@@ -17543,8 +17503,8 @@ SOFTWARE.
 
 ```
 
-<a id="bson-5.0.1"></a>
-### bson 5.0.1
+<a id="bson-5.2.0"></a>
+### bson 5.2.0
 
 **License**: Apache-2.0
 
@@ -19846,220 +19806,6 @@ limitations under the License.
 
 ```
 
-<a id="diff-match-patch-1.0.5"></a>
-### diff-match-patch 1.0.5
-
-**License**: Apache-2.0
-
-**Repository**: https://github.com/JackuB/diff-match-patch.git
-
-**License Text**:
-
-```
-
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
-
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
-
-   1. Definitions.
-
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
-
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
-
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
-
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
-
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
-
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
-
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
-
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
-
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
-
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
-
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
-
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
-
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
-
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
-
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
-
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
-
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
-
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
-
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
-
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
-
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
-
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
-
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
-
-   END OF TERMS AND CONDITIONS
-
-   APPENDIX: How to apply the Apache License to your work.
-
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
-
-   Copyright [yyyy] [name of copyright owner]
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-```
-
 <a id="domify-1.4.1"></a>
 ### domify 1.4.1
 
@@ -21085,8 +20831,8 @@ SOFTWARE.
 
 ```
 
-<a id="fast-xml-parser-4.0.11"></a>
-### fast-xml-parser 4.0.11
+<a id="fast-xml-parser-4.1.2"></a>
+### fast-xml-parser 4.1.2
 
 **License**: MIT
 
@@ -30741,8 +30487,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="mongodb-5.1.0"></a>
-### mongodb 5.1.0
+<a id="mongodb-5.3.0"></a>
+### mongodb 5.3.0
 
 **License**: Apache-2.0
 
@@ -31385,8 +31131,8 @@ Apache License
 
 ```
 
-<a id="mongodb-client-encryption-2.6.0"></a>
-### mongodb-client-encryption 2.6.0
+<a id="mongodb-client-encryption-2.7.1"></a>
+### mongodb-client-encryption 2.7.1
 
 **License**: Apache-2.0
 
@@ -32453,8 +32199,8 @@ Apache License
 
 ```
 
-<a id="mongodb-log-writer-1.1.5"></a>
-### mongodb-log-writer 1.1.5
+<a id="mongodb-log-writer-1.2.0"></a>
+### mongodb-log-writer 1.2.0
 
 **License**: Apache-2.0
 
@@ -32693,8 +32439,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="mongodb-query-parser-2.4.8"></a>
-### mongodb-query-parser 2.4.8
+<a id="mongodb-query-parser-2.5.0"></a>
+### mongodb-query-parser 2.5.0
 
 **License**: Apache-2.0
 
@@ -40826,43 +40572,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-```
-
-<a id="react-ace-9.5.0"></a>
-### react-ace 9.5.0
-
-**License**: MIT
-
-**Author**: James Hrisho
-
-**Repository**: http://github.com/securingsincity/react-ace.git
-
-**License Text**:
-
-```
-The MIT License (MIT)
-
-Copyright (c) 2014 James Hrisho
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
 
 ```
 

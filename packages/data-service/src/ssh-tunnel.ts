@@ -1,18 +1,16 @@
 import { EventEmitter, once } from 'events';
-import createDebug from 'debug';
 import fs from 'fs';
 import crypto from 'crypto';
 import { promisify } from 'util';
-
 import SSHTunnel from '@mongodb-js/ssh-tunnel';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { MongoClientOptions } from 'mongodb';
-
 import type { ConnectionSshOptions } from './connection-options';
 import { redactSshTunnelOptions } from './redact';
+import type { UnboundDataServiceImplLogger } from './logger';
+import { debug as _debug, mongoLogId } from './logger';
 
-const debug = createDebug('mongodb-data-service:connect');
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-CONNECT');
+const debug = _debug.extend('ssh-tunnel');
+
 const randomBytes = promisify(crypto.randomBytes);
 
 type Socks5Options = Pick<
@@ -21,7 +19,8 @@ type Socks5Options = Pick<
 >;
 
 export async function openSshTunnel(
-  sshTunnelOptions: ConnectionSshOptions | undefined
+  sshTunnelOptions: ConnectionSshOptions | undefined,
+  logger?: UnboundDataServiceImplLogger
 ): Promise<[SSHTunnel | undefined, Socks5Options | undefined]> {
   if (!sshTunnelOptions) {
     return [undefined, undefined];
@@ -53,7 +52,8 @@ export async function openSshTunnel(
     tunnelConstructorOptions
   );
 
-  log.info(
+  logger?.info(
+    'COMPASS-DATA-SERVICE',
     mongoLogId(1_001_000_006),
     'SSHTunnel',
     'Creating SSH tunnel',
@@ -68,7 +68,12 @@ export async function openSshTunnel(
   await tunnel.listen();
   debug('ssh tunnel opened');
 
-  log.info(mongoLogId(1_001_000_007), 'SSHTunnel', 'SSH tunnel opened');
+  logger?.info(
+    'COMPASS-DATA-SERVICE',
+    mongoLogId(1_001_000_007),
+    'SSHTunnel',
+    'SSH tunnel opened'
+  );
 
   return [
     tunnel,
@@ -82,10 +87,16 @@ export async function openSshTunnel(
 }
 
 export async function forceCloseTunnel(
-  tunnelToClose?: SSHTunnel | void
+  tunnelToClose?: SSHTunnel | void,
+  logger?: UnboundDataServiceImplLogger
 ): Promise<void> {
   if (tunnelToClose) {
-    log.info(mongoLogId(1_001_000_008), 'SSHTunnel', 'Closing SSH tunnel');
+    logger?.info(
+      'COMPASS-DATA-SERVICE',
+      mongoLogId(1_001_000_008),
+      'SSHTunnel',
+      'Closing SSH tunnel'
+    );
     try {
       await tunnelToClose.close();
       debug('ssh tunnel stopped');

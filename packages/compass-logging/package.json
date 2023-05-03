@@ -50,7 +50,7 @@
   "dependencies": {
     "debug": "^4.2.0",
     "is-electron-renderer": "^2.0.1",
-    "mongodb-log-writer": "^1.1.5"
+    "mongodb-log-writer": "^1.2.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.5",

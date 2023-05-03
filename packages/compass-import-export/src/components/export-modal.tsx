@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -79,7 +79,7 @@ type ExportModalProps = {
   query?: ExportQuery;
   exportFullCollection?: boolean;
   aggregation?: ExportAggregation;
-  selectedFieldOption: undefined | FieldsToExportOption;
+  selectedFieldOption: FieldsToExportOption;
   isFieldsToExportLoading: boolean;
   selectFieldsToExport: () => void;
   readyToExport: (selectedFieldOption?: 'all-fields') => void;
@@ -149,6 +149,16 @@ function ExportModal({
     selectFieldsToExport();
   }, [readyToExport, selectFieldsToExport, fieldsToExportOption]);
 
+  const onSelectExportFilePath = useCallback(
+    (filePath: string) => {
+      runExport({
+        filePath,
+        fileType,
+      });
+    },
+    [runExport, fileType]
+  );
+
   const onClickExport = useCallback(() => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @typescript-eslint/no-var-requires
     const electron: typeof import('@electron/remote') = require('@electron/remote');
@@ -160,17 +170,39 @@ function ExportModal({
 
     fileBackend.onFilesChosen((files: string[]) => {
       if (files.length > 0) {
-        runExport({
-          filePath: files[0],
-          fileType,
-        });
+        onSelectExportFilePath(files[0]);
       }
     });
 
     fileBackend.openFileChooser({
       multi: false,
     });
-  }, [fileType, runExport, ns]);
+  }, [fileType, ns, onSelectExportFilePath]);
+
+  const onSelectExportFileNameEvent = useCallback(
+    ({ detail: filePath }: CustomEventInit<string>) => {
+      onSelectExportFilePath(filePath!);
+    },
+    [onSelectExportFilePath]
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      // For e2e testing we can't set the value of a file output
+      // for security reasons, so we listen to a dom event that sets it.
+      // https://github.com/electron-userland/spectron/issues/23
+      document.addEventListener(
+        'selectExportFileName',
+        onSelectExportFileNameEvent
+      );
+      return () => {
+        document.removeEventListener(
+          'selectExportFileName',
+          onSelectExportFileNameEvent
+        );
+      };
+    }
+  }, [isOpen, onSelectExportFileNameEvent]);
 
   return (
     <Modal open={isOpen} setOpen={closeExport} data-testid="export-modal">
@@ -195,7 +227,7 @@ function ExportModal({
               <>
                 <ExportCodeView />
                 {query && queryHasProjection(query) && (
-                  <Banner>
+                  <Banner data-testid="export-projection-banner">
                     Only projected fields will be exported. To export all
                     fields, go back and leave the <b>Project</b> field empty.
                   </Banner>
@@ -229,12 +261,17 @@ function ExportModal({
       </ModalBody>
       <ModalFooter>
         {status === 'select-field-options' && (
-          <Button onClick={onClickSelectFieldOptionsNext} variant="primary">
+          <Button
+            data-testid="export-next-step-button"
+            onClick={onClickSelectFieldOptionsNext}
+            variant="primary"
+          >
             Next
           </Button>
         )}
         {status === 'select-fields-to-export' && (
           <Button
+            data-testid="export-next-step-button"
             onClick={() => readyToExport()}
             disabled={isFieldsToExportLoading}
             variant="primary"
@@ -252,15 +289,24 @@ function ExportModal({
             Export…
           </Button>
         )}
-        {((status === 'ready-to-export' && !!selectedFieldOption) ||
+        {((status === 'ready-to-export' &&
+          !exportFullCollection &&
+          !aggregation) ||
           status === 'select-fields-to-export') && (
           <Button className={closeButtonStyles} onClick={onClickBack}>
             Back
           </Button>
         )}
-        {((status === 'ready-to-export' && !selectedFieldOption) ||
+        {((status === 'ready-to-export' &&
+          (aggregation ||
+            exportFullCollection ||
+            (query && queryHasProjection(query)))) ||
           status === 'select-field-options') && (
-          <Button className={closeButtonStyles} onClick={closeExport}>
+          <Button
+            data-testid="export-close-export-button"
+            className={closeButtonStyles}
+            onClick={closeExport}
+          >
             Cancel
           </Button>
         )}

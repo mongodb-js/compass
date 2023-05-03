@@ -6,3 +6,6 @@ export {
   useTrackOnChange,
   withLoggerAndTelemetry,
 } from './react';
+export { mongoLogId } from 'mongodb-log-writer';
+import createDebug from 'debug';
+export const debug = createDebug('mongodb-compass');

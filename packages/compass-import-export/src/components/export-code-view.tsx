@@ -16,7 +16,7 @@ type ExportCodeViewProps = {
   ns: string;
   query?: ExportQuery;
   fields: FieldsToExport;
-  selectedFieldOption: undefined | FieldsToExportOption;
+  selectedFieldOption: FieldsToExportOption;
 };
 
 function ExportCodeView({
@@ -53,7 +53,11 @@ function ExportCodeView({
   return (
     <div className={containerStyles}>
       <Body>Export results from the query below</Body>
-      <Code data-testid="export-code-view-code" language="javascript" copyable>
+      <Code
+        data-testid="export-collection-code-preview-wrapper"
+        language="javascript"
+        copyable
+      >
         {code}
       </Code>
     </div>

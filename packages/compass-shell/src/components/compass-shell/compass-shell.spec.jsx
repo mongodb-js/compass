@@ -42,6 +42,7 @@ describe('CompassShell', function () {
     });
 
     afterEach(function () {
+      wrapper.unmount();
       wrapper = null;
     });
 
@@ -70,9 +71,13 @@ describe('CompassShell', function () {
     context('when runtime property is not present', function () {
       it('does not render a shell if runtime is null', function () {
         const wrapper = mount(<CompassShell runtime={null} />);
-        wrapper.setState({ height: 300 });
-        wrapper.update();
-        expect(wrapper.find(Shell).exists()).to.equal(false);
+        try {
+          wrapper.setState({ height: 300 });
+          wrapper.update();
+          expect(wrapper.find(Shell).exists()).to.equal(false);
+        } finally {
+          wrapper?.unmount();
+        }
       });
     });
 
@@ -92,6 +97,7 @@ describe('CompassShell', function () {
         wrapper.update();
       });
       afterEach(function () {
+        wrapper.unmount();
         wrapper = null;
       });
 
@@ -179,7 +185,9 @@ describe('CompassShell', function () {
         wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
         wrapper.update();
       });
+
       afterEach(function () {
+        wrapper.unmount();
         wrapper = null;
       });
 
@@ -292,6 +300,7 @@ describe('CompassShell', function () {
       );
     });
     afterEach(function () {
+      wrapper.unmount();
       onOpenShellSpy = null;
       wrapper = null;
     });
@@ -301,7 +310,6 @@ describe('CompassShell', function () {
         wrapper.setState({ height: 199 });
         wrapper.update();
       });
-
       context('when the height is updated', function () {
         beforeEach(function () {
           wrapper.setState({ height: 131 });
@@ -327,12 +335,7 @@ describe('CompassShell', function () {
             expect(
               wrapper.find('[data-testid="shell-section"]').prop('style').height
             ).to.equal(32);
-            const shellDomNode = wrapper
-              .find('[data-testid="shell-content"]')
-              .getDOMNode();
-            const shellDisplayStyle =
-              getComputedStyle(shellDomNode).getPropertyValue('display');
-            expect(shellDisplayStyle).to.equal('none');
+            expect(wrapper.state('height')).to.equal(1);
           });
         });
       });
@@ -377,12 +380,7 @@ describe('CompassShell', function () {
             expect(
               wrapper.find('[data-testid="shell-section"]').prop('style').height
             ).to.equal(151);
-            const shellDomNode = wrapper
-              .find('[data-testid="shell-content"]')
-              .getDOMNode();
-            const shellDisplayStyle =
-              getComputedStyle(shellDomNode).getPropertyValue('display');
-            expect(shellDisplayStyle).to.equal('flex');
+            expect(wrapper.state('height')).to.equal(151);
           });
 
           it('calls the function prop emitShellPluginOpened', function () {

@@ -12,7 +12,6 @@ export * from './navigate-to-instance-tab';
 export * from './navigate-to-database-tab';
 export * from './navigate-to-collection-tab';
 export * from './run-find-operation';
-export * from './set-ace-value';
 export * from './focus-stage-operator';
 export * from './select-stage-operator';
 export * from './close-workspace-tabs';
