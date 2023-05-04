@@ -2,9 +2,9 @@ import React from 'react';
 import {
   css,
   spacing,
-  cx,
   SegmentedControl,
   SegmentedControlOption,
+  ListEditor,
 } from '@mongodb-js/compass-components';
 import Condition, {
   CONDITION_CONTROLS_WIDTH,
@@ -31,17 +31,14 @@ export type CreateGroupFn = (group?: Partial<MatchGroup>) => MatchGroup;
 
 // Helpers
 export const LABELS = {
-  addNestedGroupBtn: 'Add nested group',
-  removeGroupBtn: 'Remove group',
+  operatorSelect: 'Select a group operator',
 };
 
 export const TEST_IDS = {
   container: (id: number) => `match-group-${id}`,
-  header: (id: number) => `match-group-${id}-header`,
-  addNestedGroupBtn: (id: number) => `match-group-${id}-add-nested-group-btn`,
-  removeGroupBtn: (id: number) => `match-group-${id}-remove-group-btn`,
-  conditionsContainer: (id: number) => `match-group-${id}-conditions`,
-  nestedGroupsContainer: (id: number) => `match-group-${id}-nested-groups`,
+  operatorSelect: (id: number) => `match-group-${id}-operator-select`,
+  addConditionBtn: () => 'add-condition-button',
+  removeConditionBtn: () => 'remove-condition-button',
 };
 
 /**
@@ -64,24 +61,11 @@ export const makeCreateGroup = (
 export const createGroup = makeCreateGroup(createCondition);
 
 // Components - Group
-const groupHeaderStyles = css({
-  display: 'flex',
-  justifyContent: 'space-between',
-  width: `calc(100% - ${CONDITION_CONTROLS_WIDTH}px)`,
-});
-
 const groupStyles = css({
   display: 'flex',
   gap: spacing[3],
   flexDirection: 'column',
 });
-
-const conditionContainerStyles = cx(
-  groupStyles,
-  css({
-    paddingRight: spacing[2],
-  })
-);
 
 const Group = ({ fields, group, onGroupChange }: GroupProps) => {
   const handleOperatorChange = (operator: LogicalOperator) => {
@@ -130,41 +114,36 @@ const Group = ({ fields, group, onGroupChange }: GroupProps) => {
 
   return (
     <div data-testid={TEST_IDS.container(group.id)} className={groupStyles}>
-      <div
-        data-testid={TEST_IDS.header(group.id)}
-        className={groupHeaderStyles}
+      <SegmentedControl
+        size="small"
+        value={group.logicalOperator}
+        data-testid={TEST_IDS.operatorSelect(group.id)}
+        onChange={(operator) => {
+          handleOperatorChange(operator as LogicalOperator);
+        }}
       >
-        <SegmentedControl
-          size="small"
-          value={group.logicalOperator}
-          onChange={(operator) => {
-            handleOperatorChange(operator as LogicalOperator);
-          }}
-        >
-          <SegmentedControlOption value="$and">AND</SegmentedControlOption>
-          <SegmentedControlOption value="$or">OR</SegmentedControlOption>
-        </SegmentedControl>
-      </div>
-      <div
-        data-testid={TEST_IDS.conditionsContainer(group.id)}
-        className={conditionContainerStyles}
-      >
-        {group.conditions.map((condition, conditionIdx) => (
+        <SegmentedControlOption value="$and">AND</SegmentedControlOption>
+        <SegmentedControlOption value="$or">OR</SegmentedControlOption>
+      </SegmentedControl>
+      <ListEditor
+        items={group.conditions}
+        renderItem={(condition: MatchCondition, conditionIdx: number) => (
           <Condition
             key={condition.id}
-            disableRemoveBtn={group.conditions.length === 1}
             fields={fields}
             condition={condition}
             onConditionChange={(newCondition) =>
               handleConditionChange(conditionIdx, newCondition)
             }
-            onAddConditionClick={() => handleAddConditionClick(conditionIdx)}
-            onRemoveConditionClick={() =>
-              handleRemoveConditionClick(conditionIdx)
-            }
           />
-        ))}
-      </div>
+        )}
+        disableAddButton={() => false}
+        onAddItem={handleAddConditionClick}
+        addButtonTestId={TEST_IDS.addConditionBtn()}
+        disableRemoveButton={() => group.conditions.length === 1}
+        onRemoveItem={handleRemoveConditionClick}
+        removeButtonTestId={TEST_IDS.removeConditionBtn()}
+      />
     </div>
   );
 };

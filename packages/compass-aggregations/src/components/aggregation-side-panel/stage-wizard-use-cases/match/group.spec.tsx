@@ -88,8 +88,13 @@ describe('group', function () {
     it('should render a form for group with relevant controls in place', function () {
       const group = renderGroup();
       expect(screen.getByTestId(TEST_IDS.container(group.id))).to.exist;
-      expect(screen.getByTestId(TEST_IDS.conditionsContainer(group.id))).to
-        .exist;
+      expect(screen.getByTestId(TEST_IDS.operatorSelect(group.id))).to.exist;
+      expect(
+        screen.queryAllByTestId(TEST_IDS.removeConditionBtn())
+      ).to.have.lengthOf(0);
+      expect(
+        screen.getAllByTestId(TEST_IDS.addConditionBtn())
+      ).to.have.lengthOf(1);
     });
 
     it('should render a list of conditions', function () {
@@ -106,6 +111,21 @@ describe('group', function () {
         .exist;
     });
 
+    it('should call onGroupChange when an operator is selected', function () {
+      const onGroupChangeSpy = Sinon.spy();
+      const group = renderGroup({ onGroupChange: onGroupChangeSpy });
+      const operatorControl = within(
+        screen.getByTestId(TEST_IDS.operatorSelect(group.id))
+      ).getByRole('tablist');
+
+      userEvent.click(within(operatorControl).getByText(/Or/i));
+
+      expect(onGroupChangeSpy).to.have.been.calledWithExactly({
+        ...group,
+        logicalOperator: '$or',
+      });
+    });
+
     it('should call onGroupChange with new set of conditions when a condition is added', function () {
       const conditionA = createConditionPreScoped();
       const conditionB = createConditionPreScoped();
@@ -115,10 +135,8 @@ describe('group', function () {
       });
       renderGroup({ group, onGroupChange: onGroupChangeSpy });
 
-      const addBtn = screen.getByTestId(
-        CONDITION_TEST_IDS.addBtn(conditionA.id)
-      );
-      userEvent.click(addBtn);
+      const addBtns = screen.getAllByTestId(TEST_IDS.addConditionBtn());
+      userEvent.click(addBtns[0]);
 
       expect(onGroupChangeSpy).to.have.been.calledWith({
         ...group,
@@ -138,10 +156,8 @@ describe('group', function () {
         conditions: [conditionA, conditionB],
       });
       renderGroup({ group, onGroupChange: onGroupChangeSpy });
-      const removeBtn = screen.getByTestId(
-        CONDITION_TEST_IDS.removeBtn(conditionA.id)
-      );
-      userEvent.click(removeBtn);
+      const removeBtns = screen.getAllByTestId(TEST_IDS.removeConditionBtn());
+      userEvent.click(removeBtns[0]);
 
       expect(onGroupChangeSpy).to.have.been.calledWith({
         ...group,
@@ -160,7 +176,7 @@ describe('group', function () {
       setComboboxValue(
         new RegExp(CONDITION_LABELS.fieldCombobox, 'i'),
         '_id',
-        screen.getByTestId(CONDITION_TEST_IDS.fieldCombobox(conditionA.id))
+        screen.getByTestId(CONDITION_TEST_IDS.condition(conditionA.id))
       );
 
       expect(onGroupChangeSpy).to.have.been.calledWith({
@@ -172,23 +188,6 @@ describe('group', function () {
             bsonType: 'ObjectId',
           },
         ],
-      });
-    });
-
-    describe('#component - GroupHeader', function () {
-      it('should call onGroupChange when an operator is selected', function () {
-        const onGroupChangeSpy = Sinon.spy();
-        const group = renderGroup({ onGroupChange: onGroupChangeSpy });
-        const operatorControl = within(
-          screen.getByTestId(TEST_IDS.header(group.id))
-        ).getByRole('tablist');
-
-        userEvent.click(within(operatorControl).getByText(/Or/i));
-
-        expect(onGroupChangeSpy).to.have.been.calledWithExactly({
-          ...group,
-          logicalOperator: '$or',
-        });
       });
     });
   });

@@ -5,9 +5,8 @@ import {
   ComboboxWithCustomOption,
   Select,
   TextInput,
-  IconButton,
-  Icon,
   Option,
+  FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import TypeChecker from 'hadron-type-checker';
 import type { TypeCastTypes } from 'hadron-type-checker';
@@ -17,11 +16,8 @@ import type { WizardComponentProps } from '..';
 // Types
 export type ConditionProps = {
   fields: WizardComponentProps['fields'];
-  disableRemoveBtn: boolean;
   condition: MatchCondition;
   onConditionChange: (newCondition: MatchCondition) => void;
-  onAddConditionClick: () => void;
-  onRemoveConditionClick: () => void;
 };
 
 export type CreateConditionFn = (
@@ -42,12 +38,6 @@ export const LABELS = {
 
 export const TEST_IDS = {
   condition: (id: number) => `match-condition-${id}`,
-  fieldCombobox: (id: number) => `match-condition-${id}-field-combobox`,
-  operatorSelect: (id: number) => `match-condition-${id}-operator-select`,
-  valueInput: (id: number) => `match-condition-${id}-value-input`,
-  typeSelect: (id: number) => `match-condition-${id}-type-select`,
-  addBtn: (id: number) => `match-condition-${id}-add`,
-  removeBtn: (id: number) => `match-condition-${id}-remove`,
 };
 
 /**
@@ -71,9 +61,9 @@ export const makeCreateCondition = (): CreateConditionFn => {
 
 export const createCondition = makeCreateCondition();
 
-// The current list of operators that we provide in the
-// form can not realistically work with the following types
-// hence we exclude them to avoid any possible confusion.
+// The current list of comparison operators that we provide in the form can not
+// realistically work with the following types hence we exclude them to avoid
+// any possible confusion.
 const EXCLUDED_TYPES: TypeCastTypes[] = [
   'Array',
   'Binary',
@@ -122,32 +112,17 @@ const conditionContainerStyles = css({
   display: 'flex',
   width: '100%',
   alignItems: 'center',
-});
-
-const fieldGroupStyles = css({
-  width: `calc(100% - ${CONDITION_CONTROLS_WIDTH}px)`,
-  display: 'flex',
   gap: spacing[2],
 });
-
-const fieldComboboxStyles = css({ flex: '1 1 50%' });
-const operatorSelectStyles = css({ flex: '1 0 90px' });
-const valueInputStyles = css({ flex: '1 0 20%' });
-const bsonTypeSelectStyles = css({ flex: '1 0 15%' });
-
-const conditionControlsStyles = css({
-  width: `${CONDITION_CONTROLS_WIDTH}px`,
-  justifyContent: 'flex-end',
-  display: 'flex',
-});
+const fieldComboboxStyles = css({ margin: 0, flex: '1 1 50%' });
+const operatorSelectStyles = css({ margin: 0, flex: '1 0 70px' });
+const valueInputStyles = css({ margin: 0, flex: '1 0 20%' });
+const bsonTypeSelectStyles = css({ margin: 0, flex: `1 0 130px` });
 
 const Condition = ({
   fields,
-  disableRemoveBtn,
   condition,
   onConditionChange,
-  onAddConditionClick,
-  onRemoveConditionClick,
 }: ConditionProps) => {
   const fieldNames = fields.map((field) => field.name);
   const handleFieldChange = (field: string | null) => {
@@ -178,98 +153,66 @@ const Condition = ({
     }
   };
 
-  const { id } = condition;
-
   return (
     <div
-      data-testid={TEST_IDS.condition(id)}
+      data-testid={TEST_IDS.condition(condition.id)}
       className={conditionContainerStyles}
     >
-      <div className={fieldGroupStyles}>
-        <div
-          data-testid={TEST_IDS.fieldCombobox(id)}
-          className={fieldComboboxStyles}
+      <FormFieldContainer className={fieldComboboxStyles}>
+        <ComboboxWithCustomOption
+          placeholder={LABELS.fieldCombobox}
+          aria-label={LABELS.fieldCombobox}
+          size="default"
+          clearable={false}
+          value={condition.field}
+          onChange={handleFieldChange}
+          options={fieldNames}
+          optionLabel="Field:"
+        />
+      </FormFieldContainer>
+      <FormFieldContainer className={operatorSelectStyles}>
+        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
+        <Select
+          size="default"
+          allowDeselect={false}
+          aria-label={LABELS.operatorSelect}
+          usePortal={true}
+          value={condition.operator}
+          onChange={handleOperatorChange}
         >
-          <ComboboxWithCustomOption
-            placeholder={LABELS.fieldCombobox}
-            aria-label={LABELS.fieldCombobox}
-            size="default"
-            clearable={false}
-            value={condition.field}
-            onChange={handleFieldChange}
-            options={fieldNames}
-            optionLabel="Field:"
-            // Used for testing to access the popover for a stage
-            popoverClassName={TEST_IDS.fieldCombobox(id)}
-          />
-        </div>
-        <div
-          data-testid={TEST_IDS.operatorSelect(id)}
-          className={operatorSelectStyles}
-        >
-          {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
-          <Select
-            size="default"
-            allowDeselect={false}
-            aria-label={LABELS.operatorSelect}
-            usePortal={true}
-            value={condition.operator}
-            onChange={handleOperatorChange}
-          >
-            {MATCH_OPERATOR_LABELS.map(({ operator, label }) => {
-              return (
-                <Option key={operator} value={operator}>
-                  {label}
-                </Option>
-              );
-            })}
-          </Select>
-        </div>
-        <div data-testid={TEST_IDS.valueInput(id)} className={valueInputStyles}>
-          <TextInput
-            placeholder={LABELS.valueInput}
-            aria-label={LABELS.valueInput}
-            value={condition.value}
-            onChange={handleValueChange}
-          />
-        </div>
-        <div
-          data-testid={TEST_IDS.typeSelect(id)}
-          className={bsonTypeSelectStyles}
-        >
-          {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
-          <Select
-            allowDeselect={false}
-            aria-label={LABELS.typeSelect}
-            usePortal={true}
-            value={condition.bsonType}
-            onChange={handleBsonTypeChange}
-          >
-            {CASTABLE_TYPES.map((type) => (
-              <Option key={type} value={`${type}`}>
-                {type}
+          {MATCH_OPERATOR_LABELS.map(({ operator, label }) => {
+            return (
+              <Option key={operator} value={operator}>
+                {label}
               </Option>
-            ))}
-          </Select>
-        </div>
-      </div>
-      <div className={conditionControlsStyles}>
-        <IconButton
-          data-testid={TEST_IDS.addBtn(id)}
-          aria-label={LABELS.addBtn}
-          onClick={onAddConditionClick}
+            );
+          })}
+        </Select>
+      </FormFieldContainer>
+      <FormFieldContainer className={valueInputStyles}>
+        <TextInput
+          placeholder={LABELS.valueInput}
+          aria-label={LABELS.valueInput}
+          value={condition.value}
+          onChange={handleValueChange}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer className={bsonTypeSelectStyles}>
+        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
+        <Select
+          allowDeselect={false}
+          aria-label={LABELS.typeSelect}
+          usePortal={true}
+          value={condition.bsonType}
+          onChange={handleBsonTypeChange}
         >
-          <Icon glyph="Plus" />
-        </IconButton>
-        <IconButton
-          data-testid={TEST_IDS.removeBtn(id)}
-          disabled={disableRemoveBtn}
-          aria-label={LABELS.removeBtn}
-          onClick={onRemoveConditionClick}
-        >
-          <Icon glyph="Minus" />
-        </IconButton>
-      </div>
+          {CASTABLE_TYPES.map((type) => (
+            <Option key={type} value={`${type}`}>
+              {type}
+            </Option>
+          ))}
+        </Select>
+      </FormFieldContainer>
     </div>
   );
 };

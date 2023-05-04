@@ -1,7 +1,6 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
 import { render, screen, cleanup } from '@testing-library/react';
 
 import Condition, { LABELS, TEST_IDS, makeCreateCondition } from './condition';
@@ -20,11 +19,8 @@ const renderCondition = (
   render(
     <Condition
       fields={SAMPLE_FIELDS}
-      disableRemoveBtn={false}
       condition={createCondition(props.condition)}
       onConditionChange={Sinon.spy()}
-      onAddConditionClick={Sinon.spy()}
-      onRemoveConditionClick={Sinon.spy()}
       {...props}
     />
   );
@@ -69,19 +65,10 @@ describe('condition', function () {
     it('should render a set of fields and controls for a condition', function () {
       const condition = createCondition();
       renderCondition({ condition }, createCondition);
-      expect(screen.getByTestId(TEST_IDS.fieldCombobox(condition.id))).to.exist;
-
-      expect(screen.getByTestId(TEST_IDS.operatorSelect(condition.id))).to
-        .exist;
-
-      expect(screen.getByTestId(TEST_IDS.operatorSelect(condition.id))).to
-        .exist;
-
-      expect(screen.getByTestId(TEST_IDS.valueInput(condition.id))).to.exist;
-
-      expect(screen.getByTestId(TEST_IDS.addBtn(condition.id))).to.exist;
-
-      expect(screen.getByTestId(TEST_IDS.removeBtn(condition.id))).to.exist;
+      expect(screen.getByLabelText(LABELS.fieldCombobox)).to.exist;
+      expect(screen.getByLabelText(LABELS.operatorSelect)).to.exist;
+      expect(screen.getByLabelText(LABELS.valueInput)).to.exist;
+      expect(screen.getByLabelText(LABELS.typeSelect)).to.exist;
     });
 
     it('should call onConditionChange with updated condition when a field is selected', function () {
@@ -92,14 +79,14 @@ describe('condition', function () {
         createCondition
       );
 
-      const fieldCombobox = screen.getByTestId(
-        TEST_IDS.fieldCombobox(condition.id)
+      const conditionContainer = screen.getByTestId(
+        TEST_IDS.condition(condition.id)
       );
 
       setComboboxValue(
         new RegExp(LABELS.fieldCombobox, 'i'),
         '_id',
-        fieldCombobox
+        conditionContainer
       );
       expect(onChangeSpy.lastCall).to.be.calledWithExactly({
         ...condition,
@@ -110,7 +97,7 @@ describe('condition', function () {
       setComboboxValue(
         new RegExp(LABELS.fieldCombobox, 'i'),
         'age',
-        fieldCombobox
+        conditionContainer
       );
       expect(onChangeSpy.lastCall).to.be.calledWithExactly({
         ...condition,
@@ -119,7 +106,7 @@ describe('condition', function () {
       });
     });
 
-    it('should call onConditionChange with updated condition when an operator selected', function () {
+    it('should call onConditionChange with updated condition when an operator is selected', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
       renderCondition(
@@ -127,14 +114,14 @@ describe('condition', function () {
         createCondition
       );
 
-      const operatorSelect = screen.getByTestId(
-        TEST_IDS.operatorSelect(condition.id)
+      const conditionContainer = screen.getByTestId(
+        TEST_IDS.condition(condition.id)
       );
 
       setSelectValue(
         new RegExp(LABELS.operatorSelect, 'i'),
         '!=',
-        operatorSelect
+        conditionContainer
       );
       expect(onChangeSpy.lastCall).to.be.calledWithExactly({
         ...condition,
@@ -144,7 +131,7 @@ describe('condition', function () {
       setSelectValue(
         new RegExp(LABELS.operatorSelect, 'i'),
         '>=',
-        operatorSelect
+        conditionContainer
       );
       expect(onChangeSpy.lastCall).to.be.calledWithExactly({
         ...condition,
@@ -160,12 +147,14 @@ describe('condition', function () {
         createCondition
       );
 
-      const valueInput = screen.getByTestId(TEST_IDS.valueInput(condition.id));
+      const conditionContainer = screen.getByTestId(
+        TEST_IDS.condition(condition.id)
+      );
 
       setInputElementValue(
         new RegExp(LABELS.valueInput, 'i'),
         'Compass',
-        valueInput
+        conditionContainer
       );
       // Need to do this because input's value is bound to prop and that is not
       // getting updated
@@ -187,43 +176,19 @@ describe('condition', function () {
         createCondition
       );
 
-      const typeSelect = screen.getByTestId(TEST_IDS.typeSelect(condition.id));
+      const conditionContainer = screen.getByTestId(
+        TEST_IDS.condition(condition.id)
+      );
 
-      setSelectValue(new RegExp(LABELS.typeSelect, 'i'), 'Double', typeSelect);
+      setSelectValue(
+        new RegExp(LABELS.typeSelect, 'i'),
+        'Double',
+        conditionContainer
+      );
       expect(onChangeSpy).to.be.calledWithExactly({
         ...condition,
         bsonType: 'Double',
       });
-    });
-
-    it('should call onAddConditionClick on click of Add condition button', function () {
-      const condition = createCondition();
-      const onAddConditionClickSpy = Sinon.spy();
-      renderCondition(
-        {
-          condition,
-          onAddConditionClick: onAddConditionClickSpy,
-        },
-        createCondition
-      );
-      userEvent.click(screen.getByTestId(TEST_IDS.addBtn(condition.id)));
-
-      expect(onAddConditionClickSpy).to.have.been.calledOnce;
-    });
-
-    it('should call onRemoveConditionClick on click of Remove condition button', function () {
-      const condition = createCondition();
-      const onRemoveConditionClickSpy = Sinon.spy();
-      renderCondition(
-        {
-          condition,
-          onRemoveConditionClick: onRemoveConditionClickSpy,
-        },
-        createCondition
-      );
-      userEvent.click(screen.getByTestId(TEST_IDS.removeBtn(condition.id)));
-
-      expect(onRemoveConditionClickSpy).to.have.been.calledOnce;
     });
   });
 });
