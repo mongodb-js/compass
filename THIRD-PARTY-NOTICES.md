@@ -220,7 +220,6 @@ This document was automatically generated on Thu May 04 2023.
 | [darkreader](#darkreader-4.9.40) | 4.9.40 | MIT |
 | [debug](#debug-4.3.1) | 4.3.1 | MIT |
 | [debug](#debug-2.6.9) | 2.6.9 | MIT |
-| [debug](#debug-3.2.7) | 3.2.7 | MIT |
 | [decompress-response](#decompress-response-5.0.0) | 5.0.0 | MIT |
 | [deep-extend](#deep-extend-0.6.0) | 0.6.0 | MIT |
 | [defer-to-connect](#defer-to-connect-2.0.1) | 2.0.1 | MIT |
@@ -19353,40 +19352,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <a id="debug-2.6.9"></a>
 ### debug 2.6.9
-
-**License**: MIT
-
-**Author**: TJ Holowaychuk <tj@vision-media.ca>
-
-**Repository**: git://github.com/visionmedia/debug.git
-
-**License Text**:
-
-```
-(The MIT License)
-
-Copyright (c) 2014 TJ Holowaychuk <tj@vision-media.ca>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-and associated documentation files (the 'Software'), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial 
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-```
-
-<a id="debug-3.2.7"></a>
-### debug 3.2.7
 
 **License**: MIT
 
