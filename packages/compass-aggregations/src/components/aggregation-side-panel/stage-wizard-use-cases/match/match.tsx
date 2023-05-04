@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import TypeChecker from 'hadron-type-checker';
 import queryParser from 'mongodb-query-parser';
 import { css, spacing } from '@mongodb-js/compass-components';
-import Group, { createGroup } from './group';
+import MatchGroupForm, { createGroup } from './match-group-form';
 
 import type { WizardComponentProps } from '..';
 import type { TypeCastTypes } from 'hadron-type-checker';
 
 // Types
+
+// Types to represent data within form state
 export type LogicalOperator = '$or' | '$and';
 export type MatchOperator = '$eq' | '$ne' | '$gt' | '$gte' | '$lt' | '$lte';
 export type MatchCondition = {
@@ -23,6 +25,7 @@ export type MatchGroup = {
   conditions: MatchCondition[];
 };
 
+// Types to represent a converted match stage value
 export type MatchConditionExpression =
   | { [field: string]: unknown }
   | { [field: string]: { [operator in MatchOperator]: unknown } };
@@ -50,20 +53,11 @@ export function areUniqueExpressions(
 export function toMatchConditionExpression(
   condition: MatchCondition
 ): MatchConditionExpression {
-  if (condition.operator === '$eq') {
-    return {
-      [condition.field]: TypeChecker.cast(condition.value, condition.bsonType),
-    };
-  } else {
-    return {
-      [condition.field]: {
-        [condition.operator]: TypeChecker.cast(
-          condition.value,
-          condition.bsonType
-        ),
-      },
-    };
-  }
+  const castedValue = TypeChecker.cast(condition.value, condition.bsonType);
+
+  return condition.operator === '$eq'
+    ? { [condition.field]: castedValue }
+    : { [condition.field]: { [condition.operator]: castedValue } };
 }
 
 /**
@@ -130,7 +124,7 @@ const MatchForm = ({ fields, onChange }: WizardComponentProps) => {
 
   return (
     <div className={formContainerStyles}>
-      <Group
+      <MatchGroupForm
         key={matchGroup.id}
         fields={fields}
         group={matchGroup}

@@ -1,13 +1,13 @@
-import { makeCreateGroup } from './group';
-import { makeCreateCondition } from './condition';
-import type { CreateGroupFn } from './group';
-import type { CreateConditionFn } from './condition';
+import { makeCreateGroup } from './match-group-form';
+import { makeCreateCondition } from './match-condition-form';
+import type { CreateGroupFn } from './match-group-form';
+import type { CreateConditionFn } from './match-condition-form';
 import type {
   MatchExpression,
   MatchGroupExpression,
   MatchGroup,
 } from './match';
-import type { Fields } from '..';
+import type { StageWizardFields } from '..';
 
 type PartialFunc = (funcs: {
   createGroup: CreateGroupFn;
@@ -265,7 +265,7 @@ const simpleOrGroupWithDuplicateConditions = withCreatorFuncs(
     }
 );
 
-export const SAMPLE_FIELDS: Fields = [
+export const SAMPLE_FIELDS: StageWizardFields = [
   {
     name: '_id',
     type: 'ObjectId',

@@ -4,17 +4,17 @@ import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { cleanup, render, screen, within } from '@testing-library/react';
 
-import Group, { makeCreateGroup, TEST_IDS } from './group';
+import Group, { makeCreateGroup, TEST_IDS } from './match-group-form';
 import { setComboboxValue } from '../../../../../test/form-helper';
 import {
   makeCreateCondition,
   LABELS as CONDITION_LABELS,
   TEST_IDS as CONDITION_TEST_IDS,
   createCondition as createConditionPreScoped,
-} from './condition';
+} from './match-condition-form';
 import { SAMPLE_FIELDS } from './fixtures';
-import type { CreateConditionFn } from './condition';
-import type { CreateGroupFn, GroupProps } from './group';
+import type { CreateConditionFn } from './match-condition-form';
+import type { CreateGroupFn, MatchGroupFormProps } from './match-group-form';
 
 describe('group', function () {
   let createCondition: CreateConditionFn;
@@ -70,7 +70,7 @@ describe('group', function () {
 
   describe('#component - Group', function () {
     const renderGroup = (
-      props?: Partial<GroupProps>,
+      props?: Partial<MatchGroupFormProps>,
       createGroup = makeCreateGroup(makeCreateCondition())
     ) => {
       const group = props?.group ?? createGroup();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   css,
   spacing,
@@ -14,7 +14,7 @@ import type { MatchCondition, MatchOperator } from './match';
 import type { WizardComponentProps } from '..';
 
 // Types
-export type ConditionProps = {
+export type MatchConditionFormProps = {
   fields: WizardComponentProps['fields'];
   condition: MatchCondition;
   onConditionChange: (newCondition: MatchCondition) => void;
@@ -25,8 +25,6 @@ export type CreateConditionFn = (
 ) => MatchCondition;
 
 // Helpers
-export const CONDITION_CONTROLS_WIDTH = 60;
-
 export const LABELS = {
   fieldCombobox: 'Select a field',
   operatorSelect: 'Select an operator',
@@ -119,12 +117,13 @@ const operatorSelectStyles = css({ margin: 0, flex: '1 0 70px' });
 const valueInputStyles = css({ margin: 0, flex: '1 0 20%' });
 const bsonTypeSelectStyles = css({ margin: 0, flex: `1 0 130px` });
 
-const Condition = ({
+const MatchConditionForm = ({
   fields,
   condition,
   onConditionChange,
-}: ConditionProps) => {
-  const fieldNames = fields.map((field) => field.name);
+}: MatchConditionFormProps) => {
+  const fieldNames = useMemo(() => fields.map((field) => field.name), [fields]);
+  
   const handleFieldChange = (field: string | null) => {
     if (field !== null) {
       const bsonType =
@@ -217,4 +216,4 @@ const Condition = ({
   );
 };
 
-export default Condition;
+export default MatchConditionForm;

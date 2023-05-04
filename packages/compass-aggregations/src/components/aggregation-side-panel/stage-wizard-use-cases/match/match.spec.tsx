@@ -3,7 +3,10 @@ import { expect } from 'chai';
 import { render, cleanup } from '@testing-library/react';
 import Sinon from 'sinon';
 
-import { LABELS as CONDITION_LABELS, makeCreateCondition } from './condition';
+import {
+  LABELS as CONDITION_LABELS,
+  makeCreateCondition,
+} from './match-condition-form';
 import MatchForm, {
   areUniqueExpressions,
   isNotEmptyCondition,
@@ -13,7 +16,7 @@ import MatchForm, {
 } from './match';
 import fixtures, { SAMPLE_FIELDS } from './fixtures';
 import { setComboboxValue } from '../../../../../test/form-helper';
-import type { CreateConditionFn } from './condition';
+import type { CreateConditionFn } from './match-condition-form';
 import type { TypeCastTypes } from 'hadron-type-checker';
 
 describe('match', function () {

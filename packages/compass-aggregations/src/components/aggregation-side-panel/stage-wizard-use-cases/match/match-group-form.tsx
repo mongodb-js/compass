@@ -6,22 +6,13 @@ import {
   SegmentedControlOption,
   ListEditor,
 } from '@mongodb-js/compass-components';
-import Condition, {
-  CONDITION_CONTROLS_WIDTH,
-  createCondition,
-} from './condition';
-import type { CreateConditionFn } from './condition';
+import MatchConditionForm, { createCondition } from './match-condition-form';
+import type { CreateConditionFn } from './match-condition-form';
 import type { WizardComponentProps } from '..';
 import type { LogicalOperator, MatchCondition, MatchGroup } from './match';
 
 // Types
-export type GroupHeaderProps = {
-  groupId: number;
-  operator: LogicalOperator;
-  onOperatorChange: (operator: LogicalOperator) => void;
-};
-
-export type GroupProps = {
+export type MatchGroupFormProps = {
   fields: WizardComponentProps['fields'];
   group: MatchGroup;
   onGroupChange: (changedGroup: MatchGroup) => void;
@@ -67,7 +58,7 @@ const groupStyles = css({
   flexDirection: 'column',
 });
 
-const Group = ({ fields, group, onGroupChange }: GroupProps) => {
+const MatchGroupForm = ({ fields, group, onGroupChange }: MatchGroupFormProps) => {
   const handleOperatorChange = (operator: LogicalOperator) => {
     onGroupChange({
       ...group,
@@ -128,7 +119,7 @@ const Group = ({ fields, group, onGroupChange }: GroupProps) => {
       <ListEditor
         items={group.conditions}
         renderItem={(condition: MatchCondition, conditionIdx: number) => (
-          <Condition
+          <MatchConditionForm
             key={condition.id}
             fields={fields}
             condition={condition}
@@ -148,4 +139,4 @@ const Group = ({ fields, group, onGroupChange }: GroupProps) => {
   );
 };
 
-export default Group;
+export default MatchGroupForm;

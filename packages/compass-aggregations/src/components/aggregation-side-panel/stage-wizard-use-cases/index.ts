@@ -7,13 +7,13 @@ import GroupWithStatistics from './group/group-with-statistics';
 import MatchUseCase from './match/match';
 import type { TypeCastTypes } from 'hadron-type-checker';
 
-export type Fields = {
+export type StageWizardFields = {
   name: string;
   type: TypeCastTypes;
 }[];
 
 export type WizardComponentProps = {
-  fields: Fields;
+  fields: StageWizardFields;
   onChange: (value: string, validationError: Error | null) => void;
 };
 
