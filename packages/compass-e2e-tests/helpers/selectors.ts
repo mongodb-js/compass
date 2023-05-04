@@ -1050,8 +1050,10 @@ export const ExportQueryAllFieldsOption =
   '[data-testid="export-modal"] label[for="export-query-all-fields-option"]';
 export const ExportNextStepButton =
   '[data-testid="export-modal"] [data-testid="export-next-step-button"]';
-export const ExportSelectAllFieldsCheckbox =
-  '[data-testid="export-modal"] [data-testid="export-fields-select-all-table-checkbox"]';
+export const ExportJSONFormatAccordion =
+  '[data-testid="export-modal"] [data-testid="export-advanced-json-format"]';
+export const ExportJSONFormatCanonical =
+  '[data-testid="export-modal"] [data-testid="export-json-format-canonical"]';
 export const ExportModalFullCollectionOption =
   '[data-testid="export-modal"] [data-testid="export-full-collection"]'; // TODO(COMPASS-6582): Remove.
 export const ExportModalSelectFieldsButton =
