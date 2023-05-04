@@ -462,8 +462,6 @@ describe('Collection import', function () {
   });
 
   it('supports CSV files', async function () {
-    const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
-
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
     await browser.navigateToCollectionTab('test', 'csv-file', 'Documents');
@@ -512,6 +510,8 @@ describe('Collection import', function () {
 
     // deselect a field
     await unselectFieldName(browser, 'license');
+
+    const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
@@ -576,6 +576,7 @@ describe('Collection import', function () {
       success: true,
       ignore_empty_strings: true,
     });
+    expect(telemetry.screens()).to.include('import_modal');
   });
 
   it('supports CSV files with arrays, objects and arrays of objects', async function () {
@@ -1300,6 +1301,8 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
@@ -1352,6 +1355,21 @@ describe('Collection import', function () {
         Selectors.closeToastButton(Selectors.ImportToast)
       );
       await toastElement.waitForDisplayed({ reverse: true });
+
+      const importCompletedEvent = await telemetryEntry('Import Completed');
+      delete importCompletedEvent.duration; // Duration varies.
+      expect(importCompletedEvent.number_of_docs).to.be.lessThan(16116);
+      delete importCompletedEvent.number_of_docs; // Number varies.
+      expect(importCompletedEvent).to.deep.equal({
+        delimiter: ',',
+        file_type: 'csv',
+        all_fields: true,
+        stop_on_error_selected: false,
+        success: true,
+        aborted: true,
+        ignore_empty_strings: true,
+      });
+      expect(telemetry.screens()).to.include('import_modal');
     });
   });
 });

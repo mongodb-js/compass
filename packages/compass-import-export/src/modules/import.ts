@@ -360,6 +360,7 @@ export const startImport = () => {
         stop_on_error_selected: stopOnErrors,
         number_of_docs: err.result.docsWritten,
         success: !err,
+        aborted: abortSignal.aborted,
         ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
       });
 
