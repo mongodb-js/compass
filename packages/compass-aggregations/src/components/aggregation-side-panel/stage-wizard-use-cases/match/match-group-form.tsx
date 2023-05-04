@@ -58,7 +58,11 @@ const groupStyles = css({
   flexDirection: 'column',
 });
 
-const MatchGroupForm = ({ fields, group, onGroupChange }: MatchGroupFormProps) => {
+const MatchGroupForm = ({
+  fields,
+  group,
+  onGroupChange,
+}: MatchGroupFormProps) => {
   const handleOperatorChange = (operator: LogicalOperator) => {
     onGroupChange({
       ...group,

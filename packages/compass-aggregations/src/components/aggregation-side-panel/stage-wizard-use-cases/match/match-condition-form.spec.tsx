@@ -3,14 +3,21 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { render, screen, cleanup } from '@testing-library/react';
 
-import Condition, { LABELS, TEST_IDS, makeCreateCondition } from './match-condition-form';
+import Condition, {
+  LABELS,
+  TEST_IDS,
+  makeCreateCondition,
+} from './match-condition-form';
 import {
   setComboboxValue,
   setInputElementValue,
   setSelectValue,
 } from '../../../../../test/form-helper';
 import { SAMPLE_FIELDS } from './fixtures';
-import type { MatchConditionFormProps, CreateConditionFn } from './match-condition-form';
+import type {
+  MatchConditionFormProps,
+  CreateConditionFn,
+} from './match-condition-form';
 
 const renderCondition = (
   props: Partial<MatchConditionFormProps>,

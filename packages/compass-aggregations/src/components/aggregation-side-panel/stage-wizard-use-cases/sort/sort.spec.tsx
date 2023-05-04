@@ -9,9 +9,9 @@ import {
   setSelectValue,
   setComboboxValue,
 } from '../../../../../test/form-helper';
-import type { Fields } from '..';
+import type { StageWizardFields } from '..';
 
-const SAMPLE_FIELDS: Fields = [
+const SAMPLE_FIELDS: StageWizardFields = [
   {
     name: 'street',
     type: 'String',

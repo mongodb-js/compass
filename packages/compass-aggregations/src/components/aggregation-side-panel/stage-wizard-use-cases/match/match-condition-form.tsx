@@ -123,7 +123,7 @@ const MatchConditionForm = ({
   onConditionChange,
 }: MatchConditionFormProps) => {
   const fieldNames = useMemo(() => fields.map((field) => field.name), [fields]);
-  
+
   const handleFieldChange = (field: string | null) => {
     if (field !== null) {
       const bsonType =
