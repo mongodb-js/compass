@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import TypeChecker from 'hadron-type-checker';
 import type { TypeCastTypes } from 'hadron-type-checker';
-import type { MatchCondition, MatchOperator } from './match';
+import type { MatchCondition } from './match';
 import type { WizardComponentProps } from '..';
 
 // Types
@@ -78,7 +78,7 @@ const CASTABLE_TYPES = TypeChecker.castableTypes(false).filter(
   (type) => !EXCLUDED_TYPES.includes(type)
 );
 
-const MATCH_OPERATOR_LABELS: { operator: MatchOperator; label: string }[] = [
+const MATCH_OPERATOR_LABELS = [
   {
     operator: '$eq',
     label: '=',
@@ -103,7 +103,9 @@ const MATCH_OPERATOR_LABELS: { operator: MatchOperator; label: string }[] = [
     operator: '$lte',
     label: '<=',
   },
-];
+] as const;
+
+export type MatchOperator = typeof MATCH_OPERATOR_LABELS[number]['operator'];
 
 // Components - Condition
 const conditionContainerStyles = css({

@@ -6,12 +6,12 @@ import MatchGroupForm, { createGroup } from './match-group-form';
 
 import type { WizardComponentProps } from '..';
 import type { TypeCastTypes } from 'hadron-type-checker';
+import type { MatchOperator } from './match-condition-form';
 
 // Types
 
 // Types to represent data within form state
 export type LogicalOperator = '$or' | '$and';
-export type MatchOperator = '$eq' | '$ne' | '$gt' | '$gte' | '$lt' | '$lte';
 export type MatchCondition = {
   id: number;
   field: string;
