@@ -430,7 +430,7 @@ const createContext = ({
             mongoLogId(1001000107),
             'Collection Workspace',
             'Rendering collection tab failed',
-            { name: role.name, error: error.message, errorInfo }
+            { name: role.name, error: error.stack, errorInfo }
           );
         }}
       >
