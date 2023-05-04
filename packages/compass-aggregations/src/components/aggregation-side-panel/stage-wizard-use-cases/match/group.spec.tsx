@@ -43,10 +43,9 @@ describe('group', function () {
             field: '',
             operator: '$eq',
             value: '',
-            bsonType: '',
+            bsonType: 'String',
           },
         ],
-        groups: [],
       });
     });
 
@@ -65,32 +64,6 @@ describe('group', function () {
         id: 2,
         logicalOperator: '$and',
         conditions: [condition],
-        groups: [],
-      });
-
-      expect(
-        createGroup({
-          groups: [
-            createGroup({
-              conditions: [condition],
-            }),
-          ],
-        })
-      ).to.deep.equal({
-        id: 4,
-        logicalOperator: '$and',
-        // this because there is always an empty condition created when a group is created
-        conditions: [
-          { id: 5, field: '', operator: '$eq', value: '', bsonType: '' },
-        ],
-        groups: [
-          {
-            id: 3,
-            logicalOperator: '$and',
-            conditions: [condition],
-            groups: [],
-          },
-        ],
       });
     });
   });
@@ -105,10 +78,8 @@ describe('group', function () {
         <Group
           key={group.id}
           fields={props?.fields ?? SAMPLE_FIELDS}
-          nestingLevel={props?.nestingLevel ?? 0}
           group={group}
           onGroupChange={props?.onGroupChange ?? Sinon.spy()}
-          onRemoveGroupClick={props?.onRemoveGroupClick ?? Sinon.spy()}
         />
       );
       return group;
@@ -117,11 +88,7 @@ describe('group', function () {
     it('should render a form for group with relevant controls in place', function () {
       const group = renderGroup();
       expect(screen.getByTestId(TEST_IDS.container(group.id))).to.exist;
-
-      expect(screen.getByTestId(TEST_IDS.header(group.id))).to.exist;
       expect(screen.getByTestId(TEST_IDS.conditionsContainer(group.id))).to
-        .exist;
-      expect(screen.getByTestId(TEST_IDS.nestedGroupsContainer(group.id))).to
         .exist;
     });
 
@@ -137,19 +104,6 @@ describe('group', function () {
         .exist;
       expect(screen.getByTestId(CONDITION_TEST_IDS.condition(conditionB.id))).to
         .exist;
-    });
-
-    it('should render a list of nested groups', function () {
-      const subGroupA = createGroup();
-      const subGroupB = createGroup();
-      const group = createGroup({
-        groups: [subGroupA, subGroupB],
-      });
-
-      renderGroup({ group });
-
-      expect(screen.getByTestId(TEST_IDS.container(subGroupA.id))).to.exist;
-      expect(screen.getByTestId(TEST_IDS.container(subGroupB.id))).to.exist;
     });
 
     it('should call onGroupChange with new set of conditions when a condition is added', function () {
@@ -170,7 +124,7 @@ describe('group', function () {
         ...group,
         conditions: [
           conditionA,
-          { id: 3, field: '', operator: '$eq', value: '', bsonType: '' },
+          { id: 3, field: '', operator: '$eq', value: '', bsonType: 'String' },
           conditionB,
         ],
       });
@@ -221,35 +175,7 @@ describe('group', function () {
       });
     });
 
-    it('should call onGroupChange with modified set of nested groups when a nested group is modified', function () {
-      const onGroupChangeSpy = Sinon.spy();
-      const nestedGroup = createGroup();
-      const group = createGroup({
-        groups: [nestedGroup],
-      });
-      renderGroup({ group, onGroupChange: onGroupChangeSpy });
-      const addGroupBtn = screen.getByTestId(
-        TEST_IDS.addNestedGroupBtn(group.id)
-      );
-      userEvent.click(addGroupBtn);
-      expect(onGroupChangeSpy.lastCall.args[0].groups).to.have.lengthOf(2);
-    });
-
     describe('#component - GroupHeader', function () {
-      it('should render a disabled add nested group button for the group at nestingLevel === MAX_ALLOWED_NESTING', function () {
-        const group = renderGroup({ nestingLevel: 3 });
-        const removeBtn = screen.getByTestId(
-          TEST_IDS.addNestedGroupBtn(group.id)
-        );
-        expect(removeBtn.getAttribute('aria-disabled')).to.equal('true');
-      });
-
-      it('should render a disabled remove group button for the root group', function () {
-        const group = renderGroup({ nestingLevel: 0 });
-        const removeBtn = screen.getByTestId(TEST_IDS.removeGroupBtn(group.id));
-        expect(removeBtn.getAttribute('aria-disabled')).to.equal('true');
-      });
-
       it('should call onGroupChange when an operator is selected', function () {
         const onGroupChangeSpy = Sinon.spy();
         const group = renderGroup({ onGroupChange: onGroupChangeSpy });
@@ -263,31 +189,6 @@ describe('group', function () {
           ...group,
           logicalOperator: '$or',
         });
-      });
-
-      it('should call onAddNestedGroupClick when Add nested group button is clicked', function () {
-        const onGroupChangeSpy = Sinon.spy();
-        const group = renderGroup({
-          onGroupChange: onGroupChangeSpy,
-        });
-        const addBtn = screen.getByTestId(TEST_IDS.addNestedGroupBtn(group.id));
-        userEvent.click(addBtn);
-
-        expect(onGroupChangeSpy).to.have.been.called;
-        expect(onGroupChangeSpy.lastCall.args[0].groups).to.have.lengthOf(1);
-      });
-
-      it('should call onRemoveGroupClick when Remove group button is clicked', function () {
-        const onRemoveGroupClickSpy = Sinon.spy();
-        const group = renderGroup({
-          nestingLevel: 1,
-          onRemoveGroupClick: onRemoveGroupClickSpy,
-        });
-        const removeBtn = screen.getByTestId(TEST_IDS.removeGroupBtn(group.id));
-
-        userEvent.click(removeBtn);
-
-        expect(onRemoveGroupClickSpy).to.have.been.called;
       });
     });
   });

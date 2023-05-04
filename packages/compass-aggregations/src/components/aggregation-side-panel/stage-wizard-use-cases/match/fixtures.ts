@@ -2,7 +2,11 @@ import { makeCreateGroup } from './group';
 import { makeCreateCondition } from './condition';
 import type { CreateGroupFn } from './group';
 import type { CreateConditionFn } from './condition';
-import type { CompactClause, GroupClause, MatchConditionGroup } from './match';
+import type {
+  MatchExpression,
+  MatchGroupExpression,
+  MatchGroup,
+} from './match';
 import type { Fields } from '..';
 
 type PartialFunc = (funcs: {
@@ -10,7 +14,7 @@ type PartialFunc = (funcs: {
   createCondition: CreateConditionFn;
 }) => () => Fixture;
 
-type Fixture = [string, MatchConditionGroup, GroupClause, CompactClause];
+type Fixture = [string, MatchGroup, MatchGroupExpression, MatchExpression];
 
 function withCreatorFuncs(fn: PartialFunc) {
   const createCondition = makeCreateCondition();
@@ -39,11 +43,11 @@ const simpleAndGroup = withCreatorFuncs(
         conditions: [conditionA, conditionB],
       });
 
-      const verboseGroupClause: GroupClause = {
+      const verboseGroupClause: MatchGroupExpression = {
         $and: [{ name: 'Compass' }, { version: 'Standalone' }],
       };
 
-      const compactClause: CompactClause = {
+      const compactClause: MatchExpression = {
         name: 'Compass',
         version: 'Standalone',
       };
@@ -72,11 +76,11 @@ const simpleAndGroupWithDiffOperators = withCreatorFuncs(
         conditions: [conditionA, conditionB],
       });
 
-      const verboseGroupClause: GroupClause = {
+      const verboseGroupClause: MatchGroupExpression = {
         $and: [{ name: 'Compass' }, { version: { $ne: 'Standalone' } }],
       };
 
-      const compactClause: CompactClause = {
+      const compactClause: MatchExpression = {
         name: 'Compass',
         version: { $ne: 'Standalone' },
       };
@@ -90,183 +94,7 @@ const simpleAndGroupWithDiffOperators = withCreatorFuncs(
     }
 );
 
-const andGroupWithNestedAndGroupOfConditions = withCreatorFuncs(
-  ({ createCondition, createGroup }) =>
-    () => {
-      const conditionA = createCondition({
-        field: 'name',
-        operator: '$eq',
-        bsonType: 'String',
-        value: 'Compass',
-      });
-      const conditionB = createCondition({
-        field: 'version',
-        operator: '$eq',
-        bsonType: 'String',
-        value: 'Standalone',
-      });
-      const subGroup = createGroup({
-        logicalOperator: '$and',
-        conditions: [conditionA, conditionB],
-      });
-      const rootGroup = createGroup({
-        logicalOperator: '$and',
-        conditions: [],
-        groups: [subGroup],
-      });
-
-      const verboseGroupClause: GroupClause = {
-        $and: [
-          {
-            $and: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-        ],
-      };
-
-      const compactClause: CompactClause = {
-        $and: [
-          {
-            name: 'Compass',
-            version: 'Standalone',
-          },
-        ],
-      };
-
-      return [
-        'andGroupWithNestedAndGroupOfConditions',
-        rootGroup,
-        verboseGroupClause,
-        compactClause,
-      ];
-    }
-);
-
-const andGroupWithNestedAndGroupsOfConditions = withCreatorFuncs(
-  ({ createCondition, createGroup }) =>
-    () => {
-      const conditionA = createCondition({
-        field: 'name',
-        operator: '$eq',
-        bsonType: 'String',
-        value: 'Compass',
-      });
-      const conditionB = createCondition({
-        field: 'version',
-        operator: '$eq',
-        bsonType: 'String',
-        value: 'Standalone',
-      });
-      const andSubGroup1 = createGroup({
-        logicalOperator: '$and',
-        conditions: [conditionA, conditionB],
-      });
-      const andSubGroup2 = createGroup({
-        logicalOperator: '$and',
-        conditions: [conditionA, conditionB],
-      });
-
-      const rootGroup = createGroup({
-        logicalOperator: '$and',
-        conditions: [],
-        groups: [andSubGroup1, andSubGroup2],
-      });
-
-      const verboseGroupClause: GroupClause = {
-        $and: [
-          {
-            $and: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-          {
-            $and: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-        ],
-      };
-
-      const compactClause: CompactClause = {
-        $and: [
-          {
-            name: 'Compass',
-            version: 'Standalone',
-          },
-          {
-            name: 'Compass',
-            version: 'Standalone',
-          },
-        ],
-      };
-
-      return [
-        'andGroupWithNestedAndGroupsOfConditions',
-        rootGroup,
-        verboseGroupClause,
-        compactClause,
-      ];
-    }
-);
-
-const andGroupWithNestedAndOrGroupsOfConditions = withCreatorFuncs(
-  ({ createCondition, createGroup }) =>
-    () => {
-      const conditionA = createCondition({
-        field: 'name',
-        operator: '$eq',
-        bsonType: 'String',
-        value: 'Compass',
-      });
-      const conditionB = createCondition({
-        field: 'version',
-        operator: '$eq',
-        bsonType: 'String',
-        value: 'Standalone',
-      });
-      const andSubGroup1 = createGroup({
-        logicalOperator: '$and',
-        conditions: [conditionA, conditionB],
-      });
-      const andSubGroup2 = createGroup({
-        logicalOperator: '$or',
-        conditions: [conditionA, conditionB],
-      });
-
-      const rootGroup = createGroup({
-        logicalOperator: '$and',
-        conditions: [],
-        groups: [andSubGroup1, andSubGroup2],
-      });
-
-      const verboseGroupClause: GroupClause = {
-        $and: [
-          {
-            $and: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-          {
-            $or: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-        ],
-      };
-
-      const compactClause: CompactClause = {
-        $and: [
-          {
-            name: 'Compass',
-            version: 'Standalone',
-          },
-          {
-            $or: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-        ],
-      };
-
-      return [
-        'andGroupWithNestedAndOrGroupsOfConditions',
-        rootGroup,
-        verboseGroupClause,
-        compactClause,
-      ];
-    }
-);
-
-const andGroupWithAConditionAndNestedAndGroupOfConditions = withCreatorFuncs(
+const simpleAndGroupWithDuplicateConditions = withCreatorFuncs(
   ({ createCondition, createGroup }) =>
     () => {
       const conditionA = createCondition({
@@ -282,107 +110,35 @@ const andGroupWithAConditionAndNestedAndGroupOfConditions = withCreatorFuncs(
         value: 'Standalone',
       });
       const conditionC = createCondition({
-        field: 'theme',
-        operator: '$eq',
-        bsonType: 'String',
-        value: 'Dark',
-      });
-      const subGroup = createGroup({
-        logicalOperator: '$and',
-        conditions: [conditionA, conditionB],
-      });
-      const rootGroup = createGroup({
-        logicalOperator: '$and',
-        conditions: [conditionC],
-        groups: [subGroup],
-      });
-
-      const verboseGroupClause: GroupClause = {
-        $and: [
-          { theme: 'Dark' },
-          {
-            $and: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-        ],
-      };
-
-      const compactClause: CompactClause = {
-        $and: [
-          { theme: 'Dark' },
-          {
-            name: 'Compass',
-            version: 'Standalone',
-          },
-        ],
-      };
-
-      return [
-        'andGroupWithAConditionAndNestedAndGroupOfConditions',
-        rootGroup,
-        verboseGroupClause,
-        compactClause,
-      ];
-    }
-);
-
-const andGroupWithDeepNestedAndGroupsOfConditions = withCreatorFuncs(
-  ({ createCondition, createGroup }) =>
-    () => {
-      const conditionA = createCondition({
         field: 'name',
-        operator: '$eq',
+        operator: '$ne',
         bsonType: 'String',
-        value: 'Compass',
+        value: 'Mongosh',
       });
-      const conditionB = createCondition({
-        field: 'version',
-        operator: '$eq',
-        bsonType: 'String',
-        value: 'Standalone',
-      });
-      const andSubGroupAtLevel2 = createGroup({
+      const group = createGroup({
         logicalOperator: '$and',
-        conditions: [conditionA, conditionB],
-      });
-      const andSubGroupAtLevel1 = createGroup({
-        logicalOperator: '$and',
-        groups: [andSubGroupAtLevel2],
+        conditions: [conditionA, conditionB, conditionC],
       });
 
-      const rootGroup = createGroup({
-        logicalOperator: '$and',
-        conditions: [],
-        groups: [andSubGroupAtLevel1],
-      });
-
-      const verboseGroupClause: GroupClause = {
+      const verboseGroupClause: MatchGroupExpression = {
         $and: [
-          {
-            $and: [
-              {
-                $and: [{ name: 'Compass' }, { version: 'Standalone' }],
-              },
-            ],
-          },
+          { name: 'Compass' },
+          { version: 'Standalone' },
+          { name: { $ne: 'Mongosh' } },
         ],
       };
 
-      const compactClause: CompactClause = {
+      const compactClause: MatchExpression = {
         $and: [
-          {
-            $and: [
-              {
-                name: 'Compass',
-                version: 'Standalone',
-              },
-            ],
-          },
+          { name: 'Compass' },
+          { version: 'Standalone' },
+          { name: { $ne: 'Mongosh' } },
         ],
       };
 
       return [
-        'andGroupWithDeepNestedAndGroupsOfConditions',
-        rootGroup,
+        'simpleAndGroupWithDuplicateConditions',
+        group,
         verboseGroupClause,
         compactClause,
       ];
@@ -409,11 +165,11 @@ const simpleOrGroup = withCreatorFuncs(
         conditions: [conditionA, conditionB],
       });
 
-      const verboseGroupClause: GroupClause = {
+      const verboseGroupClause: MatchGroupExpression = {
         $or: [{ name: 'Compass' }, { version: 'Standalone' }],
       };
 
-      const compactClause: CompactClause = {
+      const compactClause: MatchExpression = {
         $or: [{ name: 'Compass' }, { version: 'Standalone' }],
       };
 
@@ -421,7 +177,7 @@ const simpleOrGroup = withCreatorFuncs(
     }
 );
 
-const orGroupWithNestedOrGroupOfConditions = withCreatorFuncs(
+const simpleOrGroupWithDiffOperators = withCreatorFuncs(
   ({ createCondition, createGroup }) =>
     () => {
       const conditionA = createCondition({
@@ -432,46 +188,33 @@ const orGroupWithNestedOrGroupOfConditions = withCreatorFuncs(
       });
       const conditionB = createCondition({
         field: 'version',
-        operator: '$eq',
+        operator: '$ne',
         bsonType: 'String',
         value: 'Standalone',
       });
-      const subGroup = createGroup({
+      const group = createGroup({
         logicalOperator: '$or',
         conditions: [conditionA, conditionB],
       });
-      const rootGroup = createGroup({
-        logicalOperator: '$or',
-        conditions: [],
-        groups: [subGroup],
-      });
 
-      const verboseGroupClause: GroupClause = {
-        $or: [
-          {
-            $or: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-        ],
+      const verboseGroupClause: MatchGroupExpression = {
+        $or: [{ name: 'Compass' }, { version: { $ne: 'Standalone' } }],
       };
 
-      const compactClause: CompactClause = {
-        $or: [
-          {
-            $or: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
-        ],
+      const compactClause: MatchExpression = {
+        $or: [{ name: 'Compass' }, { version: { $ne: 'Standalone' } }],
       };
 
       return [
-        'orGroupWithNestedOrGroupOfConditions',
-        rootGroup,
+        'simpleOrGroupWithDiffOperators',
+        group,
         verboseGroupClause,
         compactClause,
       ];
     }
 );
 
-const orGroupWithAConditionAndNestedOrGroupOfConditions = withCreatorFuncs(
+const simpleOrGroupWithDuplicateConditions = withCreatorFuncs(
   ({ createCondition, createGroup }) =>
     () => {
       const conditionA = createCondition({
@@ -487,42 +230,35 @@ const orGroupWithAConditionAndNestedOrGroupOfConditions = withCreatorFuncs(
         value: 'Standalone',
       });
       const conditionC = createCondition({
-        field: 'theme',
-        operator: '$eq',
+        field: 'name',
+        operator: '$ne',
         bsonType: 'String',
-        value: 'Dark',
+        value: 'Mongosh',
       });
-      const subGroup = createGroup({
+      const group = createGroup({
         logicalOperator: '$or',
-        conditions: [conditionA, conditionB],
-      });
-      const rootGroup = createGroup({
-        logicalOperator: '$or',
-        conditions: [conditionC],
-        groups: [subGroup],
+        conditions: [conditionA, conditionB, conditionC],
       });
 
-      const verboseGroupClause: GroupClause = {
+      const verboseGroupClause: MatchGroupExpression = {
         $or: [
-          { theme: 'Dark' },
-          {
-            $or: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
+          { name: 'Compass' },
+          { version: 'Standalone' },
+          { name: { $ne: 'Mongosh' } },
         ],
       };
 
-      const compactClause: CompactClause = {
+      const compactClause: MatchExpression = {
         $or: [
-          { theme: 'Dark' },
-          {
-            $or: [{ name: 'Compass' }, { version: 'Standalone' }],
-          },
+          { name: 'Compass' },
+          { version: 'Standalone' },
+          { name: { $ne: 'Mongosh' } },
         ],
       };
 
       return [
-        'orGroupWithAConditionAndNestedOrGroupOfConditions',
-        rootGroup,
+        'simpleOrGroupWithDuplicateConditions',
+        group,
         verboseGroupClause,
         compactClause,
       ];
@@ -555,12 +291,8 @@ export const SAMPLE_FIELDS: Fields = [
 export default [
   simpleAndGroup(),
   simpleAndGroupWithDiffOperators(),
-  andGroupWithNestedAndGroupOfConditions(),
-  andGroupWithNestedAndGroupsOfConditions(),
-  andGroupWithNestedAndOrGroupsOfConditions(),
-  andGroupWithAConditionAndNestedAndGroupOfConditions(),
-  andGroupWithDeepNestedAndGroupsOfConditions(),
+  simpleAndGroupWithDuplicateConditions(),
   simpleOrGroup(),
-  orGroupWithNestedOrGroupOfConditions(),
-  orGroupWithAConditionAndNestedOrGroupOfConditions(),
+  simpleOrGroupWithDiffOperators(),
+  simpleOrGroupWithDuplicateConditions(),
 ];

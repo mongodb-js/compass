@@ -61,10 +61,11 @@ export const makeCreateCondition = (): CreateConditionFn => {
     condition: Omit<Partial<MatchCondition>, 'id'> = {}
   ): MatchCondition => ({
     id: id++,
-    field: condition.field ?? '',
-    operator: condition.operator ?? '$eq',
-    value: condition.value ?? '',
-    bsonType: condition.bsonType ?? '',
+    field: '',
+    operator: '$eq',
+    value: '',
+    bsonType: 'String',
+    ...condition,
   });
 };
 
@@ -173,7 +174,7 @@ const Condition = ({
 
   const handleBsonTypeChange = (bsonType: string | null) => {
     if (bsonType !== null) {
-      onConditionChange({ ...condition, bsonType });
+      onConditionChange({ ...condition, bsonType: bsonType as TypeCastTypes });
     }
   };
 

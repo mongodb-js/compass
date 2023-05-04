@@ -51,7 +51,7 @@ describe('condition', function () {
         field: '',
         operator: '$eq',
         value: '',
-        bsonType: '',
+        bsonType: 'String',
       });
     });
 

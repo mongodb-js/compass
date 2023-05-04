@@ -1,20 +1,20 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import Sinon from 'sinon';
 
 import { LABELS as CONDITION_LABELS, makeCreateCondition } from './condition';
 import MatchForm, {
-  areUniqueClauses,
+  areUniqueExpressions,
   isNotEmptyCondition,
-  makeCompactGroupClause,
-  toConditionClause,
-  toGroupClause,
+  makeCompactGroupExpression,
+  toMatchConditionExpression,
+  toMatchGroupExpression,
 } from './match';
 import fixtures, { SAMPLE_FIELDS } from './fixtures';
-import type { CreateConditionFn } from './condition';
-import { LABELS as GROUP_LABELS } from './group';
 import { setComboboxValue } from '../../../../../test/form-helper';
+import type { CreateConditionFn } from './condition';
+import type { TypeCastTypes } from 'hadron-type-checker';
 
 describe('match', function () {
   let createCondition: CreateConditionFn;
@@ -23,7 +23,7 @@ describe('match', function () {
   });
 
   describe('#helpers - isNotEmptyCondition', function () {
-    it('should true when a condition have both field and bsonType', function () {
+    it('should return true when a condition have both field and bsonType', function () {
       expect(
         isNotEmptyCondition(
           createCondition({
@@ -35,10 +35,12 @@ describe('match', function () {
     });
 
     it('should return false when condition does not have any of bsonType or field', function () {
+      expect(isNotEmptyCondition(createCondition())).to.be.false;
       expect(
         isNotEmptyCondition(
           createCondition({
             field: 'name',
+            bsonType: '' as TypeCastTypes,
           })
         )
       ).to.be.false;
@@ -49,17 +51,17 @@ describe('match', function () {
           })
         )
       ).to.be.false;
-      expect(isNotEmptyCondition(createCondition())).to.be.false;
     });
   });
 
-  describe('#helpers - areUniqueClauses', function () {
-    it('should return true if keys of all the clauses in the provided list are unique otherwise false', function () {
-      expect(areUniqueClauses([{ name: 'Compass' }, { version: 'Standalone' }]))
-        .to.be.true;
+  describe('#helpers - areUniqueExpressions', function () {
+    it('should return true if keys of all the expressions in the provided list are unique otherwise false', function () {
+      expect(
+        areUniqueExpressions([{ name: 'Compass' }, { version: 'Standalone' }])
+      ).to.be.true;
 
       expect(
-        areUniqueClauses([
+        areUniqueExpressions([
           { name: 'Compass' },
           { version: 'Standalone' },
           { name: 'Something-else' },
@@ -67,24 +69,17 @@ describe('match', function () {
       ).to.be.false;
 
       expect(
-        areUniqueClauses([
+        areUniqueExpressions([
           { name: 'Compass' },
           { version: 'Standalone' },
-          { $and: [] },
-        ])
-      ).to.be.true;
-
-      expect(
-        areUniqueClauses([
-          { $and: [{ name: 'Compass' }, { version: 'Standalone' }] },
-          { $and: [] },
+          { wick: 'Something-else', name: 'Impossible' },
         ])
       ).to.be.false;
     });
   });
 
-  describe('#helpers - toConditionClause', function () {
-    it('should return a concise clause when operator is $eq', function () {
+  describe('#helpers - toMatchConditionExpression', function () {
+    it('should return a compact expression when operator is $eq', function () {
       const condition = createCondition({
         field: 'name',
         value: 'Compass',
@@ -92,10 +87,12 @@ describe('match', function () {
         bsonType: 'String',
       });
 
-      expect(toConditionClause(condition)).to.deep.equal({ name: 'Compass' });
+      expect(toMatchConditionExpression(condition)).to.deep.equal({
+        name: 'Compass',
+      });
     });
 
-    it('should return a verbose clause when operator anything but $eq', function () {
+    it('should return a verbose expression when operator anything but $eq', function () {
       const condition = createCondition({
         field: 'name',
         value: 'Compass',
@@ -103,41 +100,41 @@ describe('match', function () {
         bsonType: 'String',
       });
 
-      expect(toConditionClause(condition)).to.deep.equal({
+      expect(toMatchConditionExpression(condition)).to.deep.equal({
         name: { $ne: 'Compass' },
       });
       expect(
-        toConditionClause({ ...condition, operator: '$gt' })
+        toMatchConditionExpression({ ...condition, operator: '$gt' })
       ).to.deep.equal({ name: { $gt: 'Compass' } });
       expect(
-        toConditionClause({ ...condition, operator: '$gte' })
+        toMatchConditionExpression({ ...condition, operator: '$gte' })
       ).to.deep.equal({ name: { $gte: 'Compass' } });
       expect(
-        toConditionClause({ ...condition, operator: '$lt' })
+        toMatchConditionExpression({ ...condition, operator: '$lt' })
       ).to.deep.equal({ name: { $lt: 'Compass' } });
       expect(
-        toConditionClause({ ...condition, operator: '$lte' })
+        toMatchConditionExpression({ ...condition, operator: '$lte' })
       ).to.deep.equal({ name: { $lte: 'Compass' } });
     });
   });
 
-  describe('#helpers - toGroupClause', function () {
+  describe('#helpers - toMatchGroupExpression', function () {
     fixtures.forEach(function ([
       title,
       group,
-      expectedVerboseClause,
-      expectedCompactClause,
+      expectedVerboseExpression,
+      expectedCompactExpression,
     ]) {
       context(`when group is a ${title}`, function () {
         it('should return a correct verbose clause for a MatchConditionGroup', function () {
-          const verboseClause = toGroupClause(group);
-          expect(verboseClause).to.deep.equal(expectedVerboseClause);
+          const verboseClause = toMatchGroupExpression(group);
+          expect(verboseClause).to.deep.equal(expectedVerboseExpression);
         });
 
         it('should return a compact clause for a verbose clause', function () {
-          const verboseClause = toGroupClause(group);
-          const compactClause = makeCompactGroupClause(verboseClause);
-          expect(compactClause).to.deep.equal(expectedCompactClause);
+          const verboseClause = toMatchGroupExpression(group);
+          const compactClause = makeCompactGroupExpression(verboseClause);
+          expect(compactClause).to.deep.equal(expectedCompactExpression);
         });
       });
     });
@@ -145,15 +142,6 @@ describe('match', function () {
 
   describe('#component', function () {
     afterEach(cleanup);
-
-    it('should render a group component with nesting level of 0', function () {
-      render(<MatchForm fields={SAMPLE_FIELDS} onChange={Sinon.spy()} />);
-
-      const removeGroupBtn = screen.getByLabelText(
-        new RegExp(GROUP_LABELS.removeGroupBtn, 'i')
-      );
-      expect(removeGroupBtn.getAttribute('aria-disabled')).to.equal('true');
-    });
 
     it('should call onChange with converted stage value', function () {
       const onChangeSpy = Sinon.spy();
