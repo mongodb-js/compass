@@ -882,7 +882,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
                 {
                   $group: {
                     _id: null,
-                    capped: { $first: '$storageStats.capped' },
+                    capped: { $max: '$storageStats.capped' },
                     count: { $sum: '$storageStats.count' },
                     size: { $sum: { $toDouble: '$storageStats.size' } },
                     storageSize: {
@@ -947,8 +947,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
             $replaceRoot: {
               newRoot: {
                 $mergeObjects: [
-                  { $first: '$stats' },
-                  { $first: '$indexSizes' },
+                  { $arrayElemAt: ['$stats', 0] },
+                  { $arrayElemAt: ['$indexSizes', 0] },
                 ],
               },
             },
