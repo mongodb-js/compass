@@ -39,7 +39,7 @@ const store = Object.assign(_store, {
 
     globalAppRegistry.on(
       'open-export',
-      ({ namespace, query, exportFullCollection, aggregation }) => {
+      ({ namespace, query, exportFullCollection, aggregation, origin }) => {
         store.dispatch(
           openExport({
             namespace,
@@ -50,6 +50,7 @@ const store = Object.assign(_store, {
             },
             exportFullCollection,
             aggregation,
+            origin,
           })
         );
       }

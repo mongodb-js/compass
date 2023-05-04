@@ -975,7 +975,10 @@ class CrudStoreImpl
    * Emits a global app registry event the plugin listens to.
    */
   openImportFileDialog() {
-    this.globalAppRegistry.emit('open-import', { namespace: this.state.ns });
+    this.globalAppRegistry.emit('open-import', {
+      namespace: this.state.ns,
+      origin: 'empty-state',
+    });
   }
 
   /**
@@ -992,6 +995,7 @@ class CrudStoreImpl
         namespace: this.state.ns,
         query: { filter, project, collation, limit, skip, sort },
         exportFullCollection,
+        origin: 'crud-toolbar',
       });
       return;
     }

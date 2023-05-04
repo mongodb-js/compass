@@ -7,6 +7,8 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { startTelemetryServer } from '../helpers/telemetry';
+import type { Telemetry } from '../helpers/telemetry';
 import {
   createDummyCollections,
   createNumbersCollection,
@@ -87,8 +89,10 @@ async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
 describe('Collection import', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let telemetry: Telemetry;
 
   before(async function () {
+    telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
   });
@@ -101,6 +105,7 @@ describe('Collection import', function () {
 
   after(async function () {
     await afterTests(compass, this.currentTest);
+    await telemetry.stop();
   });
 
   afterEach(async function () {
@@ -457,6 +462,8 @@ describe('Collection import', function () {
   });
 
   it('supports CSV files', async function () {
+    const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
     await browser.navigateToCollectionTab('test', 'csv-file', 'Documents');
@@ -556,6 +563,18 @@ describe('Collection import', function () {
       availability_365: '124',
       number_of_reviews_ltm: '2',
       // NOTE: no license field
+    });
+
+    const importCompletedEvent = await telemetryEntry('Import Completed');
+    delete importCompletedEvent.duration; // Duration varies.
+    expect(importCompletedEvent).to.deep.equal({
+      delimiter: ',',
+      file_type: 'csv',
+      all_fields: false,
+      stop_on_error_selected: false,
+      number_of_docs: 16116,
+      success: true,
+      ignore_empty_strings: true,
     });
   });
 

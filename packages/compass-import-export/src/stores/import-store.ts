@@ -38,11 +38,13 @@ const store = Object.assign(_store, {
       store.dispatch(dataServiceDisconnected());
     });
 
-    globalAppRegistry.on('open-import', ({ namespace }) => {
-      // TODO: Once we update our redux usage to use `configureStore` from `@reduxjs/toolkit`
-      // we should be able to remove this type cast as the thunk action will
-      // be properly accepted in the store dispatch typing.
-      store.dispatch(openImport(namespace) as unknown as AnyAction);
+    globalAppRegistry.on('open-import', ({ namespace, origin }) => {
+      store.dispatch(
+        openImport({
+          namespace,
+          origin,
+        }) as unknown as AnyAction
+      );
     });
   },
 });

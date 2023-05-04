@@ -1,12 +1,21 @@
 import React from 'react';
 import { openToast } from '@mongodb-js/compass-components';
 import path from 'path';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import { ToastBody } from './toast-body';
 import { openFile } from '../utils/open-file';
 
+const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+
 const importToastId = 'import-toast';
 const toastMessageCharacterLimit = 200;
+
+function trackLogFileOpened(errors: Error[]) {
+  track('Import Error Log Opened', {
+    errorCount: errors.length,
+  });
+}
 
 export function showInProgressToast({
   fileName,
@@ -105,7 +114,12 @@ export function showCompletedWithErrorsToast({
       <ToastBody
         statusMessage={statusMessage}
         actionHandler={
-          errorLogFilePath ? () => void openFile(errorLogFilePath) : undefined
+          errorLogFilePath
+            ? () => {
+                trackLogFileOpened(errors);
+                void openFile(errorLogFilePath);
+              }
+            : undefined
         }
         actionText="view log"
       />
@@ -129,7 +143,12 @@ export function showCancelledToast({
         <ToastBody
           statusMessage={statusMessage}
           actionHandler={
-            errorLogFilePath ? () => void openFile(errorLogFilePath) : undefined
+            errorLogFilePath
+              ? () => {
+                  trackLogFileOpened(errors);
+                  void openFile(errorLogFilePath);
+                }
+              : undefined
           }
           actionText="view log"
         />
