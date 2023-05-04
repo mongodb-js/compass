@@ -877,79 +877,42 @@ class DataServiceImpl extends WithLogContext implements DataService {
         .aggregate([
           { $collStats: { storageStats: {} } },
           {
-            $facet: {
-              stats: [
-                {
-                  $group: {
-                    _id: null,
-                    capped: { $max: '$storageStats.capped' },
-                    count: { $sum: '$storageStats.count' },
-                    size: { $sum: { $toDouble: '$storageStats.size' } },
-                    storageSize: {
-                      $sum: { $toDouble: '$storageStats.storageSize' },
-                    },
-                    totalIndexSize: {
-                      $sum: { $toDouble: '$storageStats.totalIndexSize' },
-                    },
-                    freeStorageSize: {
-                      $sum: { $toDouble: '$storageStats.freeStorageSize' },
-                    },
-                    unscaledCollSize: {
-                      $sum: {
-                        $multiply: [
-                          { $toDouble: '$storageStats.avgObjSize' },
-                          { $toDouble: '$storageStats.count' },
-                        ],
-                      },
-                    },
-                    nindexes: { $max: '$storageStats.nindexes' },
-                  },
+            $group: {
+              _id: null,
+              capped: { $first: '$storageStats.capped' },
+              count: { $sum: '$storageStats.count' },
+              size: { $sum: { $toDouble: '$storageStats.size' } },
+              storageSize: {
+                $sum: { $toDouble: '$storageStats.storageSize' },
+              },
+              totalIndexSize: {
+                $sum: { $toDouble: '$storageStats.totalIndexSize' },
+              },
+              freeStorageSize: {
+                $sum: { $toDouble: '$storageStats.freeStorageSize' },
+              },
+              unscaledCollSize: {
+                $sum: {
+                  $multiply: [
+                    { $toDouble: '$storageStats.avgObjSize' },
+                    { $toDouble: '$storageStats.count' },
+                  ],
                 },
-                {
-                  $addFields: {
-                    // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
-                    avgObjSize: {
-                      $cond: {
-                        if: { $ne: ['$count', 0] },
-                        then: {
-                          $divide: [
-                            '$unscaledCollSize',
-                            { $toDouble: '$count' },
-                          ],
-                        },
-                        else: 0,
-                      },
-                    },
-                  },
-                },
-              ],
-              indexSizes: [
-                // add objects of the form {a:1,b:2} on a per-key basis
-                {
-                  $project: {
-                    indexSizes: { $objectToArray: '$storageStats.indexSizes' },
-                  },
-                },
-                { $unwind: '$indexSizes' },
-                {
-                  $group: {
-                    _id: '$indexSizes.k',
-                    v: { $sum: { $toDouble: '$indexSizes.v' } },
-                  },
-                },
-                { $project: { k: '$_id', v: '$v', _id: 0 } },
-                { $group: { _id: null, indexSizes: { $push: '$$ROOT' } } },
-                { $project: { indexSizes: { $arrayToObject: '$indexSizes' } } },
-              ],
+              },
+              nindexes: { $max: '$storageStats.nindexes' },
             },
           },
           {
-            $replaceRoot: {
-              newRoot: {
-                $mergeObjects: [
-                  { $arrayElemAt: ['$stats', 0] },
-                  { $arrayElemAt: ['$indexSizes', 0] },
-                ],
+            $addFields: {
+              // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+              avgObjSize: {
+                $cond: {
+                  if: { $ne: ['$count', 0] },
+                  then: {
+                    $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+                  },
+                  else: 0,
+                },
               },
             },
           },
