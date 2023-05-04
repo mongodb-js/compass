@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Wed May 03 2023.
+This document was automatically generated on Thu May 04 2023.
 
 ## List of dependencies
 
@@ -208,7 +208,7 @@ This document was automatically generated on Wed May 03 2023.
 | [convert-source-map](#convert-source-map-1.8.0) | 1.8.0 | MIT |
 | [core-js](#core-js-3.17.3) | 3.17.3 | MIT |
 | [core-util-is](#core-util-is-1.0.2) | 1.0.2 | MIT |
-| [cpu-features](#cpu-features-0.0.4) | 0.0.4 | MIT |
+| [cpu-features](#cpu-features-0.0.7) | 0.0.7 | MIT |
 | [crelt](#crelt-1.0.5) | 1.0.5 | MIT |
 | [cross-fetch](#cross-fetch-3.1.5) | 3.1.5 | MIT |
 | [crypt](#crypt-0.0.2) | 0.0.2 | BSD-3-Clause |
@@ -590,7 +590,7 @@ This document was automatically generated on Wed May 03 2023.
 | [source-map](#source-map-0.5.7) | 0.5.7 | BSD-3-Clause |
 | [sparse-bitfield](#sparse-bitfield-3.0.3) | 3.0.3 | MIT |
 | [sprintf](#sprintf-0.1.3) | 0.1.3 | BSD-3-Clause |
-| [ssh2](#ssh2-1.11.0) | 1.11.0 | MIT |
+| [ssh2](#ssh2-1.12.0) | 1.12.0 | MIT |
 | [sshpk](#sshpk-1.16.1) | 1.16.1 | MIT |
 | [stream-chain](#stream-chain-2.2.5) | 2.2.5 | BSD-3-Clause |
 | [stream-json](#stream-json-1.7.5) | 1.7.5 | BSD-3-Clause |
@@ -18945,8 +18945,8 @@ IN THE SOFTWARE.
 
 ```
 
-<a id="cpu-features-0.0.4"></a>
-### cpu-features 0.0.4
+<a id="cpu-features-0.0.7"></a>
+### cpu-features 0.0.7
 
 **License**: MIT
 
@@ -42636,8 +42636,8 @@ THE SOFTWARE.
 
 **Repository**: https://github.com/maritz/node-sprintf.git
 
-<a id="ssh2-1.11.0"></a>
-### ssh2 1.11.0
+<a id="ssh2-1.12.0"></a>
+### ssh2 1.12.0
 
 **License**: MIT
 
