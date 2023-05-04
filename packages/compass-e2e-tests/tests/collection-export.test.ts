@@ -558,7 +558,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       // Go with the default file type (JSON).
-      const filename = outputFilename('full-collection.json');
+      const filename = outputFilename('full-collection-canonical.json');
       await browser.setExportFilename(filename, true);
 
       // Wait for the modal to go away.
