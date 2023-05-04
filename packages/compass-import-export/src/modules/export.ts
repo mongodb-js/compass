@@ -133,7 +133,7 @@ export const enum ExportActionTypes {
 
 type OpenExportAction = {
   type: ExportActionTypes.OpenExport;
-  origin: 'menu' | 'crud-toolbar' | 'empty-state';
+  origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
 } & Omit<ExportOptions, 'fieldsToExport' | 'selectedFieldOption'>;
 
 export const openExport = (
