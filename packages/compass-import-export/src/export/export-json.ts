@@ -87,22 +87,22 @@ export async function exportJSON({
       [inputStream, docStream, output],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
     );
-
-    if (abortSignal?.aborted) {
-      void input.close();
-    } else {
-      output.write(']\n', 'utf8');
-    }
+    output.write(']\n', 'utf8');
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
-      void input.close();
+      // Finish the JSON file as the `final` of the docs stream didn't run.
+      output.write(']\n', 'utf8');
+
       return {
         docsWritten,
         aborted: true,
       };
     }
+    output.write(']\n', 'utf8');
 
     throw err;
+  } finally {
+    void input.close();
   }
 
   return {

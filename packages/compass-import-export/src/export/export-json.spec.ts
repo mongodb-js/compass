@@ -253,16 +253,30 @@ describe('exportJSON', function () {
     const abortController = new AbortController();
     abortController.abort();
 
+    const resultPath = path.join(tmpdir, 'test-abort.exported.ejson');
+
+    const output = fs.createWriteStream(resultPath);
     const result = await exportJSONFromQuery({
       dataService,
       ns: testNS,
-      output: temp.createWriteStream(),
+      output,
       variant: 'default',
       abortSignal: abortController.signal,
     });
 
     expect(result.docsWritten).to.equal(0);
     expect(result.aborted).to.be.true;
+
+    let resultText;
+    try {
+      resultText = await fs.promises.readFile(resultPath, 'utf8');
+    } catch (err) {
+      console.log(resultPath);
+      throw err;
+    }
+
+    const expectedText = '';
+    expect(resultText).to.deep.equal(expectedText);
   });
 
   it('exports aggregations', async function () {
@@ -385,6 +399,7 @@ describe('exportJSON', function () {
 
     sinon.stub(dataService, 'findCursor').returns({
       stream: () => mockReadStream,
+      close: () => {},
     } as unknown as FindCursor);
 
     await expect(

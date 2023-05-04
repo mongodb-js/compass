@@ -17,6 +17,7 @@ async function selectExportFileTypeCSV(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeCSV);
 }
 
+// TODO(COMPASS-6582): Remove this file.
 describe('Collection export legacy', function () {
   let compass: Compass;
   let browser: CompassBrowser;

@@ -856,7 +856,8 @@ describe('Collection aggregations tab', function () {
     );
   });
 
-  it('supports exporting aggregation results', async function () {
+  // TODO(COMPASS-6582): Update this test for the new export modal.
+  it('[LEGACY] supports exporting aggregation results', async function () {
     // Set first stage to $match
     await browser.selectStageOperator(0, '$match');
     await browser.setCodemirrorEditorValue(
