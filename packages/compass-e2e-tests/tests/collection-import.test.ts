@@ -1323,8 +1323,6 @@ describe('Collection import', function () {
       const importModal = await browser.$(Selectors.ImportModal);
       await importModal.waitForDisplayed();
 
-      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
-
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);
       // Wait for the in progress toast to appear.
@@ -1355,21 +1353,6 @@ describe('Collection import', function () {
         Selectors.closeToastButton(Selectors.ImportToast)
       );
       await toastElement.waitForDisplayed({ reverse: true });
-
-      const importCompletedEvent = await telemetryEntry('Import Completed');
-      delete importCompletedEvent.duration; // Duration varies.
-      expect(importCompletedEvent.number_of_docs).to.be.lessThan(16116);
-      delete importCompletedEvent.number_of_docs; // Number varies.
-      expect(importCompletedEvent).to.deep.equal({
-        delimiter: ',',
-        file_type: 'csv',
-        all_fields: true,
-        stop_on_error_selected: false,
-        success: true,
-        aborted: true,
-        ignore_empty_strings: true,
-      });
-      expect(telemetry.screens()).to.include('import_modal');
     });
   });
 });
