@@ -1155,21 +1155,13 @@ describe('Collection import', function () {
   });
 
   describe('aborting an import', function () {
-    beforeEach(function () {
-      process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
-    });
-
-    afterEach(function () {
-      delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
-    });
-
     it('aborts an in progress CSV import', async function () {
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
       await browser.navigateToCollectionTab(
         'test',
-        'import-abort',
+        'compass-import-abort-e2e-test',
         'Documents'
       );
 
@@ -1190,17 +1182,17 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
-      const stopImportButton = browser.$(Selectors.ImportToastAbort);
-      await stopImportButton.waitForDisplayed();
-      await browser.clickVisible(Selectors.ImportToastAbort);
-      if (await stopImportButton.isDisplayed()) {
-        // Clicking the abort was finicky on RHEL + Ubuntu, so we try twice.
-        await browser.clickVisible(Selectors.ImportToastAbort);
-      }
-
-      // Wait for the done toast to appear.
       const toastElement = await browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
+      // Click the toast element. This focuses the toast, and clicking the cancel
+      // button isn't consistent without it.
+      await browser.clickVisible(toastElement);
+
+      const importAbortButton = await browser.$(Selectors.ImportToastAbort);
+      await importAbortButton.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportToastAbort);
+
+      // Wait for the done toast to appear.
       await browser
         .$(Selectors.closeToastButton(Selectors.ImportToast))
         .waitForDisplayed();
@@ -1240,7 +1232,7 @@ describe('Collection import', function () {
 
       await browser.navigateToCollectionTab(
         'test',
-        'import-abort',
+        'compass-import-abort-e2e-test',
         'Documents'
       );
 
@@ -1261,17 +1253,17 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
-      const stopImportButton = browser.$(Selectors.ImportToastAbort);
-      await stopImportButton.waitForDisplayed();
-      await browser.clickVisible(Selectors.ImportToastAbort);
-      if (await stopImportButton.isDisplayed()) {
-        // Clicking the abort was finicky on RHEL + Ubuntu, so we try twice.
-        await browser.clickVisible(Selectors.ImportToastAbort);
-      }
-
-      // Wait for the done toast to appear.
       const toastElement = await browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
+      // Click the toast element. This focuses the toast, and clicking the cancel
+      // button isn't consistent without it.
+      await browser.clickVisible(toastElement);
+
+      const importAbortButton = await browser.$(Selectors.ImportToastAbort);
+      await importAbortButton.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportToastAbort);
+
+      // Wait for the done toast to appear.
       await browser
         .$(Selectors.closeToastButton(Selectors.ImportToast))
         .waitForDisplayed();
@@ -1306,7 +1298,7 @@ describe('Collection import', function () {
 
       await browser.navigateToCollectionTab(
         'test',
-        'import-abort',
+        'compass-import-abort-e2e-test',
         'Documents'
       );
 
