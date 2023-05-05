@@ -23,9 +23,6 @@ interface Collection {
   pipeline: unknown[];
   validation: unknown;
   is_capped: boolean;
-  max: number;
-  is_power_of_two: boolean;
-  index_sizes: unknown;
   document_count: number;
   document_size: number;
   avg_document_size: number;
@@ -33,14 +30,6 @@ interface Collection {
   free_storage_size: number;
   index_count: number;
   index_size: number;
-  padding_factor: number;
-  extent_count: number;
-  extent_last_size: number;
-  flags_user: number;
-  max_document_size: number;
-  size: number;
-  index_details: unknown;
-  wired_tiger: unknown;
   isTimeSeries: boolean;
   isView: boolean;
   sourceId: string | null;
