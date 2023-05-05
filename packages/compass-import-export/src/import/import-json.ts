@@ -53,9 +53,9 @@ export async function importJSON({
 
   let numProcessed = 0;
 
-  if (process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT === 'true') {
+  if (ns === 'test.compass-import-abort-e2e-test') {
     // Give the test more than enough time to click the abort before we continue.
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 
   const docStream = new Transform({
@@ -78,15 +78,6 @@ export async function importJSON({
         }
 
         const doc = EJSON.deserialize(chunk.value);
-        if (process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT === 'true') {
-          setTimeout(() => {
-            // Give the test more than enough time to click the abort before we continue.
-            callback(null, doc);
-          }, 5000);
-
-          return;
-        }
-
         callback(null, doc);
       } catch (err: unknown) {
         processParseError({

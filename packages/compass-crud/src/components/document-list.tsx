@@ -50,7 +50,7 @@ const tableStyles = css({
 export type DocumentListProps = {
   store: CrudStore;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
-  openImportFileDialog?: () => void;
+  openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
   view: 'List' | 'JSON' | 'Table';
   insert: Partial<InsertDocumentDialogProps> &
@@ -134,7 +134,7 @@ class DocumentList extends React.Component<DocumentListProps> {
         false
       );
     } else if (key === 'import-file') {
-      this.props.openImportFileDialog?.();
+      this.props.openImportFileDialog?.('crud-toolbar');
     }
   }
 
@@ -267,7 +267,9 @@ class DocumentList extends React.Component<DocumentListProps> {
           callToAction={
             <Button
               disabled={!this.props.isEditable}
-              onClick={this.props.openImportFileDialog}
+              onClick={() =>
+                void this.props.openImportFileDialog?.('empty-state')
+              }
               data-testid="import-data-button"
               variant="primary"
               size="small"
