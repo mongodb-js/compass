@@ -126,7 +126,7 @@ const MatchConditionForm = ({
   const fieldNames = useMemo(() => fields.map((field) => field.name), [fields]);
 
   const handleFieldChange = (field: string | null) => {
-    if (field !== null) {
+    if (field !== null && field !== condition.field) {
       const bsonType =
         fields.find(({ name }) => name === field)?.type ||
         TypeChecker.type(condition.value);
