@@ -438,7 +438,8 @@ describe('exportJSON', function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
         counter: index,
-        counterLong: new Long(`${'5000000000' + `${index}`}`),
+        // 9007199254740992 is 2^53 (Number.MAX_SAFE_INTEGER)
+        counterLong: new Long(`${`${Number.MAX_SAFE_INTEGER}` + `${index}`}`),
         name,
       })
     );
@@ -490,13 +491,13 @@ describe('exportJSON', function () {
 
     const expectedText = `[{
   "counterLong": {
-    "$numberLong": "50000000002"
+    "$numberLong": "90071992547409912"
   },
   "name": "orange"
 },
 {
   "counterLong": {
-    "$numberLong": "50000000000"
+    "$numberLong": "90071992547409910"
   },
   "name": "pineapple"
 }]`;
@@ -507,7 +508,8 @@ describe('exportJSON', function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
         counter: index,
-        counterLong: new Long(`${'5000000000' + `${index}`}`),
+        // 9007199254740992 is 2^53 (Number.MAX_SAFE_INTEGER)
+        counterLong: new Long(`${`${Number.MAX_SAFE_INTEGER}` + `${index}`}`),
         name,
       })
     );
@@ -556,12 +558,12 @@ describe('exportJSON', function () {
 
     const expectedText = `[{
   "counter": 1,
-  "counterLong": 50000000001,
+  "counterLong": 90071992547409900,
   "name": "apple"
 },
 {
   "counter": 2,
-  "counterLong": 50000000002,
+  "counterLong": 90071992547409920,
   "name": "orange"
 }]`;
     expect(resultText).to.deep.equal(expectedText);
@@ -571,7 +573,8 @@ describe('exportJSON', function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
         counter: index,
-        counterLong: new Long(`${'5000000000' + `${index}`}`),
+        // 9007199254740991 is 2^53 - 1 (Number.MAX_SAFE_INTEGER)
+        counterLong: new Long(`${`${Number.MAX_SAFE_INTEGER}` + `${index}`}`),
         name,
       })
     );
@@ -623,7 +626,7 @@ describe('exportJSON', function () {
     "$numberInt": "1"
   },
   "counterLong": {
-    "$numberLong": "50000000001"
+    "$numberLong": "90071992547409911"
   },
   "name": "apple"
 },
@@ -632,7 +635,7 @@ describe('exportJSON', function () {
     "$numberInt": "2"
   },
   "counterLong": {
-    "$numberLong": "50000000002"
+    "$numberLong": "90071992547409912"
   },
   "name": "orange"
 }]`;

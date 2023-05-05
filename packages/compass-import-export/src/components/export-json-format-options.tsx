@@ -9,9 +9,14 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { ExportJSONFormat } from '../export/export-json';
+import { Banner } from '@mongodb-js/compass-components';
 
 const radioGroupStyles = css({
   margin: `${spacing[3]}px 0`,
+});
+
+const bannerStyles = css({
+  margin: `${spacing[2]}px 0`,
 });
 
 function JSONFileTypeOptions({
@@ -63,6 +68,12 @@ function JSONFileTypeOptions({
       >
         Learn more about JSON format
       </Link>
+      {jsonFormat === 'relaxed' && (
+        <Banner className={bannerStyles} variant="warning">
+          Large numbers (&gt;= 2^^53) will lose precision with the relaxed EJSON
+          format. This format is not recommended for data integrity.
+        </Banner>
+      )}
     </Accordion>
   );
 }
