@@ -107,6 +107,8 @@ const formContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[4],
+  width: '100%',
+  maxWidth: '1000px',
 });
 
 const MatchForm = ({ fields, onChange }: WizardComponentProps) => {

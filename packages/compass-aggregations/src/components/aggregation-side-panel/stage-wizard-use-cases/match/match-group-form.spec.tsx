@@ -60,11 +60,9 @@ describe('group', function () {
       expect(createGroup({ logicalOperator: '$or' }).logicalOperator).equal(
         '$or'
       );
-      expect(createGroup({ conditions: [condition] })).to.deep.equal({
-        id: 2,
-        logicalOperator: '$and',
-        conditions: [condition],
-      });
+      expect(createGroup({ conditions: [condition] }).conditions).to.deep.equal(
+        [condition]
+      );
     });
   });
 
@@ -73,13 +71,14 @@ describe('group', function () {
       props?: Partial<MatchGroupFormProps>,
       createGroup = makeCreateGroup(makeCreateCondition())
     ) => {
-      const group = props?.group ?? createGroup();
+      const group = createGroup();
       render(
         <Group
           key={group.id}
-          fields={props?.fields ?? SAMPLE_FIELDS}
+          fields={SAMPLE_FIELDS}
           group={group}
-          onGroupChange={props?.onGroupChange ?? Sinon.spy()}
+          onGroupChange={Sinon.spy()}
+          {...props}
         />
       );
       return group;

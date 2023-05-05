@@ -19,14 +19,12 @@ import type {
   CreateConditionFn,
 } from './match-condition-form';
 
-const renderCondition = (
-  props: Partial<MatchConditionFormProps>,
-  createCondition: CreateConditionFn
-) => {
+const renderCondition = (props: Partial<MatchConditionFormProps>) => {
+  const condition = props.condition ?? makeCreateCondition()();
   render(
     <Condition
       fields={SAMPLE_FIELDS}
-      condition={createCondition(props.condition)}
+      condition={condition}
       onConditionChange={Sinon.spy()}
       {...props}
     />
@@ -71,7 +69,7 @@ describe('condition', function () {
   describe('#component', function () {
     it('should render a set of fields and controls for a condition', function () {
       const condition = createCondition();
-      renderCondition({ condition }, createCondition);
+      renderCondition({ condition });
       expect(screen.getByLabelText(LABELS.fieldCombobox)).to.exist;
       expect(screen.getByLabelText(LABELS.operatorSelect)).to.exist;
       expect(screen.getByLabelText(LABELS.valueInput)).to.exist;
@@ -81,10 +79,7 @@ describe('condition', function () {
     it('should call onConditionChange with updated condition when a field is selected', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
-      renderCondition(
-        { condition, onConditionChange: onChangeSpy },
-        createCondition
-      );
+      renderCondition({ condition, onConditionChange: onChangeSpy });
 
       const conditionContainer = screen.getByTestId(
         TEST_IDS.condition(condition.id)
@@ -116,10 +111,7 @@ describe('condition', function () {
     it('should call onConditionChange with updated condition when an operator is selected', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
-      renderCondition(
-        { condition, onConditionChange: onChangeSpy },
-        createCondition
-      );
+      renderCondition({ condition, onConditionChange: onChangeSpy });
 
       const conditionContainer = screen.getByTestId(
         TEST_IDS.condition(condition.id)
@@ -149,10 +141,7 @@ describe('condition', function () {
     it('should call onConditionChange with updated condition when a value is typed', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
-      renderCondition(
-        { condition, onConditionChange: onChangeSpy },
-        createCondition
-      );
+      renderCondition({ condition, onConditionChange: onChangeSpy });
 
       const conditionContainer = screen.getByTestId(
         TEST_IDS.condition(condition.id)
@@ -178,10 +167,7 @@ describe('condition', function () {
     it('should call onConditionChange with updated condition when a type is selected', function () {
       const condition = createCondition();
       const onChangeSpy = Sinon.spy();
-      renderCondition(
-        { condition, onConditionChange: onChangeSpy },
-        createCondition
-      );
+      renderCondition({ condition, onConditionChange: onChangeSpy });
 
       const conditionContainer = screen.getByTestId(
         TEST_IDS.condition(condition.id)

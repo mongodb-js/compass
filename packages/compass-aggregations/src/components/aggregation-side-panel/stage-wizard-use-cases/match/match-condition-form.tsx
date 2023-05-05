@@ -6,7 +6,6 @@ import {
   Select,
   TextInput,
   Option,
-  FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import TypeChecker from 'hadron-type-checker';
 import type { TypeCastTypes } from 'hadron-type-checker';
@@ -114,10 +113,10 @@ const conditionContainerStyles = css({
   alignItems: 'center',
   gap: spacing[2],
 });
-const fieldComboboxStyles = css({ margin: 0, flex: '1 1 50%' });
-const operatorSelectStyles = css({ margin: 0, flex: '1 0 70px' });
-const valueInputStyles = css({ margin: 0, flex: '1 0 20%' });
-const bsonTypeSelectStyles = css({ margin: 0, flex: `1 0 130px` });
+const fieldComboboxStyles = css({ flex: '1 1 50%' });
+const operatorSelectStyles = css({ flex: '1 0 70px' });
+const valueInputStyles = css({ flex: '1 0 20%' });
+const bsonTypeSelectStyles = css({ flex: `1 0 130px` });
 
 const MatchConditionForm = ({
   fields,
@@ -159,7 +158,7 @@ const MatchConditionForm = ({
       data-testid={TEST_IDS.condition(condition.id)}
       className={conditionContainerStyles}
     >
-      <FormFieldContainer className={fieldComboboxStyles}>
+      <div className={fieldComboboxStyles}>
         <ComboboxWithCustomOption
           placeholder={LABELS.fieldCombobox}
           aria-label={LABELS.fieldCombobox}
@@ -170,8 +169,8 @@ const MatchConditionForm = ({
           options={fieldNames}
           optionLabel="Field:"
         />
-      </FormFieldContainer>
-      <FormFieldContainer className={operatorSelectStyles}>
+      </div>
+      <div className={operatorSelectStyles}>
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           size="default"
@@ -189,16 +188,16 @@ const MatchConditionForm = ({
             );
           })}
         </Select>
-      </FormFieldContainer>
-      <FormFieldContainer className={valueInputStyles}>
+      </div>
+      <div className={valueInputStyles}>
         <TextInput
           placeholder={LABELS.valueInput}
           aria-label={LABELS.valueInput}
           value={condition.value}
           onChange={handleValueChange}
         />
-      </FormFieldContainer>
-      <FormFieldContainer className={bsonTypeSelectStyles}>
+      </div>
+      <div className={bsonTypeSelectStyles}>
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           allowDeselect={false}
@@ -213,7 +212,7 @@ const MatchConditionForm = ({
             </Option>
           ))}
         </Select>
-      </FormFieldContainer>
+      </div>
     </div>
   );
 };

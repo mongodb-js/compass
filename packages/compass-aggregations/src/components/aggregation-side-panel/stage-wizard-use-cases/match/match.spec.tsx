@@ -2,6 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { render, cleanup } from '@testing-library/react';
 import Sinon from 'sinon';
+import { Double } from 'bson';
 
 import {
   LABELS as CONDITION_LABELS,
@@ -118,6 +119,22 @@ describe('match', function () {
       expect(
         toMatchConditionExpression({ ...condition, operator: '$lte' })
       ).to.deep.equal({ name: { $lte: 'Compass' } });
+    });
+
+    // Note: The purpose of this test is to ensure that we are doing type
+    // casting of the values, wether it is correct or not is the responsibility
+    // of hadron-type-checker and is tested there
+    it('should cast the value to provided bsonType', function () {
+      const condition = createCondition({
+        field: 'name',
+        value: '12',
+        operator: '$ne',
+        bsonType: 'Double',
+      });
+
+      expect(toMatchConditionExpression(condition)).to.deep.equal({
+        name: { $ne: new Double(12) },
+      });
     });
   });
 
