@@ -233,7 +233,7 @@ This document was automatically generated on Fri May 05 2023.
 | [duplexer3](#duplexer3-0.1.4) | 0.1.4 | BSD-3-Clause |
 | [ecc-jsbn](#ecc-jsbn-0.1.2) | 0.1.2 | MIT |
 | [ejson-shell-parser](#ejson-shell-parser-1.2.1) | 1.2.1 | MIT |
-| [electron](#electron-22.0.2) | 22.0.2 | MIT |
+| [electron](#electron-22.3.8) | 22.3.8 | MIT |
 | [electron-dl](#electron-dl-3.5.0) | 3.5.0 | MIT |
 | [electron-squirrel-startup](#electron-squirrel-startup-1.0.0) | 1.0.0 | Apache-2.0 |
 | [end-of-stream](#end-of-stream-1.4.4) | 1.4.4 | MIT |
@@ -504,7 +504,7 @@ This document was automatically generated on Fri May 05 2023.
 | [mustache](#mustache-4.2.0) | 4.2.0 | MIT |
 | [napi-build-utils](#napi-build-utils-1.0.2) | 1.0.2 | MIT |
 | [netmask](#netmask-1.0.6) | 1.0.6 | MIT |
-| [node-abi](#node-abi-3.31.0) | 3.31.0 | MIT |
+| [node-abi](#node-abi-3.40.0) | 3.40.0 | MIT |
 | [node-addon-api](#node-addon-api-4.3.0) | 4.3.0 | MIT |
 | [node-fetch](#node-fetch-2.6.7) | 2.6.7 | MIT |
 | [normalize-url](#normalize-url-6.1.0) | 6.1.0 | MIT |
@@ -19904,8 +19904,8 @@ SOFTWARE.
 
 **Author**: Scott Sidwell <scott.sidwell@mongodb.com>
 
-<a id="electron-22.0.2"></a>
-### electron 22.0.2
+<a id="electron-22.3.8"></a>
+### electron 22.3.8
 
 **License**: MIT
 
@@ -33426,14 +33426,14 @@ SOFTWARE.
 
 **Repository**: git://github.com/rs/node-netmask.git
 
-<a id="node-abi-3.31.0"></a>
-### node-abi 3.31.0
+<a id="node-abi-3.40.0"></a>
+### node-abi 3.40.0
 
 **License**: MIT
 
 **Author**: Lukas Geiger
 
-**Repository**: https://github.com/lgeiger/node-abi.git
+**Repository**: https://github.com/electron/node-abi.git
 
 **License Text**:
 
