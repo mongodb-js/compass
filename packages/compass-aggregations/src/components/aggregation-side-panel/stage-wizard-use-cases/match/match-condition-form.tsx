@@ -28,7 +28,7 @@ export const LABELS = {
   fieldCombobox: 'Select a field',
   operatorSelect: 'Select an operator',
   valueInput: 'Expected value',
-  typeSelect: 'Select type',
+  typeSelect: 'Select a type',
   addBtn: 'Add condition',
   removeBtn: 'Remove condition',
 };
@@ -175,6 +175,7 @@ const MatchConditionForm = ({
         <Select
           size="default"
           allowDeselect={false}
+          placeholder={LABELS.operatorSelect}
           aria-label={LABELS.operatorSelect}
           usePortal={true}
           value={condition.operator}
@@ -201,6 +202,7 @@ const MatchConditionForm = ({
         {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
         <Select
           allowDeselect={false}
+          placeholder={LABELS.typeSelect}
           aria-label={LABELS.typeSelect}
           usePortal={true}
           value={condition.bsonType}
