@@ -13,6 +13,8 @@ import ConnectionForm from '@mongodb-js/connection-form';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { ConnectionStorage, connect } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type AppRegistry from 'hadron-app-registry';
+
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
 import { useConnections } from '../stores/connections-store';
@@ -52,6 +54,7 @@ const formContainerStyles = css({
 });
 
 function Connections({
+  appRegistry,
   onConnected,
   isConnected,
   connectionStorage = new ConnectionStorage(),
@@ -59,6 +62,7 @@ function Connections({
   getAutoConnectInfo,
   connectFn = connect,
 }: {
+  appRegistry: AppRegistry;
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
@@ -119,6 +123,7 @@ function Connections({
       <ResizableSidebar>
         <ConnectionList
           activeConnectionId={activeConnectionId}
+          appRegistry={appRegistry}
           favoriteConnections={favoriteConnections}
           recentConnections={recentConnections}
           createNewConnection={createNewConnection}
