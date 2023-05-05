@@ -1301,8 +1301,6 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
-      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
-
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
@@ -1324,6 +1322,8 @@ describe('Collection import', function () {
       // Wait for the modal to appear.
       const importModal = await browser.$(Selectors.ImportModal);
       await importModal.waitForDisplayed();
+
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);
