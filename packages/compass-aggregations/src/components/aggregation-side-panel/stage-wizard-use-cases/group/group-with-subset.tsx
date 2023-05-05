@@ -83,7 +83,7 @@ const ACCUMULATORS: SubsetAccumulator[] = SUBSET_ACCUMULATORS.map((acc) => {
       version: MDB_ACCUMULATORS_VERSION[acc.nOperator.value],
     },
   };
-}).filter(Boolean);
+});
 
 const containerStyles = css({
   display: 'flex',
