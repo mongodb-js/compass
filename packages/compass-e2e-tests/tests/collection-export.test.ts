@@ -412,6 +412,7 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
+        json_format: 'default',
         field_count: 2,
         has_projection: false,
         field_option: 'select-fields',
@@ -480,6 +481,7 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
+        json_format: 'default',
         field_option: 'all-fields',
         has_projection: false,
         number_of_docs: 1,
@@ -531,6 +533,61 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: true,
         file_type: 'json',
+        json_format: 'default',
+        number_of_docs: 1000,
+        success: true,
+        stopped: false,
+        type: 'query',
+      });
+    });
+
+    it('supports canonical JSON format', async function () {
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+
+      // Set a query that we ignore.
+      await browser.runFindOperation('Documents', '{ i: 5 }');
+
+      // Open the modal.
+      await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+      await browser.clickVisible(
+        Selectors.ExportCollectionFullCollectionOption
+      );
+      const exportModal = await browser.$(Selectors.ExportModal);
+      await exportModal.waitForDisplayed();
+
+      // Set the json format to canonical.
+      await browser.clickVisible(Selectors.ExportJSONFormatAccordion);
+      await browser.clickParent(Selectors.ExportJSONFormatCanonical);
+
+      await browser.clickVisible(Selectors.ExportModalExportButton);
+
+      // Go with the default file type (JSON).
+      const filename = outputFilename('full-collection-canonical.json');
+      await browser.setExportFilename(filename, true);
+
+      // Wait for the modal to go away.
+      const exportModalElement = await browser.$(Selectors.ExportModal);
+      await exportModalElement.waitForDisplayed({
+        reverse: true,
+      });
+
+      await waitForExportToFinishAndCloseToast(browser);
+
+      // Make sure we exported what we expected to export.
+      const text = await fs.readFile(filename, 'utf-8');
+      const data = JSON.parse(text);
+      expect(data).to.have.lengthOf(1000);
+      for (let i = 0; i < 1000; ++i) {
+        expect(data[i]).to.have.all.keys('i', 'j', '_id');
+        expect(data[i].i).to.deep.equal({ $numberInt: `${i}` });
+      }
+
+      const exportCompletedEvent = await telemetryEntry('Export Completed');
+      delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent).to.deep.equal({
+        all_docs: true,
+        file_type: 'json',
+        json_format: 'canonical',
         number_of_docs: 1000,
         success: true,
         stopped: false,
@@ -704,6 +761,7 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
+        json_format: 'default',
         field_count: 2,
         fields_added_count: 0,
         fields_not_selected_count: 1,
@@ -997,6 +1055,7 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
+        json_format: 'default',
         field_count: 2,
         fields_added_count: 0,
         fields_not_selected_count: 2,

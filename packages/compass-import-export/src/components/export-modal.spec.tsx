@@ -31,6 +31,7 @@ describe('ExportModal Component', function () {
       renderModal();
       expect(screen.getByTestId('export-next-step-button')).to.be.visible;
       expect(screen.queryByTestId('export-projection-banner')).to.not.exist;
+      expect(screen.queryByTestId('export-button')).to.not.exist;
     });
   });
 
@@ -49,6 +50,7 @@ describe('ExportModal Component', function () {
     it('should render an export button and banner', function () {
       renderModal();
       expect(screen.getByTestId('export-button')).to.be.visible;
+      expect(screen.queryByTestId('export-next-step-button')).to.not.exist;
       expect(screen.getByTestId('export-close-export-button')).be.visible;
       expect(screen.getByTestId('export-projection-banner')).to.be.visible;
     });
@@ -71,6 +73,7 @@ describe('ExportModal Component', function () {
     it('should render an export button', function () {
       renderModal();
       expect(screen.getByTestId('export-button')).to.be.visible;
+      expect(screen.queryByTestId('export-next-step-button')).to.not.exist;
       expect(screen.getByText('Collection orange.pineapple')).to.be.visible;
       expect(screen.getByTestId('export-close-export-button')).be.visible;
       expect(screen.queryByTestId('export-projection-banner')).to.not.exist;
@@ -97,6 +100,7 @@ describe('ExportModal Component', function () {
     });
     it('renders an export button', function () {
       renderModal();
+      expect(screen.queryByTestId('export-next-step-button')).to.not.exist;
       expect(screen.getByTestId('export-close-export-button')).be.visible;
       expect(screen.getByText('Aggregation on orange.pineapple')).to.be.visible;
       expect(screen.getByTestId('export-button')).be.visible;

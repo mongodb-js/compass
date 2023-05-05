@@ -350,6 +350,7 @@ describe('export [module]', function () {
       void testStore.dispatch(
         runExport({
           filePath: textExportFilePath,
+          jsonFormatVariant: 'default',
           fileType: 'json',
         })
       );
@@ -397,6 +398,7 @@ describe('export [module]', function () {
       void testStore.dispatch(
         runExport({
           filePath: textExportFilePath,
+          jsonFormatVariant: 'default',
           fileType: 'json',
         })
       );

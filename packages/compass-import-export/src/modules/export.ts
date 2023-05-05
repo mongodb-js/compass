@@ -34,6 +34,7 @@ import {
   exportJSONFromAggregation,
   exportJSONFromQuery,
 } from '../export/export-json';
+import type { ExportJSONFormat } from '../export/export-json';
 import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
 
 const { track, log, mongoLogId, debug } = createLoggerAndTelemetry(
@@ -329,9 +330,11 @@ export const selectFieldsToExport = (): ExportThunkAction<
 export const runExport = ({
   filePath,
   fileType,
+  jsonFormatVariant,
 }: {
   filePath: string;
   fileType: 'csv' | 'json';
+  jsonFormatVariant: ExportJSONFormat;
 }): ExportThunkAction<
   Promise<void>,
   | RunExportAction
@@ -400,6 +403,7 @@ export const runExport = ({
       filePath,
       fileType,
       exportFullCollection,
+      jsonFormatVariant,
       fieldsToExport,
       aggregation,
       query,
@@ -454,7 +458,7 @@ export const runExport = ({
         promise = exportJSONFromAggregation({
           ...baseExportOptions,
           aggregation,
-          variant: 'default',
+          variant: jsonFormatVariant,
         });
       }
     } else {
@@ -467,7 +471,7 @@ export const runExport = ({
         promise = exportJSONFromQuery({
           ...baseExportOptions,
           query,
-          variant: 'default',
+          variant: jsonFormatVariant,
         });
       }
     }
@@ -516,6 +520,7 @@ export const runExport = ({
           ? undefined
           : selectedFieldOption,
       file_type: fileType,
+      json_format: fileType === 'json' ? jsonFormatVariant : undefined,
       field_count:
         selectedFieldOption === 'select-fields'
           ? fieldsIncludedCount

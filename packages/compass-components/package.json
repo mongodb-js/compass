@@ -58,7 +58,7 @@
     "@leafygreen-ui/popover": "^11.0.1",
     "@leafygreen-ui/portal": "^4.0.7",
     "@leafygreen-ui/radio-box-group": "^12.0.1",
-    "@leafygreen-ui/radio-group": "^10.0.3",
+    "@leafygreen-ui/radio-group": "^10.1.1",
     "@leafygreen-ui/segmented-control": "^7.0.0",
     "@leafygreen-ui/select": "^10.1.0",
     "@leafygreen-ui/table": "^10.0.2",
