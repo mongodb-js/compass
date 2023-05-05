@@ -48,7 +48,7 @@ function JSONFileTypeOptions({
         <Radio
           value="relaxed"
           checked={jsonFormat === 'relaxed'}
-          description='Example: { "fortyTwo": 42, "oneHalf": 0.5, "bignumber": 5000000000 }'
+          description='Example: { "fortyTwo": 42, "oneHalf": 0.5, "bignumber": 5000000000 }. Large numbers (>= 2^^53) will change with this format.'
         >
           Relaxed Extended JSON
         </Radio>
