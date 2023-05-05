@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Wed May 03 2023.
+This document was automatically generated on Fri May 05 2023.
 
 ## List of dependencies
 
@@ -208,7 +208,7 @@ This document was automatically generated on Wed May 03 2023.
 | [convert-source-map](#convert-source-map-1.8.0) | 1.8.0 | MIT |
 | [core-js](#core-js-3.17.3) | 3.17.3 | MIT |
 | [core-util-is](#core-util-is-1.0.2) | 1.0.2 | MIT |
-| [cpu-features](#cpu-features-0.0.4) | 0.0.4 | MIT |
+| [cpu-features](#cpu-features-0.0.7) | 0.0.7 | MIT |
 | [crelt](#crelt-1.0.5) | 1.0.5 | MIT |
 | [cross-fetch](#cross-fetch-3.1.5) | 3.1.5 | MIT |
 | [crypt](#crypt-0.0.2) | 0.0.2 | BSD-3-Clause |
@@ -220,7 +220,6 @@ This document was automatically generated on Wed May 03 2023.
 | [darkreader](#darkreader-4.9.40) | 4.9.40 | MIT |
 | [debug](#debug-4.3.1) | 4.3.1 | MIT |
 | [debug](#debug-2.6.9) | 2.6.9 | MIT |
-| [debug](#debug-3.2.7) | 3.2.7 | MIT |
 | [decompress-response](#decompress-response-5.0.0) | 5.0.0 | MIT |
 | [deep-extend](#deep-extend-0.6.0) | 0.6.0 | MIT |
 | [defer-to-connect](#defer-to-connect-2.0.1) | 2.0.1 | MIT |
@@ -590,7 +589,7 @@ This document was automatically generated on Wed May 03 2023.
 | [source-map](#source-map-0.5.7) | 0.5.7 | BSD-3-Clause |
 | [sparse-bitfield](#sparse-bitfield-3.0.3) | 3.0.3 | MIT |
 | [sprintf](#sprintf-0.1.3) | 0.1.3 | BSD-3-Clause |
-| [ssh2](#ssh2-1.11.0) | 1.11.0 | MIT |
+| [ssh2](#ssh2-1.12.0) | 1.12.0 | MIT |
 | [sshpk](#sshpk-1.16.1) | 1.16.1 | MIT |
 | [stream-chain](#stream-chain-2.2.5) | 2.2.5 | BSD-3-Clause |
 | [stream-json](#stream-json-1.7.5) | 1.7.5 | BSD-3-Clause |
@@ -18945,8 +18944,8 @@ IN THE SOFTWARE.
 
 ```
 
-<a id="cpu-features-0.0.4"></a>
-### cpu-features 0.0.4
+<a id="cpu-features-0.0.7"></a>
+### cpu-features 0.0.7
 
 **License**: MIT
 
@@ -19353,40 +19352,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <a id="debug-2.6.9"></a>
 ### debug 2.6.9
-
-**License**: MIT
-
-**Author**: TJ Holowaychuk <tj@vision-media.ca>
-
-**Repository**: git://github.com/visionmedia/debug.git
-
-**License Text**:
-
-```
-(The MIT License)
-
-Copyright (c) 2014 TJ Holowaychuk <tj@vision-media.ca>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-and associated documentation files (the 'Software'), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial 
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT 
-LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-
-```
-
-<a id="debug-3.2.7"></a>
-### debug 3.2.7
 
 **License**: MIT
 
@@ -42636,8 +42601,8 @@ THE SOFTWARE.
 
 **Repository**: https://github.com/maritz/node-sprintf.git
 
-<a id="ssh2-1.11.0"></a>
-### ssh2 1.11.0
+<a id="ssh2-1.12.0"></a>
+### ssh2 1.12.0
 
 **License**: MIT
 

@@ -354,11 +354,14 @@ export const startImport = () => {
     } catch (err: any) {
       track('Import Completed', {
         duration: Date.now() - startTime,
+        delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
         file_type: fileType,
         all_fields: exclude.length === 0,
         stop_on_error_selected: stopOnErrors,
         number_of_docs: err.result.docsWritten,
         success: !err,
+        aborted: abortSignal.aborted,
+        ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
       });
 
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
@@ -378,12 +381,14 @@ export const startImport = () => {
 
     track('Import Completed', {
       duration: Date.now() - startTime,
+      delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
       file_type: fileType,
       all_fields: exclude.length === 0,
       stop_on_error_selected: stopOnErrors,
       number_of_docs: result.docsWritten,
       success: true,
       aborted: result.aborted,
+      ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
     });
 
     log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
@@ -799,7 +804,12 @@ export const setIgnoreBlanks = (ignoreBlanks: boolean) => ({
 /**
  * Open the import modal.
  */
-export const openImport = (namespace: string) => {
+export const openImport = ({
+  namespace,
+}: {
+  namespace: string;
+  origin: 'menu' | 'crud-toolbar' | 'empty-state';
+}) => {
   return (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
@@ -812,7 +822,9 @@ export const openImport = (namespace: string) => {
       return;
     }
 
-    track('Import Opened');
+    track('Import Opened', {
+      origin,
+    });
     dispatch(nsChanged(namespace));
     dispatch({ type: OPEN });
   };

@@ -572,8 +572,7 @@ export const ImportAnalyzeError =
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
 export const ImportToast = '[data-testid="toast-import-toast"]';
-export const ImportToastAbort =
-  '[data-testid="toast-import-toast"] [data-testid="toast-action-stop"]';
+export const ImportToastAbort = '[data-testid="toast-action-stop"]';
 export const ImportFieldLabel =
   '[data-testid="import-modal"] .import-field-label';
 export const ImportModalCloseButton = `${ImportModal} [aria-label*="Close"]`;

@@ -2,7 +2,10 @@ import Reflux from 'reflux';
 import ipc from 'hadron-ipc';
 import StateMixin from 'reflux-state-mixin';
 import toNS from 'mongodb-ns';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import {
+  createLoggerAndTelemetry,
+  mongoLogId,
+} from '@mongodb-js/compass-logging';
 import { intersection } from 'lodash';
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import { analyzeSchema } from '../modules/schema-analysis';
@@ -16,8 +19,7 @@ import {
 import { TAB_NAME } from '../constants/plugin';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
-const debug = require('debug')('mongodb-compass:stores:schema');
-const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
+const { track, debug, log } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
 
 const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;
@@ -352,7 +354,14 @@ const configureStore = (options = {}) => {
 
         this.onSchemaSampled();
       } catch (err) {
-        debug('analysis error catched', err);
+        log.error(
+          mongoLogId(1_001_000_188),
+          'Schema analysis',
+          'Error sampling schema',
+          {
+            error: err.stack,
+          }
+        );
         this.setState({ ...getErrorState(err), resultId: resultId() });
       } finally {
         this.setState({ abortController: undefined });

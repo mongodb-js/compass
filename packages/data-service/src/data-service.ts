@@ -219,11 +219,8 @@ export interface DataService {
 
   /**
    * Returns the results of currentOp.
-   *
-   * @param includeAll - if true also list currently idle operations in the result.
-   * @param callback - The callback.
    */
-  currentOp(includeAll: boolean): Promise<{ inprog: Document }>;
+  currentOp(): Promise<{ inprog: Document }>;
 
   /**
    * Returns the result of serverStatus.
@@ -872,14 +869,67 @@ class DataServiceImpl extends WithLogContext implements DataService {
     databaseName: string,
     collectionName: string
   ): Promise<CollectionStats> {
-    // Note: The collStats command is not supported on CSFLE-enabled
-    // clients, but the $collStats aggregation stage is.
-    // When we're doing https://jira.mongodb.org/browse/COMPASS-5583,
-    // we can switch this over to using the CRUD client instead.
-    const db = this._database(databaseName, 'META');
+    const ns = `${databaseName}.${collectionName}`;
+
     try {
-      const data = await runCommand(db, { collStats: collectionName });
-      return this._buildCollectionStats(databaseName, collectionName, data);
+      const coll = this._collection(ns, 'CRUD');
+      const collStats = await coll
+        .aggregate([
+          { $collStats: { storageStats: {} } },
+          {
+            $group: {
+              _id: null,
+              capped: { $first: '$storageStats.capped' },
+              count: { $sum: '$storageStats.count' },
+              size: { $sum: { $toDouble: '$storageStats.size' } },
+              storageSize: {
+                $sum: { $toDouble: '$storageStats.storageSize' },
+              },
+              totalIndexSize: {
+                $sum: { $toDouble: '$storageStats.totalIndexSize' },
+              },
+              freeStorageSize: {
+                $sum: { $toDouble: '$storageStats.freeStorageSize' },
+              },
+              unscaledCollSize: {
+                $sum: {
+                  $multiply: [
+                    { $toDouble: '$storageStats.avgObjSize' },
+                    { $toDouble: '$storageStats.count' },
+                  ],
+                },
+              },
+              nindexes: { $max: '$storageStats.nindexes' },
+            },
+          },
+          {
+            $addFields: {
+              // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+              avgObjSize: {
+                $cond: {
+                  if: { $ne: ['$count', 0] },
+                  then: {
+                    $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+                  },
+                  else: 0,
+                },
+              },
+            },
+          },
+        ])
+        .toArray();
+
+      if (!collStats || collStats[0] === undefined) {
+        throw new Error(`Error running $collStats aggregation stage on ${ns}`);
+      }
+
+      collStats[0].ns = ns;
+
+      return this._buildCollectionStats(
+        databaseName,
+        collectionName,
+        collStats[0]
+      );
     } catch (error) {
       if (!(error as Error).message.includes('is a view, not a collection')) {
         throw error;
@@ -1652,12 +1702,19 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_053), (_, result) => {
     return result ? { result } : undefined;
   })
-  async currentOp(includeAll: boolean): Promise<{ inprog: Document[] }> {
-    const db = this._database('admin', 'META');
-    return await runCommand(db, {
-      currentOp: 1,
-      $all: includeAll,
-    });
+  async currentOp(): Promise<{ inprog: Document[] }> {
+    const db = this._database('admin', 'CRUD');
+    const pipelineWithTruncateOps: Document[] = [
+      {
+        $currentOp: {
+          allUsers: true,
+          idleConnections: false,
+          truncateOps: false,
+        },
+      },
+    ];
+    const currentOp = await db.aggregate(pipelineWithTruncateOps).toArray();
+    return { inprog: currentOp };
   }
 
   getLastSeenTopology(): null | TopologyDescription {
@@ -2029,9 +2086,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       name: collectionName,
       database: databaseName,
       is_capped: data.capped,
-      max: data.max,
-      is_power_of_two: data.userFlags === 1,
-      index_sizes: data.indexSizes,
       document_count: data.count ?? 0,
       document_size: data.size,
       avg_document_size: data.avgObjSize ?? 0,
@@ -2039,14 +2093,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       free_storage_size: data.freeStorageSize ?? 0,
       index_count: data.nindexes ?? 0,
       index_size: data.totalIndexSize ?? 0,
-      padding_factor: data.paddingFactor,
-      extent_count: data.numExtents,
-      extent_last_size: data.lastExtentSize,
-      flags_user: data.userFlags,
-      max_document_size: data.maxSize,
-      size: data.size,
-      index_details: data.indexDetails || {},
-      wired_tiger: data.wiredTiger || {},
     };
   }
 
