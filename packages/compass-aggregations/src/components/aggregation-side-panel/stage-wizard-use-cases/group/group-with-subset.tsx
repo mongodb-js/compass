@@ -19,6 +19,7 @@ import {
 } from '../utils';
 import type { SortDirection } from '../utils';
 import type { RootState } from '../../../../modules';
+import type { WizardComponentProps } from '..';
 
 type AccumulatorName = typeof MDB_ACCUMULATORS[number]['value'];
 type GroupAccumulator = {
@@ -215,11 +216,9 @@ export const GroupWithSubset = ({
   fields,
   serverVersion,
   onChange,
-}: {
-  fields: string[];
-  serverVersion: string;
-  onChange: (value: string, error: Error | null) => void;
-}) => {
+}: WizardComponentProps & { serverVersion: string }) => {
+  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
+
   const [formData, setFormData] = useState<GroupWithSubsetFormData>({
     groupFields: [],
     projectFields: [],
@@ -311,7 +310,7 @@ export const GroupWithSubset = ({
           multiselect={true}
           value={formData.projectFields}
           onChange={(val: string[]) => onChangeValue('projectFields', val)}
-          options={fields}
+          options={fieldNames}
           optionLabel="Field:"
           overflow="scroll-x"
         />
@@ -327,7 +326,7 @@ export const GroupWithSubset = ({
           multiselect={true}
           value={formData.groupFields}
           onChange={(val: string[]) => onChangeValue('groupFields', val)}
-          options={fields}
+          options={fieldNames}
           optionLabel="Field:"
           overflow="scroll-x"
         />
@@ -345,7 +344,7 @@ export const GroupWithSubset = ({
             multiselect={true}
             value={formData.sortFields}
             onChange={(val: string[]) => onChangeValue('sortFields', val)}
-            options={fields}
+            options={fieldNames}
             optionLabel="Field:"
             overflow="scroll-x"
           />

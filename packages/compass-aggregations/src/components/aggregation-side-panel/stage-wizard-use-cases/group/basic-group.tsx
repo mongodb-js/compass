@@ -4,8 +4,9 @@ import {
   css,
   ComboboxWithCustomOption,
 } from '@mongodb-js/compass-components';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { mapFieldsToAccumulatorValue } from '../utils';
+import type { WizardComponentProps } from '..';
 
 const containerStyles = css({
   display: 'flex',
@@ -21,13 +22,8 @@ const mapGroupFormStateToStageValue = (formState: string[]) => {
   };
 };
 
-export const BasicGroup = ({
-  fields,
-  onChange,
-}: {
-  fields: string[];
-  onChange: (value: string, error: Error | null) => void;
-}) => {
+export const BasicGroup = ({ fields, onChange }: WizardComponentProps) => {
+  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [groupFields, setGroupFields] = useState<string[]>([]);
 
   const onChangeFields = (data: string[]) => {
@@ -51,7 +47,7 @@ export const BasicGroup = ({
         multiselect={true}
         value={groupFields}
         onChange={onChangeFields}
-        options={fields}
+        options={fieldNames}
         optionLabel="Field:"
         overflow="scroll-x"
       />

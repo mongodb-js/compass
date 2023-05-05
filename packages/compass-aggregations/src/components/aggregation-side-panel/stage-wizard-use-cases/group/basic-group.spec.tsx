@@ -25,7 +25,16 @@ describe('basic group', function () {
 
   it('calls onChange when form fields change', function () {
     const onChange = sinon.spy();
-    render(<BasicGroup onChange={onChange} fields={['a', 'b', 'c']} />);
+    render(
+      <BasicGroup
+        onChange={onChange}
+        fields={[
+          { name: 'a', type: 'String' },
+          { name: 'b', type: 'String' },
+          { name: 'c', type: 'String' },
+        ]}
+      />
+    );
 
     setMultiSelectComboboxValues(/select field names/i, ['a', 'b', 'c']);
 

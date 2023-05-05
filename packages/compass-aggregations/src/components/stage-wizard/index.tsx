@@ -8,7 +8,10 @@ import {
   spacing,
   WarningSummary,
 } from '@mongodb-js/compass-components';
-import type { StageWizardUseCase } from '../aggregation-side-panel/stage-wizard-use-cases';
+import type {
+  StageWizardUseCase,
+  WizardComponentProps,
+} from '../aggregation-side-panel/stage-wizard-use-cases';
 import { STAGE_WIZARD_USE_CASES } from '../aggregation-side-panel/stage-wizard-use-cases';
 import { connect } from 'react-redux';
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
@@ -63,7 +66,7 @@ type StageWizardProps = SortableProps & {
   useCaseId: string;
   value: string | null;
   syntaxError: SyntaxError | null;
-  fields: string[];
+  fields: WizardComponentProps['fields'];
   onChange: (value: string) => void;
   onCancel: () => void;
   onApply: () => void;
@@ -176,13 +179,20 @@ export default connect(
       .find((x): x is StoreStage => x.type === 'stage' && !x.disabled);
 
     const mappedInitialFields = initialFields.map(
-      (x: { name: string }) => x.name
+      (x: { name: string; description: string }) => ({
+        name: x.name,
+        // parsed schema has the bson type Object replaced with
+        // Document to avoid collision with JS Objects but that
+        // shouldn't be a problem for us because we use these
+        // as string values alongside well defined casters.
+        type: x.description === 'Document' ? 'Object' : x.description,
+      })
     );
     const previousStageFields = getSchema(previousStage?.previewDocs ?? []);
 
     const fields =
       previousStageFields.length > 0 && autoPreview
-        ? previousStageFields
+        ? previousStageFields.map((name) => ({ name, type: 'String' }))
         : mappedInitialFields;
 
     return {

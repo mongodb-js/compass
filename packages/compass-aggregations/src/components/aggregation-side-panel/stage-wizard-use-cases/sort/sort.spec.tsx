@@ -9,16 +9,28 @@ import {
   setSelectValue,
   setComboboxValue,
 } from '../../../../../test/form-helper';
+import type { StageWizardFields } from '..';
+
+const SAMPLE_FIELDS: StageWizardFields = [
+  {
+    name: 'street',
+    type: 'String',
+  },
+  {
+    name: 'city',
+    type: 'String',
+  },
+  {
+    name: 'zip',
+    type: 'String',
+  },
+];
 
 const renderSortForm = (
   props: Partial<ComponentProps<typeof SortForm>> = {}
 ) => {
   return render(
-    <SortForm
-      fields={['street', 'city', 'zip']}
-      onChange={() => {}}
-      {...props}
-    />
+    <SortForm fields={SAMPLE_FIELDS} onChange={() => {}} {...props} />
   );
 };
 
