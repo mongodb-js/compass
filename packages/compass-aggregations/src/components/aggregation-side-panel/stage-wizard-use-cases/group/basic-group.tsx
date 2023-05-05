@@ -4,8 +4,8 @@ import {
   css,
   ComboboxWithCustomOption,
 } from '@mongodb-js/compass-components';
-import React, { useMemo, useState } from 'react';
-import { mapFieldsToGroupId } from '../utils';
+import React, { useState, useMemo } from 'react';
+import { mapFieldsToAccumulatorValue } from '../utils';
 import type { WizardComponentProps } from '..';
 
 const containerStyles = css({
@@ -18,7 +18,7 @@ const comboboxStyles = css({ width: '350px' });
 
 const mapGroupFormStateToStageValue = (formState: string[]) => {
   return {
-    _id: mapFieldsToGroupId(formState),
+    _id: mapFieldsToAccumulatorValue(formState),
   };
 };
 

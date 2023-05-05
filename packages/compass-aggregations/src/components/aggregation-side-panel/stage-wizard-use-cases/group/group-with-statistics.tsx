@@ -14,7 +14,7 @@ import { sortBy } from 'lodash';
 import { ACCUMULATORS as MDB_ACCUMULATORS } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
 import semver from 'semver';
-import { mapFieldToPropertyName, mapFieldsToGroupId } from '../utils';
+import { mapFieldToPropertyName, mapFieldsToAccumulatorValue } from '../utils';
 import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 
@@ -109,12 +109,12 @@ type GroupWithStatisticsFormData = {
 };
 
 const _getGroupAccumulatorKey = ({ field, accumulator }: GroupAccumulators) => {
-  // _id is by default the grouping key. So, we can not use this
-  // field as an property name.
-  if (field === '_id') {
-    return `${accumulator.replace(/\$/g, '')}_id`;
-  }
-  return mapFieldToPropertyName(field);
+  // we will always prepend an accumulator to the key as user
+  // can choose to calculate values of the same field in a document.
+  const prefix = accumulator.replace(/\$/g, '');
+  const propertyName = mapFieldToPropertyName(field);
+  const underscore = propertyName.startsWith('_') ? '' : '_';
+  return [prefix, underscore, propertyName].join('');
 };
 
 const _getGroupAccumulatorValue = ({
@@ -135,7 +135,7 @@ const mapGroupFormStateToStageValue = (
       .map((x) => [_getGroupAccumulatorKey(x), _getGroupAccumulatorValue(x)])
   );
   return {
-    _id: mapFieldsToGroupId(data.groupFields),
+    _id: mapFieldsToAccumulatorValue(data.groupFields),
     ...values,
   };
 };

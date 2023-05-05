@@ -5,6 +5,7 @@ import ProjectUseCase from './project/project';
 import BasicGroupUseCase from './group/basic-group';
 import GroupWithStatistics from './group/group-with-statistics';
 import MatchUseCase from './match/match';
+import GroupWithSubset from './group/group-with-subset';
 import type { TypeCastTypes } from 'hadron-type-checker';
 
 export type StageWizardFields = {
@@ -63,6 +64,12 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
     title: 'Compute values within the groups I create',
     stageOperator: '$group',
     wizardComponent: GroupWithStatistics,
+  },
+  {
+    id: 'group-with-subset',
+    title: 'Return a  subset of values based on their order or rank',
+    stageOperator: '$group',
+    wizardComponent: GroupWithSubset,
   },
 ];
 

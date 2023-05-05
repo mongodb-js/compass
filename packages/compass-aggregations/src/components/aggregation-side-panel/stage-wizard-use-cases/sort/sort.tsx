@@ -9,18 +9,9 @@ import {
   ComboboxWithCustomOption,
 } from '@mongodb-js/compass-components';
 import React, { useEffect, useMemo, useState } from 'react';
-import type { WizardComponentProps } from '..';
+import { SORT_DIRECTION_OPTIONS, mapSortDataToStageValue } from '../utils';
 
-const SORT_DIRECTION_OPTIONS = [
-  {
-    label: 'Ascending',
-    value: 'Asc',
-  },
-  {
-    label: 'Descending',
-    value: 'Desc',
-  },
-] as const;
+import type { WizardComponentProps } from '..';
 
 type SortDirection = typeof SORT_DIRECTION_OPTIONS[number]['value'];
 type SortFieldState = {
@@ -53,12 +44,7 @@ const sortDirectionStyles = css({
 const mapSortFormDataToStageValue = (
   formData: SortFieldState[]
 ): Record<string, number> => {
-  return formData.reduce<Record<string, number>>((acc, sort) => {
-    if (sort.field) {
-      acc[sort.field] = sort.direction === 'Asc' ? 1 : -1;
-    }
-    return acc;
-  }, {});
+  return mapSortDataToStageValue(formData);
 };
 
 export const SortForm = ({ fields, onChange }: WizardComponentProps) => {

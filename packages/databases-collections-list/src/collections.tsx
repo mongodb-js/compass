@@ -18,7 +18,6 @@ type Collection = {
   free_storage_size: number;
   index_count: number;
   index_size: number;
-  size: number;
   properties: { id: string }[];
   source?: Collection;
 };
@@ -125,7 +124,9 @@ const CollectionsList: React.FunctionComponent<{
                   value: compactBytes(
                     coll.storage_size - coll.free_storage_size
                   ),
-                  hint: `Uncompressed data size: ${compactBytes(coll.size)}`,
+                  hint: `Uncompressed data size: ${compactBytes(
+                    coll.document_size
+                  )}`,
                 },
                 {
                   label: 'Documents',

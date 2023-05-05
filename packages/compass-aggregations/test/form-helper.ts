@@ -49,6 +49,7 @@ export const setComboboxValue = (
       skipPointerEventsCheck: true,
     }
   );
+  userEvent.keyboard('{Escape}');
 };
 
 export const setMultiSelectComboboxValues = (
@@ -69,6 +70,7 @@ export const setMultiSelectComboboxValues = (
       });
     }
   });
+  userEvent.keyboard('{Escape}');
 };
 
 export const setInputElementValue = (
@@ -76,8 +78,8 @@ export const setInputElementValue = (
   value: string,
   parentElement?: HTMLElement
 ) => {
-  const input = _getContainer(parentElement).getByRole('textbox', {
-    name,
+  const input = _getContainer(parentElement).getByLabelText(name, {
+    selector: 'input',
   });
   userEvent.clear(input);
   userEvent.type(input, value);
