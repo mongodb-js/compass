@@ -263,7 +263,7 @@ export const GroupWithSubset = ({
       ACCUMULATORS.find(
         (x) => x.value === formData.accumulator && x.needsSortFields
       ),
-    [serverVersion, formData.accumulator]
+    [formData.accumulator]
   );
 
   return (
