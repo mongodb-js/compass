@@ -6,7 +6,7 @@ import type { FieldsToExportOption, FieldsToExport } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
 import { createProjectionFromSchemaFields } from '../export/gather-fields';
 import type { ExportQuery } from '../export/export-types';
-import { newGetQueryAsShellJSString } from '../utils/get-shell-js';
+import { getQueryAsShellJSString } from '../utils/get-shell-js';
 
 const containerStyles = css({
   marginBottom: spacing[3],
@@ -27,7 +27,7 @@ function ExportCodeView({
 }: ExportCodeViewProps) {
   const code = useMemo(() => {
     if (selectedFieldOption === 'select-fields') {
-      return newGetQueryAsShellJSString({
+      return getQueryAsShellJSString({
         query: {
           ...(query ?? {
             filter: {},
@@ -42,7 +42,7 @@ function ExportCodeView({
       });
     }
 
-    return newGetQueryAsShellJSString({
+    return getQueryAsShellJSString({
       query: query ?? {
         filter: {},
       },
