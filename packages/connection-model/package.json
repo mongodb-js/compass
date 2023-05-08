@@ -20,9 +20,9 @@
   "compass:main": "index.js",
   "scripts": {
     "test-check-ci": "npm run check && npm test",
-    "pretest": "mongodb-runner install && mongodb-runner start --port=27018",
+    "pretest": "mongodb-runner install && mongodb-runner start --port=27020",
     "test": "mocha",
-    "posttest": "mongodb-runner stop --port=27018",
+    "posttest": "mongodb-runner stop --port=27020",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
     "depcheck": "depcheck",

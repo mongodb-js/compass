@@ -43,7 +43,7 @@ describe('connectMongoClient', function () {
       const [metadataClient, crudClient, tunnel, { url, options }] =
         await connectMongoClient(
           {
-            connectionString: 'mongodb://localhost:27018',
+            connectionString: 'mongodb://localhost:27021',
           },
           setupListeners
         );
@@ -53,7 +53,7 @@ describe('connectMongoClient', function () {
       }
 
       expect(metadataClient).to.equal(crudClient);
-      expect(url).to.equal('mongodb://localhost:27018');
+      expect(url).to.equal('mongodb://localhost:27021');
 
       expect(options).to.deep.equal({
         monitorCommands: true,
@@ -74,7 +74,7 @@ describe('connectMongoClient', function () {
       const [metadataClient, crudClient, tunnel, { url, options }] =
         await connectMongoClient(
           {
-            connectionString: 'mongodb://localhost:27018',
+            connectionString: 'mongodb://localhost:27021',
             fleOptions: {
               storeCredentials: false,
               autoEncryption,
@@ -90,7 +90,7 @@ describe('connectMongoClient', function () {
       expect(metadataClient).to.not.equal(crudClient);
       expect(metadataClient.options.autoEncryption).to.equal(undefined);
       expect(crudClient.options.autoEncryption).to.be.an('object');
-      expect(url).to.equal('mongodb://localhost:27018');
+      expect(url).to.equal('mongodb://localhost:27021');
 
       expect(options).to.deep.equal({
         monitorCommands: true,
@@ -105,7 +105,7 @@ describe('connectMongoClient', function () {
         await connectMongoClient(
           {
             connectionString:
-              'mongodb://localhost:27018/?directConnection=false',
+              'mongodb://localhost:27021/?directConnection=false',
           },
           setupListeners
         );
@@ -116,7 +116,7 @@ describe('connectMongoClient', function () {
 
       assert.strictEqual(
         url,
-        'mongodb://localhost:27018/?directConnection=false'
+        'mongodb://localhost:27021/?directConnection=false'
       );
 
       assert.deepStrictEqual(options, {
@@ -146,7 +146,7 @@ describe('connectMongoClient', function () {
       const [metadataClient, crudClient] = await connectMongoClient(
         {
           connectionString:
-            'mongodb://localhost:27018/?readPreference=secondaryPreferred',
+            'mongodb://localhost:27021/?readPreference=secondaryPreferred',
         },
         (client) => client.on('commandStarted', (ev) => commands.push(ev))
       );
