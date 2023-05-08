@@ -231,7 +231,7 @@ This document was automatically generated on Mon May 08 2023.
 | [duplexer2](#duplexer2-0.1.4) | 0.1.4 | BSD-3-Clause |
 | [duplexer3](#duplexer3-0.1.4) | 0.1.4 | BSD-3-Clause |
 | [ecc-jsbn](#ecc-jsbn-0.1.2) | 0.1.2 | MIT |
-| [ejson-shell-parser](#ejson-shell-parser-1.2.1) | 1.2.1 | MIT |
+| [ejson-shell-parser](#ejson-shell-parser-1.2.4) | 1.2.4 | MIT |
 | [electron](#electron-22.3.8) | 22.3.8 | MIT |
 | [electron-dl](#electron-dl-3.5.0) | 3.5.0 | MIT |
 | [electron-squirrel-startup](#electron-squirrel-startup-1.0.0) | 1.0.0 | Apache-2.0 |
@@ -19852,8 +19852,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-<a id="ejson-shell-parser-1.2.1"></a>
-### ejson-shell-parser 1.2.1
+<a id="ejson-shell-parser-1.2.4"></a>
+### ejson-shell-parser 1.2.4
 
 **License**: MIT
 
