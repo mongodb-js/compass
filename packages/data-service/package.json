@@ -92,6 +92,6 @@
     "typescript": "^5.0.4"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^2.4.0"
+    "mongodb-client-encryption": "^2.8.0-alpha.1"
   }
 }

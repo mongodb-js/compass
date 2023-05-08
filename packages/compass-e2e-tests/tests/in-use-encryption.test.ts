@@ -141,14 +141,10 @@ describe('CSFLE / QE', function () {
     });
   });
 
-  describe('server version gte 6.0.0', function () {
+  describe('server version gte 7.0.0', function () {
     before(function () {
-      if (!serverSatisfies('>= 6.0.0', true)) {
-        return this.skip();
-      }
-
-      // temporarily disable for latest-alpha because the CSFLE fails until updated
-      if (!serverSatisfies('<= 6.x.x', true)) {
+      // Queryable Encryption v2 only available on 7.0+
+      if (serverSatisfies('< 7.0.alpha0', true)) {
         return this.skip();
       }
     });
@@ -244,12 +240,10 @@ describe('CSFLE / QE', function () {
       let compass: Compass;
       let browser: CompassBrowser;
       let plainMongo: MongoClient;
-      let hasRangeSupport = false;
 
       before(async function () {
         compass = await beforeTests();
         browser = compass.browser;
-        hasRangeSupport = serverSatisfies('>= 6.2.0', true);
       });
 
       beforeEach(async function () {
@@ -276,11 +270,8 @@ describe('CSFLE / QE', function () {
                   bsonType: 'string'
                 }
               ]
-            }
-            ${
-              hasRangeSupport
-                ? `
-            , '${databaseName}.${collectionNameRange}': {
+            },
+            '${databaseName}.${collectionNameRange}': {
               fields: [
                 {
                   path: 'date',
@@ -295,9 +286,6 @@ describe('CSFLE / QE', function () {
                   }]
                 }
               ]
-            }
-            `
-                : ``
             }
           }`,
         });
@@ -459,10 +447,6 @@ describe('CSFLE / QE', function () {
         ['range', collectionNameRange],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
-          if (mode === 'range' && !hasRangeSupport) {
-            return this.skip();
-          }
-
           const [field, oldValue, newValue] =
             mode !== 'range'
               ? ['phoneNumber', '"30303030"', '"10101010"']
