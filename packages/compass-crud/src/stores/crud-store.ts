@@ -1606,7 +1606,7 @@ export async function findAndModifyWithFLEFallback(
       error = e as Error;
     }
 
-    if (!error && docs.length) {
+    if (!error && docs && docs.length) {
       try {
         if (modificationType === 'update') {
           await ds.updateOne(ns, { _id: docs[0]._id }, object);
@@ -1647,7 +1647,7 @@ export async function findAndModifyWithFLEFallback(
       } catch (e) {
         error = e as Error;
       }
-      if (!error && docs.length) {
+      if (!error && docs && docs.length) {
         [d] = docs;
         originalError = undefined;
       } else {
