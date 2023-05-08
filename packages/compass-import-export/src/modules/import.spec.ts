@@ -57,7 +57,12 @@ describe('import [module]', function () {
         false
       );
 
-      mockStore.dispatch(openImport('test.test'));
+      mockStore.dispatch(
+        openImport({
+          namespace: 'test.test',
+          origin: 'menu',
+        })
+      );
 
       expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
         true
@@ -74,7 +79,12 @@ describe('import [module]', function () {
       );
       expect(mockStore.getState().importData.isOpen).to.equal(false);
 
-      mockStore.dispatch(openImport('test.test'));
+      mockStore.dispatch(
+        openImport({
+          namespace: 'test.test',
+          origin: 'menu',
+        })
+      );
 
       expect(mockStore.getState().ns).to.equal(testNS);
       expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(

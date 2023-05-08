@@ -11,6 +11,8 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import { SORT_DIRECTION_OPTIONS, mapSortDataToStageValue } from '../utils';
 
+import type { WizardComponentProps } from '..';
+
 type SortDirection = typeof SORT_DIRECTION_OPTIONS[number]['value'];
 type SortFieldState = {
   field: string;
@@ -45,13 +47,8 @@ const mapSortFormDataToStageValue = (
   return mapSortDataToStageValue(formData);
 };
 
-export const SortForm = ({
-  fields,
-  onChange,
-}: {
-  fields: string[];
-  onChange: (value: string, error: Error | null) => void;
-}) => {
+export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
+  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [formData, setFormData] = useState<SortFieldState[]>([
     {
       field: '',
@@ -100,10 +97,10 @@ export const SortForm = ({
   const comboboxStyles = useMemo(() => {
     return {
       width: `calc(${String(
-        Math.max(...fields.map((label) => label.length), 10)
+        Math.max(...fieldNames.map((label) => label.length), 10)
       )}ch)`,
     };
-  }, [fields]);
+  }, [fieldNames]);
 
   return (
     <div className={containerStyles}>
@@ -124,7 +121,7 @@ export const SortForm = ({
               clearable={false}
               value={sort.field}
               onChange={(value: string | null) => onSelectField(index, value)}
-              options={fields}
+              options={fieldNames}
               optionLabel="Field:"
               // Used for testing to access the popover for a stage
               popoverClassName={`sort-form-${index}-field-combobox`}

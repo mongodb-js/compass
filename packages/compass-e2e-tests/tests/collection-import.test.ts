@@ -7,6 +7,8 @@ import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { startTelemetryServer } from '../helpers/telemetry';
+import type { Telemetry } from '../helpers/telemetry';
 import {
   createDummyCollections,
   createNumbersCollection,
@@ -87,8 +89,10 @@ async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
 describe('Collection import', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let telemetry: Telemetry;
 
   before(async function () {
+    telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
   });
@@ -101,6 +105,7 @@ describe('Collection import', function () {
 
   after(async function () {
     await afterTests(compass, this.currentTest);
+    await telemetry.stop();
   });
 
   afterEach(async function () {
@@ -506,6 +511,8 @@ describe('Collection import', function () {
     // deselect a field
     await unselectFieldName(browser, 'license');
 
+    const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+
     // Confirm import.
     await browser.clickVisible(Selectors.ImportConfirm);
 
@@ -557,6 +564,19 @@ describe('Collection import', function () {
       number_of_reviews_ltm: '2',
       // NOTE: no license field
     });
+
+    const importCompletedEvent = await telemetryEntry('Import Completed');
+    delete importCompletedEvent.duration; // Duration varies.
+    expect(importCompletedEvent).to.deep.equal({
+      delimiter: ',',
+      file_type: 'csv',
+      all_fields: false,
+      stop_on_error_selected: false,
+      number_of_docs: 16116,
+      success: true,
+      ignore_empty_strings: true,
+    });
+    expect(telemetry.screens()).to.include('import_modal');
   });
 
   it('supports CSV files with arrays, objects and arrays of objects', async function () {
@@ -1135,21 +1155,13 @@ describe('Collection import', function () {
   });
 
   describe('aborting an import', function () {
-    beforeEach(function () {
-      process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT = 'true';
-    });
-
-    afterEach(function () {
-      delete process.env.COMPASS_E2E_TEST_IMPORT_ABORT_TIMEOUT;
-    });
-
     it('aborts an in progress CSV import', async function () {
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
       await browser.navigateToCollectionTab(
         'test',
-        'import-abort',
+        'compass-import-abort-e2e-test',
         'Documents'
       );
 
@@ -1170,17 +1182,17 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
-      const stopImportButton = browser.$(Selectors.ImportToastAbort);
-      await stopImportButton.waitForDisplayed();
-      await browser.clickVisible(Selectors.ImportToastAbort);
-      if (await stopImportButton.isDisplayed()) {
-        // Clicking the abort was finicky on RHEL + Ubuntu, so we try twice.
-        await browser.clickVisible(Selectors.ImportToastAbort);
-      }
-
-      // Wait for the done toast to appear.
       const toastElement = await browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
+      // Click the toast element. This focuses the toast, and clicking the cancel
+      // button isn't consistent without it.
+      await browser.clickVisible(toastElement);
+
+      const importAbortButton = await browser.$(Selectors.ImportToastAbort);
+      await importAbortButton.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportToastAbort);
+
+      // Wait for the done toast to appear.
       await browser
         .$(Selectors.closeToastButton(Selectors.ImportToast))
         .waitForDisplayed();
@@ -1220,7 +1232,7 @@ describe('Collection import', function () {
 
       await browser.navigateToCollectionTab(
         'test',
-        'import-abort',
+        'compass-import-abort-e2e-test',
         'Documents'
       );
 
@@ -1241,17 +1253,17 @@ describe('Collection import', function () {
       await browser.clickVisible(Selectors.ImportConfirm);
 
       // Wait for the in progress toast to appear and click stop.
-      const stopImportButton = browser.$(Selectors.ImportToastAbort);
-      await stopImportButton.waitForDisplayed();
-      await browser.clickVisible(Selectors.ImportToastAbort);
-      if (await stopImportButton.isDisplayed()) {
-        // Clicking the abort was finicky on RHEL + Ubuntu, so we try twice.
-        await browser.clickVisible(Selectors.ImportToastAbort);
-      }
-
-      // Wait for the done toast to appear.
       const toastElement = await browser.$(Selectors.ImportToast);
       await toastElement.waitForDisplayed();
+      // Click the toast element. This focuses the toast, and clicking the cancel
+      // button isn't consistent without it.
+      await browser.clickVisible(toastElement);
+
+      const importAbortButton = await browser.$(Selectors.ImportToastAbort);
+      await importAbortButton.waitForDisplayed();
+      await browser.clickVisible(Selectors.ImportToastAbort);
+
+      // Wait for the done toast to appear.
       await browser
         .$(Selectors.closeToastButton(Selectors.ImportToast))
         .waitForDisplayed();
@@ -1286,7 +1298,7 @@ describe('Collection import', function () {
 
       await browser.navigateToCollectionTab(
         'test',
-        'import-abort',
+        'compass-import-abort-e2e-test',
         'Documents'
       );
 

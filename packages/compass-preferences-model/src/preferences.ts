@@ -17,7 +17,6 @@ export type FeatureFlags = {
   showDevFeatureFlags?: boolean;
   lgDarkmode?: boolean;
   debugUseCsfleSchemaMap?: boolean;
-  useNewExport?: boolean;
   useStageWizard?: boolean;
 };
 
@@ -252,23 +251,6 @@ const featureFlagsProps: Required<{
     global: true,
     description: {
       short: 'CSFLE Schema Map Debugging',
-    },
-  },
-
-  /**
-   * Feature flag for enabling the use of the new backend api for
-   * exporting documents. Epic: COMPASS-5576
-   */
-  useNewExport: {
-    type: 'boolean',
-    required: false,
-    default: false,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'New Export',
-      long: 'Use the new export backend and views when exporting documents.',
     },
   },
 

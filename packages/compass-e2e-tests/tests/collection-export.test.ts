@@ -24,22 +24,6 @@ async function selectExportFileTypeJSON(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeJSON);
 }
 
-async function waitForExportToFinishAndCloseToast(browser: CompassBrowser) {
-  // Wait for the export to finish and close the toast.
-  const toastElement = await browser.$(Selectors.ExportToast);
-  await toastElement.waitForDisplayed();
-
-  const exportShowFileButtonElement = await browser.$(
-    Selectors.ExportToastShowFile
-  );
-  await exportShowFileButtonElement.waitForDisplayed();
-  await browser
-    .$(Selectors.closeToastButton(Selectors.ExportToast))
-    .waitForDisplayed();
-  await browser.clickVisible(Selectors.closeToastButton(Selectors.ExportToast));
-  await toastElement.waitForDisplayed({ reverse: true });
-}
-
 async function toggleExportFieldCheckbox(
   browser: CompassBrowser,
   fieldName: string
@@ -58,9 +42,7 @@ describe('Collection export', function () {
 
   before(async function () {
     telemetry = await startTelemetryServer();
-    compass = await beforeTests({
-      extraSpawnArgs: ['--useNewExport=true'],
-    });
+    compass = await beforeTests();
     browser = compass.browser;
   });
 
@@ -123,7 +105,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('filtered-numbers-subset.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -131,7 +113,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -152,6 +134,8 @@ describe('Collection export', function () {
         file_type: 'csv',
         field_count: 2,
         field_option: 'select-fields',
+        fields_added_count: 0,
+        fields_not_selected_count: 1,
         number_of_docs: 1,
         success: true,
         stopped: false,
@@ -194,7 +178,7 @@ describe('Collection export', function () {
       await selectExportFileTypeCSV(browser);
       await browser.clickVisible(Selectors.ExportModalExportButton);
       const filename = outputFilename('all-fields-filtered.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -202,7 +186,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Confirm that we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -257,7 +241,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('filtered-numbers-projection.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -265,7 +249,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -312,7 +296,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('full-collection.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -320,7 +304,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Make sure we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -384,7 +368,7 @@ describe('Collection export', function () {
       // Leave the file type on the default (JSON).
       await browser.clickVisible(Selectors.ExportModalExportButton);
       const filename = outputFilename('filtered-numbers-subset.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -392,7 +376,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -410,10 +394,13 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
+        json_format: 'default',
         field_count: 2,
         has_projection: false,
         field_option: 'select-fields',
         number_of_docs: 1,
+        fields_added_count: 0,
+        fields_not_selected_count: 1,
         success: true,
         stopped: false,
         type: 'query',
@@ -454,7 +441,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('all-fields-filtered.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -462,7 +449,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Confirm that we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -476,6 +463,7 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
+        json_format: 'default',
         field_option: 'all-fields',
         has_projection: false,
         number_of_docs: 1,
@@ -503,7 +491,7 @@ describe('Collection export', function () {
 
       // Go with the default file type (JSON).
       const filename = outputFilename('full-collection.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -511,7 +499,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Make sure we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -527,6 +515,61 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: true,
         file_type: 'json',
+        json_format: 'default',
+        number_of_docs: 1000,
+        success: true,
+        stopped: false,
+        type: 'query',
+      });
+    });
+
+    it('supports canonical JSON format', async function () {
+      const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
+
+      // Set a query that we ignore.
+      await browser.runFindOperation('Documents', '{ i: 5 }');
+
+      // Open the modal.
+      await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+      await browser.clickVisible(
+        Selectors.ExportCollectionFullCollectionOption
+      );
+      const exportModal = await browser.$(Selectors.ExportModal);
+      await exportModal.waitForDisplayed();
+
+      // Set the json format to canonical.
+      await browser.clickVisible(Selectors.ExportJSONFormatAccordion);
+      await browser.clickParent(Selectors.ExportJSONFormatCanonical);
+
+      await browser.clickVisible(Selectors.ExportModalExportButton);
+
+      // Go with the default file type (JSON).
+      const filename = outputFilename('full-collection-canonical.json');
+      await browser.setExportFilename(filename);
+
+      // Wait for the modal to go away.
+      const exportModalElement = await browser.$(Selectors.ExportModal);
+      await exportModalElement.waitForDisplayed({
+        reverse: true,
+      });
+
+      await browser.waitForExportToFinishAndCloseToast();
+
+      // Make sure we exported what we expected to export.
+      const text = await fs.readFile(filename, 'utf-8');
+      const data = JSON.parse(text);
+      expect(data).to.have.lengthOf(1000);
+      for (let i = 0; i < 1000; ++i) {
+        expect(data[i]).to.have.all.keys('i', 'j', '_id');
+        expect(data[i].i).to.deep.equal({ $numberInt: `${i}` });
+      }
+
+      const exportCompletedEvent = await telemetryEntry('Export Completed');
+      delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent).to.deep.equal({
+        all_docs: true,
+        file_type: 'json',
+        json_format: 'canonical',
         number_of_docs: 1000,
         success: true,
         stopped: false,
@@ -565,7 +608,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('aborted-export-test.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -619,6 +662,8 @@ describe('Collection export', function () {
         field_option: 'select-fields',
         number_of_docs: 0,
         has_projection: false,
+        fields_added_count: 0,
+        fields_not_selected_count: 1,
         success: true,
         type: 'query',
         stopped: true,
@@ -655,7 +700,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('aborted-export-test.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -698,7 +743,10 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
+        json_format: 'default',
         field_count: 2,
+        fields_added_count: 0,
+        fields_not_selected_count: 1,
         field_option: 'select-fields',
         number_of_docs: 0,
         has_projection: false,
@@ -740,7 +788,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('disconnected-export-test.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -792,6 +840,8 @@ describe('Collection export', function () {
         all_docs: false,
         file_type: 'csv',
         field_count: 2,
+        fields_added_count: 0,
+        fields_not_selected_count: 1,
         field_option: 'select-fields',
         number_of_docs: 0,
         has_projection: false,
@@ -866,7 +916,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('complex-query-numbers.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -874,7 +924,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -894,6 +944,8 @@ describe('Collection export', function () {
         all_docs: false,
         file_type: 'csv',
         field_count: 2,
+        fields_added_count: 0,
+        fields_not_selected_count: 2,
         field_option: 'select-fields',
         has_projection: false,
         number_of_docs: 2,
@@ -955,7 +1007,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('complex-query-numbers.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -963,7 +1015,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -985,7 +1037,10 @@ describe('Collection export', function () {
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
+        json_format: 'default',
         field_count: 2,
+        fields_added_count: 0,
+        fields_not_selected_count: 2,
         field_option: 'select-fields',
         has_projection: false,
         number_of_docs: 2,

@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../../../modules';
 import { fetchCollectionFields } from '../../../../modules/collections-fields';
 import type { CollectionData } from '../../../../modules/collections-fields';
+import type { WizardComponentProps } from '..';
 
 const LOOKUP_TITLE = 'Join documents in';
 
@@ -43,17 +44,20 @@ const inputFieldStyles = css({
   width: '300px',
 });
 
+type LookupOwnProps = WizardComponentProps;
+type MappedProps = {
+  collectionsFields: Record<string, CollectionData>;
+  onSelectCollection: (collection: string) => void;
+};
+type LookupProps = LookupOwnProps & MappedProps;
+
 export const LookupForm = ({
   fields,
   collectionsFields,
   onSelectCollection,
   onChange,
-}: {
-  fields: string[];
-  collectionsFields: Record<string, CollectionData>;
-  onSelectCollection: (collection: string) => void;
-  onChange: (value: string, error: Error | null) => void;
-}) => {
+}: LookupProps) => {
+  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [formData, setFormData] = useState<LookupFormState>({
     as: '',
     from: '',
@@ -160,7 +164,7 @@ export const LookupForm = ({
           onChange={(value: string | null) =>
             onSelectOption('localField', value)
           }
-          options={fields}
+          options={fieldNames}
           optionLabel="Field:"
         />
       </div>

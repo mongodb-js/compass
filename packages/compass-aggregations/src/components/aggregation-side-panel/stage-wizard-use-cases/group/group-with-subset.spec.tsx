@@ -13,6 +13,30 @@ import {
   setInputElementValue,
 } from '../../../../../test/form-helper';
 import type { GroupWithSubsetFormData } from './group-with-subset';
+import type { StageWizardFields } from '..';
+
+const SAMPLE_FIELDS: StageWizardFields = [
+  {
+    name: 'address',
+    type: 'String',
+  },
+  {
+    name: 'street',
+    type: 'String',
+  },
+  {
+    name: 'name',
+    type: 'String',
+  },
+  {
+    name: 'initials',
+    type: 'String',
+  },
+  {
+    name: 'orders',
+    type: 'String',
+  },
+];
 
 const FORM_DATA: GroupWithSubsetFormData = {
   accumulator: '',
@@ -114,7 +138,7 @@ describe('group with subset', function () {
           <GroupWithSubset
             serverVersion="5.2.0"
             onChange={onChange}
-            fields={['address', 'street', 'name', 'initials', 'orders']}
+            fields={SAMPLE_FIELDS}
           />
         );
       });
@@ -277,7 +301,7 @@ describe('group with subset', function () {
           <GroupWithSubset
             serverVersion="5.0.0"
             onChange={onChange}
-            fields={['address', 'street', 'name', 'initials', 'orders']}
+            fields={SAMPLE_FIELDS}
           />
         );
       });

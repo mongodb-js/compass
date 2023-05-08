@@ -81,6 +81,7 @@ describe('export [module]', function () {
           query: {
             filter: {},
           },
+          origin: 'crud-toolbar',
           exportFullCollection: true,
         })
       );
@@ -340,6 +341,7 @@ describe('export [module]', function () {
           query: {
             filter: {},
           },
+          origin: 'menu',
           exportFullCollection: true,
         })
       );
@@ -348,6 +350,7 @@ describe('export [module]', function () {
       void testStore.dispatch(
         runExport({
           filePath: textExportFilePath,
+          jsonFormatVariant: 'default',
           fileType: 'json',
         })
       );
@@ -374,6 +377,7 @@ describe('export [module]', function () {
       testStore.dispatch(
         openExport({
           namespace: testNS,
+          origin: 'aggregations-toolbar',
           query: {
             filter: {},
           },
@@ -394,6 +398,7 @@ describe('export [module]', function () {
       void testStore.dispatch(
         runExport({
           filePath: textExportFilePath,
+          jsonFormatVariant: 'default',
           fileType: 'json',
         })
       );

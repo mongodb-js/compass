@@ -507,8 +507,6 @@ export const collectionHeaderTitle = (
 // Documents tab
 export const DocumentListActionBarMessage =
   '[data-testid="crud-document-count-display"]';
-export const ExportCollectionButton =
-  '[data-testid="export-collection-button"]'; // TODO(COMPASS-6582): Remove.
 export const ExportCollectionMenuButton =
   '[data-testid="crud-export-collection-show-actions"]';
 export const ExportCollectionQueryOption =
@@ -572,8 +570,7 @@ export const ImportAnalyzeError =
 export const ImportConfirm =
   '[data-testid="import-modal"] [data-testid="import-button"]';
 export const ImportToast = '[data-testid="toast-import-toast"]';
-export const ImportToastAbort =
-  '[data-testid="toast-import-toast"] [data-testid="toast-action-stop"]';
+export const ImportToastAbort = '[data-testid="toast-action-stop"]';
 export const ImportFieldLabel =
   '[data-testid="import-modal"] .import-field-label';
 export const ImportModalCloseButton = `${ImportModal} [aria-label*="Close"]`;
@@ -1050,30 +1047,20 @@ export const ExportQueryAllFieldsOption =
   '[data-testid="export-modal"] label[for="export-query-all-fields-option"]';
 export const ExportNextStepButton =
   '[data-testid="export-modal"] [data-testid="export-next-step-button"]';
-export const ExportSelectAllFieldsCheckbox =
-  '[data-testid="export-modal"] [data-testid="export-fields-select-all-table-checkbox"]';
-export const ExportModalFullCollectionOption =
-  '[data-testid="export-modal"] [data-testid="export-full-collection"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalSelectFieldsButton =
-  '[data-testid="export-modal"] [data-testid="select-fields-button"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalSelectOutputButton =
-  '[data-testid="export-modal"] [data-testid="select-output-button"]'; // TODO(COMPASS-6582): Remove.
+export const ExportJSONFormatAccordion =
+  '[data-testid="export-modal"] [data-testid="export-advanced-json-format"]';
+export const ExportJSONFormatCanonical =
+  '[data-testid="export-modal"] [data-testid="export-json-format-canonical"]';
 export const ExportModalExportButton =
-  '[data-testid="export-modal"] [data-testid="export-button"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalShowFileButton =
-  '[data-testid="export-modal"] [data-testid="show-file-button"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalCloseButton =
-  '[data-testid="export-modal"] [data-testid="close-button"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalFileInput =
-  '[data-testid="export-modal"] #export-file_file_input'; // // // // TODO(COMPASS-6582): Remove.
+  '[data-testid="export-modal"] [data-testid="export-button"]';
 export const ExportToast = '[data-testid="toast-export-toast"]';
 export const ExportToastAbort =
-  '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]'; // TODO: Add test that uses this.
+  '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]';
 export const ExportToastShowFile =
   '[data-testid="toast-export-toast"] [data-testid="toast-action-show file"]';
 
 export const exportModalExportField = (fieldName: string): string => {
-  return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`; // TODO(COMPASS-6582): Remove.
+  return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
 
 // Export to language modal

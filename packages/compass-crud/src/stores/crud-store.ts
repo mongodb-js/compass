@@ -8,9 +8,7 @@ import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import preferences, {
-  capMaxTimeMSAtPreferenceLimit,
-} from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 import {
   findDocuments,
@@ -961,7 +959,10 @@ class CrudStoreImpl
    * Emits a global app registry event the plugin listens to.
    */
   openImportFileDialog() {
-    this.globalAppRegistry.emit('open-import', { namespace: this.state.ns });
+    this.globalAppRegistry.emit('open-import', {
+      namespace: this.state.ns,
+      origin: 'empty-state',
+    });
   }
 
   /**
@@ -969,26 +970,13 @@ class CrudStoreImpl
    * Emits a global app registry event the plugin listens to.
    */
   openExportFileDialog(exportFullCollection?: boolean) {
-    // TODO(COMPASS-6582): Remove feature flag, use new export.
-    if (preferences.getPreferences().useNewExport) {
-      const { filter, project, collation, limit, skip, sort } =
-        this.state.query;
+    const { filter, project, collation, limit, skip, sort } = this.state.query;
 
-      this.globalAppRegistry.emit('open-export', {
-        namespace: this.state.ns,
-        query: { filter, project, collation, limit, skip, sort },
-        exportFullCollection,
-      });
-      return;
-    }
-
-    // Only three query fields that export modal will handle
-    const { filter, limit, skip } = this.state.query;
     this.globalAppRegistry.emit('open-export', {
       namespace: this.state.ns,
-      query: { filter, limit, skip },
-      // Pass the doc count to the export modal so we can avoid re-counting.
-      count: this.state.count,
+      query: { filter, project, collation, limit, skip, sort },
+      exportFullCollection,
+      origin: 'crud-toolbar',
     });
   }
 

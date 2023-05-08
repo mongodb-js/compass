@@ -34,6 +34,7 @@ import {
   exportJSONFromAggregation,
   exportJSONFromQuery,
 } from '../export/export-json';
+import type { ExportJSONFormat } from '../export/export-json';
 import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
 
 const { track, log, mongoLogId, debug } = createLoggerAndTelemetry(
@@ -81,6 +82,7 @@ export type ExportState = {
   isOpen: boolean;
   isInProgressMessageOpen: boolean;
   status: ExportStatus;
+  fieldsAddedCount: number; // For telemetry.
   errorLoadingFieldsToExport: string | undefined;
   fieldsToExportAbortController: AbortController | undefined;
   exportAbortController: AbortController | undefined;
@@ -95,6 +97,7 @@ export const initialState: ExportState = {
   query: {
     filter: {},
   },
+  fieldsAddedCount: 0,
   errorLoadingFieldsToExport: undefined,
   fieldsToExport: {},
   fieldsToExportAbortController: undefined,
@@ -131,6 +134,7 @@ export const enum ExportActionTypes {
 
 type OpenExportAction = {
   type: ExportActionTypes.OpenExport;
+  origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
 } & Omit<ExportOptions, 'fieldsToExport' | 'selectedFieldOption'>;
 
 export const openExport = (
@@ -326,9 +330,11 @@ export const selectFieldsToExport = (): ExportThunkAction<
 export const runExport = ({
   filePath,
   fileType,
+  jsonFormatVariant,
 }: {
   filePath: string;
   fileType: 'csv' | 'json';
+  jsonFormatVariant: ExportJSONFormat;
 }): ExportThunkAction<
   Promise<void>,
   | RunExportAction
@@ -360,11 +366,13 @@ export const runExport = ({
         aggregation,
         exportFullCollection,
         selectedFieldOption,
+        fieldsAddedCount,
       },
       dataService: { dataService },
     } = getState();
 
-    let fieldCount = 0;
+    let fieldsIncludedCount = 0;
+    let fieldsExcludedCount = 0;
 
     const query =
       exportFullCollection || aggregation
@@ -378,11 +386,14 @@ export const runExport = ({
             }),
             projection: createProjectionFromSchemaFields(
               Object.values(fieldsToExport)
-                .filter((field) => field.selected)
-                .map((field) => {
-                  fieldCount++;
-                  return field.path;
+                .filter((field) => {
+                  field.selected
+                    ? fieldsIncludedCount++
+                    : fieldsExcludedCount++;
+
+                  return field.selected;
                 })
+                .map((field) => field.path)
             ),
           }
         : _query;
@@ -392,6 +403,7 @@ export const runExport = ({
       filePath,
       fileType,
       exportFullCollection,
+      jsonFormatVariant,
       fieldsToExport,
       aggregation,
       query,
@@ -446,7 +458,7 @@ export const runExport = ({
         promise = exportJSONFromAggregation({
           ...baseExportOptions,
           aggregation,
-          variant: 'default',
+          variant: jsonFormatVariant,
         });
       }
     } else {
@@ -459,7 +471,7 @@ export const runExport = ({
         promise = exportJSONFromQuery({
           ...baseExportOptions,
           query,
-          variant: 'default',
+          variant: jsonFormatVariant,
         });
       }
     }
@@ -508,8 +520,17 @@ export const runExport = ({
           ? undefined
           : selectedFieldOption,
       file_type: fileType,
+      json_format: fileType === 'json' ? jsonFormatVariant : undefined,
       field_count:
-        selectedFieldOption === 'select-fields' ? fieldCount : undefined,
+        selectedFieldOption === 'select-fields'
+          ? fieldsIncludedCount
+          : undefined,
+      fields_added_count:
+        selectedFieldOption === 'select-fields' ? fieldsAddedCount : undefined,
+      fields_not_selected_count:
+        selectedFieldOption === 'select-fields'
+          ? fieldsExcludedCount
+          : undefined,
       number_of_docs: exportResult?.docsWritten,
       success: exportSucceeded,
       stopped: aborted,
@@ -562,6 +583,7 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
 
     track('Export Opened', {
       type: action.aggregation ? 'aggregation' : 'query',
+      origin: action.origin,
     });
 
     return {
@@ -575,6 +597,7 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
           : 'select-field-options',
       isInProgressMessageOpen: false,
       isOpen: true,
+      fieldsAddedCount: 0,
       fieldsToExport: {},
       errorLoadingFieldsToExport: undefined,
       selectedFieldOption: 'all-fields',
@@ -721,6 +744,7 @@ const exportReducer: Reducer<ExportState> = (state = initialState, action) => {
   ) {
     return {
       ...state,
+      fieldsAddedCount: state.fieldsAddedCount,
       fieldsToExport: {
         ...state.fieldsToExport,
         [getIdForSchemaPath(action.path)]: {

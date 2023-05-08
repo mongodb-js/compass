@@ -17,17 +17,17 @@ import { createDebug } from '../utils/logger';
 
 const debug = createDebug('export-json');
 
+export type ExportJSONFormat = 'default' | 'relaxed' | 'canonical';
+
 type ExportJSONOptions = {
   output: Writable;
   abortSignal?: AbortSignal;
   input: FindCursor | AggregationCursor;
   progressCallback?: (index: number) => void;
-  variant: 'default' | 'relaxed' | 'canonical';
+  variant: ExportJSONFormat;
 };
 
-function getEJSONOptionsForVariant(
-  variant: 'default' | 'relaxed' | 'canonical'
-) {
+function getEJSONOptionsForVariant(variant: ExportJSONFormat) {
   if (variant === 'relaxed') {
     return {
       relaxed: true,

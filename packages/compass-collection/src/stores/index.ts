@@ -6,7 +6,6 @@ import type { AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
-import preferences from 'compass-preferences-model';
 
 import appRegistry, {
   appRegistryActivated,
@@ -342,29 +341,20 @@ store.onActivated = (appRegistry: AppRegistry) => {
       const activeTab = state.tabs.find(
         (tab: WorkspaceTabObject) => tab.isActive === true
       );
-      if (activeTab) {
-        const crudStore = activeTab.localAppRegistry.getStore('CRUD.Store');
-        const { query: crudQuery, count } = crudStore.state;
-        // TODO(COMPASS-6582): Remove feature flag, use new export.
-        if (preferences.getPreferences().useNewExport) {
-          const { filter, project, collation, limit, skip, sort } = crudQuery;
-          appRegistry.emit('open-export', {
-            exportFullCollection: true,
-            namespace: activeTab.namespace,
-            query: { filter, project, collation, limit, skip, sort },
-            count,
-          });
-          return;
-        }
-
-        const { filter, project, collation, limit, skip, sort } = crudQuery;
-        appRegistry.emit('open-export', {
-          exportFullCollection: true,
-          namespace: activeTab.namespace,
-          query: { filter, project, collation, limit, skip, sort },
-          count,
-        });
+      if (!activeTab) {
+        return;
       }
+      const crudStore = activeTab.localAppRegistry.getStore('CRUD.Store');
+      const { query: crudQuery, count } = crudStore.state;
+
+      const { filter, project, collation, limit, skip, sort } = crudQuery;
+      appRegistry.emit('open-export', {
+        exportFullCollection: true,
+        namespace: activeTab.namespace,
+        query: { filter, project, collation, limit, skip, sort },
+        count,
+        origin: 'menu',
+      });
     });
 
     ipc.on('compass:open-import', () => {
@@ -374,7 +364,10 @@ store.onActivated = (appRegistry: AppRegistry) => {
           (tab: WorkspaceTabObject) => tab.isActive === true
         );
         if (activeTab) {
-          appRegistry.emit('open-import', { namespace: activeTab.namespace });
+          appRegistry.emit('open-import', {
+            namespace: activeTab.namespace,
+            origin: 'menu',
+          });
         }
       }
     });

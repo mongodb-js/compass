@@ -56,3 +56,4 @@ export * from './drop-database-from-sidebar';
 export * from './toggle-aggregation-side-panel';
 export * from './add-wizard';
 export * from './set-combo-box-value';
+export * from './wait-for-export-to-finish';
