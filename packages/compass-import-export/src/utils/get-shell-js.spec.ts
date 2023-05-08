@@ -78,7 +78,7 @@ describe('#newGetQueryAsShellJSString', function () {
         filter: { name: 'Arlo' },
       },
     });
-    const expected = `db.getCollection("pets").find(
+    const expected = `db.getCollection('pets').find(
   {name: 'Arlo'}
 )`;
     expect(ret).to.equal(expected);
@@ -91,7 +91,7 @@ describe('#newGetQueryAsShellJSString', function () {
         filter: { _id: new ObjectId('deadbeefdeadbeefdeadbeef') },
       },
     });
-    const expected = `db.getCollection("pets").find(
+    const expected = `db.getCollection('pets').find(
   {_id: ObjectId('deadbeefdeadbeefdeadbeef')}
 )`;
     expect(ret).to.equal(expected);
@@ -105,7 +105,7 @@ describe('#newGetQueryAsShellJSString', function () {
         projection: { name: 1 },
       },
     });
-    const expected = `db.getCollection("pets").find(
+    const expected = `db.getCollection('pets').find(
   {name: 'Arlo'},
   {name: 1}
 )`;
@@ -121,7 +121,7 @@ describe('#newGetQueryAsShellJSString', function () {
         limit: 100,
       },
     });
-    const expected = `db.getCollection("pets").find(
+    const expected = `db.getCollection('pets').find(
   {name: 'Arlo'},
   {name: 1}
 ).limit(100)`;
@@ -139,7 +139,7 @@ describe('#newGetQueryAsShellJSString', function () {
         skip: 1,
       },
     });
-    const expected = `db.getCollection("pets").find(
+    const expected = `db.getCollection('pets').find(
   {name: 'Arlo'},
   {name: 1}
 ).limit(100).skip(1)`;
@@ -158,11 +158,11 @@ describe('#newGetQueryAsShellJSString', function () {
         skip: 1,
       },
     });
-    const expected = `db.getCollection("pets").collate(
-  {locale: 'simple'}
-).find(
+    const expected = `db.getCollection('pets').find(
   {name: 'Arlo'},
   {name: 1}
+).collation(
+  {locale: 'simple'}
 ).limit(100).skip(1)`;
 
     expect(ret).to.equal(expected);

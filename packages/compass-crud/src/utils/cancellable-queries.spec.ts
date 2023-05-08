@@ -40,7 +40,7 @@ describe('cancellable-queries', function () {
     dataService = await connect(info.connectionOptions);
 
     currentOpsByNS = async function (ns) {
-      const ops = await dataService.currentOp(false);
+      const ops = await dataService.currentOp();
       return ops.inprog.filter((op) => op.ns === ns);
     };
 

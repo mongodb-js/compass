@@ -8,6 +8,30 @@ import {
   setComboboxValue,
   setSelectValue,
 } from '../../../../../test/form-helper';
+import type { StageWizardFields } from '..';
+
+const SAMPLE_FIELDS: StageWizardFields = [
+  {
+    name: 'address',
+    type: 'String',
+  },
+  {
+    name: 'street',
+    type: 'String',
+  },
+  {
+    name: 'name',
+    type: 'String',
+  },
+  {
+    name: 'initials',
+    type: 'String',
+  },
+  {
+    name: 'orders',
+    type: 'String',
+  },
+];
 
 describe('group with statistics', function () {
   context('renders a group form', function () {
@@ -73,7 +97,7 @@ describe('group with statistics', function () {
         <GroupWithStatistics
           serverVersion="5.0.0"
           onChange={onChange}
-          fields={['address', 'street', 'name', 'initials', 'orders']}
+          fields={SAMPLE_FIELDS}
         />
       );
     });
@@ -114,7 +138,7 @@ describe('group with statistics', function () {
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
-            orders: {
+            sum_orders: {
               $sum: '$orders',
             },
           })

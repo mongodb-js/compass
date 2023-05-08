@@ -372,6 +372,7 @@ export const exportAggregationResults =
             stages: pipeline,
             options,
           },
+          origin: 'aggregations-toolbar',
           count,
         })
       );

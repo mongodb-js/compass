@@ -30,6 +30,8 @@ import { ExportCodeView } from './export-code-view';
 import type { ExportAggregation, ExportQuery } from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
 import { FieldsToExportOptions } from './export-field-options';
+import type { ExportJSONFormat } from '../export/export-json';
+import { JSONFileTypeOptions } from './export-json-format-options';
 
 type ExportFileTypes = 'json' | 'csv';
 
@@ -37,26 +39,32 @@ function useExport(): [
   {
     fileType: ExportFileTypes;
     fieldsToExportOption: FieldsToExportOption;
+    jsonFormatVariant: ExportJSONFormat;
   },
   {
     setFileType: (fileType: ExportFileTypes) => void;
     setFieldsToExportOption: (
       fieldsToExportOption: FieldsToExportOption
     ) => void;
+    setJSONFormatVariant: (jsonFormatVariant: ExportJSONFormat) => void;
   }
 ] {
   const [fileType, setFileType] = useState<ExportFileTypes>('json');
   const [fieldsToExportOption, setFieldsToExportOption] =
     useState<FieldsToExportOption>('all-fields');
+  const [jsonFormatVariant, setJSONFormatVariant] =
+    useState<ExportJSONFormat>('default');
 
   return [
     {
       fileType,
       fieldsToExportOption,
+      jsonFormatVariant,
     },
     {
       setFileType,
       setFieldsToExportOption,
+      setJSONFormatVariant,
     },
   ];
 }
@@ -86,6 +94,7 @@ type ExportModalProps = {
   runExport: (exportOptions: {
     filePath: string;
     fileType: 'csv' | 'json';
+    jsonFormatVariant: ExportJSONFormat;
   }) => void;
   backToSelectFieldOptions: () => void;
   backToSelectFieldsToExport: () => void;
@@ -112,8 +121,8 @@ function ExportModal({
   backToSelectFieldsToExport,
 }: ExportModalProps) {
   const [
-    { fileType, fieldsToExportOption },
-    { setFileType, setFieldsToExportOption },
+    { fileType, jsonFormatVariant, fieldsToExportOption },
+    { setFileType, setJSONFormatVariant, setFieldsToExportOption },
   ] = useExport();
 
   useTrackOnChange(
@@ -154,9 +163,10 @@ function ExportModal({
       runExport({
         filePath,
         fileType,
+        jsonFormatVariant,
       });
     },
-    [runExport, fileType]
+    [runExport, fileType, jsonFormatVariant]
   );
 
   const onClickExport = useCallback(() => {
@@ -251,6 +261,12 @@ function ExportModal({
                 </Link>
               </Banner>
             )}
+            {fileType === 'json' && (
+              <JSONFileTypeOptions
+                jsonFormat={jsonFormatVariant}
+                setJSONFormatVariant={setJSONFormatVariant}
+              />
+            )}
             {exportFileError && (
               <Banner variant="danger" className={messageBannerStyles}>
                 Error creating output file: {exportFileError}
@@ -291,7 +307,8 @@ function ExportModal({
         )}
         {((status === 'ready-to-export' &&
           !exportFullCollection &&
-          !aggregation) ||
+          !aggregation &&
+          !(query && queryHasProjection(query))) ||
           status === 'select-fields-to-export') && (
           <Button className={closeButtonStyles} onClick={onClickBack}>
             Back

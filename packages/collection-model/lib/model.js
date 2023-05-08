@@ -132,9 +132,6 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
 
     // Normalized values from collStats command
     is_capped: 'boolean',
-    max: 'number',
-    is_power_of_two: 'boolean',
-    index_sizes: 'object',
     document_count: 'number',
     document_size: 'number',
     avg_document_size: 'number',
@@ -142,14 +139,6 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     free_storage_size: 'number',
     index_count: 'number',
     index_size: 'number',
-    padding_factor: 'number',
-    extent_count: 'number',
-    extent_last_size: 'number',
-    flags_user: 'number',
-    max_document_size: 'number',
-    size: 'number',
-    index_details: 'object',
-    wired_tiger: 'object',
   },
   derived: {
     ns: {

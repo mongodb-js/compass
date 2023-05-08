@@ -30,7 +30,6 @@ function createCollection(name) {
     free_storage_size: 0,
     index_count: 0,
     index_size: 0,
-    size: 0,
     properties: [],
   };
 }

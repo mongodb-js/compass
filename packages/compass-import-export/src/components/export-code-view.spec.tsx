@@ -35,7 +35,7 @@ describe('ExportCodeView [Component]', function () {
       const codeText = screen.getByTestId(
         'export-collection-code-preview-wrapper'
       ).textContent;
-      expect(codeText).to.include('db.getCollection("zebra").find(');
+      expect(codeText).to.include("db.getCollection('zebra').find(");
       expect(screen.queryByText('Export results from the query below')).to.be
         .visible;
     });

@@ -72,7 +72,7 @@ export async function createDummyCollections(): Promise<void> {
   promises.push(createBlankCollection(db, 'numbers'));
   promises.push(createBlankCollection(db, 'import-stop-first-error'));
   promises.push(createBlankCollection(db, 'import-with-errors'));
-  promises.push(createBlankCollection(db, 'import-abort'));
+  promises.push(createBlankCollection(db, 'compass-import-abort-e2e-test'));
 
   // lots of collections to test virtual scrolling
   for (let i = 0; i < 26; ++i) {
@@ -96,6 +96,22 @@ export async function createNumbersCollection(
   await db
     .collection(name)
     .insertMany([...Array(numberOfRecords).keys()].map((i) => ({ i, j: 0 })));
+}
+
+// Useful for testing collation with `numericOrdering`.
+export async function createNumbersStringCollection(
+  name = 'numbers-strings',
+  numberOfRecords = 10
+): Promise<void> {
+  const db = client.db('test');
+
+  await db.collection(name).insertMany(
+    [...Array(numberOfRecords).keys()].map((i) => ({
+      i,
+      iString: `${i * 20}`,
+      j: 0,
+    }))
+  );
 }
 
 export async function createMultipleCollections(): Promise<void> {

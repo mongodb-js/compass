@@ -9,13 +9,25 @@ import {
   openComboBox,
   setInputElementValue,
 } from '../../../../../test/form-helper';
+import type { StageWizardFields } from '..';
+
+const SAMPLE_FIELDS: StageWizardFields = [
+  {
+    name: 'address',
+    type: 'String',
+  },
+  {
+    name: 'city_id',
+    type: 'String',
+  },
+];
 
 const renderLookupForm = (
   props: Partial<ComponentProps<typeof LookupForm>> = {}
 ) => {
   return render(
     <LookupForm
-      fields={['address', 'city_id']}
+      fields={SAMPLE_FIELDS}
       collectionsFields={{}}
       onSelectCollection={() => {}}
       onChange={() => {}}

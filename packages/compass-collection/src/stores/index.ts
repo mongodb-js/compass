@@ -353,6 +353,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
             namespace: activeTab.namespace,
             query: { filter, project, collation, limit, skip, sort },
             count,
+            origin: 'menu',
           });
           return;
         }
@@ -374,7 +375,10 @@ store.onActivated = (appRegistry: AppRegistry) => {
           (tab: WorkspaceTabObject) => tab.isActive === true
         );
         if (activeTab) {
-          appRegistry.emit('open-import', { namespace: activeTab.namespace });
+          appRegistry.emit('open-import', {
+            namespace: activeTab.namespace,
+            origin: 'menu',
+          });
         }
       }
     });

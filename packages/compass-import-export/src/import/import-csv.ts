@@ -56,6 +56,11 @@ export async function importCSV({
   const headerFields: string[] = []; // will be filled via transformHeader callback below
   let parsedHeader: Record<string, PathPart[]>;
 
+  if (ns === 'test.compass-import-abort-e2e-test') {
+    // Give the test more than enough time to click the abort before we continue.
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+  }
+
   const docStream = new Transform({
     objectMode: true,
     transform: function (chunk: Record<string, string>, encoding, callback) {

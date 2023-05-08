@@ -1,5 +1,5 @@
 import os from 'os';
-import { EJSON } from 'bson';
+import { EJSON, Long } from 'bson';
 import fs from 'fs';
 import path from 'path';
 import chai from 'chai';
@@ -253,16 +253,30 @@ describe('exportJSON', function () {
     const abortController = new AbortController();
     abortController.abort();
 
+    const resultPath = path.join(tmpdir, 'test-abort.exported.ejson');
+
+    const output = fs.createWriteStream(resultPath);
     const result = await exportJSONFromQuery({
       dataService,
       ns: testNS,
-      output: temp.createWriteStream(),
+      output,
       variant: 'default',
       abortSignal: abortController.signal,
     });
 
     expect(result.docsWritten).to.equal(0);
     expect(result.aborted).to.be.true;
+
+    let resultText;
+    try {
+      resultText = await fs.promises.readFile(resultPath, 'utf8');
+    } catch (err) {
+      console.log(resultPath);
+      throw err;
+    }
+
+    const expectedText = '';
+    expect(resultText).to.deep.equal(expectedText);
   });
 
   it('exports aggregations', async function () {
@@ -385,6 +399,7 @@ describe('exportJSON', function () {
 
     sinon.stub(dataService, 'findCursor').returns({
       stream: () => mockReadStream,
+      close: () => {},
     } as unknown as FindCursor);
 
     await expect(
@@ -423,6 +438,8 @@ describe('exportJSON', function () {
     const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
       (name, index) => ({
         counter: index,
+        // 9007199254740992 is 2^53 (Number.MAX_SAFE_INTEGER)
+        counterLong: new Long(`${`${Number.MAX_SAFE_INTEGER}` + `${index}`}`),
         name,
       })
     );
@@ -454,6 +471,7 @@ describe('exportJSON', function () {
         projection: {
           _id: 0,
           name: 1,
+          counterLong: 1,
         },
       },
       variant: 'default',
@@ -472,13 +490,155 @@ describe('exportJSON', function () {
     }
 
     const expectedText = `[{
+  "counterLong": {
+    "$numberLong": "90071992547409912"
+  },
   "name": "orange"
 },
 {
+  "counterLong": {
+    "$numberLong": "90071992547409910"
+  },
   "name": "pineapple"
 }]`;
     expect(resultText).to.deep.equal(expectedText);
   });
 
-  // TODO(COMPASS-6611): It exports different json variant formats
+  it('exports with relaxed json format', async function () {
+    const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
+      (name, index) => ({
+        counter: index,
+        // 9007199254740992 is 2^53 (Number.MAX_SAFE_INTEGER)
+        counterLong: new Long(`${`${Number.MAX_SAFE_INTEGER}` + `${index}`}`),
+        name,
+      })
+    );
+    await dataService.insertMany(testNS, docs);
+    await dataService.insertOne(testNS, { testDoc: true });
+
+    const resultPath = path.join(
+      tmpdir,
+      'test-export-projection.exported.ejson'
+    );
+    const output = fs.createWriteStream(resultPath);
+    const abortController = new AbortController();
+
+    const result = await exportJSONFromQuery({
+      dataService,
+      ns: testNS,
+      output,
+      query: {
+        filter: {
+          name: {
+            $exists: true,
+          },
+        },
+        sort: {
+          name: 1,
+        },
+        limit: 2,
+        projection: {
+          _id: 0,
+        },
+      },
+      variant: 'relaxed',
+      abortSignal: abortController.signal,
+    });
+
+    expect(result.docsWritten).to.equal(2);
+    expect(result.aborted).to.be.false;
+
+    let resultText;
+    try {
+      resultText = await fs.promises.readFile(resultPath, 'utf8');
+    } catch (err) {
+      console.log(resultPath);
+      throw err;
+    }
+
+    const expectedText = `[{
+  "counter": 1,
+  "counterLong": 90071992547409900,
+  "name": "apple"
+},
+{
+  "counter": 2,
+  "counterLong": 90071992547409920,
+  "name": "orange"
+}]`;
+    expect(resultText).to.deep.equal(expectedText);
+  });
+
+  it('exports with canonical json format', async function () {
+    const docs = ['pineapple', 'apple', 'orange', 'turtle'].map(
+      (name, index) => ({
+        counter: index,
+        // 9007199254740991 is 2^53 - 1 (Number.MAX_SAFE_INTEGER)
+        counterLong: new Long(`${`${Number.MAX_SAFE_INTEGER}` + `${index}`}`),
+        name,
+      })
+    );
+    await dataService.insertMany(testNS, docs);
+    await dataService.insertOne(testNS, { testDoc: true });
+
+    const resultPath = path.join(
+      tmpdir,
+      'test-export-projection.exported.ejson'
+    );
+    const output = fs.createWriteStream(resultPath);
+    const abortController = new AbortController();
+
+    const result = await exportJSONFromQuery({
+      dataService,
+      ns: testNS,
+      output,
+      query: {
+        filter: {
+          name: {
+            $exists: true,
+          },
+        },
+        sort: {
+          name: 1,
+        },
+        limit: 2,
+        projection: {
+          _id: 0,
+        },
+      },
+      variant: 'canonical',
+      abortSignal: abortController.signal,
+    });
+
+    expect(result.docsWritten).to.equal(2);
+    expect(result.aborted).to.be.false;
+
+    let resultText;
+    try {
+      resultText = await fs.promises.readFile(resultPath, 'utf8');
+    } catch (err) {
+      console.log(resultPath);
+      throw err;
+    }
+
+    const expectedText = `[{
+  "counter": {
+    "$numberInt": "1"
+  },
+  "counterLong": {
+    "$numberLong": "90071992547409911"
+  },
+  "name": "apple"
+},
+{
+  "counter": {
+    "$numberInt": "2"
+  },
+  "counterLong": {
+    "$numberLong": "90071992547409912"
+  },
+  "name": "orange"
+}]`;
+    expect(resultText).to.deep.equal(expectedText);
+  });
 });
