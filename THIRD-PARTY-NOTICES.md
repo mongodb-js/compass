@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Sun May 07 2023.
+This document was automatically generated on Mon May 08 2023.
 
 ## List of dependencies
 
@@ -155,7 +155,6 @@ This document was automatically generated on Sun May 07 2023.
 | [analytics-node](#analytics-node-5.1.2) | 5.1.2 | MIT |
 | [ansi-styles](#ansi-styles-4.3.0) | 4.3.0 | MIT |
 | [ansi-styles](#ansi-styles-3.2.1) | 3.2.1 | MIT |
-| [ansi-to-html](#ansi-to-html-0.6.15) | 0.6.15 | MIT |
 | [antlr4](#antlr4-4.7.2) | 4.7.2 | BSD-3-Clause |
 | [array-next](#array-next-0.0.1) | 0.0.1 | MIT |
 | [asn1](#asn1-0.2.4) | 0.2.4 | MIT |
@@ -238,7 +237,6 @@ This document was automatically generated on Sun May 07 2023.
 | [electron-squirrel-startup](#electron-squirrel-startup-1.0.0) | 1.0.0 | Apache-2.0 |
 | [end-of-stream](#end-of-stream-1.4.4) | 1.4.4 | MIT |
 | [ensure-error](#ensure-error-3.0.1) | 3.0.1 | MIT |
-| [entities](#entities-2.2.0) | 2.2.0 | BSD-2-Clause |
 | [escape-goat](#escape-goat-2.1.1) | 2.1.1 | MIT |
 | [escape-string-regexp](#escape-string-regexp-1.0.5) | 1.0.5 | MIT |
 | [esprima](#esprima-4.0.1) | 4.0.1 | BSD-2-Clause |
@@ -250,7 +248,6 @@ This document was automatically generated on Sun May 07 2023.
 | [ext-name](#ext-name-5.0.0) | 5.0.0 | MIT |
 | [extend](#extend-3.0.2) | 3.0.2 | MIT |
 | [extsprintf](#extsprintf-1.3.0) | 1.3.0 | MIT |
-| [fast-csv](#fast-csv-3.7.0) | 3.7.0 | MIT |
 | [fast-deep-equal](#fast-deep-equal-3.1.3) | 3.1.3 | MIT |
 | [fast-deep-equal](#fast-deep-equal-2.0.1) | 2.0.1 | MIT |
 | [fast-json-stable-stringify](#fast-json-stable-stringify-2.1.0) | 2.1.0 | MIT |
@@ -258,7 +255,6 @@ This document was automatically generated on Sun May 07 2023.
 | [fast-xml-parser](#fast-xml-parser-4.1.2) | 4.1.2 | MIT |
 | [file-uri-to-path](#file-uri-to-path-1.0.0) | 1.0.0 | MIT |
 | [first-chunk-stream](#first-chunk-stream-3.0.0) | 3.0.0 | MIT |
-| [flat](#flat-5.0.0) | 5.0.0 | BSD-3-Clause |
 | [focus-trap](#focus-trap-6.9.4) | 6.9.4 | MIT |
 | [focus-trap](#focus-trap-7.2.0) | 7.2.0 | MIT |
 | [focus-trap-react](#focus-trap-react-8.10.0) | 8.10.0 | MIT |
@@ -303,7 +299,6 @@ This document was automatically generated on Sun May 07 2023.
 | [ipv6](#ipv6-3.1.1) | 3.1.1 | MIT |
 | [ipv6-normalize](#ipv6-normalize-1.0.1) | 1.0.1 | MIT |
 | [is-buffer](#is-buffer-1.1.6) | 1.1.6 | MIT |
-| [is-buffer](#is-buffer-2.0.5) | 2.0.5 | MIT |
 | [is-electron-renderer](#is-electron-renderer-2.0.1) | 2.0.1 | MIT |
 | [is-plain-obj](#is-plain-obj-1.1.0) | 1.1.0 | MIT |
 | [is-promise](#is-promise-2.2.2) | 2.2.2 | MIT |
@@ -394,7 +389,6 @@ This document was automatically generated on Sun May 07 2023.
 | [lodash.debounce](#lodash.debounce-4.0.8) | 4.0.8 | MIT |
 | [lodash.difference](#lodash.difference-3.2.2) | 3.2.2 | MIT |
 | [lodash.escape](#lodash.escape-3.2.0) | 3.2.0 | MIT |
-| [lodash.escaperegexp](#lodash.escaperegexp-4.1.2) | 4.1.2 | MIT |
 | [lodash.every](#lodash.every-4.6.0) | 4.6.0 | MIT |
 | [lodash.find](#lodash.find-3.2.1) | 3.2.1 | MIT |
 | [lodash.find](#lodash.find-4.6.0) | 4.6.0 | MIT |
@@ -416,14 +410,12 @@ This document was automatically generated on Sun May 07 2023.
 | [lodash.isarray](#lodash.isarray-3.0.4) | 3.0.4 | MIT |
 | [lodash.isarray](#lodash.isarray-2.4.1) | 2.4.1 | MIT |
 | [lodash.isarray](#lodash.isarray-4.0.0) | 4.0.0 | MIT |
-| [lodash.isboolean](#lodash.isboolean-3.0.3) | 3.0.3 | MIT |
 | [lodash.isdate](#lodash.isdate-3.0.3) | 3.0.3 | MIT |
 | [lodash.isempty](#lodash.isempty-3.0.4) | 3.0.4 | MIT |
 | [lodash.isequal](#lodash.isequal-3.0.4) | 3.0.4 | MIT |
 | [lodash.isequal](#lodash.isequal-4.5.0) | 4.5.0 | MIT |
 | [lodash.isfunction](#lodash.isfunction-2.4.1) | 2.4.1 | MIT |
 | [lodash.isfunction](#lodash.isfunction-3.0.9) | 3.0.9 | MIT |
-| [lodash.isnil](#lodash.isnil-4.0.0) | 4.0.0 | MIT |
 | [lodash.isobject](#lodash.isobject-2.4.1) | 2.4.1 | MIT |
 | [lodash.isobject](#lodash.isobject-3.0.2) | 3.0.2 | MIT |
 | [lodash.isplainobject](#lodash.isplainobject-4.0.6) | 4.0.6 | MIT |
@@ -431,7 +423,6 @@ This document was automatically generated on Sun May 07 2023.
 | [lodash.isstring](#lodash.isstring-3.0.1) | 3.0.1 | MIT |
 | [lodash.isstring](#lodash.isstring-2.4.1) | 2.4.1 | MIT |
 | [lodash.istypedarray](#lodash.istypedarray-3.0.6) | 3.0.6 | MIT |
-| [lodash.isundefined](#lodash.isundefined-3.0.1) | 3.0.1 | MIT |
 | [lodash.keys](#lodash.keys-3.1.2) | 3.1.2 | MIT |
 | [lodash.keys](#lodash.keys-2.4.1) | 2.4.1 | MIT |
 | [lodash.keysin](#lodash.keysin-3.0.8) | 3.0.8 | MIT |
@@ -16821,42 +16812,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ```
 
-<a id="ansi-to-html-0.6.15"></a>
-### ansi-to-html 0.6.15
-
-**License**: MIT
-
-**Author**: Rob Burns <rburns@paiges.net> (http://rburns.paiges.net/)
-
-**Repository**: https://github.com/rburns/ansi-to-html.git
-
-**License Text**:
-
-```
-Copyright (c) 2012 Rob Burns
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-```
-
 <a id="antlr4-4.7.2"></a>
 ### antlr4 4.7.2
 
@@ -20239,32 +20194,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ```
 
-<a id="entities-2.2.0"></a>
-### entities 2.2.0
-
-**License**: BSD-2-Clause
-
-**Author**: Felix Boehm <me@feedic.com>
-
-**Repository**: git://github.com/fb55/entities.git
-
-**License Text**:
-
-```
-Copyright (c) Felix Böhm
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-THIS IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS,
-EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-```
-
 <a id="escape-goat-2.1.1"></a>
 ### escape-goat 2.1.1
 
@@ -20617,41 +20546,6 @@ THE SOFTWARE
 
 ```
 
-<a id="fast-csv-3.7.0"></a>
-### fast-csv 3.7.0
-
-**License**: MIT
-
-**Author**: Doug Martin
-
-**Repository**: git@github.com:C2FO/fast-csv.git
-
-**License Text**:
-
-```
-The MIT License
-
-Copyright (c) 2011-2019 C2FO
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-```
-
 <a id="fast-deep-equal-3.1.3"></a>
 ### fast-deep-equal 3.1.3
 
@@ -20888,33 +20782,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-```
-
-<a id="flat-5.0.0"></a>
-### flat 5.0.0
-
-**License**: BSD-3-Clause
-
-**Author**: Hugh Kennedy <hughskennedy@gmail.com> (http://hughskennedy.com)
-
-**Repository**: git://github.com/hughsk/flat.git
-
-**License Text**:
-
-```
-Copyright (c) 2014, Hugh Kennedy
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the  nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ```
 
@@ -22608,42 +22475,6 @@ THE SOFTWARE.
 **License**: MIT
 
 **Author**: Feross Aboukhadijeh <feross@feross.org> (http://feross.org/)
-
-**Repository**: git://github.com/feross/is-buffer.git
-
-**License Text**:
-
-```
-The MIT License (MIT)
-
-Copyright (c) Feross Aboukhadijeh
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-```
-
-<a id="is-buffer-2.0.5"></a>
-### is-buffer 2.0.5
-
-**License**: MIT
-
-**Author**: Feross Aboukhadijeh <feross@feross.org> (https://feross.org)
 
 **Repository**: git://github.com/feross/is-buffer.git
 
@@ -26314,68 +26145,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="lodash.escaperegexp-4.1.2"></a>
-### lodash.escaperegexp 4.1.2
-
-**License**: MIT
-
-**Author**: John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-
-**Repository**: lodash/lodash
-
-**License Text**:
-
-```
-Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-Based on Underscore.js, copyright Jeremy Ashkenas,
-DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-This software consists of voluntary contributions made by many
-individuals. For exact contribution history, see the revision history
-available at https://github.com/lodash/lodash
-
-The following license applies to all parts of this software except as
-documented below:
-
-====
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-====
-
-Copyright and related rights for sample code are waived via CC0. Sample
-code is defined as all source code displayed within the prose of the
-documentation.
-
-CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-====
-
-Files located in the node_modules and vendor directories are externally
-maintained libraries used by this software which have their own
-licenses; we recommend you read them, as their terms may differ from the
-terms above.
-
-```
-
 <a id="lodash.every-4.6.0"></a>
 ### lodash.every 4.6.0
 
@@ -27350,43 +27119,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="lodash.isboolean-3.0.3"></a>
-### lodash.isboolean 3.0.3
-
-**License**: MIT
-
-**Author**: John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-
-**Repository**: lodash/lodash
-
-**License Text**:
-
-```
-Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
-Based on Underscore.js, copyright 2009-2016 Jeremy Ashkenas,
-DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-```
-
 <a id="lodash.isdate-3.0.3"></a>
 ### lodash.isdate 3.0.3
 
@@ -27655,43 +27387,6 @@ Files located in the node_modules and vendor directories are externally
 maintained libraries used by this software which have their own
 licenses; we recommend you read them, as their terms may differ from the
 terms above.
-
-```
-
-<a id="lodash.isnil-4.0.0"></a>
-### lodash.isnil 4.0.0
-
-**License**: MIT
-
-**Author**: John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-
-**Repository**: lodash/lodash
-
-**License Text**:
-
-```
-Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
-Based on Underscore.js, copyright 2009-2016 Jeremy Ashkenas,
-DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
@@ -27999,43 +27694,6 @@ Files located in the node_modules and vendor directories are externally
 maintained libraries used by this software which have their own
 licenses; we recommend you read them, as their terms may differ from the
 terms above.
-
-```
-
-<a id="lodash.isundefined-3.0.1"></a>
-### lodash.isundefined 3.0.1
-
-**License**: MIT
-
-**Author**: John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)
-
-**Repository**: lodash/lodash
-
-**License Text**:
-
-```
-Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
-Based on Underscore.js, copyright 2009-2015 Jeremy Ashkenas,
-DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
