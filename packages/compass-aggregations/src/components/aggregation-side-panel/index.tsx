@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   Body,
   css,
@@ -9,6 +9,7 @@ import {
   palette,
   spacing,
   useDarkMode,
+  SearchInput,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { toggleSidePanel } from '../../modules/side-panel';
@@ -42,6 +43,8 @@ const headerStyles = css({
   alignItems: 'center',
 });
 
+const searchStyles = css({ paddingRight: spacing[2] });
+
 const closeButtonStyles = css({
   marginLeft: 'auto',
 });
@@ -71,7 +74,15 @@ export const AggregationSidePanel = ({
   onCloseSidePanel,
   onSelectUseCase,
 }: AggregationSidePanelProps) => {
+  const [searchText, setSearchText] = useState<string>('');
   const darkMode = useDarkMode();
+
+  const handleSearchTextChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchText(e.target.value);
+    },
+    [setSearchText]
+  );
 
   const onSelect = useCallback(
     (id: string) => {
@@ -110,8 +121,21 @@ export const AggregationSidePanel = ({
           <Icon glyph="X" />
         </IconButton>
       </div>
-      <div className={contentStyles}>
-        <UseCaseList onSelect={onSelect} />
+      <div className={searchStyles}>
+        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
+        <SearchInput
+          value={searchText}
+          onChange={handleSearchTextChange}
+          placeholder="How can we help?"
+        />
+      </div>
+      <div className={contentStyles} data-testid="side-panel-content">
+        <UseCaseList
+          useCases={STAGE_WIZARD_USE_CASES.filter(({ title }) => {
+            return title.match(new RegExp(searchText, 'gi'));
+          })}
+          onSelect={onSelect}
+        />
         <FeedbackLink />
       </div>
     </KeylineCard>

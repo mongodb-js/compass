@@ -6,8 +6,8 @@ import {
   Link,
   spacing,
 } from '@mongodb-js/compass-components';
-import { STAGE_WIZARD_USE_CASES } from '.';
 import { getStageHelpLink } from '../../../utils/stage';
+import type { StageWizardUseCase } from '.';
 
 const cardStyles = css({
   cursor: 'pointer',
@@ -19,10 +19,15 @@ const cardTitleStyles = css({
   marginRight: spacing[2],
 });
 
-const UseCaseList = ({ onSelect }: { onSelect: (id: string) => void }) => {
+export type UseCaseListProps = {
+  useCases: StageWizardUseCase[];
+  onSelect: (id: string) => void;
+};
+
+const UseCaseList = ({ useCases, onSelect }: UseCaseListProps) => {
   return (
     <>
-      {STAGE_WIZARD_USE_CASES.map(({ title, stageOperator, id }, index) => {
+      {useCases.map(({ title, stageOperator, id }, index) => {
         return (
           <KeylineCard
             data-testid={`use-case-${id}`}
