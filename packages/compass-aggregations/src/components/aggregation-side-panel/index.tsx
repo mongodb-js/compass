@@ -97,7 +97,7 @@ export const AggregationSidePanel = ({
         drag_and_drop: false,
       });
     },
-    [track]
+    [onSelectUseCase]
   );
 
   return (
