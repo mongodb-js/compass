@@ -262,9 +262,11 @@ describe('CrudToolbar Component', function () {
     });
 
     expect(exportSpy.called).to.be.false;
-    fireEvent.click(screen.getByText('Export Collection'));
+    fireEvent.click(screen.getByText('Export Data'));
+    fireEvent.click(screen.getByText('Export the full collection'));
 
     expect(exportSpy.calledOnce).to.be.true;
+    expect(exportSpy.firstCall.args[0]).to.be.true;
   });
 
   it('should not render the outdated message', function () {

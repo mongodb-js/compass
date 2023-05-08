@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   Body,
-  Button,
   DropdownMenuButton,
   Icon,
   IconButton,
@@ -16,7 +15,6 @@ import {
   WarningSummary,
   ErrorSummary,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model';
 import type { MenuAction } from '@mongodb-js/compass-components';
 
 import { AddDataMenu } from './add-data-menu';
@@ -137,8 +135,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
 }) => {
   const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
 
-  const useNewExport = usePreference('useNewExport', React);
-
   const queryBarRef = useRef(
     isExportable
       ? {
@@ -194,32 +190,19 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               instanceDescription={instanceDescription}
             />
           )}
-          {/* TODO(COMPASS-6582): Remove feature flag, use next export. */}
-          {useNewExport ? (
-            <DropdownMenuButton<ExportDataOption>
-              data-testid="crud-export-collection"
-              actions={exportDataActions}
-              onAction={(action: ExportDataOption) =>
-                openExportFileDialog(action === 'export-full-collection')
-              }
-              buttonText="Export Data"
-              buttonProps={{
-                className: exportCollectionButtonStyles,
-                size: 'xsmall',
-                leftGlyph: <Icon glyph="Export" />,
-              }}
-            />
-          ) : (
-            <Button
-              className={exportCollectionButtonStyles}
-              leftGlyph={<Icon glyph="Export" />}
-              data-testid="export-collection-button"
-              size="xsmall"
-              onClick={() => openExportFileDialog(undefined)}
-            >
-              Export Collection
-            </Button>
-          )}
+          <DropdownMenuButton<ExportDataOption>
+            data-testid="crud-export-collection"
+            actions={exportDataActions}
+            onAction={(action: ExportDataOption) =>
+              openExportFileDialog(action === 'export-full-collection')
+            }
+            buttonText="Export Data"
+            buttonProps={{
+              className: exportCollectionButtonStyles,
+              size: 'xsmall',
+              leftGlyph: <Icon glyph="Export" />,
+            }}
+          />
         </div>
         <div className={toolbarRightActionStyles}>
           <Body data-testid="crud-document-count-display">
