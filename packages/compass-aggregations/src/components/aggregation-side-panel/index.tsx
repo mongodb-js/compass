@@ -79,7 +79,8 @@ export const AggregationSidePanel = ({
 
   const filteredUseCases = useMemo(() => {
     return STAGE_WIZARD_USE_CASES.filter(({ title, stageOperator }) => {
-      const matchRegex = new RegExp(searchText, 'gi');
+      const escapedSearchText = searchText.replace('$', '\\$');
+      const matchRegex = new RegExp(escapedSearchText, 'gi');
       return title.match(matchRegex) || stageOperator.match(matchRegex);
     });
   }, [searchText]);

@@ -81,6 +81,15 @@ describe('aggregation side panel', function () {
         .querySelectorAll('[data-testid^="use-case-"]')
     ).to.have.lengthOf(1);
     expect(screen.getByTestId('use-case-lookup')).to.not.throw;
+
+    userEvent.clear(searchBox);
+    userEvent.type(searchBox, '$lookup');
+    expect(
+      screen
+        .getByTestId('side-panel-content')
+        .querySelectorAll('[data-testid^="use-case-"]')
+    ).to.have.lengthOf(1);
+    expect(screen.getByTestId('use-case-lookup')).to.not.throw;
   });
 
   it('calls onSelectUseCase when a use case is clicked', function () {
