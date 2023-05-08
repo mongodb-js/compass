@@ -45,8 +45,6 @@ const headerStyles = css({
   alignItems: 'center',
 });
 
-const searchStyles = css({ paddingRight: spacing[2] });
-
 const closeButtonStyles = css({
   marginLeft: 'auto',
 });
@@ -130,14 +128,12 @@ export const AggregationSidePanel = ({
           <Icon glyph="X" />
         </IconButton>
       </div>
-      <div className={searchStyles}>
-        <SearchInput
-          value={searchText}
-          onChange={handleSearchTextChange}
-          placeholder="How can we help?"
-          aria-label="How can we help?"
-        />
-      </div>
+      <SearchInput
+        value={searchText}
+        onChange={handleSearchTextChange}
+        placeholder="How can we help?"
+        aria-label="How can we help?"
+      />
       <div className={contentStyles} data-testid="side-panel-content">
         {filteredUseCases.map((useCase) => (
           <UseCaseCard
