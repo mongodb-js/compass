@@ -630,16 +630,9 @@ class CrudStoreImpl
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        async (ds, ns, opts) => {
-          try {
-            return [
-              undefined,
-              await ds.findOneAndUpdate(ns, query, updateDoc, opts),
-            ] as ErrorOrResult;
-          } catch (error) {
-            return [error, undefined] as ErrorOrResult;
-          }
-        }
+        query,
+        updateDoc,
+        'update'
       );
 
       if (error) {
@@ -738,16 +731,9 @@ class CrudStoreImpl
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        async (ds, ns, opts) => {
-          try {
-            return [
-              undefined,
-              await ds.findOneAndReplace(ns, query, object, opts),
-            ] as ErrorOrResult;
-          } catch (error) {
-            return [error, undefined] as ErrorOrResult;
-          }
-        }
+        query,
+        object,
+        'replace'
       );
       if (error) {
         doc.emit('update-error', error.message);
@@ -1596,25 +1582,63 @@ type ErrorOrResult =
 export async function findAndModifyWithFLEFallback(
   ds: DataService,
   ns: string,
-  doFindAndModify: (
-    ds: DataService,
-    ns: string,
-    opts: { returnDocument: 'before' | 'after'; promoteValues: false }
-  ) => Promise<ErrorOrResult>
+  query: Partial<QueryState>,
+  object: any,
+  modificationType: 'update' | 'replace'
 ): Promise<ErrorOrResult> {
   const opts = { returnDocument: 'after', promoteValues: false } as const;
+  let [originalError, d] = await findAndModify(
+    ds,
+    ns,
+    query,
+    object,
+    modificationType,
+    opts
+  );
 
-  let [error, d] = await doFindAndModify(ds, ns, opts);
-  const originalError = error;
+  if (originalError?.codeName === 'ShardKeyNotFound') {
+    let error;
+    let docs;
+
+    try {
+      docs = await ds.find(ns, query, opts);
+    } catch (e) {
+      error = e as Error;
+    }
+
+    if (!error && docs.length) {
+      try {
+        if (modificationType === 'update') {
+          await ds.updateOne(ns, { _id: docs[0]._id }, object);
+        } else {
+          await ds.replaceOne(ns, { _id: docs[0]._id }, object);
+        }
+
+        docs = await ds.find(ns, { _id: docs[0]._id }, opts);
+        [d] = docs;
+        originalError = undefined;
+      } catch (e) {
+        /* fallthrough */
+      }
+    }
+  }
 
   // 6371402 is "'findAndModify with encryption only supports new: false'"
-  if (error && +(error?.code ?? 0) === 63714_02) {
+  if (originalError && +(originalError?.code ?? 0) === 63714_02) {
+    let error;
     // For encrypted documents, returnDocument: 'after' is unsupported on the server
     const fallbackOpts = {
       returnDocument: 'before',
       promoteValues: false,
     } as const;
-    [error, d] = await doFindAndModify(ds, ns, fallbackOpts);
+    [error, d] = await findAndModify(
+      ds,
+      ns,
+      query,
+      object,
+      modificationType,
+      fallbackOpts
+    );
 
     if (!error) {
       let docs;
@@ -1623,17 +1647,37 @@ export async function findAndModifyWithFLEFallback(
       } catch (e) {
         error = e as Error;
       }
-      if (error || !docs || !docs.length) {
+      if (!error && docs.length) {
+        [d] = docs;
+        originalError = undefined;
+      } else {
         // Race condition -- most likely, somebody else
         // deleted the document between the findAndModify command
         // and the find command. Just return the original error.
-        error = originalError;
-        d = undefined;
-      } else {
-        [d] = docs;
       }
     }
   }
 
-  return [error, d] as ErrorOrResult;
+  return [originalError, d] as ErrorOrResult;
+}
+
+export async function findAndModify(
+  ds: DataService,
+  ns: string,
+  query: Partial<QueryState>,
+  object: any,
+  modificationType: 'update' | 'replace',
+  opts: { returnDocument: 'before' | 'after'; promoteValues: false }
+): Promise<ErrorOrResult> {
+  try {
+    let d;
+    if (modificationType === 'update') {
+      d = await ds.findOneAndUpdate(ns, query, object, opts);
+    } else {
+      d = await ds.findOneAndReplace(ns, query, object, opts);
+    }
+    return [undefined, d] as ErrorOrResult;
+  } catch (e) {
+    return [e, undefined] as ErrorOrResult;
+  }
 }
