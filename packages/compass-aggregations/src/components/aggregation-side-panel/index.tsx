@@ -142,7 +142,9 @@ export const AggregationSidePanel = ({
         {filteredUseCases.map((useCase) => (
           <UseCaseCard
             key={useCase.id}
-            useCase={useCase}
+            id={useCase.id}
+            title={useCase.title}
+            stageOperator={useCase.stageOperator}
             onSelect={() => onSelect(useCase.id)}
           />
         ))}

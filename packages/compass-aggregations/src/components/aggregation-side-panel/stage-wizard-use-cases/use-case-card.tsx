@@ -21,12 +21,15 @@ const cardTitleStyles = css({
 });
 
 type UseCaseCardProps = {
-  useCase: StageWizardUseCase;
   onSelect: () => void;
-};
+} & Pick<StageWizardUseCase, 'id' | 'title' | 'stageOperator'>;
 
-const UseCaseCard = ({ useCase, onSelect }: UseCaseCardProps) => {
-  const { id, title, stageOperator } = useCase;
+const UseCaseCard = ({
+  id,
+  title,
+  stageOperator,
+  onSelect,
+}: UseCaseCardProps) => {
   return (
     <KeylineCard
       data-testid={`use-case-${id}`}

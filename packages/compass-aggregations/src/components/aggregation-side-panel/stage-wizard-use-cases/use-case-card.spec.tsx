@@ -11,14 +11,28 @@ describe('UseCaseCard', function () {
 
   it('should render a card for provided usecase', function () {
     const useCase = STAGE_WIZARD_USE_CASES[0];
-    render(<UseCaseCard useCase={useCase} onSelect={Sinon.spy()} />);
+    render(
+      <UseCaseCard
+        id={useCase.id}
+        title={useCase.title}
+        stageOperator={useCase.stageOperator}
+        onSelect={Sinon.spy()}
+      />
+    );
     expect(screen.getByTestId(`use-case-${useCase.id}`)).to.not.throw;
   });
 
   it('should call onSelect when a usecase is selected', function () {
     const onSelectSpy = Sinon.spy();
     const useCase = STAGE_WIZARD_USE_CASES[0];
-    render(<UseCaseCard useCase={useCase} onSelect={onSelectSpy} />);
+    render(
+      <UseCaseCard
+        id={useCase.id}
+        title={useCase.title}
+        stageOperator={useCase.stageOperator}
+        onSelect={onSelectSpy}
+      />
+    );
     userEvent.click(screen.getByTestId(`use-case-${useCase.id}`));
     expect(onSelectSpy).to.be.called;
   });
