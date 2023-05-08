@@ -1642,6 +1642,7 @@ export async function findAndModifyWithFLEFallback(
         // Race condition -- most likely, somebody else
         // deleted the document between the findAndModify command
         // and the find command. Just return the original error.
+        d = undefined;
       }
     }
   }
