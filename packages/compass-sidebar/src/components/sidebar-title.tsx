@@ -18,7 +18,8 @@ type Action =
   | 'edit-favorite'
   | 'open-connection-info'
   | 'expand-sidebar'
-  | 'refresh-data';
+  | 'refresh-data'
+  | 'open-compass-settings';
 
 const titleLabel = css({
   overflow: 'hidden',
@@ -120,6 +121,12 @@ function SidebarTitle({
       action: 'open-connection-info',
       label: 'Connection info',
       icon: 'Connect',
+    });
+
+    actions.push({
+      action: 'open-compass-settings',
+      label: 'Compass Settings',
+      icon: 'Settings',
     });
 
     return actions;

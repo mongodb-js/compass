@@ -308,6 +308,7 @@ function Home({
       >
         <div className={homePageStyles}>
           <Connections
+            appRegistry={appRegistry}
             onConnected={onConnected}
             isConnected={isConnected}
             appName={appName}
@@ -385,8 +386,10 @@ function ThemedHome(
 
   useEffect(() => {
     ipc.ipcRenderer?.on('window:show-settings', showSettingsModal);
+    appRegistry.on('open-compass-settings', showSettingsModal);
     return function cleanup() {
       ipc.ipcRenderer?.off('window:show-settings', showSettingsModal);
+      appRegistry.removeListener('open-compass-settings', showSettingsModal);
     };
   }, [appRegistry]);
 
