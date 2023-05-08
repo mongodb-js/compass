@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -9,6 +9,7 @@ import {
   spacing,
   SegmentedControl,
   SegmentedControlOption,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../../modules/settings';
 import { toggleAutoPreview } from '../../../modules/auto-preview';
@@ -20,6 +21,10 @@ import { toggleSidePanel } from '../../../modules/side-panel';
 import { usePreference } from 'compass-preferences-model';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import {
+  hasSeenStageWizardGuideCue,
+  setHasSeenStageWizardGuideCue,
+} from '../../../utils/local-storage';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
@@ -39,6 +44,29 @@ const toggleLabelStyles = css({
   padding: 0,
   textTransform: 'uppercase',
 });
+
+const useStageWizardGuideCue = (
+  showStageWizard: boolean,
+  pipelineMode: PipelineMode
+) => {
+  const [isWizardSeen, setIsWizardSeen] = useState(
+    hasSeenStageWizardGuideCue()
+  );
+
+  const isGuideCueVisible = useMemo(() => {
+    return Boolean(
+      showStageWizard && pipelineMode === 'builder-ui' && !isWizardSeen
+    );
+  }, [showStageWizard, pipelineMode, isWizardSeen]);
+
+  return {
+    isGuideCueVisible,
+    setGuideCueVisited: () => {
+      setIsWizardSeen(true);
+      setHasSeenStageWizardGuideCue();
+    },
+  };
+};
 
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
@@ -64,12 +92,23 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleSidePanel,
 }) => {
   const showStageWizard = usePreference('useStageWizard', React);
+  const wizardIconRef = useRef<HTMLButtonElement | null>(null);
+
+  const { isGuideCueVisible, setGuideCueVisited } = useStageWizardGuideCue(
+    Boolean(showStageWizard),
+    pipelineMode
+  );
 
   useEffect(() => {
     if (isSidePanelOpen) {
       track('Aggregation Side Panel Opened');
     }
   }, [isSidePanelOpen]);
+
+  const onClickWizardButton = () => {
+    setGuideCueVisited();
+    onToggleSidePanel();
+  };
 
   return (
     <div
@@ -120,15 +159,31 @@ export const PipelineExtraSettings: React.FunctionComponent<
         </SegmentedControlOption>
       </SegmentedControl>
       {showStageWizard && (
-        <IconButton
-          title="Toggle Side Panel"
-          aria-label="Toggle Side Panel"
-          onClick={() => onToggleSidePanel()}
-          data-testid="pipeline-toolbar-side-panel-button"
-          disabled={pipelineMode === 'as-text'}
-        >
-          <Icon glyph="Filter" />
-        </IconButton>
+        <>
+          {/* todo: fix the positioning */}
+          <GuideCue
+            data-testid="stage-wizard-guide-cue"
+            open={isGuideCueVisible}
+            setOpen={setGuideCueVisited}
+            refEl={wizardIconRef}
+            numberOfSteps={1}
+            popoverZIndex={2}
+            title="Stage Creator"
+          >
+            You can quickly build your stages based on your needs. You should
+            try it out.
+          </GuideCue>
+          <IconButton
+            ref={wizardIconRef}
+            title="Toggle Side Panel"
+            aria-label="Toggle Side Panel"
+            onClick={onClickWizardButton}
+            data-testid="pipeline-toolbar-side-panel-button"
+            disabled={pipelineMode === 'as-text'}
+          >
+            <Icon glyph="Filter" />
+          </IconButton>
+        </>
       )}
       <IconButton
         title="More Settings"
