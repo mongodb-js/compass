@@ -131,9 +131,12 @@ export const AggregationSidePanel = ({
       </div>
       <div className={contentStyles} data-testid="side-panel-content">
         <UseCaseList
-          useCases={STAGE_WIZARD_USE_CASES.filter(({ title }) => {
-            return title.match(new RegExp(searchText, 'gi'));
-          })}
+          useCases={STAGE_WIZARD_USE_CASES.filter(
+            ({ title, stageOperator }) => {
+              const matchRegex = new RegExp(searchText, 'gi');
+              return title.match(matchRegex) || stageOperator.match(matchRegex);
+            }
+          )}
           onSelect={onSelect}
         />
         <FeedbackLink />

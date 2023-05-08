@@ -68,6 +68,19 @@ describe('aggregation side panel', function () {
         .getByTestId('side-panel-content')
         .querySelectorAll('[data-testid^="use-case-"]')
     ).to.have.lengthOf(1);
+    expect(screen.getByTestId('use-case-sort')).to.not.throw;
+  });
+
+  it('renders usecases filtered by search text matching the stage operator of the usecases', function () {
+    renderAggregationSidePanel();
+    const searchBox = screen.getByPlaceholderText(/How can we help\?/i);
+    userEvent.type(searchBox, 'lookup');
+    expect(
+      screen
+        .getByTestId('side-panel-content')
+        .querySelectorAll('[data-testid^="use-case-"]')
+    ).to.have.lengthOf(1);
+    expect(screen.getByTestId('use-case-lookup')).to.not.throw;
   });
 
   it('calls onSelectUseCase when a use case is clicked', function () {
