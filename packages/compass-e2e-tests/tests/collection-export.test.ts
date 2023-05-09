@@ -35,7 +35,7 @@ async function toggleExportFieldCheckbox(
   await iFieldCheckbox.click();
 }
 
-describe.only('Collection export', function () {
+describe('Collection export', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
