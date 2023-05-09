@@ -2139,6 +2139,7 @@ describe('store', function () {
       expect(error).to.equal(undefined);
       expect(d).to.deep.equal(updatedDocument);
       expect(findOneAndUpdateFake).to.have.callCount(2);
+
       expect(findOneAndUpdateFake.firstCall.args[0]).to.equal('db.coll');
       expect(findOneAndUpdateFake.firstCall.args[1]).to.deep.equal({
         _id: 1234,
