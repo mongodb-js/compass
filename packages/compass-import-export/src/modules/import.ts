@@ -372,6 +372,7 @@ export const startImport = () => {
       });
       debug('Error while importing:', err.stack);
 
+      progressCallback.flush();
       showFailedToast(err);
 
       return dispatch(onFailed(err));
