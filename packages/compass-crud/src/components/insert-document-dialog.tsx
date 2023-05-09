@@ -278,7 +278,7 @@ class InsertDocumentDialog extends React.PureComponent<
     return (
       <FormModal
         title="Insert Document"
-        subtitle={`To Collection ${this.props.ns}`}
+        subtitle={`To collection ${this.props.ns}`}
         className="insert-document-dialog"
         open={this.props.isOpen}
         onSubmit={this.handleInsert.bind(this)}

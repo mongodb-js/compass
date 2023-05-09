@@ -50,6 +50,7 @@ const fixtures = {
     array: path.join(__dirname, 'csv', 'array.csv'),
     object: path.join(__dirname, 'csv', 'object.csv'),
     complex: path.join(__dirname, 'csv', 'complex.csv'),
+    many_columns: path.join(__dirname, 'csv', 'many-columns.csv'),
   },
 
   // json
