@@ -45,8 +45,6 @@ const getSchemaForObject = (document: Document): DocumentSchema => {
         toFieldSchemaWithPrefix(key)
       );
       schema.push(...valueSchema);
-    } else {
-      // Anything else cannot be recursively iterated and hence ignored
     }
   }
   return schema;
@@ -64,8 +62,6 @@ const getSchemaForArray = (records: Document[]): DocumentSchema => {
       !record._bsontype
     ) {
       schema.push(...getSchemaForObject(record));
-    } else {
-      // Anything else cannot be recursively iterated and hence ignored
     }
   }
 
