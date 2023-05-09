@@ -78,6 +78,7 @@ export const FieldCombobox = ({
       {...props}
       options={fields}
       value={value}
+      overflow="scroll-x"
       renderOption={(option, index, isCustom) => {
         return (
           <ComboboxOption

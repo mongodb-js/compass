@@ -58,14 +58,14 @@ describe('group with statistics', function () {
     it('renders accumulator field combobox', function () {
       expect(
         screen.getByRole('textbox', {
-          name: /select a field name/i,
+          name: /select a field/i,
         })
       ).to.exist;
     });
     it('renders group fields combobox', function () {
       expect(
         screen.getByRole('textbox', {
-          name: /select field names/i,
+          name: /select fields/i,
         })
       ).to.exist;
     });
@@ -102,7 +102,7 @@ describe('group with statistics', function () {
       );
     });
     it('when selecting group fields', function () {
-      setMultiSelectComboboxValues(/select field names/i, ['name', 'street']);
+      setMultiSelectComboboxValues(/select fields/i, ['name', 'street']);
       expect(onChange.lastCall.args[0]).to.equal(
         JSON.stringify({
           _id: {
@@ -124,7 +124,7 @@ describe('group with statistics', function () {
         expect(onChange.lastCall.args[1]).to.not.be.null;
       });
       it('when selecting only field', function () {
-        setComboboxValue(/select a field name/i, 'orders');
+        setComboboxValue(/select a field/i, 'orders');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
@@ -134,7 +134,7 @@ describe('group with statistics', function () {
       });
       it('when selecting both - field and type', function () {
         setSelectValue(/select accumulator/i, 'sum');
-        setComboboxValue(/select a field name/i, 'orders');
+        setComboboxValue(/select a field/i, 'orders');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,

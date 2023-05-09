@@ -4,10 +4,7 @@ import { render, cleanup } from '@testing-library/react';
 import Sinon from 'sinon';
 import { Double } from 'bson';
 
-import {
-  LABELS as CONDITION_LABELS,
-  makeCreateCondition,
-} from './match-condition-form';
+import { makeCreateCondition } from './match-condition-form';
 import MatchForm, {
   areUniqueExpressions,
   isNotEmptyCondition,

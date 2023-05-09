@@ -4,13 +4,13 @@ import {
   Body,
   spacing,
   css,
-  ComboboxWithCustomOption,
   ListEditor,
 } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { SORT_DIRECTION_OPTIONS, mapSortDataToStageValue } from '../utils';
 
 import type { WizardComponentProps } from '..';
+import { FieldCombobox } from '../field-combobox';
 
 type SortDirection = typeof SORT_DIRECTION_OPTIONS[number]['value'];
 type SortFieldState = {
@@ -58,7 +58,7 @@ const SortFormGroup = ({
 }: {
   index: number;
   comboboxClassName: string;
-  fields: string[];
+  fields: WizardComponentProps['fields'];
   sortField: string;
   sortDirection: SortDirection;
   onChange: <T extends keyof SortFieldState>(
@@ -72,21 +72,15 @@ const SortFormGroup = ({
         {index === 0 ? 'Sort documents by' : 'and'}
       </Body>
       <div data-testid={`sort-form-${index}-field`}>
-        <ComboboxWithCustomOption
+        <FieldCombobox
           className={comboboxClassName}
-          aria-label="Select a field"
-          size="default"
-          clearable={false}
           value={sortField}
           onChange={(value: string | null) => {
             if (value) {
               onChange('field', value);
             }
           }}
-          options={fields}
-          optionLabel="Field:"
-          // Used for testing to access the popover for a stage
-          popoverClassName={`sort-form-${index}-field-combobox`}
+          fields={fields}
         />
       </div>
       <Body>in</Body>
@@ -115,7 +109,6 @@ const SortFormGroup = ({
 };
 
 export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
-  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [formData, setFormData] = useState<SortFieldState[]>([
     {
       field: '',
@@ -163,10 +156,10 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
   const comboboxClassName = useMemo(() => {
     return css({
       width: `calc(${String(
-        Math.max(...fieldNames.map((label) => label.length), 10)
+        Math.max(...fields.map(({ name }) => name.length), 10)
       )}ch)`,
     });
-  }, [fieldNames]);
+  }, [fields]);
 
   return (
     <div className={containerStyles}>
@@ -182,7 +175,7 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
               index={index}
               sortField={item.field}
               sortDirection={item.direction}
-              fields={fieldNames}
+              fields={fields}
               onChange={(prop, value) => onChangeProperty(index, prop, value)}
             />
           );

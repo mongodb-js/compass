@@ -8,7 +8,6 @@ import Group, { makeCreateGroup, TEST_IDS } from './match-group-form';
 import { setComboboxValue } from '../../../../../test/form-helper';
 import {
   makeCreateCondition,
-  LABELS as CONDITION_LABELS,
   TEST_IDS as CONDITION_TEST_IDS,
   createCondition as createConditionPreScoped,
 } from './match-condition-form';
