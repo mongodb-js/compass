@@ -1,31 +1,38 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Select, Option, css, spacing } from '@mongodb-js/compass-components';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 
 // Types
-type ProjectFormState = string[];
+type ProjectionFields = string[];
 export type ProjectionType = 'include' | 'exclude';
+type ProjectFormState = {
+  projectionFields: ProjectionFields;
+  projectionType: ProjectionType;
+};
 
 // Helpers
 export const SELECT_PLACEHOLDER_TEXT = 'Select projection type';
 export const COMBOBOX_PLACEHOLDER_TEXT = 'Select field names';
 
-export const mapProjectFormStateToStageValue = (
-  projectionType: ProjectionType,
-  formState: ProjectFormState
-) => {
-  return formState.reduce<{ [field: string]: 1 | 0 }>((projection, field) => {
-    if (field === null) {
-      return projection;
-    } else {
-      return {
-        ...projection,
-        [field]: projectionType === 'include' ? 1 : 0,
-      };
-    }
-  }, {});
+export const mapProjectFormStateToStageValue = ({
+  projectionFields,
+  projectionType,
+}: ProjectFormState) => {
+  return projectionFields.reduce<{ [field: string]: 1 | 0 }>(
+    (projection, field) => {
+      if (field === null) {
+        return projection;
+      } else {
+        return {
+          ...projection,
+          [field]: projectionType === 'include' ? 1 : 0,
+        };
+      }
+    },
+    {}
+  );
 };
 
 // Components
@@ -52,27 +59,29 @@ const comboboxStyles = css({ width: '350px' });
 
 const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
   const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
-  const [projectionType, setProjectionType] =
-    useState<ProjectionType>('include');
-  const [projectFields, setProjectFields] = useState<ProjectFormState>([]);
 
-  useEffect(() => {
-    const stageValue = mapProjectFormStateToStageValue(
-      projectionType,
-      projectFields
-    );
+  const [projectFormState, setProjectFormState] = useState<ProjectFormState>({
+    projectionType: 'include',
+    projectionFields: [],
+  });
 
+  const handleProjectFormStateChange = <T extends keyof ProjectFormState>(
+    property: T,
+    value: ProjectFormState[T]
+  ) => {
+    const nextProjectState = {
+      ...projectFormState,
+      [property]: value,
+    };
+    setProjectFormState(nextProjectState);
+
+    const stageValue = mapProjectFormStateToStageValue(nextProjectState);
     onChange(
       JSON.stringify(stageValue),
       Object.keys(stageValue).length === 0
         ? new Error('No field selected')
         : null
     );
-  }, [projectFields, onChange, projectionType]);
-
-  const onSelectField = (value: string[]) => {
-    const nextProjectFields = [...value];
-    setProjectFields(nextProjectFields);
   };
 
   return (
@@ -84,8 +93,13 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
           className={selectStyles}
           allowDeselect={false}
           aria-label={SELECT_PLACEHOLDER_TEXT}
-          value={projectionType}
-          onChange={(value) => setProjectionType(value as ProjectionType)}
+          value={projectFormState.projectionType}
+          onChange={(value) =>
+            handleProjectFormStateChange(
+              'projectionType',
+              value as ProjectionType
+            )
+          }
         >
           <Option value="include">Include</Option>
           <Option value="exclude">Exclude</Option>
@@ -94,8 +108,10 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
           data-testid="project-form-field"
           className={comboboxStyles}
           multiselect={true}
-          value={projectFields}
-          onChange={onSelectField}
+          value={projectFormState.projectionFields}
+          onChange={(fields: string[]) =>
+            handleProjectFormStateChange('projectionFields', [...fields])
+          }
           fields={fields}
           overflow="scroll-x"
           isRelatedFieldDisabled={true}
