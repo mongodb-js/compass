@@ -735,7 +735,27 @@ export const selectImportFileName = (fileName: string) => {
       }
     } catch (err: any) {
       debug('dispatching error', err?.stack);
-      dispatch(onFileSelectError(err));
+      log.info(
+        mongoLogId(1_001_000_189),
+        'Import',
+        'Import select file error',
+        {
+          fileName,
+          error: err?.message,
+        }
+      );
+
+      if (
+        err?.message?.includes(
+          'The encoded data was not valid for encoding utf-8'
+        )
+      ) {
+        err.message = `Unable to load file, is the file a valid CSV or JSON? Error: ${
+          err?.message as string
+        }`;
+      }
+
+      dispatch(onFileSelectError(new Error(err)));
     }
   };
 };

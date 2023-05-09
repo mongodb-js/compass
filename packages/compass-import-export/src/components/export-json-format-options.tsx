@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Accordion,
+  Banner,
   Link,
   Radio,
   RadioGroup,
@@ -9,13 +10,12 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { ExportJSONFormat } from '../export/export-json';
-import { Banner } from '@mongodb-js/compass-components';
 
 const radioGroupStyles = css({
   margin: `${spacing[3]}px 0`,
 });
 
-const bannerStyles = css({
+const bannerContainerStyles = css({
   margin: `${spacing[2]}px 0`,
 });
 
@@ -26,6 +26,14 @@ function JSONFileTypeOptions({
   jsonFormat: ExportJSONFormat;
   setJSONFormatVariant: (jsonFormatVariant: ExportJSONFormat) => void;
 }) {
+  const relaxedWarningBannerContainerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    // When the user selects relaxed we scroll to show the warning at the bottom.
+    if (jsonFormat === 'relaxed') {
+      relaxedWarningBannerContainerRef.current?.scrollIntoView();
+    }
+  }, [jsonFormat]);
+
   return (
     <Accordion
       text="Advanced JSON Format"
@@ -68,12 +76,17 @@ function JSONFileTypeOptions({
       >
         Learn more about JSON format
       </Link>
-      {jsonFormat === 'relaxed' && (
-        <Banner className={bannerStyles} variant="warning">
-          Large numbers (&gt;= 2^^53) will lose precision with the relaxed EJSON
-          format. This format is not recommended for data integrity.
-        </Banner>
-      )}
+      <div
+        className={bannerContainerStyles}
+        ref={relaxedWarningBannerContainerRef}
+      >
+        {jsonFormat === 'relaxed' && (
+          <Banner variant="warning">
+            Large numbers (&gt;= 2^^53) will lose precision with the relaxed
+            EJSON format. This format is not recommended for data integrity.
+          </Banner>
+        )}
+      </div>
     </Accordion>
   );
 }
