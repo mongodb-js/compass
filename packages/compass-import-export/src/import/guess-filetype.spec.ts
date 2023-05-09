@@ -16,6 +16,7 @@ const expectedDelimiters = {
   'array.csv': ',',
   'object.csv': ',',
   'complex.csv': ',',
+  'many-columns.csv': ',',
 } as const;
 
 describe('guessFileType', function () {
