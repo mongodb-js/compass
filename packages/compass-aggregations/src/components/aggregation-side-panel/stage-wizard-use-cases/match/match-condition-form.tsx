@@ -112,7 +112,7 @@ const conditionContainerStyles = css({
   alignItems: 'center',
   gap: spacing[2],
 });
-const Styles = css({ flex: '1 1 50%' });
+const fieldComboboxStyles = css({ flex: '1 1 50%' });
 const operatorSelectStyles = css({ flex: '1 0 70px' });
 const valueInputStyles = css({ flex: '1 0 20%' });
 const bsonTypeSelectStyles = css({ flex: `1 0 130px` });
@@ -155,7 +155,7 @@ const MatchConditionForm = ({
       data-testid={TEST_IDS.condition(condition.id)}
       className={conditionContainerStyles}
     >
-      <div className={Styles}>
+      <div className={fieldComboboxStyles}>
         <FieldCombobox
           value={condition.field}
           onChange={handleFieldChange}
