@@ -1580,7 +1580,6 @@ export async function findAndModifyWithFLEFallback(
   };
   let error: (Error & { codeName?: string; code?: any }) | undefined;
   let document;
-  let docs;
 
   try {
     if (modificationType === 'update') {
@@ -1608,17 +1607,18 @@ export async function findAndModifyWithFLEFallback(
 
   if (error.codeName === 'ShardKeyNotFound') {
     try {
-      docs = await ds.find(ns, query, options);
+      const docs = await ds.find(ns, query, options);
+      [document] = docs;
     } catch (e) {
       return [error, undefined] as ErrorOrResult;
     }
 
-    if (docs && docs.length) {
+    if (document) {
       try {
         if (modificationType === 'update') {
-          await ds.updateOne(ns, { _id: docs[0]._id }, object as Document);
+          await ds.updateOne(ns, { _id: document._id }, object as Document);
         } else {
-          await ds.replaceOne(ns, { _id: docs[0]._id }, object as Document);
+          await ds.replaceOne(ns, { _id: document._id }, object as Document);
         }
       } catch (e) {
         return [error, undefined] as ErrorOrResult;
@@ -1654,8 +1654,8 @@ export async function findAndModifyWithFLEFallback(
   }
 
   try {
-    if (docs && docs.length) {
-      docs = await ds.find(ns, { _id: docs[0]._id }, options);
+    if (document) {
+      const docs = await ds.find(ns, { _id: document._id }, options);
       return [undefined, docs[0]] as ErrorOrResult;
     }
   } catch (e) {
