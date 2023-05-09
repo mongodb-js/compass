@@ -183,17 +183,20 @@ export default connect(
     const mappedInitialFields = (
       initialFields as {
         name: string;
-        description: string;
+        description?: string;
       }[]
-    ).map<FieldSchema>(({ name, description }) => ({
-      name,
+    ).map<FieldSchema>(({ name, description }) => {
       // parsed schema has the bson type Object replaced with
       // Document to avoid collision with JS Objects but that
       // shouldn't be a problem for us because we use these
       // as string values alongside well defined casters.
-      type:
-        description === 'Document' ? 'Object' : (description as TypeCastTypes),
-    }));
+      const type =
+        description === 'Document'
+          ? 'Object'
+          : ((description ?? 'String') as TypeCastTypes);
+
+      return { name, type };
+    });
     const previousStageFieldsWithSchema = getSchema(
       previousStage?.previewDocs ?? []
     );
