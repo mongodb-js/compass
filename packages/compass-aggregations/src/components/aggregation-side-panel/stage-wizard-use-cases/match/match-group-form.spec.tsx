@@ -173,7 +173,7 @@ describe('group', function () {
       renderGroup({ group, onGroupChange: onGroupChangeSpy });
 
       setComboboxValue(
-        new RegExp(CONDITION_LABELS.fieldCombobox, 'i'),
+        /select a field/i,
         '_id',
         screen.getByTestId(CONDITION_TEST_IDS.condition(conditionA.id))
       );

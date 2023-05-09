@@ -17,7 +17,7 @@ describe('basic group', function () {
       expect(screen.getByRole('combobox')).to.exist;
       expect(
         screen.getByRole('textbox', {
-          name: /select field names/i,
+          name: /select fields/i,
         })
       ).to.exist;
     });
@@ -36,7 +36,7 @@ describe('basic group', function () {
       />
     );
 
-    setMultiSelectComboboxValues(/select field names/i, ['a', 'b', 'c']);
+    setMultiSelectComboboxValues(/select fields/i, ['a', 'b', 'c']);
 
     expect(onChange.lastCall.args[0]).to.equal(
       JSON.stringify({
@@ -50,7 +50,7 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect a
-    setMultiSelectComboboxValues(/select field names/i, ['a']);
+    setMultiSelectComboboxValues(/select fields/i, ['a']);
     expect(onChange.lastCall.args[0]).to.equal(
       JSON.stringify({
         _id: {
@@ -62,7 +62,7 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect b
-    setMultiSelectComboboxValues(/select field names/i, ['b']);
+    setMultiSelectComboboxValues(/select fields/i, ['b']);
     expect(onChange.lastCall.args[0]).to.equal(
       JSON.stringify({
         _id: '$c',
@@ -71,7 +71,7 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect c
-    setMultiSelectComboboxValues(/select field names/i, ['c']);
+    setMultiSelectComboboxValues(/select fields/i, ['c']);
     expect(onChange.lastCall.args[0]).to.equal(JSON.stringify({ _id: null }));
     expect(onChange.lastCall.args[1]).to.be.an.instanceOf(Error);
   });

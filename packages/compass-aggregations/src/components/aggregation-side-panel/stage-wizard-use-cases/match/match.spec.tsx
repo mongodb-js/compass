@@ -166,7 +166,7 @@ describe('match', function () {
     it('should call onChange with converted stage value', function () {
       const onChangeSpy = Sinon.spy();
       render(<MatchForm fields={SAMPLE_FIELDS} onChange={onChangeSpy} />);
-      setComboboxValue(new RegExp(CONDITION_LABELS.fieldCombobox, 'i'), 'name');
+      setComboboxValue(/select a field/i, 'name');
       expect(onChangeSpy.lastCall.args).deep.equal(["{\n name: ''\n}", null]);
     });
 
@@ -176,7 +176,7 @@ describe('match', function () {
       // Setting the field to age will set the type to Double and without a
       // correct value the conversion will fail which is why we will get an
       // error
-      setComboboxValue(new RegExp(CONDITION_LABELS.fieldCombobox, 'i'), 'age');
+      setComboboxValue(/select a field/i, 'age');
       const [jsString, error] = onChangeSpy.lastCall.args;
       expect(jsString).to.equal('{}');
       expect(error.message).to.equal("Value '' is not a valid Double value");

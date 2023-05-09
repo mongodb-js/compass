@@ -86,7 +86,7 @@ export const FieldCombobox = ({
             displayName={isCustom ? `Field: "${option.value}"` : option.value}
             disabled={
               isRelatedFieldDisabled && multiselect
-                ? isOptionDisabled(value as string[], option.value)
+                ? isOptionDisabled((value ?? []) as string[], option.value)
                 : false
             }
           />

@@ -70,7 +70,7 @@ describe('condition', function () {
     it('should render a set of fields and controls for a condition', function () {
       const condition = createCondition();
       renderCondition({ condition });
-      expect(screen.getByLabelText(LABELS.fieldCombobox)).to.exist;
+      expect(screen.getByLabelText(/select a field/i)).to.exist;
       expect(screen.getByLabelText(LABELS.operatorSelect)).to.exist;
       expect(screen.getByLabelText(LABELS.valueInput)).to.exist;
       expect(screen.getByLabelText(LABELS.typeSelect)).to.exist;
@@ -85,22 +85,14 @@ describe('condition', function () {
         TEST_IDS.condition(condition.id)
       );
 
-      setComboboxValue(
-        new RegExp(LABELS.fieldCombobox, 'i'),
-        '_id',
-        conditionContainer
-      );
+      setComboboxValue(/select a field/i, '_id', conditionContainer);
       expect(onChangeSpy.lastCall).to.be.calledWithExactly({
         ...condition,
         field: '_id',
         bsonType: 'ObjectId',
       });
 
-      setComboboxValue(
-        new RegExp(LABELS.fieldCombobox, 'i'),
-        'age',
-        conditionContainer
-      );
+      setComboboxValue(/select a field/i, 'age', conditionContainer);
       expect(onChangeSpy.lastCall).to.be.calledWithExactly({
         ...condition,
         field: 'age',

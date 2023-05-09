@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   css,
   spacing,
-  ComboboxWithCustomOption,
   Select,
   TextInput,
   Option,
@@ -11,6 +10,7 @@ import TypeChecker from 'hadron-type-checker';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import type { MatchCondition } from './match';
 import type { WizardComponentProps } from '..';
+import { FieldCombobox } from '../field-combobox';
 
 // Types
 export type MatchConditionFormProps = {
@@ -25,7 +25,6 @@ export type CreateConditionFn = (
 
 // Helpers
 export const LABELS = {
-  fieldCombobox: 'Select a field',
   operatorSelect: 'Select an operator',
   valueInput: 'Expected value',
   typeSelect: 'Select a type',
@@ -113,7 +112,7 @@ const conditionContainerStyles = css({
   alignItems: 'center',
   gap: spacing[2],
 });
-const fieldComboboxStyles = css({ flex: '1 1 50%' });
+const Styles = css({ flex: '1 1 50%' });
 const operatorSelectStyles = css({ flex: '1 0 70px' });
 const valueInputStyles = css({ flex: '1 0 20%' });
 const bsonTypeSelectStyles = css({ flex: `1 0 130px` });
@@ -123,8 +122,6 @@ const MatchConditionForm = ({
   condition,
   onConditionChange,
 }: MatchConditionFormProps) => {
-  const fieldNames = useMemo(() => fields.map((field) => field.name), [fields]);
-
   const handleFieldChange = (field: string | null) => {
     if (field !== null && field !== condition.field) {
       const bsonType =
@@ -158,16 +155,11 @@ const MatchConditionForm = ({
       data-testid={TEST_IDS.condition(condition.id)}
       className={conditionContainerStyles}
     >
-      <div className={fieldComboboxStyles}>
-        <ComboboxWithCustomOption
-          placeholder={LABELS.fieldCombobox}
-          aria-label={LABELS.fieldCombobox}
-          size="default"
-          clearable={false}
+      <div className={Styles}>
+        <FieldCombobox
           value={condition.field}
           onChange={handleFieldChange}
-          options={fieldNames}
-          optionLabel="Field:"
+          fields={fields}
         />
       </div>
       <div className={operatorSelectStyles}>
