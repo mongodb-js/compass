@@ -48,13 +48,13 @@
   "docsProcessed": 2,
   "aborted": false,
   "projection": {
-    "_id": true,
-    "analysis": true,
-    "author": true,
-    "content": true,
-    "dataset": true,
-    "date": true,
-    "emailData": true,
-    "name": true
+    "_id": 1,
+    "analysis": 1,
+    "author": 1,
+    "content": 1,
+    "dataset": 1,
+    "date": 1,
+    "emailData": 1,
+    "name": 1
   }
 }

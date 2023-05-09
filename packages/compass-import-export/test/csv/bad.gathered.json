@@ -3,9 +3,9 @@
   "docsProcessed": 2,
   "aborted": false,
   "projection": {
-    "1": true,
-    "2": true,
-    "3": true,
-    "_id": true
+    "1": 1,
+    "2": 1,
+    "3": 1,
+    "_id": 1
   }
 }

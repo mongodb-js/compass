@@ -84,7 +84,7 @@ export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
         // If we previously encountered ['foo', 'bar'], then ['foo'] after that,
         // this will override it so you get all of 'foo'. ie. it should be the
         // most inclusive
-        current[fieldName] = true;
+        current[fieldName] = 1;
         break;
       }
 
@@ -96,7 +96,7 @@ export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
       // ie. keep the projection as inclusive as possible. So if we already
       // encountered ['foo'], then ['foo', 'bar'] and ['foo', 'bar', 'baz'] will
       // be ignored.
-      if (current[fieldName] === true) {
+      if (current[fieldName] === 1) {
         break;
       }
 
@@ -107,7 +107,7 @@ export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
   // When _id isn't explicitly passed then we assume it's not
   // intended to be in the results.
   if (projection._id === undefined) {
-    projection._id = false;
+    projection._id = 0;
   }
 
   return projection;

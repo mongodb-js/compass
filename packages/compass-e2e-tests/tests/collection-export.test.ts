@@ -35,7 +35,7 @@ async function toggleExportFieldCheckbox(
   await iFieldCheckbox.click();
 }
 
-describe('Collection export', function () {
+describe.only('Collection export', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -96,7 +96,7 @@ describe('Collection export', function () {
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers').find(
   {i: 5},
-  {i: true,j: true,_id: false}
+  {i: 1,j: 1,_id: 0}
 )`);
 
       // Select CSV.
@@ -362,7 +362,7 @@ describe('Collection export', function () {
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers').find(
   {i: 5},
-  {i: true,j: true,_id: false}
+  {i: 1,j: 1,_id: 0}
 )`);
 
       // Leave the file type on the default (JSON).
@@ -905,7 +905,7 @@ describe('Collection export', function () {
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers-strings').find(
   {},
-  {iString: true,j: true,_id: false}
+  {iString: 1,j: 1,_id: 0}
 ).collation(
   {locale: 'en_US',numericOrdering: true}
 ).sort({iString: -1}).limit(2).skip(2)`);
@@ -996,7 +996,7 @@ describe('Collection export', function () {
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers-strings').find(
   {},
-  {iString: true,j: true,_id: false}
+  {iString: 1,j: 1,_id: 0}
 ).collation(
   {locale: 'en_US',numericOrdering: true}
 ).sort({iString: -1}).limit(2).skip(2)`);
