@@ -4,6 +4,11 @@ import { getSchema } from './get-schema';
 
 const DATA = [
   {
+    useCase: 'does nothing when input is empty',
+    input: [],
+    output: [],
+  },
+  {
     useCase: '_id is always the first one',
     input: [
       {
@@ -11,7 +16,16 @@ const DATA = [
         _id: 123456,
       },
     ],
-    output: ['_id', 'data'],
+    output: [
+      {
+        name: '_id',
+        type: 'Int32',
+      },
+      {
+        name: 'data',
+        type: 'String',
+      },
+    ],
   },
   {
     useCase: 'simple json object',
@@ -21,7 +35,50 @@ const DATA = [
         data: 'hello',
       },
     ],
-    output: ['data', 'name'],
+    output: [
+      {
+        name: 'data',
+        type: 'String',
+      },
+      {
+        name: 'name',
+        type: 'String',
+      },
+    ],
+  },
+  {
+    useCase: 'simple json object with falsy values',
+    input: [
+      {
+        name: '',
+        downloads: 0,
+        popular: false,
+        phoneNumbers: [],
+        addresses: null,
+      },
+    ],
+    output: [
+      {
+        name: 'addresses',
+        type: 'Null',
+      },
+      {
+        name: 'downloads',
+        type: 'Int32',
+      },
+      {
+        name: 'name',
+        type: 'String',
+      },
+      {
+        name: 'phoneNumbers',
+        type: 'Array',
+      },
+      {
+        name: 'popular',
+        type: 'Boolean',
+      },
+    ],
   },
   {
     useCase: 'nested json object',
@@ -39,13 +96,13 @@ const DATA = [
       },
     ],
     output: [
-      'address',
-      'address.city',
-      'address.street',
-      'address.street.name',
-      'address.street.number',
-      'data',
-      'name',
+      { name: 'address', type: 'Object' },
+      { name: 'address.city', type: 'String' },
+      { name: 'address.street', type: 'Object' },
+      { name: 'address.street.name', type: 'String' },
+      { name: 'address.street.number', type: 'Int32' },
+      { name: 'data', type: 'String' },
+      { name: 'name', type: 'String' },
     ],
   },
   {
@@ -77,14 +134,14 @@ const DATA = [
       },
     ],
     output: [
-      'data',
-      'name',
-      'streets',
-      'streets._id',
-      'streets.city',
-      'streets.name',
-      'streets.number',
-      'streets.zip',
+      { name: 'data', type: 'String' },
+      { name: 'name', type: 'String' },
+      { name: 'streets', type: 'Array' },
+      { name: 'streets._id', type: 'Int32' },
+      { name: 'streets.city', type: 'String' },
+      { name: 'streets.name', type: 'String' },
+      { name: 'streets.number', type: 'Int32' },
+      { name: 'streets.zip', type: 'Int32' },
     ],
   },
   {
@@ -92,14 +149,20 @@ const DATA = [
     input: [
       {
         _id: new bson.ObjectId(),
-        data: new bson.Int32(123),
+        data: new bson.Double(123),
         address: {
           street: 'Alt-Moabit',
           number: new bson.Int32(18),
         },
       },
     ],
-    output: ['_id', 'address', 'address.number', 'address.street', 'data'],
+    output: [
+      { name: '_id', type: 'ObjectId' },
+      { name: 'address', type: 'Object' },
+      { name: 'address.number', type: 'Int32' },
+      { name: 'address.street', type: 'String' },
+      { name: 'data', type: 'Double' },
+    ],
   },
   {
     useCase: 'nested array with scaler values',
@@ -112,7 +175,11 @@ const DATA = [
         },
       },
     ],
-    output: ['meta', 'meta.common', 'meta.common.artists'],
+    output: [
+      { name: 'meta', type: 'Object' },
+      { name: 'meta.common', type: 'Object' },
+      { name: 'meta.common.artists', type: 'Array' },
+    ],
   },
 ];
 
