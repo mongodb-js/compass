@@ -20,6 +20,7 @@ const containerStylesDark = css({
   '--bg-color': palette.gray.dark4,
 
   '--title-color': palette.gray.dark3,
+  '--title-color-hover': palette.white,
   '--title-bg-color': palette.green.light1,
 
   '--icon-color': palette.white,
@@ -39,6 +40,7 @@ const containerStylesLight = css({
   '--bg-color': palette.gray.light3,
 
   '--title-color': palette.white,
+  '--title-color-hover': palette.gray.dark3,
   '--title-bg-color': palette.green.dark2,
 
   '--icon-color': palette.gray.dark3,

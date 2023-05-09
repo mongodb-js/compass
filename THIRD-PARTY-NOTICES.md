@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Mon May 08 2023.
+This document was automatically generated on Tue May 09 2023.
 
 ## List of dependencies
 
@@ -477,7 +477,7 @@ This document was automatically generated on Mon May 08 2023.
 | [mongodb](#mongodb-3.6.9) | 3.6.9 | Apache-2.0 |
 | [mongodb-build-info](#mongodb-build-info-1.5.0) | 1.5.0 | Apache-2.0 |
 | [mongodb-client-encryption](#mongodb-client-encryption-2.7.1) | 2.7.1 | Apache-2.0 |
-| [mongodb-cloud-info](#mongodb-cloud-info-1.1.3) | 1.1.3 | Apache-2.0 |
+| [mongodb-cloud-info](#mongodb-cloud-info-1.1.4) | 1.1.4 | Apache-2.0 |
 | [mongodb-connection-string-url](#mongodb-connection-string-url-2.6.0) | 2.6.0 | Apache-2.0 |
 | [mongodb-js-errors](#mongodb-js-errors-0.3.3) | 0.3.3 | Apache-2.0 |
 | [mongodb-language-model](#mongodb-language-model-1.7.1) | 1.7.1 | Apache-2.0 |
@@ -494,7 +494,7 @@ This document was automatically generated on Mon May 08 2023.
 | [multipipe](#multipipe-1.0.2) | 1.0.2 | MIT |
 | [mustache](#mustache-4.2.0) | 4.2.0 | MIT |
 | [napi-build-utils](#napi-build-utils-1.0.2) | 1.0.2 | MIT |
-| [netmask](#netmask-1.0.6) | 1.0.6 | MIT |
+| [netmask](#netmask-2.0.2) | 2.0.2 | MIT |
 | [node-abi](#node-abi-3.40.0) | 3.40.0 | MIT |
 | [node-addon-api](#node-addon-api-4.3.0) | 4.3.0 | MIT |
 | [node-fetch](#node-fetch-2.6.7) | 2.6.7 | MIT |
@@ -30970,8 +30970,8 @@ Apache License
 
 ```
 
-<a id="mongodb-cloud-info-1.1.3"></a>
-### mongodb-cloud-info 1.1.3
+<a id="mongodb-cloud-info-1.1.4"></a>
+### mongodb-cloud-info 1.1.4
 
 **License**: Apache-2.0
 
@@ -33075,12 +33075,12 @@ SOFTWARE.
 
 ```
 
-<a id="netmask-1.0.6"></a>
-### netmask 1.0.6
+<a id="netmask-2.0.2"></a>
+### netmask 2.0.2
 
 **License**: MIT
 
-**Author**: Olivier Poitrey <rs@dailymotion.com>
+**Author**: Olivier Poitrey <rs@rhapsodyk.net>
 
 **Repository**: git://github.com/rs/node-netmask.git
 

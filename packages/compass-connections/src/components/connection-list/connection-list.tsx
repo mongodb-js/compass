@@ -14,6 +14,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
+import type AppRegistry from 'hadron-app-registry';
 
 import Connection from './connection';
 import ConnectionsTitle from './connections-title';
@@ -135,6 +136,7 @@ const favoriteActions: ItemAction<FavoriteAction>[] = [
 
 function ConnectionList({
   activeConnectionId,
+  appRegistry,
   recentConnections,
   favoriteConnections,
   createNewConnection,
@@ -146,6 +148,7 @@ function ConnectionList({
   openConnectionImportExportModal,
 }: {
   activeConnectionId?: string;
+  appRegistry: AppRegistry;
   recentConnections: ConnectionInfo[];
   favoriteConnections: ConnectionInfo[];
   createNewConnection: () => void;
@@ -162,7 +165,9 @@ function ConnectionList({
 
   return (
     <Fragment>
-      <ConnectionsTitle />
+      <ConnectionsTitle
+        onAction={(actionName: string) => appRegistry.emit(actionName)}
+      />
       <div className={newConnectionButtonContainerStyles}>
         <Button
           className={cx(

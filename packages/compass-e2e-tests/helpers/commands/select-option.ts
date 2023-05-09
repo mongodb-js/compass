@@ -12,8 +12,13 @@ export async function selectOption(
   await selectButton.waitForDisplayed();
   await selectButton.click();
 
+  const controlledMenuId: string = await selectButton.getAttribute(
+    'aria-controls'
+  );
   // wait for the list to pop up
-  const selectList = await browser.$(`${selector} [role="listbox"]`);
+  const selectList = await browser.$(
+    `[id="${controlledMenuId}"][role="listbox"]`
+  );
   await selectList.waitForDisplayed();
 
   // click the option
