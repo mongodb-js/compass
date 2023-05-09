@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Mon May 08 2023.
+This document was automatically generated on Tue May 09 2023.
 
 ## List of dependencies
 
