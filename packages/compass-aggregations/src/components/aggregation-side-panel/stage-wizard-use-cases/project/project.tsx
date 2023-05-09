@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import {
   ComboboxWithCustomOption,
@@ -100,24 +100,43 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
     useState<ProjectionType>('include');
   const [projectFields, setProjectFields] = useState<ProjectFormState>([]);
 
-  useEffect(() => {
-    const stageValue = mapProjectFormStateToStageValue(
-      projectionType,
-      projectFields
-    );
+  const propagateProjectFormChanges = useCallback(
+    (projectionType: ProjectionType, projectFields: ProjectFormState) => {
+      const stageValue = mapProjectFormStateToStageValue(
+        projectionType,
+        projectFields
+      );
+      onChange(
+        JSON.stringify(stageValue),
+        Object.keys(stageValue).length === 0
+          ? new Error('No field selected')
+          : null
+      );
+    },
+    [onChange]
+  );
 
-    onChange(
-      JSON.stringify(stageValue),
-      Object.keys(stageValue).length === 0
-        ? new Error('No field selected')
-        : null
-    );
-  }, [projectFields, onChange, projectionType]);
+  const handleProjectionTypeChange = useCallback(
+    (nextProjectionType: string) => {
+      if (
+        nextProjectionType === 'include' ||
+        nextProjectionType === 'exclude'
+      ) {
+        setProjectionType(nextProjectionType);
+        propagateProjectFormChanges(nextProjectionType, projectFields);
+      }
+    },
+    [projectFields, propagateProjectFormChanges]
+  );
 
-  const onSelectField = (value: string[]) => {
-    const nextProjectFields = [...value];
-    setProjectFields(nextProjectFields);
-  };
+  const handleSelectFieldChange = useCallback(
+    (value: string[]) => {
+      const nextProjectFields = [...value];
+      setProjectFields(nextProjectFields);
+      propagateProjectFormChanges(projectionType, nextProjectFields);
+    },
+    [projectionType, propagateProjectFormChanges]
+  );
 
   return (
     <div className={containerStyles}>
@@ -129,7 +148,7 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
           allowDeselect={false}
           aria-label={SELECT_PLACEHOLDER_TEXT}
           value={projectionType}
-          onChange={(value) => setProjectionType(value as ProjectionType)}
+          onChange={handleProjectionTypeChange}
         >
           <Option value="include">Include</Option>
           <Option value="exclude">Exclude</Option>
@@ -143,7 +162,7 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
           clearable={true}
           multiselect={true}
           value={projectFields}
-          onChange={onSelectField}
+          onChange={handleSelectFieldChange}
           options={fieldNames}
           optionLabel="Field:"
           overflow="scroll-x"
