@@ -67,8 +67,8 @@ describe('ExportCodeView [Component]', function () {
       const codeText = screen.getByTestId(
         'export-collection-code-preview-wrapper'
       ).textContent;
-      expect(codeText).to.include('name: true');
-      expect(codeText).to.not.include('test: true');
+      expect(codeText).to.include('name: 1');
+      expect(codeText).to.not.include('test: 1');
     });
   });
 });

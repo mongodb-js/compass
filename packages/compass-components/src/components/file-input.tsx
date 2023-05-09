@@ -25,7 +25,6 @@ const containerStyles = css({
 
 const formItemSmallStyles = css({
   display: 'flex',
-  flexFirection: 'row',
   alignItems: 'center',
   gap: spacing[1],
 });
@@ -48,6 +47,7 @@ const buttonSmallStyles = css({
   border: 'none',
   background: 'none',
   fontWeight: 'normal',
+  marginLeft: spacing[2],
 
   '&:hover': {
     background: 'none',

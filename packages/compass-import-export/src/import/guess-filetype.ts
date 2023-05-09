@@ -27,6 +27,7 @@ function detectJSON(input: Readable): Promise<'json' | 'jsonl' | null> {
       }
 
       found = true;
+      input.destroy();
       resolve(jsonVariant);
     });
 
@@ -35,6 +36,7 @@ function detectJSON(input: Readable): Promise<'json' | 'jsonl' | null> {
       if (!found) {
         found = true;
         // reached the end before a full doc
+        input.destroy();
         resolve(null);
       }
     });
@@ -44,6 +46,7 @@ function detectJSON(input: Readable): Promise<'json' | 'jsonl' | null> {
       if (!found) {
         found = true;
         // stream closed before a full doc
+        input.destroy();
         resolve(null);
       }
     });
@@ -53,6 +56,7 @@ function detectJSON(input: Readable): Promise<'json' | 'jsonl' | null> {
       if (!found) {
         found = true;
         // got an error before a full doc
+        input.destroy();
         resolve(null);
       }
     });
@@ -102,6 +106,7 @@ function detectCSV(
     jsonPromise
       .then((jsonType) => {
         if (jsonType) {
+          input.destroy();
           resolve(null);
         }
       })
@@ -132,6 +137,7 @@ function detectCSV(
           if (lines === 2) {
             found = true;
             debug('detectCSV:complete');
+            input.destroy();
             resolve(lines === 2 ? csvDelimiter : null);
           }
         },
@@ -140,6 +146,7 @@ function detectCSV(
           if (!found) {
             found = true;
             // we reached the end before two lines
+            input.destroy();
             resolve(null);
           }
         },
@@ -148,6 +155,7 @@ function detectCSV(
           if (!found) {
             found = true;
             // something failed before we got to the end of two lines
+            input.destroy();
             resolve(null);
           }
         },
