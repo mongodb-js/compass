@@ -166,6 +166,7 @@ type WizardOwnProps = {
 export default connect(
   (state: RootState, ownProps: WizardOwnProps) => {
     const {
+      autoPreview,
       fields: initialFields,
       pipelineBuilder: {
         stageEditor: { stages },
@@ -198,7 +199,7 @@ export default connect(
     );
 
     const fields =
-      previousStageFieldsWithSchema.length > 0
+      previousStageFieldsWithSchema.length > 0 && autoPreview
         ? previousStageFieldsWithSchema
         : mappedInitialFields;
 
