@@ -216,7 +216,7 @@ describe('collections-fields module', function () {
           (ns: string, stage: Document, options: Document) => {
             expect(ns).to.equal('test.listings');
             expect(stage).to.deep.equal({ size: 1 });
-            expect(options).to.deep.equal({ maxTimeMS: 5000 });
+            expect(options).to.deep.equal({ maxTimeMS: 10000 });
             return Promise.resolve([{ _id: 12, name: 'test' }]);
           }
         );
@@ -256,7 +256,7 @@ describe('collections-fields module', function () {
             expect(options).to.deep.equal({
               limit: 1,
               sort: { $natural: -1 },
-              maxTimeMS: 5000,
+              maxTimeMS: 10000,
             });
             return Promise.resolve([{ _id: 12, data: 'test' }]);
           }
