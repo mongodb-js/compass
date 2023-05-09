@@ -16,6 +16,7 @@ import fixtures, { SAMPLE_FIELDS } from './fixtures';
 import { setComboboxValue } from '../../../../../test/form-helper';
 import type { CreateConditionFn } from './match-condition-form';
 import type { TypeCastTypes } from 'hadron-type-checker';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
 
 describe('match', function () {
   let createCondition: CreateConditionFn;
@@ -163,7 +164,7 @@ describe('match', function () {
     it('should call onChange with converted stage value', function () {
       const onChangeSpy = Sinon.spy();
       render(<MatchForm fields={SAMPLE_FIELDS} onChange={onChangeSpy} />);
-      setComboboxValue(/select a field/i, 'name');
+      setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'name');
       expect(onChangeSpy.lastCall.args).deep.equal(["{\n name: ''\n}", null]);
     });
 
@@ -173,7 +174,7 @@ describe('match', function () {
       // Setting the field to age will set the type to Double and without a
       // correct value the conversion will fail which is why we will get an
       // error
-      setComboboxValue(/select a field/i, 'age');
+      setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'age');
       const [jsString, error] = onChangeSpy.lastCall.args;
       expect(jsString).to.equal('{}');
       expect(error.message).to.equal("Value '' is not a valid Double value");

@@ -6,6 +6,9 @@ import React, { useMemo } from 'react';
 import type { ComponentProps } from 'react';
 import type { WizardComponentProps } from '.';
 
+export const SINGLE_SELECT_LABEL = 'Select a field';
+export const MULTI_SELECT_LABEL = 'Select fields';
+
 type CustomComboboxProps = ComponentProps<typeof ComboboxWithCustomOption>;
 
 // Generates parent paths for a list of paths
@@ -64,7 +67,7 @@ export const FieldCombobox = ({
   );
 
   const label = useMemo(
-    () => (multiselect ? 'Select fields' : 'Select a field'),
+    () => (multiselect ? MULTI_SELECT_LABEL : SINGLE_SELECT_LABEL),
     [multiselect]
   );
 

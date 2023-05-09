@@ -18,6 +18,7 @@ import type {
   MatchConditionFormProps,
   CreateConditionFn,
 } from './match-condition-form';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
 
 const renderCondition = (props: Partial<MatchConditionFormProps>) => {
   const condition = props.condition ?? makeCreateCondition()();
@@ -70,7 +71,8 @@ describe('condition', function () {
     it('should render a set of fields and controls for a condition', function () {
       const condition = createCondition();
       renderCondition({ condition });
-      expect(screen.getByLabelText(/select a field/i)).to.exist;
+      expect(screen.getByLabelText(new RegExp(SINGLE_SELECT_LABEL, 'i'))).to
+        .exist;
       expect(screen.getByLabelText(LABELS.operatorSelect)).to.exist;
       expect(screen.getByLabelText(LABELS.valueInput)).to.exist;
       expect(screen.getByLabelText(LABELS.typeSelect)).to.exist;
@@ -85,14 +87,22 @@ describe('condition', function () {
         TEST_IDS.condition(condition.id)
       );
 
-      setComboboxValue(/select a field/i, '_id', conditionContainer);
+      setComboboxValue(
+        new RegExp(SINGLE_SELECT_LABEL, 'i'),
+        '_id',
+        conditionContainer
+      );
       expect(onChangeSpy.lastCall).to.be.calledWithExactly({
         ...condition,
         field: '_id',
         bsonType: 'ObjectId',
       });
 
-      setComboboxValue(/select a field/i, 'age', conditionContainer);
+      setComboboxValue(
+        new RegExp(SINGLE_SELECT_LABEL, 'i'),
+        'age',
+        conditionContainer
+      );
       expect(onChangeSpy.lastCall).to.be.calledWithExactly({
         ...condition,
         field: 'age',

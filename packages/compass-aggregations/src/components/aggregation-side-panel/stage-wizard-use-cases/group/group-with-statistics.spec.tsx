@@ -9,6 +9,7 @@ import {
   setSelectValue,
 } from '../../../../../test/form-helper';
 import type { StageWizardFields } from '..';
+import { MULTI_SELECT_LABEL, SINGLE_SELECT_LABEL } from '../field-combobox';
 
 const SAMPLE_FIELDS: StageWizardFields = [
   {
@@ -58,14 +59,14 @@ describe('group with statistics', function () {
     it('renders accumulator field combobox', function () {
       expect(
         screen.getByRole('textbox', {
-          name: /select a field/i,
+          name: new RegExp(SINGLE_SELECT_LABEL, 'i'),
         })
       ).to.exist;
     });
     it('renders group fields combobox', function () {
       expect(
         screen.getByRole('textbox', {
-          name: /select fields/i,
+          name: new RegExp(MULTI_SELECT_LABEL, 'i'),
         })
       ).to.exist;
     });
@@ -102,7 +103,10 @@ describe('group with statistics', function () {
       );
     });
     it('when selecting group fields', function () {
-      setMultiSelectComboboxValues(/select fields/i, ['name', 'street']);
+      setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+        'name',
+        'street',
+      ]);
       expect(onChange.lastCall.args[0]).to.equal(
         JSON.stringify({
           _id: {
@@ -124,7 +128,7 @@ describe('group with statistics', function () {
         expect(onChange.lastCall.args[1]).to.not.be.null;
       });
       it('when selecting only field', function () {
-        setComboboxValue(/select a field/i, 'orders');
+        setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
@@ -134,7 +138,7 @@ describe('group with statistics', function () {
       });
       it('when selecting both - field and type', function () {
         setSelectValue(/select accumulator/i, 'sum');
-        setComboboxValue(/select a field/i, 'orders');
+        setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,

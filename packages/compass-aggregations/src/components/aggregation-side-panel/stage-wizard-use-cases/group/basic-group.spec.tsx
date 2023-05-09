@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import { BasicGroup } from './basic-group';
 import sinon from 'sinon';
 import { setMultiSelectComboboxValues } from '../../../../../test/form-helper';
+import { MULTI_SELECT_LABEL } from '../field-combobox';
 
 describe('basic group', function () {
   context('renders a group form', function () {
@@ -17,7 +18,7 @@ describe('basic group', function () {
       expect(screen.getByRole('combobox')).to.exist;
       expect(
         screen.getByRole('textbox', {
-          name: /select fields/i,
+          name: new RegExp(MULTI_SELECT_LABEL, 'i'),
         })
       ).to.exist;
     });
@@ -36,7 +37,11 @@ describe('basic group', function () {
       />
     );
 
-    setMultiSelectComboboxValues(/select fields/i, ['a', 'b', 'c']);
+    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+      'a',
+      'b',
+      'c',
+    ]);
 
     expect(onChange.lastCall.args[0]).to.equal(
       JSON.stringify({
@@ -50,7 +55,7 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect a
-    setMultiSelectComboboxValues(/select fields/i, ['a']);
+    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), ['a']);
     expect(onChange.lastCall.args[0]).to.equal(
       JSON.stringify({
         _id: {
@@ -62,7 +67,7 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect b
-    setMultiSelectComboboxValues(/select fields/i, ['b']);
+    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), ['b']);
     expect(onChange.lastCall.args[0]).to.equal(
       JSON.stringify({
         _id: '$c',
@@ -71,7 +76,7 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect c
-    setMultiSelectComboboxValues(/select fields/i, ['c']);
+    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), ['c']);
     expect(onChange.lastCall.args[0]).to.equal(JSON.stringify({ _id: null }));
     expect(onChange.lastCall.args[1]).to.be.an.instanceOf(Error);
   });

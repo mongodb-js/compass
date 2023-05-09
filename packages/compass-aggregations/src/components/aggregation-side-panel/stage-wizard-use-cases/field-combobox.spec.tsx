@@ -2,6 +2,7 @@ import React from 'react';
 import type { ComponentProps } from 'react';
 import {
   FieldCombobox,
+  SINGLE_SELECT_LABEL,
   getParentPaths,
   isOptionDisabled,
 } from './field-combobox';
@@ -38,13 +39,13 @@ describe('field-combobox', function () {
   context('component', function () {
     it('does not render custom field label for available options', function () {
       renderFieldCombobox();
-      setInputElementValue(/select a field/i, '_id');
+      setInputElementValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), '_id');
       const option = screen.getByRole('option', { name: '_id' });
       expect(option).to.exist;
     });
     it('renders custom field label for unavailable options', function () {
       renderFieldCombobox();
-      setInputElementValue(/select a field/i, 'email');
+      setInputElementValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'email');
       const option = screen.getByRole('option', { name: /field: "email"/i });
       expect(option).to.exist;
     });

@@ -10,6 +10,7 @@ import {
   setMultiSelectComboboxValues,
 } from '../../../../../test/form-helper';
 import type { StageWizardFields } from '..';
+import { MULTI_SELECT_LABEL } from '../field-combobox';
 
 const SAMPLE_FIELDS: StageWizardFields = [
   {
@@ -62,7 +63,10 @@ describe('project', function () {
   it('correctly selects a field from the combobox of fields', function () {
     renderForm();
 
-    setMultiSelectComboboxValues(/select fields/i, ['street', 'city']);
+    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+      'street',
+      'city',
+    ]);
     const selectedOptions = within(
       screen.getByTestId('project-form-field')
     ).getAllByRole('option');
@@ -83,21 +87,29 @@ describe('project', function () {
           renderForm({ onChange: onChangeSpy });
           setSelectValue(/select projection type/i, projectionType);
 
-          setMultiSelectComboboxValues(/select fields/i, ['street']);
+          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+            'street',
+          ]);
           expect(onChangeSpy).to.have.been.calledWithExactly(
             JSON.stringify({ street: op }),
             null
           );
 
           // Since we selected street above, this time it will deselect it
-          setMultiSelectComboboxValues(/select fields/i, ['street', 'city']);
+          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+            'street',
+            'city',
+          ]);
           expect(onChangeSpy.lastCall).to.have.been.calledWithExactly(
             JSON.stringify({ city: op }),
             null
           );
 
           // Here we select all three
-          setMultiSelectComboboxValues(/select fields/i, ['street', 'zip']);
+          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+            'street',
+            'zip',
+          ]);
           expect(onChangeSpy.lastCall).to.have.been.calledWithExactly(
             JSON.stringify({ city: op, street: op, zip: op }),
             null
@@ -109,8 +121,14 @@ describe('project', function () {
           renderForm({ onChange: onChangeSpy });
           // Creating a scenario where form ends up empty
 
-          setMultiSelectComboboxValues(/select fields/i, ['street', 'city']);
-          setMultiSelectComboboxValues(/select fields/i, ['street', 'city']);
+          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+            'street',
+            'city',
+          ]);
+          setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+            'street',
+            'city',
+          ]);
 
           expect(onChangeSpy.lastCall.args[0]).to.equal(JSON.stringify({}));
 

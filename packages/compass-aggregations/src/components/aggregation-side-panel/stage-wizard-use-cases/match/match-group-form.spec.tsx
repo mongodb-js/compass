@@ -14,6 +14,7 @@ import {
 import { SAMPLE_FIELDS } from './fixtures';
 import type { CreateConditionFn } from './match-condition-form';
 import type { CreateGroupFn, MatchGroupFormProps } from './match-group-form';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
 
 describe('group', function () {
   let createCondition: CreateConditionFn;
@@ -172,7 +173,7 @@ describe('group', function () {
       renderGroup({ group, onGroupChange: onGroupChangeSpy });
 
       setComboboxValue(
-        /select a field/i,
+        new RegExp(SINGLE_SELECT_LABEL, 'i'),
         '_id',
         screen.getByTestId(CONDITION_TEST_IDS.condition(conditionA.id))
       );
