@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Select, Option, css, spacing } from '@mongodb-js/compass-components';
 import type { WizardComponentProps } from '..';
@@ -58,8 +58,6 @@ const selectStyles = css({ minWidth: '120px' });
 const comboboxStyles = css({ width: '350px' });
 
 const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
-  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
-
   const [projectFormState, setProjectFormState] = useState<ProjectFormState>({
     projectionType: 'include',
     projectionFields: [],
