@@ -1654,8 +1654,8 @@ export async function findAndModifyWithFLEFallback(
   }
 
   try {
-    docs = await ds.find(ns, { _id: docs[0]._id }, options);
     if (docs && docs.length) {
+      docs = await ds.find(ns, { _id: docs[0]._id }, options);
       return [undefined, docs[0]] as ErrorOrResult;
     }
   } catch (e) {
