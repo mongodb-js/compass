@@ -1,11 +1,10 @@
 import {
   css,
   Body,
-  Icon,
   Select,
   Option,
   spacing,
-  IconButton,
+  ListEditor,
   ComboboxWithCustomOption,
 } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
@@ -151,20 +150,17 @@ const GroupAccumulatorForm = ({
   data: GroupAccumulators[];
   onChange: (value: GroupAccumulators[]) => void;
 }) => {
-  const onChangeGroup = (
+  const onChangeGroup = <T extends keyof GroupAccumulators>(
     index: number,
-    key: keyof GroupAccumulators,
-    value: string | null
+    key: T,
+    value: GroupAccumulators[T]
   ) => {
-    if (!value) {
-      return;
-    }
     const newData = [...data];
     newData[index][key] = value;
     onChange(newData);
   };
 
-  const onAddGroup = (at: number) => {
+  const onAddItem = (at: number) => {
     const newData = [...data];
     newData.splice(at + 1, 0, {
       field: '',
@@ -173,7 +169,7 @@ const GroupAccumulatorForm = ({
     onChange(newData);
   };
 
-  const onRemoveGroup = (at: number) => {
+  const onRemoveItem = (at: number) => {
     const newData = [...data];
     newData.splice(at, 1);
     onChange(newData);
@@ -186,58 +182,54 @@ const GroupAccumulatorForm = ({
 
   return (
     <div className={containerStyles}>
-      {data.map(({ accumulator, field }, index) => {
-        return (
-          <div className={groupRowStyles} key={index}>
-            <Body className={groupLabelStyles}>
-              {index === 0 ? 'Calculate' : 'and'}
-            </Body>
-            {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
-            <Select
-              className={selectStyles}
-              allowDeselect={false}
-              aria-label={'Select accumulator'}
-              value={accumulator}
-              onChange={(value: string) =>
-                onChangeGroup(index, 'accumulator', value)
-              }
-            >
-              {accumulators.map((x, i) => {
-                return (
-                  <Option value={x.value} key={i}>
-                    {x.label}
-                  </Option>
-                );
-              })}
-            </Select>
-            <Body>of</Body>
-            <ComboboxWithCustomOption
-              className={accumulatorFieldcomboboxStyles}
-              aria-label={ACCUMULATOR_FIELD_LABEL}
-              placeholder={ACCUMULATOR_FIELD_LABEL}
-              size="default"
-              clearable={false}
-              value={field}
-              onChange={(value: string | null) =>
-                onChangeGroup(index, 'field', value)
-              }
-              options={fields}
-              optionLabel="Field:"
-            />
-            <IconButton aria-label="Add" onClick={() => onAddGroup(index)}>
-              <Icon glyph="Plus" />
-            </IconButton>
-            {data.length > 1 && (
-              <IconButton
-                aria-label="Remove"
-                onClick={() => onRemoveGroup(index)}
+      <ListEditor
+        items={data}
+        onAddItem={(index) => onAddItem(index)}
+        onRemoveItem={(index) => onRemoveItem(index)}
+        renderItem={(item, index) => {
+          return (
+            <div className={groupRowStyles} key={index}>
+              <Body className={groupLabelStyles}>
+                {index === 0 ? 'Calculate' : 'and'}
+              </Body>
+              {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
+              <Select
+                className={selectStyles}
+                allowDeselect={false}
+                aria-label={'Select accumulator'}
+                value={item.accumulator}
+                onChange={(value: string) =>
+                  onChangeGroup(index, 'accumulator', value)
+                }
               >
-                <Icon glyph="Minus" />
-              </IconButton>
-            )}
-          </div>
-        );
-      })}
+                {accumulators.map((x, i) => {
+                  return (
+                    <Option value={x.value} key={i}>
+                      {x.label}
+                    </Option>
+                  );
+                })}
+              </Select>
+              <Body>of</Body>
+              <ComboboxWithCustomOption
+                className={accumulatorFieldcomboboxStyles}
+                aria-label={ACCUMULATOR_FIELD_LABEL}
+                placeholder={ACCUMULATOR_FIELD_LABEL}
+                size="default"
+                clearable={false}
+                value={item.field}
+                onChange={(value: string | null) => {
+                  if (value) {
+                    onChangeGroup(index, 'field', value);
+                  }
+                }}
+                options={fields}
+                optionLabel="Field:"
+              />
+            </div>
+          );
+        }}
+      />
     </div>
   );
 };
