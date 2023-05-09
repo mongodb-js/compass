@@ -15,7 +15,7 @@ const radioGroupStyles = css({
   margin: `${spacing[3]}px 0`,
 });
 
-const bannerStyles = css({
+const bannerContainerStyles = css({
   margin: `${spacing[2]}px 0`,
 });
 
@@ -26,11 +26,11 @@ function JSONFileTypeOptions({
   jsonFormat: ExportJSONFormat;
   setJSONFormatVariant: (jsonFormatVariant: ExportJSONFormat) => void;
 }) {
-  const relaxedWarningBannerRef = useRef<HTMLElement | null>(null);
+  const relaxedWarningBannerContainerRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     // When the user selects relaxed we scroll to show the warning at the bottom.
     if (jsonFormat === 'relaxed') {
-      relaxedWarningBannerRef.current?.scrollIntoView();
+      relaxedWarningBannerContainerRef.current?.scrollIntoView();
     }
   }, [jsonFormat]);
 
@@ -76,16 +76,17 @@ function JSONFileTypeOptions({
       >
         Learn more about JSON format
       </Link>
-      {jsonFormat === 'relaxed' && (
-        <Banner
-          className={bannerStyles}
-          variant="warning"
-          ref={relaxedWarningBannerRef}
-        >
-          Large numbers (&gt;= 2^^53) will lose precision with the relaxed EJSON
-          format. This format is not recommended for data integrity.
-        </Banner>
-      )}
+      <div
+        className={bannerContainerStyles}
+        ref={relaxedWarningBannerContainerRef}
+      >
+        {jsonFormat === 'relaxed' && (
+          <Banner variant="warning">
+            Large numbers (&gt;= 2^^53) will lose precision with the relaxed
+            EJSON format. This format is not recommended for data integrity.
+          </Banner>
+        )}
+      </div>
     </Accordion>
   );
 }
