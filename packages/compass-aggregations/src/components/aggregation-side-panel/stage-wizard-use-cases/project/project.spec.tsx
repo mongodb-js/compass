@@ -144,20 +144,25 @@ describe('project', function () {
       context(`when variant is ${variant}`, function () {
         it('should return correct project stage for provided form state', function () {
           const op = variant === 'exclude' ? 0 : 1;
-          expect(mapProjectFormStateToStageValue(variant, [])).to.deep.equal(
-            {}
-          );
+          expect(
+            mapProjectFormStateToStageValue({
+              projectionType: variant,
+              projectionFields: [],
+            })
+          ).to.deep.equal({});
 
           expect(
-            mapProjectFormStateToStageValue(variant, ['field1', 'field2'])
+            mapProjectFormStateToStageValue({
+              projectionType: variant,
+              projectionFields: ['field1', 'field2'],
+            })
           ).to.deep.equal({ field1: op, field2: op });
 
           expect(
-            mapProjectFormStateToStageValue(variant, [
-              'field1',
-              'field2',
-              'field1',
-            ])
+            mapProjectFormStateToStageValue({
+              projectionType: variant,
+              projectionFields: ['field1', 'field2', 'field1'],
+            })
           ).to.deep.equal({ field1: op, field2: op });
         });
       });
