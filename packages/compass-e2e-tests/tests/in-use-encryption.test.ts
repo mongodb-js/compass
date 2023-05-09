@@ -144,7 +144,7 @@ describe('CSFLE / QE', function () {
   describe('server version gte 7.0.0', function () {
     before(function () {
       // Queryable Encryption v2 only available on 7.0+
-      if (serverSatisfies('< 7.0.alpha0', true)) {
+      if (!serverSatisfies('>= 7.0', true)) {
         return this.skip();
       }
     });

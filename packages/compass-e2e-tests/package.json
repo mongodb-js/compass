@@ -60,7 +60,7 @@
     "ps-list": "^8.1.0",
     "puppeteer": "^15.4.0",
     "resolve-mongodb-srv": "^1.1.2",
-    "semver": "^5.7.1",
+    "semver": "^7.5.0",
     "ts-node": "^10.9.1",
     "webdriverio": "^7.16.13",
     "xvfb-maybe": "^0.2.1"
