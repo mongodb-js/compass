@@ -307,7 +307,6 @@ export const GroupWithSubset = ({
           value={formData.projectFields}
           onChange={(val: string[]) => onChangeValue('projectFields', val)}
           fields={fields}
-          overflow="scroll-x"
         />
       </div>
       <div className={formGroupStyles}>
@@ -320,7 +319,6 @@ export const GroupWithSubset = ({
           value={formData.groupFields}
           onChange={(val: string[]) => onChangeValue('groupFields', val)}
           fields={fields}
-          overflow="scroll-x"
         />
       </div>
       {isSortFieldVisible && (
@@ -336,7 +334,6 @@ export const GroupWithSubset = ({
             value={formData.sortFields}
             onChange={(val: string[]) => onChangeValue('sortFields', val)}
             fields={fields}
-            overflow="scroll-x"
           />
           <Body>in</Body>
           {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}

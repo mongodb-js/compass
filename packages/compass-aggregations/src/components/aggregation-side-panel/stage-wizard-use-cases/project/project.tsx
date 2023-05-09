@@ -111,7 +111,6 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
             handleProjectFormStateChange('projectionFields', [...fields])
           }
           fields={fields}
-          overflow="scroll-x"
           isRelatedFieldDisabled={true}
         />
       </div>
