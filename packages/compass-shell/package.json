@@ -35,7 +35,6 @@
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
@@ -92,7 +91,6 @@
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",
     "redux": "^4.2.0",
-    "rimraf": "^3.0.2",
     "sinon": "^9.2.3"
   }
 }

@@ -37,7 +37,6 @@
     "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
     "start": "npm run webpack serve -- --mode development",
@@ -93,7 +92,6 @@
     "react-redux": "^8.0.5",
     "redux": "^4.2.0",
     "redux-thunk": "^2.3.0",
-    "rimraf": "^3.0.2",
     "sinon": "^9.2.3"
   }
 }

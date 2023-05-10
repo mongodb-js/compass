@@ -86,7 +86,6 @@
     "mongodb-runner": "^4.10.0",
     "nyc": "^15.0.0",
     "prettier": "^2.7.1",
-    "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "storage-mixin": "^5.1.4",
     "typescript": "^5.0.4"

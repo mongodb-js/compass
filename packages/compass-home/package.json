@@ -17,7 +17,6 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "precompile": "npm run clean",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
     "compile": "npm run webpack -- --mode production",
@@ -79,7 +78,6 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "resolve": "^1.15.1",
-    "rimraf": "^3.0.2",
     "sinon": "^8.1.1",
     "xvfb-maybe": "^0.2.1"
   },

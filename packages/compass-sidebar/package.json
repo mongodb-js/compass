@@ -37,7 +37,6 @@
     "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
     "analyze": "npm run webpack -- --mode production --analyze",
@@ -114,7 +113,6 @@
     "redux-thunk": "^2.3.0",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
-    "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }

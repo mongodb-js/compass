@@ -36,7 +36,6 @@
     "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
     "start": "npm run webpack serve -- --mode development",
@@ -90,7 +89,6 @@
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",
-    "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }

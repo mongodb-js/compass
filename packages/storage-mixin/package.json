@@ -48,7 +48,6 @@
     "keytar": "^7.9.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
-    "rimraf": "^3.0.0",
     "uuid": "^3.3.3",
     "write-file-atomic": "^3.0.1"
   },
