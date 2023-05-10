@@ -5,7 +5,6 @@ import {
   css,
   FormFieldContainer,
   FormModal,
-  ToastVariant,
   useToast,
 } from '@mongodb-js/compass-components';
 import { FileInput } from './file-input';
@@ -46,7 +45,7 @@ export function ExportConnectionsModal({
         openToast('export-succeeded', {
           title: 'Export successful',
           body: 'Connections successfully exported',
-          variant: ToastVariant.Success,
+          variant: 'success',
           timeout: TOAST_TIMEOUT_MS,
         });
         afterExport?.();

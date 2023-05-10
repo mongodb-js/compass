@@ -13,7 +13,7 @@ import { css } from '@leafygreen-ui/emotion';
 
 export { ToastVariant };
 
-type ToastProperties = {
+export type ToastProperties = {
   title?: React.ReactNode;
   body: React.ReactNode;
   variant: ToastVariant;
