@@ -1610,7 +1610,7 @@ export async function findAndModifyWithFLEFallback(
       const docs = await ds.find(ns, query, options);
       [document] = docs;
     } catch (e) {
-      return [error, undefined] as ErrorOrResult;
+      return [e, undefined] as ErrorOrResult;
     }
 
     if (document) {
@@ -1621,7 +1621,7 @@ export async function findAndModifyWithFLEFallback(
           await ds.replaceOne(ns, { _id: document._id }, object as Document);
         }
       } catch (e) {
-        return [error, undefined] as ErrorOrResult;
+        return [e, undefined] as ErrorOrResult;
       }
     }
   }
@@ -1649,7 +1649,11 @@ export async function findAndModifyWithFLEFallback(
         );
       }
     } catch (e) {
-      return [error, undefined] as ErrorOrResult;
+      // Return the current findOneAndModify error here
+      // since we already know the exact error from the previous attempt
+      // and want to know what went wrong with the second attempt with the fallback options,
+      // e.g. return the `Found indexed encrypted fields but could not find __safeContent__` error.
+      return [e, undefined] as ErrorOrResult;
     }
   }
 
