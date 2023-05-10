@@ -30,7 +30,8 @@ export const ComboboxWithCustomOption = <
       renderOption(option, index, false)
     );
 
-    if (search && !allOptions.map((x) => x.value).includes(search)) {
+    const regex = new RegExp(search, 'i');
+    if (search && !allOptions.find((x) => x.value.match(regex))) {
       _opts.push(
         renderOption({ value: search } as K, allOptions.length + 1, true)
       );
@@ -48,7 +49,7 @@ export const ComboboxWithCustomOption = <
         if (multiselect) {
           const multiSelectValues = value as SelectValueType<true>;
           const customOptions = multiSelectValues
-            .filter((value) => !userOptions.map((x) => x.value).includes(value))
+            .filter((value) => !userOptions.find((x) => x.value === value))
             .map((x) => ({ value: x })) as K[];
           setCustomOptions(customOptions);
           (onChange as onChangeType<true>)(multiSelectValues);
@@ -56,7 +57,7 @@ export const ComboboxWithCustomOption = <
           const selectValue = value as SelectValueType<false>;
           if (
             selectValue &&
-            !userOptions.map((x) => x.value).includes(selectValue)
+            !userOptions.find((x) => x.value === selectValue)
           ) {
             setCustomOptions([{ value: selectValue } as K]);
           }

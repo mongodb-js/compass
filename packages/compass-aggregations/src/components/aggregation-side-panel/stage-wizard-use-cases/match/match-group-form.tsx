@@ -122,9 +122,9 @@ const MatchGroupForm = ({
       </SegmentedControl>
       <ListEditor
         items={group.conditions}
+        itemKey={(item) => String(item.id)}
         renderItem={(condition: MatchCondition, conditionIdx: number) => (
           <MatchConditionForm
-            key={condition.id}
             fields={fields}
             condition={condition}
             onConditionChange={(newCondition) =>

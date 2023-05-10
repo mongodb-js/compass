@@ -44,6 +44,7 @@ type ListEditorProps<ItemType> = {
   removeButtonTestId?: string;
   className?: string;
   itemTestId?: (index: number) => string;
+  itemKey?: (item: ItemType) => string;
 };
 
 function ListEditor<ItemType>({
@@ -57,6 +58,7 @@ function ListEditor<ItemType>({
   removeButtonTestId,
   className,
   itemTestId,
+  itemKey,
 }: ListEditorProps<ItemType>): React.ReactElement {
   return (
     <div className={cx(listEditorStyles, className)}>
@@ -64,7 +66,7 @@ function ListEditor<ItemType>({
         <div
           data-testid={itemTestId?.(itemIndex)}
           className={listItemStyles}
-          key={itemIndex}
+          key={itemKey?.(item) ?? itemIndex}
         >
           <div className={itemContentStyles}>{renderItem(item, itemIndex)}</div>
           {!disableAddButton?.(item, itemIndex, items) ? (

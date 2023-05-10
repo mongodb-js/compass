@@ -12,7 +12,11 @@ import { sortBy } from 'lodash';
 import { ACCUMULATORS as MDB_ACCUMULATORS } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
 import semver from 'semver';
-import { mapFieldToPropertyName, mapFieldsToAccumulatorValue } from '../utils';
+import {
+  getNextId,
+  mapFieldToPropertyName,
+  mapFieldsToAccumulatorValue,
+} from '../utils';
 import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
@@ -103,6 +107,7 @@ type GroupOwnProps = WizardComponentProps;
 type MapStateProps = { serverVersion: string };
 
 type GroupAccumulators = {
+  id: number;
   field: string;
   accumulator: string;
 };
@@ -171,6 +176,7 @@ const GroupAccumulatorForm = ({
   const onAddItem = (at: number) => {
     const newData = [...data];
     newData.splice(at + 1, 0, {
+      id: getNextId(),
       field: '',
       accumulator: '',
     });
@@ -194,9 +200,10 @@ const GroupAccumulatorForm = ({
         items={data}
         onAddItem={(index) => onAddItem(index)}
         onRemoveItem={(index) => onRemoveItem(index)}
+        itemKey={(item) => String(item.id)}
         renderItem={(item, index) => {
           return (
-            <div className={groupRowStyles} key={index}>
+            <div className={groupRowStyles}>
               <Body className={groupLabelStyles}>
                 {index === 0 ? 'Calculate' : 'and'}
               </Body>
@@ -244,6 +251,7 @@ export const GroupWithStatistics = ({
     groupFields: [],
     groupAccumulators: [
       {
+        id: getNextId(),
         field: '',
         accumulator: '',
       },

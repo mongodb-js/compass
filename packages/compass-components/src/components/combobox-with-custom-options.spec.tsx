@@ -18,8 +18,8 @@ const renderCombobox = (
     <ComboboxWithCustomOption
       aria-label="combo-box"
       options={[{ value: 'one' }, { value: 'two' }, { value: 'three' }]}
-      renderOption={(o) => {
-        return <ComboboxOption value={o.value} />;
+      renderOption={(o, i) => {
+        return <ComboboxOption key={i} value={o.value} />;
       }}
       {...props}
     />

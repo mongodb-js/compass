@@ -7,13 +7,18 @@ import {
   ListEditor,
 } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
-import { SORT_DIRECTION_OPTIONS, mapSortDataToStageValue } from '../utils';
+import {
+  SORT_DIRECTION_OPTIONS,
+  getNextId,
+  mapSortDataToStageValue,
+} from '../utils';
 
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 
 type SortDirection = typeof SORT_DIRECTION_OPTIONS[number]['value'];
 type SortFieldState = {
+  id: number;
   field: string;
   direction: SortDirection;
 };
@@ -67,7 +72,7 @@ const SortFormGroup = ({
   ) => void;
 }) => {
   return (
-    <div className={formGroupStyles} key={`sort-form-${index}`}>
+    <div className={formGroupStyles}>
       <Body className={labelStyles}>
         {index === 0 ? 'Sort documents by' : 'and'}
       </Body>
@@ -111,6 +116,7 @@ const SortFormGroup = ({
 export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
   const [formData, setFormData] = useState<SortFieldState[]>([
     {
+      id: getNextId(),
       field: '',
       direction: 'Asc',
     },
@@ -141,6 +147,7 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
   const onAddItem = (at: number) => {
     const newData = [...formData];
     newData.splice(at + 1, 0, {
+      id: getNextId(),
       field: '',
       direction: 'Asc',
     });
@@ -168,6 +175,7 @@ export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
         onAddItem={(index) => onAddItem(index)}
         onRemoveItem={(index) => onRemoveItem(index)}
         itemTestId={(index) => `sort-form-${index}`}
+        itemKey={(item) => String(item.id)}
         renderItem={(item, index) => {
           return (
             <SortFormGroup
