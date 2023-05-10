@@ -10,7 +10,7 @@ import preferences, { usePreference } from 'compass-preferences-model';
 const devFeatureFlagFields = [
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
-  'useStageWizard',
+  'enableStageWizard',
 ] as const;
 
 export const publicFeatureFlagFields = ['lgDarkmode'] as const;
