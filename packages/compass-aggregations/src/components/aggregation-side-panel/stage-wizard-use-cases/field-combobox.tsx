@@ -88,6 +88,7 @@ export const FieldCombobox = ({
             key={`field-option-${index}`}
             value={option.value}
             displayName={isCustom ? `Field: "${option.value}"` : option.value}
+            description={option.type ?? 'Unknown'}
             disabled={
               isRelatedFieldDisabled && multiselect
                 ? isOptionDisabled((value ?? []) as string[], option.value)
