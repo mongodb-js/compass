@@ -76,10 +76,10 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.6",
     "mocha": "^10.2.0",
-    "nyc": "^15.0.0",
+    "nyc": "^15.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "rimraf": "^3.0.1"
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.8.0",

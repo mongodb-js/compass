@@ -25,7 +25,7 @@
     "@mongodb-js/compass-logging": "^1.1.5",
     "async": "^3.2.0",
     "debug": "^4.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "semver": "^7.1.1"
   },
   "devDependencies": {
