@@ -3,10 +3,10 @@
   "docsProcessed": 1,
   "aborted": false,
   "projection": {
-    "_id": true,
-    "a": true,
-    "b": true,
-    "c": true,
-    "d": true
+    "_id": 1,
+    "a": 1,
+    "b": 1,
+    "c": 1,
+    "d": 1
   }
 }

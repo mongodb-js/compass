@@ -64,6 +64,10 @@ const analyzeContainerStyles = css({
   marginBottom: 0,
 });
 
+const dataTypesLinkStyles = css({
+  marginLeft: spacing[3],
+});
+
 type ImportModalProps = {
   isOpen: boolean;
   ns: string;
@@ -181,7 +185,7 @@ function ImportModal({
       data-testid="import-modal"
       size={fileType === 'csv' ? 'large' : 'small'}
     >
-      <ModalHeader title="Import" subtitle={`To Collection ${ns}`} />
+      <ModalHeader title="Import" subtitle={`To collection ${ns}`} />
       <ModalBody ref={modalBodyRef}>
         <ImportOptions
           delimiter={delimiter}
@@ -203,8 +207,11 @@ function ImportModal({
                 darkMode ? fieldsHeadingStylesDark : fieldsHeadingStylesLight
               )}
             >
-              Specify Fields and Types{' '}
-              <Link href="https://www.mongodb.com/docs/mongodb-shell/reference/data-types/">
+              Specify Fields and Types
+              <Link
+                className={dataTypesLinkStyles}
+                href="https://www.mongodb.com/docs/mongodb-shell/reference/data-types/"
+              >
                 Learn more about data types
               </Link>
             </Body>

@@ -184,7 +184,7 @@ export const fetchCollectionFields = (
         collection,
         data: {
           ...collectionInfo,
-          fields: getSchema(documents),
+          fields: getSchema(documents).map(({ name }) => name),
           isLoading: false,
         },
       });

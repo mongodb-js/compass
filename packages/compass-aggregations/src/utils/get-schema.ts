@@ -1,41 +1,75 @@
+import TypeChecker from 'hadron-type-checker';
+import { sortedUniqBy, sortBy } from 'lodash';
+
+import type { TypeCastTypes } from 'hadron-type-checker';
 import type { Document } from 'mongodb';
 
-const getArrayKeys = (records: Document[]) => {
-  return records
-    .filter((x) => typeof x === 'object')
-    .map((item) => getObjectKeys(item))
-    .flat()
-    .filter((x, i, a) => a.indexOf(x) === i)
-    .sort();
+export type FieldSchema = {
+  name: string;
+  type: TypeCastTypes;
 };
 
-const getObjectKeys = (record: Document) => {
-  const keys: string[] = [];
+export type DocumentSchema = FieldSchema[];
 
-  if (!record) {
-    return keys;
+/**
+ * Mapper function that maps a FieldSchema with the name prefixed with the
+ * provided prefix, separated by a dot
+ * */
+const toFieldSchemaWithPrefix = (prefix: string) => {
+  return (fieldSchema: FieldSchema): FieldSchema => ({
+    name: `${prefix}.${fieldSchema.name}`,
+    type: fieldSchema.type,
+  });
+};
+
+const getSchemaForObject = (document: Document): DocumentSchema => {
+  const schema: DocumentSchema = [];
+  for (const key in document) {
+    const value = document[key];
+    schema.push({
+      name: key,
+      type: TypeChecker.type(value),
+    });
+
+    if (Array.isArray(value)) {
+      const valueSchema = getSchemaForArray(value).map(
+        toFieldSchemaWithPrefix(key)
+      );
+      schema.push(...valueSchema);
+    } else if (
+      typeof value === 'object' &&
+      value !== null &&
+      !value._bsontype
+    ) {
+      const valueSchema = getSchemaForObject(value).map(
+        toFieldSchemaWithPrefix(key)
+      );
+      schema.push(...valueSchema);
+    }
   }
+  return schema;
+};
 
-  for (const key in record) {
-    keys.push(key);
-    const value = record[key];
+const getSchemaForArray = (records: Document[]): DocumentSchema => {
+  const schema: DocumentSchema = [];
 
-    if (value && typeof value === 'object') {
-      const isBson = value._bsontype;
-      if (!isBson) {
-        const nestedKeys = Array.isArray(value)
-          ? getArrayKeys(value)
-          : getObjectKeys(value);
-        nestedKeys.forEach((nestedKey) => {
-          keys.push(`${key}.${nestedKey}`);
-        });
-      }
+  for (const record of records) {
+    if (Array.isArray(record)) {
+      schema.push(...getSchemaForArray(record));
+    } else if (
+      typeof record === 'object' &&
+      record !== null &&
+      !record._bsontype
+    ) {
+      schema.push(...getSchemaForObject(record));
     }
   }
 
-  return keys;
+  return schema;
 };
 
-export const getSchema = (data: Document[]) => {
-  return getArrayKeys(data);
+export const getSchema = (records: Document[]): DocumentSchema => {
+  const schema = getSchemaForArray(records);
+  const sortedSchema = sortBy(schema, 'name');
+  return sortedUniqBy(sortedSchema, 'name');
 };
