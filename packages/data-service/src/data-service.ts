@@ -1531,7 +1531,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await coll.updateOne(filter, update, options);
   }
 
-  @op(mongoLogId(1_001_000_189))
+  @op(mongoLogId(1_001_000_191))
   async replaceOne(
     ns: string,
     filter: Filter<Document>,
