@@ -73,7 +73,7 @@ export function showStartingToast({
 export function showCompletedToast({ docsWritten }: { docsWritten: number }) {
   openToast(importToastId, {
     title: 'Import completed.',
-    body: `${docsWritten} documents written.`,
+    body: `${docsWritten} documents exported.`,
     variant: 'success',
   });
 }
