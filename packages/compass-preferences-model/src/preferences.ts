@@ -15,8 +15,8 @@ export type THEMES = typeof THEMES_VALUES[number];
 
 export type FeatureFlags = {
   showDevFeatureFlags?: boolean;
-  lgDarkmode?: boolean;
-  debugUseCsfleSchemaMap?: boolean;
+  enableLgDarkmode?: boolean;
+  enableDebugUseCsfleSchemaMap?: boolean;
   enableStageWizard?: boolean;
 };
 
@@ -225,7 +225,7 @@ const featureFlagsProps: Required<{
    * from being used and instead components which have darkMode
    * support will listen to the theme to change their styles.
    */
-  lgDarkmode: {
+  enableLgDarkmode: {
     type: 'boolean',
     required: false,
     default: undefined,
@@ -242,7 +242,7 @@ const featureFlagsProps: Required<{
    * We want to encourage user to use Queryable Encryption, not CSFLE, so we do not
    * officially support the CSFLE schemaMap property.
    */
-  debugUseCsfleSchemaMap: {
+  enableDebugUseCsfleSchemaMap: {
     type: 'boolean',
     required: false,
     default: undefined,
