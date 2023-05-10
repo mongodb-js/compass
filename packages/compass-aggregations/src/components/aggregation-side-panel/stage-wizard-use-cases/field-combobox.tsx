@@ -78,10 +78,10 @@ export const FieldCombobox = ({
       multiselect={multiselect}
       size="default"
       clearable={false}
+      overflow="scroll-x"
       {...props}
       options={fields}
       value={value}
-      overflow="scroll-x"
       renderOption={(option, index, isCustom) => {
         return (
           <ComboboxOption
