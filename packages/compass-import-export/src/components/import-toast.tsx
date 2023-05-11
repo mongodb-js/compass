@@ -9,7 +9,7 @@ import { openFile } from '../utils/open-file';
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
 const importToastId = 'import-toast';
-const toastMessageCharacterLimit = 200;
+const toastMessageCharacterLimit = 180;
 
 function trackLogFileOpened(errors: Error[]) {
   track('Import Error Log Opened', {
@@ -73,7 +73,7 @@ export function showStartingToast({
 export function showCompletedToast({ docsWritten }: { docsWritten: number }) {
   openToast(importToastId, {
     title: 'Import completed.',
-    body: `${docsWritten} documents written.`,
+    body: `${docsWritten} documents exported.`,
     variant: 'success',
   });
 }
@@ -109,7 +109,7 @@ export function showCompletedWithErrorsToast({
 }) {
   const statusMessage = getToastErrorsText(errors);
   openToast(importToastId, {
-    title: `Import completed ${docsWritten}/${docsProcessed} with the following errors:`,
+    title: `Import completed ${docsWritten}/${docsProcessed} with errors:`,
     body: (
       <ToastBody
         statusMessage={statusMessage}

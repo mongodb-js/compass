@@ -10,7 +10,6 @@ import {
   ItemActionControls,
   useHoverState,
   useToast,
-  ToastVariant,
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -233,14 +232,14 @@ function Connection({
           openToast('copy-to-clipboard', {
             title: 'Success',
             body: 'Copied to clipboard.',
-            variant: ToastVariant.Success,
+            variant: 'success',
             timeout: TOAST_TIMEOUT_MS,
           });
         } catch (err) {
           openToast('copy-to-clipboard', {
             title: 'Error',
             body: 'An error occurred when copying to clipboard. Please try again.',
-            variant: ToastVariant.Warning,
+            variant: 'warning',
             timeout: TOAST_TIMEOUT_MS,
           });
         }
