@@ -38,6 +38,7 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 export type BSONObject = TypeCastMap['Object'];
+export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 export type CrudActions = {
@@ -1570,8 +1571,8 @@ type ErrorOrResult =
 export async function findAndModifyWithFLEFallback(
   ds: DataService,
   ns: string,
-  query: Partial<QueryState>,
-  object: unknown,
+  query: BSONObject,
+  object: { $set?: BSONObject; $unset?: BSONObject } | BSONObject | BSONArray,
   modificationType: 'update' | 'replace'
 ): Promise<ErrorOrResult> {
   let options: { returnDocument: 'before' | 'after'; promoteValues: false } = {
@@ -1581,22 +1582,13 @@ export async function findAndModifyWithFLEFallback(
   let error: (Error & { codeName?: string; code?: any }) | undefined;
   let document;
 
+  const findOneAndModifyMethod =
+    modificationType === 'update' ? 'findOneAndUpdate' : 'findOneAndReplace';
+  const modifyOneMethod =
+    modificationType === 'update' ? 'updateOne' : 'replaceOne';
+
   try {
-    if (modificationType === 'update') {
-      document = await ds.findOneAndUpdate(
-        ns,
-        query,
-        object as Document,
-        options
-      );
-    } else {
-      document = await ds.findOneAndReplace(
-        ns,
-        query,
-        object as Document,
-        options
-      );
-    }
+    document = await ds[findOneAndModifyMethod](ns, query, object, options);
   } catch (e) {
     error = e as Error;
   }
@@ -1615,39 +1607,19 @@ export async function findAndModifyWithFLEFallback(
 
     if (document) {
       try {
-        if (modificationType === 'update') {
-          await ds.updateOne(ns, { _id: document._id }, object as Document);
-        } else {
-          await ds.replaceOne(ns, { _id: document._id }, object as Document);
-        }
+        await ds[modifyOneMethod](ns, { _id: document._id }, object);
       } catch (e) {
         return [e, undefined] as ErrorOrResult;
       }
     }
-  }
-
-  // 6371402 is "'findAndModify with encryption only supports new: false'"
-  if (+(error?.code ?? 0) === 63714_02) {
+  } else if (+(error?.code ?? 0) === 63714_02) {
+    // 6371402 is "'findAndModify with encryption only supports new: false'"
     options = {
       returnDocument: 'before',
       promoteValues: false,
     };
     try {
-      if (modificationType === 'update') {
-        document = await ds.findOneAndUpdate(
-          ns,
-          query,
-          object as Document,
-          options
-        );
-      } else {
-        document = await ds.findOneAndReplace(
-          ns,
-          query,
-          object as Document,
-          options
-        );
-      }
+      document = await ds[findOneAndModifyMethod](ns, query, object, options);
     } catch (e) {
       // Return the current findOneAndModify error here
       // since we already know the exact error from the previous attempt
