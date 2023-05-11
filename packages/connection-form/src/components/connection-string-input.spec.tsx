@@ -257,4 +257,25 @@ describe('ConnectionStringInput Component', function () {
       });
     });
   });
+
+  it('hides password when editing is enabled and input is not focused', function () {
+    const connectionString = 'mongodb+srv://turtles:pineapples@localhost/';
+    renderConnectionStringInput({
+      connectionString,
+      enableEditingConnectionString: true,
+      setEnableEditingConnectionString: setEnableEditingConnectionStringSpy,
+      updateConnectionFormField: updateConnectionFormFieldSpy,
+    });
+
+    const input = screen.getByRole('textbox', {
+      name: /uri/i,
+    });
+    input.focus();
+    expect(input.textContent).to.equal(connectionString);
+
+    input.blur();
+    expect(input.textContent).to.equal(
+      connectionString.replace('pineapples', '*****')
+    );
+  });
 });
