@@ -8,6 +8,9 @@ import {
   useDarkMode,
   Body,
 } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
 
 const bannerBodyStyles = css({
   display: 'flex',
@@ -80,6 +83,9 @@ export const HackoladePromoBanner: React.FunctionComponent = () => {
         className={bannerLinkStyles}
         href="https://hackolade.com/MongoDBcompass.html?utm_source=mongodb&utm_medium=referral&utm_campaign=compass"
         target="_blank"
+        onClick={() => {
+          track('Hackolade Link Clicked');
+        }}
       >
         Check out Hackolade Studio.
       </Link>
