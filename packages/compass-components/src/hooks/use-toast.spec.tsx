@@ -8,29 +8,20 @@ import {
 import { expect } from 'chai';
 import React from 'react';
 
-import { ToastArea, ToastVariant, useToast } from './use-toast';
+import { ToastArea, useToast } from './use-toast';
+import type { ToastProperties } from './use-toast';
 
 const OpenToastButton = ({
   namespace,
   id,
-  title,
-  variant,
-  timeout,
-  body,
+  ...toastProps
 }: {
   namespace: string;
-  variant: ToastVariant;
   id: string;
-  title: string;
-  timeout?: number;
-  body?: string;
-}) => {
+} & ToastProperties) => {
   const { openToast } = useToast(namespace);
   return (
-    <button
-      type="button"
-      onClick={() => openToast(id, { title, variant, body, timeout })}
-    >
+    <button type="button" onClick={() => openToast(id, toastProps)}>
       Open Toast
     </button>
   );
@@ -62,7 +53,7 @@ describe('useToast', function () {
           id="toast-1"
           title="My Toast"
           body="Toast body"
-          variant={ToastVariant.Success}
+          variant="success"
         />
         <CloseToastButton namespace="ns-1" id="toast-1" />
       </ToastArea>
@@ -86,7 +77,7 @@ describe('useToast', function () {
           id="toast-1"
           title="My Toast"
           body="Toast body"
-          variant={ToastVariant.Success}
+          variant="success"
         />
         <CloseToastButton namespace="ns-1" id="toast-1" />
       </ToastArea>
@@ -112,7 +103,7 @@ describe('useToast', function () {
             title="My Toast"
             body="Toast body"
             timeout={1000}
-            variant={ToastVariant.Success}
+            variant="success"
           />
         </ToastArea>
       );
