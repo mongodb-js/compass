@@ -263,17 +263,26 @@ describe('ConnectionStringInput Component', function () {
     renderConnectionStringInput({
       connectionString,
       enableEditingConnectionString: true,
+      setEnableEditingConnectionString: setEnableEditingConnectionStringSpy,
     });
 
     const input = screen.getByRole('textbox', {
       name: /uri/i,
     });
     input.focus();
-    expect(input.textContent).to.equal(connectionString);
+    expect(input.textContent, 'shows password when input is focused').to.equal(
+      connectionString
+    );
 
     input.blur();
-    expect(input.textContent).to.equal(
-      connectionString.replace('pineapples', '*****')
-    );
+    expect(
+      input.textContent,
+      'hides password when input is not focused'
+    ).to.equal(connectionString.replace('pineapples', '*****'));
+
+    expect(
+      setEnableEditingConnectionStringSpy.getCalls(),
+      'does not update connection string on focus change'
+    ).to.have.lengthOf(0);
   });
 });
