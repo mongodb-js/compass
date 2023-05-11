@@ -63,7 +63,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleSettings,
   onToggleSidePanel,
 }) => {
-  const showStageWizard = usePreference('useStageWizard', React);
+  const showStageWizard = usePreference('enableStageWizard', React);
 
   useEffect(() => {
     if (isSidePanelOpen) {

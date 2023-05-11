@@ -76,7 +76,7 @@ describe('PipelineExtraSettings', function () {
       sandbox = sinon.createSandbox();
       sandbox
         .stub(preferences, 'getPreferences')
-        .returns({ useStageWizard: true } as any);
+        .returns({ enableStageWizard: true } as any);
     });
     afterEach(function () {
       sandbox.restore();

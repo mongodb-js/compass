@@ -323,7 +323,7 @@ function Home({
 }
 
 function getCurrentTheme(): Theme {
-  return preferences.getPreferences().lgDarkmode &&
+  return preferences.getPreferences().enableLgDarkmode &&
     remote?.nativeTheme?.shouldUseDarkColors
     ? Theme.Dark
     : Theme.Light;
@@ -343,7 +343,7 @@ function ThemedHome(
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),
-    enabled: !!preferences.getPreferences().lgDarkmode,
+    enabled: !!preferences.getPreferences().enableLgDarkmode,
   });
 
   const darkMode = useMemo(
@@ -355,12 +355,12 @@ function ThemedHome(
     const listener = () => {
       setTheme({
         theme: getCurrentTheme(),
-        enabled: !!preferences.getPreferences().lgDarkmode,
+        enabled: !!preferences.getPreferences().enableLgDarkmode,
       });
     };
 
     const unsubscribeLgDarkmodeListener = preferences.onPreferenceValueChanged(
-      'lgDarkmode',
+      'enableLgDarkmode',
       listener
     );
     remote?.nativeTheme?.on('updated', listener);
