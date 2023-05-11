@@ -263,8 +263,6 @@ describe('ConnectionStringInput Component', function () {
     renderConnectionStringInput({
       connectionString,
       enableEditingConnectionString: true,
-      setEnableEditingConnectionString: setEnableEditingConnectionStringSpy,
-      updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
     const input = screen.getByRole('textbox', {
