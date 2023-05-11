@@ -12,6 +12,8 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
 
+const iconSize = spacing[5];
+
 const bannerBodyStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -39,8 +41,8 @@ const bannerBodyDarkModeStyles = css({
 });
 
 const bannerIconStyles = css({
-  width: '32px',
-  height: '32px',
+  width: iconSize,
+  height: iconSize,
   flex: 'none',
 });
 
@@ -68,7 +70,7 @@ export const HackoladePromoBanner: React.FunctionComponent = () => {
         className={bannerIconStyles}
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
-        viewBox="0 0 32 32"
+        viewBox={`0 0 ${iconSize} ${iconSize}`}
       >
         <rect width="31" height="31" x=".5" y=".5" fill="#fff" rx="15.5" />
         <path fill="#189FCE" d="M19.25 8h-9v9l9-9Z" />
