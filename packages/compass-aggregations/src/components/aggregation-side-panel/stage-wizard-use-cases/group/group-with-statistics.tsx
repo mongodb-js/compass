@@ -20,14 +20,6 @@ import {
 import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
-import type { TypeCastTypes } from 'hadron-type-checker';
-
-const NUMERIC_TYPES: TypeCastTypes[] = [
-  'Decimal128',
-  'Double',
-  'Int32',
-  'Int64',
-];
 
 type StatisticAccumulator = {
   label: string;
@@ -258,20 +250,6 @@ export const GroupWithStatistics = ({
     ],
   });
 
-  // By default we sort the fields and show numeric fields first
-  // as statistics can only be computed on numeric fields.
-  const sortedFields = useMemo(() => {
-    return [...fields].sort((a, b) => {
-      if (NUMERIC_TYPES.includes(a.type) && NUMERIC_TYPES.includes(b.type)) {
-        return 0;
-      }
-      if (NUMERIC_TYPES.includes(a.type) || NUMERIC_TYPES.includes(b.type)) {
-        return -1;
-      }
-      return 1;
-    });
-  }, [fields]);
-
   const onChangeValue = <T extends keyof GroupWithStatisticsFormData>(
     key: T,
     value: GroupWithStatisticsFormData[T]
@@ -295,7 +273,7 @@ export const GroupWithStatistics = ({
     <div className={containerStyles}>
       <GroupAccumulatorForm
         serverVersion={serverVersion}
-        fields={sortedFields}
+        fields={fields}
         data={formData.groupAccumulators}
         onChange={(val) => onChangeValue('groupAccumulators', val)}
       />
