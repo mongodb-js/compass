@@ -15,8 +15,6 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "clean": "rimraf ./dist",
-    "precompile": "npm run clean",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
     "compile": "npm run webpack -- --mode production",

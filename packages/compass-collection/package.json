@@ -39,7 +39,6 @@
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "webpack": "webpack-compass",
-    "precompile": "rimraf dist",
     "postcompile": "tsc --emitDeclarationOnly",
     "eslint": "eslint",
     "prettier": "prettier",

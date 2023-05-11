@@ -323,7 +323,6 @@ async function createWorkspace({
       ...(isPlugin && {
         '@mongodb-js/webpack-config-compass': '*',
         'hadron-app-registry': '*',
-        rimraf: '*',
         'xvfb-maybe': '*',
       }),
     },

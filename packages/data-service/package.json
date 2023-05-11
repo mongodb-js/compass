@@ -30,7 +30,7 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "clean": "rimraf lib",
+    "clean": "node -e \"fs.rmSync('lib', { recursive: true, force: true })\" || true",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json",
     "depcheck": "depcheck",

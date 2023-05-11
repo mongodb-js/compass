@@ -32,7 +32,7 @@
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "tsc -p tsconfig.json",
-    "precompile": "rimraf dist",
+    "precompile": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
