@@ -15,9 +15,9 @@ export type THEMES = typeof THEMES_VALUES[number];
 
 export type FeatureFlags = {
   showDevFeatureFlags?: boolean;
-  lgDarkmode?: boolean;
-  debugUseCsfleSchemaMap?: boolean;
-  useStageWizard?: boolean;
+  enableLgDarkmode?: boolean;
+  enableDebugUseCsfleSchemaMap?: boolean;
+  enableStageWizard?: boolean;
 };
 
 export type UserConfigurablePreferences = FeatureFlags & {
@@ -114,7 +114,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** The type of the preference value, in Ampersand naming */
   type: AmpersandType<AllPreferences[K]>;
   /** An optional default value for the preference */
-  default?: AllPreferences[K];
+  default?: K extends keyof FeatureFlags ? undefined | true : AllPreferences[K];
   /** Whether the preference is required in the Ampersand model */
   required: boolean;
   /** An exhaustive list of possible values for this preference (also an Ampersand feature) */
@@ -225,10 +225,10 @@ const featureFlagsProps: Required<{
    * from being used and instead components which have darkMode
    * support will listen to the theme to change their styles.
    */
-  lgDarkmode: {
+  enableLgDarkmode: {
     type: 'boolean',
     required: false,
-    default: false,
+    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -242,10 +242,10 @@ const featureFlagsProps: Required<{
    * We want to encourage user to use Queryable Encryption, not CSFLE, so we do not
    * officially support the CSFLE schemaMap property.
    */
-  debugUseCsfleSchemaMap: {
+  enableDebugUseCsfleSchemaMap: {
     type: 'boolean',
     required: false,
-    default: false,
+    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -258,10 +258,10 @@ const featureFlagsProps: Required<{
    * Feature flag for enabling the use of Stage Wizard
    * in the Pipeline Builder. Epic: COMPASS-5817
    */
-  useStageWizard: {
+  enableStageWizard: {
     type: 'boolean',
     required: false,
-    default: false,
+    default: undefined,
     ui: true,
     cli: true,
     global: true,

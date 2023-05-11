@@ -1124,9 +1124,7 @@ describe('Collection import', function () {
 
     // Displays first two errors in the toast and view log.
     const toastText = await toastElement.getText();
-    expect(toastText).to.include(
-      'Import completed 0/3 with the following errors:'
-    );
+    expect(toastText).to.include('Import completed 0/3 with errors:');
     expect(
       (toastText.match(/E11000 duplicate key error collection/g) || []).length
     ).to.equal(2);

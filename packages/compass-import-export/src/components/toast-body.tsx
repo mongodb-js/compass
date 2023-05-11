@@ -22,10 +22,8 @@ const toastActionStyles = css({
   marginLeft: spacing[2],
 });
 
-// Note: This is not in compass-components as having actions in toasts
-// is not recommended by LeafyGreen. We are showing actions in toasts
-// for the time being until we have a dedicated component for background
-// operation actions in Compass.
+// TODO(COMPASS-6808): Once we update our `@leafygreen-ui/toast` we can use the
+// provided action interface and remove this.
 export function ToastBody({
   statusMessage,
   actionHandler,
