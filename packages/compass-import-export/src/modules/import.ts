@@ -751,7 +751,7 @@ export const selectImportFileName = (fileName: string) => {
           'The encoded data was not valid for encoding utf-8'
         )
       ) {
-        err.message = `Unable to load the file. Make sure the file is a valid CSV or JSON. Error: ${
+        err.message = `Unable to load the file. Make sure the file is valid CSV or JSON. Error: ${
           err?.message as string
         }`;
       }
