@@ -54,6 +54,7 @@ export function createLoggerAndTelemetry(
     },
   } as Writable;
   const writer = new MongoLogWriter('', null, target);
+  const log = writer.bindComponent(component);
 
   const track = (...args: [string, TrackProps?]) => {
     void Promise.resolve()
@@ -103,6 +104,15 @@ export function createLoggerAndTelemetry(
             event_name: event,
           },
         });
+        log.error(
+          mongoLogId(1_001_000_190),
+          'Telemetry',
+          'Error computing event properties for telemetry',
+          {
+            event,
+            error: (error as Error).stack,
+          }
+        );
 
         return;
       }
@@ -119,7 +129,7 @@ export function createLoggerAndTelemetry(
     }
   });
   return {
-    log: writer.bindComponent(component),
+    log,
     mongoLogId,
     debug,
     track,

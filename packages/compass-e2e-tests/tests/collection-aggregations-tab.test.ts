@@ -190,7 +190,8 @@ describe('Collection aggregations tab', function () {
 
   before(async function () {
     compass = await beforeTests({
-      extraSpawnArgs: ['--show-focus-mode', '--use-stage-wizard'],
+      // Feature flag: enableStageWizard
+      extraSpawnArgs: ['--enable-stage-wizard'],
     });
     browser = compass.browser;
   });
