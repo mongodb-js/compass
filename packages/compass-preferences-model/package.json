@@ -29,7 +29,7 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "clean": "rimraf ./dist",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
     "eslint": "eslint",
@@ -69,7 +69,6 @@
     "hadron-ipc": "^3.1.2",
     "mocha": "^10.2.0",
     "react": "^17.0.2",
-    "rimraf": "^3.0.2",
     "sinon": "^9.2.3"
   }
 }

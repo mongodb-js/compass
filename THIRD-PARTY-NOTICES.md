@@ -1,7 +1,7 @@
 # Third-Party Notices
 
 The following third-party software is used by and included in **MongoDB Compass**.
-This document was automatically generated on Thu May 11 2023.
+This document was automatically generated on Fri May 12 2023.
 
 ## List of dependencies
 
@@ -60,33 +60,34 @@ This document was automatically generated on Thu May 11 2023.
 | [@aws-sdk/util-user-agent-node](#@aws-sdk/util-user-agent-node-3.310.0) | 3.310.0 | Apache-2.0 |
 | [@aws-sdk/util-utf8](#@aws-sdk/util-utf8-3.310.0) | 3.310.0 | Apache-2.0 |
 | [@babel/code-frame](#@babel/code-frame-7.21.4) | 7.21.4 | MIT |
-| [@babel/compat-data](#@babel/compat-data-7.21.4) | 7.21.4 | MIT |
+| [@babel/compat-data](#@babel/compat-data-7.21.7) | 7.21.7 | MIT |
 | [@babel/core](#@babel/core-7.16.0) | 7.16.0 | MIT |
-| [@babel/generator](#@babel/generator-7.21.4) | 7.21.4 | MIT |
-| [@babel/helper-compilation-targets](#@babel/helper-compilation-targets-7.21.4) | 7.21.4 | MIT |
-| [@babel/helper-environment-visitor](#@babel/helper-environment-visitor-7.18.9) | 7.18.9 | MIT |
+| [@babel/generator](#@babel/generator-7.21.5) | 7.21.5 | MIT |
+| [@babel/helper-compilation-targets](#@babel/helper-compilation-targets-7.21.5) | 7.21.5 | MIT |
+| [@babel/helper-environment-visitor](#@babel/helper-environment-visitor-7.21.5) | 7.21.5 | MIT |
 | [@babel/helper-function-name](#@babel/helper-function-name-7.21.0) | 7.21.0 | MIT |
 | [@babel/helper-hoist-variables](#@babel/helper-hoist-variables-7.18.6) | 7.18.6 | MIT |
 | [@babel/helper-module-imports](#@babel/helper-module-imports-7.21.4) | 7.21.4 | MIT |
-| [@babel/helper-module-transforms](#@babel/helper-module-transforms-7.21.2) | 7.21.2 | MIT |
+| [@babel/helper-module-transforms](#@babel/helper-module-transforms-7.21.5) | 7.21.5 | MIT |
 | [@babel/helper-plugin-utils](#@babel/helper-plugin-utils-7.20.2) | 7.20.2 | MIT |
-| [@babel/helper-simple-access](#@babel/helper-simple-access-7.20.2) | 7.20.2 | MIT |
+| [@babel/helper-simple-access](#@babel/helper-simple-access-7.21.5) | 7.21.5 | MIT |
 | [@babel/helper-split-export-declaration](#@babel/helper-split-export-declaration-7.18.6) | 7.18.6 | MIT |
-| [@babel/helper-string-parser](#@babel/helper-string-parser-7.19.4) | 7.19.4 | MIT |
+| [@babel/helper-string-parser](#@babel/helper-string-parser-7.21.5) | 7.21.5 | MIT |
 | [@babel/helper-validator-identifier](#@babel/helper-validator-identifier-7.19.1) | 7.19.1 | MIT |
 | [@babel/helper-validator-option](#@babel/helper-validator-option-7.21.0) | 7.21.0 | MIT |
-| [@babel/helpers](#@babel/helpers-7.21.0) | 7.21.0 | MIT |
+| [@babel/helpers](#@babel/helpers-7.21.5) | 7.21.5 | MIT |
 | [@babel/highlight](#@babel/highlight-7.18.6) | 7.18.6 | MIT |
 | [@babel/parser](#@babel/parser-7.16.0) | 7.16.0 | MIT |
 | [@babel/parser](#@babel/parser-7.21.4) | 7.21.4 | MIT |
+| [@babel/parser](#@babel/parser-7.21.8) | 7.21.8 | MIT |
 | [@babel/parser](#@babel/parser-7.19.4) | 7.19.4 | MIT |
 | [@babel/plugin-transform-destructuring](#@babel/plugin-transform-destructuring-7.21.3) | 7.21.3 | MIT |
 | [@babel/plugin-transform-parameters](#@babel/plugin-transform-parameters-7.21.3) | 7.21.3 | MIT |
 | [@babel/plugin-transform-shorthand-properties](#@babel/plugin-transform-shorthand-properties-7.18.6) | 7.18.6 | MIT |
 | [@babel/runtime](#@babel/runtime-7.21.0) | 7.21.0 | MIT |
 | [@babel/template](#@babel/template-7.20.7) | 7.20.7 | MIT |
-| [@babel/traverse](#@babel/traverse-7.21.4) | 7.21.4 | MIT |
-| [@babel/types](#@babel/types-7.21.4) | 7.21.4 | MIT |
+| [@babel/traverse](#@babel/traverse-7.21.5) | 7.21.5 | MIT |
+| [@babel/types](#@babel/types-7.21.5) | 7.21.5 | MIT |
 | [@codemirror/autocomplete](#@codemirror/autocomplete-6.4.0) | 6.4.0 | MIT |
 | [@codemirror/commands](#@codemirror/commands-6.1.2) | 6.1.2 | MIT |
 | [@codemirror/lang-javascript](#@codemirror/lang-javascript-6.1.2) | 6.1.2 | MIT |
@@ -332,7 +333,6 @@ This document was automatically generated on Thu May 11 2023.
 | [local-links](#local-links-1.4.1) | 1.4.1 | MIT |
 | [localforage](#localforage-1.9.0) | 1.9.0 | Apache-2.0 |
 | [lodash](#lodash-4.17.21) | 4.17.21 | MIT |
-| [lodash](#lodash-4.17.15) | 4.17.15 | MIT |
 | [lodash-es](#lodash-es-4.17.21) | 4.17.21 | MIT |
 | [lodash._arrayeach](#lodash._arrayeach-3.0.0) | 3.0.0 | MIT |
 | [lodash._arraymap](#lodash._arraymap-3.0.0) | 3.0.0 | MIT |
@@ -555,7 +555,6 @@ This document was automatically generated on Thu May 11 2023.
 | [reservoir](#reservoir-0.1.2) | 0.1.2 | MIT |
 | [resolve-mongodb-srv](#resolve-mongodb-srv-1.1.2) | 1.1.2 | Apache-2.0 |
 | [responselike](#responselike-2.0.0) | 2.0.0 | MIT |
-| [rimraf](#rimraf-3.0.2) | 3.0.2 | ISC |
 | [rimraf](#rimraf-2.6.3) | 2.6.3 | ISC |
 | [safe-buffer](#safe-buffer-5.2.1) | 5.2.1 | MIT |
 | [safe-buffer](#safe-buffer-5.1.2) | 5.1.2 | MIT |
@@ -11872,8 +11871,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/compat-data-7.21.4"></a>
-### @babel/compat-data 7.21.4
+<a id="@babel/compat-data-7.21.7"></a>
+### @babel/compat-data 7.21.7
 
 **License**: MIT
 
@@ -11946,8 +11945,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/generator-7.21.4"></a>
-### @babel/generator 7.21.4
+<a id="@babel/generator-7.21.5"></a>
+### @babel/generator 7.21.5
 
 **License**: MIT
 
@@ -11983,8 +11982,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-compilation-targets-7.21.4"></a>
-### @babel/helper-compilation-targets 7.21.4
+<a id="@babel/helper-compilation-targets-7.21.5"></a>
+### @babel/helper-compilation-targets 7.21.5
 
 **License**: MIT
 
@@ -12020,8 +12019,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-environment-visitor-7.18.9"></a>
-### @babel/helper-environment-visitor 7.18.9
+<a id="@babel/helper-environment-visitor-7.21.5"></a>
+### @babel/helper-environment-visitor 7.21.5
 
 **License**: MIT
 
@@ -12168,8 +12167,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-module-transforms-7.21.2"></a>
-### @babel/helper-module-transforms 7.21.2
+<a id="@babel/helper-module-transforms-7.21.5"></a>
+### @babel/helper-module-transforms 7.21.5
 
 **License**: MIT
 
@@ -12242,8 +12241,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-simple-access-7.20.2"></a>
-### @babel/helper-simple-access 7.20.2
+<a id="@babel/helper-simple-access-7.21.5"></a>
+### @babel/helper-simple-access 7.21.5
 
 **License**: MIT
 
@@ -12316,8 +12315,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helper-string-parser-7.19.4"></a>
-### @babel/helper-string-parser 7.19.4
+<a id="@babel/helper-string-parser-7.21.5"></a>
+### @babel/helper-string-parser 7.21.5
 
 **License**: MIT
 
@@ -12427,8 +12426,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/helpers-7.21.0"></a>
-### @babel/helpers 7.21.0
+<a id="@babel/helpers-7.21.5"></a>
+### @babel/helpers 7.21.5
 
 **License**: MIT
 
@@ -12537,6 +12536,40 @@ THE SOFTWARE.
 
 <a id="@babel/parser-7.21.4"></a>
 ### @babel/parser 7.21.4
+
+**License**: MIT
+
+**Author**: The Babel Team (https://babel.dev/team)
+
+**Repository**: https://github.com/babel/babel.git
+
+**License Text**:
+
+```
+Copyright (C) 2012-2014 by various contributors (see AUTHORS)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+```
+
+<a id="@babel/parser-7.21.8"></a>
+### @babel/parser 7.21.8
 
 **License**: MIT
 
@@ -12788,8 +12821,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/traverse-7.21.4"></a>
-### @babel/traverse 7.21.4
+<a id="@babel/traverse-7.21.5"></a>
+### @babel/traverse 7.21.5
 
 **License**: MIT
 
@@ -12825,8 +12858,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```
 
-<a id="@babel/types-7.21.4"></a>
-### @babel/types 7.21.4
+<a id="@babel/types-7.21.5"></a>
+### @babel/types 7.21.5
 
 **License**: MIT
 
@@ -23837,68 +23870,6 @@ SOFTWARE.
 
 <a id="lodash-4.17.21"></a>
 ### lodash 4.17.21
-
-**License**: MIT
-
-**Author**: John-David Dalton <john.david.dalton@gmail.com>
-
-**Repository**: lodash/lodash
-
-**License Text**:
-
-```
-Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
-
-Based on Underscore.js, copyright Jeremy Ashkenas,
-DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-This software consists of voluntary contributions made by many
-individuals. For exact contribution history, see the revision history
-available at https://github.com/lodash/lodash
-
-The following license applies to all parts of this software except as
-documented below:
-
-====
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-====
-
-Copyright and related rights for sample code are waived via CC0. Sample
-code is defined as all source code displayed within the prose of the
-documentation.
-
-CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-====
-
-Files located in the node_modules and vendor directories are externally
-maintained libraries used by this software which have their own
-licenses; we recommend you read them, as their terms may differ from the
-terms above.
-
-```
-
-<a id="lodash-4.17.15"></a>
-### lodash 4.17.15
 
 **License**: MIT
 
@@ -41389,36 +41360,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-```
-
-<a id="rimraf-3.0.2"></a>
-### rimraf 3.0.2
-
-**License**: ISC
-
-**Author**: Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
-
-**Repository**: git://github.com/isaacs/rimraf.git
-
-**License Text**:
-
-```
-The ISC License
-
-Copyright (c) Isaac Z. Schlueter and Contributors
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ```
 

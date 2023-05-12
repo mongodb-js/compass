@@ -30,7 +30,7 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "clean": "rimraf lib",
+    "clean": "node -e \"fs.rmSync('lib', { recursive: true, force: true })\" || true",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json",
     "depcheck": "depcheck",
@@ -60,7 +60,7 @@
     "@mongodb-js/compass-utils": "^0.3.0",
     "@mongodb-js/devtools-connect": "^1.4.4",
     "@mongodb-js/ssh-tunnel": "^2.0.5",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "mongodb-build-info": "^1.5.0",
     "mongodb-connection-model": "^22.3.0",
     "mongodb-connection-string-url": "^2.6.0",
@@ -73,7 +73,7 @@
     "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
-    "@types/lodash": "^4.14.172",
+    "@types/lodash": "^4.14.188",
     "@types/uuid": "^8.3.1",
     "@types/whatwg-url": "^8.2.1",
     "bson": "^5.2.0",
@@ -84,14 +84,13 @@
     "mocha": "^10.2.0",
     "mongodb": "^5.3.0",
     "mongodb-runner": "^4.10.0",
-    "nyc": "^15.0.0",
+    "nyc": "^15.1.0",
     "prettier": "^2.7.1",
-    "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "storage-mixin": "^5.1.4",
     "typescript": "^5.0.4"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^2.4.0"
+    "mongodb-client-encryption": "^2.7.1"
   }
 }

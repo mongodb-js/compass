@@ -13,6 +13,7 @@ import type { RootState } from '../../../../modules';
 import { fetchCollectionFields } from '../../../../modules/collections-fields';
 import type { CollectionData } from '../../../../modules/collections-fields';
 import type { WizardComponentProps } from '..';
+import { FieldCombobox } from '../field-combobox';
 
 const LOOKUP_TITLE = 'Join documents from';
 
@@ -57,7 +58,6 @@ export const LookupForm = ({
   onSelectCollection,
   onChange,
 }: LookupProps) => {
-  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [formData, setFormData] = useState<LookupFormState>({
     as: '',
     from: '',
@@ -149,23 +149,29 @@ export const LookupForm = ({
           searchEmptyMessage={
             !formData.from ? 'Select a collection first.' : undefined
           }
-          options={collectionInfo?.fields ?? []}
-          optionLabel="Field:"
+          options={(collectionInfo?.fields ?? []).map((x) => ({ value: x }))}
+          renderOption={(option, index) => {
+            return (
+              <ComboboxOption
+                key={index}
+                value={option.value}
+                displayName={option.value}
+              />
+            );
+          }}
         />
       </div>
       <div className={formGroup}>
         <Body className={titleStyles}>matches</Body>
-        <ComboboxWithCustomOption
+        <FieldCombobox
           className={inputFieldStyles}
           aria-label="Select local field"
           placeholder="Select local field"
-          size="default"
           clearable={false}
           onChange={(value: string | null) =>
             onSelectOption('localField', value)
           }
-          options={fieldNames}
-          optionLabel="Field:"
+          fields={fields}
         />
       </div>
       <div className={formGroup}>

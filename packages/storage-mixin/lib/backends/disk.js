@@ -5,7 +5,6 @@ var writeFileAtomic = require('write-file-atomic');
 var path = require('path');
 var async = require('async');
 var _ = require('lodash');
-var rimraf = require('rimraf');
 
 var debug = require('debug')('storage-mixin:backends:disk');
 
@@ -49,7 +48,7 @@ DiskBackend.clear = function(basepath, namespace, done) {
     done = namespace;
     namespace = '.';
   }
-  rimraf(path.join(basepath, namespace), done);
+  fs.rm(path.join(basepath, namespace), { recursive: true, force: true }, done);
 };
 
 DiskBackend.prototype._getPath = function() {
