@@ -31,7 +31,7 @@ const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe.only('importCSV', function () {
+describe('importCSV', function () {
   let dataService: DataService;
 
   beforeEach(async function () {
@@ -58,114 +58,131 @@ describe.only('importCSV', function () {
   for (const filepath of Object.values(fixtures.csv)) {
     const basename = path.basename(filepath);
 
-    it(`imports ${basename}`, async function () {
-      const typeResult = await guessFileType({
-        input: fs.createReadStream(filepath),
-      });
-      assert(typeResult.type === 'csv');
-      const csvDelimiter = typeResult.csvDelimiter;
+    for (const lineEnding of ['unix', 'windows']) {
+      it(`imports ${basename} (${lineEnding})`, async function () {
+        const typeResult = await guessFileType({
+          input: await makeInput(filepath, lineEnding),
+        });
+        assert(typeResult.type === 'csv');
+        const csvDelimiter = typeResult.csvDelimiter;
+        const newline = typeResult.newline;
 
-      const analyzeResult = await analyzeCSVFields({
-        input: fs.createReadStream(filepath),
-        delimiter: csvDelimiter,
-        ignoreEmptyStrings: true,
-      });
-
-      const abortController = new AbortController();
-      const progressCallback = sinon.spy();
-
-      const ns = 'db.col';
-
-      const totalRows = analyzeResult.totalRows;
-      const fields = _.mapValues(
-        analyzeResult.fields,
-        (field) => field.detected
-      );
-
-      const output = temp.createWriteStream();
-
-      const result = await importCSV({
-        dataService,
-        ns,
-        fields,
-        input: fs.createReadStream(filepath),
-        output,
-        delimiter: csvDelimiter,
-        abortSignal: abortController.signal,
-        progressCallback,
-        ignoreEmptyStrings: true,
-      });
-
-      expect(result).to.deep.equal({
-        docsProcessed: totalRows,
-        docsWritten: totalRows,
-        dbErrors: [],
-        dbStats: {
-          nInserted: totalRows,
-          nMatched: 0,
-          nModified: 0,
-          nRemoved: 0,
-          nUpserted: 0,
-          ok: Math.ceil(totalRows / 1000),
-          writeConcernErrors: [],
-          writeErrors: [],
-        },
-      });
-
-      expect(progressCallback.callCount).to.equal(totalRows);
-
-      const firstCallArg = Object.assign(
-        {},
-        progressCallback.firstCall.args[0]
-      );
-      expect(firstCallArg.bytesProcessed).to.be.gt(0);
-      delete firstCallArg.bytesProcessed;
-
-      expect(firstCallArg).to.deep.equal({
-        docsProcessed: 1,
-        docsWritten: 0,
-      });
-
-      const fileStat = await fs.promises.stat(filepath);
-
-      const lastCallArg = Object.assign({}, progressCallback.lastCall.args[0]);
-
-      // bit of a race condition. could be 0, could be totalRows..
-      delete lastCallArg.docsWritten;
-
-      expect(lastCallArg).to.deep.equal({
-        bytesProcessed: fileStat.size,
-        docsProcessed: totalRows,
-      });
-
-      const docs = await dataService.find(ns, {});
-
-      expect(docs).to.have.length(totalRows);
-
-      // these won't match when we compare below
-      for (const doc of docs) {
-        if (doc._id && doc._id._bsontype === 'ObjectId') {
-          delete doc._id;
+        if (lineEnding === 'windows') {
+          expect(newline).to.equal('\r\n');
+        } else {
+          expect(newline).to.equal('\n');
         }
-      }
 
-      const resultPath = filepath.replace(/\.csv$/, '.imported.ejson');
-      let text;
-      try {
-        text = await fs.promises.readFile(resultPath, 'utf8');
-      } catch (err) {
-        // This helps to tell you which file is missing and what the expected
-        // content is which helps when adding a new .csv fixture
-        console.log(resultPath);
-        console.log(EJSON.stringify(docs, undefined, 2, { relaxed: false }));
-        throw err;
-      }
+        const analyzeResult = await analyzeCSVFields({
+          input: await makeInput(filepath, lineEnding),
+          delimiter: csvDelimiter,
+          newline,
+          ignoreEmptyStrings: true,
+        });
 
-      const expectedResult = EJSON.parse(text);
-      expect(docs, basename.replace(/\.csv$/, '.imported.ejson')).to.deep.equal(
-        expectedResult
-      );
-    });
+        const abortController = new AbortController();
+        const progressCallback = sinon.spy();
+
+        const ns = 'db.col';
+
+        const totalRows = analyzeResult.totalRows;
+        const fields = _.mapValues(
+          analyzeResult.fields,
+          (field) => field.detected
+        );
+
+        const output = temp.createWriteStream();
+
+        const result = await importCSV({
+          dataService,
+          ns,
+          fields,
+          input: await makeInput(filepath, lineEnding),
+          output,
+          delimiter: csvDelimiter,
+          newline,
+          abortSignal: abortController.signal,
+          progressCallback,
+          ignoreEmptyStrings: true,
+        });
+
+        expect(result).to.deep.equal({
+          docsProcessed: totalRows,
+          docsWritten: totalRows,
+          dbErrors: [],
+          dbStats: {
+            nInserted: totalRows,
+            nMatched: 0,
+            nModified: 0,
+            nRemoved: 0,
+            nUpserted: 0,
+            ok: Math.ceil(totalRows / 1000),
+            writeConcernErrors: [],
+            writeErrors: [],
+          },
+        });
+
+        expect(progressCallback.callCount).to.equal(totalRows);
+
+        const firstCallArg = Object.assign(
+          {},
+          progressCallback.firstCall.args[0]
+        );
+        expect(firstCallArg.bytesProcessed).to.be.gt(0);
+        delete firstCallArg.bytesProcessed;
+
+        expect(firstCallArg).to.deep.equal({
+          docsProcessed: 1,
+          docsWritten: 0,
+        });
+
+        if (lineEnding === 'unix') {
+          const fileStat = await fs.promises.stat(filepath);
+
+          const lastCallArg = Object.assign(
+            {},
+            progressCallback.lastCall.args[0]
+          );
+
+          // bit of a race condition. could be 0, could be totalRows..
+          delete lastCallArg.docsWritten;
+
+          expect(lastCallArg).to.deep.equal({
+            bytesProcessed: fileStat.size,
+            docsProcessed: totalRows,
+          });
+        }
+
+        const docs = await dataService.find(ns, {});
+
+        expect(docs).to.have.length(totalRows);
+
+        // these won't match when we compare below
+        for (const doc of docs) {
+          if (doc._id && doc._id._bsontype === 'ObjectId') {
+            delete doc._id;
+          }
+        }
+
+        const resultPath = filepath.replace(/\.csv$/, '.imported.ejson');
+        let text;
+        try {
+          text = await fs.promises.readFile(resultPath, 'utf8');
+        } catch (err) {
+          // This helps to tell you which file is missing and what the expected
+          // content is which helps when adding a new .csv fixture
+          console.log(resultPath);
+          console.log(EJSON.stringify(docs, undefined, 2, { relaxed: false }));
+          throw err;
+        }
+
+        const expectedResult = EJSON.parse(text);
+        expect(
+          docs,
+          basename.replace(/\.csv$/, '.imported.ejson')
+        ).to.deep.equal(expectedResult);
+      });
+    }
   }
 
   for (const [type, filepath] of Object.entries(fixtures.csvByType)) {
@@ -177,31 +194,17 @@ describe.only('importCSV', function () {
     for (const lineEnding of ['unix', 'windows']) {
       let expectedDocs: Document[];
       it(`correctly imports ${type} (${lineEnding}) (ignoreEmptyStrings=true)`, async function () {
-        async function makeInput() {
-          let input;
-
-          if (lineEnding === 'unix') {
-            // the committed files all have unix line endings
-            input = fs.createReadStream(filepath);
-          } else {
-            // the committed files all have unix line endings
-            const text = await fs.promises.readFile(filepath, 'utf8');
-            const replaced = text.replace(/\n/g, '\r\n');
-            input = Readable.from(replaced);
-          }
-
-          return input;
-        }
-
         const typeResult = await guessFileType({
-          input: await makeInput(),
+          input: await makeInput(filepath, lineEnding),
         });
         assert(typeResult.type === 'csv');
         const csvDelimiter = typeResult.csvDelimiter;
+        const newline = typeResult.newline;
 
         const analyzeResult = await analyzeCSVFields({
-          input: await makeInput(),
+          input: await makeInput(filepath, lineEnding),
           delimiter: csvDelimiter,
+          newline,
           ignoreEmptyStrings: true,
         });
 
@@ -243,9 +246,10 @@ describe.only('importCSV', function () {
           dataService,
           ns,
           fields,
-          input: await makeInput(),
+          input: await makeInput(filepath, lineEnding),
           output,
           delimiter: csvDelimiter,
+          newline,
           abortSignal: abortController.signal,
           progressCallback,
           ignoreEmptyStrings: true,
@@ -310,10 +314,12 @@ describe.only('importCSV', function () {
     });
     assert(typeResult.type === 'csv');
     const csvDelimiter = typeResult.csvDelimiter;
+    const newline = typeResult.newline;
 
     const analyzeResult = await analyzeCSVFields({
       input: fs.createReadStream(fixtures.csvByType.null),
       delimiter: csvDelimiter,
+      newline,
       ignoreEmptyStrings: false,
     });
 
@@ -334,6 +340,7 @@ describe.only('importCSV', function () {
       input: fs.createReadStream(fixtures.csvByType.null),
       output,
       delimiter: csvDelimiter,
+      newline,
       abortSignal: abortController.signal,
       progressCallback,
       ignoreEmptyStrings: false,
@@ -405,6 +412,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       progressCallback,
@@ -460,6 +468,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
     });
@@ -503,6 +512,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
     });
@@ -538,6 +548,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
     });
@@ -571,6 +582,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
     });
@@ -606,6 +618,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       // notice that it doesn't matter that this is false. header not parsable is fatal regardless
@@ -634,6 +647,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       stopOnErrors: true,
@@ -668,6 +682,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       stopOnErrors: false,
@@ -735,6 +750,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       stopOnErrors: true,
@@ -774,6 +790,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       stopOnErrors: false,
@@ -845,6 +862,7 @@ describe.only('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: fs.createReadStream(fixtures.csv.complex),
       output,
       abortSignal: abortController.signal,
@@ -889,6 +907,7 @@ describe.only('importCSV', function () {
       input,
       output,
       delimiter: ',',
+      newline: '\r\n',
     });
 
     const docs = await dataService.find(
@@ -923,6 +942,7 @@ describe.only('importCSV', function () {
         input,
         output,
         delimiter: ',',
+        newline: '\n',
       })
     ).to.be.rejectedWith(
       TypeError,
@@ -952,6 +972,7 @@ describe.only('importCSV', function () {
         input,
         output,
         delimiter: ',',
+        newline: '\n',
       })
     ).to.be.rejectedWith(
       TypeError,
@@ -978,6 +999,7 @@ describe.only('importCSV', function () {
       input,
       output,
       delimiter: ',',
+      newline: '\n',
     });
 
     const docs = await dataService.find(
@@ -1128,4 +1150,23 @@ function checkType(path: PathPart[], value: any, type: string) {
 
 function formatErrorLines(errors: ErrorJSON[]) {
   return errors.map((err) => JSON.stringify(err)).join(os.EOL) + os.EOL;
+}
+
+async function makeInput(filepath: string, lineEnding: string) {
+  let input;
+
+  const text = (await fs.promises.readFile(filepath, 'utf8'))
+    // replace windows line endings to unix ones just in case
+    .replace(/\r\n/g, '\n');
+
+  if (lineEnding === 'unix') {
+    input = Readable.from(text);
+  } else {
+    const replaced = text
+      // turn the unix line endings into  windows line endings
+      .replace(/\n/g, '\r\n');
+    input = Readable.from(replaced);
+  }
+
+  return input;
 }

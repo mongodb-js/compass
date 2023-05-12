@@ -15,7 +15,7 @@ import type {
 export const supportedDelimiters = [',', '\t', ';', ' '] as const;
 export type Delimiter = typeof supportedDelimiters[number];
 
-export const supportedLinebreaks = ['\r\n', '\n'];
+export const supportedLinebreaks = ['\r\n', '\n'] as const;
 export type Linebreak = typeof supportedLinebreaks[number];
 
 // the subset of bson types that we can detect

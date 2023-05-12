@@ -18,12 +18,14 @@ describe('analyzeCSVFields', function () {
       });
       assert(typeResult.type === 'csv');
       const csvDelimiter = typeResult.csvDelimiter;
+      const newline = typeResult.newline;
 
       const abortController = new AbortController();
       const progressCallback = sinon.spy();
       const result = await analyzeCSVFields({
         input: fs.createReadStream(filepath),
         delimiter: csvDelimiter,
+        newline,
         abortSignal: abortController.signal,
         progressCallback,
         ignoreEmptyStrings: true,
@@ -137,6 +139,7 @@ describe('analyzeCSVFields', function () {
       const result = await analyzeCSVFields({
         input: fs.createReadStream(filepath),
         delimiter: ',',
+        newline: '\n',
         abortSignal: abortController.signal,
         progressCallback,
         ignoreEmptyStrings: true,
@@ -166,6 +169,7 @@ describe('analyzeCSVFields', function () {
     const result = await analyzeCSVFields({
       input: fs.createReadStream(fixtures.csvByType.null),
       delimiter: ',',
+      newline: '\n',
       abortSignal: abortController.signal,
       progressCallback,
       ignoreEmptyStrings: false,
@@ -196,6 +200,7 @@ describe('analyzeCSVFields', function () {
     const result = await analyzeCSVFields({
       input: fs.createReadStream(fixtures.csv.complex),
       delimiter: ',',
+      newline: '\n',
       abortSignal: abortController.signal,
       progressCallback,
       ignoreEmptyStrings: true,
@@ -215,6 +220,7 @@ describe('analyzeCSVFields', function () {
     const result = await analyzeCSVFields({
       input,
       delimiter: ',',
+      newline: '\n',
     });
     expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
   });
@@ -227,6 +233,7 @@ describe('analyzeCSVFields', function () {
       analyzeCSVFields({
         input,
         delimiter: ',',
+        newline: '\n',
       })
     ).to.be.rejectedWith(
       TypeError,
@@ -240,6 +247,7 @@ describe('analyzeCSVFields', function () {
     const result = await analyzeCSVFields({
       input,
       delimiter: ',',
+      newline: '\n',
     });
     expect(Object.keys(result.fields)).to.deep.equal(['_id', 'value']);
   });

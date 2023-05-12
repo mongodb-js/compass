@@ -13,7 +13,12 @@ import {
   processParseError,
   processWriteStreamErrors,
 } from './import-utils';
-import type { Delimiter, IncludedFields, PathPart } from '../csv/csv-types';
+import type {
+  Delimiter,
+  Linebreak,
+  IncludedFields,
+  PathPart,
+} from '../csv/csv-types';
 import type { ImportResult, ErrorJSON, ImportProgress } from './import-types';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
@@ -30,6 +35,7 @@ type ImportCSVOptions = {
   progressCallback?: (progress: ImportProgress) => void;
   errorCallback?: (error: ErrorJSON) => void;
   delimiter?: Delimiter;
+  newline: Linebreak;
   ignoreEmptyStrings?: boolean;
   stopOnErrors?: boolean;
   fields: IncludedFields; // the type chosen by the user to make each field
@@ -44,6 +50,7 @@ export async function importCSV({
   progressCallback,
   errorCallback,
   delimiter = ',',
+  newline,
   ignoreEmptyStrings,
   stopOnErrors,
   fields,
@@ -54,8 +61,6 @@ export async function importCSV({
 
   let numProcessed = 0;
   const headerFields: string[] = []; // will be filled via transformHeader callback below
-  let fixupFrom: string;
-  let fixupTo: string;
   let parsedHeader: Record<string, PathPart[]>;
 
   if (ns === 'test.compass-import-abort-e2e-test') {
@@ -73,8 +78,8 @@ export async function importCSV({
         // perhaps?) or we can just strip the extra \r from the final header
         // name if it exists.
         if (headerFields.length) {
-          fixupFrom = headerFields[headerFields.length - 1];
-          fixupTo = fixupFrom.replace(/\r$/, '');
+          const fixupFrom = headerFields[headerFields.length - 1];
+          const fixupTo = fixupFrom.replace(/\r$/, '');
           headerFields[headerFields.length - 1] = fixupTo;
         }
 
@@ -110,14 +115,6 @@ export async function importCSV({
         });
       }
 
-      // Part of the fix for papaparse's header fields quirk mentioned above.
-      // The final field's property name inside chunk still contains the
-      // trailing \r and so does each row's value.
-      //if (fixupFrom !== fixupTo) {
-      //  chunk[fixupTo] = chunk[fixupFrom].replace(/\r$/, '');
-      //  delete chunk[fixupFrom];
-      //}
-
       try {
         const doc = makeDocFromCSV(chunk, headerFields, parsedHeader, fields, {
           ignoreEmptyStrings,
@@ -144,6 +141,7 @@ export async function importCSV({
 
   const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, {
     delimiter,
+    newline,
     header: true,
     transformHeader: function (header: string, index: number): string {
       debug('importCSV:transformHeader', header, index);
