@@ -32,7 +32,7 @@ describe('Connection form', function () {
   });
 
   it('starts with the expected initial state', async function () {
-    const state = await browser.getConnectFormState();
+    const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal({
       connectionString: 'mongodb://localhost:27017',
       scheme: 'MONGODB',
@@ -179,13 +179,13 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
-    const state = await browser.getConnectFormState();
+    const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
-    expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
-    ).to.equal(connectionString);
+    expect(await browser.getConnectFormConnectionString(true)).to.equal(
+      connectionString
+    );
   });
 
   it('parses and formats a URI for X.509 authentication', async function () {
@@ -223,16 +223,16 @@ describe('Connection form', function () {
       connectionString
     );
 
-    const state = await browser.getConnectFormState();
+    const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
     expectedState.tlsCAFile = tlsCAFile;
     expectedState.tlsCertificateKeyFile = tlsCertificateKeyFile;
 
     await browser.setConnectFormState(expectedState);
-    expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
-    ).to.equal(connectionString);
+    expect(await browser.getConnectFormConnectionString(true)).to.equal(
+      connectionString
+    );
   });
 
   it('parses and formats a URI for TLS with system CA', async function () {
@@ -321,13 +321,13 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
-    const state = await browser.getConnectFormState();
+    const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
-    expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
-    ).to.equal(connectionString);
+    expect(await browser.getConnectFormConnectionString(true)).to.equal(
+      connectionString
+    );
   });
 
   it('parses and formats a URI for AWS IAM authentication', async function () {
@@ -359,13 +359,13 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
-    const state = await browser.getConnectFormState();
+    const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
-    expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
-    ).to.equal(connectionString);
+    expect(await browser.getConnectFormConnectionString(true)).to.equal(
+      connectionString
+    );
   });
 
   it('parses and formats a URI for Socks5 authentication', async function () {
@@ -398,13 +398,13 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
-    const state = await browser.getConnectFormState();
+    const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
-    expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
-    ).to.equal(connectionString);
+    expect(await browser.getConnectFormConnectionString(true)).to.equal(
+      connectionString
+    );
   });
 
   it('parses and formats a URI with advanced options', async function () {
@@ -513,6 +513,52 @@ describe('Connection form', function () {
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     });
+  });
+
+  it('redacts passwords when input is not focused', async function () {
+    const connectionString =
+      'mongodb://foo:user_password@localhost:27017/?authMechanism=DEFAULT&proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=proxy_password';
+
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      connectionString
+    );
+
+    const redactedConnectionString = connectionString
+      .replace('user_password', '*****')
+      .replace('proxy_password', '*****');
+
+    const expectedState: ConnectFormState = {
+      connectionString: redactedConnectionString,
+      scheme: 'MONGODB',
+      hosts: ['localhost:27017'],
+      directConnection: false,
+      defaultUsername: 'foo',
+      defaultPassword: 'user_password',
+      authMethod: 'DEFAULT',
+      proxyMethod: 'socks',
+      socksHost: 'hostname',
+      socksPort: '1234',
+      socksUsername: 'username',
+      socksPassword: 'proxy_password',
+      defaultAuthMechanism: 'DEFAULT',
+      sslConnection: 'DEFAULT',
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      tlsInsecure: false,
+      useSystemCA: false,
+      readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+    };
+
+    const state = await browser.getConnectFormState(false);
+    expect(state).to.deep.equal(expectedState);
+
+    await browser.setConnectFormState(expectedState);
+    expect(await browser.getConnectFormConnectionString(false)).to.equal(
+      redactedConnectionString
+    );
   });
 
   it('can save a connection as a favorite and manage it', async function () {
