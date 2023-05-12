@@ -9,6 +9,7 @@ import {
 
 import { getStageHelpLink } from '../../../utils/stage';
 import type { StageWizardUseCase } from '.';
+import { useDraggable } from '@dnd-kit/core';
 
 const cardStyles = css({
   cursor: 'pointer',
@@ -20,9 +21,27 @@ const cardTitleStyles = css({
   marginRight: spacing[2],
 });
 
-type UseCaseCardProps = {
-  onSelect: () => void;
-} & Pick<StageWizardUseCase, 'id' | 'title' | 'stageOperator'>;
+type UseCaseCardLayoutProps = Pick<
+  StageWizardUseCase,
+  'id' | 'title' | 'stageOperator'
+>;
+
+export const UseCaseCardLayout = ({
+  id,
+  title,
+  stageOperator,
+}: UseCaseCardLayoutProps) => {
+  return (
+    <KeylineCard data-testid={`use-case-${id}`} className={cardStyles}>
+      <Body className={cardTitleStyles}>{title}</Body>
+      <Link target="_blank" href={getStageHelpLink(stageOperator) as string}>
+        {stageOperator}
+      </Link>
+    </KeylineCard>
+  );
+};
+
+type UseCaseCardProps = { onSelect: () => void } & UseCaseCardLayoutProps;
 
 const UseCaseCard = ({
   id,
@@ -30,11 +49,20 @@ const UseCaseCard = ({
   stageOperator,
   onSelect,
 }: UseCaseCardProps) => {
+  const { setNodeRef, attributes, listeners } = useDraggable({
+    id,
+    data: {
+      type: 'use-case',
+    },
+  });
   return (
     <KeylineCard
       data-testid={`use-case-${id}`}
-      onClick={onSelect}
       className={cardStyles}
+      onClick={onSelect}
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
     >
       <Body className={cardTitleStyles}>{title}</Body>
       <Link target="_blank" href={getStageHelpLink(stageOperator) as string}>
