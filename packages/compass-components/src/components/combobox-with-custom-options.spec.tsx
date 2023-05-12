@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
 import {
   fireEvent,
@@ -9,17 +9,28 @@ import {
 } from '@testing-library/react';
 
 import { ComboboxWithCustomOption } from './combobox-with-custom-option';
+import { ComboboxOption } from './combobox/ComboboxOption';
+
+const renderCombobox = (
+  props: Partial<ComponentProps<typeof ComboboxWithCustomOption>> = {}
+) => {
+  render(
+    <ComboboxWithCustomOption
+      aria-label="combo-box"
+      options={[{ value: 'one' }, { value: 'two' }, { value: 'three' }]}
+      renderOption={(o, i) => {
+        return <ComboboxOption key={i} value={o.value} />;
+      }}
+      {...props}
+    />
+  );
+};
 
 describe('ComboboxWithCustomOption Component', function () {
   afterEach(cleanup);
 
   it('displays list of options', function () {
-    render(
-      <ComboboxWithCustomOption
-        aria-label="combo-box"
-        options={['one', 'two', 'three']}
-      />
-    );
+    renderCombobox();
     fireEvent.click(screen.getByRole('combobox'));
     const listbox = screen.getByRole('listbox');
 
@@ -29,12 +40,7 @@ describe('ComboboxWithCustomOption Component', function () {
   });
 
   it('displays custom option options', function () {
-    render(
-      <ComboboxWithCustomOption
-        aria-label="combo-box"
-        options={['one', 'two', 'three']}
-      />
-    );
+    renderCombobox();
 
     fireEvent.change(
       screen.getByRole('textbox', {
