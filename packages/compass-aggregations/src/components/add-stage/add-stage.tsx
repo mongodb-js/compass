@@ -38,6 +38,7 @@ const UseCaseDropMarker = (props: UseCaseDropMarkerProps) => {
       ref={setNodeRef}
       className={useCaseDropMarkerStyles}
       style={markerInlineStyles}
+      data-testid={`use-case-drop-marker-${props.id}`}
     />
   );
 };

@@ -71,6 +71,10 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   onStageAddAfterEnd,
   onUseCaseDropped,
 }) => {
+  // State used to keep a reference of the use-case being dragged from
+  // side panel. This state is required to:
+  //  - render the to-be dragged use-case in a DragOverlay
+  //  - and to conditionally render drop markers.
   const [draggedUseCaseId, setDraggedUseCaseId] = useState('');
   const draggedUseCase = useMemo(() => {
     return STAGE_WIZARD_USE_CASES.find(({ id }) => id === draggedUseCaseId);
@@ -106,7 +110,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   // We need to bring our drop markers in DOM for them to detect wether a
   // use-case was dropped over them or not. The reason we conditionally render
   // our drop markers is because if not done this way it interferes with
-  // sortable logic making it un-predictable.
+  // sortable context and hooks, making them un-predictable.
   const renderUseCaseDropMarkers = !!draggedUseCaseId;
 
   return (
@@ -167,18 +171,11 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
       </div>
       {isSidePanelOpen && (
         <Resizable
-          defaultSize={{
-            width: '25%',
-            height: 'auto',
-          }}
+          defaultSize={{ width: '25%', height: 'auto' }}
           minWidth={'15%'}
           maxWidth={'50%'}
-          enable={{
-            left: true,
-          }}
-          handleComponent={{
-            left: <ResizeHandle />,
-          }}
+          enable={{ left: true }}
+          handleComponent={{ left: <ResizeHandle /> }}
           handleStyles={{
             left: {
               left: '-1px', // default is -5px

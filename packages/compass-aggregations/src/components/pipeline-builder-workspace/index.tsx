@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { css, spacing } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import type { PipelineMode } from '../../modules/pipeline-builder/pipeline-mode';
-import PipelineBuilderUIWorkspace from './pipeline-builder-ui-workspace';
+import WorkspaceWithSidePanelAndDnd from './pipeline-builder-ui-workspace';
 import PipelineAsTextWorkspace from './pipeline-as-text-workspace';
 
 const containerStyles = css({
@@ -25,7 +25,7 @@ export const PipelineBuilderWorkspace: React.FunctionComponent<
   return (
     <div className={containerStyles} data-testid="pipeline-builder-workspace">
       {pipelineMode === 'builder-ui' ? (
-        <PipelineBuilderUIWorkspace />
+        <WorkspaceWithSidePanelAndDnd />
       ) : (
         <PipelineAsTextWorkspace />
       )}
