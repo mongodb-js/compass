@@ -1,20 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import PipelineBuilderInputDocuments from '../../pipeline-builder-input-documents';
-import AddStage from '../../add-stage';
-import ModifySourceBanner from '../../modify-source-banner';
-import { addWizard } from '../../../modules/pipeline-builder/stage-editor';
-import {
-  addStage,
-  moveStage,
-} from '../../../modules/pipeline-builder/stage-editor';
-import type { RootState } from '../../../modules';
-import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
-import { css, spacing } from '@mongodb-js/compass-components';
-import { SortableList } from './sortable-list';
 import { Resizable } from 're-resizable';
-import ResizeHandle from '../../resize-handle';
-import AggregationSidePanel from '../../aggregation-side-panel';
 import {
   DndContext,
   DragOverlay,
@@ -24,8 +10,23 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+
+import AddStage from '../../add-stage';
+import { SortableList } from './sortable-list';
+import ResizeHandle from '../../resize-handle';
+import type { RootState } from '../../../modules';
+import {
+  addStage,
+  moveStage,
+} from '../../../modules/pipeline-builder/stage-editor';
+import ModifySourceBanner from '../../modify-source-banner';
+import { css, spacing } from '@mongodb-js/compass-components';
+import AggregationSidePanel from '../../aggregation-side-panel';
+import { addWizard } from '../../../modules/pipeline-builder/stage-editor';
+import PipelineBuilderInputDocuments from '../../pipeline-builder-input-documents';
 import { STAGE_WIZARD_USE_CASES } from '../../aggregation-side-panel/stage-wizard-use-cases';
 import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
+import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
