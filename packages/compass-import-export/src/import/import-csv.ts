@@ -54,6 +54,8 @@ export async function importCSV({
 
   let numProcessed = 0;
   const headerFields: string[] = []; // will be filled via transformHeader callback below
+  let fixupFrom: string;
+  let fixupTo: string;
   let parsedHeader: Record<string, PathPart[]>;
 
   if (ns === 'test.compass-import-abort-e2e-test') {
@@ -71,8 +73,9 @@ export async function importCSV({
         // perhaps?) or we can just strip the extra \r from the final header
         // name if it exists.
         if (headerFields.length) {
-          const lastName = headerFields[headerFields.length - 1];
-          headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
+          fixupFrom = headerFields[headerFields.length - 1];
+          fixupTo = fixupFrom.replace(/\r$/, '');
+          headerFields[headerFields.length - 1] = fixupTo;
         }
 
         parsedHeader = {};
@@ -106,6 +109,14 @@ export async function importCSV({
           docsWritten: collectionStream.docsWritten,
         });
       }
+
+      // Part of the fix for papaparse's header fields quirk mentioned above.
+      // The final field's property name inside chunk still contains the
+      // trailing \r and so does each row's value.
+      //if (fixupFrom !== fixupTo) {
+      //  chunk[fixupTo] = chunk[fixupFrom].replace(/\r$/, '');
+      //  delete chunk[fixupFrom];
+      //}
 
       try {
         const doc = makeDocFromCSV(chunk, headerFields, parsedHeader, fields, {
