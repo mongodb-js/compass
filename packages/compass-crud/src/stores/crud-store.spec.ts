@@ -2017,7 +2017,6 @@ describe('store', function () {
     let updateOneFake;
     let replaceOneFake;
 
-    const document = { _id: 1234, name: 'document_1234' };
     const updatedDocument = { _id: 1234, name: 'document_12345' };
 
     beforeEach(function () {
