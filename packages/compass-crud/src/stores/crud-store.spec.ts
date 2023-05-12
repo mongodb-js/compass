@@ -2123,12 +2123,12 @@ describe('store', function () {
       });
     });
 
-    it('retries findOneAndUpdate with FLE returnDocument: "after"', async function () {
+    it('does updateOne with FLE returnDocument: "after"', async function () {
       const err = Object.assign(new Error('failed'), { code: 6371402 });
       findFake.callsFake(() => Promise.resolve([updatedDocument]));
       findOneAndReplaceFake.resolves({});
       findOneAndUpdateFake.onCall(0).rejects(err);
-      findOneAndUpdateFake.onCall(1).resolves(document);
+      updateOneFake.onCall(0).resolves({});
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'db.coll',
@@ -2138,7 +2138,7 @@ describe('store', function () {
       );
       expect(error).to.equal(undefined);
       expect(d).to.deep.equal(updatedDocument);
-      expect(findOneAndUpdateFake).to.have.callCount(2);
+      expect(findOneAndUpdateFake).to.have.callCount(1);
 
       expect(findOneAndUpdateFake.firstCall.args[0]).to.equal('db.coll');
       expect(findOneAndUpdateFake.firstCall.args[1]).to.deep.equal({
@@ -2152,23 +2152,18 @@ describe('store', function () {
         promoteValues: false,
       });
 
-      expect(findOneAndUpdateFake.secondCall.args[0]).to.equal('db.coll');
-      expect(findOneAndUpdateFake.secondCall.args[1]).to.deep.equal({
+      expect(updateOneFake.firstCall.args[0]).to.equal('db.coll');
+      expect(updateOneFake.firstCall.args[1]).to.deep.equal({
         _id: 1234,
       });
-      expect(findOneAndUpdateFake.secondCall.args[2]).to.deep.equal({
+      expect(updateOneFake.firstCall.args[2]).to.deep.equal({
         name: 'document_12345',
-      });
-      expect(findOneAndUpdateFake.secondCall.args[3]).to.deep.equal({
-        returnDocument: 'before',
-        promoteValues: false,
       });
 
       expect(findFake).to.have.callCount(1);
       expect(findFake.firstCall.args[0]).to.equal('db.coll');
       expect(findFake.firstCall.args[1]).to.deep.equal({ _id: 1234 });
       expect(findFake.firstCall.args[2]).to.deep.equal({
-        returnDocument: 'before',
         promoteValues: false,
       });
     });
@@ -2178,7 +2173,7 @@ describe('store', function () {
       findFake.yields(new Error('find failed'));
       findOneAndReplaceFake.resolves({});
       findOneAndUpdateFake.onCall(0).rejects(err);
-      findOneAndUpdateFake.onCall(1).resolves(document);
+      updateOneFake.onCall(0).resolves({});
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'db.coll',
@@ -2188,7 +2183,8 @@ describe('store', function () {
       );
       expect(error).to.equal(err);
       expect(d).to.equal(undefined);
-      expect(findOneAndUpdateFake).to.have.callCount(2);
+      expect(findOneAndUpdateFake).to.have.callCount(1);
+      expect(updateOneFake).to.have.callCount(1);
       expect(findFake).to.have.callCount(1);
     });
 
