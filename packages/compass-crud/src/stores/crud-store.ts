@@ -39,7 +39,6 @@ import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
-import type { ObjectId } from 'bson';
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 export type CrudActions = {
@@ -1594,7 +1593,7 @@ export async function findAndModifyWithFLEFallback(
 
   if (
     error.codeName === 'ShardKeyNotFound' ||
-    +(error?.code ?? 0) === 63714_02
+    +(error?.code ?? 0) === 63714_02 // 6371402 is "'findAndModify with encryption only supports new: false'"
   ) {
     const modifyOneMethod =
       modificationType === 'update' ? 'updateOne' : 'replaceOne';
@@ -1602,13 +1601,17 @@ export async function findAndModifyWithFLEFallback(
     try {
       await ds[modifyOneMethod](ns, query, object);
     } catch (e) {
+      // Return the modifyOneMethod error here
+      // since we already know the original error from findOneAndModifyMethod
+      // and want to know what went wrong with the fallback method,
+      // e.g. return the `Found indexed encrypted fields but could not find __safeContent__` error.
       return [e, undefined] as ErrorOrResult;
     }
 
     try {
       const docs = await ds.find(
         ns,
-        { _id: query._id as ObjectId },
+        { _id: query._id as any },
         { promoteValues: false }
       );
       return [undefined, docs[0]] as ErrorOrResult;
