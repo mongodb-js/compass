@@ -1,62 +1,206 @@
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import PipelineBuilderInputDocuments from '../../pipeline-builder-input-documents';
 import AddStage from '../../add-stage';
 import ModifySourceBanner from '../../modify-source-banner';
-import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
+import { addWizard } from '../../../modules/pipeline-builder/stage-editor';
 import {
   addStage,
   moveStage,
 } from '../../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../../modules';
-import { css } from '@mongodb-js/compass-components';
+import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
+import { css, spacing } from '@mongodb-js/compass-components';
 import { SortableList } from './sortable-list';
+import { Resizable } from 're-resizable';
+import ResizeHandle from '../../resize-handle';
+import AggregationSidePanel from '../../aggregation-side-panel';
+import {
+  DndContext,
+  DragOverlay,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { STAGE_WIZARD_USE_CASES } from '../../aggregation-side-panel/stage-wizard-use-cases';
+import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
-  width: '100%',
   height: '100%',
+  paddingBottom: spacing[3],
+  width: '100%',
+  overflow: 'auto',
 });
 
 const pipelineWorkspaceStyles = css({
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
+  height: '100%',
   flexGrow: 1,
 });
 
 type PipelineBuilderUIWorkspaceProps = {
   stagesIdAndType: StageIdAndType[];
   editViewName?: string;
+  isSidePanelOpen: boolean;
   onStageMoveEnd: (from: number, to: number) => void;
   onStageAddAfterEnd: (after?: number) => void;
+  onUseCaseDropped: (
+    useCaseId: string,
+    stageOperator: string,
+    after?: number
+  ) => void;
+};
+
+const isUseCaseDragEvent = (event: DragEndEvent | DragStartEvent): boolean => {
+  const { active } = event;
+  return active.data.current?.type === 'use-case';
 };
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   PipelineBuilderUIWorkspaceProps
-> = ({ stagesIdAndType, editViewName, onStageMoveEnd, onStageAddAfterEnd }) => {
+> = ({
+  stagesIdAndType,
+  editViewName,
+  isSidePanelOpen,
+  onStageMoveEnd,
+  onStageAddAfterEnd,
+  onUseCaseDropped,
+}) => {
+  const [draggedUseCaseId, setDraggedUseCaseId] = useState('');
+  const draggedUseCase = useMemo(() => {
+    return STAGE_WIZARD_USE_CASES.find(({ id }) => id === draggedUseCaseId);
+  }, [draggedUseCaseId]);
+
+  const onSortEnd = useCallback(
+    ({ oldIndex, newIndex }) => {
+      const from = stagesIdAndType.findIndex(({ id }) => id + 1 === oldIndex);
+      const to = stagesIdAndType.findIndex(({ id }) => id + 1 === newIndex);
+      onStageMoveEnd(from, to);
+    },
+    [onStageMoveEnd, stagesIdAndType]
+  );
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      // Require the mouse to move by 10 pixels before activating.
+      // Slight distance prevents sortable logic messing with
+      // interactive elements in the handler toolbar component.
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      // Press delay of 250ms, with tolerance of 5px of movement.
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+  // We need to bring our drop markers in DOM for them to detect wether a
+  // use-case was dropped over them or not. The reason we conditionally render
+  // our drop markers is because if not done this way it interferes with
+  // sortable logic making it un-predictable.
+  const renderUseCaseDropMarkers = !!draggedUseCaseId;
+
   return (
-    <div data-testid="pipeline-builder-ui-workspace">
-      <div className={pipelineWorkspaceContainerStyles}>
+    <DndContext
+      sensors={sensors}
+      autoScroll={false}
+      onDragEnd={(event) => {
+        // Handle use-case drag-n-drop
+        const { active, over } = event;
+        if (isUseCaseDragEvent(event)) {
+          setDraggedUseCaseId('');
+          if (draggedUseCase) {
+            onUseCaseDropped(
+              draggedUseCase.id,
+              draggedUseCase.stageOperator,
+              over?.id as number | undefined
+            );
+          }
+        }
+        // The only other event type we have is sort
+        else if (over && over.data.current?.sortable && active.id !== over.id) {
+          onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
+        }
+      }}
+      onDragStart={(event) => {
+        if (isUseCaseDragEvent(event)) {
+          setDraggedUseCaseId(event.active.id as string);
+        }
+      }}
+    >
+      <div
+        data-testid="pipeline-builder-ui-workspace"
+        className={pipelineWorkspaceContainerStyles}
+      >
         <div className={pipelineWorkspaceStyles}>
           {editViewName && <ModifySourceBanner editViewName={editViewName} />}
           <PipelineBuilderInputDocuments />
           {stagesIdAndType.length !== 0 && (
             <AddStage
-              onAddStage={() => onStageAddAfterEnd(-1)}
               variant="icon"
+              index={-1}
+              onAddStage={() => onStageAddAfterEnd(-1)}
+              renderUseCaseDropMarker={renderUseCaseDropMarkers}
             />
           )}
           <SortableList
+            renderUseCaseDropMarker={renderUseCaseDropMarkers}
             stagesIdAndType={stagesIdAndType}
-            onStageMoveEnd={onStageMoveEnd}
             onStageAddAfterEnd={onStageAddAfterEnd}
           />
-
-          <AddStage onAddStage={onStageAddAfterEnd} variant="button" />
+          <AddStage
+            variant="button"
+            index={stagesIdAndType.length - 1}
+            onAddStage={onStageAddAfterEnd}
+            renderUseCaseDropMarker={renderUseCaseDropMarkers}
+          />
         </div>
       </div>
-    </div>
+      {isSidePanelOpen && (
+        <Resizable
+          defaultSize={{
+            width: '25%',
+            height: 'auto',
+          }}
+          minWidth={'15%'}
+          maxWidth={'50%'}
+          enable={{
+            left: true,
+          }}
+          handleComponent={{
+            left: <ResizeHandle />,
+          }}
+          handleStyles={{
+            left: {
+              left: '-1px', // default is -5px
+              // The sidepanel container is a card with radius.
+              // Having padding top, cleans the UI.
+              paddingTop: spacing[2],
+            },
+          }}
+        >
+          <AggregationSidePanel />
+        </Resizable>
+      )}
+      {draggedUseCase ? (
+        <DragOverlay>
+          <UseCaseCardLayout
+            id={draggedUseCase.id}
+            title={draggedUseCase.title}
+            stageOperator={draggedUseCase.stageOperator}
+          />
+        </DragOverlay>
+      ) : null}
+    </DndContext>
   );
 };
 
@@ -64,12 +208,14 @@ const mapState = (state: RootState) => {
   return {
     stagesIdAndType: state.pipelineBuilder.stageEditor.stagesIdAndType,
     editViewName: state.editViewName,
+    isSidePanelOpen: state.sidePanel.isPanelOpen,
   };
 };
 
 const mapDispatch = {
   onStageMoveEnd: moveStage,
   onStageAddAfterEnd: addStage,
+  onUseCaseDropped: addWizard,
 };
 
 export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);
