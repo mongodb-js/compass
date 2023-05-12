@@ -1,7 +1,6 @@
 /* eslint-disable no-sync */
 import path from 'path';
 import os from 'os';
-import rimraf from 'rimraf';
 import { expect } from 'chai';
 import fs from 'fs';
 
@@ -17,7 +16,7 @@ describe('HistoryStorage', function () {
   });
 
   afterEach(function (done) {
-    rimraf(tempDir, done);
+    fs.rm(tempDir, { recursive: true, force: true }, done);
   });
 
   describe('#save', function () {

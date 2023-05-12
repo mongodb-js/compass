@@ -346,7 +346,24 @@ export function compassPluginConfig(
         entry,
         outputFilename: 'index.js',
       }),
-      { externals: toCommonJsExternal(pluginExternals) }
+      {
+        externals: toCommonJsExternal(pluginExternals),
+        plugins: [
+          // For plugins, clean up the dist folder first before proceeding
+          function (compiler) {
+            compiler.hooks.initialize.tap('CleanDistPlugin', () => {
+              try {
+                fs.rmSync(compiler.outputPath, {
+                  recursive: true,
+                  force: true,
+                });
+              } catch {
+                // noop
+              }
+            });
+          },
+        ],
+      }
     ),
     merge(
       createWebConfig({
@@ -354,7 +371,9 @@ export function compassPluginConfig(
         entry,
         outputFilename: 'browser.js',
       }),
-      { externals: toCommonJsExternal(pluginExternals) }
+      {
+        externals: toCommonJsExternal(pluginExternals),
+      }
     ),
   ];
 }
