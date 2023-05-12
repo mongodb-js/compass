@@ -11,7 +11,7 @@ import { startTelemetryServer } from '../helpers/telemetry';
 import { UUID } from 'bson';
 import type { CompassBrowser } from '../helpers/compass-browser';
 
-describe.only('Connection Import / Export', function () {
+describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
   let originalDisableKeychainUsage: string | undefined;
