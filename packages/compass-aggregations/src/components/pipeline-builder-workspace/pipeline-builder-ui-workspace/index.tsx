@@ -10,6 +10,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import AddStage from '../../add-stage';
 import { SortableList } from './sortable-list';
@@ -27,6 +28,8 @@ import PipelineBuilderInputDocuments from '../../pipeline-builder-input-document
 import { STAGE_WIZARD_USE_CASES } from '../../aggregation-side-panel/stage-wizard-use-cases';
 import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
 import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const pipelineWorkspaceContainerStyles = css({
   position: 'relative',
@@ -81,15 +84,6 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
     return STAGE_WIZARD_USE_CASES.find(({ id }) => id === draggedUseCaseId);
   }, [draggedUseCaseId]);
 
-  const onSortEnd = useCallback(
-    ({ oldIndex, newIndex }) => {
-      const from = stagesIdAndType.findIndex(({ id }) => id + 1 === oldIndex);
-      const to = stagesIdAndType.findIndex(({ id }) => id + 1 === newIndex);
-      onStageMoveEnd(from, to);
-    },
-    [onStageMoveEnd, stagesIdAndType]
-  );
-
   const sensors = useSensors(
     useSensor(MouseSensor, {
       // Require the mouse to move by 10 pixels before activating.
@@ -114,26 +108,47 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
   // sortable context and hooks, making them un-predictable.
   const renderUseCaseDropMarkers = !!draggedUseCaseId;
 
+  const handleUseCaseDropped = useCallback(
+    (event: DragEndEvent) => {
+      const { over } = event;
+      setDraggedUseCaseId('');
+      if (draggedUseCase) {
+        track('Aggregation Use Case Added', {
+          drag_and_drop: true,
+        });
+        onUseCaseDropped(
+          draggedUseCase.id,
+          draggedUseCase.stageOperator,
+          over?.id as number | undefined
+        );
+      }
+    },
+    [draggedUseCase, onUseCaseDropped]
+  );
+
+  const handleSortEnd = useCallback(
+    ({ oldIndex, newIndex }) => {
+      const from = stagesIdAndType.findIndex(({ id }) => id + 1 === oldIndex);
+      const to = stagesIdAndType.findIndex(({ id }) => id + 1 === newIndex);
+      onStageMoveEnd(from, to);
+    },
+    [onStageMoveEnd, stagesIdAndType]
+  );
+
   return (
     <DndContext
       sensors={sensors}
       autoScroll={false}
       onDragEnd={(event) => {
-        // Handle use-case drag-n-drop
         const { active, over } = event;
         if (isUseCaseDragEvent(event)) {
-          setDraggedUseCaseId('');
-          if (draggedUseCase) {
-            onUseCaseDropped(
-              draggedUseCase.id,
-              draggedUseCase.stageOperator,
-              over?.id as number | undefined
-            );
-          }
-        }
-        // The only other event type we have is sort
-        else if (over && over.data.current?.sortable && active.id !== over.id) {
-          onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
+          handleUseCaseDropped(event);
+        } else if (
+          over &&
+          over.data.current?.sortable &&
+          active.id !== over.id
+        ) {
+          handleSortEnd({ oldIndex: +active.id, newIndex: +over.id });
         }
       }}
       onDragStart={(event) => {
