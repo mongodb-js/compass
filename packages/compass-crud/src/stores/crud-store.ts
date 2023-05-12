@@ -1575,67 +1575,49 @@ export async function findAndModifyWithFLEFallback(
   object: { $set?: BSONObject; $unset?: BSONObject } | BSONObject | BSONArray,
   modificationType: 'update' | 'replace'
 ): Promise<ErrorOrResult> {
-  let options: { returnDocument: 'before' | 'after'; promoteValues: false } = {
-    returnDocument: 'after',
-    promoteValues: false,
-  };
-  let error: (Error & { codeName?: string; code?: any }) | undefined;
-  let document;
-
   const findOneAndModifyMethod =
     modificationType === 'update' ? 'findOneAndUpdate' : 'findOneAndReplace';
-  const modifyOneMethod =
-    modificationType === 'update' ? 'updateOne' : 'replaceOne';
+  let error: (Error & { codeName?: string; code?: any }) | undefined;
 
   try {
-    document = await ds[findOneAndModifyMethod](ns, query, object, options);
+    return [
+      undefined,
+      await ds[findOneAndModifyMethod](ns, query, object, {
+        returnDocument: 'after',
+        promoteValues: false,
+      }),
+    ] as ErrorOrResult;
   } catch (e) {
     error = e as Error;
   }
 
-  if (!error) {
-    return [undefined, document] as ErrorOrResult;
-  }
+  if (
+    error.codeName === 'ShardKeyNotFound' ||
+    +(error?.code ?? 0) === 63714_02 // 6371402 is "'findAndModify with encryption only supports new: false'"
+  ) {
+    const modifyOneMethod =
+      modificationType === 'update' ? 'updateOne' : 'replaceOne';
 
-  if (error.codeName === 'ShardKeyNotFound') {
     try {
-      const docs = await ds.find(ns, query, options);
-      [document] = docs;
+      await ds[modifyOneMethod](ns, query, object);
     } catch (e) {
-      return [e, undefined] as ErrorOrResult;
-    }
-
-    if (document) {
-      try {
-        await ds[modifyOneMethod](ns, { _id: document._id }, object);
-      } catch (e) {
-        return [e, undefined] as ErrorOrResult;
-      }
-    }
-  } else if (+(error?.code ?? 0) === 63714_02) {
-    // 6371402 is "'findAndModify with encryption only supports new: false'"
-    options = {
-      returnDocument: 'before',
-      promoteValues: false,
-    };
-    try {
-      document = await ds[findOneAndModifyMethod](ns, query, object, options);
-    } catch (e) {
-      // Return the current findOneAndModify error here
-      // since we already know the exact error from the previous attempt
-      // and want to know what went wrong with the second attempt with the fallback options,
+      // Return the modifyOneMethod error here
+      // since we already know the original error from findOneAndModifyMethod
+      // and want to know what went wrong with the fallback method,
       // e.g. return the `Found indexed encrypted fields but could not find __safeContent__` error.
       return [e, undefined] as ErrorOrResult;
     }
-  }
 
-  try {
-    if (document) {
-      const docs = await ds.find(ns, { _id: document._id }, options);
+    try {
+      const docs = await ds.find(
+        ns,
+        { _id: query._id as any },
+        { promoteValues: false }
+      );
       return [undefined, docs[0]] as ErrorOrResult;
+    } catch (e) {
+      /* fallthrough */
     }
-  } catch (e) {
-    /* fallthrough */
   }
 
   // Race condition -- most likely, somebody else
