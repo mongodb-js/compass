@@ -169,11 +169,11 @@ describe('Collection indexes tab', function () {
     });
   });
 
-  describe('server version 6.3.0', function () {
+  describe('server version 20.0.0', function () {
     // This feature got moved behind a feature flag
     // https://jira.mongodb.org/browse/SERVER-74901
     it.skip('supports creating a columnstore index', async function () {
-      if (serverSatisfies('< 6.3.0-alpha0')) {
+      if (serverSatisfies('< 20.0.0-alpha0')) {
         return this.skip();
       }
 
