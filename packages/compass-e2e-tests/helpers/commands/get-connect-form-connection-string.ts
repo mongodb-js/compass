@@ -13,6 +13,5 @@ export async function getConnectFormConnectionString(
       return await inputElem.isFocused();
     });
   }
-  const connectionString = await inputElem.getValue();
-  return connectionString;
+  return await inputElem.getValue();
 }
