@@ -402,6 +402,7 @@ async function analyzeAndImportCSV(
     dataService,
     ns: testNS,
     fields,
+    newline,
     input: fs.createReadStream(filepath),
     delimiter: csvDelimiter,
     ignoreEmptyStrings: true,
