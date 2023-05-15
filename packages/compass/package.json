@@ -208,6 +208,7 @@
     "@mongodb-js/hadron-plugin-manager": "^7.0.6",
     "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
+    "@mongodb-js/sbom-tools": "^0.2.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@mongodb-js/webpack-config-compass": "^1.0.8",
     "@types/analytics-node": "^3.1.7",
@@ -268,7 +269,6 @@
     "tar": "^6.1.11",
     "uuid": "^3.0.0",
     "web-vitals": "^2.1.2",
-    "webpack-license-plugin": "^4.2.2",
     "winreg-ts": "^1.0.4"
   },
   "optionalDependencies": {
