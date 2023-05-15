@@ -6,56 +6,11 @@ import {
   css,
   spacing,
   Link,
-  palette,
+  cx,
 } from '@mongodb-js/compass-components';
 import { PIPELINE_HELP_URI } from '../../constants';
-import { useDroppable } from '@dnd-kit/core';
 
-const useCaseDropMarkerStyles = css({
-  width: '100%',
-  height: spacing[1],
-  borderRadius: spacing[1],
-  background: palette.green.dark1,
-  position: 'absolute',
-});
-
-type UseCaseDropMarkerProps = {
-  id: number;
-  style?: React.CSSProperties;
-};
-
-const UseCaseDropMarker = (props: UseCaseDropMarkerProps) => {
-  const { setNodeRef, isOver, active } = useDroppable({ id: props.id });
-  const draggedElementIsUseCase = active?.data.current?.type === 'use-case';
-  const draggedUseCaseIsOverMarker = isOver && draggedElementIsUseCase;
-  const markerInlineStyles: React.CSSProperties = {
-    ...props.style,
-    visibility: draggedUseCaseIsOverMarker ? 'visible' : 'hidden',
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={useCaseDropMarkerStyles}
-      style={markerInlineStyles}
-      data-testid={`use-case-drop-marker-${props.id}`}
-    />
-  );
-};
-
-const iconContainerStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[1] / 2,
-  marginBottom: spacing[1] / 2,
-  position: 'relative',
-});
-
-const buttonContainerStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[4],
-  marginBottom: spacing[3],
-  position: 'relative',
-});
+const containerStyles = css({ textAlign: 'center' });
 
 const linkContainerStyles = css({
   textAlign: 'center',
@@ -64,31 +19,21 @@ const linkContainerStyles = css({
   position: 'relative',
 });
 
-type AddStageProps = {
-  index: number;
-  renderUseCaseDropMarker: boolean;
+export type AddStageProps = {
   variant: 'button' | 'icon';
   onAddStage: () => void;
+  className?: string;
 };
 
-export const AddStage = ({
-  index,
-  renderUseCaseDropMarker,
-  onAddStage,
-  variant,
-}: AddStageProps) => {
+export const AddStage = ({ className, onAddStage, variant }: AddStageProps) => {
   if (variant === 'icon') {
     return (
-      <div className={iconContainerStyles}>
-        {renderUseCaseDropMarker && (
-          <UseCaseDropMarker id={index} style={{ top: '50%' }} />
-        )}
+      <div className={cx(containerStyles, className)}>
         <IconButton
           aria-label="Add stage"
           title="Add stage"
           data-testid="add-stage-icon-button"
           onClick={() => onAddStage()}
-          style={{ visibility: renderUseCaseDropMarker ? 'hidden' : 'visible' }}
         >
           <Icon glyph="PlusWithCircle"></Icon>
         </IconButton>
@@ -97,10 +42,7 @@ export const AddStage = ({
   }
 
   return (
-    <div className={buttonContainerStyles}>
-      {renderUseCaseDropMarker && (
-        <UseCaseDropMarker id={index} style={{ top: -(spacing[4] / 2) }} />
-      )}
+    <div className={cx(containerStyles, className)}>
       <Button
         data-testid="add-stage"
         onClick={() => onAddStage()}

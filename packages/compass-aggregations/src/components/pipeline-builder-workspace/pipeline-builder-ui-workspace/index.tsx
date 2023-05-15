@@ -9,10 +9,10 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { css, spacing } from '@mongodb-js/compass-components';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-import AddStage from '../../add-stage';
 import { SortableList } from './sortable-list';
 import ResizeHandle from '../../resize-handle';
 import type { RootState } from '../../../modules';
@@ -21,12 +21,12 @@ import {
   moveStage,
 } from '../../../modules/pipeline-builder/stage-editor';
 import ModifySourceBanner from '../../modify-source-banner';
-import { css, spacing } from '@mongodb-js/compass-components';
 import AggregationSidePanel from '../../aggregation-side-panel';
 import { addWizard } from '../../../modules/pipeline-builder/stage-editor';
 import PipelineBuilderInputDocuments from '../../pipeline-builder-input-documents';
 import { STAGE_WIZARD_USE_CASES } from '../../aggregation-side-panel/stage-wizard-use-cases';
 import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
+import StageSeparator from '../../stage-separator/stage-separator';
 import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -165,7 +165,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
           {editViewName && <ModifySourceBanner editViewName={editViewName} />}
           <PipelineBuilderInputDocuments />
           {stagesIdAndType.length !== 0 && (
-            <AddStage
+            <StageSeparator
               variant="icon"
               index={-1}
               onAddStage={() => onStageAddAfterEnd(-1)}
@@ -177,7 +177,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
             stagesIdAndType={stagesIdAndType}
             onStageAddAfterEnd={onStageAddAfterEnd}
           />
-          <AddStage
+          <StageSeparator
             variant="button"
             index={stagesIdAndType.length - 1}
             onAddStage={onStageAddAfterEnd}

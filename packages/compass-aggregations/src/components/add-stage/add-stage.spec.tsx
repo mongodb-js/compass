@@ -7,15 +7,7 @@ import { cleanup, render, screen, within } from '@testing-library/react';
 const renderAddStage = (
   props: Partial<ComponentProps<typeof AddStage>> = {}
 ) => {
-  render(
-    <AddStage
-      index={0}
-      renderUseCaseDropMarker={false}
-      onAddStage={() => {}}
-      variant="button"
-      {...props}
-    />
-  );
+  render(<AddStage onAddStage={() => {}} variant="button" {...props} />);
 };
 
 describe('AddStage', function () {
@@ -37,18 +29,6 @@ describe('AddStage', function () {
       expect(onAddStage).not.to.have.been.called;
       button.click();
       expect(onAddStage).to.have.been.calledOnce;
-    });
-
-    it('renders a drop marker when renderUseCaseDropMarker is true', function () {
-      renderAddStage({
-        variant: 'icon',
-        renderUseCaseDropMarker: true,
-        index: 1,
-      });
-      expect(screen.getByTestId(`use-case-drop-marker-1`)).to.not.throw;
-      expect(
-        screen.getByTestId(`use-case-drop-marker-1`).getAttribute('style')
-      ).to.contain('visibility: hidden');
     });
   });
 
@@ -73,18 +53,6 @@ describe('AddStage', function () {
       expect(onAddStage).not.to.have.been.called;
       button.click();
       expect(onAddStage).to.have.been.calledOnce;
-    });
-
-    it('renders a drop marker when renderUseCaseDropMarker is true', function () {
-      renderAddStage({
-        variant: 'button',
-        renderUseCaseDropMarker: true,
-        index: 1,
-      });
-      expect(screen.getByTestId(`use-case-drop-marker-1`)).to.not.throw;
-      expect(
-        screen.getByTestId(`use-case-drop-marker-1`).getAttribute('style')
-      ).to.contain('visibility: hidden');
     });
   });
 });

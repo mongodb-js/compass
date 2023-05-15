@@ -11,7 +11,7 @@ import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
 import Stage from '../../stage';
 import Wizard from '../../stage-wizard';
-import AddStage from '../../add-stage';
+import StageSeparator from '../../stage-separator';
 
 const sortableItemStyles = css({
   display: 'flex',
@@ -82,7 +82,7 @@ export const SortableList = ({
         <React.Fragment key={`stage-${id}`}>
           <SortableItem id={id} index={index} type={type} />
           {index !== stagesIdAndType.length - 1 && (
-            <AddStage
+            <StageSeparator
               variant="icon"
               index={index}
               onAddStage={() => onStageAddAfterEnd(index)}
