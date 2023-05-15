@@ -191,6 +191,19 @@ export const setIsTimeSeries = (
 };
 
 /**
+ * Set the serverVersion flag in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} serverVersion - The current version of the server.
+ */
+export const setServerVersion = (
+  store: CrudStoreImpl,
+  serverVersion: string
+) => {
+  store.onServerVersionChanged(serverVersion);
+};
+
+/**
  * Set the namespace in the store.
  *
  * @param {Store} store - The store.
@@ -255,6 +268,7 @@ type CrudStoreOptions = {
   isReadonly: boolean;
   namespace: string;
   isTimeSeries: boolean;
+  serverVersion: string;
   dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
 };
@@ -319,6 +333,7 @@ type CrudState = {
   isDataLake: boolean;
   isReadonly: boolean;
   isTimeSeries: boolean;
+  serverVersion: string;
   status: DOCUMENTS_STATUSES;
   debouncingLoad: boolean;
   loadingCount: boolean;
@@ -374,6 +389,7 @@ class CrudStoreImpl
       isDataLake: false,
       isReadonly: false,
       isTimeSeries: false,
+      serverVersion: '4.0.0',
       status: DOCUMENTS_STATUS_INITIAL,
       debouncingLoad: false,
       loadingCount: false,
@@ -470,6 +486,15 @@ class CrudStoreImpl
    */
   onTimeSeriesChanged(isTimeSeries: boolean) {
     this.setState({ isTimeSeries });
+  }
+
+  /**
+   * Set the current server version.
+   *
+   * @param {Boolean} serverVersion - The current server version.
+   */
+  onServerVersionChanged(serverVersion: string) {
+    this.setState({ serverVersion });
   }
 
   /**
@@ -1536,6 +1561,10 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
 
   if (options.isTimeSeries) {
     setIsTimeSeries(store, options.isTimeSeries);
+  }
+
+  if (options.serverVersion) {
+    setServerVersion(store, options.serverVersion);
   }
 
   if (options.dataProvider) {
