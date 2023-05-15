@@ -5,6 +5,7 @@ function run() {
   console.log(process.argv);
   const input = fs.createReadStream(process.argv[2]);
   const delimiter = ' ';
+  const newline = '\n';
   let numRows = 0;
   let start = Date.now();
   const progressCallback = () => {
@@ -14,7 +15,7 @@ function run() {
       start = Date.now();
     }
   };
-  return analyzeCSVFields({ input, delimiter, progressCallback });
+  return analyzeCSVFields({ input, delimiter, newline, progressCallback });
 }
 
 run()

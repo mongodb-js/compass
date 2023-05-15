@@ -569,6 +569,7 @@ describe('Collection import', function () {
     delete importCompletedEvent.duration; // Duration varies.
     expect(importCompletedEvent).to.deep.equal({
       delimiter: ',',
+      newline: '\n',
       file_type: 'csv',
       all_fields: false,
       stop_on_error_selected: false,

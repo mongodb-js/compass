@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { AcceptedFileType } from '../constants/file-types';
-import type { CSVDelimiter } from '../modules/import';
+import type { Delimiter } from '../csv/csv-types';
 import { ImportFileInput } from './import-file-input';
 
 const formStyles = css({
@@ -43,7 +43,7 @@ const checkboxStyles = css({
 });
 
 const delimiters: {
-  value: CSVDelimiter;
+  value: Delimiter;
   label: string;
 }[] = [
   {
@@ -66,8 +66,8 @@ const delimiters: {
 
 type ImportOptionsProps = {
   selectImportFileName: (fileName: string) => void;
-  setDelimiter: (delimiter: CSVDelimiter) => void;
-  delimiter: CSVDelimiter;
+  setDelimiter: (delimiter: Delimiter) => void;
+  delimiter: Delimiter;
   fileType: AcceptedFileType | '';
   fileName: string;
   stopOnErrors: boolean;
@@ -120,7 +120,7 @@ function ImportOptions({
               aria-label="Delimiter"
               data-testid="import-delimiter-select"
               onChange={(delimiter: string) =>
-                void setDelimiter(delimiter as CSVDelimiter)
+                void setDelimiter(delimiter as Delimiter)
               }
               value={delimiter}
               allowDeselect={false}

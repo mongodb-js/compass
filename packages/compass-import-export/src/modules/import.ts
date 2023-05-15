@@ -35,7 +35,12 @@ import { globalAppRegistryEmit, nsChanged } from './compass';
 import type { ProcessStatus } from '../constants/process-status';
 import type { RootImportState } from '../stores/import-store';
 import type { AcceptedFileType } from '../constants/file-types';
-import type { CSVParsableFieldType, CSVField } from '../csv/csv-types';
+import type {
+  Delimiter,
+  Linebreak,
+  CSVParsableFieldType,
+  CSVField,
+} from '../csv/csv-types';
 import type { ErrorJSON, ImportResult } from '../import/import-types';
 import { csvHeaderNameToFieldName } from '../csv/csv-utils';
 import { guessFileType } from '../import/guess-filetype';
@@ -103,8 +108,6 @@ type FieldFromJSON = {
 };
 type FieldType = FieldFromJSON | FieldFromCSV;
 
-export type CSVDelimiter = ',' | '\t' | ';' | ' ';
-
 type State = {
   isOpen: boolean;
   isInProgressMessageOpen: boolean;
@@ -119,7 +122,8 @@ type State = {
   fileStats: null | fs.Stats;
   analyzeBytesProcessed: number;
   analyzeBytesTotal: number;
-  delimiter: CSVDelimiter;
+  delimiter: Delimiter;
+  newline: Linebreak;
   stopOnErrors: boolean;
 
   ignoreBlanks: boolean;
@@ -150,6 +154,7 @@ export const INITIAL_STATE: State = {
   analyzeBytesProcessed: 0,
   analyzeBytesTotal: 0,
   delimiter: ',',
+  newline: '\n',
   stopOnErrors: false,
   ignoreBlanks: true,
   fields: [],
@@ -222,6 +227,7 @@ export const startImport = () => {
       fileIsMultilineJSON,
       fileStats,
       delimiter,
+      newline,
       ignoreBlanks: ignoreBlanks_,
       stopOnErrors,
       exclude,
@@ -325,6 +331,7 @@ export const startImport = () => {
         input,
         output: errorLogWriteStream,
         delimiter,
+        newline,
         fields,
         abortSignal,
         progressCallback,
@@ -355,6 +362,7 @@ export const startImport = () => {
       track('Import Completed', {
         duration: Date.now() - startTime,
         delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+        newline: fileType === 'csv' ? newline : undefined,
         file_type: fileType,
         all_fields: exclude.length === 0,
         stop_on_error_selected: stopOnErrors,
@@ -383,6 +391,7 @@ export const startImport = () => {
     track('Import Completed', {
       duration: Date.now() - startTime,
       delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+      newline: fileType === 'csv' ? newline : undefined,
       file_type: fileType,
       all_fields: exclude.length === 0,
       stop_on_error_selected: stopOnErrors,
@@ -509,8 +518,13 @@ const loadTypes = (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ): Promise<void> => {
-    const { fileName, delimiter, ignoreBlanks, analyzeAbortController } =
-      getState().importData;
+    const {
+      fileName,
+      delimiter,
+      newline,
+      ignoreBlanks,
+      analyzeAbortController,
+    } = getState().importData;
 
     // if there's already an analyzeCSVFields in flight, abort that first
     if (analyzeAbortController) {
@@ -546,6 +560,7 @@ const loadTypes = (
       const result = await analyzeCSVFields({
         input,
         delimiter,
+        newline,
         abortSignal,
         ignoreEmptyStrings: ignoreBlanks,
         progressCallback,
@@ -592,12 +607,12 @@ const loadCSVPreviewDocs = (): ThunkAction<
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
   ): Promise<void> => {
-    const { fileName, delimiter } = getState().importData;
+    const { fileName, delimiter, newline } = getState().importData;
 
     const input = fs.createReadStream(fileName);
 
     try {
-      const result = await listCSVFields({ input, delimiter });
+      const result = await listCSVFields({ input, delimiter, newline });
 
       const fieldMap: Record<string, number[]> = {};
       const fields: FieldFromCSV[] = [];
@@ -723,6 +738,7 @@ export const selectImportFileName = (fileName: string) => {
       dispatch({
         type: FILE_SELECTED,
         delimiter: detected.type === 'csv' ? detected.csvDelimiter : undefined,
+        newline: detected.type === 'csv' ? detected.newline : undefined,
         fileName,
         fileStats,
         fileIsMultilineJSON,
@@ -764,7 +780,7 @@ export const selectImportFileName = (fileName: string) => {
 /**
  * Set the tabular delimiter.
  */
-export const setDelimiter = (delimiter: CSVDelimiter) => {
+export const setDelimiter = (delimiter: Delimiter) => {
   return async (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
@@ -877,6 +893,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
     return {
       ...state,
       delimiter: action.delimiter,
+      newline: action.newline,
       fileName: action.fileName,
       fileType: action.fileType,
       fileStats: action.fileStats,
