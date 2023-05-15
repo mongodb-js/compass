@@ -131,9 +131,6 @@ describe('queryBarReducer', function () {
         filter: { _id: '123' },
         limit: 10,
       });
-      expect(store.getState())
-        .to.have.property('lastAppliedQuery')
-        .deep.eq(appliedQuery);
     });
 
     it('should not "apply" query if query is invalid', function () {
@@ -141,7 +138,6 @@ describe('queryBarReducer', function () {
       store.dispatch(changeField('filter', '{ _id'));
       const appliedQuery = store.dispatch(applyQuery() as any);
       expect(appliedQuery).to.eq(false);
-      expect(store.getState()).to.have.property('lastAppliedQuery', null);
     });
   });
 

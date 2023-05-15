@@ -136,7 +136,6 @@ export type QueryBarState = {
   expanded: boolean;
   serverVersion: string;
   schemaFields: unknown[];
-  lastAppliedQuery: unknown | null;
   /**
    * For testing purposes only, allows to track whether or not apply button was
    * clicked or not
@@ -149,7 +148,6 @@ export const INITIAL_STATE: QueryBarState = {
   expanded: false,
   serverVersion: '3.6.0',
   schemaFields: [],
-  lastAppliedQuery: null,
   applyId: 0,
 };
 
@@ -187,11 +185,9 @@ type ChangeFieldAction = {
  */
 const emitOnQueryChange = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
-    const { lastAppliedQuery, fields } = getState();
+    const { fields } = getState();
     const query = pickValuesFromFields(fields);
-    if (lastAppliedQuery === null || isEqual(lastAppliedQuery, query)) {
-      localAppRegistry?.emit('query-changed', query);
-    }
+    localAppRegistry?.emit('query-changed', query);
   };
 };
 
@@ -346,7 +342,6 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ApplyQueryAction>(action, QueryBarActions.ApplyQuery)) {
     return {
       ...state,
-      lastAppliedQuery: action.query,
       applyId: (state.applyId + 1) % Number.MAX_SAFE_INTEGER,
     };
   }
