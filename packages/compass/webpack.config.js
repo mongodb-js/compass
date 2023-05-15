@@ -97,13 +97,6 @@ module.exports = (_env, args) => {
     HADRON_METRICS_SEGMENT_HOST: null,
   };
 
-  const resolve = {
-    alias: {
-      /** @type {false} */
-      'ampersand-sync': false,
-    },
-  };
-
   const compileOnlyPlugins = isServe(opts)
     ? []
     : [
@@ -128,7 +121,6 @@ module.exports = (_env, args) => {
     merge(mainConfig, {
       cache,
       externals,
-      resolve,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         ...compileOnlyPlugins,
@@ -140,7 +132,6 @@ module.exports = (_env, args) => {
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
-      resolve,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
 
