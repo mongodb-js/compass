@@ -137,11 +137,11 @@ describe('ConnectionStringInput Component', function () {
 
     describe('when a connection string is inputted', function () {
       beforeEach(function () {
-        // Focus the input.
-        userEvent.tab();
-        userEvent.tab();
-        userEvent.tab();
-        userEvent.keyboard('mongodb://localhost');
+        const input = screen.getByRole('textbox', {
+          name: /uri/i,
+        });
+        fireEvent.focus(input);
+        userEvent.type(input, 'mongodb://localhost');
       });
 
       it('should call updateConnectionFormField with the connection string', function () {
@@ -269,12 +269,12 @@ describe('ConnectionStringInput Component', function () {
     const input = screen.getByRole('textbox', {
       name: /uri/i,
     });
-    input.focus();
+    fireEvent.focus(input);
     expect(input.textContent, 'shows password when input is focused').to.equal(
       connectionString
     );
 
-    input.blur();
+    fireEvent.focusOut(input);
     expect(
       input.textContent,
       'hides password when input is not focused'
