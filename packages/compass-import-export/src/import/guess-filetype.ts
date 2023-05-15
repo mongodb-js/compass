@@ -197,7 +197,7 @@ class FileSizeEnforcer extends Transform {
   }
 }
 
-export class NewlineDetector extends Transform {
+class NewlineDetector extends Transform {
   chunks: string[] = [];
   decoder = new util.TextDecoder('utf8', { fatal: true, ignoreBOM: true });
 
@@ -207,6 +207,17 @@ export class NewlineDetector extends Transform {
     cb: (err: null | Error, chunk?: Buffer) => void
   ) {
     try {
+      /*
+      It might look like this is going to store the entire file in memory, but
+      this whole process will stop the moment it detects either JSON (which
+      happens nearly immediately if that's the case) or when it detects CSV
+      (which happens as soon as we hit two lines). If it doesn't detect either
+      of those, then FileSizeEnforcer will kick in, we'll find Unknown and the
+      process also stops.
+
+      But just in case someone thinks this is generic enough to use in any
+      situation, we're not exporting this class so it will only be used here.
+      */
       this.chunks.push(this.decoder.decode(chunk, { stream: true }));
     } catch (err: any) {
       cb(err);
@@ -231,8 +242,8 @@ export class NewlineDetector extends Transform {
     const firstN = text.indexOf('\n');
 
     if (firstRN !== -1 && firstRN < firstN) {
-      // If there is an \r\n then there most be an \n one char later, so firstN
-      // is never -1. But there might have been an \n even earlier.
+      // If there is a \r\n then there most be a \n , so firstN is never -1. But
+      // there might have been a \n even earlier.
       return '\r\n';
     }
 
