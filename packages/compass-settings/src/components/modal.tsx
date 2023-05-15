@@ -11,6 +11,7 @@ import {
 import GeneralSettings from './settings/general';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
+import EditorSettings from './settings/editor';
 import FeatureFlagSettings, {
   useShouldShowFeatureFlagsSettings,
 } from './settings/featureflags';
@@ -63,6 +64,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   const settings: Settings[] = [
     { name: 'General', component: GeneralSettings },
     { name: 'Theme', component: ThemeSettings },
+    { name: 'Editor', component: EditorSettings },
     { name: 'Privacy', component: PrivacySettings },
   ];
 

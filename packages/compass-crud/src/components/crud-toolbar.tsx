@@ -18,6 +18,7 @@ import {
 import type { MenuAction } from '@mongodb-js/compass-components';
 
 import { AddDataMenu } from './add-data-menu';
+import type { EDITOR } from 'compass-preferences-model';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
@@ -87,7 +88,7 @@ function isOperationTimedOutError(err: ErrorWithPossibleCode) {
 }
 
 export type CrudToolbarProps = {
-  activeDocumentView: string;
+  activeDocumentView: EDITOR;
   count?: number;
   end: number;
   error?: ErrorWithPossibleCode | null;
@@ -107,7 +108,7 @@ export type CrudToolbarProps = {
   refreshDocuments: () => void;
   resultId: string;
   start: number;
-  viewSwitchHandler: (view: 'List' | 'JSON' | 'Table') => void;
+  viewSwitchHandler: (view: EDITOR) => void;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -249,9 +250,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             aria-label="View"
             size="small"
             value={activeDocumentView}
-            onChange={(value) =>
-              viewSwitchHandler(value as 'List' | 'JSON' | 'Table')
-            }
+            onChange={(value) => viewSwitchHandler(value as EDITOR)}
           >
             <SegmentedControlOption
               data-testid="toolbar-view-list"

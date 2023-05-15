@@ -11,7 +11,9 @@ const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 const Model = require('ampersand-model');
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
+export const EDITOR_VALUES = ['List', 'JSON', 'Table'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
+export type EDITOR = typeof EDITOR_VALUES[number];
 
 export type FeatureFlags = {
   showDevFeatureFlags?: boolean;
@@ -36,6 +38,7 @@ export type UserConfigurablePreferences = FeatureFlags & {
   theme: THEMES;
   maxTimeMS?: number;
   installURLHandlers: boolean;
+  editor: EDITOR;
 };
 
 export type InternalUserPreferences = {
@@ -326,6 +329,21 @@ const modelPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Compass UI Theme',
+    },
+  },
+  /**
+   * Stores the editor preference for the user.
+   */
+  editor: {
+    type: 'string',
+    required: true,
+    default: 'JSON',
+    values: EDITOR_VALUES,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Compass UI Editor',
     },
   },
   /**
@@ -996,6 +1014,7 @@ export class Preferences {
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,
         theme: 'LIGHT',
+        editor: 'List',
       });
     }
   }
