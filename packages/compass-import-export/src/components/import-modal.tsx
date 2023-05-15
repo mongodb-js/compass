@@ -37,9 +37,9 @@ import {
   setFieldType,
 } from '../modules/import';
 import type { RootImportState } from '../stores/import-store';
-import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
+import type { FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
-import type { CSVParsableFieldType } from '../csv/csv-types';
+import type { Delimiter, CSVParsableFieldType } from '../csv/csv-types';
 
 const closeButtonStyles = css({
   marginRight: spacing[2],
@@ -82,8 +82,8 @@ type ImportModalProps = {
    * See `<ImportOptions />`
    */
   selectImportFileName: (fileName: string) => void;
-  setDelimiter: (delimiter: CSVDelimiter) => void;
-  delimiter: CSVDelimiter;
+  setDelimiter: (delimiter: Delimiter) => void;
+  delimiter: Delimiter;
   fileType: AcceptedFileType | '';
   fileName: string;
   stopOnErrors: boolean;

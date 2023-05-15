@@ -13,7 +13,12 @@ import {
   processParseError,
   processWriteStreamErrors,
 } from './import-utils';
-import type { Delimiter, IncludedFields, PathPart } from '../csv/csv-types';
+import type {
+  Delimiter,
+  Linebreak,
+  IncludedFields,
+  PathPart,
+} from '../csv/csv-types';
 import type { ImportResult, ErrorJSON, ImportProgress } from './import-types';
 import { createDebug } from '../utils/logger';
 import { Utf8Validator } from '../utils/utf8-validator';
@@ -30,6 +35,7 @@ type ImportCSVOptions = {
   progressCallback?: (progress: ImportProgress) => void;
   errorCallback?: (error: ErrorJSON) => void;
   delimiter?: Delimiter;
+  newline: Linebreak;
   ignoreEmptyStrings?: boolean;
   stopOnErrors?: boolean;
   fields: IncludedFields; // the type chosen by the user to make each field
@@ -44,6 +50,7 @@ export async function importCSV({
   progressCallback,
   errorCallback,
   delimiter = ',',
+  newline,
   ignoreEmptyStrings,
   stopOnErrors,
   fields,
@@ -71,8 +78,9 @@ export async function importCSV({
         // perhaps?) or we can just strip the extra \r from the final header
         // name if it exists.
         if (headerFields.length) {
-          const lastName = headerFields[headerFields.length - 1];
-          headerFields[headerFields.length - 1] = lastName.replace(/\r$/, '');
+          const fixupFrom = headerFields[headerFields.length - 1];
+          const fixupTo = fixupFrom.replace(/\r$/, '');
+          headerFields[headerFields.length - 1] = fixupTo;
         }
 
         parsedHeader = {};
@@ -133,6 +141,7 @@ export async function importCSV({
 
   const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, {
     delimiter,
+    newline,
     header: true,
     transformHeader: function (header: string, index: number): string {
       debug('importCSV:transformHeader', header, index);

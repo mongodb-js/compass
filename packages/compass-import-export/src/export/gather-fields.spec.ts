@@ -364,9 +364,11 @@ async function analyzeAndImportCSV(
   assert(typeResult.type === 'csv');
 
   const csvDelimiter = typeResult.csvDelimiter;
+  const newline = typeResult.newline;
   const analyzeResult = await analyzeCSVFields({
     input: fs.createReadStream(filepath),
     delimiter: csvDelimiter,
+    newline,
     ignoreEmptyStrings: true,
   });
 
@@ -400,6 +402,7 @@ async function analyzeAndImportCSV(
     dataService,
     ns: testNS,
     fields,
+    newline,
     input: fs.createReadStream(filepath),
     delimiter: csvDelimiter,
     ignoreEmptyStrings: true,

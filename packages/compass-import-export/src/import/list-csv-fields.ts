@@ -3,7 +3,7 @@ import Papa from 'papaparse';
 import stripBomStream from 'strip-bom-stream';
 
 import { createDebug } from '../utils/logger';
-import type { Delimiter } from '../csv/csv-types';
+import type { Delimiter, Linebreak } from '../csv/csv-types';
 import { csvHeaderNameToFieldName } from '../csv/csv-utils';
 import { Utf8Validator } from '../utils/utf8-validator';
 
@@ -14,6 +14,7 @@ const NUM_PREVIEW_FIELDS = 10;
 type ListCSVFieldsOptions = {
   input: Readable;
   delimiter: Delimiter;
+  newline: Linebreak;
 };
 
 type ListCSVFieldsResult = {
@@ -25,6 +26,7 @@ type ListCSVFieldsResult = {
 export async function listCSVFields({
   input,
   delimiter,
+  newline,
 }: ListCSVFieldsOptions): Promise<ListCSVFieldsResult> {
   return new Promise(function (resolve, reject) {
     let lines = 0;
@@ -45,6 +47,7 @@ export async function listCSVFields({
 
     Papa.parse(input, {
       delimiter,
+      newline,
       step: function (results: Papa.ParseStepResult<string[]>, parser) {
         ++lines;
         debug('listCSVFields:step', lines, results);

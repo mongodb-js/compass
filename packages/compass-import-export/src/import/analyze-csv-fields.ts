@@ -6,6 +6,7 @@ import stripBomStream from 'strip-bom-stream';
 
 import type {
   Delimiter,
+  Linebreak,
   CSVDetectableFieldType,
   CSVParsableFieldType,
   CSVField,
@@ -23,6 +24,7 @@ type AnalyzeProgress = {
 type AnalyzeCSVFieldsOptions = {
   input: Readable;
   delimiter: Delimiter;
+  newline: Linebreak;
   abortSignal?: AbortSignal;
   progressCallback?: (progress: AnalyzeProgress) => void;
   ignoreEmptyStrings?: boolean;
@@ -125,6 +127,7 @@ function pickFieldType(field: CSVField): CSVParsableFieldType {
 export async function analyzeCSVFields({
   input,
   delimiter,
+  newline,
   abortSignal,
   progressCallback,
   ignoreEmptyStrings,
@@ -137,7 +140,10 @@ export async function analyzeCSVFields({
     aborted: false,
   };
 
-  const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, { delimiter });
+  const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, {
+    delimiter,
+    newline,
+  });
 
   let numRows = 0;
   const analyzeStream = new Transform({
