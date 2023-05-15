@@ -104,17 +104,25 @@ module.exports = (_env, args) => {
     },
   };
 
-  const webpackDependenciesPlugin = new WebpackDependenciesPlugin({
-    outputFilename: path.resolve(
-      __dirname,
-      '..',
-      '..',
-      '.sbom',
-      'dependencies.json'
-    ),
-    includeExternalProductionDependencies: true,
-    includePackages: ['electron'],
-  });
+  const compileOnlyPlugins = isServe(opts)
+    ? []
+    : [
+        // ignoring type here as JSDoc still uses webpack@4 that is
+        // resolved from plugins not yet updated to the new config
+        /** @type {any} */ (
+          new WebpackDependenciesPlugin({
+            outputFilename: path.resolve(
+              __dirname,
+              '..',
+              '..',
+              '.sbom',
+              'dependencies.json'
+            ),
+            includeExternalProductionDependencies: true,
+            includePackages: ['electron'],
+          })
+        ),
+      ];
 
   return [
     merge(mainConfig, {
@@ -123,8 +131,7 @@ module.exports = (_env, args) => {
       resolve,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // @ts-ignore
-        webpackDependenciesPlugin,
+        ...compileOnlyPlugins,
       ],
     }),
     merge(rendererConfig, {
@@ -136,8 +143,7 @@ module.exports = (_env, args) => {
       resolve,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // @ts-ignore
-        webpackDependenciesPlugin,
+
         // Not a part of common config because mostly a Compass thing that we
         // might be able to get rid of eventually
         new webpack.ProvidePlugin({
@@ -146,6 +152,7 @@ module.exports = (_env, args) => {
           jQuery: 'jquery',
           'window.jQuery': 'jquery',
         }),
+        ...compileOnlyPlugins,
       ],
     }),
   ];

@@ -218,7 +218,7 @@
     "ampersand-view": "^9.0.0",
     "analytics-node": "^5.1.2",
     "app-migrations": "^3.1.5",
-    "async": "^3.2.0",
+    "async": "^3.2.2",
     "bson": "^5.2.0",
     "chai": "^4.3.4",
     "chalk": "^4.1.2",
