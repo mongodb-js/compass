@@ -3,11 +3,11 @@ import * as Selectors from '../selectors';
 
 export async function getConnectFormConnectionString(
   browser: CompassBrowser,
-  isFocused = false
+  shouldFocusInput = false
 ): Promise<string> {
   const inputElem = await browser.$(Selectors.ConnectionStringInput);
   await inputElem.waitForDisplayed();
-  if (isFocused) {
+  if (shouldFocusInput) {
     await browser.waitUntil(async () => {
       await inputElem.click();
       return await inputElem.isFocused();
