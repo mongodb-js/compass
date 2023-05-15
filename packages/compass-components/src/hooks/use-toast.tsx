@@ -13,7 +13,7 @@ import { css } from '@leafygreen-ui/emotion';
 
 export { ToastVariant };
 
-type ToastProperties = {
+export type ToastProperties = {
   title?: React.ReactNode;
   body: React.ReactNode;
   variant: ToastVariant;
@@ -92,9 +92,15 @@ const ToastContext = createContext<ToastActions>({
   },
 });
 
+// TODO(COMPASS-6808): Once we update our `@leafygreen-ui/toast` dependency we can remove these styles.
 const toastStyles = css({
   button: {
-    position: 'absolute',
+    position: 'absolute', // Prevent the close button from appearing on the left of the toast.
+  },
+  p: {
+    maxWidth: 300, // Prevent text overflowing to the right.
+    overflowWrap: 'break-word', // Prevent text overflowing to the right.
+    maxHeight: 400,
   },
 });
 

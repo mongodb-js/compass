@@ -5,7 +5,6 @@ import {
   Option,
   spacing,
   TextInput,
-  ComboboxWithCustomOption,
 } from '@mongodb-js/compass-components';
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
@@ -20,6 +19,7 @@ import {
 import type { SortDirection } from '../utils';
 import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
+import { FieldCombobox } from '../field-combobox';
 
 type AccumulatorName = typeof MDB_ACCUMULATORS[number]['value'];
 type GroupAccumulator = {
@@ -217,8 +217,6 @@ export const GroupWithSubset = ({
   serverVersion,
   onChange,
 }: WizardComponentProps & { serverVersion: string }) => {
-  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
-
   const [formData, setFormData] = useState<GroupWithSubsetFormData>({
     groupFields: [],
     projectFields: [],
@@ -301,34 +299,26 @@ export const GroupWithSubset = ({
             <Body>of</Body>
           </>
         )}
-        <ComboboxWithCustomOption<true>
+        <FieldCombobox
           className={groupFieldscomboboxStyles}
           aria-label={'Select project field names'}
           placeholder={'Select project field names'}
-          size="default"
-          clearable={true}
           multiselect={true}
           value={formData.projectFields}
           onChange={(val: string[]) => onChangeValue('projectFields', val)}
-          options={fieldNames}
-          optionLabel="Field:"
-          overflow="scroll-x"
+          fields={fields}
         />
       </div>
       <div className={formGroupStyles}>
         <Body className={groupLabelStyles}>from a group of</Body>
-        <ComboboxWithCustomOption<true>
+        <FieldCombobox
           className={groupFieldscomboboxStyles}
           aria-label={'Select group field names'}
           placeholder={'Select group field names'}
-          size="default"
-          clearable={true}
           multiselect={true}
           value={formData.groupFields}
           onChange={(val: string[]) => onChangeValue('groupFields', val)}
-          options={fieldNames}
-          optionLabel="Field:"
-          overflow="scroll-x"
+          fields={fields}
         />
       </div>
       {isSortFieldVisible && (
@@ -336,17 +326,14 @@ export const GroupWithSubset = ({
           <Body className={groupLabelStyles}>
             documents from a list sorted by
           </Body>
-          <ComboboxWithCustomOption<true>
+          <FieldCombobox
             className={groupFieldscomboboxStyles}
-            aria-label="Select sort field names"
-            size="default"
-            clearable={false}
+            aria-label={'Select sort field names'}
+            placeholder={'Select sort field names'}
             multiselect={true}
             value={formData.sortFields}
             onChange={(val: string[]) => onChangeValue('sortFields', val)}
-            options={fieldNames}
-            optionLabel="Field:"
-            overflow="scroll-x"
+            fields={fields}
           />
           <Body>in</Body>
           {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}

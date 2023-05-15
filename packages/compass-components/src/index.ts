@@ -64,13 +64,7 @@ export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
 export { GuideCue } from '@leafygreen-ui/guide-cue';
 
-export {
-  useToast,
-  openToast,
-  closeToast,
-  ToastArea,
-  ToastVariant,
-} from './hooks/use-toast';
+export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';

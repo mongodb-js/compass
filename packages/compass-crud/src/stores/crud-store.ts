@@ -38,6 +38,7 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 export type BSONObject = TypeCastMap['Object'];
+export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 export type CrudActions = {
@@ -628,16 +629,9 @@ class CrudStoreImpl
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        async (ds, ns, opts) => {
-          try {
-            return [
-              undefined,
-              await ds.findOneAndUpdate(ns, query, updateDoc, opts),
-            ] as ErrorOrResult;
-          } catch (error) {
-            return [error, undefined] as ErrorOrResult;
-          }
-        }
+        query,
+        updateDoc,
+        'update'
       );
 
       if (error) {
@@ -736,16 +730,9 @@ class CrudStoreImpl
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        async (ds, ns, opts) => {
-          try {
-            return [
-              undefined,
-              await ds.findOneAndReplace(ns, query, object, opts),
-            ] as ErrorOrResult;
-          } catch (error) {
-            return [error, undefined] as ErrorOrResult;
-          }
-        }
+        query,
+        object,
+        'replace'
       );
       if (error) {
         doc.emit('update-error', error.message);
@@ -1584,44 +1571,57 @@ type ErrorOrResult =
 export async function findAndModifyWithFLEFallback(
   ds: DataService,
   ns: string,
-  doFindAndModify: (
-    ds: DataService,
-    ns: string,
-    opts: { returnDocument: 'before' | 'after'; promoteValues: false }
-  ) => Promise<ErrorOrResult>
+  query: BSONObject,
+  object: { $set?: BSONObject; $unset?: BSONObject } | BSONObject | BSONArray,
+  modificationType: 'update' | 'replace'
 ): Promise<ErrorOrResult> {
-  const opts = { returnDocument: 'after', promoteValues: false } as const;
+  const findOneAndModifyMethod =
+    modificationType === 'update' ? 'findOneAndUpdate' : 'findOneAndReplace';
+  let error: (Error & { codeName?: string; code?: any }) | undefined;
 
-  let [error, d] = await doFindAndModify(ds, ns, opts);
-  const originalError = error;
+  try {
+    return [
+      undefined,
+      await ds[findOneAndModifyMethod](ns, query, object, {
+        returnDocument: 'after',
+        promoteValues: false,
+      }),
+    ] as ErrorOrResult;
+  } catch (e) {
+    error = e as Error;
+  }
 
-  // 6371402 is "'findAndModify with encryption only supports new: false'"
-  if (error && +(error?.code ?? 0) === 63714_02) {
-    // For encrypted documents, returnDocument: 'after' is unsupported on the server
-    const fallbackOpts = {
-      returnDocument: 'before',
-      promoteValues: false,
-    } as const;
-    [error, d] = await doFindAndModify(ds, ns, fallbackOpts);
+  if (
+    error.codeName === 'ShardKeyNotFound' ||
+    +(error?.code ?? 0) === 63714_02 // 6371402 is "'findAndModify with encryption only supports new: false'"
+  ) {
+    const modifyOneMethod =
+      modificationType === 'update' ? 'updateOne' : 'replaceOne';
 
-    if (!error) {
-      let docs;
-      try {
-        docs = await ds.find(ns, { _id: d!._id } as any, fallbackOpts);
-      } catch (e) {
-        error = e as Error;
-      }
-      if (error || !docs || !docs.length) {
-        // Race condition -- most likely, somebody else
-        // deleted the document between the findAndModify command
-        // and the find command. Just return the original error.
-        error = originalError;
-        d = undefined;
-      } else {
-        [d] = docs;
-      }
+    try {
+      await ds[modifyOneMethod](ns, query, object);
+    } catch (e) {
+      // Return the modifyOneMethod error here
+      // since we already know the original error from findOneAndModifyMethod
+      // and want to know what went wrong with the fallback method,
+      // e.g. return the `Found indexed encrypted fields but could not find __safeContent__` error.
+      return [e, undefined] as ErrorOrResult;
+    }
+
+    try {
+      const docs = await ds.find(
+        ns,
+        { _id: query._id as any },
+        { promoteValues: false }
+      );
+      return [undefined, docs[0]] as ErrorOrResult;
+    } catch (e) {
+      /* fallthrough */
     }
   }
 
-  return [error, d] as ErrorOrResult;
+  // Race condition -- most likely, somebody else
+  // deleted the document between the findAndModify command
+  // and the find command. Just return the original error.
+  return [error, undefined] as ErrorOrResult;
 }

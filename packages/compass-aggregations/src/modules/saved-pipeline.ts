@@ -1,6 +1,6 @@
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { openToast, ToastVariant } from '@mongodb-js/compass-components';
+import { openToast } from '@mongodb-js/compass-components';
 import type { AnyAction } from 'redux';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
@@ -144,7 +144,7 @@ export const openStoredPipeline = (
         openToast('restore-pipeline-with-errors', {
           title: "Can't parse pipeline source to stages",
           body: `Loaded pipeline "${shortName}" contains syntax errors`,
-          variant: ToastVariant.Warning,
+          variant: 'warning',
           timeout: 10000,
         });
       }

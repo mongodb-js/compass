@@ -885,9 +885,6 @@ export const AggregationWizardSortFormField = (idx: number) =>
   `${AggregationWizardSortForm(
     idx
   )} [data-testid="sort-form-${idx}-field"] [role="combobox"] input`;
-export const AggregationWizardSortFormFieldListbox = (idx: number) =>
-  `.sort-form-${idx}-field-combobox [role="listbox"]`;
-
 export const AggregationWizardSortFormDirectionSelect = (idx: number) =>
   `${AggregationWizardSortForm(
     idx

@@ -190,7 +190,8 @@ describe('Collection aggregations tab', function () {
 
   before(async function () {
     compass = await beforeTests({
-      extraSpawnArgs: ['--show-focus-mode', '--use-stage-wizard'],
+      // Feature flag: enableStageWizard
+      extraSpawnArgs: ['--enable-stage-wizard'],
     });
     browser = compass.browser;
   });
@@ -1502,7 +1503,6 @@ describe('Collection aggregations tab', function () {
       await browser.setComboBoxValue(
         // 0 because at this point we only have one row of fields to be selected
         Selectors.AggregationWizardSortFormField(0),
-        Selectors.AggregationWizardSortFormFieldListbox(0),
         'name'
       );
 

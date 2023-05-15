@@ -38,9 +38,7 @@
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
-    "precompile": "rimraf dist",
     "postcompile": "tsc --emitDeclarationOnly",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -102,9 +100,8 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",
-    "redux": "^4.2.0",
-    "redux-thunk": "^2.3.0",
-    "rimraf": "^3.0.2",
+    "redux": "^4.2.1",
+    "redux-thunk": "^2.4.1",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }
