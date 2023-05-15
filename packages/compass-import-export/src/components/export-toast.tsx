@@ -36,7 +36,7 @@ export function showInProgressToast({
   // Update the toast with the new progress.
   openToast(exportToastId, {
     title: `Exporting "${namespace}" to ${path.basename(filePath)}…`,
-    body: (
+    description: (
       <ToastBody
         statusMessage={statusMessage}
         actionHandler={cancelExport}
@@ -58,7 +58,7 @@ export function showStartingToast({
 }) {
   openToast(exportToastId, {
     title: `Exporting "${namespace}"…`,
-    body: (
+    description: (
       <ToastBody
         statusMessage="Starting…"
         actionHandler={cancelExport}
@@ -79,7 +79,7 @@ export function showCompletedToast({
 }) {
   openToast(exportToastId, {
     title: 'Export completed.',
-    body: (
+    description: (
       <ToastBody
         statusMessage={docsWrittenText(docsWritten)}
         actionHandler={() => revealFile(filePath)}

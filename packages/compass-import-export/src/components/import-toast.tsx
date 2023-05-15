@@ -34,7 +34,7 @@ export function showInProgressToast({
   const progress = bytesTotal ? bytesProcessed / bytesTotal : undefined;
   openToast(importToastId, {
     title: `Importing ${path.basename(fileName)}…`,
-    body: (
+    description: (
       <ToastBody
         statusMessage={`${docsWritten} document${
           docsWritten !== 1 ? 's' : ''
@@ -58,7 +58,7 @@ export function showStartingToast({
 }) {
   openToast(importToastId, {
     title: `Importing ${path.basename(fileName)}…`,
-    body: (
+    description: (
       <ToastBody
         statusMessage="Starting…"
         actionHandler={cancelImport}
@@ -110,7 +110,7 @@ export function showCompletedWithErrorsToast({
   const statusMessage = getToastErrorsText(errors);
   openToast(importToastId, {
     title: `Import completed ${docsWritten}/${docsProcessed} with errors:`,
-    body: (
+    description: (
       <ToastBody
         statusMessage={statusMessage}
         actionHandler={
@@ -139,7 +139,7 @@ export function showCancelledToast({
     const statusMessage = getToastErrorsText(errors);
     openToast(importToastId, {
       title: 'Import aborted with the following errors:',
-      body: (
+      description: (
         <ToastBody
           statusMessage={statusMessage}
           actionHandler={
