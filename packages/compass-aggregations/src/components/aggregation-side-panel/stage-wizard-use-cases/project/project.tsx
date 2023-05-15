@@ -1,13 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
-import {
-  ComboboxWithCustomOption,
-  Select,
-  Option,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Select, Option, css, spacing } from '@mongodb-js/compass-components';
 import type { WizardComponentProps } from '..';
+import { FieldCombobox } from '../field-combobox';
 
 // Types
 type ProjectionFields = string[];
@@ -40,45 +35,6 @@ export const mapProjectFormStateToStageValue = ({
   );
 };
 
-// Generates parent paths for a list of paths
-// by joining paths one at a time.
-// ['a','b','c'] => ['a', 'a.b', 'a.b.c']
-export const getParentPaths = (paths: string[], excluding: string[] = []) => {
-  const parentPaths = paths.reduce<string[]>((parents, path) => {
-    const parentPath = !parents.length
-      ? path
-      : parents[parents.length - 1] + '.' + path;
-
-    return [...parents, parentPath];
-  }, []);
-
-  return parentPaths.filter((path) => !excluding.includes(path));
-};
-
-export const makeIsOptionDisabled = (projectFields: string[]) => {
-  return (option: string) => {
-    const paths = option.split('.');
-    // If option is nested property then we might need to disable
-    // it if one of its possible children or one of its parent is
-    //  already in projection
-    if (paths.length > 1) {
-      const parentPaths = getParentPaths(paths, [option]);
-      const parentPathInProjection = parentPaths.some((path) =>
-        projectFields.includes(path)
-      );
-      const childrenInProjection = projectFields.some((field) =>
-        field.startsWith(`${option}.`)
-      );
-      return parentPathInProjection || childrenInProjection;
-    }
-    // If option is a path at first level then we disable it only
-    // when any of its children are already in projection
-    else {
-      return projectFields.some((field) => field.startsWith(`${option}.`));
-    }
-  };
-};
-
 // Components
 const containerStyles = css({
   display: 'flex',
@@ -102,8 +58,6 @@ const selectStyles = css({ minWidth: '120px' });
 const comboboxStyles = css({ width: '350px' });
 
 const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
-  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
-
   const [projectFormState, setProjectFormState] = useState<ProjectFormState>({
     projectionType: 'include',
     projectionFields: [],
@@ -148,26 +102,16 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
           <Option value="include">Include</Option>
           <Option value="exclude">Exclude</Option>
         </Select>
-        <ComboboxWithCustomOption<true>
+        <FieldCombobox
           data-testid="project-form-field"
-          placeholder={COMBOBOX_PLACEHOLDER_TEXT}
           className={comboboxStyles}
-          aria-label={COMBOBOX_PLACEHOLDER_TEXT}
-          size="default"
-          clearable={true}
           multiselect={true}
           value={projectFormState.projectionFields}
-          onChange={(fields) =>
+          onChange={(fields: string[]) =>
             handleProjectFormStateChange('projectionFields', [...fields])
           }
-          options={fieldNames}
-          optionLabel="Field:"
-          overflow="scroll-x"
-          isOptionDisabled={makeIsOptionDisabled(
-            projectFormState.projectionFields
-          )}
-          // Used for testing to access the popover for a stage
-          popoverClassName="project-form-field-combobox"
+          fields={fields}
+          isRelatedFieldDisabled={true}
         />
       </div>
     </div>

@@ -35,7 +35,6 @@
     "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
     "start": "npm run webpack serve -- --mode development",
@@ -76,7 +75,6 @@
     "redux": "^4.2.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
-    "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }

@@ -15,9 +15,6 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "clean": "rimraf ./dist",
-    "precompile": "npm run clean",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "postcompile": "tsc --emitDeclarationOnly",
     "compile": "npm run webpack -- --mode production",
@@ -64,7 +61,7 @@
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@mongodb-js/webpack-config-compass": "^1.0.8",
-    "@testing-library/react": "^12.0.0",
+    "@testing-library/react": "^12.1.4",
     "@types/chai": "^4.2.21",
     "chai": "^4.1.2",
     "debug": "^4.2.0",
@@ -74,12 +71,11 @@
     "eventemitter3": "^4.0.0",
     "mocha": "^10.2.0",
     "mongodb-ns": "^2.4.0",
-    "nyc": "^15.0.0",
+    "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "resolve": "^1.15.1",
-    "rimraf": "^3.0.2",
     "sinon": "^8.1.1",
     "xvfb-maybe": "^0.2.1"
   },

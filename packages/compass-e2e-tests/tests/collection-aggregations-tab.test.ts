@@ -1503,7 +1503,6 @@ describe('Collection aggregations tab', function () {
       await browser.setComboBoxValue(
         // 0 because at this point we only have one row of fields to be selected
         Selectors.AggregationWizardSortFormField(0),
-        Selectors.AggregationWizardSortFormFieldListbox(0),
         'name'
       );
 

@@ -1,12 +1,8 @@
-import {
-  Body,
-  spacing,
-  css,
-  ComboboxWithCustomOption,
-} from '@mongodb-js/compass-components';
-import React, { useState, useMemo } from 'react';
+import { Body, spacing, css } from '@mongodb-js/compass-components';
+import React, { useState } from 'react';
 import { mapFieldsToAccumulatorValue } from '../utils';
 import type { WizardComponentProps } from '..';
+import { FieldCombobox } from '../field-combobox';
 
 const containerStyles = css({
   display: 'flex',
@@ -23,7 +19,6 @@ const mapGroupFormStateToStageValue = (formState: string[]) => {
 };
 
 export const BasicGroup = ({ fields, onChange }: WizardComponentProps) => {
-  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [groupFields, setGroupFields] = useState<string[]>([]);
 
   const onChangeFields = (data: string[]) => {
@@ -38,18 +33,12 @@ export const BasicGroup = ({ fields, onChange }: WizardComponentProps) => {
   return (
     <div className={containerStyles}>
       <Body>Group documents based on</Body>
-      <ComboboxWithCustomOption<true>
-        placeholder={'Select field names'}
+      <FieldCombobox
         className={comboboxStyles}
-        aria-label={'Select field names'}
-        size="default"
-        clearable={true}
         multiselect={true}
         value={groupFields}
         onChange={onChangeFields}
-        options={fieldNames}
-        optionLabel="Field:"
-        overflow="scroll-x"
+        fields={fields}
       />
     </div>
   );

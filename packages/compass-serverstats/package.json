@@ -15,7 +15,6 @@
   },
   "scripts": {
     "compile": "npm run webpack -- --mode production",
-    "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
@@ -62,7 +61,6 @@
     "prop-types": "^15.7.2",
     "react-dom": "^17.0.2",
     "reflux": "^0.4.1",
-    "rimraf": "^3.0.1",
     "xvfb-maybe": "^0.2.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
