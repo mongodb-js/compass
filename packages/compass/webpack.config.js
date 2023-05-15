@@ -2,6 +2,7 @@
 const path = require('path');
 // @ts-ignore
 const HadronBuildTarget = require('hadron-build/lib/target');
+const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
 
 const {
   createElectronMainConfig,
@@ -11,8 +12,6 @@ const {
   webpack,
   merge,
 } = require('@mongodb-js/webpack-config-compass');
-
-const { createLicensePlugin } = require('./scripts/webpack-licenses');
 
 module.exports = (_env, args) => {
   const opts = {
@@ -98,16 +97,34 @@ module.exports = (_env, args) => {
     HADRON_METRICS_SEGMENT_HOST: null,
   };
 
+  const resolve = {
+    alias: {
+      /** @type {false} */
+      'ampersand-sync': false,
+    },
+  };
+
+  const webpackDependenciesPlugin = new WebpackDependenciesPlugin({
+    outputFilename: path.resolve(
+      __dirname,
+      '..',
+      '..',
+      '.sbom',
+      'dependencies.json'
+    ),
+    includeExternalProductionDependencies: true,
+    includePackages: ['electron'],
+  });
+
   return [
     merge(mainConfig, {
       cache,
       externals,
+      resolve,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         // @ts-ignore
-        createLicensePlugin({
-          outputFilename: 'third-party-notices-main.json',
-        }),
+        webpackDependenciesPlugin,
       ],
     }),
     merge(rendererConfig, {
@@ -116,15 +133,11 @@ module.exports = (_env, args) => {
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
+      resolve,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         // @ts-ignore
-        createLicensePlugin({
-          outputFilename: 'third-party-notices-renderer.json',
-          // @ts-ignore
-          includeProdPackages: true,
-        }),
-
+        webpackDependenciesPlugin,
         // Not a part of common config because mostly a Compass thing that we
         // might be able to get rid of eventually
         new webpack.ProvidePlugin({
