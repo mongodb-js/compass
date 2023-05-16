@@ -2,8 +2,15 @@ import _ from 'lodash';
 import { stringify } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
 import type { Document, SortDirection } from 'mongodb';
+import { prettify } from '@mongodb-js/compass-editor';
+import type { FormatOptions } from '@mongodb-js/compass-editor';
 
 import type { ExportAggregation, ExportQuery } from '../export/export-types';
+
+const codeFormatting: Partial<FormatOptions> = {
+  singleQuote: true,
+  trailingComma: 'none',
+};
 
 export function queryAsShellJSString({
   ns,
@@ -12,15 +19,14 @@ export function queryAsShellJSString({
   ns: string;
   query: ExportQuery;
 }) {
-  let ret = `db.getCollection('${toNS(ns).collection}')`;
-  ret += `.find(\n`;
-  ret += `  ${stringify(query.filter ? query.filter : {}) || ''}`;
+  let ret = `db.getCollection("${toNS(ns).collection}").find(`;
+  ret += `${stringify(query.filter ? query.filter : {}) || ''}`;
   if (query.projection) {
-    ret += `,\n  ${stringify(query.projection) || ''}`;
+    ret += `,${stringify(query.projection) || ''}`;
   }
-  ret += '\n)';
+  ret += ')';
   if (query.collation) {
-    ret += `.collation(\n  ${stringify(query.collation as Document) || ''}\n)`;
+    ret += `.collation(${stringify(query.collation as Document) || ''})`;
   }
   if (query.sort) {
     ret += `.sort(${
@@ -35,7 +41,7 @@ export function queryAsShellJSString({
   if (query.skip) {
     ret += `.skip(${query.skip})`;
   }
-  return ret;
+  return prettify(ret, 'javascript', codeFormatting);
 }
 
 export function aggregationAsShellJSString({
@@ -47,20 +53,20 @@ export function aggregationAsShellJSString({
 }) {
   const { stages, options = {} } = aggregation;
 
-  let ret = `db.getCollection('${toNS(ns).collection}').aggregate([\n`;
+  let ret = `db.getCollection("${toNS(ns).collection}").aggregate([`;
   for (const [index, stage] of stages.entries()) {
-    ret += `  ${stringify(stage) || ''}${
+    ret += `${stringify(stage) || ''}${
       index === stages.length - 1 ? '' : ','
-    }\n`;
+    }`;
   }
   ret += ']';
   if (Object.keys(options).length > 0) {
-    ret += ', ';
+    ret += ',';
     const filteredOptions = Object.fromEntries(
       Object.entries(options).filter((option) => option[1] !== undefined)
     );
     ret += stringify(filteredOptions);
   }
   ret += ');';
-  return ret;
+  return prettify(ret, 'javascript', codeFormatting);
 }

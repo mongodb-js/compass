@@ -13,7 +13,7 @@ function renderExportCodeView(
       ns="test.zebra"
       query={{
         filter: {
-          _id: new ObjectId(),
+          _id: new ObjectId('123412322123123123123123'),
         },
       }}
       fields={{}}
@@ -35,7 +35,9 @@ describe('ExportCodeView [Component]', function () {
       const codeText = screen.getByTestId(
         'export-collection-code-preview-wrapper'
       ).textContent;
-      expect(codeText).to.include("db.getCollection('zebra').find(");
+      expect(codeText).to.equal(
+        `db.getCollection('zebra').find({  _id: ObjectId('123412322123123123123123')});`
+      );
       expect(screen.queryByText('Export results from the query below')).to.be
         .visible;
     });
@@ -61,7 +63,7 @@ describe('ExportCodeView [Component]', function () {
         'export-collection-code-preview-wrapper'
       ).textContent;
       expect(codeText).to.equal(
-        `db.getCollection('zebra').aggregate([  {$match: {stripes: 'yes'}}]);`
+        `db.getCollection('zebra').aggregate([  { $match: { stripes: 'yes' } }]);`
       );
       expect(screen.queryByText('Export results from the aggregation below')).to
         .be.visible;

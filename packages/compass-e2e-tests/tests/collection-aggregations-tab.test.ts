@@ -877,9 +877,10 @@ describe('Collection aggregations tab', function () {
       Selectors.ExportModalCodePreview
     );
     expect(await exportModalAggregationTextElement.getText()).to
-      .equal(`db.getCollection('numbers').aggregate([
-  {$match: {i: 5}}
-], {maxTimeMS: 60000,allowDiskUse: true});`);
+      .equal(`db.getCollection('numbers').aggregate(
+  [{ $match: { i: 5 } }],
+  { maxTimeMS: 60000, allowDiskUse: true }
+);`);
 
     await browser.clickVisible(Selectors.ExportModalExportButton);
 

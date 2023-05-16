@@ -9,10 +9,14 @@ import type { ExportAggregation, ExportQuery } from '../export/export-types';
 import {
   aggregationAsShellJSString,
   queryAsShellJSString,
-} from '../utils/get-shell-js';
+} from '../utils/get-shell-js-string';
 
 const containerStyles = css({
   marginBottom: spacing[3],
+});
+
+const codeStyles = css({
+  maxHeight: '30vh',
 });
 
 type ExportCodeViewProps = {
@@ -68,6 +72,7 @@ function ExportCodeView({
         Export results from the {aggregation ? 'aggregation' : 'query'} below
       </Body>
       <Code
+        className={codeStyles}
         data-testid="export-collection-code-preview-wrapper"
         language="javascript"
         copyable
