@@ -1,12 +1,12 @@
 import { PassThrough, Transform } from 'stream';
 import type { Readable } from 'stream';
+import util from 'util';
 import Papa from 'papaparse';
 import StreamJSON from 'stream-json';
 
 import { createDebug } from '../utils/logger';
 import { supportedDelimiters } from '../csv/csv-types';
-import type { Delimiter } from '../csv/csv-types';
-import { Utf8Validator } from '../utils/utf8-validator';
+import type { Delimiter, Linebreak } from '../csv/csv-types';
 
 const debug = createDebug('import-guess-filetype');
 
@@ -175,6 +175,7 @@ type GuessFileTypeResult =
   | {
       type: 'csv';
       csvDelimiter: Delimiter;
+      newline: Linebreak;
     };
 
 const MAX_LENGTH = 1000000;
@@ -196,12 +197,70 @@ class FileSizeEnforcer extends Transform {
   }
 }
 
+class NewlineDetector extends Transform {
+  chunks: string[] = [];
+  decoder = new util.TextDecoder('utf8', { fatal: true, ignoreBOM: true });
+
+  _transform(
+    chunk: Buffer,
+    enc: unknown,
+    cb: (err: null | Error, chunk?: Buffer) => void
+  ) {
+    try {
+      /*
+      It might look like this is going to store the entire file in memory, but
+      this whole process will stop the moment it detects either JSON (which
+      happens nearly immediately if that's the case) or when it detects CSV
+      (which happens as soon as we hit two lines). If it doesn't detect either
+      of those, then FileSizeEnforcer will kick in, we'll find Unknown and the
+      process also stops.
+
+      But just in case someone thinks this is generic enough to use in any
+      situation, we're not exporting this class so it will only be used here.
+      */
+      this.chunks.push(this.decoder.decode(chunk, { stream: true }));
+    } catch (err: any) {
+      cb(err);
+      return;
+    }
+    cb(null, chunk);
+  }
+
+  _flush(cb: (err: null | Error, chunk?: Buffer) => void) {
+    try {
+      this.chunks.push(this.decoder.decode(new Uint8Array()));
+    } catch (err: any) {
+      cb(err);
+      return;
+    }
+    cb(null);
+  }
+
+  detectNewline(): Linebreak {
+    const text = this.chunks.join('');
+    const firstRN = text.indexOf('\r\n');
+    const firstN = text.indexOf('\n');
+
+    if (firstRN !== -1 && firstRN < firstN) {
+      // If there is a \r\n then there most be a \n , so firstN is never -1. But
+      // there might have been a \n even earlier.
+      return '\r\n';
+    }
+
+    // Either there is only a \n in which case we go with that, or there are no
+    // line endings in which case we just go with a default of \n as it won't
+    // matter because there are no lines to split anyway.
+    return '\n';
+  }
+}
+
 export function guessFileType({
   input,
 }: GuessFileTypeOptions): Promise<GuessFileTypeResult> {
   return new Promise<GuessFileTypeResult>((resolve, reject) => {
     void (async () => {
-      input = input.pipe(new Utf8Validator());
+      const newlineDetector = new NewlineDetector();
+      input = input.pipe(newlineDetector);
 
       input.once('error', function (err) {
         reject(err);
@@ -232,7 +291,8 @@ export function guessFileType({
       }
 
       if (csvDelimiter) {
-        resolve({ type: 'csv', csvDelimiter });
+        const newline = newlineDetector.detectNewline();
+        resolve({ type: 'csv', csvDelimiter, newline });
         return;
       }
 

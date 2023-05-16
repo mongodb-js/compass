@@ -18,9 +18,11 @@ describe('listCSVFields', function () {
       });
       assert(typeResult.type === 'csv');
       const csvDelimiter = typeResult.csvDelimiter;
+      const newline = typeResult.newline;
       const result = await listCSVFields({
         input: fs.createReadStream(filepath),
         delimiter: csvDelimiter,
+        newline: newline,
       });
 
       const resultPath = filepath.replace(/.csv$/, '.preview.json');
@@ -56,6 +58,7 @@ describe('listCSVFields', function () {
     const result = await listCSVFields({
       input,
       delimiter: ',',
+      newline: '\r\n',
     });
     expect(result.headerFields).to.deep.equal(['_id', 'value']);
   });
@@ -68,6 +71,7 @@ describe('listCSVFields', function () {
       listCSVFields({
         input,
         delimiter: ',',
+        newline: '\n',
       })
     ).to.be.rejectedWith(
       TypeError,
@@ -81,6 +85,7 @@ describe('listCSVFields', function () {
     const result = await listCSVFields({
       input,
       delimiter: ',',
+      newline: '\n',
     });
     expect(result.headerFields).to.deep.equal(['_id', 'value']);
   });

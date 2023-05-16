@@ -11,7 +11,7 @@ export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
 
   await browser.waitUntil(async () => {
     return (
-      (await browser.$(Selectors.ConnectionStringInput).getValue()) ===
+      (await browser.getConnectFormConnectionString(true)) ===
       'mongodb://localhost:27017'
     );
   });

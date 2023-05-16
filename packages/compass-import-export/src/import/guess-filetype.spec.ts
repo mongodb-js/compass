@@ -17,6 +17,7 @@ const expectedDelimiters = {
   'object.csv': ',',
   'complex.csv': ',',
   'many-columns.csv': ',',
+  'linebreaks.csv': ',',
 } as const;
 
 describe('guessFileType', function () {
@@ -107,6 +108,7 @@ describe('guessFileType', function () {
         expect(result.type === 'csv' && result.csvDelimiter).to.equal(
           expectedDelimiter
         );
+        expect((result as { newline: string }).newline).to.equal('\n');
       } else {
         expect(result.type === 'csv' && result.csvDelimiter).to.equal(
           `add an entry for ${basename} to expectedDelimiters`
@@ -145,6 +147,7 @@ describe('guessFileType', function () {
       input: await stringStream(fixtures.csv.good_commas),
     });
     expect(csvResult.type).to.equal('csv');
+    expect((csvResult as { newline: string }).newline).to.equal('\r\n');
 
     const jsonResult = await guessFileType({
       input: await stringStream(fixtures.json.good),
