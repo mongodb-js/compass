@@ -79,7 +79,7 @@ export const HackoladePromoBanner: React.FunctionComponent = () => {
         <rect width="31" height="31" x=".5" y=".5" stroke="#C1C7C6" rx="15.5" />
       </svg>
       <Body as="strong" className={bannerTextStyles}>
-        Looking for data modelling tools?
+        Looking for data modeling tools?
       </Body>
       <Link
         className={bannerLinkStyles}
