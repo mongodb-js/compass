@@ -92,6 +92,8 @@ function ConnectionStringInput({
     useState(connectionString);
   const { showConfirmation } = useConfirmationModal();
 
+  const [isTextAreaFocussed, setIsTextAreaFocussed] = useState(false);
+
   useEffect(() => {
     // If the user isn't actively editing the connection string and it
     // changes (form action/new connection) we update the string.
@@ -134,9 +136,10 @@ function ConnectionStringInput({
     [updateConnectionFormField]
   );
 
-  const displayedConnectionString = enableEditingConnectionString
-    ? editingConnectionString
-    : hidePasswordInConnectionString(editingConnectionString);
+  const displayedConnectionString =
+    enableEditingConnectionString && isTextAreaFocussed
+      ? editingConnectionString
+      : hidePasswordInConnectionString(editingConnectionString);
 
   const handleEditConnectionCheckbox = useCallback(
     async (checked: boolean) => {
@@ -194,6 +197,8 @@ function ConnectionStringInput({
       </div>
       <div className={textAreaContainerStyle}>
         <TextArea
+          onBlur={() => setIsTextAreaFocussed(false)}
+          onFocus={() => setIsTextAreaFocussed(true)}
           onChange={onChangeConnectionString}
           onKeyPress={onKeyPressedConnectionString}
           value={displayedConnectionString}
