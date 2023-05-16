@@ -50,9 +50,9 @@ class GlobalToastState implements ToastActions {
   openToast(id: string, props: ToastProperties): void {
     this.clearTimeout(id);
     const toastProps = {
-      'data-testid': `toast-${id}`,
       ...defaultToastProperties,
       ...props,
+      'data-testid': `toast-${id}`,
       onClose: () => {
         this.closeToast(id);
       },
@@ -66,7 +66,7 @@ class GlobalToastState implements ToastActions {
         }, toastProps.timeout)
       );
     }
-    this.onToastsChange('push', { id, ...props }, this.toasts);
+    this.onToastsChange('push', { id, ...toastProps }, this.toasts);
   }
   closeToast(id: string): void {
     this.clearTimeout(id);

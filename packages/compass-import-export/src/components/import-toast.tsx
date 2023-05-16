@@ -73,7 +73,7 @@ export function showStartingToast({
 export function showCompletedToast({ docsWritten }: { docsWritten: number }) {
   openToast(importToastId, {
     title: 'Import completed.',
-    body: `${docsWritten} documents exported.`,
+    description: `${docsWritten} documents exported.`,
     variant: 'success',
   });
 }
@@ -160,7 +160,7 @@ export function showCancelledToast({
 
   openToast(importToastId, {
     title: 'Import aborted.',
-    body: <></>,
+    description: null,
     variant: 'warning',
   });
 }
@@ -168,7 +168,7 @@ export function showCancelledToast({
 export function showFailedToast(err: Error | undefined) {
   openToast(importToastId, {
     title: 'Failed to import with the following error:',
-    body: err?.message,
+    description: err?.message,
     variant: 'warning',
   });
 }

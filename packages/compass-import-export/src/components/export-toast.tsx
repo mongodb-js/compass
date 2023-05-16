@@ -99,16 +99,14 @@ export function showCancelledToast({
 }) {
   openToast(exportToastId, {
     title: 'Export aborted.',
-    body:
+    description:
       docsWritten > 0 ? (
         <ToastBody
           statusMessage={docsWrittenText(docsWritten)}
           actionHandler={() => revealFile(filePath)}
           actionText="show file"
         />
-      ) : (
-        <></>
-      ),
+      ) : null,
     variant: 'warning',
   });
 }
@@ -116,7 +114,7 @@ export function showCancelledToast({
 export function showFailedToast(err: Error | undefined) {
   openToast(exportToastId, {
     title: 'Failed to export with the following error:',
-    body: err?.message,
+    description: err?.message,
     variant: 'warning',
   });
 }
