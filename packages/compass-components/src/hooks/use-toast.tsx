@@ -9,10 +9,7 @@ import type { ToastProps } from '../components/leafygreen';
 import {
   ToastProvider,
   useToast as useLeafygreenToast,
-  ToastVariant,
 } from '../components/leafygreen';
-
-export { ToastVariant };
 
 export type ToastProperties = Pick<
   ToastProps,
