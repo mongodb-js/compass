@@ -9,12 +9,24 @@ import {
 import { expect } from 'chai';
 
 import ConnectForm from './connect-form';
+import type { ConnectFormProps } from './connect-form';
+import Sinon from 'sinon';
+import preferences from 'compass-preferences-model';
+import { defaultConnectionString } from '../constants/default-connection';
+import type { ConnectionInfo } from 'mongodb-data-service';
+
+const DEFAULT_CONNECTION: ConnectionInfo = {
+  id: 'default',
+  connectionOptions: {
+    connectionString: defaultConnectionString,
+  },
+};
 
 const noop = (): any => {
   /* no-op */
 };
 
-function renderForm() {
+function renderForm(props: Partial<ConnectFormProps> = {}) {
   return render(
     <ConnectForm
       onConnectClicked={noop}
@@ -25,6 +37,7 @@ function renderForm() {
         },
       }}
       onSaveConnectionClicked={noop}
+      {...props}
     />
   );
 }
@@ -49,6 +62,182 @@ describe('ConnectForm Component', function () {
     renderForm();
     const textArea = screen.getByRole('textbox');
     expect(textArea).to.have.text('mongodb://pineapple:*****@localhost:27019/');
+  });
+
+  describe('"Edit connection string" toggle state', function () {
+    let sandbox: Sinon.SinonSandbox;
+
+    beforeEach(function () {
+      sandbox = Sinon.createSandbox();
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    context(
+      'when preferences.connectionStringEditableByDefault === false',
+      function () {
+        context(
+          'and preferences.protectConnectionStrings === false',
+          function () {
+            it('should render the toggle button in the off state for default connection', function () {
+              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+                return {
+                  connectionStringEditableByDefault: false,
+                  protectConnectionStrings: false,
+                } as any;
+              });
+
+              renderForm({ initialConnectionInfo: DEFAULT_CONNECTION });
+              expect(screen.queryByTestId('toggle-edit-connection-string')).to
+                .not.be.null;
+              expect(
+                screen
+                  .getByTestId('toggle-edit-connection-string')
+                  .getAttribute('aria-checked')
+              ).to.equal('false');
+            });
+
+            it('should render the toggle button in the off state for existing connection', function () {
+              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+                return {
+                  connectionStringEditableByDefault: false,
+                  protectConnectionStrings: false,
+                } as any;
+              });
+
+              renderForm();
+              expect(screen.queryByTestId('toggle-edit-connection-string')).to
+                .not.be.null;
+              expect(
+                screen
+                  .getByTestId('toggle-edit-connection-string')
+                  .getAttribute('aria-checked')
+              ).to.equal('false');
+            });
+          }
+        );
+
+        context(
+          'and preferences.protectConnectionStrings === true',
+          function () {
+            it('should render the toggle button in the off state for default connection', function () {
+              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+                return {
+                  connectionStringEditableByDefault: false,
+                  protectConnectionStrings: true,
+                } as any;
+              });
+
+              renderForm({ initialConnectionInfo: DEFAULT_CONNECTION });
+              expect(screen.queryByTestId('toggle-edit-connection-string')).to
+                .not.be.null;
+              expect(
+                screen
+                  .getByTestId('toggle-edit-connection-string')
+                  .getAttribute('aria-checked')
+              ).to.equal('false');
+            });
+
+            it('should not render the toggle button for existing connection', function () {
+              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+                return {
+                  connectionStringEditableByDefault: false,
+                  protectConnectionStrings: true,
+                } as any;
+              });
+
+              renderForm();
+              expect(screen.queryByTestId('toggle-edit-connection-string')).to
+                .be.null;
+            });
+          }
+        );
+      }
+    );
+
+    context(
+      'when preferences.connectionStringEditableByDefault === true',
+      function () {
+        context(
+          'and preferences.protectConnectionStrings === false',
+          function () {
+            it('should render the toggle button in the on state for default connection', function () {
+              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+                return {
+                  connectionStringEditableByDefault: true,
+                  protectConnectionStrings: false,
+                } as any;
+              });
+
+              renderForm({ initialConnectionInfo: DEFAULT_CONNECTION });
+              expect(screen.queryByTestId('toggle-edit-connection-string')).to
+                .not.be.null;
+              expect(
+                screen
+                  .getByTestId('toggle-edit-connection-string')
+                  .getAttribute('aria-checked')
+              ).to.equal('true');
+            });
+
+            it('should render the toggle button in the off state for existing connection', function () {
+              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+                return {
+                  connectionStringEditableByDefault: true,
+                  protectConnectionStrings: false,
+                } as any;
+              });
+
+              renderForm();
+              expect(screen.queryByTestId('toggle-edit-connection-string')).to
+                .not.be.null;
+              expect(
+                screen
+                  .getByTestId('toggle-edit-connection-string')
+                  .getAttribute('aria-checked')
+              ).to.equal('false');
+            });
+          }
+        );
+
+        context(
+          'and preferences.protectConnectionStrings === true',
+          function () {
+            it('should render the toggle button in the on state for default connection', function () {
+              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+                return {
+                  connectionStringEditableByDefault: true,
+                  protectConnectionStrings: true,
+                } as any;
+              });
+
+              renderForm({ initialConnectionInfo: DEFAULT_CONNECTION });
+              expect(screen.queryByTestId('toggle-edit-connection-string')).to
+                .not.be.null;
+              expect(
+                screen
+                  .getByTestId('toggle-edit-connection-string')
+                  .getAttribute('aria-checked')
+              ).to.equal('true');
+            });
+
+            it('should not render the toggle button for existing connection', function () {
+              sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+                return {
+                  connectionStringEditableByDefault: true,
+                  protectConnectionStrings: true,
+                } as any;
+              });
+
+              renderForm();
+              expect(screen.queryByTestId('toggle-edit-connection-string')).to
+                .be.null;
+            });
+          }
+        );
+      }
+    );
   });
 
   it('should render an error with an invalid connection string', function () {
