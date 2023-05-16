@@ -3,8 +3,8 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { render, cleanup, screen } from '@testing-library/react';
 
-import StageSeparator from '../stage-separator';
-import type { StageSeparatorProps } from '../stage-separator';
+import StageSeparator from '.';
+import type { StageSeparatorProps } from '.';
 
 const renderStageSeparator = (props: Partial<StageSeparatorProps>) => {
   render(

@@ -26,7 +26,7 @@ import { addWizard } from '../../../modules/pipeline-builder/stage-editor';
 import PipelineBuilderInputDocuments from '../../pipeline-builder-input-documents';
 import { STAGE_WIZARD_USE_CASES } from '../../aggregation-side-panel/stage-wizard-use-cases';
 import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
-import StageSeparator from '../../stage-separator/stage-separator';
+import StageSeparator from '../../stage-separator';
 import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
