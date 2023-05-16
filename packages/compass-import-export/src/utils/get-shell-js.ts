@@ -3,9 +3,9 @@ import { stringify } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
 import type { Document, SortDirection } from 'mongodb';
 
-import type { ExportQuery } from '../export/export-types';
+import type { ExportAggregation, ExportQuery } from '../export/export-types';
 
-export function getQueryAsShellJSString({
+export function queryAsShellJSString({
   ns,
   query,
 }: {
@@ -35,5 +35,34 @@ export function getQueryAsShellJSString({
   if (query.skip) {
     ret += `.skip(${query.skip})`;
   }
+  return ret;
+}
+
+export function aggregationAsShellJSString({
+  ns,
+  aggregation,
+}: {
+  ns: string;
+  aggregation: ExportAggregation;
+}) {
+  const { stages, options = {} } = aggregation;
+  // TODO: Do we want the maxTimeMS setting?
+  // options.maxTimeMS = capMaxTimeMSAtPreferenceLimit(options.maxTimeMS);
+
+  let ret = `db.getCollection('${toNS(ns).collection}').aggregate([\n`;
+  for (const [index, stage] of stages.entries()) {
+    ret += `  ${stringify(stage) || ''}${
+      index === stages.length - 1 ? '' : ','
+    }\n`;
+  }
+  ret += ']';
+  if (Object.keys(options).length > 0) {
+    ret += ', ';
+    const filteredOptions = Object.fromEntries(
+      Object.entries(options).filter((option) => option[1] !== undefined)
+    );
+    ret += stringify(filteredOptions);
+  }
+  ret += ');';
   return ret;
 }

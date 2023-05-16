@@ -5,8 +5,11 @@ import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
 import type { FieldsToExportOption, FieldsToExport } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
 import { createProjectionFromSchemaFields } from '../export/gather-fields';
-import type { ExportQuery } from '../export/export-types';
-import { getQueryAsShellJSString } from '../utils/get-shell-js';
+import type { ExportAggregation, ExportQuery } from '../export/export-types';
+import {
+  aggregationAsShellJSString,
+  queryAsShellJSString,
+} from '../utils/get-shell-js';
 
 const containerStyles = css({
   marginBottom: spacing[3],
@@ -15,6 +18,7 @@ const containerStyles = css({
 type ExportCodeViewProps = {
   ns: string;
   query?: ExportQuery;
+  aggregation?: ExportAggregation;
   fields: FieldsToExport;
   selectedFieldOption: FieldsToExportOption;
 };
@@ -22,12 +26,20 @@ type ExportCodeViewProps = {
 function ExportCodeView({
   ns,
   query,
+  aggregation,
   fields,
   selectedFieldOption,
 }: ExportCodeViewProps) {
   const code = useMemo(() => {
+    if (aggregation) {
+      return aggregationAsShellJSString({
+        aggregation,
+        ns,
+      });
+    }
+
     if (selectedFieldOption === 'select-fields') {
-      return getQueryAsShellJSString({
+      return queryAsShellJSString({
         query: {
           ...(query ?? {
             filter: {},
@@ -42,17 +54,19 @@ function ExportCodeView({
       });
     }
 
-    return getQueryAsShellJSString({
+    return queryAsShellJSString({
       query: query ?? {
         filter: {},
       },
       ns,
     });
-  }, [fields, query, ns, selectedFieldOption]);
+  }, [aggregation, fields, query, ns, selectedFieldOption]);
 
   return (
     <div className={containerStyles}>
-      <Body>Export results from the query below</Body>
+      <Body>
+        Export results from the {aggregation ? 'aggregation' : 'query'} below
+      </Body>
       <Code
         data-testid="export-collection-code-preview-wrapper"
         language="javascript"
@@ -67,6 +81,7 @@ function ExportCodeView({
 const ConnectedExportCodeView = connect(
   (state: RootExportState) => ({
     ns: state.export.namespace,
+    aggregation: state.export.aggregation,
     fields: state.export.fieldsToExport,
     query: state.export.query,
     selectedFieldOption: state.export.selectedFieldOption,
