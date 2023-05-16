@@ -563,7 +563,7 @@ export function useConnectForm(
   const initialFormState: ConnectFormState = {
     ...derivedFormState,
     enableEditingConnectionString:
-      !!usePreference('connectionStringEditableByDefault', React) &&
+      !usePreference('protectConnectionStringsForNewConnections', React) &&
       derivedFormState.enableEditingConnectionString,
   };
 
@@ -639,8 +639,8 @@ function setInitialState({
   setErrors: (errors: ConnectionFormError[]) => void;
   dispatch: Dispatch<Action>;
 }) {
-  const connectionStringEditableByDefault = !!usePreference(
-    'connectionStringEditableByDefault',
+  const protectConnectionStringsForNewConnections = usePreference(
+    'protectConnectionStringsForNewConnections',
     React
   );
   useEffect(() => {
@@ -661,14 +661,15 @@ function setInitialState({
       newState: {
         errors,
         enableEditingConnectionString:
-          connectionStringEditableByDefault && enableEditingConnectionString,
+          !protectConnectionStringsForNewConnections &&
+          enableEditingConnectionString,
         warnings,
         connectionOptions,
         isDirty: false,
         allowEditingIfProtected,
       },
     });
-  }, [initialConnectionInfo, connectionStringEditableByDefault]);
+  }, [initialConnectionInfo, protectConnectionStringsForNewConnections]);
 
   useEffect(() => {
     if (connectionErrorMessage) {

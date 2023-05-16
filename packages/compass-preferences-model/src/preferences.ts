@@ -36,7 +36,7 @@ export type UserConfigurablePreferences = FeatureFlags & {
   theme: THEMES;
   maxTimeMS?: number;
   installURLHandlers: boolean;
-  connectionStringEditableByDefault: boolean;
+  protectConnectionStringsForNewConnections: boolean;
 };
 
 export type InternalUserPreferences = {
@@ -560,19 +560,19 @@ const modelPreferencesProps: Required<{
     },
   },
   /**
-   * Determines if the switch to edit connection string should be enabled or
-   * disabled by default, regardless of new or existing connection
+   * Determines if the toggle to edit connection string for new connections
+   * should be in the off state or in the on state by default
    */
-  connectionStringEditableByDefault: {
+  protectConnectionStringsForNewConnections: {
     type: 'boolean',
     required: false,
-    default: true,
+    default: false,
     ui: true,
     cli: true,
     global: true,
     description: {
-      short: 'Set default for "Edit connection string" in connection form',
-      long: 'Determines if the switch to edit connection string should be enabled or disabled by default.',
+      short:
+        'Sets the default state of "Edit connection string" toggle for new connections',
     },
   },
   ...featureFlagsProps,

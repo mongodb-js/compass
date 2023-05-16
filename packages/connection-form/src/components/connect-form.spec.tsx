@@ -76,7 +76,7 @@ describe('ConnectForm Component', function () {
     });
 
     context(
-      'when preferences.connectionStringEditableByDefault === false',
+      'when preferences.protectConnectionStringsForNewConnections === true',
       function () {
         context(
           'and preferences.protectConnectionStrings === false',
@@ -84,7 +84,7 @@ describe('ConnectForm Component', function () {
             it('should render the toggle button in the off state for default connection', function () {
               sandbox.stub(preferences, 'getPreferences').callsFake(() => {
                 return {
-                  connectionStringEditableByDefault: false,
+                  protectConnectionStringsForNewConnections: true,
                   protectConnectionStrings: false,
                 } as any;
               });
@@ -102,7 +102,7 @@ describe('ConnectForm Component', function () {
             it('should render the toggle button in the off state for existing connection', function () {
               sandbox.stub(preferences, 'getPreferences').callsFake(() => {
                 return {
-                  connectionStringEditableByDefault: false,
+                  protectConnectionStringsForNewConnections: true,
                   protectConnectionStrings: false,
                 } as any;
               });
@@ -125,7 +125,7 @@ describe('ConnectForm Component', function () {
             it('should render the toggle button in the off state for default connection', function () {
               sandbox.stub(preferences, 'getPreferences').callsFake(() => {
                 return {
-                  connectionStringEditableByDefault: false,
+                  protectConnectionStringsForNewConnections: true,
                   protectConnectionStrings: true,
                 } as any;
               });
@@ -143,7 +143,7 @@ describe('ConnectForm Component', function () {
             it('should not render the toggle button for existing connection', function () {
               sandbox.stub(preferences, 'getPreferences').callsFake(() => {
                 return {
-                  connectionStringEditableByDefault: false,
+                  protectConnectionStringsForNewConnections: true,
                   protectConnectionStrings: true,
                 } as any;
               });
@@ -158,7 +158,7 @@ describe('ConnectForm Component', function () {
     );
 
     context(
-      'when preferences.connectionStringEditableByDefault === true',
+      'when preferences.protectConnectionStringsForNewConnections === false',
       function () {
         context(
           'and preferences.protectConnectionStrings === false',
@@ -166,7 +166,7 @@ describe('ConnectForm Component', function () {
             it('should render the toggle button in the on state for default connection', function () {
               sandbox.stub(preferences, 'getPreferences').callsFake(() => {
                 return {
-                  connectionStringEditableByDefault: true,
+                  protectConnectionStringsForNewConnections: false,
                   protectConnectionStrings: false,
                 } as any;
               });
@@ -184,7 +184,7 @@ describe('ConnectForm Component', function () {
             it('should render the toggle button in the off state for existing connection', function () {
               sandbox.stub(preferences, 'getPreferences').callsFake(() => {
                 return {
-                  connectionStringEditableByDefault: true,
+                  protectConnectionStringsForNewConnections: false,
                   protectConnectionStrings: false,
                 } as any;
               });
@@ -207,7 +207,7 @@ describe('ConnectForm Component', function () {
             it('should render the toggle button in the on state for default connection', function () {
               sandbox.stub(preferences, 'getPreferences').callsFake(() => {
                 return {
-                  connectionStringEditableByDefault: true,
+                  protectConnectionStringsForNewConnections: false,
                   protectConnectionStrings: true,
                 } as any;
               });
@@ -225,7 +225,7 @@ describe('ConnectForm Component', function () {
             it('should not render the toggle button for existing connection', function () {
               sandbox.stub(preferences, 'getPreferences').callsFake(() => {
                 return {
-                  connectionStringEditableByDefault: true,
+                  protectConnectionStringsForNewConnections: false,
                   protectConnectionStrings: true,
                 } as any;
               });
