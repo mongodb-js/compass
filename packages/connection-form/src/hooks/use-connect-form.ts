@@ -1,5 +1,5 @@
 import type { Dispatch } from 'react';
-import { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep, isEqual } from 'lodash';
@@ -54,6 +54,7 @@ import type {
 } from '../utils/csfle-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
+import { usePreference } from 'compass-preferences-model';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -558,11 +559,15 @@ export function useConnectForm(
     setEnableEditingConnectionString: (enableEditing: boolean) => void;
   }
 ] {
-  const [state, dispatch] = useReducer(
-    connectFormReducer,
-    initialConnectionInfo,
-    buildStateFromConnectionInfo
-  );
+  const derivedFormState = buildStateFromConnectionInfo(initialConnectionInfo);
+  const initialFormState: ConnectFormState = {
+    ...derivedFormState,
+    enableEditingConnectionString:
+      !!usePreference('connectionStringEditableByDefault', React) &&
+      derivedFormState.enableEditingConnectionString,
+  };
+
+  const [state, dispatch] = useReducer(connectFormReducer, initialFormState);
 
   const setErrors = useCallback((errors: ConnectionFormError[]) => {
     dispatch({
@@ -634,6 +639,10 @@ function setInitialState({
   setErrors: (errors: ConnectionFormError[]) => void;
   dispatch: Dispatch<Action>;
 }) {
+  const connectionStringEditableByDefault = !!usePreference(
+    'connectionStringEditableByDefault',
+    React
+  );
   useEffect(() => {
     // When the initial connection options change, like a different
     // connection is clicked in the compass-sidebar, we
@@ -641,24 +650,25 @@ function setInitialState({
     // We do this here to retain the tabs/expanded accordion states.
     const {
       errors,
-      enableEditingConnectionString,
       warnings,
       connectionOptions,
       allowEditingIfProtected,
+      enableEditingConnectionString,
     } = buildStateFromConnectionInfo(initialConnectionInfo);
 
     dispatch({
       type: 'set-connection-form-state',
       newState: {
         errors,
-        enableEditingConnectionString,
+        enableEditingConnectionString:
+          connectionStringEditableByDefault && enableEditingConnectionString,
         warnings,
         connectionOptions,
         isDirty: false,
         allowEditingIfProtected,
       },
     });
-  }, [initialConnectionInfo]);
+  }, [initialConnectionInfo, connectionStringEditableByDefault]);
 
   useEffect(() => {
     if (connectionErrorMessage) {

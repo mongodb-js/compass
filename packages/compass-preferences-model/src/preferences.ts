@@ -36,6 +36,7 @@ export type UserConfigurablePreferences = FeatureFlags & {
   theme: THEMES;
   maxTimeMS?: number;
   installURLHandlers: boolean;
+  connectionStringEditableByDefault: boolean;
 };
 
 export type InternalUserPreferences = {
@@ -556,6 +557,22 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Install Compass as URL Protocol Handler',
       long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
+    },
+  },
+  /**
+   * Determines if the switch to edit connection string should be enabled or
+   * disabled by default, regardless of new or existing connection
+   */
+  connectionStringEditableByDefault: {
+    type: 'boolean',
+    required: false,
+    default: true,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Set default for "Edit connection string" in connection form',
+      long: 'Determines if the switch to edit connection string should be enabled or disabled by default.',
     },
   },
   ...featureFlagsProps,

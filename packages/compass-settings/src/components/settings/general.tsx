@@ -10,6 +10,7 @@ const generalFields = [
   'readOnly',
   'enableShell',
   'protectConnectionStrings',
+  'connectionStringEditableByDefault',
   'showKerberosPasswordField',
   'maxTimeMS',
   'enableDevTools',
