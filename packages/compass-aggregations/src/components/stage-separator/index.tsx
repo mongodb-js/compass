@@ -7,7 +7,7 @@ import type { AddStageProps } from '../add-stage/add-stage';
 
 const useCaseDropMarkerStyles = css({
   width: '100%',
-  height: spacing[1],
+  height: spacing[1] / 4,
   borderRadius: spacing[1],
   background: palette.green.dark1,
   position: 'absolute',
