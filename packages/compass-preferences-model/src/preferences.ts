@@ -572,7 +572,7 @@ const modelPreferencesProps: Required<{
     global: true,
     description: {
       short:
-        'Sets the default state of "Edit connection string" toggle for new connections',
+        'If true, "Edit connection string" is disabled for new connections by default',
     },
   },
   ...featureFlagsProps,
