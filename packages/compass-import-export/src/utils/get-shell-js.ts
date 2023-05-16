@@ -46,8 +46,6 @@ export function aggregationAsShellJSString({
   aggregation: ExportAggregation;
 }) {
   const { stages, options = {} } = aggregation;
-  // TODO: Do we want the maxTimeMS setting?
-  // options.maxTimeMS = capMaxTimeMSAtPreferenceLimit(options.maxTimeMS);
 
   let ret = `db.getCollection('${toNS(ns).collection}').aggregate([\n`;
   for (const [index, stage] of stages.entries()) {
