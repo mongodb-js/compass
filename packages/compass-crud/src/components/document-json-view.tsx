@@ -27,7 +27,6 @@ export type DocumentJsonViewProps = {
 } & Pick<
   JSONEditorProps,
   | 'isTimeSeries'
-  | 'serverVersion'
   | 'copyToClipboard'
   | 'removeDocument'
   | 'replaceDocument'
@@ -62,7 +61,6 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
               doc={doc}
               editable={this.props.isEditable}
               isTimeSeries={this.props.isTimeSeries}
-              serverVersion={this.props.serverVersion}
               copyToClipboard={this.props.copyToClipboard}
               removeDocument={this.props.removeDocument}
               replaceDocument={this.props.replaceDocument}
