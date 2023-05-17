@@ -165,13 +165,17 @@ export async function importCSV({
     await pipeline(...params);
   } catch (err: any) {
     if (err.code === 'ABORT_ERR') {
+      debug('importCSV:aborting');
+
       await processWriteStreamErrors({
         collectionStream,
         output,
         errorCallback,
       });
 
-      return makeImportResult(collectionStream, numProcessed, true);
+      const result = makeImportResult(collectionStream, numProcessed, true);
+      debug('importCSV:aborted', result);
+      return result;
     }
 
     // stick the result onto the error so that we can tell how far it got
@@ -180,11 +184,15 @@ export async function importCSV({
     throw err;
   }
 
+  debug('importCSV:completing');
+
   await processWriteStreamErrors({
     collectionStream,
     output,
     errorCallback,
   });
 
-  return makeImportResult(collectionStream, numProcessed);
+  const result = makeImportResult(collectionStream, numProcessed);
+  debug('importCSV:completed', result);
+  return result;
 }

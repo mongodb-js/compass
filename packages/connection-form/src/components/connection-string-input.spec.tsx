@@ -137,11 +137,11 @@ describe('ConnectionStringInput Component', function () {
 
     describe('when a connection string is inputted', function () {
       beforeEach(function () {
-        // Focus the input.
-        userEvent.tab();
-        userEvent.tab();
-        userEvent.tab();
-        userEvent.keyboard('mongodb://localhost');
+        const input = screen.getByRole('textbox', {
+          name: /uri/i,
+        });
+        fireEvent.focus(input);
+        userEvent.type(input, 'mongodb://localhost');
       });
 
       it('should call updateConnectionFormField with the connection string', function () {
@@ -256,5 +256,33 @@ describe('ConnectionStringInput Component', function () {
         expect(setEnableEditingConnectionStringSpy.callCount).to.equal(0);
       });
     });
+  });
+
+  it('hides password when editing is enabled and input is not focused', function () {
+    const connectionString = 'mongodb+srv://turtles:pineapples@localhost/';
+    renderConnectionStringInput({
+      connectionString,
+      enableEditingConnectionString: true,
+      setEnableEditingConnectionString: setEnableEditingConnectionStringSpy,
+    });
+
+    const input = screen.getByRole('textbox', {
+      name: /uri/i,
+    });
+    fireEvent.focus(input);
+    expect(input.textContent, 'shows password when input is focused').to.equal(
+      connectionString
+    );
+
+    fireEvent.focusOut(input);
+    expect(
+      input.textContent,
+      'hides password when input is not focused'
+    ).to.equal(connectionString.replace('pineapples', '*****'));
+
+    expect(
+      setEnableEditingConnectionStringSpy.getCalls(),
+      'does not update connection string on focus change'
+    ).to.have.lengthOf(0);
   });
 });

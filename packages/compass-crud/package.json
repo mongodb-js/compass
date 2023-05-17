@@ -105,6 +105,7 @@
     "react-dom": "^17.0.2",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
+    "semver": "^5.4.1",
     "sinon": "^8.1.1",
     "webpack": "^4.46.0"
   },

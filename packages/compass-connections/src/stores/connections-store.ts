@@ -259,7 +259,7 @@ export function useConnections({
       openToast('save-connection-error', {
         title: 'Error',
         variant: 'warning',
-        body: `An error occurred while saving the connection. ${
+        description: `An error occurred while saving the connection. ${
           (err as Error).message
         }`,
       });

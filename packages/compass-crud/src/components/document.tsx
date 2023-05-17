@@ -6,11 +6,13 @@ import EditableDocument from './editable-document';
 import type { ReadonlyDocumentProps } from './readonly-document';
 import ReadonlyDocument from './readonly-document';
 import type { BSONObject } from '../stores/crud-store';
+import { hasEditableTimeSeriesSupport } from '../utils/editable-time-series';
 
 export type DocumentProps = {
   doc: HadronDocument | BSONObject;
   editable: boolean;
   isTimeSeries?: boolean;
+  serverVersion?: string;
   isExpanded?: boolean;
 } & Omit<EditableDocumentProps, 'doc' | 'expandAll'> &
   Pick<ReadonlyDocumentProps, 'copyToClipboard' | 'openInsertDocumentDialog'>;
@@ -19,6 +21,7 @@ const Document = (props: DocumentProps) => {
   const {
     editable,
     isTimeSeries,
+    serverVersion,
     isExpanded,
     copyToClipboard,
     openInsertDocumentDialog,
@@ -34,7 +37,11 @@ const Document = (props: DocumentProps) => {
     return new HadronDocument(_doc as any);
   }, [_doc]);
 
-  if (editable && isTimeSeries) {
+  if (
+    editable &&
+    isTimeSeries &&
+    !hasEditableTimeSeriesSupport(serverVersion)
+  ) {
     return (
       <ReadonlyDocument
         doc={doc}
@@ -62,6 +69,7 @@ Document.propTypes = {
   doc: PropTypes.object.isRequired,
   editable: PropTypes.bool,
   isTimeSeries: PropTypes.bool,
+  serverVersion: PropTypes.string,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,

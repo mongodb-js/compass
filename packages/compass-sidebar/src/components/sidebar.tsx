@@ -81,14 +81,15 @@ export function Sidebar({
           await navigator.clipboard.writeText(connectionString);
           openToast('copy-to-clipboard', {
             title: 'Success',
-            body: 'Copied to clipboard.',
+            description: 'Copied to clipboard.',
             variant: 'success',
             timeout: TOAST_TIMEOUT_MS,
           });
         } catch (err) {
           openToast('copy-to-clipboard', {
             title: 'Error',
-            body: 'An error occurred when copying to clipboard. Please try again.',
+            description:
+              'An error occurred when copying to clipboard. Please try again.',
             variant: 'warning',
             timeout: TOAST_TIMEOUT_MS,
           });
