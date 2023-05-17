@@ -255,9 +255,6 @@ describe('importCSV', function () {
           ignoreEmptyStrings: true,
         });
 
-        const errorLog = await fs.promises.readFile(output.path, 'utf8');
-        expect(errorLog).to.equal('');
-
         expect(result).to.deep.equal({
           docsProcessed: totalRows,
           docsWritten: totalRows,
@@ -304,6 +301,9 @@ describe('importCSV', function () {
         } else {
           expectedDocs = docs;
         }
+
+        const errorLog = await fs.promises.readFile(output.path, 'utf8');
+        expect(errorLog).to.equal('');
       });
     }
   }
