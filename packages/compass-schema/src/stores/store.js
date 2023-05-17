@@ -6,9 +6,12 @@ import {
   createLoggerAndTelemetry,
   mongoLogId,
 } from '@mongodb-js/compass-logging';
-import { intersection } from 'lodash';
 import { addLayer, generateGeoQuery } from '../modules/geo';
-import { analyzeSchema } from '../modules/schema-analysis';
+import {
+  analyzeSchema,
+  calculateSchemaDepth,
+  schemaContainsGeoData,
+} from '../modules/schema-analysis';
 import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_COMPLETE,
@@ -25,16 +28,6 @@ const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
-
-const MONGODB_GEO_TYPES = [
-  'Point',
-  'LineString',
-  'Polygon',
-  'MultiPoint',
-  'MultiLineString',
-  'MultiPolygon',
-  'GeometryCollection',
-];
 
 function getErrorState(err) {
   const errorMessage = (err && err.message) || 'Unknown error';
@@ -239,55 +232,26 @@ const configureStore = (options = {}) => {
       this.state.abortController?.abort();
     },
 
-    _calculateDepthByPath(input, paths) {
-      if (!input) {
-        return paths;
-      }
-      input.forEach(({ types, fields, path, bsonType }) => {
-        /*
-         * Given the strucutre of schema, in case of an array,
-         * the path to an array item is still the same because indexes are not
-         * counted and for that reason we have an increment of 1 for arrays.
-         */
-        const increment = bsonType === 'Array' ? 1 : 0;
-        const score = path.split('.').length + increment;
-        if (!paths[path] || paths[path] < score) {
-          paths[path] = score;
-        }
-        this._calculateDepthByPath(types ?? fields, paths);
-      });
+    // _calculateDepthByPath(input, paths) {
+    //   if (!input) {
+    //     return paths;
+    //   }
+    //   input.forEach(({ types, fields, path, bsonType }) => {
+    //     /*
+    //      * Given the structure of schema, in case of an array,
+    //      * the path to an array item is still the same because indexes are not
+    //      * counted and for that reason we have an increment of 1 for arrays.
+    //      */
+    //     const increment = bsonType === 'Array' ? 1 : 0;
+    //     const score = path.split('.').length + increment;
+    //     if (!paths[path] || paths[path] < score) {
+    //       paths[path] = score;
+    //     }
+    //     this._calculateDepthByPath(types ?? fields, paths);
+    //   });
 
-      return paths;
-    },
-
-    calculateSchemaDepth(schema) {
-      const response = this._calculateDepthByPath(schema.fields, {});
-      const values = Object.values(response);
-      return Math.max(...values, 0);
-    },
-
-    _containsGeoData(input) {
-      let result = false;
-      if (!input) {
-        return result;
-      }
-      for (const { path, values, types, fields } of input) {
-        if (
-          path.endsWith('.type') &&
-          intersection(MONGODB_GEO_TYPES, values).length > 0
-        ) {
-          result = true;
-        }
-        if (!result) {
-          result = this._containsGeoData(types ?? fields);
-        }
-      }
-      return result;
-    },
-
-    schemaContainsGeoData(schema) {
-      return this._containsGeoData(schema.fields);
-    },
+    //   return paths;
+    // },
 
     _trackSchemaAnalyzed(analysisTime) {
       const { schema } = this.state;
@@ -303,8 +267,8 @@ const configureStore = (options = {}) => {
       const trackEvent = () => ({
         with_filter: Object.entries(this.query.filter).length > 0,
         schema_width: schema ? schema.fields.length : 0,
-        schema_depth: schema ? this.calculateSchemaDepth(schema) : 0,
-        geo_data: schema ? this.schemaContainsGeoData(schema) : false,
+        schema_depth: schema ? calculateSchemaDepth(schema) : 0,
+        geo_data: schema ? schemaContainsGeoData(schema) : false,
         analysis_time_ms: analysisTime,
       });
       track('Schema Analyzed', trackEvent);
