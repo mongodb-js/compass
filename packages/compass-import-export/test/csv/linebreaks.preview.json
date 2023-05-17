@@ -1,0 +1,25 @@
+{
+  "uniqueFields": [
+    "Order",
+    "Title",
+    "Description",
+    "Grouping",
+    "Icon",
+    "Link",
+    "Maintainer",
+    "SubGrouping",
+    "MaterialIcon"
+  ],
+  "headerFields": [
+    "Order",
+    "Title",
+    "Description",
+    "Grouping",
+    "Icon",
+    "Link",
+    "Maintainer",
+    "SubGrouping",
+    "MaterialIcon"
+  ],
+  "preview": [["1", "a", "b", "c", "d", "e", "", "", "person"]]
+}

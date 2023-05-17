@@ -14,8 +14,8 @@ describe('hasColumnstoreIndexesSupport', function () {
   });
 
   it(`returns true for ${MIN_COLUMNSTORE_INDEXES_SERVER_VERSION}`, function () {
-    expect(hasColumnstoreIndexesSupport('7.0.0')).to.be.true;
-    expect(hasColumnstoreIndexesSupport('7.2.0')).to.be.true;
+    expect(hasColumnstoreIndexesSupport('20.0.0')).to.be.true;
+    expect(hasColumnstoreIndexesSupport('20.2.0')).to.be.true;
   });
 
   it('returns true for invalid versions', function () {

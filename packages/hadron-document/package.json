@@ -70,7 +70,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^10.2.0",
-    "moment": "^2.27.0",
+    "moment": "^2.29.4",
     "prettier": "^2.7.1"
   }
 }

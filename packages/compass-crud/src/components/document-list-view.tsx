@@ -29,6 +29,7 @@ export type DocumentListViewProps = {
 } & Pick<
   DocumentProps,
   | 'isTimeSeries'
+  | 'serverVersion'
   | 'copyToClipboard'
   | 'removeDocument'
   | 'replaceDocument'
@@ -61,6 +62,7 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
               doc={doc}
               editable={this.props.isEditable}
               isTimeSeries={this.props.isTimeSeries}
+              serverVersion={this.props.serverVersion}
               copyToClipboard={this.props.copyToClipboard}
               removeDocument={this.props.removeDocument}
               replaceDocument={this.props.replaceDocument}
@@ -91,6 +93,7 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
     docs: PropTypes.array.isRequired,
     isEditable: PropTypes.bool,
     isTimeSeries: PropTypes.bool,
+    serverVersion: PropTypes.string,
     removeDocument: PropTypes.func,
     replaceDocument: PropTypes.func,
     updateDocument: PropTypes.func,

@@ -1,0 +1,24 @@
+{
+  "paths": [
+    ["_id"],
+    ["Description"],
+    ["Grouping"],
+    ["Icon"],
+    ["Link"],
+    ["MaterialIcon"],
+    ["Order"],
+    ["Title"]
+  ],
+  "docsProcessed": 1,
+  "aborted": false,
+  "projection": {
+    "_id": 1,
+    "Description": 1,
+    "Grouping": 1,
+    "Icon": 1,
+    "Link": 1,
+    "MaterialIcon": 1,
+    "Order": 1,
+    "Title": 1
+  }
+}

@@ -2,6 +2,7 @@ import os from 'os';
 import _ from 'lodash';
 import assert from 'assert';
 import { EJSON } from 'bson';
+import type { Document } from 'bson';
 import { MongoBulkWriteError } from 'mongodb';
 import fs from 'fs';
 import path from 'path';
@@ -11,8 +12,6 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
-
-temp.track();
 
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
@@ -25,6 +24,10 @@ import { importCSV } from './import-csv';
 import { formatCSVHeaderName } from '../csv/csv-utils';
 import type { CSVParsableFieldType, PathPart } from '../csv/csv-types';
 import type { ErrorJSON } from '../import/import-types';
+import { createDebug } from '../utils/logger';
+
+temp.track();
+const debug = createDebug('import-csv:test');
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -57,114 +60,131 @@ describe('importCSV', function () {
   for (const filepath of Object.values(fixtures.csv)) {
     const basename = path.basename(filepath);
 
-    it(`imports ${basename}`, async function () {
-      const typeResult = await guessFileType({
-        input: fs.createReadStream(filepath),
-      });
-      assert(typeResult.type === 'csv');
-      const csvDelimiter = typeResult.csvDelimiter;
+    for (const lineEnding of ['unix', 'windows']) {
+      it(`imports ${basename} (${lineEnding})`, async function () {
+        const typeResult = await guessFileType({
+          input: await makeInput(filepath, lineEnding),
+        });
+        assert(typeResult.type === 'csv');
+        const csvDelimiter = typeResult.csvDelimiter;
+        const newline = typeResult.newline;
 
-      const analyzeResult = await analyzeCSVFields({
-        input: fs.createReadStream(filepath),
-        delimiter: csvDelimiter,
-        ignoreEmptyStrings: true,
-      });
-
-      const abortController = new AbortController();
-      const progressCallback = sinon.spy();
-
-      const ns = 'db.col';
-
-      const totalRows = analyzeResult.totalRows;
-      const fields = _.mapValues(
-        analyzeResult.fields,
-        (field) => field.detected
-      );
-
-      const output = temp.createWriteStream();
-
-      const result = await importCSV({
-        dataService,
-        ns,
-        fields,
-        input: fs.createReadStream(filepath),
-        output,
-        delimiter: csvDelimiter,
-        abortSignal: abortController.signal,
-        progressCallback,
-        ignoreEmptyStrings: true,
-      });
-
-      expect(result).to.deep.equal({
-        docsProcessed: totalRows,
-        docsWritten: totalRows,
-        dbErrors: [],
-        dbStats: {
-          nInserted: totalRows,
-          nMatched: 0,
-          nModified: 0,
-          nRemoved: 0,
-          nUpserted: 0,
-          ok: Math.ceil(totalRows / 1000),
-          writeConcernErrors: [],
-          writeErrors: [],
-        },
-      });
-
-      expect(progressCallback.callCount).to.equal(totalRows);
-
-      const firstCallArg = Object.assign(
-        {},
-        progressCallback.firstCall.args[0]
-      );
-      expect(firstCallArg.bytesProcessed).to.be.gt(0);
-      delete firstCallArg.bytesProcessed;
-
-      expect(firstCallArg).to.deep.equal({
-        docsProcessed: 1,
-        docsWritten: 0,
-      });
-
-      const fileStat = await fs.promises.stat(filepath);
-
-      const lastCallArg = Object.assign({}, progressCallback.lastCall.args[0]);
-
-      // bit of a race condition. could be 0, could be totalRows..
-      delete lastCallArg.docsWritten;
-
-      expect(lastCallArg).to.deep.equal({
-        bytesProcessed: fileStat.size,
-        docsProcessed: totalRows,
-      });
-
-      const docs = await dataService.find(ns, {});
-
-      expect(docs).to.have.length(totalRows);
-
-      // these won't match when we compare below
-      for (const doc of docs) {
-        if (doc._id && doc._id._bsontype === 'ObjectId') {
-          delete doc._id;
+        if (lineEnding === 'windows') {
+          expect(newline).to.equal('\r\n');
+        } else {
+          expect(newline).to.equal('\n');
         }
-      }
 
-      const resultPath = filepath.replace(/\.csv$/, '.imported.ejson');
-      let text;
-      try {
-        text = await fs.promises.readFile(resultPath, 'utf8');
-      } catch (err) {
-        // This helps to tell you which file is missing and what the expected
-        // content is which helps when adding a new .csv fixture
-        console.log(resultPath);
-        console.log(EJSON.stringify(docs, undefined, 2, { relaxed: false }));
-        throw err;
-      }
+        const analyzeResult = await analyzeCSVFields({
+          input: await makeInput(filepath, lineEnding),
+          delimiter: csvDelimiter,
+          newline,
+          ignoreEmptyStrings: true,
+        });
 
-      const expectedResult = EJSON.parse(text);
-      expect(docs, basename.replace(/\.csv$/, '.imported.ejson')).to.deep.equal(
-        expectedResult
-      );
-    });
+        const abortController = new AbortController();
+        const progressCallback = sinon.spy();
+
+        const ns = 'db.col';
+
+        const totalRows = analyzeResult.totalRows;
+        const fields = _.mapValues(
+          analyzeResult.fields,
+          (field) => field.detected
+        );
+
+        const output = temp.createWriteStream();
+
+        const result = await importCSV({
+          dataService,
+          ns,
+          fields,
+          input: await makeInput(filepath, lineEnding),
+          output,
+          delimiter: csvDelimiter,
+          newline,
+          abortSignal: abortController.signal,
+          progressCallback,
+          ignoreEmptyStrings: true,
+        });
+
+        expect(result).to.deep.equal({
+          docsProcessed: totalRows,
+          docsWritten: totalRows,
+          dbErrors: [],
+          dbStats: {
+            nInserted: totalRows,
+            nMatched: 0,
+            nModified: 0,
+            nRemoved: 0,
+            nUpserted: 0,
+            ok: Math.ceil(totalRows / 1000),
+            writeConcernErrors: [],
+            writeErrors: [],
+          },
+        });
+
+        expect(progressCallback.callCount).to.equal(totalRows);
+
+        const firstCallArg = Object.assign(
+          {},
+          progressCallback.firstCall.args[0]
+        );
+        expect(firstCallArg.bytesProcessed).to.be.gt(0);
+        delete firstCallArg.bytesProcessed;
+
+        expect(firstCallArg).to.deep.equal({
+          docsProcessed: 1,
+          docsWritten: 0,
+        });
+
+        if (lineEnding === 'unix') {
+          const fileStat = await fs.promises.stat(filepath);
+
+          const lastCallArg = Object.assign(
+            {},
+            progressCallback.lastCall.args[0]
+          );
+
+          // bit of a race condition. could be 0, could be totalRows..
+          delete lastCallArg.docsWritten;
+
+          expect(lastCallArg).to.deep.equal({
+            bytesProcessed: fileStat.size,
+            docsProcessed: totalRows,
+          });
+        }
+
+        const docs = await dataService.find(ns, {});
+
+        expect(docs).to.have.length(totalRows);
+
+        // these won't match when we compare below
+        for (const doc of docs) {
+          if (doc._id && doc._id._bsontype === 'ObjectId') {
+            delete doc._id;
+          }
+        }
+
+        const resultPath = filepath.replace(/\.csv$/, '.imported.ejson');
+        let text;
+        try {
+          text = await fs.promises.readFile(resultPath, 'utf8');
+        } catch (err) {
+          // This helps to tell you which file is missing and what the expected
+          // content is which helps when adding a new .csv fixture
+          console.log(resultPath);
+          console.log(EJSON.stringify(docs, undefined, 2, { relaxed: false }));
+          throw err;
+        }
+
+        const expectedResult = EJSON.parse(text);
+        expect(
+          docs,
+          basename.replace(/\.csv$/, '.imported.ejson')
+        ).to.deep.equal(expectedResult);
+      });
+    }
   }
 
   for (const [type, filepath] of Object.entries(fixtures.csvByType)) {
@@ -173,104 +193,123 @@ describe('importCSV', function () {
       continue;
     }
 
-    it(`correctly imports ${type} (ignoreEmptyStrings=true)`, async function () {
-      const typeResult = await guessFileType({
-        input: fs.createReadStream(filepath),
-      });
-      assert(typeResult.type === 'csv');
-      const csvDelimiter = typeResult.csvDelimiter;
+    for (const lineEnding of ['unix', 'windows']) {
+      let expectedDocs: Document[];
+      it(`correctly imports ${type} (${lineEnding}) (ignoreEmptyStrings=true)`, async function () {
+        const typeResult = await guessFileType({
+          input: await makeInput(filepath, lineEnding),
+        });
+        assert(typeResult.type === 'csv');
+        const csvDelimiter = typeResult.csvDelimiter;
+        const newline = typeResult.newline;
 
-      const analyzeResult = await analyzeCSVFields({
-        input: fs.createReadStream(filepath),
-        delimiter: csvDelimiter,
-        ignoreEmptyStrings: true,
-      });
+        const analyzeResult = await analyzeCSVFields({
+          input: await makeInput(filepath, lineEnding),
+          delimiter: csvDelimiter,
+          newline,
+          ignoreEmptyStrings: true,
+        });
 
-      const abortController = new AbortController();
-      const progressCallback = sinon.spy();
+        const abortController = new AbortController();
+        const progressCallback = sinon.spy();
 
-      const ns = 'db.col';
+        const ns = 'db.col';
 
-      const totalRows = analyzeResult.totalRows;
-      const fields = _.mapValues(analyzeResult.fields, (field, name) => {
-        if (['something', 'something_else', 'notes'].includes(name)) {
+        const totalRows = analyzeResult.totalRows;
+        const fields = _.mapValues(analyzeResult.fields, (field, name) => {
+          if (['something', 'something_else', 'notes'].includes(name)) {
+            return field.detected;
+          }
+
+          // For the date.csv file the date field is (correctly) detected as
+          // "mixed" due to the mix of an iso date string and an int64 format
+          // date. In that case the user would have to explicitly select Date to
+          // make it a date which is what we're testing here.
+          if (type === 'date') {
+            return 'date';
+          }
+
+          // Some types we can't detect, but we can parse it if the user
+          // manually selects it.
+          if (
+            ['binData', 'decimal', 'objectId', 'timestamp', 'md5'].includes(
+              type
+            )
+          ) {
+            return type as CSVParsableFieldType;
+          }
+
           return field.detected;
-        }
+        });
 
-        // For the date.csv file the date field is (correctly) detected as
-        // "mixed" due to the mix of an iso date string and an int64 format
-        // date. In that case the user would have to explicitly select Date to
-        // make it a date which is what we're testing here.
-        if (type === 'date') {
-          return 'date';
-        }
+        const output = temp.createWriteStream();
 
-        // Some types we can't detect, but we can parse it if the user
-        // manually selects it.
-        if (
-          ['binData', 'decimal', 'objectId', 'timestamp', 'md5'].includes(type)
-        ) {
-          return type as CSVParsableFieldType;
-        }
+        debug('output path', output.path);
 
-        return field.detected;
-      });
+        const result = await importCSV({
+          dataService,
+          ns,
+          fields,
+          input: await makeInput(filepath, lineEnding),
+          output,
+          delimiter: csvDelimiter,
+          newline,
+          abortSignal: abortController.signal,
+          progressCallback,
+          ignoreEmptyStrings: true,
+        });
 
-      const output = temp.createWriteStream();
+        expect(result).to.deep.equal({
+          docsProcessed: totalRows,
+          docsWritten: totalRows,
+          dbErrors: [],
+          dbStats: {
+            nInserted: totalRows,
+            nMatched: 0,
+            nModified: 0,
+            nRemoved: 0,
+            nUpserted: 0,
+            ok: Math.ceil(totalRows / 1000),
+            writeConcernErrors: [],
+            writeErrors: [],
+          },
+        });
 
-      const result = await importCSV({
-        dataService,
-        ns,
-        fields,
-        input: fs.createReadStream(filepath),
-        output,
-        delimiter: csvDelimiter,
-        abortSignal: abortController.signal,
-        progressCallback,
-        ignoreEmptyStrings: true,
-      });
+        const docs = await dataService.find(
+          ns,
+          {},
+          { promoteValues: false, bsonRegExp: true }
+        );
 
-      const errorLog = await fs.promises.readFile(output.path, 'utf8');
-      expect(errorLog).to.equal('');
+        expect(docs).to.have.length(totalRows);
 
-      expect(result).to.deep.equal({
-        docsProcessed: totalRows,
-        docsWritten: totalRows,
-        dbErrors: [],
-        dbStats: {
-          nInserted: totalRows,
-          nMatched: 0,
-          nModified: 0,
-          nRemoved: 0,
-          nUpserted: 0,
-          ok: Math.ceil(totalRows / 1000),
-          writeConcernErrors: [],
-          writeErrors: [],
-        },
-      });
+        for (const doc of docs) {
+          delete doc._id;
 
-      const docs = await dataService.find(
-        ns,
-        {},
-        { promoteValues: false, bsonRegExp: true }
-      );
-
-      expect(docs).to.have.length(totalRows);
-
-      for (const doc of docs) {
-        for (const [key, value] of Object.entries(doc)) {
-          if (key === '_id' && value._bsontype === 'ObjectId') {
-            continue;
+          for (const [key, value] of Object.entries(doc)) {
+            if (key === '_id' && value._bsontype === 'ObjectId') {
+              continue;
+            }
+            if (['something', 'something_else', 'notes'].includes(key)) {
+              continue;
+            }
+            checkType([{ type: 'field', name: key }], value, type);
           }
-          if (['something', 'something_else', 'notes'].includes(key)) {
-            continue;
-          }
-          checkType([{ type: 'field', name: key }], value, type);
         }
-      }
 
-      expect(progressCallback.callCount).to.equal(totalRows);
-    });
+        expect(progressCallback.callCount).to.equal(totalRows);
+
+        // unix and windows should get the same results
+        if (expectedDocs) {
+          expect(docs).to.deep.equal(expectedDocs);
+        } else {
+          expectedDocs = docs;
+        }
+
+        const errorLog = await fs.promises.readFile(output.path, 'utf8');
+        expect(errorLog).to.equal('');
+      });
+    }
   }
 
   it('correctly imports null (ignoreEmptyStrings=false)', async function () {
@@ -279,10 +318,12 @@ describe('importCSV', function () {
     });
     assert(typeResult.type === 'csv');
     const csvDelimiter = typeResult.csvDelimiter;
+    const newline = typeResult.newline;
 
     const analyzeResult = await analyzeCSVFields({
       input: fs.createReadStream(fixtures.csvByType.null),
       delimiter: csvDelimiter,
+      newline,
       ignoreEmptyStrings: false,
     });
 
@@ -303,6 +344,7 @@ describe('importCSV', function () {
       input: fs.createReadStream(fixtures.csvByType.null),
       output,
       delimiter: csvDelimiter,
+      newline,
       abortSignal: abortController.signal,
       progressCallback,
       ignoreEmptyStrings: false,
@@ -374,6 +416,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       progressCallback,
@@ -429,6 +472,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
     });
@@ -472,6 +516,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
     });
@@ -507,6 +552,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
     });
@@ -540,6 +586,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
     });
@@ -575,6 +622,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       // notice that it doesn't matter that this is false. header not parsable is fatal regardless
@@ -603,6 +651,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       stopOnErrors: true,
@@ -637,6 +686,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       stopOnErrors: false,
@@ -704,6 +754,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       stopOnErrors: true,
@@ -743,6 +794,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: Readable.from(lines.join('\n')),
       output,
       stopOnErrors: false,
@@ -814,6 +866,7 @@ describe('importCSV', function () {
       dataService,
       ns,
       fields,
+      newline: '\n',
       input: fs.createReadStream(fixtures.csv.complex),
       output,
       abortSignal: abortController.signal,
@@ -858,6 +911,7 @@ describe('importCSV', function () {
       input,
       output,
       delimiter: ',',
+      newline: '\r\n',
     });
 
     const docs = await dataService.find(
@@ -892,6 +946,7 @@ describe('importCSV', function () {
         input,
         output,
         delimiter: ',',
+        newline: '\n',
       })
     ).to.be.rejectedWith(
       TypeError,
@@ -921,6 +976,7 @@ describe('importCSV', function () {
         input,
         output,
         delimiter: ',',
+        newline: '\n',
       })
     ).to.be.rejectedWith(
       TypeError,
@@ -947,6 +1003,7 @@ describe('importCSV', function () {
       input,
       output,
       delimiter: ',',
+      newline: '\n',
     });
 
     const docs = await dataService.find(
@@ -1097,4 +1154,23 @@ function checkType(path: PathPart[], value: any, type: string) {
 
 function formatErrorLines(errors: ErrorJSON[]) {
   return errors.map((err) => JSON.stringify(err)).join(os.EOL) + os.EOL;
+}
+
+async function makeInput(filepath: string, lineEnding: string) {
+  let input;
+
+  const text = (await fs.promises.readFile(filepath, 'utf8'))
+    // replace windows line endings to unix ones just in case
+    .replace(/\r\n/g, '\n');
+
+  if (lineEnding === 'unix') {
+    input = Readable.from(text);
+  } else {
+    const replaced = text
+      // turn the unix line endings into  windows line endings
+      .replace(/\n/g, '\r\n');
+    input = Readable.from(replaced);
+  }
+
+  return input;
 }

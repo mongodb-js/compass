@@ -206,6 +206,7 @@ describe('store', function () {
         isEditable: true,
         isReadonly: false,
         isTimeSeries: false,
+        serverVersion: '4.0.0',
         isWritable: false,
         ns: '',
         outdated: false,

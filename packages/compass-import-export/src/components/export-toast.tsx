@@ -36,7 +36,7 @@ export function showInProgressToast({
   // Update the toast with the new progress.
   openToast(exportToastId, {
     title: `Exporting "${namespace}" to ${path.basename(filePath)}…`,
-    body: (
+    description: (
       <ToastBody
         statusMessage={statusMessage}
         actionHandler={cancelExport}
@@ -58,7 +58,7 @@ export function showStartingToast({
 }) {
   openToast(exportToastId, {
     title: `Exporting "${namespace}"…`,
-    body: (
+    description: (
       <ToastBody
         statusMessage="Starting…"
         actionHandler={cancelExport}
@@ -79,7 +79,7 @@ export function showCompletedToast({
 }) {
   openToast(exportToastId, {
     title: 'Export completed.',
-    body: (
+    description: (
       <ToastBody
         statusMessage={docsWrittenText(docsWritten)}
         actionHandler={() => revealFile(filePath)}
@@ -99,16 +99,14 @@ export function showCancelledToast({
 }) {
   openToast(exportToastId, {
     title: 'Export aborted.',
-    body:
+    description:
       docsWritten > 0 ? (
         <ToastBody
           statusMessage={docsWrittenText(docsWritten)}
           actionHandler={() => revealFile(filePath)}
           actionText="show file"
         />
-      ) : (
-        <></>
-      ),
+      ) : null,
     variant: 'warning',
   });
 }
@@ -116,7 +114,7 @@ export function showCancelledToast({
 export function showFailedToast(err: Error | undefined) {
   openToast(exportToastId, {
     title: 'Failed to export with the following error:',
-    body: err?.message,
+    description: err?.message,
     variant: 'warning',
   });
 }
