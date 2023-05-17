@@ -488,7 +488,7 @@ const modelPreferencesProps: Required<{
   enableDevTools: {
     type: 'boolean',
     required: false,
-    default: false,
+    default: process.env.APP_ENV === 'webdriverio',
     ui: true,
     cli: true,
     global: true,

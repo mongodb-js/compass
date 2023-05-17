@@ -143,7 +143,7 @@ export const openStoredPipeline = (
         }
         openToast('restore-pipeline-with-errors', {
           title: "Can't parse pipeline source to stages",
-          body: `Loaded pipeline "${shortName}" contains syntax errors`,
+          description: `Loaded pipeline "${shortName}" contains syntax errors`,
           variant: 'warning',
           timeout: 10000,
         });
