@@ -59,14 +59,8 @@ const configureStore = (options = {}) => {
    * @param  {Object} fields       flattened list of fields
    * @param  {Array} nestedFields  sub-fields of topLevelFields (if existing)
    * @param  {Object} rootField    current top level field which can contain nestedFields
-   * @param  {Number} arrayDepth   track depth of the dimensionality recursion
    */
-  store._flattenedFields = (
-    fields,
-    nestedFields,
-    rootField,
-    arrayDepth = 1
-  ) => {
+  store._flattenedFields = (fields, nestedFields, rootField) => {
     if (!nestedFields) {
       return;
     }
@@ -96,7 +90,7 @@ const configureStore = (options = {}) => {
         }
         if (type.name === 'Array') {
           // add arrays of arrays or subdocuments
-          store._flattenedArray(fields, type.types, field, arrayDepth);
+          store._flattenedArray(fields, type.types, field);
         }
       }
     }
@@ -107,22 +101,17 @@ const configureStore = (options = {}) => {
    *
    * @param {Object} fields      flattened list of fields to mutate
    * @param {Array} nestedTypes  the "types" array currently being inspected
-   * @param {Object} field       current top level field on which to
-   *                             mutate dimensionality
-   * @param {Number} arrayDepth  track depth of the dimensionality recursion
    */
-  store._flattenedArray = (fields, nestedTypes, field, arrayDepth) => {
-    fields[field.path].dimensionality = arrayDepth;
-
+  store._flattenedArray = (fields, nestedTypes) => {
     // Arrays have no name, so can only recurse into arrays or subdocuments
     for (const type of nestedTypes) {
       if (type.name === 'Document') {
         // recurse into nested sub-fields
-        store._flattenedFields(fields, type.fields, field);
+        store._flattenedFields(fields, type.fields);
       }
       if (type.name === 'Array') {
         // recurse into nested arrays (again)
-        store._flattenedArray(fields, type.types, field, arrayDepth + 1);
+        store._flattenedArray(fields, type.types);
       }
     }
   };

@@ -109,7 +109,7 @@ async function _gatherFields({
 
   const paths = schemaAnalyzer
     .getSchemaPaths()
-    .filter((fieldPaths) => !isInternalFieldPath(fieldPaths[0]));
+    .filter((fieldPaths: string[]) => !isInternalFieldPath(fieldPaths[0]));
 
   return {
     paths,

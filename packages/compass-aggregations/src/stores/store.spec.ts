@@ -185,13 +185,13 @@ describe('Aggregation Store', function () {
           fields: {
             harry: {
               name: 'harry',
-              path: 'harry',
+              path: ['harry'],
               count: 1,
               type: 'Number',
             },
             potter: {
               name: 'potter',
-              path: 'potter',
+              path: ['potter'],
               count: 1,
               type: 'Boolean',
             },

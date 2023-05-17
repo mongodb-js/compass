@@ -8,10 +8,10 @@
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
   ],
-  "has_duplicates": false,
+  "hasDuplicates": false,
   "probability": 1,
-  "total_count": 200,
-  "average_length": 2,
+  "totalCount": 200,
+  "averageLength": 2,
   "fields": {
     "$undefined": true
   },
@@ -20,7 +20,7 @@
       "name": "Number",
       "count": 200,
       "path": "end station location.coordinates",
-      "has_duplicates": true,
+      "hasDuplicates": true,
       "probability": 1,
       "unique": 178,
       "values": [

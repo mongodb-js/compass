@@ -104,25 +104,22 @@ describe('schema-analysis', function () {
                 path: ['x'],
                 count: 1,
                 values: [1],
-                total_count: 0,
                 probability: 0.5,
                 unique: 1,
-                has_duplicates: false,
+                hasDuplicates: false,
               },
               {
                 name: 'Undefined',
-                type: 'Undefined',
+                bsonType: 'Undefined',
                 path: ['x'],
                 count: 1,
-                total_count: 0,
                 probability: 0.5,
                 unique: 1,
-                has_duplicates: false,
+                hasDuplicates: false,
               },
             ],
-            total_count: 2,
             type: ['Number', 'Undefined'],
-            has_duplicates: false,
+            hasDuplicates: false,
             probability: 0.5,
           },
           {
@@ -136,25 +133,22 @@ describe('schema-analysis', function () {
                 path: ['y'],
                 count: 1,
                 values: [2],
-                total_count: 0,
                 probability: 0.5,
                 unique: 1,
-                has_duplicates: false,
+                hasDuplicates: false,
               },
               {
                 name: 'Undefined',
-                type: 'Undefined',
+                bsonType: 'Undefined',
                 path: ['y'],
                 count: 1,
-                total_count: 0,
                 probability: 0.5,
                 unique: 1,
-                has_duplicates: false,
+                hasDuplicates: false,
               },
             ],
-            total_count: 2,
             type: ['Number', 'Undefined'],
-            has_duplicates: false,
+            hasDuplicates: false,
             probability: 0.5,
           },
         ],
@@ -265,7 +259,22 @@ describe('schema-analysis', function () {
       });
 
       it('has the correct depth', function () {
-        expect(calculateSchemaDepth(schema)).to.equal(7);
+        expect(calculateSchemaDepth(schema)).to.equal(8);
+      });
+    });
+
+    describe('with a basic array', function () {
+      let schema: Schema;
+      before(async function () {
+        schema = await mongoDBSchemaAnalyzeSchema([
+          {
+            arrayField: [1, 2, 3],
+          },
+        ]);
+      });
+
+      it('has a depth of two', function () {
+        expect(calculateSchemaDepth(schema)).to.equal(2);
       });
     });
 
@@ -280,7 +289,7 @@ describe('schema-analysis', function () {
       });
 
       it('has the correct depth', function () {
-        expect(calculateSchemaDepth(schema)).to.equal(4);
+        expect(calculateSchemaDepth(schema)).to.equal(5);
       });
     });
   });

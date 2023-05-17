@@ -452,7 +452,6 @@ describe('FieldStore', function () {
           const state = store.getState();
           const expected = {
             a: {
-              dimensionality: 1,
               count: 1,
               name: 'a',
               path: 'a',
@@ -469,7 +468,6 @@ describe('FieldStore', function () {
           const state = store.getState();
           const expected = {
             a: {
-              dimensionality: 1,
               count: 1,
               name: 'a',
               path: 'a',
@@ -486,7 +484,6 @@ describe('FieldStore', function () {
           const state = store.getState();
           const expected = {
             a: {
-              dimensionality: 2,
               count: 1,
               name: 'a',
               path: 'a',
@@ -508,7 +505,6 @@ describe('FieldStore', function () {
           const state = store.getState();
           const expected = {
             a: {
-              dimensionality: 3,
               count: 1,
               name: 'a',
               path: 'a',
@@ -537,7 +533,6 @@ describe('FieldStore', function () {
         // but that's much harder to reason about and not needed at this time
         const expected = {
           a: {
-            dimensionality: 1,
             count: 2,
             name: 'a',
             path: 'a',
@@ -573,7 +568,6 @@ describe('FieldStore', function () {
           const state = store.getState();
           const expected = {
             a: {
-              dimensionality: 1,
               count: 1,
               name: 'a',
               nestedFields: ['a.b'],
@@ -597,7 +591,6 @@ describe('FieldStore', function () {
           const state = store.getState();
           const expected = {
             a: {
-              dimensionality: 2,
               count: 1,
               name: 'a',
               nestedFields: ['a.b'],
@@ -626,7 +619,6 @@ describe('FieldStore', function () {
           const state = store.getState();
           const expected = {
             a: {
-              dimensionality: 1,
               count: 1,
               name: 'a',
               nestedFields: ['a.b'],
@@ -665,7 +657,6 @@ describe('FieldStore', function () {
             type: 'Document',
           },
           'a.b': {
-            dimensionality: 1,
             count: 1,
             name: 'b',
             nestedFields: ['a.b.c'],
@@ -680,7 +671,6 @@ describe('FieldStore', function () {
             type: 'Document',
           },
           'a.b.c.d': {
-            dimensionality: 2,
             count: 2,
             name: 'd',
             path: 'a.b.c.d',
@@ -720,7 +710,6 @@ describe('FieldStore', function () {
       it('handles name', function (done) {
         const expected = {
           foo1: {
-            dimensionality: 1,
             count: 1,
             name: 'foo1',
             nestedFields: ['foo1.age', 'foo1.name'],
@@ -753,7 +742,6 @@ describe('FieldStore', function () {
       it('handles path', function (done) {
         const expected = {
           foo1: {
-            dimensionality: 1,
             count: 1,
             name: 'foo1',
             nestedFields: ['foo1.age', 'foo1.path'],

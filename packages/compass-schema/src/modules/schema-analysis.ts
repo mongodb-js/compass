@@ -95,17 +95,18 @@ export const analyzeSchema = async (
 function _calculateSchemaFieldDepth(
   fieldsOrTypes: SchemaField[] | SchemaType[]
 ): number {
-  if (!fieldsOrTypes) {
+  if (!fieldsOrTypes || fieldsOrTypes.length === 0) {
     return 0;
   }
 
-  let deepestPath = 0;
+  let deepestPath = 1;
   for (const fieldOrType of fieldsOrTypes) {
     if ((fieldOrType as DocumentSchemaType).bsonType === 'Document') {
-      const deepestFieldPath = _calculateSchemaFieldDepth(
-        (fieldOrType as DocumentSchemaType).fields
-      );
-      deepestPath = Math.max(deepestPath, deepestFieldPath);
+      const deepestFieldPath =
+        _calculateSchemaFieldDepth((fieldOrType as DocumentSchemaType).fields) +
+        1; /* Increment by one when we go a level deeper. */
+
+      deepestPath = Math.max(deepestFieldPath + 1, deepestPath);
     } else if (
       (fieldOrType as ArraySchemaType).bsonType === 'Array' ||
       (fieldOrType as SchemaField).types
@@ -114,14 +115,15 @@ function _calculateSchemaFieldDepth(
         (fieldOrType as ArraySchemaType | SchemaField).types
       );
 
-      // In the analyzed schema structure, a path to an array item
-      // is not counted so we increment by 1.
-      // TODO: Maybe we don't need to anymore
-      deepestPath = Math.max(deepestFieldPath, deepestPath);
+      // Increment by one when we go a level deeper.
+      const increment =
+        (fieldOrType as ArraySchemaType).bsonType === 'Array' ? 1 : 0;
+      deepestPath = Math.max(deepestFieldPath + increment, deepestPath);
     }
   }
 
-  return deepestPath + 1;
+  // TODO: Increment by not 1
+  return deepestPath;
 }
 
 export function calculateSchemaDepth(schema: Schema): number {
@@ -138,7 +140,7 @@ function _containsGeoData(
 
   for (const fieldOrType of fieldsOrTypes) {
     if (
-      fieldOrType.path[fieldOrType.path.length - 1] === 'path' &&
+      fieldOrType.path[fieldOrType.path.length - 1] === 'type' &&
       (fieldOrType as PrimitiveSchemaType).values &&
       MONGODB_GEO_TYPES.find((geoType) =>
         (fieldOrType as PrimitiveSchemaType).values?.find(
