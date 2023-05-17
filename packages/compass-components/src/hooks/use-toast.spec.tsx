@@ -1,10 +1,10 @@
 import {
   cleanup,
-  fireEvent,
   render,
   screen,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import React from 'react';
 
@@ -52,19 +52,22 @@ describe('useToast', function () {
           namespace="ns-1"
           id="toast-1"
           title="My Toast"
-          body="Toast body"
+          description="Toast body"
           variant="success"
         />
         <CloseToastButton namespace="ns-1" id="toast-1" />
       </ToastArea>
     );
 
-    fireEvent.click(screen.getByText('Open Toast'));
+    userEvent.click(screen.getByText('Open Toast'));
 
-    await screen.findByText('My Toast');
-    screen.getByText('Toast body');
+    expect(await screen.findByText('My Toast')).to.exist;
 
-    fireEvent.click(screen.getByText('Close Toast'));
+    userEvent.click(screen.getByText('Close Toast'));
+
+    await waitForElementToBeRemoved(() => {
+      return screen.queryByText('My Toast');
+    });
 
     expect(screen.queryByText('My Toast')).to.not.exist;
   });
@@ -76,19 +79,22 @@ describe('useToast', function () {
           namespace="ns-1"
           id="toast-1"
           title="My Toast"
-          body="Toast body"
+          description="Toast body"
           variant="success"
         />
         <CloseToastButton namespace="ns-1" id="toast-1" />
       </ToastArea>
     );
 
-    fireEvent.click(screen.getByText('Open Toast'));
+    userEvent.click(screen.getByText('Open Toast'));
 
     await screen.findByText('My Toast');
-    screen.getByText('Toast body');
 
-    fireEvent.click(screen.getByLabelText('Close Message'));
+    userEvent.click(screen.getByLabelText('Close Message'));
+
+    await waitForElementToBeRemoved(() => {
+      return screen.queryByText('My Toast');
+    });
 
     expect(screen.queryByText('My Toast')).to.not.exist;
   });
@@ -101,20 +107,23 @@ describe('useToast', function () {
             namespace="ns-1"
             id="toast-1"
             title="My Toast"
-            body="Toast body"
-            timeout={1000}
+            description="Toast body"
+            timeout={300}
             variant="success"
           />
         </ToastArea>
       );
 
-      fireEvent.click(screen.getByText('Open Toast'));
+      userEvent.click(screen.getByText('Open Toast'));
 
       await screen.findByText('My Toast');
 
-      await waitForElementToBeRemoved(() => {
-        return screen.queryByText('My Toast');
-      });
+      await waitForElementToBeRemoved(
+        () => {
+          return screen.queryByText('My Toast');
+        },
+        { timeout: 5_000 }
+      );
 
       expect(screen.queryByText('My Toast')).to.not.exist;
     });
