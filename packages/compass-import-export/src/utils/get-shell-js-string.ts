@@ -55,9 +55,7 @@ export function aggregationAsShellJSString({
 
   let ret = `db.getCollection("${toNS(ns).collection}").aggregate([`;
   for (const [index, stage] of stages.entries()) {
-    ret += `${stringify(stage) || ''}${
-      index === stages.length - 1 ? '' : ','
-    }`;
+    ret += `${stringify(stage) || ''}${index === stages.length - 1 ? '' : ','}`;
   }
   ret += ']';
   if (Object.keys(options).length > 0) {
