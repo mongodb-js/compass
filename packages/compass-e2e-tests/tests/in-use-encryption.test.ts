@@ -833,9 +833,7 @@ describe('CSFLE / QE', function () {
     let browser: CompassBrowser;
 
     before(async function () {
-      if (
-        !(serverSatisfies('>= 6.0', true) && serverSatisfies('< 7.0', true))
-      ) {
+      if (!serverSatisfies('>= 6.0', true)) {
         return this.skip();
       }
 
@@ -876,7 +874,8 @@ describe('CSFLE / QE', function () {
         masterKey: { provider: 'local' }
       });`);
 
-      await browser.shellEval(`db.createCollection('${collectionName}', {
+      await browser.shellEval(`db.runCommand({
+        create: '${collectionName}',
         encryptedFields: {
           fields: [{
             keyId: dataKey,
