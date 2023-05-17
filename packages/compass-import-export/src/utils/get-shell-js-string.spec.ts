@@ -5,7 +5,6 @@ import {
   queryAsShellJSString,
   aggregationAsShellJSString,
 } from './get-shell-js-string';
-import { prettify } from '@mongodb-js/compass-editor';
 
 describe('#queryAsShellJSString', function () {
   it('supports simple query', function () {
