@@ -11,7 +11,8 @@ import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
 import Stage from '../../stage';
 import Wizard from '../../stage-wizard';
-import StageSeparator from '../../stage-separator';
+import AddStage from '../../add-stage';
+import UseCaseDroppableArea from '../../use-case-droppable-area';
 
 const sortableItemStyles = css({
   display: 'flex',
@@ -60,13 +61,11 @@ const SortableItem = ({ id, index, type }: SortableItemProps) => {
 
 type SortableListProps = {
   stagesIdAndType: StageIdAndType[];
-  renderUseCaseDropMarker: boolean;
   onStageAddAfterEnd: (after?: number) => void;
 };
 
 export const SortableList = ({
   stagesIdAndType,
-  renderUseCaseDropMarker,
   onStageAddAfterEnd,
 }: SortableListProps) => {
   // It requires that you pass it a sorted array of the unique identifiers
@@ -80,15 +79,14 @@ export const SortableList = ({
     <SortableContext items={items} strategy={verticalListSortingStrategy}>
       {stagesIdAndType.map(({ id, type }, index) => (
         <React.Fragment key={`stage-${id}`}>
-          <SortableItem id={id} index={index} type={type} />
-          {index !== stagesIdAndType.length - 1 && (
-            <StageSeparator
+          {/* addAfterIndex is index-1 because UseCaseDroppableArea is rendered above the sortable item */}
+          <UseCaseDroppableArea index={index - 1}>
+            <AddStage
               variant="icon"
-              index={index}
-              onAddStage={() => onStageAddAfterEnd(index)}
-              renderUseCaseDropMarker={renderUseCaseDropMarker}
+              onAddStage={() => onStageAddAfterEnd(index - 1)}
             />
-          )}
+          </UseCaseDroppableArea>
+          <SortableItem id={id} index={index} type={type} />
         </React.Fragment>
       ))}
     </SortableContext>

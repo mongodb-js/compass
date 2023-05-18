@@ -11,6 +11,20 @@ import { getStageHelpLink } from '../../../utils/stage';
 import type { StageWizardUseCase } from '.';
 import { useDraggable } from '@dnd-kit/core';
 
+export type DraggedUseCase = Pick<
+  UseCaseCardProps,
+  'id' | 'title' | 'stageOperator'
+>;
+
+type UseCaseCardProps = Pick<
+  StageWizardUseCase,
+  'id' | 'title' | 'stageOperator'
+> & {
+  onSelect: () => void;
+};
+
+type UseCaseCardLayoutProps = Partial<UseCaseCardProps> & DraggedUseCase;
+
 const cardStyles = css({
   cursor: 'pointer',
   padding: spacing[3],
@@ -21,27 +35,25 @@ const cardTitleStyles = css({
   marginRight: spacing[2],
 });
 
-type UseCaseCardLayoutProps = Pick<
-  StageWizardUseCase,
-  'id' | 'title' | 'stageOperator'
->;
-
-export const UseCaseCardLayout = ({
-  id,
-  title,
-  stageOperator,
-}: UseCaseCardLayoutProps) => {
+export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
+  { id, title, stageOperator, ...props }: UseCaseCardLayoutProps,
+  ref: React.ForwardedRef<HTMLDivElement>
+) {
   return (
-    <KeylineCard data-testid={`use-case-${id}`} className={cardStyles}>
+    <KeylineCard
+      ref={ref}
+      data-testid={`use-case-${id}`}
+      className={cardStyles}
+      onClick={props.onSelect}
+      {...props}
+    >
       <Body className={cardTitleStyles}>{title}</Body>
       <Link target="_blank" href={getStageHelpLink(stageOperator) as string}>
         {stageOperator}
       </Link>
     </KeylineCard>
   );
-};
-
-type UseCaseCardProps = { onSelect: () => void } & UseCaseCardLayoutProps;
+});
 
 const UseCaseCard = ({
   id,
@@ -53,22 +65,24 @@ const UseCaseCard = ({
     id,
     data: {
       type: 'use-case',
+      draggedUseCase: {
+        id,
+        title,
+        stageOperator,
+      },
     },
   });
+
   return (
-    <KeylineCard
-      data-testid={`use-case-${id}`}
-      className={cardStyles}
-      onClick={onSelect}
+    <UseCaseCardLayout
+      id={id}
+      title={title}
+      stageOperator={stageOperator}
+      onSelect={onSelect}
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-    >
-      <Body className={cardTitleStyles}>{title}</Body>
-      <Link target="_blank" href={getStageHelpLink(stageOperator) as string}>
-        {stageOperator}
-      </Link>
-    </KeylineCard>
+    />
   );
 };
 

@@ -15,7 +15,7 @@ const containerStyles = css({ textAlign: 'center' });
 const linkContainerStyles = css({
   textAlign: 'center',
   marginTop: spacing[2],
-  marginBottom: spacing[2],
+  marginBottom: spacing[3],
   position: 'relative',
 });
 
