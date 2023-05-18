@@ -47,9 +47,8 @@
     "prepare": "husky install",
     "precommit": "compass-scripts precommit",
     "presnyk-test": "mkdir -p .sbom",
-    "snyk-test": "npx snyk test --all-projects --severity-threshold=low --json --dev > .sbom/snyk-test-result.json || echo ''",
+    "snyk-test": "npx snyk test --all-projects --severity-threshold=low --dev --json-file-output=.sbom/snyk-test-result.json || true",
     "postsnyk-test": "npx snyk-to-html -i .sbom/snyk-test-result.json -o .sbom/snyk-test-result.html",
-    "scan-node-js": "mongodb-sbom-tools scan-node-js --version=16.0.0 > .sbom/node-js-vulns.json",
     "pregenerate-vulnerability-report": "npm run compile -w packages/compass && npm run snyk-test",
     "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --fail-on=high > .sbom/vulnerability-report.md"
   },
