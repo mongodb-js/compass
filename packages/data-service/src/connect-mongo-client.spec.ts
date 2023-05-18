@@ -6,6 +6,11 @@ import type { CommandStartedEvent } from 'mongodb';
 import connectMongoClient from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
 
+const defaultOptions = {
+  productDocsLink: 'https://www.mongodb.com/docs/compass/',
+  productName: 'MongoDB Compass',
+};
+
 const setupListeners = () => {
   //
 };
@@ -54,6 +59,7 @@ describe('connectMongoClient', function () {
         monitorCommands: true,
         useSystemCA: undefined,
         autoEncryption: undefined,
+        ...defaultOptions,
       });
     });
 
@@ -90,6 +96,7 @@ describe('connectMongoClient', function () {
         monitorCommands: true,
         useSystemCA: undefined,
         autoEncryption,
+        ...defaultOptions,
       });
     });
 
@@ -116,6 +123,7 @@ describe('connectMongoClient', function () {
         monitorCommands: true,
         useSystemCA: undefined,
         autoEncryption: undefined,
+        ...defaultOptions,
       });
     });
 
