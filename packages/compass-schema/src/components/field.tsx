@@ -255,7 +255,11 @@ function Field({
           </div>
           <div className={fieldChartContainerStyles}>
             <Minichart
-              fieldName={path}
+              // Convert the string array of paths
+              // to a single string with dots between field names.
+              // Note: This will cause collisions when
+              // there are fields with dots in them.
+              fieldName={path.join('.')}
               type={activeType}
               nestedDocType={nestedDocType}
               actions={actions}
