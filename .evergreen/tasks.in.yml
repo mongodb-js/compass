@@ -55,6 +55,16 @@ tasks:
         vars:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
+  - name: generate-vulnerability-report
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: generate-vulnerability-report
+        vars:
+          debug: 'compass*,electron*,hadron*,mongo*'
+
   # Publish happens in one go to make sure we are not creating multiple github
   # releases in parallel
   - name: publish
@@ -72,7 +82,7 @@ tasks:
           scope: mongodb-compass
       - func: get-all-artifacts
       - func: publish
-  
+
   - name: publish-packages-next
     tags: []
     depends_on:
