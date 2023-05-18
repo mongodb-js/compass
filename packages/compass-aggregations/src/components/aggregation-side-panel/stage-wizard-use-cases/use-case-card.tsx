@@ -12,14 +12,11 @@ import type { StageWizardUseCase } from '.';
 import { useDraggable } from '@dnd-kit/core';
 
 export type DraggedUseCase = Pick<
-  UseCaseCardProps,
+  StageWizardUseCase,
   'id' | 'title' | 'stageOperator'
 >;
 
-type UseCaseCardProps = Pick<
-  StageWizardUseCase,
-  'id' | 'title' | 'stageOperator'
-> & {
+type UseCaseCardProps = DraggedUseCase & {
   onSelect: () => void;
 };
 
@@ -43,8 +40,8 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
     <KeylineCard
       ref={ref}
       data-testid={`use-case-${id}`}
-      className={cardStyles}
       onClick={props.onSelect}
+      className={cardStyles}
       {...props}
     >
       <Body className={cardTitleStyles}>{title}</Body>

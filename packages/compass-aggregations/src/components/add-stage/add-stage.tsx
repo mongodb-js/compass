@@ -6,7 +6,6 @@ import {
   css,
   spacing,
   Link,
-  cx,
 } from '@mongodb-js/compass-components';
 import { PIPELINE_HELP_URI } from '../../constants';
 
@@ -22,13 +21,12 @@ const linkContainerStyles = css({
 export type AddStageProps = {
   variant: 'button' | 'icon';
   onAddStage: () => void;
-  className?: string;
 };
 
-export const AddStage = ({ className, onAddStage, variant }: AddStageProps) => {
-  if (variant === 'icon') {
-    return (
-      <div className={cx(containerStyles, className)}>
+export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
+  return (
+    <div className={containerStyles}>
+      {variant === 'icon' ? (
         <IconButton
           aria-label="Add stage"
           title="Add stage"
@@ -37,26 +35,24 @@ export const AddStage = ({ className, onAddStage, variant }: AddStageProps) => {
         >
           <Icon glyph="PlusWithCircle"></Icon>
         </IconButton>
-      </div>
-    );
-  }
+      ) : (
+        <>
+          <Button
+            data-testid="add-stage"
+            onClick={() => onAddStage()}
+            variant="primary"
+            leftGlyph={<Icon glyph="Plus"></Icon>}
+          >
+            Add Stage
+          </Button>
 
-  return (
-    <div className={cx(containerStyles, className)}>
-      <Button
-        data-testid="add-stage"
-        onClick={() => onAddStage()}
-        variant="primary"
-        leftGlyph={<Icon glyph="Plus"></Icon>}
-      >
-        Add Stage
-      </Button>
-
-      <div className={linkContainerStyles}>
-        <Link href={PIPELINE_HELP_URI}>
-          Learn more about aggregation pipeline stages
-        </Link>
-      </div>
+          <div className={linkContainerStyles}>
+            <Link href={PIPELINE_HELP_URI}>
+              Learn more about aggregation pipeline stages
+            </Link>
+          </div>
+        </>
+      )}
     </div>
   );
 };
