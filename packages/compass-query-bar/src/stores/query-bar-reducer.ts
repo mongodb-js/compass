@@ -189,7 +189,7 @@ const emitOnQueryChange = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
     const { lastAppliedQuery, fields } = getState();
     const query = pickValuesFromFields(fields);
-    if (lastAppliedQuery === null || isEqual(lastAppliedQuery, query)) {
+    if (lastAppliedQuery === null || !isEqual(lastAppliedQuery, query)) {
       localAppRegistry?.emit('query-changed', query);
     }
   };
@@ -228,8 +228,8 @@ export const applyQuery = (): QueryBarThunkAction<
       return false;
     }
     const query = pickValuesFromFields(fields);
-    dispatch({ type: QueryBarActions.ApplyQuery, query });
     dispatch(emitOnQueryChange());
+    dispatch({ type: QueryBarActions.ApplyQuery, query });
     localAppRegistry?.emit('query-applied', query);
     return query;
   };
@@ -354,6 +354,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ResetQueryAction>(action, QueryBarActions.ResetQuery)) {
     return {
       ...state,
+      lastAppliedQuery: null,
       fields: mapQueryToValidQueryFields(DEFAULT_FIELD_VALUES),
     };
   }

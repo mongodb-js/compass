@@ -211,7 +211,6 @@ describe('DataService', function () {
         await mongoClient.db(testDatabaseName).createCollection('fle2', {
           encryptedFields: {
             escCollection: 'enxcol_.fle2.esc',
-            eccCollection: 'enxcol_.fle2.ecc',
             ecocCollection: 'enxcol_.fle2.ecoc',
             fields: [],
           },
@@ -225,7 +224,6 @@ describe('DataService', function () {
         ).map(({ name }) => name);
         expect(items).to.include('fle2');
         expect(items).to.include('enxcol_.fle2.esc');
-        expect(items).to.include('enxcol_.fle2.ecc');
         expect(items).to.include('enxcol_.fle2.ecoc');
 
         await dataService.dropCollection(`${testDatabaseName}.fle2`);
@@ -239,7 +237,6 @@ describe('DataService', function () {
 
         expect(items).to.not.include('fle2');
         expect(items).to.not.include('enxcol_.fle2.esc');
-        expect(items).to.not.include('enxcol_.fle2.ecc');
         expect(items).to.not.include('enxcol_.fle2.ecoc');
       });
     });

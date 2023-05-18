@@ -43,9 +43,9 @@
     "test": "mocha",
     "test-connectivity": "mocha ./src/connect.spec.ts",
     "posttest": "mongodb-runner stop --port=27018",
-    "pretest-csfle": "mongodb-runner start --enterprise --mongodb-version \">=6.0.0\" --topology=replicaset --secondaries=0 --port=27018",
+    "pretest-csfle": "mongodb-runner start --enterprise --mongodb-version \">=7.0.0-rc0\" --topology=replicaset --secondaries=0 --port=27018",
     "test-csfle": "mocha ./src/csfle-collection-tracker.spec.ts ./src/data-service.spec.ts",
-    "posttest-csfle": "mongodb-runner stop --enterprise --mongodb-version \">=6.0.0\" --topology=replicaset --secondaries=0 --port=27018",
+    "posttest-csfle": "mongodb-runner stop --enterprise --mongodb-version \">=7.0.0-rc0\" --topology=replicaset --secondaries=0 --port=27018",
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
@@ -53,12 +53,13 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "mongodb": "^5.3.0"
+    "mongodb": "^5.5.0"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.1.5",
     "@mongodb-js/compass-utils": "^0.3.0",
-    "@mongodb-js/devtools-connect": "^1.4.4",
+    "@mongodb-js/devtools-connect": "^2.1.0",
+    "@mongodb-js/oidc-plugin": "^0.1.4",
     "@mongodb-js/ssh-tunnel": "^2.0.5",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.5.0",
@@ -82,7 +83,7 @@
     "eslint": "^7.25.0",
     "kerberos": "^2.0.0",
     "mocha": "^10.2.0",
-    "mongodb": "^5.3.0",
+    "mongodb": "^5.5.0",
     "mongodb-runner": "^4.10.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
@@ -91,6 +92,6 @@
     "typescript": "^5.0.4"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^2.7.1"
+    "mongodb-client-encryption": "^2.8.0"
   }
 }

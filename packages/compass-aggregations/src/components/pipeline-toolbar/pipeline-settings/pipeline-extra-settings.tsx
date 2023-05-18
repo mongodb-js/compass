@@ -127,7 +127,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
           data-testid="pipeline-toolbar-side-panel-button"
           disabled={pipelineMode === 'as-text'}
         >
-          <Icon glyph="Filter" />
+          <Icon glyph="Wizard" />
         </IconButton>
       )}
       <IconButton

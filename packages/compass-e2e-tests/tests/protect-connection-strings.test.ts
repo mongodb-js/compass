@@ -56,9 +56,9 @@ describe('protectConnectionStrings', function () {
     await browser.saveFavorite(favoriteName, 'color4');
     await browser.selectFavorite(favoriteName);
 
-    expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
-    ).to.equal('mongodb://foo:*****@localhost:12345/?authMechanism=DEFAULT');
+    expect(await browser.getConnectFormConnectionString()).to.equal(
+      'mongodb://foo:*****@localhost:12345/?authMechanism=DEFAULT'
+    );
 
     // Enter edit connection string mode
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
@@ -67,7 +67,12 @@ describe('protectConnectionStrings', function () {
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
 
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.getConnectFormConnectionString(),
+      'hide password when input is not focused'
+    ).to.equal('mongodb://foo:*****@localhost:12345/?authMechanism=DEFAULT');
+    expect(
+      await browser.getConnectFormConnectionString(true),
+      'shows password when input is focused'
     ).to.equal('mongodb://foo:bar@localhost:12345/?authMechanism=DEFAULT');
     await expectCopyConnectionStringToClipboard(
       browser,
@@ -83,9 +88,9 @@ describe('protectConnectionStrings', function () {
 
     await browser.setFeature('protectConnectionStrings', true);
 
-    expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
-    ).to.equal('mongodb://foo:*****@localhost:12345/?authMechanism=DEFAULT');
+    expect(await browser.getConnectFormConnectionString()).to.equal(
+      'mongodb://foo:*****@localhost:12345/?authMechanism=DEFAULT'
+    );
     await expectCopyConnectionStringToClipboard(
       browser,
       favoriteName,

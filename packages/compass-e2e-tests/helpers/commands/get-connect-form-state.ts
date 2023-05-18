@@ -3,15 +3,16 @@ import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
 
 export async function getConnectFormState(
-  browser: CompassBrowser
+  browser: CompassBrowser,
+  isFocused = false
 ): Promise<ConnectFormState> {
   const wasExpanded = await browser.expandAccordion(
     Selectors.ShowConnectionFormButton
   );
 
-  const connectionString = await browser
-    .$(Selectors.ConnectionStringInput)
-    .getValue();
+  const connectionString = await browser.getConnectFormConnectionString(
+    isFocused
+  );
 
   // General
   const initialTab = await browser.navigateToConnectTab('General');

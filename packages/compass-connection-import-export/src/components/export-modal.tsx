@@ -44,7 +44,7 @@ export function ExportConnectionsModal({
       if (result === 'succeeded') {
         openToast('export-succeeded', {
           title: 'Export successful',
-          body: 'Connections successfully exported',
+          description: 'Connections successfully exported',
           variant: 'success',
           timeout: TOAST_TIMEOUT_MS,
         });

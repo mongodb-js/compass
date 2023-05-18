@@ -42,6 +42,8 @@ export default async function connectMongoClientCompass(
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
+    productName: 'MongoDB Compass',
+    productDocsLink: 'https://www.mongodb.com/docs/compass/',
     monitorCommands: true,
     useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
@@ -85,12 +87,12 @@ export default async function connectMongoClientCompass(
   }
 
   async function connectSingleClient(
-    overrideOptions: DevtoolsConnectOptions
+    overrideOptions: Partial<DevtoolsConnectOptions>
   ): Promise<CloneableMongoClient> {
     // Deep clone because of https://jira.mongodb.org/browse/NODE-4124,
     // the options here are being mutated.
     const connectOptions = _.cloneDeep({ ...options, ...overrideOptions });
-    const client = await connectMongoClient(
+    const { client } = await connectMongoClient(
       url,
       connectOptions,
       connectLogger,

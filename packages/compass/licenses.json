@@ -1,0 +1,11 @@
+{
+  "ignoredOrgs": ["@mongodb-js", "@leafygreen-ui", "@mongosh"],
+  "ignoredPackages": [],
+  "licenseOverrides": {
+    "@segment/loosely-validate-event@2.0.0": "MIT",
+    "component-event@0.1.4": "MIT",
+    "delegate-events@1.1.1": "MIT",
+    "events-mixin@1.3.0": "MIT",
+    "sprintf@0.1.3": "BSD-3-Clause"
+  }
+}
