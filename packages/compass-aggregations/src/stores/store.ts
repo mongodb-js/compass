@@ -242,7 +242,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
      * @param {Object} fields - The fields.
      */
     localAppRegistry.on('fields-changed', (fields) => {
-      store.dispatch(fieldsChanged(fields.aceFields));
+      store.dispatch(fieldsChanged(fields.autocompleteFields));
     });
 
     localAppRegistry.on('indexes-changed', (indexes: IndexInfo[]) => {

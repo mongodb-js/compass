@@ -2,13 +2,13 @@
   "fields": [
     {
       "name": "_id",
-      "path": "_id",
+      "path": ["_id"],
       "count": 4,
       "types": [
         {
           "name": "ObjectId",
           "bsonType": "ObjectId",
-          "path": "_id",
+          "path": ["_id"],
           "count": 4,
           "values": [
             {
@@ -37,13 +37,13 @@
     },
     {
       "name": "review",
-      "path": "review",
+      "path": ["review"],
       "count": 1,
       "types": [
         {
           "name": "Undefined",
           "type": "Undefined",
-          "path": "review",
+          "path": ["review"],
           "count": 3,
           "totalCount": 0,
           "probability": 0.75,
@@ -53,18 +53,18 @@
         {
           "name": "Document",
           "bsonType": "Document",
-          "path": "review",
+          "path": ["review"],
           "count": 1,
           "fields": [
             {
               "name": "_id",
-              "path": "review._id",
+              "path": ["review", "_id"],
               "count": 1,
               "types": [
                 {
                   "name": "Number",
                   "bsonType": "Number",
-                  "path": "review._id",
+                  "path": ["review", "_id"],
                   "count": 1,
                   "values": [3],
                   "totalCount": 0,
@@ -80,13 +80,13 @@
             },
             {
               "name": "rating",
-              "path": "review.rating",
+              "path": ["review", "rating"],
               "count": 1,
               "types": [
                 {
                   "name": "Number",
                   "bsonType": "Number",
-                  "path": "review.rating",
+                  "path": ["review", "rating"],
                   "count": 1,
                   "values": [9],
                   "totalCount": 0,
@@ -102,13 +102,13 @@
             },
             {
               "name": "text",
-              "path": "review.text",
+              "path": ["review", "text"],
               "count": 1,
               "types": [
                 {
                   "name": "String",
                   "bsonType": "String",
-                  "path": "review.text",
+                  "path": ["review", "text"],
                   "count": 1,
                   "values": ["it was great!"],
                   "totalCount": 0,
@@ -134,30 +134,30 @@
     },
     {
       "name": "reviews",
-      "path": "reviews",
+      "path": ["reviews"],
       "count": 3,
       "types": [
         {
           "name": "Array",
           "bsonType": "Array",
-          "path": "reviews",
+          "path": ["reviews"],
           "count": 3,
           "types": [
             {
               "name": "Document",
               "bsonType": "Document",
-              "path": "reviews",
+              "path": ["reviews"],
               "count": 6,
               "fields": [
                 {
                   "name": "_id",
-                  "path": "reviews._id",
+                  "path": ["reviews", "_id"],
                   "count": 5,
                   "types": [
                     {
                       "name": "Number",
                       "bsonType": "Number",
-                      "path": "reviews._id",
+                      "path": ["reviews", "_id"],
                       "count": 5,
                       "values": [1, 2, 2, 1, 2],
                       "totalCount": 0,
@@ -168,7 +168,7 @@
                     {
                       "name": "Undefined",
                       "type": "Undefined",
-                      "path": "reviews._id",
+                      "path": ["reviews", "_id"],
                       "count": 1,
                       "totalCount": 0,
                       "probability": 0.16666666666666666,
@@ -183,13 +183,13 @@
                 },
                 {
                   "name": "rating",
-                  "path": "reviews.rating",
+                  "path": ["reviews", "rating"],
                   "count": 5,
                   "types": [
                     {
                       "name": "Number",
                       "bsonType": "Number",
-                      "path": "reviews.rating",
+                      "path": ["reviews", "rating"],
                       "count": 5,
                       "values": [4, 1, 1, 4, 1],
                       "totalCount": 0,
@@ -200,7 +200,7 @@
                     {
                       "name": "Undefined",
                       "type": "Undefined",
-                      "path": "reviews.rating",
+                      "path": ["reviews", "rating"],
                       "count": 1,
                       "totalCount": 0,
                       "probability": 0.16666666666666666,
@@ -215,13 +215,13 @@
                 },
                 {
                   "name": "text",
-                  "path": "reviews.text",
+                  "path": ["reviews", "text"],
                   "count": 5,
                   "types": [
                     {
                       "name": "String",
                       "bsonType": "String",
-                      "path": "reviews.text",
+                      "path": ["reviews", "text"],
                       "count": 5,
                       "values": [
                         "great!",
@@ -238,7 +238,7 @@
                     {
                       "name": "Undefined",
                       "type": "Undefined",
-                      "path": "reviews.text",
+                      "path": ["reviews", "text"],
                       "count": 1,
                       "totalCount": 0,
                       "probability": 0.16666666666666666,
@@ -264,7 +264,7 @@
         {
           "name": "Undefined",
           "type": "Undefined",
-          "path": "reviews",
+          "path": ["reviews"],
           "count": 1,
           "totalCount": 0,
           "probability": 0.25,

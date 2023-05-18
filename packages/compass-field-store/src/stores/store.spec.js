@@ -99,7 +99,7 @@ describe('FieldStore', function () {
           'harry',
           'potter',
         ]);
-        expect(state.aceFields).to.deep.equal(expected);
+        expect(state.autocompleteFields).to.deep.equal(expected);
       }, done);
       appRegistry.emit('documents-refreshed', null, [doc]);
     });
@@ -111,7 +111,7 @@ describe('FieldStore', function () {
           'harry',
           'potter',
         ]);
-        expect(state.aceFields).to.deep.equal(expected);
+        expect(state.autocompleteFields).to.deep.equal(expected);
       }, done);
       appRegistry.emit('document-inserted', { docs: [doc] });
     });
@@ -123,7 +123,7 @@ describe('FieldStore', function () {
           'harry',
           'potter',
         ]);
-        expect(state.aceFields).to.deep.equal(expected);
+        expect(state.autocompleteFields).to.deep.equal(expected);
       }, done);
       appRegistry.emit('documents-paginated', null, [doc]);
     });
@@ -153,14 +153,14 @@ describe('FieldStore', function () {
         expect(spy.args[0][1]).to.deep.equal({
           fields: {},
           topLevelFields: [],
-          aceFields: [],
+          autocompleteFields: [],
         });
         expect(spy.args[1][0]).to.equal('fields-changed');
         expect(Object.keys(spy.args[1][1].fields)).to.have.all.members([
           'harry',
           'potter',
         ]);
-        expect(spy.args[1][1].aceFields).to.deep.equal([
+        expect(spy.args[1][1].autocompleteFields).to.deep.equal([
           {
             name: 'harry',
             value: 'harry',
@@ -188,7 +188,7 @@ describe('FieldStore', function () {
           'harry',
           'potter',
         ]);
-        expect(state.aceFields).to.deep.equal([
+        expect(state.autocompleteFields).to.deep.equal([
           {
             name: 'harry',
             value: 'harry',
@@ -220,7 +220,7 @@ describe('FieldStore', function () {
           'ron',
           'weasley',
         ]);
-        expect(state.aceFields).to.deep.equal([
+        expect(state.autocompleteFields).to.deep.equal([
           {
             name: 'harry',
             value: 'harry',
@@ -275,7 +275,7 @@ describe('FieldStore', function () {
             'hermione',
             'granger',
           ]);
-          expect(state.aceFields).to.deep.equal([
+          expect(state.autocompleteFields).to.deep.equal([
             {
               name: 'harry',
               value: 'harry',
@@ -335,7 +335,7 @@ describe('FieldStore', function () {
             'reviews.rating',
             'reviews.text',
           ]);
-          expect(state.aceFields).to.deep.equal([
+          expect(state.autocompleteFields).to.deep.equal([
             {
               name: 'harry',
               value: 'harry',
@@ -454,7 +454,7 @@ describe('FieldStore', function () {
             a: {
               count: 1,
               name: 'a',
-              path: 'a',
+              path: ['a'],
               type: 'Array',
             },
           };
@@ -470,7 +470,7 @@ describe('FieldStore', function () {
             a: {
               count: 1,
               name: 'a',
-              path: 'a',
+              path: ['a'],
               type: 'Array',
             },
           };
@@ -486,7 +486,7 @@ describe('FieldStore', function () {
             a: {
               count: 1,
               name: 'a',
-              path: 'a',
+              path: ['a'],
               type: 'Array',
             },
           };
@@ -507,7 +507,7 @@ describe('FieldStore', function () {
             a: {
               count: 1,
               name: 'a',
-              path: 'a',
+              path: ['a'],
               type: 'Array',
             },
           };
@@ -535,7 +535,7 @@ describe('FieldStore', function () {
           a: {
             count: 2,
             name: 'a',
-            path: 'a',
+            path: ['a'],
             type: 'Array',
           },
         };
@@ -570,14 +570,13 @@ describe('FieldStore', function () {
             a: {
               count: 1,
               name: 'a',
-              nestedFields: ['a.b'],
-              path: 'a',
+              path: ['a'],
               type: 'Array',
             },
             'a.b': {
               count: 2,
               name: 'b',
-              path: 'a.b',
+              path: ['a', 'b'],
               type: 'String',
             },
           };
@@ -593,14 +592,13 @@ describe('FieldStore', function () {
             a: {
               count: 1,
               name: 'a',
-              nestedFields: ['a.b'],
-              path: 'a',
+              path: ['a'],
               type: 'Array',
             },
             'a.b': {
               count: 4,
               name: 'b',
-              path: 'a.b',
+              path: ['a', 'b'],
               type: 'String',
             },
           };
@@ -621,21 +619,19 @@ describe('FieldStore', function () {
             a: {
               count: 1,
               name: 'a',
-              nestedFields: ['a.b'],
-              path: 'a',
+              path: ['a'],
               type: 'Array',
             },
             'a.b': {
               count: 2,
               name: 'b',
-              nestedFields: ['a.b.c'],
-              path: 'a.b',
+              path: ['a', 'b'],
               type: 'Document',
             },
             'a.b.c': {
               count: 2,
               name: 'c',
-              path: 'a.b.c',
+              path: ['a', 'b', 'c'],
               type: 'String',
             },
           };
@@ -652,28 +648,25 @@ describe('FieldStore', function () {
           a: {
             count: 1,
             name: 'a',
-            nestedFields: ['a.b'],
-            path: 'a',
+            path: ['a'],
             type: 'Document',
           },
           'a.b': {
             count: 1,
             name: 'b',
-            nestedFields: ['a.b.c'],
-            path: 'a.b',
+            path: ['a', 'b'],
             type: 'Array',
           },
           'a.b.c': {
             count: 2,
             name: 'c',
-            nestedFields: ['a.b.c.d'],
-            path: 'a.b.c',
+            path: ['a', 'b', 'c'],
             type: 'Document',
           },
           'a.b.c.d': {
             count: 2,
             name: 'd',
-            path: 'a.b.c.d',
+            path: ['a', 'b', 'c', 'd'],
             type: 'Array',
           },
         };
@@ -712,21 +705,20 @@ describe('FieldStore', function () {
           foo1: {
             count: 1,
             name: 'foo1',
-            nestedFields: ['foo1.age', 'foo1.name'],
-            path: 'foo1',
+            path: ['foo1'],
             type: 'Array',
           },
           'foo1.age': {
             count: 1,
             name: 'age',
-            path: 'foo1.age',
+            path: ['foo1', 'age'],
             type: 'Number',
           },
           // The following was a string, not a field
           'foo1.name': {
             count: 1,
             name: 'name',
-            path: 'foo1.name',
+            path: ['foo1', 'name'],
             type: 'String',
           },
         };
@@ -744,21 +736,20 @@ describe('FieldStore', function () {
           foo1: {
             count: 1,
             name: 'foo1',
-            nestedFields: ['foo1.age', 'foo1.path'],
-            path: 'foo1',
+            path: ['foo1'],
             type: 'Array',
           },
           'foo1.age': {
             count: 1,
             name: 'age',
-            path: 'foo1.age',
+            path: ['foo1', 'age'],
             type: 'Number',
           },
           // The following was a string, not a field
           'foo1.path': {
             count: 1,
             name: 'path',
-            path: 'foo1.path',
+            path: ['foo1', 'path'],
             type: 'String',
           },
         };

@@ -197,7 +197,7 @@ describe('Aggregation Store', function () {
             },
           },
           topLevelFields: ['harry', 'potter'],
-          aceFields: [
+          autocompleteFields: [
             {
               name: 'harry',
               value: 'harry',
