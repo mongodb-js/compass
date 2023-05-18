@@ -232,38 +232,12 @@ const configureStore = (options = {}) => {
       this.state.abortController?.abort();
     },
 
-    // _calculateDepthByPath(input, paths) {
-    //   if (!input) {
-    //     return paths;
-    //   }
-    //   input.forEach(({ types, fields, path, bsonType }) => {
-    //     /*
-    //      * Given the structure of schema, in case of an array,
-    //      * the path to an array item is still the same because indexes are not
-    //      * counted and for that reason we have an increment of 1 for arrays.
-    //      */
-    //     const increment = bsonType === 'Array' ? 1 : 0;
-    //     const score = path.split('.').length + increment;
-    //     if (!paths[path] || paths[path] < score) {
-    //       paths[path] = score;
-    //     }
-    //     this._calculateDepthByPath(types ?? fields, paths);
-    //   });
-
-    //   return paths;
-    // },
-
     _trackSchemaAnalyzed(analysisTime) {
       const { schema } = this.state;
       // Use a function here to a) ensure that the calculations here
       // are only made when telemetry is enabled and b) that errors from
       // those calculations are caught and logged rather than displayed to
       // users as errors from the core schema analysis logic.
-      // TODO(COMPASS-6809): We know that calculateSchemaDepth() can fail
-      // with a recursion/max call stack size exceeded error, but don't quite
-      // know why. (MongoDB servers reject BSON documents with more than 200
-      // levels of nesting, so deeply nested BSON documents do not seem like
-      // a likely cause.)
       const trackEvent = () => ({
         with_filter: Object.entries(this.query.filter).length > 0,
         schema_width: schema ? schema.fields.length : 0,

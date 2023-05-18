@@ -106,23 +106,23 @@ function _calculateSchemaFieldDepth(
         _calculateSchemaFieldDepth((fieldOrType as DocumentSchemaType).fields) +
         1; /* Increment by one when we go a level deeper. */
 
-      deepestPath = Math.max(deepestFieldPath + 1, deepestPath);
+      deepestPath = Math.max(deepestFieldPath, deepestPath);
     } else if (
       (fieldOrType as ArraySchemaType).bsonType === 'Array' ||
       (fieldOrType as SchemaField).types
     ) {
-      const deepestFieldPath = _calculateSchemaFieldDepth(
-        (fieldOrType as ArraySchemaType | SchemaField).types
-      );
-
       // Increment by one when we go a level deeper.
       const increment =
         (fieldOrType as ArraySchemaType).bsonType === 'Array' ? 1 : 0;
-      deepestPath = Math.max(deepestFieldPath + increment, deepestPath);
+      const deepestFieldPath =
+        _calculateSchemaFieldDepth(
+          (fieldOrType as ArraySchemaType | SchemaField).types
+        ) + increment;
+
+      deepestPath = Math.max(deepestFieldPath, deepestPath);
     }
   }
 
-  // TODO: Increment by not 1
   return deepestPath;
 }
 

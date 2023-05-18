@@ -188,8 +188,8 @@ function Field({
   const activeShownTypes = useMemo(() => sortTypes(types), [types]);
   const nestedDocType = useMemo(() => getNestedDocType(types), [types]);
 
-  const fieldAccordionButtonId = `$$${path.join('.$$')}.${name}-button`;
-  const fieldListRegionId = `$$${path.join('.$$')}.${name}-fields-region`;
+  const fieldAccordionButtonId = `${JSON.stringify(path)}.${name}-button`;
+  const fieldListRegionId = `${JSON.stringify(path)}.${name}-fields-region`;
 
   return (
     <KeylineCard className={fieldContainerStyles}>
