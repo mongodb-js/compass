@@ -436,10 +436,6 @@ describe('CSFLECollectionTracker', function () {
           .catch(() => {});
         await metadataClient
           .db(dbName)
-          .dropCollection('enxcol_.test2.ecc')
-          .catch(() => {});
-        await metadataClient
-          .db(dbName)
           .dropCollection('enxcol_.test2.ecoc')
           .catch(() => {});
       });
