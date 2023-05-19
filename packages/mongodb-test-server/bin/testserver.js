@@ -11,6 +11,7 @@ const net = require('net');
 const findUp = require('find-up');
 const yargsParser = require('yargs-parser');
 const { rimraf } = require('rimraf');
+const glob = require('glob');
 
 const isDebug = !!(process.env.DEBUG || '')
   .split(',')
@@ -66,6 +67,49 @@ function readPort(instanceName) {
   return JSON.parse(fs.readFileSync(portPath(instanceName), 'utf-8')).port;
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function readWorkerPids(instanceName, port) {
+  return fs
+    .readdirSync(getInstancePidsPath(instanceName, port))
+    .filter((x) => x.endsWith('.pid'))
+    .map((filename) =>
+      fs
+        .readFileSync(
+          path.join(getInstancePidsPath(instanceName, port), filename),
+          'utf-8'
+        )
+        .trim()
+    );
+}
+
+function readServerPids(instanceName, port) {
+  const instanceDataPath = getInstanceDataPath(instanceName, port);
+  return glob
+    .sync('**/mongo[d|s].lock', {
+      cwd: instanceDataPath,
+    })
+    .map((filename) =>
+      fs.readFileSync(path.join(instanceDataPath, filename), 'utf-8').trim()
+    );
+}
+
+function isRunning(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    if (e.code === 'EPERM') {
+      console.info('Got EPERM checking pid = ', pid);
+      return true;
+    } else if (e.code === 'ESRCH') {
+      return false;
+    } else {
+      throw e;
+    }
+  }
+}
+
 async function retry(condition) {
   let attempt = 0;
 
@@ -77,7 +121,7 @@ async function retry(condition) {
       console.info(`Attempt ${attempt} failed`, e);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await sleep(5000);
   }
 
   throw new Error('All the attempts failed.');
@@ -185,31 +229,38 @@ async function start(instanceName, options) {
 
 async function stop(instanceName) {
   const port = readPort(instanceName);
+  const mongodbRunnerWorkerPids = readWorkerPids(instanceName, port);
+  const serverPids = readServerPids(instanceName, port);
+
+  console.log({ serverPids });
 
   try {
     await assertPortOpen(port);
   } catch (err) {
-    console.error('Server port was already closed:', err);
-    console.warn('Running mongodb-runner close to clean up');
+    console.info(
+      'Server port is already closed, the server has been killed or crashed',
+      err
+    );
   }
 
-  try {
-    const mongodbRunnerArgs = [
-      'stop',
-      `--dbpath=${getInstanceDataPath(instanceName, port)}`,
-      `--port=${port}`,
-      `--pidpath=${getInstancePidsPath(instanceName, port)}`,
-    ];
-
-    const mongodbRunnerPath = getMongodbRunnerPath();
-    console.info('Running', mongodbRunnerPath, mongodbRunnerArgs);
-    crossSpawn.sync(mongodbRunnerPath, mongodbRunnerArgs, { stdio: 'inherit' });
-  } catch (err) {
-    console.warn('mongodb-runner stop failed', err);
-    console.warn('checking if the server is stopped anyway ...');
-  }
-
+  const processes = [...mongodbRunnerWorkerPids, ...serverPids];
+  await sendSignalToAll(processes, 'SIGKILL');
   await waitForStopped(port);
+}
+
+async function sendSignalToAll(pids, sig) {
+  const runningProcesses = pids.filter(isRunning);
+
+  if (runningProcesses.length) {
+    for (const pid of runningProcesses) {
+      try {
+        console.log(`sending ${sig} to`, pid);
+        process.kill(pid, sig);
+      } catch (e) {
+        console.info(e);
+      }
+    }
+  }
 }
 
 async function main() {

@@ -72,6 +72,7 @@
     "cross-spawn": "^7.0.3",
     "find-up": "^4.1.0",
     "get-port": "^5.1.1",
+    "glob": "^10.2.5",
     "mongodb": "^5.5.0",
     "mongodb-runner": "^4.10.0",
     "rimraf": "^5.0.1",
