@@ -232,8 +232,6 @@ async function stop(instanceName) {
   const mongodbRunnerWorkerPids = readWorkerPids(instanceName, port);
   const serverPids = readServerPids(instanceName, port);
 
-  console.log({ serverPids });
-
   try {
     await assertPortOpen(port);
   } catch (err) {

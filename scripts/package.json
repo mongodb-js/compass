@@ -41,7 +41,7 @@
     "@mongodb-js/webpack-config-compass": "^1.0.8",
     "chalk": "^4.1.2",
     "electron": "^22.3.10",
-    "glob": "^7.1.6",
+    "glob": "^10.2.5",
     "jsdom": "^21.1.0",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",

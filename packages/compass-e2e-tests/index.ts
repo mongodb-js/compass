@@ -1,8 +1,7 @@
 #!/usr/bin/env ts-node
 import path from 'path';
 import fs from 'fs';
-import { promisify } from 'util';
-import glob from 'glob';
+import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
 import Mocha from 'mocha';
 import Debug from 'debug';
@@ -161,7 +160,7 @@ async function main() {
     }
   }
 
-  const rawTests = await promisify(glob)('tests/**/*.{test,spec}.ts', {
+  const rawTests = await glob('tests/**/*.{test,spec}.ts', {
     cwd: __dirname,
   });
 
