@@ -44,6 +44,14 @@ function initializeLogDir() {
   fs.mkdirSync(path.join(instancesRoot, 'logs'), { recursive: true });
 }
 
+function getInstancePidsPath(instanceName, port) {
+  return path.join(instancesRoot, 'pids', `${instanceName}-${port}`);
+}
+
+function initializePidsDir(instanceName, port) {
+  fs.mkdirSync(getInstancePidsPath(instanceName, port), { recursive: true });
+}
+
 function portPath(instanceName) {
   return path.join(instancesRoot, 'ports', `${instanceName}.port`);
 }
@@ -151,6 +159,7 @@ async function start(instanceName, options) {
   // before doing anything
   await waitForStopped(port);
   initializeLogDir();
+  initializePidsDir(instanceName, port);
 
   const instanceDataPath = getInstanceDataPath(instanceName, port);
 
@@ -163,6 +172,7 @@ async function start(instanceName, options) {
     `--dbpath=${getInstanceDataPath(instanceName, port)}`,
     `--logpath=${getInstanceLogPath(instanceName)}`,
     `--port=${port}`,
+    `--pidpath=${getInstancePidsPath(instanceName, port)}`,
     ...options.filter(
       (opt, i) => !(opt.startsWith('--port') || options[i - 1] === '--port')
     ),
@@ -187,8 +197,9 @@ async function stop(instanceName) {
   try {
     const mongodbRunnerArgs = [
       'stop',
-      `--dbpath=${getInstanceDataPath(instanceName)}`,
+      `--dbpath=${getInstanceDataPath(instanceName, port)}`,
       `--port=${port}`,
+      `--pidpath=${getInstancePidsPath(instanceName, port)}`,
     ];
 
     const mongodbRunnerPath = getMongodbRunnerPath();
@@ -204,7 +215,7 @@ async function stop(instanceName) {
 
 async function main() {
   const argv = process.argv.slice(2);
-  const invalidOpts = ['--dbpath', 'logpath'];
+  const invalidOpts = ['--dbpath', '--logpath', '--pidpath'];
   if (argv.find((arg) => invalidOpts.some((opt) => arg.startsWith(opt)))) {
     throw new Error(
       `${invalidOpts.join(', ')} mongodb-runner options are not allowed.`
