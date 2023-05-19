@@ -313,7 +313,7 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
 
     if (fileType === 'csv') {
       promise = importCSV({
-        dataService,
+        dataService: dataService!,
         ns,
         input,
         output: errorLogWriteStream,
@@ -328,7 +328,7 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
       });
     } else {
       promise = importJSON({
-        dataService: dataService,
+        dataService: dataService!,
         ns,
         input,
         output: errorLogWriteStream,
