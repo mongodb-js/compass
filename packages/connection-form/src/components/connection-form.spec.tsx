@@ -8,8 +8,8 @@ import {
 } from '@testing-library/react';
 import { expect } from 'chai';
 
-import ConnectForm from './connect-form';
-import type { ConnectFormProps } from './connect-form';
+import ConnectForm from './connection-form';
+import type { ConnectFormProps } from './connection-form';
 import Sinon from 'sinon';
 import preferences from 'compass-preferences-model';
 import { defaultConnectionString } from '../constants/default-connection';

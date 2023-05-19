@@ -24,7 +24,7 @@ import { cloneDeep } from 'lodash';
 
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import ConnectFormActions from './connect-form-actions';
+import ConnectFormActions from './connection-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
