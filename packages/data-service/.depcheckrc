@@ -1,4 +1,5 @@
 ignores: [
+  "@mongodb-js/mongodb-test-server",
   "ts-node",
   "@mongodb-js/prettier-config-compass",
   "@mongodb-js/tsconfig-compass",

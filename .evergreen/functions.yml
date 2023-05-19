@@ -75,7 +75,7 @@ post:
         - src/.deps/.npm/_logs/*.log
         - src/packages/compass-e2e-tests/.log/**/*
         - src/packages/compass-e2e-tests/.nyc_output/coverage.json
-        - ~/.mongodb/runner/*.log
+        - src/.testserver/logs
       remote_file: ${project}/${revision}_${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
   - command: attach.results
