@@ -20,7 +20,9 @@ type UseCaseCardProps = DraggedUseCase & {
   onSelect: () => void;
 };
 
-type UseCaseCardLayoutProps = Partial<UseCaseCardProps> & DraggedUseCase;
+type UseCaseCardLayoutProps = DraggedUseCase & {
+  onClick?: () => void;
+};
 
 const cardStyles = css({
   cursor: 'pointer',
@@ -40,7 +42,6 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
     <KeylineCard
       ref={ref}
       data-testid={`use-case-${id}`}
-      onClick={props.onSelect}
       className={cardStyles}
       {...props}
     >
@@ -75,7 +76,7 @@ const UseCaseCard = ({
       id={id}
       title={title}
       stageOperator={stageOperator}
-      onSelect={onSelect}
+      onClick={onSelect}
       ref={setNodeRef}
       {...attributes}
       {...listeners}
