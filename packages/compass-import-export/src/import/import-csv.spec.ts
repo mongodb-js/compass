@@ -24,10 +24,8 @@ import { importCSV } from './import-csv';
 import { formatCSVHeaderName } from '../csv/csv-utils';
 import type { CSVParsableFieldType, PathPart } from '../csv/csv-types';
 import type { ErrorJSON } from '../import/import-types';
-import { createDebug } from '../utils/logger';
 
 temp.track();
-const debug = createDebug('import-csv:test');
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -244,8 +242,6 @@ describe('importCSV', function () {
 
         const output = temp.createWriteStream();
 
-        debug('output path', output.path);
-
         const result = await importCSV({
           dataService,
           ns,
@@ -257,6 +253,7 @@ describe('importCSV', function () {
           abortSignal: abortController.signal,
           progressCallback,
           ignoreEmptyStrings: true,
+          stopOnErrors: true,
         });
 
         expect(result).to.deep.equal({
@@ -305,9 +302,6 @@ describe('importCSV', function () {
         } else {
           expectedDocs = docs;
         }
-
-        const errorLog = await fs.promises.readFile(output.path, 'utf8');
-        expect(errorLog).to.equal('');
       });
     }
   }

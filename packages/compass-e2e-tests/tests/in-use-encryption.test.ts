@@ -141,14 +141,10 @@ describe('CSFLE / QE', function () {
     });
   });
 
-  describe('server version gte 6.0.0', function () {
+  describe('server version gte 7.0.0', function () {
     before(function () {
-      if (!serverSatisfies('>= 6.0.0', true)) {
-        return this.skip();
-      }
-
-      // temporarily disable for latest-alpha because the CSFLE fails until updated
-      if (!serverSatisfies('<= 6.x.x', true)) {
+      // Queryable Encryption v2 only available on 7.0+
+      if (!serverSatisfies('>= 7.0', true)) {
         return this.skip();
       }
     });
@@ -244,12 +240,10 @@ describe('CSFLE / QE', function () {
       let compass: Compass;
       let browser: CompassBrowser;
       let plainMongo: MongoClient;
-      let hasRangeSupport = false;
 
       before(async function () {
         compass = await beforeTests();
         browser = compass.browser;
-        hasRangeSupport = serverSatisfies('>= 6.2.0', true);
       });
 
       beforeEach(async function () {
@@ -276,11 +270,8 @@ describe('CSFLE / QE', function () {
                   bsonType: 'string'
                 }
               ]
-            }
-            ${
-              hasRangeSupport
-                ? `
-            , '${databaseName}.${collectionNameRange}': {
+            },
+            '${databaseName}.${collectionNameRange}': {
               fields: [
                 {
                   path: 'date',
@@ -295,9 +286,6 @@ describe('CSFLE / QE', function () {
                   }]
                 }
               ]
-            }
-            `
-                : ``
             }
           }`,
         });
@@ -459,10 +447,6 @@ describe('CSFLE / QE', function () {
         ['range', collectionNameRange],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
-          if (mode === 'range' && !hasRangeSupport) {
-            return this.skip();
-          }
-
           const [field, oldValue, newValue] =
             mode !== 'range'
               ? ['phoneNumber', '"30303030"', '"10101010"']
@@ -838,6 +822,151 @@ describe('CSFLE / QE', function () {
           name: '"Person Z"',
         });
       });
+    });
+  });
+
+  describe('server version gte 6.0 and lt 7.0', function () {
+    const databaseName = 'db-for-fle';
+    const collectionName = 'my-encrypted-collection';
+
+    let compass: Compass;
+    let browser: CompassBrowser;
+
+    before(async function () {
+      if (!serverSatisfies('>= 6.0', true)) {
+        return this.skip();
+      }
+
+      compass = await beforeTests();
+      browser = compass.browser;
+    });
+
+    afterEach(async function () {
+      if (compass) {
+        await afterTest(compass, this.currentTest);
+      }
+    });
+
+    after(async function () {
+      if (compass) {
+        await afterTests(compass, this.currentTest);
+      }
+    });
+
+    it('can read QE data stored in a mongodb 6 database', async function () {
+      // connect without QE and insert some fixture data that we generated against a 6.x database using the shell
+      await browser.connectWithConnectionForm({
+        hosts: [CONNECTION_HOSTS],
+      });
+
+      await browser.shellEval(`use ${databaseName}`);
+
+      // insert the dataKey that was used to encrypt the payloads used below
+      await browser.shellEval(
+        'dataKey = new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1");'
+      );
+      await browser.shellEval(`db.getCollection("keyvault").insertOne({
+        _id: new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1"),
+        keyMaterial: Binary.createFromHexString("519e2b15d20f00955a3960aab31e70a8e3fdb661129ef0d8a752291599488f8fda23ca64ddcbced93dbc715d03f45ab53a8e8273f2230c41c0e64d9ef746d6959cbdc1abcf0e9d020856e2da09a91ef129ac60ef13a98abcd5ee0cbfba21f1de153974996ab002bddccf7dc0268fed90a172dc373e90b63bc2369a5a1bfc78e0c2d7d81e65e970a38ca585248fef53b70452687024b8ecd308930a25414518e3", 0),
+        creationDate: ISODate("2023-05-05T10:58:12.473Z"),
+        updateDate: ISODate("2023-05-05T10:58:12.473Z"),
+        status: 0,
+        masterKey: { provider: 'local' }
+      });`);
+
+      await browser.shellEval(`db.runCommand({
+        create: '${collectionName}',
+        encryptedFields: {
+          fields: [{
+            keyId: dataKey,
+            path: 'v',
+            bsonType: 'string',
+            queries: [{ queryType: 'equality' }]
+          }]
+        }
+      });`);
+
+      // these payloads were encrypted using dataKey
+      await browser.shellEval(`db.runCommand({
+        insert: '${collectionName}',
+        documents: [
+          {
+            _id: 'asdf',
+            v: Binary.createFromHexString("072871cd1d83174d0c92be1ac934ed26b1025438da7f9034a7d6bf03452c9b910381a16b4a0d52592ed6eafc64cc45dde441ac136269b4606f197e939fd54dd9fb257ce2c5afe94853b3b150a9101d65a3063f948ce05350fc4a5811eb5f29793dfd5a9cab77c680bba17f91845895cfd080c123e02a3f1c7e5d5c8c6448a0ac7d624669d0306be6fdcea35106062e742bec39a9873de969196ad95960d4bc247e98dc88a33d9c974646c8283178f3198749c7f24dbd66dc5e7ecf42efc08f64b6a646aa50e872a6f30907b54249039f3226af503d2e2e947323", 6),
+            __safeContent__: [
+              Binary.createFromHexString("91865d04a1a1719e2ef89d66eeb8a35515f22470558831fe9494f011e9a209c3", 0)
+            ]
+          },
+          {
+            _id: 'ghjk',
+            v: Binary.createFromHexString("072871cd1d83174d0c92be1ac934ed26b10299f34210f149673b61f0d369f89290577c410b800ff38ed10eec235aef3677d3594c6371dd5b8f8d4c34769228bf7aea00b1754036a5850a4fef25c40969451151695614ae6142e954bab6c72080b5f43ccac774f6a1791bcc2ca4ca8998b9d5148441180631c7d8136034ff5019ca31a082464ec2fdcf212460a121d14dec3b8ee313541dc46689c79636929f0828dfdef7dfd4d53e1a924bbf70be34b1668d9352f6102a32265ec45d9c5cc0d7cf5f9266cf161497ee5b4a9495e16926b09282c6e4029d22d88e", 6),
+            __safeContent__: [
+              Binary.createFromHexString("b04e26633d569cb47b9cbec650d812a597ffdadacb9a61ee7b1661f52228d661", 0)
+            ]
+          }
+        ],
+        bypassDocumentValidation: true
+      });`);
+
+      await browser.shellEval(`db.runCommand({
+        insert: 'enxcol_.${collectionName}.ecoc',
+        documents: [
+          {
+            _id: ObjectId("6454e14689ef42f381f7336b"),
+            fieldName: 'v',
+            value: Binary.createFromHexString("3eb89d3a95cf955ca0c8c56e54018657a45daaf465dd967d9b24895a188d7e3055734f3c0af88302ceab460874f3806fe52fa4541c9f4b32b5cee6c5a6df9399da664f576dd9bde23bce92f5deea0cb3", 0)
+          },
+          {
+            _id: ObjectId("6454e14689ef42f381f73385"),
+            fieldName: 'v',
+            value: Binary.createFromHexString("2299cd805a28efb6503120e0250798f1b19137d8234690d12eb7e3b7fa74edd28e80c26022c00d53f5983f16e7b5abb7c3b95e30f265a7ba36adb290eda39370b30cedba960a4002089eb5de2fd118fc", 0)
+          }
+        ],
+        bypassDocumentValidation: true
+      });`);
+
+      await browser.shellEval(`db.runCommand({
+        insert: 'enxcol_.${collectionName}.esc',
+        documents: [
+          {
+            _id: Binary.createFromHexString("51db700df02cbbfa25498921f858d3a9d5568cabb97f7283e7b3c9d0e3520ac4", 0),
+            value: Binary.createFromHexString("dc7169f28df2c990551b098b8dec8f5b1bfeb65d3f40d0fdb241a518310674a6", 0)
+          },
+          {
+            _id: Binary.createFromHexString("948b3d29e335485b0503ffc6ade6bfa6fce664c2a1d14790a523c09223da3f09", 0),
+            value: Binary.createFromHexString("7622097476c59c0ca5bf9d05a52fe725517e03ad811f6c073b0d0184a9d26131", 0)
+          }
+        ],
+        bypassDocumentValidation: true
+      });`);
+
+      await browser.disconnect();
+
+      // now connect with QE and check that we can query the data stored in a 6.x database
+      await browser.connectWithConnectionForm({
+        hosts: [CONNECTION_HOSTS],
+        fleKeyVaultNamespace: `${databaseName}.keyvault`,
+        fleKey: 'A'.repeat(128),
+      });
+
+      await browser.navigateToCollectionTab(
+        databaseName,
+        collectionName,
+        'Documents'
+      );
+
+      // { v: "123", _id: 'asdf' }
+      // { v: "456", _id: 'ghjk' }
+
+      let decryptedResult = await getFirstListDocument(browser);
+      delete decryptedResult.__safeContent__;
+      expect(decryptedResult).to.deep.equal({ v: '"123"', _id: '"asdf"' });
+
+      // We can't search for the encrypted value, but it does get decrypted
+      await browser.runFindOperation('Documents', '{ _id: "ghjk" }');
+      decryptedResult = await getFirstListDocument(browser);
+      delete decryptedResult.__safeContent__;
+      expect(decryptedResult).to.deep.equal({ v: '"456"', _id: '"ghjk"' });
     });
   });
 });
