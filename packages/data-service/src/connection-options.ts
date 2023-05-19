@@ -1,5 +1,7 @@
 import type { AutoEncryptionOptions } from 'mongodb';
+import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 
+type OIDCOptions = NonNullable<DevtoolsConnectOptions['oidc']>;
 export interface ConnectionOptions {
   /**
    * The connection string to connect to the MongoDB instance including all options set by the user.
@@ -15,6 +17,11 @@ export interface ConnectionOptions {
    * If true, the connection uses the system CA store instead of tlsCAFile or the default Node.js store.
    */
   useSystemCA?: boolean;
+
+  /**
+   * If present the connection should use OIDC authentication.
+   */
+  oidc?: OIDCOptions;
 
   /**
    * Options related to client-side field-level encryption.

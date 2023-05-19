@@ -52,6 +52,8 @@ import type {
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
 } from '../utils/csfle-handler';
+import { handleUpdateOIDCParam } from '../utils/oidc-handler';
+import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
 import { usePreference } from 'compass-preferences-model';
@@ -164,7 +166,8 @@ type ConnectionFormFieldActions =
   | UpdateCsfleStoreCredentialsAction
   | UpdateCsfleAction
   | UpdateCsfleKmsAction
-  | UpdateCsfleKmsTlsAction;
+  | UpdateCsfleKmsTlsAction
+  | UpdateOIDCAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -541,6 +544,13 @@ export function handleConnectionFormFieldUpdate(
     }
     case 'update-csfle-kms-tls-param': {
       return handleUpdateCsfleKmsTlsParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    // TODO: param naming vs option
+    case 'update-oidc-param': {
+      return handleUpdateOIDCParam({
         action,
         connectionOptions: currentConnectionOptions,
       });

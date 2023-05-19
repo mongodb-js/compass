@@ -17,6 +17,7 @@ export type FeatureFlags = {
   showDevFeatureFlags?: boolean;
   enableLgDarkmode?: boolean;
   enableDebugUseCsfleSchemaMap?: boolean;
+  enableOIDC?: boolean;
   enableStageWizard?: boolean;
 };
 
@@ -252,6 +253,23 @@ const featureFlagsProps: Required<{
     global: true,
     description: {
       short: 'CSFLE Schema Map Debugging',
+    },
+  },
+
+  /**
+   * Feature flag for enabling OIDC authentication.
+   * Epic: COMPASS-5955
+   * TODO(COMPASS-6803): Enable/remove this feature flag.
+   */
+  enableOIDC: {
+    type: 'boolean',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'OIDC Authentication',
     },
   },
 

@@ -10,6 +10,7 @@ import preferences, { usePreference } from 'compass-preferences-model';
 const devFeatureFlagFields = [
   'showDevFeatureFlags',
   'enableDebugUseCsfleSchemaMap',
+  'enableOIDC',
   'enableStageWizard',
 ] as const;
 
