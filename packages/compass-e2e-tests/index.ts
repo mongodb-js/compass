@@ -57,7 +57,12 @@ async function setup() {
     debug('Starting MongoDB server');
     crossSpawn.sync(
       'npm',
-      ['run', 'start-server', '--', '--port', String(MONGODB_TEST_SERVER_PORT)],
+      [
+        'run',
+        'start-server',
+        '--',
+        `--port=${String(MONGODB_TEST_SERVER_PORT)}`,
+      ],
       { stdio: 'inherit' }
     );
   }

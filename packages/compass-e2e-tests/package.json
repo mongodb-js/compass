@@ -17,7 +17,7 @@
     "test-packaged": "npm run test -- -- --test-packaged-app",
     "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix",
-    "start-server": "testserver start e2e --port=27017 --topology=replicaset --secondaries=0",
+    "start-server": "testserver start e2e --topology=replicaset --secondaries=0",
     "stop-server": "testserver stop e2e",
     "unzip-fixtures": "ts-node ./scripts/gunzip.ts fixtures/*.gz",
     "testslow": "env DEBUG=hadron*,mongo*,compass* npm run test -- --disable-start-stop --bail",
