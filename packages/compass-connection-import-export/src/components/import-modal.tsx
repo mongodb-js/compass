@@ -6,7 +6,6 @@ import {
   FormFieldContainer,
   FormModal,
   spacing,
-  ToastVariant,
   useToast,
 } from '@mongodb-js/compass-components';
 import { FileInput } from './file-input';
@@ -50,8 +49,8 @@ export function ImportConnectionsModal({
       if (result === 'succeeded') {
         openToast('import-succeeded', {
           title: 'Import successful',
-          body: 'New connections have been added',
-          variant: ToastVariant.Success,
+          description: 'New connections have been added',
+          variant: 'success',
           timeout: TOAST_TIMEOUT_MS,
         });
         afterImport?.();

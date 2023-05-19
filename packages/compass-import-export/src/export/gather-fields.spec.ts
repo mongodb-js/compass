@@ -122,7 +122,7 @@ describe('gatherFields', function () {
           sort: {
             index: -1,
           },
-          projection: { _id: false },
+          projection: { _id: 0 },
         },
         dataService,
       });
@@ -280,25 +280,25 @@ describe('gatherFields', function () {
 describe('createProjectionFromSchemaFields', function () {
   it('builds projections', function () {
     expect(createProjectionFromSchemaFields([])).to.deep.equal({
-      _id: false,
+      _id: 0,
     });
 
     expect(createProjectionFromSchemaFields([['foo']])).to.deep.equal({
-      _id: false,
-      foo: true,
+      _id: 0,
+      foo: 1,
     });
 
     expect(
       createProjectionFromSchemaFields([['foo'], ['foo', 'bar']])
-    ).to.deep.equal({ foo: true, _id: false });
+    ).to.deep.equal({ foo: 1, _id: 0 });
 
     expect(
       createProjectionFromSchemaFields([['foo', 'bar'], ['foo']])
-    ).to.deep.equal({ foo: true, _id: false });
+    ).to.deep.equal({ foo: 1, _id: 0 });
 
     expect(createProjectionFromSchemaFields([['_id'], ['foo']])).to.deep.equal({
-      foo: true,
-      _id: true,
+      foo: 1,
+      _id: 1,
     });
 
     expect(
@@ -307,21 +307,21 @@ describe('createProjectionFromSchemaFields', function () {
         ['fruit', 'pineapple'],
       ])
     ).to.deep.equal({
-      _id: false,
+      _id: 0,
       fruit: {
-        banana: true,
-        pineapple: true,
+        banana: 1,
+        pineapple: 1,
       },
     });
 
     expect(
       createProjectionFromSchemaFields([['pen', 'pineapple', 'apple', 'pen']])
     ).to.deep.equal({
-      _id: false,
+      _id: 0,
       pen: {
         pineapple: {
           apple: {
-            pen: true,
+            pen: 1,
           },
         },
       },
@@ -364,9 +364,11 @@ async function analyzeAndImportCSV(
   assert(typeResult.type === 'csv');
 
   const csvDelimiter = typeResult.csvDelimiter;
+  const newline = typeResult.newline;
   const analyzeResult = await analyzeCSVFields({
     input: fs.createReadStream(filepath),
     delimiter: csvDelimiter,
+    newline,
     ignoreEmptyStrings: true,
   });
 
@@ -400,6 +402,7 @@ async function analyzeAndImportCSV(
     dataService,
     ns: testNS,
     fields,
+    newline,
     input: fs.createReadStream(filepath),
     delimiter: csvDelimiter,
     ignoreEmptyStrings: true,

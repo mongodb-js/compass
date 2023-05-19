@@ -2,6 +2,7 @@
 const path = require('path');
 // @ts-ignore
 const HadronBuildTarget = require('hadron-build/lib/target');
+const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
 
 const {
   createElectronMainConfig,
@@ -11,8 +12,6 @@ const {
   webpack,
   merge,
 } = require('@mongodb-js/webpack-config-compass');
-
-const { createLicensePlugin } = require('./scripts/webpack-licenses');
 
 module.exports = (_env, args) => {
   const opts = {
@@ -98,16 +97,33 @@ module.exports = (_env, args) => {
     HADRON_METRICS_SEGMENT_HOST: null,
   };
 
+  const compileOnlyPlugins = isServe(opts)
+    ? []
+    : [
+        // ignoring type here as JSDoc still uses webpack@4 that is
+        // resolved from plugins not yet updated to the new config
+        /** @type {any} */ (
+          new WebpackDependenciesPlugin({
+            outputFilename: path.resolve(
+              __dirname,
+              '..',
+              '..',
+              '.sbom',
+              'dependencies.json'
+            ),
+            includeExternalProductionDependencies: true,
+            includePackages: ['electron'],
+          })
+        ),
+      ];
+
   return [
     merge(mainConfig, {
       cache,
       externals,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // @ts-ignore
-        createLicensePlugin({
-          outputFilename: 'third-party-notices-main.json',
-        }),
+        ...compileOnlyPlugins,
       ],
     }),
     merge(rendererConfig, {
@@ -118,12 +134,6 @@ module.exports = (_env, args) => {
       externals,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
-        // @ts-ignore
-        createLicensePlugin({
-          outputFilename: 'third-party-notices-renderer.json',
-          // @ts-ignore
-          includeProdPackages: true,
-        }),
 
         // Not a part of common config because mostly a Compass thing that we
         // might be able to get rid of eventually
@@ -133,6 +143,7 @@ module.exports = (_env, args) => {
           jQuery: 'jquery',
           'window.jQuery': 'jquery',
         }),
+        ...compileOnlyPlugins,
       ],
     }),
   ];

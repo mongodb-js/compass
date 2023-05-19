@@ -9,7 +9,6 @@ import {
   spacing,
   ResizableSidebar,
   useToast,
-  ToastVariant,
 } from '@mongodb-js/compass-components';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
@@ -82,15 +81,16 @@ export function Sidebar({
           await navigator.clipboard.writeText(connectionString);
           openToast('copy-to-clipboard', {
             title: 'Success',
-            body: 'Copied to clipboard.',
-            variant: ToastVariant.Success,
+            description: 'Copied to clipboard.',
+            variant: 'success',
             timeout: TOAST_TIMEOUT_MS,
           });
         } catch (err) {
           openToast('copy-to-clipboard', {
             title: 'Error',
-            body: 'An error occurred when copying to clipboard. Please try again.',
-            variant: ToastVariant.Warning,
+            description:
+              'An error occurred when copying to clipboard. Please try again.',
+            variant: 'warning',
             timeout: TOAST_TIMEOUT_MS,
           });
         }

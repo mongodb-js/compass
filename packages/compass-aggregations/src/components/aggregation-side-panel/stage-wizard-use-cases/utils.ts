@@ -43,3 +43,6 @@ export const mapSortDataToStageValue = (
     return acc;
   }, {});
 };
+
+let id = 0;
+export const getNextId = () => id++;

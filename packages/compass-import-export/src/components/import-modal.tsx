@@ -37,9 +37,9 @@ import {
   setFieldType,
 } from '../modules/import';
 import type { RootImportState } from '../stores/import-store';
-import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
+import type { FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
-import type { CSVParsableFieldType } from '../csv/csv-types';
+import type { Delimiter, CSVParsableFieldType } from '../csv/csv-types';
 
 const closeButtonStyles = css({
   marginRight: spacing[2],
@@ -64,6 +64,10 @@ const analyzeContainerStyles = css({
   marginBottom: 0,
 });
 
+const dataTypesLinkStyles = css({
+  marginLeft: spacing[3],
+});
+
 type ImportModalProps = {
   isOpen: boolean;
   ns: string;
@@ -78,8 +82,8 @@ type ImportModalProps = {
    * See `<ImportOptions />`
    */
   selectImportFileName: (fileName: string) => void;
-  setDelimiter: (delimiter: CSVDelimiter) => void;
-  delimiter: CSVDelimiter;
+  setDelimiter: (delimiter: Delimiter) => void;
+  delimiter: Delimiter;
   fileType: AcceptedFileType | '';
   fileName: string;
   stopOnErrors: boolean;
@@ -181,7 +185,7 @@ function ImportModal({
       data-testid="import-modal"
       size={fileType === 'csv' ? 'large' : 'small'}
     >
-      <ModalHeader title="Import" subtitle={`To Collection ${ns}`} />
+      <ModalHeader title="Import" subtitle={`To collection ${ns}`} />
       <ModalBody ref={modalBodyRef}>
         <ImportOptions
           delimiter={delimiter}
@@ -203,8 +207,11 @@ function ImportModal({
                 darkMode ? fieldsHeadingStylesDark : fieldsHeadingStylesLight
               )}
             >
-              Specify Fields and Types{' '}
-              <Link href="https://www.mongodb.com/docs/mongodb-shell/reference/data-types/">
+              Specify Fields and Types
+              <Link
+                className={dataTypesLinkStyles}
+                href="https://www.mongodb.com/docs/mongodb-shell/reference/data-types/"
+              >
                 Learn more about data types
               </Link>
             </Body>

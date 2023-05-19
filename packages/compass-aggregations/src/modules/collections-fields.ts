@@ -5,7 +5,7 @@ import { getSchema } from '../utils/get-schema';
 import toNS from 'mongodb-ns';
 import { isEqual } from 'lodash';
 
-const FETCH_SCHEMA_MAX_TIME_MS = 5000;
+const FETCH_SCHEMA_MAX_TIME_MS = 10000;
 
 type CollectionType = 'collection' | 'view';
 export type CollectionInfo = {
@@ -184,7 +184,7 @@ export const fetchCollectionFields = (
         collection,
         data: {
           ...collectionInfo,
-          fields: getSchema(documents),
+          fields: getSchema(documents).map(({ name }) => name),
           isLoading: false,
         },
       });

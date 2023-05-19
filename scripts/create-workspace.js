@@ -267,7 +267,6 @@ async function createWorkspace({
         // runtime processor, no need to fully compile them on bootstrap
         bootstrap: 'npm run postcompile',
         compile: 'npm run webpack -- --mode production',
-        prewebpack: 'rimraf ./dist',
         webpack: 'webpack-compass',
         postcompile: 'tsc --emitDeclarationOnly',
         start: 'npm run webpack serve -- --mode development',
@@ -324,7 +323,6 @@ async function createWorkspace({
       ...(isPlugin && {
         '@mongodb-js/webpack-config-compass': '*',
         'hadron-app-registry': '*',
-        rimraf: '*',
         'xvfb-maybe': '*',
       }),
     },

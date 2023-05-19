@@ -3,13 +3,12 @@ import type { CompassBrowser } from '../compass-browser';
 export async function setComboBoxValue(
   browser: CompassBrowser,
   comboboxInputSelector: string,
-  comboboxListSelector: string,
   comboboxValue: string
 ): Promise<void> {
   // Focus combobox
   await browser.clickVisible(comboboxInputSelector);
+  const inputElement = await browser.$(comboboxInputSelector);
   await browser.waitUntil(async () => {
-    const inputElement = await browser.$(comboboxInputSelector);
     const isFocused = await inputElement.isFocused();
     if (isFocused === true) {
       return true;
@@ -19,7 +18,12 @@ export async function setComboBoxValue(
       return false;
     }
   });
-  const comboboxListSelectorElement = await browser.$(comboboxListSelector);
+  const controlledMenuId: string = await inputElement.getAttribute(
+    'aria-controls'
+  );
+  const comboboxListSelectorElement = await browser.$(
+    `[id="${controlledMenuId}"][role="listbox"]`
+  );
   await comboboxListSelectorElement.waitForDisplayed();
   await browser.setValueVisible(comboboxInputSelector, comboboxValue);
   await browser.keys(['Enter']);

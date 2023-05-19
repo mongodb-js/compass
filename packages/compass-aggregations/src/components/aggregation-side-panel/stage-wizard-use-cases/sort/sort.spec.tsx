@@ -10,6 +10,7 @@ import {
   setComboboxValue,
 } from '../../../../../test/form-helper';
 import type { StageWizardFields } from '..';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
 
 const SAMPLE_FIELDS: StageWizardFields = [
   {
@@ -78,10 +79,18 @@ describe('sort', function () {
       expect(screen.getByTestId('sort-form-1')).to.exist;
       sortFormItems = screen.getAllByTestId(/sort-form-\d+$/);
 
-      setComboboxValue(/select a field/i, 'street', sortFormItems[0]);
+      setComboboxValue(
+        new RegExp(SINGLE_SELECT_LABEL, 'i'),
+        'street',
+        sortFormItems[0]
+      );
       setSelectValue(/select direction/i, 'asc', sortFormItems[0]);
 
-      setComboboxValue(/select a field/i, 'zip', sortFormItems[1]);
+      setComboboxValue(
+        new RegExp(SINGLE_SELECT_LABEL, 'i'),
+        'zip',
+        sortFormItems[1]
+      );
       setSelectValue(/select direction/i, 'desc', sortFormItems[1]);
     });
 
@@ -93,7 +102,7 @@ describe('sort', function () {
     it('renders field combobox for each sort field', function () {
       const fieldInputs = sortFormItems.map((sortForm) => {
         return within(sortForm).getByRole('textbox', {
-          name: /select a field/i,
+          name: new RegExp(SINGLE_SELECT_LABEL, 'i'),
         });
       });
       expect(fieldInputs[0].getAttribute('value')).to.equal('street');
@@ -124,7 +133,11 @@ describe('sort', function () {
       // We added a new item after index 0
       const addedSortItem = screen.getByTestId('sort-form-1');
 
-      setComboboxValue(/select a field/i, 'city', addedSortItem);
+      setComboboxValue(
+        new RegExp(SINGLE_SELECT_LABEL, 'i'),
+        'city',
+        addedSortItem
+      );
       setSelectValue(/select direction/i, 'desc', addedSortItem);
 
       expect(onChange.lastCall.args[0]).to.equal(

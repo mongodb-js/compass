@@ -3,24 +3,18 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useRef,
-  useState,
 } from 'react';
+import type { ToastProps } from '../components/leafygreen';
+import {
+  ToastProvider,
+  useToast as useLeafygreenToast,
+} from '../components/leafygreen';
 
-import { ToastVariant, Toast } from '../components/leafygreen';
-import { css } from '@leafygreen-ui/emotion';
-
-export { ToastVariant };
-
-type ToastProperties = {
-  title?: React.ReactNode;
-  body: React.ReactNode;
-  variant: ToastVariant;
-  progress?: number;
-  timeout?: number;
-  dismissible?: boolean;
-};
+export type ToastProperties = Pick<
+  ToastProps,
+  'title' | 'description' | 'variant' | 'progress' | 'timeout' | 'dismissible'
+>;
 
 const defaultToastProperties: Partial<ToastProperties> = {
   dismissible: true,
@@ -31,32 +25,50 @@ interface ToastActions {
   closeToast: (id: string) => void;
 }
 
+interface OnToastChange {
+  (
+    action: 'push',
+    toast: ToastProperties & { id: string },
+    toasts: Map<string, ToastProperties>
+  ): void;
+  (
+    action: 'pop',
+    toast: { id: string },
+    toasts: Map<string, ToastProperties>
+  ): void;
+}
+
 class GlobalToastState implements ToastActions {
   private timeouts = new Map<string, ReturnType<typeof setTimeout>>();
   private toasts = new Map<string, ToastProperties>();
-  onToastsChange: (toasts: [string, ToastProperties][]) => void = () => {
-    /**/
+  onToastsChange: OnToastChange = () => {
+    /** noop */
   };
-  openToast(id: string, toastProperties: ToastProperties): void {
+  openToast(id: string, props: ToastProperties): void {
     this.clearTimeout(id);
-    this.toasts.set(id, {
+    const toastProps = {
       ...defaultToastProperties,
-      ...toastProperties,
-    });
-    if (toastProperties.timeout) {
+      ...props,
+      'data-testid': `toast-${id}`,
+      onClose: () => {
+        this.closeToast(id);
+      },
+    };
+    this.toasts.set(id, toastProps);
+    if (toastProps.timeout) {
       this.timeouts.set(
         id,
         setTimeout(() => {
           this.closeToast(id);
-        }, toastProperties.timeout)
+        }, toastProps.timeout)
       );
     }
-    this.onToastsChange(Array.from(this.toasts.entries()));
+    this.onToastsChange('push', { id, ...toastProps }, this.toasts);
   }
   closeToast(id: string): void {
     this.clearTimeout(id);
     this.toasts.delete(id);
-    this.onToastsChange(Array.from(this.toasts.entries()));
+    this.onToastsChange('pop', { id }, this.toasts);
   }
   clearTimeout(id?: string) {
     if (id) {
@@ -71,9 +83,11 @@ class GlobalToastState implements ToastActions {
       this.timeouts.clear();
     }
   }
-  clear() {
+  clear(): string[] {
     this.clearTimeout();
+    const ids = Array.from(this.toasts.keys());
     this.toasts.clear();
+    return ids;
   }
 }
 
@@ -82,6 +96,8 @@ const toastState = new GlobalToastState();
 export const openToast = toastState.openToast.bind(toastState);
 
 export const closeToast = toastState.closeToast.bind(toastState);
+
+const toastActions = { openToast, closeToast };
 
 const ToastContext = createContext<ToastActions>({
   openToast: () => {
@@ -92,11 +108,57 @@ const ToastContext = createContext<ToastActions>({
   },
 });
 
-const toastStyles = css({
-  button: {
-    position: 'absolute',
-  },
-});
+const _ToastArea: React.FunctionComponent = ({ children }) => {
+  // NB: the way leafygreen implements this hook leads to anything specifying
+  // toast methods in hooks dependencies to constantly update potentially
+  // causing infinite loops of toasts. To work around that we are storing toast
+  // interface in a ref so that we can safely use it inside our effects
+  //
+  // @see {@link https://jira.mongodb.org/browse/LG-3209}
+  const toastRef = useRef(useLeafygreenToast());
+  const toastStateRef = useRef<GlobalToastState>();
+
+  if (!toastStateRef.current) {
+    toastStateRef.current = toastState;
+    toastStateRef.current.onToastsChange = (action, toast) => {
+      if (action === 'push') {
+        toastRef.current.pushToast({
+          ...(toast as ToastProperties),
+          // To be able to maintain a global state of toasts, we remove
+          // timeout prop as timeouts handled by the GlobalToast state and our
+          // timeouts logic doesn't match leafygreen out
+          timeout: null,
+        });
+      }
+      if (action === 'pop') {
+        toastRef.current.popToast(toast.id);
+      }
+    };
+  }
+
+  useEffect(() => {
+    return () => {
+      const ids = toastStateRef.current?.clear();
+      ids?.forEach((id) => {
+        toastRef.current.popToast(id);
+      });
+    };
+  }, []);
+
+  return (
+    <ToastContext.Provider value={toastActions}>
+      {children}
+    </ToastContext.Provider>
+  );
+};
+
+export const ToastArea: React.FunctionComponent = ({ children }) => {
+  return (
+    <ToastProvider>
+      <_ToastArea>{children}</_ToastArea>
+    </ToastProvider>
+  );
+};
 
 /**
  * @example
@@ -113,47 +175,6 @@ const toastStyles = css({
  *
  * @returns
  */
-export const ToastArea: React.FunctionComponent = ({ children }) => {
-  const [toasts, setToasts] = useState<[string, ToastProperties][]>([]);
-  const toastStateRef = useRef<GlobalToastState>();
-
-  if (!toastStateRef.current) {
-    toastStateRef.current = toastState;
-    toastStateRef.current.onToastsChange = setToasts;
-  }
-
-  const toastActions = useMemo(() => {
-    return { openToast, closeToast };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      toastStateRef.current?.clear();
-    };
-  }, []);
-
-  return (
-    <ToastContext.Provider value={toastActions}>
-      <>{children}</>
-      <>
-        {toasts.map(([id, { dismissible, title, body, variant, progress }]) => (
-          <Toast
-            className={toastStyles}
-            key={id}
-            data-testid={`toast-${id}`}
-            title={title}
-            body={body}
-            variant={variant}
-            progress={progress}
-            open={true}
-            close={dismissible ? () => closeToast(id) : undefined}
-          />
-        ))}
-      </>
-    </ToastContext.Provider>
-  );
-};
-
 export function useToast(namespace: string): ToastActions {
   const { openToast: openGlobalToast, closeToast: closeGlobalToast } =
     useContext(ToastContext);

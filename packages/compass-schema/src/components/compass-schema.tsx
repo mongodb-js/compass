@@ -25,6 +25,7 @@ import {
   WorkspaceContainer,
   lighten,
 } from '@mongodb-js/compass-components';
+import { HackoladePromoBanner } from './promo-banner';
 
 const rootStyles = css`
   width: 100%;
@@ -373,6 +374,7 @@ const Schema: React.FunctionComponent<{
           />
         }
       >
+        <HackoladePromoBanner></HackoladePromoBanner>
         {analysisState === ANALYSIS_STATE_INITIAL && (
           <InitialScreen onApplyClicked={onApplyClicked} />
         )}

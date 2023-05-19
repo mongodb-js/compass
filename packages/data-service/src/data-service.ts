@@ -42,6 +42,8 @@ import type {
   Db,
   IndexInformationOptions,
   CollectionInfo,
+  UpdateOptions,
+  ReplaceOptions,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -517,6 +519,36 @@ export interface DataService {
     filter: Filter<Document>,
     update: Document,
     options?: FindOneAndUpdateOptions
+  ): Promise<Document | null>;
+
+  /**
+   * Update one document.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The filter used to select the document to update.
+   * @param update - The update operations to be applied to the document.
+   * @param options - Optional settings for the command.
+   */
+  updateOne(
+    ns: string,
+    filter: Filter<Document>,
+    update: Document,
+    options?: UpdateOptions
+  ): Promise<Document | null>;
+
+  /**
+   * Replace one document.
+   *
+   * @param ns - The namespace to search on.
+   * @param filter - The filter.
+   * @param replacement - The Document that replaces the matching document.
+   * @param options - Optional settings for the command.
+   */
+  replaceOne(
+    ns: string,
+    filter: Filter<Document>,
+    replacement: Document,
+    options?: UpdateOptions
   ): Promise<Document | null>;
 
   /**
@@ -1486,6 +1518,28 @@ class DataServiceImpl extends WithLogContext implements DataService {
   ): Promise<Document | null> {
     const coll = this._collection(ns, 'CRUD');
     return (await coll.findOneAndUpdate(filter, update, options)).value;
+  }
+
+  @op(mongoLogId(1_001_000_183))
+  async updateOne(
+    ns: string,
+    filter: Filter<Document>,
+    update: Document,
+    options: UpdateOptions
+  ): Promise<Document | null> {
+    const coll = this._collection(ns, 'CRUD');
+    return await coll.updateOne(filter, update, options);
+  }
+
+  @op(mongoLogId(1_001_000_191))
+  async replaceOne(
+    ns: string,
+    filter: Filter<Document>,
+    replacement: Document,
+    options: ReplaceOptions
+  ): Promise<Document | null> {
+    const coll = this._collection(ns, 'CRUD');
+    return await coll.replaceOne(filter, replacement, options);
   }
 
   @op(mongoLogId(1_001_000_046), ([ns, , , executionOptions]) => {

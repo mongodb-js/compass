@@ -8,13 +8,13 @@ import Group, { makeCreateGroup, TEST_IDS } from './match-group-form';
 import { setComboboxValue } from '../../../../../test/form-helper';
 import {
   makeCreateCondition,
-  LABELS as CONDITION_LABELS,
   TEST_IDS as CONDITION_TEST_IDS,
   createCondition as createConditionPreScoped,
 } from './match-condition-form';
 import { SAMPLE_FIELDS } from './fixtures';
 import type { CreateConditionFn } from './match-condition-form';
 import type { CreateGroupFn, MatchGroupFormProps } from './match-group-form';
+import { SINGLE_SELECT_LABEL } from '../field-combobox';
 
 describe('group', function () {
   let createCondition: CreateConditionFn;
@@ -173,7 +173,7 @@ describe('group', function () {
       renderGroup({ group, onGroupChange: onGroupChangeSpy });
 
       setComboboxValue(
-        new RegExp(CONDITION_LABELS.fieldCombobox, 'i'),
+        new RegExp(SINGLE_SELECT_LABEL, 'i'),
         '_id',
         screen.getByTestId(CONDITION_TEST_IDS.condition(conditionA.id))
       );

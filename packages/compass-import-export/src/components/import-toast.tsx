@@ -9,7 +9,7 @@ import { openFile } from '../utils/open-file';
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
 const importToastId = 'import-toast';
-const toastMessageCharacterLimit = 200;
+const toastMessageCharacterLimit = 180;
 
 function trackLogFileOpened(errors: Error[]) {
   track('Import Error Log Opened', {
@@ -34,7 +34,7 @@ export function showInProgressToast({
   const progress = bytesTotal ? bytesProcessed / bytesTotal : undefined;
   openToast(importToastId, {
     title: `Importing ${path.basename(fileName)}…`,
-    body: (
+    description: (
       <ToastBody
         statusMessage={`${docsWritten} document${
           docsWritten !== 1 ? 's' : ''
@@ -58,7 +58,7 @@ export function showStartingToast({
 }) {
   openToast(importToastId, {
     title: `Importing ${path.basename(fileName)}…`,
-    body: (
+    description: (
       <ToastBody
         statusMessage="Starting…"
         actionHandler={cancelImport}
@@ -73,7 +73,7 @@ export function showStartingToast({
 export function showCompletedToast({ docsWritten }: { docsWritten: number }) {
   openToast(importToastId, {
     title: 'Import completed.',
-    body: `${docsWritten} documents written.`,
+    description: `${docsWritten} documents exported.`,
     variant: 'success',
   });
 }
@@ -109,8 +109,8 @@ export function showCompletedWithErrorsToast({
 }) {
   const statusMessage = getToastErrorsText(errors);
   openToast(importToastId, {
-    title: `Import completed ${docsWritten}/${docsProcessed} with the following errors:`,
-    body: (
+    title: `Import completed ${docsWritten}/${docsProcessed} with errors:`,
+    description: (
       <ToastBody
         statusMessage={statusMessage}
         actionHandler={
@@ -139,7 +139,7 @@ export function showCancelledToast({
     const statusMessage = getToastErrorsText(errors);
     openToast(importToastId, {
       title: 'Import aborted with the following errors:',
-      body: (
+      description: (
         <ToastBody
           statusMessage={statusMessage}
           actionHandler={
@@ -160,7 +160,7 @@ export function showCancelledToast({
 
   openToast(importToastId, {
     title: 'Import aborted.',
-    body: <></>,
+    description: null,
     variant: 'warning',
   });
 }
@@ -168,7 +168,7 @@ export function showCancelledToast({
 export function showFailedToast(err: Error | undefined) {
   openToast(importToastId, {
     title: 'Failed to import with the following error:',
-    body: err?.message,
+    description: err?.message,
     variant: 'warning',
   });
 }

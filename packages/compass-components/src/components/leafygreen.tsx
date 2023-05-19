@@ -48,10 +48,8 @@ import {
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
 import TextInput from '@leafygreen-ui/text-input';
-import {
-  default as Toast,
-  Variant as ToastVariant,
-} from '@leafygreen-ui/toast';
+import { SearchInput } from '@leafygreen-ui/search-input';
+export { ToastProvider, useToast, ToastProps } from '@leafygreen-ui/toast';
 import Toggle from '@leafygreen-ui/toggle';
 import {
   H1,
@@ -132,8 +130,6 @@ export {
   Tabs,
   TextArea,
   TextInput,
-  Toast,
-  ToastVariant,
   Toggle,
   H1,
   H2,
@@ -147,4 +143,5 @@ export {
   Label,
   Link,
   Description,
+  SearchInput,
 };

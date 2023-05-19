@@ -507,8 +507,6 @@ export const collectionHeaderTitle = (
 // Documents tab
 export const DocumentListActionBarMessage =
   '[data-testid="crud-document-count-display"]';
-export const ExportCollectionButton =
-  '[data-testid="export-collection-button"]'; // TODO(COMPASS-6582): Remove.
 export const ExportCollectionMenuButton =
   '[data-testid="crud-export-collection-show-actions"]';
 export const ExportCollectionQueryOption =
@@ -887,9 +885,6 @@ export const AggregationWizardSortFormField = (idx: number) =>
   `${AggregationWizardSortForm(
     idx
   )} [data-testid="sort-form-${idx}-field"] [role="combobox"] input`;
-export const AggregationWizardSortFormFieldListbox = (idx: number) =>
-  `.sort-form-${idx}-field-combobox [role="listbox"]`;
-
 export const AggregationWizardSortFormDirectionSelect = (idx: number) =>
   `${AggregationWizardSortForm(
     idx
@@ -1053,28 +1048,16 @@ export const ExportJSONFormatAccordion =
   '[data-testid="export-modal"] [data-testid="export-advanced-json-format"]';
 export const ExportJSONFormatCanonical =
   '[data-testid="export-modal"] [data-testid="export-json-format-canonical"]';
-export const ExportModalFullCollectionOption =
-  '[data-testid="export-modal"] [data-testid="export-full-collection"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalSelectFieldsButton =
-  '[data-testid="export-modal"] [data-testid="select-fields-button"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalSelectOutputButton =
-  '[data-testid="export-modal"] [data-testid="select-output-button"]'; // TODO(COMPASS-6582): Remove.
 export const ExportModalExportButton =
-  '[data-testid="export-modal"] [data-testid="export-button"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalShowFileButton =
-  '[data-testid="export-modal"] [data-testid="show-file-button"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalCloseButton =
-  '[data-testid="export-modal"] [data-testid="close-button"]'; // TODO(COMPASS-6582): Remove.
-export const ExportModalFileInput =
-  '[data-testid="export-modal"] #export-file_file_input'; // // // // TODO(COMPASS-6582): Remove.
+  '[data-testid="export-modal"] [data-testid="export-button"]';
 export const ExportToast = '[data-testid="toast-export-toast"]';
 export const ExportToastAbort =
-  '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]'; // TODO: Add test that uses this.
+  '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]';
 export const ExportToastShowFile =
   '[data-testid="toast-export-toast"] [data-testid="toast-action-show file"]';
 
 export const exportModalExportField = (fieldName: string): string => {
-  return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`; // TODO(COMPASS-6582): Remove.
+  return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
 
 // Export to language modal

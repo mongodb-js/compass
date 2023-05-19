@@ -91,7 +91,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleSettings,
   onToggleSidePanel,
 }) => {
-  const showStageWizard = usePreference('useStageWizard', React);
+  const showStageWizard = usePreference('enableStageWizard', React);
   const wizardIconRef = useRef<HTMLButtonElement | null>(null);
 
   const { isGuideCueVisible, setGuideCueVisited } = useStageWizardGuideCue(
@@ -181,7 +181,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
             data-testid="pipeline-toolbar-side-panel-button"
             disabled={pipelineMode === 'as-text'}
           >
-            <Icon glyph="Filter" />
+            <Icon glyph="Wizard" />
           </IconButton>
         </>
       )}

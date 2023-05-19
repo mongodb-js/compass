@@ -116,6 +116,14 @@ const connectionStringErrorStyles = css({
   marginBottom: spacing[3],
 });
 
+export type ConnectFormProps = {
+  darkMode?: boolean;
+  initialConnectionInfo: ConnectionInfo;
+  connectionErrorMessage?: string | null;
+  onConnectClicked: (connectionInfo: ConnectionInfo) => void;
+  onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
+};
+
 function ConnectForm({
   initialConnectionInfo,
   connectionErrorMessage,
@@ -123,13 +131,7 @@ function ConnectForm({
   // The connect form will not always used in an environment where
   // the connection info can be saved.
   onSaveConnectionClicked,
-}: {
-  darkMode?: boolean;
-  initialConnectionInfo: ConnectionInfo;
-  connectionErrorMessage?: string | null;
-  onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
-}): React.ReactElement {
+}: ConnectFormProps): React.ReactElement {
   const darkMode = useDarkMode();
 
   const [

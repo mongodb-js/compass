@@ -62,6 +62,11 @@ const sharedResolveOptions = (
       // Removes `browserslist` that is pulled in by `babel` and is unnecessary
       // as well as being a particularly large dependency.
       browserslist: false,
+      // Removes `ampersand-sync`: `ampersand-sync` is required by `ampersand-model`,
+      // but is not actually used in Compass, we don't fetch and save models via http.
+      // Additionally `ampersand-sync` brings into the bundle a number of other dependencies
+      // that are outdated and having known vulnerabilities.
+      'ampersand-sync': false,
     },
   };
 };
@@ -346,7 +351,24 @@ export function compassPluginConfig(
         entry,
         outputFilename: 'index.js',
       }),
-      { externals: toCommonJsExternal(pluginExternals) }
+      {
+        externals: toCommonJsExternal(pluginExternals),
+        plugins: [
+          // For plugins, clean up the dist folder first before proceeding
+          function (compiler) {
+            compiler.hooks.initialize.tap('CleanDistPlugin', () => {
+              try {
+                fs.rmSync(compiler.outputPath, {
+                  recursive: true,
+                  force: true,
+                });
+              } catch {
+                // noop
+              }
+            });
+          },
+        ],
+      }
     ),
     merge(
       createWebConfig({
@@ -354,7 +376,9 @@ export function compassPluginConfig(
         entry,
         outputFilename: 'browser.js',
       }),
-      { externals: toCommonJsExternal(pluginExternals) }
+      {
+        externals: toCommonJsExternal(pluginExternals),
+      }
     ),
   ];
 }

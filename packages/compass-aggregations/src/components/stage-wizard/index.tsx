@@ -27,6 +27,8 @@ import type {
 import { getSchema } from '../../utils/get-schema';
 import { getStageHelpLink } from '../../utils/stage';
 import type { SortableProps } from '../pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
+import type { FieldSchema } from '../../utils/get-schema';
+import type { TypeCastTypes } from 'hadron-type-checker';
 
 const containerStyles = css({
   display: 'flex',
@@ -178,21 +180,30 @@ export default connect(
       .reverse()
       .find((x): x is StoreStage => x.type === 'stage' && !x.disabled);
 
-    const mappedInitialFields = initialFields.map(
-      (x: { name: string; description: string }) => ({
-        name: x.name,
-        // parsed schema has the bson type Object replaced with
-        // Document to avoid collision with JS Objects but that
-        // shouldn't be a problem for us because we use these
-        // as string values alongside well defined casters.
-        type: x.description === 'Document' ? 'Object' : x.description,
-      })
+    const mappedInitialFields = (
+      initialFields as {
+        name: string;
+        description?: string;
+      }[]
+    ).map<FieldSchema>(({ name, description }) => {
+      // parsed schema has the bson type Object replaced with
+      // Document to avoid collision with JS Objects but that
+      // shouldn't be a problem for us because we use these
+      // as string values alongside well defined casters.
+      const type =
+        description === 'Document'
+          ? 'Object'
+          : ((description ?? 'String') as TypeCastTypes);
+
+      return { name, type };
+    });
+    const previousStageFieldsWithSchema = getSchema(
+      previousStage?.previewDocs ?? []
     );
-    const previousStageFields = getSchema(previousStage?.previewDocs ?? []);
 
     const fields =
-      previousStageFields.length > 0 && autoPreview
-        ? previousStageFields.map((name) => ({ name, type: 'String' }))
+      previousStageFieldsWithSchema.length > 0 && autoPreview
+        ? previousStageFieldsWithSchema
         : mappedInitialFields;
 
     return {

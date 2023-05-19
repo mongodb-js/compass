@@ -308,6 +308,7 @@ function Home({
       >
         <div className={homePageStyles}>
           <Connections
+            appRegistry={appRegistry}
             onConnected={onConnected}
             isConnected={isConnected}
             appName={appName}
@@ -322,7 +323,7 @@ function Home({
 }
 
 function getCurrentTheme(): Theme {
-  return preferences.getPreferences().lgDarkmode &&
+  return preferences.getPreferences().enableLgDarkmode &&
     remote?.nativeTheme?.shouldUseDarkColors
     ? Theme.Dark
     : Theme.Light;
@@ -342,7 +343,7 @@ function ThemedHome(
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),
-    enabled: !!preferences.getPreferences().lgDarkmode,
+    enabled: !!preferences.getPreferences().enableLgDarkmode,
   });
 
   const darkMode = useMemo(
@@ -354,12 +355,12 @@ function ThemedHome(
     const listener = () => {
       setTheme({
         theme: getCurrentTheme(),
-        enabled: !!preferences.getPreferences().lgDarkmode,
+        enabled: !!preferences.getPreferences().enableLgDarkmode,
       });
     };
 
     const unsubscribeLgDarkmodeListener = preferences.onPreferenceValueChanged(
-      'lgDarkmode',
+      'enableLgDarkmode',
       listener
     );
     remote?.nativeTheme?.on('updated', listener);
@@ -385,8 +386,10 @@ function ThemedHome(
 
   useEffect(() => {
     ipc.ipcRenderer?.on('window:show-settings', showSettingsModal);
+    appRegistry.on('open-compass-settings', showSettingsModal);
     return function cleanup() {
       ipc.ipcRenderer?.off('window:show-settings', showSettingsModal);
+      appRegistry.removeListener('open-compass-settings', showSettingsModal);
     };
   }, [appRegistry]);
 

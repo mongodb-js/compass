@@ -1,4 +1,4 @@
-import UseCaseList from './use-case-list';
+import UseCaseCard from './use-case-card';
 import SortUseCase from './sort/sort';
 import LookupUseCase from './lookup/lookup';
 import ProjectUseCase from './project/project';
@@ -6,12 +6,9 @@ import BasicGroupUseCase from './group/basic-group';
 import GroupWithStatistics from './group/group-with-statistics';
 import MatchUseCase from './match/match';
 import GroupWithSubset from './group/group-with-subset';
-import type { TypeCastTypes } from 'hadron-type-checker';
+import type { FieldSchema } from '../../../utils/get-schema';
 
-export type StageWizardFields = {
-  name: string;
-  type: TypeCastTypes;
-}[];
+export type StageWizardFields = FieldSchema[];
 
 export type WizardComponentProps = {
   fields: StageWizardFields;
@@ -73,4 +70,4 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
   },
 ];
 
-export { UseCaseList };
+export { UseCaseCard };

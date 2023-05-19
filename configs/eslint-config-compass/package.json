@@ -13,7 +13,7 @@
     "eslint": "^7.25.0"
   },
   "dependencies": {
-    "@babel/core": "^7.14.3",
+    "@babel/core": "^7.21.4",
     "@babel/eslint-parser": "^7.14.3",
     "@mongodb-js/eslint-plugin-compass": "^1.0.5",
     "@typescript-eslint/eslint-plugin": "^5.59.0",

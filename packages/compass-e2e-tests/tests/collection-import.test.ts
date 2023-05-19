@@ -569,6 +569,7 @@ describe('Collection import', function () {
     delete importCompletedEvent.duration; // Duration varies.
     expect(importCompletedEvent).to.deep.equal({
       delimiter: ',',
+      newline: '\n',
       file_type: 'csv',
       all_fields: false,
       stop_on_error_selected: false,
@@ -1124,9 +1125,7 @@ describe('Collection import', function () {
 
     // Displays first two errors in the toast and view log.
     const toastText = await toastElement.getText();
-    expect(toastText).to.include(
-      'Import completed 0/3 with the following errors:'
-    );
+    expect(toastText).to.include('Import completed 0/3 with errors:');
     expect(
       (toastText.match(/E11000 duplicate key error collection/g) || []).length
     ).to.equal(2);

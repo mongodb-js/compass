@@ -17,7 +17,7 @@ import {
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import { ToastVariant, useToast } from '@mongodb-js/compass-components';
+import { useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
@@ -258,8 +258,8 @@ export function useConnections({
 
       openToast('save-connection-error', {
         title: 'Error',
-        variant: ToastVariant.Warning,
-        body: `An error occurred while saving the connection. ${
+        variant: 'warning',
+        description: `An error occurred while saving the connection. ${
           (err as Error).message
         }`,
       });

@@ -206,6 +206,7 @@ describe('store', function () {
         isEditable: true,
         isReadonly: false,
         isTimeSeries: false,
+        serverVersion: '4.0.0',
         isWritable: false,
         ns: '',
         outdated: false,
@@ -2011,114 +2012,234 @@ describe('store', function () {
 
   describe('#findAndModifyWithFLEFallback', function () {
     let dataServiceStub;
+    let findFake;
+    let findOneAndReplaceFake;
+    let findOneAndUpdateFake;
+    let updateOneFake;
+    let replaceOneFake;
+
+    const updatedDocument = { _id: 1234, name: 'document_12345' };
 
     beforeEach(function () {
+      findFake = sinon.stub();
+      findOneAndReplaceFake = sinon.stub();
+      findOneAndUpdateFake = sinon.stub();
+      updateOneFake = sinon.stub();
+      replaceOneFake = sinon.stub();
       dataServiceStub = {
-        find: sinon.stub().callsFake((ns, query) => Promise.resolve([query])),
+        find: findFake,
+        findOneAndReplace: findOneAndReplaceFake,
+        findOneAndUpdate: findOneAndUpdateFake,
+        updateOne: updateOneFake,
+        replaceOne: replaceOneFake,
       };
     });
 
-    it('does the original findAndModify operation and nothing more if it succeeds', async function () {
-      const document = { _id: 1234 };
-      const stub = sinon.stub().callsFake(() => {
-        return [undefined, document];
-      });
+    afterEach(function () {
+      sinon.restore();
+    });
+
+    it('does the original findOneAndUpdate operation and nothing more if it succeeds', async function () {
+      findFake.callsFake(() => Promise.resolve([]));
+      findOneAndReplaceFake.resolves({});
+      findOneAndUpdateFake.resolves(updatedDocument);
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'db.coll',
-        stub
+        { _id: 1234 } as any,
+        { name: 'document_12345' },
+        'update'
       );
       expect(error).to.equal(undefined);
-      expect(d).to.equal(document);
-      expect(stub).to.have.callCount(1);
-      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
-      expect(stub.firstCall.args[1]).to.equal('db.coll');
-      expect(stub.firstCall.args[2]).to.deep.equal({
+      expect(d).to.equal(updatedDocument);
+      expect(findOneAndReplaceFake).to.have.callCount(0);
+      expect(findOneAndUpdateFake).to.have.callCount(1);
+      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findOneAndUpdateFake.firstCall.args[1]).to.deep.equal({
+        _id: 1234,
+      });
+      expect(findOneAndUpdateFake.firstCall.args[2]).to.deep.equal({
+        name: 'document_12345',
+      });
+      expect(findOneAndUpdateFake.firstCall.args[3]).to.deep.equal({
         returnDocument: 'after',
         promoteValues: false,
       });
     });
 
-    it('does the original findAndModify operation and nothing more if it fails with a non-FLE error', async function () {
-      const err = new Error('failed');
-      const stub = sinon.stub().callsFake(() => {
-        return [err];
-      });
+    it('does the original findOneAndReplace operation and nothing more if it succeeds', async function () {
+      findFake.callsFake(() => Promise.resolve([]));
+      findOneAndReplaceFake.resolves(updatedDocument);
+      findOneAndUpdateFake.resolves({});
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'db.coll',
-        stub
+        { _id: 1234 } as any,
+        { name: 'document_12345' },
+        'replace'
+      );
+      expect(error).to.equal(undefined);
+      expect(d).to.equal(updatedDocument);
+      expect(findOneAndUpdateFake).to.have.callCount(0);
+      expect(findOneAndReplaceFake).to.have.callCount(1);
+      expect(findOneAndReplaceFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findOneAndReplaceFake.firstCall.args[1]).to.deep.equal({
+        _id: 1234,
+      });
+      expect(findOneAndReplaceFake.firstCall.args[2]).to.deep.equal({
+        name: 'document_12345',
+      });
+      expect(findOneAndReplaceFake.firstCall.args[3]).to.deep.equal({
+        returnDocument: 'after',
+        promoteValues: false,
+      });
+    });
+
+    it('does the original findOneAndUpdate operation and nothing more if it fails with a non-FLE error', async function () {
+      const err = new Error('failed');
+      findFake.callsFake(() => Promise.resolve([]));
+      findOneAndReplaceFake.resolves({});
+      findOneAndUpdateFake.rejects(err);
+      const [error, d] = await findAndModifyWithFLEFallback(
+        dataServiceStub,
+        'db.coll',
+        { _id: 1234 } as any,
+        { name: 'document_12345' },
+        'update'
       );
       expect(error).to.equal(err);
       expect(d).to.equal(undefined);
-      expect(stub).to.have.callCount(1);
-      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
-      expect(stub.firstCall.args[1]).to.equal('db.coll');
-      expect(stub.firstCall.args[2]).to.deep.equal({
+      expect(findOneAndUpdateFake).to.have.callCount(1);
+      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findOneAndUpdateFake.firstCall.args[1]).to.deep.equal({
+        _id: 1234,
+      });
+      expect(findOneAndUpdateFake.firstCall.args[2]).to.deep.equal({
+        name: 'document_12345',
+      });
+      expect(findOneAndUpdateFake.firstCall.args[3]).to.deep.equal({
         returnDocument: 'after',
         promoteValues: false,
       });
     });
 
-    it('retries findAndModify with FLE returnDocument: "after"', async function () {
-      const document = { _id: 1234 };
+    it('does updateOne with FLE returnDocument: "after"', async function () {
       const err = Object.assign(new Error('failed'), { code: 6371402 });
-      const stub = sinon.stub();
-      stub.onFirstCall().callsFake(() => {
-        return [err];
-      });
-      stub.onSecondCall().callsFake(() => {
-        return [undefined, document];
-      });
+      findFake.callsFake(() => Promise.resolve([updatedDocument]));
+      findOneAndReplaceFake.resolves({});
+      findOneAndUpdateFake.onCall(0).rejects(err);
+      updateOneFake.onCall(0).resolves({});
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'db.coll',
-        stub
+        { _id: 1234 } as any,
+        { name: 'document_12345' },
+        'update'
       );
       expect(error).to.equal(undefined);
-      expect(d).to.deep.equal(document);
-      expect(stub).to.have.callCount(2);
-      expect(stub.firstCall.args[0]).to.equal(dataServiceStub);
-      expect(stub.firstCall.args[1]).to.equal('db.coll');
-      expect(stub.firstCall.args[2]).to.deep.equal({
+      expect(d).to.deep.equal(updatedDocument);
+      expect(findOneAndUpdateFake).to.have.callCount(1);
+
+      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findOneAndUpdateFake.firstCall.args[1]).to.deep.equal({
+        _id: 1234,
+      });
+      expect(findOneAndUpdateFake.firstCall.args[2]).to.deep.equal({
+        name: 'document_12345',
+      });
+      expect(findOneAndUpdateFake.firstCall.args[3]).to.deep.equal({
         returnDocument: 'after',
         promoteValues: false,
       });
-      expect(stub.secondCall.args[0]).to.equal(dataServiceStub);
-      expect(stub.secondCall.args[1]).to.equal('db.coll');
-      expect(stub.secondCall.args[2]).to.deep.equal({
-        returnDocument: 'before',
-        promoteValues: false,
+
+      expect(updateOneFake.firstCall.args[0]).to.equal('db.coll');
+      expect(updateOneFake.firstCall.args[1]).to.deep.equal({
+        _id: 1234,
       });
-      expect(dataServiceStub.find).to.have.callCount(1);
-      expect(dataServiceStub.find.firstCall.args[0]).to.equal('db.coll');
-      expect(dataServiceStub.find.firstCall.args[1]).to.deep.equal(document);
-      expect(dataServiceStub.find.firstCall.args[2]).to.deep.equal({
-        returnDocument: 'before',
+      expect(updateOneFake.firstCall.args[2]).to.deep.equal({
+        name: 'document_12345',
+      });
+
+      expect(findFake).to.have.callCount(1);
+      expect(findFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findFake.firstCall.args[1]).to.deep.equal({ _id: 1234 });
+      expect(findFake.firstCall.args[2]).to.deep.equal({
         promoteValues: false,
       });
     });
 
     it('returns the original error if the fallback find operation fails', async function () {
-      dataServiceStub.find.yields(new Error('find failed'));
-      const document = { _id: 1234 };
       const err = Object.assign(new Error('failed'), { code: 6371402 });
-      const stub = sinon.stub();
-      stub.onFirstCall().callsFake(() => {
-        return [err];
-      });
-      stub.onSecondCall().callsFake(() => {
-        return [undefined, document];
-      });
+      findFake.yields(new Error('find failed'));
+      findOneAndReplaceFake.resolves({});
+      findOneAndUpdateFake.onCall(0).rejects(err);
+      updateOneFake.onCall(0).resolves({});
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'db.coll',
-        stub
+        { _id: 1234 } as any,
+        { name: 'document_12345' },
+        'update'
       );
       expect(error).to.equal(err);
       expect(d).to.equal(undefined);
-      expect(stub).to.have.callCount(2);
-      expect(dataServiceStub.find).to.have.callCount(1);
+      expect(findOneAndUpdateFake).to.have.callCount(1);
+      expect(updateOneFake).to.have.callCount(1);
+      expect(findFake).to.have.callCount(1);
+    });
+
+    it('calls updateOne if findOneAndUpdate returns the ShardKeyNotFound error', async function () {
+      const err = Object.assign(
+        new Error('Query for sharded findAndModify must contain the shard key'),
+        { codeName: 'ShardKeyNotFound' }
+      );
+      findFake.callsFake(() => Promise.resolve([updatedDocument]));
+      findOneAndReplaceFake.resolves({});
+      findOneAndUpdateFake.rejects(err);
+      updateOneFake.resolves(updatedDocument);
+      const [error, d] = await findAndModifyWithFLEFallback(
+        dataServiceStub,
+        'db.coll',
+        { _id: 1234 } as any,
+        { name: 'document_12345' },
+        'update'
+      );
+      expect(error).to.equal(undefined);
+      expect(d).to.equal(updatedDocument);
+      expect(findOneAndUpdateFake).to.have.callCount(1);
+      expect(updateOneFake).to.have.callCount(1);
+      expect(updateOneFake.firstCall.args[0]).to.equal('db.coll');
+      expect(updateOneFake.firstCall.args[1]).to.deep.equal({ _id: 1234 });
+      expect(updateOneFake.firstCall.args[2]).to.deep.equal({
+        name: 'document_12345',
+      });
+    });
+
+    it('calls replaceOne if findOneAndReplace returns the ShardKeyNotFound error', async function () {
+      const err = Object.assign(
+        new Error('Query for sharded findAndModify must contain the shard key'),
+        { codeName: 'ShardKeyNotFound' }
+      );
+      findFake.callsFake(() => Promise.resolve([updatedDocument]));
+      findOneAndReplaceFake.rejects(err);
+      findOneAndUpdateFake.resolves({});
+      replaceOneFake.resolves(updatedDocument);
+      const [error, d] = await findAndModifyWithFLEFallback(
+        dataServiceStub,
+        'db.coll',
+        { _id: 1234 } as any,
+        { name: 'document_12345' },
+        'replace'
+      );
+      expect(error).to.equal(undefined);
+      expect(d).to.equal(updatedDocument);
+      expect(findOneAndReplaceFake).to.have.callCount(1);
+      expect(replaceOneFake).to.have.callCount(1);
+      expect(replaceOneFake.firstCall.args[0]).to.equal('db.coll');
+      expect(replaceOneFake.firstCall.args[1]).to.deep.equal({ _id: 1234 });
+      expect(replaceOneFake.firstCall.args[2]).to.deep.equal({
+        name: 'document_12345',
+      });
     });
   });
 });

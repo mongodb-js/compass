@@ -24,22 +24,6 @@ async function selectExportFileTypeJSON(browser: CompassBrowser) {
   await browser.clickParent(Selectors.FileTypeJSON);
 }
 
-async function waitForExportToFinishAndCloseToast(browser: CompassBrowser) {
-  // Wait for the export to finish and close the toast.
-  const toastElement = await browser.$(Selectors.ExportToast);
-  await toastElement.waitForDisplayed();
-
-  const exportShowFileButtonElement = await browser.$(
-    Selectors.ExportToastShowFile
-  );
-  await exportShowFileButtonElement.waitForDisplayed();
-  await browser
-    .$(Selectors.closeToastButton(Selectors.ExportToast))
-    .waitForDisplayed();
-  await browser.clickVisible(Selectors.closeToastButton(Selectors.ExportToast));
-  await toastElement.waitForDisplayed({ reverse: true });
-}
-
 async function toggleExportFieldCheckbox(
   browser: CompassBrowser,
   fieldName: string
@@ -58,9 +42,7 @@ describe('Collection export', function () {
 
   before(async function () {
     telemetry = await startTelemetryServer();
-    compass = await beforeTests({
-      extraSpawnArgs: ['--useNewExport=true'],
-    });
+    compass = await beforeTests();
     browser = compass.browser;
   });
 
@@ -114,7 +96,7 @@ describe('Collection export', function () {
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers').find(
   {i: 5},
-  {i: true,j: true,_id: false}
+  {i: 1,j: 1,_id: 0}
 )`);
 
       // Select CSV.
@@ -123,7 +105,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('filtered-numbers-subset.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -131,7 +113,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -196,7 +178,7 @@ describe('Collection export', function () {
       await selectExportFileTypeCSV(browser);
       await browser.clickVisible(Selectors.ExportModalExportButton);
       const filename = outputFilename('all-fields-filtered.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -204,7 +186,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Confirm that we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -259,7 +241,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('filtered-numbers-projection.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -267,7 +249,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -314,7 +296,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('full-collection.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -322,7 +304,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Make sure we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -380,13 +362,13 @@ describe('Collection export', function () {
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers').find(
   {i: 5},
-  {i: true,j: true,_id: false}
+  {i: 1,j: 1,_id: 0}
 )`);
 
       // Leave the file type on the default (JSON).
       await browser.clickVisible(Selectors.ExportModalExportButton);
       const filename = outputFilename('filtered-numbers-subset.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -394,7 +376,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -459,7 +441,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('all-fields-filtered.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -467,7 +449,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Confirm that we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -509,7 +491,7 @@ describe('Collection export', function () {
 
       // Go with the default file type (JSON).
       const filename = outputFilename('full-collection.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -517,7 +499,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Make sure we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -563,7 +545,7 @@ describe('Collection export', function () {
 
       // Go with the default file type (JSON).
       const filename = outputFilename('full-collection-canonical.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -571,7 +553,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Make sure we exported what we expected to export.
       const text = await fs.readFile(filename, 'utf-8');
@@ -626,7 +608,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('aborted-export-test.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -718,7 +700,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('aborted-export-test.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -806,7 +788,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('disconnected-export-test.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -923,7 +905,7 @@ describe('Collection export', function () {
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers-strings').find(
   {},
-  {iString: true,j: true,_id: false}
+  {iString: 1,j: 1,_id: 0}
 ).collation(
   {locale: 'en_US',numericOrdering: true}
 ).sort({iString: -1}).limit(2).skip(2)`);
@@ -934,7 +916,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('complex-query-numbers.csv');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -942,7 +924,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can
@@ -1014,7 +996,7 @@ describe('Collection export', function () {
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers-strings').find(
   {},
-  {iString: true,j: true,_id: false}
+  {iString: 1,j: 1,_id: 0}
 ).collation(
   {locale: 'en_US',numericOrdering: true}
 ).sort({iString: -1}).limit(2).skip(2)`);
@@ -1025,7 +1007,7 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('complex-query-numbers.json');
-      await browser.setExportFilename(filename, true);
+      await browser.setExportFilename(filename);
 
       // Wait for the modal to go away.
       const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -1033,7 +1015,7 @@ describe('Collection export', function () {
         reverse: true,
       });
 
-      await waitForExportToFinishAndCloseToast(browser);
+      await browser.waitForExportToFinishAndCloseToast();
 
       // Clicking the button would open the file in finder/explorer/whatever
       // which is currently not something we can check with webdriver. But we can

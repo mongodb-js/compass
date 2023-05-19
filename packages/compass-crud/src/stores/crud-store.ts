@@ -8,9 +8,7 @@ import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import preferences, {
-  capMaxTimeMSAtPreferenceLimit,
-} from 'compass-preferences-model';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 import {
   findDocuments,
@@ -40,6 +38,7 @@ import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
 export type BSONObject = TypeCastMap['Object'];
+export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
 export type CrudActions = {
@@ -192,6 +191,19 @@ export const setIsTimeSeries = (
 };
 
 /**
+ * Set the serverVersion flag in the store.
+ *
+ * @param {Store} store - The store.
+ * @param {Boolean} serverVersion - The current version of the server.
+ */
+export const setServerVersion = (
+  store: CrudStoreImpl,
+  serverVersion: string
+) => {
+  store.onServerVersionChanged(serverVersion);
+};
+
+/**
  * Set the namespace in the store.
  *
  * @param {Store} store - The store.
@@ -256,6 +268,7 @@ type CrudStoreOptions = {
   isReadonly: boolean;
   namespace: string;
   isTimeSeries: boolean;
+  serverVersion: string;
   dataProvider: { error?: Error; dataProvider?: DataService };
   noRefreshOnConfigure?: boolean;
 };
@@ -320,6 +333,7 @@ type CrudState = {
   isDataLake: boolean;
   isReadonly: boolean;
   isTimeSeries: boolean;
+  serverVersion: string;
   status: DOCUMENTS_STATUSES;
   debouncingLoad: boolean;
   loadingCount: boolean;
@@ -375,6 +389,7 @@ class CrudStoreImpl
       isDataLake: false,
       isReadonly: false,
       isTimeSeries: false,
+      serverVersion: '4.0.0',
       status: DOCUMENTS_STATUS_INITIAL,
       debouncingLoad: false,
       loadingCount: false,
@@ -471,6 +486,15 @@ class CrudStoreImpl
    */
   onTimeSeriesChanged(isTimeSeries: boolean) {
     this.setState({ isTimeSeries });
+  }
+
+  /**
+   * Set the current server version.
+   *
+   * @param {Boolean} serverVersion - The current server version.
+   */
+  onServerVersionChanged(serverVersion: string) {
+    this.setState({ serverVersion });
   }
 
   /**
@@ -630,16 +654,9 @@ class CrudStoreImpl
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        async (ds, ns, opts) => {
-          try {
-            return [
-              undefined,
-              await ds.findOneAndUpdate(ns, query, updateDoc, opts),
-            ] as ErrorOrResult;
-          } catch (error) {
-            return [error, undefined] as ErrorOrResult;
-          }
-        }
+        query,
+        updateDoc,
+        'update'
       );
 
       if (error) {
@@ -738,16 +755,9 @@ class CrudStoreImpl
       const [error, d] = await findAndModifyWithFLEFallback(
         this.dataService,
         this.state.ns,
-        async (ds, ns, opts) => {
-          try {
-            return [
-              undefined,
-              await ds.findOneAndReplace(ns, query, object, opts),
-            ] as ErrorOrResult;
-          } catch (error) {
-            return [error, undefined] as ErrorOrResult;
-          }
-        }
+        query,
+        object,
+        'replace'
       );
       if (error) {
         doc.emit('update-error', error.message);
@@ -986,27 +996,13 @@ class CrudStoreImpl
    * Emits a global app registry event the plugin listens to.
    */
   openExportFileDialog(exportFullCollection?: boolean) {
-    // TODO(COMPASS-6582): Remove feature flag, use new export.
-    if (preferences.getPreferences().useNewExport) {
-      const { filter, project, collation, limit, skip, sort } =
-        this.state.query;
+    const { filter, project, collation, limit, skip, sort } = this.state.query;
 
-      this.globalAppRegistry.emit('open-export', {
-        namespace: this.state.ns,
-        query: { filter, project, collation, limit, skip, sort },
-        exportFullCollection,
-        origin: 'crud-toolbar',
-      });
-      return;
-    }
-
-    // Only three query fields that export modal will handle
-    const { filter, limit, skip } = this.state.query;
     this.globalAppRegistry.emit('open-export', {
       namespace: this.state.ns,
-      query: { filter, limit, skip },
-      // Pass the doc count to the export modal so we can avoid re-counting.
-      count: this.state.count,
+      query: { filter, project, collation, limit, skip, sort },
+      exportFullCollection,
+      origin: 'crud-toolbar',
     });
   }
 
@@ -1567,6 +1563,10 @@ const configureStore = (options: CrudStoreOptions & GridStoreOptions) => {
     setIsTimeSeries(store, options.isTimeSeries);
   }
 
+  if (options.serverVersion) {
+    setServerVersion(store, options.serverVersion);
+  }
+
   if (options.dataProvider) {
     setDataProvider(
       store,
@@ -1600,44 +1600,57 @@ type ErrorOrResult =
 export async function findAndModifyWithFLEFallback(
   ds: DataService,
   ns: string,
-  doFindAndModify: (
-    ds: DataService,
-    ns: string,
-    opts: { returnDocument: 'before' | 'after'; promoteValues: false }
-  ) => Promise<ErrorOrResult>
+  query: BSONObject,
+  object: { $set?: BSONObject; $unset?: BSONObject } | BSONObject | BSONArray,
+  modificationType: 'update' | 'replace'
 ): Promise<ErrorOrResult> {
-  const opts = { returnDocument: 'after', promoteValues: false } as const;
+  const findOneAndModifyMethod =
+    modificationType === 'update' ? 'findOneAndUpdate' : 'findOneAndReplace';
+  let error: (Error & { codeName?: string; code?: any }) | undefined;
 
-  let [error, d] = await doFindAndModify(ds, ns, opts);
-  const originalError = error;
+  try {
+    return [
+      undefined,
+      await ds[findOneAndModifyMethod](ns, query, object, {
+        returnDocument: 'after',
+        promoteValues: false,
+      }),
+    ] as ErrorOrResult;
+  } catch (e) {
+    error = e as Error;
+  }
 
-  // 6371402 is "'findAndModify with encryption only supports new: false'"
-  if (error && +(error?.code ?? 0) === 63714_02) {
-    // For encrypted documents, returnDocument: 'after' is unsupported on the server
-    const fallbackOpts = {
-      returnDocument: 'before',
-      promoteValues: false,
-    } as const;
-    [error, d] = await doFindAndModify(ds, ns, fallbackOpts);
+  if (
+    error.codeName === 'ShardKeyNotFound' ||
+    +(error?.code ?? 0) === 63714_02 // 6371402 is "'findAndModify with encryption only supports new: false'"
+  ) {
+    const modifyOneMethod =
+      modificationType === 'update' ? 'updateOne' : 'replaceOne';
 
-    if (!error) {
-      let docs;
-      try {
-        docs = await ds.find(ns, { _id: d!._id } as any, fallbackOpts);
-      } catch (e) {
-        error = e as Error;
-      }
-      if (error || !docs || !docs.length) {
-        // Race condition -- most likely, somebody else
-        // deleted the document between the findAndModify command
-        // and the find command. Just return the original error.
-        error = originalError;
-        d = undefined;
-      } else {
-        [d] = docs;
-      }
+    try {
+      await ds[modifyOneMethod](ns, query, object);
+    } catch (e) {
+      // Return the modifyOneMethod error here
+      // since we already know the original error from findOneAndModifyMethod
+      // and want to know what went wrong with the fallback method,
+      // e.g. return the `Found indexed encrypted fields but could not find __safeContent__` error.
+      return [e, undefined] as ErrorOrResult;
+    }
+
+    try {
+      const docs = await ds.find(
+        ns,
+        { _id: query._id as any },
+        { promoteValues: false }
+      );
+      return [undefined, docs[0]] as ErrorOrResult;
+    } catch (e) {
+      /* fallthrough */
     }
   }
 
-  return [error, d] as ErrorOrResult;
+  // Race condition -- most likely, somebody else
+  // deleted the document between the findAndModify command
+  // and the find command. Just return the original error.
+  return [error, undefined] as ErrorOrResult;
 }

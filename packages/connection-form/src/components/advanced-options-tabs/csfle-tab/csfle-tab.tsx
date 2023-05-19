@@ -97,7 +97,7 @@ function CSFLETab({
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
   const enableSchemaMapDebugFlag = usePreference(
-    'debugUseCsfleSchemaMap',
+    'enableDebugUseCsfleSchemaMap',
     React
   );
 

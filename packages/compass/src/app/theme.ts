@@ -6,7 +6,7 @@ const darkreaderOptions = { brightness: 100, contrast: 90, sepia: 10 };
 
 function onNativeThemeUpdated() {
   if (
-    !preferences.getPreferences().lgDarkmode &&
+    !preferences.getPreferences().enableLgDarkmode &&
     remote.nativeTheme.shouldUseDarkColors
   ) {
     darkreader.enable(darkreaderOptions);
@@ -17,6 +17,9 @@ function onNativeThemeUpdated() {
 
 export function setupTheme() {
   remote.nativeTheme.on('updated', onNativeThemeUpdated);
-  preferences.onPreferenceValueChanged('lgDarkmode', onNativeThemeUpdated);
+  preferences.onPreferenceValueChanged(
+    'enableLgDarkmode',
+    onNativeThemeUpdated
+  );
   onNativeThemeUpdated();
 }

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Body,
   css,
@@ -9,14 +9,17 @@ import {
   palette,
   spacing,
   useDarkMode,
+  SearchInput,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
 import { toggleSidePanel } from '../../modules/side-panel';
-import { STAGE_WIZARD_USE_CASES, UseCaseList } from './stage-wizard-use-cases';
+import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';
 import { FeedbackLink } from './feedback-link';
 import { addWizard } from '../../modules/pipeline-builder/stage-editor';
+import { UseCaseCard } from './stage-wizard-use-cases';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
@@ -71,7 +74,23 @@ export const AggregationSidePanel = ({
   onCloseSidePanel,
   onSelectUseCase,
 }: AggregationSidePanelProps) => {
+  const [searchText, setSearchText] = useState<string>('');
   const darkMode = useDarkMode();
+
+  const filteredUseCases = useMemo(() => {
+    return STAGE_WIZARD_USE_CASES.filter(({ title, stageOperator }) => {
+      const escapedSearchText = searchText.replace('$', '\\$');
+      const matchRegex = new RegExp(escapedSearchText, 'gi');
+      return title.match(matchRegex) || stageOperator.match(matchRegex);
+    });
+  }, [searchText]);
+
+  const handleSearchTextChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchText(e.target.value);
+    },
+    [setSearchText]
+  );
 
   const onSelect = useCallback(
     (id: string) => {
@@ -86,7 +105,7 @@ export const AggregationSidePanel = ({
         drag_and_drop: false,
       });
     },
-    [track]
+    [onSelectUseCase]
   );
 
   return (
@@ -110,8 +129,22 @@ export const AggregationSidePanel = ({
           <Icon glyph="X" />
         </IconButton>
       </div>
-      <div className={contentStyles}>
-        <UseCaseList onSelect={onSelect} />
+      <SearchInput
+        value={searchText}
+        onChange={handleSearchTextChange}
+        placeholder="How can we help?"
+        aria-label="How can we help?"
+      />
+      <div className={contentStyles} data-testid="side-panel-content">
+        {filteredUseCases.map((useCase) => (
+          <UseCaseCard
+            key={useCase.id}
+            id={useCase.id}
+            title={useCase.title}
+            stageOperator={useCase.stageOperator}
+            onSelect={() => onSelect(useCase.id)}
+          />
+        ))}
         <FeedbackLink />
       </div>
     </KeylineCard>

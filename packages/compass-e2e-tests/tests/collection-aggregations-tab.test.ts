@@ -190,7 +190,8 @@ describe('Collection aggregations tab', function () {
 
   before(async function () {
     compass = await beforeTests({
-      extraSpawnArgs: ['--show-focus-mode', '--use-stage-wizard'],
+      // Feature flag: enableStageWizard
+      extraSpawnArgs: ['--enable-stage-wizard'],
     });
     browser = compass.browser;
   });
@@ -856,37 +857,34 @@ describe('Collection aggregations tab', function () {
     );
   });
 
-  // TODO(COMPASS-6582): Update this test for the new export modal.
-  it('[LEGACY] supports exporting aggregation results', async function () {
-    // Set first stage to $match
+  it('supports exporting aggregation results', async function () {
+    // Set first stage to $match.
     await browser.selectStageOperator(0, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(0),
       '{ i: 5 }'
     );
 
-    // Open the modal
+    // Open the modal.
     await browser.clickVisible(Selectors.ExportAggregationResultsButton);
     const exportModal = await browser.$(Selectors.ExportModal);
     await exportModal.waitForDisplayed();
 
-    // Set filename
+    await browser.screenshot('export-modal.png');
+
+    await browser.clickVisible(Selectors.ExportModalExportButton);
+
+    // Set the filename.
     const filename = outputFilename('aggregated-numbers.json');
     await browser.setExportFilename(filename);
 
-    // Start export and wait for results
-    await browser.clickVisible(Selectors.ExportModalExportButton);
-    const exportModalShowFileButtonElement = await browser.$(
-      Selectors.ExportModalShowFileButton
-    );
-    await exportModalShowFileButtonElement.waitForDisplayed();
-
-    await browser.screenshot('export-modal.png');
-
-    // Close modal
-    await browser.clickVisible(Selectors.ExportModalCloseButton);
+    // Wait for the modal to go away.
     const exportModalElement = await browser.$(Selectors.ExportModal);
-    await exportModalElement.waitForDisplayed({ reverse: true });
+    await exportModalElement.waitForDisplayed({
+      reverse: true,
+    });
+
+    await browser.waitForExportToFinishAndCloseToast();
 
     // Confirm that we exported what we expected to export
     const text = await fs.readFile(filename, 'utf-8');
@@ -1505,7 +1503,6 @@ describe('Collection aggregations tab', function () {
       await browser.setComboBoxValue(
         // 0 because at this point we only have one row of fields to be selected
         Selectors.AggregationWizardSortFormField(0),
-        Selectors.AggregationWizardSortFormFieldListbox(0),
         'name'
       );
 

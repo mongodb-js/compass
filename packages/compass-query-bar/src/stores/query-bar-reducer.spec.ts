@@ -148,21 +148,35 @@ describe('queryBarReducer', function () {
   describe('resetQuery', function () {
     it('should reset query form if last applied query is different from the default query', function () {
       const store = createStore();
-      store.dispatch(setQuery({ filter: { _id: 1 } }));
+      const query = { filter: { _id: 1 } };
+      store.dispatch(setQuery(query));
       store.dispatch(applyQuery());
+      expect(store.getState())
+        .to.have.property('lastAppliedQuery')
+        .deep.eq({
+          ...DEFAULT_QUERY_VALUES,
+          ...query,
+        });
       const wasReset = store.dispatch(resetQuery());
       expect(wasReset).to.deep.eq(DEFAULT_QUERY_VALUES);
+      expect(store.getState()).to.have.property('lastAppliedQuery', null);
     });
 
     it('should not reset query if last applied query is default query', function () {
       const store = createStore();
       // Resetting without applying at all first
       let wasReset = store.dispatch(resetQuery());
+      expect(store.getState()).to.have.property('lastAppliedQuery', null);
       expect(wasReset).to.eq(false);
       // Now apply default query and try to reset again
       store.dispatch(applyQuery());
       wasReset = store.dispatch(resetQuery());
       expect(wasReset).to.eq(false);
+      expect(store.getState())
+        .to.have.property('lastAppliedQuery')
+        .deep.eq({
+          ...DEFAULT_QUERY_VALUES,
+        });
     });
   });
 

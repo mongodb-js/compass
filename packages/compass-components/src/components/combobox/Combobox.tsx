@@ -79,16 +79,23 @@ const descriptionWidth = spacing[5] * 14;
 
 // By default we want the menu option to be the same width as the input
 // If the user has specified a description, we add extra space to fit the description.
-const popoverMenuStyles = (width: number, containsDescription: boolean) => {
-  if (!containsDescription) {
+const popoverMenuStyles = (width: number, numDescChars: number) => {
+  if (numDescChars === 0) {
     return css`
       width: ${width}px;
     `;
   }
-  const dropdownWidth = width + descriptionWidth;
+
+  const descWithExtraSpace = numDescChars + 5;
+
   return css`
-    width: ${dropdownWidth}px;
-    margin-left: ${dropdownWidth / 2 - width / 2}px;
+    width: calc(
+      ${width}px + min(${descriptionWidth}px, ${descWithExtraSpace}ch)
+    );
+
+    margin-left: calc(
+      min(${descriptionWidth / 2}px, ${descWithExtraSpace / 2}ch)
+    );
   `;
 };
 
@@ -1207,12 +1214,13 @@ export function Combobox<M extends boolean>({
       : { usePortal }),
   } as const;
 
-  const isAnyOptionWithDescription = useMemo(() => {
-    const numberOfOptionsWithDescriptions = React.Children.map(
-      children,
-      (child: any) => child?.props?.description
-    )?.filter(Boolean)?.length;
-    return (numberOfOptionsWithDescriptions || 0) > 0;
+  const descriptionCharacters = useMemo(() => {
+    const characters: number[] =
+      React.Children.map(
+        children,
+        (child: any) => child?.props?.description?.length ?? 0
+      ) ?? [];
+    return Math.max(...characters);
   }, [children]);
 
   return (
@@ -1337,7 +1345,7 @@ export function Combobox<M extends boolean>({
           refEl={comboboxRef}
           ref={menuRef}
           className={cx(
-            popoverMenuStyles(popoverMenuWidth, isAnyOptionWithDescription),
+            popoverMenuStyles(popoverMenuWidth, descriptionCharacters),
             popoverClassName
           )}
           searchLoadingMessage={searchLoadingMessage}

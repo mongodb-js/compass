@@ -1,20 +1,24 @@
 import {
   Select,
   Option,
-  IconButton,
-  Icon,
   Body,
   spacing,
   css,
-  ComboboxWithCustomOption,
+  ListEditor,
 } from '@mongodb-js/compass-components';
-import React, { useEffect, useMemo, useState } from 'react';
-import { SORT_DIRECTION_OPTIONS, mapSortDataToStageValue } from '../utils';
+import React, { useMemo, useState } from 'react';
+import {
+  SORT_DIRECTION_OPTIONS,
+  getNextId,
+  mapSortDataToStageValue,
+} from '../utils';
 
 import type { WizardComponentProps } from '..';
+import { FieldCombobox } from '../field-combobox';
 
 type SortDirection = typeof SORT_DIRECTION_OPTIONS[number]['value'];
 type SortFieldState = {
+  id: number;
   field: string;
   direction: SortDirection;
 };
@@ -23,6 +27,8 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[2],
+  width: 'max-content',
+  maxWidth: '100%',
 });
 
 const formGroupStyles = css({
@@ -47,119 +53,142 @@ const mapSortFormDataToStageValue = (
   return mapSortDataToStageValue(formData);
 };
 
+const SortFormGroup = ({
+  index,
+  comboboxClassName,
+  fields,
+  sortField,
+  sortDirection,
+  onChange,
+}: {
+  index: number;
+  comboboxClassName: string;
+  fields: WizardComponentProps['fields'];
+  sortField: string;
+  sortDirection: SortDirection;
+  onChange: <T extends keyof SortFieldState>(
+    property: T,
+    value: SortFieldState[T]
+  ) => void;
+}) => {
+  return (
+    <div className={formGroupStyles}>
+      <Body className={labelStyles}>
+        {index === 0 ? 'Sort documents by' : 'and'}
+      </Body>
+      <div data-testid={`sort-form-${index}-field`}>
+        <FieldCombobox
+          className={comboboxClassName}
+          value={sortField}
+          onChange={(value: string | null) => {
+            if (value) {
+              onChange('field', value);
+            }
+          }}
+          fields={fields}
+        />
+      </div>
+      <Body>in</Body>
+      <div data-testid={`sort-form-${index}-direction`}>
+        {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
+        <Select
+          className={sortDirectionStyles}
+          allowDeselect={false}
+          aria-label="Select direction"
+          value={sortDirection}
+          onChange={(value: string) =>
+            onChange('direction', value as SortDirection)
+          }
+        >
+          {SORT_DIRECTION_OPTIONS.map((sort, index) => {
+            return (
+              <Option key={index} value={sort.value}>
+                {sort.label}
+              </Option>
+            );
+          })}
+        </Select>
+      </div>
+    </div>
+  );
+};
+
 export const SortForm = ({ fields, onChange }: WizardComponentProps) => {
-  const fieldNames = useMemo(() => fields.map(({ name }) => name), [fields]);
   const [formData, setFormData] = useState<SortFieldState[]>([
     {
+      id: getNextId(),
       field: '',
       direction: 'Asc',
     },
   ]);
 
-  useEffect(() => {
-    const stageValue = mapSortFormDataToStageValue(formData);
+  const onSetFormData = (data: SortFieldState[]) => {
+    const stageValue = mapSortFormDataToStageValue(data);
     onChange(
       JSON.stringify(stageValue),
       Object.keys(stageValue).length === 0
         ? new Error('No field selected')
         : null
     );
-  }, [formData, onChange]);
 
-  const onSelectField = (index: number, value: string | null) => {
-    if (!value) return;
-    const newFormData = [...formData];
-    newFormData[index].field = value;
-    setFormData(newFormData);
+    setFormData(data);
   };
 
-  const onSelectDirection = (index: number, value: SortDirection) => {
+  const onChangeProperty = <T extends keyof SortFieldState>(
+    index: number,
+    property: T,
+    value: SortFieldState[T]
+  ) => {
     const newFormData = [...formData];
-    newFormData[index].direction = value;
-    setFormData(newFormData);
+    newFormData[index][property] = value;
+    onSetFormData(newFormData);
   };
 
-  const addItem = (at: number) => {
+  const onAddItem = (at: number) => {
     const newData = [...formData];
     newData.splice(at + 1, 0, {
+      id: getNextId(),
       field: '',
       direction: 'Asc',
     });
-    setFormData(newData);
+    onSetFormData(newData);
   };
 
-  const removeItem = (at: number) => {
+  const onRemoveItem = (at: number) => {
     const newData = [...formData];
     newData.splice(at, 1);
-    setFormData(newData);
+    onSetFormData(newData);
   };
 
-  const comboboxStyles = useMemo(() => {
-    return {
+  const comboboxClassName = useMemo(() => {
+    return css({
       width: `calc(${String(
-        Math.max(...fieldNames.map((label) => label.length), 10)
+        Math.max(...fields.map(({ name }) => name.length), 10)
       )}ch)`,
-    };
-  }, [fieldNames]);
+    });
+  }, [fields]);
 
   return (
     <div className={containerStyles}>
-      {formData.map((sort, index: number) => (
-        <div
-          className={formGroupStyles}
-          key={`sort-form-${index}`}
-          data-testid={`sort-form-${index}`}
-        >
-          <Body className={labelStyles}>
-            {index === 0 ? 'Sort documents by' : 'and'}
-          </Body>
-          <div data-testid={`sort-form-${index}-field`}>
-            <ComboboxWithCustomOption
-              style={comboboxStyles}
-              aria-label="Select a field"
-              size="default"
-              clearable={false}
-              value={sort.field}
-              onChange={(value: string | null) => onSelectField(index, value)}
-              options={fieldNames}
-              optionLabel="Field:"
-              // Used for testing to access the popover for a stage
-              popoverClassName={`sort-form-${index}-field-combobox`}
+      <ListEditor
+        items={formData}
+        onAddItem={(index) => onAddItem(index)}
+        onRemoveItem={(index) => onRemoveItem(index)}
+        itemTestId={(index) => `sort-form-${index}`}
+        itemKey={(item) => String(item.id)}
+        renderItem={(item, index) => {
+          return (
+            <SortFormGroup
+              comboboxClassName={comboboxClassName}
+              index={index}
+              sortField={item.field}
+              sortDirection={item.direction}
+              fields={fields}
+              onChange={(prop, value) => onChangeProperty(index, prop, value)}
             />
-          </div>
-          <Body>in</Body>
-          <div data-testid={`sort-form-${index}-direction`}>
-            {/* @ts-expect-error leafygreen unresonably expects a labelledby here */}
-            <Select
-              className={sortDirectionStyles}
-              allowDeselect={false}
-              aria-label="Select direction"
-              usePortal={false}
-              value={sort.direction}
-              onChange={(value: string) =>
-                onSelectDirection(index, value as SortDirection)
-              }
-            >
-              {SORT_DIRECTION_OPTIONS.map((sort, index) => {
-                return (
-                  <Option key={index} value={sort.value}>
-                    {sort.label}
-                  </Option>
-                );
-              })}
-            </Select>
-          </div>
-          <Body>order</Body>
-          <IconButton aria-label="Add" onClick={() => addItem(index)}>
-            <Icon glyph="Plus" />
-          </IconButton>
-          {formData.length > 1 && (
-            <IconButton aria-label="Remove" onClick={() => removeItem(index)}>
-              <Icon glyph="Minus" />
-            </IconButton>
-          )}
-        </div>
-      ))}
+          );
+        }}
+      />
     </div>
   );
 };

@@ -229,13 +229,17 @@ describe('lookup', function () {
             fields: [],
             isLoading: false,
             type: 'collection',
-            error: new Error('Failed to fetch fields'),
+            error: new Error(),
           },
         },
       });
       setComboboxValue(/select collection/i, 'test');
       openComboBox(/select foreign field/i);
-      expect(screen.getByText('Failed to fetch fields')).to.exist;
+      expect(
+        screen.getByText(
+          'Failed to fetch the fields. Type the field name manually.'
+        )
+      ).to.exist;
     });
   });
 });
