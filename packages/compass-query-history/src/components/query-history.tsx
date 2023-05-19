@@ -18,44 +18,30 @@ const componentStyle = css({
   maxHeight: '100%',
 });
 
-function QueryHistory({
-  showing
-}: {
-  showing: 'recent' | 'favorites';
-}) {
+function QueryHistory({ showing }: { showing: 'recent' | 'favorites' }) {
   return (
     <div data-testid="query-history" className={componentStyle}>
       <QueryHistoryToolbar />
 
       {showing === 'favorites' && (
-        <FavoriteList
-          data-testid="query-history-list-favorites"
-        />
+        <FavoriteList data-testid="query-history-list-favorites" />
       )}
       {showing === 'recent' && (
-        <RecentList
-          data-testid="query-history-list-recent"
-        />
+        <RecentList data-testid="query-history-list-recent" />
       )}
     </div>
   );
 }
 
-
 export { QueryHistory };
 export default connect(
-  ({
-    queryHistory: {
-      ns,
-      showing
-    }
-  }: RootState) => {
+  ({ queryHistory: { ns, showing } }: RootState) => {
     return {
       showing,
-      ns
+      ns,
     };
   },
   {
     // TODO: actions
   }
-)(QueryHistory)
+)(QueryHistory);

@@ -31,7 +31,7 @@ type NamespaceChangedAction = {
 export type QueryHistoryState = {
   // TODO
   showing: 'recent' | 'favorites';
-  ns: ReturnType<typeof mongodbns>
+  ns: ReturnType<typeof mongodbns>;
 };
 
 export const initialState: QueryHistoryState = {
@@ -43,12 +43,14 @@ const queryHistoryReducer: Reducer<QueryHistoryState> = (
   state = initialState,
   action
 ) => {
-  if (isAction<ShowFavoritesAction>(action, QueryHistoryActionTypes.ShowFavorites)) {
+  if (
+    isAction<ShowFavoritesAction>(action, QueryHistoryActionTypes.ShowFavorites)
+  ) {
     track('Query History Favorites');
 
     return {
       ...state,
-      showing: 'favorites'
+      showing: 'favorites',
     };
   }
 
@@ -57,20 +59,25 @@ const queryHistoryReducer: Reducer<QueryHistoryState> = (
 
     return {
       ...state,
-      showing: 'recent'
+      showing: 'recent',
     };
   }
 
-  if (isAction<NamespaceChangedAction>(action, QueryHistoryActionTypes.NamespaceChanged)) {
+  if (
+    isAction<NamespaceChangedAction>(
+      action,
+      QueryHistoryActionTypes.NamespaceChanged
+    )
+  ) {
     const nsobj = mongodbns(action.namespace);
     return {
       ...state,
-      ns: nsobj 
+      ns: nsobj,
     };
   }
 
   return state;
-}
+};
 
 const rootReducer = combineReducers({
   queryHistory: queryHistoryReducer,

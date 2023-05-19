@@ -1,9 +1,7 @@
-
 /**
  * Query History Recent List store.
  */
 const configureStore = (options = {}) => {
-
   store.onConnected();
 
   if (options.localAppRegistry) {

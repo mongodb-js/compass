@@ -5,9 +5,9 @@ import QueryHistory from './components/query-history';
 import type { configureStore } from './stores/query-history-store';
 
 function QueryHistoryPlugin({
-  store
+  store,
 }: {
-  store: ReturnType<typeof configureStore>
+  store: ReturnType<typeof configureStore>;
 }) {
   return (
     <Provider store={store}>

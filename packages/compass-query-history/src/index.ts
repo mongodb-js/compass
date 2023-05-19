@@ -32,10 +32,5 @@ function deactivate(appRegistry: AppRegistry): void {
 }
 
 export default QueryHistoryPlugin;
-export {
-  activate,
-  deactivate,
-  configureStore,
-  FavoriteQueryStorage,
-};
+export { activate, deactivate, configureStore, FavoriteQueryStorage };
 export { default as metadata } from '../package.json';
