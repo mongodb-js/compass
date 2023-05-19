@@ -8,8 +8,8 @@ import {
 } from '@testing-library/react';
 import { expect } from 'chai';
 
-import ConnectForm from './connection-form';
-import type { ConnectFormProps } from './connection-form';
+import ConnectionForm from './connection-form';
+import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
 import preferences from 'compass-preferences-model';
 import { defaultConnectionString } from '../constants/default-connection';
@@ -26,9 +26,9 @@ const noop = (): any => {
   /* no-op */
 };
 
-function renderForm(props: Partial<ConnectFormProps> = {}) {
+function renderForm(props: Partial<ConnectionFormProps> = {}) {
   return render(
-    <ConnectForm
+    <ConnectionForm
       onConnectClicked={noop}
       initialConnectionInfo={{
         id: 'test',
@@ -42,7 +42,7 @@ function renderForm(props: Partial<ConnectFormProps> = {}) {
   );
 }
 
-describe('ConnectForm Component', function () {
+describe('ConnectionForm Component', function () {
   afterEach(function () {
     cleanup();
   });
@@ -242,7 +242,7 @@ describe('ConnectForm Component', function () {
 
   it('should render an error with an invalid connection string', function () {
     render(
-      <ConnectForm
+      <ConnectionForm
         onConnectClicked={noop}
         initialConnectionInfo={{
           id: 'test',
@@ -259,7 +259,7 @@ describe('ConnectForm Component', function () {
 
   it('should not show to save a connection when onSaveConnectionClicked doesnt exist', function () {
     render(
-      <ConnectForm
+      <ConnectionForm
         onConnectClicked={noop}
         initialConnectionInfo={{
           id: 'test',
@@ -274,7 +274,7 @@ describe('ConnectForm Component', function () {
 
   it('should show a button to save a connection when onSaveConnectionClicked exists', function () {
     render(
-      <ConnectForm
+      <ConnectionForm
         onConnectClicked={noop}
         initialConnectionInfo={{
           id: 'test',
@@ -290,7 +290,7 @@ describe('ConnectForm Component', function () {
 
   it('should show the saved connection modal when the favorite button is clicked', function () {
     render(
-      <ConnectForm
+      <ConnectionForm
         onConnectClicked={noop}
         initialConnectionInfo={{
           id: 'test',
@@ -311,7 +311,7 @@ describe('ConnectForm Component', function () {
 
   it('should render a connection error', function () {
     render(
-      <ConnectForm
+      <ConnectionForm
         onConnectClicked={() => {
           /* */
         }}
@@ -330,7 +330,7 @@ describe('ConnectForm Component', function () {
 
   it('should show a Save & Connect button when there is no existing connection', function () {
     render(
-      <ConnectForm
+      <ConnectionForm
         onConnectClicked={noop}
         initialConnectionInfo={{
           id: 'test',
@@ -358,7 +358,7 @@ describe('ConnectForm Component', function () {
 
   it('should not show a Save & Connect button when there is an existing connection', function () {
     render(
-      <ConnectForm
+      <ConnectionForm
         onConnectClicked={noop}
         initialConnectionInfo={{
           id: 'test',
