@@ -37,7 +37,7 @@ function ImportInProgressModal({
 }
 
 const mapStateToProps = (state: RootImportState) => ({
-  isInProgressMessageOpen: state.importData.isInProgressMessageOpen,
+  isInProgressMessageOpen: state.import.isInProgressMessageOpen,
 });
 export default connect(mapStateToProps, {
   closeInProgressMessage,

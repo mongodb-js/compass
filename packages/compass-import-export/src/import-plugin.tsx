@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 
 import ImportModal from './components/import-modal';
 import ImportInProgressModal from './components/import-in-progress-modal';
-import importStore from './stores/import-store';
+import { store as importStore } from './stores/import-store';
 
 function ImportPlugin() {
   return (
