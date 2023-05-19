@@ -5,7 +5,7 @@ import path from 'path';
 import os from 'os';
 import AppRegistry from 'hadron-app-registry';
 
-import configureStore from '../../src/stores/recent-list-store';
+import configureStore from './recent-list-store';
 
 describe('RecentListStore [Store]', function () {
   let tmpDir;

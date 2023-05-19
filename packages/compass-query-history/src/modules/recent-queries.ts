@@ -1,5 +1,3 @@
-import Reflux from 'reflux';
-import StateMixin from 'reflux-state-mixin';
 import _ from 'lodash';
 import { formatQuery, comparableQuery } from '../utils';
 import { RecentQuery, RecentQueryCollection } from '../models';
@@ -9,14 +7,6 @@ const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit', 'collation'];
 
-/**
- * Query History Recent List store.
- */
-const configureStore = (options = {}) => {
-  const store = Reflux.createStore({
-    mixins: [StateMixin.store],
-
-    listenables: options.actions,
 
     /**
      * Filter attributes that aren't query fields or have default/empty values.
@@ -143,18 +133,3 @@ const configureStore = (options = {}) => {
         ns: options.namespace,
       };
     },
-  });
-
-  store.onConnected();
-
-  if (options.localAppRegistry) {
-    store.localAppRegistry = options.localAppRegistry;
-    options.localAppRegistry.on('query-applied', (query) => {
-      store.onQueryApplied(query);
-    });
-  }
-
-  return store;
-};
-
-export default configureStore;

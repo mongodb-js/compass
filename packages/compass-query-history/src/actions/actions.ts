@@ -12,7 +12,6 @@ const configureActions = () => {
     'deleteFavorite',
     'addRecent',
     'saveFavorite',
-    'cancelSave',
     'runQuery',
     'namespaceChanged',
   ]);

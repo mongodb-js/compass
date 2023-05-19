@@ -10,6 +10,10 @@ import {
   Icon,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import type mongodbns from 'mongodb-ns';
+import { connect } from 'react-redux';
+
+import type { RootState } from '../modules/query-history';
 
 const titleStyles = css({
   display: 'block',
@@ -45,9 +49,7 @@ type ToolbarProps = {
     showRecent: () => void;
     showFavorites: () => void;
   }; // Query history actions are not currently typed.
-  namespace: {
-    ns: string;
-  };
+  namespace: ReturnType<typeof mongodbns>;
   showing: 'recent' | 'favorites';
 };
 
@@ -112,3 +114,19 @@ function Toolbar({
 }
 
 export { Toolbar };
+export default connect(
+  ({
+    queryHistory: {
+      ns,
+      showing
+    }
+  }: RootState) => {
+    return {
+      showing,
+      ns
+    };
+  },
+  {
+    // TODO: actions
+  }
+)(Toolbar)

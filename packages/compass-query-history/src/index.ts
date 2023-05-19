@@ -1,8 +1,7 @@
 import type AppRegistry from 'hadron-app-registry';
 
-import QueryHistoryPlugin from './plugin';
-import configureStore from './stores';
-import configureActions from './actions';
+import { QueryHistoryPlugin } from './plugin';
+import { configureStore } from './stores/query-history-store';
 import { FavoriteQueryStorage } from './utils';
 
 /**
@@ -12,7 +11,6 @@ const ROLE = {
   name: 'Query History',
   component: QueryHistoryPlugin,
   configureStore: configureStore,
-  configureActions: configureActions,
   storeName: 'Query.History',
   actionName: 'Query.History.Actions',
 };
@@ -38,7 +36,6 @@ export {
   activate,
   deactivate,
   configureStore,
-  configureActions,
   FavoriteQueryStorage,
 };
 export { default as metadata } from '../package.json';

@@ -2,7 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { RecentQuery } from '../../models';
+import { RecentQuery } from '../models';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 

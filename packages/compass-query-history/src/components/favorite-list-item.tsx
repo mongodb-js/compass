@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { IconButton, Icon } from '@mongodb-js/compass-components';
-import { Query } from '../query/query';
-import type { QueryAttributes } from '../query/query';
+import { Query } from './query';
+import type { QueryAttributes } from './query';
 
 type FavoriteModel = {
   _lastExecuted: {

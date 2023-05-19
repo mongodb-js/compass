@@ -11,8 +11,8 @@ import {
   spacing,
   useFormattedDate,
 } from '@mongodb-js/compass-components';
-import { Query } from '../query/query';
-import type { QueryAttributes } from '../query/query';
+import { Query } from './query';
+import type { QueryAttributes } from './query';
 
 type RecentModel = {
   _lastExecuted: Date;

@@ -402,9 +402,8 @@ export const renderQueryHistoryComponent =
       }
 
       const store = localAppRegistry?.getStore('Query.History');
-      const actions = localAppRegistry?.getAction('Query.History.Actions');
 
-      return React.createElement(QueryHistory, { store, actions });
+      return React.createElement(QueryHistory, { store });
     };
   };
 

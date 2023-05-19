@@ -5,9 +5,9 @@ import os from 'os';
 import bson from 'bson';
 import { expect } from 'chai';
 
-import configureStore from '../../src/stores/favorite-list-store';
-import configureActions from '../../src/actions';
-import { RecentQuery } from '../../src/models';
+import configureStore from './favorite-list-store';
+import configureActions from '../actions';
+import { RecentQuery } from '../models';
 
 describe('FavoritesListStore [Store]', function () {
   const actions = configureActions();
