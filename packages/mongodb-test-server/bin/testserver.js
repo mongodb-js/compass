@@ -32,11 +32,11 @@ function getInstanceDataPath(instanceName, port) {
   return path.join(instancesRoot, 'dbs', `${instanceName}-${port}`);
 }
 
-function getInstanceLogPath(instanceName) {
+function getInstanceLogPath(instanceName, port) {
   return path.join(
     instancesRoot,
     'logs',
-    `testserver-${instanceName}-${Date.now()}.log`
+    `testserver-${instanceName}-${port}-${Date.now()}.log`
   );
 }
 
@@ -77,8 +77,7 @@ async function retry(condition) {
       console.info(`Attempt ${attempt} failed`, e);
     }
 
-    attempt++;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
   throw new Error('All the attempts failed.');
@@ -170,7 +169,7 @@ async function start(instanceName, options) {
   const mongodbRunnerArgs = [
     'start',
     `--dbpath=${getInstanceDataPath(instanceName, port)}`,
-    `--logpath=${getInstanceLogPath(instanceName)}`,
+    `--logpath=${getInstanceLogPath(instanceName, port)}`,
     `--port=${port}`,
     `--pidpath=${getInstancePidsPath(instanceName, port)}`,
     ...options.filter(
