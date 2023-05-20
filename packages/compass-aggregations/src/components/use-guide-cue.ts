@@ -18,7 +18,7 @@ const markGuideCueAsSeen = (key: GuideCueKeys) => {
   setStorageItem(key, 'true');
 };
 
-export const useGuideCue = <T extends HTMLDivElement>(key: GuideCueKeys) => {
+export const useGuideCue = <T = HTMLElement>(key: GuideCueKeys) => {
   const cueRefEl = useRef<T | null>(null);
   const [cueIntersectingRef, isIntersecting] = useInView({
     threshold: 0.5,
