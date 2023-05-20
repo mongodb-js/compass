@@ -24,7 +24,7 @@ import { cloneDeep } from 'lodash';
 
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import ConnectFormActions from './connect-form-actions';
+import ConnectionFormActions from './connection-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
@@ -116,7 +116,7 @@ const connectionStringErrorStyles = css({
   marginBottom: spacing[3],
 });
 
-export type ConnectFormProps = {
+export type ConnectionFormProps = {
   darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
@@ -124,14 +124,14 @@ export type ConnectFormProps = {
   onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
 };
 
-function ConnectForm({
+function ConnectionForm({
   initialConnectionInfo,
   connectionErrorMessage,
   onConnectClicked,
   // The connect form will not always used in an environment where
   // the connection info can be saved.
   onSaveConnectionClicked,
-}: ConnectFormProps): React.ReactElement {
+}: ConnectionFormProps): React.ReactElement {
   const darkMode = useDarkMode();
 
   const [
@@ -304,7 +304,7 @@ function ConnectForm({
               )}
             </div>
             <div className={formFooterStyles}>
-              <ConnectFormActions
+              <ConnectionFormActions
                 errors={connectionStringInvalidError ? [] : errors}
                 warnings={connectionStringInvalidError ? [] : warnings}
                 saveButton={
@@ -368,4 +368,4 @@ function ConnectForm({
   );
 }
 
-export default ConnectForm;
+export default ConnectionForm;
