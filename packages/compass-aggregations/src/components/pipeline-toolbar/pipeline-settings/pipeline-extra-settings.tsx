@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -21,10 +21,8 @@ import { toggleSidePanel } from '../../../modules/side-panel';
 import { usePreference } from 'compass-preferences-model';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import {
-  hasSeenStageWizardGuideCue,
-  setHasSeenStageWizardGuideCue,
-} from '../../../utils/local-storage';
+import { GuideCueStorageKeys, useGuideCue } from '../../use-guide-cue';
+
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
@@ -44,29 +42,6 @@ const toggleLabelStyles = css({
   padding: 0,
   textTransform: 'uppercase',
 });
-
-const useStageWizardGuideCue = (
-  showStageWizard: boolean,
-  pipelineMode: PipelineMode
-) => {
-  const [isWizardSeen, setIsWizardSeen] = useState(
-    hasSeenStageWizardGuideCue()
-  );
-
-  const isGuideCueVisible = useMemo(() => {
-    return Boolean(
-      showStageWizard && pipelineMode === 'builder-ui' && !isWizardSeen
-    );
-  }, [showStageWizard, pipelineMode, isWizardSeen]);
-
-  return {
-    isGuideCueVisible,
-    setGuideCueVisited: () => {
-      setIsWizardSeen(true);
-      setHasSeenStageWizardGuideCue();
-    },
-  };
-};
 
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
@@ -92,12 +67,9 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleSidePanel,
 }) => {
   const showStageWizard = usePreference('enableStageWizard', React);
-  const wizardIconRef = useRef<HTMLButtonElement | null>(null);
 
-  const { isGuideCueVisible, setGuideCueVisited } = useStageWizardGuideCue(
-    Boolean(showStageWizard),
-    pipelineMode
-  );
+  const { cueRefEl, cueIntersectingRef, isCueVisible, markCueVisited } =
+    useGuideCue(GuideCueStorageKeys.STAGE_WIZARD);
 
   useEffect(() => {
     if (isSidePanelOpen) {
@@ -106,7 +78,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   }, [isSidePanelOpen]);
 
   const onClickWizardButton = () => {
-    setGuideCueVisited();
+    markCueVisited();
     onToggleSidePanel();
   };
 
@@ -114,6 +86,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
     <div
       className={containerStyles}
       data-testid="pipeline-toolbar-extra-settings"
+      ref={cueIntersectingRef}
     >
       <div className={toggleStyles}>
         <Toggle
@@ -160,12 +133,11 @@ export const PipelineExtraSettings: React.FunctionComponent<
       </SegmentedControl>
       {showStageWizard && (
         <>
-          {/* todo: fix the positioning */}
           <GuideCue
             data-testid="stage-wizard-guide-cue"
-            open={isGuideCueVisible}
-            setOpen={setGuideCueVisited}
-            refEl={wizardIconRef}
+            open={isCueVisible && pipelineMode === 'builder-ui'}
+            setOpen={markCueVisited}
+            refEl={cueRefEl}
             numberOfSteps={1}
             popoverZIndex={2}
             title="Stage Creator"
@@ -174,7 +146,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
             try it out.
           </GuideCue>
           <IconButton
-            ref={wizardIconRef}
+            ref={cueRefEl}
             title="Toggle Side Panel"
             aria-label="Toggle Side Panel"
             onClick={onClickWizardButton}

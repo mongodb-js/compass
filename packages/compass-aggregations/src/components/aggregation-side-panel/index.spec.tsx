@@ -2,6 +2,7 @@ import React from 'react';
 import type { ComponentProps } from 'react';
 import { AggregationSidePanel } from './index';
 import { cleanup, render, screen } from '@testing-library/react';
+import { DndContext } from '@dnd-kit/core';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import configureStore from '../../../test/configure-store';
@@ -14,11 +15,13 @@ const renderAggregationSidePanel = (
 ) => {
   return render(
     <Provider store={configureStore()}>
-      <AggregationSidePanel
-        onSelectUseCase={() => {}}
-        onCloseSidePanel={() => {}}
-        {...props}
-      />
+      <DndContext>
+        <AggregationSidePanel
+          onSelectUseCase={() => {}}
+          onCloseSidePanel={() => {}}
+          {...props}
+        />
+      </DndContext>
     </Provider>
   );
 };
