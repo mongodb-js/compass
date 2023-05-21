@@ -68,10 +68,17 @@ export const CollectionItem: React.FunctionComponent<
 
   const onDefaultAction = useCallback(
     (evt) => {
-      onNamespaceAction(
-        evt.currentTarget.dataset.id as string,
-        'select-collection'
-      );
+      if (evt.metaKey || evt.ctrlKey) {
+        onNamespaceAction(
+          evt.currentTarget.dataset.id as string,
+          'open-in-new-tab'
+        );
+      } else {
+        onNamespaceAction(
+          evt.currentTarget.dataset.id as string,
+          'select-collection'
+        );
+      }
     },
     [onNamespaceAction]
   );
