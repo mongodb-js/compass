@@ -8,6 +8,10 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
+const { log, mongoLogId, track } =
+  createLoggerAndTelemetry('COMPASS-EXPLAIN-UI');
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -210,6 +214,7 @@ export const openExplainPlanModal = (
     const { id: fetchId, signal } = getAbortSignal();
 
     let rawExplainPlan;
+    let explainPlan;
 
     dispatch({
       type: ExplainPlanModalActionTypes.FetchExplainPlanModalLoading,
@@ -236,22 +241,38 @@ export const openExplainPlanModal = (
           { explainVerbosity, abortSignal: signal }
         );
 
-        const explainPlan = new ExplainPlan(
-          rawExplainPlan as Stage
-        ).serialize();
+        try {
+          explainPlan = new ExplainPlan(rawExplainPlan as Stage).serialize();
+        } catch (err) {
+          log.warn(
+            mongoLogId(1_001_000_137),
+            'Explain',
+            'Failed to parse aggregation explain',
+            { message: (err as Error).message }
+          );
+          throw err;
+        }
 
-        dispatch({
-          type: ExplainPlanModalActionTypes.FetchExplainPlanModalSuccess,
-          explainPlan,
-          rawExplainPlan,
+        track('Aggregation Explained', {
+          num_stages: pipeline.length,
+          index_used: explainPlan.usedIndexes.length > 0,
         });
       }
+
+      dispatch({
+        type: ExplainPlanModalActionTypes.FetchExplainPlanModalSuccess,
+        explainPlan,
+        rawExplainPlan,
+      });
     } catch (err) {
       if (dataService.isCancelError(err)) {
         // Cancellation can be caused only by close modal action and handled
         // there
         return;
       }
+      log.error(mongoLogId(1_001_000_138), 'Explain', 'Failed to run explain', {
+        message: (err as Error).message,
+      });
       dispatch({
         type: ExplainPlanModalActionTypes.FetchExplainPlanModalError,
         error: (err as Error).message,
