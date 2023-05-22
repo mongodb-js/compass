@@ -4,15 +4,14 @@ import type { Store, AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 
-import reducer from '../modules';
 import { globalAppRegistryActivated } from '../modules/compass';
 import {
   dataServiceConnected,
   dataServiceDisconnected,
 } from '../modules/compass/data-service';
-import { openImport } from '../modules/import';
+import { rootImportReducer, openImport } from '../modules/import';
 
-const _store = createStore(reducer, applyMiddleware(thunk));
+const _store = createStore(rootImportReducer, applyMiddleware(thunk));
 
 type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
 
@@ -49,4 +48,4 @@ const store = Object.assign(_store, {
   },
 });
 
-export default store;
+export { store };

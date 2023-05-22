@@ -11,13 +11,13 @@ import {
   selectImportFileName,
   INITIAL_STATE,
 } from './import';
-import rootReducer from '.';
+import { rootImportReducer } from './import';
 import type { RootImportState } from '../stores/import-store';
 
 type DispatchFunctionType = ThunkDispatch<RootImportState, void, AnyAction>;
 
 const mockEmptyState = {
-  importData: {
+  import: {
     ...INITIAL_STATE,
   },
 };
@@ -25,18 +25,18 @@ const mockEmptyState = {
 describe('import [module]', function () {
   // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
   let mockStore = createStore(
-    rootReducer,
+    rootImportReducer,
     mockEmptyState,
     applyMiddleware<DispatchFunctionType, RootImportState>(thunk)
   );
   beforeEach(function () {
     const mockState = {
-      importData: {
+      import: {
         ...INITIAL_STATE,
       },
     };
     mockStore = createStore(
-      rootReducer,
+      rootImportReducer,
       mockState,
       applyMiddleware<DispatchFunctionType, RootImportState>(thunk)
     );
@@ -52,8 +52,8 @@ describe('import [module]', function () {
         })
       );
 
-      expect(mockStore.getState().importData.status).to.equal('STARTED');
-      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+      expect(mockStore.getState().import.status).to.equal('STARTED');
+      expect(mockStore.getState().import.isInProgressMessageOpen).to.equal(
         false
       );
 
@@ -64,20 +64,20 @@ describe('import [module]', function () {
         })
       );
 
-      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+      expect(mockStore.getState().import.isInProgressMessageOpen).to.equal(
         true
       );
-      expect(mockStore.getState().importData.isOpen).to.equal(false);
+      expect(mockStore.getState().import.isOpen).to.equal(false);
     });
 
     it('opens and sets the namespace', function () {
       const testNS = 'test.test';
-      expect(mockStore.getState().importData.status).to.equal('UNSPECIFIED');
+      expect(mockStore.getState().import.status).to.equal('UNSPECIFIED');
       expect(mockStore.getState().ns).to.not.equal(testNS);
-      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+      expect(mockStore.getState().import.isInProgressMessageOpen).to.equal(
         false
       );
-      expect(mockStore.getState().importData.isOpen).to.equal(false);
+      expect(mockStore.getState().import.isOpen).to.equal(false);
 
       mockStore.dispatch(
         openImport({
@@ -87,10 +87,10 @@ describe('import [module]', function () {
       );
 
       expect(mockStore.getState().ns).to.equal(testNS);
-      expect(mockStore.getState().importData.isInProgressMessageOpen).to.equal(
+      expect(mockStore.getState().import.isInProgressMessageOpen).to.equal(
         false
       );
-      expect(mockStore.getState().importData.isOpen).to.equal(true);
+      expect(mockStore.getState().import.isOpen).to.equal(true);
     });
   });
 
@@ -105,24 +105,24 @@ describe('import [module]', function () {
         'good.json'
       );
 
-      expect(mockStore.getState().importData.fileName).to.equal('');
+      expect(mockStore.getState().import.fileName).to.equal('');
 
       await mockStore.dispatch(selectImportFileName(fileName));
 
-      expect(mockStore.getState().importData.fileName).to.equal(fileName);
+      expect(mockStore.getState().import.fileName).to.equal(fileName);
     });
 
     it('adds an error when the file does not exist', async function () {
       const noExistFile = path.join(__dirname, 'no-exist.json');
 
-      expect(mockStore.getState().importData.fileName).to.equal('');
-      expect(mockStore.getState().importData.errors.length).to.equal(0);
+      expect(mockStore.getState().import.fileName).to.equal('');
+      expect(mockStore.getState().import.errors.length).to.equal(0);
 
       await mockStore.dispatch(selectImportFileName(noExistFile));
 
-      expect(mockStore.getState().importData.fileName).to.equal('');
+      expect(mockStore.getState().import.fileName).to.equal('');
 
-      expect(mockStore.getState().importData.errors.length).to.equal(1);
+      expect(mockStore.getState().import.errors.length).to.equal(1);
     });
   });
 });
