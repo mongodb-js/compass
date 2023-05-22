@@ -27,29 +27,31 @@ const textDarkStyles = css({
 function CancelLoader({
   ['data-testid']: dataTestId = 'cancel-loader',
   progressText,
-  cancelText,
+  cancelText = 'Cancel',
   onCancel,
 }: {
   'data-testid'?: string;
   progressText: string;
-  cancelText: string;
-  onCancel: () => void;
+  cancelText?: string;
+  onCancel?: () => void;
 }): React.ReactElement {
   const darkMode = useDarkMode();
 
   return (
     <div className={containerStyles} data-testid={dataTestId}>
-      <SpinLoader size={`${spacing[4]}px`} />
+      <SpinLoader size={spacing[4]} />
       <Subtitle className={cx(textStyles, darkMode && textDarkStyles)}>
         {progressText}
       </Subtitle>
-      <Button
-        variant="primaryOutline"
-        onClick={onCancel}
-        data-testid={`${dataTestId}-button`}
-      >
-        {cancelText}
-      </Button>
+      {onCancel && (
+        <Button
+          variant="primaryOutline"
+          onClick={onCancel}
+          data-testid={`${dataTestId}-button`}
+        >
+          {cancelText}
+        </Button>
+      )}
     </div>
   );
 }

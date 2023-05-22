@@ -4,7 +4,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
 
 interface SpinLoaderProps {
-  size?: string;
+  size?: string | number;
   title?: string;
   className?: string;
 }
