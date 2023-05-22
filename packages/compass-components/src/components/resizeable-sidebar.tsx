@@ -26,7 +26,7 @@ const containerStylesDark = css({
   '--icon-color': palette.white,
 
   '--item-color': palette.white,
-  '--item-color-active': palette.green.light1,
+  '--item-color-active': palette.green.base,
   '--item-bg-color': palette.gray.dark4,
   '--item-bg-color-hover': palette.gray.dark2,
   '--item-bg-color-active': palette.black,
