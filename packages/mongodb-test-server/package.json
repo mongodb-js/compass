@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/mongodb-test-server",
   "productName": "@mongodb-js/mongodb-test-server Plugin",
-  "description": "Temporary package that wraps mongodb-runner to make it a bit more observable and reliable",
+  "description": "Temporary package (see MONGOSH-1267) that wraps mongodb-runner to make it a bit more observable and reliable",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
