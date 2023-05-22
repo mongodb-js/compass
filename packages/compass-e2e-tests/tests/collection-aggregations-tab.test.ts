@@ -872,6 +872,16 @@ describe('Collection aggregations tab', function () {
 
     await browser.screenshot('export-modal.png');
 
+    // Make sure the aggregation is shown in the modal.
+    const exportModalAggregationTextElement = await browser.$(
+      Selectors.ExportModalCodePreview
+    );
+    expect(await exportModalAggregationTextElement.getText()).to
+      .equal(`db.getCollection('numbers').aggregate(
+  [{ $match: { i: 5 } }],
+  { maxTimeMS: 60000, allowDiskUse: true }
+);`);
+
     await browser.clickVisible(Selectors.ExportModalExportButton);
 
     // Set the filename.
