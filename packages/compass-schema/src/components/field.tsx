@@ -11,9 +11,14 @@ import {
 import find from 'lodash.find';
 import { withPreferences } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
+import type {
+  ArraySchemaType,
+  DocumentSchemaType,
+  SchemaField,
+  SchemaType,
+} from 'mongodb-schema';
 
 import { FieldType, sortTypes } from './type';
-import type { SchemaFieldType } from './type';
 import Minichart from './minichart';
 import detectCoordinates from '../modules/detect-coordinates';
 import type configureActions from '../actions';
@@ -103,8 +108,8 @@ type FieldProps = {
   actions: ReturnType<typeof configureActions>;
   localAppRegistry: AppRegistry;
   name: string;
-  path: string;
-  types: SchemaFieldType[];
+  path: string[];
+  types: SchemaType[];
   enableMaps: boolean;
 };
 
@@ -118,16 +123,20 @@ type FieldProps = {
  *
  * @see mongodb-js/mongodb-schema
  */
-function getNestedDocType(types: SchemaFieldType[]) {
+function getNestedDocType(
+  types: SchemaType[]
+): null | undefined | DocumentSchemaType {
   // Check for directly nested document first.
   const docType = find(types, { name: 'Document' });
   if (docType) {
-    return docType;
+    return docType as DocumentSchemaType;
   }
   // Otherwise check for nested documents inside an array.
   const arrType = find(types, { name: 'Array' });
   if (arrType) {
-    return find(arrType.types, { name: 'Document' });
+    return find((arrType as ArraySchemaType).types, { name: 'Document' }) as
+      | DocumentSchemaType
+      | undefined;
   }
   return null;
 }
@@ -137,9 +146,12 @@ function getNestedDocType(types: SchemaFieldType[]) {
  * replaces type information like name and values if there's a match.
  */
 function getSemanticType(
-  type: SchemaFieldType,
+  type: SchemaType,
   enableMaps: boolean
-): SchemaFieldType {
+): SchemaType & {
+  values?: any[];
+  types?: SchemaType[];
+} {
   // Check if the type represents geo coordinates, if privacy settings allow.
   if (!enableMaps) {
     return type;
@@ -176,8 +188,8 @@ function Field({
   const activeShownTypes = useMemo(() => sortTypes(types), [types]);
   const nestedDocType = useMemo(() => getNestedDocType(types), [types]);
 
-  const fieldAccordionButtonId = `$$${path}.${name}-button`;
-  const fieldListRegionId = `$$${path}.${name}-fields-region`;
+  const fieldAccordionButtonId = `${JSON.stringify(path)}.${name}-button`;
+  const fieldListRegionId = `${JSON.stringify(path)}.${name}-fields-region`;
 
   return (
     <KeylineCard className={fieldContainerStyles}>
@@ -228,7 +240,7 @@ function Field({
                   <FieldType
                     key={`type-${semanticType.name}`}
                     activeType={activeType}
-                    onSetTypeActive={(type: SchemaFieldType) =>
+                    onSetTypeActive={(type: SchemaType) =>
                       setActiveType(getSemanticType(type, enableMaps))
                     }
                     type={semanticType}
@@ -243,7 +255,11 @@ function Field({
           </div>
           <div className={fieldChartContainerStyles}>
             <Minichart
-              fieldName={path}
+              // Convert the string array of paths
+              // to a single string with dots between field names.
+              // Note: This will cause collisions when
+              // there are fields with dots in them.
+              fieldName={path.join('.')}
               type={activeType}
               nestedDocType={nestedDocType}
               actions={actions}
@@ -262,7 +278,7 @@ function Field({
             aria-labelledby={fieldAccordionButtonId}
           >
             {(getNestedDocType(types)?.fields || []).map(
-              (field: SchemaFieldType) => (
+              (field: SchemaField) => (
                 <div className={nestedFieldStyles} key={field.name}>
                   <Field
                     actions={actions}

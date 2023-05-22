@@ -13,8 +13,6 @@ import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
 
-temp.track();
-
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 
@@ -26,6 +24,8 @@ import { importCSV } from './import-csv';
 import { formatCSVHeaderName } from '../csv/csv-utils';
 import type { CSVParsableFieldType, PathPart } from '../csv/csv-types';
 import type { ErrorJSON } from '../import/import-types';
+
+temp.track();
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -253,10 +253,8 @@ describe('importCSV', function () {
           abortSignal: abortController.signal,
           progressCallback,
           ignoreEmptyStrings: true,
+          stopOnErrors: true,
         });
-
-        const errorLog = await fs.promises.readFile(output.path, 'utf8');
-        expect(errorLog).to.equal('');
 
         expect(result).to.deep.equal({
           docsProcessed: totalRows,

@@ -19,6 +19,16 @@ const ONE = 1;
 const FIELD = 'field';
 const VERSION_ZERO = '0.0.0';
 
+/**
+ * For the field store we generate a flattened map of path strings
+ * for autocompletion. We generate the path
+ * id strings by joining field paths with dots, this means we can
+ * have collisions when there are field names with dots in them.
+ */
+function getFlattenedPathIdString(path) {
+  return path.join('.');
+}
+
 const configureStore = (options = {}) => {
   const store = createStore(reducer);
 
@@ -58,45 +68,28 @@ const configureStore = (options = {}) => {
    *
    * @param  {Object} fields       flattened list of fields
    * @param  {Array} nestedFields  sub-fields of topLevelFields (if existing)
-   * @param  {Object} rootField    current top level field which can contain nestedFields
-   * @param  {Number} arrayDepth   track depth of the dimensionality recursion
    */
-  store._flattenedFields = (
-    fields,
-    nestedFields,
-    rootField,
-    arrayDepth = 1
-  ) => {
+  store._flattenedFields = (fields, nestedFields) => {
     if (!nestedFields) {
       return;
     }
 
-    if (rootField) {
-      // eslint-disable-next-line no-prototype-builtins
-      if (!fields[rootField.path].hasOwnProperty('nestedFields')) {
-        fields[rootField.path].nestedFields = [];
-      }
-      nestedFields.map((f) => {
-        if (!fields[rootField.path].nestedFields.includes(f.path)) {
-          fields[rootField.path].nestedFields.push(f.path);
-        }
-      });
-    }
-
     for (const field of nestedFields) {
-      const existingField = fields[field.path] || {};
+      const fieldPathId = getFlattenedPathIdString(field.path);
+
+      const existingField = fields[fieldPathId] || {};
       const newField = pick(field, FIELDS);
-      fields[field.path] = store._mergeFields(existingField, newField);
+      fields[fieldPathId] = store._mergeFields(existingField, newField);
 
       // recursively search arrays and subdocuments
       for (const type of field.types) {
         if (type.name === 'Document') {
           // add nested sub-fields
-          store._flattenedFields(fields, type.fields, field);
+          store._flattenedFields(fields, type.fields);
         }
         if (type.name === 'Array') {
           // add arrays of arrays or subdocuments
-          store._flattenedArray(fields, type.types, field, arrayDepth);
+          store._flattenedArray(fields, type.types);
         }
       }
     }
@@ -107,35 +100,29 @@ const configureStore = (options = {}) => {
    *
    * @param {Object} fields      flattened list of fields to mutate
    * @param {Array} nestedTypes  the "types" array currently being inspected
-   * @param {Object} field       current top level field on which to
-   *                             mutate dimensionality
-   * @param {Number} arrayDepth  track depth of the dimensionality recursion
    */
-  store._flattenedArray = (fields, nestedTypes, field, arrayDepth) => {
-    fields[field.path].dimensionality = arrayDepth;
-
+  store._flattenedArray = (fields, nestedTypes) => {
     // Arrays have no name, so can only recurse into arrays or subdocuments
     for (const type of nestedTypes) {
       if (type.name === 'Document') {
         // recurse into nested sub-fields
-        store._flattenedFields(fields, type.fields, field);
+        store._flattenedFields(fields, type.fields);
       }
       if (type.name === 'Array') {
         // recurse into nested arrays (again)
-        store._flattenedArray(fields, type.types, field, arrayDepth + 1);
+        store._flattenedArray(fields, type.types);
       }
     }
   };
 
   /**
-   * Processes the fields in a format compatible with the ACE editor
-   * autocompleter.
+   * Processes the fields in a format compatible with an autocompleter.
    *
    * @param {Object} fields - The fields.
    *
    * @returns {Array} The array of autocomplete metadata.
    */
-  store._processAceFields = (fields) => {
+  store._processFieldsForAutocomplete = (fields) => {
     return Object.keys(fields).map((key) => {
       const field =
         key.indexOf('.') > -1 || key.indexOf(' ') > -1 ? `"${key}"` : key;
@@ -168,7 +155,7 @@ const configureStore = (options = {}) => {
     store._flattenedFields(fields, schema.fields);
 
     const tlResult = union(store.getState().topLevelFields, topLevelFields);
-    const aResult = store._processAceFields(fields);
+    const aResult = store._processFieldsForAutocomplete(fields);
     store.dispatch(changeFields(fields, tlResult, aResult));
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, KeylineCard } from '@mongodb-js/compass-components';
+import { css, KeylineCard, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
@@ -23,6 +23,12 @@ const resultsStyles = css({
   overflowX: 'hidden',
 });
 
+const workspaceContainerStyles = css({
+  paddingBottom: spacing[3],
+  width: '100%',
+  overflow: 'auto',
+});
+
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
 };
@@ -34,38 +40,45 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
 > = ({ isAutoPreview }) => {
   if (!isAutoPreview) {
     return (
+      <div className={workspaceContainerStyles}>
+        <KeylineCard
+          data-testid={containerDataTestId}
+          className={containerStyles}
+        >
+          <div className={noPreviewEditorStyles}>
+            <PipelineEditor />
+          </div>
+        </KeylineCard>
+      </div>
+    );
+  }
+  return (
+    <div className={workspaceContainerStyles}>
       <KeylineCard
         data-testid={containerDataTestId}
         className={containerStyles}
       >
-        <div className={noPreviewEditorStyles}>
+        <Resizable
+          defaultSize={{
+            width: '50%',
+            height: '100%',
+          }}
+          minWidth="300px"
+          maxWidth="70%"
+          enable={{
+            right: true,
+          }}
+          handleComponent={{
+            right: <ResizeHandle />,
+          }}
+        >
           <PipelineEditor />
+        </Resizable>
+        <div className={resultsStyles}>
+          <PipelinePreview />
         </div>
       </KeylineCard>
-    );
-  }
-  return (
-    <KeylineCard data-testid={containerDataTestId} className={containerStyles}>
-      <Resizable
-        defaultSize={{
-          width: '50%',
-          height: '100%',
-        }}
-        minWidth="300px"
-        maxWidth="70%"
-        enable={{
-          right: true,
-        }}
-        handleComponent={{
-          right: <ResizeHandle />,
-        }}
-      >
-        <PipelineEditor />
-      </Resizable>
-      <div className={resultsStyles}>
-        <PipelinePreview />
-      </div>
-    </KeylineCard>
+    </div>
   );
 };
 

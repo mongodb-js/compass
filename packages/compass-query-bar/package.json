@@ -59,7 +59,7 @@
     "@mongodb-js/compass-components": "^1.8.0",
     "@mongodb-js/compass-editor": "^0.7.0",
     "@mongodb-js/compass-logging": "^1.1.5",
-    "@mongodb-js/mongodb-constants": "^0.2.1",
+    "@mongodb-js/mongodb-constants": "^0.6.0",
     "compass-preferences-model": "^2.8.0",
     "react": "^17.0.2"
   },
@@ -73,7 +73,7 @@
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^22.3.8",
+    "electron": "^22.3.10",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.6",
     "lodash": "^4.17.21",
@@ -93,7 +93,7 @@
     "@mongodb-js/compass-components": "^1.8.0",
     "@mongodb-js/compass-editor": "^0.7.0",
     "@mongodb-js/compass-logging": "^1.1.5",
-    "@mongodb-js/mongodb-constants": "^0.2.1",
+    "@mongodb-js/mongodb-constants": "^0.6.0",
     "compass-preferences-model": "^2.8.0"
   }
 }

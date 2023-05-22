@@ -1,4 +1,10 @@
 buildvariants:
+  - name: generate-vulnerability-report
+    display_name: Vulnerability Report
+    run_on: ubuntu2004-large
+    tasks:
+      - name: generate-vulnerability-report
+
   - name: coverage
     display_name: E2E Coverage
     run_on: ubuntu2004-large

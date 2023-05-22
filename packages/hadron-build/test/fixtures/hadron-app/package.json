@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "compass-unused-plugin": "compass/plugin",
-    "moment": "^2.10.6"
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "hadron-build": "^0.1.9",

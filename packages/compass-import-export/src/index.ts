@@ -3,7 +3,7 @@ import type AppRegistry from 'hadron-app-registry';
 import ImportPlugin from './import-plugin';
 import ExportPlugin from './export-plugin';
 import { store as exportStore } from './stores/export-store';
-import importStore from './stores/import-store';
+import { store as importStore } from './stores/import-store';
 
 /**
  * The import plugin.

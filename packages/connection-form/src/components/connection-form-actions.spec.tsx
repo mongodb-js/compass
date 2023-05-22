@@ -3,7 +3,7 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import ConnectFormActions from './connect-form-actions';
+import ConnectFormActions from './connection-form-actions';
 
 describe('ConnectFormActions Component', function () {
   afterEach(cleanup);
