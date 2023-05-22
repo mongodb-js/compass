@@ -39,17 +39,14 @@ const actionsStyles = css({
 });
 
 const editorStyles = css({
-  padding: '10px 0',
   marginTop: spacing[3],
 });
 
 const editorStylesLight = css({
-  backgroundColor: palette.gray.light3,
   borderLeft: `3px solid ${palette.gray.light2}`,
 });
 
 const editorStylesDark = css({
-  backgroundColor: palette.gray.dark4,
   borderLeft: `3px solid ${palette.gray.dark2}`,
 });
 
