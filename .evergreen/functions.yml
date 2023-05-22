@@ -1,17 +1,19 @@
 # The variables are with the functions because they are only used by the
 # functions and also because you can't use variables across includes.
 variables:
-  - &save-artifact-params
+  - &save-artifact-params-private
     aws_key: ${aws_key}
     aws_secret: ${aws_secret}
     bucket: mciuploads
     content_type: application/octet-stream
-  - &save-artifact-params-private
-    <<: *save-artifact-params
     permissions: private
     visibility: signed
   - &save-artifact-params-public
-    permissions: public
+    aws_key: ${aws_key}
+    aws_secret: ${aws_secret}
+    bucket: mciuploads
+    content_type: application/octet-stream
+    permissions: public-read
   - &get-artifact-params
     aws_key: ${aws_key}
     aws_secret: ${aws_secret}
