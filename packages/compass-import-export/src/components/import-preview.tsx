@@ -13,6 +13,7 @@ import {
   palette,
   Tooltip,
   Icon,
+  IconButton,
   Select,
   Option,
   useDarkMode,
@@ -22,7 +23,6 @@ import { createDebug } from '../utils/logger';
 import type { CSVParsableFieldType, CSVField } from '../csv/csv-types';
 import { CSVFieldTypeLabels } from '../csv/csv-types';
 import { findBrokenCSVTypeExample } from '../csv/csv-utils';
-import { IconButton } from '@mongodb-js/compass-components';
 
 const debug = createDebug('import-preview');
 
