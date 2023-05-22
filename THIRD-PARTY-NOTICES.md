@@ -504,7 +504,7 @@ This document was automatically generated on Mon May 22 2023.
 | **[mongodb-query-util](#1cdb3b70a5e114dae29f1b35f9d6db51c92eb87f2577dc4054c75119970b2df1)**                            | 0.0.3        | Apache-2.0                          |
 | **[mongodb-query-util](#cca38af88354cbe08b44f198be120ccf55e468b2aad0dc82a55f98aa972b9686)**                            | 0.2.1        | Apache-2.0                          |
 | **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**                                | 0.2.2        | Apache-2.0                          |
-| **[mongodb-schema](#d66bd816b32230afd496e81487234b1e2e6a47f5fe04963ca42ffc85e8ebf5f3)**                                | 10.0.2       | Apache-2.0                          |
+| **[mongodb-schema](#ad3ae0c600e99ac87b6e35f97b1e179b6d50942eaa01b705e90a0deffb6c2aff)**                                | 11.1.0       | Apache-2.0                          |
 | **[mongodb-url](#400fa16b044759954266738cf4137a5e2f65f4e056588d7caee023180703347b)**                                   | 3.0.3        | Apache-2.0                          |
 | **[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**                                       | 3.6.9        | Apache-2.0                          |
 | **[mongodb](#ce4b69e55098e4d681e903629a880cdd6e1b4de00511220176fb999734a62bf0)**                                       | 5.5.0        | Apache-2.0                          |
@@ -30573,9 +30573,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="d66bd816b32230afd496e81487234b1e2e6a47f5fe04963ca42ffc85e8ebf5f3"></a>
+<a id="ad3ae0c600e99ac87b6e35f97b1e179b6d50942eaa01b705e90a0deffb6c2aff"></a>
 
-### [mongodb-schema](https://www.npmjs.com/package/mongodb-schema) (version 10.0.2)
+### [mongodb-schema](https://www.npmjs.com/package/mongodb-schema) (version 11.1.0)
 
 License tags: Apache-2.0
 
