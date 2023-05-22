@@ -79,7 +79,6 @@
     "@electron/remote": "^2.0.9",
     "@mongodb-js/eslint-config-compass": "^1.0.5",
     "@mongodb-js/mocha-config-compass": "^1.1.1",
-    "@mongodb-js/mongodb-test-server": "^0.1.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@mongodb-js/webpack-config-compass": "^1.0.8",

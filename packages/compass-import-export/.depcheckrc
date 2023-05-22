@@ -1,5 +1,4 @@
 ignores:
-  - "@mongodb-js/mongodb-test-server"
   - "@mongodb-js/prettier-config-compass"
   - "@mongodb-js/tsconfig-compass"
   - "@types/chai"

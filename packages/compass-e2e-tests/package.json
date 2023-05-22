@@ -29,7 +29,6 @@
   "devDependencies": {
     "@electron/rebuild": "^3.2.13",
     "@mongodb-js/eslint-config-compass": "^1.0.5",
-    "@mongodb-js/mongodb-test-server": "^0.1.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@types/chai-as-promised": "^7.1.4",
