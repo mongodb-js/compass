@@ -22,6 +22,7 @@ import { createDebug } from '../utils/logger';
 import type { CSVParsableFieldType, CSVField } from '../csv/csv-types';
 import { CSVFieldTypeLabels } from '../csv/csv-types';
 import { findBrokenCSVTypeExample } from '../csv/csv-utils';
+import { IconButton } from '@mongodb-js/compass-components';
 
 const debug = createDebug('import-preview');
 
@@ -85,30 +86,35 @@ const fieldTypeContainerStyles = css({
   gap: spacing[1],
 });
 
-const infoIconCSSCommon = css({
-  // align the icon relative to the selectbox
-  height: `${spacing[3]}px`,
+const infoIconCommonStyles = css({
+  // Hack: Align the icon relative to the SelectBox.
+  marginBottom: `-${spacing[1]}px`,
+  marginTop: `-${spacing[1]}px`,
 });
 
-const infoIconCSSLight = css({
+const infoIconLightStyles = css({
   color: palette.gray.dark2,
 });
 
-const infoIconCSSDark = css({
+const infoIconDarkStyles = css({
   color: palette.gray.light2,
 });
 
-const warningIconCSSCommon = infoIconCSSCommon;
+const warningIconCommonStyles = css(infoIconCommonStyles, {
+  marginLeft: spacing[1],
+  marginRight: spacing[1],
+  paddingTop: spacing[1],
+});
 
-const warningIconCSSLight = css({
+const warningIconLightStyles = css({
   color: palette.red.base,
 });
 
-const warningIconCSSDark = css({
+const warningIconDarkStyles = css({
   color: palette.red.light1,
 });
 
-const typesListCSS = css({
+const typesListStyles = css({
   margin: `${spacing[3]}px 0`,
 });
 
@@ -190,16 +196,18 @@ type Field = {
 
 function InfoIcon() {
   const darkMode = useDarkMode();
-
   return (
-    <div
+    <IconButton
+      as="a"
       className={cx(
-        infoIconCSSCommon,
-        darkMode ? infoIconCSSDark : infoIconCSSLight
+        infoIconCommonStyles,
+        darkMode ? infoIconDarkStyles : infoIconLightStyles
       )}
+      href="https://www.mongodb.com/docs/manual/reference/bson-types/"
+      target="_blank"
     >
       <Icon glyph="InfoWithCircle"></Icon>
-    </div>
+    </IconButton>
   );
 }
 
@@ -209,8 +217,8 @@ function WarningIcon() {
   return (
     <div
       className={cx(
-        warningIconCSSCommon,
-        darkMode ? warningIconCSSDark : warningIconCSSLight
+        warningIconCommonStyles,
+        darkMode ? warningIconDarkStyles : warningIconLightStyles
       )}
     >
       <Icon glyph="Warning"></Icon>
@@ -241,14 +249,14 @@ function MixedWarning({
       )}
     >
       <>
-        <Body as="p">
+        <Body>
           This field has{' '}
           {selectedType === 'number'
             ? 'mixed numeric types'
             : 'mixed data types'}
           :
         </Body>
-        <ul className={typesListCSS}>
+        <ul className={typesListStyles}>
           {Object.entries(result.types).map(([type, info]) => {
             return (
               <li key={type}>
@@ -298,8 +306,8 @@ function TypeWarning({
       )}
     >
       <>
-        <Body as="p">This field has these detected types:</Body>
-        <ul className={typesListCSS}>
+        <Body>This field has these detected types:</Body>
+        <ul className={typesListStyles}>
           {Object.entries(result.types).map(([type, info]) => {
             return (
               <li key={type}>
@@ -309,7 +317,7 @@ function TypeWarning({
             );
           })}
         </ul>
-        <Body as="p">
+        <Body>
           Row {example.firstRowIndex + 1} contains the value{' '}
           <i>&quot;{value}&quot;</i>. This will cause an error for type{' '}
           {CSVFieldTypeLabels[selectedType]}.
