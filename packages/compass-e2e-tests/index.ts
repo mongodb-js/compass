@@ -55,16 +55,7 @@ async function setup() {
   // When working on the tests it is faster to just keep the server running.
   if (!disableStartStop) {
     debug('Starting MongoDB server');
-    crossSpawn.sync(
-      'npm',
-      [
-        'run',
-        'start-server',
-        '--',
-        `--port=${String(MONGODB_TEST_SERVER_PORT)}`,
-      ],
-      { stdio: 'inherit' }
-    );
+    crossSpawn.sync('npm', ['run', 'start-server'], { stdio: 'inherit' });
   }
 
   try {
