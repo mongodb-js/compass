@@ -17,7 +17,6 @@ const renderStageToolbar = (
       })}
     >
       <StageToolbar
-        onFocusModeClicked={() => {}}
         hasServerError={false}
         hasSyntaxError={false}
         index={0}
