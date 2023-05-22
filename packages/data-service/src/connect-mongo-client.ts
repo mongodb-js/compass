@@ -1,7 +1,10 @@
 import type { MongoClientOptions } from 'mongodb';
 import { MongoClient } from 'mongodb';
 import { connectMongoClient, hookLogger } from '@mongodb-js/devtools-connect';
-import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
+import type {
+  DevtoolsConnectOptions,
+  DevtoolsConnectionState,
+} from '@mongodb-js/devtools-connect';
 import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import EventEmitter from 'events';
 import { redactConnectionOptions, redactConnectionString } from './redact';
@@ -23,7 +26,7 @@ export type CloneableMongoClient = MongoClient & {
   [createClonedClient](): Promise<CloneableMongoClient>;
 };
 
-export default async function connectMongoClientCompass(
+export async function connectMongoClientCompass(
   connectionOptions: Readonly<ConnectionOptions>,
   setupListeners: (client: MongoClient) => void,
   logger?: UnboundDataServiceImplLogger
@@ -32,6 +35,7 @@ export default async function connectMongoClientCompass(
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
     sshTunnel: SSHTunnel | undefined,
+    connectionState: DevtoolsConnectionState,
     options: { url: string; options: DevtoolsConnectOptions }
   ]
 > {
@@ -48,6 +52,14 @@ export default async function connectMongoClientCompass(
     useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
   };
+
+  // TODO(COMPASS-6849): Add a way to properly override openBrowser
+  if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
+    options.oidc ??= {};
+    options.oidc.openBrowser = {
+      command: process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY,
+    };
+  }
 
   if (options.autoEncryption && process.env.COMPASS_CRYPT_LIBRARY_PATH) {
     options.autoEncryption = {
@@ -88,26 +100,34 @@ export default async function connectMongoClientCompass(
 
   async function connectSingleClient(
     overrideOptions: Partial<DevtoolsConnectOptions>
-  ): Promise<CloneableMongoClient> {
+  ): Promise<{ client: CloneableMongoClient; state: DevtoolsConnectionState }> {
     // Deep clone because of https://jira.mongodb.org/browse/NODE-4124,
     // the options here are being mutated.
     const connectOptions = _.cloneDeep({ ...options, ...overrideOptions });
-    const { client } = await connectMongoClient(
+    const { client, state } = await connectMongoClient(
       url,
       connectOptions,
       connectLogger,
       CompassMongoClient
     );
     await runCommand(client.db('admin'), { ping: 1 });
-    return Object.assign(client, {
-      async [createClonedClient]() {
-        return await connectSingleClient(connectOptions);
-      },
-    });
+    return {
+      client: Object.assign(client, {
+        async [createClonedClient]() {
+          const { client } = await connectSingleClient({
+            ...connectOptions,
+            parentState: state,
+          });
+          return client;
+        },
+      }),
+      state,
+    };
   }
 
   let metadataClient: CloneableMongoClient | undefined;
   let crudClient: CloneableMongoClient | undefined;
+  let state: DevtoolsConnectionState;
   try {
     debug('waiting for MongoClient to connect ...');
     // Create one or two clients, depending on whether CSFLE
@@ -115,18 +135,57 @@ export default async function connectMongoClientCompass(
     // server metadata (e.g. build info, instance data, etc.)
     // and one for interacting with the actual CRUD data.
     // If CSFLE is disabled, use a single client for both cases.
-    [metadataClient, crudClient] = await Promise.race([
-      Promise.all([
-        connectSingleClient({ autoEncryption: undefined }),
-        options.autoEncryption ? connectSingleClient({}) : undefined,
-      ]),
+    [metadataClient, crudClient, state] = await Promise.race([
+      (async () => {
+        const { client: metadataClient, state } = await connectSingleClient({
+          autoEncryption: undefined,
+        });
+        const parentHandlePromise = state.getStateShareServer();
+        parentHandlePromise.catch(() => {
+          /* handled below */
+        });
+        let crudClient;
+
+        // This used to happen in paralle, but since the introduction of OIDC connection
+        // state needs to be shared and managed on the longest-lived client instance,
+        // so we need to use the DevtoolsConnectionState instance created for the metadata
+        // client here.
+        if (options.autoEncryption) {
+          try {
+            crudClient = (
+              await connectSingleClient({
+                parentState: state,
+              })
+            ).client;
+          } catch (err) {
+            await metadataClient.close();
+            throw err;
+          }
+        }
+
+        try {
+          // Make sure that if this failed, we clean up properly.
+          await parentHandlePromise;
+        } catch (err) {
+          await metadataClient.close();
+          await crudClient?.close();
+          throw err;
+        }
+
+        // Return the parentHandle here so that it's included in the options that
+        // are passed to compass-shell.
+        return [metadataClient, crudClient, state] as const;
+      })(),
       waitForTunnelError(tunnel),
     ]); // waitForTunnel always throws, never resolves
+
+    options.parentHandle = await state.getStateShareServer();
 
     return [
       metadataClient,
       crudClient ?? metadataClient,
       tunnel,
+      state,
       { url, options },
     ];
   } catch (err: any) {

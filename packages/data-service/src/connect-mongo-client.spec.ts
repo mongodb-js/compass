@@ -3,7 +3,7 @@ import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
 import type { CommandStartedEvent } from 'mongodb';
 
-import connectMongoClient from './connect-mongo-client';
+import { connectMongoClientCompass as connectMongoClient } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
 
 const defaultOptions = {
@@ -16,7 +16,11 @@ const setupListeners = () => {
 };
 
 describe('connectMongoClient', function () {
-  const toBeClosed = new Set<undefined | { close: () => Promise<void> }>();
+  const toBeClosed = new Set<
+    | undefined
+    | { close: () => Promise<void> }
+    | { destroy: () => Promise<void> }
+  >();
 
   beforeEach(function () {
     toBeClosed.clear();
@@ -24,7 +28,9 @@ describe('connectMongoClient', function () {
 
   afterEach(async function () {
     for (const mongoClientOrTunnel of toBeClosed) {
-      await mongoClientOrTunnel?.close();
+      if (mongoClientOrTunnel && 'close' in mongoClientOrTunnel)
+        await mongoClientOrTunnel.close();
+      else await mongoClientOrTunnel?.destroy();
     }
   });
 
@@ -40,7 +46,7 @@ describe('connectMongoClient', function () {
     });
 
     it('should return connection config when connected successfully', async function () {
-      const [metadataClient, crudClient, tunnel, { url, options }] =
+      const [metadataClient, crudClient, tunnel, state, { url, options }] =
         await connectMongoClient(
           {
             connectionString: 'mongodb://localhost:27018',
@@ -48,17 +54,19 @@ describe('connectMongoClient', function () {
           setupListeners
         );
 
-      for (const closeLater of [metadataClient, crudClient, tunnel]) {
+      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
       }
 
       expect(metadataClient).to.equal(crudClient);
       expect(url).to.equal('mongodb://localhost:27018');
 
+      expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
         useSystemCA: undefined,
         autoEncryption: undefined,
+        parentHandle: options.parentHandle,
         ...defaultOptions,
       });
     });
@@ -71,7 +79,7 @@ describe('connectMongoClient', function () {
         },
         bypassAutoEncryption: true,
       };
-      const [metadataClient, crudClient, tunnel, { url, options }] =
+      const [metadataClient, crudClient, tunnel, state, { url, options }] =
         await connectMongoClient(
           {
             connectionString: 'mongodb://localhost:27018',
@@ -83,7 +91,7 @@ describe('connectMongoClient', function () {
           setupListeners
         );
 
-      for (const closeLater of [metadataClient, crudClient, tunnel]) {
+      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
       }
 
@@ -92,16 +100,18 @@ describe('connectMongoClient', function () {
       expect(crudClient.options.autoEncryption).to.be.an('object');
       expect(url).to.equal('mongodb://localhost:27018');
 
+      expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
         useSystemCA: undefined,
         autoEncryption,
+        parentHandle: options.parentHandle,
         ...defaultOptions,
       });
     });
 
     it('should not override a user-specified directConnection option', async function () {
-      const [metadataClient, crudClient, tunnel, { url, options }] =
+      const [metadataClient, crudClient, tunnel, state, { url, options }] =
         await connectMongoClient(
           {
             connectionString:
@@ -110,7 +120,7 @@ describe('connectMongoClient', function () {
           setupListeners
         );
 
-      for (const closeLater of [metadataClient, crudClient, tunnel]) {
+      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
       }
 
@@ -119,10 +129,12 @@ describe('connectMongoClient', function () {
         'mongodb://localhost:27018/?directConnection=false'
       );
 
+      expect(options.parentHandle).to.be.a('string');
       assert.deepStrictEqual(options, {
         monitorCommands: true,
         useSystemCA: undefined,
         autoEncryption: undefined,
+        parentHandle: options.parentHandle,
         ...defaultOptions,
       });
     });
@@ -143,7 +155,7 @@ describe('connectMongoClient', function () {
 
     it('should run the ping command with the specified ReadPreference', async function () {
       const commands: CommandStartedEvent[] = [];
-      const [metadataClient, crudClient] = await connectMongoClient(
+      const [metadataClient, crudClient, , state] = await connectMongoClient(
         {
           connectionString:
             'mongodb://localhost:27018/?readPreference=secondaryPreferred',
@@ -156,7 +168,7 @@ describe('connectMongoClient', function () {
         mode: 'secondaryPreferred',
       });
 
-      for (const closeLater of [metadataClient, crudClient]) {
+      for (const closeLater of [metadataClient, crudClient, state]) {
         toBeClosed.add(closeLater);
       }
     });

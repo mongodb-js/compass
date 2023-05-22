@@ -29,7 +29,6 @@ import type {
   InsertOneOptions,
   InsertOneResult,
   MongoClient,
-  MongoClientOptions,
   ServerDescriptionChangedEvent,
   ServerOpeningEvent,
   ServerClosedEvent,
@@ -67,7 +66,10 @@ import {
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
 import type { CloneableMongoClient } from './connect-mongo-client';
-import connectMongoClient, { createClonedClient } from './connect-mongo-client';
+import {
+  connectMongoClientCompass as connectMongoClient,
+  createClonedClient,
+} from './connect-mongo-client';
 import type { CollectionStats } from './types';
 import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
@@ -93,6 +95,10 @@ import type {
   UnboundDataServiceImplLogger,
 } from './logger';
 import { WithLogContext, debug, mongoLogId } from './logger';
+import type {
+  DevtoolsConnectOptions,
+  DevtoolsConnectionState,
+} from '@mongodb-js/devtools-connect';
 
 // TODO: remove try/catch and refactor encryption related types
 // when the Node bundles native binding distributions
@@ -172,7 +178,7 @@ export interface DataService {
    * Returns connection options passed to the driver on connection
    */
   getMongoClientConnectionOptions():
-    | { url: string; options: MongoClientOptions }
+    | { url: string; options: DevtoolsConnectOptions }
     | undefined;
 
   /**
@@ -783,7 +789,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
-    options: MongoClientOptions;
+    options: DevtoolsConnectOptions;
   };
 
   // Use two separate clients in the CSFLE case, one with CSFLE
@@ -797,6 +803,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
   private _tunnel?: SshTunnel;
+  private _state?: DevtoolsConnectionState;
 
   /**
    * Stores the most recent topology description from the server's SDAM events:
@@ -862,7 +869,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   getMongoClientConnectionOptions():
-    | { url: string; options: MongoClientOptions }
+    | { url: string; options: DevtoolsConnectOptions }
     | undefined {
     return this._mongoClientConnectionOptions;
   }
@@ -1253,7 +1260,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     });
 
     try {
-      const [metadataClient, crudClient, tunnel, connectionOptions] =
+      const [metadataClient, crudClient, tunnel, state, connectionOptions] =
         await connectMongoClient(
           this._connectionOptions,
           this._setupListeners.bind(this),
@@ -1271,6 +1278,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;
       this._tunnel = tunnel;
+      this._state = state;
       this._mongoClientConnectionOptions = connectionOptions;
       this._csfleCollectionTracker = new CSFLECollectionTrackerImpl(
         this,
@@ -1381,6 +1389,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this._tunnel
           ?.close()
           .catch((err) => debug('failed to close tunnel', err)),
+        this._state
+          ?.destroy()
+          .catch((err) =>
+            debug('failed to destryo DevtoolsConnectionState', err)
+          ),
       ]);
     } finally {
       this._cleanup();
@@ -2208,6 +2221,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     this._metadataClient = undefined;
     this._crudClient = undefined;
     this._tunnel = undefined;
+    this._state = undefined;
     this._mongoClientConnectionOptions = undefined;
     this._isWritable = false;
     this._isConnecting = false;
