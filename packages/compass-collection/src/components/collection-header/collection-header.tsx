@@ -74,7 +74,7 @@ const dbLinkLightStyles = css({
 });
 
 const dbLinkDarkStyles = css({
-  color: palette.green.light2,
+  color: palette.green.base,
 });
 
 const collectionHeaderCollectionStyles = css({
