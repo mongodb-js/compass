@@ -5,7 +5,8 @@ variables:
     aws_key: ${aws_key}
     aws_secret: ${aws_secret}
     bucket: mciuploads
-    permissions: public-read
+    permissions: private
+    visibility: signed
     content_type: application/octet-stream
   - &get-artifact-params
     aws_key: ${aws_key}
