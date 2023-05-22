@@ -40,7 +40,9 @@
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
     "@mongodb-js/webpack-config-compass": "^1.0.8",
     "chalk": "^4.1.2",
+    "cross-spawn": "^7.0.3",
     "electron": "^22.3.10",
+    "find-up": "^4.1.0",
     "glob": "^10.2.5",
     "jsdom": "^21.1.0",
     "keytar": "^7.9.0",
@@ -48,13 +50,17 @@
     "make-fetch-happen": "^8.0.14",
     "minimatch": "^3.0.4",
     "minimist": "^1.2.5",
+    "mongodb": "^5.5.0",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-data-service": "^22.6.0",
+    "mongodb-runner": "^4.10.0",
     "ora": "^5.4.0",
     "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
     "prompts": "^2.4.1",
+    "rimraf": "^5.0.1",
     "semver": "^7.3.5",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "yargs-parser": "^21.1.1"
   }
 }

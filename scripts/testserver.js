@@ -4,7 +4,6 @@
 
 const path = require('path');
 const crossSpawn = require('cross-spawn');
-const getPort = require('get-port');
 const fs = require('fs');
 const { MongoClient } = require('mongodb');
 const net = require('net');
@@ -196,7 +195,7 @@ async function assertPortClosed(port) {
 
 async function start(instanceName, options) {
   const yargsOptions = yargsParser(options);
-  const port = +(yargsOptions.port ?? (await getPort()));
+  const port = +yargsOptions.port;
 
   // make sure other instances are not running on the same port
   // before doing anything
