@@ -154,7 +154,7 @@ functions:
           echo "(if npm fails, debug.log will be uploaded to S3)"
 
           # Install dependencies
-          npm ci --unsafe-perm
+          bash ".evergreen/retry-with-backoff.sh" npm ci --unsafe-perm
 
   bootstrap:
     - command: shell.exec
