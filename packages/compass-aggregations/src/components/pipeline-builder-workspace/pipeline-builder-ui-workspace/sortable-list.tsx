@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 import { css } from '@mongodb-js/compass-components';
 import {
@@ -36,6 +36,17 @@ const SortableItem = ({ id, index, type }: SortableItemProps) => {
     useSortable({
       id: id + 1,
     });
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, []);
+
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
@@ -49,7 +60,7 @@ const SortableItem = ({ id, index, type }: SortableItemProps) => {
   };
 
   return (
-    <div className={sortableItemStyles}>
+    <div ref={containerRef} className={sortableItemStyles}>
       {type === 'stage' ? (
         <Stage index={index} {...sortableProps} />
       ) : (
