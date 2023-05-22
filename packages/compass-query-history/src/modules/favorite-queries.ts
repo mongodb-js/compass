@@ -4,62 +4,124 @@ import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { FavoriteQuery, FavoriteQueryCollection } from '../models';
-import { comparableQuery } from '../utils';
+import { comparableQuery } from '../utils/comparable-query';
 import { isAction } from '../utils/is-action';
+import type { QueryHistoryThunkAction } from './query-history';
+import type { DeleteRecentQueryAction } from './recent-queries';
+import { deleteRecent } from './recent-queries';
+import type { QueryModelType } from '../models/query';
+import type {
+  FavoriteQueryAttributes,
+  FavoriteQueryModelType,
+} from '../models/favorite-query';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
-function saveFavorite(recent, name) {
-  track('Query History Favorite Added');
-  // TOOD: thunk this V
-  options.actions.deleteRecent(recent); // If query shouldn't stay in recents after save
+export const enum FavoriteQueriesActionTypes {
+  SaveFavoriteQuery = 'compass-query-history/favorite-queries/SaveFavoriteQuery',
+  DeleteFavoriteQuery = 'compass-query-history/favorite-queries/DeleteFavoriteQuery',
 
-  const now = Date.now();
-  const attributes = recent.getAttributes({ props: true });
-  if (!attributes._host) {
-    attributes._host = this.state.currentHost;
-  }
-  attributes._name = name;
-  attributes._dateSaved = now;
-  attributes._dateModified = now;
+  RunFavoriteQuery = 'compass-query-history/favorite-queries/RunFavoriteQuery',
+}
 
-  const query = new FavoriteQuery(attributes);
+type SaveFavoriteQueryAction = {
+  type: FavoriteQueriesActionTypes.SaveFavoriteQuery;
+  name: string;
+  query: QueryModelType;
+};
 
-  this.state.items.add(query);
-  query.save();
-  this.state.current = null;
-  this.trigger(this.state);
-},
+type DeleteFavoriteQueryAction = {
+  type: FavoriteQueriesActionTypes.DeleteFavoriteQuery;
+  queryId: string;
+};
 
-// TODO: Thunk this V (Promise)
-function deleteFavorite(query) {
-  track('Query History Favorite Removed', {
-    id: query._id,
-    screen: 'documents',
-  });
-  query.destroy({
-    success: () => {
-      this.state.items.remove(query._id);
-      this.trigger(this.state);
-    },
-  });
-},
+// type ShowFavoritesAction = {
+//   type: QueryHistoryActionTypes.ShowFavorites;
+// };
+
+// export function showFavorites(): ShowFavoritesAction {
+//   return {
+//     type: QueryHistoryActionTypes.ShowFavorites
+//   };
+// }
+
+export const saveFavorite = (
+  recent: QueryModelType,
+  name: string
+): QueryHistoryThunkAction<
+  void,
+  DeleteRecentQueryAction | SaveFavoriteQueryAction
+> => {
+  return (dispatch) => {
+    track('Query History Favorite Added');
+    // TODO: thunk this V
+
+    // options.actions.deleteRecent(recent); // If query shouldn't stay in recents after save
+
+    // TODO: Should we auto navigate on favorite save?
+    // Maybe not for now.
+
+    dispatch({
+      type: FavoriteQueriesActionTypes.SaveFavoriteQuery,
+      query: recent,
+      name,
+    });
+
+    // Ignore failures.
+    void dispatch(deleteRecent(recent));
+    // dispatch({
+    //   type: RecentQueriesActionTypes.DeleteRecentQuery,
+
+    // })
+  };
+};
+
+export const deleteFavorite = (
+  query: FavoriteQueryModelType
+): QueryHistoryThunkAction<Promise<void>, DeleteFavoriteQueryAction> => {
+  return async (dispatch) => {
+    // TODO: Is deleting?
+    const queryId = query._id;
+
+    track('Query History Favorite Removed', {
+      id: query._id,
+      screen: 'documents',
+    });
+    await new Promise<void>((resolve, reject) => {
+      query.destroy({
+        success: () => {
+          // this.state.items.remove(query._id);
+          // this.trigger(this.state);
+          resolve();
+        },
+        error: function () {
+          // TODO: Previously this was ignored (no error handle function),
+          // we should also ignore it.
+          reject();
+        },
+      });
+    });
+    dispatch({
+      type: FavoriteQueriesActionTypes.DeleteFavoriteQuery,
+      queryId,
+    });
+  };
+};
 
 // TODO(COMPASS-6691): This (and probably all the other actions in this
 // store) actually executes two times when clicking on an item in the list
-function runQuery(query) {
-  const existingQuery = this.state.items.find((item) => {
-    return _.isEqual(comparableQuery(item), query);
+// TODO: This might go away as we aren't using the same function in both
+// recent and favorites.
+// function runQuery(query: FavoriteQueryModelType) {
+export function runFavoriteQuery(query: FavoriteQueryModelType) {
+  // TODO: This doesn't even need to be an action, move to component?
+  track('Query History Favorite Used', {
+    id: query._id,
+    screen: 'documents',
   });
-  if (existingQuery) {
-    const item = existingQuery.serialize();
-    track('Query History Favorite Used', {
-      id: item._id,
-      screen: 'documents',
-    });
-  }
+
   this.localAppRegistry.emit('query-history-run-query', query);
-},
+}
 
 // function getInitialState() {
 //   return {
@@ -74,16 +136,14 @@ function runQuery(query) {
 // },
 // });
 
-export const enum FaoriteQueriesActionTypes {
-  SaveFavorite = 'compass-query-history/favorite-queries/SaveFavorite',
-  DeleteFavorite = 'compass-query-history/favorite-queries/DeleteFavorite',
-
-  RunFavoriteQuery = 'compass-query-history/favorite-queries/RunFavoriteQuery',
-}
-
 export type FavoriteQueriesState = {
   // items // Ampersand collection
   // current
+  items: {
+    // TODO: Types for ampersand collection
+    add: (query: FavoriteQueryModelType) => void;
+    remove: (queryId: string) => void;
+  };
 };
 
 export const initialState: FavoriteQueriesState = {
@@ -91,7 +151,7 @@ export const initialState: FavoriteQueriesState = {
   // ns: mongodbns(''),
 
   items: new FavoriteQueryCollection(),
-  current: null,
+  current: null, // TODO: What is this used for ??
   currentHost:
     options.dataProvider?.dataProvider
       ?.getConnectionString?.()
@@ -103,17 +163,51 @@ const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
   state = initialState,
   action
 ) => {
-  if (isAction<ShowFavoritesAction>(action, QueryHistoryActionTypes.ShowFavorites)) {
+  if (
+    isAction<SaveFavoriteQueryAction>(
+      action,
+      FavoriteQueriesActionTypes.SaveFavoriteQuery
+    )
+  ) {
     track('Query History Favorites');
+
+    const now = Date.now();
+    const queryAttributes = action.query.getAttributes({ props: true });
+    const attributes: FavoriteQueryAttributes = {
+      ...queryAttributes,
+      // TODO: current host on state?
+      _host: queryAttributes._host ?? state.currentHost,
+      _name: action.name,
+      _dateSaved: now,
+      _dateModified: now,
+    };
+
+    const query = new FavoriteQuery(attributes);
+
+    state.items.add(query);
+    // TODO: We should async request and loading state all of these.
+    query.save();
 
     return {
       ...state,
-      showing: 'favorites'
+      current: null,
     };
   }
-  return state;
-}
 
-export {
-  favoriteQueriesReducer
+  if (
+    isAction<DeleteFavoriteQueryAction>(
+      action,
+      FavoriteQueriesActionTypes.DeleteFavoriteQuery
+    )
+  ) {
+    state.items.remove(action.queryId);
+
+    return {
+      ...state,
+    };
+  }
+
+  return state;
 };
+
+export { favoriteQueriesReducer };

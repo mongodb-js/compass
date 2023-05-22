@@ -12,6 +12,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type mongodbns from 'mongodb-ns';
 import { connect } from 'react-redux';
+import { showFavorites, showRecent } from '../modules/query-history';
 
 import type { RootState } from '../modules/query-history';
 
@@ -45,16 +46,15 @@ const viewSwitcherStyles = css({
 });
 
 type ToolbarProps = {
-  actions: {
-    showRecent: () => void;
-    showFavorites: () => void;
-  }; // Query history actions are not currently typed.
+  showRecent: () => void;
+  showFavorites: () => void;
   namespace: ReturnType<typeof mongodbns>;
   showing: 'recent' | 'favorites';
 };
 
 function Toolbar({
-  actions,
+  showRecent,
+  showFavorites,
   namespace,
   showing,
 }: ToolbarProps): React.ReactElement {
@@ -63,12 +63,12 @@ function Toolbar({
   const onViewSwitch = useCallback(
     (label: 'recent' | 'favorites') => {
       if (label === 'recent') {
-        actions.showRecent();
+        showRecent();
       } else if (label === 'favorites') {
-        actions.showFavorites();
+        showFavorites();
       }
     },
-    [actions]
+    [showRecent, showFavorites]
   );
 
   const labelId = useId();
@@ -115,18 +115,14 @@ function Toolbar({
 
 export { Toolbar };
 export default connect(
-  ({
-    queryHistory: {
-      ns,
-      showing
-    }
-  }: RootState) => {
+  ({ queryHistory: { ns, showing } }: RootState) => {
     return {
       showing,
-      ns
+      namespace: ns,
     };
   },
   {
-    // TODO: actions
+    showFavorites,
+    showRecent,
   }
-)(Toolbar)
+)(Toolbar);

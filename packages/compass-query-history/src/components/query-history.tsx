@@ -1,13 +1,13 @@
 import React from 'react';
-import mongodbns from 'mongodb-ns';
 import { css } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 // Components
 import QueryHistoryToolbar from './toolbar';
+import { queryListFactory } from './query-list';
 // TODO: These files?
-import { RecentList } from './recent-list-item';
-import { FavoriteList } from './favorite-list-item';
+import { RecentListItem } from './recent-list-item';
+import { FavoriteListItem } from './favorite-list-item';
 import type { RootState } from '../modules/query-history';
 
 const componentStyle = css({
@@ -17,6 +17,9 @@ const componentStyle = css({
   width: '388px',
   maxHeight: '100%',
 });
+
+const RecentList = queryListFactory(RecentListItem);
+const FavoriteList = queryListFactory(FavoriteListItem);
 
 function QueryHistory({ showing }: { showing: 'recent' | 'favorites' }) {
   return (
@@ -34,14 +37,9 @@ function QueryHistory({ showing }: { showing: 'recent' | 'favorites' }) {
 }
 
 export { QueryHistory };
-export default connect(
-  ({ queryHistory: { ns, showing } }: RootState) => {
-    return {
-      showing,
-      ns,
-    };
-  },
-  {
-    // TODO: actions
-  }
-)(QueryHistory);
+export default connect(({ queryHistory: { ns, showing } }: RootState) => {
+  return {
+    showing,
+    ns,
+  };
+}, null)(QueryHistory);

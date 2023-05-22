@@ -1,5 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
 import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import type { Store } from 'redux';
 
 import configureFavoriteListStore from './favorite-list-store';
@@ -15,9 +16,7 @@ const configureStore = (options: {
   namespace: string;
   localAppRegistry: AppRegistry;
 }): Store<RootState> => {
-  const store = createStore(rootQueryHistoryReducer, {
-    // TODO
-  });
+  const store = createStore(rootQueryHistoryReducer, applyMiddleware(thunk));
 
   if (options.namespace) {
     // TODO: store.dispatch(
@@ -28,7 +27,7 @@ const configureStore = (options: {
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
 
-    // TODO: Do we really need these seperate?
+    // TODO: Do we really need these separate?
 
     // Configure all the other stores.
     const favoriteListStore = localAppRegistry.getStore(FAVORITE_LIST_STORE);

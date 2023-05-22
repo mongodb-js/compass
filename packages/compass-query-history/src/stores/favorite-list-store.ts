@@ -16,6 +16,7 @@ const configureStore = (options = {}) => {
     listenables: options.actions,
 
 
+    // TODO: on load.
   store.state.items.fetch({
     success: () => {
       store.trigger(store.state);

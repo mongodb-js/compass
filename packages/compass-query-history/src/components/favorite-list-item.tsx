@@ -21,10 +21,7 @@ type FavoriteListItemProps = {
   };
 };
 
-export default function FavoriteListItem({
-  model,
-  actions,
-}: FavoriteListItemProps) {
+function FavoriteListItem({ model, actions }: FavoriteListItemProps) {
   const copyQuery = () => {
     actions.copyQuery(model);
   };
@@ -69,3 +66,8 @@ export default function FavoriteListItem({
     </Query>
   );
 }
+
+export {
+  // TODO: Connect and pull properties themself?
+  FavoriteListItem,
+};

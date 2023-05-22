@@ -96,10 +96,7 @@ type RecentListItemProps = {
   };
 };
 
-export default function RecentListItem({
-  model,
-  actions,
-}: RecentListItemProps) {
+function RecentListItem({ model, actions }: RecentListItemProps) {
   const [showSave, setShowSave] = useState(false);
 
   const saveRecent = () => {
@@ -175,3 +172,8 @@ export default function RecentListItem({
     </Query>
   );
 }
+
+export {
+  // TODO: Connect and pull properties themself?
+  RecentListItem,
+};

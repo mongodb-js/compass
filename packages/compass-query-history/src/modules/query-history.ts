@@ -5,6 +5,8 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import mongodbns from 'mongodb-ns';
 
 import { isAction } from '../utils/is-action';
+import { favoriteQueriesReducer } from './favorite-queries';
+import { recentQueriesReducer } from './recent-queries';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
@@ -19,9 +21,21 @@ type ShowFavoritesAction = {
   type: QueryHistoryActionTypes.ShowFavorites;
 };
 
+export function showFavorites(): ShowFavoritesAction {
+  return {
+    type: QueryHistoryActionTypes.ShowFavorites,
+  };
+}
+
 type ShowRecentAction = {
   type: QueryHistoryActionTypes.ShowRecent;
 };
+
+export function showRecent(): ShowRecentAction {
+  return {
+    type: QueryHistoryActionTypes.ShowRecent,
+  };
+}
 
 type NamespaceChangedAction = {
   type: QueryHistoryActionTypes.NamespaceChanged;
@@ -81,24 +95,21 @@ const queryHistoryReducer: Reducer<QueryHistoryState> = (
 
 const rootReducer = combineReducers({
   queryHistory: queryHistoryReducer,
+  favoriteQueries: favoriteQueriesReducer,
+  recentQueries: recentQueriesReducer,
   // globalAppRegistry,
   // dataService,
-  // TODO: Favorites, recents.
+  // TODO: Favorites, recent.
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
 
-export type ExportThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
-  RootState,
-  void,
-  A
->;
+export type QueryHistoryThunkDispatch<A extends Action = AnyAction> =
+  ThunkDispatch<RootState, void, A>;
 
-export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+export type QueryHistoryThunkAction<
   R,
-  RootState,
-  void,
-  A
->;
+  A extends Action = AnyAction
+> = ThunkAction<R, RootState, void, A>;
 
 export { rootReducer };
