@@ -9,10 +9,11 @@ export type Stage = Record<string, any> & {
   stage: string;
   [kParent]: Stage | null;
 };
-export type IndexInformation =
+export type IndexInformation = { fields: Record<string, unknown> } & (
   | { shard: string; index: string }
   | { shard: string; index: null }
-  | { shard: null; index: string };
+  | { shard: null; index: string }
+);
 
 export class ExplainPlan {
   namespace: string;
@@ -23,12 +24,14 @@ export class ExplainPlan {
   totalKeysExamined: number;
   totalDocsExamined: number;
   originalExplainData: Stage;
-  executionStats: ExecutionStats;
+  executionStats?: ExecutionStats;
 
   constructor(originalExplainData: Stage) {
     const rawExplainObject = convertExplainCompat(originalExplainData);
     const executionStats = getExecutionStats(rawExplainObject);
-    ExplainPlan.addParentStages(executionStats.executionStages);
+    if (executionStats?.executionStages) {
+      ExplainPlan.addParentStages(executionStats.executionStages);
+    }
     const qpInfo = getPlannerInfo(rawExplainObject);
     const esInfo =
       executionStats?.executionStages?.shards?.[0] ?? executionStats;
@@ -36,10 +39,10 @@ export class ExplainPlan {
     this.namespace = qpInfo.namespace;
     this.parsedQuery = qpInfo.parsedQuery;
     this.executionSuccess = esInfo.executionSuccess;
-    this.nReturned = executionStats.nReturned;
-    this.executionTimeMillis = executionStats.executionTimeMillis;
-    this.totalKeysExamined = executionStats.totalKeysExamined;
-    this.totalDocsExamined = executionStats.totalDocsExamined;
+    this.nReturned = executionStats?.nReturned ?? 0;
+    this.executionTimeMillis = executionStats?.executionTimeMillis ?? 0;
+    this.totalKeysExamined = executionStats?.totalKeysExamined ?? 0;
+    this.totalDocsExamined = executionStats?.totalDocsExamined ?? 0;
     this.originalExplainData = originalExplainData;
   }
 
@@ -47,7 +50,7 @@ export class ExplainPlan {
     const ixscan = this.findAllStagesByName('IXSCAN');
     // special case for IDHACK stage, using the _id_ index.
     const idhack = this.findStageByName('IDHACK');
-    const ret: IndexInformation[] = this.executionStats.stageIndexes ?? [];
+    const ret: IndexInformation[] = this.executionStats?.stageIndexes ?? [];
     for (const stage of [...ixscan, idhack]) {
       if (!stage) continue;
       let shard: string | null = null;
@@ -60,12 +63,13 @@ export class ExplainPlan {
         }
       }
       const index: string = stage === idhack ? '_id_' : stage.indexName;
-      ret.push({ index, shard });
+      const fields = stage === idhack ? { _id: 1 } : stage.keyPattern ?? {};
+      ret.push({ index, shard, fields });
     }
     if (this.isSharded) {
-      for (const shard of this.executionStats.executionStages.shards) {
+      for (const shard of this.executionStats?.executionStages?.shards) {
         if (!ret.some((indexInfo) => indexInfo.shard === shard.shardName)) {
-          ret.push({ index: null, shard: shard.shardName });
+          ret.push({ index: null, shard: shard.shardName, fields: {} });
         }
       }
     }
@@ -99,13 +103,55 @@ export class ExplainPlan {
   }
 
   get isSharded(): boolean {
-    return !!this.executionStats.executionStages.shards;
+    return !!this.executionStats?.executionStages?.shards;
   }
 
   get numShards(): number {
     return this.isSharded
-      ? this.executionStats.executionStages.shards.length
+      ? this.executionStats?.executionStages?.shards.length
       : 0;
+  }
+
+  get indexType() {
+    const indexes = this.usedIndexes;
+
+    if (indexes.length === 0) {
+      return 'UNAVAILABLE';
+    }
+
+    const indexInfoByShard = indexes.reduce((acc, index) => {
+      if (index.shard) {
+        acc[index.shard] ??= [];
+        acc[index.shard].push(index.index);
+      }
+      return acc;
+    }, {} as Record<string, (string | null)[]>);
+
+    const indexNamesForAllShards = Object.values(indexInfoByShard);
+
+    for (let i = 0; i < indexNamesForAllShards.length; i++) {
+      for (let j = i + 1; j < indexNamesForAllShards.length; j++) {
+        if (
+          indexNamesForAllShards[i].length !==
+            indexNamesForAllShards[j].length ||
+          indexNamesForAllShards[i].some(
+            (val, idx) => val !== indexNamesForAllShards[j][idx]
+          )
+        ) {
+          return 'MULTIPLE'; // As in, multiple index setups that differ between shards
+        }
+      }
+    }
+
+    if (this.isCollectionScan) {
+      return 'COLLSCAN';
+    }
+
+    if (this.isCovered) {
+      return 'COVERED';
+    }
+
+    return 'INDEX';
   }
 
   /**
@@ -146,12 +192,59 @@ export class ExplainPlan {
 
   /** DFS stack iterator implementation */
   *_getStageIterator(root?: Stage): Iterable<Stage> {
-    const stage = root ?? this.executionStats.executionStages;
+    const stage = root ?? this.executionStats?.executionStages;
+
+    if (!stage) {
+      return;
+    }
 
     yield stage;
     for (const child of ExplainPlan.getChildStages(stage)) {
       yield* this._getStageIterator(child);
     }
+  }
+
+  serialize(): Pick<
+    ExplainPlan,
+    | 'namespace'
+    | 'parsedQuery'
+    | 'executionSuccess'
+    | 'nReturned'
+    | 'executionTimeMillis'
+    | 'totalKeysExamined'
+    | 'totalDocsExamined'
+    | 'originalExplainData'
+    | 'executionStats'
+    | 'usedIndexes'
+    | 'isCovered'
+    | 'isMultiKey'
+    | 'inMemorySort'
+    | 'isCollectionScan'
+    | 'isSharded'
+    | 'numShards'
+    | 'indexType'
+  > {
+    return JSON.parse(
+      JSON.stringify({
+        namespace: this.namespace,
+        parsedQuery: this.parsedQuery,
+        executionSuccess: this.executionSuccess,
+        nReturned: this.nReturned,
+        executionTimeMillis: this.executionTimeMillis,
+        totalKeysExamined: this.totalKeysExamined,
+        totalDocsExamined: this.totalDocsExamined,
+        originalExplainData: this.originalExplainData,
+        executionStats: this.executionStats,
+        usedIndexes: this.usedIndexes,
+        isCovered: this.isCovered,
+        isMultiKey: this.isMultiKey,
+        inMemorySort: this.inMemorySort,
+        isCollectionScan: this.isCollectionScan,
+        isSharded: this.isSharded,
+        numShards: this.numShards,
+        indexType: this.indexType,
+      })
+    );
   }
 
   /**
@@ -162,7 +255,11 @@ export class ExplainPlan {
    * @param  {Object} stage   - stage to get children of.
    * @return {Array}          - array of child stages.
    */
-  static *getChildStages(stage: Stage): Iterable<Stage> {
+  static *getChildStages(stage?: Stage): Iterable<Stage> {
+    if (!stage) {
+      return;
+    }
+
     if (stage.inputStage) {
       yield stage.inputStage;
     }
