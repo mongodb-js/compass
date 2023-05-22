@@ -109,7 +109,7 @@ class MiniChart extends Component {
 
     const fieldName = this.props.fieldName;
     const queryValue = this.state.filter[fieldName];
-    const hasDuplicates = this.props.type.has_duplicates;
+    const hasDuplicates = this.props.type.hasDuplicates;
     const fn = vizFns[typeName.toLowerCase()];
     const width = this.state.containerWidth;
 

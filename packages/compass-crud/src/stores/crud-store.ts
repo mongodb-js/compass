@@ -350,8 +350,10 @@ class CrudStoreImpl
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
   }
 
-  updateFields(fields: { aceFields: { name: string }[] }) {
-    this.setState({ fields: fields.aceFields.map((field) => field.name) });
+  updateFields(fields: { autocompleteFields: { name: string }[] }) {
+    this.setState({
+      fields: fields.autocompleteFields.map((field) => field.name),
+    });
   }
 
   getInitialState(): CrudState {

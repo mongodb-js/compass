@@ -15,62 +15,6 @@ const debug = createDebug('export-json');
 // Array of path components. ie. { foo: { bar: { baz:  1 } } } results in ['foo', 'bar', 'baz']
 export type SchemaPath = string[];
 
-// TODO(COMPASS-6720): we should just export all the types from mongodb-schema
-// and update them. Or alternatively move schemaToPaths() there.
-type BSONSchemaField = {
-  name: string;
-  path: string;
-  bsonType?: string;
-  types: BSONSchemaField[];
-};
-
-type ArraySchemaType = {
-  types: BSONSchemaField[];
-};
-
-type DocumentSchemaType = BSONSchemaField & {
-  fields: BSONSchemaField[];
-  types: BSONSchemaField[];
-};
-
-function schemaToPaths(
-  fields: BSONSchemaField[],
-  parent: string[] = []
-): SchemaPath[] {
-  const paths: string[][] = [];
-
-  for (const field of fields) {
-    const path = [...parent, field.name];
-    paths.push(path);
-
-    // Recurse on doc.
-    const doc = field.types.find((f) => f.bsonType === 'Document') as
-      | DocumentSchemaType
-      | undefined;
-
-    if (doc) {
-      paths.push(...schemaToPaths(doc.fields, path));
-    }
-
-    // Recurse on array.
-    const array = field.types.find((f) => f.bsonType === 'Array') as
-      | ArraySchemaType
-      | undefined;
-
-    if (array) {
-      const arrayDoc = array.types.find((f) => f.bsonType === 'Document') as
-        | DocumentSchemaType
-        | undefined;
-
-      if (arrayDoc) {
-        paths.push(...schemaToPaths(arrayDoc.fields, path));
-      }
-    }
-  }
-
-  return paths;
-}
-
 type Projection = FindOptions['projection'];
 
 export function createProjectionFromSchemaFields(fields: SchemaPath[]) {
@@ -163,16 +107,12 @@ async function _gatherFields({
     }
   }
 
-  // TODO(COMPASS-6720): finalizeSchema() inside schema analyzer replaces the
-  // fields object internally with something of a different type. We should fix
-  // that by making a different final result object that matches the type we
-  // want.
-  const fields = (
-    (schemaAnalyzer.getResult() as any).fields as BSONSchemaField[]
-  ).filter((field) => !isInternalFieldPath(field.path));
+  const paths = schemaAnalyzer
+    .getSchemaPaths()
+    .filter((fieldPaths: string[]) => !isInternalFieldPath(fieldPaths[0]));
 
   return {
-    paths: schemaToPaths(fields),
+    paths,
     ...result,
   };
 }

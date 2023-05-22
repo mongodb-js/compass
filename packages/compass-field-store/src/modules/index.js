@@ -11,7 +11,7 @@ export const CHANGE_FIELDS = 'field-store/CHANGE_FIELDS';
 export const INITIAL_STATE = {
   fields: {},
   topLevelFields: [],
-  aceFields: [],
+  autocompleteFields: [],
 };
 
 /**
@@ -27,7 +27,7 @@ const reducer = (state = INITIAL_STATE, action) => {
     return {
       fields: action.fields,
       topLevelFields: action.topLevelFields,
-      aceFields: action.aceFields,
+      autocompleteFields: action.autocompleteFields,
     };
   }
   if (action.type === RESET) {
@@ -41,15 +41,15 @@ const reducer = (state = INITIAL_STATE, action) => {
  *
  * @param {Object} fields - The fields.
  * @param {Object} topLevelFields - The top level fields.
- * @param {Object} aceFields - The ace fields.
+ * @param {Object} autocompleteFields - Map of flattened field paths to field auto completion info.
  *
  * @returns {Object} The action.
  */
-export const changeFields = (fields, topLevelFields, aceFields) => ({
+export const changeFields = (fields, topLevelFields, autocompleteFields) => ({
   type: CHANGE_FIELDS,
-  fields: fields,
-  topLevelFields: topLevelFields,
-  aceFields: aceFields,
+  fields,
+  topLevelFields,
+  autocompleteFields,
 });
 
 export default reducer;

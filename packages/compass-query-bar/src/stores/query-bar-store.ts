@@ -42,7 +42,7 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
   const store = createStore(options);
 
   localAppRegistry?.on('fields-changed', (fields) => {
-    store.dispatch(changeSchemaFields(fields.aceFields));
+    store.dispatch(changeSchemaFields(fields.autocompleteFields));
   });
 
   localAppRegistry?.on('query-bar-change-filter', (evt: ChangeFilterEvent) => {
