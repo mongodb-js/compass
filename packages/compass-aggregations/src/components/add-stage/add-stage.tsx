@@ -9,33 +9,23 @@ import {
 } from '@mongodb-js/compass-components';
 import { PIPELINE_HELP_URI } from '../../constants';
 
-const iconContainerStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[1] / 2,
-  marginBottom: spacing[1] / 2,
-});
-
-const buttonContainerStyles = css({
-  textAlign: 'center',
-  marginTop: spacing[4],
-  marginBottom: spacing[3],
-});
+const containerStyles = css({ textAlign: 'center' });
 
 const linkContainerStyles = css({
-  textAlign: 'center',
   marginTop: spacing[2],
-  marginBottom: spacing[2],
+  marginBottom: spacing[5],
+  position: 'relative',
 });
 
-type AddStageProps = {
+export type AddStageProps = {
   variant: 'button' | 'icon';
   onAddStage: () => void;
 };
 
 export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
-  if (variant === 'icon') {
-    return (
-      <div className={iconContainerStyles}>
+  return (
+    <div className={containerStyles}>
+      {variant === 'icon' ? (
         <IconButton
           aria-label="Add stage"
           title="Add stage"
@@ -44,26 +34,24 @@ export const AddStage = ({ onAddStage, variant }: AddStageProps) => {
         >
           <Icon glyph="PlusWithCircle"></Icon>
         </IconButton>
-      </div>
-    );
-  }
+      ) : (
+        <>
+          <Button
+            data-testid="add-stage"
+            onClick={() => onAddStage()}
+            variant="primary"
+            leftGlyph={<Icon glyph="Plus"></Icon>}
+          >
+            Add Stage
+          </Button>
 
-  return (
-    <div className={buttonContainerStyles}>
-      <Button
-        data-testid="add-stage"
-        onClick={() => onAddStage()}
-        variant="primary"
-        leftGlyph={<Icon glyph="Plus"></Icon>}
-      >
-        Add Stage
-      </Button>
-
-      <div className={linkContainerStyles}>
-        <Link href={PIPELINE_HELP_URI}>
-          Learn more about aggregation pipeline stages
-        </Link>
-      </div>
+          <div className={linkContainerStyles}>
+            <Link href={PIPELINE_HELP_URI}>
+              Learn more about aggregation pipeline stages
+            </Link>
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -13,7 +13,7 @@ function renderExportCodeView(
       ns="test.zebra"
       query={{
         filter: {
-          _id: new ObjectId(),
+          _id: new ObjectId('123412322123123123123123'),
         },
       }}
       fields={{}}
@@ -24,7 +24,7 @@ function renderExportCodeView(
 }
 
 describe('ExportCodeView [Component]', function () {
-  describe('when rendered', function () {
+  describe('when rendered with a query', function () {
     beforeEach(function () {
       renderExportCodeView();
     });
@@ -35,9 +35,38 @@ describe('ExportCodeView [Component]', function () {
       const codeText = screen.getByTestId(
         'export-collection-code-preview-wrapper'
       ).textContent;
-      expect(codeText).to.include("db.getCollection('zebra').find(");
+      expect(codeText).to.equal(
+        `db.getCollection('zebra').find({  _id: ObjectId('123412322123123123123123')});`
+      );
       expect(screen.queryByText('Export results from the query below')).to.be
         .visible;
+    });
+  });
+
+  describe('when rendered with an aggregation', function () {
+    beforeEach(function () {
+      renderExportCodeView({
+        aggregation: {
+          stages: [
+            {
+              $match: { stripes: 'yes' },
+            },
+          ],
+        },
+      });
+    });
+
+    it('should render the aggregation code', function () {
+      expect(screen.getByTestId('export-collection-code-preview-wrapper')).to.be
+        .visible;
+      const codeText = screen.getByTestId(
+        'export-collection-code-preview-wrapper'
+      ).textContent;
+      expect(codeText).to.equal(
+        `db.getCollection('zebra').aggregate([  { $match: { stripes: 'yes' } }]);`
+      );
+      expect(screen.queryByText('Export results from the aggregation below')).to
+        .be.visible;
     });
   });
 

@@ -1,6 +1,6 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import { combineReducers } from 'redux';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { ThunkAction } from 'redux-thunk';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import fs from 'fs';
 import _ from 'lodash';
@@ -16,8 +16,11 @@ import type {
   ExportResult,
 } from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
-import { globalAppRegistry, dataService } from '../modules/compass';
-import { globalAppRegistryEmit } from './compass';
+import {
+  globalAppRegistryEmit,
+  globalAppRegistry,
+  dataService,
+} from './compass';
 import {
   exportCSVFromAggregation,
   exportCSVFromQuery,
@@ -850,13 +853,7 @@ const rootExportReducer = combineReducers({
 
 export type RootState = ReturnType<typeof rootExportReducer>;
 
-export type ExportThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
-  RootState,
-  void,
-  A
->;
-
-export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   R,
   RootState,
   void,

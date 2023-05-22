@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import find from 'lodash.find';
 import numeral from 'numeral';
 import {
   Disclaimer,
@@ -9,6 +8,7 @@ import {
   palette,
   spacing,
 } from '@mongodb-js/compass-components';
+import type { SchemaType } from 'mongodb-schema';
 
 const schemaFieldTypeLabelStyles = css({
   textTransform: 'lowercase',
@@ -50,10 +50,10 @@ const schemaFieldTypeBarUndefinedStyles = css({
   border: `1px solid ${palette.gray.light1}`,
 });
 
-export function sortTypes(types: SchemaFieldType[]) {
+export function sortTypes(types?: SchemaType[]) {
   // Sort the types in descending order and push undefined to the end.
   return (
-    types?.sort((a: SchemaFieldType, b: SchemaFieldType) => {
+    types?.sort((a: SchemaType, b: SchemaType) => {
       if (a.name === 'Undefined') {
         return 1;
       }
@@ -65,35 +65,18 @@ export function sortTypes(types: SchemaFieldType[]) {
   );
 }
 
-// See https://github.com/mongodb-js/mongodb-schema for more information on
-// the types returned by the schema analysis. Once that's in typescript we
-// can update this to use those types.
-export type SchemaFieldType = {
-  name: string;
-  path: string;
-  probability: number;
-  types: SchemaFieldType[];
-  fields?: SchemaFieldType[];
-  values?: any[];
-  count?: number;
-  has_duplicates?: boolean;
-  lengths?: number[];
-  average_length?: number;
-  total_count?: number;
-};
-
 function ArraySubTypes({
   types,
   onSetTypeActive,
   activeType,
 }: {
-  types: SchemaFieldType[];
+  types: SchemaType[];
   onSetTypeActive: (
-    type: SchemaFieldType & {
+    type: SchemaType & {
       isInArray?: boolean;
     }
   ) => void;
-  activeType?: SchemaFieldType & {
+  activeType?: SchemaType & {
     isInArray?: boolean;
   };
 }) {
@@ -102,7 +85,7 @@ function ArraySubTypes({
    * so the entire type bar can be re-rendered.
    */
   const subTypeClicked = useCallback(
-    (subtype: SchemaFieldType) => {
+    (subtype: SchemaType) => {
       onSetTypeActive({
         ...subtype,
         // We append a flag to indicate the type is one of the types found in the array.
@@ -115,27 +98,32 @@ function ArraySubTypes({
   // Sort the subtypes same as types (by probability, undefined last).
   const subtypes = useMemo(() => sortTypes(types), [types]);
 
-  const activeSubType = find(
-    subtypes,
-    (subtype: SchemaFieldType) =>
+  const activeSubType = subtypes.find(
+    (subtype: SchemaType) =>
       subtype.name === activeType?.name && activeType?.isInArray === true
   );
 
   return (
     <div data-testid="schema-field-type-list">
-      {subtypes.map((subtype: SchemaFieldType) => (
-        <FieldType
-          key={`subtype-${subtype.name}`}
-          activeType={activeSubType}
-          onSetTypeActive={() => subTypeClicked(subtype)}
-          type={subtype}
-          types={subtype.types}
-          typeName={subtype.name}
-          probability={subtype.probability}
-          // Don't show more sub types of nested arrays.
-          showSubTypes={false}
-        />
-      ))}
+      {subtypes.map(
+        (
+          subtype: SchemaType & {
+            types?: SchemaType[];
+          }
+        ) => (
+          <FieldType
+            key={`subtype-${subtype.name}`}
+            activeType={activeSubType}
+            onSetTypeActive={() => subTypeClicked(subtype)}
+            type={subtype}
+            types={subtype.types}
+            typeName={subtype.name}
+            probability={subtype.probability}
+            // Don't show more sub types of nested arrays.
+            showSubTypes={false}
+          />
+        )
+      )}
     </div>
   );
 }
@@ -145,15 +133,14 @@ const FieldLabel = ({ name }: { name: string }) => (
 );
 
 type FieldTypeProps = {
-  // name: string;
-  types: SchemaFieldType[];
-  activeType?: SchemaFieldType & {
+  types?: SchemaType[];
+  activeType?: SchemaType & {
     isInArray?: boolean;
   };
-  type: SchemaFieldType;
+  type: SchemaType;
   typeName: string;
   probability: number;
-  onSetTypeActive: (type: SchemaFieldType) => void;
+  onSetTypeActive: (type: SchemaType) => void;
   showSubTypes: boolean;
 };
 
@@ -235,7 +222,7 @@ function FieldType({
         <ArraySubTypes
           activeType={activeType}
           onSetTypeActive={onSetTypeActive}
-          types={types}
+          types={types || []}
         />
       )}
 

@@ -2,7 +2,7 @@ import React, { type ComponentProps } from 'react';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { AddStage } from './add-stage';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 
 const renderAddStage = (
   props: Partial<ComponentProps<typeof AddStage>> = {}
@@ -11,6 +11,8 @@ const renderAddStage = (
 };
 
 describe('AddStage', function () {
+  afterEach(cleanup);
+
   context('add stage icon button', function () {
     it('renders icon button', function () {
       renderAddStage({ variant: 'icon' });

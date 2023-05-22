@@ -268,19 +268,19 @@ function ImportModal({
  */
 const mapStateToProps = (state: RootImportState) => ({
   ns: state.ns,
-  isOpen: state.importData.isOpen,
-  errors: state.importData.errors,
-  fileType: state.importData.fileType,
-  fileName: state.importData.fileName,
-  status: state.importData.status,
-  delimiter: state.importData.delimiter,
-  stopOnErrors: state.importData.stopOnErrors,
-  ignoreBlanks: state.importData.ignoreBlanks,
-  fields: state.importData.fields,
-  values: state.importData.values,
-  previewLoaded: state.importData.previewLoaded,
-  csvAnalyzed: state.importData.analyzeStatus === 'COMPLETED',
-  analyzeError: state.importData.analyzeError,
+  isOpen: state.import.isOpen,
+  errors: state.import.errors,
+  fileType: state.import.fileType,
+  fileName: state.import.fileName,
+  status: state.import.status,
+  delimiter: state.import.delimiter,
+  stopOnErrors: state.import.stopOnErrors,
+  ignoreBlanks: state.import.ignoreBlanks,
+  fields: state.import.fields,
+  values: state.import.values,
+  previewLoaded: state.import.previewLoaded,
+  csvAnalyzed: state.import.analyzeStatus === 'COMPLETED',
+  analyzeError: state.import.analyzeError,
 });
 
 /**

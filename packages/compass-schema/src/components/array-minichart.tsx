@@ -11,7 +11,7 @@ function ArrayMinichart({
   };
   type: {
     lengths: number[];
-    average_length: number;
+    averageLength: number;
   };
 }) {
   let arrayOfFieldsMessage = '';
@@ -23,7 +23,7 @@ function ArrayMinichart({
   }
 
   const minLength = Math.min(...type.lengths);
-  const averageLength = numeral(type.average_length).format('0.0[0]');
+  const averageLength = numeral(type.averageLength).format('0.0[0]');
   const maxLength = Math.max(...type.lengths);
 
   return (

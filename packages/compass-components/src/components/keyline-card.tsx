@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -17,14 +17,15 @@ const keylineDarkThemeStyles = css({
   borderColor: palette.gray.dark2,
 });
 
-function KeylineCard({
-  className,
-  ...props
-}: React.HTMLProps<HTMLDivElement>): React.ReactElement {
+const KeylineCard = forwardRef(function KeylineCard(
+  { className, ...props }: React.HTMLProps<HTMLDivElement>,
+  ref: React.ForwardedRef<HTMLDivElement>
+): React.ReactElement {
   const darkMode = useDarkMode();
 
   return (
     <div
+      ref={ref}
       className={cx(
         keylineStyles,
         darkMode ? keylineDarkThemeStyles : keylineLightThemeStyles,
@@ -33,6 +34,6 @@ function KeylineCard({
       {...props}
     ></div>
   );
-}
+});
 
 export { KeylineCard };

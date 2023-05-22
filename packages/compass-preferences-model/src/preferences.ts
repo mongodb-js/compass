@@ -230,7 +230,7 @@ const featureFlagsProps: Required<{
   enableLgDarkmode: {
     type: 'boolean',
     required: false,
-    default: undefined,
+    default: true,
     ui: true,
     cli: true,
     global: true,

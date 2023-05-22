@@ -9,6 +9,20 @@ import {
 
 import { getStageHelpLink } from '../../../utils/stage';
 import type { StageWizardUseCase } from '.';
+import { useDraggable } from '@dnd-kit/core';
+
+export type DraggedUseCase = Pick<
+  StageWizardUseCase,
+  'id' | 'title' | 'stageOperator'
+>;
+
+type UseCaseCardProps = DraggedUseCase & {
+  onSelect: () => void;
+};
+
+type UseCaseCardLayoutProps = DraggedUseCase & {
+  onClick?: () => void;
+};
 
 const cardStyles = css({
   cursor: 'pointer',
@@ -20,9 +34,24 @@ const cardTitleStyles = css({
   marginRight: spacing[2],
 });
 
-type UseCaseCardProps = {
-  onSelect: () => void;
-} & Pick<StageWizardUseCase, 'id' | 'title' | 'stageOperator'>;
+export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
+  { id, title, stageOperator, ...props }: UseCaseCardLayoutProps,
+  ref: React.ForwardedRef<HTMLDivElement>
+) {
+  return (
+    <KeylineCard
+      ref={ref}
+      data-testid={`use-case-${id}`}
+      className={cardStyles}
+      {...props}
+    >
+      <Body className={cardTitleStyles}>{title}</Body>
+      <Link target="_blank" href={getStageHelpLink(stageOperator) as string}>
+        {stageOperator}
+      </Link>
+    </KeylineCard>
+  );
+});
 
 const UseCaseCard = ({
   id,
@@ -30,17 +59,28 @@ const UseCaseCard = ({
   stageOperator,
   onSelect,
 }: UseCaseCardProps) => {
+  const { setNodeRef, attributes, listeners } = useDraggable({
+    id,
+    data: {
+      type: 'use-case',
+      draggedUseCase: {
+        id,
+        title,
+        stageOperator,
+      },
+    },
+  });
+
   return (
-    <KeylineCard
-      data-testid={`use-case-${id}`}
+    <UseCaseCardLayout
+      id={id}
+      title={title}
+      stageOperator={stageOperator}
       onClick={onSelect}
-      className={cardStyles}
-    >
-      <Body className={cardTitleStyles}>{title}</Body>
-      <Link target="_blank" href={getStageHelpLink(stageOperator) as string}>
-        {stageOperator}
-      </Link>
-    </KeylineCard>
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+    />
   );
 };
 

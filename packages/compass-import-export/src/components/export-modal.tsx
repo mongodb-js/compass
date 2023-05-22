@@ -233,10 +233,10 @@ function ExportModal({
         {status === 'select-fields-to-export' && <ExportSelectFields />}
         {status === 'ready-to-export' && (
           <>
-            {!aggregation && !exportFullCollection && (
+            {!exportFullCollection && (
               <>
                 <ExportCodeView />
-                {query && queryHasProjection(query) && (
+                {!aggregation && query && queryHasProjection(query) && (
                   <Banner data-testid="export-projection-banner">
                     Only projected fields will be exported. To export all
                     fields, go back and leave the <b>Project</b> field empty.
