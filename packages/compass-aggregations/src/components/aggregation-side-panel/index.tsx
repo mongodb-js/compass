@@ -154,7 +154,7 @@ export const AggregationSidePanel = ({
       />
       <div className={contentStyles} data-testid="side-panel-content">
         {filteredUseCases.map((useCase, index) => (
-          <>
+          <div key={index}>
             <GuideCue
               data-testid="stage-wizard-use-case-list-guide-cue"
               open={isCueVisible && index === 0}
@@ -184,7 +184,7 @@ export const AggregationSidePanel = ({
                 onSelect={() => onSelect(useCase.id)}
               />
             </div>
-          </>
+          </div>
         ))}
         <FeedbackLink />
       </div>
