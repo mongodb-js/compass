@@ -19,10 +19,10 @@ export class ExplainPlan {
   namespace: string;
   parsedQuery: Stage;
   executionSuccess: boolean;
-  nReturned: number;
-  executionTimeMillis: number;
-  totalKeysExamined: number;
-  totalDocsExamined: number;
+  nReturned: number | null;
+  executionTimeMillis: number | null;
+  totalKeysExamined: number | null;
+  totalDocsExamined: number | null;
   originalExplainData: Stage;
   executionStats?: ExecutionStats;
 
@@ -39,10 +39,10 @@ export class ExplainPlan {
     this.namespace = qpInfo.namespace;
     this.parsedQuery = qpInfo.parsedQuery;
     this.executionSuccess = esInfo.executionSuccess;
-    this.nReturned = executionStats?.nReturned ?? 0;
-    this.executionTimeMillis = executionStats?.executionTimeMillis ?? 0;
-    this.totalKeysExamined = executionStats?.totalKeysExamined ?? 0;
-    this.totalDocsExamined = executionStats?.totalDocsExamined ?? 0;
+    this.nReturned = executionStats?.nReturned ?? null;
+    this.executionTimeMillis = executionStats?.executionTimeMillis ?? null;
+    this.totalKeysExamined = executionStats?.totalKeysExamined ?? null;
+    this.totalDocsExamined = executionStats?.totalDocsExamined ?? null;
     this.originalExplainData = originalExplainData;
   }
 
@@ -83,7 +83,7 @@ export class ExplainPlan {
 
   get isCovered(): boolean {
     // @todo (thomas) implement for sharded explain plans
-    if (this.totalDocsExamined > 0) {
+    if (this.totalDocsExamined && this.totalDocsExamined > 0) {
       return false;
     }
     const ixscan = this.findStageByName('IXSCAN');
