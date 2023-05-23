@@ -45,6 +45,7 @@ export const makeCreateGroup = (
     id: id++,
     logicalOperator: '$and',
     conditions: [createCondition()],
+    nestedGroups: [],
     ...group,
   });
 };

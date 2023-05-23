@@ -8,6 +8,7 @@ import { makeCreateCondition } from './match-condition-form';
 import MatchForm, {
   areUniqueExpressions,
   isNotEmptyCondition,
+  isNotEmptyGroup,
   makeCompactGroupExpression,
   toMatchConditionExpression,
   toMatchGroupExpression,
@@ -17,11 +18,15 @@ import { setComboboxValue } from '../../../../../test/form-helper';
 import type { CreateConditionFn } from './match-condition-form';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import { makeCreateGroup } from './match-group-form';
+import type { CreateGroupFn } from './match-group-form';
 
 describe('match', function () {
   let createCondition: CreateConditionFn;
+  let createGroup: CreateGroupFn;
   beforeEach(function () {
     createCondition = makeCreateCondition();
+    createGroup = makeCreateGroup(createCondition);
   });
 
   describe('#helpers - isNotEmptyCondition', function () {
@@ -53,6 +58,81 @@ describe('match', function () {
           })
         )
       ).to.be.false;
+    });
+  });
+
+  describe('#helpers - isNotEmptyGroup', function () {
+    it('should return false when a group has empty conditions and empty nested groups', function () {
+      // Empty conditions - by default has empty condition
+      expect(isNotEmptyGroup(createGroup())).to.be.false;
+
+      // Empty conditions - three condition but all are empty
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [
+              createCondition(),
+              createCondition({ field: 'something', bsonType: '' as any }),
+              createCondition({ field: '', bsonType: 'String' }),
+            ],
+          })
+        )
+      ).to.be.false;
+
+      // Empty groups - has empty condition and empty nested group (because empty condition)
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [createCondition()],
+            nestedGroups: [createGroup()],
+          })
+        )
+      ).to.be.false;
+
+      // Empty groups - has empty condition and empty nested group (because empty condition and empty nested-nested group)
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [createCondition()],
+            nestedGroups: [
+              createGroup({
+                nestedGroups: [createGroup()],
+              }),
+            ],
+          })
+        )
+      ).to.be.false;
+    });
+
+    it('should return true when a group has at-least one non-empty condition or nested group', function () {
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [
+              createCondition(), // Empty condition
+              createCondition({ field: 'name', bsonType: 'String' }), // Non-empty condition
+            ],
+          })
+        )
+      ).to.be.true;
+
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [
+              createCondition(), // Empty condition
+            ],
+            nestedGroups: [
+              createGroup(), // Empty nested group
+              createGroup({
+                conditions: [
+                  createCondition({ field: 'name', bsonType: 'String' }), // Non-empty condition in nested group
+                ],
+              }),
+            ],
+          })
+        )
+      ).to.be.true;
     });
   });
 

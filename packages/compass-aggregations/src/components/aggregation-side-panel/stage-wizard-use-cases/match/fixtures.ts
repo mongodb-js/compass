@@ -265,6 +265,538 @@ const simpleOrGroupWithDuplicateConditions = withCreatorFuncs(
     }
 );
 
+const andGroupWithConditionsAndNestedAndGroups = withCreatorFuncs(
+  ({ createCondition, createGroup }) =>
+    () => {
+      const conditionA = createCondition({
+        field: 'name',
+        operator: '$eq',
+        value: 'Compass',
+        bsonType: 'String',
+      });
+      const conditionB = createCondition({
+        field: 'version',
+        operator: '$eq',
+        value: '1.37',
+        bsonType: 'String',
+      });
+      const nestedGroupA = createGroup({
+        conditions: [conditionA, conditionB],
+      });
+
+      const conditionC = createCondition({
+        field: 'downloadable',
+        operator: '$eq',
+        value: 'true',
+        bsonType: 'Boolean',
+      });
+      const conditionD = createCondition({
+        field: 'mode',
+        operator: '$ne',
+        value: 'standalone',
+        bsonType: 'String',
+      });
+      const nestedGroupB = createGroup({
+        conditions: [conditionC, conditionD],
+      });
+
+      const rootGroup = createGroup({
+        conditions: [conditionA],
+        nestedGroups: [nestedGroupA, nestedGroupB],
+      });
+
+      const verboseGroupClause: MatchGroupExpression = {
+        $and: [
+          { name: 'Compass' },
+          {
+            $and: [{ name: 'Compass' }, { version: '1.37' }],
+          },
+          {
+            $and: [{ downloadable: true }, { mode: { $ne: 'standalone' } }],
+          },
+        ],
+      };
+
+      const compactClause: MatchExpression = verboseGroupClause;
+
+      return [
+        'andGroupWithConditionsAndNestedAndGroups',
+        rootGroup,
+        verboseGroupClause,
+        compactClause,
+      ];
+    }
+);
+
+const andGroupWithConditionsAndNestedAndOrGroups = withCreatorFuncs(
+  ({ createCondition, createGroup }) =>
+    () => {
+      const conditionA = createCondition({
+        field: 'name',
+        operator: '$eq',
+        value: 'Compass',
+        bsonType: 'String',
+      });
+      const conditionB = createCondition({
+        field: 'version',
+        operator: '$eq',
+        value: '1.37',
+        bsonType: 'String',
+      });
+      const nestedGroupA = createGroup({
+        conditions: [conditionA, conditionB],
+      });
+
+      const conditionC = createCondition({
+        field: 'downloadable',
+        operator: '$eq',
+        value: 'true',
+        bsonType: 'Boolean',
+      });
+      const conditionD = createCondition({
+        field: 'mode',
+        operator: '$ne',
+        value: 'standalone',
+        bsonType: 'String',
+      });
+      const nestedGroupB = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionC, conditionD],
+      });
+
+      const rootGroup = createGroup({
+        conditions: [conditionA],
+        nestedGroups: [nestedGroupA, nestedGroupB],
+      });
+
+      const verboseGroupClause: MatchGroupExpression = {
+        $and: [
+          { name: 'Compass' },
+          {
+            $and: [{ name: 'Compass' }, { version: '1.37' }],
+          },
+          {
+            $or: [{ downloadable: true }, { mode: { $ne: 'standalone' } }],
+          },
+        ],
+      };
+
+      const compactClause: MatchExpression = verboseGroupClause;
+
+      return [
+        'andGroupWithConditionsAndNestedAndOrGroups',
+        rootGroup,
+        verboseGroupClause,
+        compactClause,
+      ];
+    }
+);
+
+const andGroupWithConditionsAndDeeplyNestedAndGroups = withCreatorFuncs(
+  ({ createCondition, createGroup }) =>
+    () => {
+      const conditionA = createCondition({
+        field: 'name',
+        operator: '$eq',
+        value: 'Compass',
+        bsonType: 'String',
+      });
+      const conditionB = createCondition({
+        field: 'version',
+        operator: '$eq',
+        value: '1.37',
+        bsonType: 'String',
+      });
+      const nestedGroupA = createGroup({
+        conditions: [conditionA, conditionB],
+      });
+
+      const conditionC = createCondition({
+        field: 'downloadable',
+        operator: '$eq',
+        value: 'true',
+        bsonType: 'Boolean',
+      });
+      const conditionD = createCondition({
+        field: 'mode',
+        operator: '$ne',
+        value: 'standalone',
+        bsonType: 'String',
+      });
+      const nestedGroupB = createGroup({
+        conditions: [conditionC, conditionD],
+        nestedGroups: [nestedGroupA],
+      });
+
+      const rootGroup = createGroup({
+        conditions: [conditionA],
+        nestedGroups: [nestedGroupB],
+      });
+
+      const verboseGroupClause: MatchGroupExpression = {
+        $and: [
+          { name: 'Compass' },
+          {
+            $and: [
+              { downloadable: true },
+              { mode: { $ne: 'standalone' } },
+              {
+                $and: [{ name: 'Compass' }, { version: '1.37' }],
+              },
+            ],
+          },
+        ],
+      };
+
+      const compactClause: MatchExpression = verboseGroupClause;
+
+      return [
+        'andGroupWithConditionsAndDeeplyNestedAndGroups',
+        rootGroup,
+        verboseGroupClause,
+        compactClause,
+      ];
+    }
+);
+
+const andGroupWithConditionsAndDeeplyNestedAndOrGroups = withCreatorFuncs(
+  ({ createCondition, createGroup }) =>
+    () => {
+      const conditionA = createCondition({
+        field: 'name',
+        operator: '$eq',
+        value: 'Compass',
+        bsonType: 'String',
+      });
+      const conditionB = createCondition({
+        field: 'version',
+        operator: '$eq',
+        value: '1.37',
+        bsonType: 'String',
+      });
+      const nestedGroupA = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionA, conditionB],
+      });
+
+      const conditionC = createCondition({
+        field: 'downloadable',
+        operator: '$eq',
+        value: 'true',
+        bsonType: 'Boolean',
+      });
+      const conditionD = createCondition({
+        field: 'mode',
+        operator: '$ne',
+        value: 'standalone',
+        bsonType: 'String',
+      });
+      const nestedGroupB = createGroup({
+        conditions: [conditionC, conditionD],
+        nestedGroups: [nestedGroupA],
+      });
+
+      const rootGroup = createGroup({
+        conditions: [conditionA],
+        nestedGroups: [nestedGroupB],
+      });
+
+      const verboseGroupClause: MatchGroupExpression = {
+        $and: [
+          { name: 'Compass' },
+          {
+            $and: [
+              { downloadable: true },
+              { mode: { $ne: 'standalone' } },
+              {
+                $or: [{ name: 'Compass' }, { version: '1.37' }],
+              },
+            ],
+          },
+        ],
+      };
+
+      const compactClause: MatchExpression = verboseGroupClause;
+
+      return [
+        'andGroupWithConditionsAndDeeplyNestedAndOrGroups',
+        rootGroup,
+        verboseGroupClause,
+        compactClause,
+      ];
+    }
+);
+
+const orGroupWithConditionsAndNestedOrGroups = withCreatorFuncs(
+  ({ createCondition, createGroup }) =>
+    () => {
+      const conditionA = createCondition({
+        field: 'name',
+        operator: '$eq',
+        value: 'Compass',
+        bsonType: 'String',
+      });
+      const conditionB = createCondition({
+        field: 'version',
+        operator: '$eq',
+        value: '1.37',
+        bsonType: 'String',
+      });
+      const nestedGroupA = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionA, conditionB],
+      });
+
+      const conditionC = createCondition({
+        field: 'downloadable',
+        operator: '$eq',
+        value: 'true',
+        bsonType: 'Boolean',
+      });
+      const conditionD = createCondition({
+        field: 'mode',
+        operator: '$ne',
+        value: 'standalone',
+        bsonType: 'String',
+      });
+      const nestedGroupB = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionC, conditionD],
+      });
+
+      const rootGroup = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionA],
+        nestedGroups: [nestedGroupA, nestedGroupB],
+      });
+
+      const verboseGroupClause: MatchGroupExpression = {
+        $or: [
+          { name: 'Compass' },
+          {
+            $or: [{ name: 'Compass' }, { version: '1.37' }],
+          },
+          {
+            $or: [{ downloadable: true }, { mode: { $ne: 'standalone' } }],
+          },
+        ],
+      };
+
+      const compactClause: MatchExpression = verboseGroupClause;
+
+      return [
+        'orGroupWithConditionsAndNestedOrGroups',
+        rootGroup,
+        verboseGroupClause,
+        compactClause,
+      ];
+    }
+);
+
+const orGroupWithConditionsAndNestedAndOrGroups = withCreatorFuncs(
+  ({ createCondition, createGroup }) =>
+    () => {
+      const conditionA = createCondition({
+        field: 'name',
+        operator: '$eq',
+        value: 'Compass',
+        bsonType: 'String',
+      });
+      const conditionB = createCondition({
+        field: 'version',
+        operator: '$eq',
+        value: '1.37',
+        bsonType: 'String',
+      });
+      const nestedGroupA = createGroup({
+        conditions: [conditionA, conditionB],
+      });
+
+      const conditionC = createCondition({
+        field: 'downloadable',
+        operator: '$eq',
+        value: 'true',
+        bsonType: 'Boolean',
+      });
+      const conditionD = createCondition({
+        field: 'mode',
+        operator: '$ne',
+        value: 'standalone',
+        bsonType: 'String',
+      });
+      const nestedGroupB = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionC, conditionD],
+      });
+
+      const rootGroup = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionA],
+        nestedGroups: [nestedGroupA, nestedGroupB],
+      });
+
+      const verboseGroupClause: MatchGroupExpression = {
+        $or: [
+          { name: 'Compass' },
+          {
+            $and: [{ name: 'Compass' }, { version: '1.37' }],
+          },
+          {
+            $or: [{ downloadable: true }, { mode: { $ne: 'standalone' } }],
+          },
+        ],
+      };
+
+      const compactClause: MatchExpression = verboseGroupClause;
+
+      return [
+        'orGroupWithConditionsAndNestedAndOrGroups',
+        rootGroup,
+        verboseGroupClause,
+        compactClause,
+      ];
+    }
+);
+
+const orGroupWithConditionsAndDeeplyNestedOrGroups = withCreatorFuncs(
+  ({ createCondition, createGroup }) =>
+    () => {
+      const conditionA = createCondition({
+        field: 'name',
+        operator: '$eq',
+        value: 'Compass',
+        bsonType: 'String',
+      });
+      const conditionB = createCondition({
+        field: 'version',
+        operator: '$eq',
+        value: '1.37',
+        bsonType: 'String',
+      });
+      const nestedGroupA = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionA, conditionB],
+      });
+
+      const conditionC = createCondition({
+        field: 'downloadable',
+        operator: '$eq',
+        value: 'true',
+        bsonType: 'Boolean',
+      });
+      const conditionD = createCondition({
+        field: 'mode',
+        operator: '$ne',
+        value: 'standalone',
+        bsonType: 'String',
+      });
+      const nestedGroupB = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionC, conditionD],
+        nestedGroups: [nestedGroupA],
+      });
+
+      const rootGroup = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionA],
+        nestedGroups: [nestedGroupB],
+      });
+
+      const verboseGroupClause: MatchGroupExpression = {
+        $or: [
+          { name: 'Compass' },
+          {
+            $or: [
+              { downloadable: true },
+              { mode: { $ne: 'standalone' } },
+              {
+                $or: [{ name: 'Compass' }, { version: '1.37' }],
+              },
+            ],
+          },
+        ],
+      };
+
+      const compactClause: MatchExpression = verboseGroupClause;
+
+      return [
+        'orGroupWithConditionsAndDeeplyNestedOrGroups',
+        rootGroup,
+        verboseGroupClause,
+        compactClause,
+      ];
+    }
+);
+
+const orGroupWithConditionsAndDeeplyNestedAndOrGroups = withCreatorFuncs(
+  ({ createCondition, createGroup }) =>
+    () => {
+      const conditionA = createCondition({
+        field: 'name',
+        operator: '$eq',
+        value: 'Compass',
+        bsonType: 'String',
+      });
+      const conditionB = createCondition({
+        field: 'version',
+        operator: '$eq',
+        value: '1.37',
+        bsonType: 'String',
+      });
+      const nestedGroupA = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionA, conditionB],
+      });
+
+      const conditionC = createCondition({
+        field: 'downloadable',
+        operator: '$eq',
+        value: 'true',
+        bsonType: 'Boolean',
+      });
+      const conditionD = createCondition({
+        field: 'mode',
+        operator: '$ne',
+        value: 'standalone',
+        bsonType: 'String',
+      });
+      const nestedGroupB = createGroup({
+        conditions: [conditionC, conditionD],
+        nestedGroups: [nestedGroupA],
+      });
+
+      const rootGroup = createGroup({
+        logicalOperator: '$or',
+        conditions: [conditionA],
+        nestedGroups: [nestedGroupB],
+      });
+
+      const verboseGroupClause: MatchGroupExpression = {
+        $or: [
+          { name: 'Compass' },
+          {
+            $and: [
+              { downloadable: true },
+              { mode: { $ne: 'standalone' } },
+              {
+                $or: [{ name: 'Compass' }, { version: '1.37' }],
+              },
+            ],
+          },
+        ],
+      };
+
+      const compactClause: MatchExpression = verboseGroupClause;
+
+      return [
+        'orGroupWithConditionsAndDeeplyNestedAndOrGroups',
+        rootGroup,
+        verboseGroupClause,
+        compactClause,
+      ];
+    }
+);
+
 export const SAMPLE_FIELDS: StageWizardFields = [
   {
     name: '_id',
@@ -289,10 +821,21 @@ export const SAMPLE_FIELDS: StageWizardFields = [
 ];
 
 export default [
+  // no nested groups
   simpleAndGroup(),
   simpleAndGroupWithDiffOperators(),
   simpleAndGroupWithDuplicateConditions(),
   simpleOrGroup(),
   simpleOrGroupWithDiffOperators(),
   simpleOrGroupWithDuplicateConditions(),
+
+  // nested groups
+  andGroupWithConditionsAndNestedAndGroups(),
+  andGroupWithConditionsAndNestedAndOrGroups(),
+  andGroupWithConditionsAndDeeplyNestedAndGroups(),
+  andGroupWithConditionsAndDeeplyNestedAndOrGroups(),
+  orGroupWithConditionsAndNestedOrGroups(),
+  orGroupWithConditionsAndNestedAndOrGroups(),
+  orGroupWithConditionsAndDeeplyNestedOrGroups(),
+  orGroupWithConditionsAndDeeplyNestedAndOrGroups(),
 ];
