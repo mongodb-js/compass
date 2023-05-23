@@ -7,6 +7,7 @@ import { Double } from 'bson';
 import { makeCreateCondition } from './match-condition-form';
 import MatchForm, {
   areUniqueExpressions,
+  getNestingDepth,
   isNotEmptyCondition,
   isNotEmptyGroup,
   makeCompactGroupExpression,
@@ -27,6 +28,51 @@ describe('match', function () {
   beforeEach(function () {
     createCondition = makeCreateCondition();
     createGroup = makeCreateGroup(createCondition);
+  });
+
+  describe('#helpers - getNestingDepth', function () {
+    it('should return 0 when there are no nested groups', function () {
+      expect(getNestingDepth(createGroup())).to.equal(0);
+    });
+
+    it('should return the correct max nesting depth as per the number of groups deeply nested', function () {
+      expect(
+        getNestingDepth(
+          createGroup({
+            nestedGroups: [createGroup()],
+          })
+        )
+      ).to.equal(1);
+
+      expect(
+        getNestingDepth(
+          createGroup({
+            nestedGroups: [
+              createGroup({
+                nestedGroups: [createGroup()],
+              }),
+            ],
+          })
+        )
+      ).to.equal(2);
+
+      expect(
+        getNestingDepth(
+          createGroup({
+            nestedGroups: [
+              createGroup(),
+              createGroup({
+                nestedGroups: [
+                  createGroup({
+                    nestedGroups: [createGroup()],
+                  }),
+                ],
+              }),
+            ],
+          })
+        )
+      ).to.equal(3);
+    });
   });
 
   describe('#helpers - isNotEmptyCondition', function () {

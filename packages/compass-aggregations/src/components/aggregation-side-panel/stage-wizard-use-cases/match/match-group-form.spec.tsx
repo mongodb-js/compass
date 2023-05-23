@@ -9,12 +9,12 @@ import { setComboboxValue } from '../../../../../test/form-helper';
 import {
   makeCreateCondition,
   TEST_IDS as CONDITION_TEST_IDS,
-  createCondition as createConditionPreScoped,
 } from './match-condition-form';
 import { SAMPLE_FIELDS } from './fixtures';
 import type { CreateConditionFn } from './match-condition-form';
 import type { CreateGroupFn, MatchGroupFormProps } from './match-group-form';
 import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import { getNestingDepth } from './match';
 
 describe('group', function () {
   let createCondition: CreateConditionFn;
@@ -46,6 +46,7 @@ describe('group', function () {
             bsonType: 'String',
           },
         ],
+        nestedGroups: [],
       });
     });
 
@@ -77,6 +78,8 @@ describe('group', function () {
           key={group.id}
           fields={SAMPLE_FIELDS}
           group={group}
+          nestingDepth={getNestingDepth(props?.group ?? group)}
+          nestingLevel={0}
           onGroupChange={Sinon.spy()}
           {...props}
         />
@@ -84,10 +87,61 @@ describe('group', function () {
       return group;
     };
 
+    describe('group header', function () {
+      context('when group is rendered at nesting level 0', function () {
+        it('should only render operator select and add nested group button', function () {
+          const group = renderGroup({ nestingLevel: 0 });
+          expect(
+            screen.getByTestId(TEST_IDS.operatorSelect(group.id))
+          ).to.exist;
+          expect(
+            screen.getByTestId(TEST_IDS.addNestedGroupBtn(group.id))
+          ).to.exist;
+          expect(() =>
+            screen.getByTestId(TEST_IDS.removeGroupBtn(group.id))
+          ).to.throw;
+        });
+      });
+
+      context('when group is rendered at nesting level 1', function () {
+        it('should render operator select, add nested group button and remove group button', function () {
+          const group = renderGroup({ nestingLevel: 1 });
+          expect(
+            screen.getByTestId(TEST_IDS.operatorSelect(group.id))
+          ).to.exist;
+          expect(
+            screen.getByTestId(TEST_IDS.addNestedGroupBtn(group.id))
+          ).to.exist;
+          expect(
+            screen.getByTestId(TEST_IDS.removeGroupBtn(group.id))
+          ).to.exist;
+        });
+      });
+
+      context.only('when group is rendered at nesting level 2', function () {
+        it('should render operator select, a disabled add nested group button and remove group button', function () {
+          const group = renderGroup({ nestingLevel: 2 });
+          expect(
+            screen.getByTestId(TEST_IDS.operatorSelect(group.id))
+          ).to.exist;
+          const addNestedGroupBtn = screen.getByTestId(
+            TEST_IDS.addNestedGroupBtn(group.id)
+          );
+          expect(addNestedGroupBtn.getAttribute('aria-disabled')).to.equal(
+            'true'
+          );
+          expect(
+            screen.getByTestId(TEST_IDS.removeGroupBtn(group.id))
+          ).to.exist;
+        });
+      });
+    });
+
     it('should render a form for group with relevant controls in place', function () {
       const group = renderGroup();
       expect(screen.getByTestId(TEST_IDS.container(group.id))).to.exist;
       expect(screen.getByTestId(TEST_IDS.operatorSelect(group.id))).to.exist;
+      expect(screen.getByTestId(TEST_IDS.addNestedGroupBtn(group.id))).to.exist;
       expect(
         screen.queryAllByTestId(TEST_IDS.removeConditionBtn())
       ).to.have.lengthOf(0);
@@ -110,6 +164,18 @@ describe('group', function () {
         .exist;
     });
 
+    it('should render a list of nested groups', function () {
+      const nestedGroupA = createGroup();
+      const nestedGroupB = createGroup();
+      const group = createGroup({
+        nestedGroups: [nestedGroupA, nestedGroupB],
+      });
+      renderGroup({ group });
+
+      expect(screen.getByTestId(TEST_IDS.container(nestedGroupA.id))).to.exist;
+      expect(screen.getByTestId(TEST_IDS.container(nestedGroupB.id))).to.exist;
+    });
+
     it('should call onGroupChange when an operator is selected', function () {
       const onGroupChangeSpy = Sinon.spy();
       const group = renderGroup({ onGroupChange: onGroupChangeSpy });
@@ -125,9 +191,65 @@ describe('group', function () {
       });
     });
 
+    it('should call onGroupChange with an added nested group, when add nested group button is clicked', function () {
+      const onGroupChangeSpy = Sinon.spy();
+      const group = renderGroup({ onGroupChange: onGroupChangeSpy });
+
+      userEvent.click(screen.getByTestId(TEST_IDS.addNestedGroupBtn(group.id)));
+
+      expect(onGroupChangeSpy).to.be.calledOnce;
+      const [changedGroup] = onGroupChangeSpy.lastCall.args;
+      expect(changedGroup.nestedGroups).to.have.lengthOf(1);
+    });
+
+    it('should call onGroupChange with modified nested groups, when remove group button of nested group is clicked', function () {
+      const onGroupChangeSpy = Sinon.spy();
+      const nestedGroup = createGroup();
+      const group = createGroup({
+        nestedGroups: [nestedGroup],
+      });
+      renderGroup({
+        group,
+        onGroupChange: onGroupChangeSpy,
+      });
+
+      userEvent.click(
+        screen.getByTestId(TEST_IDS.removeGroupBtn(nestedGroup.id))
+      );
+
+      expect(onGroupChangeSpy).to.be.calledOnce;
+      const [changedGroup] = onGroupChangeSpy.lastCall.args;
+      expect(changedGroup.nestedGroups).to.have.lengthOf(0);
+    });
+
+    it('should call onGroupChange with modified nested groups, when a nested group is modified', function () {
+      const onGroupChangeSpy = Sinon.spy();
+      const nestedGroup = createGroup();
+      const group = createGroup({
+        nestedGroups: [nestedGroup],
+      });
+      renderGroup({
+        group,
+        onGroupChange: onGroupChangeSpy,
+      });
+
+      expect(group.nestedGroups).to.have.lengthOf(1);
+      expect(group.nestedGroups[0].nestedGroups).to.have.lengthOf(0);
+
+      // This will add another nested group within our nested group
+      userEvent.click(
+        screen.getByTestId(TEST_IDS.addNestedGroupBtn(nestedGroup.id))
+      );
+
+      expect(onGroupChangeSpy).to.be.calledOnce;
+      const [changedGroup] = onGroupChangeSpy.lastCall.args;
+      expect(changedGroup.nestedGroups).to.have.lengthOf(1);
+      expect(changedGroup.nestedGroups[0].nestedGroups).to.have.lengthOf(1);
+    });
+
     it('should call onGroupChange with new set of conditions when a condition is added', function () {
-      const conditionA = createConditionPreScoped();
-      const conditionB = createConditionPreScoped();
+      const conditionA = createCondition();
+      const conditionB = createCondition();
       const onGroupChangeSpy = Sinon.spy();
       const group = createGroup({
         conditions: [conditionA, conditionB],

@@ -42,6 +42,14 @@ export type MatchGroupExpression =
 export type MatchExpression = MatchConditionExpression | MatchGroupExpression;
 
 // Helpers
+export const getNestingDepth = ({ nestedGroups }: MatchGroup): number => {
+  if (nestedGroups.length === 0) {
+    return 0;
+  } else {
+    return 1 + Math.max(...nestedGroups.map(getNestingDepth));
+  }
+};
+
 export function isNotEmptyCondition(condition: MatchCondition): boolean {
   return !!(condition.field && condition.bsonType);
 }
@@ -171,6 +179,8 @@ const MatchForm = ({ fields, onChange }: WizardComponentProps) => {
         key={matchGroup.id}
         fields={fields}
         group={matchGroup}
+        nestingLevel={0}
+        nestingDepth={getNestingDepth(matchGroup)}
         onGroupChange={handleGroupChange}
       />
     </div>
