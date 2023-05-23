@@ -146,7 +146,7 @@ export async function connectMongoClientCompass(
         });
         let crudClient;
 
-        // This used to happen in paralle, but since the introduction of OIDC connection
+        // This used to happen in parallel, but since the introduction of OIDC connection
         // state needs to be shared and managed on the longest-lived client instance,
         // so we need to use the DevtoolsConnectionState instance created for the metadata
         // client here.

@@ -1392,7 +1392,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this._state
           ?.destroy()
           .catch((err) =>
-            debug('failed to destryo DevtoolsConnectionState', err)
+            debug('failed to destroy DevtoolsConnectionState', err)
           ),
       ]);
     } finally {

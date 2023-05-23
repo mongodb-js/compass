@@ -35,6 +35,7 @@ describe('OIDC integration', function () {
   before(async function () {
     // TODO(MONGOSH-1306): Get rid of all the setup code to download mongod here... :(
     if (process.platform !== 'linux') {
+      // OIDC is only supported on Linux in the 7.0+ enterprise server.
       return this.skip();
     }
 
@@ -133,7 +134,7 @@ describe('OIDC integration', function () {
   after(async function () {
     delete process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY;
     await afterTests(compass, this.currentTest);
-    server.kill();
+    server?.kill();
     await serverExit;
     await oidcMockProvider?.close();
     if (tmpdir) await fs.rmdir(tmpdir, { recursive: true });
