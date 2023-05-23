@@ -1,4 +1,4 @@
-import { ExplainPlanModal } from './components/explain-plan-modal';
+import ExplainPlanModal from './components/explain-plan-modal';
 import { configureStore as configureModalStore } from './stores/explain-plan-modal-store';
 import ExplainPlanPlugin from './plugin';
 import configureStore from './stores';

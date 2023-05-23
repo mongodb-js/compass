@@ -63,7 +63,7 @@ export type ExplainPlanModalState = {
 
 type ExplainPlanDataService = Pick<
   DataService,
-  'explainAggregate' | 'explainFind' | 'isCancelError'
+  'explainAggregate' | 'isCancelError'
 >;
 
 type ExplainPlanModalExtraArgs = {
@@ -295,7 +295,7 @@ export const closeExplainPlanModal = (): ExplainPlanModalThunkAction<void> => {
   };
 };
 
-type ExplainPlanModalConfigureStoreOptions = {
+export type ExplainPlanModalConfigureStoreOptions = {
   localAppRegistry: Pick<AppRegistry, 'on'>;
   dataProvider?: {
     dataProvider?: ExplainPlanDataService;

@@ -1,28 +1,31 @@
+import type { Store } from 'redux';
+import { Provider, connect } from 'react-redux';
 import React, { useMemo } from 'react';
 import {
+  Banner,
   Button,
   CancelLoader,
+  KeylineCard,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
   prettify,
 } from '@mongodb-js/compass-editor';
-import { connect } from 'react-redux';
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import { closeExplainPlanModal } from '../stores/explain-plan-modal-store';
-import { KeylineCard } from '@mongodb-js/compass-components';
 import ExplainSummary from './explain-summary';
-import { Banner } from '@mongodb-js/compass-components';
-import { css } from '@mongodb-js/compass-components';
 
-type ExplainPlanModalProps = Pick<
-  ExplainPlanModalState,
-  'isModalOpen' | 'status' | 'explainPlan' | 'rawExplainPlan' | 'error'
+export type ExplainPlanModalProps = Partial<
+  Pick<
+    ExplainPlanModalState,
+    'isModalOpen' | 'status' | 'explainPlan' | 'rawExplainPlan' | 'error'
+  >
 > & { onModalClose(): void };
 
 const explainPlanModalContentStyles = css({
@@ -120,9 +123,11 @@ export const ExplainPlanBody: React.FunctionComponent<
   );
 };
 
-const ExplainPlanModal: React.FunctionComponent<ExplainPlanModalProps> = ({
-  isModalOpen,
-  status,
+export const ExplainPlanModal: React.FunctionComponent<
+  ExplainPlanModalProps
+> = ({
+  isModalOpen = false,
+  status = 'initial',
   explainPlan,
   rawExplainPlan,
   error,
@@ -158,7 +163,7 @@ const ExplainPlanModal: React.FunctionComponent<ExplainPlanModalProps> = ({
   );
 };
 
-export const ConnectedExplainPlanModal = connect(
+const ConnectedExplainPlanModal = connect(
   (state: ExplainPlanModalState) => {
     return {
       isModalOpen: state.isModalOpen,
@@ -173,4 +178,10 @@ export const ConnectedExplainPlanModal = connect(
   }
 )(ExplainPlanModal);
 
-export { ConnectedExplainPlanModal as ExplainPlanModal };
+export default function ExplainPlanModalPlugin({ store }: { store: Store }) {
+  return (
+    <Provider store={store}>
+      <ConnectedExplainPlanModal></ConnectedExplainPlanModal>
+    </Provider>
+  );
+}
