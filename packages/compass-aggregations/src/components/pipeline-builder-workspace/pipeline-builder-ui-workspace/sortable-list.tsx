@@ -38,6 +38,14 @@ const SortableItem = ({ id, index, type }: SortableItemProps) => {
     });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // When the list is initially rendered, it ideally should scroll to the last
+  // stage/wizard. There is a bug in Chromium preventing this from happening
+  // (with smooth behavior). One potential workaround is to change the behavior
+  // to 'auto' or remove it altogether, which resolves the issue but sacrifices
+  // the smooth animation. Despite this, we have decided to keep the current
+  // configuration as the previous behavior remains unchanged.
+  // https://stackoverflow.com/a/63563437
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollIntoView({
