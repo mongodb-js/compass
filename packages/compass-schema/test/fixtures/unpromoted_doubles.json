@@ -26,21 +26,21 @@
                 10.690628043010022, 100.97902320557779, 67.44510146882001,
                 -179.00476696826664, 37.37582934835244
               ],
-              "total_count": 0,
+              "totalCount": 0,
               "probability": 1,
               "unique": 20,
-              "has_duplicates": false
+              "hasDuplicates": false
             }
           ],
           "lengths": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-          "total_count": 20,
+          "totalCount": 20,
           "probability": 1,
-          "average_length": 2
+          "averageLength": 2
         }
       ],
-      "total_count": 10,
+      "totalCount": 10,
       "type": "Array",
-      "has_duplicates": false,
+      "hasDuplicates": false,
       "probability": 1
     },
     {
@@ -64,18 +64,18 @@
             "Point",
             "Point"
           ],
-          "total_count": 0,
+          "totalCount": 0,
           "probability": 1,
           "unique": 1,
-          "has_duplicates": true
+          "hasDuplicates": true
         }
       ],
-      "total_count": 10,
+      "totalCount": 10,
       "type": "String",
-      "has_duplicates": true,
+      "hasDuplicates": true,
       "probability": 1
     }
   ],
-  "total_count": 0,
+  "totalCount": 0,
   "probability": 1
 }
