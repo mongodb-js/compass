@@ -5,8 +5,8 @@ type OIDCOptions = NonNullable<ConnectionOptions['oidc']>;
 
 export interface UpdateOIDCAction {
   type: 'update-oidc-param';
-  key: keyof OIDCOptions; // TODO
-  value: OIDCOptions[keyof OIDCOptions]; // TODO
+  key: keyof OIDCOptions;
+  value: OIDCOptions[keyof OIDCOptions];
 }
 
 export function handleUpdateOIDCParam({

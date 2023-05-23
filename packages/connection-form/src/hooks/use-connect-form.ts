@@ -548,7 +548,6 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: currentConnectionOptions,
       });
     }
-    // TODO: param naming vs option
     case 'update-oidc-param': {
       return handleUpdateOIDCParam({
         action,

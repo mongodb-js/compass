@@ -48,12 +48,11 @@ function AuthenticationOIDC({
   const authMechanismProperties =
     parseAuthMechanismProperties(connectionStringUrl);
   const allowedHosts = authMechanismProperties.get('ALLOWED_HOSTS');
-  const hasEnabledUntrustedEndpoints = allowedHosts === '*'; // TODO: Make this check good
+  const hasEnabledUntrustedEndpoints = allowedHosts === '*';
 
   const hasEnabledDeviceAuthFlow = !!(
     connectionOptions.oidc?.allowedFlows as string[]
   )?.includes?.('device-auth');
-  // '\nConsider specifying --oidcFlows=auth-code,device-auth if you are running mongosh in an environment without browser access.';
 
   return (
     <>
@@ -82,10 +81,7 @@ function AuthenticationOIDC({
               onChange={({
                 target: { value },
               }: React.ChangeEvent<HTMLInputElement>) => {
-                handleFieldChanged(
-                  'redirectURI', // TODO
-                  value
-                );
+                handleFieldChanged('redirectURI', value);
               }}
               optional
               label="Auth Code Flow Redirect URI"
@@ -146,8 +142,12 @@ function AuthenticationOIDC({
                   return;
                 }
 
-                // TODO: Should we fully unset or just the array index?
-                handleFieldChanged('allowedFlows', undefined);
+                handleFieldChanged(
+                  'allowedFlows',
+                  !!(
+                    connectionOptions.oidc?.allowedFlows as string[]
+                  )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth')
+                );
               }}
               data-testid="oidc-enable-device-auth-flow-input"
               id="oidc-enable-device-auth-flow-input"
@@ -158,7 +158,7 @@ function AuthenticationOIDC({
                   </Label>
                   <Description>
                     {/* TODO: text */}
-                    Text
+                    Enable device authentication flow
                   </Description>
                 </>
               }
