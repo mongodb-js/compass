@@ -1,7 +1,8 @@
 import type { AutoEncryptionOptions } from 'mongodb';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 
-type OIDCOptions = NonNullable<DevtoolsConnectOptions['oidc']>;
+export type OIDCOptions = DevtoolsConnectOptions['oidc'];
+
 export interface ConnectionOptions {
   /**
    * The connection string to connect to the MongoDB instance including all options set by the user.

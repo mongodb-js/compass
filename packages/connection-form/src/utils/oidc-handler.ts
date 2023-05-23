@@ -1,16 +1,12 @@
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { cloneDeep } from 'lodash';
 
-type OIDCOptions = ConnectionOptions['oidc'];
-
-const DEFAULT_OIDC_OPTIONS: NonNullable<OIDCOptions> = {
-  // TODO
-};
+type OIDCOptions = NonNullable<ConnectionOptions['oidc']>;
 
 export interface UpdateOIDCAction {
   type: 'update-oidc-param';
-  key: keyof OIDCOptions;
-  value?: OIDCOptions[keyof OIDCOptions];
+  key: keyof OIDCOptions; // TODO
+  value: OIDCOptions[keyof OIDCOptions]; // TODO
 }
 
 export function handleUpdateOIDCParam({
@@ -23,9 +19,8 @@ export function handleUpdateOIDCParam({
   connectionOptions: ConnectionOptions;
 } {
   connectionOptions = cloneDeep(connectionOptions);
-  const oidcOptions = {
-    ...connectionOptions.oidc,
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const oidcOptions: any = {};
   if (!action.value) {
     delete oidcOptions[action.key];
   } else {
@@ -35,7 +30,6 @@ export function handleUpdateOIDCParam({
     connectionOptions: {
       ...connectionOptions,
       oidc: {
-        ...DEFAULT_OIDC_OPTIONS,
         ...oidcOptions,
       },
     },

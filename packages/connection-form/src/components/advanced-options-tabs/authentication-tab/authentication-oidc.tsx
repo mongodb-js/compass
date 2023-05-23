@@ -18,10 +18,7 @@ import {
   parseAuthMechanismProperties,
 } from '../../../utils/connection-string-helpers';
 
-type OIDCOptions = ConnectionOptions['oidc'];
-
-// TODO: Import this type.
-type AuthFlowType = 'auth-code' | 'device-auth';
+type OIDCOptions = NonNullable<ConnectionOptions['oidc']>;
 
 function AuthenticationOIDC({
   connectionStringUrl,
@@ -54,7 +51,7 @@ function AuthenticationOIDC({
   const hasEnabledUntrustedEndpoints = allowedHosts === '*'; // TODO: Make this check good
 
   const hasEnabledDeviceAuthFlow = !!(
-    connectionOptions.oidc?.allowedFlows as AuthFlowType[]
+    connectionOptions.oidc?.allowedFlows as string[]
   )?.includes?.('device-auth');
   // '\nConsider specifying --oidcFlows=auth-code,device-auth if you are running mongosh in an environment without browser access.';
 
@@ -71,9 +68,9 @@ function AuthenticationOIDC({
               username: value,
             });
           }}
-          label="Username"
+          label="Principal"
           value={username || ''}
-          errorMessage={usernameError} // TODO
+          errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
         />
       </FormFieldContainer>
@@ -93,9 +90,6 @@ function AuthenticationOIDC({
               optional
               label="Auth Code Flow Redirect URI"
               value={connectionOptions?.oidc?.redirectURI || ''}
-              // TODO - do we want to verify it's a uri even? or let it break for folks.
-              // errorMessage={passwordError}
-              // state={passwordError ? 'error' : undefined}
             />
           </FormFieldContainer>
 
@@ -126,15 +120,14 @@ function AuthenticationOIDC({
               label={
                 <>
                   <Label htmlFor="oidc-allow-untrusted-endpoint-input">
-                    {/* Add connection to ALLOWED_HOSTS  */}
                     {/* TODO: text */}
                     Enable untrusted target endpoint
                   </Label>
                   <Description>
                     {/* TODO: text */}
                     Enable connecting even if the target endpoint is not in the
-                    list of trusted endpoints &#40; which corresponds to setting
-                    the driver&apos;s ALLOWED_HOSTS list to *&#41;
+                    list of trusted endpoints &#40;this sets the driver&apos;s
+                    ALLOWED_HOSTS list to *&#41;
                   </Description>
                 </>
               }
@@ -148,12 +141,13 @@ function AuthenticationOIDC({
                 target: { checked },
               }: React.ChangeEvent<HTMLInputElement>) => {
                 if (checked) {
-                  handleFieldChanged('allowedFlows', 'device-auth');
+                  handleFieldChanged('allowedFlows', ['device-auth']);
 
                   return;
                 }
 
-                handleFieldChanged('allowedFlows', null);
+                // TODO: Should we fully unset or just the array index?
+                handleFieldChanged('allowedFlows', undefined);
               }}
               data-testid="oidc-enable-device-auth-flow-input"
               id="oidc-enable-device-auth-flow-input"
