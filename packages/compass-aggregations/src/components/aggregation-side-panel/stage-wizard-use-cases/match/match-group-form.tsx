@@ -102,6 +102,10 @@ const nestedGroupStyles = css({
   borderRadius: spacing[4] / 2,
 });
 
+const nestedGroupContainerStyles = css({
+  gap: spacing[3],
+});
+
 const level1GroupStyles = css({
   background: palette.gray.light3,
 });
@@ -288,6 +292,7 @@ const MatchGroupForm = ({
 
       {/* Nested groups */}
       <ListEditor
+        className={nestedGroupContainerStyles}
         items={group.nestedGroups}
         itemKey={(nestedGroup) =>
           `group-${group.id}-nested-group-${nestedGroup.id}`
