@@ -198,6 +198,9 @@ function InfoIcon() {
   const darkMode = useDarkMode();
   return (
     <IconButton
+      // NOTE: Leafygreen doesn't support aria-label and only understand "aria-labelledby" and "label" instead
+      aria-labelledby=""
+      aria-label="Types documentation"
       as="a"
       className={cx(
         infoIconCommonStyles,
