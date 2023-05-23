@@ -25,6 +25,14 @@ else
 
   __stop_all_docker_containers() {
     echo "Stopping test environments"
+    $DOCKER_COMPOSE -f test-envs/docker/enterprise/docker-compose.yaml ps > $LOGS_DIR/docker-enterprise.ps || true;
+    $DOCKER_COMPOSE -f test-envs/docker/ldap/docker-compose.yaml ps > $LOGS_DIR/docker-ldap.ps || true;
+    $DOCKER_COMPOSE -f test-envs/docker/scram/docker-compose.yaml ps > $LOGS_DIR/docker-scram.ps || true;
+    $DOCKER_COMPOSE -f test-envs/docker/sharded/docker-compose.yaml ps > $LOGS_DIR/docker-sharded.ps || true;
+    $DOCKER_COMPOSE -f test-envs/docker/ssh/docker-compose.yaml ps > $LOGS_DIR/docker-ssh.ps || true;
+    $DOCKER_COMPOSE -f test-envs/docker/tls/docker-compose.yaml ps > $LOGS_DIR/docker-tls.ps || true;
+    $DOCKER_COMPOSE -f test-envs/docker/kerberos/docker-compose.yaml ps > $LOGS_DIR/docker-kerberos.ps || true;
+
     $DOCKER_COMPOSE -f test-envs/docker/enterprise/docker-compose.yaml logs > $LOGS_DIR/docker-enterprise.log || true;
     $DOCKER_COMPOSE -f test-envs/docker/ldap/docker-compose.yaml logs > $LOGS_DIR/docker-ldap.log || true;
     $DOCKER_COMPOSE -f test-envs/docker/scram/docker-compose.yaml logs > $LOGS_DIR/docker-scram.log || true;
