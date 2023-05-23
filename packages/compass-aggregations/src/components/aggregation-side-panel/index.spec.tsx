@@ -2,23 +2,27 @@ import React from 'react';
 import type { ComponentProps } from 'react';
 import { AggregationSidePanel } from './index';
 import { cleanup, render, screen } from '@testing-library/react';
+import { DndContext } from '@dnd-kit/core';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import configureStore from '../../../test/configure-store';
 import { Provider } from 'react-redux';
 import sinon from 'sinon';
 import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';
+import * as guideCueHook from '../use-guide-cue';
 
 const renderAggregationSidePanel = (
   props: Partial<ComponentProps<typeof AggregationSidePanel>> = {}
 ) => {
   return render(
     <Provider store={configureStore()}>
-      <AggregationSidePanel
-        onSelectUseCase={() => {}}
-        onCloseSidePanel={() => {}}
-        {...props}
-      />
+      <DndContext>
+        <AggregationSidePanel
+          onSelectUseCase={() => {}}
+          onCloseSidePanel={() => {}}
+          {...props}
+        />
+      </DndContext>
     </Provider>
   );
 };
@@ -97,5 +101,45 @@ describe('aggregation side panel', function () {
     renderAggregationSidePanel({ onSelectUseCase });
     screen.getByTestId('use-case-sort').click();
     expect(onSelectUseCase).to.have.been.calledOnceWith('sort', '$sort');
+  });
+
+  context('guide cue', function () {
+    const guideCueSandbox: sinon.SinonSandbox = sinon.createSandbox();
+    afterEach(function () {
+      guideCueSandbox.restore();
+    });
+
+    context('shows guide cue', function () {
+      let markCueVisitedSpy: sinon.SinonSpy;
+      beforeEach(function () {
+        markCueVisitedSpy = sinon.spy();
+        guideCueSandbox.stub(guideCueHook, 'useGuideCue').returns({
+          isCueVisible: true,
+          markCueVisited: markCueVisitedSpy,
+          cueRefEl: React.createRef(),
+        } as any);
+        renderAggregationSidePanel();
+      });
+      it('shows guide cue first time', function () {
+        expect(
+          screen.getByTestId('stage-wizard-use-case-list-guide-cue')
+        ).to.exist;
+      });
+      it('marks cue visited when use case is clicked', function () {
+        expect(markCueVisitedSpy.callCount).to.equal(0);
+        screen.getByTestId('use-case-sort').click();
+        expect(markCueVisitedSpy.callCount).to.equal(1);
+      });
+    });
+
+    it('does not show guide cue when its already shown', function () {
+      guideCueSandbox
+        .stub(guideCueHook, 'useGuideCue')
+        .returns({ isCueVisible: false, cueRefEl: React.createRef() } as any);
+      renderAggregationSidePanel();
+      expect(() =>
+        screen.getByTestId('stage-wizard-use-case-list-guide-cue')
+      ).to.throw;
+    });
   });
 });

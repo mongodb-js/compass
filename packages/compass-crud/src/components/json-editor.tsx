@@ -52,7 +52,6 @@ export type JSONEditorProps = {
   doc: Document;
   editable: boolean;
   isTimeSeries?: boolean;
-  serverVersion?: string;
   removeDocument?: CrudActions['removeDocument'];
   replaceDocument?: CrudActions['replaceDocument'];
   updateDocument?: CrudActions['updateDocument'];

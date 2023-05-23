@@ -10,7 +10,7 @@ import {
   useDarkMode,
   IconButton,
 } from '@mongodb-js/compass-components';
-import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
+import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
@@ -91,8 +91,7 @@ type StageToolbarProps = {
   hasServerError?: boolean;
   isCollapsed?: boolean;
   isDisabled?: boolean;
-  onFocusModeClicked: () => void;
-  onOpenFocusMode: () => void;
+  onOpenFocusMode: (index: number) => void;
   onStageOperatorChange?: (
     index: number,
     name: string | null,
@@ -140,7 +139,7 @@ export function StageToolbar({
       </div>
       <div className={rightStyles}>
         <IconButton
-          onClick={onOpenFocusMode}
+          onClick={() => onOpenFocusMode(index)}
           aria-label="Open stage in focus mode"
           title="Open stage in focus mode"
           data-testid="focus-mode-button"
@@ -154,10 +153,7 @@ export function StageToolbar({
   );
 }
 
-type StageToolbarOwnProps = Pick<
-  StageToolbarProps,
-  'index' | 'onFocusModeClicked'
->;
+type StageToolbarOwnProps = Pick<StageToolbarProps, 'index'>;
 
 export default connect(
   (state: RootState, ownProps: StageToolbarOwnProps) => {
@@ -176,10 +172,7 @@ export default connect(
       isDisabled: stage.disabled,
     };
   },
-  (dispatch: PipelineBuilderThunkDispatch, ownProps: StageToolbarOwnProps) => ({
-    onOpenFocusMode: () => {
-      dispatch(enableFocusMode(ownProps.index));
-      ownProps.onFocusModeClicked();
-    },
-  })
+  {
+    onOpenFocusMode: enableFocusMode,
+  }
 )(StageToolbar);

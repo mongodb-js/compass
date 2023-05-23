@@ -4,5 +4,6 @@ ignores: [
   "@mongodb-js/tsconfig-compass",
   "@types/whatwg-url",
   # Optional dependencies of mongodb node driver that we need for testing
-  "kerberos"
+  "kerberos",
+  "@mongodb-js/oidc-plugin"
 ]

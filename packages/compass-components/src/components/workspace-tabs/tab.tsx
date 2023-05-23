@@ -160,7 +160,7 @@ const tabTitleLightThemeStyles = css({
 });
 
 const tabTitleSelectedDarkThemeStyles = css({
-  color: palette.green.light2,
+  color: palette.green.base,
 });
 
 const tabTitleSelectedLightThemeStyles = css({

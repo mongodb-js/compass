@@ -9,6 +9,7 @@ import {
   spacing,
   SegmentedControl,
   SegmentedControlOption,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../../modules/settings';
 import { toggleAutoPreview } from '../../../modules/auto-preview';
@@ -20,6 +21,8 @@ import { toggleSidePanel } from '../../../modules/side-panel';
 import { usePreference } from 'compass-preferences-model';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { GuideCueStorageKeys, useGuideCue } from '../../use-guide-cue';
+
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
@@ -65,16 +68,25 @@ export const PipelineExtraSettings: React.FunctionComponent<
 }) => {
   const showStageWizard = usePreference('enableStageWizard', React);
 
+  const { cueRefEl, cueIntersectingRef, isCueVisible, markCueVisited } =
+    useGuideCue(GuideCueStorageKeys.STAGE_WIZARD);
+
   useEffect(() => {
     if (isSidePanelOpen) {
       track('Aggregation Side Panel Opened');
     }
   }, [isSidePanelOpen]);
 
+  const onClickWizardButton = () => {
+    markCueVisited();
+    onToggleSidePanel();
+  };
+
   return (
     <div
       className={containerStyles}
       data-testid="pipeline-toolbar-extra-settings"
+      ref={cueIntersectingRef}
     >
       <div className={toggleStyles}>
         <Toggle
@@ -120,15 +132,30 @@ export const PipelineExtraSettings: React.FunctionComponent<
         </SegmentedControlOption>
       </SegmentedControl>
       {showStageWizard && (
-        <IconButton
-          title="Toggle Side Panel"
-          aria-label="Toggle Side Panel"
-          onClick={() => onToggleSidePanel()}
-          data-testid="pipeline-toolbar-side-panel-button"
-          disabled={pipelineMode === 'as-text'}
-        >
-          <Icon glyph="Wizard" />
-        </IconButton>
+        <>
+          <GuideCue
+            data-testid="stage-wizard-guide-cue"
+            open={isCueVisible && pipelineMode === 'builder-ui'}
+            setOpen={markCueVisited}
+            refEl={cueRefEl}
+            numberOfSteps={1}
+            popoverZIndex={2}
+            title="Stage Creator"
+          >
+            You can quickly build your stages based on your needs. You should
+            try it out.
+          </GuideCue>
+          <IconButton
+            ref={cueRefEl}
+            title="Toggle Side Panel"
+            aria-label="Toggle Side Panel"
+            onClick={onClickWizardButton}
+            data-testid="pipeline-toolbar-side-panel-button"
+            disabled={pipelineMode === 'as-text'}
+          >
+            <Icon glyph="Wizard" />
+          </IconButton>
+        </>
       )}
       <IconButton
         title="More Settings"

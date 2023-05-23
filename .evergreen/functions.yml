@@ -424,7 +424,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           rm -rf mongodb-crypt && mkdir -p mongodb-crypt
           (cd mongodb-crypt && \
-            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 6.0.0') | \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 7.0.0-rc0') | \
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service
@@ -546,3 +546,47 @@ functions:
             npm run publish-packages-next
           fi
 
+  generate-vulnerability-report:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+          SNYK_TOKEN: ${snyk_token}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          # Can only fail if is not a patch:
+          npm run generate-vulnerability-report || { [ "$EVERGREEN_IS_PATCH" == "true" ] && exit 0; } || exit 1
+    - command: s3.put
+      params:
+        <<: *save-artifact-params
+        local_file: src/.sbom/dependencies.json
+        remote_file: ${project}/${revision}_${revision_order_id}/dependencies.json
+        content_type: application/json
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params
+        local_file: src/.sbom/snyk-test-result.json
+        remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.json
+        content_type: application/json
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params
+        local_file: src/.sbom/snyk-test-result.html
+        remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.html
+        content_type: text/html
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params
+        local_file: src/.sbom/vulnerability-report.md
+        remote_file: ${project}/${revision}_${revision_order_id}/vulnerability-report.md
+        content_type: text/markdown
+        optional: true
