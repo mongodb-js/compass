@@ -118,7 +118,7 @@ describe('group', function () {
         });
       });
 
-      context.only('when group is rendered at nesting level 2', function () {
+      context('when group is rendered at nesting level 2', function () {
         it('should render operator select, a disabled add nested group button and remove group button', function () {
           const group = renderGroup({ nestingLevel: 2 });
           expect(
