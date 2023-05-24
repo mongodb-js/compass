@@ -56,6 +56,7 @@ export type MatchGroupFormProps = {
 export type CreateGroupFn = (group?: Partial<MatchGroup>) => MatchGroup;
 
 // Helpers
+const MAX_ALLOWED_NESTING = 3;
 export const LABELS = {
   operatorSelect: 'Select a group operator',
 };
@@ -129,7 +130,7 @@ const MatchGroupForm = ({
   onGroupChange,
   onGroupRemoved,
 }: MatchGroupFormProps) => {
-  const disableAddNestedGroupBtn = nestingLevel === 2;
+  const disableAddNestedGroupBtn = nestingLevel === MAX_ALLOWED_NESTING;
   const showRemoveGroup = nestingLevel > 0;
 
   // To align the "action buttons on condition list" with the "action buttons on
@@ -217,7 +218,7 @@ const MatchGroupForm = ({
       data-testid={TEST_IDS.container(group.id)}
       className={cx(baseGroupStyles, {
         [nestedGroupStyles]: nestingLevel !== 0,
-        [level1GroupStyles]: nestingLevel === 1,
+        [level1GroupStyles]: nestingLevel === 1 || nestingLevel === 3,
         [level2GroupStyles]: nestingLevel === 2,
       })}
     >
@@ -254,7 +255,8 @@ const MatchGroupForm = ({
             </div>
           )}
         >
-          Adding more than two nested groups is not supported at the moment.
+          Adding more than {MAX_ALLOWED_NESTING} nested groups is not supported
+          at the moment.
         </Tooltip>
         {showRemoveGroup && (
           <IconButton
