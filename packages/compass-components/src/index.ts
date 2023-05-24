@@ -13,7 +13,6 @@ export {
   sheet,
   cache,
 } from '@leafygreen-ui/emotion';
-import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/modals/confirmation-modal';
 import FileInput, {
   ElectronFileDialogOptions,
@@ -27,7 +26,11 @@ import {
   WarningSummary,
 } from './components/error-warning-summary';
 import { RadioBoxGroup } from './components/radio-box-group';
-import { SpinLoader } from './components/spin-loader';
+export {
+  SpinLoader,
+  SpinLoaderWithLabel,
+  CancelLoader,
+} from './components/loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';
@@ -81,7 +84,6 @@ export { InfoModal } from './components/modals/info-modal';
 export {
   Accordion,
   CollapsibleFieldSet,
-  CancelLoader,
   ConfirmationModal,
   ErrorSummary,
   FileInput,
@@ -89,7 +91,6 @@ export {
   IndexIcon,
   MoreOptionsToggle,
   RadioBoxGroup,
-  SpinLoader,
   ResizeHandle,
   ResizeDirection,
   ResizableSidebar,

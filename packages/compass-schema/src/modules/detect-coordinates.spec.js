@@ -81,8 +81,8 @@ describe('detect-coordinates', function () {
         count: 4,
         path: 'some.path',
         lengths: [2, 2, 2, 2],
-        has_duplicates: true,
-        average_length: 2,
+        hasDuplicates: true,
+        averageLength: 2,
         types: [
           {
             name: 'Number',
@@ -102,8 +102,8 @@ describe('detect-coordinates', function () {
         count: 4,
         path: 'some.path',
         lengths: [2, 2, 2, 2],
-        has_duplicates: true,
-        average_length: 2,
+        hasDuplicates: true,
+        averageLength: 2,
         types: [
           {
             name: 'Number',
@@ -123,8 +123,8 @@ describe('detect-coordinates', function () {
         count: 4,
         path: 'some.path',
         lengths: [2, 2, 2, 2],
-        has_duplicates: true,
-        average_length: 2,
+        hasDuplicates: true,
+        averageLength: 2,
         types: [
           {
             name: 'Number',
@@ -144,8 +144,8 @@ describe('detect-coordinates', function () {
         count: 4,
         path: 'some.path',
         lengths: [2, 2, 0, 2],
-        has_duplicates: true,
-        average_length: 2,
+        hasDuplicates: true,
+        averageLength: 2,
         types: [
           {
             name: 'Number',
@@ -182,8 +182,8 @@ describe('detect-coordinates', function () {
         count: 4,
         path: 'some.path',
         lengths: [2, 2, 2, 2],
-        has_duplicates: true,
-        average_length: 2,
+        hasDuplicates: true,
+        averageLength: 2,
         types: [
           {
             name: 'Number',
@@ -209,8 +209,8 @@ describe('detect-coordinates', function () {
         count: 4,
         path: 'some.path',
         lengths: [2, 2, 2, 2],
-        has_duplicates: true,
-        average_length: 2,
+        hasDuplicates: true,
+        averageLength: 2,
         types: [
           {
             name: 'String',

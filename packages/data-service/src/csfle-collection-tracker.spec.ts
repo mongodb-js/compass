@@ -44,7 +44,7 @@ describe('CSFLECollectionTracker', function () {
     }
 
     const dataService = await connect({
-      connectionString: 'mongodb://localhost:27018',
+      connectionString: 'mongodb://localhost:27021',
       fleOptions: {
         storeCredentials: false,
         autoEncryption: {

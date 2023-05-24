@@ -20,7 +20,7 @@ describe('connection model connector', () => {
     }
 
     it('should return connection config when connected successfully', (done) => {
-      Connection.from('mongodb://localhost:27018', (parseErr, model) => {
+      Connection.from('mongodb://localhost:27020', (parseErr, model) => {
         if (parseErr) throw parseErr;
 
         connect(
@@ -34,7 +34,7 @@ describe('connection model connector', () => {
             try {
               assert.strictEqual(
                 url,
-                'mongodb://localhost:27018/?readPreference=primary&directConnection=true&ssl=false'
+                'mongodb://localhost:27020/?readPreference=primary&directConnection=true&ssl=false'
               );
 
               assert.deepStrictEqual(options, {
@@ -57,8 +57,8 @@ describe('connection model connector', () => {
       });
     });
 
-    it('should connect to `localhost:27018 with model`', (done) => {
-      Connection.from('mongodb://localhost:27018', (parseErr, model) => {
+    it('should connect to `localhost:27020 with model`', (done) => {
+      Connection.from('mongodb://localhost:27020', (parseErr, model) => {
         assert.equal(parseErr, null);
         connect(model, setupListeners,
           (connectErr, client) => {
@@ -73,9 +73,9 @@ describe('connection model connector', () => {
       });
     });
 
-    it('should connect to `localhost:27018 with object`', (done) => {
+    it('should connect to `localhost:27020 with object`', (done) => {
       connect(
-        { port: 27018, host: 'localhost' },
+        { port: 27020, host: 'localhost' },
         setupListeners,
         (connectErr, client) => {
           if (connectErr) {

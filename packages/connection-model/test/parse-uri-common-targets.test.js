@@ -136,7 +136,7 @@ describe('connection model parser should parse URI strings for common connection
 
     it('replica set with members on localhost', (done) => {
       Connection.from(
-        'mongodb://localhost,localhost:27018,localhost:27019/?replicaSet=test',
+        'mongodb://localhost,localhost:27020,localhost:27019/?replicaSet=test',
         (error, result) => {
           expect(error).to.not.exist;
           expect(result.replicaSet).to.be.equal('test');
@@ -148,7 +148,7 @@ describe('connection model parser should parse URI strings for common connection
           });
           expect(result.hosts[1]).to.be.deep.equal({
             host: 'localhost',
-            port: 27018
+            port: 27020
           });
           expect(result.hosts[2]).to.be.deep.equal({
             host: 'localhost',
