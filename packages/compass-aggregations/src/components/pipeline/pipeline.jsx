@@ -7,7 +7,6 @@ import SavingPipelineModal from '../saving-pipeline-modal';
 import styles from './pipeline.module.less';
 
 import PipelineToolbar from '../pipeline-toolbar';
-import PipelineExplain from '../pipeline-explain';
 import PipelineBuilderWorkspace from '../pipeline-builder-workspace';
 import PipelineResultsWorkspace from '../pipeline-results-workspace';
 import FocusMode from '../focus-mode/focus-mode';
@@ -138,7 +137,6 @@ class Pipeline extends PureComponent {
           ) : (
             <PipelineBuilderWorkspace />
           )}
-          <PipelineExplain />
           <FocusMode />
           {savingPipelineModal}
         </WorkspaceContainer>

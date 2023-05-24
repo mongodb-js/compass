@@ -84,10 +84,6 @@ const operationInProgressStyles = css({
   marginLeft: spacing[2],
 });
 
-const inProgressSpinLoaderStyles = css({
-  borderTopColor: palette.green.light2,
-});
-
 export const ShellHeader = ({
   darkMode,
   isExpanded,
@@ -113,7 +109,7 @@ export const ShellHeader = ({
           &gt;_MONGOSH
           {!isExpanded && isOperationInProgress && (
             <span className={operationInProgressStyles}>
-              <SpinLoader size="12px" className={inProgressSpinLoaderStyles} />
+              <SpinLoader darkMode={true} />
               &nbsp;Command in progress&hellip;
             </span>
           )}
