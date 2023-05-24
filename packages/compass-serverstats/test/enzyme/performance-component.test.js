@@ -41,7 +41,7 @@ describe('rtss', () => {
     });
   });
 
-  context('when has queryable encryption', () => {
+  context('when top is unable to retrieve information about some collections', () => {
     let component = null;
 
     beforeEach(() => {
@@ -54,7 +54,7 @@ describe('rtss', () => {
       component.unmount();
     });
 
-    it('displays the information regarding collections with queryable encryption is not available message', () => {
+    it('displays a warning message', () => {
       const state = component.find(Banner);
       expect(state.text()).to.include(
         'Top command is unable to retrieve information about certain collections, resulting in incomplete data being displayed on the charts.'
