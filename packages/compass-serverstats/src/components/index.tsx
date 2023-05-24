@@ -82,9 +82,13 @@ function PerformancePanelMsgs() {
   const [, forceUpdate] = useState({});
 
   useEffect(() => {
+    // Trigger the component refresh when stores are updated.
+    ServerStatsStore.listen(() => {
+      forceUpdate({});
+    });
     TopStore.listen(() => {
-      forceUpdate({}); // Trigger the component refresh when the store is updated.
-    }, this);
+      forceUpdate({});
+    });
   }, []);
 
   return (
