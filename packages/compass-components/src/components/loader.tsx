@@ -23,20 +23,20 @@ const textDarkStyles = css({
   color: palette.green.light2,
 });
 
-type SpinLoaderProps = {
+type LoaderProps = {
   size?: string | number;
   title?: string;
   darkMode?: boolean;
 };
 
-type SpinLoaderWithLabelProps = Omit<SpinLoaderProps, 'size' | 'title'> & {
+type LoaderWithLabelProps = Omit<LoaderProps, 'size' | 'title'> & {
   progressText: string;
   className?: string;
   children?: React.ReactNode;
   ['data-testid']?: string;
 };
 
-type CancelLoaderProps = Omit<SpinLoaderWithLabelProps, 'children'> & {
+type CancelLoaderProps = Omit<LoaderWithLabelProps, 'children'> & {
   onCancel(): void;
   cancelText: string;
 };
@@ -64,11 +64,7 @@ const darkStyles = css({
   borderTop: `2px solid ${palette.gray.light3}`,
 });
 
-function SpinLoader({
-  size = 12,
-  title,
-  darkMode: _darkMode,
-}: SpinLoaderProps) {
+function Loader({ size = 12, title, darkMode: _darkMode }: LoaderProps) {
   const darkMode = useDarkMode(_darkMode);
 
   return (
@@ -83,19 +79,19 @@ function SpinLoader({
   );
 }
 
-function SpinLoaderWithLabel({
+function LoaderWithLabel({
   className,
   progressText,
   ['data-testid']: dataTestId,
   children,
   darkMode: _darkMode,
   ...props
-}: SpinLoaderWithLabelProps): JSX.Element {
+}: LoaderWithLabelProps): JSX.Element {
   const darkMode = useDarkMode(_darkMode);
 
   return (
     <div className={cx(containerStyles, className)} data-testid={dataTestId}>
-      <SpinLoader size={spacing[4]} darkMode={darkMode} {...props}></SpinLoader>
+      <Loader size={spacing[4]} darkMode={darkMode} {...props}></Loader>
       <Subtitle className={cx(textStyles, darkMode && textDarkStyles)}>
         {progressText}
       </Subtitle>
@@ -110,7 +106,7 @@ function CancelLoader({
   ...props
 }: CancelLoaderProps): React.ReactElement {
   return (
-    <SpinLoaderWithLabel {...props}>
+    <LoaderWithLabel {...props}>
       <Button
         variant="primaryOutline"
         onClick={onCancel}
@@ -118,8 +114,8 @@ function CancelLoader({
       >
         {cancelText}
       </Button>
-    </SpinLoaderWithLabel>
+    </LoaderWithLabel>
   );
 }
 
-export { SpinLoaderWithLabel, SpinLoader, CancelLoader };
+export { LoaderWithLabel, Loader, CancelLoader };

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import {
   Body,
   FormModal,
-  SpinLoader,
+  Loader,
   css,
   spacing,
   Banner,
@@ -86,7 +86,7 @@ class DuplicateViewModal extends PureComponent {
         ) : null}
         {this.props.isRunning ? (
           <Body className={progressContainerStyles}>
-            <SpinLoader />
+            <Loader />
             <span>Duplicating view&hellip;</span>
           </Body>
         ) : null}

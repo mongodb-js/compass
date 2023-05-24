@@ -6,7 +6,7 @@ import {
   Banner,
   Body,
   FormModal,
-  SpinLoader,
+  Loader,
   css,
   spacing,
   TextInput,
@@ -92,7 +92,7 @@ class CreateViewModal extends PureComponent {
         ) : null}
         {this.props.isRunning ? (
           <Body className={progressContainerStyles}>
-            <SpinLoader />
+            <Loader />
             <span>Creating view&hellip;</span>
           </Body>
         ) : null}

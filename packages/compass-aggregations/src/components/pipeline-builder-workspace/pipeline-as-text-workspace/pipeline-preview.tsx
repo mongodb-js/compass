@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {
   Body,
   css,
-  SpinLoader,
+  Loader,
   DocumentIcon,
   spacing,
   Overline,
@@ -107,7 +107,7 @@ const PreviewResults = ({
   if (isLoading) {
     return (
       <div className={centerStyles}>
-        <SpinLoader size="24px" />
+        <Loader size={spacing[4]} />
       </div>
     );
   }

@@ -10,7 +10,7 @@ import {
   Body,
   palette,
   useDarkMode,
-  SpinLoader,
+  Loader,
 } from '@mongodb-js/compass-components';
 import type { RootImportState } from '../stores/import-store';
 import { skipCSVAnalyze } from '../modules/import';
@@ -65,7 +65,7 @@ export function ImportPreviewLoader({
       <Body weight="medium">Detecting field types</Body>
       {analyzeBytesTotal && (
         <div className={loaderStyles}>
-          <SpinLoader />
+          <Loader />
           <Body>
             {Math.round((analyzeBytesProcessed / analyzeBytesTotal) * 100)}%
           </Body>

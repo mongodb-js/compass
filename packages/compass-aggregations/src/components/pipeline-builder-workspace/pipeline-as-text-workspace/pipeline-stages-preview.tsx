@@ -6,7 +6,7 @@ import {
   BannerVariant,
   css,
   spacing,
-  SpinLoader,
+  Loader,
   ButtonVariant,
   ButtonSize,
 } from '@mongodb-js/compass-components';
@@ -100,7 +100,7 @@ export const OutputStagePreview = ({
     );
   }
 
-  const icon = isLoading ? <SpinLoader title="Loading" /> : undefined;
+  const icon = isLoading ? <Loader title="Loading" /> : undefined;
   return (
     <PipelineStageBanner
       data-testid={`${stageOperator}-preview-banner`}
