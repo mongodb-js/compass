@@ -94,7 +94,7 @@ function PerformancePanelMsgs() {
           Top command is not available for mongos, some charts may not show any data.
         </Banner>
       )}
-      {TopStore.topUnableToRetrieveAllCollections && (
+      {TopStore.topUnableToRetrieveSomeCollections && (
         <Banner className={mongosWarningStyles} variant="warning">
           Top command is unable to retrieve information about certain collections, resulting in incomplete data being displayed on the charts.
         </Banner>

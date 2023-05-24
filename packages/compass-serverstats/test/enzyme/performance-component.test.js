@@ -45,12 +45,12 @@ describe('rtss', () => {
     let component = null;
 
     beforeEach(() => {
-      TopStore.topUnableToRetrieveAllCollections = true;
+      TopStore.topUnableToRetrieveSomeCollections = true;
       component = mount(<PerformanceComponent />);
     });
 
     afterEach(() => {
-      TopStore.topUnableToRetrieveAllCollections = false;
+      TopStore.topUnableToRetrieveSomeCollections = false;
       component.unmount();
     });
 

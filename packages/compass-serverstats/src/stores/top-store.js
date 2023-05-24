@@ -47,7 +47,7 @@ const TopStore = Reflux.createStore({
     this.starting = true;
     this.t1s = {};
     this.disableTop = false;
-    this.topUnableToRetrieveAllCollections = false;
+    this.topUnableToRetrieveSomeCollections = false;
   },
 
   pause: function() {
@@ -129,7 +129,7 @@ const TopStore = Reflux.createStore({
 
         // Information regarding collections with queryable encryption is not available COMPASS-6593
         if (isEmpty(value)) {
-          this.topUnableToRetrieveAllCollections = true;
+          this.topUnableToRetrieveSomeCollections = true;
           continue;
         }
 
