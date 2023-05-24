@@ -1,6 +1,6 @@
 import './index.less';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Banner,
   LeafyGreenProvider,
@@ -18,6 +18,7 @@ import ListsComponent from './server-stats-lists-component';
 import { DBErrorComponent } from './dberror-component';
 import DBErrorStore from '../stores/dberror-store';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
+import TopStore from '../stores/top-store';
 import { ServerStatsToolbar } from './server-stats-toolbar';
 import Actions from '../actions';
 import type { TimeScrubEventDispatcher } from './server-stats-toolbar';
@@ -57,17 +58,8 @@ function PerformancePanel({
 }: {
   eventDispatcher: TimeScrubEventDispatcher
 }) {
-  const {
-    className: scrollbarStyles
-  } = useScrollbars();
-
   return (
-    <div className={cx(workspaceContainerStyles, scrollbarStyles)}>
-      {ServerStatsStore.isMongos && (
-        <Banner className={mongosWarningStyles} variant="warning">
-          Top command is not available for mongos, some charts may not show any data.
-        </Banner>
-      )}
+    <div>
       <DBErrorComponent store={DBErrorStore} />
       <div className={workspaceBackgroundStyles}>
         <div className={workspaceStyles}>
@@ -86,6 +78,31 @@ function PerformancePanel({
   );
 }
 
+function PerformancePanelMsgs() {
+  const [, forceUpdate] = useState({});
+
+  useEffect(() => {
+    TopStore.listen(() => {
+      forceUpdate({}); // Trigger the component refresh when the store is updated.
+    }, this);
+  }, []);
+
+  return (
+    <div>
+      {ServerStatsStore.isMongos && (
+        <Banner className={mongosWarningStyles} variant="warning">
+          Top command is not available for mongos, some charts may not show any data.
+        </Banner>
+      )}
+      {TopStore.topUnableToRetrieveAllCollections && (
+        <Banner className={mongosWarningStyles} variant="warning">
+          Top command is unable to retrieve information about certain collections, resulting in incomplete data being displayed on the charts.
+        </Banner>
+      )}
+    </div>
+  );
+}
+
 /**
  * Renders the entire performance tab, including charts and lists.
  */
@@ -100,6 +117,10 @@ function PerformanceComponent() {
     };
   }, []);
 
+  const {
+    className: scrollbarStyles
+  } = useScrollbars();
+
   return (
     <section className="rt-perf">
       <ServerStatsToolbar eventDispatcher={eventDispatcher.current} />
@@ -107,9 +128,12 @@ function PerformanceComponent() {
         theme: Theme.Dark,
         enabled: true
       }}>
-        <PerformancePanel
-          eventDispatcher={eventDispatcher.current}
-        />
+        <div className={cx(workspaceContainerStyles, scrollbarStyles)}>
+          <PerformancePanelMsgs />
+          <PerformancePanel
+            eventDispatcher={eventDispatcher.current}
+          />
+        </div>
       </LeafyGreenProvider>
     </section>
   );
