@@ -8,7 +8,7 @@ import {
   mergeProps,
   spacing,
   Icon,
-  Loader,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 
@@ -61,7 +61,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     !isReadonly && !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
-      <Loader title="Refreshing Indexes" />
+      <SpinLoader title="Refreshing Indexes" />
     </div>
   ) : (
     <Icon glyph="Refresh" title="Refresh Indexes" />

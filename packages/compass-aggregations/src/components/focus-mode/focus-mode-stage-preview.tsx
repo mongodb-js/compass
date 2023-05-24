@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Body,
   css,
-  Loader,
+  SpinLoader,
   spacing,
   Overline,
 } from '@mongodb-js/compass-components';
@@ -115,7 +115,7 @@ export const FocusModePreview = ({
     content = (
       <div className={centerStyles}>
         <div className={loaderStyles}>
-          <Loader title="Loading" />
+          <SpinLoader title="Loading" />
           Loading Preview Documents...
         </div>
       </div>

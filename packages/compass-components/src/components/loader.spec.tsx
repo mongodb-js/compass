@@ -1,11 +1,11 @@
 import React from 'react';
 import sinon from 'sinon';
 import { render, cleanup, screen, fireEvent } from '@testing-library/react';
-import { Loader, CancelLoader } from './loader';
+import { SpinLoader, CancelLoader } from './loader';
 import { expect } from 'chai';
 
 function renderLoader() {
-  return render(<Loader size="12px" />);
+  return render(<SpinLoader size="12px" />);
 }
 
 function renderCancelLoader(spy) {
@@ -19,7 +19,7 @@ function renderCancelLoader(spy) {
   );
 }
 
-describe('Loader Component', function () {
+describe('SpinLoader Component', function () {
   afterEach(function () {
     cleanup();
   });

@@ -6,7 +6,7 @@ import {
   spacing,
   palette,
   keyframes,
-  Loader,
+  SpinLoader,
   withDarkMode,
   useHotkeys,
 } from '@mongodb-js/compass-components';
@@ -109,7 +109,7 @@ export const ShellHeader = ({
           &gt;_MONGOSH
           {!isExpanded && isOperationInProgress && (
             <span className={operationInProgressStyles}>
-              <Loader darkMode={true} />
+              <SpinLoader darkMode={true} />
               &nbsp;Command in progress&hellip;
             </span>
           )}

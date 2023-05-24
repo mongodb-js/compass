@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import {
   Banner,
   Button,
-  LoaderWithLabel,
+  SpinLoaderWithLabel,
   KeylineCard,
   Modal,
   ModalBody,
@@ -68,7 +68,7 @@ const editorStyles = css({
 const Loader: React.FunctionComponent = () => {
   return (
     <div className={explainPlanModalLoadingStyles}>
-      <LoaderWithLabel progressText="Running explain"></LoaderWithLabel>
+      <SpinLoaderWithLabel progressText="Running explain"></SpinLoaderWithLabel>
     </div>
   );
 };

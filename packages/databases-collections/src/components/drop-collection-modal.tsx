@@ -7,7 +7,7 @@ import {
   FormFieldContainer,
   FormModal,
   spacing,
-  Loader,
+  SpinLoader,
   TextInput,
 } from '@mongodb-js/compass-components';
 
@@ -91,7 +91,7 @@ function DropCollectionModal({
       {error && <Banner variant="danger">{error.message}</Banner>}
       {isRunning && (
         <Body className={progressContainerStyles}>
-          <Loader />
+          <SpinLoader />
           <span>Dropping Collection&hellip;</span>
         </Body>
       )}

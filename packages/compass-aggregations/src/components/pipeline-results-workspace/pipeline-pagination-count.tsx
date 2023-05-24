@@ -7,7 +7,7 @@ import {
   Link,
   palette,
   Tooltip,
-  Loader,
+  SpinLoader,
   IconButton,
   Icon,
 } from '@mongodb-js/compass-components';
@@ -56,7 +56,7 @@ const testId = 'pipeline-pagination-count';
 
 const StyledSpinner = ({ title }: { title: string }) => (
   <div className={spinnerStyles} title={title}>
-    <Loader />
+    <SpinLoader />
   </div>
 );
 

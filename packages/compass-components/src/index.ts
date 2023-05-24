@@ -26,7 +26,11 @@ import {
   WarningSummary,
 } from './components/error-warning-summary';
 import { RadioBoxGroup } from './components/radio-box-group';
-export { Loader, LoaderWithLabel, CancelLoader } from './components/loader';
+export {
+  SpinLoader,
+  SpinLoaderWithLabel,
+  CancelLoader,
+} from './components/loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';

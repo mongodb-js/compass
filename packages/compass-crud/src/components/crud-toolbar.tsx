@@ -8,7 +8,7 @@ import {
   IconButton,
   SegmentedControl,
   SegmentedControlOption,
-  Loader,
+  SpinLoader,
   css,
   spacing,
   useId,
@@ -210,7 +210,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             {displayedDocumentCount && `of ${displayedDocumentCount}`}
           </Body>
           {loadingCount && (
-            <Loader size="12px" title="Fetching document count…" />
+            <SpinLoader size="12px" title="Fetching document count…" />
           )}
           {!loadingCount && (
             <IconButton

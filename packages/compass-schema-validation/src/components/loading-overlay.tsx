@@ -3,7 +3,7 @@ import React from 'react';
 import {
   css,
   cx,
-  Loader,
+  SpinLoader,
   spacing,
   palette,
   useDarkMode,
@@ -41,7 +41,7 @@ function LoadingOverlay() {
         darkMode ? loadingOverlayStylesDark : loadingOverlayStylesLight
       )}
     >
-      <Loader />
+      <SpinLoader />
     </div>
   );
 }

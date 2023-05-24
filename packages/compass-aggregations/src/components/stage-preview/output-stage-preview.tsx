@@ -6,7 +6,7 @@ import {
   Body,
   Link,
   Button,
-  Loader,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
 import { viewOutResults } from '../../modules/out-results-fn';
@@ -65,7 +65,7 @@ const documentsPersistedText = (destination: string | null) => {
   return `Documents persisted to ${location}`;
 };
 
-const OutputLoadingState = ({
+const Loader = ({
   destinationNamespace,
 }: {
   destinationNamespace: string | null;
@@ -73,7 +73,7 @@ const OutputLoadingState = ({
   return (
     <div className={stagePreviewStyles}>
       <div className={loaderStyles}>
-        <Loader />
+        <SpinLoader />
         Persisting Documents{' '}
         {destinationNamespace ? `to ${destinationNamespace}` : '...'}
       </div>
@@ -96,7 +96,7 @@ export const OutputStage = ({
   }
 
   if (isLoading) {
-    return <OutputLoadingState destinationNamespace={destinationNamespace} />;
+    return <Loader destinationNamespace={destinationNamespace} />;
   }
 
   // Stage editor show the error message.
