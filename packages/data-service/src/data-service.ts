@@ -1757,7 +1757,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return result ? { result } : undefined;
   })
   async currentOp(): Promise<{ inprog: Document[] }> {
-    const db = this._database('admin', 'CRUD');
+    const db = this._database('admin', 'META');
     const pipelineWithTruncateOps: Document[] = [
       {
         $currentOp: {
