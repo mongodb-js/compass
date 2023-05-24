@@ -6,7 +6,7 @@ import {
 
 import type { Stage, IndexInformation } from './index';
 
-export type ExecutionStats = {
+export type ExecutionStats = Partial<{
   executionSuccess: boolean;
   nReturned: number;
   executionTimeMillis: number;
@@ -14,10 +14,12 @@ export type ExecutionStats = {
   totalDocsExamined: number;
   executionStages: Stage;
   allPlansExecution: unknown[];
-  stageIndexes?: IndexInformation[];
-};
+  stageIndexes: IndexInformation[];
+}>;
 
-export const getExecutionStats = (explain: Stage): ExecutionStats => {
+export const getExecutionStats = (
+  explain: Stage
+): ExecutionStats | undefined => {
   const executionStats = isAggregationExplain(explain)
     ? _getAggregationStats(explain)
     : _getFindStats(explain);
@@ -37,7 +39,7 @@ const _getUnshardedAggregationStats = (explain: Stage): ExecutionStats => {
 
   const lastStage = explain.stages[explain.stages.length - 1];
 
-  const stats = _getFindStats(firstStage[cursorKey]);
+  const stats = _getFindStats(firstStage[cursorKey]) ?? {};
   stats.nReturned = lastStage.nReturned;
   stats.stageIndexes = getIndexesFromStages(explain.stages);
   stats.executionTimeMillis = getExecutionTime(stats, explain.stages);
@@ -104,7 +106,7 @@ function getIndexesFromStages(
 ): IndexInformation[] {
   return stages
     .reduce((acc: string[], x: Stage) => acc.concat(x?.indexesUsed ?? []), [])
-    .map((index: string) => ({ index, shard: shard ?? null }));
+    .map((index: string) => ({ index, shard: shard ?? null, fields: {} }));
 }
 
 function getExecutionTime(stats: ExecutionStats, stages: Stage[]): number {
@@ -112,7 +114,7 @@ function getExecutionTime(stats: ExecutionStats, stages: Stage[]): number {
   // as we use its executationStats.executionTimeMillis
   const [, ...allStages] = stages;
   return (
-    stats.executionTimeMillis +
+    (stats.executionTimeMillis ?? 0) +
     sumArrayProp(allStages, 'executionTimeMillisEstimate')
   );
 }
