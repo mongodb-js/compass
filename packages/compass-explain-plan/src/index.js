@@ -1,14 +1,22 @@
+import ExplainPlanModal from './components/explain-plan-modal';
+import { configureStore as configureModalStore } from './stores/explain-plan-modal-store';
 import ExplainPlanPlugin from './plugin';
 import configureStore from './stores';
 
-const ROLE = {
+const COLLECTION_TAB_ROLE = {
   name: 'Explain Plan',
   component: ExplainPlanPlugin,
   order: 4,
-  hasQueryHistory: true,
   configureStore: configureStore,
   configureActions: () => {},
   storeName: 'ExplainPlan.Store',
+};
+
+const SCOPED_MODAL_ROLE = {
+  name: 'Explain Plan Modal',
+  component: ExplainPlanModal,
+  configureStore: configureModalStore,
+  storeName: 'ExplainPlanModal.Store',
 };
 
 /**
@@ -17,7 +25,8 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry) {
-  appRegistry.registerRole('Collection.Tab', ROLE);
+  appRegistry.registerRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.registerRole('Collection.ScopedModal', SCOPED_MODAL_ROLE);
 }
 
 /**
@@ -26,7 +35,8 @@ function activate(appRegistry) {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry) {
-  appRegistry.deregisterRole('Collection.Tab', ROLE);
+  appRegistry.deregisterRole('Collection.Tab', COLLECTION_TAB_ROLE);
+  appRegistry.deregisterRole('Collection.ScopedModal', SCOPED_MODAL_ROLE);
 }
 
 export default ExplainPlanPlugin;
