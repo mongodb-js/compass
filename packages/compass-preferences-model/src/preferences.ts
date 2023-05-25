@@ -912,17 +912,6 @@ export class Preferences {
     originalPreferences: AllPreferences,
     newPreferences: AllPreferences
   ): void {
-    // XXX DNM
-    log.warn(
-      mongoLogId(1_001_000_999),
-      'preferences',
-      '_afterPreferencesUpdate',
-      {
-        originalPreferences,
-        newPreferences,
-      }
-    );
-
     const changedPreferences = Object.fromEntries(
       Object.entries(newPreferences).filter(
         ([key, value]) =>
