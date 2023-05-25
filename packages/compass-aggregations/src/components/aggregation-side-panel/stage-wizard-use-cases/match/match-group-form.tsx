@@ -216,11 +216,14 @@ const MatchGroupForm = ({
   return (
     <div
       data-testid={TEST_IDS.container(group.id)}
-      className={cx(baseGroupStyles, {
-        [nestedGroupStyles]: nestingLevel !== 0,
-        [level1GroupStyles]: nestingLevel === 1 || nestingLevel === 3,
-        [level2GroupStyles]: nestingLevel === 2,
-      })}
+      className={cx(
+        baseGroupStyles,
+        nestingLevel !== 0 &&
+          cx(nestedGroupStyles, {
+            [level1GroupStyles]: nestingLevel % 2 !== 0,
+            [level2GroupStyles]: nestingLevel % 2 === 0,
+          })
+      )}
     >
       {/* Group header */}
       <div className={groupHeaderStyles}>
