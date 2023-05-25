@@ -131,7 +131,7 @@ const ExplainSummary: React.FC<ExplainSummaryProps> = ({
         <Subtitle className={explainSummaryTitleStyles}>
           Query Performance Summary
         </Subtitle>{' '}
-        <Link href={EXECUTION_STATS_HELP_LINK}>Learn more</Link>
+        <Link href={EXECUTION_STATS_HELP_LINK}>Docs</Link>
       </div>
       <div className={columnStyles}>
         <div>

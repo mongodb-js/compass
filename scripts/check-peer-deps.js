@@ -1,6 +1,6 @@
 const path = require('path');
 const { promises: fs } = require('fs');
-const glob = require('util').promisify(require('glob'));
+const { glob } = require('glob');
 const {
   pluginExternals,
   sharedExternals,

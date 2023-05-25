@@ -36,7 +36,7 @@ describe('importCSV', function () {
 
   beforeEach(async function () {
     dataService = await connect({
-      connectionString: 'mongodb://localhost:27018/local',
+      connectionString: 'mongodb://localhost:27019/local',
     });
 
     try {

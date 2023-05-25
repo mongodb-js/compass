@@ -100,7 +100,9 @@ export const executionStatsToTreeData = (
 ): ExplainTreeNodeData | undefined => {
   const executionStages = executionStats?.executionStages;
   try {
-    return parseExplainTree(executionStages, { count: 0 });
+    return executionStages
+      ? parseExplainTree(executionStages, { count: 0 })
+      : undefined;
   } catch (e) {
     debug('Error while building the treeModel', e);
     return undefined;

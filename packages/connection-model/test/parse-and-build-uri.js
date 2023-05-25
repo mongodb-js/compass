@@ -50,7 +50,7 @@ const tests = [
     description:
       'with maxPoolSize, minPoolSize, maxIdleTimeMS, waitQueueMultiple and waitQueueTimeoutMS',
     connectionString:
-      'mongodb://localhost:27017,localhost:27018,localhost:27019/databasename?' +
+      'mongodb://localhost:27017,localhost:27020,localhost:27019/databasename?' +
       'replicaSet=rs01&connectTimeoutMS=100000&maxPoolSize=10&minPoolSize=5&maxIdleTimeMS=1000&' +
       'waitQueueMultiple=200&waitQueueTimeoutMS=100&readPreference=primary&ssl=false'
   },

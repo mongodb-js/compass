@@ -12,7 +12,7 @@ import {
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
-  port: 27018,
+  port: 27022,
   ns: 'compass-crud',
   mongodb_database_name: 'admin',
 });

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon May 22 2023.
+This document was automatically generated on Thu May 25 2023.
 
 ## List of dependencies
 
@@ -423,6 +423,7 @@ This document was automatically generated on Mon May 22 2023.
 | **[lodash.isarray](#56f8034e73dcb0c6b5fb321d330440198ee3886f0824aca2a1cf41692d8f1d15)**                                | 4.0.0        | MIT                                 |
 | **[lodash.isdate](#54396c41d452d46f8d06091b9ab83f35cbafd80f53b8a3337c4567d1009556f4)**                                 | 3.0.3        | MIT                                 |
 | **[lodash.isempty](#f1f61f99f9012392c9bc1dd4b01eccd42224ff516c50b507c0041845df62bcbe)**                                | 3.0.4        | MIT                                 |
+| **[lodash.isempty](#b0dae56f2d71dd587981198f7aa537d6eb30823b6167ec862f615e08579e0a1a)**                                | 4.4.0        | MIT                                 |
 | **[lodash.isequal](#3c009e1972544c1bf8dba82eb0bffe6230cf8760bd49d8ee6e120d20b4296b2c)**                                | 3.0.4        | MIT                                 |
 | **[lodash.isequal](#106d21203734183e15a99a127b7c262e583d9e653e4a967a00d2ab38761f7c52)**                                | 4.5.0        | MIT                                 |
 | **[lodash.isfunction](#6320224e189bc838774bb32153e883a8d65054c954f929d6ca293ae8cf4db83a)**                             | 2.4.1        | MIT                                 |
@@ -25848,6 +25849,64 @@ License files:
       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+<a id="b0dae56f2d71dd587981198f7aa537d6eb30823b6167ec862f615e08579e0a1a"></a>
+
+### [lodash.isempty](https://www.npmjs.com/package/lodash.isempty) (version 4.4.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      Copyright jQuery Foundation and other contributors <https://jquery.org/>
+
+      Based on Underscore.js, copyright Jeremy Ashkenas,
+      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
+
+      This software consists of voluntary contributions made by many
+      individuals. For exact contribution history, see the revision history
+      available at https://github.com/lodash/lodash
+
+      The following license applies to all parts of this software except as
+      documented below:
+
+      ====
+
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+      ====
+
+      Copyright and related rights for sample code are waived via CC0. Sample
+      code is defined as all source code displayed within the prose of the
+      documentation.
+
+      CC0: http://creativecommons.org/publicdomain/zero/1.0/
+
+      ====
+
+      Files located in the node_modules and vendor directories are externally
+      maintained libraries used by this software which have their own
+      licenses; we recommend you read them, as their terms may differ from the
+      terms above.
 
 <a id="3c009e1972544c1bf8dba82eb0bffe6230cf8760bd49d8ee6e120d20b4296b2c"></a>
 

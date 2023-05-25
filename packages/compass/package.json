@@ -158,7 +158,6 @@
     "test-ci": "npm run test-release-tasks",
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
-    "posttest-ci": "node ../../scripts/killall-mongo.js",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "repository": {
