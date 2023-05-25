@@ -171,6 +171,7 @@ function AuthenticationTab({
       </Label>
       <RadioBoxGroup
         id="authentication-method-radio-box-group"
+        data-testid="authentication-method-radio-box-group"
         onChange={optionSelected}
         value={selectedAuthTab.id}
         size="compact"

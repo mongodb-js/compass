@@ -102,7 +102,6 @@ function AuthenticationOIDC({
                     key: 'ALLOWED_HOSTS',
                     value: '*',
                   });
-
                   return;
                 }
 
@@ -138,14 +137,12 @@ function AuthenticationOIDC({
               }: React.ChangeEvent<HTMLInputElement>) => {
                 if (checked) {
                   handleFieldChanged('allowedFlows', ['device-auth']);
-
                   return;
                 }
 
                 const newAllowedFlows = (
                   connectionOptions.oidc?.allowedFlows as AuthFlowType[]
                 )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth');
-
                 handleFieldChanged(
                   'allowedFlows',
                   newAllowedFlows.length > 0 ? newAllowedFlows : undefined

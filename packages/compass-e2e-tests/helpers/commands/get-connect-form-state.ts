@@ -28,7 +28,6 @@ export async function getConnectFormState(
 
   // Authentication
   await browser.navigateToConnectTab('Authentication');
-
   const authenticationState = await promiseMap({
     authMethod: getCheckedRadioValue(
       browser,
