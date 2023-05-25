@@ -87,8 +87,8 @@ export function ImportPreviewLoader({
  * Map the state of the store to component properties.
  */
 const mapStateToProps = (state: RootImportState) => ({
-  analyzeBytesProcessed: state.importData.analyzeBytesProcessed,
-  analyzeBytesTotal: state.importData.analyzeBytesTotal,
+  analyzeBytesProcessed: state.import.analyzeBytesProcessed,
+  analyzeBytesTotal: state.import.analyzeBytesTotal,
 });
 
 /**

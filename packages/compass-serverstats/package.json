@@ -54,6 +54,7 @@
     "lodash.max": "^4.0.1",
     "lodash.remove": "^4.7.0",
     "lodash.round": "^4.0.4",
+    "lodash.isempty": "^4.0.4",
     "mocha": "^10.2.0",
     "mongodb-data-service": "^22.6.0",
     "mongodb-js-errors": "^0.3.2",

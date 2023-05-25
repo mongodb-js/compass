@@ -78,10 +78,9 @@ describe('Collection export', function () {
       const exportModalQueryTextElement = await browser.$(
         Selectors.ExportModalCodePreview
       );
-      expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers').find(
-  {i: 5}
-)`);
+      expect(await exportModalQueryTextElement.getText()).to.equal(
+        `db.getCollection('numbers').find({ i: 5 });`
+      );
 
       // Choose to export select fields.
       await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
@@ -95,9 +94,9 @@ describe('Collection export', function () {
 
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers').find(
-  {i: 5},
-  {i: 1,j: 1,_id: 0}
-)`);
+  { i: 5 },
+  { i: 1, j: 1, _id: 0 }
+);`);
 
       // Select CSV.
       await selectExportFileTypeCSV(browser);
@@ -159,20 +158,18 @@ describe('Collection export', function () {
       const exportModalQueryTextElement = await browser.$(
         Selectors.ExportModalCodePreview
       );
-      expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers').find(
-  {i: 5}
-)`);
+      expect(await exportModalQueryTextElement.getText()).to.equal(
+        `db.getCollection('numbers').find({ i: 5 });`
+      );
 
       // Select export all fields.
       await browser.clickVisible(Selectors.ExportQueryAllFieldsOption);
       await browser.clickVisible(Selectors.ExportNextStepButton);
 
       // Make sure the query is shown in the modal.
-      expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers').find(
-  {i: 5}
-)`);
+      expect(await exportModalQueryTextElement.getText()).to.equal(
+        `db.getCollection('numbers').find({ i: 5 });`
+      );
 
       // Select export CSV.
       await selectExportFileTypeCSV(browser);
@@ -231,9 +228,9 @@ describe('Collection export', function () {
       );
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers').find(
-  {i: {$gt: 5}},
-  {_id: 0}
-)`);
+  { i: { $gt: 5 } },
+  { _id: 0 }
+);`);
 
       // Select CSV.
       await selectExportFileTypeCSV(browser);
@@ -344,10 +341,9 @@ describe('Collection export', function () {
       const exportModalQueryTextElement = await browser.$(
         Selectors.ExportModalCodePreview
       );
-      expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers').find(
-  {i: 5}
-)`);
+      expect(await exportModalQueryTextElement.getText()).to.equal(
+        `db.getCollection('numbers').find({ i: 5 });`
+      );
 
       // Choose to export select fields.
       await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
@@ -361,9 +357,9 @@ describe('Collection export', function () {
 
       expect(await exportModalQueryTextElement.getText()).to
         .equal(`db.getCollection('numbers').find(
-  {i: 5},
-  {i: 1,j: 1,_id: 0}
-)`);
+  { i: 5 },
+  { i: 1, j: 1, _id: 0 }
+);`);
 
       // Leave the file type on the default (JSON).
       await browser.clickVisible(Selectors.ExportModalExportButton);
@@ -422,20 +418,18 @@ describe('Collection export', function () {
       const exportModalQueryTextElement = await browser.$(
         Selectors.ExportModalCodePreview
       );
-      expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers').find(
-  {i: 5}
-)`);
+      expect(await exportModalQueryTextElement.getText()).to.equal(
+        `db.getCollection('numbers').find({ i: 5 });`
+      );
 
       // Select export all fields.
       await browser.clickVisible(Selectors.ExportQueryAllFieldsOption);
       await browser.clickVisible(Selectors.ExportNextStepButton);
 
       // Make sure the query is shown in the modal.
-      expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers').find(
-  {i: 5}
-)`);
+      expect(await exportModalQueryTextElement.getText()).to.equal(
+        `db.getCollection('numbers').find({ i: 5 });`
+      );
 
       // Go with the default file type (JSON).
       await browser.clickVisible(Selectors.ExportModalExportButton);
@@ -886,11 +880,15 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers-strings').find(
-  {}
-).collation(
-  {locale: 'en_US',numericOrdering: true}
-).sort({iString: -1}).limit(2).skip(2)`);
+        .equal(`db.getCollection('numbers-strings')
+  .find({})
+  .collation({
+    locale: 'en_US',
+    numericOrdering: true
+  })
+  .sort({ iString: -1 })
+  .limit(2)
+  .skip(2);`);
 
       // Choose to export select fields.
       await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
@@ -903,12 +901,15 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportNextStepButton);
 
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers-strings').find(
-  {},
-  {iString: 1,j: 1,_id: 0}
-).collation(
-  {locale: 'en_US',numericOrdering: true}
-).sort({iString: -1}).limit(2).skip(2)`);
+        .equal(`db.getCollection('numbers-strings')
+  .find({}, { iString: 1, j: 1, _id: 0 })
+  .collation({
+    locale: 'en_US',
+    numericOrdering: true
+  })
+  .sort({ iString: -1 })
+  .limit(2)
+  .skip(2);`);
 
       // Select CSV.
       await selectExportFileTypeCSV(browser);
@@ -977,11 +978,15 @@ describe('Collection export', function () {
         Selectors.ExportModalCodePreview
       );
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers-strings').find(
-  {}
-).collation(
-  {locale: 'en_US',numericOrdering: true}
-).sort({iString: -1}).limit(2).skip(2)`);
+        .equal(`db.getCollection('numbers-strings')
+  .find({})
+  .collation({
+    locale: 'en_US',
+    numericOrdering: true
+  })
+  .sort({ iString: -1 })
+  .limit(2)
+  .skip(2);`);
 
       // Choose to export select fields.
       await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
@@ -994,12 +999,15 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportNextStepButton);
 
       expect(await exportModalQueryTextElement.getText()).to
-        .equal(`db.getCollection('numbers-strings').find(
-  {},
-  {iString: 1,j: 1,_id: 0}
-).collation(
-  {locale: 'en_US',numericOrdering: true}
-).sort({iString: -1}).limit(2).skip(2)`);
+        .equal(`db.getCollection('numbers-strings')
+  .find({}, { iString: 1, j: 1, _id: 0 })
+  .collation({
+    locale: 'en_US',
+    numericOrdering: true
+  })
+  .sort({ iString: -1 })
+  .limit(2)
+  .skip(2);`);
 
       // Select JSON.
       await selectExportFileTypeJSON(browser);

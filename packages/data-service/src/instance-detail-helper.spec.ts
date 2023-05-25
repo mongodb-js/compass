@@ -14,7 +14,7 @@ import * as fixtures from '../test/fixtures';
 import { createMongoClientMock } from '../test/helpers';
 
 const connectionOptions: ConnectionOptions = {
-  connectionString: 'mongodb://localhost:27018/data-service',
+  connectionString: 'mongodb://localhost:27021/data-service',
 };
 
 describe('instance-detail-helper', function () {

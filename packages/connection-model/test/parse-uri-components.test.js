@@ -103,11 +103,11 @@ describe('connection model parser should parse URI components such as', () => {
 
   describe('the host and optional port number', () => {
     it('should parse host and port', (done) => {
-      Connection.from('mongodb://host:27018', (error, result) => {
+      Connection.from('mongodb://host:27020', (error, result) => {
         expect(error).to.not.exist;
         expect(result.hostname).to.be.equal('host');
         expect(result.hosts[0].host).to.equal('host');
-        expect(result.hosts[0].port).to.equal(27018);
+        expect(result.hosts[0].port).to.equal(27020);
         done();
       });
     });
@@ -191,7 +191,7 @@ describe('connection model parser should parse URI components such as', () => {
 
       it('should parse socketTimeoutMS with multiple servers', (done) => {
         Connection.from(
-          'mongodb://localhost:27017,localhost:27018,localhost:27019/sampleDb?replicaSet=rs0&socketTimeoutMS=5000',
+          'mongodb://localhost:27017,localhost:27020,localhost:27019/sampleDb?replicaSet=rs0&socketTimeoutMS=5000',
           (error, result) => {
             expect(error).to.not.exist;
             expect(result.socketTimeoutMS).to.be.equal(5000);
@@ -276,7 +276,7 @@ describe('connection model parser should parse URI components such as', () => {
     describe('connection pool options', () => {
       it('should parse minPoolSize and maxPoolSize', (done) => {
         Connection.from(
-          'mongodb://localhost:27017,localhost:27018,localhost:27019/databasename?replicaSet=rs01&ssl=false&connectTimeoutMS=100000&minPoolSize=5&maxPoolSize=10',
+          'mongodb://localhost:27017,localhost:27020,localhost:27019/databasename?replicaSet=rs01&ssl=false&connectTimeoutMS=100000&minPoolSize=5&maxPoolSize=10',
           (error, result) => {
             expect(error).to.not.exist;
             expect(result.minPoolSize).to.be.equal(5);

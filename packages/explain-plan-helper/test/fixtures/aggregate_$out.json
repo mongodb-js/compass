@@ -1,0 +1,76 @@
+{
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "plannerVersion": 1,
+          "namespace": "Corporate-Registrations.corporations",
+          "indexFilterSet": false,
+          "parsedQuery": {
+            "status_code": {
+              "$eq": "C"
+            }
+          },
+          "queryHash": "0E6EBCF3",
+          "planCacheKey": "B04F8F0E",
+          "winningPlan": {
+            "stage": "LIMIT",
+            "limitAmount": 1000,
+            "inputStage": {
+              "stage": "FETCH",
+              "inputStage": {
+                "stage": "IXSCAN",
+                "keyPattern": {
+                  "status_code": 1
+                },
+                "indexName": "status_code_1",
+                "isMultiKey": false,
+                "multiKeyPaths": {
+                  "status_code": []
+                },
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 2,
+                "direction": "forward",
+                "indexBounds": {
+                  "status_code": ["[\"C\", \"C\"]"]
+                }
+              }
+            }
+          },
+          "rejectedPlans": []
+        }
+      }
+    },
+    {
+      "$out": {
+        "db": "Corporate-Registrations",
+        "coll": "test"
+      }
+    }
+  ],
+  "serverInfo": {
+    "host": "compass-data-sets-shard-00-01-e06dc.mongodb.net",
+    "port": 27017,
+    "version": "4.4.22",
+    "gitVersion": "fc832685b99221cffb1f5bb5a4ff5ad3e1c416b2"
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": "7236013054641570794"
+    },
+    "signature": {
+      "hash": "EJxAxBsbujCxqoDYV0eEcrZw9JE=",
+      "keyId": {
+        "low": 1,
+        "high": 1676495408,
+        "unsigned": false
+      }
+    }
+  },
+  "operationTime": {
+    "$timestamp": "7236013054641570794"
+  }
+}

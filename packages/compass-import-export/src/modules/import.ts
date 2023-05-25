@@ -2,38 +2,27 @@
  * # Import
  *
  * @see startImport() for the primary entrypoint.
- *
- * ```
- *         openImport()
- *               | [user specifies import options or defaults]
- * closeImport() | startImport()
- *               | > cancelImport()
- * ```
- *
- * - [User actions for specifying import options] can be called once the modal has been opened
- * - Once `startImport()` has been called, [Import status action creators] are created internally
- *
- * NOTE: lucas: Any values intended for internal-use only, such as the action
- * creators for import status/progress, are called out with @api private
- * doc strings. This way, they can still be exported as needed for testing
- * without having to think deeply on whether they are being called from a top-level
- * action or not. Not great, but it has saved me a considerable amount of time vs.
- * larger scale refactoring/frameworks.
  */
 
 import _ from 'lodash';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
-import type { AnyAction } from 'redux';
+import { combineReducers } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
-import { globalAppRegistryEmit, nsChanged } from './compass';
+import {
+  globalAppRegistryEmit,
+  globalAppRegistry,
+  dataService,
+  nsChanged,
+  ns,
+} from './compass';
 import type { ProcessStatus } from '../constants/process-status';
-import type { RootImportState } from '../stores/import-store';
 import type { AcceptedFileType } from '../constants/file-types';
 import type {
   Delimiter,
@@ -108,7 +97,7 @@ type FieldFromJSON = {
 };
 type FieldType = FieldFromJSON | FieldFromCSV;
 
-type State = {
+type ImportState = {
   isOpen: boolean;
   isInProgressMessageOpen: boolean;
   errors: Error[];
@@ -141,7 +130,7 @@ type State = {
   analyzeError?: Error;
 };
 
-export const INITIAL_STATE: State = {
+export const INITIAL_STATE: ImportState = {
   isOpen: false,
   isInProgressMessageOpen: false,
   errors: [],
@@ -208,31 +197,29 @@ async function getErrorLogPath(fileName: string) {
   return path.join(importErrorLogsPath, errorLogFileName);
 }
 
-export const startImport = () => {
+export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
   return async (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
+    dispatch: ImportThunkDispatch<AnyAction>,
+    getState: () => RootState
   ) => {
     const startTime = Date.now();
 
-    const state = getState();
-
-    const { ns, importData } = state;
-
-    const dataService = state.dataService.dataService!;
-
     const {
-      fileName,
-      fileType,
-      fileIsMultilineJSON,
-      fileStats,
-      delimiter,
-      newline,
-      ignoreBlanks: ignoreBlanks_,
-      stopOnErrors,
-      exclude,
-      transform,
-    } = importData;
+      ns,
+      import: {
+        fileName,
+        fileType,
+        fileIsMultilineJSON,
+        fileStats,
+        delimiter,
+        newline,
+        ignoreBlanks: ignoreBlanks_,
+        stopOnErrors,
+        exclude,
+        transform,
+      },
+      dataService: { dataService },
+    } = getState();
 
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
     const fileSize = fileStats?.size || 0;
@@ -326,7 +313,7 @@ export const startImport = () => {
 
     if (fileType === 'csv') {
       promise = importCSV({
-        dataService,
+        dataService: dataService!,
         ns,
         input,
         output: errorLogWriteStream,
@@ -341,7 +328,7 @@ export const startImport = () => {
       });
     } else {
       promise = importJSON({
-        dataService: dataService,
+        dataService: dataService!,
         ns,
         input,
         output: errorLogWriteStream,
@@ -383,7 +370,8 @@ export const startImport = () => {
       progressCallback.flush();
       showFailedToast(err);
 
-      return dispatch(onFailed(err));
+      dispatch(onFailed(err));
+      return;
     } finally {
       errorLogWriteStream?.close();
     }
@@ -459,13 +447,14 @@ export const startImport = () => {
  *
  * @api public
  */
-export const cancelImport = () => {
+export const cancelImport = (): ImportThunkAction<void, AnyAction> => {
   return (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
+    dispatch: ImportThunkDispatch<AnyAction>,
+    getState: () => RootState
   ) => {
-    const { importData } = getState();
-    const { abortController, analyzeAbortController } = importData;
+    const {
+      import: { abortController, analyzeAbortController },
+    } = getState();
 
     // The user could close the modal while a analyzeCSVFields() is running
     if (analyzeAbortController) {
@@ -489,13 +478,14 @@ export const cancelImport = () => {
   };
 };
 
-export const skipCSVAnalyze = () => {
+export const skipCSVAnalyze = (): ImportThunkAction<void, AnyAction> => {
   return (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
+    dispatch: ImportThunkDispatch<AnyAction>,
+    getState: () => RootState
   ) => {
-    const { importData } = getState();
-    const { analyzeAbortController } = importData;
+    const {
+      import: { analyzeAbortController },
+    } = getState();
 
     // cancelling analyzeCSVFields() still makes it resolve, the result is just
     // based on a smaller sample size. It will still detect something based on
@@ -513,18 +503,15 @@ export const skipCSVAnalyze = () => {
 const loadTypes = (
   fields: FieldFromCSV[],
   values: string[][]
-): ThunkAction<Promise<void>, RootImportState, void, AnyAction> => {
-  return async (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
-  ): Promise<void> => {
+): ImportThunkAction<Promise<void>, AnyAction> => {
+  return async (dispatch, getState): Promise<void> => {
     const {
       fileName,
       delimiter,
       newline,
       ignoreBlanks,
       analyzeAbortController,
-    } = getState().importData;
+    } = getState().import;
 
     // if there's already an analyzeCSVFields in flight, abort that first
     if (analyzeAbortController) {
@@ -597,17 +584,9 @@ const loadTypes = (
   };
 };
 
-const loadCSVPreviewDocs = (): ThunkAction<
-  Promise<void>,
-  RootImportState,
-  void,
-  AnyAction
-> => {
-  return async (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
-  ): Promise<void> => {
-    const { fileName, delimiter, newline } = getState().importData;
+const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>, AnyAction> => {
+  return async (dispatch, getState): Promise<void> => {
+    const { fileName, delimiter, newline } = getState().import;
 
     const input = fs.createReadStream(fileName);
 
@@ -714,7 +693,7 @@ export const setFieldType = (path: string, bsonType: string) => {
 };
 
 export const selectImportFileName = (fileName: string) => {
-  return async (dispatch: ThunkDispatch<RootImportState, void, AnyAction>) => {
+  return async (dispatch: ImportThunkDispatch<AnyAction>) => {
     try {
       const exists = await checkFileExists(fileName);
       if (!exists) {
@@ -782,10 +761,10 @@ export const selectImportFileName = (fileName: string) => {
  */
 export const setDelimiter = (delimiter: Delimiter) => {
   return async (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
+    dispatch: ImportThunkDispatch<AnyAction>,
+    getState: () => RootState
   ) => {
-    const { fileName, fileType, fileIsMultilineJSON } = getState().importData;
+    const { fileName, fileType, fileIsMultilineJSON } = getState().import;
     dispatch({
       type: SET_DELIMITER,
       delimiter: delimiter,
@@ -846,12 +825,12 @@ export const openImport = ({
 }: {
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
-}) => {
+}): ImportThunkAction<void, AnyAction> => {
   return (
-    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
-    getState: () => RootImportState
+    dispatch: ImportThunkDispatch<AnyAction>,
+    getState: () => RootState
   ) => {
-    const { status } = getState().importData;
+    const { status } = getState().import;
     if (status === 'STARTED') {
       dispatch({
         type: OPEN_IN_PROGRESS_MESSAGE,
@@ -888,7 +867,10 @@ function csvFields(fields: (FieldFromCSV | FieldFromJSON)[]): FieldFromCSV[] {
 /**
  * The import module reducer.
  */
-const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
+const importReducer: Reducer<ImportState> = (
+  state = INITIAL_STATE,
+  action: AnyAction
+): ImportState => {
   if (action.type === FILE_SELECTED) {
     return {
       ...state,
@@ -1147,4 +1129,27 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
 
   return state;
 };
-export default reducer;
+
+const rootImportReducer = combineReducers({
+  import: importReducer,
+  ns,
+  globalAppRegistry,
+  dataService,
+});
+
+export type RootState = ReturnType<typeof rootImportReducer>;
+
+type ImportThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
+  RootState,
+  void,
+  A
+>;
+
+export type ImportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootState,
+  void,
+  A
+>;
+
+export { rootImportReducer };

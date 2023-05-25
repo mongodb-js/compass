@@ -23,6 +23,7 @@ describe('Shell', function () {
   });
 
   afterEach(async function () {
+    await browser.setFeature('enableShell', true);
     await afterTest(compass, this.currentTest);
   });
 
