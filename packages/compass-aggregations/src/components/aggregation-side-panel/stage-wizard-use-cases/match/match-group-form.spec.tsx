@@ -10,7 +10,7 @@ import {
   makeCreateCondition,
   TEST_IDS as CONDITION_TEST_IDS,
 } from './match-condition-form';
-import { SAMPLE_FIELDS } from './fixtures';
+import { SAMPLE_FIELDS } from './helper';
 import type { CreateConditionFn } from './match-condition-form';
 import type { CreateGroupFn, MatchGroupFormProps } from './match-group-form';
 import { SINGLE_SELECT_LABEL } from '../field-combobox';
@@ -118,9 +118,9 @@ describe('group', function () {
         });
       });
 
-      context('when group is rendered at nesting level 2', function () {
+      context('when group is rendered at nesting level 3', function () {
         it('should render operator select, a disabled add nested group button and remove group button', function () {
-          const group = renderGroup({ nestingLevel: 2 });
+          const group = renderGroup({ nestingLevel: 3 });
           expect(
             screen.getByTestId(TEST_IDS.operatorSelect(group.id))
           ).to.exist;

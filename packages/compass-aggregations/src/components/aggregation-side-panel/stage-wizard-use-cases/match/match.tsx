@@ -111,27 +111,26 @@ export function toMatchGroupExpression({
   };
 }
 
+/**
+ * We make (compact group expression / implicit $and expression) to align with
+ * the syntax promoted in mongodb docs. The compaction will happen when:
+ *  - group is a root group
+ *  - group operator is $and
+ *  - every expression in the group has unique keys, to avoid any possibility of
+ *    override after compaction
+ *
+ * This approach produces a syntax that aligns with the syntax promoted in
+ * mongodb docs for writing $and operator queries and is also coherent to what
+ * the user sees on the form. See the test-cases for examples.
+ */
 export function makeCompactGroupExpression(
   groupExpression: MatchGroupExpression
 ) {
   const compactExpression: MatchExpression = {};
   const groupExpressionsEntries = Object.entries(groupExpression);
   for (const [operator, expressions] of groupExpressionsEntries) {
-    /**
-     * We will make compact expressions when
-     *  - group operator is $and
-     *  - every expression in the group is a condition expression (no nested
-     *    group)
-     *  - every expression has unique keys, to avoid any possibility of override
-     *
-     * This approach produces a syntax that aligns with the syntax promoted in
-     * mongodb docs for writing $and operator queries and is also coherent to
-     * what the user sees on the form.
-     */
     const canMakeCompactExpression =
-      operator === '$and' &&
-      expressions.every(isMatchConditionExpression) &&
-      areUniqueExpressions(expressions);
+      operator === '$and' && areUniqueExpressions(expressions);
 
     if (canMakeCompactExpression) {
       for (const expression of expressions) {
