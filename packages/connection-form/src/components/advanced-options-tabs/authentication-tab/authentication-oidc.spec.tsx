@@ -41,7 +41,7 @@ describe('AuthenticationOIDC Connection Form', function () {
     // TODO(COMPASS-6803): Remove feature flag, remove this sandbox.
     sandbox.stub(preferences, 'getPreferences').callsFake(() => {
       return {
-        enableOIDC: true,
+        enableOidc: true,
       } as any;
     });
 

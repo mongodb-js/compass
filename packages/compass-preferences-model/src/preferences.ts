@@ -17,7 +17,7 @@ export type FeatureFlags = {
   showDevFeatureFlags?: boolean;
   enableLgDarkmode?: boolean;
   enableDebugUseCsfleSchemaMap?: boolean;
-  enableOIDC?: boolean;
+  enableOidc?: boolean; // COMPASS-6803 // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard?: boolean;
 };
 
@@ -261,7 +261,7 @@ const featureFlagsProps: Required<{
    * Epic: COMPASS-5955
    * TODO(COMPASS-6803): Enable/remove this feature flag.
    */
-  enableOIDC: {
+  enableOidc: {
     type: 'boolean',
     required: false,
     default: undefined,

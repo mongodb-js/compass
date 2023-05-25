@@ -133,7 +133,7 @@ function AuthenticationTab({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
-  const enableOIDC = !!usePreference('enableOIDC', React);
+  const enableOIDC = !!usePreference('enableOidc', React);
   const enabledAuthOptions = useMemo(() => {
     if (enableOIDC) {
       return options;

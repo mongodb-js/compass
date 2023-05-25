@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import type { AuthFlowType } from '@mongodb-js/oidc-plugin';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -51,7 +52,7 @@ function AuthenticationOIDC({
   const hasEnabledUntrustedEndpoints = allowedHosts === '*';
 
   const hasEnabledDeviceAuthFlow = !!(
-    connectionOptions.oidc?.allowedFlows as string[]
+    connectionOptions.oidc?.allowedFlows as AuthFlowType[]
   )?.includes?.('device-auth');
 
   return (
@@ -68,6 +69,7 @@ function AuthenticationOIDC({
             });
           }}
           label="Principal"
+          optional
           value={username || ''}
           errorMessage={usernameError}
           state={usernameError ? 'error' : undefined}
@@ -116,13 +118,11 @@ function AuthenticationOIDC({
               label={
                 <>
                   <Label htmlFor="oidc-allow-untrusted-endpoint-input">
-                    {/* TODO: text */}
                     Enable untrusted target endpoint
                   </Label>
                   <Description>
-                    {/* TODO: text */}
-                    Enable connecting even if the target endpoint is not in the
-                    list of trusted endpoints &#40;this sets the driver&apos;s
+                    Allow connecting when the target endpoint is not in the list
+                    of trusted endpoints &#40;this sets the driver&apos;s
                     ALLOWED_HOSTS list to *&#41;
                   </Description>
                 </>
@@ -143,7 +143,7 @@ function AuthenticationOIDC({
                 }
 
                 const newAllowedFlows = (
-                  connectionOptions.oidc?.allowedFlows as string[]
+                  connectionOptions.oidc?.allowedFlows as AuthFlowType[]
                 )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth');
 
                 handleFieldChanged(
@@ -154,12 +154,9 @@ function AuthenticationOIDC({
               data-testid="oidc-enable-device-auth-flow-input"
               id="oidc-enable-device-auth-flow-input"
               label={
-                <>
-                  <Label htmlFor="oidc-enable-device-auth-flow-input">
-                    Enable device authentication flow
-                  </Label>
-                  <Description>{/* TODO: text */}</Description>
-                </>
+                <Label htmlFor="oidc-enable-device-auth-flow-input">
+                  Enable device authentication flow
+                </Label>
               }
               checked={hasEnabledDeviceAuthFlow}
             />

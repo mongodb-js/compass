@@ -14,7 +14,8 @@ export interface ConnectFormState {
     | 'MONGODB-X509'
     | 'GSSAPI'
     | 'PLAIN'
-    | 'MONGODB-AWS';
+    | 'MONGODB-AWS'
+    | 'MONGODB-OIDC';
 
   // - Username/Password
   defaultUsername?: string;
@@ -33,6 +34,9 @@ export interface ConnectFormState {
   // - LDAP
   ldapUsername?: string;
   ldapPassword?: string;
+
+  // - OIDC
+  oidcPrincipal?: string; // (Username).
 
   // - AWS IAM
   awsAccessKeyId?: string;

@@ -28,6 +28,7 @@ export async function getConnectFormState(
 
   // Authentication
   await browser.navigateToConnectTab('Authentication');
+
   const authenticationState = await promiseMap({
     authMethod: getCheckedRadioValue(
       browser,
@@ -44,6 +45,12 @@ export async function getConnectFormState(
     defaultAuthMechanism: getCheckedRadioValue(
       browser,
       Selectors.ConnectionFormAuthMechanismRadios
+    ),
+
+    // OIDC
+    oidcPrincipal: getValue(
+      browser,
+      Selectors.ConnectionFormInputOIDCPrincipal
     ),
 
     // Kerberos

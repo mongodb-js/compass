@@ -140,6 +140,14 @@ export async function setConnectFormState(
     );
   }
 
+  // OIDC
+  if (state.oidcPrincipal) {
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputOIDCPrincipal,
+      state.oidcPrincipal
+    );
+  }
+
   // FLE2
   await browser.navigateToConnectTab('In-Use Encryption');
 

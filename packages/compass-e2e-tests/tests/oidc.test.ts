@@ -147,7 +147,7 @@ describe('OIDC integration', function () {
     if (tmpdir) await fs.rmdir(tmpdir, { recursive: true });
   });
 
-  it('can successfully connect', async function () {
+  it('can successfully connect with a connection string', async function () {
     let tokenFetchCalls = 0;
     getTokenPayload = () => {
       tokenFetchCalls++;
