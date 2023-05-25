@@ -28,7 +28,7 @@ describe('LegacyConnectionModel', function () {
       const rawModel = {
         _id: '1234-1234-1234-1234',
         hostname: 'localhost',
-        port: 27018,
+        port: 27021,
         authStrategy: 'NONE',
         readPreference: 'primary',
         sslMethod: 'ALL',

@@ -2,6 +2,7 @@ const Reflux = require('reflux');
 const Actions = require('../actions');
 const toNS = require('mongodb-ns');
 const round = require('lodash.round');
+const isEmpty = require('lodash.isempty');
 
 const debug = require('debug')('mongodb-compass:server-stats:top-store');
 
@@ -46,6 +47,7 @@ const TopStore = Reflux.createStore({
     this.starting = true;
     this.t1s = {};
     this.disableTop = false;
+    this.topUnableToRetrieveSomeCollections = false;
   },
 
   pause: function() {
@@ -122,7 +124,15 @@ const TopStore = Reflux.createStore({
         if (!doc.hasOwnProperty(collname) || collname === 'note' || toNS(collname).specialish) {
           continue;
         }
+
         const value = doc[collname];
+
+        // Information regarding collections with queryable encryption is not available COMPASS-6593
+        if (isEmpty(value)) {
+          this.topUnableToRetrieveSomeCollections = true;
+          continue;
+        }
+
         if (!('readLock' in value) || !('writeLock' in value) || !('total' in value)) {
           debug('Error: top response from DB missing fields', value);
         }

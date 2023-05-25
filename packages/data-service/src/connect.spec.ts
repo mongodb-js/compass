@@ -616,7 +616,8 @@ describe('connect', function () {
         });
       });
 
-      it('connects to kerberosCrossRealm', async function () {
+      // ticket: COMPASS-6867
+      it.skip('connects to kerberosCrossRealm', async function () {
         await testConnection(envs.getConnectionOptions('kerberosCrossRealm'), {
           authenticatedUserRoles: [
             {

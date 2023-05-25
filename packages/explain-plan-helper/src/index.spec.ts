@@ -80,7 +80,7 @@ describe('explain-plan-plan', function () {
 
       it('should have the correct `usedIndexes` value', function () {
         expect(plan.usedIndexes).to.deep.equal([
-          { index: 'age_1', shard: null },
+          { fields: { age: 1 }, index: 'age_1', shard: null },
         ]);
       });
 
@@ -118,7 +118,7 @@ describe('explain-plan-plan', function () {
 
       it('should return the used index', function () {
         expect(plan.usedIndexes).to.deep.equal([
-          { index: 'age_1', shard: null },
+          { fields: { age: 1 }, index: 'age_1', shard: null },
         ]);
       });
 
@@ -138,7 +138,7 @@ describe('explain-plan-plan', function () {
 
       it('should recognize an IDHACK stage and return the correct index name', function () {
         expect(plan.usedIndexes).to.deep.equal([
-          { index: '_id_', shard: null },
+          { fields: { _id: 1 }, index: '_id_', shard: null },
         ]);
         expect(plan.isCollectionScan).to.equal(false);
       });
@@ -148,9 +148,9 @@ describe('explain-plan-plan', function () {
       it('should detect multiple different indexes', async function () {
         plan = await loadExplainFixture('sharded_mixed_index_3.2.json');
         expect(plan.usedIndexes).to.deep.equal([
-          { index: 'age_1', shard: 'shard02' },
-          { index: 'age_1', shard: 'shard03' },
-          { index: null, shard: 'shard01' },
+          { index: 'age_1', shard: 'shard02', fields: { age: 1 } },
+          { index: 'age_1', shard: 'shard03', fields: { age: 1 } },
+          { index: null, shard: 'shard01', fields: {} },
         ]);
       });
     });
@@ -159,8 +159,21 @@ describe('explain-plan-plan', function () {
       it('should detect IDHACK stage', async function () {
         plan = await loadExplainFixture('sharded_single_index_3.2.json');
         expect(plan.usedIndexes).to.deep.equal([
-          { index: '_id_', shard: 'rsmyset' },
+          { fields: { _id: 1 }, index: '_id_', shard: 'rsmyset' },
         ]);
+      });
+    });
+
+    describe('no executions stats', function () {
+      it('should parse explain plan anyway', async function () {
+        plan = await loadExplainFixture('aggregate_$out.json');
+        expect(plan).to.have.property(
+          'namespace',
+          'Corporate-Registrations.corporations'
+        );
+        expect(plan)
+          .to.have.property('parsedQuery')
+          .deep.eq({ status_code: { $eq: 'C' } });
       });
     });
   });
@@ -228,7 +241,7 @@ describe('explain-plan-plan', function () {
 
       it('should have `usedIndexes`', function () {
         expect(plan.usedIndexes).to.deep.equal([
-          { index: 'abbr_index', shard: null },
+          { fields: { abbreviation: 1 }, index: 'abbr_index', shard: null },
         ]);
       });
 
@@ -257,7 +270,11 @@ describe('explain-plan-plan', function () {
 
         it('should have `usedIndexes`', function () {
           expect(plan.usedIndexes).to.deep.equal([
-            { index: 'location_2dsphere', shard: null },
+            {
+              fields: { location: '2dsphere' },
+              index: 'location_2dsphere',
+              shard: null,
+            },
           ]);
         });
 
@@ -296,7 +313,7 @@ describe('explain-plan-plan', function () {
         });
 
         it('should have usedIndexes in executionStats object', function () {
-          const expectedIndexes = [{ index: '_id_', shard: null }];
+          const expectedIndexes = [{ fields: {}, index: '_id_', shard: null }];
           expect(plan.executionStats.stageIndexes).to.deep.equal(
             expectedIndexes
           );
@@ -348,7 +365,11 @@ describe('explain-plan-plan', function () {
         });
         it('should have `usedIndexes`', function () {
           expect(plan.usedIndexes).to.deep.equal([
-            { index: 'address_location', shard: 'shard1' },
+            {
+              fields: { 'address.location': '2dsphere' },
+              index: 'address_location',
+              shard: 'shard1',
+            },
           ]);
         });
         it('should have `inMemorySort` disabled', function () {
@@ -400,7 +421,7 @@ describe('explain-plan-plan', function () {
         });
         it('should have `usedIndexes`', function () {
           expect(plan.usedIndexes).to.deep.equal([
-            { index: null, shard: 'shard1' },
+            { fields: {}, index: null, shard: 'shard1' },
           ]);
         });
         it('should have `inMemorySort` disabled', function () {
@@ -453,8 +474,16 @@ describe('explain-plan-plan', function () {
         });
         it('should have `usedIndexes`', function () {
           expect(plan.usedIndexes).to.deep.equal([
-            { index: 'address_location', shard: 'shard2' },
-            { index: 'address_location', shard: 'shard1' },
+            {
+              fields: { 'address.location': '2dsphere' },
+              index: 'address_location',
+              shard: 'shard2',
+            },
+            {
+              fields: { 'address.location': '2dsphere' },
+              index: 'address_location',
+              shard: 'shard1',
+            },
           ]);
         });
         it('should have `inMemorySort` disabled', function () {
@@ -499,8 +528,8 @@ describe('explain-plan-plan', function () {
         });
         it('should have `usedIndexes`', function () {
           expect(plan.usedIndexes).to.deep.equal([
-            { index: null, shard: 'shard2' },
-            { index: null, shard: 'shard1' },
+            { fields: {}, index: null, shard: 'shard2' },
+            { fields: {}, index: null, shard: 'shard1' },
           ]);
         });
         it('should have `inMemorySort` disabled', function () {
@@ -532,7 +561,7 @@ describe('explain-plan-plan', function () {
 
         it('should have usedIndexes in executionStats object', function () {
           expect(plan.executionStats.stageIndexes).to.deep.equal([
-            { index: '_id_', shard: 'shard2' },
+            { fields: {}, index: '_id_', shard: 'shard2' },
           ]);
         });
       });
