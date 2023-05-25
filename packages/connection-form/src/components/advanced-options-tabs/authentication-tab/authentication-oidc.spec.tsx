@@ -1,191 +1,151 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import preferences from 'compass-preferences-model';
 
-import AuthenticationOIDC from './authentication-oidc';
-import type { ConnectionFormError } from '../../../utils/validation';
-import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
+import ConnectionForm from '../../../';
 
-function renderComponent({
-  errors = [],
-  connectionOptions,
-  connectionStringUrl = new ConnectionStringUrl(
-    'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC'
-  ),
-  updateConnectionFormField,
-}: {
-  connectionOptions?: ConnectionOptions;
-  connectionStringUrl?: ConnectionStringUrl;
-  errors?: ConnectionFormError[];
-  updateConnectionFormField: UpdateConnectionFormField;
-}) {
-  render(
-    <AuthenticationOIDC
-      errors={errors}
-      connectionStringUrl={connectionStringUrl}
-      connectionOptions={
-        connectionOptions ?? {
-          connectionString: connectionStringUrl.toString(),
-        }
-      }
-      updateConnectionFormField={updateConnectionFormField}
-    />
+const openAuthOIDC = async () => {
+  fireEvent.click(screen.getByTestId('advanced-connection-options'));
+  const tabTestId = 'connection-authentication-tab';
+  await waitFor(() => screen.getAllByTestId(tabTestId));
+  // NOTE: for some reason data-testids gets duplicated both in the
+  // tab button and in the tab panel.
+  fireEvent.click(screen.getAllByTestId(tabTestId)[0]);
+
+  // Click oidc auth.
+  fireEvent.click(
+    screen.getByTestId('connection-authentication-method-MONGODB-OIDC-button')
   );
-}
+};
 
 const openOptionsAccordion = () =>
   fireEvent.click(screen.getByText('OIDC Options'));
 
-describe('AuthenticationOIDC Component', function () {
-  let updateConnectionFormFieldSpy: sinon.SinonSpy;
-  beforeEach(function () {
-    updateConnectionFormFieldSpy = sinon.spy();
-  });
+describe('AuthenticationOIDC Connection Form', function () {
+  let expectToConnectWith;
+  let sandbox: sinon.SinonSandbox;
 
-  describe('when the username input is changed', function () {
-    beforeEach(function () {
-      renderComponent({
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+  beforeEach(async function () {
+    const connectSpy = sinon.spy();
 
-      fireEvent.change(screen.getAllByRole('textbox')[0], {
-        target: { value: 'good sandwich' },
-      });
+    sandbox = sinon.createSandbox();
+    // TODO(COMPASS-6803): Remove feature flag, remove this sandbox.
+    sandbox.stub(preferences, 'getPreferences').callsFake(() => {
+      return {
+        enableOIDC: true,
+      } as any;
     });
 
-    it('calls to update the form field', function () {
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-username',
-        username: 'good sandwich',
-      });
-    });
-  });
+    expectToConnectWith = async (
+      expected: ConnectionOptions | ((ConnectionOptions) => void)
+    ): Promise<void> => {
+      connectSpy.resetHistory();
+      fireEvent.click(screen.getByTestId('connect-button'));
+      try {
+        await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
+      } catch (e) {
+        const errors = screen.getByTestId(
+          'connection-error-summary'
+        ).textContent;
+        throw new Error(`connect was not called: errors = ${errors ?? ''}`);
+      }
 
-  describe('when the auth redirect flow uri is changed', function () {
-    beforeEach(function () {
-      renderComponent({
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+      if (typeof expected === 'function') {
+        expected(connectSpy.getCall(0).args[0]);
+      } else {
+        expect(connectSpy.getCall(0).args[0]).to.be.deep.equal(expected);
+      }
+    };
 
-      openOptionsAccordion();
-      fireEvent.change(screen.getAllByRole('textbox')[1], {
-        target: { value: 'big sandwich' },
-      });
-    });
-
-    it('calls to update the form field', function () {
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-oidc-param',
-        key: 'redirectURI',
-        value: 'big sandwich',
-      });
-    });
-  });
-
-  describe('when the allow untrusted endpoint checkbox is clicked', function () {
-    beforeEach(function () {
-      renderComponent({
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
-
-      openOptionsAccordion();
-      fireEvent.click(screen.getByText('Enable untrusted target endpoint'));
-    });
-
-    it('calls to update the ALLOWED_HOSTS auth mechanism form field', function () {
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-auth-mechanism-property',
-        key: 'ALLOWED_HOSTS',
-        value: '*',
-      });
-    });
-  });
-
-  describe('when allow untrusted endpoint checkbox is clicked and ALLOWED_HOSTS is set', function () {
-    beforeEach(function () {
-      renderComponent({
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-        connectionStringUrl: new ConnectionStringUrl(
-          'mongodb://localhost:27017?authMechanism=MONGODB-OIDC&authMechanismProperties=ALLOWED_HOSTS%3A*'
-        ),
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
-
-      openOptionsAccordion();
-      fireEvent.click(screen.getByText('Enable untrusted target endpoint'));
-    });
-
-    it('calls to unset the ALLOWED_HOSTS auth mechanism form field', function () {
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-auth-mechanism-property',
-        key: 'ALLOWED_HOSTS',
-        value: '',
-      });
-    });
-  });
-
-  describe('when enable device authentication flow checkbox is clicked and ALLOWED_HOSTS is set', function () {
-    beforeEach(function () {
-      renderComponent({
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-        connectionStringUrl: new ConnectionStringUrl(
-          'mongodb://localhost:27017?authMechanism=MONGODB-OIDC'
-        ),
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
-
-      openOptionsAccordion();
-      fireEvent.click(screen.getByText('Enable device authentication flow'));
-    });
-
-    it('calls to set the allowedFlows oidc field to device-auth', function () {
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-oidc-param',
-        key: 'allowedFlows',
-        value: ['device-auth'],
-      });
-    });
-  });
-
-  describe('when enable device authentication flow checkbox is clicked and is already enabled', function () {
-    beforeEach(function () {
-      const connectionStringUrl = new ConnectionStringUrl(
-        'mongodb://localhost:27017?authMechanism=MONGODB-OIDC&authMechanismProperties=ALLOWED_HOSTS%3A*'
-      );
-      renderComponent({
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-        connectionStringUrl,
-        connectionOptions: {
-          connectionString: connectionStringUrl.toString(),
-          oidc: {
-            allowedFlows: ['device-auth'],
+    render(
+      <ConnectionForm
+        initialConnectionInfo={{
+          id: 'conn-1',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
           },
-        },
-      });
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+        }}
+        onConnectClicked={(connectionInfo) => {
+          connectSpy(connectionInfo.connectionOptions);
+        }}
+      />
+    );
 
-      openOptionsAccordion();
-      fireEvent.click(screen.getByText('Enable device authentication flow'));
+    expect(connectSpy).not.to.have.been.called;
+
+    await openAuthOIDC();
+    openOptionsAccordion();
+  });
+  afterEach(function () {
+    sandbox.restore();
+    cleanup();
+  });
+
+  it('handles principal (username) changes', async function () {
+    fireEvent.change(screen.getAllByRole('textbox')[1], {
+      target: { value: 'goodSandwich' },
     });
 
-    it('calls to unset the allowedFlows oidc field', function () {
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-oidc-param',
-        key: 'allowedFlows',
-        value: null,
-      });
+    await expectToConnectWith({
+      connectionString:
+        'mongodb://goodSandwich@localhost:27017/?authMechanism=MONGODB-OIDC',
+    });
+  });
+
+  it('handles the auth redirect flow uri changes', async function () {
+    fireEvent.change(screen.getAllByRole('textbox')[2], {
+      target: { value: 'goodSandwiches' },
+    });
+
+    await expectToConnectWith({
+      connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+      oidc: {
+        redirectURI: 'goodSandwiches',
+      },
+    });
+  });
+
+  it('handles the allow untrusted endpoint checkbox', async function () {
+    fireEvent.click(screen.getByText('Enable untrusted target endpoint'));
+    await expectToConnectWith({
+      connectionString:
+        'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authMechanismProperties=ALLOWED_HOSTS%3A*',
+    });
+  });
+
+  it('handles the allow untrusted endpoint checkbox on and off', async function () {
+    fireEvent.click(screen.getByText('Enable untrusted target endpoint'));
+    fireEvent.click(screen.getByText('Enable untrusted target endpoint'));
+    await expectToConnectWith({
+      connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+    });
+  });
+
+  it('handles the enable device authentication flow checkbox', async function () {
+    fireEvent.click(screen.getByText('Enable device authentication flow'));
+    await expectToConnectWith({
+      connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+      oidc: {
+        allowedFlows: ['device-auth'],
+      },
+    });
+  });
+
+  it('handles the enable device authentication flow checkbox on and off', async function () {
+    fireEvent.click(screen.getByText('Enable device authentication flow'));
+    fireEvent.click(screen.getByText('Enable device authentication flow'));
+    await expectToConnectWith({
+      connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+      oidc: {},
     });
   });
 });

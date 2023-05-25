@@ -20,7 +20,9 @@ export function handleUpdateOIDCParam({
 } {
   connectionOptions = cloneDeep(connectionOptions);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const oidcOptions: any = {};
+  const oidcOptions: any = {
+    ...connectionOptions.oidc,
+  };
   if (!action.value) {
     delete oidcOptions[action.key];
   } else {

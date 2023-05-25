@@ -142,11 +142,13 @@ function AuthenticationOIDC({
                   return;
                 }
 
+                const newAllowedFlows = (
+                  connectionOptions.oidc?.allowedFlows as string[]
+                )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth');
+
                 handleFieldChanged(
                   'allowedFlows',
-                  !!(
-                    connectionOptions.oidc?.allowedFlows as string[]
-                  )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth')
+                  newAllowedFlows.length > 0 ? newAllowedFlows : undefined
                 );
               }}
               data-testid="oidc-enable-device-auth-flow-input"
@@ -156,10 +158,7 @@ function AuthenticationOIDC({
                   <Label htmlFor="oidc-enable-device-auth-flow-input">
                     Enable device authentication flow
                   </Label>
-                  <Description>
-                    {/* TODO: text */}
-                    Enable device authentication flow
-                  </Description>
+                  <Description>{/* TODO: text */}</Description>
                 </>
               }
               checked={hasEnabledDeviceAuthFlow}
