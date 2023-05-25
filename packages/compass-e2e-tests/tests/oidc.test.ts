@@ -1,5 +1,5 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests } from '../helpers/compass';
+import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
@@ -127,8 +127,15 @@ describe('OIDC integration', function () {
     process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY = `${
       process.execPath
     } ${path.resolve(__dirname, '..', 'fixtures', 'curl.js')}`;
+  });
+
+  beforeEach(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+  });
+
+  afterEach(async function () {
+    await afterTest(compass, this.currentTest);
   });
 
   after(async function () {
