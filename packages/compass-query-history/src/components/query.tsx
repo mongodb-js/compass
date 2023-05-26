@@ -10,7 +10,7 @@ import {
   spacing,
   palette,
 } from '@mongodb-js/compass-components';
-import { formatQuery } from '../utils';
+import { formatQuery } from '../utils/format-query';
 
 export type QueryAttributes = Record<string, any>;
 

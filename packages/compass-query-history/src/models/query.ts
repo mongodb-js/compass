@@ -1,10 +1,7 @@
 import Model from 'ampersand-model';
 import { EJSON } from 'bson';
 import uuid from 'uuid';
-import type {
-  Document,
-  CollationOptions,
-} from 'mongodb';
+import type { Document, CollationOptions } from 'mongodb';
 
 // Note: This is not type safe as we aren't typing this
 // directly with the ampersand model. When we change the model
@@ -14,27 +11,23 @@ export type QueryAttributes = {
   _ns: string;
   _host?: string;
 
+  _lastExecuted: Date | number;
+
   filter: Document;
-  // TODO: Next can be undef?
   project: Document;
   sort: Document;
   skip: number;
   limit: number;
   collation: CollationOptions;
-}
-
-export type QueryModelType = QueryAttributes & {
-  getAttributes: (options?: {
-    props: boolean;
-  }) => QueryAttributes
-  // TODO: Is destroy on the collection or model?
-  // TODO: Share this ampersand typing with favorite query.
-  destroy: (options: {
-    success: () => void;
-    error: () => void;
-  }) => void
 };
 
+export type AmpersandModelType<T> = T & {
+  getAttributes: (options?: { props: boolean }) => T;
+  destroy: (options?: { success: () => void; error: () => void }) => void;
+  save: () => void;
+};
+
+export type QueryModelType = AmpersandModelType<QueryAttributes>;
 
 /**
  * A model that represents a MongoDB query.

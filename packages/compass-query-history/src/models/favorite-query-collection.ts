@@ -1,8 +1,14 @@
 import Collection from 'ampersand-rest-collection';
-import FavoriteQuery from './favorite-query';
 import storageMixin from 'storage-mixin';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
+
+import FavoriteQuery from './favorite-query';
+import type { FavoriteQueryModelType } from './favorite-query';
+import type { AmpersandCollectionType } from './recent-query-collection';
+
 const { basepath } = getStoragePaths() || {};
+
+export type FavoriteQueryAmpersandCollectionType = AmpersandCollectionType<FavoriteQueryModelType>;
 
 /**
  * Represents a collection of favorite queries.
@@ -21,7 +27,7 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
     basepath,
   },
   mainIndex: '_id',
-  comparator: (favorite) => {
+  comparator: (favorite: FavoriteQueryModelType) => {
     return -favorite._dateSaved;
   },
 });

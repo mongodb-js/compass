@@ -1,8 +1,18 @@
 import Collection from 'ampersand-rest-collection';
-import RecentQuery from './recent-query';
 import storageMixin from 'storage-mixin';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
+
+import RecentQuery from './recent-query';
+import { QueryModelType } from './query';
+
 const { basepath } = getStoragePaths() || {};
+
+export type AmpersandCollectionType<T> = {
+  add: (queryModel: T) => void;
+  remove: (queryId: string) => void;
+} & Array<T>;
+
+export type RecentQueryAmpersandCollectionType = AmpersandCollectionType<QueryModelType>;
 
 /**
  * Represents a collection of recent queries.
@@ -21,7 +31,7 @@ const RecentQueryCollection = Collection.extend(storageMixin, {
     basepath,
   },
   mainIndex: '_id',
-  comparator: (recent) => {
+  comparator: (recent: QueryModelType) => {
     return -recent._lastExecuted;
   },
 });

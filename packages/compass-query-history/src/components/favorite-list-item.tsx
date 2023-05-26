@@ -1,57 +1,45 @@
 import React from 'react';
-
+import { connect } from 'react-redux';
 import { IconButton, Icon } from '@mongodb-js/compass-components';
-import { Query } from './query';
-import type { QueryAttributes } from './query';
 
-type FavoriteModel = {
-  _lastExecuted: {
-    toString: () => string;
-  };
-  _name: string;
-  getAttributes: (arg0: { props: true }) => QueryAttributes;
-};
+import type { RootState } from '../modules/query-history';
+import { Query } from './query';
+import type {
+  FavoriteQueryAttributes,
+  FavoriteQueryModelType,
+} from '../models/favorite-query';
+import { copyQueryToClipboard } from '../utils/copy-query-to-clipboard';
+import { deleteFavorite, runFavoriteQuery } from '../modules/favorite-queries';
 
 type FavoriteListItemProps = {
-  model: FavoriteModel;
-  actions: {
-    copyQuery: (model: FavoriteModel) => void;
-    deleteFavorite: (model: FavoriteModel) => void;
-    runQuery: (attributes: QueryAttributes) => void;
-  };
+  model: FavoriteQueryModelType;
+  deleteFavorite: (queryModel: FavoriteQueryModelType) => void;
+  runFavoriteQuery: (attributes: FavoriteQueryAttributes) => void;
 };
 
-function FavoriteListItem({ model, actions }: FavoriteListItemProps) {
-  const copyQuery = () => {
-    actions.copyQuery(model);
-  };
-
-  const deleteFavorite = () => {
-    actions.deleteFavorite(model);
-  };
-
+function FavoriteListItem({
+  model,
+  deleteFavorite,
+  runFavoriteQuery,
+}: FavoriteListItemProps) {
   const attributes = model.getAttributes({ props: true });
 
   Object.keys(attributes)
     .filter((key) => key.charAt(0) === '_')
-    .forEach((key) => delete attributes[key]);
-
-  const runQuery = () => {
-    actions.runQuery(attributes);
-  };
+    .forEach((key) => delete attributes[key as keyof typeof attributes]);
 
   return (
     <Query
       title={model._name}
       attributes={attributes}
-      runQuery={runQuery}
+      runQuery={() => runFavoriteQuery(attributes)}
       data-testid="favorite-query-list-item"
     >
       <IconButton
         data-testid="query-history-button-copy-query"
         aria-label="Copy Query to Clipboard"
         title="Copy Query to Clipboard"
-        onClick={copyQuery}
+        onClick={() => copyQueryToClipboard(model)}
       >
         <Icon glyph="Copy" />
       </IconButton>
@@ -59,7 +47,7 @@ function FavoriteListItem({ model, actions }: FavoriteListItemProps) {
         data-testid="query-history-button-delete-fav"
         aria-label="Delete Query from Favorites List"
         title="Delete Query from Favorites List"
-        onClick={deleteFavorite}
+        onClick={() => deleteFavorite(model)}
       >
         <Icon glyph="Trash" />
       </IconButton>
@@ -67,7 +55,15 @@ function FavoriteListItem({ model, actions }: FavoriteListItemProps) {
   );
 }
 
-export {
-  // TODO: Connect and pull properties themself?
-  FavoriteListItem,
-};
+export default connect(
+  ({ queryHistory: { ns, showing } }: RootState) => {
+    return {
+      showing,
+      namespace: ns,
+    };
+  },
+  {
+    deleteFavorite,
+    runFavoriteQuery,
+  }
+)(FavoriteListItem);

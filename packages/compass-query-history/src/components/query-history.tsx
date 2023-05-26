@@ -2,12 +2,8 @@ import React from 'react';
 import { css } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
-// Components
 import QueryHistoryToolbar from './toolbar';
-import { queryListFactory } from './query-list';
-// TODO: These files?
-import { RecentListItem } from './recent-list-item';
-import { FavoriteListItem } from './favorite-list-item';
+import { FavoriteQueriesList, RecentQueriesList } from './query-list';
 import type { RootState } from '../modules/query-history';
 
 const componentStyle = css({
@@ -18,28 +14,20 @@ const componentStyle = css({
   maxHeight: '100%',
 });
 
-const RecentList = queryListFactory(RecentListItem);
-const FavoriteList = queryListFactory(FavoriteListItem);
-
 function QueryHistory({ showing }: { showing: 'recent' | 'favorites' }) {
   return (
     <div data-testid="query-history" className={componentStyle}>
       <QueryHistoryToolbar />
 
-      {showing === 'favorites' && (
-        <FavoriteList data-testid="query-history-list-favorites" />
-      )}
-      {showing === 'recent' && (
-        <RecentList data-testid="query-history-list-recent" />
-      )}
+      {showing === 'favorites' && <FavoriteQueriesList />}
+      {showing === 'recent' && <RecentQueriesList />}
     </div>
   );
 }
 
 export { QueryHistory };
-export default connect(({ queryHistory: { ns, showing } }: RootState) => {
+export default connect(({ queryHistory: { showing } }: RootState) => {
   return {
     showing,
-    ns,
   };
 }, null)(QueryHistory);

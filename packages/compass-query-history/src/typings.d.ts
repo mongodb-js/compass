@@ -3,3 +3,4 @@ declare module 'mongodb-query-parser' {
 }
 
 declare module 'ampersand-model';
+declare module 'ampersand-rest-collection';

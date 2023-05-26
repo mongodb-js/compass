@@ -11,6 +11,7 @@ import RecentListItem from './recent-list-item';
 describe('RecentListItem', function () {
   it('renders the query', function () {
     const model = new RecentQuery({
+      // TODO: Test what happens with number times too.
       _lastExecuted: new Date('2022-11-10'),
       filter: { foo: 'bar' },
       project: { foo: 1 },

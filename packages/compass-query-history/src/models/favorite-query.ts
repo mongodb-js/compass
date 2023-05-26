@@ -2,7 +2,7 @@ import storageMixin from 'storage-mixin';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 import Query from './query';
-import type { QueryAttributes } from './query';
+import type { AmpersandModelType, QueryAttributes } from './query';
 
 const { basepath } = getStoragePaths() || {};
 
@@ -13,11 +13,8 @@ export type FavoriteQueryAttributes = QueryAttributes & {
   _dateModified: number; // Milliseconds since epoch.
 };
 
-export type FavoriteQueryModelType = FavoriteQueryAttributes & {
-  getAttributes: (options?: { props: boolean }) => FavoriteQueryAttributes;
-  // TODO: Is destroy on the collection or model?
-  destroy: (options: { success: () => void; error: () => void }) => void;
-};
+export type FavoriteQueryModelType =
+  AmpersandModelType<FavoriteQueryAttributes>;
 
 /**
  * A model that represents a favorite MongoDB query.

@@ -12,8 +12,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type mongodbns from 'mongodb-ns';
 import { connect } from 'react-redux';
-import { showFavorites, showRecent } from '../modules/query-history';
 
+import { showFavorites, showRecent } from '../modules/query-history';
 import type { RootState } from '../modules/query-history';
 
 const titleStyles = css({

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 import {
   IconButton,
   Icon,
@@ -11,13 +10,14 @@ import {
   spacing,
   useFormattedDate,
 } from '@mongodb-js/compass-components';
-import { Query } from './query';
-import type { QueryAttributes } from './query';
+import { connect } from 'react-redux';
 
-type RecentModel = {
-  _lastExecuted: Date;
-  getAttributes: (arg0: { props: true }) => QueryAttributes;
-};
+import { Query, QueryAttributes } from './query';
+import type { RootState } from '../modules/query-history';
+import { copyQueryToClipboard } from '../utils/copy-query-to-clipboard';
+import type { QueryModelType } from '../models/query';
+import { deleteRecent, runRecentQuery } from '../modules/recent-queries';
+import { saveFavorite } from '../modules/favorite-queries';
 
 type SaveFormProps = {
   saveFavorite: (name: string) => void;
@@ -86,50 +86,28 @@ function SaveForm({ saveFavorite, onCancel }: SaveFormProps) {
 }
 
 type RecentListItemProps = {
-  model: RecentModel;
-  actions: {
-    copyQuery: (model: RecentModel) => void;
-    deleteRecent: (model: RecentModel) => void;
-    runQuery: (attributes: QueryAttributes) => void;
-    saveFavorite: (recent: RecentModel, name: string) => void;
-    showFavorites: () => void;
-  };
+  model: QueryModelType;
+  runRecentQuery: (queryAttributes: QueryAttributes) => void;
+  //   showFavorites: () => void;
+  deleteRecent: (queryModel: QueryModelType) => void;
+  saveFavorite: (recentQueryModel: QueryModelType, name: string) => void;
 };
 
-function RecentListItem({ model, actions }: RecentListItemProps) {
+function RecentListItem({ model }: RecentListItemProps) {
   const [showSave, setShowSave] = useState(false);
-
-  const saveRecent = () => {
-    setShowSave(true);
-  };
-
-  const copyQuery = () => {
-    actions.copyQuery(model);
-  };
-
-  const deleteRecent = () => {
-    actions.deleteRecent(model);
-  };
 
   const attributes = model.getAttributes({ props: true });
 
   Object.keys(attributes)
     .filter((key) => key.charAt(0) === '_')
-    .forEach((key) => delete attributes[key]);
+    .forEach((key) => delete attributes[key as keyof typeof attributes]);
 
-  const runQuery = () => {
-    actions.runQuery(attributes);
-  };
-
-  const saveFavorite = (name: string) => {
-    actions.saveFavorite(model, name);
-    setShowSave(false);
-    actions.showFavorites();
-  };
-
-  const hideSaveFavorite = () => {
-    setShowSave(false);
-  };
+  // TODO: This was doing more than our current save reducer, nice we can cleanup.
+  // const saveFavorite = (name: string) => {
+  //   actions.saveFavorite(model, name);
+  //   setShowSave(false);
+  //   actions.showFavorites();
+  // };
 
   const lastExecuted = useFormattedDate(model._lastExecuted.getTime());
 
@@ -137,11 +115,14 @@ function RecentListItem({ model, actions }: RecentListItemProps) {
     <Query
       title={lastExecuted}
       attributes={attributes}
-      runQuery={runQuery}
+      runQuery={() => runRecentQuery(attributes)}
       data-testid="recent-query-list-item"
       customHeading={
         showSave ? (
-          <SaveForm saveFavorite={saveFavorite} onCancel={hideSaveFavorite} />
+          <SaveForm
+            saveFavorite={(name: string) => saveFavorite(model, name)}
+            onCancel={() => setShowSave(false)}
+          />
         ) : undefined
       }
     >
@@ -149,7 +130,7 @@ function RecentListItem({ model, actions }: RecentListItemProps) {
         data-testid="query-history-button-fav"
         aria-label="Favorite Query"
         title="Favorite Query"
-        onClick={saveRecent}
+        onClick={() => setShowSave(true)}
       >
         <Icon glyph="Favorite" />
       </IconButton>
@@ -157,7 +138,7 @@ function RecentListItem({ model, actions }: RecentListItemProps) {
         data-testid="query-history-button-copy-query"
         aria-label="Copy Query to Clipboard"
         title="Copy Query to Clipboard"
-        onClick={copyQuery}
+        onClick={() => copyQueryToClipboard(model)}
       >
         <Icon glyph="Copy" />
       </IconButton>
@@ -165,7 +146,7 @@ function RecentListItem({ model, actions }: RecentListItemProps) {
         data-testid="query-history-button-delete-recent"
         aria-label="Delete Query from Favorites List"
         title="Delete Query from Favorites List"
-        onClick={deleteRecent}
+        onClick={() => deleteRecent(model)}
       >
         <Icon glyph="Trash" />
       </IconButton>
@@ -173,7 +154,16 @@ function RecentListItem({ model, actions }: RecentListItemProps) {
   );
 }
 
-export {
-  // TODO: Connect and pull properties themself?
-  RecentListItem,
-};
+export default connect(
+  ({ queryHistory: { ns, showing } }: RootState) => {
+    return {
+      showing,
+      namespace: ns,
+    };
+  },
+  {
+    deleteRecent,
+    saveFavorite,
+    runRecentQuery,
+  }
+)(RecentListItem);

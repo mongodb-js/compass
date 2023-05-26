@@ -1,10 +1,8 @@
 import type { Action, AnyAction, Reducer } from 'redux';
-import { combineReducers } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { FavoriteQuery, FavoriteQueryCollection } from '../models';
-import { comparableQuery } from '../utils/comparable-query';
 import { isAction } from '../utils/is-action';
 import type { QueryHistoryThunkAction } from './query-history';
 import type { DeleteRecentQueryAction } from './recent-queries';
@@ -14,6 +12,7 @@ import type {
   FavoriteQueryAttributes,
   FavoriteQueryModelType,
 } from '../models/favorite-query';
+import { FavoriteQueryAmpersandCollectionType } from '../models/favorite-query-collection';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
@@ -35,15 +34,17 @@ type DeleteFavoriteQueryAction = {
   queryId: string;
 };
 
-// type ShowFavoritesAction = {
-//   type: QueryHistoryActionTypes.ShowFavorites;
-// };
+export type RunFavoriteQueryAction = {
+  type: FavoriteQueriesActionTypes.RunFavoriteQuery;
+  queryAttributes: FavoriteQueryAttributes;
+};
 
-// export function showFavorites(): ShowFavoritesAction {
-//   return {
-//     type: QueryHistoryActionTypes.ShowFavorites
-//   };
-// }
+export const runFavoriteQuery = (
+  queryAttributes: FavoriteQueryAttributes
+): RunFavoriteQueryAction => ({
+  type: FavoriteQueriesActionTypes.RunFavoriteQuery,
+  queryAttributes,
+});
 
 export const saveFavorite = (
   recent: QueryModelType,
@@ -108,21 +109,6 @@ export const deleteFavorite = (
   };
 };
 
-// TODO(COMPASS-6691): This (and probably all the other actions in this
-// store) actually executes two times when clicking on an item in the list
-// TODO: This might go away as we aren't using the same function in both
-// recent and favorites.
-// function runQuery(query: FavoriteQueryModelType) {
-export function runFavoriteQuery(query: FavoriteQueryModelType) {
-  // TODO: This doesn't even need to be an action, move to component?
-  track('Query History Favorite Used', {
-    id: query._id,
-    screen: 'documents',
-  });
-
-  this.localAppRegistry.emit('query-history-run-query', query);
-}
-
 // function getInitialState() {
 //   return {
 //     items: new FavoriteQueryCollection(),
@@ -139,11 +125,12 @@ export function runFavoriteQuery(query: FavoriteQueryModelType) {
 export type FavoriteQueriesState = {
   // items // Ampersand collection
   // current
-  items: {
-    // TODO: Types for ampersand collection
-    add: (query: FavoriteQueryModelType) => void;
-    remove: (queryId: string) => void;
-  };
+  // items: {
+  //   // TODO: Types for ampersand collection
+  //   add: (query: FavoriteQueryModelType) => void;
+  //   remove: (queryId: string) => void;
+  // };
+  items: FavoriteQueryAmpersandCollectionType;
 };
 
 export const initialState: FavoriteQueriesState = {
@@ -152,11 +139,6 @@ export const initialState: FavoriteQueriesState = {
 
   items: new FavoriteQueryCollection(),
   current: null, // TODO: What is this used for ??
-  currentHost:
-    options.dataProvider?.dataProvider
-      ?.getConnectionString?.()
-      .hosts.join(',') ?? null, // TODO: ????
-  ns: options.namespace, // TODO Do we need this duplicated?
 };
 
 const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
@@ -182,7 +164,7 @@ const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
       _dateModified: now,
     };
 
-    const query = new FavoriteQuery(attributes);
+    const query = new FavoriteQuery(attributes) as FavoriteQueryModelType;
 
     state.items.add(query);
     // TODO: We should async request and loading state all of these.
@@ -201,6 +183,22 @@ const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
     )
   ) {
     state.items.remove(action.queryId);
+
+    return {
+      ...state,
+    };
+  }
+
+  if (
+    isAction<RunFavoriteQueryAction>(
+      action,
+      FavoriteQueriesActionTypes.RunFavoriteQuery
+    )
+  ) {
+    track('Query History Favorite Used', {
+      id: action.queryAttributes._id,
+      screen: 'documents',
+    });
 
     return {
       ...state,

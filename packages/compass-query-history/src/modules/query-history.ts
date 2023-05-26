@@ -3,10 +3,19 @@ import { combineReducers } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import mongodbns from 'mongodb-ns';
+import AppRegistry from 'hadron-app-registry';
 
 import { isAction } from '../utils/is-action';
-import { favoriteQueriesReducer } from './favorite-queries';
-import { recentQueriesReducer } from './recent-queries';
+import {
+  FavoriteQueriesActionTypes,
+  RunFavoriteQueryAction,
+  favoriteQueriesReducer,
+} from './favorite-queries';
+import {
+  RecentQueriesActionTypes,
+  RunRecentQueryAction,
+  recentQueriesReducer,
+} from './recent-queries';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
@@ -46,11 +55,19 @@ export type QueryHistoryState = {
   // TODO
   showing: 'recent' | 'favorites';
   ns: ReturnType<typeof mongodbns>;
+  localAppRegistry: AppRegistry;
+  currentHost?: string | null;
+
+  // TODO: Move this here (off the double stores)
+  // currentHost:
+  //    ?? null, // TODO: ????
 };
 
 export const initialState: QueryHistoryState = {
   showing: 'recent',
   ns: mongodbns(''),
+  currentHost: null,
+  localAppRegistry: new AppRegistry(),
 };
 
 const queryHistoryReducer: Reducer<QueryHistoryState> = (
@@ -90,6 +107,26 @@ const queryHistoryReducer: Reducer<QueryHistoryState> = (
     };
   }
 
+  if (
+    isAction<RunFavoriteQueryAction>(
+      action,
+      FavoriteQueriesActionTypes.RunFavoriteQuery
+    ) ||
+    isAction<RunRecentQueryAction>(
+      action,
+      RecentQueriesActionTypes.RunRecentQuery
+    )
+  ) {
+    state.localAppRegistry.emit(
+      'query-history-run-query',
+      action.queryAttributes
+    );
+
+    return {
+      ...state,
+    };
+  }
+
   return state;
 };
 
@@ -97,9 +134,6 @@ const rootReducer = combineReducers({
   queryHistory: queryHistoryReducer,
   favoriteQueries: favoriteQueriesReducer,
   recentQueries: recentQueriesReducer,
-  // globalAppRegistry,
-  // dataService,
-  // TODO: Favorites, recent.
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
