@@ -1,4 +1,4 @@
-import type { StageWizardFields } from '..';
+import type { StageWizardFields } from '../src/components/aggregation-side-panel/stage-wizard-use-cases';
 
 export const SAMPLE_FIELDS: StageWizardFields = [
   {

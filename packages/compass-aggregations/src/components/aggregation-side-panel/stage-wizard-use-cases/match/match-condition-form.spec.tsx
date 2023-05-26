@@ -13,7 +13,7 @@ import {
   setInputElementValue,
   setSelectValue,
 } from '../../../../../test/form-helper';
-import { SAMPLE_FIELDS } from './helper';
+import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
 import type {
   MatchConditionFormProps,
   CreateConditionFn,

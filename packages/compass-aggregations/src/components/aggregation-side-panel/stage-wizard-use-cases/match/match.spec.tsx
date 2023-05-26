@@ -18,7 +18,7 @@ import MatchForm, {
 import { setComboboxValue } from '../../../../../test/form-helper';
 import { SINGLE_SELECT_LABEL } from '../field-combobox';
 import { makeCreateGroup } from './match-group-form';
-import { SAMPLE_FIELDS } from './helper';
+import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
 
 import type { MatchCondition } from './match';
 import type { CreateConditionFn } from './match-condition-form';
