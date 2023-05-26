@@ -258,8 +258,7 @@ const MatchGroupForm = ({
             </div>
           )}
         >
-          Adding more than {MAX_ALLOWED_NESTING} nested groups is not supported
-          at the moment.
+          Compass does not support more than three nested match conditions.
         </Tooltip>
         {showRemoveGroup && (
           <IconButton
