@@ -1,4 +1,6 @@
 export { THEMES, getSettingDescription } from './preferences';
+export { featureFlags } from './feature-flags';
+
 import type {
   UserPreferences,
   UserConfigurablePreferences,
