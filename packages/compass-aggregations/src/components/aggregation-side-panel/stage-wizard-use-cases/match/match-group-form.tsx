@@ -107,11 +107,11 @@ const nestedGroupContainerStyles = css({
   gap: spacing[3],
 });
 
-const level1GroupStyles = css({
+const oddNestedGroupStyles = css({
   background: palette.gray.light3,
 });
 
-const level2GroupStyles = css({
+const eventNestedGroupStyles = css({
   background: palette.gray.light2,
 });
 
@@ -220,8 +220,8 @@ const MatchGroupForm = ({
         baseGroupStyles,
         nestingLevel !== 0 &&
           cx(nestedGroupStyles, {
-            [level1GroupStyles]: nestingLevel % 2 !== 0,
-            [level2GroupStyles]: nestingLevel % 2 === 0,
+            [oddNestedGroupStyles]: nestingLevel % 2 !== 0,
+            [eventNestedGroupStyles]: nestingLevel % 2 === 0,
           })
       )}
     >
