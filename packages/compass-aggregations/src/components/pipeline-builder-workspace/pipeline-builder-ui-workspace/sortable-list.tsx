@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import type { StageIdAndType } from '../../../modules/pipeline-builder/stage-editor';
 import { css } from '@mongodb-js/compass-components';
 import {
@@ -36,6 +36,25 @@ const SortableItem = ({ id, index, type }: SortableItemProps) => {
     useSortable({
       id: id + 1,
     });
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // When the list is initially rendered, it ideally should scroll to the last
+  // stage/wizard. There is a bug in Chromium preventing this from happening
+  // (with smooth behavior). One potential workaround is to change the behavior
+  // to 'auto' or remove it altogether, which resolves the issue but sacrifices
+  // the smooth animation. Despite this, we have decided to keep the current
+  // configuration as the previous behavior remains unchanged.
+  // https://stackoverflow.com/a/63563437
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, []);
+
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
@@ -49,7 +68,7 @@ const SortableItem = ({ id, index, type }: SortableItemProps) => {
   };
 
   return (
-    <div className={sortableItemStyles}>
+    <div ref={containerRef} className={sortableItemStyles}>
       {type === 'stage' ? (
         <Stage index={index} {...sortableProps} />
       ) : (

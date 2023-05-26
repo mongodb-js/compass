@@ -59,3 +59,5 @@ globalThis.EventTarget = window.EventTarget;
 Range.prototype.getClientRects = function () {
   return [];
 };
+
+Element.prototype.scrollIntoView = () => {};
