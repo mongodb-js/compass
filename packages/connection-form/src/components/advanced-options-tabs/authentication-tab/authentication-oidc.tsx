@@ -124,10 +124,21 @@ function AuthenticationOIDC({
                 target: { checked },
               }: React.ChangeEvent<HTMLInputElement>) => {
                 if (checked) {
-                  return handleFieldChanged('allowedFlows', ['device-auth']);
+                  const newAllowedFlows = Array.isArray(
+                    connectionOptions.oidc?.allowedFlows
+                  )
+                    ? [...connectionOptions.oidc?.allowedFlows, 'device-auth']
+                    : ['device-auth'];
+                  return handleFieldChanged('allowedFlows', newAllowedFlows);
                 }
 
-                return handleFieldChanged('allowedFlows', undefined);
+                const newAllowedFlows = (
+                  connectionOptions.oidc?.allowedFlows as AuthFlowType[]
+                )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth');
+                handleFieldChanged(
+                  'allowedFlows',
+                  newAllowedFlows.length > 0 ? newAllowedFlows : undefined
+                );
               }}
               data-testid="oidc-enable-device-auth-flow-input"
               id="oidc-enable-device-auth-flow-input"
