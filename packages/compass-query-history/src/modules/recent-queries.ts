@@ -35,7 +35,8 @@ export const enum RecentQueriesActionTypes {
   SaveRecentQuery = 'compass-query-history/recent-queries/SaveRecentQuery',
   DeleteRecentQuery = 'compass-query-history/recent-queries/DeleteRecentQuery',
 
-  RunRecentQuery = 'compass-query-history/recent-queries/RunFavoriteQuery',
+  RunRecentQuery = 'compass-query-history/recent-queries/RunRecentQuery',
+  LoadRecentQueries = 'compass-query-history/recent-queries/LoadRecentQueries',
 }
 
 type SaveRecentQueryAction = {
@@ -51,6 +52,14 @@ export type RunRecentQueryAction = {
   type: RecentQueriesActionTypes.RunRecentQuery;
   queryAttributes: QueryAttributes;
 };
+
+type LoadRecentQueriesAction = {
+  type: RecentQueriesActionTypes.LoadRecentQueries;
+};
+
+export const loadRecentQueries = (): LoadRecentQueriesAction => ({
+  type: RecentQueriesActionTypes.LoadRecentQueries,
+});
 
 export const runRecentQuery = (
   queryAttributes: QueryAttributes
@@ -103,6 +112,7 @@ export const addRecent = (
     const {
       queryHistory: {
         ns: { ns },
+        currentHost,
       },
       recentQueries: { items },
     } = getState();
@@ -123,7 +133,7 @@ export const addRecent = (
     );
     if (existingQuery) {
       if (!existingQuery._host) {
-        existingQuery._host = this.state.currentHost;
+        existingQuery._host = currentHost;
       }
       // Update the existing query's lastExecuted to move it to the top.
       existingQuery._lastExecuted = Date.now();
@@ -142,7 +152,7 @@ export const addRecent = (
       ...recent,
       _lastExecuted: Date.now(),
       _ns: ns,
-      _host: this.state.currentHost,
+      _host: currentHost,
     }) as QueryModelType;
     query._lastExecuted = Date.now();
     query._ns = ns;

@@ -56,7 +56,7 @@ export type QueryHistoryState = {
   showing: 'recent' | 'favorites';
   ns: ReturnType<typeof mongodbns>;
   localAppRegistry: AppRegistry;
-  currentHost?: string | null;
+  currentHost?: string;
 
   // TODO: Move this here (off the double stores)
   // currentHost:
@@ -66,7 +66,7 @@ export type QueryHistoryState = {
 export const initialState: QueryHistoryState = {
   showing: 'recent',
   ns: mongodbns(''),
-  currentHost: null,
+  currentHost: undefined,
   localAppRegistry: new AppRegistry(),
 };
 

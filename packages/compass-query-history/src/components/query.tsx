@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {
   KeylineCard,
   Body,
@@ -10,9 +9,9 @@ import {
   spacing,
   palette,
 } from '@mongodb-js/compass-components';
-import { formatQuery } from '../utils/format-query';
 
-export type QueryAttributes = Record<string, any>;
+import { formatQuery } from '../utils/format-query';
+import type { QueryAttributes } from '../models/query';
 
 const queryHeadingStyles = css({
   display: 'flex',

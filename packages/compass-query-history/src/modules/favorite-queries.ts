@@ -27,6 +27,7 @@ type SaveFavoriteQueryAction = {
   type: FavoriteQueriesActionTypes.SaveFavoriteQuery;
   name: string;
   query: QueryModelType;
+  currentHost?: string;
 };
 
 type DeleteFavoriteQueryAction = {
@@ -53,7 +54,11 @@ export const saveFavorite = (
   void,
   DeleteRecentQueryAction | SaveFavoriteQueryAction
 > => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const {
+      queryHistory: { currentHost },
+    } = getState();
+
     track('Query History Favorite Added');
     // TODO: thunk this V
 
@@ -66,6 +71,7 @@ export const saveFavorite = (
       type: FavoriteQueriesActionTypes.SaveFavoriteQuery,
       query: recent,
       name,
+      currentHost,
     });
 
     // Ignore failures.
@@ -109,34 +115,14 @@ export const deleteFavorite = (
   };
 };
 
-// function getInitialState() {
-//   return {
-//     items: new FavoriteQueryCollection(),
 //     current: null,
-//     currentHost:
-//       options.dataProvider?.dataProvider
-//         ?.getConnectionString?.()
-//         .hosts.join(',') ?? null,
-//     ns: options.namespace,
-//   };
-// },
-// });
 
 export type FavoriteQueriesState = {
-  // items // Ampersand collection
   // current
-  // items: {
-  //   // TODO: Types for ampersand collection
-  //   add: (query: FavoriteQueryModelType) => void;
-  //   remove: (queryId: string) => void;
-  // };
   items: FavoriteQueryAmpersandCollectionType;
 };
 
 export const initialState: FavoriteQueriesState = {
-  // showing: 'recent',
-  // ns: mongodbns(''),
-
   items: new FavoriteQueryCollection(),
   current: null, // TODO: What is this used for ??
 };
@@ -157,8 +143,7 @@ const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
     const queryAttributes = action.query.getAttributes({ props: true });
     const attributes: FavoriteQueryAttributes = {
       ...queryAttributes,
-      // TODO: current host on state?
-      _host: queryAttributes._host ?? state.currentHost,
+      _host: queryAttributes._host ?? action.currentHost,
       _name: action.name,
       _dateSaved: now,
       _dateModified: now,

@@ -12,10 +12,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
-import { Query, QueryAttributes } from './query';
+import { Query } from './query';
 import type { RootState } from '../modules/query-history';
 import { copyQueryToClipboard } from '../utils/copy-query-to-clipboard';
-import type { QueryModelType } from '../models/query';
+import type { QueryModelType, QueryAttributes } from '../models/query';
 import { deleteRecent, runRecentQuery } from '../modules/recent-queries';
 import { saveFavorite } from '../modules/favorite-queries';
 
@@ -109,7 +109,10 @@ function RecentListItem({ model }: RecentListItemProps) {
   //   actions.showFavorites();
   // };
 
-  const lastExecuted = useFormattedDate(model._lastExecuted.getTime());
+  // TODO: This used to be   const lastExecuted = useFormattedDate(model._lastExecuted.getTime()); even though it was a number.
+  const lastExecuted = useFormattedDate(
+    (model._lastExecuted as Date).getTime?.()
+  );
 
   return (
     <Query
