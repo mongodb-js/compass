@@ -141,10 +141,10 @@ export async function setConnectFormState(
   }
 
   // OIDC
-  if (state.oidcPrincipal) {
+  if (state.oidcUsername) {
     await browser.setValueVisible(
-      Selectors.ConnectionFormInputOIDCPrincipal,
-      state.oidcPrincipal
+      Selectors.ConnectionFormInputOIDCUsername,
+      state.oidcUsername
     );
   }
 

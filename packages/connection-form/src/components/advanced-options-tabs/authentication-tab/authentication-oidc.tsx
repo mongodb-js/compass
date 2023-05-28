@@ -9,17 +9,15 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import type { AuthFlowType } from '@mongodb-js/oidc-plugin';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
-import {
-  getConnectionStringUsername,
-  parseAuthMechanismProperties,
-} from '../../../utils/connection-string-helpers';
+import { getConnectionStringUsername } from '../../../utils/connection-string-helpers';
+import type { OIDCOptions } from '../../../utils/oidc-handler';
 
-type OIDCOptions = NonNullable<ConnectionOptions['oidc']>;
+type ExtractArrayEntryType<T> = T extends (infer U)[] ? U : never;
+type AuthFlowType = ExtractArrayEntryType<OIDCOptions['allowedFlows']>;
 
 function AuthenticationOIDC({
   connectionStringUrl,
@@ -46,11 +44,6 @@ function AuthenticationOIDC({
     [updateConnectionFormField]
   );
 
-  const authMechanismProperties =
-    parseAuthMechanismProperties(connectionStringUrl);
-  const allowedHosts = authMechanismProperties.get('ALLOWED_HOSTS');
-  const hasEnabledUntrustedEndpoints = allowedHosts === '*';
-
   const hasEnabledDeviceAuthFlow = !!(
     connectionOptions.oidc?.allowedFlows as AuthFlowType[]
   )?.includes?.('device-auth');
@@ -63,12 +56,12 @@ function AuthenticationOIDC({
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {
-            updateConnectionFormField({
+            return updateConnectionFormField({
               type: 'update-username',
               username: value,
             });
           }}
-          label="Principal"
+          label="Username"
           optional
           value={username || ''}
           errorMessage={usernameError}
@@ -88,6 +81,7 @@ function AuthenticationOIDC({
               optional
               label="Auth Code Flow Redirect URI"
               value={connectionOptions?.oidc?.redirectURI || ''}
+              description="This value needs to match the configuration of the Identity Provider used by the server."
             />
           </FormFieldContainer>
 
@@ -97,36 +91,30 @@ function AuthenticationOIDC({
                 target: { checked },
               }: React.ChangeEvent<HTMLInputElement>) => {
                 if (checked) {
-                  updateConnectionFormField({
-                    type: 'update-auth-mechanism-property',
-                    key: 'ALLOWED_HOSTS',
-                    value: '*',
-                  });
-                  return;
+                  return handleFieldChanged('enableUntrustedEndpoints', true);
                 }
 
                 // Unset the allowed hosts.
-                updateConnectionFormField({
-                  type: 'update-auth-mechanism-property',
-                  key: 'ALLOWED_HOSTS',
-                  value: '',
-                });
+                return handleFieldChanged(
+                  'enableUntrustedEndpoints',
+                  undefined
+                );
               }}
               data-testid="oidc-allow-untrusted-endpoint-input"
               id="oidc-allow-untrusted-endpoint-input"
               label={
                 <>
                   <Label htmlFor="oidc-allow-untrusted-endpoint-input">
-                    Enable untrusted target endpoint
+                    Enable Untrusted Target Endpoint
                   </Label>
                   <Description>
                     Allow connecting when the target endpoint is not in the list
                     of trusted endpoints &#40;this sets the driver&apos;s
-                    ALLOWED_HOSTS list to *&#41;
+                    authMechanismProperties&apos; ALLOWED_HOSTS list to *&#41;
                   </Description>
                 </>
               }
-              checked={hasEnabledUntrustedEndpoints}
+              checked={!!connectionOptions.oidc?.enableUntrustedEndpoints}
             />
           </FormFieldContainer>
 
@@ -136,24 +124,23 @@ function AuthenticationOIDC({
                 target: { checked },
               }: React.ChangeEvent<HTMLInputElement>) => {
                 if (checked) {
-                  handleFieldChanged('allowedFlows', ['device-auth']);
-                  return;
+                  return handleFieldChanged('allowedFlows', ['device-auth']);
                 }
 
-                const newAllowedFlows = (
-                  connectionOptions.oidc?.allowedFlows as AuthFlowType[]
-                )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth');
-                handleFieldChanged(
-                  'allowedFlows',
-                  newAllowedFlows.length > 0 ? newAllowedFlows : undefined
-                );
+                return handleFieldChanged('allowedFlows', undefined);
               }}
               data-testid="oidc-enable-device-auth-flow-input"
               id="oidc-enable-device-auth-flow-input"
               label={
-                <Label htmlFor="oidc-enable-device-auth-flow-input">
-                  Enable device authentication flow
-                </Label>
+                <>
+                  <Label htmlFor="oidc-enable-device-auth-flow-input">
+                    Enable Device Authentication Flow
+                  </Label>
+                  <Description>
+                    Less secure authentication flow that can be used as a
+                    fallback when browser-based authentication is unavailable.
+                  </Description>
+                </>
               }
               checked={hasEnabledDeviceAuthFlow}
             />

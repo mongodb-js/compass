@@ -61,6 +61,13 @@ export async function connectMongoClientCompass(
     };
   }
 
+  // Set the driver's `authMechanismProperties` (non-url)
+  // `ALLOWED_HOSTS` value to `*`.
+  if (connectionOptions.oidc?.enableUntrustedEndpoints) {
+    options.authMechanismProperties ??= {};
+    options.authMechanismProperties.ALLOWED_HOSTS = ['*'];
+  }
+
   if (options.autoEncryption && process.env.COMPASS_CRYPT_LIBRARY_PATH) {
     options.autoEncryption = {
       ...options.autoEncryption,

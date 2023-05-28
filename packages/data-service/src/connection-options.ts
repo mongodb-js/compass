@@ -1,7 +1,11 @@
 import type { AutoEncryptionOptions } from 'mongodb';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 
-export type OIDCOptions = DevtoolsConnectOptions['oidc'];
+export type OIDCOptions = DevtoolsConnectOptions['oidc'] & {
+  // This sets the driver's `authMechanismProperties` (non-url)
+  // `ALLOWED_HOSTS` value to `*`.
+  enableUntrustedEndpoints?: boolean;
+};
 
 export interface ConnectionOptions {
   /**

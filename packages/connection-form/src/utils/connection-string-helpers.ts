@@ -8,7 +8,6 @@ export interface AuthMechanismProperties {
   SERVICE_REALM?: string;
   CANONICALIZE_HOST_NAME?: boolean;
   AWS_SESSION_TOKEN?: string;
-  ALLOWED_HOSTS?: string;
 }
 
 export function parseAuthMechanismProperties(

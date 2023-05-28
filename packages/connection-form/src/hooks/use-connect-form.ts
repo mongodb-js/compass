@@ -4,6 +4,8 @@ import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep, isEqual } from 'lodash';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import { usePreference } from 'compass-preferences-model';
+
 import type {
   ConnectionFormError,
   ConnectionFormWarning,
@@ -56,7 +58,6 @@ import { handleUpdateOIDCParam } from '../utils/oidc-handler';
 import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
-import { usePreference } from 'compass-preferences-model';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;

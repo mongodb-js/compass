@@ -269,7 +269,7 @@ const featureFlagsProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'OIDC Authentication',
+      short: 'Enable OIDC Authentication',
     },
   },
 

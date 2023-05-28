@@ -115,23 +115,26 @@ describe('AuthenticationOIDC Connection Form', function () {
   });
 
   it('handles the allow untrusted endpoint checkbox', async function () {
-    fireEvent.click(screen.getByText('Enable untrusted target endpoint'));
+    fireEvent.click(screen.getByText('Enable Untrusted Target Endpoint'));
     await expectToConnectWith({
-      connectionString:
-        'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authMechanismProperties=ALLOWED_HOSTS%3A*',
+      connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+      oidc: {
+        enableUntrustedEndpoints: true,
+      },
     });
   });
 
   it('handles the allow untrusted endpoint checkbox on and off', async function () {
-    fireEvent.click(screen.getByText('Enable untrusted target endpoint'));
-    fireEvent.click(screen.getByText('Enable untrusted target endpoint'));
+    fireEvent.click(screen.getByText('Enable Untrusted Target Endpoint'));
+    fireEvent.click(screen.getByText('Enable Untrusted Target Endpoint'));
     await expectToConnectWith({
       connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
+      oidc: {},
     });
   });
 
   it('handles the enable device authentication flow checkbox', async function () {
-    fireEvent.click(screen.getByText('Enable device authentication flow'));
+    fireEvent.click(screen.getByText('Enable Device Authentication Flow'));
     await expectToConnectWith({
       connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
       oidc: {
@@ -141,8 +144,8 @@ describe('AuthenticationOIDC Connection Form', function () {
   });
 
   it('handles the enable device authentication flow checkbox on and off', async function () {
-    fireEvent.click(screen.getByText('Enable device authentication flow'));
-    fireEvent.click(screen.getByText('Enable device authentication flow'));
+    fireEvent.click(screen.getByText('Enable Device Authentication Flow'));
+    fireEvent.click(screen.getByText('Enable Device Authentication Flow'));
     await expectToConnectWith({
       connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
       oidc: {},

@@ -36,7 +36,7 @@ export interface ConnectFormState {
   ldapPassword?: string;
 
   // - OIDC
-  oidcPrincipal?: string; // (Username).
+  oidcUsername?: string; // (Principal).
 
   // - AWS IAM
   awsAccessKeyId?: string;
