@@ -3,25 +3,78 @@ import { expect } from 'chai';
 import { render, cleanup } from '@testing-library/react';
 import Sinon from 'sinon';
 import { Double } from 'bson';
+import type { TypeCastTypes } from 'hadron-type-checker';
 
 import { makeCreateCondition } from './match-condition-form';
 import MatchForm, {
   areUniqueExpressions,
+  getNestingDepth,
   isNotEmptyCondition,
+  isNotEmptyGroup,
   makeCompactGroupExpression,
   toMatchConditionExpression,
   toMatchGroupExpression,
 } from './match';
-import fixtures, { SAMPLE_FIELDS } from './fixtures';
 import { setComboboxValue } from '../../../../../test/form-helper';
-import type { CreateConditionFn } from './match-condition-form';
-import type { TypeCastTypes } from 'hadron-type-checker';
 import { SINGLE_SELECT_LABEL } from '../field-combobox';
+import { makeCreateGroup } from './match-group-form';
+import { SAMPLE_FIELDS } from '../../../../../test/sample-fields';
+
+import type { MatchCondition } from './match';
+import type { CreateConditionFn } from './match-condition-form';
+import type { CreateGroupFn } from './match-group-form';
 
 describe('match', function () {
   let createCondition: CreateConditionFn;
+  let createGroup: CreateGroupFn;
   beforeEach(function () {
     createCondition = makeCreateCondition();
+    createGroup = makeCreateGroup(createCondition);
+  });
+
+  describe('#helpers - getNestingDepth', function () {
+    it('should return 0 when there are no nested groups', function () {
+      expect(getNestingDepth(createGroup())).to.equal(0);
+    });
+
+    it('should return the correct max nesting depth as per the number of groups deeply nested', function () {
+      expect(
+        getNestingDepth(
+          createGroup({
+            nestedGroups: [createGroup()],
+          })
+        )
+      ).to.equal(1);
+
+      expect(
+        getNestingDepth(
+          createGroup({
+            nestedGroups: [
+              createGroup({
+                nestedGroups: [createGroup()],
+              }),
+            ],
+          })
+        )
+      ).to.equal(2);
+
+      expect(
+        getNestingDepth(
+          createGroup({
+            nestedGroups: [
+              createGroup(),
+              createGroup({
+                nestedGroups: [
+                  createGroup({
+                    nestedGroups: [createGroup()],
+                  }),
+                ],
+              }),
+            ],
+          })
+        )
+      ).to.equal(3);
+    });
   });
 
   describe('#helpers - isNotEmptyCondition', function () {
@@ -53,6 +106,81 @@ describe('match', function () {
           })
         )
       ).to.be.false;
+    });
+  });
+
+  describe('#helpers - isNotEmptyGroup', function () {
+    it('should return false when a group has empty conditions and empty nested groups', function () {
+      // Empty conditions - by default has empty condition
+      expect(isNotEmptyGroup(createGroup())).to.be.false;
+
+      // Empty conditions - three condition but all are empty
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [
+              createCondition(),
+              createCondition({ field: 'something', bsonType: '' as any }),
+              createCondition({ field: '', bsonType: 'String' }),
+            ],
+          })
+        )
+      ).to.be.false;
+
+      // Empty groups - has empty condition and empty nested group (because empty condition)
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [createCondition()],
+            nestedGroups: [createGroup()],
+          })
+        )
+      ).to.be.false;
+
+      // Empty groups - has empty condition and empty nested group (because empty condition and empty nested-nested group)
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [createCondition()],
+            nestedGroups: [
+              createGroup({
+                nestedGroups: [createGroup()],
+              }),
+            ],
+          })
+        )
+      ).to.be.false;
+    });
+
+    it('should return true when a group has at-least one non-empty condition or nested group', function () {
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [
+              createCondition(), // Empty condition
+              createCondition({ field: 'name', bsonType: 'String' }), // Non-empty condition
+            ],
+          })
+        )
+      ).to.be.true;
+
+      expect(
+        isNotEmptyGroup(
+          createGroup({
+            conditions: [
+              createCondition(), // Empty condition
+            ],
+            nestedGroups: [
+              createGroup(), // Empty nested group
+              createGroup({
+                conditions: [
+                  createCondition({ field: 'name', bsonType: 'String' }), // Non-empty condition in nested group
+                ],
+              }),
+            ],
+          })
+        )
+      ).to.be.true;
     });
   });
 
@@ -137,22 +265,322 @@ describe('match', function () {
   });
 
   describe('#helpers - toMatchGroupExpression', function () {
-    fixtures.forEach(function ([
-      title,
-      group,
-      expectedVerboseExpression,
-      expectedCompactExpression,
-    ]) {
-      context(`when group is a ${title}`, function () {
-        it('should return a correct verbose clause for a MatchConditionGroup', function () {
-          const verboseClause = toMatchGroupExpression(group);
-          expect(verboseClause).to.deep.equal(expectedVerboseExpression);
+    let conditionA: MatchCondition;
+    let conditionB: MatchCondition;
+    let conditionC: MatchCondition;
+    let conditionD: MatchCondition;
+    beforeEach(function () {
+      conditionA = createCondition({
+        field: 'name',
+        value: 'Compass',
+        bsonType: 'String',
+        operator: '$eq',
+      });
+      conditionB = createCondition({
+        field: 'version',
+        value: '1.37',
+        bsonType: 'String',
+        operator: '$eq',
+      });
+      conditionC = createCondition({
+        field: 'mode',
+        value: 'Standalone',
+        bsonType: 'String',
+        operator: '$eq',
+      });
+      conditionD = createCondition({
+        field: 'ga',
+        value: 'true',
+        bsonType: 'Boolean',
+        operator: '$eq',
+      });
+    });
+    const rootGroupOperators = ['$and', '$or'] as const;
+    rootGroupOperators.forEach(function (operator) {
+      context(`when root group is ${operator} group`, function () {
+        context('and there are only conditions in the group', function () {
+          it(`should produce a verbose ${operator} expression`, function () {
+            expect(
+              toMatchGroupExpression(
+                createGroup({
+                  logicalOperator: operator,
+                  conditions: [conditionA, conditionB],
+                })
+              )
+            ).to.deep.equal({
+              [operator]: [{ name: 'Compass' }, { version: '1.37' }],
+            });
+          });
         });
+        context('and there are only nested groups in the group', function () {
+          it(`should produce a verbose ${operator} expression`, function () {
+            const nestedGroupA = createGroup({
+              conditions: [conditionA, conditionB],
+            });
+            const nestedGroupB = createGroup({
+              logicalOperator: '$or',
+              conditions: [conditionC, conditionD],
+            });
+            const group = createGroup({
+              logicalOperator: operator,
+              nestedGroups: [nestedGroupA, nestedGroupB],
+            });
+            expect(toMatchGroupExpression(group)).to.deep.equal({
+              [operator]: [
+                {
+                  $and: [{ name: 'Compass' }, { version: '1.37' }],
+                },
+                {
+                  $or: [{ mode: 'Standalone' }, { ga: true }],
+                },
+              ],
+            });
+          });
+        });
+        context(
+          'and there are mix of conditions and nested group in the group',
+          function () {
+            it(`should produce a verbose ${operator} expression`, function () {
+              const nestedGroup = createGroup({
+                conditions: [conditionA, conditionB],
+              });
+              const group = createGroup({
+                logicalOperator: operator,
+                conditions: [conditionC, conditionD],
+                nestedGroups: [nestedGroup],
+              });
 
-        it('should return a compact clause for a verbose clause', function () {
-          const verboseClause = toMatchGroupExpression(group);
-          const compactClause = makeCompactGroupExpression(verboseClause);
-          expect(compactClause).to.deep.equal(expectedCompactExpression);
+              expect(toMatchGroupExpression(group)).to.deep.equal({
+                [operator]: [
+                  { mode: 'Standalone' },
+                  { ga: true },
+                  {
+                    $and: [{ name: 'Compass' }, { version: '1.37' }],
+                  },
+                ],
+              });
+            });
+          }
+        );
+      });
+    });
+  });
+
+  describe('#helpers - makeCompactGroupExpression', function () {
+    let conditionA: MatchCondition;
+    let conditionB: MatchCondition;
+    let conditionC: MatchCondition;
+    let conditionD: MatchCondition;
+    beforeEach(function () {
+      conditionA = createCondition({
+        field: 'name',
+        value: 'Compass',
+        bsonType: 'String',
+        operator: '$eq',
+      });
+      conditionB = createCondition({
+        field: 'version',
+        value: '1.37',
+        bsonType: 'String',
+        operator: '$eq',
+      });
+      conditionC = createCondition({
+        field: 'mode',
+        value: 'Standalone',
+        bsonType: 'String',
+        operator: '$eq',
+      });
+      conditionD = createCondition({
+        field: 'ga',
+        value: 'true',
+        bsonType: 'Boolean',
+        operator: '$eq',
+      });
+    });
+
+    context('when root group is a $and group', function () {
+      context('and there are only unique conditions in the group', function () {
+        it('should always produce an implicit $and syntax', function () {
+          const rootGroup = createGroup({
+            conditions: [conditionA, conditionB, conditionC, conditionD],
+          });
+          expect(
+            makeCompactGroupExpression(toMatchGroupExpression(rootGroup))
+          ).to.deep.equal({
+            name: 'Compass',
+            version: '1.37',
+            mode: 'Standalone',
+            ga: true,
+          });
+        });
+      });
+
+      context(
+        'and there are only unique conditions and nested group in the group',
+        function () {
+          it('should always produce an implicit $and syntax', function () {
+            const nestedGroupA = createGroup({
+              logicalOperator: '$or',
+              conditions: [conditionC, conditionD],
+            });
+
+            const rootGroup = createGroup({
+              logicalOperator: '$and',
+              conditions: [conditionA, conditionB],
+              nestedGroups: [nestedGroupA],
+            });
+
+            expect(
+              makeCompactGroupExpression(toMatchGroupExpression(rootGroup))
+            ).to.deep.equal({
+              name: 'Compass',
+              version: '1.37',
+              $or: [
+                {
+                  mode: 'Standalone',
+                },
+                {
+                  ga: true,
+                },
+              ],
+            });
+          });
+        }
+      );
+
+      context('and there is a duplicate condition in the group', function () {
+        it('should produce the verbose syntax', function () {
+          const rootGroup = createGroup({
+            conditions: [
+              conditionA,
+              conditionB,
+              { ...conditionA, operator: '$ne' },
+            ],
+          });
+          expect(
+            makeCompactGroupExpression(toMatchGroupExpression(rootGroup))
+          ).to.deep.equal({
+            $and: [
+              {
+                name: 'Compass',
+              },
+              {
+                version: '1.37',
+              },
+              {
+                name: { $ne: 'Compass' },
+              },
+            ],
+          });
+        });
+      });
+
+      context(
+        'and there is a duplicate nested group in the group',
+        function () {
+          it('should produce the verbose syntax', function () {
+            const rootGroup = createGroup({
+              nestedGroups: [
+                createGroup({ conditions: [conditionA, conditionB] }),
+                createGroup({ conditions: [conditionC, conditionD] }),
+              ],
+            });
+
+            expect(
+              makeCompactGroupExpression(toMatchGroupExpression(rootGroup))
+            ).to.deep.equal({
+              $and: [
+                {
+                  $and: [
+                    {
+                      name: 'Compass',
+                    },
+                    {
+                      version: '1.37',
+                    },
+                  ],
+                },
+                {
+                  $and: [
+                    {
+                      mode: 'Standalone',
+                    },
+                    {
+                      ga: true,
+                    },
+                  ],
+                },
+              ],
+            });
+          });
+        }
+      );
+    });
+
+    context('when root group is a $or group', function () {
+      it('should always produce a verbose syntax regardless of what is in the group', function () {
+        const fixtures = [
+          {
+            rootGroup: createGroup({
+              logicalOperator: '$or',
+              conditions: [conditionA, conditionB],
+            }),
+            syntax: {
+              $or: [
+                {
+                  name: 'Compass',
+                },
+                {
+                  version: '1.37',
+                },
+              ],
+            },
+          },
+          {
+            rootGroup: createGroup({
+              logicalOperator: '$or',
+              nestedGroups: [
+                createGroup({
+                  logicalOperator: '$and',
+                  conditions: [conditionA, conditionB],
+                }),
+                createGroup({
+                  logicalOperator: '$or',
+                  conditions: [conditionA, conditionB],
+                }),
+              ],
+            }),
+            syntax: {
+              $or: [
+                {
+                  $and: [
+                    {
+                      name: 'Compass',
+                    },
+                    {
+                      version: '1.37',
+                    },
+                  ],
+                },
+                {
+                  $or: [
+                    {
+                      name: 'Compass',
+                    },
+                    {
+                      version: '1.37',
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ];
+
+        fixtures.forEach(function ({ rootGroup, syntax }) {
+          expect(
+            makeCompactGroupExpression(toMatchGroupExpression(rootGroup))
+          ).to.deep.equal(syntax);
         });
       });
     });

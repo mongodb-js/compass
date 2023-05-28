@@ -23,6 +23,7 @@ export type MatchGroup = {
   id: number;
   logicalOperator: LogicalOperator;
   conditions: MatchCondition[];
+  nestedGroups: MatchGroup[];
 };
 
 // Types to represent a converted match stage value
@@ -31,13 +32,41 @@ export type MatchConditionExpression =
   | { [field: string]: { [operator in MatchOperator]: unknown } };
 
 export type MatchGroupExpression =
-  | { [$andOr in LogicalOperator]?: MatchConditionExpression[] };
+  | {
+      [$andOr in LogicalOperator]?: (
+        | MatchConditionExpression
+        | MatchGroupExpression
+      )[];
+    };
 
 export type MatchExpression = MatchConditionExpression | MatchGroupExpression;
 
 // Helpers
+export const getNestingDepth = ({ nestedGroups }: MatchGroup): number => {
+  if (nestedGroups.length === 0) {
+    return 0;
+  } else {
+    return 1 + Math.max(...nestedGroups.map(getNestingDepth));
+  }
+};
+
 export function isNotEmptyCondition(condition: MatchCondition): boolean {
   return !!(condition.field && condition.bsonType);
+}
+
+export function isNotEmptyGroup({
+  conditions,
+  nestedGroups,
+}: MatchGroup): boolean {
+  return (
+    conditions.some(isNotEmptyCondition) || nestedGroups.some(isNotEmptyGroup)
+  );
+}
+
+export function isMatchConditionExpression(
+  expression: MatchGroupExpression | MatchConditionExpression
+): boolean {
+  return !('$and' in expression) && !('$or' in expression);
 }
 
 export function areUniqueExpressions(
@@ -67,14 +96,33 @@ export function toMatchConditionExpression(
 export function toMatchGroupExpression({
   logicalOperator,
   conditions,
+  nestedGroups,
 }: MatchGroup): MatchGroupExpression {
   const conditionExpressions = conditions
     .filter(isNotEmptyCondition)
     .map(toMatchConditionExpression);
 
-  return { [logicalOperator]: conditionExpressions };
+  const nestedGroupExpressions = nestedGroups
+    .filter(isNotEmptyGroup)
+    .map(toMatchGroupExpression);
+
+  return {
+    [logicalOperator]: [...conditionExpressions, ...nestedGroupExpressions],
+  };
 }
 
+/**
+ * We make (compact group expression / implicit $and expression) to align with
+ * the syntax promoted in mongodb docs. The compaction will happen when:
+ *  - group is a root group
+ *  - group operator is $and
+ *  - every expression in the group has unique keys, to avoid any possibility of
+ *    override after compaction
+ *
+ * This approach produces a syntax that aligns with the syntax promoted in
+ * mongodb docs for writing $and operator queries and is also coherent to what
+ * the user sees on the form. See the test-cases for examples.
+ */
 export function makeCompactGroupExpression(
   groupExpression: MatchGroupExpression
 ) {
@@ -130,6 +178,8 @@ const MatchForm = ({ fields, onChange }: WizardComponentProps) => {
         key={matchGroup.id}
         fields={fields}
         group={matchGroup}
+        nestingLevel={0}
+        nestingDepth={getNestingDepth(matchGroup)}
         onGroupChange={handleGroupChange}
       />
     </div>

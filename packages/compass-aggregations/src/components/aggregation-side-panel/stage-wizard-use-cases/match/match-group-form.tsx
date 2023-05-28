@@ -1,10 +1,17 @@
 import React from 'react';
+import type { CSSProperties } from 'react';
 import {
   css,
   spacing,
   SegmentedControl,
   SegmentedControlOption,
   ListEditor,
+  Button,
+  Icon,
+  IconButton,
+  palette,
+  cx,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 import MatchConditionForm, { createCondition } from './match-condition-form';
 import type { CreateConditionFn } from './match-condition-form';
@@ -13,14 +20,43 @@ import type { LogicalOperator, MatchCondition, MatchGroup } from './match';
 
 // Types
 export type MatchGroupFormProps = {
+  /**
+   * List of fields that will be passed down to ConditionForm to render Field combobox
+   */
   fields: WizardComponentProps['fields'];
+
+  /**
+   * An object of type MatchGroup that needs to be rendered
+   */
   group: MatchGroup;
+
+  /**
+   * The level at which this group is nested
+   */
+  nestingLevel: number;
+
+  /**
+   * The maximum available nesting depth, this is supposed to be calculated by
+   * the component rendering the group at level 0 and then simply passed down
+   */
+  nestingDepth: number;
+
+  /**
+   * Method to call when the group is changed
+   */
   onGroupChange: (changedGroup: MatchGroup) => void;
+
+  /**
+   * Method to call when the group is removed. Optional because the root group
+   * cannot be removed
+   */
+  onGroupRemoved?: () => void;
 };
 
 export type CreateGroupFn = (group?: Partial<MatchGroup>) => MatchGroup;
 
 // Helpers
+const MAX_ALLOWED_NESTING = 3;
 export const LABELS = {
   operatorSelect: 'Select a group operator',
 };
@@ -28,6 +64,8 @@ export const LABELS = {
 export const TEST_IDS = {
   container: (id: number) => `match-group-${id}`,
   operatorSelect: (id: number) => `match-group-${id}-operator-select`,
+  addNestedGroupBtn: (id: number) => `match-group-${id}-add-nested-group-btn`,
+  removeGroupBtn: (id: number) => `match-group-${id}-remove-group-btn`,
   addConditionBtn: () => 'add-condition-button',
   removeConditionBtn: () => 'remove-condition-button',
 };
@@ -45,6 +83,7 @@ export const makeCreateGroup = (
     id: id++,
     logicalOperator: '$and',
     conditions: [createCondition()],
+    nestedGroups: [],
     ...group,
   });
 };
@@ -52,17 +91,55 @@ export const makeCreateGroup = (
 export const createGroup = makeCreateGroup(createCondition);
 
 // Components - Group
-const groupStyles = css({
+const baseGroupStyles = css({
   display: 'flex',
   gap: spacing[3],
   flexDirection: 'column',
 });
 
+const nestedGroupStyles = css({
+  padding: spacing[4],
+  paddingTop: spacing[4] / 2,
+  borderRadius: spacing[4] / 2,
+});
+
+const nestedGroupContainerStyles = css({
+  gap: spacing[3],
+});
+
+const oddNestedGroupStyles = css({
+  background: palette.gray.light3,
+});
+
+const eventNestedGroupStyles = css({
+  background: palette.gray.light2,
+});
+
+const groupHeaderStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing[3],
+});
+
 const MatchGroupForm = ({
   fields,
   group,
+  nestingLevel,
+  nestingDepth,
   onGroupChange,
+  onGroupRemoved,
 }: MatchGroupFormProps) => {
+  const disableAddNestedGroupBtn = nestingLevel === MAX_ALLOWED_NESTING;
+  const showRemoveGroup = nestingLevel > 0;
+
+  // To align the "action buttons on condition list" with the "action buttons on
+  // condition list in nested groups", we calculate the right padding
+  // dynamically using the nesting depth and current nesting level.
+  const conditionListStyles: CSSProperties = {
+    paddingRight: (nestingDepth - nestingLevel) * spacing[4],
+  };
+
   const handleOperatorChange = (operator: LogicalOperator) => {
     onGroupChange({
       ...group,
@@ -107,37 +184,143 @@ const MatchGroupForm = ({
     });
   };
 
+  const handleAddNestedGroupClick = () => {
+    const newNestedGroups = [...group.nestedGroups, createGroup()];
+    onGroupChange({
+      ...group,
+      nestedGroups: newNestedGroups,
+    });
+  };
+
+  const handleRemoveNestedGroupClick = (nestedGroupIdx: number) => {
+    const remainingNestedGroups = [...group.nestedGroups];
+    remainingNestedGroups.splice(nestedGroupIdx, 1);
+    onGroupChange({
+      ...group,
+      nestedGroups: remainingNestedGroups,
+    });
+  };
+
+  const handleNestedGroupChange = (
+    nestedGroupIdx: number,
+    changedNestedGroup: MatchGroup
+  ) => {
+    const changedNestedGroups = [...group.nestedGroups];
+    changedNestedGroups[nestedGroupIdx] = changedNestedGroup;
+    onGroupChange({
+      ...group,
+      nestedGroups: changedNestedGroups,
+    });
+  };
+
   return (
-    <div data-testid={TEST_IDS.container(group.id)} className={groupStyles}>
-      <SegmentedControl
-        size="small"
-        value={group.logicalOperator}
-        data-testid={TEST_IDS.operatorSelect(group.id)}
-        onChange={(operator) => {
-          handleOperatorChange(operator as LogicalOperator);
-        }}
-      >
-        <SegmentedControlOption value="$and">AND</SegmentedControlOption>
-        <SegmentedControlOption value="$or">OR</SegmentedControlOption>
-      </SegmentedControl>
+    <div
+      data-testid={TEST_IDS.container(group.id)}
+      className={cx(
+        baseGroupStyles,
+        nestingLevel !== 0 &&
+          cx(nestedGroupStyles, {
+            [oddNestedGroupStyles]: nestingLevel % 2 !== 0,
+            [eventNestedGroupStyles]: nestingLevel % 2 === 0,
+          })
+      )}
+    >
+      {/* Group header */}
+      <div className={groupHeaderStyles}>
+        <SegmentedControl
+          size="small"
+          value={group.logicalOperator}
+          data-testid={TEST_IDS.operatorSelect(group.id)}
+          onChange={(operator) => {
+            handleOperatorChange(operator as LogicalOperator);
+          }}
+        >
+          <SegmentedControlOption value="$and">AND</SegmentedControlOption>
+          <SegmentedControlOption value="$or">OR</SegmentedControlOption>
+        </SegmentedControl>
+        <Tooltip
+          align="top"
+          justify="middle"
+          enabled={disableAddNestedGroupBtn}
+          trigger={({ children, ...props }) => (
+            <div {...props} style={{ display: 'inherit' }}>
+              <Button
+                size="xsmall"
+                disabled={disableAddNestedGroupBtn}
+                aria-label="Add nested group"
+                leftGlyph={<Icon glyph="Plus" />}
+                data-testid={TEST_IDS.addNestedGroupBtn(group.id)}
+                onClick={handleAddNestedGroupClick}
+              >
+                {children}
+                Nested Group
+              </Button>
+            </div>
+          )}
+        >
+          Compass does not support more than three nested match conditions.
+        </Tooltip>
+        {showRemoveGroup && (
+          <IconButton
+            aria-label="Remove group"
+            onClick={onGroupRemoved}
+            data-testid={TEST_IDS.removeGroupBtn(group.id)}
+          >
+            <Icon glyph="Trash" />
+          </IconButton>
+        )}
+      </div>
+
+      {/* Conditions */}
+      <div style={conditionListStyles}>
+        <ListEditor
+          items={group.conditions}
+          itemKey={(condition) => `group-${group.id}-condition-${condition.id}`}
+          renderItem={(condition: MatchCondition, conditionIdx: number) => (
+            <MatchConditionForm
+              fields={fields}
+              condition={condition}
+              onConditionChange={(changedCondition) =>
+                handleConditionChange(conditionIdx, changedCondition)
+              }
+            />
+          )}
+          disableAddButton={() => false}
+          onAddItem={handleAddConditionClick}
+          addButtonTestId={TEST_IDS.addConditionBtn()}
+          disableRemoveButton={() => group.conditions.length === 1}
+          onRemoveItem={handleRemoveConditionClick}
+          removeButtonTestId={TEST_IDS.removeConditionBtn()}
+        />
+      </div>
+
+      {/* Nested groups */}
       <ListEditor
-        items={group.conditions}
-        itemKey={(item) => String(item.id)}
-        renderItem={(condition: MatchCondition, conditionIdx: number) => (
-          <MatchConditionForm
+        className={nestedGroupContainerStyles}
+        items={group.nestedGroups}
+        itemKey={(nestedGroup) =>
+          `group-${group.id}-nested-group-${nestedGroup.id}`
+        }
+        renderItem={(nestedGroup: MatchGroup, nestedGroupIdx: number) => (
+          <MatchGroupForm
             fields={fields}
-            condition={condition}
-            onConditionChange={(newCondition) =>
-              handleConditionChange(conditionIdx, newCondition)
+            group={nestedGroup}
+            nestingLevel={nestingLevel + 1}
+            nestingDepth={nestingDepth}
+            onGroupChange={(changedNestedGroup) =>
+              handleNestedGroupChange(nestedGroupIdx, changedNestedGroup)
             }
+            onGroupRemoved={() => handleRemoveNestedGroupClick(nestedGroupIdx)}
           />
         )}
-        disableAddButton={() => false}
-        onAddItem={handleAddConditionClick}
-        addButtonTestId={TEST_IDS.addConditionBtn()}
-        disableRemoveButton={() => group.conditions.length === 1}
-        onRemoveItem={handleRemoveConditionClick}
-        removeButtonTestId={TEST_IDS.removeConditionBtn()}
+        disableAddButton={() => true}
+        onAddItem={() => {
+          // no-op
+        }}
+        disableRemoveButton={() => true}
+        onRemoveItem={() => {
+          // no-op
+        }}
       />
     </div>
   );
