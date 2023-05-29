@@ -165,3 +165,8 @@ export {
 } from './hooks/use-hotkeys';
 export { rafraf } from './utils/rafraf';
 export { ComboboxWithCustomOption } from './components/combobox-with-custom-option';
+export {
+  GuideCueProvider,
+  useGuideCue,
+  type GuideCueStorage,
+} from './hooks/use-guide-cue';

@@ -9,6 +9,7 @@ import {
   palette,
   useDarkMode,
   IconButton,
+  useGuideCue,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
@@ -115,6 +116,51 @@ export function StageToolbar({
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
 
+  const { refEl: ref1 } = useGuideCue({
+    id: 'Previous',
+    group: 'FocusMode',
+    title: 'Navigate between stages',
+    content: () => {
+      return <p>Goto previous stage</p>;
+    },
+  });
+
+  const { refEl: ref2 } = useGuideCue({
+    id: 'Select Stage',
+    group: 'FocusMode',
+    title: 'Navigate between stages',
+    content: () => {
+      return <p>Stage Dropdown</p>;
+    },
+  });
+
+  const { refEl: ref3 } = useGuideCue({
+    id: 'Next',
+    group: 'FocusMode',
+    title: 'Navigate between stages',
+    content: () => {
+      return <p>Goto next stage</p>;
+    },
+  });
+
+  const { refEl: ref4 } = useGuideCue({
+    id: 'Toggle',
+    group: 'FocusMode',
+    title: 'Toggle stage',
+    content: () => {
+      return <p>Toggle stage</p>;
+    },
+  });
+
+  const { refEl: ref5 } = useGuideCue({
+    id: 'Add Stage',
+    group: 'FocusMode',
+    title: 'Add stages',
+    content: () => {
+      return <p>Add stage after or before</p>;
+    },
+  });
+
   return (
     <div
       className={cx(
@@ -127,18 +173,25 @@ export function StageToolbar({
       )}
     >
       <div className={leftStyles}>
-        <StageCollapser index={index} />
-        <Body weight="medium">Stage {idxInPipeline + 1}</Body>
-        <div className={selectStyles}>
+        <div ref={ref1}>
+          <StageCollapser index={index} />
+        </div>
+        <Body ref={ref2} weight="medium">
+          Stage {idxInPipeline + 1}
+        </Body>
+        <div ref={ref3} className={selectStyles}>
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
-        <ToggleStage index={index} />
+        <div ref={ref4}>
+          <ToggleStage index={index} />
+        </div>
       </div>
       <div className={textStyles}>
         {isDisabled ? DISABLED_TEXT : isCollapsed ? COLLAPSED_TEXT : null}
       </div>
       <div className={rightStyles}>
         <IconButton
+          ref={ref5}
           onClick={() => onOpenFocusMode(index)}
           aria-label="Open stage in focus mode"
           title="Open stage in focus mode"

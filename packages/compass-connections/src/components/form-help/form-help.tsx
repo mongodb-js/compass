@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   ButtonSize,
@@ -11,6 +11,7 @@ import {
   css,
   cx,
   useDarkMode,
+  useGuideCue,
 } from '@mongodb-js/compass-components';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -67,6 +68,20 @@ const createClusterButtonLightModeStyles = css({
 function AtlasHelpSection() {
   const darkMode = useDarkMode();
 
+  const { refEl: newToCompassRef } = useGuideCue({
+    id: 'new-to-compass',
+    group: 'Connection Help',
+    title: 'New to Compass',
+    content: <p>New to Compass?</p>,
+  });
+
+  const { refEl: clusterButtonRef } = useGuideCue({
+    id: 'create-cluster',
+    group: 'Connection Help',
+    title: 'Create a cluster',
+    content: <p>Don't have a cluster?</p>,
+  });
+
   return (
     <div
       className={cx(
@@ -75,9 +90,11 @@ function AtlasHelpSection() {
         darkMode && atlasContainerDarkModeStyles
       )}
     >
-      <Subtitle className={titleStyles}>
-        New to Compass and don&apos;t have a cluster?
-      </Subtitle>
+      <div ref={newToCompassRef}>
+        <Subtitle className={titleStyles}>
+          New to Compass and don&apos;t have a cluster?
+        </Subtitle>
+      </div>
       <Body className={descriptionStyles}>
         If you don&apos;t already have a cluster, you can create one for free
         using{' '}
@@ -87,6 +104,7 @@ function AtlasHelpSection() {
       </Body>
       <div className={createClusterContainerStyles}>
         <Button
+          ref={clusterButtonRef}
           data-testid="atlas-cta-link"
           className={cx(
             createClusterButtonStyles,
@@ -106,9 +124,25 @@ function AtlasHelpSection() {
 }
 
 function FormHelp(): React.ReactElement {
+  const [isAtlasHelpVisible, setIsAtlasHelpVisible] = useState(false);
+  const { refEl: connectionStringRef } = useGuideCue({
+    id: 'find-cs',
+    group: 'Connection Help',
+    title: 'Find Connection String',
+    content: <p>Its awesome?</p>,
+  });
+
+  const { refEl: exampleRef } = useGuideCue({
+    id: 'example-cs',
+    group: 'Connection Help',
+    title: 'Example Connection String',
+    content: <p>Its awesome, ain't it?</p>,
+  });
+
   return (
     <div className={formHelpContainerStyles}>
-      <AtlasHelpSection />
+      <Button onClick={() => setIsAtlasHelpVisible(true)}>Enable Help</Button>
+      {isAtlasHelpVisible && <AtlasHelpSection />}
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
           How do I find my connection string in Atlas?
@@ -118,23 +152,27 @@ function FormHelp(): React.ReactElement {
           &apos;Connect&apos; button for the cluster to which you wish to
           connect.
         </Body>
-        <Link
-          href="https://docs.atlas.mongodb.com/compass-connection/"
-          target="_blank"
-        >
-          See example
-        </Link>
+        <div ref={connectionStringRef}>
+          <Link
+            href="https://docs.atlas.mongodb.com/compass-connection/"
+            target="_blank"
+          >
+            See example
+          </Link>
+        </div>
       </div>
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
           How do I format my connection string?
         </Subtitle>
-        <Link
-          href="https://docs.mongodb.com/manual/reference/connection-string/"
-          target="_blank"
-        >
-          See example
-        </Link>
+        <div ref={exampleRef}>
+          <Link
+            href="https://docs.mongodb.com/manual/reference/connection-string/"
+            target="_blank"
+          >
+            See example
+          </Link>
+        </div>
       </div>
     </div>
   );

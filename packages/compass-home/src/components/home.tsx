@@ -8,6 +8,7 @@ import {
   getScrollbarStyles,
   palette,
   Body,
+  GuideCueProvider,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Settings from '@mongodb-js/compass-settings';
@@ -438,7 +439,9 @@ function ThemedHome(
                 )}
                 data-theme={theme.theme}
               >
-                <Home {...props}></Home>
+                <GuideCueProvider>
+                  <Home {...props}></Home>
+                </GuideCueProvider>
               </div>
             </ToastArea>
           </ConfirmationModalArea>

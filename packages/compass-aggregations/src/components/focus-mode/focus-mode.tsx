@@ -7,6 +7,7 @@ import {
   cx,
   useDarkMode,
   HorizontalRule,
+  useGuideCue,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 

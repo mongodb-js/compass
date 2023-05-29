@@ -11,6 +11,7 @@ import {
   useDarkMode,
   useHoverState,
   ItemActionControls,
+  useGuideCue,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
@@ -163,6 +164,37 @@ function ConnectionList({
   const [recentHoverProps, recentHeaderHover] = useHoverState();
   const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
 
+  // const { refEl: connectionBtnRef } = useGuideCue({
+  //   id: "sidebar-connection-button",
+  //   group: "Sidebar",
+  //   title: "Create new connection",
+  //   content: (
+  //       <p>Click here to create a new connection.</p>
+  //   )
+  // });
+
+  // const { refEl: favoriteRef } = useGuideCue({
+  //   id: "sidebar-favorite-connections",
+  //   group: "Sidebar",
+  //   title: "Your favorites",
+  //   content: () => {
+  //     return (
+  //       <p>Saved connections.</p>
+  //     );
+  //   }
+  // });
+
+  // const { refEl: recentRef } = useGuideCue({
+  //   id: "sidebar-recent-connections",
+  //   group: "Sidebar",
+  //   title: "Your recents",
+  //   content: () => {
+  //     return (
+  //       <p>Recent connections.</p>
+  //     );
+  //   }
+  // });
+
   return (
     <Fragment>
       <ConnectionsTitle
@@ -170,6 +202,7 @@ function ConnectionList({
       />
       <div className={newConnectionButtonContainerStyles}>
         <Button
+          // ref={connectionBtnRef}
           className={cx(
             newConnectionButtonStyles,
             darkMode
@@ -189,6 +222,7 @@ function ConnectionList({
           className={sectionHeaderStyles}
           {...favoriteHoverProps}
           data-testid="favorite-connections-list-header"
+          // ref={favoriteRef}
         >
           <div className={sectionHeaderIconStyles}>
             <FavoriteIcon />
@@ -240,6 +274,7 @@ function ConnectionList({
           className={cx(sectionHeaderStyles, recentHeaderStyles)}
           {...recentHoverProps}
           data-testid="recent-connections-list-header"
+          // ref={recentRef}
         >
           <div className={sectionHeaderIconStyles}>
             <RecentIcon />
