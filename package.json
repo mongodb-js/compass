@@ -50,7 +50,8 @@
     "snyk-test": "npx snyk test --all-projects --severity-threshold=low --dev --json-file-output=.sbom/snyk-test-result.json || true",
     "postsnyk-test": "npx snyk-to-html -i .sbom/snyk-test-result.json -o .sbom/snyk-test-result.html",
     "pregenerate-vulnerability-report": "npm run compile -w packages/compass && npm run snyk-test",
-    "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --fail-on=high > .sbom/vulnerability-report.md"
+    "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --fail-on=high > .sbom/vulnerability-report.md",
+    "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --create-jira-issues"
   },
   "repository": {
     "type": "git",
@@ -61,7 +62,7 @@
     "@babel/core": "7.16.0",
     "@babel/parser": "7.16.0",
     "@mongodb-js/bump-monorepo-packages": "^0.2.1",
-    "@mongodb-js/sbom-tools": "^0.2.0",
+    "@mongodb-js/sbom-tools": "^0.4.0",
     "@testing-library/dom": "^8.11.1",
     "@webpack-cli/serve": "^0.2.0",
     "babel-loader": "^7.1.5",

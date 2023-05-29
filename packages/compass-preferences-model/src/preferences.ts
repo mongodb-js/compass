@@ -5,6 +5,9 @@ import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
+import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
+import { featureFlags } from './feature-flags';
+
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -13,32 +16,32 @@ const Model = require('ampersand-model');
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
 
-export type FeatureFlags = {
+export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
-  enableLgDarkmode?: boolean;
   enableDebugUseCsfleSchemaMap?: boolean;
-  enableOidc?: boolean; // COMPASS-6803 // Not capitalized "OIDC" for spawn arg casing.
-  enableStageWizard?: boolean;
 };
 
-export type UserConfigurablePreferences = FeatureFlags & {
-  // User-facing preferences
-  autoUpdates: boolean;
-  enableMaps: boolean;
-  trackUsageStatistics: boolean;
-  enableFeedbackPanel: boolean;
-  networkTraffic: boolean;
-  readOnly: boolean;
-  enableShell: boolean;
-  protectConnectionStrings?: boolean;
-  forceConnectionOptions?: [key: string, value: string][];
-  showKerberosPasswordField: boolean;
-  enableDevTools: boolean;
-  theme: THEMES;
-  maxTimeMS?: number;
-  installURLHandlers: boolean;
-  protectConnectionStringsForNewConnections: boolean;
-};
+type AllFeatureFlags = PermanentFeatureFlags & FeatureFlags;
+
+export type UserConfigurablePreferences = PermanentFeatureFlags &
+  FeatureFlags & {
+    // User-facing preferences
+    autoUpdates: boolean;
+    enableMaps: boolean;
+    trackUsageStatistics: boolean;
+    enableFeedbackPanel: boolean;
+    networkTraffic: boolean;
+    readOnly: boolean;
+    enableShell: boolean;
+    protectConnectionStrings?: boolean;
+    forceConnectionOptions?: [key: string, value: string][];
+    showKerberosPasswordField: boolean;
+    enableDevTools: boolean;
+    theme: THEMES;
+    maxTimeMS?: number;
+    installURLHandlers: boolean;
+    protectConnectionStringsForNewConnections: boolean;
+  };
 
 export type InternalUserPreferences = {
   // These are internally used preferences that are not configurable
@@ -75,7 +78,7 @@ export type NonUserPreferences = {
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
   NonUserPreferences &
-  FeatureFlags;
+  PermanentFeatureFlags;
 
 type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<AllPreferences>
@@ -116,7 +119,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** The type of the preference value, in Ampersand naming */
   type: AmpersandType<AllPreferences[K]>;
   /** An optional default value for the preference */
-  default?: K extends keyof FeatureFlags ? undefined | true : AllPreferences[K];
+  default?: AllPreferences[K];
   /** Whether the preference is required in the Ampersand model */
   required: boolean;
   /** An exhaustive list of possible values for this preference (also an Ampersand feature) */
@@ -146,7 +149,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Specify that this option should not be listed in --help output */
   omitFromHelp?: K extends keyof (UserConfigurablePreferences &
     CliOnlyPreferences)
-    ? K extends keyof FeatureFlags
+    ? K extends keyof AllFeatureFlags
       ? boolean
       : false
     : boolean;
@@ -204,8 +207,39 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   });
 }
 
+function featureFlagToPreferenceDefinition(
+  featureFlag: FeatureFlagDefinition
+): PreferenceDefinition<keyof FeatureFlags> {
+  return {
+    type: 'boolean',
+    required: false,
+    default: false,
+    cli: true,
+    global: true,
+    ui: true,
+    description: featureFlag.description,
+    // if a feature flag is 'released' it will always return true
+    // regardless of any persisted value.
+    deriveValue:
+      featureFlag.stage === 'released'
+        ? () => ({ value: true, state: 'hardcoded' })
+        : undefined,
+  };
+}
+
 const featureFlagsProps: Required<{
   [K in keyof FeatureFlags]: PreferenceDefinition<K>;
+}> = Object.fromEntries(
+  Object.entries(featureFlags).map(([key, value]) => [
+    key as keyof FeatureFlags,
+    featureFlagToPreferenceDefinition(value),
+  ])
+) as unknown as Required<{
+  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
+}>;
+
+const allFeatureFlagsProps: Required<{
+  [K in keyof AllFeatureFlags]: PreferenceDefinition<K>;
 }> = {
   /** Meta-feature-flag! Whether to show the dev flags of the feature flag settings modal */
   showDevFeatureFlags: {
@@ -218,24 +252,6 @@ const featureFlagsProps: Required<{
     omitFromHelp: true,
     description: {
       short: 'Show Developer Feature Flags',
-    },
-  },
-
-  /**
-   * Currently Compass uses `darkreader` to globally change the views of
-   * Compass to a dark theme. Turning on this feature flag stops darkreader
-   * from being used and instead components which have darkMode
-   * support will listen to the theme to change their styles.
-   */
-  enableLgDarkmode: {
-    type: 'boolean',
-    required: false,
-    default: true,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Modern Dark Mode',
     },
   },
 
@@ -256,39 +272,7 @@ const featureFlagsProps: Required<{
     },
   },
 
-  /**
-   * Feature flag for enabling OIDC authentication.
-   * Epic: COMPASS-5955
-   * TODO(COMPASS-6803): Enable/remove this feature flag.
-   */
-  enableOidc: {
-    type: 'boolean',
-    required: false,
-    default: undefined,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable OIDC Authentication',
-    },
-  },
-
-  /**
-   * Feature flag for enabling the use of Stage Wizard
-   * in the Pipeline Builder. Epic: COMPASS-5817
-   */
-  enableStageWizard: {
-    type: 'boolean',
-    required: false,
-    default: undefined,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Stage Wizard',
-      long: 'Create aggregation stages using Wizard.',
-    },
-  },
+  ...featureFlagsProps,
 };
 
 const modelPreferencesProps: Required<{
@@ -593,7 +577,7 @@ const modelPreferencesProps: Required<{
         'If true, "Edit connection string" is disabled for new connections by default',
     },
   },
-  ...featureFlagsProps,
+  ...allFeatureFlagsProps,
 };
 
 const cliOnlyPreferencesProps: Required<{
