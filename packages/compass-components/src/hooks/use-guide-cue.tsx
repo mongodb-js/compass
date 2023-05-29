@@ -45,14 +45,21 @@ interface GuideCueService extends EventTarget {
 
 class GuideCueService extends EventTarget {
   private _cues: Array<Cue> = [];
-  private _activeGroup: string | null = null;
+  private _activeGroupCues: Array<Cue> = [];
+  private _activeCue: Cue | null = null;
 
-  private _getCueIndex({ id, group }: Cue) {
-    return this._cues.findIndex((x) => x.id === id && x.group === group);
+  get numOfCuesInGroup() {
+    return this._activeGroupCues.length;
+  }
+
+  get currentCueIndex() {
+    return this._activeGroupCues.findIndex((x) => x.id === this._activeCue?.id);
   }
 
   addCue(cue: Cue) {
-    if (this._getCueIndex(cue) !== -1) {
+    if (
+      this._cues.find(({ id, group }) => id === cue.id && group === cue.group)
+    ) {
       throw new Error(
         `Guide Cue with id ${cue.id} is already registered in ${cue.group} group.`
       );
@@ -68,43 +75,63 @@ class GuideCueService extends EventTarget {
     );
   }
 
-  getNextGroup() {
-    const nextGroup = this._getNextGroup();
-    if (!nextGroup) {
-      return null;
-    }
-
-    this._activeGroup = nextGroup;
-    return this._cues.filter((x) => x.group === this._activeGroup);
-  }
-
-  getCurrentGroup() {
-    return this._cues.filter((x) => x.group === this._activeGroup);
-  }
-
-  private _getNextGroup() {
-    // No Cues
+  getNextCue() {
     if (this._cues.length === 0) {
       return null;
     }
 
-    // First time, we start with first Cue
-    if (!this._activeGroup) {
-      return this._cues[0].group;
+    // First time, when nothing is shown yet.
+    if (!this._activeCue) {
+      this._activeCue = this._cues[0];
+      this._activeGroupCues = this._cues.filter(
+        (x) => x.group === this._activeCue?.group
+      );
+      return this._activeCue;
     }
 
+    // If the current cue is not last, then show next cue.
+    const nextPossibleCue = this.getNextCueFromActiveGroup();
+    if (nextPossibleCue) {
+      return nextPossibleCue;
+    }
+
+    // Get the next group
+    return this.getFirstCueFromNextGroup();
+  }
+
+  private getNextGroup() {
     // Get the next group
     const groups = this._cues
       .map((x) => x.group)
       .filter((v, i, a) => a.indexOf(v) === i);
-    const indexOfCurrentGroup = groups.findIndex(
-      (x) => x === this._activeGroup
+    const currentGroupIndex = groups.findIndex(
+      (x) => x === this._activeCue?.group
     );
-    // No more next groups
-    if (indexOfCurrentGroup === groups.length - 1) {
+    return groups[currentGroupIndex + 1] || null;
+  }
+
+  private getNextCueFromActiveGroup() {
+    const currentCueIndex = this._activeGroupCues.findIndex(
+      (x) => x.id === this._activeCue?.id
+    );
+    // If the index is last one
+    if (currentCueIndex + 1 === this._activeGroupCues.length) {
       return null;
     }
-    return groups[indexOfCurrentGroup + 1];
+    this._activeCue = this._activeGroupCues[currentCueIndex + 1];
+    return this._activeCue;
+  }
+
+  private getFirstCueFromNextGroup() {
+    const nextGroup = this.getNextGroup();
+    if (!nextGroup) {
+      this._activeGroupCues = [];
+      this._activeCue = null;
+    } else {
+      this._activeGroupCues = this._cues.filter((x) => x.group === nextGroup);
+      this._activeCue = this._activeGroupCues[0];
+    }
+    return this._activeCue;
   }
 }
 
@@ -114,19 +141,25 @@ export const GuideCueProvider = ({
   // todo: inject storage in service.
   const serviceRef = React.useRef(new GuideCueService());
 
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const [cues, setCues] = React.useState<Cue[] | null>(null);
+  const [cue, setCue] = React.useState<Cue | null>(null);
+
+  const setupCue = React.useCallback(() => {
+    if (cue) {
+      return;
+    }
+
+    const nextCue = serviceRef.current.getNextCue();
+    setCue(nextCue);
+  }, [serviceRef, cue]);
 
   React.useEffect(() => {
-    if (currentIndex === 0) {
-      setCues(serviceRef.current.getNextGroup());
-    }
-  }, []);
+    setupCue();
+  }, [setupCue]);
 
   React.useEffect(() => {
     const service = serviceRef.current;
     const listener = () => {
-      setCues(service.getNextGroup());
+      setupCue();
     };
     service.addEventListener('cue-list-changed', listener);
     return () => {
@@ -134,37 +167,30 @@ export const GuideCueProvider = ({
     };
   }, [serviceRef]);
 
-  const handleNext = React.useCallback(() => {
-    if (currentIndex + 1 === cues?.length) {
-      setCues(serviceRef.current.getNextGroup());
-      setCurrentIndex(0);
-    } else {
-      setCurrentIndex(currentIndex + 1);
-    }
-  }, [currentIndex]);
+  const handleNext = () => {
+    console.log('GuideCueProvider handleNext');
+    setCue(null);
+  };
 
-  const handleDismiss = React.useCallback(() => {
-    console.log('GuideCueProvider.handleDismiss');
-  }, []);
+  const handleDismiss = () => {
+    console.log('GuideCueProvider handleDismiss');
+  };
 
   return (
     <GuideCueContext.Provider value={{ cueService: serviceRef.current }}>
-      {cues &&
-        cues.length > 0 &&
-        cues.map(({ content, id, ...rest }, index) => (
-          <GuideCue
-            key={id}
-            {...rest}
-            numberOfSteps={cues.length}
-            currentStep={index + 1}
-            open={index === currentIndex}
-            setOpen={() => handleNext()}
-            onDismiss={() => handleDismiss()}
-            popoverZIndex={20}
-          >
-            {content}
-          </GuideCue>
-        ))}
+      {cue && (
+        <GuideCue
+          title={cue.title}
+          refEl={cue.refEl}
+          numberOfSteps={serviceRef.current.numOfCuesInGroup}
+          currentStep={serviceRef.current.currentCueIndex + 1}
+          open={true}
+          setOpen={() => handleNext()}
+          onDismiss={() => handleDismiss()}
+        >
+          {cue.content}
+        </GuideCue>
+      )}
       {children}
     </GuideCueContext.Provider>
   );
