@@ -124,10 +124,14 @@ function AuthenticationOIDC({
                 target: { checked },
               }: React.ChangeEvent<HTMLInputElement>) => {
                 if (checked) {
-                  const newAllowedFlows = Array.isArray(
+                  const newAllowedFlows: AuthFlowType[] = Array.isArray(
                     connectionOptions.oidc?.allowedFlows
                   )
-                    ? [...connectionOptions.oidc?.allowedFlows, 'device-auth']
+                    ? [
+                        ...(connectionOptions.oidc
+                          ?.allowedFlows as AuthFlowType[]),
+                        'device-auth',
+                      ]
                     : ['device-auth'];
                   return handleFieldChanged('allowedFlows', newAllowedFlows);
                 }
