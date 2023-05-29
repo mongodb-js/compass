@@ -6,8 +6,6 @@ import { toJSString } from 'mongodb-query-parser';
 import reducer from '../modules';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
-import type { IndexInfo } from '../modules/indexes';
-import { indexesFetched } from '../modules/indexes';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import type { StoredPipeline } from '../utils/pipeline-storage';
@@ -242,11 +240,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
      * @param {Object} fields - The fields.
      */
     localAppRegistry.on('fields-changed', (fields) => {
-      store.dispatch(fieldsChanged(fields.aceFields));
-    });
-
-    localAppRegistry.on('indexes-changed', (indexes: IndexInfo[]) => {
-      store.dispatch(indexesFetched(indexes));
+      store.dispatch(fieldsChanged(fields.autocompleteFields));
     });
   }
 

@@ -6,6 +6,7 @@ const React = require('react');
 const { mount } = require('enzyme');
 const { Banner } = require('@mongodb-js/compass-components');
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');
+const TopStore = require('../../src/stores/top-store');
 const { PerformanceComponent } = require('../../src/components/');
 
 describe('rtss', () => {
@@ -36,6 +37,27 @@ describe('rtss', () => {
       const state = component.find(Banner);
       expect(state.text()).to.include(
         'Top command is not available for mongos, some charts may not show any data.'
+      );
+    });
+  });
+
+  context('when top is unable to retrieve information about some collections', () => {
+    let component = null;
+
+    beforeEach(() => {
+      TopStore.topUnableToRetrieveSomeCollections = true;
+      component = mount(<PerformanceComponent />);
+    });
+
+    afterEach(() => {
+      TopStore.topUnableToRetrieveSomeCollections = false;
+      component.unmount();
+    });
+
+    it('displays a warning message', () => {
+      const state = component.find(Banner);
+      expect(state.text()).to.include(
+        'Top command is unable to retrieve information about certain collections, resulting in incomplete data being displayed on the charts.'
       );
     });
   });

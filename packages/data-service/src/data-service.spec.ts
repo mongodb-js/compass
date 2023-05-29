@@ -45,7 +45,7 @@ describe('DataService', function () {
     before(async function () {
       testDatabaseName = `compass-data-service-tests`;
       connectionOptions = {
-        connectionString: `mongodb://127.0.0.1:27018/${testDatabaseName}`,
+        connectionString: `mongodb://127.0.0.1:27021/${testDatabaseName}`,
       };
 
       mongoClient = new MongoClient(connectionOptions.connectionString);

@@ -29,11 +29,9 @@ import projections from './projections';
 import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
-import explain from './explain';
 import isDataLake from './is-datalake';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
-import indexes from './indexes';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { PipelineStorage } from '../utils/pipeline-storage';
@@ -78,9 +76,7 @@ const rootReducer = combineReducers({
   workspace,
   countDocuments,
   aggregationWorkspaceId,
-  explain,
   isDataLake,
-  indexes,
   pipelineBuilder,
   focusMode,
   sidePanel,

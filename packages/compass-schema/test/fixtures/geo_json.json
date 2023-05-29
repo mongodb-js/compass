@@ -2,7 +2,7 @@
   "name": "Document",
   "count": 100,
   "path": "loc",
-  "has_duplicates": false,
+  "hasDuplicates": false,
   "modelType": "Document",
   "probability": 1,
   "fields": [
@@ -13,8 +13,8 @@
       "type": "Array",
       "probability": 1,
       "unique": 0,
-      "has_duplicates": false,
-      "total_count": 100,
+      "hasDuplicates": false,
+      "totalCount": 100,
       "types": [
         {
           "name": "Array",
@@ -27,10 +27,10 @@
             2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
             2, 2, 2, 2, 2, 2, 2, 2
           ],
-          "has_duplicates": false,
+          "hasDuplicates": false,
           "probability": 1,
-          "total_count": 200,
-          "average_length": 2,
+          "totalCount": 200,
+          "averageLength": 2,
           "fields": {
             "$undefined": true
           },
@@ -39,7 +39,7 @@
               "name": "Number",
               "count": 200,
               "path": "loc.coordinates",
-              "has_duplicates": false,
+              "hasDuplicates": false,
               "probability": 1,
               "unique": 200,
               "values": [
@@ -123,14 +123,14 @@
       "type": "String",
       "probability": 1,
       "unique": 1,
-      "has_duplicates": true,
-      "total_count": 100,
+      "hasDuplicates": true,
+      "totalCount": 100,
       "types": [
         {
           "name": "String",
           "count": 100,
           "path": "loc.type",
-          "has_duplicates": true,
+          "hasDuplicates": true,
           "probability": 1,
           "unique": 1,
           "values": [

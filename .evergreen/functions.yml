@@ -1,12 +1,19 @@
 # The variables are with the functions because they are only used by the
 # functions and also because you can't use variables across includes.
 variables:
-  - &save-artifact-params
+  - &save-artifact-params-private
     aws_key: ${aws_key}
     aws_secret: ${aws_secret}
     bucket: mciuploads
-    permissions: public-read
     content_type: application/octet-stream
+    permissions: private
+    visibility: signed
+  - &save-artifact-params-public
+    aws_key: ${aws_key}
+    aws_secret: ${aws_secret}
+    bucket: mciuploads
+    content_type: application/octet-stream
+    permissions: public-read
   - &get-artifact-params
     aws_key: ${aws_key}
     aws_secret: ${aws_secret}
@@ -70,12 +77,13 @@ variables:
 post:
   - command: s3.put
     params:
-      <<: *save-artifact-params
+      <<: *save-artifact-params-private
       local_files_include_filter:
         - src/.deps/.npm/_logs/*.log
         - src/packages/compass-e2e-tests/.log/**/*
         - src/packages/compass-e2e-tests/.nyc_output/coverage.json
-        - ~/.mongodb/runner/*.log
+        - src/.testserver/logs/*
+        - src/.evergreen/logs/*
       remote_file: ${project}/${revision}_${revision_order_id}/${build_variant}/${task_name}
       content_type: text/plain
   - command: attach.results
@@ -147,7 +155,7 @@ functions:
           echo "(if npm fails, debug.log will be uploaded to S3)"
 
           # Install dependencies
-          npm ci --unsafe-perm
+          bash ".evergreen/retry-with-backoff.sh" npm ci --unsafe-perm
 
   bootstrap:
     - command: shell.exec
@@ -432,73 +440,73 @@ functions:
   save-all-artifacts:
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${windows_setup_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${windows_setup_filename}
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${windows_msi_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${windows_msi_filename}
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${windows_zip_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${windows_zip_filename}
         content_type: application/zip
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${windows_nupkg_full_filename}
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${windows_releases_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${windows_releases_filename}
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${osx_dmg_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${osx_dmg_filename}
         content_type: application/x-apple-diskimage
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${osx_zip_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${osx_zip_filename}
         content_type: application/zip
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${linux_rpm_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_filename}
         content_type: application/x-redhat-package-manager
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${rhel_tar_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${rhel_tar_filename}
         content_type: application/x-gzip
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${linux_deb_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_filename}
         content_type: application/vnd.debian.binary-package
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-public
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
@@ -555,37 +563,47 @@ functions:
           <<: *compass-env
           DEBUG: ${debug}
           SNYK_TOKEN: ${snyk_token}
+          JIRA_API_TOKEN: ${jira_api_token}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          # Can only fail if is not a patch:
+          # Can only fail if is not a patch, including release branches:
           npm run generate-vulnerability-report || { [ "$EVERGREEN_IS_PATCH" == "true" ] && exit 0; } || exit 1
+
+          # Runs for all the commits on main, including nightly builds:
+          if [[ "$EVERGREEN_IS_PATCH" != "true" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
+            export JIRA_BASE_URL="https://jira.mongodb.org"
+            export JIRA_PROJECT="COMPASS"
+            export JIRA_VULNERABILITY_BUILD_INFO="- [Evergreen task|$EVERGREEN_TASK_URL]"
+
+            npm run create-vulnerability-tickets
+          fi
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-private
         local_file: src/.sbom/dependencies.json
         remote_file: ${project}/${revision}_${revision_order_id}/dependencies.json
         content_type: application/json
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-private
         local_file: src/.sbom/snyk-test-result.json
         remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.json
         content_type: application/json
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-private
         local_file: src/.sbom/snyk-test-result.html
         remote_file: ${project}/${revision}_${revision_order_id}/snyk-test-result.html
         content_type: text/html
         optional: true
     - command: s3.put
       params:
-        <<: *save-artifact-params
+        <<: *save-artifact-params-private
         local_file: src/.sbom/vulnerability-report.md
         remote_file: ${project}/${revision}_${revision_order_id}/vulnerability-report.md
         content_type: text/markdown

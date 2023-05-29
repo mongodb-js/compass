@@ -158,7 +158,6 @@
     "test-ci": "npm run test-release-tasks",
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
-    "posttest-ci": "node ../../scripts/killall-mongo.js",
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "repository": {
@@ -210,7 +209,7 @@
     "@mongodb-js/hadron-plugin-manager": "^7.0.6",
     "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/sbom-tools": "^0.2.0",
+    "@mongodb-js/sbom-tools": "^0.4.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@mongodb-js/webpack-config-compass": "^1.0.8",
     "@types/analytics-node": "^3.1.7",
@@ -231,7 +230,7 @@
     "debug": "^4.2.0",
     "decompress": "^4.2.1",
     "depcheck": "^1.4.1",
-    "electron": "^22.3.10",
+    "electron": "^22.3.11",
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^10.1.0",

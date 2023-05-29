@@ -45,7 +45,7 @@ describe('CreateIndexStore [Store]', function () {
       appRegistry.emit('fields-changed', {
         fields: { a: 1, b: 2 },
         topLevelFields: ['a'],
-        aceFields: ['a', 'b'],
+        autocompleteFields: ['a', 'b'],
       });
     });
     it('dispatches the changeSchemaFields action', function () {

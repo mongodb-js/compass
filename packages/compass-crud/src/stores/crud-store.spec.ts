@@ -19,7 +19,7 @@ const TEST_TIMESERIES = false; // TODO: base this off an env var once we have it
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
-  port: 27018,
+  port: 27022,
   ns: 'compass-crud',
   mongodb_database_name: 'admin',
 });
@@ -206,7 +206,6 @@ describe('store', function () {
         isEditable: true,
         isReadonly: false,
         isTimeSeries: false,
-        serverVersion: '4.0.0',
         isWritable: false,
         ns: '',
         outdated: false,

@@ -762,7 +762,7 @@ export const AggregationSavedPipelineCardDeleteButton = (
 
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
-export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
+export const AggregationExplainModal = '[data-testid="explain-plan-modal"]';
 export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [aria-label*="Close"]`;
 
 // Create view from pipeline modal
