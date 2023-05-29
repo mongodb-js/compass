@@ -26,6 +26,38 @@ export type CloneableMongoClient = MongoClient & {
   [createClonedClient](): Promise<CloneableMongoClient>;
 };
 
+export function prepareOIDCOptions(
+  connectionOptions: Readonly<ConnectionOptions>
+): Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'> {
+  const options: Pick<
+    DevtoolsConnectOptions,
+    'oidc' | 'authMechanismProperties'
+  > = {
+    oidc: {},
+    authMechanismProperties: {},
+    ...connectionOptions,
+  };
+
+  // TODO(COMPASS-6849): Add a way to properly override openBrowser.
+  if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
+    options.oidc ??= {};
+    options.oidc.openBrowser = {
+      command: process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY,
+    };
+  }
+
+  // Set the driver's `authMechanismProperties` (non-url)
+  // `ALLOWED_HOSTS` value to `*`.
+  if ((options.oidc as ConnectionOptions['oidc'])?.enableUntrustedEndpoints) {
+    delete (options.oidc as ConnectionOptions['oidc'])
+      ?.enableUntrustedEndpoints;
+    options.authMechanismProperties ??= {};
+    options.authMechanismProperties.ALLOWED_HOSTS = ['*'];
+  }
+
+  return options;
+}
+
 export async function connectMongoClientCompass(
   connectionOptions: Readonly<ConnectionOptions>,
   setupListeners: (client: MongoClient) => void,
@@ -44,6 +76,8 @@ export async function connectMongoClientCompass(
     redactConnectionOptions(connectionOptions)
   );
 
+  const oidcOptions = prepareOIDCOptions(connectionOptions);
+
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
     productName: 'MongoDB Compass',
@@ -51,22 +85,8 @@ export async function connectMongoClientCompass(
     monitorCommands: true,
     useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
+    ...oidcOptions,
   };
-
-  // TODO(COMPASS-6849): Add a way to properly override openBrowser
-  if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
-    options.oidc ??= {};
-    options.oidc.openBrowser = {
-      command: process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY,
-    };
-  }
-
-  // Set the driver's `authMechanismProperties` (non-url)
-  // `ALLOWED_HOSTS` value to `*`.
-  if (connectionOptions.oidc?.enableUntrustedEndpoints) {
-    options.authMechanismProperties ??= {};
-    options.authMechanismProperties.ALLOWED_HOSTS = ['*'];
-  }
 
   if (options.autoEncryption && process.env.COMPASS_CRYPT_LIBRARY_PATH) {
     options.autoEncryption = {

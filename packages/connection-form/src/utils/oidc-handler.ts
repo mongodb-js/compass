@@ -37,3 +37,28 @@ export function handleUpdateOIDCParam({
     },
   };
 }
+
+/**
+ * When connecting with oidc with the authorization flow `device-auth`,
+ * we show a code and a url that the user then visits and inputs.
+ */
+export function setOIDCNotifyDeviceFlow(
+  notifyDeviceFlow?: (deviceFlowInformation: {
+    verificationUrl: string;
+    userCode: string;
+  }) => void
+): (connectionOptions: Readonly<ConnectionOptions>) => ConnectionOptions {
+  return (connectionOptions) => {
+    if (!notifyDeviceFlow) {
+      return connectionOptions;
+    }
+
+    return {
+      ...cloneDeep(connectionOptions),
+      oidc: {
+        ...cloneDeep(connectionOptions.oidc),
+        notifyDeviceFlow,
+      },
+    };
+  };
+}

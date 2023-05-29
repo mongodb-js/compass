@@ -54,7 +54,10 @@ import type {
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
 } from '../utils/csfle-handler';
-import { handleUpdateOIDCParam } from '../utils/oidc-handler';
+import {
+  handleUpdateOIDCParam,
+  setOIDCNotifyDeviceFlow,
+} from '../utils/oidc-handler';
 import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
@@ -688,15 +691,24 @@ function setInitialState({
   }, [setErrors, connectionErrorMessage]);
 }
 
-export function adjustConnectionOptionsBeforeConnect(
-  connectionOptions: Readonly<ConnectionOptions>,
-  defaultAppName?: string
-): ConnectionOptions {
+export function adjustConnectionOptionsBeforeConnect({
+  connectionOptions,
+  defaultAppName,
+  notifyDeviceFlow,
+}: {
+  connectionOptions: Readonly<ConnectionOptions>;
+  defaultAppName?: string;
+  notifyDeviceFlow?: (deviceFlowInformation: {
+    verificationUrl: string;
+    userCode: string;
+  }) => void;
+}): ConnectionOptions {
   const transformers: ((
     connectionOptions: Readonly<ConnectionOptions>
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
     setAppNameParamIfMissing(defaultAppName),
+    setOIDCNotifyDeviceFlow(notifyDeviceFlow),
     applyForceConnectionOptions,
   ];
   for (const transformer of transformers) {
