@@ -3,6 +3,15 @@ import path from 'path';
 import os from 'os';
 import { Preferences } from './preferences';
 import { expect } from 'chai';
+import { featureFlags } from './feature-flags';
+
+const releasedFeatureFlags = Object.entries(featureFlags)
+  .filter(([, v]) => v.stage === 'released')
+  .map(([k]) => k);
+
+const expectedReleasedFeatureFlagsStates = Object.fromEntries(
+  releasedFeatureFlags.map((ff) => [ff, 'hardcoded'])
+);
 
 describe('Preferences class', function () {
   let tmpdir: string;
@@ -144,6 +153,7 @@ describe('Preferences class', function () {
     expect(states).to.deep.equal({
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
+      ...expectedReleasedFeatureFlagsStates,
     });
   });
 
@@ -177,6 +187,7 @@ describe('Preferences class', function () {
       enableMaps: 'set-cli',
       enableShell: 'set-cli',
       readOnly: 'set-global',
+      ...expectedReleasedFeatureFlagsStates,
     });
   });
 
@@ -194,6 +205,7 @@ describe('Preferences class', function () {
 
     expect(states).to.deep.equal({
       readOnly: 'set-global',
+      ...expectedReleasedFeatureFlagsStates,
     });
   });
 
@@ -273,6 +285,7 @@ describe('Preferences class', function () {
       autoUpdates: 'hardcoded',
       networkTraffic: 'hardcoded',
       trackUsageStatistics: 'hardcoded',
+      ...expectedReleasedFeatureFlagsStates,
     });
   });
 
@@ -295,9 +308,11 @@ describe('Preferences class', function () {
     expect((await mainPreferences.fetchPreferences()).readOnly).to.equal(false);
 
     const mainPreferencesStates = mainPreferences.getPreferenceStates();
+
     expect(mainPreferencesStates).to.deep.equal({
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
+      ...expectedReleasedFeatureFlagsStates,
     });
 
     const sandboxPreferencesStates = sandbox.getPreferenceStates();
@@ -306,6 +321,7 @@ describe('Preferences class', function () {
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'derived',
+      ...expectedReleasedFeatureFlagsStates,
     });
   });
 });

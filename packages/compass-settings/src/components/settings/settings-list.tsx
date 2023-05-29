@@ -3,7 +3,7 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
-import { getSettingDescription } from 'compass-preferences-model';
+import { getSettingDescription, featureFlags } from 'compass-preferences-model';
 import { settingStateLabels } from './state-labels';
 import {
   Checkbox,
@@ -13,6 +13,7 @@ import {
   spacing,
   TextInput,
   FormFieldContainer,
+  Badge,
 } from '@mongodb-js/compass-components';
 
 type KeysMatching<T, V> = keyof {
@@ -32,6 +33,10 @@ type SupportedPreferences = BooleanPreferences | NumericPreferences;
 const inputStyles = css({
   marginTop: spacing[3],
   marginBottom: spacing[3],
+});
+
+const devBadgeStyles = css({
+  marginLeft: spacing[2],
 });
 
 const fieldContainerStyles = css({
@@ -61,6 +66,11 @@ function SettingLabel({ name }: { name: SupportedPreferences }) {
     <>
       <Label htmlFor={name} id={`${name}-label`}>
         {short}
+        {(featureFlags as any)[name]?.stage === 'development' && (
+          <span>
+            <Badge className={devBadgeStyles}>dev</Badge>
+          </span>
+        )}
       </Label>
       {long && <Description>{long}</Description>}
     </>

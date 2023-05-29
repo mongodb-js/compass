@@ -10,8 +10,17 @@ import {
   saveSettings,
 } from './settings';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import { featureFlags } from 'compass-preferences-model';
 import preferences from 'compass-preferences-model';
 import ipc from 'hadron-ipc';
+
+const releasedFeatureFlags = Object.entries(featureFlags)
+  .filter(([, v]) => v.stage === 'released')
+  .map(([k]) => k);
+
+const expectedReleasedFeatureFlagsStates = Object.fromEntries(
+  releasedFeatureFlags.map((ff) => [ff, 'hardcoded'])
+);
 
 describe('Settings store actions', function () {
   let sinonSandbox: sinon.SinonSandbox;
@@ -55,7 +64,9 @@ describe('Settings store actions', function () {
       expect(state.loadingState).to.equal('ready');
       expect(state.sandbox?.getPreferences).to.be.a('function');
       expect(state.settings.theme).to.be.a('string');
-      expect(state.preferenceStates).to.deep.equal({});
+      expect(state.preferenceStates).to.deep.equal({
+        ...expectedReleasedFeatureFlagsStates,
+      });
       expect(state.updatedFields).to.deep.equal([]);
     });
   });
@@ -73,6 +84,7 @@ describe('Settings store actions', function () {
       expect(state.preferenceStates).to.deep.equal({
         enableDevTools: 'derived',
         enableShell: 'derived',
+        ...expectedReleasedFeatureFlagsStates,
       });
       expect(state.updatedFields).to.deep.equal(['readOnly']);
     });
