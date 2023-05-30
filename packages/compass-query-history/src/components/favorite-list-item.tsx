@@ -17,7 +17,7 @@ type FavoriteListItemProps = {
   runFavoriteQuery: (attributes: FavoriteQueryAttributes) => void;
 };
 
-function FavoriteListItem({
+export function FavoriteListItem({
   model,
   deleteFavorite,
   runFavoriteQuery,
@@ -56,9 +56,8 @@ function FavoriteListItem({
 }
 
 export default connect(
-  ({ queryHistory: { ns, showing } }: RootState) => {
+  ({ queryHistory: { ns } }: RootState) => {
     return {
-      showing,
       namespace: ns,
     };
   },

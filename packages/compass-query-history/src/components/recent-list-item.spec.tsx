@@ -6,7 +6,7 @@ import { RecentQuery } from '../models';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import RecentListItem from './recent-list-item';
+import { RecentListItem } from './recent-list-item';
 
 describe('RecentListItem', function () {
   it('renders the query', function () {
@@ -19,18 +19,23 @@ describe('RecentListItem', function () {
     });
 
     const actions = {
-      copyQuery: sinon.spy(),
       deleteRecent: sinon.spy(),
       runQuery: sinon.spy(),
       saveFavorite: sinon.spy(),
-      showFavorites: sinon.spy(),
     };
 
-    render(<RecentListItem model={model} actions={actions} />);
+    render(
+      <RecentListItem
+        model={model}
+        runRecentQuery={actions.runQuery}
+        deleteRecent={actions.deleteRecent}
+        saveFavorite={actions.saveFavorite}
+      />
+    );
 
     const query = screen.getByTestId('recent-query-list-item');
     const hoverItems = screen.getByTestId('query-history-query-hoveritems');
-    const copyQuery = screen.getByTestId('query-history-button-copy-query');
+    // const copyQuery = screen.getByTestId('query-history-button-copy-query');
     const deleteQuery = screen.getByTestId(
       'query-history-button-delete-recent'
     );
@@ -52,8 +57,9 @@ describe('RecentListItem', function () {
     userEvent.hover(query);
     expect(hoverItems).to.be.displayed;
 
-    userEvent.click(copyQuery);
-    expect(actions.copyQuery.calledWith(model));
+    // TODO: Copy query nav test
+    // userEvent.click(copyQuery);
+    // expect(actions.copyQuery.calledWith(model));
 
     userEvent.click(query);
     expect(

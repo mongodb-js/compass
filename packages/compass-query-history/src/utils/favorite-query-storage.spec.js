@@ -5,7 +5,7 @@ import path from 'path';
 import os from 'os';
 import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 
-import { FavoriteQueryStorage } from '.';
+import { FavoriteQueryStorage } from './favorite-query-storage';
 import { FavoriteQuery, FavoriteQueryCollection } from '../models';
 
 async function createNewQuery(data) {

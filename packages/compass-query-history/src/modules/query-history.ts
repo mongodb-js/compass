@@ -3,27 +3,25 @@ import { combineReducers } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import mongodbns from 'mongodb-ns';
-import AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'hadron-app-registry';
 
 import { isAction } from '../utils/is-action';
 import {
   FavoriteQueriesActionTypes,
-  RunFavoriteQueryAction,
   favoriteQueriesReducer,
 } from './favorite-queries';
+import type { RunFavoriteQueryAction } from './favorite-queries';
 import {
   RecentQueriesActionTypes,
-  RunRecentQueryAction,
   recentQueriesReducer,
 } from './recent-queries';
+import type { RunRecentQueryAction } from './recent-queries';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 export const enum QueryHistoryActionTypes {
   ShowFavorites = 'compass-query-history/ShowFavorites',
   ShowRecent = 'compass-query-history/ShowRecent',
-
-  NamespaceChanged = 'compass-query-history/NamespaceChanged',
 }
 
 type ShowFavoritesAction = {
@@ -46,16 +44,11 @@ export function showRecent(): ShowRecentAction {
   };
 }
 
-type NamespaceChangedAction = {
-  type: QueryHistoryActionTypes.NamespaceChanged;
-  namespace: string;
-};
-
 export type QueryHistoryState = {
   // TODO
   showing: 'recent' | 'favorites';
   ns: ReturnType<typeof mongodbns>;
-  localAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry | undefined;
   currentHost?: string;
 
   // TODO: Move this here (off the double stores)
@@ -67,7 +60,7 @@ export const initialState: QueryHistoryState = {
   showing: 'recent',
   ns: mongodbns(''),
   currentHost: undefined,
-  localAppRegistry: new AppRegistry(),
+  localAppRegistry: undefined,
 };
 
 const queryHistoryReducer: Reducer<QueryHistoryState> = (
@@ -95,19 +88,6 @@ const queryHistoryReducer: Reducer<QueryHistoryState> = (
   }
 
   if (
-    isAction<NamespaceChangedAction>(
-      action,
-      QueryHistoryActionTypes.NamespaceChanged
-    )
-  ) {
-    const nsobj = mongodbns(action.namespace);
-    return {
-      ...state,
-      ns: nsobj,
-    };
-  }
-
-  if (
     isAction<RunFavoriteQueryAction>(
       action,
       FavoriteQueriesActionTypes.RunFavoriteQuery
@@ -117,7 +97,7 @@ const queryHistoryReducer: Reducer<QueryHistoryState> = (
       RecentQueriesActionTypes.RunRecentQuery
     )
   ) {
-    state.localAppRegistry.emit(
+    state.localAppRegistry?.emit(
       'query-history-run-query',
       action.queryAttributes
     );

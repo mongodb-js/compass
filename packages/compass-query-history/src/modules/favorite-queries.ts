@@ -1,6 +1,6 @@
-import type { Action, AnyAction, Reducer } from 'redux';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { Reducer } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 
 import { FavoriteQuery, FavoriteQueryCollection } from '../models';
 import { isAction } from '../utils/is-action';
@@ -12,11 +12,12 @@ import type {
   FavoriteQueryAttributes,
   FavoriteQueryModelType,
 } from '../models/favorite-query';
-import { FavoriteQueryAmpersandCollectionType } from '../models/favorite-query-collection';
+import type { FavoriteQueryAmpersandCollectionType } from '../models/favorite-query-collection';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 export const enum FavoriteQueriesActionTypes {
+  LoadFavoriteQueries = 'compass-query-history/favorite-queries/LoadFavoriteQueries',
   SaveFavoriteQuery = 'compass-query-history/favorite-queries/SaveFavoriteQuery',
   DeleteFavoriteQuery = 'compass-query-history/favorite-queries/DeleteFavoriteQuery',
 
@@ -33,6 +34,32 @@ type SaveFavoriteQueryAction = {
 type DeleteFavoriteQueryAction = {
   type: FavoriteQueriesActionTypes.DeleteFavoriteQuery;
   queryId: string;
+};
+
+export type LoadFavoriteQueriesAction = {
+  type: FavoriteQueriesActionTypes.LoadFavoriteQueries;
+};
+
+export const loadFavoriteQueries = (): QueryHistoryThunkAction<
+  Promise<void>,
+  LoadFavoriteQueriesAction
+> => {
+  return async (dispatch, getState) => {
+    const {
+      favoriteQueries: { items },
+    } = getState();
+
+    // TODO: Should we try catch this.
+    const fetchRecentQueries = promisifyAmpersandMethod(
+      items.fetch.bind(items)
+    );
+
+    await fetchRecentQueries();
+
+    dispatch({
+      type: FavoriteQueriesActionTypes.LoadFavoriteQueries,
+    });
+  };
 };
 
 export type RunFavoriteQueryAction = {
@@ -66,6 +93,7 @@ export const saveFavorite = (
 
     // TODO: Should we auto navigate on favorite save?
     // Maybe not for now.
+    // TODO: Dispatch auto switch to saved favorites (was in the component before.)
 
     dispatch({
       type: FavoriteQueriesActionTypes.SaveFavoriteQuery,
@@ -94,20 +122,14 @@ export const deleteFavorite = (
       id: query._id,
       screen: 'documents',
     });
-    await new Promise<void>((resolve, reject) => {
-      query.destroy({
-        success: () => {
-          // this.state.items.remove(query._id);
-          // this.trigger(this.state);
-          resolve();
-        },
-        error: function () {
-          // TODO: Previously this was ignored (no error handle function),
-          // we should also ignore it.
-          reject();
-        },
-      });
-    });
+
+    // TODO: Previously this was ignored (no error handle function),
+    // we should also ignore it.
+    const deleteQuery = promisifyAmpersandMethod(query.destroy.bind(query));
+    await deleteQuery();
+
+    // TODO: State trigger?
+
     dispatch({
       type: FavoriteQueriesActionTypes.DeleteFavoriteQuery,
       queryId,
@@ -124,7 +146,7 @@ export type FavoriteQueriesState = {
 
 export const initialState: FavoriteQueriesState = {
   items: new FavoriteQueryCollection(),
-  current: null, // TODO: What is this used for ??
+  // current: null, // TODO: What is this used for ??
 };
 
 const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
@@ -157,7 +179,7 @@ const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
 
     return {
       ...state,
-      current: null,
+      // current: null,
     };
   }
 
@@ -167,7 +189,21 @@ const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
       FavoriteQueriesActionTypes.DeleteFavoriteQuery
     )
   ) {
+    // TODO: Should we promisifyAmpersandMethod?
     state.items.remove(action.queryId);
+
+    return {
+      ...state,
+    };
+  }
+
+  if (
+    isAction<LoadFavoriteQueriesAction>(
+      action,
+      FavoriteQueriesActionTypes.LoadFavoriteQueries
+    )
+  ) {
+    // TODO: What to do to refresh items.
 
     return {
       ...state,

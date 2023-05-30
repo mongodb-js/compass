@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import bson from 'bson';
 
-import { formatQuery } from './';
+import { formatQuery } from './format-query';
 
 describe('formatQuery [Utils]', function () {
   describe('when the value is a number', function () {

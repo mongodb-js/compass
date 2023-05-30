@@ -8,5 +8,5 @@ export function copyQueryToClipboard(query: QueryModelType) {
     .filter((key) => key.charAt(0) === '_')
     .forEach((key) => delete attributes[key as keyof typeof attributes]);
 
-  navigator.clipboard.writeText(formatQuery(attributes));
+  void navigator.clipboard.writeText(formatQuery(attributes));
 }

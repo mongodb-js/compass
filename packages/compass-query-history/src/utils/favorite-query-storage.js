@@ -1,4 +1,5 @@
 import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
+
 import { FavoriteQueryCollection, FavoriteQuery } from '../models';
 
 export class FavoriteQueryStorage {

@@ -1,8 +1,7 @@
-import type { Action, AnyAction, Reducer } from 'redux';
-import { combineReducers } from 'redux';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { Reducer } from 'redux';
 import _ from 'lodash';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 
 import { comparableQuery } from '../utils/comparable-query';
 import { RecentQuery, RecentQueryCollection } from '../models';
@@ -57,16 +56,34 @@ type LoadRecentQueriesAction = {
   type: RecentQueriesActionTypes.LoadRecentQueries;
 };
 
-export const loadRecentQueries = (): LoadRecentQueriesAction => ({
-  type: RecentQueriesActionTypes.LoadRecentQueries,
-});
-
 export const runRecentQuery = (
   queryAttributes: QueryAttributes
 ): RunRecentQueryAction => ({
   type: RecentQueriesActionTypes.RunRecentQuery,
   queryAttributes,
 });
+
+export const loadRecentQueries = (): QueryHistoryThunkAction<
+  Promise<void>,
+  LoadRecentQueriesAction
+> => {
+  return async (dispatch, getState) => {
+    const {
+      recentQueries: { items },
+    } = getState();
+
+    // TODO: Should we try catch this.
+    const fetchRecentQueries = promisifyAmpersandMethod(
+      items.fetch.bind(items)
+    );
+
+    await fetchRecentQueries();
+
+    dispatch({
+      type: RecentQueriesActionTypes.LoadRecentQueries,
+    });
+  };
+};
 
 /**
  * Filter attributes that aren't query fields or have default/empty values.
@@ -91,19 +108,6 @@ function _filterDefaults(_attributes: QueryAttributes) {
   }
   return attributes;
 }
-
-//TODO: this and on applied
-// onConnected() {
-//   this.state.items.fetch({
-//     success: () => {
-//       this.trigger(this.state);
-//     },
-//   });
-// },
-
-// onQueryApplied(query) {
-//   this.addRecent(query);
-// },
 
 export const addRecent = (
   _recent: QueryModelType
@@ -166,34 +170,25 @@ export const addRecent = (
 export const deleteRecent = (
   queryModel: QueryModelType
 ): QueryHistoryThunkAction<Promise<void>, DeleteRecentQueryAction> => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     // TODO: Is deleting?
     const queryId = queryModel._id;
-    await new Promise<void>((resolve, reject) => {
-      queryModel.destroy({
-        success: () => {
-          // this.state.items.remove(query._id);
-          // this.trigger(this.state);
-          resolve();
-        },
-        error: function () {
-          // TODO: Previously this was ignored (no error handle function),
-          // we should also ignore it.
-          reject();
-        },
-      });
-    });
+
+    // TODO: Previously this was ignored (no error handle function),
+    // we should also ignore it.
+    const deleteQuery = promisifyAmpersandMethod(
+      queryModel.destroy.bind(queryModel)
+    );
+    await deleteQuery();
+
+    // TODO: State trigger?
+
     dispatch({
       type: RecentQueriesActionTypes.DeleteRecentQuery,
       queryId,
     });
   };
 };
-
-// getInitialState() {
-//   return {
-//     items: new RecentQueryCollection(),
-// },
 
 export type RecentQueriesState = {
   items: RecentQueryAmpersandCollectionType;
@@ -214,6 +209,19 @@ const recentQueriesReducer: Reducer<RecentQueriesState> = (
     )
   ) {
     state.items.remove(action.queryId);
+
+    return {
+      ...state,
+    };
+  }
+
+  if (
+    isAction<LoadRecentQueriesAction>(
+      action,
+      RecentQueriesActionTypes.LoadRecentQueries
+    )
+  ) {
+    // TODO: Refresh state items?
 
     return {
       ...state,

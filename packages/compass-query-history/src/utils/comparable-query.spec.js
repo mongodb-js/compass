@@ -5,8 +5,9 @@ import path from 'path';
 import os from 'os';
 import AppRegistry from 'hadron-app-registry';
 
-import configureStore from '../../src/stores/recent-list-store';
-import { comparableQuery } from './';
+import configureStore from '../../src/stores/query-history-store';
+import { comparableQuery } from './comparable-query';
+import { addRecent } from '../modules/recent-queries';
 
 describe('comparableQuery', function () {
   let tmpDir;
@@ -30,10 +31,11 @@ describe('comparableQuery', function () {
   it('strips ampersand properties', function () {
     const recent = { filter: { foo: 1 } };
 
-    store.addRecent(recent);
-    expect(store.state.items.length).to.equal(1);
+    store.dispatch(addRecent(recent));
+    const state = store.getState();
+    expect(state.recentQueries.items.length).to.equal(1);
 
-    const query = store.state.items.at(0);
+    const query = state.recentQueries.items.at(0);
 
     // make sure it has the things we're going to strip
     const serialized = query.serialize();

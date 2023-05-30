@@ -2,7 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 
 import { QueryHistoryPlugin } from './plugin';
 import { configureStore } from './stores/query-history-store';
-import { FavoriteQueryStorage } from './utils';
+import { FavoriteQueryStorage } from './utils/favorite-query-storage';
 
 /**
  * A sample role for the component.
@@ -17,7 +17,6 @@ const ROLE = {
 
 /**
  * Activate all the components in the Query History package.
- * @param {Object} appRegistry - The Hadron appRegistry to activate this plugin with.
  **/
 function activate(appRegistry: AppRegistry): void {
   appRegistry.registerRole('Query.QueryHistory', ROLE);
@@ -25,7 +24,6 @@ function activate(appRegistry: AppRegistry): void {
 
 /**
  * Deactivate all the components in the Query History package.
- * @param {Object} appRegistry - The Hadron appRegistry to deactivate this plugin with.
  **/
 function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('Query.QueryHistory', ROLE);

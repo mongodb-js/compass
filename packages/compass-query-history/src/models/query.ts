@@ -23,7 +23,8 @@ export type QueryAttributes = {
 
 export type AmpersandModelType<T> = T & {
   getAttributes: (options?: { props: boolean }) => T;
-  destroy: (options?: { success: () => void; error: () => void }) => void;
+  // TODO: options?: { success: () => void; error: () => void }
+  destroy: () => void;
   save: () => void;
 };
 

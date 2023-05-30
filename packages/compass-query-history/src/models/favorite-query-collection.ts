@@ -8,7 +8,8 @@ import type { AmpersandCollectionType } from './recent-query-collection';
 
 const { basepath } = getStoragePaths() || {};
 
-export type FavoriteQueryAmpersandCollectionType = AmpersandCollectionType<FavoriteQueryModelType>;
+export type FavoriteQueryAmpersandCollectionType =
+  AmpersandCollectionType<FavoriteQueryModelType>;
 
 /**
  * Represents a collection of favorite queries.

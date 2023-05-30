@@ -93,7 +93,7 @@ type RecentListItemProps = {
   saveFavorite: (recentQueryModel: QueryModelType, name: string) => void;
 };
 
-function RecentListItem({ model }: RecentListItemProps) {
+export function RecentListItem({ model }: RecentListItemProps) {
   const [showSave, setShowSave] = useState(false);
 
   const attributes = model.getAttributes({ props: true });
@@ -158,9 +158,8 @@ function RecentListItem({ model }: RecentListItemProps) {
 }
 
 export default connect(
-  ({ queryHistory: { ns, showing } }: RootState) => {
+  ({ queryHistory: { ns } }: RootState) => {
     return {
-      showing,
       namespace: ns,
     };
   },

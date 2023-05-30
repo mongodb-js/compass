@@ -1,12 +1,14 @@
 import type AppRegistry from 'hadron-app-registry';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import type { Store } from 'redux';
+import type { Store, AnyAction } from 'redux';
 import mongodbns from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 
 import { rootReducer as rootQueryHistoryReducer } from '../modules/query-history';
 import type { RootState } from '../modules/query-history';
+import { loadFavoriteQueries } from '../modules/favorite-queries';
+import { addRecent, loadRecentQueries } from '../modules/recent-queries';
 
 const configureStore = (options: {
   namespace: string;
@@ -15,7 +17,7 @@ const configureStore = (options: {
     dataProvider: DataService;
   };
 }): Store<RootState> => {
-  return createStore(
+  const store = createStore(
     rootQueryHistoryReducer,
     {
       queryHistory: {
@@ -29,6 +31,15 @@ const configureStore = (options: {
     },
     applyMiddleware(thunk)
   );
+
+  store.dispatch(loadFavoriteQueries() as unknown as AnyAction);
+  store.dispatch(loadRecentQueries() as unknown as AnyAction);
+
+  options.localAppRegistry.on('query-applied', (query) => {
+    store.dispatch(addRecent(query) as unknown as AnyAction);
+  });
+
+  return store;
 };
 
 export { configureStore };

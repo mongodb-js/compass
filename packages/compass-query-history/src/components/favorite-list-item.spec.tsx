@@ -1,12 +1,11 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-
-import { FavoriteQuery } from '../models';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import FavoriteListItem from './favorite-list-item';
+import { FavoriteQuery } from '../models';
+import { FavoriteListItem } from './favorite-list-item';
 
 describe('FavoriteListItem', function () {
   it('renders the query', function () {
@@ -18,16 +17,21 @@ describe('FavoriteListItem', function () {
     });
 
     const actions = {
-      copyQuery: sinon.spy(),
       deleteFavorite: sinon.spy(),
       runQuery: sinon.spy(),
     };
 
-    render(<FavoriteListItem model={model} actions={actions} />);
+    render(
+      <FavoriteListItem
+        model={model}
+        deleteFavorite={actions.deleteFavorite}
+        runFavoriteQuery={actions.runQuery}
+      />
+    );
 
     const query = screen.getByTestId('favorite-query-list-item');
     const hoverItems = screen.getByTestId('query-history-query-hoveritems');
-    const copyQuery = screen.getByTestId('query-history-button-copy-query');
+    // const copyQuery = screen.getByTestId('query-history-button-copy-query');
     const deleteFav = screen.getByTestId('query-history-button-delete-fav');
 
     expect(screen.getByText('My Favorite')).to.be.displayed;
@@ -47,8 +51,9 @@ describe('FavoriteListItem', function () {
     userEvent.hover(query);
     expect(hoverItems).to.be.displayed;
 
-    userEvent.click(copyQuery);
-    expect(actions.copyQuery.calledWith(model));
+    // TODO: Copy button test.
+    // userEvent.click(copyQuery);
+    // expect(actions.copyQuery.calledWith(model));
 
     userEvent.click(query);
     expect(

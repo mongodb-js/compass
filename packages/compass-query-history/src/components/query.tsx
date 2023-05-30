@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { formatQuery } from '../utils/format-query';
-import type { QueryAttributes } from '../models/query';
+import type { QueryAttributes as QueryAttributesType } from '../models/query';
 
 const queryHeadingStyles = css({
   display: 'flex',
@@ -54,7 +54,7 @@ const queryCodeStyles = css({
 });
 
 const QueryAttributes: React.FunctionComponent<{
-  attributes: QueryAttributes;
+  attributes: QueryAttributesType;
 }> = ({ attributes }) => {
   return (
     <div data-testid="query-history-query-attributes">
@@ -101,7 +101,7 @@ const childrenHoveredStyles = css({
 
 export const Query: React.FunctionComponent<{
   title: string;
-  attributes: QueryAttributes;
+  attributes: QueryAttributesType;
   runQuery: () => void;
   ['data-testid']?: string;
   customHeading?: JSX.Element;

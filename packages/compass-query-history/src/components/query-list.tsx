@@ -28,7 +28,7 @@ type QueryListProps = {
 
 function QueryList({
   items,
-  current = null, // TODO: Can we remove defaults?
+  // current = null, // TODO: Can we remove defaults?
   ns = '',
   renderQueryItem,
 }: QueryListProps) {
@@ -41,7 +41,7 @@ function QueryList({
       })
     );
 
-  const renderZeroState = renderItems.length === 0 && current === null;
+  const renderZeroState = renderItems.length === 0; // && current === null;
 
   return (
     <div className={componentStyles}>
