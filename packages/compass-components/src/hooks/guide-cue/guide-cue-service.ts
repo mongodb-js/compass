@@ -85,6 +85,8 @@ export class GuideCueService extends EventTarget {
     );
   }
 
+  removeCue(cue: Pick<Cue, 'group' | 'id'>) {}
+
   getNextCue() {
     if (this._cues.length === 0) {
       return null;

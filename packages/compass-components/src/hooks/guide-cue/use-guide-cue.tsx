@@ -19,8 +19,9 @@ export const useGuideCue = (cue: GuideCueProps) => {
     if (refEl.current && cue.intersectingRef) {
       context.cueService.addCue({ ...cue, refEl });
     }
-    // remove the cue from the list.
-    return () => {};
+    return () => {
+      context.cueService.removeCue(cue);
+    };
   }, [refEl]);
 
   return {
