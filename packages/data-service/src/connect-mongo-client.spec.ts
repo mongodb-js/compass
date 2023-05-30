@@ -71,6 +71,7 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: ['auth-code'],
+          signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
@@ -115,6 +116,7 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: ['auth-code'],
+          signal: undefined,
         },
         parentHandle: options.parentHandle,
         ...defaultOptions,
@@ -147,6 +149,7 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: ['auth-code'],
+          signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,

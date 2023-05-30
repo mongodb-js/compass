@@ -57,6 +57,7 @@ export function prepareOIDCOptions(
 export async function connectMongoClientCompass(
   connectionOptions: Readonly<ConnectionOptions>,
   setupListeners: (client: MongoClient) => void,
+  signal?: AbortSignal,
   logger?: UnboundDataServiceImplLogger
 ): Promise<
   [
@@ -73,6 +74,9 @@ export async function connectMongoClientCompass(
   );
 
   const oidcOptions = prepareOIDCOptions(connectionOptions);
+  // @ts-expect-error Will go away on @types/node update
+  // with proper `AbortSignal` typings
+  oidcOptions.oidc.signal = signal;
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
