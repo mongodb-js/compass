@@ -116,53 +116,51 @@ export function StageToolbar({
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
 
+  const intersectingRef = React.useRef<HTMLDivElement | null>(null);
+
   const { refEl: ref1 } = useGuideCue({
     id: 'Previous',
     group: 'FocusMode',
     title: 'Navigate between stages',
-    content: () => {
-      return <p>Goto previous stage</p>;
-    },
+    content: <p>Goto previous stage</p>,
+    intersectingRef,
   });
 
   const { refEl: ref2 } = useGuideCue({
     id: 'Select Stage',
     group: 'FocusMode',
     title: 'Navigate between stages',
-    content: () => {
-      return <p>Stage Dropdown</p>;
-    },
+    content: <p>Stage dropdow</p>,
+    intersectingRef,
   });
 
   const { refEl: ref3 } = useGuideCue({
     id: 'Next',
     group: 'FocusMode',
     title: 'Navigate between stages',
-    content: () => {
-      return <p>Goto next stage</p>;
-    },
+    content: <p>Goto next stage</p>,
+    intersectingRef,
   });
 
   const { refEl: ref4 } = useGuideCue({
     id: 'Toggle',
     group: 'FocusMode',
     title: 'Toggle stage',
-    content: () => {
-      return <p>Toggle stage</p>;
-    },
+    content: <p>Toggle stage</p>,
+    intersectingRef,
   });
 
   const { refEl: ref5 } = useGuideCue({
     id: 'Add Stage',
     group: 'FocusMode',
     title: 'Add stages',
-    content: () => {
-      return <p>Add stage after or before</p>;
-    },
+    content: <p>Add stage after or before</p>,
+    intersectingRef,
   });
 
   return (
     <div
+      ref={intersectingRef}
       className={cx(
         'stage-editor-toolbar',
         toolbarStyles,

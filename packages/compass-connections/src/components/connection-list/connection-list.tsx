@@ -164,29 +164,30 @@ function ConnectionList({
   const [recentHoverProps, recentHeaderHover] = useHoverState();
   const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
 
+  const intersectingRef = React.useRef<HTMLDivElement | null>(null);
+
   const { refEl: connectionBtnRef } = useGuideCue({
     id: 'sidebar-connection-button',
     group: 'Sidebar',
     title: 'Create new connection',
     content: <p>Click here to create a new connection.</p>,
+    intersectingRef,
   });
 
   const { refEl: favoriteRef } = useGuideCue({
     id: 'sidebar-favorite-connections',
     group: 'Sidebar',
     title: 'Your favorites',
-    content: () => {
-      return <p>Saved connections.</p>;
-    },
+    content: <p>Saved connections.</p>,
+    intersectingRef,
   });
 
   const { refEl: recentRef } = useGuideCue({
     id: 'sidebar-recent-connections',
     group: 'Sidebar',
     title: 'Your recents',
-    content: () => {
-      return <p>Recent connections.</p>;
-    },
+    content: <p>Recent connections.</p>,
+    intersectingRef,
   });
 
   return (
@@ -194,7 +195,7 @@ function ConnectionList({
       <ConnectionsTitle
         onAction={(actionName: string) => appRegistry.emit(actionName)}
       />
-      <div className={newConnectionButtonContainerStyles}>
+      <div ref={intersectingRef} className={newConnectionButtonContainerStyles}>
         <Button
           ref={connectionBtnRef}
           className={cx(

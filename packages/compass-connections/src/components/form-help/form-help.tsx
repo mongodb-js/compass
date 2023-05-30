@@ -67,12 +67,13 @@ const createClusterButtonLightModeStyles = css({
 
 function AtlasHelpSection() {
   const darkMode = useDarkMode();
-
+  const intersectingRef = React.useRef<HTMLDivElement | null>(null);
   const { refEl: newToCompassRef } = useGuideCue({
     id: 'new-to-compass',
     group: 'Connection Help',
     title: 'New to Compass',
     content: <p>New to Compass?</p>,
+    intersectingRef,
   });
 
   const { refEl: clusterButtonRef } = useGuideCue({
@@ -80,6 +81,7 @@ function AtlasHelpSection() {
     group: 'Connection Help',
     title: 'Create a cluster',
     content: <p>Don't have a cluster?</p>,
+    intersectingRef,
   });
 
   return (
@@ -89,6 +91,7 @@ function AtlasHelpSection() {
         atlasContainerStyles,
         darkMode && atlasContainerDarkModeStyles
       )}
+      ref={intersectingRef}
     >
       <div ref={newToCompassRef}>
         <Subtitle className={titleStyles}>
@@ -125,11 +128,13 @@ function AtlasHelpSection() {
 
 function FormHelp(): React.ReactElement {
   const [isAtlasHelpVisible, setIsAtlasHelpVisible] = useState(false);
+  const intersectingRef = React.useRef<HTMLDivElement | null>(null);
   const { refEl: connectionStringRef } = useGuideCue({
     id: 'find-cs',
     group: 'Connection Help',
     title: 'Find Connection String',
     content: <p>Its awesome?</p>,
+    intersectingRef,
   });
 
   const { refEl: exampleRef } = useGuideCue({
@@ -137,10 +142,11 @@ function FormHelp(): React.ReactElement {
     group: 'Connection Help',
     title: 'Example Connection String',
     content: <p>Its awesome, ain't it?</p>,
+    intersectingRef,
   });
 
   return (
-    <div className={formHelpContainerStyles}>
+    <div ref={intersectingRef} className={formHelpContainerStyles}>
       <Button onClick={() => setIsAtlasHelpVisible(true)}>Enable Help</Button>
       {isAtlasHelpVisible && <AtlasHelpSection />}
       <div className={sectionContainerStyles}>

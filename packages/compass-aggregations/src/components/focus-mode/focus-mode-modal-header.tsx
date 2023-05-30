@@ -12,6 +12,7 @@ import {
   Tooltip,
   useHotkeys,
   formatHotkey,
+  useGuideCue,
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
@@ -95,6 +96,48 @@ export const FocusModeModalHeader: React.FunctionComponent<
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const intersectingRef = React.useRef<HTMLDivElement | null>(null);
+
+  const { refEl: ref1 } = useGuideCue({
+    id: 'Previous',
+    group: 'FocusMode',
+    title: 'Navigate between stages',
+    content: <p>Goto previous stage</p>,
+    intersectingRef,
+  });
+
+  const { refEl: ref2 } = useGuideCue({
+    id: 'Select Stage',
+    group: 'FocusMode',
+    title: 'Navigate between stages',
+    content: <p>Stage dropdow</p>,
+    intersectingRef,
+  });
+
+  const { refEl: ref3 } = useGuideCue({
+    id: 'Next',
+    group: 'FocusMode',
+    title: 'Navigate between stages',
+    content: <p>Goto next stage</p>,
+    intersectingRef,
+  });
+
+  const { refEl: ref4 } = useGuideCue({
+    id: 'Toggle',
+    group: 'FocusMode',
+    title: 'Toggle stage',
+    content: <p>Toggle stage</p>,
+    intersectingRef,
+  });
+
+  const { refEl: ref5 } = useGuideCue({
+    id: 'Add Stage',
+    group: 'FocusMode',
+    title: 'Add stages',
+    content: <p>Add stage after or before</p>,
+    intersectingRef,
+  });
+
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
 
@@ -153,7 +196,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
   };
 
   return (
-    <div className={controlsContainerStyles}>
+    <div ref={intersectingRef} className={controlsContainerStyles}>
       <div className={controlContainerStyles}>
         <Tooltip
           isDisabled={isFirst}
@@ -161,6 +204,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
             <span {...props}>
               {children}
               <Button
+                ref={ref1}
                 size="xsmall"
                 disabled={isFirst}
                 onClick={onPreviousStage}
@@ -197,6 +241,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
           onChange={(newVal: string) => {
             onStageSelect(Number(newVal));
           }}
+          ref={ref2}
         >
           {stageSelectLabels.map(({ label, value }) => {
             return (
@@ -213,6 +258,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
             <span {...props}>
               {children}
               <Button
+                ref={ref3}
                 size="xsmall"
                 disabled={isLast}
                 onClick={onNextStage}
@@ -238,7 +284,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </Tooltip>
       </div>
 
-      <div className={controlContainerStyles}>
+      <div ref={ref4} className={controlContainerStyles}>
         <span aria-hidden="true" className={fakeToggleLabelStyles}>
           {isEnabled ? 'Enabled' : 'Disabled'}
         </span>
@@ -261,6 +307,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
           return (
             <div className={controlContainerStyles}>
               <Button
+                ref={ref5}
                 data-testid="add-stage-menu-button"
                 size="xsmall"
                 leftGlyph={

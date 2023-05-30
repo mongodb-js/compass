@@ -169,4 +169,4 @@ export {
   GuideCueProvider,
   useGuideCue,
   type GuideCueStorage,
-} from './hooks/use-guide-cue';
+} from './hooks/guide-cue';
