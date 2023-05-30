@@ -63,6 +63,11 @@ const cardActionStyles = css({
   marginLeft: 'auto',
 });
 
+const warningStyles = css({
+  width: '300px',
+  maxWidth: 'auto',
+});
+
 type StageWizardProps = SortableProps & {
   index: number;
   useCaseId: string;
@@ -136,7 +141,7 @@ export const StageWizard = ({
             />
           </div>
           <div className={cardFooterStyles}>
-            <div>
+            <div className={warningStyles}>
               {value && error && <WarningSummary warnings={[error?.message]} />}
             </div>
             <div className={cardActionStyles}>

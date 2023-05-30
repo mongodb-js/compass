@@ -88,7 +88,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
           handleComponent={{ left: <ResizeHandle /> }}
           handleStyles={{
             left: {
-              left: '-1px', // default is -5px
+              left: '0px', // default is -5px
               // The sidepanel container is a card with radius.
               // Having padding top, cleans the UI.
               paddingTop: spacing[2],
