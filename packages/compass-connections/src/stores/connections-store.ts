@@ -82,7 +82,6 @@ type Action =
     }
   | {
       type: 'oidc-attempt-connect-notify-device-auth';
-      // TODO: Do these make sense elsewhere?
       verificationUrl: string;
       userCode: string;
     }

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Body,
+  Code,
   H3,
-  InlineCode,
   Link,
   Modal,
   spacing,
@@ -40,6 +40,10 @@ const cancelButtonStyles = css({
 
 const textContentStyles = css({
   marginTop: spacing[3],
+});
+
+const oidcContainerStyles = css({
+  padding: `0px ${spacing[4]}px`,
 });
 
 /**
@@ -89,7 +93,7 @@ function Connecting({
           <ConnectingIllustration />
           {/* TODO(COMPASS-6875): When connecting with oidc, indicate that a browser has opened. */}
           {oidcDeviceAuthVerificationUrl && oidcDeviceAuthUserCode ? (
-            <div>
+            <div className={oidcContainerStyles}>
               <Body className={textContentStyles}>
                 Visit the following URL to complete authentication:
               </Body>
@@ -99,9 +103,9 @@ function Connecting({
               <Body className={textContentStyles}>
                 Enter the following code on that page:
               </Body>
-              <InlineCode baseFontSize={16}>
+              <Code baseFontSize={16} language="none" copyable>
                 {oidcDeviceAuthUserCode}
-              </InlineCode>
+              </Code>
             </div>
           ) : (
             <>
