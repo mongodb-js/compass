@@ -47,6 +47,7 @@ class GuideCueService extends EventTarget {
   private _cues: Array<Cue> = [];
   private _activeGroupCues: Array<Cue> = [];
   private _activeCue: Cue | null = null;
+  private _visitedGroups: string[] = [];
 
   get numOfCuesInGroup() {
     return this._activeGroupCues.length;
@@ -65,8 +66,15 @@ class GuideCueService extends EventTarget {
       );
     }
 
-    // todo: check if it has been shown before
+    // todo: storage - check if this cue has been shown
+
     this._cues.push(cue);
+
+    // If we have an active group and added cue belongs to same,
+    // then we have to update the list.
+    if (this._activeCue?.group === cue.group) {
+      this._activeGroupCues = this._cues.filter((x) => x.group === cue.group);
+    }
 
     return this.dispatchEvent(
       new CustomEvent('cue-list-changed', {
@@ -80,8 +88,11 @@ class GuideCueService extends EventTarget {
       return null;
     }
 
+    // todo: storage - mark current cue as visited
+
     // First time, when nothing is shown yet.
-    if (!this._activeCue) {
+    // todo: extract to a method
+    if (!this._activeCue && this._visitedGroups.length === 0) {
       this._activeCue = this._cues[0];
       this._activeGroupCues = this._cues.filter(
         (x) => x.group === this._activeCue?.group
@@ -122,8 +133,11 @@ class GuideCueService extends EventTarget {
     return this._activeCue;
   }
 
-  private getFirstCueFromNextGroup() {
+  getFirstCueFromNextGroup() {
     const nextGroup = this.getNextGroup();
+    if (this._activeCue) {
+      this._visitedGroups.push(this._activeCue.group);
+    }
     if (!nextGroup) {
       this._activeGroupCues = [];
       this._activeCue = null;
@@ -143,37 +157,34 @@ export const GuideCueProvider = ({
 
   const [cue, setCue] = React.useState<Cue | null>(null);
 
-  const setupCue = React.useCallback(() => {
-    if (cue) {
-      return;
-    }
-
-    const nextCue = serviceRef.current.getNextCue();
-    setCue(nextCue);
-  }, [serviceRef, cue]);
-
   React.useEffect(() => {
-    setupCue();
-  }, [setupCue]);
+    setCue(serviceRef.current.getNextCue());
+  }, []);
 
   React.useEffect(() => {
     const service = serviceRef.current;
     const listener = () => {
-      setupCue();
+      if (cue) {
+        return;
+      }
+      setCue(serviceRef.current.getNextCue());
     };
     service.addEventListener('cue-list-changed', listener);
     return () => {
       service.removeEventListener('cue-list-changed', listener);
     };
-  }, [serviceRef]);
+  }, [serviceRef, setCue, cue]);
 
-  const handleNext = () => {
-    console.log('GuideCueProvider handleNext');
+  const onNext = () => {
+    // todo: fix
     setCue(null);
+    setCue(serviceRef.current.getNextCue());
   };
 
-  const handleDismiss = () => {
-    console.log('GuideCueProvider handleDismiss');
+  const onNextGroup = () => {
+    // todo: fix
+    setCue(null);
+    setCue(serviceRef.current.getFirstCueFromNextGroup());
   };
 
   return (
@@ -185,8 +196,9 @@ export const GuideCueProvider = ({
           numberOfSteps={serviceRef.current.numOfCuesInGroup}
           currentStep={serviceRef.current.currentCueIndex + 1}
           open={true}
-          setOpen={() => handleNext()}
-          onDismiss={() => handleDismiss()}
+          setOpen={() => {}}
+          onDismiss={() => onNextGroup()}
+          onPrimaryButtonClick={() => onNext()}
         >
           {cue.content}
         </GuideCue>

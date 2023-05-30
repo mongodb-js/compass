@@ -44,25 +44,29 @@ export default function ConnectionsTitle({
 }: {
   onAction(actionName: Action, ...rest: any[]): void;
 }) {
-  const { refEl: titleRef } = useGuideCue({
-    id: 'sidebar-title',
-    group: 'Sidebar',
-    title: 'Compass title',
-    content: <p>The name of the app Compass.</p>,
-  });
+  // const { refEl: titleRef } = useGuideCue({
+  //   id: 'sidebar-title',
+  //   group: 'Sidebar',
+  //   title: 'Compass title',
+  //   content: <p>The name of the app Compass.</p>,
+  // });
 
-  const { refEl: iconButtonRef } = useGuideCue({
-    id: 'sidebar-icon',
-    group: 'Sidebar',
-    title: 'Compass Settings',
-    content: <p>The awesome settings modal.</p>,
-  });
+  // const { refEl: iconButtonRef } = useGuideCue({
+  //   id: 'sidebar-icon',
+  //   group: 'Sidebar',
+  //   title: 'Compass Settings',
+  //   content: <p>The awesome settings modal.</p>,
+  // });
   return (
     <div className={containerStyles} data-testid="connections-title">
-      <div ref={titleRef}>
+      <div
+      // ref={titleRef}
+      >
         <Subtitle className={connectionsTitleStyles}>Compass</Subtitle>
       </div>
-      <div ref={iconButtonRef}>
+      <div
+      // ref={iconButtonRef}
+      >
         <ItemActionControls<Action>
           onAction={onAction}
           iconSize="small"
