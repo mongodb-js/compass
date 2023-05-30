@@ -11,9 +11,9 @@ import {
 import GeneralSettings from './settings/general';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
-import FeatureFlagSettings, {
-  useShouldShowFeatureFlagsSettings,
-} from './settings/featureflags';
+import FeaturePreviewSettings, {
+  useShouldShowFeaturePreviewSettings,
+} from './settings/feature-preview';
 import Sidebar from './sidebar';
 import { saveSettings, fetchSettings } from '../stores/settings';
 import type { RootState } from '../stores';
@@ -66,8 +66,11 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     { name: 'Privacy', component: PrivacySettings },
   ];
 
-  if (useShouldShowFeatureFlagsSettings()) {
-    settings.push({ name: 'Feature Preview', component: FeatureFlagSettings });
+  if (useShouldShowFeaturePreviewSettings()) {
+    settings.push({
+      name: 'Feature Preview',
+      component: FeaturePreviewSettings,
+    });
   }
 
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);

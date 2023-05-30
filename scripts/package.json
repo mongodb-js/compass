@@ -41,7 +41,7 @@
     "@mongodb-js/webpack-config-compass": "^1.0.8",
     "chalk": "^4.1.2",
     "cross-spawn": "^7.0.3",
-    "electron": "^22.3.10",
+    "electron": "^22.3.11",
     "find-up": "^4.1.0",
     "glob": "^10.2.5",
     "jsdom": "^21.1.0",

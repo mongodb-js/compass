@@ -92,6 +92,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<
               // The sidepanel container is a card with radius.
               // Having padding top, cleans the UI.
               paddingTop: spacing[2],
+              height: `calc(100% - ${spacing[2]}px)`,
             },
           }}
         >
