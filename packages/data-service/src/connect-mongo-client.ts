@@ -28,19 +28,16 @@ export type CloneableMongoClient = MongoClient & {
 
 export function prepareOIDCOptions(
   connectionOptions: Readonly<ConnectionOptions>
-): Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'> {
-  const options: Pick<
-    DevtoolsConnectOptions,
-    'oidc' | 'authMechanismProperties'
+): Required<Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>> {
+  const options: Required<
+    Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>
   > = {
-    oidc: {},
+    oidc: { ...connectionOptions.oidc },
     authMechanismProperties: {},
-    ...connectionOptions,
   };
 
   // TODO(COMPASS-6849): Add a way to properly override openBrowser.
   if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
-    options.oidc ??= {};
     options.oidc.openBrowser = {
       command: process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY,
     };
@@ -48,10 +45,7 @@ export function prepareOIDCOptions(
 
   // Set the driver's `authMechanismProperties` (non-url)
   // `ALLOWED_HOSTS` value to `*`.
-  if ((options.oidc as ConnectionOptions['oidc'])?.enableUntrustedEndpoints) {
-    delete (options.oidc as ConnectionOptions['oidc'])
-      ?.enableUntrustedEndpoints;
-    options.authMechanismProperties ??= {};
+  if (connectionOptions.oidc?.enableUntrustedEndpoints) {
     options.authMechanismProperties.ALLOWED_HOSTS = ['*'];
   }
 

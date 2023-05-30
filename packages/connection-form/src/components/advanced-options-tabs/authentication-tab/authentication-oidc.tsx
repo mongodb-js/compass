@@ -34,7 +34,7 @@ function AuthenticationOIDC({
   const usernameError = errorMessageByFieldName(errors, 'username');
 
   const handleFieldChanged = useCallback(
-    (key: keyof OIDCOptions, value?: OIDCOptions[keyof OIDCOptions]) => {
+    <K extends keyof OIDCOptions>(key: K, value?: OIDCOptions[K]) => {
       return updateConnectionFormField({
         type: 'update-oidc-param',
         key: key,
@@ -105,12 +105,12 @@ function AuthenticationOIDC({
               label={
                 <>
                   <Label htmlFor="oidc-allow-untrusted-endpoint-input">
-                    Enable Untrusted Target Endpoint
+                    Consider Target Endpoint Trusted
                   </Label>
                   <Description>
                     Allow connecting when the target endpoint is not in the list
-                    of trusted endpoints &#40;this sets the driver&apos;s
-                    authMechanismProperties&apos; ALLOWED_HOSTS list to *&#41;
+                    of endpoints that are considered trusted by default. Only
+                    use this option when connecting to servers that you trust.
                   </Description>
                 </>
               }

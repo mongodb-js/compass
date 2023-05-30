@@ -3,24 +3,24 @@ import { cloneDeep } from 'lodash';
 
 export type OIDCOptions = NonNullable<ConnectionOptions['oidc']>;
 
-export interface UpdateOIDCAction {
+export interface UpdateOIDCAction<
+  K extends keyof OIDCOptions = keyof OIDCOptions
+> {
   type: 'update-oidc-param';
-  key: keyof OIDCOptions;
-  value: OIDCOptions[keyof OIDCOptions];
+  key: K;
+  value: OIDCOptions[K];
 }
-
-export function handleUpdateOIDCParam({
+export function handleUpdateOIDCParam<K extends keyof OIDCOptions>({
   action,
   connectionOptions,
 }: {
-  action: UpdateOIDCAction;
+  action: UpdateOIDCAction<K>;
   connectionOptions: ConnectionOptions;
 }): {
   connectionOptions: ConnectionOptions;
 } {
   connectionOptions = cloneDeep(connectionOptions);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const oidcOptions: any = {
+  const oidcOptions = {
     ...connectionOptions.oidc,
   };
   if (!action.value) {
