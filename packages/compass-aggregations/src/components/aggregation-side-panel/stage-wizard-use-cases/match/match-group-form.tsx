@@ -12,6 +12,7 @@ import {
   palette,
   cx,
   Tooltip,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import MatchConditionForm, { createCondition } from './match-condition-form';
 import type { CreateConditionFn } from './match-condition-form';
@@ -97,7 +98,7 @@ const baseGroupStyles = css({
   flexDirection: 'column',
 });
 
-const nestedGroupStyles = css({
+const nestedGroupBaseStyles = css({
   padding: spacing[4],
   paddingTop: spacing[4] / 2,
   borderRadius: spacing[4] / 2,
@@ -107,12 +108,20 @@ const nestedGroupContainerStyles = css({
   gap: spacing[3],
 });
 
-const oddNestedGroupStyles = css({
+const oddNestedGroupStylesLight = css({
   background: palette.gray.light3,
 });
 
-const eventNestedGroupStyles = css({
+const evenNestedGroupStylesLight = css({
   background: palette.gray.light2,
+});
+
+const oddNestedGroupStylesDark = css({
+  background: palette.gray.dark3,
+});
+
+const evenNestedGroupStylesDark = css({
+  background: palette.gray.dark2,
 });
 
 const groupHeaderStyles = css({
@@ -130,6 +139,7 @@ const MatchGroupForm = ({
   onGroupChange,
   onGroupRemoved,
 }: MatchGroupFormProps) => {
+  const isDarkMode = useDarkMode();
   const disableAddNestedGroupBtn = nestingLevel === MAX_ALLOWED_NESTING;
   const showRemoveGroup = nestingLevel > 0;
 
@@ -213,16 +223,22 @@ const MatchGroupForm = ({
     });
   };
 
+  const nestedGroupStyles = isDarkMode
+    ? {
+        [oddNestedGroupStylesDark]: nestingLevel % 2 !== 0,
+        [evenNestedGroupStylesDark]: nestingLevel % 2 === 0,
+      }
+    : {
+        [oddNestedGroupStylesLight]: nestingLevel % 2 !== 0,
+        [evenNestedGroupStylesLight]: nestingLevel % 2 === 0,
+      };
+
   return (
     <div
       data-testid={TEST_IDS.container(group.id)}
       className={cx(
         baseGroupStyles,
-        nestingLevel !== 0 &&
-          cx(nestedGroupStyles, {
-            [oddNestedGroupStyles]: nestingLevel % 2 !== 0,
-            [eventNestedGroupStyles]: nestingLevel % 2 === 0,
-          })
+        nestingLevel !== 0 && cx(nestedGroupBaseStyles, nestedGroupStyles)
       )}
     >
       {/* Group header */}
