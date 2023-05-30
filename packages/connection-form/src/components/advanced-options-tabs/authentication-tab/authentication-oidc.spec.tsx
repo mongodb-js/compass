@@ -114,8 +114,8 @@ describe('AuthenticationOIDC Connection Form', function () {
     });
   });
 
-  it('handles the allow untrusted endpoint checkbox', async function () {
-    fireEvent.click(screen.getByText('Enable Untrusted Target Endpoint'));
+  it('handles the Consider Target Endpoint Trusted checkbox', async function () {
+    fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
     await expectToConnectWith({
       connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
       oidc: {
@@ -124,9 +124,9 @@ describe('AuthenticationOIDC Connection Form', function () {
     });
   });
 
-  it('handles the allow untrusted endpoint checkbox on and off', async function () {
-    fireEvent.click(screen.getByText('Enable Untrusted Target Endpoint'));
-    fireEvent.click(screen.getByText('Enable Untrusted Target Endpoint'));
+  it('handles the Consider Target Endpoint Trusted checkbox on and off', async function () {
+    fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
+    fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
     await expectToConnectWith({
       connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
       oidc: {},
