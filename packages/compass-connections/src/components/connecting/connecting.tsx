@@ -103,7 +103,7 @@ function Connecting({
               <Body className={textContentStyles}>
                 Enter the following code on that page:
               </Body>
-              <Code baseFontSize={16} language="none" copyable>
+              <Code language="none" copyable>
                 {oidcDeviceAuthUserCode}
               </Code>
             </div>
