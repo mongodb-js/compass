@@ -3,17 +3,18 @@ import { GuideCue as LGGuideCue } from '../..';
 import { useInView } from 'react-intersection-observer';
 import { GuideCueService, type Cue } from './guide-cue-service';
 import { type GuideCueStorage } from './guide-cue-storage';
-type GCContext =
+
+export const GuideCueContext = React.createContext<
   | {
       cueService: GuideCueService;
     }
-  | undefined;
-export const GuideCueContext = React.createContext<GCContext>(undefined);
+  | undefined
+>(undefined);
 
 export const GuideCueProvider = ({
   children,
-  storage,
-}: React.PropsWithChildren<{ storage?: GuideCueStorage }>) => {
+}: // storage,
+React.PropsWithChildren<{ storage?: GuideCueStorage }>) => {
   // todo: inject storage in service.
   const serviceRef = React.useRef(new GuideCueService());
 
@@ -80,7 +81,7 @@ export const GuideCueProvider = ({
     setCue(null);
   }, [cue]);
 
-  console.log('recursion ... ');
+  console.log('GuideCueProvider.render ');
 
   return (
     <GuideCueContext.Provider value={{ cueService: serviceRef.current }}>
@@ -96,6 +97,7 @@ export const GuideCueProvider = ({
           }}
           onDismiss={() => onNextGroup()}
           onPrimaryButtonClick={() => onNext()}
+          popoverZIndex={20}
         >
           {cue.content}
         </LGGuideCue>

@@ -42,9 +42,6 @@ type CueWithServiceProps = Cue & {
 };
 
 export class GuideCueService extends EventTarget {
-  // todo:
-  // 1. isVisited (when users clicks on next and we mark the current cue as visited).
-  // 2. isNotIntersecting (when the cue could not be shown as its intersecting container was not visible).
   private _cues: Array<CueWithServiceProps> = [];
   private _activeGroupCues: Array<CueWithServiceProps> = [];
   private _activeCue: CueWithServiceProps | null = null;
