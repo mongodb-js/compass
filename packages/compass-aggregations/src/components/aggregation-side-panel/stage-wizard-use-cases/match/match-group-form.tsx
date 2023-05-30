@@ -112,7 +112,7 @@ const oddNestedGroupStylesLight = css({
   background: palette.gray.light3,
 });
 
-const eventNestedGroupStylesLight = css({
+const evenNestedGroupStylesLight = css({
   background: palette.gray.light2,
 });
 
@@ -120,7 +120,7 @@ const oddNestedGroupStylesDark = css({
   background: palette.gray.dark3,
 });
 
-const eventNestedGroupStylesDark = css({
+const evenNestedGroupStylesDark = css({
   background: palette.gray.dark2,
 });
 
@@ -226,11 +226,11 @@ const MatchGroupForm = ({
   const nestedGroupStyles = isDarkMode
     ? {
         [oddNestedGroupStylesDark]: nestingLevel % 2 !== 0,
-        [eventNestedGroupStylesDark]: nestingLevel % 2 === 0,
+        [evenNestedGroupStylesDark]: nestingLevel % 2 === 0,
       }
     : {
         [oddNestedGroupStylesLight]: nestingLevel % 2 !== 0,
-        [eventNestedGroupStylesLight]: nestingLevel % 2 === 0,
+        [evenNestedGroupStylesLight]: nestingLevel % 2 === 0,
       };
 
   return (
