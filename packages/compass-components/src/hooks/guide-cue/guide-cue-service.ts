@@ -163,14 +163,8 @@ export class GuideCueService extends EventTarget {
       this._activeGroupCues.forEach(({ groupId, id }) => {
         this._storage.markCueAsVisited(groupId, id);
       });
-      // Clean the cues
-      this._cues = this._cues.filter(
-        (x) => x.groupId !== this._activeCue?.groupId
-      );
     }
-    // Reset active props
-    this._activeGroupCues = [];
-    this._activeCue = null;
+    this.cleanUpActiveGroup();
   }
 
   markCueAsNotIntersecting() {
@@ -189,6 +183,16 @@ export class GuideCueService extends EventTarget {
     }
   }
 
+  private cleanUpActiveGroup() {
+    // Remove active group the cues
+    this._cues = this._cues.filter(
+      (x) => x.groupId !== this._activeCue?.groupId
+    );
+    // Reset active props
+    this._activeGroupCues = [];
+    this._activeCue = null;
+  }
+
   private getInitialCue() {
     this._activeCue =
       this._cues.find((x) => !x.isVisited && x.isIntersecting) ?? null;
@@ -204,6 +208,7 @@ export class GuideCueService extends EventTarget {
     );
     // If the index is last one
     if (currentCueIndex + 1 === this._activeGroupCues.length) {
+      this.cleanUpActiveGroup();
       return null;
     }
 
@@ -217,8 +222,7 @@ export class GuideCueService extends EventTarget {
     }
 
     // Reset the current group cues if nothing more is left.
-    this._activeGroupCues = [];
-    this._activeCue = null;
+    this.cleanUpActiveGroup();
     return null;
   }
 
