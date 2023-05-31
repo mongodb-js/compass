@@ -6,7 +6,7 @@ const rule = require('./no-mongodb-link-without-utm-params');
 ruleTester.run('no-mongodb-link-without-utm-params', rule, {
   valid: [
     {
-      code: "const url = 'https://anything.com';",
+      code: "const url = 'https://anythingmongodb.com';",
       parserOptions: { ecmaVersion: 2021 },
     },
     {
