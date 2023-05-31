@@ -45,7 +45,7 @@ describe('MoreOptionsToggle Component', function () {
     });
 
     expect(onToggleOptionsSpy.calledOnce).to.be.false;
-    const button = screen.getByText('Less Options');
+    const button = screen.getByText('Fewer Options');
     fireEvent.click(button);
     expect(onToggleOptionsSpy.calledOnce).to.be.true;
   });

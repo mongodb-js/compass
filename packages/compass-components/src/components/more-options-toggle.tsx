@@ -46,7 +46,7 @@ export const MoreOptionsToggle: React.FunctionComponent<
     [isExpanded]
   );
   const optionsLabel = useMemo(
-    () => (isExpanded ? 'Less Options' : 'More Options'),
+    () => (isExpanded ? 'Fewer Options' : 'More Options'),
     [isExpanded]
   );
   const focusRingProps = useFocusRing();
