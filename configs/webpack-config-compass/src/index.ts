@@ -292,7 +292,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
     externals: {
       ...toCommonJsExternal(sharedExternals),
       ...toCommonJsExternal(Object.keys(peerDependencies ?? {})),
-      ...toCommonJsExternal(builtinModules),
+      ...toCommonJsExternal(builtinModules.flatMap((m) => [m, `node:${m}`])),
     },
     resolve: {
       ...sharedResolveOptions(opts.target),
