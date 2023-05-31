@@ -1,7 +1,18 @@
+const EXCLUDED_MONGODB_HOSTS = [
+  'jira.mongodb.org',
+  'compass-maps.mongodb.com',
+  'evergreen.mongodb.com',
+  'downloads.mongodb.com',
+  'cloud.mongodb.com',
+];
+
 const isMongodbURL = (str) => {
   try {
-    const url = new URL(str);
-    return url.hostname.includes('mongodb');
+    const { hostname } = new URL(str);
+    return (
+      !EXCLUDED_MONGODB_HOSTS.includes(hostname) &&
+      (hostname.endsWith('mongodb.com') || hostname.endsWith('mongodb.org'))
+    );
   } catch (error) {
     return false;
   }
