@@ -10,9 +10,8 @@ ruleTester.run('no-mongodb-link-without-utm-params', rule, {
       parserOptions: { ecmaVersion: 2021 },
     },
     {
-      code: "const url = 'https://mongodb.com'; // (inside a test file)",
+      code: 'const url = `https://mongodb.com/docs/compass/${section}/references/${ref}?utm_source=compass&utm_medium=product`',
       parserOptions: { ecmaVersion: 2021 },
-      filename: 'random.test.js',
     },
     {
       code: "const url = 'https://mongodb.org?utm_source=compass&utm_medium=product';",
@@ -36,6 +35,23 @@ ruleTester.run('no-mongodb-link-without-utm-params', rule, {
     },
   ],
   invalid: [
+    {
+      code: 'const url = `https://mongodb.com/docs/compass/${section}/references/${ref}#anchor`',
+      parserOptions: { ecmaVersion: 2021 },
+      errors: [
+        {
+          message:
+            'URL does not contain utm_source=compass, utm_medium=product',
+          suggestions: [
+            {
+              desc: 'Add utm_source=compass, utm_medium=product',
+              output:
+                'const url = `https://mongodb.com/docs/compass/${section}/references/${ref}?utm_source=compass&utm_medium=product#anchor`',
+            },
+          ],
+        },
+      ],
+    },
     {
       code: "const url = 'https://mongodb.com/docs/compass';",
       parserOptions: { ecmaVersion: 2021 },

@@ -133,6 +133,7 @@ module.exports = {
       rules: {
         ...testRules,
         '@mongodb-js/compass/unique-mongodb-log-id': 'off',
+        '@mongodb-js/compass/no-mongodb-link-without-utm-params': 'off',
       },
     },
   ],
