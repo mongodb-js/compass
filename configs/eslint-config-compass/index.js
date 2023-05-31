@@ -79,6 +79,7 @@ module.exports = {
     'filename-rules',
   ],
   rules: {
+    '@mongodb-js/compass/no-mongodb-link-without-utm-params': 'error',
     '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'error',
     '@mongodb-js/compass/unique-mongodb-log-id': [
       'error',
