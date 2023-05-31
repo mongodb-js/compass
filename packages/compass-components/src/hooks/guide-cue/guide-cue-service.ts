@@ -157,6 +157,38 @@ export class GuideCueService extends EventTarget {
     return this.getFirstCueFromNextGroup();
   }
 
+  markGroupAsVisited() {
+    if (this._activeCue) {
+      // Update in storage
+      this._activeGroupCues.forEach(({ groupId, id }) => {
+        this._storage.markCueAsVisited(groupId, id);
+      });
+      // Clean the cues
+      this._cues = this._cues.filter(
+        (x) => x.groupId !== this._activeCue?.groupId
+      );
+    }
+    // Reset active props
+    this._activeGroupCues = [];
+    this._activeCue = null;
+  }
+
+  markCueAsNotIntersecting() {
+    if (this._activeCue) {
+      this.updateCueProperty(this._activeCue, 'isIntersecting', false);
+    }
+  }
+
+  markCueAsVisited() {
+    if (this._activeCue) {
+      this.updateCueProperty(this._activeCue, 'isVisited', true);
+      this._storage.markCueAsVisited(
+        this._activeCue.groupId,
+        this._activeCue.id
+      );
+    }
+  }
+
   private getInitialCue() {
     this._activeCue =
       this._cues.find((x) => !x.isVisited && x.isIntersecting) ?? null;
@@ -179,8 +211,15 @@ export class GuideCueService extends EventTarget {
       .slice(currentCueIndex)
       .filter((x) => !x.isVisited && x.isIntersecting);
 
-    this._activeCue = possibleCues[0];
-    return this._activeCue;
+    if (possibleCues.length > 0) {
+      this._activeCue = possibleCues[0];
+      return this._activeCue;
+    }
+
+    // Reset the current group cues if nothing more is left.
+    this._activeGroupCues = [];
+    this._activeCue = null;
+    return null;
   }
 
   private getFirstCueFromNextGroup() {
@@ -206,23 +245,6 @@ export class GuideCueService extends EventTarget {
     return groups[0] || null;
   }
 
-  // todo: clean up from here.
-  markCueAsNotIntersecting() {
-    if (this._activeCue) {
-      this.updateCueProperty(this._activeCue, 'isIntersecting', false);
-    }
-  }
-
-  markCueAsVisited() {
-    if (this._activeCue) {
-      this.updateCueProperty(this._activeCue, 'isVisited', true);
-      this._storage.markCueAsVisited(
-        this._activeCue.groupId,
-        this._activeCue.id
-      );
-    }
-  }
-
   private updateCueProperty<T extends keyof CueWithServiceProps>(
     cue: Pick<Cue, 'id' | 'groupId'>,
     prop: T,
@@ -235,17 +257,5 @@ export class GuideCueService extends EventTarget {
     if (groupIndex !== -1) {
       this._activeGroupCues[groupIndex][prop] = value;
     }
-  }
-
-  markGroupAsVisited() {
-    if (this._activeCue) {
-      this._activeGroupCues.forEach(({ groupId, id }) => {
-        this._storage.markCueAsVisited(groupId, id);
-      });
-      this._cues = this._cues.filter(
-        (x) => x.groupId !== this._activeCue?.groupId
-      );
-    }
-    this._activeGroupCues = [];
   }
 }

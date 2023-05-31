@@ -25,13 +25,16 @@ export const GuideCueProvider = ({
    * IntersectionObserver callback to determine if the intersectingRef
    * of the current cue is visible. If not, we don't show the Guide Cue.
    */
-  const observerCallback = React.useCallback((entries) => {
-    const [entry] = entries;
-    if (!entry.isIntersecting) {
-      serviceRef.current.markCueAsNotIntersecting();
-      setCue(null);
-    }
-  }, []);
+  const observerCallback = React.useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (!entry.isIntersecting) {
+        serviceRef.current.markCueAsNotIntersecting();
+        setCue(null);
+      }
+    },
+    []
+  );
 
   /**
    * Effect to keep track of the visibility of the intersectingRef
@@ -111,7 +114,7 @@ export const GuideCueProvider = ({
           }}
           onDismiss={() => onNextGroup()}
           onPrimaryButtonClick={() => onNext()}
-          popoverZIndex={20}
+          popoverZIndex={4}
         >
           {cue.content}
         </LGGuideCue>
