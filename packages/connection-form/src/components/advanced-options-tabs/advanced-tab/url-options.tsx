@@ -35,7 +35,7 @@ function UrlOptions({
         Add additional MongoDB URI options to customize your connection.&nbsp;
         <Link
           href={
-            'https://docs.mongodb.com/manual/reference/connection-string/#connection-string-options'
+            'https://mongodb.com/docs/manual/reference/connection-string/?utm_source=compass&utm_medium=product#connection-string-options'
           }
         >
           Learn More

@@ -13,7 +13,7 @@ export type Token = ReturnType<typeof resolveTokenAtCursor>;
 
 export function aggLink(op: string): string {
   op = op.replace(/^\$/, '');
-  return `<a target="_blank" href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/${op}/">$${op}</a>`;
+  return `<a target="_blank" href="https://www.mongodb.com/docs/manual/reference/operator/aggregation/${op}/?utm_source=compass&utm_medium=product">$${op}</a>`;
 }
 
 export function padLines(str: string, pad = '  ') {

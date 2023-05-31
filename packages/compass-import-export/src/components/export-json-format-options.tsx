@@ -71,7 +71,7 @@ function JSONFileTypeOptions({
       </RadioGroup>
       {/* TODO(COMPASS-6632): Add docs link */}
       <Link
-        href="https://www.mongodb.com/docs/compass/current/import-export/"
+        href="https://www.mongodb.com/docs/compass/current/import-export/?utm_source=compass&utm_medium=product"
         target="_blank"
       >
         Learn more about JSON format

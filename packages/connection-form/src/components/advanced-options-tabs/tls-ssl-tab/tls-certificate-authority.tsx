@@ -43,7 +43,7 @@ function TLSCertificateAuthority({
           label="Certificate Authority (.pem)"
           link={
             displayDatabaseConnectionUserHints
-              ? 'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCAFile'
+              ? 'https://mongodb.com/docs/manual/reference/connection-string/?utm_source=compass&utm_medium=product#mongodb-urioption-urioption.tlsCAFile'
               : undefined
           }
           onChange={(files: string[] | null) => {

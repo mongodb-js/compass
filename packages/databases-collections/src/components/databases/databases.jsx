@@ -28,7 +28,8 @@ const NON_GENUINE_SUBTEXT =
   ' entirely missing or incomplete, or may have unexpectedly different' +
   ' performance characteristics than would be found when connecting to a' +
   ' real MongoDB server or service.';
-const DOCUMENTATION_LINK = 'https://www.mongodb.com/cloud/atlas';
+const DOCUMENTATION_LINK =
+  'https://www.mongodb.com/atlas/database?utm_source=compass&utm_medium=product';
 
 const ERROR_WARNING = 'An error occurred while loading databases';
 

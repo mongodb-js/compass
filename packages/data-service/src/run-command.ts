@@ -202,7 +202,7 @@ export type CollectionInfoNameOnly = {
 };
 
 export type CollectionInfo = CollectionInfoNameOnly & {
-  /** @see https://docs.mongodb.com/manual/reference/method/db.createCollection/#mongodb-method-db.createCollection */
+  /** @see https://mongodb.com/docs/manual/reference/method/db.createCollection/#mongodb-method-db.createCollection */
   options: Document;
   info: {
     readOnly?: boolean;

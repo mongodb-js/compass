@@ -81,7 +81,10 @@ function AtlasHelpSection() {
       <Body className={descriptionStyles}>
         If you don&apos;t already have a cluster, you can create one for free
         using{' '}
-        <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
+        <Link
+          href="https://www.mongodb.com/atlas/database?utm_source=compass&utm_medium=product"
+          target="_blank"
+        >
           MongoDB Atlas
         </Link>
       </Body>
@@ -119,7 +122,7 @@ function FormHelp(): React.ReactElement {
           connect.
         </Body>
         <Link
-          href="https://docs.atlas.mongodb.com/compass-connection/"
+          href="https://mongodb.com/docs/atlas/compass-connection/?utm_source=compass&utm_medium=product"
           target="_blank"
         >
           See example
@@ -130,7 +133,7 @@ function FormHelp(): React.ReactElement {
           How do I format my connection string?
         </Subtitle>
         <Link
-          href="https://docs.mongodb.com/manual/reference/connection-string/"
+          href="https://mongodb.com/docs/manual/reference/connection-string/?utm_source=compass&utm_medium=product"
           target="_blank"
         >
           See example

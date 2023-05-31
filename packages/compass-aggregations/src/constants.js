@@ -24,7 +24,10 @@ export const MERGE_STAGE_PREVIEW_TEXT =
   'the specified location.';
 
 export const PIPELINE_HELP_URI =
-  'https://www.mongodb.com/docs/manual/reference/operator/aggregation-pipeline/';
+  'https://www.mongodb.com/docs/manual/reference/operator/aggregation-pipeline/?utm_source=compass&utm_medium=product';
 
 export const STAGE_HELP_BASE_URL =
+  // Disabled here because the parameters are added in getStageHelpLink method
+  // in: packages/compass-aggregations/src/utils/stage.js
+  // eslint-disable-next-line @mongodb-js/compass/no-mongodb-link-without-utm-params
   'https://www.mongodb.com/docs/manual/reference/operator/aggregation';

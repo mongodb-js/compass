@@ -16,7 +16,8 @@ type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 
 const debug = createDebug('mongodb-compass:menu');
 
-const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
+const COMPASS_HELP =
+  'https://docs.mongodb.com/compass/?utm_source=compass&utm_medium=product';
 
 function separator(): MenuItemConstructorOptions {
   return {
@@ -227,7 +228,7 @@ function feedbackForumLink(): MenuItemConstructorOptions {
     label: `&Suggest a Feature`,
     click() {
       void shell.openExternal(
-        'https://feedback.mongodb.com/forums/924283-compass'
+        'https://feedback.mongodb.com/forums/924283-compass/?utm_source=compass&utm_medium=product'
       );
     },
   };

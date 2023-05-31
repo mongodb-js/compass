@@ -224,7 +224,7 @@ Object.assign(props, {
    * If `authStrategy === 'MONGODB'`,
    * The value for `authSource` to pass to the driver.
    *
-   * @see http://docs.mongodb.org/manual/reference/connection-string/#uri.authSource
+   * @see https://www.mongodb.com/docs/manual/reference/connection-string/#mongodb-urioption-urioption.authSource
    */
   mongodbDatabaseName: { type: 'string', default: undefined },
   /**

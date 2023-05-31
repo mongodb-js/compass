@@ -249,7 +249,7 @@ const InitialScreen: React.FunctionComponent<{
       }
       callToActionLink={
         <Link
-          href="https://docs.mongodb.com/compass/master/schema/"
+          href="https://mongodb.com/docs/compass/master/schema/?utm_source=compass&utm_medium=product"
           target="_blank"
         >
           Learn more about schema analysis in Compass

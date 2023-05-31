@@ -21,7 +21,7 @@ const DESCRIPTION =
 const WARNING_BANNER =
   'This server or service appears to be an emulation of MongoDB rather than an official MongoDB product.';
 const LEARN_MORE_URL =
-  'https://www.mongodb.com/docs/compass/master/faq/#why-am-i-seeing-a-warning-about-a-non-genuine-mongodb-server-';
+  'https://www.mongodb.com/docs/compass/master/faq/?utm_source=compass&utm_medium=product#why-am-i-seeing-a-warning-about-a-non-genuine-mongodb-server-';
 const MODAL_TITLE = 'Non-Genuine MongoDB Detected';
 
 function NonGenuineWarningModal({

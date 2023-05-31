@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 const HELP_URL_CLUSTERED =
-  'https://www.mongodb.com/docs/manual/core/clustered-collections/';
+  'https://www.mongodb.com/docs/manual/core/clustered-collections/?utm_source=compass&utm_medium=product';
 
 const EXPIRE_AFTER_SECONDS_DESCRIPTION =
   'The expireAfterSeconds field enables ' +

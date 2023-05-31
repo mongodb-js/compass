@@ -21,7 +21,7 @@ const TIME_FIELD_INPUT_DESCRIPTION =
   'This field must have a BSON type date.';
 
 const HELP_URL_TIME_FIELD =
-  'https://www.mongodb.com/docs/manual/core/timeseries-collections/';
+  'https://www.mongodb.com/docs/manual/core/timeseries-collections/?utm_source=compass&utm_medium=product';
 
 const META_FIELD_INPUT_DESCRIPTION =
   'The metaField is the designated field ' + 'for metadata.';

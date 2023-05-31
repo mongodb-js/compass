@@ -32,7 +32,7 @@ export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
         data will be submitted.
         <br />
         Learn more:&nbsp;
-        <Link href="https://www.mongodb.com/legal/privacy-policy">
+        <Link href="https://www.mongodb.com/legal/privacy-policy?utm_source=compass&utm_medium=product">
           MongoDB Privacy Policy
         </Link>
       </div>

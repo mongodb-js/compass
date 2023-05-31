@@ -11,7 +11,7 @@ import styles from './create-database-modal.module.less';
 
 // The more information url.
 const INFO_URL_CREATE_DB =
-  'https://www.mongodb.com/docs/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection-';
+  'https://www.mongodb.com/docs/manual/faq/fundamentals/?utm_source=compass&utm_medium=product#how-do-i-create-a-database-and-a-collection-';
 
 /**
  * The modal to create a database.

@@ -14,7 +14,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 const EXECUTION_STATS_HELP_LINK =
-  'https://www.mongodb.com/docs/upcoming/reference/explain-results/#mongodb-data-explain.executionStats';
+  'https://www.mongodb.com/docs/upcoming/reference/explain-results/?utm_source=compass&utm_medium=product#mongodb-data-explain.executionStats';
 
 type IndexType = 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX' | 'UNAVAILABLE';
 

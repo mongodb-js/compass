@@ -21,7 +21,7 @@ import { ExplainToolbar } from '../explain-toolbar/explain-toolbar';
  * Link to the explain plan documentation.
  */
 const DOCUMENTATION_LINK =
-  'https://docs.mongodb.com/compass/master/query-plan/';
+  'https://mongodb.com/docs/compass/master/query-plan/?utm_source=compass&utm_medium=product';
 
 const loaderBackdropStyles = css({
   display: 'flex',

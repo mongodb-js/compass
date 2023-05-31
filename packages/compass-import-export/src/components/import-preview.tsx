@@ -206,7 +206,7 @@ function InfoIcon() {
         infoIconCommonStyles,
         darkMode ? infoIconDarkStyles : infoIconLightStyles
       )}
-      href="https://www.mongodb.com/docs/manual/reference/bson-types/"
+      href="https://www.mongodb.com/docs/manual/reference/bson-types/?utm_source=compass&utm_medium=product"
       target="_blank"
     >
       <Icon glyph="InfoWithCircle"></Icon>

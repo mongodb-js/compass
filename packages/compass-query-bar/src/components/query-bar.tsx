@@ -82,7 +82,7 @@ const queryOptionsContainerStyles = css({
 });
 
 const queryBarDocumentationLink =
-  'https://docs.mongodb.com/compass/current/query/filter/';
+  'https://mongodb.com/docs/compass/current/query/filter/?utm_source=compass&utm_medium=product';
 
 const QueryMoreOptionsToggle = connect(
   (state: QueryBarState) => {

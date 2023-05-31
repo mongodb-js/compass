@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 const HELP_URL_CAPPED =
-  'https://docs.mongodb.com/manual/core/capped-collections/';
+  'https://mongodb.com/docs/manual/core/capped-collections/?utm_source=compass&utm_medium=product';
 
 function CappedCollectionFields({
   cappedSize,

@@ -31,13 +31,13 @@ export const READ_ONLY_WARNING = {
  * Link to the schema validation documentation.
  */
 const DOC_SCHEMA_VALIDATION =
-  'https://docs.mongodb.com/manual/core/schema-validation/';
+  'https://mongodb.com/docs/manual/core/schema-validation/?utm_source=compass&utm_medium=product';
 
 /**
  * Link to the upgrading to the latest revision documentation.
  */
 const DOC_UPGRADE_REVISION =
-  'https://docs.mongodb.com/manual/tutorial/upgrade-revision/';
+  'https://mongodb.com/docs/manual/tutorial/upgrade-revision/?utm_source=compass&utm_medium=product';
 
 /**
  * The ValidationStates component.

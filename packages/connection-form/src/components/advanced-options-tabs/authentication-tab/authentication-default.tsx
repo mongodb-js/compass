@@ -120,7 +120,7 @@ function AuthenticationDefault({
         </Label>
         <InlineInfoLink
           aria-label="Authentication Database Documentation"
-          href="https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authSource"
+          href="https://mongodb.com/docs/manual/reference/connection-string/?utm_source=compass&utm_medium=product#mongodb-urioption-urioption.authSource"
         />
         <TextInput
           className={textInputWithLabelStyles}

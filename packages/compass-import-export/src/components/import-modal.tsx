@@ -210,7 +210,7 @@ function ImportModal({
               Specify Fields and Types
               <Link
                 className={dataTypesLinkStyles}
-                href="https://www.mongodb.com/docs/mongodb-shell/reference/data-types/"
+                href="https://www.mongodb.com/docs/mongodb-shell/reference/data-types/?utm_source=compass&utm_medium=product"
               >
                 Learn more about data types
               </Link>

@@ -148,7 +148,7 @@ function TLSTab({
       <FormFieldContainer>
         <Label htmlFor="tls-radio-box-group">SSL/TLS Connection</Label>
         <InlineInfoLink
-          href="https://docs.mongodb.com/manual/reference/connection-string/#tls-options"
+          href="https://mongodb.com/docs/manual/reference/connection-string/?utm_source=compass&utm_medium=product#tls-options"
           aria-label="TLS/SSL Option Documentation"
         />
         <RadioBoxGroup

@@ -54,7 +54,7 @@ const OUTDATED_WARNING_MESSAGE =
   ' current query.';
 
 const SCHEMA_ANALYSIS_DOCS_LINK =
-  'https://docs.mongodb.com/compass/current/sampling#sampling';
+  'https://mongodb.com/docs/compass/current/sampling/?utm_source=compass&utm_medium=product#sampling';
 
 type SchemaToolbarProps = {
   analysisState: AnalysisState;

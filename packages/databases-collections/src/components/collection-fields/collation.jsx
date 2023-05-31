@@ -6,7 +6,7 @@ import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
 import CollationFields from '../collation-fields/collation-fields';
 
 const HELP_URL_COLLATION =
-  'https://docs.mongodb.com/master/reference/collation/';
+  'https://mongodb.com/docs/master/reference/collation/?utm_source=compass&utm_medium=product';
 
 /**
  * The collation component. This is used in creating collections,

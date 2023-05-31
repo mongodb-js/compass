@@ -263,7 +263,7 @@ export function getPrivilegesByDatabaseAndCollection(
     // databases/collections, we are skipping all roles where these are
     // undefined
     //
-    // See: https://docs.mongodb.com/manual/reference/resource-document/#std-label-resource-document
+    // See: https://mongodb.com/docs/manual/reference/resource-document/#std-label-resource-document
     if (
       typeof resource.db !== 'undefined' &&
       typeof resource.collection !== 'undefined'

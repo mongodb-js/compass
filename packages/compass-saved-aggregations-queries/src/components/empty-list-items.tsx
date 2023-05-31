@@ -41,7 +41,7 @@ export const NoSavedItems: React.FunctionComponent = () => {
           Not sure where to start? &nbsp;
           <Link
             hideExternalIcon
-            href="https://docs.mongodb.com/compass/current/query/queries/"
+            href="https://mongodb.com/docs/compass/current/query/queries/?utm_source=compass&utm_medium=product"
           >
             Visit our Docs &#8594;
           </Link>

@@ -42,7 +42,7 @@ function ShellInfoModal({ hideInfoModal, show }) {
         For more information please visit the&nbsp;
         <Link
           id="mongosh-info-link"
-          href="https://docs.mongodb.com/compass/beta/embedded-shell/"
+          href="https://mongodb.com/docs/compass/beta/embedded-shell/?utm_source=compass&utm_medium=product"
           target="_blank"
         >
           MongoDB Shell Documentation

@@ -47,7 +47,8 @@ export async function connectMongoClientCompass(
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
     productName: 'MongoDB Compass',
-    productDocsLink: 'https://www.mongodb.com/docs/compass/',
+    productDocsLink:
+      'https://www.mongodb.com/docs/compass/?utm_source=compass&utm_medium=product',
     monitorCommands: true,
     useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,

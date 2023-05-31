@@ -254,7 +254,7 @@ function ExportModal({
                 Exporting with CSV may lose type information and is not suitable
                 for backing up your data.{' '}
                 <Link
-                  href="https://www.mongodb.com/docs/compass/current/import-export/#export-data-from-a-collection"
+                  href="https://www.mongodb.com/docs/compass/current/import-export/?utm_source=compass&utm_medium=product#export-data-from-a-collection"
                   target="_blank"
                 >
                   Learn more

@@ -170,7 +170,7 @@ function ConnectionStringInput({
           <InlineInfoLink
             aria-label="Connection String Documentation"
             data-testid="connectionStringDocsButton"
-            href="https://docs.mongodb.com/manual/reference/connection-string/"
+            href="https://mongodb.com/docs/manual/reference/connection-string/?utm_source=compass&utm_medium=product"
           />
         </div>
         {!protectConnectionStrings && (

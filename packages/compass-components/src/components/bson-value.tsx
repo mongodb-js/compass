@@ -132,7 +132,7 @@ export const BinaryValue: React.FunctionComponent<
           <Link
             className={encryptedHelpLinkStyle}
             hideExternalIcon={true}
-            href="https://www.mongodb.com/docs/compass/current/in-use-encryption-tutorial/"
+            href="https://www.mongodb.com/docs/compass/current/in-use-encryption-tutorial/?utm_source=compass&utm_medium=product"
             aria-label="Compass In-Use Encryption documentation"
             title="Compass In-Use Encryption documentation"
             data-testid="bson-value-in-use-encryption-docs-link"

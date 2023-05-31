@@ -37,7 +37,7 @@ function TLSClientCertificate({
           dataTestId="tlsCertificateKeyFile-input"
           link={
             displayDatabaseConnectionUserHints
-              ? 'https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.tlsCertificateKeyFile'
+              ? 'https://mongodb.com/docs/manual/reference/connection-string/?utm_source=compass&utm_medium=product#mongodb-urioption-urioption.tlsCertificateKeyFile'
               : undefined
           }
           values={tlsCertificateKeyFile ? [tlsCertificateKeyFile] : []}

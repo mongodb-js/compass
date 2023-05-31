@@ -178,15 +178,15 @@ describe('ConnectionStringInput Component', function () {
 
     it('has a link to docs', function () {
       const link = screen.getByRole('link');
-      expect(link.getAttribute('href')).to.equal(
-        'https://docs.mongodb.com/manual/reference/connection-string/'
+      expect(link.getAttribute('href')).to.include(
+        'https://mongodb.com/docs/manual/reference/connection-string/'
       );
     });
 
     it('has a link role', function () {
       const button = screen.getByRole('link');
-      expect(button.getAttribute('href')).to.equal(
-        'https://docs.mongodb.com/manual/reference/connection-string/'
+      expect(button.getAttribute('href')).to.include(
+        'https://mongodb.com/docs/manual/reference/connection-string/'
       );
     });
   });

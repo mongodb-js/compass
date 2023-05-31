@@ -12,10 +12,10 @@ import {
 } from '@mongodb-js/compass-components';
 
 const ACTION_HELP_URL =
-  'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationAction';
+  'https://www.mongodb.com/docs/manual/reference/command/collMod/?utm_source=compass&utm_medium=product#mongodb-collflag-validationAction';
 
 const LEVEL_HELP_URL =
-  'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationLevel';
+  'https://www.mongodb.com/docs/manual/reference/command/collMod/?utm_source=compass&utm_medium=product#mongodb-collflag-validationLevel';
 
 const validationOptionStyles = css({
   display: 'flex',
