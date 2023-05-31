@@ -40,6 +40,8 @@ try {
   /* no electron, eg. mocha tests */
 }
 
+const GUIDE_CUE_STORAGE: Record<string, Record<string, unknown>> = {};
+
 const homeViewStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -439,7 +441,17 @@ function ThemedHome(
                 )}
                 data-theme={theme.theme}
               >
-                <GuideCueProvider>
+                <GuideCueProvider
+                  storage={{
+                    isCueVisited(group, id) {
+                      return !!GUIDE_CUE_STORAGE?.[group]?.[id];
+                    },
+                    markCueAsVisited(group, id) {
+                      GUIDE_CUE_STORAGE[group] ??= {};
+                      GUIDE_CUE_STORAGE[group][id] = {};
+                    },
+                  }}
+                >
                   <Home {...props}></Home>
                 </GuideCueProvider>
               </div>

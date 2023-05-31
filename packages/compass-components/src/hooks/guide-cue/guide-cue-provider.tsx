@@ -1,6 +1,5 @@
 import React from 'react';
 import { GuideCue as LGGuideCue } from '../..';
-import { useInView } from 'react-intersection-observer';
 import { GuideCueService, type Cue } from './guide-cue-service';
 import { type GuideCueStorage } from './guide-cue-storage';
 
@@ -11,75 +10,77 @@ export const GuideCueContext = React.createContext<
   | undefined
 >(undefined);
 
+const OBSERVER_OPTIONS = {};
+
 export const GuideCueProvider = ({
   children,
-}: // storage,
-React.PropsWithChildren<{ storage?: GuideCueStorage }>) => {
-  // todo: inject storage in service.
-  const serviceRef = React.useRef(new GuideCueService());
+  storage,
+}: React.PropsWithChildren<{ storage: GuideCueStorage }>) => {
+  const serviceRef = React.useRef(new GuideCueService(storage));
 
   const [cue, setCue] = React.useState<Cue | null>(null);
+  const [hasMoreCues, setHasMoreCues] = React.useState(true);
 
-  const [cueIntersectingRef, isIntersecting] = useInView({
-    threshold: 0.5,
-    delay: 100,
-  });
-
-  const setupCue = React.useCallback(() => {
-    if (!cue) {
-      const newCue = serviceRef.current.getNextCue();
-      if (newCue) {
-        cueIntersectingRef(newCue.intersectingRef.current);
-      }
-      setCue(newCue);
+  const observerCallback = React.useCallback((entries) => {
+    const [entry] = entries;
+    if (!entry.isIntersecting) {
+      serviceRef.current.markCueAsNotIntersecting();
+      setCue(null);
     }
-  }, [cue, cueIntersectingRef, setCue]);
+  }, []);
 
-  // Get the next cue when current one is set to null
-  // by any action within this component (onNext or onNextGroup)
+  // When cue is set
   React.useEffect(() => {
-    setupCue();
-  }, [cue, setupCue]);
+    if (!cue) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      observerCallback,
+      OBSERVER_OPTIONS
+    );
+    if (cue.intersectingRef.current) {
+      observer.observe(cue.intersectingRef.current);
+    }
+    return () => {
+      if (cue.intersectingRef.current) {
+        observer.unobserve(cue.intersectingRef.current);
+      }
+      observer.disconnect();
+    };
+  }, [cue]);
 
-  // the recursion cause
   React.useEffect(() => {
-    // if (cue && !isIntersecting) {
-    //   serviceRef.current.moveToNextGroup();
-    //   setCue(null);
-    // }
-  }, [cue, isIntersecting]);
+    if (cue || !hasMoreCues) {
+      return;
+    }
+    const nextCue = serviceRef.current.getNextCue();
+    if (!nextCue) {
+      setHasMoreCues(false);
+      setCue(null);
+      return;
+    }
+    setCue(nextCue);
+  }, [cue, hasMoreCues]);
 
-  // Listen when a new cue is added. If we are not showing
-  // any cue when its added, try to fetch next one, or else
-  // users interaction with GuideCue will fetch the next.
   React.useEffect(() => {
     const service = serviceRef.current;
-    const listener = () => {
-      setupCue();
-    };
+    const listener = () => setHasMoreCues(true);
     service.addEventListener('cue-list-changed', listener);
     return () => {
       service.removeEventListener('cue-list-changed', listener);
     };
-  }, [setupCue]);
+  }, [setHasMoreCues]);
 
   const onNext = React.useCallback(() => {
-    console.log('GuideCueProvider.onNext');
-    if (cue) {
-      serviceRef.current.markCueAsVisited(cue);
-    }
-    // todo: fix
+    serviceRef.current.markCueAsVisited();
     setCue(null);
-  }, [cue]);
+  }, []);
 
   const onNextGroup = React.useCallback(() => {
-    console.log('GuideCueProvider.onNextGroup');
-    if (cue) {
-      serviceRef.current.markGroupAsVisited(cue.group);
-    }
+    serviceRef.current.markGroupAsVisited();
     serviceRef.current.moveToNextGroup();
     setCue(null);
-  }, [cue]);
+  }, []);
 
   console.log('GuideCueProvider.render ');
 
@@ -90,8 +91,8 @@ React.PropsWithChildren<{ storage?: GuideCueStorage }>) => {
           title={cue.title}
           refEl={cue.refEl}
           numberOfSteps={serviceRef.current.numOfCuesInGroup}
-          currentStep={serviceRef.current.currentCueIndex + 1}
-          open={isIntersecting}
+          currentStep={serviceRef.current.currentCueIndexInGroup + 1}
+          open={true}
           setOpen={() => {
             // noop
           }}

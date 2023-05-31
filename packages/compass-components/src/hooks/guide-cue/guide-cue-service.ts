@@ -1,3 +1,5 @@
+import { type GuideCueStorage } from './guide-cue-storage';
+
 interface GuideCueEventMap {
   'cue-list-changed': CustomEvent;
 }
@@ -38,7 +40,9 @@ export type Cue = {
 
 type CueWithServiceProps = Cue & {
   isVisited: boolean;
-  isNotIntersecting: boolean;
+  // If we were not able to show GC because its intersectingRef
+  // was not in viewport, we mark it as isNotIntersecting.
+  isIntersecting: boolean;
 };
 
 export class GuideCueService extends EventTarget {
@@ -46,15 +50,34 @@ export class GuideCueService extends EventTarget {
   private _activeGroupCues: Array<CueWithServiceProps> = [];
   private _activeCue: CueWithServiceProps | null = null;
 
+  constructor(private _storage: GuideCueStorage) {
+    super();
+  }
+
   get numOfCuesInGroup() {
     return this._activeGroupCues.length;
   }
 
-  get currentCueIndex() {
+  get currentCueIndexInGroup() {
     return this._activeGroupCues.findIndex((x) => x.id === this._activeCue?.id);
   }
 
+  private getCueIndexes(cue: Pick<Cue, 'group' | 'id'>) {
+    return {
+      listIndex: this._cues.findIndex(
+        ({ id, group }) => cue.group === group && cue.id === id
+      ),
+      groupIndex: this._activeGroupCues.findIndex(
+        ({ id, group }) => cue.group === group && cue.id === id
+      ),
+    };
+  }
+
   addCue(cue: Cue) {
+    if (this._storage.isCueVisited(cue.group, cue.id)) {
+      return;
+    }
+
     const existingCue = this._cues.find(
       ({ id, group }) => id === cue.id && group === cue.group
     );
@@ -68,9 +91,7 @@ export class GuideCueService extends EventTarget {
       );
     }
 
-    // todo: storage - check if this cue has been shown
-
-    this._cues.push({ ...cue, isVisited: false, isNotIntersecting: false });
+    this._cues.push({ ...cue, isVisited: false, isIntersecting: true });
 
     // If we have an active group and added cue belongs to same,
     // then we have to update the list.
@@ -85,7 +106,15 @@ export class GuideCueService extends EventTarget {
     );
   }
 
-  removeCue(cue: Pick<Cue, 'group' | 'id'>) {}
+  removeCue(cue: Pick<Cue, 'group' | 'id'>) {
+    const { groupIndex, listIndex } = this.getCueIndexes(cue);
+    if (listIndex !== -1) {
+      this._cues.splice(listIndex, 1);
+    }
+    if (groupIndex !== -1) {
+      this._activeGroupCues.splice(groupIndex, 1);
+    }
+  }
 
   getNextCue() {
     if (this._cues.length === 0) {
@@ -93,13 +122,8 @@ export class GuideCueService extends EventTarget {
     }
 
     // First time, when nothing is shown yet.
-    // todo: extract to a method
     if (!this._activeCue) {
-      this._activeCue = this._cues.find((x) => !x.isVisited) ?? null;
-      this._activeGroupCues = this._cues.filter(
-        (x) => x.group === this._activeCue?.group
-      );
-      return this._activeCue;
+      return this.getInitialCue();
     }
 
     // If the current cue is not last, then show next cue.
@@ -112,10 +136,19 @@ export class GuideCueService extends EventTarget {
     return this.getFirstCueFromNextGroup();
   }
 
+  private getInitialCue() {
+    this._activeCue =
+      this._cues.find((x) => !x.isVisited && x.isIntersecting) ?? null;
+    this._activeGroupCues = this._cues.filter(
+      (x) => x.group === this._activeCue?.group
+    );
+    return this._activeCue;
+  }
+
   private getNextGroup() {
     // Get the next group
     const groups = this._cues
-      .filter((x) => !x.isVisited)
+      .filter((x) => !x.isVisited && x.isIntersecting)
       .map((x) => x.group)
       .filter((v, i, a) => a.indexOf(v) === i);
     return groups[0] || null;
@@ -132,7 +165,7 @@ export class GuideCueService extends EventTarget {
 
     const possibleCues = this._activeGroupCues
       .slice(currentCueIndex)
-      .filter((x) => !x.isVisited);
+      .filter((x) => !x.isVisited && x.isIntersecting);
 
     this._activeCue = possibleCues[0];
     return this._activeCue;
@@ -148,39 +181,47 @@ export class GuideCueService extends EventTarget {
       this._activeGroupCues = [];
       this._activeCue = null;
     } else {
-      this._activeGroupCues = this._cues.filter((x) => x.group === nextGroup);
+      this._activeGroupCues = this._cues.filter(
+        (x) => x.group === nextGroup && !x.isVisited && x.isIntersecting
+      );
       this._activeCue = this._activeGroupCues[0];
     }
     return this._activeCue;
   }
 
-  markCueAsNotIntersecting(cue: Cue) {
-    const cueIndex = this._cues.findIndex(
-      (x) => x.id === cue.id && x.group === cue.group
-    );
-    this._cues[cueIndex].isNotIntersecting = true;
-
-    const activeCueIndex = this._activeGroupCues.findIndex(
-      (x) => x.id === cue.id && x.group === cue.group
-    );
-    this._cues[activeCueIndex].isNotIntersecting = true;
+  markCueAsNotIntersecting() {
+    if (this._activeCue) {
+      this.updateCueProperty(this._activeCue, 'isIntersecting', false);
+    }
   }
 
-  markCueAsVisited(cue: Cue) {
-    const cueIndex = this._cues.findIndex(
-      (x) => x.id === cue.id && x.group === cue.group
-    );
-    this._cues[cueIndex].isVisited = true;
-
-    const activeCueIndex = this._activeGroupCues.findIndex(
-      (x) => x.id === cue.id && x.group === cue.group
-    );
-    this._activeGroupCues[activeCueIndex].isVisited = true;
-    // todo: storage - mark cue as visited
+  markCueAsVisited() {
+    if (this._activeCue) {
+      this.updateCueProperty(this._activeCue, 'isVisited', true);
+      this._storage.markCueAsVisited(this._activeCue.group, this._activeCue.id);
+    }
   }
 
-  markGroupAsVisited(group: string) {
-    this._cues = this._cues.filter((x) => x.group !== group);
-    // todo: storage - mark all the cues as visited
+  private updateCueProperty<T extends keyof CueWithServiceProps>(
+    cue: Pick<Cue, 'id' | 'group'>,
+    prop: T,
+    value: CueWithServiceProps[T]
+  ) {
+    const { listIndex, groupIndex } = this.getCueIndexes(cue);
+    if (listIndex !== -1) {
+      this._cues[listIndex][prop] = value;
+    }
+    if (groupIndex !== -1) {
+      this._activeGroupCues[groupIndex][prop] = value;
+    }
+  }
+
+  markGroupAsVisited() {
+    if (this._activeCue) {
+      this._activeGroupCues.forEach(({ group, id }) => {
+        this._storage.markCueAsVisited(group, id);
+      });
+      this._cues = this._cues.filter((x) => x.group !== this._activeCue.group);
+    }
   }
 }
