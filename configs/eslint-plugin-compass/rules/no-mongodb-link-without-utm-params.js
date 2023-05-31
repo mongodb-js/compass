@@ -7,10 +7,10 @@ const EXCLUDED_MONGODB_HOSTS = [
 
 const isMongodbURL = (str) => {
   try {
-    const { hostname } = new URL(str);
+    const url = new URL(str);
     return (
-      hostname.endsWith('mongodb.com') &&
-      !EXCLUDED_MONGODB_HOSTS.includes(hostname)
+      url.hostname.endsWith('mongodb.com') &&
+      !EXCLUDED_MONGODB_HOSTS.includes(url.hostname)
     );
   } catch (error) {
     return false;
