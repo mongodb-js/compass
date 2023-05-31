@@ -68,21 +68,22 @@ const createClusterButtonLightModeStyles = css({
 function AtlasHelpSection() {
   const darkMode = useDarkMode();
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
-  const { refEl: newToCompassRef } = useGuideCue({
-    id: 'new-to-compass',
-    groupId: 'Connection Help',
-    title: 'New to Compass',
-    content: <p>New to Compass?</p>,
-    intersectingRef,
-  });
-
-  const { refEl: clusterButtonRef } = useGuideCue({
-    id: 'create-cluster',
-    groupId: 'Connection Help',
-    title: 'Create a cluster',
-    content: <p>Don't have a cluster?</p>,
-    intersectingRef,
-  });
+  const [newToCompassRef, clusterButtonRef] = useGuideCue([
+    {
+      id: 'new-to-compass',
+      groupId: 'Connection Help',
+      title: 'New to Compass',
+      content: <p>New to Compass?</p>,
+      intersectingRef,
+    },
+    {
+      id: 'create-cluster',
+      groupId: 'Connection Help',
+      title: 'Create a cluster',
+      content: <p>Don't have a cluster?</p>,
+      intersectingRef,
+    },
+  ]);
 
   return (
     <div
@@ -129,21 +130,22 @@ function AtlasHelpSection() {
 function FormHelp(): React.ReactElement {
   const [isAtlasHelpVisible, setIsAtlasHelpVisible] = useState(false);
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
-  const { refEl: connectionStringRef } = useGuideCue({
-    id: 'find-cs',
-    groupId: 'Connection Help',
-    title: 'Find Connection String',
-    content: <p>Its awesome?</p>,
-    intersectingRef,
-  });
-
-  const { refEl: exampleRef } = useGuideCue({
-    id: 'example-cs',
-    groupId: 'Connection Help',
-    title: 'Example Connection String',
-    content: <p>Its awesome, ain't it?</p>,
-    intersectingRef,
-  });
+  const [connectionStringRef, exampleRef] = useGuideCue([
+    {
+      id: 'find-cs',
+      groupId: 'Connection Help',
+      title: 'Find Connection String',
+      content: <p>Its awesome?</p>,
+      intersectingRef,
+    },
+    {
+      id: 'example-cs',
+      groupId: 'Connection Help',
+      title: 'Example Connection String',
+      content: <p>Its awesome, ain't it?</p>,
+      intersectingRef,
+    },
+  ]);
 
   return (
     <div ref={intersectingRef} className={formHelpContainerStyles}>

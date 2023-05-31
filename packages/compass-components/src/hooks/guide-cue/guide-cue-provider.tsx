@@ -1,6 +1,10 @@
 import React from 'react';
 import { GuideCue as LGGuideCue } from '../..';
-import { GuideCueService, type Cue } from './guide-cue-service';
+import {
+  GuideCueService,
+  type Cue,
+  type CueRemovedEventDetail,
+} from './guide-cue-service';
 import { type GuideCueStorage } from './guide-cue-storage';
 
 export const GuideCueContext = React.createContext<
@@ -88,6 +92,26 @@ const CompassGuideCue = ({
       service.removeEventListener('cue-added', listener);
     };
   }, [setHasMoreCues]);
+
+  /**
+   * Listener when a cue is removed from the list.
+   */
+  React.useEffect(() => {
+    const service = serviceRef.current;
+    const listener = ({
+      detail: {
+        cue: { id, groupId },
+      },
+    }: CueRemovedEventDetail) => {
+      if (cue?.groupId === groupId && cue.id === id) {
+        setCue(null);
+      }
+    };
+    service.addEventListener('cue-removed', listener);
+    return () => {
+      service.removeEventListener('cue-removed', listener);
+    };
+  }, [cue]);
 
   const onNext = React.useCallback(() => {
     serviceRef.current.markCueAsVisited();

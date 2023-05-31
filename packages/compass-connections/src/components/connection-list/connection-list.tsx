@@ -166,29 +166,29 @@ function ConnectionList({
 
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
 
-  const { refEl: connectionBtnRef } = useGuideCue({
-    id: 'sidebar-connection-button',
-    groupId: 'Sidebar',
-    title: 'Create new connection',
-    content: <p>Click here to create a new connection.</p>,
-    intersectingRef,
-  });
-
-  const { refEl: favoriteRef } = useGuideCue({
-    id: 'sidebar-favorite-connections',
-    groupId: 'Sidebar',
-    title: 'Your favorites',
-    content: <p>Saved connections.</p>,
-    intersectingRef,
-  });
-
-  const { refEl: recentRef } = useGuideCue({
-    id: 'sidebar-recent-connections',
-    groupId: 'Sidebar',
-    title: 'Your recents',
-    content: <p>Recent connections.</p>,
-    intersectingRef,
-  });
+  const [connectionBtnRef, favoriteRef, recentRef] = useGuideCue([
+    {
+      id: 'sidebar-connection-button',
+      groupId: 'Sidebar',
+      title: 'Create new connection',
+      content: <p>Click here to create a new connection.</p>,
+      intersectingRef,
+    },
+    {
+      id: 'sidebar-favorite-connections',
+      groupId: 'Sidebar',
+      title: 'Your favorites',
+      content: <p>Saved connections.</p>,
+      intersectingRef,
+    },
+    {
+      id: 'sidebar-recent-connections',
+      groupId: 'Sidebar',
+      title: 'Your recents',
+      content: <p>Recent connections.</p>,
+      intersectingRef,
+    },
+  ]);
 
   return (
     <Fragment>

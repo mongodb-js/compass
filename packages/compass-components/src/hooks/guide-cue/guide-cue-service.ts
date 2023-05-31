@@ -18,8 +18,14 @@ type CueWithServiceProps = Cue & {
   // update this to false and never show again.
   isIntersecting: boolean;
 };
+
+export type CueAddedEventDetail = CustomEvent;
+export type CueRemovedEventDetail = CustomEvent<{
+  cue: Pick<Cue, 'id' | 'groupId'>;
+}>;
 interface GuideCueEventMap {
-  'cue-added': CustomEvent;
+  'cue-added': CueAddedEventDetail;
+  'cue-removed': CueRemovedEventDetail;
 }
 
 /**
@@ -127,7 +133,11 @@ export class GuideCueService extends EventTarget {
     );
   }
 
-  removeCue(cue: Pick<Cue, 'groupId' | 'id'>) {
+  removeCues(cues: Pick<Cue, 'groupId' | 'id'>[]) {
+    cues.forEach(this.removeCue.bind(this));
+  }
+
+  private removeCue(cue: Pick<Cue, 'groupId' | 'id'>) {
     const { groupIndex, listIndex } = this.getCueIndexes(cue);
     if (listIndex !== -1) {
       this._cues.splice(listIndex, 1);
@@ -135,6 +145,12 @@ export class GuideCueService extends EventTarget {
     if (groupIndex !== -1) {
       this._activeGroupCues.splice(groupIndex, 1);
     }
+
+    return this.dispatchEvent(
+      new CustomEvent('cue-removed', {
+        detail: { cue },
+      })
+    );
   }
 
   getNextCue() {

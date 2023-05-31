@@ -118,45 +118,43 @@ export function StageToolbar({
 
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
 
-  const { refEl: ref1 } = useGuideCue({
-    id: 'Stage Collapser',
-    groupId: 'Stage Toolbar',
-    title: 'Collapser',
-    content: <p>Collage a stage</p>,
-    intersectingRef,
-  });
-
-  const { refEl: ref2 } = useGuideCue({
-    id: 'Stage Number',
-    groupId: 'Stage Toolbar',
-    title: 'Number',
-    content: <p>Stage number</p>,
-    intersectingRef,
-  });
-
-  const { refEl: ref3 } = useGuideCue({
-    id: 'Stage Dropdown',
-    groupId: 'Stage Toolbar',
-    title: 'Dropdown',
-    content: <p>Stage select dropdown</p>,
-    intersectingRef,
-  });
-
-  const { refEl: ref4 } = useGuideCue({
-    id: 'Stage Toggle',
-    groupId: 'Stage Toolbar',
-    title: 'Toggle',
-    content: <p>Toggle your stage here</p>,
-    intersectingRef,
-  });
-
-  const { refEl: ref5 } = useGuideCue({
-    id: 'Stage Focus',
-    groupId: 'Stage Toolbar',
-    title: 'Focus',
-    content: <p>Focus on stage here</p>,
-    intersectingRef,
-  });
+  const [ref1, ref2, ref3, ref4, ref5] = useGuideCue([
+    {
+      id: 'Stage Collapser',
+      groupId: 'Stage Toolbar',
+      title: 'Collapser',
+      content: <p>Collage a stage</p>,
+      intersectingRef,
+    },
+    {
+      id: 'Stage Number',
+      groupId: 'Stage Toolbar',
+      title: 'Number',
+      content: <p>Stage number</p>,
+      intersectingRef,
+    },
+    {
+      id: 'Stage Dropdown',
+      groupId: 'Stage Toolbar',
+      title: 'Dropdown',
+      content: <p>Stage select dropdown</p>,
+      intersectingRef,
+    },
+    {
+      id: 'Stage Toggle',
+      groupId: 'Stage Toolbar',
+      title: 'Toggle',
+      content: <p>Toggle your stage here</p>,
+      intersectingRef,
+    },
+    {
+      id: 'Stage Focus',
+      groupId: 'Stage Toolbar',
+      title: 'Focus',
+      content: <p>Focus on stage here</p>,
+      intersectingRef,
+    },
+  ]);
 
   return (
     <div

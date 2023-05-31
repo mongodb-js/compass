@@ -98,46 +98,43 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
 
-  const { refEl: ref1 } = useGuideCue({
-    id: 'Previous',
-    groupId: 'FocusMode',
-    title: 'Navigate between stages',
-    content: <p>Goto previous stage</p>,
-    intersectingRef,
-  });
-
-  const { refEl: ref2 } = useGuideCue({
-    id: 'Select Stage',
-    groupId: 'FocusMode',
-    title: 'Navigate between stages',
-    content: <p>Stage dropdow</p>,
-    intersectingRef,
-  });
-
-  const { refEl: ref3 } = useGuideCue({
-    id: 'Next',
-    groupId: 'FocusMode',
-    title: 'Navigate between stages',
-    content: <p>Goto next stage</p>,
-    intersectingRef,
-  });
-
-  const { refEl: ref4 } = useGuideCue({
-    id: 'Toggle',
-    groupId: 'FocusMode',
-    title: 'Toggle stage',
-    content: <p>Toggle stage</p>,
-    intersectingRef,
-  });
-
-  const { refEl: ref5 } = useGuideCue({
-    id: 'Add Stage',
-    groupId: 'FocusMode',
-    title: 'Add stages',
-    content: <p>Add stage after or before</p>,
-    intersectingRef,
-  });
-
+  const [ref1, ref2, ref3, ref4, ref5] = useGuideCue([
+    {
+      id: 'Previous',
+      groupId: 'FocusMode',
+      title: 'Navigate between stages',
+      content: <p>Goto previous stage</p>,
+      intersectingRef,
+    },
+    {
+      id: 'Select Stage',
+      groupId: 'FocusMode',
+      title: 'Navigate between stages',
+      content: <p>Stage dropdow</p>,
+      intersectingRef,
+    },
+    {
+      id: 'Next',
+      groupId: 'FocusMode',
+      title: 'Navigate between stages',
+      content: <p>Goto next stage</p>,
+      intersectingRef,
+    },
+    {
+      id: 'Toggle',
+      groupId: 'FocusMode',
+      title: 'Toggle stage',
+      content: <p>Toggle stage</p>,
+      intersectingRef,
+    },
+    {
+      id: 'Add Stage',
+      groupId: 'FocusMode',
+      title: 'Add stages',
+      content: <p>Add stage after or before</p>,
+      intersectingRef,
+    },
+  ]);
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
 

@@ -9,22 +9,24 @@ type GuideCueProps = {
   intersectingRef: React.RefObject<HTMLElement>;
 };
 
-export const useGuideCue = (cue: GuideCueProps) => {
+export const useGuideCue = (cues: GuideCueProps[]) => {
   const context = React.useContext(GuideCueContext);
-  const refEl = React.useRef<HTMLElement | null>(null);
+  const refs = Array.from({ length: cues.length }, () =>
+    React.createRef<HTMLElement>()
+  );
   if (!context) {
     throw new Error('useGuideCue can only be used inside GuideCueContext');
   }
   React.useEffect(() => {
-    if (refEl.current && cue.intersectingRef) {
-      context.cueService.addCue({ ...cue, refEl });
-    }
+    cues.forEach((cue, index) => {
+      if (refs[index].current && cue.intersectingRef) {
+        context.cueService.addCue({ ...cue, refEl: refs[index] });
+      }
+    });
     return () => {
-      context.cueService.removeCue(cue);
+      context.cueService.removeCues(cues);
     };
-  }, [refEl]);
+  }, [refs, cues]);
 
-  return {
-    refEl,
-  };
+  return refs;
 };
