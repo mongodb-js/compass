@@ -21,6 +21,10 @@ export const GuideCueProvider = ({
   const [cue, setCue] = React.useState<Cue | null>(null);
   const [hasMoreCues, setHasMoreCues] = React.useState(true);
 
+  /**
+   * IntersectionObserver callback to determine if the intersectingRef
+   * of the current cue is visible. If not, we don't show the Guide Cue.
+   */
   const observerCallback = React.useCallback((entries) => {
     const [entry] = entries;
     if (!entry.isIntersecting) {
@@ -29,7 +33,10 @@ export const GuideCueProvider = ({
     }
   }, []);
 
-  // When cue is set
+  /**
+   * Effect to keep track of the visibility of the intersectingRef
+   * of the current cue.
+   */
   React.useEffect(() => {
     if (!cue) {
       return;
@@ -49,6 +56,10 @@ export const GuideCueProvider = ({
     };
   }, [cue]);
 
+  /**
+   * Effect to fetch the next cue. If we already have a cue or there
+   * are no more cues, we don't fetch anything.
+   */
   React.useEffect(() => {
     if (cue || !hasMoreCues) {
       return;
@@ -62,12 +73,15 @@ export const GuideCueProvider = ({
     setCue(nextCue);
   }, [cue, hasMoreCues]);
 
+  /**
+   * Listener when a new cue is added to the list.
+   */
   React.useEffect(() => {
     const service = serviceRef.current;
     const listener = () => setHasMoreCues(true);
-    service.addEventListener('cue-list-changed', listener);
+    service.addEventListener('cue-added', listener);
     return () => {
-      service.removeEventListener('cue-list-changed', listener);
+      service.removeEventListener('cue-added', listener);
     };
   }, [setHasMoreCues]);
 
@@ -78,11 +92,10 @@ export const GuideCueProvider = ({
 
   const onNextGroup = React.useCallback(() => {
     serviceRef.current.markGroupAsVisited();
-    serviceRef.current.moveToNextGroup();
     setCue(null);
   }, []);
 
-  console.log('GuideCueProvider.render ');
+  console.log('GuideCueProvider.render', cue);
 
   return (
     <GuideCueContext.Provider value={{ cueService: serviceRef.current }}>

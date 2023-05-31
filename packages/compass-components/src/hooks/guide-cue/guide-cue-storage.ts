@@ -1,4 +1,4 @@
 export interface GuideCueStorage {
-  isCueVisited: (group: string, id: string) => boolean;
-  markCueAsVisited: (group: string, id: string) => void;
+  isCueVisited: (groupId: string, cueId: string) => boolean;
+  markCueAsVisited: (groupId: string, cueId: string) => void;
 }

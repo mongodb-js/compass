@@ -168,7 +168,7 @@ function ConnectionList({
 
   const { refEl: connectionBtnRef } = useGuideCue({
     id: 'sidebar-connection-button',
-    group: 'Sidebar',
+    groupId: 'Sidebar',
     title: 'Create new connection',
     content: <p>Click here to create a new connection.</p>,
     intersectingRef,
@@ -176,7 +176,7 @@ function ConnectionList({
 
   const { refEl: favoriteRef } = useGuideCue({
     id: 'sidebar-favorite-connections',
-    group: 'Sidebar',
+    groupId: 'Sidebar',
     title: 'Your favorites',
     content: <p>Saved connections.</p>,
     intersectingRef,
@@ -184,7 +184,7 @@ function ConnectionList({
 
   const { refEl: recentRef } = useGuideCue({
     id: 'sidebar-recent-connections',
-    group: 'Sidebar',
+    groupId: 'Sidebar',
     title: 'Your recents',
     content: <p>Recent connections.</p>,
     intersectingRef,

@@ -70,7 +70,7 @@ function AtlasHelpSection() {
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
   const { refEl: newToCompassRef } = useGuideCue({
     id: 'new-to-compass',
-    group: 'Connection Help',
+    groupId: 'Connection Help',
     title: 'New to Compass',
     content: <p>New to Compass?</p>,
     intersectingRef,
@@ -78,7 +78,7 @@ function AtlasHelpSection() {
 
   const { refEl: clusterButtonRef } = useGuideCue({
     id: 'create-cluster',
-    group: 'Connection Help',
+    groupId: 'Connection Help',
     title: 'Create a cluster',
     content: <p>Don't have a cluster?</p>,
     intersectingRef,
@@ -131,7 +131,7 @@ function FormHelp(): React.ReactElement {
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
   const { refEl: connectionStringRef } = useGuideCue({
     id: 'find-cs',
-    group: 'Connection Help',
+    groupId: 'Connection Help',
     title: 'Find Connection String',
     content: <p>Its awesome?</p>,
     intersectingRef,
@@ -139,7 +139,7 @@ function FormHelp(): React.ReactElement {
 
   const { refEl: exampleRef } = useGuideCue({
     id: 'example-cs',
-    group: 'Connection Help',
+    groupId: 'Connection Help',
     title: 'Example Connection String',
     content: <p>Its awesome, ain't it?</p>,
     intersectingRef,
@@ -147,7 +147,9 @@ function FormHelp(): React.ReactElement {
 
   return (
     <div ref={intersectingRef} className={formHelpContainerStyles}>
-      <Button onClick={() => setIsAtlasHelpVisible(true)}>Enable Help</Button>
+      <Button onClick={() => setIsAtlasHelpVisible(!isAtlasHelpVisible)}>
+        Toggle Help
+      </Button>
       {isAtlasHelpVisible && <AtlasHelpSection />}
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>

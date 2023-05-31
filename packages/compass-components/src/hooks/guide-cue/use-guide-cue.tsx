@@ -4,7 +4,7 @@ import { GuideCueContext } from './guide-cue-provider';
 type GuideCueProps = {
   id: string;
   title: string;
-  group: string;
+  groupId: string;
   content: React.ReactNode;
   intersectingRef: React.RefObject<HTMLElement>;
 };

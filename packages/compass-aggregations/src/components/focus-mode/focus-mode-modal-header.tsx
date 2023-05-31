@@ -100,7 +100,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
   const { refEl: ref1 } = useGuideCue({
     id: 'Previous',
-    group: 'FocusMode',
+    groupId: 'FocusMode',
     title: 'Navigate between stages',
     content: <p>Goto previous stage</p>,
     intersectingRef,
@@ -108,7 +108,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
   const { refEl: ref2 } = useGuideCue({
     id: 'Select Stage',
-    group: 'FocusMode',
+    groupId: 'FocusMode',
     title: 'Navigate between stages',
     content: <p>Stage dropdow</p>,
     intersectingRef,
@@ -116,7 +116,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
   const { refEl: ref3 } = useGuideCue({
     id: 'Next',
-    group: 'FocusMode',
+    groupId: 'FocusMode',
     title: 'Navigate between stages',
     content: <p>Goto next stage</p>,
     intersectingRef,
@@ -124,7 +124,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
   const { refEl: ref4 } = useGuideCue({
     id: 'Toggle',
-    group: 'FocusMode',
+    groupId: 'FocusMode',
     title: 'Toggle stage',
     content: <p>Toggle stage</p>,
     intersectingRef,
@@ -132,7 +132,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 
   const { refEl: ref5 } = useGuideCue({
     id: 'Add Stage',
-    group: 'FocusMode',
+    groupId: 'FocusMode',
     title: 'Add stages',
     content: <p>Add stage after or before</p>,
     intersectingRef,

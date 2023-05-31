@@ -119,42 +119,42 @@ export function StageToolbar({
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
 
   const { refEl: ref1 } = useGuideCue({
-    id: 'Previous',
-    group: 'FocusMode',
-    title: 'Navigate between stages',
-    content: <p>Goto previous stage</p>,
+    id: 'Stage Collapser',
+    groupId: 'Stage Toolbar',
+    title: 'Collapser',
+    content: <p>Collage a stage</p>,
     intersectingRef,
   });
 
   const { refEl: ref2 } = useGuideCue({
-    id: 'Select Stage',
-    group: 'FocusMode',
-    title: 'Navigate between stages',
-    content: <p>Stage dropdow</p>,
+    id: 'Stage Number',
+    groupId: 'Stage Toolbar',
+    title: 'Number',
+    content: <p>Stage number</p>,
     intersectingRef,
   });
 
   const { refEl: ref3 } = useGuideCue({
-    id: 'Next',
-    group: 'FocusMode',
-    title: 'Navigate between stages',
-    content: <p>Goto next stage</p>,
+    id: 'Stage Dropdown',
+    groupId: 'Stage Toolbar',
+    title: 'Dropdown',
+    content: <p>Stage select dropdown</p>,
     intersectingRef,
   });
 
   const { refEl: ref4 } = useGuideCue({
-    id: 'Toggle',
-    group: 'FocusMode',
-    title: 'Toggle stage',
-    content: <p>Toggle stage</p>,
+    id: 'Stage Toggle',
+    groupId: 'Stage Toolbar',
+    title: 'Toggle',
+    content: <p>Toggle your stage here</p>,
     intersectingRef,
   });
 
   const { refEl: ref5 } = useGuideCue({
-    id: 'Add Stage',
-    group: 'FocusMode',
-    title: 'Add stages',
-    content: <p>Add stage after or before</p>,
+    id: 'Stage Focus',
+    groupId: 'Stage Toolbar',
+    title: 'Focus',
+    content: <p>Focus on stage here</p>,
     intersectingRef,
   });
 
@@ -174,9 +174,9 @@ export function StageToolbar({
         <div ref={ref1}>
           <StageCollapser index={index} />
         </div>
-        <Body ref={ref2} weight="medium">
-          Stage {idxInPipeline + 1}
-        </Body>
+        <div ref={ref2}>
+          <Body weight="medium">Stage {idxInPipeline + 1}</Body>
+        </div>
         <div ref={ref3} className={selectStyles}>
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
