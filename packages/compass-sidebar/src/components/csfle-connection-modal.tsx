@@ -91,7 +91,7 @@ export default function CSFLEConnectionModal({
       <Banner className={csfleBannerStyles}>
         In-Use Encryption is an Enterprise/Atlas-only feature of MongoDB.&nbsp;
         {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
-        <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields?utm_source=compass&utm_medium=product">
+        <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields">
           Learn More
         </Link>
       </Banner>

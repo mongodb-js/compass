@@ -12,7 +12,7 @@ const HELP_URLS = {
   '2DSPHERE': 'https://mongodb.com/docs/manual/core/2dsphere/',
   GEOHAYSTACK: 'https://mongodb.com/docs/manual/core/geohaystack/',
   GEOSPATIAL:
-    'https://mongodb.com/docs/manual/applications/geospatial-indexes/#geospatial-indexes/',
+    'https://mongodb.com/docs/manual/applications/geospatial-indexes/#geospatial-indexes',
   WILDCARD: 'https://mongodb.com/docs/manual/core/index-wildcard/',
   CLUSTERED: 'https://www.mongodb.com/docs/manual/core/clustered-collections/',
   // TODO: add an entry for COLUMNSTORE once the docs become available

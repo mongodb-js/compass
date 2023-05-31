@@ -10,7 +10,6 @@ import {
   OUT_STAGES,
 } from '@mongodb-js/mongodb-constants';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
-import { STAGE_HELP_BASE_URL } from '../constants';
 
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
@@ -205,7 +204,7 @@ export const getStageHelpLink = (stageOperator) => {
   if (!stageOperator) {
     return null;
   }
-  return `${STAGE_HELP_BASE_URL}/${stageOperator.replace(
+  return `https://www.mongodb.com/docs/manual/reference/operator/aggregation/${stageOperator.replace(
     /^\$/,
     ''
   )}/?utm_source=compass&utm_medium=product`;

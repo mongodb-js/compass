@@ -228,7 +228,7 @@ function feedbackForumLink(): MenuItemConstructorOptions {
     label: `&Suggest a Feature`,
     click() {
       void shell.openExternal(
-        'https://feedback.mongodb.com/forums/924283-compass/?utm_source=compass&utm_medium=product'
+        'https://feedback.mongodb.com/forums/924283-compass?utm_source=compass&utm_medium=product'
       );
     },
   };

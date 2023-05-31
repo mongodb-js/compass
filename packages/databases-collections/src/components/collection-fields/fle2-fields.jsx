@@ -10,8 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
-const HELP_URL_FLE2 =
-  'https://dochub.mongodb.org/core/rqe-encrypted-fields?utm_source=compass&utm_medium=product';
+const HELP_URL_FLE2 = 'https://dochub.mongodb.org/core/rqe-encrypted-fields';
 
 const kmsProviderNames = {
   local: 'Local',
