@@ -5,7 +5,7 @@ import path from 'path';
 import os from 'os';
 import AppRegistry from 'hadron-app-registry';
 
-import configureStore from '../../src/stores/query-history-store';
+import { configureStore } from '../stores/query-history-store';
 import { comparableQuery } from './comparable-query';
 import { addRecent } from '../modules/recent-queries';
 
@@ -14,8 +14,8 @@ describe('comparableQuery', function () {
   let store;
   let appRegistry;
 
-  beforeEach(function () {
-    tmpDir = fs.mkdtempSync(
+  beforeEach(async function () {
+    tmpDir = await fs.promises.mkdir(
       path.join(os.tmpdir(), 'comparable-query-storage-tests')
     );
     TestBackend.enable(tmpDir);

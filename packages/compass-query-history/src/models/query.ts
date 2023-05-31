@@ -26,6 +26,7 @@ export type AmpersandModelType<T> = T & {
   // TODO: options?: { success: () => void; error: () => void }
   destroy: () => void;
   save: () => void;
+  serialize: () => T;
 };
 
 export type QueryModelType = AmpersandModelType<QueryAttributes>;

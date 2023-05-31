@@ -1,5 +1,5 @@
-function comparableQuery(item) {
-  const query = {};
+function comparableQuery(item: { serialize: () => Record<string, any> }) {
+  const query: Record<string, any> = {};
   for (const [k, v] of Object.entries(item.serialize())) {
     if (k.startsWith('_')) {
       continue;
@@ -9,5 +9,4 @@ function comparableQuery(item) {
   return query;
 }
 
-export default comparableQuery;
 export { comparableQuery };

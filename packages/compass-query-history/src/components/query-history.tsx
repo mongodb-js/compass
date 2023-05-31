@@ -2,7 +2,7 @@ import React from 'react';
 import { css } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
-import QueryHistoryToolbar from './toolbar';
+import QueryHistoryToolbar from './query-history-toolbar';
 import { FavoriteQueriesList, RecentQueriesList } from './query-list';
 import type { RootState } from '../modules/query-history';
 

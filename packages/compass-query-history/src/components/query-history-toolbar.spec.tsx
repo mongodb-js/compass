@@ -5,17 +5,15 @@ import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mongodbns from 'mongodb-ns';
 
-import { Toolbar } from './toolbar';
+import { Toolbar } from './query-history-toolbar';
 
 function renderQueryHistoryToolbar(
   props?: Partial<React.ComponentProps<typeof Toolbar>>
 ) {
   return render(
     <Toolbar
-      actions={{
-        showRecent: sinon.stub(),
-        showFavorites: sinon.stub(),
-      }}
+      showRecent={sinon.stub()}
+      showFavorites={sinon.stub()}
       namespace={mongodbns('test.test')}
       showing="recent"
       {...props}
@@ -38,7 +36,7 @@ describe('Toolbar [Component]', function () {
   describe('#rendering', function () {
     beforeEach(function () {
       renderQueryHistoryToolbar({
-        actions,
+        ...actions,
       });
     });
 
@@ -56,7 +54,7 @@ describe('Toolbar [Component]', function () {
     describe('when viewing the Recent Queries tab', function () {
       beforeEach(function () {
         renderQueryHistoryToolbar({
-          actions,
+          ...actions,
           showing: 'recent',
         });
       });
@@ -83,7 +81,7 @@ describe('Toolbar [Component]', function () {
     describe('when viewing the Favorites tab', function () {
       beforeEach(function () {
         renderQueryHistoryToolbar({
-          actions,
+          ...actions,
           showing: 'favorites',
         });
       });
