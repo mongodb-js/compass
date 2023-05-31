@@ -7,7 +7,8 @@ import { connectMongoClientCompass as connectMongoClient } from './connect-mongo
 import type { ConnectionOptions } from './connection-options';
 
 const defaultOptions = {
-  productDocsLink: 'https://www.mongodb.com/docs/compass/',
+  productDocsLink:
+    'https://www.mongodb.com/docs/compass/?utm_source=compass&utm_medium=product',
   productName: 'MongoDB Compass',
 };
 
