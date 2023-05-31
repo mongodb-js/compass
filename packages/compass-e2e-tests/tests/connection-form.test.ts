@@ -709,7 +709,7 @@ describe('Connection form (feature flagged OIDC)', function () {
       authMethod: 'MONGODB-OIDC',
       proxyMethod: 'none',
       sslConnection: 'DEFAULT',
-      oidcPrincipal: 'testUser',
+      oidcUsername: 'testUser',
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,

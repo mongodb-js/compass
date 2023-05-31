@@ -65,6 +65,8 @@ describe('connectMongoClient', function () {
       expect(options).to.deep.equal({
         monitorCommands: true,
         useSystemCA: undefined,
+        authMechanismProperties: {},
+        oidc: {},
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
         ...defaultOptions,
@@ -105,6 +107,8 @@ describe('connectMongoClient', function () {
         monitorCommands: true,
         useSystemCA: undefined,
         autoEncryption,
+        authMechanismProperties: {},
+        oidc: {},
         parentHandle: options.parentHandle,
         ...defaultOptions,
       });
@@ -133,6 +137,8 @@ describe('connectMongoClient', function () {
       assert.deepStrictEqual(options, {
         monitorCommands: true,
         useSystemCA: undefined,
+        authMechanismProperties: {},
+        oidc: {},
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
         ...defaultOptions,
