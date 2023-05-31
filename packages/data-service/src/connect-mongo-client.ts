@@ -36,6 +36,8 @@ export function prepareOIDCOptions(
     authMechanismProperties: {},
   };
 
+  options.oidc.allowedFlows ??= ['auth-code'];
+
   // TODO(COMPASS-6849): Add a way to properly override openBrowser.
   if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
     options.oidc.openBrowser = {

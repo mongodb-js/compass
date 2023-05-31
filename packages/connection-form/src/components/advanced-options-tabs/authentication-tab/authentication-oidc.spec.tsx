@@ -138,7 +138,7 @@ describe('AuthenticationOIDC Connection Form', function () {
     await expectToConnectWith({
       connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
       oidc: {
-        allowedFlows: ['device-auth'],
+        allowedFlows: ['auth-code', 'device-auth'],
       },
     });
   });
@@ -148,7 +148,9 @@ describe('AuthenticationOIDC Connection Form', function () {
     fireEvent.click(screen.getByText('Enable Device Authentication Flow'));
     await expectToConnectWith({
       connectionString: 'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC',
-      oidc: {},
+      oidc: {
+        allowedFlows: ['auth-code'],
+      },
     });
   });
 });

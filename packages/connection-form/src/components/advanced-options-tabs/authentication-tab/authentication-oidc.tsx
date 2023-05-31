@@ -124,18 +124,15 @@ function AuthenticationOIDC({
                 target: { checked },
               }: React.ChangeEvent<HTMLInputElement>) => {
                 if (checked) {
-                  const newAllowedFlows: AuthFlowType[] = Array.isArray(
-                    connectionOptions.oidc?.allowedFlows
-                  )
-                    ? [
-                        ...(connectionOptions.oidc
-                          ?.allowedFlows as AuthFlowType[]),
-                        'device-auth',
-                      ]
-                    : ['device-auth'];
+                  const newAllowedFlows: AuthFlowType[] = [
+                    'auth-code',
+                    'device-auth',
+                  ];
                   return handleFieldChanged('allowedFlows', newAllowedFlows);
                 }
 
+                // If checked then unchecked this will leave the `allowedHosts`
+                // as ['auth-code'], which is what we default to in the data-service.
                 const newAllowedFlows = (
                   connectionOptions.oidc?.allowedFlows as AuthFlowType[]
                 )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth');
