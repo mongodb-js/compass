@@ -10,6 +10,11 @@ ruleTester.run('no-mongodb-link-without-utm-params', rule, {
       parserOptions: { ecmaVersion: 2021 },
     },
     {
+      code: "const url = 'https://mongodb.com'; // (inside a test file)",
+      parserOptions: { ecmaVersion: 2021 },
+      filename: 'random.test.js',
+    },
+    {
       code: "const url = 'https://mongodb.org?utm_source=compass&utm_medium=product';",
       parserOptions: { ecmaVersion: 2021 },
     },
