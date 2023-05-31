@@ -19,9 +19,16 @@ module.exports = {
   },
 
   create(context) {
+    const isTestFile = /\.(test|spec)\.(js|jsx|ts|tsx)$/.test(
+      context.getPhysicalFilename()
+    );
     return {
       Literal(node) {
-        if (typeof node.value === 'string' && isMongodbURL(node.value)) {
+        if (
+          !isTestFile &&
+          typeof node.value === 'string' &&
+          isMongodbURL(node.value)
+        ) {
           const url = new URL(node.value);
 
           const missingParams = [];
