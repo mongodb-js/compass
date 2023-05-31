@@ -1220,7 +1220,7 @@ export function Combobox<M extends boolean>({
         children,
         (child: any) => child?.props?.description?.length ?? 0
       ) ?? [];
-    return Math.max(...characters);
+    return characters.length === 0 ? 0 : Math.max(...characters);
   }, [children]);
 
   return (
