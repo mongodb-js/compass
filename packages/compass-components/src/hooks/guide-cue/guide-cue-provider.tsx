@@ -6,13 +6,14 @@ import { type GuideCueStorage } from './guide-cue-storage';
 export const GuideCueContext = React.createContext<
   | {
       cueService: GuideCueService;
+      isMounted: boolean;
     }
   | undefined
 >(undefined);
 
 const OBSERVER_OPTIONS = {};
 
-export const GuideCueProvider = ({
+const CompassGuideCue = ({
   children,
   storage,
 }: React.PropsWithChildren<{ storage: GuideCueStorage }>) => {
@@ -98,10 +99,15 @@ export const GuideCueProvider = ({
     setCue(null);
   }, []);
 
+  const contextValue = React.useMemo(
+    () => ({ cueService: serviceRef.current, isMounted: true }),
+    []
+  );
+
   console.log('GuideCueProvider.render', cue);
 
   return (
-    <GuideCueContext.Provider value={{ cueService: serviceRef.current }}>
+    <GuideCueContext.Provider value={contextValue}>
       {cue && (
         <LGGuideCue
           title={cue.title}
@@ -122,4 +128,17 @@ export const GuideCueProvider = ({
       {children}
     </GuideCueContext.Provider>
   );
+};
+
+export const GuideCueProvider = ({
+  children,
+  storage,
+}: React.PropsWithChildren<{ storage: GuideCueStorage }>) => {
+  const hasParentContext = React.useContext(GuideCueContext)?.isMounted;
+
+  if (hasParentContext) {
+    return <>{children}</>;
+  }
+
+  return <CompassGuideCue storage={storage}>{children}</CompassGuideCue>;
 };
