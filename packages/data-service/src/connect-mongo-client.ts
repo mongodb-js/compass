@@ -27,7 +27,8 @@ export type CloneableMongoClient = MongoClient & {
 };
 
 export function prepareOIDCOptions(
-  connectionOptions: Readonly<ConnectionOptions>
+  connectionOptions: Readonly<ConnectionOptions>,
+  signal?: AbortSignal
 ): Required<Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>> {
   const options: Required<
     Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>
@@ -51,6 +52,10 @@ export function prepareOIDCOptions(
     options.authMechanismProperties.ALLOWED_HOSTS = ['*'];
   }
 
+  // @ts-expect-error Will go away on @types/node update
+  // with proper `AbortSignal` typings
+  options.oidc.signal = signal;
+
   return options;
 }
 
@@ -73,10 +78,7 @@ export async function connectMongoClientCompass(
     redactConnectionOptions(connectionOptions)
   );
 
-  const oidcOptions = prepareOIDCOptions(connectionOptions);
-  // @ts-expect-error Will go away on @types/node update
-  // with proper `AbortSignal` typings
-  oidcOptions.oidc.signal = signal;
+  const oidcOptions = prepareOIDCOptions(connectionOptions, signal);
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
