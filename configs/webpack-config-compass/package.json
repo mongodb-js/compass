@@ -84,7 +84,7 @@
     "postcss-preset-env": "^6.7.0",
     "react-refresh": "^0.10.0",
     "style-loader": "^3.2.1",
-    "webpack": "^5.52.1",
+    "webpack": "^5.85.0",
     "webpack-bundle-analyzer": "^4.4.2",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.9.0",
