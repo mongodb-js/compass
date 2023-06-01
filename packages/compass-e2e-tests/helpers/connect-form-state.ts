@@ -37,6 +37,7 @@ export interface ConnectFormState {
 
   // - OIDC
   oidcUsername?: string; // (Principal).
+  oidcDeviceAuthFlow?: boolean;
 
   // - AWS IAM
   awsAccessKeyId?: string;

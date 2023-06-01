@@ -97,13 +97,21 @@ function Connecting({
               <Body className={textContentStyles}>
                 Visit the following URL to complete authentication:
               </Body>
-              <Link href={oidcDeviceAuthVerificationUrl} target="_blank">
+              <Link
+                data-testid="oidc-device-auth-flow-verification-url"
+                href={oidcDeviceAuthVerificationUrl}
+                target="_blank"
+              >
                 {oidcDeviceAuthVerificationUrl}
               </Link>
               <Body className={textContentStyles}>
                 Enter the following code on that page:
               </Body>
-              <Code language="none" copyable>
+              <Code
+                data-testid="oidc-device-auth-flow-user-code"
+                language="none"
+                copyable
+              >
                 {oidcDeviceAuthUserCode}
               </Code>
             </div>

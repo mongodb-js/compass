@@ -1,5 +1,10 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  Selectors,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
@@ -18,16 +23,20 @@ import https from 'https';
 import { once } from 'events';
 import { expect } from 'chai';
 
-describe('OIDC integration', function () {
+const host = '127.0.0.1';
+
+describe.only('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
+  let tokenFetchCalls: number;
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
 
   let i = 0;
   let tmpdir: string;
+  let port: number;
   let server: ChildProcess;
   let serverExit: Promise<unknown>;
   let connectionString: string;
@@ -101,7 +110,7 @@ describe('OIDC integration', function () {
 
       serverExit = once(server, 'exit');
 
-      const port = await Promise.race([
+      port = await Promise.race([
         serverExit.then((code) => {
           throw new Error(`mongod exited with code ${code}`);
         }),
@@ -121,7 +130,7 @@ describe('OIDC integration', function () {
         })(),
       ]);
 
-      connectionString = `mongodb://127.0.0.1:${port}/?authMechanism=MONGODB-OIDC`;
+      connectionString = `mongodb://${host}:${port}/?authMechanism=MONGODB-OIDC`;
     }
 
     process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY = `${
@@ -130,7 +139,23 @@ describe('OIDC integration', function () {
   });
 
   beforeEach(async function () {
-    compass = await beforeTests();
+    tokenFetchCalls = 0;
+    getTokenPayload = () => {
+      tokenFetchCalls++;
+      return {
+        expires_in: 3600,
+        payload: {
+          // Define the user information stored inside the access tokens
+          groups: ['testgroup'],
+          sub: 'testuser',
+          aud: 'resource-server-audience-value',
+        },
+      };
+    };
+    compass = await beforeTests({
+      // TODO(COMPASS-6803): Remove feature flag: enableOidc.
+      extraSpawnArgs: ['--enable-oidc'],
+    });
     browser = compass.browser;
   });
 
@@ -148,19 +173,6 @@ describe('OIDC integration', function () {
   });
 
   it('can successfully connect with a connection string', async function () {
-    let tokenFetchCalls = 0;
-    getTokenPayload = () => {
-      tokenFetchCalls++;
-      return {
-        expires_in: 3600,
-        payload: {
-          // Define the user information stored inside the access tokens
-          groups: ['testgroup'],
-          sub: 'testuser',
-          aud: 'resource-server-audience-value',
-        },
-      };
-    };
     await browser.connectWithConnectionString(connectionString);
     const result: any = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -168,6 +180,38 @@ describe('OIDC integration', function () {
     );
 
     expect(tokenFetchCalls).to.equal(1); // No separate request from the shell
+    expect(result.authInfo).to.deep.equal({
+      authenticatedUsers: [{ user: 'dev/testuser', db: '$external' }],
+      authenticatedUserRoles: [{ role: 'dev/testgroup', db: 'admin' }],
+    });
+  });
+
+  it('can successfully connect with the connection form and device auth', async function () {
+    await browser.setConnectFormState({
+      hosts: [`${host}:${port}`],
+      authMethod: 'MONGODB-OIDC',
+      oidcDeviceAuthFlow: true,
+    });
+    await browser.clickVisible(Selectors.ConnectButton);
+
+    // TODO: Ensure it's showing the url and user code.
+    const deviceAuthUrlElement = await browser.$(
+      Selectors.ConnectingOIDCDeviceAuthFlowVerificationUrl
+    );
+    await deviceAuthUrlElement.waitForDisplayed();
+    const userCodeElement = await browser.$(
+      Selectors.ConnectingOIDCDeviceAuthFlowUserCode
+    );
+    await userCodeElement.waitForDisplayed();
+
+    await browser.waitForConnectionResult('success');
+
+    const result: any = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+
+    expect(tokenFetchCalls).to.equal(1); // No separate request from the shell.
     expect(result.authInfo).to.deep.equal({
       authenticatedUsers: [{ user: 'dev/testuser', db: '$external' }],
       authenticatedUserRoles: [{ role: 'dev/testgroup', db: 'admin' }],

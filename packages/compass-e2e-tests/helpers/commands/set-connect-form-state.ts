@@ -168,6 +168,12 @@ export async function setConnectFormState(
       state.oidcUsername
     );
   }
+  if (state.oidcDeviceAuthFlow) {
+    await browser.expandAccordion(Selectors.ConnectionFormOIDCOptionsAccordion);
+    await browser.clickParent(
+      Selectors.ConnectionFormInputOIDCDeviceAuthCheckbox
+    );
+  }
 
   // FLE2
   await browser.navigateToConnectTab('In-Use Encryption');
