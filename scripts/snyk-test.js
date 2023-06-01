@@ -3,14 +3,8 @@ const path = require('path');
 const { promises: fs } = require('fs');
 const os = require('os');
 const { glob } = require('glob');
-
-async function spawn(cmd, args, opts) {
-  return new Promise((resolve, reject) => {
-    const proc = childProcess.spawn(cmd, args, opts);
-    proc.on('error', (err) => reject(err));
-    proc.on('close', (code) => resolve(code));
-  });
-}
+const { promisify } = require('util');
+const spawn = promisify(childProcess.execFile);
 
 async function snykTest(cwd) {
   const tmpPath = path.join(os.tmpdir(), 'tempfile-' + Date.now());
