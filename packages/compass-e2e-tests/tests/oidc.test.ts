@@ -158,11 +158,11 @@ describe('OIDC integration', function () {
 
   afterEach(async function () {
     await afterTest(compass, this.currentTest);
+    await afterTests(compass, this.currentTest);
   });
 
   after(async function () {
     delete process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY;
-    await afterTests(compass, this.currentTest);
     server?.kill();
     await serverExit;
     await oidcMockProvider?.close();
