@@ -25,6 +25,24 @@ import {
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
 
+const urlShouldHaveUtmParams = ({ hostname }: URL) => {
+  const EXCLUDED_MONGODB_HOSTS = [
+    'compass-maps.mongodb.com',
+    'evergreen.mongodb.com',
+    'downloads.mongodb.com',
+    'cloud.mongodb.com',
+  ];
+
+  try {
+    return (
+      /^(.*\.)?mongodb\.com$/.test(hostname) &&
+      !EXCLUDED_MONGODB_HOSTS.includes(hostname)
+    );
+  } catch (error) {
+    return false;
+  }
+};
+
 const earlyOpenUrls: string[] = [];
 function earlyOpenUrlListener(
   event: { preventDefault: () => void },
@@ -166,7 +184,17 @@ function showConnectWindow(
    * Open all external links in the system's web browser.
    */
   window.webContents.setWindowOpenHandler((details) => {
-    void shell.openExternal(details.url);
+    let urlToOpen = details.url;
+    try {
+      const url = new URL(details.url);
+      if (urlShouldHaveUtmParams(url)) {
+        url.searchParams.set('utm_source', 'compass');
+        url.searchParams.set('utm_medium', 'product');
+        urlToOpen = url.toString();
+      }
+    } finally {
+      void shell.openExternal(urlToOpen);
+    }
     return { action: 'deny' };
   });
 
