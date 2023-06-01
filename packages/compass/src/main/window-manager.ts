@@ -33,14 +33,10 @@ const urlShouldHaveUtmParams = ({ hostname }: URL) => {
     'cloud.mongodb.com',
   ];
 
-  try {
-    return (
-      /^(.*\.)?mongodb\.com$/.test(hostname) &&
-      !EXCLUDED_MONGODB_HOSTS.includes(hostname)
-    );
-  } catch (error) {
-    return false;
-  }
+  return (
+    /^(.*\.)?mongodb\.com$/.test(hostname) &&
+    !EXCLUDED_MONGODB_HOSTS.includes(hostname)
+  );
 };
 
 const earlyOpenUrls: string[] = [];
