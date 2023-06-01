@@ -9,7 +9,7 @@ import { type GuideCueStorage } from './guide-cue-storage';
 
 export const GuideCueContext = React.createContext<
   | {
-      cueService: GuideCueService;
+      cueService?: GuideCueService;
       isMounted: boolean;
     }
   | undefined
@@ -157,11 +157,21 @@ const CompassGuideCue = ({
 export const GuideCueProvider = ({
   children,
   storage,
-}: React.PropsWithChildren<{ storage: GuideCueStorage }>) => {
+}: React.PropsWithChildren<{ storage?: GuideCueStorage }>) => {
   const hasParentContext = React.useContext(GuideCueContext)?.isMounted;
+
+  const withOutStorageContext = React.useMemo(() => ({ isMounted: true }), []);
 
   if (hasParentContext) {
     return <>{children}</>;
+  }
+
+  if (!storage) {
+    return (
+      <GuideCueContext.Provider value={withOutStorageContext}>
+        {children}
+      </GuideCueContext.Provider>
+    );
   }
 
   return <CompassGuideCue storage={storage}>{children}</CompassGuideCue>;

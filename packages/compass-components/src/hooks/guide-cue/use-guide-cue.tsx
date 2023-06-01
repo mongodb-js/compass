@@ -18,13 +18,16 @@ export const useGuideCue = (cues: GuideCueProps[]) => {
     throw new Error('useGuideCue can only be used inside GuideCueContext');
   }
   React.useEffect(() => {
+    if (!context.cueService) {
+      return;
+    }
     cues.forEach((cue, index) => {
       if (refs[index].current && cue.intersectingRef) {
-        context.cueService.addCue({ ...cue, refEl: refs[index] });
+        context.cueService!.addCue({ ...cue, refEl: refs[index] });
       }
     });
     return () => {
-      context.cueService.removeCues(cues);
+      context.cueService!.removeCues(cues);
     };
   }, [refs, cues]);
 
