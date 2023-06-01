@@ -4,6 +4,8 @@ import type { ConnectionInfo, ConnectionOptions } from 'mongodb-data-service';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep, isEqual } from 'lodash';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
+import { usePreference } from 'compass-preferences-model';
+
 import type {
   ConnectionFormError,
   ConnectionFormWarning,
@@ -52,9 +54,13 @@ import type {
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
 } from '../utils/csfle-handler';
+import {
+  handleUpdateOIDCParam,
+  setOIDCNotifyDeviceFlow,
+} from '../utils/oidc-handler';
+import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
-import { usePreference } from 'compass-preferences-model';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -164,7 +170,8 @@ type ConnectionFormFieldActions =
   | UpdateCsfleStoreCredentialsAction
   | UpdateCsfleAction
   | UpdateCsfleKmsAction
-  | UpdateCsfleKmsTlsAction;
+  | UpdateCsfleKmsTlsAction
+  | UpdateOIDCAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -545,6 +552,12 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: currentConnectionOptions,
       });
     }
+    case 'update-oidc-param': {
+      return handleUpdateOIDCParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
   }
 }
 
@@ -678,15 +691,24 @@ function setInitialState({
   }, [setErrors, connectionErrorMessage]);
 }
 
-export function adjustConnectionOptionsBeforeConnect(
-  connectionOptions: Readonly<ConnectionOptions>,
-  defaultAppName?: string
-): ConnectionOptions {
+export function adjustConnectionOptionsBeforeConnect({
+  connectionOptions,
+  defaultAppName,
+  notifyDeviceFlow,
+}: {
+  connectionOptions: Readonly<ConnectionOptions>;
+  defaultAppName?: string;
+  notifyDeviceFlow?: (deviceFlowInformation: {
+    verificationUrl: string;
+    userCode: string;
+  }) => void;
+}): ConnectionOptions {
   const transformers: ((
     connectionOptions: Readonly<ConnectionOptions>
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
     setAppNameParamIfMissing(defaultAppName),
+    setOIDCNotifyDeviceFlow(notifyDeviceFlow),
     applyForceConnectionOptions,
   ];
   for (const transformer of transformers) {

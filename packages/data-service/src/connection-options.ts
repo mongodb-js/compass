@@ -1,4 +1,11 @@
 import type { AutoEncryptionOptions } from 'mongodb';
+import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
+
+export type OIDCOptions = DevtoolsConnectOptions['oidc'] & {
+  // This sets the driver's `authMechanismProperties` (non-url)
+  // `ALLOWED_HOSTS` value to `*`.
+  enableUntrustedEndpoints?: boolean;
+};
 
 export interface ConnectionOptions {
   /**
@@ -15,6 +22,11 @@ export interface ConnectionOptions {
    * If true, the connection uses the system CA store instead of tlsCAFile or the default Node.js store.
    */
   useSystemCA?: boolean;
+
+  /**
+   * If present the connection should use OIDC authentication.
+   */
+  oidc?: OIDCOptions;
 
   /**
    * Options related to client-side field-level encryption.

@@ -3,7 +3,10 @@ import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
 import type { CommandStartedEvent } from 'mongodb';
 
-import { connectMongoClientCompass as connectMongoClient } from './connect-mongo-client';
+import {
+  connectMongoClientCompass as connectMongoClient,
+  prepareOIDCOptions,
+} from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
 
 const defaultOptions = {
@@ -65,6 +68,10 @@ describe('connectMongoClient', function () {
       expect(options).to.deep.equal({
         monitorCommands: true,
         useSystemCA: undefined,
+        authMechanismProperties: {},
+        oidc: {
+          allowedFlows: ['auth-code'],
+        },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
         ...defaultOptions,
@@ -105,6 +112,10 @@ describe('connectMongoClient', function () {
         monitorCommands: true,
         useSystemCA: undefined,
         autoEncryption,
+        authMechanismProperties: {},
+        oidc: {
+          allowedFlows: ['auth-code'],
+        },
         parentHandle: options.parentHandle,
         ...defaultOptions,
       });
@@ -133,6 +144,10 @@ describe('connectMongoClient', function () {
       assert.deepStrictEqual(options, {
         monitorCommands: true,
         useSystemCA: undefined,
+        authMechanismProperties: {},
+        oidc: {
+          allowedFlows: ['auth-code'],
+        },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
         ...defaultOptions,
@@ -234,5 +249,50 @@ describe('connectMongoClient', function () {
         expect(networkServerStates).to.deep.equal([false]);
       });
     });
+  });
+});
+
+// eslint-disable-next-line mocha/max-top-level-suites
+describe('prepareOIDCOptions', function () {
+  it('defaults allowedFlows to "auth-code"', function () {
+    const options = prepareOIDCOptions({
+      connectionString: 'mongodb://localhost:27017',
+    });
+
+    expect(options.oidc.allowedFlows).to.deep.equal(['auth-code']);
+  });
+
+  it('does not override allowedFlows when set', function () {
+    const options = prepareOIDCOptions({
+      connectionString: 'mongodb://localhost:27017',
+      oidc: {
+        allowedFlows: ['auth-code', 'device-auth'],
+      },
+    });
+    expect(options.oidc.allowedFlows).to.deep.equal([
+      'auth-code',
+      'device-auth',
+    ]);
+  });
+
+  it('sets ALLOWED_HOSTS on the authMechanismProperties (non-url) to * when enableUntrustedEndpoints is true', function () {
+    const options = prepareOIDCOptions({
+      connectionString: 'mongodb://localhost:27017',
+      oidc: {
+        enableUntrustedEndpoints: true,
+      },
+    });
+
+    expect(options.authMechanismProperties).to.deep.equal({
+      ALLOWED_HOSTS: ['*'],
+    });
+  });
+
+  it('does not set ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is not set', function () {
+    const options = prepareOIDCOptions({
+      connectionString: 'mongodb://localhost:27017',
+    });
+
+    expect(options.authMechanismProperties).to.deep.equal({});
   });
 });

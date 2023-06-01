@@ -99,6 +99,7 @@ import type {
   DevtoolsConnectOptions,
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
+import { omit } from 'lodash';
 
 // TODO: remove try/catch and refactor encryption related types
 // when the Node bundles native binding distributions
@@ -871,7 +872,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
   getMongoClientConnectionOptions():
     | { url: string; options: DevtoolsConnectOptions }
     | undefined {
-    return this._mongoClientConnectionOptions;
+    // `notifyDeviceFlow` is a function which cannot be serialized for inclusion
+    // in the shell.
+    return omit(
+      this._mongoClientConnectionOptions,
+      'options.oidc.notifyDeviceFlow'
+    );
   }
 
   getConnectionOptions(): Readonly<ConnectionOptions> {

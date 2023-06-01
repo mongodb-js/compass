@@ -11,6 +11,8 @@ import sinon from 'sinon';
 
 import Connecting from './connecting';
 
+const oidcUrlText = 'Visit the following URL to complete authentication';
+
 describe('Connecting Component', function () {
   let onCancelConnectionClickedSpy;
 
@@ -59,6 +61,9 @@ describe('Connecting Component', function () {
 
       it('shows the connecting modal', function () {
         expect(screen.getByText('Cancel')).to.be.visible;
+        expect(
+          screen.getByTestId('connecting-modal-content').textContent
+        ).to.not.include(oidcUrlText);
       });
 
       describe('when the cancel button is clicked', function () {
@@ -73,6 +78,31 @@ describe('Connecting Component', function () {
           expect(onCancelConnectionClickedSpy.called).to.equal(true);
         });
       });
+    });
+  });
+
+  describe('when there is an oidc device auth code and url', function () {
+    beforeEach(async function () {
+      render(
+        <Connecting
+          connectingStatusText="Connecting..."
+          onCancelConnectionClicked={onCancelConnectionClickedSpy}
+          oidcDeviceAuthVerificationUrl="https://localhost:27097"
+          oidcDeviceAuthUserCode="code"
+        />
+      );
+      await waitFor(() => {
+        return screen.getByText('Cancel');
+      });
+    });
+
+    it('shows the url', function () {
+      expect(
+        screen.getByTestId('connecting-modal-content').textContent
+      ).to.include(oidcUrlText);
+      expect(
+        screen.getByTestId('connecting-modal-content').textContent
+      ).to.include('https://localhost:27097');
     });
   });
 });

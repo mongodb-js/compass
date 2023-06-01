@@ -37,6 +37,15 @@ export function createNewConnectionInfo(): ConnectionInfo {
   };
 }
 
+function isOIDCAuth(connectionString: string): boolean {
+  const authMechanismString = (
+    new ConnectionString(connectionString).searchParams.get('authMechanism') ||
+    ''
+  ).toUpperCase();
+
+  return authMechanismString === 'MONGODB-OIDC';
+}
+
 function ensureWellFormedConnectionString(connectionString: string) {
   new ConnectionString(connectionString);
 }
@@ -48,6 +57,8 @@ type State = {
   connectionAttempt: ConnectionAttempt | null;
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
+  oidcDeviceAuthVerificationUrl: string | null;
+  oidcDeviceAuthUserCode: string | null;
 };
 
 export function defaultConnectionsState(): State {
@@ -58,6 +69,8 @@ export function defaultConnectionsState(): State {
     connections: [],
     connectionAttempt: null,
     connectionErrorMessage: null,
+    oidcDeviceAuthVerificationUrl: null,
+    oidcDeviceAuthUserCode: null,
   };
 }
 
@@ -66,6 +79,11 @@ type Action =
       type: 'attempt-connect';
       connectionAttempt: ConnectionAttempt;
       connectingStatusText: string;
+    }
+  | {
+      type: 'oidc-attempt-connect-notify-device-auth';
+      verificationUrl: string;
+      userCode: string;
     }
   | {
       type: 'cancel-connection-attempt';
@@ -103,6 +121,8 @@ export function connectionsReducer(state: State, action: Action): State {
         connectionAttempt: action.connectionAttempt,
         connectingStatusText: action.connectingStatusText,
         connectionErrorMessage: null,
+        oidcDeviceAuthVerificationUrl: null,
+        oidcDeviceAuthUserCode: null,
       };
     case 'cancel-connection-attempt':
       return {
@@ -121,6 +141,12 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         connectionAttempt: null,
         connectionErrorMessage: action.connectionErrorMessage,
+      };
+    case 'oidc-attempt-connect-notify-device-auth':
+      return {
+        ...state,
+        oidcDeviceAuthVerificationUrl: action.verificationUrl,
+        oidcDeviceAuthUserCode: action.userCode,
       };
     case 'set-active-connection':
       return {
@@ -398,11 +424,31 @@ export function useConnections({
       trackConnectionAttemptEvent(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
 
+      let notifyDeviceFlow:
+        | ((deviceFlowInformation: {
+            verificationUrl: string;
+            userCode: string;
+          }) => void)
+        | undefined;
+      if (isOIDCAuth(connectionInfo.connectionOptions.connectionString)) {
+        notifyDeviceFlow = (deviceFlowInformation: {
+          verificationUrl: string;
+          userCode: string;
+        }) => {
+          dispatch({
+            type: 'oidc-attempt-connect-notify-device-auth',
+            verificationUrl: deviceFlowInformation.verificationUrl,
+            userCode: deviceFlowInformation.userCode,
+          });
+        };
+      }
+
       const newConnectionDataService = await newConnectionAttempt.connect(
-        adjustConnectionOptionsBeforeConnect(
-          connectionInfo.connectionOptions,
-          appName
-        )
+        adjustConnectionOptionsBeforeConnect({
+          connectionOptions: connectionInfo.connectionOptions,
+          defaultAppName: appName,
+          notifyDeviceFlow,
+        })
       );
       connectingConnectionAttempt.current = undefined;
 

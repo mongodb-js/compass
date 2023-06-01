@@ -46,6 +46,9 @@ export async function getConnectFormState(
       Selectors.ConnectionFormAuthMechanismRadios
     ),
 
+    // OIDC
+    oidcUsername: getValue(browser, Selectors.ConnectionFormInputOIDCUsername),
+
     // Kerberos
     kerberosPrincipal: getValue(
       browser,

@@ -664,3 +664,67 @@ describe('Connection form', function () {
     );
   });
 });
+
+// TODO(COMPASS-6803): Move these tests into the main suite without
+// the feature flag set.
+// eslint-disable-next-line mocha/max-top-level-suites
+describe('Connection form (feature flagged OIDC)', function () {
+  let compass: Compass;
+  let browser: CompassBrowser;
+
+  before(async function () {
+    compass = await beforeTests({
+      // TODO(COMPASS-6803): Feature flag: enableOidc.
+      extraSpawnArgs: ['--enable-oidc'],
+    });
+    browser = compass.browser;
+  });
+
+  after(async function () {
+    await afterTests(compass, this.currentTest);
+  });
+
+  beforeEach(async function () {
+    await browser.resetConnectForm();
+  });
+
+  afterEach(async function () {
+    await afterTest(compass, this.currentTest);
+  });
+
+  it('parses a URI for OIDC authentication', async function () {
+    const connectionString =
+      'mongodb://testUser@localhost:27017/?authMechanism=MONGODB-OIDC';
+
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      connectionString
+    );
+
+    const expectedState: ConnectFormState = {
+      connectionString,
+      scheme: 'MONGODB',
+      hosts: ['localhost:27017'],
+      directConnection: false,
+      authMethod: 'MONGODB-OIDC',
+      proxyMethod: 'none',
+      sslConnection: 'DEFAULT',
+      oidcUsername: 'testUser',
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      tlsInsecure: false,
+      useSystemCA: false,
+      readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+    };
+
+    const state = await browser.getConnectFormState(true);
+    expect(state).to.deep.equal(expectedState);
+
+    await browser.setConnectFormState(expectedState);
+    expect(await browser.getConnectFormConnectionString(true)).to.equal(
+      connectionString
+    );
+  });
+});

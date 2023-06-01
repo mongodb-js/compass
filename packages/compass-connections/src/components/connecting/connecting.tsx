@@ -1,5 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { H3, Link, Modal, spacing, css } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Code,
+  H3,
+  Link,
+  Modal,
+  spacing,
+  css,
+} from '@mongodb-js/compass-components';
 
 import ConnectingAnimation from './connecting-animation';
 import ConnectingIllustration from './connecting-illustration';
@@ -27,7 +35,15 @@ const cancelButtonStyles = css({
   background: 'none',
   padding: 0,
   margin: 0,
+  marginTop: spacing[4],
+});
+
+const textContentStyles = css({
   marginTop: spacing[3],
+});
+
+const oidcContainerStyles = css({
+  padding: `0px ${spacing[4]}px`,
 });
 
 /**
@@ -36,9 +52,13 @@ const cancelButtonStyles = css({
 function Connecting({
   connectingStatusText,
   onCancelConnectionClicked,
+  oidcDeviceAuthVerificationUrl,
+  oidcDeviceAuthUserCode,
 }: {
   connectingStatusText: string;
   onCancelConnectionClicked: () => void;
+  oidcDeviceAuthVerificationUrl: string | null;
+  oidcDeviceAuthUserCode: string | null;
 }): React.ReactElement {
   const [showModal, setShowModal] = useState(false);
   const showModalDebounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(
@@ -71,8 +91,28 @@ function Connecting({
           id="connectingStatusText"
         >
           <ConnectingIllustration />
-          <H3 className={connectingStatusStyles}>{connectingStatusText}</H3>
-          <ConnectingAnimation />
+          {/* TODO(COMPASS-6875): When connecting with oidc, indicate that a browser has opened. */}
+          {oidcDeviceAuthVerificationUrl && oidcDeviceAuthUserCode ? (
+            <div className={oidcContainerStyles}>
+              <Body className={textContentStyles}>
+                Visit the following URL to complete authentication:
+              </Body>
+              <Link href={oidcDeviceAuthVerificationUrl} target="_blank">
+                {oidcDeviceAuthVerificationUrl}
+              </Link>
+              <Body className={textContentStyles}>
+                Enter the following code on that page:
+              </Body>
+              <Code language="none" copyable>
+                {oidcDeviceAuthUserCode}
+              </Code>
+            </div>
+          ) : (
+            <>
+              <H3 className={connectingStatusStyles}>{connectingStatusText}</H3>
+              <ConnectingAnimation />
+            </>
+          )}
           <Link
             as="button"
             data-testid="cancel-connection-button"
