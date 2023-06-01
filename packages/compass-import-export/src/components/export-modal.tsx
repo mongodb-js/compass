@@ -176,6 +176,10 @@ function ExportModal({
       title: 'Target output file',
       defaultPath: `${ns}.${fileType}`,
       buttonLabel: 'Select',
+      filters: [
+        { name: fileType, extensions: [fileType] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
     });
 
     fileBackend.onFilesChosen((files: string[]) => {
