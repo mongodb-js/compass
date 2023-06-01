@@ -24,8 +24,6 @@ interface ExplainTreeProps {
 
 const explainTreeStyles = css({
   zIndex: 1,
-  margin: 'auto',
-  marginTop: spacing[5],
 });
 
 const getNodeSize = (node: ExplainTreeNodeData): [number, number] => {

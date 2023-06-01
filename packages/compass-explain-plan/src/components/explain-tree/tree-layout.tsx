@@ -1,6 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { flextree } from 'd3-flextree';
-
+import { css } from '@mongodb-js/compass-components';
 import type { FlextreeNode } from 'd3-flextree';
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy';
 
@@ -72,6 +72,11 @@ function LinkPath<T>({
   );
 }
 
+const treeContainerStyles = css({
+  position: 'relative',
+  margin: '0 auto',
+});
+
 function TreeLayout<T>({
   data,
   getNodeSize,
@@ -116,7 +121,7 @@ function TreeLayout<T>({
 
   return (
     <div {...divProps}>
-      <div style={{ width, height, position: 'relative' }}>
+      <div style={{ width, height }} className={treeContainerStyles}>
         <svg
           ref={svgRef}
           width={width}
