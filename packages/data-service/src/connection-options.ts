@@ -1,13 +1,18 @@
 import type { AutoEncryptionOptions } from 'mongodb';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 
+type ExtractArrayEntryType<T> = T extends (infer U)[] ? U : never;
 export type OIDCOptions = Omit<
   NonNullable<DevtoolsConnectOptions['oidc']>,
-  'notifyDeviceFlow' | 'signal'
+  'notifyDeviceFlow' | 'signal' | 'allowedFlows'
 > & {
   // This sets the driver's `authMechanismProperties` (non-url)
   // `ALLOWED_HOSTS` value to `*`.
   enableUntrustedEndpoints?: boolean;
+
+  allowedFlows?: ExtractArrayEntryType<
+    NonNullable<DevtoolsConnectOptions['oidc']>['allowedFlows']
+  >[];
 };
 
 export interface ConnectionOptions {

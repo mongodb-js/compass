@@ -248,13 +248,10 @@ describe('OIDC integration', function () {
       return DEFAULT_TOKEN_PAYLOAD;
     };
 
-    await browser.setConnectFormState({
+    await browser.connectWithConnectionForm({
       hosts: [`${host}:${port}`],
       authMethod: 'MONGODB-OIDC',
     });
-    await browser.clickVisible(Selectors.ConnectButton);
-
-    await browser.waitForConnectionResult('success');
 
     const result: any = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 }).authInfo',
@@ -263,5 +260,67 @@ describe('OIDC integration', function () {
 
     expect(tokenFetchCalls).to.equal(1); // No separate request from the shell.
     expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
+  });
+
+  it('can successfully re-authenticate', async function () {
+    let afterReauth = false;
+    getTokenPayload = () => {
+      return {
+        ...DEFAULT_TOKEN_PAYLOAD,
+        ...(afterReauth ? {} : { expires_in: 10 }),
+      };
+    };
+
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      connectionString
+    );
+    await browser.clickVisible(Selectors.ConnectButton);
+
+    const modal = '[role=dialog]';
+    const confirmButton = 'button:nth-of-type(1)';
+    await browser.waitUntil(async () => {
+      const modalHeader = await browser.$(`${modal} h1`);
+      return (await modalHeader.getText()).includes('Authentication expired');
+    });
+
+    afterReauth = true;
+    await browser.clickVisible(`${modal} ${confirmButton}`);
+    const result: any = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
+      true
+    );
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
+  });
+
+  it('can decline re-authentication if wanted', async function () {
+    let afterReauth = false;
+    getTokenPayload = () => {
+      return {
+        ...DEFAULT_TOKEN_PAYLOAD,
+        ...(afterReauth ? {} : { expires_in: 10 }),
+      };
+    };
+
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      connectionString
+    );
+    await browser.clickVisible(Selectors.ConnectButton);
+
+    const modal = '[role=dialog]';
+    const cancelButton = 'button:nth-of-type(2)';
+    await browser.waitUntil(async () => {
+      const modalHeader = await browser.$(`${modal} h1`);
+      return (await modalHeader.getText()).includes('Authentication expired');
+    });
+
+    afterReauth = true;
+    await browser.clickVisible(`${modal} ${cancelButton}`);
+    const errorBanner = await browser.$('[role=alert]');
+    await errorBanner.waitForDisplayed();
+    expect(await errorBanner.getText()).to.include(
+      'Reauthentication declined by user'
+    );
   });
 });

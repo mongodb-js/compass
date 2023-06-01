@@ -65,7 +65,10 @@ import {
   configuredKMSProviders,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
-import type { CloneableMongoClient } from './connect-mongo-client';
+import type {
+  CloneableMongoClient,
+  ReauthenticationHandler,
+} from './connect-mongo-client';
 import {
   connectMongoClientDataService as connectMongoClient,
   createClonedClient,
@@ -702,9 +705,14 @@ export interface DataService {
   knownSchemaForCollection: CSFLECollectionTracker['knownSchemaForCollection'];
 
   /**
-   * Retuns a list of configured KMS providers for the current connection
+   * Returns a list of configured KMS providers for the current connection
    */
   configuredKMSProviders(): string[];
+
+  /**
+   * Register reauthentication handlers with this DataService instance.
+   */
+  addReauthenticationHandler(handler: ReauthenticationHandler): void;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -809,6 +817,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   private _tunnel?: SshTunnel;
   private _state?: DevtoolsConnectionState;
+  private _reauthenticationHandlers = new Set<ReauthenticationHandler>();
 
   /**
    * Stores the most recent topology description from the server's SDAM events:
@@ -877,11 +886,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
     | { url: string; options: DevtoolsConnectOptions }
     | undefined {
     // `notifyDeviceFlow` is a function which cannot be serialized for inclusion
-    // in the shell, `signal` is an abortSignal.
+    // in the shell, `signal` is an abortSignal, and `allowedFlows` is turned
+    // into a function by the connection code.
     return omit(
       this._mongoClientConnectionOptions,
       'options.oidc.notifyDeviceFlow',
-      'options.oidc.signal'
+      'options.oidc.signal',
+      'options.oidc.allowedFlows'
     );
   }
 
@@ -1251,6 +1262,30 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return databases;
   }
 
+  addReauthenticationHandler(handler: ReauthenticationHandler): void {
+    this._reauthenticationHandlers.add(handler);
+  }
+
+  private async _requestReauthenticationFromUser(): Promise<void> {
+    this._logger.info(
+      mongoLogId(1_001_000_194),
+      'Requesting re-authentication from user'
+    );
+    let threw = true;
+    try {
+      for (const handler of this._reauthenticationHandlers) await handler();
+      threw = false;
+    } finally {
+      this._logger.info(
+        mongoLogId(1_001_000_193),
+        'Completed re-authentication request',
+        {
+          wantsReauth: !threw,
+        }
+      );
+    }
+  }
+
   async connect({
     signal,
     productName,
@@ -1287,6 +1322,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
           logger: this._unboundLogger,
           productName,
           productDocsLink,
+          reauthenticationHandler:
+            this._requestReauthenticationFromUser.bind(this),
         });
 
       const attr = {
