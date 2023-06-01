@@ -19,6 +19,23 @@ type KeyListProps = {
   'data-testid'?: string;
 };
 
+const IndexBadge: React.FunctionComponent<{
+  field: string;
+  value: unknown;
+}> = ({ field, value }) => {
+  return (
+    <Badge
+      data-testid={`${field}-key`}
+      variant={BadgeVariant.LightGray}
+      className={badgeStyles}
+      role="listitem"
+    >
+      {field}
+      <IndexIcon direction={value} />
+    </Badge>
+  );
+};
+
 const IndexKeysBadge: React.FunctionComponent<KeyListProps> = ({
   keys,
   'data-testid': testId,
@@ -41,4 +58,4 @@ const IndexKeysBadge: React.FunctionComponent<KeyListProps> = ({
   );
 };
 
-export { IndexKeysBadge };
+export { IndexKeysBadge, IndexBadge };
