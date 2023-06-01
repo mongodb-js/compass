@@ -62,8 +62,8 @@ const warningIconStylesDark = css({
 });
 
 type ModalHeaderProps = {
-  title: string;
-  subtitle?: string;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
   variant?: Variant;
 };
 
