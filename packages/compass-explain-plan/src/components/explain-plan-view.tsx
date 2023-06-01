@@ -1,0 +1,163 @@
+import React, { useMemo, useState } from 'react';
+import {
+  Banner,
+  Icon,
+  KeylineCard,
+  SegmentedControl,
+  SegmentedControlOption,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
+import {
+  CodemirrorMultilineEditor,
+  prettify,
+} from '@mongodb-js/compass-editor';
+import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
+import ExplainTree from './explain-tree';
+import { ExplainPlanSummary } from './explain-plan-side-summary';
+import ExplainCannotVisualizeBanner from './explain-cannot-visualize-banner';
+
+const viewStyles = css({
+  height: '100%',
+  display: 'grid',
+  gridTemplateColumns: '1fr',
+  gridTemplateRows: 'auto 1fr',
+  rowGap: spacing[4],
+});
+
+const viewHeaderStyles = css({
+  display: 'grid',
+  rowGap: spacing[4],
+});
+
+const viewBodyContainerStyles = css({
+  display: 'flex',
+  overflow: 'hidden',
+  gap: spacing[4],
+});
+
+const contentStyles = css({
+  flex: '1 1 0%',
+});
+
+const editorContainerStyles = css({
+  height: '100%',
+  overflow: 'hidden',
+});
+
+const editorStyles = css({
+  '& .cm-editor': {
+    paddingLeft: spacing[2],
+  },
+});
+
+const explainTreeContainerStyles = css({
+  height: '100%',
+  overflow: 'auto',
+});
+
+const summaryStyles = css({
+  flex: 'none',
+});
+
+type ExplainPlanViewProps = Partial<
+  Pick<ExplainPlanModalState, 'explainPlan' | 'rawExplainPlan' | 'error'>
+>;
+
+export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
+  explainPlan,
+  rawExplainPlan,
+  error,
+}) => {
+  const [viewType, setViewType] = useState<'tree' | 'json'>(
+    error ? 'json' : 'tree'
+  );
+
+  const rawExplainPlanText = useMemo(() => {
+    return rawExplainPlan
+      ? prettify(JSON.stringify(rawExplainPlan), 'json')
+      : '';
+  }, [rawExplainPlan]);
+
+  const explainPlanIndexFields = useMemo(() => {
+    return (
+      explainPlan?.usedIndexes.flatMap((index) => {
+        return Object.entries(index.fields);
+      }) ?? []
+    );
+  }, [explainPlan]);
+
+  const isParsingError = Boolean(error && !explainPlan);
+
+  if (error && !isParsingError) {
+    return <Banner variant="danger">{error}</Banner>;
+  }
+
+  return (
+    <div className={viewStyles}>
+      <div className={viewHeaderStyles}>
+        <SegmentedControl
+          size="large"
+          onChange={setViewType as (value: string) => void}
+          value={viewType}
+        >
+          <SegmentedControlOption
+            value="tree"
+            glyph={<Icon glyph="Diagram"></Icon>}
+            disabled={!!error}
+          >
+            Visual Tree
+          </SegmentedControlOption>
+          <SegmentedControlOption
+            value="json"
+            glyph={<Icon glyph="CurlyBraces"></Icon>}
+            disabled={!!error}
+          >
+            Raw Output
+          </SegmentedControlOption>
+        </SegmentedControl>
+        {isParsingError && (
+          <ExplainCannotVisualizeBanner></ExplainCannotVisualizeBanner>
+        )}
+      </div>
+      <div className={viewBodyContainerStyles}>
+        <div className={contentStyles}>
+          {viewType === 'json' && (
+            <KeylineCard className={editorContainerStyles}>
+              <CodemirrorMultilineEditor
+                language="json"
+                text={rawExplainPlanText}
+                readOnly={true}
+                showAnnotationsGutter={false}
+                showLineNumbers={false}
+                formattable={false}
+                initialJSONFoldAll={false}
+                editorClassName={editorStyles}
+              ></CodemirrorMultilineEditor>
+            </KeylineCard>
+          )}
+          {viewType === 'tree' && (
+            <div className={explainTreeContainerStyles}>
+              <ExplainTree
+                executionStats={explainPlan?.executionStats}
+              ></ExplainTree>
+            </div>
+          )}
+        </div>
+        {!isParsingError && (
+          <div className={summaryStyles}>
+            <ExplainPlanSummary
+              docsReturned={explainPlan?.nReturned ?? 0}
+              docsExamined={explainPlan?.totalDocsExamined ?? 0}
+              executionTimeMs={explainPlan?.executionTimeMillis ?? 0}
+              sortedInMemory={explainPlan?.inMemorySort ?? false}
+              indexKeysExamined={explainPlan?.totalKeysExamined ?? 0}
+              indexType={explainPlan?.indexType ?? 'UNAVAILABLE'}
+              indexKeys={explainPlanIndexFields}
+            ></ExplainPlanSummary>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
