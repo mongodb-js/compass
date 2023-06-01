@@ -205,7 +205,7 @@ export const getStageHelpLink = (stageOperator) => {
   if (!stageOperator) {
     return null;
   }
-  return `${STAGE_HELP_BASE_URL}/${stageOperator.replace(/^\$/, '')}`;
+  return `${STAGE_HELP_BASE_URL}/${stageOperator.replace(/^\$/, '')}/`;
 };
 
 /**
