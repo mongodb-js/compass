@@ -4,7 +4,7 @@ const { promises: fs } = require('fs');
 const os = require('os');
 const { glob } = require('glob');
 const { promisify } = require('util');
-const spawn = promisify(childProcess.execFile);
+const execFile = promisify(childProcess.execFile);
 
 async function snykTest(cwd) {
   const tmpPath = path.join(os.tmpdir(), 'tempfile-' + Date.now());
@@ -13,18 +13,22 @@ async function snykTest(cwd) {
     console.info(`testing ${cwd} ...`);
     await fs.mkdir(path.join(cwd, `node_modules`), { recursive: true });
 
-    await spawn(
-      'npx',
-      [
-        'snyk',
-        'test',
-        '--all-projects',
-        '--severity-threshold=low',
-        '--dev',
-        `--json-file-output=${tmpPath}`,
-      ],
-      { cwd, stdio: 'inherit' }
-    );
+    try {
+      await execFile(
+        'npx',
+        [
+          'snyk',
+          'test',
+          '--all-projects',
+          '--severity-threshold=low',
+          '--dev',
+          `--json-file-output=${tmpPath}`,
+        ],
+        { cwd, stdio: 'inherit' }
+      );
+    } catch (err) {
+      console.warn(err);
+    }
 
     const res = JSON.parse(await fs.readFile(tmpPath));
     console.info(`testing ${cwd} done.`);
@@ -67,7 +71,7 @@ async function main() {
     JSON.stringify(results.flat(), null, 2)
   );
 
-  await spawn(
+  await execFile(
     'npx',
     [
       'snyk-to-html',
