@@ -87,7 +87,7 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
     );
   }, [explainPlan]);
 
-  const isParsingError = Boolean(error && !explainPlan);
+  const isParsingError = Boolean(error && rawExplainPlan && !explainPlan);
 
   if (error && !isParsingError) {
     return <Banner variant="danger">{error}</Banner>;
@@ -100,6 +100,7 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
           size="large"
           onChange={setViewType as (value: string) => void}
           value={viewType}
+          data-testid="explain-view-type-control"
         >
           <SegmentedControlOption
             value="tree"
@@ -133,6 +134,7 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
                 formattable={false}
                 initialJSONFoldAll={false}
                 editorClassName={editorStyles}
+                data-testid="raw-explain-plan"
               ></CodemirrorMultilineEditor>
             </KeylineCard>
           )}

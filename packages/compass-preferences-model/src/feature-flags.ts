@@ -17,6 +17,7 @@ export type FeatureFlags = {
   enableLgDarkmode: boolean;
   enableOidc: boolean; // COMPASS-6803 // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
+  newExplainPlan: boolean;
 };
 
 export const featureFlags: Required<{
@@ -56,6 +57,14 @@ export const featureFlags: Required<{
     description: {
       short: 'Stage Wizard',
       long: 'Create aggregation stages using Wizard.',
+    },
+  },
+
+  newExplainPlan: {
+    stage: 'development',
+    description: {
+      short: 'Access explain plan from query bar',
+      long: 'Explain plan is now accessible right from the query bar. To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.',
     },
   },
 };
