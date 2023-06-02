@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import { usePreference } from 'compass-preferences-model';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -47,6 +48,11 @@ function AuthenticationOIDC({
   const hasEnabledDeviceAuthFlow = !!(
     connectionOptions.oidc?.allowedFlows as AuthFlowType[]
   )?.includes?.('device-auth');
+
+  const showOIDCDeviceAuthFlow = !!usePreference(
+    'showOIDCDeviceAuthFlow',
+    React
+  );
 
   return (
     <>
@@ -118,45 +124,47 @@ function AuthenticationOIDC({
             />
           </FormFieldContainer>
 
-          <FormFieldContainer>
-            <Checkbox
-              onChange={({
-                target: { checked },
-              }: React.ChangeEvent<HTMLInputElement>) => {
-                if (checked) {
-                  const newAllowedFlows: AuthFlowType[] = [
-                    'auth-code',
-                    'device-auth',
-                  ];
-                  return handleFieldChanged('allowedFlows', newAllowedFlows);
-                }
+          {showOIDCDeviceAuthFlow && (
+            <FormFieldContainer>
+              <Checkbox
+                onChange={({
+                  target: { checked },
+                }: React.ChangeEvent<HTMLInputElement>) => {
+                  if (checked) {
+                    const newAllowedFlows: AuthFlowType[] = [
+                      'auth-code',
+                      'device-auth',
+                    ];
+                    return handleFieldChanged('allowedFlows', newAllowedFlows);
+                  }
 
-                // If checked then unchecked this will leave the `allowedHosts`
-                // as ['auth-code'], which is what we default to in the data-service.
-                const newAllowedFlows = (
-                  connectionOptions.oidc?.allowedFlows as AuthFlowType[]
-                )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth');
-                handleFieldChanged(
-                  'allowedFlows',
-                  newAllowedFlows.length > 0 ? newAllowedFlows : undefined
-                );
-              }}
-              data-testid="oidc-enable-device-auth-flow-input"
-              id="oidc-enable-device-auth-flow-input"
-              label={
-                <>
-                  <Label htmlFor="oidc-enable-device-auth-flow-input">
-                    Enable Device Authentication Flow
-                  </Label>
-                  <Description>
-                    Less secure authentication flow that can be used as a
-                    fallback when browser-based authentication is unavailable.
-                  </Description>
-                </>
-              }
-              checked={hasEnabledDeviceAuthFlow}
-            />
-          </FormFieldContainer>
+                  // If checked then unchecked this will leave the `allowedHosts`
+                  // as ['auth-code'], which is what we default to in the data-service.
+                  const newAllowedFlows = (
+                    connectionOptions.oidc?.allowedFlows as AuthFlowType[]
+                  )?.filter?.((allowedFlow) => allowedFlow !== 'device-auth');
+                  handleFieldChanged(
+                    'allowedFlows',
+                    newAllowedFlows.length > 0 ? newAllowedFlows : undefined
+                  );
+                }}
+                data-testid="oidc-enable-device-auth-flow-input"
+                id="oidc-enable-device-auth-flow-input"
+                label={
+                  <>
+                    <Label htmlFor="oidc-enable-device-auth-flow-input">
+                      Enable Device Authentication Flow
+                    </Label>
+                    <Description>
+                      Less secure authentication flow that can be used as a
+                      fallback when browser-based authentication is unavailable.
+                    </Description>
+                  </>
+                }
+                checked={hasEnabledDeviceAuthFlow}
+              />
+            </FormFieldContainer>
+          )}
         </Accordion>
       </FormFieldContainer>
     </>
