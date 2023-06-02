@@ -390,7 +390,13 @@ export const TypeEditor: React.FunctionComponent<{
           >
             {TYPES.map((type) => {
               return (
-                <option key={type} value={type} className={darkMode ? typeEditorOptionDark : typeEditorOptionLight}>
+                <option
+                  key={type}
+                  value={type}
+                  className={
+                    darkMode ? typeEditorOptionDark : typeEditorOptionLight
+                  }
+                >
                   {type}
                 </option>
               );
