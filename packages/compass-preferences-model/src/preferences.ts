@@ -36,6 +36,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     protectConnectionStrings?: boolean;
     forceConnectionOptions?: [key: string, value: string][];
     showKerberosPasswordField: boolean;
+    showOIDCDeviceAuthFlow: boolean;
     enableDevTools: boolean;
     theme: THEMES;
     maxTimeMS?: number;
@@ -514,6 +515,21 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Show Kerberos Password Field',
       long: 'Show a password field for Kerberos authentication. Typically only useful when attempting to authenticate as another user than the current system user.',
+    },
+  },
+  /**
+   * Switch to show the OIDC device auth flow option in the connection form.
+   */
+  showOIDCDeviceAuthFlow: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Device Auth Flow Checkbox',
+      long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
     },
   },
   /**
