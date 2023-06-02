@@ -131,7 +131,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
     const typeToMessage = {
       COLLSCAN: 'No index available for this query.',
       COVERED: 'Query covered by index:',
-      MULTIPLE: 'Query used the following index (shard results differ):',
+      MULTIPLE: 'Query used the following indexes (shard results differ):',
       INDEX: 'Query used the following index:',
       UNAVAILABLE: '',
     };
