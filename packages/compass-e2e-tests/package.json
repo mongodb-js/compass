@@ -31,7 +31,7 @@
     "@mongodb-js/eslint-config-compass": "^1.0.5",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
-    "@mongodb-js/oidc-mock-provider": "^0.3.0",
+    "@mongodb-js/oidc-mock-provider": "^0.4.1",
     "@types/chai-as-promised": "^7.1.4",
     "@types/cross-spawn": "^6.0.2",
     "@types/puppeteer": "^5.4.4",

@@ -103,6 +103,14 @@ describe('AuthenticationOIDC Connection Form', function () {
       await renderConnectionForm(connectSpy);
     });
 
+    it('shows a preview warning', function () {
+      expect(
+        screen.getByText(
+          'The OIDC authentication preview is not intended to be used in production environments.'
+        )
+      ).to.be.visible;
+    });
+
     it('handles principal (username) changes', async function () {
       fireEvent.change(screen.getAllByRole('textbox')[1], {
         target: { value: 'goodSandwich' },

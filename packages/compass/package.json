@@ -209,7 +209,7 @@
     "@mongodb-js/hadron-plugin-manager": "^7.0.6",
     "@mongodb-js/mocha-config-compass": "^1.1.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/sbom-tools": "^0.4.0",
+    "@mongodb-js/sbom-tools": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@mongodb-js/webpack-config-compass": "^1.0.8",
     "@types/analytics-node": "^3.1.7",

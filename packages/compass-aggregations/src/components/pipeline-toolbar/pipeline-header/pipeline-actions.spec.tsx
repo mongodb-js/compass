@@ -73,7 +73,7 @@ describe('PipelineActions', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
       expect(button?.textContent?.toLowerCase().trim()).to.equal(
-        'less options'
+        'fewer options'
       );
       expect(within(button).getByLabelText('Caret Down Icon')).to.exist;
 
