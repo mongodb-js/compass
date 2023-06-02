@@ -37,6 +37,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     forceConnectionOptions?: [key: string, value: string][];
     showKerberosPasswordField: boolean;
     showOIDCDeviceAuthFlow: boolean;
+    browserCommandForOIDCAuth: string;
     enableDevTools: boolean;
     theme: THEMES;
     maxTimeMS?: number;
@@ -530,6 +531,21 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Show Device Auth Flow Checkbox',
       long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
+    },
+  },
+  /**
+   * Input to change the browser command used for OIDC authentication.
+   */
+  browserCommandForOIDCAuth: {
+    type: 'string',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Browser command to use for OIDC Authentication',
+      long: 'Change the browser command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default behavior.',
     },
   },
   /**
