@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import bson from 'bson';
+import { promisify } from 'util';
 import { expect } from 'chai';
 
 import configureStore from '../../src/stores/favorite-list-store';
@@ -13,16 +14,27 @@ describe('FavoritesListStore [Store]', function () {
   const actions = configureActions();
   let store;
   let tmpDir;
+  let tmpDirs = [];
 
   beforeEach(function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recent-list-store-tests'));
+    tmpDirs.push(tmpDir);
     TestBackend.enable(tmpDir);
     store = configureStore({ actions: actions });
   });
 
   afterEach(function () {
     TestBackend.disable();
-    fs.rmdirSync(tmpDir, { recursive: true });
+  });
+
+  after(async function () {
+    // The tests here perform async fs operations without waiting for their
+    // completion. Removing the tmp directories while the tests still have
+    // those active fs operations can make them fail, so we wait a bit here.
+    await promisify(setTimeout)(1000);
+    await Promise.all(
+      tmpDirs.map((tmpDir) => fs.promises.rmdir(tmpDir, { recursive: true }))
+    );
   });
 
   describe('#init', function () {
