@@ -115,12 +115,12 @@ const breakFocusOutBinding: KeyBinding = {
 
 type CodemirrorThemeType = 'light' | 'dark';
 
-const editorPalette = {
+export const editorPalette = {
   light: {
     color: codePalette.light[3],
     backgroundColor: codePalette.light[0],
-    gutterColor: palette.gray.base,
-    gutterBackgroundColor: palette.gray.light3,
+    gutterColor: codePalette.light[3],
+    gutterBackgroundColor: codePalette.light[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.light2, 0.5),
     gutterFoldButtonColor: palette.black,
     cursorColor: palette.gray.base,
@@ -142,8 +142,8 @@ const editorPalette = {
   dark: {
     color: codePalette.dark[3],
     backgroundColor: codePalette.dark[0],
-    gutterColor: palette.gray.light3,
-    gutterBackgroundColor: palette.gray.dark4,
+    gutterColor: codePalette.dark[3],
+    gutterBackgroundColor: codePalette.dark[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
     gutterFoldButtonColor: palette.white,
     cursorColor: palette.green.base,
@@ -1141,10 +1141,15 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
 const multilineEditorContainerStyle = css({
   position: 'relative',
   height: '100%',
+  backgroundColor: editorPalette.light.backgroundColor,
   [`&:focus-within > .multiline-editor-actions,
     &:hover > .multiline-editor-actions`]: {
     display: 'flex',
   },
+});
+
+const multilineEditorContainerDarkModeStyle = css({
+  backgroundColor: editorPalette.dark.backgroundColor,
 });
 
 const actionsContainerStyle = css({
@@ -1178,10 +1183,12 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       className,
       editorClassName,
       actionsClassName,
+      darkMode: _darkMode,
       ...props
     },
     ref
   ) {
+    const darkMode = useDarkMode(_darkMode);
     const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<EditorRef>(null);
 
@@ -1264,7 +1271,11 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
       <div
         ref={containerRef}
-        className={cx(multilineEditorContainerStyle, className)}
+        className={cx(
+          multilineEditorContainerStyle,
+          darkMode && multilineEditorContainerDarkModeStyle,
+          className
+        )}
         // We want folks to be able to click into the container element
         // they're using for the editor to focus the editor.
         onClick={(evt) => {

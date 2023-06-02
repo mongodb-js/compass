@@ -21,26 +21,6 @@ import FocusModeModalHeader from './focus-mode-modal-header';
 import ResizeHandle from '../resize-handle';
 import { Resizable } from 're-resizable';
 
-// These styles make the modal occupy the whole screen,
-// with 18px of padding - because that's the
-// default padding for the modal (left and right).
-const modalStyles = css({
-  '> div': {
-    height: '100%',
-    padding: '18px',
-  },
-  '[role="dialog"]': {
-    width: '100%',
-    height: '100%',
-    // LG sets maxHeight to calc(100% - 64px). This enables modal
-    // to occupy the whole screen.
-    maxHeight: '100%',
-    '> div': {
-      height: '100%',
-    },
-  },
-});
-
 const containerStyles = css({
   display: 'grid',
   gridTemplateRows: 'min-content 1fr',
@@ -197,10 +177,10 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
 }) => {
   return (
     <Modal
-      className={modalStyles}
       setOpen={onCloseModal}
       open={isModalOpen}
       data-testid={'focus-mode-modal'}
+      fullScreen
     >
       <div className={containerStyles}>
         <div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Icon from '@leafygreen-ui/icon';
 
-type IndexDirection = number | string;
+type IndexDirection = number | unknown;
 
 const IndexIcon = ({ direction }: { direction: IndexDirection }) => {
   return direction === 1 ? (

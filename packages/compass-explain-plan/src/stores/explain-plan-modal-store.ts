@@ -20,7 +20,7 @@ export function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
+export type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
 
 enum ExplainPlanModalActionTypes {
   CloseExplainPlanModal = 'compass-explain-plan-modal/CloseExplainPlanModal',

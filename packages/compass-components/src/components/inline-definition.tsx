@@ -20,7 +20,7 @@ const maxWidth = css({
 const InlineDefinition: React.FunctionComponent<
   React.HTMLProps<HTMLSpanElement> & {
     definition: React.ReactNode;
-    tooltipProps: Partial<
+    tooltipProps?: Partial<
       Omit<React.ComponentProps<typeof Tooltip>, 'trigger' | 'children'>
     >;
   }
