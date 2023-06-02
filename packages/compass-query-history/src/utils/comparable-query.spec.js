@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { promisify } from 'util';
 import AppRegistry from 'hadron-app-registry';
 
 import configureStore from '../../src/stores/recent-list-store';
@@ -33,7 +32,7 @@ describe('comparableQuery', function () {
     // The tests here perform async fs operations without waiting for their
     // completion. Removing the tmp directories while the tests still have
     // those active fs operations can make them fail, so we wait a bit here.
-    await promisify(setTimeout)(1000);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all(
       tmpDirs.map((tmpDir) => fs.promises.rmdir(tmpDir, { recursive: true }))
     );
