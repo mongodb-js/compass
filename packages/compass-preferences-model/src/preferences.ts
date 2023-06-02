@@ -529,7 +529,7 @@ const modelPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Show Device Auth Flow Checkbox',
-      long: 'Show a checkbox to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
+      long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
     },
   },
   /**

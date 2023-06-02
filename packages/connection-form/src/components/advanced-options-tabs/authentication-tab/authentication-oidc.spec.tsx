@@ -59,7 +59,7 @@ describe('AuthenticationOIDC Connection Form', function () {
   let getPreferencesStub: sinon.SinonStub;
   let connectSpy: sinon.SinonSpy;
 
-  beforeEach(async function () {
+  beforeEach(function () {
     connectSpy = sinon.spy();
 
     sandbox = sinon.createSandbox();
