@@ -37,7 +37,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     forceConnectionOptions?: [key: string, value: string][];
     showKerberosPasswordField: boolean;
     showOIDCDeviceAuthFlow: boolean;
-    browserCommandForOIDCAuth: string;
+    browserCommandForOIDCAuth?: string;
     enableDevTools: boolean;
     theme: THEMES;
     maxTimeMS?: number;
