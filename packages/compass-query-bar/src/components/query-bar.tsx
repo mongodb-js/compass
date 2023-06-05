@@ -157,6 +157,11 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const newExplainPlan = usePreference('newExplainPlan', React);
   const [inViewRef, inView] = useInView({ initialInView: false });
 
+  const onExplainClick = useCallback(() => {
+    onExplain?.();
+    setShowExplainButtonCue(false);
+  }, [onExplain, setShowExplainButtonCue]);
+
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
       evt.preventDefault();
@@ -203,7 +208,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               <Button
                 aria-label="Reset query"
                 data-testid="query-bar-reset-filter-button"
-                onClick={onExplain}
+                onClick={onExplainClick}
                 disabled={!isQueryValid}
                 size="small"
                 type="button"
