@@ -140,7 +140,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
             refEl={cueRefEl}
             numberOfSteps={1}
             popoverZIndex={2}
-            title="Stage Creator"
+            title="Stage Wizard"
           >
             You can quickly build your stages based on your needs. You should
             try it out.
