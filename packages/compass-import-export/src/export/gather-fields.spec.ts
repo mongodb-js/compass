@@ -37,7 +37,9 @@ describe('gatherFields', function () {
 
   beforeEach(async function () {
     dataService = await connect({
-      connectionString: 'mongodb://localhost:27019/local',
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27019/local',
+      },
     });
 
     try {

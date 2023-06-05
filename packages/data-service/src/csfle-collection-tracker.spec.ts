@@ -44,16 +44,18 @@ describe('CSFLECollectionTracker', function () {
     }
 
     const dataService = await connect({
-      connectionString: 'mongodb://localhost:27021',
-      fleOptions: {
-        storeCredentials: false,
-        autoEncryption: {
-          kmsProviders: { local: { key: 'A'.repeat(128) } },
-          keyVaultNamespace: `${dbName}.kv`,
-          extraOptions: {
-            cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27021',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            kmsProviders: { local: { key: 'A'.repeat(128) } },
+            keyVaultNamespace: `${dbName}.kv`,
+            extraOptions: {
+              cryptSharedLibPath: process.env.COMPASS_CRYPT_LIBRARY_PATH,
+            },
+            ...autoEncryption,
           },
-          ...autoEncryption,
         },
       },
     });
