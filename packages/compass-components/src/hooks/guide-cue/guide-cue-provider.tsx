@@ -103,7 +103,7 @@ const CompassGuideCue = ({
         cue: { id, groupId },
       },
     }: CueRemovedEventDetail) => {
-      if (cue?.groupId === groupId && cue.id === id) {
+      if (cue?.groupId === groupId && cue?.id === id) {
         setCue(null);
       }
     };

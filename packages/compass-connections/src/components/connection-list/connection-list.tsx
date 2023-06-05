@@ -166,7 +166,9 @@ function ConnectionList({
 
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
 
-  const [connectionBtnRef, favoriteRef, recentRef] = useGuideCue([
+  const [connectionBtnRef, favoriteRef, recentRef] = useGuideCue<
+    [HTMLButtonElement, HTMLDivElement, HTMLDivElement]
+  >([
     {
       id: 'sidebar-connection-button',
       groupId: 'Sidebar',
@@ -180,6 +182,7 @@ function ConnectionList({
       title: 'Your favorites',
       content: <p>Saved connections.</p>,
       intersectingRef,
+      priority: 1,
     },
     {
       id: 'sidebar-recent-connections',
@@ -187,6 +190,7 @@ function ConnectionList({
       title: 'Your recents',
       content: <p>Recent connections.</p>,
       intersectingRef,
+      priority: 4,
     },
   ]);
 

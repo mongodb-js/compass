@@ -68,13 +68,16 @@ const createClusterButtonLightModeStyles = css({
 function AtlasHelpSection() {
   const darkMode = useDarkMode();
   const intersectingRef = React.useRef<HTMLDivElement | null>(null);
-  const [newToCompassRef, clusterButtonRef] = useGuideCue([
+  const [newToCompassRef, clusterButtonRef] = useGuideCue<
+    [HTMLDivElement, HTMLButtonElement]
+  >([
     {
       id: 'new-to-compass',
       groupId: 'Connection Help',
       title: 'New to Compass',
       content: <p>New to Compass?</p>,
       intersectingRef,
+      priority: 2,
     },
     {
       id: 'create-cluster',
@@ -82,6 +85,7 @@ function AtlasHelpSection() {
       title: 'Create a cluster',
       content: <p>Don't have a cluster?</p>,
       intersectingRef,
+      priority: 3,
     },
   ]);
 
@@ -144,6 +148,7 @@ function FormHelp(): React.ReactElement {
       title: 'Example Connection String',
       content: <p>Its awesome, ain't it?</p>,
       intersectingRef,
+      priority: 3,
     },
   ]);
 

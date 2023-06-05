@@ -1,14 +1,8 @@
 import { type GuideCueStorage } from './guide-cue-storage';
+import { type GuideCueProps } from './use-guide-cue';
 
-// todo: extend (some) LGGuideCue props to enable customization.
-export type Cue = {
-  id: string;
-  groupId: string;
-
-  title: string;
-  content: React.ReactNode;
+export type Cue = GuideCueProps & {
   refEl: React.RefObject<HTMLElement>;
-  intersectingRef: React.RefObject<HTMLElement>;
 };
 
 type CueWithServiceProps = Cue & {
@@ -121,9 +115,17 @@ export class GuideCueService extends EventTarget {
     // If we have an active group and added cue belongs to the same,
     // then we have to update the list.
     if (this._activeCue?.groupId === cue.groupId) {
-      this._activeGroupCues = this._cues.filter(
-        (x) => x.groupId === cue.groupId
-      );
+      // In order not to mess with sorting, we push carefully.
+      const { groupIndex } = this.getCueIndexes(this._activeCue);
+      const newActiveCues = [
+        ...this._activeGroupCues.slice(0, groupIndex),
+        this._activeCue,
+        ...this.sortCues([
+          ...this._activeGroupCues.slice(groupIndex),
+          { ...cue, isVisited: false, isIntersecting: true },
+        ]),
+      ];
+      this._activeGroupCues = newActiveCues;
     }
 
     return this.dispatchEvent(
@@ -146,6 +148,13 @@ export class GuideCueService extends EventTarget {
       this._activeGroupCues.splice(groupIndex, 1);
     }
 
+    if (
+      this._activeCue?.id === cue.id &&
+      this._activeCue?.groupId === cue.groupId
+    ) {
+      this._activeCue = null;
+    }
+
     return this.dispatchEvent(
       new CustomEvent('cue-removed', {
         detail: { cue },
@@ -159,7 +168,7 @@ export class GuideCueService extends EventTarget {
     }
 
     if (!this._activeCue) {
-      return this.getInitialCue();
+      return this.getFirstCueFromNextGroup();
     }
 
     // Try to get the cue from the current group, if not
@@ -209,15 +218,6 @@ export class GuideCueService extends EventTarget {
     this._activeCue = null;
   }
 
-  private getInitialCue() {
-    this._activeCue =
-      this._cues.find((x) => !x.isVisited && x.isIntersecting) ?? null;
-    this._activeGroupCues = this._cues.filter(
-      (x) => x.groupId === this._activeCue?.groupId
-    );
-    return this._activeCue;
-  }
-
   private getNextCueFromActiveGroup() {
     const currentCueIndex = this._activeGroupCues.findIndex(
       (x) => x.id === this._activeCue?.id
@@ -248,12 +248,26 @@ export class GuideCueService extends EventTarget {
       this._activeGroupCues = [];
       this._activeCue = null;
     } else {
-      this._activeGroupCues = this._cues.filter(
+      const nextGroupCues = this._cues.filter(
         (x) => x.groupId === nextGroup && !x.isVisited && x.isIntersecting
       );
+      this._activeGroupCues = this.sortCues(nextGroupCues);
       this._activeCue = this._activeGroupCues[0];
     }
     return this._activeCue;
+  }
+
+  private sortCues(cues: CueWithServiceProps[]) {
+    // todo
+    // const res = cues.sort(({ priority: first }, { priority: second }) => {
+    //   if (!first || !second) {
+    //     return (second ?? 0) - (first ?? 0);
+    //   }
+
+    //   return first - second;
+    // });
+
+    return cues;
   }
 
   private getNextGroupId() {
