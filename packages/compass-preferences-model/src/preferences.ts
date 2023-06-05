@@ -545,7 +545,7 @@ const modelPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Browser command to use for OIDC Authentication',
-      long: 'Change the browser command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default behavior.',
+      long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default browser.',
     },
   },
   /**
