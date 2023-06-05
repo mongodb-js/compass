@@ -39,13 +39,6 @@ export function prepareOIDCOptions(
 
   options.oidc.allowedFlows ??= ['auth-code'];
 
-  // TODO(COMPASS-6849): Add a way to properly override openBrowser.
-  if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
-    options.oidc.openBrowser = {
-      command: process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY,
-    };
-  }
-
   // Set the driver's `authMechanismProperties` (non-url)
   // `ALLOWED_HOSTS` value to `*`.
   if (connectionOptions.oidc?.enableUntrustedEndpoints) {

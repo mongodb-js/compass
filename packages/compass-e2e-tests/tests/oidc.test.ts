@@ -36,7 +36,7 @@ const DEFAULT_AUTH_INFO = {
 
 const host = '127.0.0.1';
 
-function getTestBrowserCommand() {
+function getTestBrowserShellCommand() {
   return `${process.execPath} ${path.resolve(
     __dirname,
     '..',
@@ -133,7 +133,7 @@ describe('OIDC integration', function () {
 
       serverExit = once(server, 'exit');
 
-      const port = await Promise.race([
+      port = await Promise.race([
         serverExit.then((code) => {
           throw new Error(`mongod exited with code ${code}`);
         }),
@@ -154,6 +154,10 @@ describe('OIDC integration', function () {
       ]);
 
       connectionString = `mongodb://${host}:${port}/?authMechanism=MONGODB-OIDC`;
+      await browser.setFeature(
+        'browserCommandForOIDCAuth',
+        getTestBrowserShellCommand()
+      );
     }
   });
 
@@ -175,115 +179,89 @@ describe('OIDC integration', function () {
   });
 
   after(async function () {
-    delete process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY;
+    await browser.setFeature('browserCommandForOIDCAuth', undefined);
     server?.kill();
     await serverExit;
     await oidcMockProvider?.close();
     if (tmpdir) await fs.rmdir(tmpdir, { recursive: true });
   });
 
-  describe('with test browser', function () {
-    before(function () {
-      process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY = getTestBrowserCommand();
-      `${
-        process.execPath
-      } ${path.resolve(__dirname, '..', 'fixtures', 'curl.js')}`;
-    });
+  it('can successfully connect with a connection string', async function () {
+    let tokenFetchCalls = 0;
+    getTokenPayload = () => {
+      tokenFetchCalls++;
+      return DEFAULT_TOKEN_PAYLOAD;
+    };
+    await browser.connectWithConnectionString(connectionString);
+    const result: any = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
+      true
+    );
 
-    after(function () {
-      delete process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY;
-    });
-
-    it('can successfully connect with a connection string', async function () {
-      let tokenFetchCalls = 0;
-      getTokenPayload = () => {
-        tokenFetchCalls++;
-        return DEFAULT_TOKEN_PAYLOAD;
-      };
-      await browser.connectWithConnectionString(connectionString);
-      const result: any = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 }).authInfo',
-        true
-      );
-
-      expect(tokenFetchCalls).to.equal(1); // No separate request from the shell
-      expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
-    });
-
-    it('can cancel a connection attempt and then successfully connect', async function () {
-      const emitter = new EventEmitter();
-      const secondConnectionEstablished = once(
-        emitter,
-        'secondConnectionEstablished'
-      );
-      overrideRequestHandler = async (url) => {
-        if (new URL(url).pathname === '/authorize') {
-          emitter.emit('authorizeEndpointCalled');
-          // This does effectively mean that our 'fake browser'
-          // will never get a response from the authorization endpoint
-          // during the first connection attempt, and that therefore
-          // the local HTTP server will never have its redirect endpoint
-          // accessed.
-          await secondConnectionEstablished;
-        }
-      };
-
-      {
-        await browser.setValueVisible(
-          Selectors.ConnectionStringInput,
-          connectionString
-        );
-        await browser.clickVisible(Selectors.ConnectButton);
-        await once(emitter, 'authorizeEndpointCalled');
-        await browser.closeConnectModal();
-      }
-
-      overrideRequestHandler = () => {};
-      await browser.connectWithConnectionString(connectionString);
-      emitter.emit('secondConnectionEstablished');
-      const result: any = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 }).authInfo',
-        true
-      );
-
-      expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
-    });
+    expect(tokenFetchCalls).to.equal(1); // No separate request from the shell
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
   });
 
-  describe('with a custom browser set in oidc preferences', function () {
-    beforeEach(async function () {
-      await browser.setFeature(
-        'browserCommandForOIDCAuth',
-        getTestBrowserCommand()
+  it('can cancel a connection attempt and then successfully connect', async function () {
+    const emitter = new EventEmitter();
+    const secondConnectionEstablished = once(
+      emitter,
+      'secondConnectionEstablished'
+    );
+    overrideRequestHandler = async (url) => {
+      if (new URL(url).pathname === '/authorize') {
+        emitter.emit('authorizeEndpointCalled');
+        // This does effectively mean that our 'fake browser'
+        // will never get a response from the authorization endpoint
+        // during the first connection attempt, and that therefore
+        // the local HTTP server will never have its redirect endpoint
+        // accessed.
+        await secondConnectionEstablished;
+      }
+    };
+
+    {
+      await browser.setValueVisible(
+        Selectors.ConnectionStringInput,
+        connectionString
       );
-    });
-
-    afterEach(async function () {
-      await browser.setFeature('browserCommandForOIDCAuth', undefined);
-    });
-
-    it('can successfully connect with the connection form', async function () {
-      let tokenFetchCalls = 0;
-      getTokenPayload = () => {
-        tokenFetchCalls++;
-        return DEFAULT_TOKEN_PAYLOAD;
-      };
-
-      await browser.setConnectFormState({
-        hosts: [`${host}:${port}`],
-        authMethod: 'MONGODB-OIDC',
-      });
       await browser.clickVisible(Selectors.ConnectButton);
+      await once(emitter, 'authorizeEndpointCalled');
+      await browser.closeConnectModal();
+    }
 
-      await browser.waitForConnectionResult('success');
+    overrideRequestHandler = () => {};
+    await browser.connectWithConnectionString(connectionString);
+    emitter.emit('secondConnectionEstablished');
+    const result: any = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
+      true
+    );
 
-      const result: any = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 }).authInfo',
-        true
-      );
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
+  });
 
-      expect(tokenFetchCalls).to.equal(1); // No separate request from the shell.
-      expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
+  it('can successfully connect with the connection form', async function () {
+    let tokenFetchCalls = 0;
+    getTokenPayload = () => {
+      tokenFetchCalls++;
+      return DEFAULT_TOKEN_PAYLOAD;
+    };
+
+    await browser.setConnectFormState({
+      hosts: [`${host}:${port}`],
+      authMethod: 'MONGODB-OIDC',
     });
+    await browser.clickVisible(Selectors.ConnectButton);
+
+    await browser.waitForConnectionResult('success');
+
+    const result: any = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
+      true
+    );
+
+    expect(tokenFetchCalls).to.equal(1); // No separate request from the shell.
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
   });
 });
