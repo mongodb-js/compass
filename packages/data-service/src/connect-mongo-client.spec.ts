@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import type { CommandStartedEvent } from 'mongodb';
 
 import {
-  connectMongoClientCompass as connectMongoClient,
+  connectMongoClientDataService as connectMongoClient,
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
@@ -50,12 +50,12 @@ describe('connectMongoClient', function () {
 
     it('should return connection config when connected successfully', async function () {
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
-        await connectMongoClient(
-          {
+        await connectMongoClient({
+          connectionOptions: {
             connectionString: 'mongodb://localhost:27021',
           },
-          setupListeners
-        );
+          setupListeners,
+        });
 
       for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
@@ -88,16 +88,16 @@ describe('connectMongoClient', function () {
         bypassAutoEncryption: true,
       };
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
-        await connectMongoClient(
-          {
+        await connectMongoClient({
+          connectionOptions: {
             connectionString: 'mongodb://localhost:27021',
             fleOptions: {
               storeCredentials: false,
               autoEncryption,
             },
           },
-          setupListeners
-        );
+          setupListeners,
+        });
 
       for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
@@ -125,13 +125,13 @@ describe('connectMongoClient', function () {
 
     it('should not override a user-specified directConnection option', async function () {
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
-        await connectMongoClient(
-          {
+        await connectMongoClient({
+          connectionOptions: {
             connectionString:
               'mongodb://localhost:27021/?directConnection=false',
           },
-          setupListeners
-        );
+          setupListeners,
+        });
 
       for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
@@ -159,12 +159,12 @@ describe('connectMongoClient', function () {
 
     it('should at least try to run a ping command to verify connectivity', async function () {
       try {
-        await connectMongoClient(
-          {
+        await connectMongoClient({
+          connectionOptions: {
             connectionString: 'mongodb://localhost:1/?loadBalanced=true',
           },
-          setupListeners
-        );
+          setupListeners,
+        });
         expect.fail('missed exception');
       } catch (err: any) {
         expect(err.name).to.equal('MongoNetworkError');
@@ -173,13 +173,14 @@ describe('connectMongoClient', function () {
 
     it('should run the ping command with the specified ReadPreference', async function () {
       const commands: CommandStartedEvent[] = [];
-      const [metadataClient, crudClient, , state] = await connectMongoClient(
-        {
+      const [metadataClient, crudClient, , state] = await connectMongoClient({
+        connectionOptions: {
           connectionString:
             'mongodb://localhost:27021/?readPreference=secondaryPreferred',
         },
-        (client) => client.on('commandStarted', (ev) => commands.push(ev))
-      );
+        setupListeners: (client) =>
+          client.on('commandStarted', (ev) => commands.push(ev)),
+      });
       expect(commands).to.have.lengthOf(1);
       expect(commands[0].commandName).to.equal('ping');
       expect(commands[0].command.$readPreference).to.deep.equal({
@@ -229,10 +230,10 @@ describe('connectMongoClient', function () {
           },
         };
 
-        const error = await connectMongoClient(
+        const error = await connectMongoClient({
           connectionOptions,
-          setupListeners
-        ).catch((err) => err);
+          setupListeners,
+        }).catch((err) => err);
 
         expect(error).to.be.instanceOf(Error);
 

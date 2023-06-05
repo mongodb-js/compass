@@ -52,12 +52,21 @@ export function prepareOIDCOptions(
   return options;
 }
 
-export async function connectMongoClientCompass(
-  connectionOptions: Readonly<ConnectionOptions>,
-  setupListeners: (client: MongoClient) => void,
-  signal?: AbortSignal,
-  logger?: UnboundDataServiceImplLogger
-): Promise<
+export async function connectMongoClientDataService({
+  connectionOptions,
+  setupListeners,
+  signal,
+  logger,
+  productName,
+  productDocsLink,
+}: {
+  connectionOptions: Readonly<ConnectionOptions>;
+  setupListeners: (client: MongoClient) => void;
+  signal?: AbortSignal;
+  logger?: UnboundDataServiceImplLogger;
+  productName?: string;
+  productDocsLink?: string;
+}): Promise<
   [
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
@@ -75,8 +84,8 @@ export async function connectMongoClientCompass(
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
-    productName: 'MongoDB Compass',
-    productDocsLink: 'https://www.mongodb.com/docs/compass/',
+    productName: productName ?? 'MongoDB Compass',
+    productDocsLink: productDocsLink ?? 'https://www.mongodb.com/docs/compass/',
     monitorCommands: true,
     useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
