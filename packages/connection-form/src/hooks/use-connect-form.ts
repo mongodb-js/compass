@@ -56,7 +56,7 @@ import type {
 } from '../utils/csfle-handler';
 import {
   handleUpdateOIDCParam,
-  setOIDCNotifyDeviceFlow,
+  adjustOIDCConnectionOptionsBeforeConnect,
 } from '../utils/oidc-handler';
 import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
@@ -708,7 +708,7 @@ export function adjustConnectionOptionsBeforeConnect({
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
     setAppNameParamIfMissing(defaultAppName),
-    setOIDCNotifyDeviceFlow(notifyDeviceFlow),
+    adjustOIDCConnectionOptionsBeforeConnect(notifyDeviceFlow),
     applyForceConnectionOptions,
   ];
   for (const transformer of transformers) {

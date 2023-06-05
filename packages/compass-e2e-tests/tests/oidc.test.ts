@@ -34,6 +34,17 @@ const DEFAULT_AUTH_INFO = {
   authenticatedUserRoles: [{ role: 'dev/testgroup', db: 'admin' }],
 };
 
+const host = '127.0.0.1';
+
+function getTestBrowserShellCommand() {
+  return `${process.execPath} ${path.resolve(
+    __dirname,
+    '..',
+    'fixtures',
+    'curl.js'
+  )}`;
+}
+
 describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -44,6 +55,7 @@ describe('OIDC integration', function () {
   let oidcMockProvider: OIDCMockProvider;
 
   let i = 0;
+  let port: number;
   let tmpdir: string;
   let server: ChildProcess;
   let serverExit: Promise<unknown>;
@@ -121,7 +133,7 @@ describe('OIDC integration', function () {
 
       serverExit = once(server, 'exit');
 
-      const port = await Promise.race([
+      port = await Promise.race([
         serverExit.then((code) => {
           throw new Error(`mongod exited with code ${code}`);
         }),
@@ -141,28 +153,33 @@ describe('OIDC integration', function () {
         })(),
       ]);
 
-      connectionString = `mongodb://127.0.0.1:${port}/?authMechanism=MONGODB-OIDC`;
+      connectionString = `mongodb://${host}:${port}/?authMechanism=MONGODB-OIDC`;
     }
-
-    process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY = `${
-      process.execPath
-    } ${path.resolve(__dirname, '..', 'fixtures', 'curl.js')}`;
   });
 
   beforeEach(async function () {
     getTokenPayload = () => DEFAULT_TOKEN_PAYLOAD;
     overrideRequestHandler = () => {};
-    compass = await beforeTests();
+    compass = await beforeTests({
+      // TODO(COMPASS-6803): Remove feature flag: enableOidc.
+      // Note: This isn't needed to connect, but shows the oidc options in the
+      // connect form and settings.
+      extraSpawnArgs: ['--enable-oidc'],
+    });
     browser = compass.browser;
+    await browser.setFeature(
+      'browserCommandForOIDCAuth',
+      getTestBrowserShellCommand()
+    );
   });
 
   afterEach(async function () {
+    await browser.setFeature('browserCommandForOIDCAuth', undefined);
     await afterTest(compass, this.currentTest);
     await afterTests(compass, this.currentTest);
   });
 
   after(async function () {
-    delete process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY;
     server?.kill();
     await serverExit;
     await oidcMockProvider?.close();
@@ -221,6 +238,30 @@ describe('OIDC integration', function () {
       true
     );
 
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
+  });
+
+  it('can successfully connect with the connection form', async function () {
+    let tokenFetchCalls = 0;
+    getTokenPayload = () => {
+      tokenFetchCalls++;
+      return DEFAULT_TOKEN_PAYLOAD;
+    };
+
+    await browser.setConnectFormState({
+      hosts: [`${host}:${port}`],
+      authMethod: 'MONGODB-OIDC',
+    });
+    await browser.clickVisible(Selectors.ConnectButton);
+
+    await browser.waitForConnectionResult('success');
+
+    const result: any = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
+      true
+    );
+
+    expect(tokenFetchCalls).to.equal(1); // No separate request from the shell.
     expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
   });
 });
