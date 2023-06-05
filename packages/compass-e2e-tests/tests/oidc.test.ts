@@ -154,10 +154,6 @@ describe('OIDC integration', function () {
       ]);
 
       connectionString = `mongodb://${host}:${port}/?authMechanism=MONGODB-OIDC`;
-      await browser.setFeature(
-        'browserCommandForOIDCAuth',
-        getTestBrowserShellCommand()
-      );
     }
   });
 
@@ -171,15 +167,19 @@ describe('OIDC integration', function () {
       extraSpawnArgs: ['--enable-oidc'],
     });
     browser = compass.browser;
+    await browser.setFeature(
+      'browserCommandForOIDCAuth',
+      getTestBrowserShellCommand()
+    );
   });
 
   afterEach(async function () {
+    await browser.setFeature('browserCommandForOIDCAuth', undefined);
     await afterTest(compass, this.currentTest);
     await afterTests(compass, this.currentTest);
   });
 
   after(async function () {
-    await browser.setFeature('browserCommandForOIDCAuth', undefined);
     server?.kill();
     await serverExit;
     await oidcMockProvider?.close();
