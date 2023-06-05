@@ -261,6 +261,7 @@ async function onAppReady() {
 }
 
 function trackWindowEvents(electronApp: App) {
+  // Map of [Window id] -> [opening timestamp in milliseconds]
   const windowFocusedAt = new Map<number, number>();
   let sessionStartedAt: number | undefined = undefined;
   let openWindows = 0;
