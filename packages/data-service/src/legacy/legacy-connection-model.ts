@@ -161,17 +161,6 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
   readonly driverOptions: MongoClientOptions;
   readonly sshTunnelOptions?: SshTunnelConfig;
 
-  connect(
-    model: LegacyConnectionModel,
-    setupListeners: (client: MongoClient) => void,
-    callback: (
-      err: Error,
-      client: MongoClient,
-      tunnel: SSHTunnel,
-      options: MongoClientOptions
-    ) => void
-  ): void;
-
   toJSON(): LegacyConnectionModelProperties;
   save: (
     attributes?: Partial<LegacyConnectionModel>,
