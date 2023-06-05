@@ -91,7 +91,15 @@ const queryBarDocumentationLink =
 
 const QueryMoreOptionsToggle = connect(
   (state: QueryBarState) => {
-    return { isExpanded: state.expanded };
+    return {
+      isExpanded: state.expanded,
+      label() {
+        return 'Options';
+      },
+      'aria-label'(expanded: boolean) {
+        return expanded ? 'Fewer Options' : 'More Options';
+      },
+    };
   },
   { onToggleOptions: toggleQueryOptions }
 )(MoreOptionsToggle);
