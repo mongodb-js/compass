@@ -4,7 +4,6 @@
  */
 import { pathToFileURL, URL } from 'url';
 import path from 'path';
-import createDebug from 'debug';
 import { ipcMain } from 'hadron-ipc';
 import { once } from 'events';
 import type {
@@ -25,9 +24,7 @@ import {
   registerMongoDbUrlForBrowserWindow,
 } from './auto-connect';
 
-const { track } = createLoggerAndTelemetry('COMPASS-WINDOW-MANAGER');
-
-const debug = createDebug('mongodb-compass:electron:window-manager');
+const { track, debug } = createLoggerAndTelemetry('COMPASS-WINDOW-MANAGER');
 
 export const EXCLUDED_MONGODB_HOSTS = [
   'compass-maps.mongodb.com',
