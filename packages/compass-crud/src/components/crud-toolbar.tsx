@@ -178,6 +178,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             buttonLabel="Find"
             onApply={onApplyClicked}
             onReset={onResetClicked}
+            showExplainButton
           />
         )}
       </div>

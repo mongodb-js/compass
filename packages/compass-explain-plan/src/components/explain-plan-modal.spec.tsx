@@ -32,9 +32,7 @@ describe('ExplainPlanModal', function () {
   });
 
   it('should render ready state', function () {
-    render({
-      status: 'ready',
-    });
+    render({ status: 'ready' });
     expect(screen.getByText('Query Performance Summary')).to.exist;
   });
 });

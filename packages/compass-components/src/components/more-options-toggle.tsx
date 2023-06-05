@@ -8,15 +8,16 @@ import { mergeProps } from '../utils/merge-props';
 
 const optionContainerStyles = css({
   textAlign: 'center',
-  minWidth: spacing[4] * 5,
 });
 
 const optionsButtonStyles = css({
   // Reset button styles.
   backgroundColor: 'transparent',
   border: 'none',
-
-  padding: `${spacing[1]}px ${spacing[2]}px`,
+  paddingTop: spacing[1],
+  paddingBottom: spacing[1],
+  paddingLeft: spacing[2],
+  paddingRight: spacing[2],
 });
 
 const optionStyles = css({
@@ -25,6 +26,8 @@ const optionStyles = css({
 });
 
 type MoreOptionsToggleProps = {
+  label?: (expanded: boolean) => string;
+  'aria-label'?: (expanded: boolean) => string;
   'aria-controls': string;
   'data-testid'?: string;
   isExpanded: boolean;
@@ -40,20 +43,27 @@ export const MoreOptionsToggle: React.FunctionComponent<
   id,
   'data-testid': dataTestId,
   onToggleOptions,
+  label = (expanded) => {
+    return expanded ? 'Fewer Options' : 'More Options';
+  },
+  'aria-label': ariaLabel,
 }) => {
   const optionsIcon = useMemo(
     () => (isExpanded ? 'CaretDown' : 'CaretRight'),
     [isExpanded]
   );
-  const optionsLabel = useMemo(
-    () => (isExpanded ? 'Fewer Options' : 'More Options'),
-    [isExpanded]
-  );
+  const optionsLabel = label(isExpanded);
+  const labelStyle = useMemo(() => {
+    const maxLabelLength = Math.max(label(true).length, label(false).length);
+    return {
+      // Maximum char length of the more / less label + icon size + button padding
+      width: `calc(${maxLabelLength}ch + ${spacing[3]}px + ${spacing[2]}px)`,
+    };
+  }, [label]);
+  const optionsAriaLabel = ariaLabel?.(isExpanded) ?? optionsLabel;
   const focusRingProps = useFocusRing();
   const buttonProps = mergeProps(
-    {
-      className: optionsButtonStyles,
-    },
+    { className: optionsButtonStyles },
     focusRingProps
     // We cast here so that the `as` prop of link can be properly typed.
   ) as Partial<React.ComponentType<React.ComponentProps<typeof Link>>>;
@@ -62,9 +72,9 @@ export const MoreOptionsToggle: React.FunctionComponent<
   }, [onToggleOptions]);
 
   return (
-    <div className={optionContainerStyles}>
+    <div className={optionContainerStyles} style={labelStyle}>
       <Link
-        aria-label={optionsLabel}
+        aria-label={optionsAriaLabel}
         aria-expanded={isExpanded}
         aria-controls={ariaControls}
         as="button"
