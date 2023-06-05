@@ -53,7 +53,7 @@ export const featureFlags: Required<{
    * in the Pipeline Builder. Epic: COMPASS-5817
    */
   enableStageWizard: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Stage Wizard',
       long: 'Create aggregation stages using Wizard.',
