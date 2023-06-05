@@ -1,3 +1,4 @@
+'use strict';
 const isElectronRenderer = require('is-electron-renderer');
 
 // We are overriding default mocha-electron handling of console as it can throw

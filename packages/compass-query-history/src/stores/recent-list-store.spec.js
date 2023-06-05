@@ -9,11 +9,13 @@ import configureStore from '../../src/stores/recent-list-store';
 
 describe('RecentListStore [Store]', function () {
   let tmpDir;
+  let tmpDirs = [];
   let store;
   let appRegistry;
 
   beforeEach(function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recent-list-store-tests'));
+    tmpDirs.push(tmpDir);
     TestBackend.enable(tmpDir);
     appRegistry = new AppRegistry();
     store = configureStore({ localAppRegistry: appRegistry });
@@ -21,7 +23,16 @@ describe('RecentListStore [Store]', function () {
 
   afterEach(function () {
     TestBackend.disable();
-    fs.rmdirSync(tmpDir, { recursive: true });
+  });
+
+  after(async function () {
+    // The tests here perform async fs operations without waiting for their
+    // completion. Removing the tmp directories while the tests still have
+    // those active fs operations can make them fail, so we wait a bit here.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all(
+      tmpDirs.map((tmpDir) => fs.promises.rmdir(tmpDir, { recursive: true }))
+    );
   });
 
   describe('#init', function () {

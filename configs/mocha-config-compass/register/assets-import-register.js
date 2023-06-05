@@ -1,3 +1,4 @@
+'use strict';
 const filepathExports = (module, filepath) => {
   module.exports = require('path').relative(module.parent.path, filepath);
 };
