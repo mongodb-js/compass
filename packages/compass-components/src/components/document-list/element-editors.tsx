@@ -340,6 +340,14 @@ const typeEditorChevron = css({
   display: 'none',
 });
 
+const typeEditorOptionLight = css({
+  backgroundColor: palette.white,
+});
+
+const typeEditorOptionDark = css({
+  backgroundColor: palette.black,
+});
+
 const typeEditorContainer = css({
   [`&:hover .${typeEditorChevron}`]: { display: 'block' },
   position: 'relative',
@@ -353,6 +361,8 @@ export const TypeEditor: React.FunctionComponent<{
   onChange(newVal: HadronElementType['type']): void;
   visuallyActive?: boolean;
 }> = ({ editing, autoFocus, type, onChange, visuallyActive }) => {
+  const darkMode = useDarkMode();
+
   return (
     <>
       {editing && (
@@ -380,7 +390,13 @@ export const TypeEditor: React.FunctionComponent<{
           >
             {TYPES.map((type) => {
               return (
-                <option key={type} value={type}>
+                <option
+                  key={type}
+                  value={type}
+                  className={
+                    darkMode ? typeEditorOptionDark : typeEditorOptionLight
+                  }
+                >
                   {type}
                 </option>
               );

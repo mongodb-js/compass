@@ -71,6 +71,7 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: ['auth-code'],
+          signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
@@ -115,6 +116,7 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: ['auth-code'],
+          signal: undefined,
         },
         parentHandle: options.parentHandle,
         ...defaultOptions,
@@ -147,6 +149,7 @@ describe('connectMongoClient', function () {
         authMechanismProperties: {},
         oidc: {
           allowedFlows: ['auth-code'],
+          signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
@@ -294,5 +297,17 @@ describe('prepareOIDCOptions', function () {
     });
 
     expect(options.authMechanismProperties).to.deep.equal({});
+  });
+
+  it('passes through a signal argument', function () {
+    const signal = AbortSignal.abort();
+    const options = prepareOIDCOptions(
+      {
+        connectionString: 'mongodb://localhost:27017',
+      },
+      signal
+    );
+
+    expect(options.oidc.signal).to.equal(signal);
   });
 });

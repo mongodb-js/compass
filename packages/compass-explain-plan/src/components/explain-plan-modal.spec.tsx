@@ -17,14 +17,18 @@ function render(props: Partial<ExplainPlanModalProps>) {
 describe('ExplainPlanModal', function () {
   afterEach(cleanup);
 
-  it('should render loading state', function () {
+  it('should render loading state', async function () {
     render({ status: 'loading' });
-    expect(screen.findByText('Running explain')).to.exist;
+    expect(await screen.findByText('Running explain')).to.exist;
   });
 
-  it('should render error state', function () {
-    render({ status: 'error', error: 'Whoops, error!' });
-    expect(screen.findByText('Whoops, error!')).to.exist;
+  it('should render error state', async function () {
+    render({
+      status: 'error',
+      error: 'Whoops, error!',
+      explainPlan: { usedIndexes: [] } as any,
+    });
+    expect(await screen.findByText('Whoops, error!')).to.exist;
   });
 
   it('should render ready state', function () {

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Jun 01 2023.
+This document was automatically generated on Mon Jun 05 2023.
 
 ## List of dependencies
 
@@ -243,7 +243,7 @@ This document was automatically generated on Thu Jun 01 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                            | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                   | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                     | 1.0.0        | Apache-2.0                          |
-| **[electron](#9f83ac4f5c95ef90ae97bb2c322af1d3634a9b2a9523f062d61ef542cead0170)**                                      | 22.3.11      | MIT                                 |
+| **[electron](#072e3978a12ea2be7139a249b52fcff4417e77707a52b778262e0a4aba1f0b98)**                                      | 22.3.12      | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                     | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                 | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                  | 3.0.1        | MIT                                 |
@@ -523,7 +523,7 @@ This document was automatically generated on Thu Jun 01 2023.
 | **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**                              | 1.0.2        | MIT                                 |
 | **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**                                    | 0.6.3        | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                       | 2.0.2        | MIT                                 |
-| **[node-abi](#b03aa9cc46bb4ca304576293f105e0c992cbbc558f61639e4b46b76e77f45bce)**                                      | 3.40.0       | MIT                                 |
+| **[node-abi](#c905148c2d72c80a831b76a1541560a162ed1f296c92413e5fb90da14328fcce)**                                      | 3.43.0       | MIT                                 |
 | **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**                                | 4.3.0        | MIT                                 |
 | **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**                                    | 2.6.7        | MIT                                 |
 | **[normalize-url](#019552e3b0898748772477fa3b2924b4c4a8fb8bec640dacb4cce2dfdc955410)**                                 | 6.1.0        | MIT                                 |
@@ -19686,9 +19686,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="9f83ac4f5c95ef90ae97bb2c322af1d3634a9b2a9523f062d61ef542cead0170"></a>
+<a id="072e3978a12ea2be7139a249b52fcff4417e77707a52b778262e0a4aba1f0b98"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 22.3.11)
+### [electron](https://www.npmjs.com/package/electron) (version 22.3.12)
 
 License tags: MIT
 
@@ -32417,9 +32417,9 @@ License files:
 
 License tags: MIT
 
-<a id="b03aa9cc46bb4ca304576293f105e0c992cbbc558f61639e4b46b76e77f45bce"></a>
+<a id="c905148c2d72c80a831b76a1541560a162ed1f296c92413e5fb90da14328fcce"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.40.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.43.0)
 
 License tags: MIT
 

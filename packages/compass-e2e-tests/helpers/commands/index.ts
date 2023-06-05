@@ -2,6 +2,7 @@ export * from './exists-eventually';
 export * from './click-visible';
 export * from './set-value-visible';
 export * from './wait-for-connection-screen';
+export * from './close-connect-modal';
 export * from './close-settings-modal';
 export * from './close-welcome-modal';
 export * from './connect-with-connection-string';

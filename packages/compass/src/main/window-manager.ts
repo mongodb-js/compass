@@ -2,7 +2,7 @@
  * A high-level wrapper around electron's builtin [BrowserWindow][0] class.
  * https://github.com/atom/electron/blob/main/docs/api/browser-window.md
  */
-import { pathToFileURL } from 'url';
+import { pathToFileURL, URL } from 'url';
 import path from 'path';
 import createDebug from 'debug';
 import { ipcMain } from 'hadron-ipc';
@@ -24,6 +24,31 @@ import {
 } from './auto-connect';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
+
+export const EXCLUDED_MONGODB_HOSTS = [
+  'compass-maps.mongodb.com',
+  'evergreen.mongodb.com',
+  'downloads.mongodb.com',
+  'cloud.mongodb.com',
+];
+
+// Exported for testing purposes only
+export const urlWithUtmParams = (urlString: string): string => {
+  try {
+    const url = new URL(urlString);
+    const urlShouldHaveUtmParams =
+      /^(.*\.)?mongodb\.com$/.test(url.hostname) &&
+      !EXCLUDED_MONGODB_HOSTS.includes(url.hostname);
+
+    if (urlShouldHaveUtmParams) {
+      url.searchParams.set('utm_source', 'compass');
+      url.searchParams.set('utm_medium', 'product');
+    }
+    return url.toString();
+  } catch {
+    return urlString;
+  }
+};
 
 const earlyOpenUrls: string[] = [];
 function earlyOpenUrlListener(
@@ -166,7 +191,7 @@ function showConnectWindow(
    * Open all external links in the system's web browser.
    */
   window.webContents.setWindowOpenHandler((details) => {
-    void shell.openExternal(details.url);
+    void shell.openExternal(urlWithUtmParams(details.url));
     return { action: 'deny' };
   });
 

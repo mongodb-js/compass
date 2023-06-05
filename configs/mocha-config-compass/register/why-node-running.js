@@ -1,3 +1,4 @@
+'use strict';
 require('why-is-node-running/include');
 exports.mochaHooks = {
   afterAll() {
