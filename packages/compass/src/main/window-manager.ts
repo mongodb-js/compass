@@ -10,10 +10,12 @@ import { once } from 'events';
 import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,
+  App,
 } from 'electron';
 import { app as electronApp, shell, dialog, BrowserWindow } from 'electron';
 import { enable } from '@electron/remote/main';
 
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import preferences from 'compass-preferences-model';
@@ -22,6 +24,8 @@ import {
   onCompassDisconnect,
   registerMongoDbUrlForBrowserWindow,
 } from './auto-connect';
+
+const { track } = createLoggerAndTelemetry('COMPASS-WINDOW-MANAGER');
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
 
@@ -259,6 +263,66 @@ async function onAppReady() {
   }
 }
 
+function trackWindowEvents(electronApp: App) {
+  const windowFocusedAt = new Map<number, number>();
+  let sessionStartedAt: number | undefined = undefined;
+  let openWindows = 0;
+
+  electronApp.on('browser-window-created', (event, win) => {
+    openWindows++;
+    track('Window Open', {
+      number_of_windows_open: openWindows,
+    });
+
+    win.once('closed', () => {
+      openWindows--;
+      track('Window Closed', {
+        number_of_windows_open: openWindows,
+      });
+    });
+  });
+
+  electronApp.on('browser-window-focus', (event, win) => {
+    const now = Date.now();
+    sessionStartedAt ??= now;
+    windowFocusedAt.set(win.webContents.id, now);
+    track('Window Focused', {
+      number_of_windows_open: openWindows,
+    });
+  });
+
+  electronApp.on('browser-window-blur', (event, win) => {
+    if (win.webContents.isDevToolsFocused()) {
+      return;
+    }
+
+    // causes focus to be emitted after blur, allowing us to track
+    // when the focus moves from a Compass window to the other
+    setImmediate(() => {
+      const focusAt = windowFocusedAt.get(win.webContents.id);
+      const movedToOtherCompassWin = windowFocusedAt.size === 2;
+      windowFocusedAt.delete(win.webContents.id);
+
+      if (focusAt) {
+        const now = Date.now();
+        track('Window Blurred', {
+          session_duration_secs: Math.round((now - focusAt) / 1000),
+          focus_to_other_compass_window: movedToOtherCompassWin,
+          number_of_windows_open: openWindows,
+        });
+
+        if (sessionStartedAt && !movedToOtherCompassWin) {
+          track('Application Blurred', {
+            session_duration_secs: Math.round((now - sessionStartedAt) / 1000),
+            number_of_windows_open: openWindows,
+          });
+          sessionStartedAt = undefined;
+        }
+      }
+    });
+  });
+}
+
 class CompassWindowManager {
   private static initPromise: Promise<void> | null = null;
 
@@ -276,6 +340,8 @@ class CompassWindowManager {
         electronApp.quit();
       }
     });
+
+    trackWindowEvents(electronApp);
 
     compassApp.on('show-connect-window', () => {
       showConnectWindow(compassApp);
