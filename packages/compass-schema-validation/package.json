@@ -73,7 +73,7 @@
     "@mongodb-js/webpack-config-compass": "^1.0.8",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^22.3.11",
+    "electron": "^22.3.12",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app": "^5.6.0",
