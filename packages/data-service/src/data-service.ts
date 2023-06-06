@@ -67,7 +67,7 @@ import {
 import { redactConnectionString } from './redact';
 import type { CloneableMongoClient } from './connect-mongo-client';
 import {
-  connectMongoClientCompass as connectMongoClient,
+  connectMongoClientDataService as connectMongoClient,
   createClonedClient,
 } from './connect-mongo-client';
 import type { CollectionStats } from './types';
@@ -163,7 +163,11 @@ export interface DataService {
   /**
    * Connect the service
    */
-  connect(): Promise<void>;
+  connect(options?: {
+    signal?: AbortSignal;
+    productName?: string;
+    productDocsLink?: string;
+  }): Promise<void>;
 
   /**
    * Disconnect the service
@@ -1247,7 +1251,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return databases;
   }
 
-  async connect(signal?: AbortSignal): Promise<void> {
+  async connect({
+    signal,
+    productName,
+    productDocsLink,
+  }: {
+    signal?: AbortSignal;
+    productName?: string;
+    productDocsLink?: string;
+  } = {}): Promise<void> {
     if (this._metadataClient) {
       debug('already connected');
       return;
@@ -1268,12 +1280,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     try {
       const [metadataClient, crudClient, tunnel, state, connectionOptions] =
-        await connectMongoClient(
-          this._connectionOptions,
-          this._setupListeners.bind(this),
+        await connectMongoClient({
+          connectionOptions: this._connectionOptions,
+          setupListeners: this._setupListeners.bind(this),
           signal,
-          this._unboundLogger
-        );
+          logger: this._unboundLogger,
+          productName,
+          productDocsLink,
+        });
 
       const attr = {
         isWritable: this.isWritable(),

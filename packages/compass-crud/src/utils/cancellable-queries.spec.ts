@@ -37,7 +37,9 @@ describe('cancellable-queries', function () {
 
   before(async function () {
     const info = convertConnectionModelToInfo(CONNECTION);
-    dataService = await connect(info.connectionOptions);
+    dataService = await connect({
+      connectionOptions: info.connectionOptions,
+    });
 
     currentOpsByNS = async function (ns) {
       const ops = await dataService.currentOp();

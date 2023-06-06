@@ -203,11 +203,13 @@ describe('Connections Component', function () {
 
       it('should call the connect function with the connection options to connect', function () {
         expect(mockConnectFn.callCount).to.equal(1);
-        expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
-          connectionString:
-            'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
-          oidc: {},
-        });
+        expect(mockConnectFn.firstCall.args[0].connectionOptions).to.deep.equal(
+          {
+            connectionString:
+              'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
+            oidc: {},
+          }
+        );
       });
 
       it('should call to save the connection with the connection config', function () {
@@ -257,10 +259,13 @@ describe('Connections Component', function () {
 
       it('should call the connect function without replacing appName', function () {
         expect(mockConnectFn.callCount).to.equal(1);
-        expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
-          connectionString: 'mongodb://localhost:27019/?appName=Some+App+Name',
-          oidc: {},
-        });
+        expect(mockConnectFn.firstCall.args[0].connectionOptions).to.deep.equal(
+          {
+            connectionString:
+              'mongodb://localhost:27019/?appName=Some+App+Name',
+            oidc: {},
+          }
+        );
       });
     });
   });
@@ -278,7 +283,11 @@ describe('Connections Component', function () {
       savedUnconnectableId = uuid();
 
       mockConnectFn = sinon.fake(
-        async (connectionOptions: ConnectionOptions) => {
+        async ({
+          connectionOptions,
+        }: {
+          connectionOptions: ConnectionOptions;
+        }) => {
           if (
             connectionOptions.connectionString ===
             'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&appName=Test+App+Name'
@@ -379,11 +388,13 @@ describe('Connections Component', function () {
 
       it('should call the connect function with the connection options to connect', function () {
         expect(mockConnectFn.callCount).to.equal(1);
-        expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
-          connectionString:
-            'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&appName=Test+App+Name',
-          oidc: {},
-        });
+        expect(mockConnectFn.firstCall.args[0].connectionOptions).to.deep.equal(
+          {
+            connectionString:
+              'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&appName=Test+App+Name',
+            oidc: {},
+          }
+        );
       });
 
       describe('connecting to a successful connection after cancelling a connect', function () {
@@ -416,7 +427,9 @@ describe('Connections Component', function () {
 
         it('should call the connect function with the connection options to connect', function () {
           expect(mockConnectFn.callCount).to.equal(2);
-          expect(mockConnectFn.secondCall.args[0]).to.deep.equal({
+          expect(
+            mockConnectFn.secondCall.args[0].connectionOptions
+          ).to.deep.equal({
             connectionString:
               'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
             oidc: {},

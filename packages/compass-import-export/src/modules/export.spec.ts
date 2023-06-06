@@ -308,7 +308,9 @@ describe('export [module]', function () {
       await fs.promises.mkdir(tmpdir, { recursive: true });
 
       dataService = await connect({
-        connectionString: 'mongodb://localhost:27019/local',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27019/local',
+        },
       });
 
       try {
