@@ -5,19 +5,19 @@ import React, { useEffect, useMemo, useRef } from 'react';
 const lightModeColors = {
   clockBackgroundColor: palette.white,
   clockFaceColor: palette.gray.light1,
-  textColor: palette.gray.dark1,
-  msColor: palette.blue.light1,
+  textColor: palette.gray.base,
+  msColor: palette.blue.base,
   previusElapsedArcColor: palette.gray.light1,
-  currentElapsedArcColor: palette.blue.light1,
+  currentElapsedArcColor: palette.blue.base,
 };
 
 const darkModeColors = {
   clockBackgroundColor: palette.black,
-  clockFaceColor: palette.gray.dark1,
-  textColor: palette.gray.dark1,
-  msColor: palette.blue.light1,
-  previusElapsedArcColor: palette.gray.dark1,
-  currentElapsedArcColor: palette.blue.light1,
+  clockFaceColor: palette.gray.light1,
+  textColor: palette.gray.base,
+  msColor: palette.blue.light2,
+  previusElapsedArcColor: palette.gray.light1,
+  currentElapsedArcColor: palette.blue.light2,
 };
 
 const containerStyles = css({
@@ -63,7 +63,6 @@ const svgStyles = css({ position: 'absolute', top: 0, left: 0 });
 
 function drawElapsedTimes({
   svgElement,
-  strokeWidth,
   width,
   height,
   totalExecTimeMS,
@@ -73,7 +72,6 @@ function drawElapsedTimes({
   currentElapsedArcColor,
 }: {
   svgElement: SVGSVGElement;
-  strokeWidth: number;
   width: number;
   height: number;
   totalExecTimeMS: number;
@@ -97,15 +95,17 @@ function drawElapsedTimes({
       startAngle: prevArcStart,
       endAngle: prevArcEnd,
       fill: previusElapsedArcColor,
+      strokeWidth: 1,
     },
     {
       startAngle: curArcStart,
       endAngle: curArcEnd,
       fill: currentElapsedArcColor,
+      strokeWidth: 4,
     },
   ];
 
-  arcs.forEach(({ startAngle, endAngle, fill }) => {
+  arcs.forEach(({ startAngle, endAngle, fill, strokeWidth }) => {
     const svgArc = d3.svg
       .arc()
       .innerRadius(radius - strokeWidth)
@@ -168,26 +168,27 @@ function drawClockFace({
     .style('fill', strokeColor);
 
   // clock position lines
+  const ANGLE_LINE_WIDTH = 1;
   const angles = [0, 45, 90, 135, 180, 225, 270, 315];
-  const longLineLength = 0.25 * radius;
-  const shortLineLength = 0.16 * radius;
 
   angles.forEach((angle) => {
-    const length = angle % 10 === 0 ? longLineLength : shortLineLength;
+    const ANGLE_LINE_LENGTH = 0.3 * radius;
     d3.select(svgElement)
       .append('line')
       .attr(
         'x1',
-        radius + (radius - length) * Math.sin(angle * (Math.PI / 180))
+        radius +
+          (radius - ANGLE_LINE_LENGTH) * Math.sin(angle * (Math.PI / 180))
       )
       .attr(
         'y1',
-        radius - (radius - length) * Math.cos(angle * (Math.PI / 180))
+        radius -
+          (radius - ANGLE_LINE_LENGTH) * Math.cos(angle * (Math.PI / 180))
       )
       .attr('x2', radius + radius * Math.sin(angle * (Math.PI / 180)))
       .attr('y2', radius - radius * Math.cos(angle * (Math.PI / 180)))
       .attr('stroke', strokeColor)
-      .attr('stroke-width', 2);
+      .attr('stroke-width', ANGLE_LINE_WIDTH);
   });
 }
 
@@ -248,7 +249,6 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     drawElapsedTimes({
       width: width,
       height: height,
-      strokeWidth: 3,
       svgElement,
       curStageExecTimeMS,
       prevStageExecTimeMS,

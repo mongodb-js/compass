@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Badge,
-  Button,
   Code,
   css,
   KeylineCard,
@@ -10,7 +9,12 @@ import {
   spacing,
   Subtitle,
   HorizontalRule,
+  Icon,
+  Tooltip,
+  cx,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 import { Clock } from './clock';
 
@@ -45,9 +49,9 @@ interface StageViewProps {
 
 // NOTE: these values are used to layout the tree and must match
 // the actual size of the elements.
-export const defaultCardWidth = 264;
-export const defaultCardHeight = 118;
-export const shardCardHeight = 42;
+export const defaultCardWidth = 278;
+export const defaultCardHeight = 94;
+export const shardCardHeight = 58;
 export const highlightFieldHeight = 36;
 
 interface ExecutionstatsProps {
@@ -60,7 +64,18 @@ interface ExecutionstatsProps {
 const cardStyles = css({
   position: 'absolute',
   width: defaultCardWidth,
-  padding: spacing[2],
+  padding: spacing[3],
+});
+
+const cardStylesDarkMode = css({
+  borderColor: palette.gray.light2,
+});
+
+const stageTitleStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+  cursor: 'pointer',
 });
 
 const separatorStyles = css({
@@ -71,23 +86,21 @@ const separatorStyles = css({
 const contentStyles = css({ position: 'relative' });
 const clockStyles = css({
   position: 'absolute',
-  top: -(12 + spacing[2]),
-  right: -(30 + spacing[2]),
+  top: -(8 + spacing[5]),
+  right: -(30 + spacing[3]),
 });
 
 const codeContainerStyles = css({
-  marginTop: spacing[2],
-});
-
-const codeStyles = css({
-  maxHeight: spacing[5] * 10,
-  overflow: 'scroll',
+  marginTop: spacing[3],
+  height: '100%',
+  overflow: 'hidden',
 });
 
 const executionStatsStyle = css({
   position: 'relative',
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
+  marginTop: spacing[3],
 });
 
 const ShardView: React.FunctionComponent<ShardViewProps> = (props) => {
@@ -117,25 +130,40 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
   curStageExecTimeMS,
   totalExecTimeMS,
 }) => {
+  const deltaExecTime = curStageExecTimeMS - prevStageExecTimeMS;
+  const deltaExecPercent = ((deltaExecTime / totalExecTimeMS) * 100).toFixed(2);
   return (
     <div className={executionStatsStyle}>
       <div>
-        <span>nReturned </span>
+        <span>Returned </span>
         <span>
-          <Badge>{nReturned}</Badge>
+          <Badge variant="blue">{nReturned}</Badge>
         </span>
       </div>
       <div>
         <span>Execution Time</span>
         <span>
-          <Clock
-            prevStageExecTimeMS={prevStageExecTimeMS}
-            curStageExecTimeMS={curStageExecTimeMS}
-            totalExecTimeMS={totalExecTimeMS}
-            width={60}
-            height={60}
-            className={clockStyles}
-          />
+          <Tooltip
+            align="top"
+            justify="middle"
+            trigger={({ children, ...props }) => (
+              <div {...props} className={clockStyles}>
+                {children}
+                <Clock
+                  prevStageExecTimeMS={prevStageExecTimeMS}
+                  curStageExecTimeMS={curStageExecTimeMS}
+                  totalExecTimeMS={totalExecTimeMS}
+                  width={60}
+                  height={60}
+                />
+              </div>
+            )}
+          >
+            Clock represents the total time taken by the query. The blue arc,
+            which begins at the end of the previous stage, represents the
+            percentage of time spent on the execution of the hovered stage. In
+            this case it is {deltaExecTime === 0 ? 0 : deltaExecPercent}%
+          </Tooltip>
         </span>
       </div>
     </div>
@@ -145,8 +173,10 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
 const StageView: React.FunctionComponent<StageViewProps> = (props) => {
   return (
     <>
-      <Subtitle>{props.name}</Subtitle>
-      <HorizontalRule className={separatorStyles} />
+      <div className={stageTitleStyles}>
+        <Icon glyph={props.detailsOpen ? 'ChevronDown' : 'ChevronRight'} />
+        <Subtitle>{props.name}</Subtitle>
+      </div>
 
       <ExecutionStats
         nReturned={props.nReturned}
@@ -161,21 +191,24 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
           <Highlights highlights={props.highlights}></Highlights>
         </div>
       )}
-      <HorizontalRule className={separatorStyles} />
-      <Button
-        type="button"
-        size="xsmall"
-        variant="default"
-        onClick={() => props.onToggleDetailsClick()}
-      >
-        Details
-      </Button>
+
       {props.detailsOpen && (
-        <div className={codeContainerStyles}>
-          <Code copyable={false} language="json" className={codeStyles}>
-            {JSON.stringify(props.details, null, ' ') || '{}'}
-          </Code>
-        </div>
+        <KeylineCard
+          className={codeContainerStyles}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CodemirrorMultilineEditor
+            language="json"
+            text={JSON.stringify(props.details, null, ' ') || '{}'}
+            readOnly={true}
+            showAnnotationsGutter={false}
+            showLineNumbers={false}
+            formattable={false}
+            initialJSONFoldAll={false}
+            maxLines={15}
+            data-testid="explain-stage-details"
+          />
+        </KeylineCard>
       )}
     </>
   );
@@ -193,10 +226,18 @@ const ExplainTreeStage: React.FunctionComponent<ExplainTreeStageProps> = ({
   detailsOpen = false,
   onToggleDetailsClick = () => undefined,
 }) => {
+  const isDarkMode = useDarkMode();
   return (
     <KeylineCard
+      onClick={() => {
+        if (!isShard) {
+          onToggleDetailsClick();
+        }
+      }}
       data-testid="explain-stage"
-      className={cardStyles}
+      className={cx(cardStyles, {
+        [cardStylesDarkMode]: isDarkMode,
+      })}
       style={{
         boxShadow: detailsOpen
           ? `0px 2px 4px -1px ${rgba(palette.black, 0.15)}`
