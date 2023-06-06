@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "description": "Load and manage saved queries in Compass",
-  "version": "9.9.0",
+  "version": "9.10.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -56,14 +56,14 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.9.0",
+    "@mongodb-js/compass-components": "^1.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.3.1",
     "bson": "^5.2.0",
     "storage-mixin": "^5.1.5"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.9.0",
+    "@mongodb-js/compass-components": "^1.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.3.1",
     "bson": "^5.2.0",

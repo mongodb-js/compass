@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "5.9.0",
+  "version": "5.10.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -57,27 +57,27 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.9.0",
-    "@mongodb-js/compass-databases-navigation": "^1.9.0",
+    "@mongodb-js/compass-components": "^1.10.0",
+    "@mongodb-js/compass-databases-navigation": "^1.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.7.0",
-    "@mongodb-js/connection-form": "^1.9.0",
+    "@mongodb-js/compass-maybe-protect-connection-string": "^0.8.0",
+    "@mongodb-js/connection-form": "^1.10.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
-    "compass-preferences-model": "^2.9.0",
-    "mongodb-data-service": "^22.7.0",
-    "mongodb-instance-model": "^12.7.0",
+    "compass-preferences-model": "^2.10.0",
+    "mongodb-data-service": "^22.8.0",
+    "mongodb-instance-model": "^12.8.0",
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.9.0",
-    "@mongodb-js/compass-databases-navigation": "^1.9.0",
+    "@mongodb-js/compass-components": "^1.10.0",
+    "@mongodb-js/compass-databases-navigation": "^1.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
-    "@mongodb-js/compass-maybe-protect-connection-string": "^0.7.0",
-    "@mongodb-js/connection-form": "^1.9.0",
+    "@mongodb-js/compass-maybe-protect-connection-string": "^0.8.0",
+    "@mongodb-js/connection-form": "^1.10.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
-    "compass-preferences-model": "^2.9.0",
-    "mongodb-data-service": "^22.7.0",
-    "mongodb-instance-model": "^12.7.0"
+    "compass-preferences-model": "^2.10.0",
+    "mongodb-data-service": "^22.8.0",
+    "mongodb-instance-model": "^12.8.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.6",
@@ -97,7 +97,7 @@
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.7.0",
+    "hadron-app": "^5.8.0",
     "hadron-app-registry": "^9.0.7",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
