@@ -6,7 +6,7 @@ import type {
 } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from '../modules/connection-attempt';
 import { createConnectionAttempt } from '../modules/connection-attempt';
@@ -328,6 +328,29 @@ export function useConnections({
         await saveConnectionInfo({
           ...cloneDeep(connectionInfoToBeSaved),
           lastUsed: new Date(),
+        });
+
+        dataService.on('connectionInfoSecretsChanged', (getUpdatedSecrets) => {
+          void (async () => {
+            try {
+              const currentInfo = await connectionStorage.load(
+                connectionInfo.id
+              );
+              if (!currentInfo) return;
+              await saveConnectionInfo(
+                merge(currentInfo, {
+                  connectionOptions: await getUpdatedSecrets(),
+                })
+              );
+            } catch (err: any) {
+              log.warn(
+                mongoLogId(1_001_000_195),
+                'Connection Store',
+                'Failed to update connection store with updated secrets',
+                { err: err?.stack }
+              );
+            }
+          })();
         });
 
         // Remove the oldest recent connection if are adding a new one and

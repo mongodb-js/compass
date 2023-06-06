@@ -148,6 +148,9 @@ export type ExplainExecuteOptions = ExecutionOptions & {
 
 export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
+  connectionInfoSecretsChanged: (
+    getUpdatedSecrets: () => Promise<Partial<ConnectionOptions>>
+  ) => void;
 }
 
 export interface DataService {
@@ -1333,6 +1336,17 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
       this._logger.info(mongoLogId(1_001_000_015), 'Connected', attr);
       debug('connected!', attr);
+
+      state.oidcPlugin.logger.on('mongodb-oidc-plugin:state-updated', () => {
+        this._emitter.emit('connectionInfoSecretsChanged', async () => {
+          const update: Partial<ConnectionOptions> = {
+            oidc: {
+              serializedState: await state.oidcPlugin.serialize(),
+            },
+          }; // This can be 'satisfies' once the linter supports it
+          return update;
+        });
+      });
 
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;
