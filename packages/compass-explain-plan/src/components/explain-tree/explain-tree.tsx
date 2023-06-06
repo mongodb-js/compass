@@ -62,7 +62,7 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
       linkColor={darkMode ? palette.gray.base : palette.gray.light2}
       linkWidth={6}
       horizontalSpacing={spacing[6]}
-      verticalSpacing={spacing[6]}
+      verticalSpacing={spacing[5]}
       className={explainTreeStyles}
     >
       {(node) => {
