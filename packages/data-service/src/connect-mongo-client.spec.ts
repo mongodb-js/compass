@@ -70,13 +70,16 @@ describe('connectMongoClient', function () {
         useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
-          allowedFlows: ['auth-code'],
+          allowedFlows: options.oidc?.allowedFlows,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
         ...defaultOptions,
       });
+      expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
+        'auth-code',
+      ]);
     });
 
     it('should return two different clients when AutoEncryption is enabled', async function () {
@@ -115,12 +118,15 @@ describe('connectMongoClient', function () {
         autoEncryption,
         authMechanismProperties: {},
         oidc: {
-          allowedFlows: ['auth-code'],
+          allowedFlows: options.oidc?.allowedFlows,
           signal: undefined,
         },
         parentHandle: options.parentHandle,
         ...defaultOptions,
       });
+      expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
+        'auth-code',
+      ]);
     });
 
     it('should not override a user-specified directConnection option', async function () {
@@ -143,18 +149,21 @@ describe('connectMongoClient', function () {
       );
 
       expect(options.parentHandle).to.be.a('string');
-      assert.deepStrictEqual(options, {
+      expect(options).to.deep.equal({
         monitorCommands: true,
         useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
-          allowedFlows: ['auth-code'],
+          allowedFlows: options.oidc?.allowedFlows,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
         ...defaultOptions,
       });
+      expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
+        'auth-code',
+      ]);
     });
 
     it('should at least try to run a ping command to verify connectivity', async function () {
@@ -258,22 +267,24 @@ describe('connectMongoClient', function () {
 
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('prepareOIDCOptions', function () {
-  it('defaults allowedFlows to "auth-code"', function () {
+  it('defaults allowedFlows to "auth-code"', async function () {
     const options = prepareOIDCOptions({
       connectionString: 'mongodb://localhost:27017',
     });
 
-    expect(options.oidc.allowedFlows).to.deep.equal(['auth-code']);
+    expect(await (options.oidc.allowedFlows as any)()).to.deep.equal([
+      'auth-code',
+    ]);
   });
 
-  it('does not override allowedFlows when set', function () {
+  it('does not override allowedFlows when set', async function () {
     const options = prepareOIDCOptions({
       connectionString: 'mongodb://localhost:27017',
       oidc: {
         allowedFlows: ['auth-code', 'device-auth'],
       },
     });
-    expect(options.oidc.allowedFlows).to.deep.equal([
+    expect(await (options.oidc.allowedFlows as any)()).to.deep.equal([
       'auth-code',
       'device-auth',
     ]);
