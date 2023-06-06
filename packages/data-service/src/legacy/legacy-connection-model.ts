@@ -1,11 +1,6 @@
 import type { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
-import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
-import type {
-  MongoClient,
-  MongoClientOptions,
-  ReadPreferenceLike,
-} from 'mongodb';
+import type { MongoClientOptions, ReadPreferenceLike } from 'mongodb';
 import ConnectionString from 'mongodb-connection-string-url';
 import util from 'util';
 import type { ConnectionInfo } from '../connection-info';
@@ -160,17 +155,6 @@ export interface LegacyConnectionModel extends LegacyConnectionModelProperties {
   readonly driverUrlWithSsh: string;
   readonly driverOptions: MongoClientOptions;
   readonly sshTunnelOptions?: SshTunnelConfig;
-
-  connect(
-    model: LegacyConnectionModel,
-    setupListeners: (client: MongoClient) => void,
-    callback: (
-      err: Error,
-      client: MongoClient,
-      tunnel: SSHTunnel,
-      options: MongoClientOptions
-    ) => void
-  ): void;
 
   toJSON(): LegacyConnectionModelProperties;
   save: (
