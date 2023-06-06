@@ -111,6 +111,7 @@ describe('Home [Component]', function () {
         dataServiceDisconnectedSpy = sinon.fake.resolves(true);
         const dataService = {
           disconnect: dataServiceDisconnectedSpy,
+          addReauthenticationHandler: sinon.stub(),
         };
         await renderHome(dataService);
         await waitFor(() => screen.getByTestId('test-Instance.Workspace'));
