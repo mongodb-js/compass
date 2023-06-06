@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Fri Jun 02 2023.
+This document was automatically generated on Mon Jun 05 2023.
 
 ## List of dependencies
 
@@ -243,7 +243,7 @@ This document was automatically generated on Fri Jun 02 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                            | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                   | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                     | 1.0.0        | Apache-2.0                          |
-| **[electron](#9f83ac4f5c95ef90ae97bb2c322af1d3634a9b2a9523f062d61ef542cead0170)**                                      | 22.3.11      | MIT                                 |
+| **[electron](#072e3978a12ea2be7139a249b52fcff4417e77707a52b778262e0a4aba1f0b98)**                                      | 22.3.12      | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                     | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                 | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                  | 3.0.1        | MIT                                 |
@@ -523,7 +523,7 @@ This document was automatically generated on Fri Jun 02 2023.
 | **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**                              | 1.0.2        | MIT                                 |
 | **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**                                    | 0.6.3        | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                       | 2.0.2        | MIT                                 |
-| **[node-abi](#b03aa9cc46bb4ca304576293f105e0c992cbbc558f61639e4b46b76e77f45bce)**                                      | 3.40.0       | MIT                                 |
+| **[node-abi](#c905148c2d72c80a831b76a1541560a162ed1f296c92413e5fb90da14328fcce)**                                      | 3.43.0       | MIT                                 |
 | **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**                                | 4.3.0        | MIT                                 |
 | **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**                                    | 2.6.7        | MIT                                 |
 | **[normalize-url](#019552e3b0898748772477fa3b2924b4c4a8fb8bec640dacb4cce2dfdc955410)**                                 | 6.1.0        | MIT                                 |
@@ -573,6 +573,7 @@ This document was automatically generated on Fri Jun 02 2023.
 | **[react-dom](#6f313dd207f71f3d56121132c87ef27cba1beab9e5e349ac81c740cee6fd0774)**                                     | 17.0.2       | MIT                                 |
 | **[react-hotkeys-hook](#6ce07fe9653ad69a76354e2d71137c70ab9a838377fe5a8f8e45c559cfbf41cc)**                            | 4.3.7        | MIT                                 |
 | **[react-intersection-observer](#84f998bdb33a5f9330d81ef063f7ad0897f1b004661fbf131725697b847a5b6a)**                   | 8.34.0       | MIT                                 |
+| **[react-intersection-observer](#ed94f0fa98c1879d7e2ebc923d8900d9cefc0783657768ea7bef851aeaafa231)**                   | 9.4.4        | MIT                                 |
 | **[react-is](#7183835e2bcaca6754fe10854fc3b65407d2cb9aa3b68b1c06ccaafb7b9be28a)**                                      | 16.13.1      | MIT                                 |
 | **[react-is](#5ec174b50bba38f48ee8da3d8a5b9463a9e77c3f01d74a132ecc30a2be099c4b)**                                      | 17.0.2       | MIT                                 |
 | **[react-is](#5746232ad830b635a6581ee7d3b826ee932c6877087c98cb46b94101eb5ce40b)**                                      | 18.2.0       | MIT                                 |
@@ -19686,9 +19687,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="9f83ac4f5c95ef90ae97bb2c322af1d3634a9b2a9523f062d61ef542cead0170"></a>
+<a id="072e3978a12ea2be7139a249b52fcff4417e77707a52b778262e0a4aba1f0b98"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 22.3.11)
+### [electron](https://www.npmjs.com/package/electron) (version 22.3.12)
 
 License tags: MIT
 
@@ -32417,9 +32418,9 @@ License files:
 
 License tags: MIT
 
-<a id="b03aa9cc46bb4ca304576293f105e0c992cbbc558f61639e4b46b76e77f45bce"></a>
+<a id="c905148c2d72c80a831b76a1541560a162ed1f296c92413e5fb90da14328fcce"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.40.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.43.0)
 
 License tags: MIT
 
@@ -39911,6 +39912,38 @@ License files:
       The MIT License (MIT)
 
       Copyright (c) 2022 React Intersection Observer authors
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
+
+<a id="ed94f0fa98c1879d7e2ebc923d8900d9cefc0783657768ea7bef851aeaafa231"></a>
+
+### [react-intersection-observer](https://www.npmjs.com/package/react-intersection-observer) (version 9.4.4)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      The MIT License (MIT)
+
+      Copyright (c) 2023 React Intersection Observer authors
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal

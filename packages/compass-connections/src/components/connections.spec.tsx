@@ -206,6 +206,7 @@ describe('Connections Component', function () {
         expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
           connectionString:
             'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
+          oidc: {},
         });
       });
 
@@ -258,6 +259,7 @@ describe('Connections Component', function () {
         expect(mockConnectFn.callCount).to.equal(1);
         expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
           connectionString: 'mongodb://localhost:27019/?appName=Some+App+Name',
+          oidc: {},
         });
       });
     });
@@ -380,6 +382,7 @@ describe('Connections Component', function () {
         expect(mockConnectFn.firstCall.args[0]).to.deep.equal({
           connectionString:
             'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&appName=Test+App+Name',
+          oidc: {},
         });
       });
 
@@ -416,6 +419,7 @@ describe('Connections Component', function () {
           expect(mockConnectFn.secondCall.args[0]).to.deep.equal({
             connectionString:
               'mongodb://localhost:27018/?readPreference=primary&ssl=false&appName=Test+App+Name',
+            oidc: {},
           });
         });
 

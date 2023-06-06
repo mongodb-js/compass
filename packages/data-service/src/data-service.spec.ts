@@ -1104,7 +1104,7 @@ describe('DataService', function () {
         const abortController = new AbortController();
         const abortSignal = abortController.signal;
 
-        const stop = sinon.spy();
+        const stop = sinon.stub().resolves();
         const promise = dataService['_cancellableOperation'](
           () => new Promise(() => {}),
           () => stop(),

@@ -35,12 +35,20 @@ describe('PipelinePreviewManager', function () {
     const dataService = mockDataService({ data: [] });
     const previewManager = new PipelinePreviewManager(dataService);
 
-    void previewManager.getPreviewForStage(0, 'test.test', [], {
-      debounceMs: 10,
-    });
-    void previewManager.getPreviewForStage(0, 'test.test', [], {
-      debounceMs: 10,
-    });
+    previewManager
+      .getPreviewForStage(0, 'test.test', [], {
+        debounceMs: 10,
+      })
+      .catch(() => {
+        /* ignore error */
+      });
+    previewManager
+      .getPreviewForStage(0, 'test.test', [], {
+        debounceMs: 10,
+      })
+      .catch(() => {
+        /* ignore error */
+      });
 
     await previewManager.getPreviewForStage(0, 'test.test', [], {
       debounceMs: 10,
@@ -74,7 +82,9 @@ describe('PipelinePreviewManager', function () {
     const dataService = mockDataService({ data: [] });
     const previewManager = new PipelinePreviewManager(dataService);
 
-    void previewManager.getPreviewForStage(0, 'test.test', []);
+    previewManager.getPreviewForStage(0, 'test.test', []).catch(() => {
+      /* ignore error */
+    });
 
     expect(previewManager.cancelPreviewForStage(0)).to.eq(true);
   });

@@ -1,5 +1,6 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
@@ -15,18 +16,46 @@ import type { Readable } from 'stream';
 import { pipeline, PassThrough } from 'stream';
 import { createInterface as readline } from 'readline';
 import https from 'https';
-import { once } from 'events';
+import { once, EventEmitter } from 'events';
 import { expect } from 'chai';
+
+const DEFAULT_TOKEN_PAYLOAD = {
+  expires_in: 3600,
+  payload: {
+    // Define the user information stored inside the access tokens
+    groups: ['testgroup'],
+    sub: 'testuser',
+    aud: 'resource-server-audience-value',
+  },
+};
+
+const DEFAULT_AUTH_INFO = {
+  authenticatedUsers: [{ user: 'dev/testuser', db: '$external' }],
+  authenticatedUserRoles: [{ role: 'dev/testgroup', db: 'admin' }],
+};
+
+const host = '127.0.0.1';
+
+function getTestBrowserShellCommand() {
+  return `${process.execPath} ${path.resolve(
+    __dirname,
+    '..',
+    'fixtures',
+    'curl.js'
+  )}`;
+}
 
 describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
+  let overrideRequestHandler: typeof oidcMockProviderConfig.overrideRequestHandler;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
 
   let i = 0;
+  let port: number;
   let tmpdir: string;
   let server: ChildProcess;
   let serverExit: Promise<unknown>;
@@ -43,6 +72,9 @@ describe('OIDC integration', function () {
       oidcMockProviderConfig = {
         getTokenPayload(metadata: Parameters<typeof getTokenPayload>[0]) {
           return getTokenPayload(metadata);
+        },
+        overrideRequestHandler(...args) {
+          return overrideRequestHandler?.(...args);
         },
       };
       oidcMockProvider = await OIDCMockProvider.create(oidcMockProviderConfig);
@@ -101,7 +133,7 @@ describe('OIDC integration', function () {
 
       serverExit = once(server, 'exit');
 
-      const port = await Promise.race([
+      port = await Promise.race([
         serverExit.then((code) => {
           throw new Error(`mongod exited with code ${code}`);
         }),
@@ -121,26 +153,33 @@ describe('OIDC integration', function () {
         })(),
       ]);
 
-      connectionString = `mongodb://127.0.0.1:${port}/?authMechanism=MONGODB-OIDC`;
+      connectionString = `mongodb://${host}:${port}/?authMechanism=MONGODB-OIDC`;
     }
-
-    process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY = `${
-      process.execPath
-    } ${path.resolve(__dirname, '..', 'fixtures', 'curl.js')}`;
   });
 
   beforeEach(async function () {
-    compass = await beforeTests();
+    getTokenPayload = () => DEFAULT_TOKEN_PAYLOAD;
+    overrideRequestHandler = () => {};
+    compass = await beforeTests({
+      // TODO(COMPASS-6803): Remove feature flag: enableOidc.
+      // Note: This isn't needed to connect, but shows the oidc options in the
+      // connect form and settings.
+      extraSpawnArgs: ['--enable-oidc'],
+    });
     browser = compass.browser;
+    await browser.setFeature(
+      'browserCommandForOIDCAuth',
+      getTestBrowserShellCommand()
+    );
   });
 
   afterEach(async function () {
+    await browser.setFeature('browserCommandForOIDCAuth', undefined);
     await afterTest(compass, this.currentTest);
+    await afterTests(compass, this.currentTest);
   });
 
   after(async function () {
-    delete process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY;
-    await afterTests(compass, this.currentTest);
     server?.kill();
     await serverExit;
     await oidcMockProvider?.close();
@@ -151,26 +190,78 @@ describe('OIDC integration', function () {
     let tokenFetchCalls = 0;
     getTokenPayload = () => {
       tokenFetchCalls++;
-      return {
-        expires_in: 3600,
-        payload: {
-          // Define the user information stored inside the access tokens
-          groups: ['testgroup'],
-          sub: 'testuser',
-          aud: 'resource-server-audience-value',
-        },
-      };
+      return DEFAULT_TOKEN_PAYLOAD;
     };
     await browser.connectWithConnectionString(connectionString);
     const result: any = await browser.shellEval(
-      'db.runCommand({ connectionStatus: 1 })',
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
 
     expect(tokenFetchCalls).to.equal(1); // No separate request from the shell
-    expect(result.authInfo).to.deep.equal({
-      authenticatedUsers: [{ user: 'dev/testuser', db: '$external' }],
-      authenticatedUserRoles: [{ role: 'dev/testgroup', db: 'admin' }],
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
+  });
+
+  it('can cancel a connection attempt and then successfully connect', async function () {
+    const emitter = new EventEmitter();
+    const secondConnectionEstablished = once(
+      emitter,
+      'secondConnectionEstablished'
+    );
+    overrideRequestHandler = async (url) => {
+      if (new URL(url).pathname === '/authorize') {
+        emitter.emit('authorizeEndpointCalled');
+        // This does effectively mean that our 'fake browser'
+        // will never get a response from the authorization endpoint
+        // during the first connection attempt, and that therefore
+        // the local HTTP server will never have its redirect endpoint
+        // accessed.
+        await secondConnectionEstablished;
+      }
+    };
+
+    {
+      await browser.setValueVisible(
+        Selectors.ConnectionStringInput,
+        connectionString
+      );
+      await browser.clickVisible(Selectors.ConnectButton);
+      await once(emitter, 'authorizeEndpointCalled');
+      await browser.closeConnectModal();
+    }
+
+    overrideRequestHandler = () => {};
+    await browser.connectWithConnectionString(connectionString);
+    emitter.emit('secondConnectionEstablished');
+    const result: any = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
+      true
+    );
+
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
+  });
+
+  it('can successfully connect with the connection form', async function () {
+    let tokenFetchCalls = 0;
+    getTokenPayload = () => {
+      tokenFetchCalls++;
+      return DEFAULT_TOKEN_PAYLOAD;
+    };
+
+    await browser.setConnectFormState({
+      hosts: [`${host}:${port}`],
+      authMethod: 'MONGODB-OIDC',
     });
+    await browser.clickVisible(Selectors.ConnectButton);
+
+    await browser.waitForConnectionResult('success');
+
+    const result: any = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 }).authInfo',
+      true
+    );
+
+    expect(tokenFetchCalls).to.equal(1); // No separate request from the shell.
+    expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
   });
 });

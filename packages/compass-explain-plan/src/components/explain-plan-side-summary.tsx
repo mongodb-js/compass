@@ -32,6 +32,7 @@ const ExplainPlanSummaryStat = <T extends string | boolean | number>({
   formatter = defaultFormatter,
   label,
   definition,
+  'data-testid': dataTestId,
 }: {
   as?: keyof ReactHTML;
   glyph?: ReactElement;
@@ -39,6 +40,7 @@ const ExplainPlanSummaryStat = <T extends string | boolean | number>({
   formatter?: (val: T) => string;
   label: ReactNode;
   definition: string;
+  ['data-testid']?: string;
 }): ReactElement | null => {
   return React.createElement(
     as,
@@ -54,6 +56,7 @@ const ExplainPlanSummaryStat = <T extends string | boolean | number>({
       definition={definition}
       className={statsTextStyles}
       tooltipProps={{ align: 'left', spacing: spacing[3] }}
+      data-testid={dataTestId}
     >
       {typeof value === 'undefined' ? (
         label
@@ -139,7 +142,10 @@ export const ExplainPlanSummary: React.FunctionComponent<
   }, [indexType]);
 
   return (
-    <KeylineCard className={summaryCardStyles}>
+    <KeylineCard
+      className={summaryCardStyles}
+      data-testid="explain-plan-summary"
+    >
       <Subtitle
         className={cx(
           summaryHeadingStyles,
@@ -161,6 +167,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
             </svg>
           }
           value={docsReturned}
+          data-testid="docsReturned"
           label="documents returned"
           definition="Number of documents returned by the query."
         ></ExplainPlanSummaryStat>
@@ -176,6 +183,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
             </svg>
           }
           value={docsExamined}
+          data-testid="docsExamined"
           label="documents examined"
           definition="Number of documents examined during query execution. When an index covers a query, this value is 0."
         ></ExplainPlanSummaryStat>
@@ -190,6 +198,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
             </svg>
           }
           value={executionTimeMs}
+          data-testid="executionTimeMs"
           formatter={(val) => `${String(val)}\xa0ms`}
           label="execution time"
           definition="Total time in milliseconds for query plan selection and query execution."
@@ -207,6 +216,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
             </svg>
           }
           value={sortedInMemory}
+          data-testid="sortedInMemory"
           formatter={(val) => (val ? 'Is' : 'Is not')}
           label="sorted in memory"
           definition="Indicates whether the sort operation occurred in system memory. In-memory sorts perform better than on-disk sorts."
@@ -223,6 +233,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
             </svg>
           }
           value={indexKeysExamined}
+          data-testid="indexKeysExamined"
           label="index keys examined"
           definition="Number of indexes examined to fulfill the query."
         ></ExplainPlanSummaryStat>

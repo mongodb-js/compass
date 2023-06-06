@@ -1,5 +1,6 @@
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { cloneDeep } from 'lodash';
+import preferences from 'compass-preferences-model';
 
 export type OIDCOptions = NonNullable<ConnectionOptions['oidc']>;
 
@@ -38,26 +39,32 @@ export function handleUpdateOIDCParam<K extends keyof OIDCOptions>({
   };
 }
 
-/**
- * When connecting with oidc with the authorization flow `device-auth`,
- * we show a code and a url that the user then visits and inputs.
- */
-export function setOIDCNotifyDeviceFlow(
+export function adjustOIDCConnectionOptionsBeforeConnect(
   notifyDeviceFlow?: (deviceFlowInformation: {
     verificationUrl: string;
     userCode: string;
   }) => void
 ): (connectionOptions: Readonly<ConnectionOptions>) => ConnectionOptions {
   return (connectionOptions) => {
-    if (!notifyDeviceFlow) {
-      return connectionOptions;
-    }
+    const browserCommand =
+      preferences.getPreferences().browserCommandForOIDCAuth;
 
     return {
       ...cloneDeep(connectionOptions),
       oidc: {
         ...cloneDeep(connectionOptions.oidc),
-        notifyDeviceFlow,
+        ...(browserCommand
+          ? {
+              openBrowser: {
+                command: browserCommand,
+              },
+            }
+          : {}),
+        /**
+         * When connecting with oidc with the authorization flow `device-auth`,
+         * we show a code and a url that the user then visits and inputs.
+         */
+        ...(notifyDeviceFlow ? { notifyDeviceFlow } : {}),
       },
     };
   };

@@ -27,7 +27,8 @@ export type CloneableMongoClient = MongoClient & {
 };
 
 export function prepareOIDCOptions(
-  connectionOptions: Readonly<ConnectionOptions>
+  connectionOptions: Readonly<ConnectionOptions>,
+  signal?: AbortSignal
 ): Required<Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>> {
   const options: Required<
     Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>
@@ -38,18 +39,15 @@ export function prepareOIDCOptions(
 
   options.oidc.allowedFlows ??= ['auth-code'];
 
-  // TODO(COMPASS-6849): Add a way to properly override openBrowser.
-  if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
-    options.oidc.openBrowser = {
-      command: process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY,
-    };
-  }
-
   // Set the driver's `authMechanismProperties` (non-url)
   // `ALLOWED_HOSTS` value to `*`.
   if (connectionOptions.oidc?.enableUntrustedEndpoints) {
     options.authMechanismProperties.ALLOWED_HOSTS = ['*'];
   }
+
+  // @ts-expect-error Will go away on @types/node update
+  // with proper `AbortSignal` typings
+  options.oidc.signal = signal;
 
   return options;
 }
@@ -57,6 +55,7 @@ export function prepareOIDCOptions(
 export async function connectMongoClientCompass(
   connectionOptions: Readonly<ConnectionOptions>,
   setupListeners: (client: MongoClient) => void,
+  signal?: AbortSignal,
   logger?: UnboundDataServiceImplLogger
 ): Promise<
   [
@@ -72,7 +71,7 @@ export async function connectMongoClientCompass(
     redactConnectionOptions(connectionOptions)
   );
 
-  const oidcOptions = prepareOIDCOptions(connectionOptions);
+  const oidcOptions = prepareOIDCOptions(connectionOptions, signal);
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {

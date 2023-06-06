@@ -873,10 +873,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
     | { url: string; options: DevtoolsConnectOptions }
     | undefined {
     // `notifyDeviceFlow` is a function which cannot be serialized for inclusion
-    // in the shell.
+    // in the shell, `signal` is an abortSignal.
     return omit(
       this._mongoClientConnectionOptions,
-      'options.oidc.notifyDeviceFlow'
+      'options.oidc.notifyDeviceFlow',
+      'options.oidc.signal'
     );
   }
 
@@ -1246,7 +1247,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return databases;
   }
 
-  async connect(): Promise<void> {
+  async connect(signal?: AbortSignal): Promise<void> {
     if (this._metadataClient) {
       debug('already connected');
       return;
@@ -1270,6 +1271,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         await connectMongoClient(
           this._connectionOptions,
           this._setupListeners.bind(this),
+          signal,
           this._unboundLogger
         );
 

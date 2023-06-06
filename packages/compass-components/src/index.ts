@@ -165,3 +165,4 @@ export {
 } from './hooks/use-hotkeys';
 export { rafraf } from './utils/rafraf';
 export { ComboboxWithCustomOption } from './components/combobox-with-custom-option';
+export { usePersistedState } from './hooks/use-persisted-state';
