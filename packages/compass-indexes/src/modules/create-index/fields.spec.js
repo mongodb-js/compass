@@ -15,7 +15,6 @@ import reducer, {
 } from '../create-index/fields';
 import { ActionTypes as ErrorActionTypes } from '../error';
 import { CHANGE_SCHEMA_FIELDS } from '../create-index/schema-fields';
-import { ActionTypes } from '../create-index/new-index-field';
 
 describe('create index fields module', function () {
   describe('#reducer', function () {
@@ -191,11 +190,6 @@ describe('create index fields module', function () {
             schemaFields: ['def', 'abc'],
           });
           actionSpy();
-        } else if (res.type === ActionTypes.clearNewIndexField) {
-          expect(res).to.deep.equal({
-            type: ActionTypes.clearNewIndexField,
-          });
-          actionSpy();
         } else {
           expect(true).to.be(false, 'Error: dispatch should not be called');
         }
@@ -208,7 +202,7 @@ describe('create index fields module', function () {
         schemaFields: ['def'],
       });
       updateFieldName(1, 'abc')(dispatch, state);
-      expect(actionSpy.calledThrice).to.equal(true);
+      expect(actionSpy.calledTwice).to.equal(true);
     });
   });
 });

@@ -2,7 +2,6 @@ import type { AnyAction, Dispatch } from 'redux';
 
 import contains from 'lodash.contains';
 import { changeSchemaFields } from '../create-index/schema-fields';
-import { clearNewIndexField } from '../create-index/new-index-field';
 import { handleError } from '../error';
 
 import type { RootState } from '../create-index';
@@ -103,7 +102,6 @@ export const updateFieldName = (idx: number, name: string) => {
         const sFields: string[] = [...state.schemaFields];
         sFields.push(name);
         dispatch(changeSchemaFields(sFields));
-        dispatch(clearNewIndexField());
       }
     }
   };

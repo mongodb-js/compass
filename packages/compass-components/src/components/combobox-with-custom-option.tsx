@@ -44,6 +44,16 @@ export const ComboboxWithCustomOption = <
       {...props}
       multiselect={multiselect}
       onFilter={setSearch}
+      onBlur={() => {
+        // Select an option on blur event to fix missing values on modal submit COMPASS-6511
+        if (!onChange) return;
+        if (search) {
+          if (!userOptions.find((x) => x.value === search)) {
+            setCustomOptions([{ value: search } as K]);
+          }
+          (onChange as onChangeType<false>)(search);
+        }
+      }}
       onChange={(value: string | string[] | null) => {
         if (!onChange) return;
         if (multiselect) {
