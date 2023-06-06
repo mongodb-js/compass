@@ -26,9 +26,12 @@ export type CloneableMongoClient = MongoClient & {
   [createClonedClient](): Promise<CloneableMongoClient>;
 };
 
+export type ReauthenticationHandler = () => PromiseLike<void> | void;
+
 export function prepareOIDCOptions(
   connectionOptions: Readonly<ConnectionOptions>,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  reauthenticationHandler?: ReauthenticationHandler
 ): Required<Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>> {
   const options: Required<
     Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>
@@ -37,7 +40,16 @@ export function prepareOIDCOptions(
     authMechanismProperties: {},
   };
 
-  options.oidc.allowedFlows ??= ['auth-code'];
+  const allowedFlows = connectionOptions.oidc?.allowedFlows ?? ['auth-code'];
+
+  let isFirstAuthAttempt = true; // Don't need to prompt for re-auth on first attempt
+  options.oidc.allowedFlows = async function () {
+    if (!isFirstAuthAttempt) {
+      await reauthenticationHandler?.();
+    }
+    isFirstAuthAttempt = false;
+    return allowedFlows;
+  };
 
   // Set the driver's `authMechanismProperties` (non-url)
   // `ALLOWED_HOSTS` value to `*`.
@@ -59,6 +71,7 @@ export async function connectMongoClientDataService({
   logger,
   productName,
   productDocsLink,
+  reauthenticationHandler,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
   setupListeners: (client: MongoClient) => void;
@@ -66,6 +79,7 @@ export async function connectMongoClientDataService({
   logger?: UnboundDataServiceImplLogger;
   productName?: string;
   productDocsLink?: string;
+  reauthenticationHandler?: ReauthenticationHandler;
 }): Promise<
   [
     metadataClient: CloneableMongoClient,
@@ -80,7 +94,11 @@ export async function connectMongoClientDataService({
     redactConnectionOptions(connectionOptions)
   );
 
-  const oidcOptions = prepareOIDCOptions(connectionOptions, signal);
+  const oidcOptions = prepareOIDCOptions(
+    connectionOptions,
+    signal,
+    reauthenticationHandler
+  );
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
