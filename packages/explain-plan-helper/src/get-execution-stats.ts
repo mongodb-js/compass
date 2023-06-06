@@ -117,7 +117,7 @@ function getAggregationExecutionTime(
   stages: Stage[]
 ): number {
   return (
-    // Aggregation ecxecution time is either accessible as part of stats, or as
+    // Aggregation execution time is either accessible as part of stats, or as
     // the estimated time of the last stage as execution time for stages is
     // accumulated: every next stage includes the time for the previous stages
     stats.executionTimeMillis ??
