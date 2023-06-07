@@ -155,10 +155,19 @@ export async function expandOptions(browser: CompassBrowser, tabName: string) {
   await waitUntilExpanded(browser, tabName);
 }
 
-export async function runFindOperation(
+type QueryOptions = {
+  project?: string;
+  sort?: string;
+  maxTimeMS?: string;
+  collation?: string;
+  skip?: string;
+  limit?: string;
+  expandOptions?: boolean;
+};
+
+export async function fillQueryBar(
   browser: CompassBrowser,
-  tabName: string,
-  filter: string,
+  filter = '{}',
   {
     project = '',
     sort = '',
@@ -166,10 +175,9 @@ export async function runFindOperation(
     collation = '',
     skip = '',
     limit = '',
-    // TODO(COMPASS-6606): allow for the same in other tabs with query bar
-    waitForResult = true,
     expandOptions: keepOptionsExpanded = false,
-  } = {}
+  }: QueryOptions = {},
+  tabName = 'Documents'
 ): Promise<void> {
   if (project || sort || maxTimeMS || collation || skip || limit) {
     await expandOptions(browser, tabName);
@@ -189,6 +197,19 @@ export async function runFindOperation(
   }
 
   await setFilter(browser, tabName, filter);
+}
+
+export async function runFindOperation(
+  browser: CompassBrowser,
+  tabName: string,
+  filter: string,
+  {
+    // TODO(COMPASS-6606): allow for the same in other tabs with query bar
+    waitForResult = true,
+    ...queryOptions
+  }: { waitForResult?: boolean } & QueryOptions = {}
+): Promise<void> {
+  await browser.fillQueryBar(filter, queryOptions, tabName);
 
   await browser.runFind(tabName, waitForResult);
 
