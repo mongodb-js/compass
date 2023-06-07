@@ -38,6 +38,7 @@ const viewBodyContainerStyles = css({
 
 const contentStyles = css({
   flex: '1 1 0%',
+  minWidth: '0%',
 });
 
 const editorContainerStyles = css({
@@ -97,7 +98,6 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
     <div className={viewStyles}>
       <div className={viewHeaderStyles}>
         <SegmentedControl
-          size="large"
           onChange={setViewType as (value: string) => void}
           value={viewType}
           data-testid="explain-view-type-control"
