@@ -38,6 +38,7 @@ const viewBodyContainerStyles = css({
 
 const contentStyles = css({
   flex: '1 1 0%',
+  minWidth: '0%',
 });
 
 const editorContainerStyles = css({
