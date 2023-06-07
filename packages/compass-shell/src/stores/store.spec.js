@@ -56,7 +56,13 @@ describe('CompassShellStore [Store]', function () {
     it('sets runtime on data-service-connected', function () {
       appRegistry.emit('data-service-connected', null, createMockDataService());
 
-      const runtimeState = getRuntimeState();
+      let runtimeState = getRuntimeState();
+
+      expect(runtimeState.error).to.equal(null);
+      expect(runtimeState.runtime).to.equal(null);
+
+      store.onEnableShellChanged(true);
+      runtimeState = getRuntimeState();
 
       expect(runtimeState.error).to.equal(null);
       expect(runtimeState.runtime).to.be.instanceOf(WorkerRuntime);
@@ -64,9 +70,10 @@ describe('CompassShellStore [Store]', function () {
 
     it('emits mongosh events to the appRegistry', async function () {
       appRegistry.emit('data-service-connected', null, createMockDataService());
-      let eventRecieved = false;
+      store.onEnableShellChanged(true);
+      let eventReceived = false;
       appRegistry.on('mongosh:setCtx', () => {
-        eventRecieved = true;
+        eventReceived = true;
       });
 
       const runtimeState = getRuntimeState();
@@ -75,7 +82,7 @@ describe('CompassShellStore [Store]', function () {
       // become available
       await runtimeState.runtime.evaluate('help');
 
-      expect(eventRecieved).to.equal(true);
+      expect(eventReceived).to.equal(true);
     });
 
     it('sets error if data-service-connected has one', function () {
@@ -97,7 +104,7 @@ describe('CompassShellStore [Store]', function () {
       appRegistry.emit('data-service-connected', null, fakeDataService);
       const runtimeState2 = getRuntimeState();
 
-      expect(runtimeState1).to.equal(runtimeState2);
+      expect(runtimeState1).to.deep.equal(runtimeState2);
     });
 
     it('resets the runtime on data-service-disconnected', function () {

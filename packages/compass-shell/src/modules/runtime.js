@@ -35,7 +35,6 @@ export const INITIAL_STATE = {
  * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  console.log('reducer', { state, action });
   if (action.type === SETUP_RUNTIME) {
     return reduceSetupRuntime(state, action);
   }
