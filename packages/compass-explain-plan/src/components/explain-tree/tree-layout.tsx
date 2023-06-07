@@ -1,6 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { flextree } from 'd3-flextree';
-import { css } from '@mongodb-js/compass-components';
+import { css, palette } from '@mongodb-js/compass-components';
 import type { FlextreeNode } from 'd3-flextree';
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy';
 
@@ -33,14 +33,16 @@ function LinkPath<T>({
   link,
   linkColor,
   linkWidth,
+  isLastLink,
 }: {
   translateX: number;
   gapY?: number;
   link: HierarchyLink<T>;
   linkColor: string;
   linkWidth: number;
+  isLastLink: boolean;
 }) {
-  const pathDef = useMemo(() => {
+  const [pathDef, lastLinkArrowDef] = useMemo(() => {
     const source = link.source as FlextreeNode<T>;
     const target = link.target as FlextreeNode<T>;
     const sourceX = translateX + source.x;
@@ -56,7 +58,12 @@ function LinkPath<T>({
     // same X:
     // we draw as straight line between the nodes.
     if (sourceX === targetX) {
-      return `M ${linkStartX} ${linkStartY} V ${linkEndY}`;
+      return [
+        `M ${linkStartX} ${linkStartY} V ${linkEndY}`,
+        `M ${linkStartX} ${
+          sourceY + actualSourceYSize + gapY / 2
+        } V ${linkEndY}`,
+      ];
     }
 
     // different X:
@@ -65,11 +72,29 @@ function LinkPath<T>({
     const sourceBottomY = sourceY + actualSourceYSize;
     const elbowY = sourceBottomY + (targetY - sourceBottomY) / 2;
 
-    return `M ${linkStartX} ${linkStartY} V ${elbowY} H ${linkEndX} V ${linkEndY}`;
+    return [
+      `M ${linkStartX} ${linkStartY} V ${elbowY} H ${linkEndX} V ${linkEndY}`,
+    ];
   }, [gapY, link.source, link.target, translateX]);
 
   return (
-    <path fill="none" stroke={linkColor} strokeWidth={linkWidth} d={pathDef} />
+    <>
+      <path
+        fill="none"
+        stroke={linkColor}
+        strokeWidth={linkWidth}
+        d={pathDef}
+      />
+      {isLastLink && (
+        <path
+          fill="none"
+          stroke={palette.gray.light1}
+          strokeWidth={linkWidth}
+          d={lastLinkArrowDef}
+          markerStart="url(#arrowhead)"
+        />
+      )}
+    </>
   );
 }
 
@@ -147,6 +172,27 @@ function TreeLayout<T>({
           height={height}
           style={{ position: 'absolute', top: 0, left: 0 }}
         >
+          <defs>
+            <marker
+              markerWidth="4"
+              markerHeight="4"
+              refX="7.5"
+              refY="7.5"
+              viewBox="0 0 15 15"
+              orient="auto-start-reverse"
+              id="arrowhead"
+            >
+              <polyline
+                points="0,7.5 7.5,3.75 0,0"
+                fill="none"
+                strokeWidth="3"
+                stroke={palette.gray.light1}
+                strokeLinecap="round"
+                transform="matrix(1,0,0,1,2.5,3.75)"
+                strokeLinejoin="round"
+              />
+            </marker>
+          </defs>
           <g>
             {links.map((link, i) => (
               <LinkPath<T>
@@ -156,6 +202,7 @@ function TreeLayout<T>({
                 translateX={translateX}
                 linkColor={linkColor}
                 linkWidth={linkWidth}
+                isLastLink={i === links.length - 1}
               ></LinkPath>
             ))}
           </g>

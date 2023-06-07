@@ -7,7 +7,7 @@ const lightModeColors = {
   clockFaceColor: palette.gray.light1,
   textColor: palette.gray.base,
   msColor: palette.blue.base,
-  previusElapsedArcColor: palette.gray.light1,
+  previousElapsedArcColor: palette.gray.light2,
   currentElapsedArcColor: palette.blue.base,
 };
 
@@ -16,7 +16,7 @@ const darkModeColors = {
   clockFaceColor: palette.gray.light1,
   textColor: palette.gray.base,
   msColor: palette.blue.light2,
-  previusElapsedArcColor: palette.gray.light1,
+  previousElapsedArcColor: palette.gray.dark2,
   currentElapsedArcColor: palette.blue.light2,
 };
 
@@ -68,7 +68,7 @@ function drawElapsedTimes({
   totalExecTimeMS,
   curStageExecTimeMS,
   prevStageExecTimeMS,
-  previusElapsedArcColor,
+  previousElapsedArcColor,
   currentElapsedArcColor,
 }: {
   svgElement: SVGSVGElement;
@@ -77,7 +77,7 @@ function drawElapsedTimes({
   totalExecTimeMS: number;
   curStageExecTimeMS: number;
   prevStageExecTimeMS: number;
-  previusElapsedArcColor: string;
+  previousElapsedArcColor: string;
   currentElapsedArcColor: string;
 }) {
   // Transforms to get the right percentage of arc for each piece of the clock
@@ -94,21 +94,21 @@ function drawElapsedTimes({
     {
       startAngle: prevArcStart,
       endAngle: prevArcEnd,
-      fill: previusElapsedArcColor,
-      strokeWidth: 1,
+      fill: previousElapsedArcColor,
     },
     {
       startAngle: curArcStart,
       endAngle: curArcEnd,
       fill: currentElapsedArcColor,
-      strokeWidth: 4,
     },
   ];
 
-  arcs.forEach(({ startAngle, endAngle, fill, strokeWidth }) => {
+  const ARC_STROKE_WIDTH = 4;
+
+  arcs.forEach(({ startAngle, endAngle, fill }) => {
     const svgArc = d3.svg
       .arc()
-      .innerRadius(radius - strokeWidth)
+      .innerRadius(radius - ARC_STROKE_WIDTH)
       .outerRadius(radius)
       .startAngle(startAngle)
       .endAngle(endAngle);
@@ -221,7 +221,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
   const {
     clockFaceColor,
     clockBackgroundColor,
-    previusElapsedArcColor,
+    previousElapsedArcColor,
     currentElapsedArcColor,
   } = useMemo(() => {
     return darkmode ? darkModeColors : lightModeColors;
@@ -253,7 +253,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
       curStageExecTimeMS,
       prevStageExecTimeMS,
       totalExecTimeMS,
-      previusElapsedArcColor,
+      previousElapsedArcColor,
       currentElapsedArcColor,
     });
 
@@ -268,7 +268,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     height,
     clockBackgroundColor,
     clockFaceColor,
-    previusElapsedArcColor,
+    previousElapsedArcColor,
     currentElapsedArcColor,
   ]);
 

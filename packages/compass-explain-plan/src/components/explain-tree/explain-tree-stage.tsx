@@ -1,11 +1,8 @@
 import React from 'react';
 import {
-  Badge,
-  Code,
   css,
   KeylineCard,
   palette,
-  rgba,
   spacing,
   Subtitle,
   HorizontalRule,
@@ -13,6 +10,8 @@ import {
   Tooltip,
   cx,
   useDarkMode,
+  Card,
+  Body,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
@@ -51,7 +50,7 @@ interface StageViewProps {
 // the actual size of the elements.
 export const defaultCardWidth = 278;
 export const defaultCardHeight = 94;
-export const shardCardHeight = 58;
+export const shardCardHeight = 48;
 export const highlightFieldHeight = 36;
 
 interface ExecutionstatsProps {
@@ -65,6 +64,7 @@ const cardStyles = css({
   position: 'absolute',
   width: defaultCardWidth,
   padding: spacing[3],
+  borderRadius: spacing[2],
 });
 
 const cardStylesDarkMode = css({
@@ -101,10 +101,70 @@ const executionStatsStyle = css({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
   marginTop: spacing[3],
+  alignItems: 'center',
 });
 
+const statsBadgeCircle = css({
+  display: 'inline-block',
+  width: spacing[4] - 4,
+  height: spacing[4] - 4,
+  lineHeight: `${spacing[4] - 4}px`,
+  borderRadius: '100px',
+  textAlign: 'center',
+  fontWeight: 700,
+
+  backgroundColor: palette.blue.base,
+  color: palette.white,
+});
+
+const statsBadgeOval = css({
+  width: 'auto',
+  padding: `0 ${spacing[2]}px`,
+});
+
+const statsBadgeColorDark = css({
+  backgroundColor: palette.blue.light2,
+  color: palette.black,
+});
+
+const shardViewContainerStyles = css({
+  borderRadius: 0,
+  border: `${spacing[1] / 2}px solid ${palette.gray.base}`,
+  width: defaultCardWidth,
+  padding: `${spacing[2]}px ${spacing[3]}px`,
+  textAlign: 'center',
+  overflowX: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+const shardViewTextStyles = css({
+  color: palette.gray.base,
+});
+
+const StatsBadge: React.FunctionComponent<{
+  stats: number | string;
+}> = ({ stats }) => {
+  const darkMode = useDarkMode();
+  return (
+    <span
+      className={cx(statsBadgeCircle, {
+        [statsBadgeOval]: String(stats).length > 1,
+        [statsBadgeColorDark]: darkMode,
+      })}
+    >
+      {stats}
+    </span>
+  );
+};
+
 const ShardView: React.FunctionComponent<ShardViewProps> = (props) => {
-  return <Subtitle>{props.name}</Subtitle>;
+  return (
+    <KeylineCard className={shardViewContainerStyles}>
+      <Body baseFontSize={16} className={shardViewTextStyles}>
+        {props.name}
+      </Body>
+    </KeylineCard>
+  );
 };
 
 const Highlights: React.FunctionComponent<{
@@ -136,9 +196,7 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
     <div className={executionStatsStyle}>
       <div>
         <span>Returned </span>
-        <span>
-          <Badge variant="blue">{nReturned}</Badge>
-        </span>
+        <StatsBadge stats={nReturned} />
       </div>
       <div>
         <span>Execution Time</span>
@@ -183,7 +241,7 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
         prevStageExecTimeMS={props.prevStageExecTimeMS}
         curStageExecTimeMS={props.curStageExecTimeMS}
         totalExecTimeMS={props.totalExecTimeMS}
-      ></ExecutionStats>
+      />
 
       {Object.entries(props.highlights).length > 0 && (
         <div>
@@ -227,41 +285,33 @@ const ExplainTreeStage: React.FunctionComponent<ExplainTreeStageProps> = ({
   onToggleDetailsClick = () => undefined,
 }) => {
   const isDarkMode = useDarkMode();
+  if (isShard) {
+    return <ShardView name={name} />;
+  }
+
   return (
-    <KeylineCard
-      onClick={() => {
-        if (!isShard) {
-          onToggleDetailsClick();
-        }
-      }}
+    <Card
       data-testid="explain-stage"
       className={cx(cardStyles, {
         [cardStylesDarkMode]: isDarkMode,
       })}
-      style={{
-        boxShadow: detailsOpen
-          ? `0px 2px 4px -1px ${rgba(palette.black, 0.15)}`
-          : '',
-      }}
+      style={{ boxShadow: !detailsOpen ? 'none' : undefined }}
+      onClick={onToggleDetailsClick}
     >
       <div className={contentStyles}>
-        {isShard ? (
-          <ShardView name={name} />
-        ) : (
-          <StageView
-            name={name}
-            nReturned={nReturned}
-            highlights={highlights}
-            curStageExecTimeMS={curStageExecTimeMS}
-            prevStageExecTimeMS={prevStageExecTimeMS}
-            totalExecTimeMS={totalExecTimeMS}
-            onToggleDetailsClick={onToggleDetailsClick}
-            detailsOpen={detailsOpen}
-            details={details}
-          />
-        )}
+        <StageView
+          name={name}
+          nReturned={nReturned}
+          highlights={highlights}
+          curStageExecTimeMS={curStageExecTimeMS}
+          prevStageExecTimeMS={prevStageExecTimeMS}
+          totalExecTimeMS={totalExecTimeMS}
+          onToggleDetailsClick={onToggleDetailsClick}
+          detailsOpen={detailsOpen}
+          details={details}
+        />
       </div>
-    </KeylineCard>
+    </Card>
   );
 };
 
