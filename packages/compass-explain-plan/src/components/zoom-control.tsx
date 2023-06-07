@@ -1,50 +1,10 @@
 import React from 'react';
-import {
-  css,
-  spacing,
-  palette,
-  useDarkMode,
-  cx,
-  KeylineCard,
-  Button,
-  Icon,
-  HorizontalRule,
-} from '@mongodb-js/compass-components';
+import { css, Button, Icon } from '@mongodb-js/compass-components';
 
 const controlsContainerStyle = css({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-});
-
-const controlsDividerStyle = css({
-  borderColor: palette.gray.base,
-});
-
-const controlStyle = css({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: spacing[4] + 4,
-  height: spacing[4] + 4,
-  border: 'none',
-  borderRadius: '0',
-  cursor: 'pointer',
-  transition: 'all 150ms ease-in-out',
-
-  color: palette.gray.base,
-  '&:hover': {
-    color: palette.black,
-    background: palette.gray.light2,
-  },
-});
-
-const controlStyleDarkMode = css({
-  color: palette.gray.light1,
-  '&:hover': {
-    color: palette.gray.light3,
-    background: palette.gray.dark1,
-  },
 });
 
 // We don't have a good enough leafygreen alternative, so we are modifying
