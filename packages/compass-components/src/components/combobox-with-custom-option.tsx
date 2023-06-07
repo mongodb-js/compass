@@ -39,41 +39,38 @@ export const ComboboxWithCustomOption = <
     return _opts;
   }, [userOptions, customOptions, search]);
 
+  const selectValueAndRunOnChange = (value: string[] | string | null) => {
+    if (!onChange || !value) return;
+
+    if (multiselect) {
+      const multiSelectValues = value as SelectValueType<true>;
+      const customOptions = multiSelectValues
+        .filter((value) => !userOptions.find((x) => x.value === value))
+        .map((x) => ({ value: x })) as K[];
+      setCustomOptions(customOptions);
+      (onChange as onChangeType<true>)(multiSelectValues);
+    } else {
+      const selectValue = value as SelectValueType<false>;
+      if (selectValue && !userOptions.find((x) => x.value === selectValue)) {
+        setCustomOptions([{ value: selectValue } as K]);
+      }
+      (onChange as onChangeType<false>)(selectValue);
+    }
+  };
+
   return (
     <Combobox
       {...props}
       multiselect={multiselect}
       onFilter={setSearch}
       onBlur={() => {
-        // Select an option on blur event to fix missing values on modal submit COMPASS-6511
-        if (!onChange) return;
-        if (search) {
-          if (!userOptions.find((x) => x.value === search)) {
-            setCustomOptions([{ value: search } as K]);
-          }
-          (onChange as onChangeType<false>)(search);
+        // Set a search value as the combobox value onBlur event to fix missing values on modal submit COMPASS-6511
+        // We don't do this for multiselect, because in this case, you should explicitly check the value in the list.
+        if (!multiselect) {
+          selectValueAndRunOnChange(search);
         }
       }}
-      onChange={(value: string | string[] | null) => {
-        if (!onChange) return;
-        if (multiselect) {
-          const multiSelectValues = value as SelectValueType<true>;
-          const customOptions = multiSelectValues
-            .filter((value) => !userOptions.find((x) => x.value === value))
-            .map((x) => ({ value: x })) as K[];
-          setCustomOptions(customOptions);
-          (onChange as onChangeType<true>)(multiSelectValues);
-        } else {
-          const selectValue = value as SelectValueType<false>;
-          if (
-            selectValue &&
-            !userOptions.find((x) => x.value === selectValue)
-          ) {
-            setCustomOptions([{ value: selectValue } as K]);
-          }
-          (onChange as onChangeType<false>)(selectValue);
-        }
-      }}
+      onChange={selectValueAndRunOnChange}
     >
       {comboboxOptions}
     </Combobox>

@@ -118,9 +118,7 @@ function CreateIndexFields({
                     key={`field-option-${index}`}
                     value={option.value}
                     displayName={
-                      isCustom
-                        ? `Create Index: "${option.value}"`
-                        : option.value
+                      isCustom ? `Field: "${option.value}"` : option.value
                     }
                   />
                 );

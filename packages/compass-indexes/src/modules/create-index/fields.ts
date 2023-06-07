@@ -97,12 +97,6 @@ export const updateFieldName = (idx: number, name: string) => {
       field.name = name;
       fields[idx] = field;
       dispatch(changeFields(fields));
-      // Check if field name exists in schemaFields, otherwise add.
-      if (!contains(state.schemaFields, name)) {
-        const sFields: string[] = [...state.schemaFields];
-        sFields.push(name);
-        dispatch(changeSchemaFields(sFields));
-      }
     }
   };
 };
