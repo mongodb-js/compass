@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import {
   Accordion,
-  Banner,
   Checkbox,
   Description,
   FormFieldContainer,
