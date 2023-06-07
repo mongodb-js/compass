@@ -1,6 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { flextree } from 'd3-flextree';
-import { css, palette } from '@mongodb-js/compass-components';
+import { css } from '@mongodb-js/compass-components';
 import type { FlextreeNode } from 'd3-flextree';
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy';
 
@@ -10,6 +10,7 @@ interface TreeLayoutProps<T>
   getNodeSize: (node: T) => [number, number];
   getNodeKey: (node: T) => string;
   linkColor: string;
+  arrowColor: string;
   linkWidth: number;
   verticalSpacing: number;
   horizontalSpacing: number;
@@ -32,6 +33,7 @@ function LinkPath<T>({
   gapY = 0,
   link,
   linkColor,
+  arrowColor,
   linkWidth,
   isLastLink,
 }: {
@@ -39,6 +41,7 @@ function LinkPath<T>({
   gapY?: number;
   link: HierarchyLink<T>;
   linkColor: string;
+  arrowColor: string;
   linkWidth: number;
   isLastLink: boolean;
 }) {
@@ -88,7 +91,7 @@ function LinkPath<T>({
       {isLastLink && (
         <path
           fill="none"
-          stroke={palette.gray.light1}
+          stroke={arrowColor}
           strokeWidth={linkWidth}
           d={lastLinkArrowDef}
           markerStart="url(#arrowhead)"
@@ -112,6 +115,7 @@ function TreeLayout<T>({
   getNodeSize,
   getNodeKey,
   linkColor,
+  arrowColor,
   linkWidth,
   horizontalSpacing,
   verticalSpacing,
@@ -186,7 +190,7 @@ function TreeLayout<T>({
                 points="0,7.5 7.5,3.75 0,0"
                 fill="none"
                 strokeWidth="3"
-                stroke={palette.gray.light1}
+                stroke={arrowColor}
                 strokeLinecap="round"
                 transform="matrix(1,0,0,1,2.5,3.75)"
                 strokeLinejoin="round"
@@ -201,6 +205,7 @@ function TreeLayout<T>({
                 gapY={verticalSpacing}
                 translateX={translateX}
                 linkColor={linkColor}
+                arrowColor={arrowColor}
                 linkWidth={linkWidth}
                 isLastLink={i === links.length - 1}
               ></LinkPath>

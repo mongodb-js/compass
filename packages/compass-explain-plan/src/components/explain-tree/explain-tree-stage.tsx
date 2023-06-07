@@ -50,7 +50,7 @@ interface StageViewProps {
 // the actual size of the elements.
 export const defaultCardWidth = 278;
 export const defaultCardHeight = 94;
-export const shardCardHeight = 48;
+export const shardCardHeight = 46;
 export const highlightFieldHeight = 36;
 
 interface ExecutionstatsProps {
@@ -129,16 +129,16 @@ const statsBadgeColorDark = css({
 
 const shardViewContainerStyles = css({
   borderRadius: 0,
-  border: `${spacing[1] / 2}px solid ${palette.gray.base}`,
+  borderColor: palette.gray.base,
   width: defaultCardWidth,
-  padding: `${spacing[2]}px ${spacing[3]}px`,
+  padding: `${spacing[2]}px`,
   textAlign: 'center',
-  overflowX: 'hidden',
-  textOverflow: 'ellipsis',
 });
 
 const shardViewTextStyles = css({
   color: palette.gray.base,
+  fontSize: '16px',
+  fontWeight: 600,
 });
 
 const StatsBadge: React.FunctionComponent<{
