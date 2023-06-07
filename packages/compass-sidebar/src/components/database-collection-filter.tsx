@@ -1,5 +1,10 @@
 import React, { useCallback } from 'react';
-import { spacing, css, TextInput } from '@mongodb-js/compass-components';
+import {
+  spacing,
+  css,
+  TextInput,
+  GuideCueStep,
+} from '@mongodb-js/compass-components';
 
 const databaseCollectionsFilter = css({
   margin: `${spacing[1]}px ${spacing[3]}px`,
@@ -34,15 +39,21 @@ export default function DatabaseCollectionFilter({
 
   return (
     <form noValidate onSubmit={onSubmit}>
-      <TextInput
-        data-testid="sidebar-filter-input"
-        placeholder="Search"
-        type="search"
-        aria-label="Databases and collections filter"
-        title="Databases and collections filter"
-        onChange={onChange}
-        className={databaseCollectionsFilter}
-      />
+      <GuideCueStep
+        id="Sidebar Search"
+        step={3}
+        title="Search here to get started..."
+      >
+        <TextInput
+          data-testid="sidebar-filter-input"
+          placeholder="Search"
+          type="search"
+          aria-label="Databases and collections filter"
+          title="Databases and collections filter"
+          onChange={onChange}
+          className={databaseCollectionsFilter}
+        />
+      </GuideCueStep>
     </form>
   );
 }

@@ -166,7 +166,7 @@ export {
 export { rafraf } from './utils/rafraf';
 export { ComboboxWithCustomOption } from './components/combobox-with-custom-option';
 export {
+  GuideCueStep,
+  GuideCueGroup,
   GuideCueProvider,
-  useGuideCue,
-  type GuideCueStorage,
-} from './hooks/guide-cue';
+} from './components/guide-cue';

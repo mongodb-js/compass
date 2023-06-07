@@ -19,6 +19,8 @@ import {
   palette,
   useDarkMode,
   ConfirmationModalArea,
+  GuideCueStep,
+  GuideCueGroup,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
@@ -266,26 +268,38 @@ function ConnectionForm({
                   }}
                 >
                   <div className={favoriteButtonContentStyles}>
-                    <FavoriteIcon
-                      isFavorite={!!initialConnectionInfo.favorite}
-                      size={spacing[5]}
-                    />
-                    <Overline className={favoriteButtonLabelStyles}>
-                      FAVORITE
-                    </Overline>
+                    <GuideCueStep
+                      id="Favorite"
+                      step={1}
+                      title="Favorite your connection"
+                    >
+                      <FavoriteIcon
+                        isFavorite={!!initialConnectionInfo.favorite}
+                        size={spacing[5]}
+                      />
+                      <Overline className={favoriteButtonLabelStyles}>
+                        FAVORITE
+                      </Overline>
+                    </GuideCueStep>
                   </div>
                 </IconButton>
               )}
-              <ConnectionStringInput
-                connectionString={connectionOptions.connectionString}
-                enableEditingConnectionString={enableEditingConnectionString}
-                setEnableEditingConnectionString={
-                  setEnableEditingConnectionString
-                }
-                onSubmit={() => onSubmitForm()}
-                updateConnectionFormField={updateConnectionFormField}
-                protectConnectionStrings={protectConnectionStrings}
-              />
+              <GuideCueStep
+                id="Connection String"
+                step={2}
+                title="Input your connection"
+              >
+                <ConnectionStringInput
+                  connectionString={connectionOptions.connectionString}
+                  enableEditingConnectionString={enableEditingConnectionString}
+                  setEnableEditingConnectionString={
+                    setEnableEditingConnectionString
+                  }
+                  onSubmit={() => onSubmitForm()}
+                  updateConnectionFormField={updateConnectionFormField}
+                  protectConnectionStrings={protectConnectionStrings}
+                />
+              </GuideCueStep>
               {connectionStringInvalidError && (
                 <Banner
                   className={connectionStringErrorStyles}
@@ -368,4 +382,8 @@ function ConnectionForm({
   );
 }
 
-export default ConnectionForm;
+export default (props: ConnectionFormProps) => (
+  <GuideCueGroup id="Connection Form" steps={3}>
+    <ConnectionForm {...props} />
+  </GuideCueGroup>
+);

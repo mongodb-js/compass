@@ -11,7 +11,8 @@ import {
   useDarkMode,
   useHoverState,
   ItemActionControls,
-  useGuideCue,
+  GuideCueGroup,
+  GuideCueStep,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
@@ -164,44 +165,13 @@ function ConnectionList({
   const [recentHoverProps, recentHeaderHover] = useHoverState();
   const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
 
-  const intersectingRef = React.useRef<HTMLDivElement | null>(null);
-
-  const [connectionBtnRef, favoriteRef, recentRef] = useGuideCue<
-    [HTMLButtonElement, HTMLDivElement, HTMLDivElement]
-  >([
-    {
-      id: 'sidebar-connection-button',
-      groupId: 'Sidebar',
-      title: 'Create new connection',
-      content: <p>Click here to create a new connection.</p>,
-      intersectingRef,
-    },
-    {
-      id: 'sidebar-favorite-connections',
-      groupId: 'Sidebar',
-      title: 'Your favorites',
-      content: <p>Saved connections.</p>,
-      intersectingRef,
-      priority: 1,
-    },
-    {
-      id: 'sidebar-recent-connections',
-      groupId: 'Sidebar',
-      title: 'Your recents',
-      content: <p>Recent connections.</p>,
-      intersectingRef,
-      priority: 4,
-    },
-  ]);
-
   return (
-    <Fragment>
+    <GuideCueGroup id="Connection List" steps={3}>
       <ConnectionsTitle
         onAction={(actionName: string) => appRegistry.emit(actionName)}
       />
-      <div ref={intersectingRef} className={newConnectionButtonContainerStyles}>
+      <div className={newConnectionButtonContainerStyles}>
         <Button
-          ref={connectionBtnRef}
           className={cx(
             newConnectionButtonStyles,
             darkMode
@@ -221,10 +191,11 @@ function ConnectionList({
           className={sectionHeaderStyles}
           {...favoriteHoverProps}
           data-testid="favorite-connections-list-header"
-          ref={favoriteRef}
         >
           <div className={sectionHeaderIconStyles}>
-            <FavoriteIcon />
+            <GuideCueStep id="FavoriteIcon" step={2} title="Favorites">
+              <FavoriteIcon />
+            </GuideCueStep>
           </div>
           <H3
             className={cx(
@@ -273,11 +244,12 @@ function ConnectionList({
           className={cx(sectionHeaderStyles, recentHeaderStyles)}
           {...recentHoverProps}
           data-testid="recent-connections-list-header"
-          ref={recentRef}
         >
-          <div className={sectionHeaderIconStyles}>
-            <RecentIcon />
-          </div>
+          <GuideCueStep id="RecentIcon" step={3} title="Recents">
+            <div className={sectionHeaderIconStyles}>
+              <RecentIcon />
+            </div>
+          </GuideCueStep>
           <H3
             data-testid="recents-header"
             className={cx(
@@ -320,7 +292,7 @@ function ConnectionList({
           ))}
         </ul>
       </div>
-    </Fragment>
+    </GuideCueGroup>
   );
 }
 

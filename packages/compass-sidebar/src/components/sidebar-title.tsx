@@ -8,6 +8,7 @@ import {
   spacing,
   ItemActionControls,
   useDarkMode,
+  GuideCueStep,
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -149,7 +150,9 @@ function SidebarTitle({
       data-testid="sidebar-title"
       onClick={onClick}
     >
-      <TitleLogo />
+      <GuideCueStep id="Compass Title" title="The Application Title" step={1}>
+        <TitleLogo />
+      </GuideCueStep>
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (
         <ItemActionControls<Action>

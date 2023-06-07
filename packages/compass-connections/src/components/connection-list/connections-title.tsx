@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  GuideCueStep,
   ItemActionControls,
   Subtitle,
   css,
@@ -45,7 +46,13 @@ export default function ConnectionsTitle({
 }) {
   return (
     <div className={containerStyles} data-testid="connections-title">
-      <Subtitle className={connectionsTitleStyles}>Compass</Subtitle>
+      <GuideCueStep
+        id="ConnectionsTitle"
+        step={1}
+        title="The title of connections"
+      >
+        <Subtitle className={connectionsTitleStyles}>Compass</Subtitle>
+      </GuideCueStep>
       <ItemActionControls<Action>
         onAction={onAction}
         iconSize="small"

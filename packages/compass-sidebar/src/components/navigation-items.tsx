@@ -10,6 +10,8 @@ import {
   useFocusRing,
   mergeProps,
   useDefaultAction,
+  GuideCueGroup,
+  GuideCueStep,
 } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -208,29 +210,33 @@ export function NavigationItems({
   }, [isReadOnly]);
 
   return (
-    <>
-      <NavigationItem<''>
-        isExpanded={isExpanded}
-        onAction={onAction}
-        glyph="CurlyBraces"
-        label="My Queries"
-        tabName="My Queries"
-        isActive={currentLocation === 'My Queries'}
-      />
-      <NavigationItem<DatabasesActions>
-        isExpanded={isExpanded}
-        onAction={onAction}
-        glyph="Database"
-        label="Databases"
-        tabName="Databases"
-        actions={databasesActions}
-        isActive={currentLocation === 'Databases'}
-      />
+    <GuideCueGroup id="Navigation" steps={3}>
+      <GuideCueStep id="MyQueries" step={2} title="View your saved queries">
+        <NavigationItem<''>
+          isExpanded={isExpanded}
+          onAction={onAction}
+          glyph="CurlyBraces"
+          label="My Queries"
+          tabName="My Queries"
+          isActive={currentLocation === 'My Queries'}
+        />
+      </GuideCueStep>
+      <GuideCueStep id="MyDatabases" step={1} title="View your databases">
+        <NavigationItem<DatabasesActions>
+          isExpanded={isExpanded}
+          onAction={onAction}
+          glyph="Database"
+          label="Databases"
+          tabName="Databases"
+          actions={databasesActions}
+          isActive={currentLocation === 'Databases'}
+        />
+      </GuideCueStep>
       {isExpanded && (
         <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
       )}
       {isExpanded && <SidebarDatabasesNavigation />}
-    </>
+    </GuideCueGroup>
   );
 }
 

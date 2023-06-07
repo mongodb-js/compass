@@ -11,7 +11,8 @@ import {
   css,
   cx,
   useDarkMode,
-  useGuideCue,
+  GuideCueGroup,
+  GuideCueStep,
 } from '@mongodb-js/compass-components';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -67,28 +68,6 @@ const createClusterButtonLightModeStyles = css({
 
 function AtlasHelpSection() {
   const darkMode = useDarkMode();
-  const intersectingRef = React.useRef<HTMLDivElement | null>(null);
-  const [newToCompassRef, clusterButtonRef] = useGuideCue<
-    [HTMLDivElement, HTMLButtonElement]
-  >([
-    {
-      id: 'new-to-compass',
-      groupId: 'Connection Help',
-      title: 'New to Compass',
-      content: <p>New to Compass?</p>,
-      intersectingRef,
-      priority: 2,
-    },
-    {
-      id: 'create-cluster',
-      groupId: 'Connection Help',
-      title: 'Create a cluster',
-      content: <p>Don't have a cluster?</p>,
-      intersectingRef,
-      priority: 3,
-    },
-  ]);
-
   return (
     <div
       className={cx(
@@ -96,36 +75,36 @@ function AtlasHelpSection() {
         atlasContainerStyles,
         darkMode && atlasContainerDarkModeStyles
       )}
-      ref={intersectingRef}
     >
-      <div ref={newToCompassRef}>
-        <Subtitle className={titleStyles}>
-          New to Compass and don&apos;t have a cluster?
-        </Subtitle>
-      </div>
+      <Subtitle className={titleStyles}>
+        New to Compass and don&apos;t have a cluster?
+      </Subtitle>
       <Body className={descriptionStyles}>
         If you don&apos;t already have a cluster, you can create one for free
         using{' '}
-        <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
-          MongoDB Atlas
-        </Link>
+        <GuideCueStep id="MongoDB Atlas" step={2} title="MongoDB Atlas">
+          <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
+            MongoDB Atlas
+          </Link>
+        </GuideCueStep>
       </Body>
       <div className={createClusterContainerStyles}>
-        <Button
-          ref={clusterButtonRef}
-          data-testid="atlas-cta-link"
-          className={cx(
-            createClusterButtonStyles,
-            !darkMode && createClusterButtonLightModeStyles
-          )}
-          onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
-          variant={ButtonVariant.PrimaryOutline}
-          href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
-          target="_blank"
-          size={ButtonSize.Small}
-        >
-          CREATE FREE CLUSTER
-        </Button>
+        <GuideCueStep id="Create Atlas" step={1} title="Create free cluster">
+          <Button
+            data-testid="atlas-cta-link"
+            className={cx(
+              createClusterButtonStyles,
+              !darkMode && createClusterButtonLightModeStyles
+            )}
+            onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
+            variant={ButtonVariant.PrimaryOutline}
+            href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
+            target="_blank"
+            size={ButtonSize.Small}
+          >
+            CREATE FREE CLUSTER
+          </Button>
+        </GuideCueStep>
       </div>
     </div>
   );
@@ -133,27 +112,8 @@ function AtlasHelpSection() {
 
 function FormHelp(): React.ReactElement {
   const [isAtlasHelpVisible, setIsAtlasHelpVisible] = useState(false);
-  const intersectingRef = React.useRef<HTMLDivElement | null>(null);
-  const [connectionStringRef, exampleRef] = useGuideCue([
-    {
-      id: 'find-cs',
-      groupId: 'Connection Help',
-      title: 'Find Connection String',
-      content: <p>Its awesome?</p>,
-      intersectingRef,
-    },
-    {
-      id: 'example-cs',
-      groupId: 'Connection Help',
-      title: 'Example Connection String',
-      content: <p>Its awesome, ain't it?</p>,
-      intersectingRef,
-      priority: 3,
-    },
-  ]);
-
   return (
-    <div ref={intersectingRef} className={formHelpContainerStyles}>
+    <div className={formHelpContainerStyles}>
       <Button onClick={() => setIsAtlasHelpVisible(!isAtlasHelpVisible)}>
         Toggle Help
       </Button>
@@ -167,30 +127,42 @@ function FormHelp(): React.ReactElement {
           &apos;Connect&apos; button for the cluster to which you wish to
           connect.
         </Body>
-        <div ref={connectionStringRef}>
+        <GuideCueStep
+          id="Find string"
+          step={4}
+          title="See example about finding string"
+        >
           <Link
             href="https://docs.atlas.mongodb.com/compass-connection/"
             target="_blank"
           >
             See example
           </Link>
-        </div>
+        </GuideCueStep>
       </div>
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
           How do I format my connection string?
         </Subtitle>
-        <div ref={exampleRef}>
+        <GuideCueStep
+          id="Format string"
+          step={3}
+          title="See example about formatting string"
+        >
           <Link
             href="https://docs.mongodb.com/manual/reference/connection-string/"
             target="_blank"
           >
             See example
           </Link>
-        </div>
+        </GuideCueStep>
       </div>
     </div>
   );
 }
 
-export default FormHelp;
+export default () => (
+  <GuideCueGroup id="Form Help" steps={4}>
+    <FormHelp />
+  </GuideCueGroup>
+);
