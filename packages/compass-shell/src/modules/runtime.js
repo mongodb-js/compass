@@ -11,12 +11,19 @@ const PREFIX = 'shell/runtime';
 export const SETUP_RUNTIME = `${PREFIX}/SETUP_RUNTIME`;
 
 /**
+ * enableShell preference changed.
+ */
+export const CHANGE_ENABLE_SHELL = `${PREFIX}/CHANGE_ENABLE_SHELL`;
+
+/**
  * The initial state.
  */
 export const INITIAL_STATE = {
   error: null,
   dataService: null,
   runtime: null,
+  appRegistry: null,
+  enableShell: false,
 };
 
 /**
@@ -28,29 +35,48 @@ export const INITIAL_STATE = {
  * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
+  console.log('reducer', { state, action });
   if (action.type === SETUP_RUNTIME) {
     return reduceSetupRuntime(state, action);
+  }
+
+  if (action.type === CHANGE_ENABLE_SHELL) {
+    return reduceChangeEnableShell(state, action);
   }
 
   return state;
 }
 
+function createOrDestroyRuntimeForState(state) {
+  if (!state.runtime && state.dataService && state.enableShell) {
+    return {
+      ...state,
+      runtime: createWorkerRuntime(state.dataService, state.appRegistry),
+    };
+  } else if (state.runtime && (!state.dataService || !state.enableShell)) {
+    state.runtime.terminate();
+    return {
+      ...state,
+      runtime: null,
+    };
+  }
+  return { ...state };
+}
+
 function reduceSetupRuntime(state, action) {
-  if (action.error || !action.dataService) {
-    return { error: action.error, dataService: null, runtime: null };
-  }
-
-  if (state.dataService === action.dataService) {
-    return state;
-  }
-
-  const runtime = createWorkerRuntime(action.dataService, action.appRegistry);
-
-  return {
+  return createOrDestroyRuntimeForState({
+    ...state,
     error: action.error,
-    dataService: action.dataService,
-    runtime,
-  };
+    dataService: action.error ? null : action.dataService,
+    appRegistry: action.error ? null : action.appRegistry,
+  });
+}
+
+function reduceChangeEnableShell(state, action) {
+  return createOrDestroyRuntimeForState({
+    ...state,
+    enableShell: action.enableShell,
+  });
 }
 
 /**
@@ -67,6 +93,11 @@ export const setupRuntime = (error, dataService, appRegistry) => ({
   error,
   dataService,
   appRegistry,
+});
+
+export const changeEnableShell = (enableShell) => ({
+  type: CHANGE_ENABLE_SHELL,
+  enableShell,
 });
 
 function createWorkerRuntime(dataService, appRegistry) {
