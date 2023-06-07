@@ -190,8 +190,6 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
   curStageExecTimeMS,
   totalExecTimeMS,
 }) => {
-  const deltaExecTime = curStageExecTimeMS - prevStageExecTimeMS;
-  const deltaExecPercent = ((deltaExecTime / totalExecTimeMS) * 100).toFixed(2);
   return (
     <div className={executionStatsStyle}>
       <div>
@@ -217,10 +215,9 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
               </div>
             )}
           >
-            Clock represents the total time taken by the query. The blue arc,
-            which begins at the end of the previous stage, represents the
-            percentage of time spent on the execution of the hovered stage. In
-            this case it is {deltaExecTime === 0 ? 0 : deltaExecPercent}%
+            Clock represents the total time taken by the query. Thick blue arc
+            is the time taken by the highlighted stage and the thick gray arc is
+            the time taken by the stages before.
           </Tooltip>
         </span>
       </div>
