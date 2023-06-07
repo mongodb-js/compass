@@ -20,6 +20,7 @@ import {
 
 interface ExplainTreeProps {
   executionStats: ExplainPlan['executionStats'];
+  scale?: number;
 }
 
 const explainTreeStyles = css({
@@ -42,6 +43,7 @@ const getNodeKey = (node: ExplainTreeNodeData) => node.id;
 
 const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
   executionStats,
+  scale,
 }) => {
   const darkMode = useDarkMode();
   const [detailsOpen, setDetailsOpen] = useState<string | null>(null);
@@ -64,6 +66,7 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
       horizontalSpacing={spacing[6]}
       verticalSpacing={spacing[6]}
       className={explainTreeStyles}
+      scale={scale}
     >
       {(node) => {
         const key = getNodeKey(node);
