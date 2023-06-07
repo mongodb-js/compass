@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "3.9.0",
+  "version": "3.10.0",
   "description": "Compass Shell Plugin",
   "author": {
     "name": "MongoDB Inc",
@@ -54,20 +54,20 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.9.0",
+    "@mongodb-js/compass-components": "^1.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.3.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
     "@mongosh/node-runtime-worker-thread": "^1.9.0",
-    "compass-preferences-model": "^2.9.0"
+    "compass-preferences-model": "^2.10.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.9.0",
+    "@mongodb-js/compass-components": "^1.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.3.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
     "@mongosh/node-runtime-worker-thread": "^1.9.0",
-    "compass-preferences-model": "^2.9.0",
+    "compass-preferences-model": "^2.10.0",
     "react": "^17.0.2"
   },
   "devDependencies": {

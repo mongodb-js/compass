@@ -143,7 +143,9 @@ describe('connect', function () {
 
       try {
         dataService = await connect({
-          connectionString: COMPASS_TEST_SECONDARY_NODE_URL,
+          connectionOptions: {
+            connectionString: COMPASS_TEST_SECONDARY_NODE_URL,
+          },
         });
 
         const explainPlan = await dataService.explainFind('test.test', {}, {});
@@ -172,7 +174,9 @@ describe('connect', function () {
 
       try {
         dataService = await connect({
-          connectionString: COMPASS_TEST_ANALYTICS_NODE_URL,
+          connectionOptions: {
+            connectionString: COMPASS_TEST_ANALYTICS_NODE_URL,
+          },
         });
 
         const explainPlan = await dataService.explainFind('test.test', {}, {});
@@ -640,7 +644,7 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
   let dataService: DataService | undefined;
 
   try {
-    dataService = await connect(connectionOptions);
+    dataService = await connect({ connectionOptions });
     const connectionStatus = await runCommand(
       dataService['_database']('admin', 'META'),
       { connectionStatus: 1 }

@@ -57,11 +57,11 @@ export class ConnectionAttempt {
     }
 
     try {
-      this._dataService = await this._connectFn(
+      this._dataService = await this._connectFn({
         connectionOptions,
-        this._abortController.signal,
-        log.unbound
-      );
+        signal: this._abortController.signal,
+        logger: log.unbound,
+      });
       return this._dataService;
     } catch (err) {
       if (isConnectionAttemptTerminatedError(err as Error)) {
