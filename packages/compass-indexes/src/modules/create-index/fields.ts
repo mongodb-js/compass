@@ -1,7 +1,5 @@
 import type { AnyAction, Dispatch } from 'redux';
 
-import contains from 'lodash.contains';
-import { changeSchemaFields } from '../create-index/schema-fields';
 import { handleError } from '../error';
 
 import type { RootState } from '../create-index';
