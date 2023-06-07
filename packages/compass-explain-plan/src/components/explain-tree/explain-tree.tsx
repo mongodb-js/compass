@@ -17,6 +17,7 @@ import {
   shardCardHeight,
   ExplainTreeStage,
 } from './explain-tree-stage';
+import ZoomControl, { useZoom } from './zoom-control';
 
 interface ExplainTreeProps {
   executionStats: ExplainPlan['executionStats'];
@@ -46,6 +47,8 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
   const darkMode = useDarkMode();
   const [detailsOpen, setDetailsOpen] = useState<string | null>(null);
 
+  const { scale, increaseScale, decreaseScale } = useZoom();
+
   const root = useMemo(
     () => executionStatsToTreeData(executionStats),
     [executionStats]
@@ -54,40 +57,56 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
   if (!root) return null;
 
   return (
-    <TreeLayout<ExplainTreeNodeData>
-      data-testid="explain-tree"
-      data={root}
-      getNodeSize={getNodeSize}
-      getNodeKey={getNodeKey}
-      linkColor={darkMode ? palette.gray.base : palette.gray.light2}
-      linkWidth={6}
-      horizontalSpacing={spacing[6]}
-      verticalSpacing={spacing[5]}
-      className={explainTreeStyles}
-    >
-      {(node) => {
-        const key = getNodeKey(node);
-        return (
-          <div
-            style={{
-              position: 'relative',
-              zIndex: detailsOpen === key ? 2 : 1,
-            }}
-          >
-            <ExplainTreeStage
-              detailsOpen={detailsOpen === key}
-              onToggleDetailsClick={() => {
-                detailsOpen === key
-                  ? setDetailsOpen(null)
-                  : setDetailsOpen(key);
+    <>
+      <TreeLayout<ExplainTreeNodeData>
+        data-testid="explain-tree"
+        data={root}
+        getNodeSize={getNodeSize}
+        getNodeKey={getNodeKey}
+        linkColor={darkMode ? palette.gray.base : palette.gray.light2}
+        linkWidth={6}
+        horizontalSpacing={spacing[6]}
+        verticalSpacing={spacing[5]}
+        className={explainTreeStyles}
+        style={
+          scale !== 1
+            ? {
+                transform: `scale(${scale})`,
+                overflow: 'auto',
+              }
+            : undefined
+        }
+      >
+        {(node) => {
+          const key = getNodeKey(node);
+          return (
+            <div
+              style={{
+                position: 'relative',
+                zIndex: detailsOpen === key ? 2 : 1,
               }}
-              {...node}
-              totalExecTimeMS={root.curStageExecTimeMS}
-            ></ExplainTreeStage>
-          </div>
-        );
-      }}
-    </TreeLayout>
+            >
+              <ExplainTreeStage
+                detailsOpen={detailsOpen === key}
+                onToggleDetailsClick={() => {
+                  detailsOpen === key
+                    ? setDetailsOpen(null)
+                    : setDetailsOpen(key);
+                }}
+                {...node}
+                totalExecTimeMS={root.curStageExecTimeMS}
+              ></ExplainTreeStage>
+            </div>
+          );
+        }}
+      </TreeLayout>
+      <div style={{ position: 'absolute', left: 10, bottom: 10 }}>
+        <ZoomControl
+          onZoomInClicked={increaseScale}
+          onZoomOutClicked={decreaseScale}
+        />
+      </div>
+    </>
   );
 };
 

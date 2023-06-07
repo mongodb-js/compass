@@ -54,6 +54,7 @@ const editorStyles = css({
 const explainTreeContainerStyles = css({
   height: '100%',
   overflow: 'auto',
+  position: 'relative',
 });
 
 const summaryStyles = css({
