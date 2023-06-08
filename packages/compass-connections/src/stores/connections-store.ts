@@ -413,11 +413,18 @@ export function useConnections({
         shouldSaveConnectionInfo = true;
       }
 
+      const isOIDCConnectionAttempt = isOIDCAuth(
+        connectionInfo.connectionOptions.connectionString
+      );
       dispatch({
         type: 'attempt-connect',
         connectingStatusText: `Connecting to ${getConnectionTitle(
           connectionInfo
-        )}`,
+        )}.${
+          isOIDCConnectionAttempt
+            ? ' Go to the browser to complete authentication.'
+            : ''
+        }`,
         connectionAttempt: newConnectionAttempt,
       });
 
@@ -430,7 +437,7 @@ export function useConnections({
             userCode: string;
           }) => void)
         | undefined;
-      if (isOIDCAuth(connectionInfo.connectionOptions.connectionString)) {
+      if (isOIDCConnectionAttempt) {
         notifyDeviceFlow = (deviceFlowInformation: {
           verificationUrl: string;
           userCode: string;
