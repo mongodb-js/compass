@@ -205,6 +205,7 @@ type ClockProps = {
   prevStageExecTimeMS: number;
   width: number;
   height: number;
+  strokeWidth: number;
   className?: string;
 };
 
@@ -215,6 +216,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
   className,
   width,
   height,
+  strokeWidth,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -256,7 +258,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     drawElapsedTimes({
       width: width,
       height: height,
-      strokeWidth: 6,
+      strokeWidth,
       svgElement,
       curStageExecTimeMS,
       prevStageExecTimeMS,
@@ -274,6 +276,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     totalExecTimeMS,
     width,
     height,
+    strokeWidth,
     clockBackgroundColor,
     clockFaceColor,
     previousElapsedArcColor,
