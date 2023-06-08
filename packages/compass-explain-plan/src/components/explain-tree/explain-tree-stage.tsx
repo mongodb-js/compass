@@ -225,9 +225,9 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
               </div>
             )}
           >
-            Clock represents the total time taken by the query. Thick blue arc
-            is the time taken by the highlighted stage and the thick gray arc is
-            the time taken by the stages before.
+            The clock represents the total time the query took to complete. The
+            blue clock segment is the time taken by the highlighted stage. The
+            gray clock segment is the time taken by preceding stages.
           </Tooltip>
         </span>
       </div>
