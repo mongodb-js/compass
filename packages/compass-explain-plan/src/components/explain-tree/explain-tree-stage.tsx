@@ -220,7 +220,7 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
                   totalExecTimeMS={totalExecTimeMS}
                   width={50}
                   height={50}
-                  strokeWidth={6}
+                  strokeWidth={5}
                 />
               </div>
             )}
