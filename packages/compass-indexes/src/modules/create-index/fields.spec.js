@@ -14,7 +14,6 @@ import reducer, {
   CHANGE_FIELDS,
 } from '../create-index/fields';
 import { ActionTypes as ErrorActionTypes } from '../error';
-import { CHANGE_SCHEMA_FIELDS } from '../create-index/schema-fields';
 
 describe('create index fields module', function () {
   describe('#reducer', function () {
