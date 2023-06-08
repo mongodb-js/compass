@@ -56,6 +56,12 @@ export function mergeSecrets(
     );
   }
 
+  if (secrets.oidcSerializedState) {
+    connectionInfoWithSecrets.connectionOptions.oidc ??= {};
+    connectionInfoWithSecrets.connectionOptions.oidc.serializedState =
+      secrets.oidcSerializedState;
+  }
+
   if (secrets.tlsCertificateKeyFilePassword) {
     searchParams.set(
       'tlsCertificateKeyFilePassword',
@@ -79,12 +85,6 @@ export function mergeSecrets(
       'authMechanismProperties',
       authMechanismProperties.toString()
     );
-  }
-
-  if (secrets.oidcSerializedState) {
-    connectionInfoWithSecrets.connectionOptions.oidc ??= {};
-    connectionInfoWithSecrets.connectionOptions.oidc.serializedState =
-      secrets.oidcSerializedState;
   }
 
   connectionInfoWithSecrets.connectionOptions.connectionString = uri.href;

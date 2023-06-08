@@ -30,6 +30,14 @@ type ConnectFn = typeof connect;
 
 export type { ConnectFn };
 
+type RecursivePartial<T> = {
+  [P in keyof T]?: T[P] extends (infer U)[]
+    ? RecursivePartial<U>[]
+    : T[P] extends object | undefined
+    ? RecursivePartial<T[P]>
+    : T[P];
+};
+
 export function createNewConnectionInfo(): ConnectionInfo {
   return {
     id: uuidv4(),
@@ -61,6 +69,7 @@ type State = {
   connections: ConnectionInfo[];
   oidcDeviceAuthVerificationUrl: string | null;
   oidcDeviceAuthUserCode: string | null;
+  connectionMergeInfos: Record<string, RecursivePartial<ConnectionInfo>>;
 };
 
 export function defaultConnectionsState(): State {
@@ -73,6 +82,7 @@ export function defaultConnectionsState(): State {
     connectionErrorMessage: null,
     oidcDeviceAuthVerificationUrl: null,
     oidcDeviceAuthUserCode: null,
+    connectionMergeInfos: {},
   };
 }
 
@@ -113,6 +123,11 @@ type Action =
       type: 'set-connections-and-select';
       connections: ConnectionInfo[];
       activeConnectionInfo: ConnectionInfo;
+    }
+  | {
+      type: 'add-connection-merge-info';
+      id: string;
+      mergeConnectionInfo: RecursivePartial<ConnectionInfo>;
     };
 
 export function connectionsReducer(state: State, action: Action): State {
@@ -177,6 +192,17 @@ export function connectionsReducer(state: State, action: Action): State {
         activeConnectionId: action.activeConnectionInfo.id,
         activeConnectionInfo: action.activeConnectionInfo,
         connectionErrorMessage: null,
+      };
+    case 'add-connection-merge-info':
+      return {
+        ...state,
+        connectionMergeInfos: {
+          ...state.connectionMergeInfos,
+          [action.id]: merge(
+            cloneDeep(state.connectionMergeInfos[action.id]),
+            action.mergeConnectionInfo
+          ),
+        },
       };
     default:
       return state;
@@ -344,21 +370,25 @@ export function useConnections({
           mergeConnectionInfo = {
             connectionOptions: await dataService.getUpdatedSecrets(),
           };
+          dispatch({
+            type: 'add-connection-merge-info',
+            id: connectionInfo.id,
+            mergeConnectionInfo,
+          });
         }
-        merge(connectionInfo, mergeConnectionInfo);
 
         // if a connection has been saved already we only want to update the lastUsed
         // attribute, otherwise we are going to save the entire connection info.
         const connectionInfoToBeSaved =
           (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
 
-        await saveConnectionInfo(
-          merge(connectionInfoToBeSaved, mergeConnectionInfo, {
-            lastUsed: new Date(),
-          })
-        );
+        await saveConnectionInfo({
+          ...merge(connectionInfoToBeSaved, mergeConnectionInfo),
+          lastUsed: new Date(),
+        });
 
-        dataService.on('connectionInfoSecretsChanged', () => {
+        // ?. because mocks in tests don't provide it
+        dataService.on?.('connectionInfoSecretsChanged', () => {
           void (async () => {
             try {
               if (!preferences.getPreferences().persistOIDCTokens) return;
@@ -367,8 +397,12 @@ export function useConnections({
               const mergeConnectionInfo = {
                 connectionOptions: await dataService.getUpdatedSecrets(),
               };
-              merge(connectionInfo, mergeConnectionInfo);
               if (!mergeConnectionInfo) return;
+              dispatch({
+                type: 'add-connection-merge-info',
+                id: connectionInfo.id,
+                mergeConnectionInfo,
+              });
               const currentSavedInfo = await connectionStorage.load(
                 connectionInfo.id
               );
@@ -474,6 +508,11 @@ export function useConnections({
         connectionInfo = getAutoConnectInfo;
         shouldSaveConnectionInfo = true;
       }
+
+      connectionInfo = merge(
+        cloneDeep(connectionInfo),
+        state.connectionMergeInfos[connectionInfo.id] ?? {}
+      );
 
       dispatch({
         type: 'attempt-connect',

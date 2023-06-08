@@ -1,5 +1,10 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests, afterTest } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  afterTest,
+  runCompassOnce,
+} from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
@@ -53,6 +58,7 @@ describe('OIDC integration', function () {
   let overrideRequestHandler: typeof oidcMockProviderConfig.overrideRequestHandler;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
+  let oidcMockProviderEndpointAccesses: Record<string, number>;
 
   let i = 0;
   let port: number;
@@ -60,6 +66,9 @@ describe('OIDC integration', function () {
   let server: ChildProcess;
   let serverExit: Promise<unknown>;
   let connectionString: string;
+  let getFavoriteConnectionInfo: (
+    favoriteName: string
+  ) => Promise<Record<string, any> | undefined>;
 
   before(async function () {
     // TODO(MONGOSH-1306): Get rid of all the setup code to download mongod here... :(
@@ -69,12 +78,16 @@ describe('OIDC integration', function () {
     }
 
     {
+      oidcMockProviderEndpointAccesses = {};
       oidcMockProviderConfig = {
         getTokenPayload(metadata: Parameters<typeof getTokenPayload>[0]) {
           return getTokenPayload(metadata);
         },
-        overrideRequestHandler(...args) {
-          return overrideRequestHandler?.(...args);
+        overrideRequestHandler(url, req, res) {
+          const { pathname } = new URL(url);
+          oidcMockProviderEndpointAccesses[pathname] ??= 0;
+          oidcMockProviderEndpointAccesses[pathname]++;
+          return overrideRequestHandler?.(url, req, res);
         },
       };
       oidcMockProvider = await OIDCMockProvider.create(oidcMockProviderConfig);
@@ -152,12 +165,25 @@ describe('OIDC integration', function () {
           }
         })(),
       ]);
+      expect(port).to.be.a('number');
 
       connectionString = `mongodb://${host}:${port}/?authMechanism=MONGODB-OIDC`;
+    }
+
+    {
+      getFavoriteConnectionInfo = async (favoriteName) => {
+        const file = path.join(tmpdir, 'file');
+        await runCompassOnce([`--export-connections=${file}`]);
+        const contents = JSON.parse(await fs.readFile(file, 'utf8'));
+        return contents.connections.find(
+          (c: any) => c.favorite?.name === favoriteName
+        );
+      };
     }
   });
 
   beforeEach(async function () {
+    oidcMockProviderEndpointAccesses = {};
     getTokenPayload = () => DEFAULT_TOKEN_PAYLOAD;
     overrideRequestHandler = () => {};
     compass = await beforeTests({
@@ -175,6 +201,8 @@ describe('OIDC integration', function () {
 
   afterEach(async function () {
     await browser.setFeature('browserCommandForOIDCAuth', undefined);
+    await browser.setFeature('persistOIDCTokens', undefined);
+    await browser.setFeature('enableShell', true);
     await afterTest(compass, this.currentTest);
     await afterTests(compass, this.currentTest);
   });
@@ -322,5 +350,83 @@ describe('OIDC integration', function () {
     expect(await errorBanner.getText()).to.include(
       'Reauthentication declined by user'
     );
+  });
+
+  it('saves tokens across connections for favorites if asked to do so', async function () {
+    await browser.setFeature('persistOIDCTokens', true);
+    await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
+
+    const favoriteName = await browser.saveConnectionStringAsFavorite(
+      connectionString
+    );
+
+    await browser.selectFavorite(favoriteName);
+    await browser.doConnect();
+    await browser.disconnect();
+
+    await browser.selectFavorite(favoriteName);
+    await browser.doConnect();
+    await browser.disconnect();
+
+    const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
+    expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
+      'string'
+    );
+    expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
+  });
+
+  it('does not save tokens across connections for favorites if asked to do so', async function () {
+    await browser.setFeature('persistOIDCTokens', false);
+    await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
+
+    const favoriteName = await browser.saveConnectionStringAsFavorite(
+      connectionString
+    );
+
+    await browser.selectFavorite(favoriteName);
+    await browser.doConnect();
+    await browser.disconnect();
+
+    await browser.selectFavorite(favoriteName);
+    await browser.doConnect();
+    await browser.disconnect();
+
+    const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
+    expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.equal(
+      undefined
+    );
+    expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(2);
+  });
+
+  it('saves tokens across Compass sessions for favorites if asked to do so', async function () {
+    await browser.setFeature('persistOIDCTokens', true);
+    await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
+
+    const favoriteName = await browser.saveConnectionStringAsFavorite(
+      connectionString
+    );
+
+    await browser.selectFavorite(favoriteName);
+    await browser.doConnect();
+    await browser.disconnect();
+
+    const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
+    expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
+      'string'
+    );
+
+    {
+      // Restart Compass
+      await afterTest(compass);
+      await afterTests(compass);
+      compass = await beforeTests();
+      browser = compass.browser;
+    }
+
+    await browser.selectFavorite(favoriteName);
+    await browser.doConnect();
+    await browser.disconnect();
+
+    expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
   });
 });
