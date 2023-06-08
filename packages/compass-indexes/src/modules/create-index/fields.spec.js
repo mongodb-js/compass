@@ -184,12 +184,6 @@ describe('create index fields module', function () {
             ],
           });
           actionSpy();
-        } else if (res.type === CHANGE_SCHEMA_FIELDS) {
-          expect(res).to.deep.equal({
-            type: CHANGE_SCHEMA_FIELDS,
-            schemaFields: ['def', 'abc'],
-          });
-          actionSpy();
         } else {
           expect(true).to.be(false, 'Error: dispatch should not be called');
         }
@@ -202,7 +196,7 @@ describe('create index fields module', function () {
         schemaFields: ['def'],
       });
       updateFieldName(1, 'abc')(dispatch, state);
-      expect(actionSpy.calledTwice).to.equal(true);
+      expect(actionSpy.calledOnce).to.equal(true);
     });
   });
 });
