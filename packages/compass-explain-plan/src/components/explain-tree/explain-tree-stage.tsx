@@ -269,7 +269,7 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
             showLineNumbers={false}
             initialJSONFoldAll={false}
             showAnnotationsGutter={false}
-            minLines={1}
+            minLines={2}
             maxLines={15}
             text={JSON.stringify(props.details, null, ' ') || '{}'}
             data-testid="explain-stage-details"
