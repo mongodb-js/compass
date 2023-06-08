@@ -581,6 +581,8 @@ functions:
             export JIRA_VULNERABILITY_BUILD_INFO="- [Evergreen task|$EVERGREEN_TASK_URL]"
 
             npm run create-vulnerability-tickets
+          else
+            cat .sbom/vulnerability-report.md
           fi
 
           # Fails if the report failed and is not a patch, including release branches:
