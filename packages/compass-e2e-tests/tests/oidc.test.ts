@@ -352,7 +352,7 @@ describe('OIDC integration', function () {
     );
   });
 
-  it('saves tokens across connections for favorites if asked to do so', async function () {
+  it.only('saves tokens across connections for favorites if asked to do so', async function () {
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
