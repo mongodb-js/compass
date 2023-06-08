@@ -42,13 +42,20 @@ const executionTimeStyles = css({
   position: 'absolute',
   top: 0,
   left: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
 });
 
 const msecsStyles = css({
-  display: 'block',
-  fontSize: '14px',
   fontWeight: 'bold',
-  paddingTop: '11px',
+  fontSize: '13px',
+  lineHeight: '13px',
+});
+
+const msStyles = css({
+  fontSize: '11px',
+  lineHeight: '11px',
 });
 
 const msecsStylesLightMode = css({
@@ -63,6 +70,7 @@ const svgStyles = css({ position: 'absolute', top: 0, left: 0 });
 
 function drawElapsedTimes({
   svgElement,
+  strokeWidth,
   width,
   height,
   totalExecTimeMS,
@@ -72,6 +80,7 @@ function drawElapsedTimes({
   currentElapsedArcColor,
 }: {
   svgElement: SVGSVGElement;
+  strokeWidth: number;
   width: number;
   height: number;
   totalExecTimeMS: number;
@@ -103,13 +112,11 @@ function drawElapsedTimes({
     },
   ];
 
-  const ARC_STROKE_WIDTH = 4;
-
   arcs.forEach(({ startAngle, endAngle, fill }) => {
     const svgArc = d3.svg
       .arc()
-      .innerRadius(radius - ARC_STROKE_WIDTH)
-      .outerRadius(radius)
+      .innerRadius(radius - strokeWidth / 2)
+      .outerRadius(radius + strokeWidth / 2)
       .startAngle(startAngle)
       .endAngle(endAngle);
 
@@ -249,6 +256,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     drawElapsedTimes({
       width: width,
       height: height,
+      strokeWidth: 6,
       svgElement,
       curStageExecTimeMS,
       prevStageExecTimeMS,
@@ -287,6 +295,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
           height={height}
           ref={svgRef}
           className={svgStyles}
+          viewBox="-3 -3 56 56"
         ></svg>
         <div className={executionTimeStyles} style={{ width, height }}>
           <span
@@ -297,7 +306,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
           >
             {deltaExecTime}
           </span>
-          ms
+          <span className={msStyles}>ms</span>
         </div>
       </div>
     </div>

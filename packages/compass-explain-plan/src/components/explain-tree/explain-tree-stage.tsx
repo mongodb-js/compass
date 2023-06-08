@@ -144,6 +144,7 @@ const shardViewTextStyles = css({
   fontSize: '16px',
   fontWeight: 600,
   textAlign: 'center',
+  overflow: 'hidden',
   textTransform: 'uppercase',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
