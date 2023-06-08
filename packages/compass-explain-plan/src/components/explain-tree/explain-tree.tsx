@@ -27,7 +27,6 @@ const explainTreeStyles = css({
   zIndex: 1,
 });
 
-const TREE_LINK_WIDTH = 6;
 const TREE_VERTICAL_SPACING = 38;
 const TREE_VERTICAL_SPACING_BELOW_SHARD_CARD = 12;
 const TREE_HORIZONTAL_SPACING = spacing[6];
@@ -53,6 +52,24 @@ const getNodeSize = (node: ExplainTreeNodeData): [number, number] => {
   return [defaultCardWidth, height];
 };
 
+type LinkWidthMetadata = { isFirstVerticalHalf?: boolean };
+
+const getLinkWidth = (
+  sourceNode: ExplainTreeNodeData,
+  targetNode: ExplainTreeNodeData,
+  metaData?: LinkWidthMetadata
+): number => {
+  if (sourceNode.isShard || targetNode.isShard) {
+    if (metaData?.isFirstVerticalHalf) {
+      return spacing[4];
+    }
+
+    return spacing[2];
+  }
+
+  return spacing[1];
+};
+
 const getNodeKey = (node: ExplainTreeNodeData) => node.id;
 
 const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
@@ -70,14 +87,14 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
   if (!root) return null;
 
   return (
-    <TreeLayout<ExplainTreeNodeData>
+    <TreeLayout<ExplainTreeNodeData, LinkWidthMetadata>
       data-testid="explain-tree"
       data={root}
       getNodeSize={getNodeSize}
       getNodeKey={getNodeKey}
       linkColor={darkMode ? palette.gray.dark2 : palette.gray.light2}
       arrowColor={darkMode ? palette.gray.base : palette.gray.light1}
-      linkWidth={TREE_LINK_WIDTH}
+      getLinkWidth={getLinkWidth}
       horizontalSpacing={TREE_HORIZONTAL_SPACING}
       verticalSpacing={TREE_VERTICAL_SPACING}
       className={explainTreeStyles}
