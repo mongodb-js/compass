@@ -569,8 +569,10 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          # Can only fail if is not a patch, including release branches:
-          npm run generate-vulnerability-report || { [ "$EVERGREEN_IS_PATCH" == "true" ] && exit 0; } || exit 1
+          set +e
+          npm run generate-vulnerability-report
+          return_code=$?
+          set -e
 
           # Runs for all the commits on main, including nightly builds:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
@@ -579,6 +581,13 @@ functions:
             export JIRA_VULNERABILITY_BUILD_INFO="- [Evergreen task|$EVERGREEN_TASK_URL]"
 
             npm run create-vulnerability-tickets
+          else
+            cat .sbom/vulnerability-report.md
+          fi
+
+          # Fails if the report failed and is not a patch, including release branches:
+          if [[ "$EVERGREEN_IS_PATCH" != "true" ]]; then
+            exit $return_code
           fi
     - command: s3.put
       params:

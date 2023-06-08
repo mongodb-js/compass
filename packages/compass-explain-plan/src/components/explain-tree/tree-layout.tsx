@@ -14,6 +14,7 @@ interface TreeLayoutProps<T>
   verticalSpacing: number;
   horizontalSpacing: number;
   children: (node: T) => React.ReactElement | null;
+  scale?: number;
 }
 
 /**
@@ -75,6 +76,10 @@ function LinkPath<T>({
 const treeContainerStyles = css({
   position: 'relative',
   margin: '0 auto',
+  transformOrigin: 'top left',
+  transitionProperty: 'width, height, transform',
+  transitionDuration: '0.1s',
+  transitionTimingFunction: 'linear',
 });
 
 function TreeLayout<T>({
@@ -86,6 +91,7 @@ function TreeLayout<T>({
   horizontalSpacing,
   verticalSpacing,
   children,
+  scale = 1,
   ...divProps
 }: TreeLayoutProps<T>) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -121,7 +127,20 @@ function TreeLayout<T>({
 
   return (
     <div {...divProps}>
-      <div style={{ width, height }} className={treeContainerStyles}>
+      <div
+        style={{
+          // CSS transforms have no effect on the CSS layout (only on the
+          // overflow) and so to allow margin: auto to correctly calculate even
+          // center position of the container we are adjusing container size to
+          // match the scale
+          //
+          // @see {@link https://www.w3.org/TR/css-transforms-1/}
+          width: width * scale,
+          height: height * scale,
+          transform: `scale(${scale})`,
+        }}
+        className={treeContainerStyles}
+      >
         <svg
           ref={svgRef}
           width={width}

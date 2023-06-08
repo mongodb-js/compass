@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import {
   Accordion,
-  Banner,
   Checkbox,
   Description,
   FormFieldContainer,
@@ -55,10 +54,6 @@ function AuthenticationOIDC({
 
   return (
     <>
-      <Banner variant="warning">
-        The OIDC authentication preview is not intended to be used in production
-        environments.
-      </Banner>
       <FormFieldContainer>
         <TextInput
           data-testid="connection-oidc-username-input"
