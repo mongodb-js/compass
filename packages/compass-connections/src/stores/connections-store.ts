@@ -1,3 +1,4 @@
+import React from 'react';
 import type {
   ConnectionInfo,
   DataService,
@@ -17,8 +18,9 @@ import {
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import { useToast } from '@mongodb-js/compass-components';
+import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import preferences, { usePreference } from 'compass-preferences-model';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
@@ -190,11 +192,28 @@ async function loadConnections(
 ) {
   try {
     const loadedConnections = await connectionStorage.loadAll();
+    const toBeReSaved: ConnectionInfo[] = [];
+
+    // Scrub OIDC tokens from connections when the option to store them has been disabled
+    if (!preferences.getPreferences().persistOIDCTokens) {
+      for (const connection of loadedConnections) {
+        if (connection.connectionOptions.oidc?.serializedState) {
+          delete connection.connectionOptions.oidc?.serializedState;
+          toBeReSaved.push(connection);
+        }
+      }
+    }
 
     dispatch({
       type: 'set-connections',
       connections: loadedConnections,
     });
+
+    await Promise.all(
+      toBeReSaved.map(async (connection) => {
+        await connectionStorage.save(connection);
+      })
+    );
   } catch (error) {
     debug('error loading connections', error);
   }
@@ -320,27 +339,42 @@ export function useConnections({
 
         if (!shouldSaveConnectionInfo) return;
 
+        let mergeConnectionInfo = {};
+        if (preferences.getPreferences().persistOIDCTokens) {
+          mergeConnectionInfo = {
+            connectionOptions: await dataService.getUpdatedSecrets(),
+          };
+        }
+        merge(connectionInfo, mergeConnectionInfo);
+
         // if a connection has been saved already we only want to update the lastUsed
         // attribute, otherwise we are going to save the entire connection info.
         const connectionInfoToBeSaved =
           (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
 
-        await saveConnectionInfo({
-          ...cloneDeep(connectionInfoToBeSaved),
-          lastUsed: new Date(),
-        });
+        await saveConnectionInfo(
+          merge(connectionInfoToBeSaved, mergeConnectionInfo, {
+            lastUsed: new Date(),
+          })
+        );
 
-        dataService.on('connectionInfoSecretsChanged', (getUpdatedSecrets) => {
+        dataService.on('connectionInfoSecretsChanged', () => {
           void (async () => {
             try {
-              const currentInfo = await connectionStorage.load(
+              if (!preferences.getPreferences().persistOIDCTokens) return;
+              // Get updated secrets first (and not in parallel) so that the
+              // race condition window between load() and save() is as short as possible.
+              const mergeConnectionInfo = {
+                connectionOptions: await dataService.getUpdatedSecrets(),
+              };
+              merge(connectionInfo, mergeConnectionInfo);
+              if (!mergeConnectionInfo) return;
+              const currentSavedInfo = await connectionStorage.load(
                 connectionInfo.id
               );
-              if (!currentInfo) return;
+              if (!currentSavedInfo) return;
               await saveConnectionInfo(
-                merge(currentInfo, {
-                  connectionOptions: await getUpdatedSecrets(),
-                })
+                merge(currentSavedInfo, mergeConnectionInfo)
               );
             } catch (err: any) {
               log.warn(
@@ -403,6 +437,11 @@ export function useConnections({
       }
     };
   }, [getAutoConnectInfo]);
+
+  const persistOIDCTokens = usePreference('persistOIDCTokens', React);
+  useEffectOnChange(() => {
+    if (!persistOIDCTokens) void loadConnections(dispatch, connectionStorage);
+  }, [persistOIDCTokens]);
 
   const connect = async (
     getAutoConnectInfo:
@@ -589,6 +628,7 @@ export function useConnections({
         ...cloneDeep(connectionInfo),
         id: uuidv4(),
       };
+
       if (duplicate.favorite?.name) {
         duplicate.favorite.name += ' (copy)';
       }

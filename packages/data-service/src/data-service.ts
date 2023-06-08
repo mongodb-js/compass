@@ -148,9 +148,7 @@ export type ExplainExecuteOptions = ExecutionOptions & {
 
 export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
-  connectionInfoSecretsChanged: (
-    getUpdatedSecrets: () => Promise<Partial<ConnectionOptions>>
-  ) => void;
+  connectionInfoSecretsChanged: () => void;
 }
 
 export interface DataService {
@@ -716,6 +714,13 @@ export interface DataService {
    * Register reauthentication handlers with this DataService instance.
    */
   addReauthenticationHandler(handler: ReauthenticationHandler): void;
+
+  /**
+   * Return the current state of ConnectionOptions secrets, which may have changed
+   * since connecting (e.g. OIDC tokens). The `connectionInfoSecretsChanged` event
+   * is being emitted when this value changes.
+   */
+  getUpdatedSecrets(): Promise<Partial<ConnectionOptions>>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -1338,14 +1343,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       debug('connected!', attr);
 
       state.oidcPlugin.logger.on('mongodb-oidc-plugin:state-updated', () => {
-        this._emitter.emit('connectionInfoSecretsChanged', async () => {
-          const update: Partial<ConnectionOptions> = {
-            oidc: {
-              serializedState: await state.oidcPlugin.serialize(),
-            },
-          }; // This can be 'satisfies' once the linter supports it
-          return update;
-        });
+        this._emitter.emit('connectionInfoSecretsChanged');
       });
 
       this._metadataClient = metadataClient;
@@ -1361,7 +1359,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
       this._isConnecting = false;
     }
   }
-
   @op(mongoLogId(1_001_000_034))
   estimatedCount(
     ns: string,
@@ -2380,6 +2377,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
           }
         : undefined,
     });
+  }
+
+  async getUpdatedSecrets(): Promise<Partial<ConnectionOptions>> {
+    if (!this._state) return {};
+    return {
+      oidc: {
+        serializedState: await this._state.oidcPlugin.serialize(),
+      },
+    };
   }
 
   static {

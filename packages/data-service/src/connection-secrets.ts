@@ -17,6 +17,7 @@ export interface ConnectionSecrets {
   tlsCertificateKeyFilePassword?: string;
   proxyPassword?: string;
   autoEncryption?: AutoEncryptionOptions;
+  oidcSerializedState?: string;
 }
 
 export function mergeSecrets(
@@ -78,6 +79,12 @@ export function mergeSecrets(
       'authMechanismProperties',
       authMechanismProperties.toString()
     );
+  }
+
+  if (secrets.oidcSerializedState) {
+    connectionInfoWithSecrets.connectionOptions.oidc ??= {};
+    connectionInfoWithSecrets.connectionOptions.oidc.serializedState =
+      secrets.oidcSerializedState;
   }
 
   connectionInfoWithSecrets.connectionOptions.connectionString = uri.href;
@@ -173,6 +180,12 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
     if (connectionOptions.fleOptions.storeCredentials) {
       secrets.autoEncryption = _.pick(autoEncryption, secretPaths);
     }
+  }
+
+  if (connectionInfo.connectionOptions.oidc?.serializedState) {
+    secrets.oidcSerializedState =
+      connectionInfo.connectionOptions.oidc.serializedState;
+    delete connectionInfo.connectionOptions.oidc.serializedState;
   }
 
   return { connectionInfo: connectionInfoWithoutSecrets, secrets };
