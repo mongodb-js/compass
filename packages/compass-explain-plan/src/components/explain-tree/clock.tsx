@@ -298,6 +298,11 @@ const Clock: React.FunctionComponent<ClockProps> = ({
           height={height}
           ref={svgRef}
           className={svgStyles}
+          // Our svg clock has additional arcs that expands outside of the clock
+          // radius which is === width supplied here so to avoid the
+          // out-rendered arcs from being cut-off because of dimension restrains
+          // we configure our svg viewbox to zoom out the svg and transpose it
+          // to exact center
           viewBox="-3 -3 56 56"
         ></svg>
         <div className={executionTimeStyles} style={{ width, height }}>
