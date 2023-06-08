@@ -14,8 +14,8 @@ import {
   defaultCardHeight,
   defaultCardWidth,
   highlightFieldHeight,
-  shardCardHeight,
   ExplainTreeStage,
+  shardCardHeight,
 } from './explain-tree-stage';
 
 interface ExplainTreeProps {
@@ -27,6 +27,11 @@ const explainTreeStyles = css({
   zIndex: 1,
 });
 
+const TREE_LINK_WIDTH = 6;
+const TREE_VERTICAL_SPACING = 38;
+const TREE_VERTICAL_SPACING_BELOW_SHARD_CARD = 12;
+const TREE_HORIZONTAL_SPACING = spacing[6];
+
 const getNodeSize = (node: ExplainTreeNodeData): [number, number] => {
   // Note: these values must match the actual styles of the explain stage card:
 
@@ -34,7 +39,16 @@ const getNodeSize = (node: ExplainTreeNodeData): [number, number] => {
     Object.keys(node.highlights).length * highlightFieldHeight;
 
   const notShardHeight = defaultCardHeight + highlightsHeight;
-  const height = node.isShard ? shardCardHeight : notShardHeight;
+  const height = node.isShard
+    ? // In tree layout we add `TREE_VERTICAL_SPACING` amount to the height of the
+      // node to account for gap. Here we wish to reduce the space between a shard
+      // card and its descendent and to keep the layout logic decoupled from the
+      // index tree specifics we reduce that amount and add our custom amount of
+      // space for a shard card
+      shardCardHeight +
+      TREE_VERTICAL_SPACING_BELOW_SHARD_CARD -
+      TREE_VERTICAL_SPACING
+    : notShardHeight;
 
   return [defaultCardWidth, height];
 };
@@ -63,9 +77,9 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
       getNodeKey={getNodeKey}
       linkColor={darkMode ? palette.gray.dark2 : palette.gray.light2}
       arrowColor={darkMode ? palette.gray.base : palette.gray.light1}
-      linkWidth={6}
-      horizontalSpacing={spacing[6]}
-      verticalSpacing={spacing[5] + 8}
+      linkWidth={TREE_LINK_WIDTH}
+      horizontalSpacing={TREE_HORIZONTAL_SPACING}
+      verticalSpacing={TREE_VERTICAL_SPACING}
       className={explainTreeStyles}
       scale={scale}
     >

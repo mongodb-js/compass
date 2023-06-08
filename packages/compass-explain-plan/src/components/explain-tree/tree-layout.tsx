@@ -35,7 +35,6 @@ function LinkPath<T>({
   linkColor,
   arrowColor,
   linkWidth,
-  isLastLink,
 }: {
   translateX: number;
   gapY?: number;
@@ -43,7 +42,6 @@ function LinkPath<T>({
   linkColor: string;
   arrowColor: string;
   linkWidth: number;
-  isLastLink: boolean;
 }) {
   const [pathDef, lastLinkArrowDef] = useMemo(() => {
     const source = link.source as FlextreeNode<T>;
@@ -63,9 +61,11 @@ function LinkPath<T>({
     if (sourceX === targetX) {
       return [
         `M ${linkStartX} ${linkStartY} V ${linkEndY}`,
-        `M ${linkStartX} ${
-          sourceY + actualSourceYSize + gapY / 2
-        } V ${linkEndY}`,
+        target.noChildren
+          ? `M ${linkStartX} ${
+              sourceY + actualSourceYSize + gapY / 2
+            } V ${linkEndY}`
+          : undefined,
       ];
     }
 
@@ -77,6 +77,9 @@ function LinkPath<T>({
 
     return [
       `M ${linkStartX} ${linkStartY} V ${elbowY} H ${linkEndX} V ${linkEndY}`,
+      target.noChildren
+        ? `M ${linkStartX} ${linkStartY} V ${elbowY} H ${linkEndX} V ${linkEndY}`
+        : undefined,
     ];
   }, [gapY, link.source, link.target, translateX]);
 
@@ -88,7 +91,7 @@ function LinkPath<T>({
         strokeWidth={linkWidth}
         d={pathDef}
       />
-      {isLastLink && (
+      {lastLinkArrowDef && (
         <path
           fill="none"
           stroke={arrowColor}
@@ -178,21 +181,21 @@ function TreeLayout<T>({
         >
           <defs>
             <marker
-              markerWidth="4"
-              markerHeight="4"
-              refX="7.5"
-              refY="7.5"
-              viewBox="0 0 15 15"
+              markerWidth="5"
+              markerHeight="5"
+              refX="9"
+              refY="11"
+              viewBox="0 0 25 21"
               orient="auto-start-reverse"
               id="arrowhead"
             >
               <polyline
-                points="0,7.5 7.5,3.75 0,0"
+                points="0,15 7.5,7.5 0,0"
                 fill="none"
-                strokeWidth="3"
+                strokeWidth="4"
                 stroke={arrowColor}
                 strokeLinecap="round"
-                transform="matrix(1,0,0,1,2.5,3.75)"
+                transform="matrix(1,0,0,1,2,3.5)"
                 strokeLinejoin="round"
               />
             </marker>
@@ -207,8 +210,7 @@ function TreeLayout<T>({
                 linkColor={linkColor}
                 arrowColor={arrowColor}
                 linkWidth={linkWidth}
-                isLastLink={i === links.length - 1}
-              ></LinkPath>
+              />
             ))}
           </g>
         </svg>

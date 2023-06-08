@@ -49,9 +49,9 @@ interface StageViewProps {
 // NOTE: these values are used to layout the tree and must match
 // the actual size of the elements.
 export const defaultCardWidth = 278;
-export const defaultCardHeight = 94;
-export const shardCardHeight = 46;
-export const highlightFieldHeight = 36;
+export const defaultCardHeight = 84;
+export const shardCardHeight = 32;
+export const highlightFieldHeight = 20;
 
 interface ExecutionstatsProps {
   nReturned: number;
@@ -63,7 +63,7 @@ interface ExecutionstatsProps {
 const cardStyles = css({
   position: 'absolute',
   width: defaultCardWidth,
-  padding: spacing[3],
+  padding: '14px',
   borderRadius: spacing[2],
 });
 
@@ -86,8 +86,8 @@ const separatorStyles = css({
 const contentStyles = css({ position: 'relative' });
 const clockStyles = css({
   position: 'absolute',
-  top: -(8 + spacing[5]),
-  right: -(30 + spacing[3]),
+  top: -spacing[5],
+  right: -(8 + spacing[5]),
 });
 
 const codeContainerStyles = css({
@@ -99,8 +99,8 @@ const codeContainerStyles = css({
 const executionStatsStyle = css({
   position: 'relative',
   display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-  marginTop: spacing[3],
+  gridTemplateColumns: '1fr 110px',
+  marginTop: '12px',
   alignItems: 'center',
 });
 
@@ -131,14 +131,22 @@ const shardViewContainerStyles = css({
   borderRadius: 0,
   borderColor: palette.gray.base,
   width: defaultCardWidth,
-  padding: `${spacing[2]}px`,
-  textAlign: 'center',
+  height: spacing[5],
+  paddingLeft: spacing[2],
+  paddingRight: spacing[2],
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 });
 
 const shardViewTextStyles = css({
   color: palette.gray.base,
   fontSize: '16px',
   fontWeight: 600,
+  textAlign: 'center',
+  textTransform: 'uppercase',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 });
 
 const StatsBadge: React.FunctionComponent<{
@@ -159,7 +167,7 @@ const StatsBadge: React.FunctionComponent<{
 
 const ShardView: React.FunctionComponent<ShardViewProps> = (props) => {
   return (
-    <KeylineCard className={shardViewContainerStyles}>
+    <KeylineCard className={shardViewContainerStyles} title={props.name}>
       <Body baseFontSize={16} className={shardViewTextStyles}>
         {props.name}
       </Body>
@@ -209,8 +217,9 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
                   prevStageExecTimeMS={prevStageExecTimeMS}
                   curStageExecTimeMS={curStageExecTimeMS}
                   totalExecTimeMS={totalExecTimeMS}
-                  width={60}
-                  height={60}
+                  width={50}
+                  height={50}
+                  strokeWidth={6}
                 />
               </div>
             )}
@@ -254,13 +263,14 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
         >
           <CodemirrorMultilineEditor
             language="json"
-            text={JSON.stringify(props.details, null, ' ') || '{}'}
             readOnly={true}
-            showAnnotationsGutter={false}
-            showLineNumbers={false}
             formattable={false}
+            showLineNumbers={false}
             initialJSONFoldAll={false}
+            showAnnotationsGutter={false}
+            minLines={1}
             maxLines={15}
+            text={JSON.stringify(props.details, null, ' ') || '{}'}
             data-testid="explain-stage-details"
           />
         </KeylineCard>
