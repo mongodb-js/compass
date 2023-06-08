@@ -420,9 +420,9 @@ export function useConnections({
         type: 'attempt-connect',
         connectingStatusText: `Connecting to ${getConnectionTitle(
           connectionInfo
-        )}.${
+        )}${
           isOIDCConnectionAttempt
-            ? ' Go to the browser to complete authentication.'
+            ? '. Go to the browser to complete authentication.'
             : ''
         }`,
         connectionAttempt: newConnectionAttempt,
