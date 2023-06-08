@@ -162,6 +162,7 @@ describe('Collection documents tab', function () {
       has_collation: false,
       has_limit: true,
       has_projection: true,
+      has_sort: true,
       has_skip: true,
       used_regex: false,
     });
