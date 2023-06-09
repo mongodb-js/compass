@@ -1,10 +1,7 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
 import $ from 'jquery';
-import map from 'lodash.map';
-import sortBy from 'lodash.sortby';
-import sum from 'lodash.sum';
-import slice from 'lodash.slice';
+import { map, sortBy, sum, slice } from 'lodash';
 import shared from './shared';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { palette } from '@mongodb-js/compass-components';

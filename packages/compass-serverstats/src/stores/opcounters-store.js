@@ -1,9 +1,7 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');
-const max = require('lodash.max');
-
-// const debug = require('debug')('mongodb-compass:server-stats:opcounters-store');
+const { max } = require('lodash');
 
 /* eslint complexity:0 */
 

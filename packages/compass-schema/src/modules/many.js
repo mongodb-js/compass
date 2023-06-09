@@ -1,11 +1,7 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
 import $ from 'jquery';
-import pluck from 'lodash.pluck';
-import map from 'lodash.map';
-import minBy from 'lodash.minby';
-import maxBy from 'lodash.maxby';
-import sortBy from 'lodash.sortby';
+import { map, minBy, maxBy, sortBy } from 'lodash';
 import shared from './shared';
 import { hasDistinctValue, inValueRange } from 'mongodb-query-util';
 import { createD3Tip } from './create-d3-tip';
@@ -256,7 +252,7 @@ const minicharts_d3fns_many = (appRegistry) => {
   function chart(selection) {
     /* eslint complexity: 0 */
     selection.each(function (data) {
-      const values = pluck(data, 'count');
+      const values = map(data, 'count');
       const maxValue = d3.max(values);
       const sumValues = d3.sum(values);
       const percentFormat = shared.friendlyPercentFormat(
@@ -265,7 +261,7 @@ const minicharts_d3fns_many = (appRegistry) => {
       let labels = options.labels;
       el = d3.select(this);
 
-      xScale.domain(pluck(data, 'label')).rangeRoundBands([0, width], 0.3, 0.0);
+      xScale.domain(map(data, 'label')).rangeRoundBands([0, width], 0.3, 0.0);
 
       brush.x(xScale);
       brush.extent(brush.extent());

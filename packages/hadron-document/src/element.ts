@@ -1,10 +1,7 @@
 'use strict';
 
 import EventEmitter from 'eventemitter3';
-import isObject from 'lodash.isplainobject';
-import isArray from 'lodash.isarray';
-import isEqual from 'lodash.isequal';
-import isString from 'lodash.isstring';
+import { isObject, isArray, isEqual, isString } from 'lodash';
 import type { ObjectGeneratorOptions } from './object-generator';
 import ObjectGenerator from './object-generator';
 import TypeChecker from 'hadron-type-checker';

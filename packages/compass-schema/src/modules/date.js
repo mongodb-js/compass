@@ -1,12 +1,6 @@
 /* eslint-disable no-use-before-define */
 import d3 from 'd3';
-import isEqual from 'lodash.isequal';
-import range from 'lodash.range';
-import minBy from 'lodash.minby';
-import maxBy from 'lodash.maxby';
-import sortBy from 'lodash.sortby';
-import groupBy from 'lodash.groupby';
-import map from 'lodash.map';
+import { isEqual, range, minBy, maxBy, sortBy, groupBy, map } from 'lodash';
 import $ from 'jquery';
 import moment from 'moment';
 import { inValueRange } from 'mongodb-query-util';

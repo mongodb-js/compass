@@ -1,6 +1,5 @@
 import type { AnyAction, Dispatch } from 'redux';
 
-import contains from 'lodash.contains';
 import { changeSchemaFields } from '../create-index/schema-fields';
 import { clearNewIndexField } from '../create-index/new-index-field';
 import { handleError } from '../error';
@@ -99,7 +98,7 @@ export const updateFieldName = (idx: number, name: string) => {
       fields[idx] = field;
       dispatch(changeFields(fields));
       // Check if field name exists in schemaFields, otherwise add.
-      if (!contains(state.schemaFields, name)) {
+      if (!state.schemaFields?.includes(name)) {
         const sFields: string[] = [...state.schemaFields];
         sFields.push(name);
         dispatch(changeSchemaFields(sFields));

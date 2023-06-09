@@ -20,8 +20,7 @@
     "debug": "^4.2.0",
     "is-electron-renderer": "^2.0.1",
     "is-promise": "^2.1.0",
-    "lodash.forin": "^4.4.0",
-    "lodash.isplainobject": "^4.0.6"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
