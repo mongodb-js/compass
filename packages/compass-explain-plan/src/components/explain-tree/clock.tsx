@@ -199,10 +199,13 @@ function drawClockFace({
   });
 }
 
-type ClockProps = {
+type TimeUnit = 'ms' | 's' | 'min' | 'h';
+
+export type ClockProps = {
   totalExecTimeMS: number;
   curStageExecTimeMS: number;
   prevStageExecTimeMS: number;
+  formatDisplayTime: (ms: number) => { value: string; unit: TimeUnit };
   width: number;
   height: number;
   strokeWidth: number;
@@ -213,6 +216,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
   totalExecTimeMS,
   curStageExecTimeMS,
   prevStageExecTimeMS,
+  formatDisplayTime,
   className,
   width,
   height,
@@ -220,10 +224,11 @@ const Clock: React.FunctionComponent<ClockProps> = ({
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const deltaExecTime = useMemo(
-    () => curStageExecTimeMS - prevStageExecTimeMS,
-    [curStageExecTimeMS, prevStageExecTimeMS]
-  );
+  const { value: normalisedDeltaExecTime, unit: normalisedDeltaExecTimeUnit } =
+    useMemo(() => {
+      const deltaExecTime = curStageExecTimeMS - prevStageExecTimeMS;
+      return formatDisplayTime(deltaExecTime);
+    }, [curStageExecTimeMS, prevStageExecTimeMS, formatDisplayTime]);
 
   const darkmode = useDarkMode();
 
@@ -312,9 +317,9 @@ const Clock: React.FunctionComponent<ClockProps> = ({
               darkmode ? msecsStylesDarkMode : msecsStylesLightMode
             )}
           >
-            {deltaExecTime}
+            {normalisedDeltaExecTime}
           </span>
-          <span className={msStyles}>ms</span>
+          <span className={msStyles}>{normalisedDeltaExecTimeUnit}</span>
         </div>
       </div>
     </div>
