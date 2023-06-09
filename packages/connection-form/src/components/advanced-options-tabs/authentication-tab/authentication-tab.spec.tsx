@@ -113,14 +113,13 @@ describe('AuthenticationTab Component', function () {
     expect(screen.getByLabelText('Password')).to.be.visible;
   });
 
-  // TODO(COMPASS-6803): Remove test.
-  it('does not show the OIDC auth mechanism', function () {
+  it('shows the OIDC auth mechanism', function () {
     renderComponent({
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
     expect(
       screen.getByTestId('authentication-method-radio-box-group').textContent
-    ).to.not.include('OIDC');
+    ).to.include('OIDC');
   });
 });

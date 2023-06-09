@@ -663,34 +663,6 @@ describe('Connection form', function () {
       favoriteName
     );
   });
-});
-
-// TODO(COMPASS-6803): Move these tests into the main suite without
-// the feature flag set.
-// eslint-disable-next-line mocha/max-top-level-suites
-describe('Connection form (feature flagged OIDC)', function () {
-  let compass: Compass;
-  let browser: CompassBrowser;
-
-  before(async function () {
-    compass = await beforeTests({
-      // TODO(COMPASS-6803): Feature flag: enableOidc.
-      extraSpawnArgs: ['--enable-oidc'],
-    });
-    browser = compass.browser;
-  });
-
-  after(async function () {
-    await afterTests(compass, this.currentTest);
-  });
-
-  beforeEach(async function () {
-    await browser.resetConnectForm();
-  });
-
-  afterEach(async function () {
-    await afterTest(compass, this.currentTest);
-  });
 
   it('parses a URI for OIDC authentication', async function () {
     const connectionString =
