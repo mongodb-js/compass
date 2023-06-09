@@ -4,7 +4,7 @@ const { promises: fs } = require('fs');
 const { execFile: execFileCb } = require('child_process');
 const util = require('util');
 const execFile = util.promisify(execFileCb);
-const tar = require('../lib/tar');
+const tar = require('../lib/tar-gz');
 
 describe('tar', function() {
   before(function() {
@@ -40,7 +40,8 @@ describe('tar', function() {
     await fs.writeFile(executableSrc, '');
     await fs.chmod(executableSrc, 0o755);
     await tar(src, destFile);
-    await execFile('tar', ['-xvf', destFile, '-C', extracted]);
+    await execFile('gunzip', ['-t', destFile]);
+    await execFile('tar', ['-xvzf', destFile, '-C', extracted]);
     const extractedExecutable = path.join(extracted, 'src', 'executable');
     await fs.access(extractedExecutable, fs.constants.X_OK);
   });

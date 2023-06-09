@@ -18,7 +18,7 @@ const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-c
 const which = require('which');
 const plist = require('plist');
 const { signtool } = require('./signtool');
-const tar = require('./tar');
+const tarGz = require('./tar-gz');
 
 async function signLinuxPackage(src) {
   debug('Signing ... %s', src);
@@ -757,7 +757,8 @@ class Target {
         this.appPath,
         this.dest(this.app_archive_name)
       );
-      return tar(this.appPath, this.dest(this.app_archive_name));
+
+      return tarGz(this.appPath, this.dest(this.app_archive_name));
     };
 
     this.createInstaller = () => {
