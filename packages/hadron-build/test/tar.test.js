@@ -7,12 +7,14 @@ const execFile = util.promisify(execFileCb);
 const tar = require('../lib/tar');
 
 describe('tar', function() {
-  let tmpdir;
-  beforeEach(async function() {
+  before(function() {
     if (os.platform === 'win32') {
       this.skip();
     }
+  });
 
+  let tmpdir;
+  beforeEach(async function() {
     tmpdir = path.join(
       os.tmpdir(),
       'hadron-build-tar-test',
