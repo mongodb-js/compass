@@ -148,6 +148,7 @@ export type ExplainExecuteOptions = ExecutionOptions & {
 
 export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
+  connectionInfoSecretsChanged: () => void;
 }
 
 export interface DataService {
@@ -713,6 +714,13 @@ export interface DataService {
    * Register reauthentication handlers with this DataService instance.
    */
   addReauthenticationHandler(handler: ReauthenticationHandler): void;
+
+  /**
+   * Return the current state of ConnectionOptions secrets, which may have changed
+   * since connecting (e.g. OIDC tokens). The `connectionInfoSecretsChanged` event
+   * is being emitted when this value changes.
+   */
+  getUpdatedSecrets(): Promise<Partial<ConnectionOptions>>;
 }
 
 const maybePickNs = ([ns]: unknown[]) => {
@@ -1333,6 +1341,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
       this._logger.info(mongoLogId(1_001_000_015), 'Connected', attr);
       debug('connected!', attr);
+
+      state.oidcPlugin.logger.on('mongodb-oidc-plugin:state-updated', () => {
+        this._emitter.emit('connectionInfoSecretsChanged');
+      });
 
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;
@@ -2366,6 +2378,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
           }
         : undefined,
     });
+  }
+
+  async getUpdatedSecrets(): Promise<Partial<ConnectionOptions>> {
+    if (!this._state) return {};
+    return {
+      oidc: {
+        serializedState: await this._state.oidcPlugin.serialize(),
+      },
+    };
   }
 
   static {

@@ -10,6 +10,7 @@ import { pick } from '../../utils/pick';
 const oidcFields = [
   'browserCommandForOIDCAuth',
   'showOIDCDeviceAuthFlow',
+  'persistOIDCTokens',
 ] as const;
 type OIDCFields = typeof oidcFields[number];
 type OIDCSettingsProps = Omit<SettingsListProps<OIDCFields>, 'fields'>;
