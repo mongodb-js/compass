@@ -122,7 +122,7 @@ class CompassTelemetry {
   }
 
   private static _flushTelemetryAndIgnoreFailure() {
-    return CompassTelemetry.analytics?.flush().catch(() => Promise.resolve());
+    return this.analytics?.flush().catch(() => Promise.resolve());
   }
 
   private static async _init(app: typeof CompassApplication) {
