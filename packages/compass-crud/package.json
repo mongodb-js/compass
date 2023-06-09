@@ -103,8 +103,7 @@
     "react-dom": "^17.0.2",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
-    "sinon": "^8.1.1",
-    "webpack": "^4.46.0"
+    "sinon": "^8.1.1"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.10.0",
