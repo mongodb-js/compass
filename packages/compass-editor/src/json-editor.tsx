@@ -1267,6 +1267,24 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       ];
     }, [copyable, formattable, customActions]);
 
+    const getMinLines = useCallback(
+      (minLinesFromProps: number | undefined) => {
+        const defaultMinLines = 10;
+        const requiredMinLinesWithActions = 2;
+        if (minLinesFromProps === undefined) {
+          return defaultMinLines;
+        }
+
+        // We need to have enough height for our action buttons to be accessible
+        if (actions.length) {
+          return Math.max(minLinesFromProps, requiredMinLinesWithActions);
+        }
+
+        return minLinesFromProps;
+      },
+      [actions]
+    );
+
     return (
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
       <div
@@ -1292,8 +1310,8 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           ref={editorRef}
           className={editorClassName}
           language="javascript-expression"
-          minLines={10}
           {...props}
+          minLines={getMinLines(props.minLines)}
         ></BaseEditor>
         {actions.length > 0 && (
           <div
