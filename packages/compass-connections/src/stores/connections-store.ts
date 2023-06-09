@@ -69,6 +69,11 @@ type State = {
   connections: ConnectionInfo[];
   oidcDeviceAuthVerificationUrl: string | null;
   oidcDeviceAuthUserCode: string | null;
+  // Additional connection information that is merged with the connection info
+  // when connecting. This is useful for instances like OIDC sessions where we
+  // have a setting on the system for storing credentials.
+  // When the setting is on this `connectionMergeInfos` would have the session
+  // credential information and merge it before connecting.
   connectionMergeInfos: Record<string, RecursivePartial<ConnectionInfo>>;
 };
 
