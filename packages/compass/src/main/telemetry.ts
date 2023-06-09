@@ -121,6 +121,10 @@ class CompassTelemetry {
     }
   }
 
+  private static _flushTelemetryAndIgnoreFailure() {
+    return CompassTelemetry.analytics?.flush().catch(() => Promise.resolve());
+  }
+
   private static async _init(app: typeof CompassApplication) {
     const { trackUsageStatistics, currentUserId, telemetryAnonymousId } =
       preferences.getPreferences();
@@ -142,7 +146,7 @@ class CompassTelemetry {
       this.analytics = new Analytics(SEGMENT_API_KEY, { host: SEGMENT_HOST });
 
       app.addExitHandler(async () => {
-        await new Promise((resolve) => this.analytics?.flush(resolve));
+        await this._flushTelemetryAndIgnoreFailure();
       });
     }
 
@@ -165,7 +169,7 @@ class CompassTelemetry {
           event: 'Telemetry Disabled',
           properties: {},
         });
-        this.analytics?.flush();
+        void this._flushTelemetryAndIgnoreFailure();
         this.state = 'disabled';
       }
     };
@@ -185,7 +189,7 @@ class CompassTelemetry {
 
     // only used in tests
     ipcMain.respondTo('compass:usage:flush', () => {
-      this.analytics?.flush();
+      void this._flushTelemetryAndIgnoreFailure();
     });
   }
 
