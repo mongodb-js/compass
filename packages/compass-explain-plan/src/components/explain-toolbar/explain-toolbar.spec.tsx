@@ -54,7 +54,7 @@ const renderExplainToolbar = (
   );
 };
 
-const viewTypeSwitcherText = 'Raw Json';
+const viewTypeSwitcherText = 'Raw Output';
 
 describe('ExplainToolbar', function () {
   afterEach(function () {

@@ -16,6 +16,46 @@ import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import ExplainTree from './explain-tree';
 import { ExplainPlanSummary } from './explain-plan-side-summary';
 import ExplainCannotVisualizeBanner from './explain-cannot-visualize-banner';
+import { ZoomControl } from './zoom-control';
+
+const zoomableTreeContainerStyles = css({
+  position: 'relative',
+  width: '100%',
+  height: '100%',
+});
+
+const zoomableTreeContentStyles = css({
+  position: 'relative',
+  width: '100%',
+  height: '100%',
+  overflow: 'auto',
+});
+
+const zoomableTreeControlsStyles = css({
+  position: 'absolute',
+  left: 0,
+  bottom: spacing[3],
+});
+
+const ZoomableExplainTree: React.FunctionComponent<
+  Omit<React.ComponentProps<typeof ExplainTree>, 'scale'>
+> = ({ executionStats }) => {
+  const [scale, setScale] = useState(1);
+
+  return (
+    <div className={zoomableTreeContainerStyles}>
+      <div className={zoomableTreeContentStyles}>
+        <ExplainTree
+          executionStats={executionStats}
+          scale={scale}
+        ></ExplainTree>
+      </div>
+      <div className={zoomableTreeControlsStyles}>
+        <ZoomControl value={scale} onZoomChange={setScale}></ZoomControl>
+      </div>
+    </div>
+  );
+};
 
 const viewStyles = css({
   height: '100%',
@@ -38,6 +78,7 @@ const viewBodyContainerStyles = css({
 
 const contentStyles = css({
   flex: '1 1 0%',
+  minWidth: '0%',
 });
 
 const editorContainerStyles = css({
@@ -97,7 +138,6 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
     <div className={viewStyles}>
       <div className={viewHeaderStyles}>
         <SegmentedControl
-          size="large"
           onChange={setViewType as (value: string) => void}
           value={viewType}
           data-testid="explain-view-type-control"
@@ -140,9 +180,9 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
           )}
           {viewType === 'tree' && (
             <div className={explainTreeContainerStyles}>
-              <ExplainTree
+              <ZoomableExplainTree
                 executionStats={explainPlan?.executionStats}
-              ></ExplainTree>
+              ></ZoomableExplainTree>
             </div>
           )}
         </div>

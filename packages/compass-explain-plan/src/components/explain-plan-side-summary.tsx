@@ -10,6 +10,7 @@ import {
   useDarkMode,
   cx,
   IndexBadge,
+  Icon,
 } from '@mongodb-js/compass-components';
 import type { SerializedExplainPlan } from '../stores/explain-plan-modal-store';
 
@@ -130,6 +131,8 @@ export const ExplainPlanSummary: React.FunctionComponent<
 }) => {
   const darkMode = useDarkMode();
 
+  const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
+
   const indexMessageText = useMemo(() => {
     const typeToMessage = {
       COLLSCAN: 'No index available for this query.',
@@ -140,6 +143,8 @@ export const ExplainPlanSummary: React.FunctionComponent<
     };
     return typeToMessage[indexType];
   }, [indexType]);
+
+  const hasNoIndex = ['COLLSCAN', 'UNAVAILABLE'].includes(indexType);
 
   return (
     <KeylineCard
@@ -238,7 +243,7 @@ export const ExplainPlanSummary: React.FunctionComponent<
           definition="Number of indexes examined to fulfill the query."
         ></ExplainPlanSummaryStat>
 
-        {!['COLLSCAN', 'UNAVAILABLE'].includes(indexType) && (
+        {!hasNoIndex && (
           <div className={indexesSummaryStyles}>
             <ExplainPlanSummaryStat
               as="div"
@@ -254,6 +259,13 @@ export const ExplainPlanSummary: React.FunctionComponent<
                 ></IndexBadge>
               );
             })}
+          </div>
+        )}
+
+        {hasNoIndex && (
+          <div className={statsStyles} style={{ color: warningColor }}>
+            <Icon glyph="Warning"></Icon>
+            <span>No index available for this query.</span>
           </div>
         )}
       </ul>

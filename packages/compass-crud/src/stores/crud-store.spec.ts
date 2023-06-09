@@ -125,7 +125,9 @@ describe('store', function () {
 
   before(async function () {
     const info = convertConnectionModelToInfo(CONNECTION);
-    dataService = await connect(info.connectionOptions);
+    dataService = await connect({
+      connectionOptions: info.connectionOptions,
+    });
 
     // Add some validation so that we can test what happens when insert/update
     // fails below.

@@ -207,7 +207,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             <div ref={showExplainButtonRef}>
               <Button
                 aria-label="Reset query"
-                data-testid="query-bar-reset-filter-button"
+                data-testid="query-bar-explain-button"
                 onClick={onExplainClick}
                 disabled={!isQueryValid}
                 size="small"
