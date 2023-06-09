@@ -865,7 +865,7 @@ class CrudStoreImpl
         : DOCUMENTS_STATUS_FETCHED_PAGINATION,
       docs: documents.map((doc: BSONObject) => new HadronDocument(doc)),
       // making sure we don't set start to 1 if length is 0
-      start: length == 0 ? 0 : skip + 1,
+      start: length === 0 ? 0 : skip + 1,
       end: skip + length,
       page,
       table: this.getInitialTableState(),
