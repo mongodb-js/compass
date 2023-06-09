@@ -15,10 +15,6 @@ import {
   updateFieldName,
 } from '../../modules/create-index/fields';
 import { changeSchemaFields } from '../../modules/create-index/schema-fields';
-import {
-  createNewIndexField,
-  clearNewIndexField,
-} from '../../modules/create-index/new-index-field';
 import { clearError, handleError } from '../../modules/error';
 import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
@@ -97,7 +93,6 @@ const mapState = ({
   isVisible,
   namespace,
   serverVersion,
-  newIndexField,
 }: RootState) => ({
   fields,
   inProgress,
@@ -106,15 +101,12 @@ const mapState = ({
   isVisible,
   namespace,
   serverVersion,
-  newIndexField,
 });
 
 const mapDispatch = {
   changeSchemaFields,
   clearError,
   handleError,
-  createNewIndexField,
-  clearNewIndexField,
   createIndex,
   closeCreateIndexModal,
   addField,

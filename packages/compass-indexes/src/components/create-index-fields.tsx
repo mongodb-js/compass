@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { hasColumnstoreIndexesSupport } from '../utils/columnstore-indexes';
 
 import {
-  Combobox,
+  ComboboxWithCustomOption,
   ComboboxOption,
   Select,
   Option,
@@ -48,9 +48,7 @@ export type CreateIndexFieldsProps = {
   schemaFields: string[];
   serverVersion: string;
   isRemovable: boolean;
-  newIndexField: string | null;
   addField: () => void;
-  createNewIndexField: (newField: string) => void;
   removeField: (idx: number) => void;
   updateFieldName: (idx: number, name: string) => void;
   updateFieldType: (idx: number, fType: string) => void;
@@ -58,11 +56,9 @@ export type CreateIndexFieldsProps = {
 
 function CreateIndexFields({
   fields,
-  newIndexField,
   serverVersion,
   schemaFields,
   addField,
-  createNewIndexField,
   removeField,
   updateFieldName,
   updateFieldType,
@@ -92,27 +88,7 @@ function CreateIndexFields({
     [updateFieldName]
   );
 
-  const comboboxOptions = useMemo(() => {
-    const options = schemaFields.map((value, index) => (
-      <ComboboxOption
-        key={`combobox-option-${index}`}
-        value={value}
-        displayName={value}
-      />
-    ));
-
-    if (newIndexField && !schemaFields.includes(newIndexField)) {
-      options.push(
-        <ComboboxOption
-          key={`combobox-option-new`}
-          value={newIndexField}
-          displayName={`Create Index: ${newIndexField}`}
-        />
-      );
-    }
-
-    return options;
-  }, [schemaFields, newIndexField]);
+  const comboboxOptions = schemaFields.map((value) => ({ value }));
 
   return (
     <ListEditor
@@ -126,18 +102,28 @@ function CreateIndexFields({
             className={createIndexFieldsNameStyles}
             data-testid={`create-index-fields-name-${index}`}
           >
-            <Combobox
-              value={field.name}
+            <ComboboxWithCustomOption
               aria-label="Index fields"
               placeholder={DEFAULT_FIELD.name}
-              onFilter={createNewIndexField}
+              size="default"
+              clearable={false}
+              overflow="scroll-x"
               onChange={(fieldName: string | null) =>
                 onSelectFieldName(index, fieldName)
               }
-              clearable={false}
-            >
-              {comboboxOptions}
-            </Combobox>
+              options={comboboxOptions}
+              renderOption={(option, index, isCustom) => {
+                return (
+                  <ComboboxOption
+                    key={`field-option-${index}`}
+                    value={option.value}
+                    displayName={
+                      isCustom ? `Field: "${option.value}"` : option.value
+                    }
+                  />
+                );
+              }}
+            />
           </div>
           <div
             className={createIndexFieldsTypeStyles}
