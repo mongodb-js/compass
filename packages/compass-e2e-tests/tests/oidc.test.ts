@@ -72,6 +72,16 @@ describe('OIDC integration', function () {
   ) => Promise<Record<string, any> | undefined>;
 
   before(async function () {
+    {
+      originalDisableKeychainUsage =
+        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+      if (process.platform === 'linux' && process.env.CI) {
+        // keytar is not working on Linux in CI, see
+        // https://jira.mongodb.org/browse/COMPASS-6119 for more details.
+        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
+      }
+    }
+
     // TODO(MONGOSH-1306): Get rid of all the setup code to download mongod here... :(
     if (process.platform !== 'linux') {
       // OIDC is only supported on Linux in the 7.0+ enterprise server.
@@ -180,16 +190,6 @@ describe('OIDC integration', function () {
           (c: any) => c.favorite?.name === favoriteName
         );
       };
-    }
-
-    {
-      originalDisableKeychainUsage =
-        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-      if (process.platform === 'linux' && process.env.CI) {
-        // keytar is not working on Linux in CI, see
-        // https://jira.mongodb.org/browse/COMPASS-6119 for more details.
-        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
-      }
     }
   });
 
