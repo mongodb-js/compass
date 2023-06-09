@@ -134,6 +134,7 @@ describe('Collection documents tab', function () {
       has_limit: false,
       has_projection: false,
       has_skip: false,
+      has_sort: false,
       used_regex: false,
     });
 
