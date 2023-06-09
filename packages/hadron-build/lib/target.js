@@ -15,11 +15,10 @@ const windowsInstallerVersion = require('./windows-installer-version');
 const debug = require('debug')('hadron-build:target');
 const execFile = promisify(childProcess.execFile);
 const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
-const tarPack = require('tar-pack').pack;
 const which = require('which');
-const os = require('os');
 const plist = require('plist');
 const { signtool } = require('./signtool');
+const tar = require('./tar');
 
 async function signLinuxPackage(src) {
   debug('Signing ... %s', src);
@@ -31,19 +30,6 @@ async function signWindowsPackage(src) {
   debug('Signing ... %s', src);
   await signtool(src);
   debug('Successfully signed %s', src);
-}
-
-function tar(srcDirectory, dest) {
-  return new Promise(function(resolve, reject) {
-    tarPack(srcDirectory)
-      .pipe(fs.createWriteStream(dest))
-      .on('error', function(err) {
-        reject(err);
-      })
-      .on('close', function() {
-        resolve(dest);
-      });
-  });
 }
 
 function _canBuildInstaller(ext) {
