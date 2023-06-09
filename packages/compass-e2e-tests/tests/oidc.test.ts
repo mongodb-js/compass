@@ -53,6 +53,7 @@ function getTestBrowserShellCommand() {
 describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let originalDisableKeychainUsage: string | undefined;
 
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
   let overrideRequestHandler: typeof oidcMockProviderConfig.overrideRequestHandler;
@@ -180,6 +181,16 @@ describe('OIDC integration', function () {
         );
       };
     }
+
+    {
+      originalDisableKeychainUsage =
+        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+      if (process.platform === 'linux' && process.env.CI) {
+        // keytar is not working on Linux in CI, see
+        // https://jira.mongodb.org/browse/COMPASS-6119 for more details.
+        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
+      }
+    }
   });
 
   beforeEach(async function () {
@@ -212,6 +223,11 @@ describe('OIDC integration', function () {
     await serverExit;
     await oidcMockProvider?.close();
     if (tmpdir) await fs.rmdir(tmpdir, { recursive: true });
+
+    if (originalDisableKeychainUsage)
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
+        originalDisableKeychainUsage;
+    else delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
   });
 
   it('can successfully connect with a connection string', async function () {
@@ -352,7 +368,7 @@ describe('OIDC integration', function () {
     );
   });
 
-  it.only('saves tokens across connections for favorites if asked to do so', async function () {
+  it('saves tokens across connections for favorites if asked to do so', async function () {
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
