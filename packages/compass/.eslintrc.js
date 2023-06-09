@@ -9,10 +9,6 @@ module.exports = {
     {
       // Renderer process code
       files: ['./src/app/**/*.*'],
-      globals: {
-        jQuery: 'readonly',
-        $: 'readonly',
-      },
       env: { node: true, browser: true },
     },
     {
