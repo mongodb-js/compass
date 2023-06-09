@@ -1359,6 +1359,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       this._isConnecting = false;
     }
   }
+
   @op(mongoLogId(1_001_000_034))
   estimatedCount(
     ns: string,
