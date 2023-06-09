@@ -7,7 +7,7 @@ import { app, dialog, BrowserWindow } from 'electron';
 import { setTimeout as wait } from 'timers/promises';
 import autoUpdater from './auto-updater';
 import preferences from 'compass-preferences-model';
-import got from 'got';
+import fetch from 'node-fetch';
 import dl from 'electron-dl';
 import type { CompassApplication } from './application';
 
@@ -449,12 +449,12 @@ class CompassAutoUpdateManager {
     to: string;
   } | null> {
     try {
-      const result = await got(this.getUpdateCheckURL());
-      if (result.statusCode !== 200) {
+      const response = await fetch(this.getUpdateCheckURL());
+      if (response.status !== 200) {
         return null;
       }
       try {
-        return JSON.parse(result.body);
+        return await response.json();
       } catch (err) {
         log.warn(
           mongoLogId(1_001_000_163),
