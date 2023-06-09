@@ -91,7 +91,6 @@ function Connecting({
           id="connectingStatusText"
         >
           <ConnectingIllustration />
-          {/* TODO(COMPASS-6875): When connecting with oidc, indicate that a browser has opened. */}
           {oidcDeviceAuthVerificationUrl && oidcDeviceAuthUserCode ? (
             <div className={oidcContainerStyles}>
               <Body className={textContentStyles}>
