@@ -112,14 +112,4 @@ describe('AuthenticationTab Component', function () {
     expect(screen.getByLabelText('Username')).to.be.visible;
     expect(screen.getByLabelText('Password')).to.be.visible;
   });
-
-  it('shows the OIDC auth mechanism', function () {
-    renderComponent({
-      updateConnectionFormField: updateConnectionFormFieldSpy,
-    });
-
-    expect(
-      screen.getByTestId('authentication-method-radio-box-group').textContent
-    ).to.include('OIDC');
-  });
 });

@@ -9,6 +9,7 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import preferences from 'compass-preferences-model';
 
 import ConnectionForm from '../../../';
 
@@ -54,11 +55,22 @@ const openOptionsAccordion = () =>
 
 describe('AuthenticationOIDC Connection Form', function () {
   let expectToConnectWith;
+  let sandbox: sinon.SinonSandbox;
   let getPreferencesStub: sinon.SinonStub;
   let connectSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     connectSpy = sinon.spy();
+
+    sandbox = sinon.createSandbox();
+    getPreferencesStub = sinon.stub();
+    getPreferencesStub.returns({
+      enableOidc: true,
+    });
+    // TODO(COMPASS-6803): Remove feature flag, remove this sandbox.
+    sandbox
+      .stub(preferences, 'getPreferences')
+      .callsFake(() => getPreferencesStub());
 
     expectToConnectWith = async (
       expected: ConnectionOptions | ((ConnectionOptions) => void)
@@ -82,6 +94,7 @@ describe('AuthenticationOIDC Connection Form', function () {
     };
   });
   afterEach(function () {
+    sandbox.restore();
     cleanup();
   });
 
@@ -144,6 +157,7 @@ describe('AuthenticationOIDC Connection Form', function () {
   describe('when rendered and the showOIDCDeviceAuthFlow setting is enabled', function () {
     beforeEach(async function () {
       getPreferencesStub.returns({
+        enableOidc: true,
         showOIDCDeviceAuthFlow: true,
       });
 
