@@ -1,7 +1,7 @@
 import bson from 'bson';
 import { expect } from 'chai';
 
-import { Query } from './';
+import { Query } from '.';
 
 describe('Query [Model]', function () {
   context('#serialize', function () {

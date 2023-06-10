@@ -1,6 +1,6 @@
-const { TestBackend } = require('storage-mixin');
+import StorageMixin from 'storage-mixin';
 import { expect } from 'chai';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
@@ -8,9 +8,11 @@ import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 import { FavoriteQueryStorage } from './favorite-query-storage';
 import { FavoriteQuery, FavoriteQueryCollection } from '../models';
 
+const TestBackend = StorageMixin.TestBackend;
+
 async function createNewQuery(data) {
   const model = new FavoriteQuery(data);
-  const save = promisifyAmpersandMethod(model.save.bind(model));
+  const save = promisifyAmpersandMethod(model.save.bind(model)) as any;
   await save(data);
   return model;
 }
@@ -20,16 +22,16 @@ async function loadById(_id) {
   const fetch = promisifyAmpersandMethod(
     favoriteCollection.fetch.bind(favoriteCollection)
   );
-  const models = await fetch();
+  const models = (await fetch()) as typeof FavoriteQueryCollection;
   return models.find((model) => model._id === _id);
 }
 
 describe('favorite-query-storage [Utils]', function () {
-  let tmpDir;
-  let tmpDirs = [];
+  let tmpDir: string;
+  const tmpDirs: string[] = [];
   let favoriteQueryStorage;
-  beforeEach(function () {
-    tmpDir = fs.mkdtempSync(
+  beforeEach(async function () {
+    tmpDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'favorite-query-storage-tests')
     );
     tmpDirs.push(tmpDir);
@@ -47,7 +49,7 @@ describe('favorite-query-storage [Utils]', function () {
     // those active fs operations can make them fail, so we wait a bit here.
     await new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all(
-      tmpDirs.map((tmpDir) => fs.promises.rmdir(tmpDir, { recursive: true }))
+      tmpDirs.map((tmpDir) => fs.rm(tmpDir, { recursive: true }))
     );
   });
 

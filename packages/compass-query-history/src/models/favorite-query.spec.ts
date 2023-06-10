@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { FavoriteQuery } from '../../src/models';
+import FavoriteQuery from './favorite-query';
 
 describe('FavoriteQuery [Model]', function () {
   describe('#new', function () {

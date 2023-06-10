@@ -24,7 +24,7 @@ export const enum FavoriteQueriesActionTypes {
   RunFavoriteQuery = 'compass-query-history/favorite-queries/RunFavoriteQuery',
 }
 
-type SaveFavoriteQueryAction = {
+export type SaveFavoriteQueryAction = {
   type: FavoriteQueriesActionTypes.SaveFavoriteQuery;
   name: string;
   query: QueryModelType;
@@ -78,18 +78,15 @@ export const saveFavorite = (
   recent: QueryModelType,
   name: string
 ): QueryHistoryThunkAction<
-  void,
+  Promise<void>,
   DeleteRecentQueryAction | SaveFavoriteQueryAction
 > => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const {
       queryHistory: { currentHost },
     } = getState();
 
-    track('Query History Favorite Added');
     // TODO: thunk this V
-
-    // options.actions.deleteRecent(recent); // If query shouldn't stay in recents after save
 
     // TODO: Should we auto navigate on favorite save?
     // Maybe not for now.
@@ -102,12 +99,7 @@ export const saveFavorite = (
       currentHost,
     });
 
-    // Ignore failures.
-    void dispatch(deleteRecent(recent));
-    // dispatch({
-    //   type: RecentQueriesActionTypes.DeleteRecentQuery,
-
-    // })
+    await dispatch(deleteRecent(recent));
   };
 };
 
@@ -144,13 +136,17 @@ export type FavoriteQueriesState = {
   items: FavoriteQueryAmpersandCollectionType;
 };
 
-export const initialState: FavoriteQueriesState = {
+const getInitialState = (): FavoriteQueriesState => ({
   items: new FavoriteQueryCollection(),
   // current: null, // TODO: What is this used for ??
-};
+});
+// const initialState: FavoriteQueriesState = {
+//   items: new FavoriteQueryCollection(),
+//   // current: null, // TODO: What is this used for ??
+// };
 
 const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
-  state = initialState,
+  state = getInitialState(),
   action
 ) => {
   if (
@@ -159,7 +155,7 @@ const favoriteQueriesReducer: Reducer<FavoriteQueriesState> = (
       FavoriteQueriesActionTypes.SaveFavoriteQuery
     )
   ) {
-    track('Query History Favorites');
+    track('Query History Favorite Added');
 
     const now = Date.now();
     const queryAttributes = action.query.getAttributes({ props: true });

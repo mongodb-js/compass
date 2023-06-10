@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { RecentQuery } from '../../src/models';
+import RecentQuery from './recent-query';
 
 describe('RecentQuery [Model]', function () {
   describe('#new', function () {

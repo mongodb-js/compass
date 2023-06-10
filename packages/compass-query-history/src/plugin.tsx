@@ -7,7 +7,7 @@ import type { configureStore } from './stores/query-history-store';
 function QueryHistoryPlugin({
   store,
 }: {
-  store: ReturnType<typeof configureStore>;
+  store: ReturnType<Awaited<typeof configureStore>>;
 }) {
   return (
     <Provider store={store}>

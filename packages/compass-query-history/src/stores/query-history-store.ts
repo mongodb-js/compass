@@ -32,12 +32,12 @@ const configureStore = (options: {
     applyMiddleware(thunk)
   );
 
-  store.dispatch(loadFavoriteQueries() as unknown as AnyAction);
-  store.dispatch(loadRecentQueries() as unknown as AnyAction);
-
   options.localAppRegistry.on('query-applied', (query) => {
     store.dispatch(addRecent(query) as unknown as AnyAction);
   });
+
+  store.dispatch(loadRecentQueries() as unknown as AnyAction),
+    store.dispatch(loadFavoriteQueries() as unknown as AnyAction);
 
   return store;
 };

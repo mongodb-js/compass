@@ -1,23 +1,24 @@
-import StorageBackend from 'storage-mixin';
+import StorageMixin from 'storage-mixin';
 import { expect } from 'chai';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import AppRegistry from 'hadron-app-registry';
 
 import { configureStore } from '../stores/query-history-store';
-import { addRecent } from './recent-queries';
+import { addRecent, loadRecentQueries } from './recent-queries';
+import type { QueryModelType } from '../models/query';
 
-const TestBackend = StorageBackend.TestBackend;
+const TestBackend = StorageMixin.TestBackend;
 
-describe('RecentListStore reducer', function () {
+describe('RecentQueries module', function () {
   let tmpDir: string;
-  let tmpDirs: string[] = [];
+  const tmpDirs: string[] = [];
   let store;
   let appRegistry;
 
   beforeEach(async function () {
-    tmpDir = await fs.promises.mkdtemp(
+    tmpDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'recent-queries-module-tests')
     );
     tmpDirs.push(tmpDir);
@@ -27,6 +28,8 @@ describe('RecentListStore reducer', function () {
       namespace: 'test.test',
       localAppRegistry: appRegistry,
     });
+    // Ensure the queries have been loaded.
+    await store.dispatch(loadRecentQueries() as any);
   });
 
   afterEach(function () {
@@ -39,7 +42,7 @@ describe('RecentListStore reducer', function () {
     // those active fs operations can make them fail, so we wait a bit here.
     await new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all(
-      tmpDirs.map((tmpDir) => fs.promises.rmdir(tmpDir, { recursive: true }))
+      tmpDirs.map((tmpDir) => fs.rm(tmpDir, { recursive: true }))
     );
   });
 
@@ -125,7 +128,7 @@ describe('RecentListStore reducer', function () {
     it('ignores duplicate queries', function () {
       expect(store.getState().recentQueries.items.length).to.equal(0);
 
-      const recent = { filter: { foo: 1 } };
+      const recent = { filter: { foo: 1 } } as unknown as QueryModelType;
 
       store.dispatch(addRecent(recent));
       expect(store.getState().recentQueries.items.length).to.equal(1);

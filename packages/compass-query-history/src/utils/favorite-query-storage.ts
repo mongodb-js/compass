@@ -1,6 +1,10 @@
 import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 
 import { FavoriteQueryCollection, FavoriteQuery } from '../models';
+import type {
+  FavoriteQueryAttributes,
+  FavoriteQueryModelType,
+} from '../models/favorite-query';
 
 export class FavoriteQueryStorage {
   /**
@@ -13,19 +17,19 @@ export class FavoriteQueryStorage {
     const fetch = promisifyAmpersandMethod(
       queryCollection.fetch.bind(queryCollection)
     );
-    const models = await fetch();
-    return models.map((model) => {
+    const models = (await fetch()) as typeof FavoriteQueryCollection;
+    return models.map((model: FavoriteQueryModelType) => {
       return model.getAttributes({ props: true }, true);
     });
   }
 
   /**
    * Updates attributes of the model.
-   *
-   * @param {string} modelId ID of the model to update
-   * @param {object} attributes Attributes of model to update
    */
-  async updateAttributes(modelId, attributes) {
+  async updateAttributes(
+    modelId: string,
+    attributes: Partial<FavoriteQueryAttributes>
+  ) {
     if (!modelId) {
       throw new Error('modelId is required');
     }
@@ -40,17 +44,15 @@ export class FavoriteQueryStorage {
       _dateModified: Date.now(),
     });
 
-    const save = promisifyAmpersandMethod(model.save.bind(model));
+    const save = promisifyAmpersandMethod(model.save.bind(model)) as any;
     await save(model);
     return model.getAttributes({ props: true }, true);
   }
 
   /**
    * Deletes a query from the storage.
-   *
-   * @param {string} modelId Model ID
    */
-  async delete(modelId) {
+  async delete(modelId: string) {
     const model = new FavoriteQuery({ _id: modelId });
     const destroy = promisifyAmpersandMethod(model.destroy.bind(model));
     return destroy();

@@ -1,6 +1,8 @@
-import Query from './query';
 import storageMixin from 'storage-mixin';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
+
+import Query from './query';
+
 const { basepath } = getStoragePaths() || {};
 
 /**

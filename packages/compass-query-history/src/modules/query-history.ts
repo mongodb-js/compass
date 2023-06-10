@@ -10,7 +10,10 @@ import {
   FavoriteQueriesActionTypes,
   favoriteQueriesReducer,
 } from './favorite-queries';
-import type { RunFavoriteQueryAction } from './favorite-queries';
+import type {
+  RunFavoriteQueryAction,
+  SaveFavoriteQueryAction,
+} from './favorite-queries';
 import {
   RecentQueriesActionTypes,
   recentQueriesReducer,
@@ -45,26 +48,21 @@ export function showRecent(): ShowRecentAction {
 }
 
 export type QueryHistoryState = {
-  // TODO
   showing: 'recent' | 'favorites';
   ns: ReturnType<typeof mongodbns>;
   localAppRegistry: AppRegistry | undefined;
   currentHost?: string;
-
-  // TODO: Move this here (off the double stores)
-  // currentHost:
-  //    ?? null, // TODO: ????
 };
 
-export const initialState: QueryHistoryState = {
+const getInitialState = (): QueryHistoryState => ({
   showing: 'recent',
   ns: mongodbns(''),
   currentHost: undefined,
   localAppRegistry: undefined,
-};
+});
 
 const queryHistoryReducer: Reducer<QueryHistoryState> = (
-  state = initialState,
+  state = getInitialState(),
   action
 ) => {
   if (
@@ -72,6 +70,19 @@ const queryHistoryReducer: Reducer<QueryHistoryState> = (
   ) {
     track('Query History Favorites');
 
+    return {
+      ...state,
+      showing: 'favorites',
+    };
+  }
+
+  if (
+    isAction<SaveFavoriteQueryAction>(
+      action,
+      FavoriteQueriesActionTypes.SaveFavoriteQuery
+    )
+  ) {
+    // When a favorite is saved we show the favorites list.
     return {
       ...state,
       showing: 'favorites',

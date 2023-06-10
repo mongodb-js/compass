@@ -1,7 +1,5 @@
-// import StorageBackend from 'storage-mixin';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { TestBackend } = require('storage-mixin');
-import fs from 'fs';
+import StorageMixin from 'storage-mixin';
+import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import bson from 'bson';
@@ -10,19 +8,23 @@ import AppRegistry from 'hadron-app-registry';
 
 import { configureStore } from '../stores/query-history-store';
 import { RecentQuery } from '../models';
-import { deleteFavorite, saveFavorite } from './favorite-queries';
+import {
+  deleteFavorite,
+  loadFavoriteQueries,
+  saveFavorite,
+} from './favorite-queries';
 
-// const TestBackend = StorageBackend.TestBackend;
+const TestBackend = StorageMixin.TestBackend;
 
-describe('FavoritesListStore reducer', function () {
+describe('FavoritesQueries module', function () {
   let store;
   let tmpDir: string;
-  let tmpDirs: string[] = [];
+  const tmpDirs: string[] = [];
+  let i = 0;
 
   beforeEach(async function () {
-    // tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'favorite-queries-module-tests'));
-    tmpDir = await fs.promises.mkdtemp(
-      path.join(os.tmpdir(), 'favorite-queries-module-tests')
+    tmpDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), `favorite-queries-module-tests-${i++}`)
     );
     tmpDirs.push(tmpDir);
     TestBackend.enable(tmpDir);
@@ -30,6 +32,8 @@ describe('FavoritesListStore reducer', function () {
       namespace: 'test.test',
       localAppRegistry: new AppRegistry(),
     });
+    // Ensure the queries have been loaded.
+    await store.dispatch(loadFavoriteQueries() as any);
   });
 
   afterEach(function () {
@@ -42,7 +46,7 @@ describe('FavoritesListStore reducer', function () {
     // those active fs operations can make them fail, so we wait a bit here.
     await new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all(
-      tmpDirs.map((tmpDir) => fs.promises.rm(tmpDir, { recursive: true }))
+      tmpDirs.map((tmpDir) => fs.rm(tmpDir, { recursive: true }))
     );
   });
 
@@ -59,13 +63,13 @@ describe('FavoritesListStore reducer', function () {
       const recent = new RecentQuery({ ns: ns, filter: filter });
       let model;
 
-      beforeEach(function () {
-        store.dispatch(saveFavorite(recent, 'testing'));
+      beforeEach(async function () {
+        await store.dispatch(saveFavorite(recent, 'testing'));
         model = store.getState().favoriteQueries.items.models[0];
       });
 
-      afterEach(function () {
-        store.dispatch(deleteFavorite(model));
+      afterEach(async function () {
+        await store.dispatch(deleteFavorite(model));
       });
 
       it('adds the favorite to the list', function () {
@@ -108,10 +112,10 @@ describe('FavoritesListStore reducer', function () {
     const filter = { name: 'test' };
     const recent = new RecentQuery({ ns: ns, filter: filter });
 
-    beforeEach(function () {
-      store.dispatch(saveFavorite(recent, 'testing'));
+    beforeEach(async function () {
+      await store.dispatch(saveFavorite(recent, 'testing'));
       const model = store.getState().favoriteQueries.items.models[0];
-      store.dispatch(deleteFavorite(model));
+      await store.dispatch(deleteFavorite(model));
     });
 
     it('removes the favorite from the list', function () {

@@ -76,7 +76,6 @@ export const loadRecentQueries = (): QueryHistoryThunkAction<
     const fetchRecentQueries = promisifyAmpersandMethod(
       items.fetch.bind(items)
     );
-
     await fetchRecentQueries();
 
     dispatch({
@@ -194,12 +193,12 @@ export type RecentQueriesState = {
   items: RecentQueryAmpersandCollectionType;
 };
 
-export const initialState: RecentQueriesState = {
+const getInitialState = (): RecentQueriesState => ({
   items: new RecentQueryCollection(),
-};
+});
 
 const recentQueriesReducer: Reducer<RecentQueriesState> = (
-  state = initialState,
+  state = getInitialState(),
   action
 ) => {
   if (
