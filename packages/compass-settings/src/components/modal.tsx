@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import GeneralSettings from './settings/general';
+import OIDCSettings from './settings/oidc-settings';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
 import FeaturePreviewSettings, {
@@ -25,6 +26,7 @@ type Settings = {
 
 type SettingsModalProps = {
   isOpen: boolean;
+  isOIDCEnabled: boolean;
   closeModal: () => void;
   onSave: () => void;
   fetchSettings: () => Promise<void>;
@@ -57,6 +59,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   closeModal,
   onSave,
   fetchSettings,
+  isOIDCEnabled,
   loadingState,
   hasChangedSettings,
 }) => {
@@ -65,6 +68,13 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     { name: 'Theme', component: ThemeSettings },
     { name: 'Privacy', component: PrivacySettings },
   ];
+
+  if (isOIDCEnabled) {
+    settings.push({
+      name: 'OIDC (Preview)',
+      component: OIDCSettings,
+    });
+  }
 
   if (useShouldShowFeaturePreviewSettings()) {
     settings.push({
@@ -132,6 +142,7 @@ export default connect(
   (state: RootState) => {
     return {
       loadingState: state.settings.loadingState,
+      isOIDCEnabled: !!state.settings.settings.enableOidc,
       hasChangedSettings: state.settings.updatedFields.length > 0,
     };
   },

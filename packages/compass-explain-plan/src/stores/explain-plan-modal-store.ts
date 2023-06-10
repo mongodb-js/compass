@@ -1,4 +1,4 @@
-import type { AggregateOptions, Document } from 'mongodb';
+import type { AggregateOptions, Document, FindOptions } from 'mongodb';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
@@ -20,7 +20,7 @@ export function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
+export type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
 
 enum ExplainPlanModalActionTypes {
   CloseExplainPlanModal = 'compass-explain-plan-modal/CloseExplainPlanModal',
@@ -63,7 +63,7 @@ export type ExplainPlanModalState = {
 
 type ExplainPlanDataService = Pick<
   DataService,
-  'explainAggregate' | 'isCancelError'
+  'explainAggregate' | 'explainFind' | 'isCancelError'
 >;
 
 type ExplainPlanModalExtraArgs = {
@@ -158,12 +158,24 @@ export const reducer: Reducer<ExplainPlanModalState> = (
 };
 
 type OpenExplainPlanModalEvent =
-  | { query: unknown; aggregation?: never }
+  | {
+      query: {
+        filter: Document;
+        project?: unknown;
+        collation?: unknown;
+        sort?: unknown;
+        skip?: number;
+        limit?: number;
+        maxTimeMS?: number;
+      };
+      aggregation?: never;
+    }
   | {
       query?: never;
       aggregation: {
         pipeline: Document[];
         collation?: AggregateOptions['collation'];
+        maxTimeMS?: number;
       };
     };
 
@@ -213,26 +225,29 @@ export const openExplainPlanModal = (
   return async (dispatch, getState, { dataService }) => {
     const { id: fetchId, signal } = getAbortSignal();
 
-    let rawExplainPlan;
-    let explainPlan;
+    let rawExplainPlan = null;
+    let explainPlan = null;
 
     dispatch({
       type: ExplainPlanModalActionTypes.FetchExplainPlanModalLoading,
       id: fetchId,
     });
 
-    const explainOptions = {
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(DEFAULT_MAX_TIME_MS),
-    };
+    const { isDataLake, namespace } = getState();
 
     try {
       if (event.aggregation) {
-        const { pipeline, collation } = event.aggregation;
-        const { isDataLake, namespace } = getState();
+        const { pipeline, collation, maxTimeMS } = event.aggregation;
         const explainVerbosity = getAggregationExplainVerbosity(
           pipeline,
           isDataLake
         );
+
+        const explainOptions = {
+          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            maxTimeMS ?? DEFAULT_MAX_TIME_MS
+          ),
+        };
 
         rawExplainPlan = await dataService.explainAggregate(
           namespace,
@@ -255,6 +270,45 @@ export const openExplainPlanModal = (
 
         track('Aggregation Explained', {
           num_stages: pipeline.length,
+          index_used: explainPlan.usedIndexes.length > 0,
+        });
+      }
+
+      if (event.query) {
+        const { filter, ...options } = event.query;
+
+        const explainVerbosity = isDataLake
+          ? 'queryPlannerExtended'
+          : 'allPlansExecution';
+
+        const explainOptions = {
+          ...options,
+          maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+            options.maxTimeMS ?? DEFAULT_MAX_TIME_MS
+          ),
+        };
+
+        rawExplainPlan = await dataService.explainFind(
+          namespace,
+          filter,
+          explainOptions as FindOptions,
+          { explainVerbosity, abortSignal: signal }
+        );
+
+        try {
+          explainPlan = new ExplainPlan(rawExplainPlan as Stage).serialize();
+        } catch (err) {
+          log.warn(
+            mongoLogId(1_001_000_192),
+            'Explain',
+            'Failed to parse find explain',
+            { message: (err as Error).message }
+          );
+          throw err;
+        }
+
+        track('Explain Plan Executed', {
+          with_filter: Object.entries(filter).length > 0,
           index_used: explainPlan.usedIndexes.length > 0,
         });
       }

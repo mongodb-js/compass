@@ -1,19 +1,34 @@
 import React, { useRef, useMemo } from 'react';
 import { flextree } from 'd3-flextree';
-
+import { css } from '@mongodb-js/compass-components';
 import type { FlextreeNode } from 'd3-flextree';
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy';
 
-interface TreeLayoutProps<T>
+interface TreeLayoutProps<T, X>
   extends Omit<React.HTMLProps<HTMLDivElement>, 'data'> {
   data: T;
   getNodeSize: (node: T) => [number, number];
   getNodeKey: (node: T) => string;
+  getLinkWidth: (sourceNodeData: T, targetNodeData: T, metaData?: X) => number;
   linkColor: string;
-  linkWidth: number;
+  arrowColor: string;
   verticalSpacing: number;
   horizontalSpacing: number;
   children: (node: T) => React.ReactElement | null;
+  scale?: number;
+}
+
+interface LinkPathProps<T> {
+  translateX: number;
+  gapY?: number;
+  link: HierarchyLink<T>;
+  linkColor: string;
+  arrowColor: string;
+  getLinkWidth: (
+    sourceNodeData: T,
+    targetNodeData: T,
+    metaData?: unknown
+  ) => number;
 }
 
 /**
@@ -31,15 +46,10 @@ function LinkPath<T>({
   gapY = 0,
   link,
   linkColor,
-  linkWidth,
-}: {
-  translateX: number;
-  gapY?: number;
-  link: HierarchyLink<T>;
-  linkColor: string;
-  linkWidth: number;
-}) {
-  const pathDef = useMemo(() => {
+  arrowColor,
+  getLinkWidth,
+}: LinkPathProps<T>) {
+  const { linkPaths, arrowPath } = useMemo(() => {
     const source = link.source as FlextreeNode<T>;
     const target = link.target as FlextreeNode<T>;
     const sourceX = translateX + source.x;
@@ -51,38 +61,109 @@ function LinkPath<T>({
     const linkStartY = sourceY + actualSourceYSize / 2;
     const linkEndX = targetX;
     const linkEndY = targetY;
+    // We start the arrow from the middle of the gap
+    const arrowStartY = sourceY + actualSourceYSize + gapY / 2;
+
+    const arrowStrokeWidth = 4;
 
     // same X:
     // we draw as straight line between the nodes.
     if (sourceX === targetX) {
-      return `M ${linkStartX} ${linkStartY} V ${linkEndY}`;
+      return {
+        linkPaths: [
+          {
+            pathDef: `M ${linkStartX} ${linkStartY} V ${linkEndY}`,
+            strokeWidth: getLinkWidth(source.data, target.data),
+          },
+        ],
+        arrowPath: target.noChildren
+          ? {
+              pathDef: `M ${linkStartX} ${arrowStartY} V ${linkEndY}`,
+              strokeWidth: arrowStrokeWidth,
+            }
+          : null,
+      };
     }
 
-    // different X:
-    // we draw an elbow half way through the bottom of the source node
-    // and the top of the target.
+    // different X: we draw an elbow half way through the bottom of the source
+    // node and the top of the target. Each path (top vertical half, horizontal
+    // line, bottom vertical half) is a separate path element having different
+    // stroke widths
     const sourceBottomY = sourceY + actualSourceYSize;
     const elbowY = sourceBottomY + (targetY - sourceBottomY) / 2;
 
-    return `M ${linkStartX} ${linkStartY} V ${elbowY} H ${linkEndX} V ${linkEndY}`;
-  }, [gapY, link.source, link.target, translateX]);
+    const firstVerticalStrokeWidth = getLinkWidth(source.data, target.data, {
+      isFirstVerticalHalf: true,
+    });
+    const shardLinkStrokeWidth = getLinkWidth(source.data, target.data);
+
+    return {
+      linkPaths: [
+        {
+          pathDef: `M ${linkStartX} ${linkStartY} V ${elbowY}`,
+          strokeWidth: firstVerticalStrokeWidth,
+        },
+        {
+          pathDef: `M ${linkStartX} ${elbowY} H ${linkEndX}`,
+          strokeWidth: shardLinkStrokeWidth,
+        },
+        {
+          pathDef: `M ${linkEndX} ${elbowY - shardLinkStrokeWidth / 2} V ${
+            elbowY + elbowY
+          }`,
+          strokeWidth: shardLinkStrokeWidth,
+        },
+      ],
+    };
+  }, [gapY, link.source, link.target, translateX, getLinkWidth]);
 
   return (
-    <path fill="none" stroke={linkColor} strokeWidth={linkWidth} d={pathDef} />
+    <>
+      {linkPaths.map(({ pathDef, strokeWidth }, idx) => (
+        <path
+          key={idx}
+          className={`path-${idx}`}
+          fill="none"
+          stroke={linkColor}
+          strokeWidth={strokeWidth}
+          d={pathDef}
+        />
+      ))}
+      {arrowPath && (
+        <path
+          fill="none"
+          stroke={arrowColor}
+          d={arrowPath.pathDef}
+          strokeWidth={arrowPath.strokeWidth}
+          markerStart="url(#arrowhead)"
+        />
+      )}
+    </>
   );
 }
 
-function TreeLayout<T>({
+const treeContainerStyles = css({
+  position: 'relative',
+  margin: '0 auto',
+  transformOrigin: 'top left',
+  transitionProperty: 'width, height, transform',
+  transitionDuration: '0.1s',
+  transitionTimingFunction: 'linear',
+});
+
+function TreeLayout<T, X>({
   data,
   getNodeSize,
   getNodeKey,
   linkColor,
-  linkWidth,
+  getLinkWidth,
+  arrowColor,
   horizontalSpacing,
   verticalSpacing,
   children,
+  scale = 1,
   ...divProps
-}: TreeLayoutProps<T>) {
+}: TreeLayoutProps<T, X>) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   const { translateX, width, height, nodes, links } = useMemo(() => {
@@ -116,13 +197,47 @@ function TreeLayout<T>({
 
   return (
     <div {...divProps}>
-      <div style={{ width, height, position: 'relative' }}>
+      <div
+        style={{
+          // CSS transforms have no effect on the CSS layout (only on the
+          // overflow) and so to allow margin: auto to correctly calculate even
+          // center position of the container we are adjusing container size to
+          // match the scale
+          //
+          // @see {@link https://www.w3.org/TR/css-transforms-1/}
+          width: width * scale,
+          height: height * scale,
+          transform: `scale(${scale})`,
+        }}
+        className={treeContainerStyles}
+      >
         <svg
           ref={svgRef}
           width={width}
           height={height}
           style={{ position: 'absolute', top: 0, left: 0 }}
         >
+          <defs>
+            <marker
+              markerWidth="5"
+              markerHeight="5"
+              refX="9"
+              refY="11"
+              viewBox="0 0 25 21"
+              orient="auto-start-reverse"
+              id="arrowhead"
+            >
+              <polyline
+                points="0,15 7.5,7.5 0,0"
+                fill="none"
+                strokeWidth="4"
+                stroke={arrowColor}
+                strokeLinecap="round"
+                transform="matrix(1,0,0,1,2,3.5)"
+                strokeLinejoin="round"
+              />
+            </marker>
+          </defs>
           <g>
             {links.map((link, i) => (
               <LinkPath<T>
@@ -131,8 +246,9 @@ function TreeLayout<T>({
                 gapY={verticalSpacing}
                 translateX={translateX}
                 linkColor={linkColor}
-                linkWidth={linkWidth}
-              ></LinkPath>
+                arrowColor={arrowColor}
+                getLinkWidth={getLinkWidth as LinkPathProps<T>['getLinkWidth']}
+              />
             ))}
           </g>
         </svg>

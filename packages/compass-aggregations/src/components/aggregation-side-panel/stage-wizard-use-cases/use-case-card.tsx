@@ -46,7 +46,11 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
       {...props}
     >
       <Body className={cardTitleStyles}>{title}</Body>
-      <Link target="_blank" href={getStageHelpLink(stageOperator) as string}>
+      <Link
+        target="_blank"
+        onClick={(e) => e.stopPropagation()}
+        href={getStageHelpLink(stageOperator) as string}
+      >
         {stageOperator}
       </Link>
     </KeylineCard>

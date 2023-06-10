@@ -1,4 +1,5 @@
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { isCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
 import type { ConnectionOptions, DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 
@@ -10,15 +11,12 @@ function isConnectionAttemptTerminatedError(err: Error) {
 }
 
 export class ConnectionAttempt {
-  _cancelled: Promise<void>;
-  _cancelConnectionAttempt?: () => void;
+  _abortController: AbortController;
   _closed = false;
   _dataService: DataService | null = null;
 
   constructor(private _connectFn: typeof connect) {
-    this._cancelled = new Promise((resolve) => {
-      this._cancelConnectionAttempt = () => resolve();
-    });
+    this._abortController = new AbortController();
   }
 
   connect(connectionOptions: ConnectionOptions): Promise<DataService | void> {
@@ -28,7 +26,12 @@ export class ConnectionAttempt {
       'Initiating connection attempt'
     );
 
-    return Promise.race([this._cancelled, this._connect(connectionOptions)]);
+    return raceWithAbort(
+      this._connect(connectionOptions),
+      this._abortController.signal
+    ).catch((err) => {
+      if (!isCancelError(err)) throw err;
+    });
   }
 
   cancelConnectionAttempt(): void {
@@ -38,7 +41,7 @@ export class ConnectionAttempt {
       'Canceling connection attempt'
     );
 
-    this._cancelConnectionAttempt?.();
+    this._abortController.abort();
     void this._close();
   }
 
@@ -54,7 +57,11 @@ export class ConnectionAttempt {
     }
 
     try {
-      this._dataService = await this._connectFn(connectionOptions, log.unbound);
+      this._dataService = await this._connectFn({
+        connectionOptions,
+        signal: this._abortController.signal,
+        logger: log.unbound,
+      });
       return this._dataService;
     } catch (err) {
       if (isConnectionAttemptTerminatedError(err as Error)) {

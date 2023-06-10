@@ -1,7 +1,28 @@
+import _ from 'lodash';
 import { expect } from 'chai';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
+
+async function waitForElementAnimations(browser: CompassBrowser, element: any) {
+  let previousResult = {
+    ...(await element.getLocation()),
+    ...(await element.getSize()),
+  };
+  await browser.waitUntil(async function () {
+    // small delay to make sure that if it is busy animating it had time to move
+    // before the first check and between each two checks
+    await browser.pause(50);
+
+    const result = {
+      ...(await element.getLocation()),
+      ...(await element.getSize()),
+    };
+    const stopped = _.isEqual(result, previousResult);
+    previousResult = result;
+    return stopped;
+  });
+}
 
 export async function setConnectFormState(
   browser: CompassBrowser,
@@ -137,6 +158,14 @@ export async function setConnectFormState(
     await browser.setValueVisible(
       Selectors.ConnectionFormInputAWSSessionToken,
       state.awsSessionToken
+    );
+  }
+
+  // OIDC
+  if (state.oidcUsername) {
+    await browser.setValueVisible(
+      Selectors.ConnectionFormInputOIDCUsername,
+      state.oidcUsername
     );
   }
 
@@ -338,6 +367,7 @@ export async function setConnectFormState(
           found = true;
           await option.scrollIntoView();
           await option.waitForDisplayed();
+          await waitForElementAnimations(browser, option);
           await option.click();
           break;
         }

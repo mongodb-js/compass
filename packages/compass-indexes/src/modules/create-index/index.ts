@@ -19,7 +19,6 @@ import serverVersion from '../server-version';
 import type { InProgressIndex } from '../in-progress-indexes';
 
 import schemaFields from '../create-index/schema-fields';
-import newIndexField from '../create-index/new-index-field';
 import { resetForm } from '../reset-form';
 
 import options from './options';
@@ -43,7 +42,6 @@ const reducer = combineReducers({
 
   // fields realted
   fields,
-  newIndexField,
   schemaFields,
 
   // validation

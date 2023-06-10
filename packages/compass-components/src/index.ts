@@ -150,7 +150,7 @@ export { KeylineCard } from './components/keyline-card';
 export { variantColors as codePalette } from '@leafygreen-ui/code';
 export { useEffectOnChange } from './hooks/use-effect-on-change';
 export { HorizontalRule } from './components/horizontal-rule';
-export { IndexKeysBadge } from './components/index-keys-badge';
+export { IndexBadge, IndexKeysBadge } from './components/index-keys-badge';
 export { Combobox, ComboboxOption, ComboboxGroup } from './components/combobox';
 export {
   useConfirmationModal,
@@ -165,3 +165,4 @@ export {
 } from './hooks/use-hotkeys';
 export { rafraf } from './utils/rafraf';
 export { ComboboxWithCustomOption } from './components/combobox-with-custom-option';
+export { usePersistedState } from './hooks/use-persisted-state';

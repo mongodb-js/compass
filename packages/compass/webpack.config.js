@@ -134,15 +134,6 @@ module.exports = (_env, args) => {
       externals,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
-
-        // Not a part of common config because mostly a Compass thing that we
-        // might be able to get rid of eventually
-        new webpack.ProvidePlugin({
-          $: 'jquery',
-          'window.$': 'jquery',
-          jQuery: 'jquery',
-          'window.jQuery': 'jquery',
-        }),
         ...compileOnlyPlugins,
       ],
     }),

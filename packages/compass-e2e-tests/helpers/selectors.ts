@@ -84,6 +84,8 @@ export const ConnectionFormInputPlainUsername =
   '[data-testid="connection-plain-username-input"]';
 export const ConnectionFormInputPlainPassword =
   '[data-testid="connection-plain-password-input"]';
+export const ConnectionFormInputOIDCUsername =
+  '[data-testid="connection-oidc-username-input"]';
 export const ConnectionFormInputAWSAccessKeyId =
   '[data-testid="connection-form-aws-access-key-id-input"]';
 export const ConnectionFormInputAWSSecretAccessKey =
@@ -900,23 +902,20 @@ export const SchemaFieldName = '[data-testid="schema-field-name"]';
 export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
 // Explain Plan tab
-export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
-export const ExplainCancellableSpinner = '[data-testid="query-explain-cancel"]';
-export const ExplainCancelButton =
-  '[data-testid="query-explain-cancel-button"]';
-export const ExplainSummary = '[data-testid="explain-summary"]';
+export const ExecuteExplainButton = '[data-testid="query-bar-explain-button"]';
+export const ExplainLoader = '[data-testid="explain-plan-loading"]';
+export const ExplainSummary = '[data-testid="explain-plan-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
-export const ExplainDocumentsReturnedSummary =
-  '[data-testid="nReturned-summary"]';
+export const ExplainCloseButton = '[data-testid="explain-close-button"]';
 export const explainPlanSummaryStat = (
   stat:
-    | 'nReturned'
-    | 'totalKeysExamined'
-    | 'totalDocsExamined'
-    | 'executionTimeMillis'
-    | 'inMemorySort'
+    | 'docsReturned'
+    | 'docsExamined'
+    | 'executionTimeMs'
+    | 'sortedInMemory'
+    | 'indexKeysExamined'
 ) => {
-  return `[data-testid="${stat}-summary"]`;
+  return `${ExplainSummary} [data-testid="${stat}"]`;
 };
 
 // Indexes tab

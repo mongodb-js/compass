@@ -7,7 +7,6 @@ import maxBy from 'lodash.maxby';
 import sortBy from 'lodash.sortby';
 import groupBy from 'lodash.groupby';
 import map from 'lodash.map';
-import $ from 'jquery';
 import moment from 'moment';
 import { inValueRange } from 'mongodb-query-util';
 import { palette, spacing } from '@mongodb-js/compass-components';
@@ -161,9 +160,9 @@ const minicharts_d3fns_date = (appRegistry) => {
       });
     }
 
-    const parent = $(this).closest('.minichart');
-    const background = parent.find('g.brush > rect.background')[0];
-    const brushNode = parent.find('g.brush')[0];
+    const parent = this.closest('.minichart');
+    const background = parent.querySelector('g.brush > rect.background');
+    const brushNode = parent.querySelector('g.brush');
     const start = barcodeX.invert(d3.mouse(background)[0]);
 
     const w = d3

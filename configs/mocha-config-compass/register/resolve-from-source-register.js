@@ -1,8 +1,13 @@
+'use strict';
 const fs = require('fs');
 const path = require('path');
 const Module = require('module');
 
 const workspacesDirPath = path.resolve(__dirname, '..', '..', '..', 'packages');
+if (!fs.existsSync(workspacesDirPath)) {
+  // Not running inside the Compass monorepo
+  return;
+}
 
 const workspaces = fs
   .readdirSync(workspacesDirPath)

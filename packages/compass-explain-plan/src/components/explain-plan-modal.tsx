@@ -1,25 +1,19 @@
 import type { Store } from 'redux';
 import { Provider, connect } from 'react-redux';
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
-  Banner,
   Button,
   SpinLoaderWithLabel,
-  KeylineCard,
   Modal,
-  ModalBody,
   ModalFooter,
   ModalHeader,
   spacing,
   css,
+  Link,
 } from '@mongodb-js/compass-components';
-import {
-  CodemirrorMultilineEditor,
-  prettify,
-} from '@mongodb-js/compass-editor';
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import { closeExplainPlanModal } from '../stores/explain-plan-modal-store';
-import ExplainSummary from './explain-summary';
+import { ExplainPlanView } from './explain-plan-view';
 
 export type ExplainPlanModalProps = Partial<
   Pick<
@@ -29,7 +23,11 @@ export type ExplainPlanModalProps = Partial<
 > & { onModalClose(): void };
 
 const explainPlanModalContentStyles = css({
-  width: '700px',
+  '& > div': {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gridTemplateRows: 'auto 1fr auto',
+  },
 });
 
 const explainPlanModalLoadingStyles = css({
@@ -41,84 +39,24 @@ const explainPlanModalLoadingStyles = css({
 });
 
 const explainPlanModalBodyStyles = css({
-  display: 'flex',
+  paddingTop: spacing[3],
+  paddingLeft: spacing[5],
+  paddingRight: spacing[5],
   overflow: 'hidden',
 });
 
-const explainPlanModalViewStyles = css({
-  flex: '1 1 0%',
-  minHeight: '0%',
+const loaderContainerStyles = css({
+  height: '100%',
   display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[4],
-});
-
-const editorContainerStyles = css({
-  flex: '1 1 0%',
-  minHeight: '0%',
-  overflow: 'hidden',
-});
-
-const editorStyles = css({
-  '& .cm-editor': {
-    paddingLeft: spacing[2],
-  },
 });
 
 const Loader: React.FunctionComponent = () => {
   return (
-    <div className={explainPlanModalLoadingStyles}>
+    <div
+      className={explainPlanModalLoadingStyles}
+      data-testid="explain-plan-loading"
+    >
       <SpinLoaderWithLabel progressText="Running explain"></SpinLoaderWithLabel>
-    </div>
-  );
-};
-
-export const ExplainPlanBody: React.FunctionComponent<
-  Pick<ExplainPlanModalProps, 'explainPlan' | 'rawExplainPlan' | 'error'>
-> = ({ explainPlan, rawExplainPlan, error }) => {
-  const rawExplainPlanText = useMemo(() => {
-    return rawExplainPlan
-      ? prettify(JSON.stringify(rawExplainPlan), 'json')
-      : '';
-  }, [rawExplainPlan]);
-
-  const explainPlanIndexFields = useMemo(() => {
-    return {
-      fields:
-        explainPlan?.usedIndexes.flatMap((index) => {
-          return Object.entries(index.fields).map(([field, value]) => {
-            return { field, value };
-          });
-        }) ?? [],
-    };
-  }, [explainPlan]);
-
-  return (
-    <div className={explainPlanModalViewStyles}>
-      {error && <Banner variant="danger">{error}</Banner>}
-      {!error && (
-        <ExplainSummary
-          nReturned={explainPlan?.nReturned ?? 0}
-          totalKeysExamined={explainPlan?.totalKeysExamined ?? 0}
-          totalDocsExamined={explainPlan?.totalDocsExamined ?? 0}
-          executionTimeMillis={explainPlan?.executionTimeMillis ?? 0}
-          inMemorySort={explainPlan?.inMemorySort ?? false}
-          indexType={explainPlan?.indexType ?? 'UNAVAILABLE'}
-          index={explainPlanIndexFields}
-        ></ExplainSummary>
-      )}
-      <KeylineCard className={editorContainerStyles}>
-        <CodemirrorMultilineEditor
-          language="json"
-          text={rawExplainPlanText}
-          readOnly={true}
-          showAnnotationsGutter={false}
-          showLineNumbers={false}
-          formattable={false}
-          initialJSONFoldAll={false}
-          editorClassName={editorStyles}
-        ></CodemirrorMultilineEditor>
-      </KeylineCard>
     </div>
   );
 };
@@ -139,23 +77,42 @@ export const ExplainPlanModal: React.FunctionComponent<
       contentClassName={explainPlanModalContentStyles}
       open={isModalOpen}
       setOpen={onModalClose}
+      fullScreen={true}
     >
-      <ModalHeader title="Explain Plan"></ModalHeader>
+      <ModalHeader
+        title="Explain Plan"
+        subtitle={
+          <>
+            Explain provides key execution metrics that help diagnose slow
+            queries and optimize index usage.&nbsp;
+            <Link
+              href="https://www.mongodb.com/docs/upcoming/reference/explain-results/#mongodb-data-explain.executionStats"
+              target="_blank"
+            >
+              Learn more
+            </Link>
+          </>
+        }
+      ></ModalHeader>
 
-      <ModalBody className={explainPlanModalBodyStyles}>
-        {status === 'loading' && <Loader></Loader>}
+      <div className={explainPlanModalBodyStyles}>
+        {status === 'loading' && (
+          <div className={loaderContainerStyles}>
+            <Loader></Loader>
+          </div>
+        )}
 
         {(status === 'ready' || status === 'error') && (
-          <ExplainPlanBody
+          <ExplainPlanView
             explainPlan={explainPlan}
             rawExplainPlan={rawExplainPlan}
             error={error}
-          ></ExplainPlanBody>
+          ></ExplainPlanView>
         )}
-      </ModalBody>
+      </div>
 
       <ModalFooter>
-        <Button onClick={onModalClose}>
+        <Button onClick={onModalClose} data-testid="explain-close-button">
           {status === 'loading' ? 'Cancel' : 'Close'}
         </Button>
       </ModalFooter>

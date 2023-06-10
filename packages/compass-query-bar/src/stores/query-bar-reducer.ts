@@ -386,6 +386,14 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   return state;
 };
 
+export const explainQuery = (): QueryBarThunkAction<void> => {
+  return (dispatch, getState, { localAppRegistry }) => {
+    const { fields } = getState();
+    const query = pickValuesFromFields(fields);
+    localAppRegistry?.emit('open-explain-plan-modal', { query });
+  };
+};
+
 /**
  * This is arguably a total hack, but more or less the only easy way to get
  * components out of registry without passing the whole registry around or

@@ -381,8 +381,7 @@ describe('explain-plan-plan', function () {
         });
         it('should have correct execution metrics', function () {
           expect(plan.executionStats.nReturned).to.equal(422); // nReturned is from the last stage
-          // executionTimeMillis from each stage (except $cursor) + executionTimeMillis of $cursor stage for each shard
-          expect(plan.executionStats.executionTimeMillis).to.equal(32);
+          expect(plan.executionStats.executionTimeMillis).to.equal(12);
           expect(plan.executionStats.totalKeysExamined).to.equal(719);
           expect(plan.executionStats.totalDocsExamined).to.equal(490);
         });

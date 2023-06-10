@@ -7,11 +7,16 @@ export const explainAggregation = (): PipelineBuilderThunkAction<void> => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
     const {
       collationString: { value: collation },
+      maxTimeMS,
     } = getState();
 
     dispatch(
       localAppRegistryEmit('open-explain-plan-modal', {
-        aggregation: { pipeline, collation },
+        aggregation: {
+          pipeline,
+          collation,
+          maxTimeMS,
+        },
       })
     );
   };

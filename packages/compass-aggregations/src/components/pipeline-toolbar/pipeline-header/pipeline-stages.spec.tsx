@@ -76,9 +76,9 @@ describe('PipelineStages', function () {
         onEditPipelineClick: onChangeWorkspaceSpy,
       });
     });
-    it('renders stages in builder mode', function () {
-      expect(within(container).findByText('$match')).to.exist;
-      expect(within(container).findByText('$project')).to.exist;
+    it('renders stages in builder mode', async function () {
+      expect(await within(container).findByText('$group')).to.exist;
+      expect(await within(container).findByText('$sort')).to.exist;
     });
   });
 
@@ -97,9 +97,9 @@ describe('PipelineStages', function () {
       });
     });
 
-    it('renders stages', function () {
-      expect(within(container).findByText('$match')).to.exist;
-      expect(within(container).findByText('$project')).to.exist;
+    it('renders stages', async function () {
+      expect(await within(container).findByText('$match')).to.exist;
+      expect(await within(container).findByText('$project')).to.exist;
     });
     it('renders edit button', function () {
       expect(within(container).getByTestId('pipeline-toolbar-edit-button')).to

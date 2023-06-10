@@ -1,3 +1,4 @@
+import React from 'react';
 import type {
   ConnectionInfo,
   DataService,
@@ -6,7 +7,7 @@ import type {
 } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConnectionAttempt } from '../modules/connection-attempt';
 import { createConnectionAttempt } from '../modules/connection-attempt';
@@ -17,8 +18,9 @@ import {
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
-import { useToast } from '@mongodb-js/compass-components';
+import { useEffectOnChange, useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import preferences, { usePreference } from 'compass-preferences-model';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
@@ -28,6 +30,14 @@ type ConnectFn = typeof connect;
 
 export type { ConnectFn };
 
+type RecursivePartial<T> = {
+  [P in keyof T]?: T[P] extends (infer U)[]
+    ? RecursivePartial<U>[]
+    : T[P] extends object | undefined
+    ? RecursivePartial<T[P]>
+    : T[P];
+};
+
 export function createNewConnectionInfo(): ConnectionInfo {
   return {
     id: uuidv4(),
@@ -35,6 +45,15 @@ export function createNewConnectionInfo(): ConnectionInfo {
       connectionString: 'mongodb://localhost:27017',
     },
   };
+}
+
+function isOIDCAuth(connectionString: string): boolean {
+  const authMechanismString = (
+    new ConnectionString(connectionString).searchParams.get('authMechanism') ||
+    ''
+  ).toUpperCase();
+
+  return authMechanismString === 'MONGODB-OIDC';
 }
 
 function ensureWellFormedConnectionString(connectionString: string) {
@@ -48,6 +67,14 @@ type State = {
   connectionAttempt: ConnectionAttempt | null;
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
+  oidcDeviceAuthVerificationUrl: string | null;
+  oidcDeviceAuthUserCode: string | null;
+  // Additional connection information that is merged with the connection info
+  // when connecting. This is useful for instances like OIDC sessions where we
+  // have a setting on the system for storing credentials.
+  // When the setting is on this `connectionMergeInfos` would have the session
+  // credential information and merge it before connecting.
+  connectionMergeInfos: Record<string, RecursivePartial<ConnectionInfo>>;
 };
 
 export function defaultConnectionsState(): State {
@@ -58,6 +85,9 @@ export function defaultConnectionsState(): State {
     connections: [],
     connectionAttempt: null,
     connectionErrorMessage: null,
+    oidcDeviceAuthVerificationUrl: null,
+    oidcDeviceAuthUserCode: null,
+    connectionMergeInfos: {},
   };
 }
 
@@ -66,6 +96,11 @@ type Action =
       type: 'attempt-connect';
       connectionAttempt: ConnectionAttempt;
       connectingStatusText: string;
+    }
+  | {
+      type: 'oidc-attempt-connect-notify-device-auth';
+      verificationUrl: string;
+      userCode: string;
     }
   | {
       type: 'cancel-connection-attempt';
@@ -93,6 +128,11 @@ type Action =
       type: 'set-connections-and-select';
       connections: ConnectionInfo[];
       activeConnectionInfo: ConnectionInfo;
+    }
+  | {
+      type: 'add-connection-merge-info';
+      id: string;
+      mergeConnectionInfo: RecursivePartial<ConnectionInfo>;
     };
 
 export function connectionsReducer(state: State, action: Action): State {
@@ -103,6 +143,8 @@ export function connectionsReducer(state: State, action: Action): State {
         connectionAttempt: action.connectionAttempt,
         connectingStatusText: action.connectingStatusText,
         connectionErrorMessage: null,
+        oidcDeviceAuthVerificationUrl: null,
+        oidcDeviceAuthUserCode: null,
       };
     case 'cancel-connection-attempt':
       return {
@@ -121,6 +163,12 @@ export function connectionsReducer(state: State, action: Action): State {
         ...state,
         connectionAttempt: null,
         connectionErrorMessage: action.connectionErrorMessage,
+      };
+    case 'oidc-attempt-connect-notify-device-auth':
+      return {
+        ...state,
+        oidcDeviceAuthVerificationUrl: action.verificationUrl,
+        oidcDeviceAuthUserCode: action.userCode,
       };
     case 'set-active-connection':
       return {
@@ -150,6 +198,17 @@ export function connectionsReducer(state: State, action: Action): State {
         activeConnectionInfo: action.activeConnectionInfo,
         connectionErrorMessage: null,
       };
+    case 'add-connection-merge-info':
+      return {
+        ...state,
+        connectionMergeInfos: {
+          ...state.connectionMergeInfos,
+          [action.id]: merge(
+            cloneDeep(state.connectionMergeInfos[action.id]),
+            action.mergeConnectionInfo
+          ),
+        },
+      };
     default:
       return state;
   }
@@ -164,11 +223,28 @@ async function loadConnections(
 ) {
   try {
     const loadedConnections = await connectionStorage.loadAll();
+    const toBeReSaved: ConnectionInfo[] = [];
+
+    // Scrub OIDC tokens from connections when the option to store them has been disabled
+    if (!preferences.getPreferences().persistOIDCTokens) {
+      for (const connection of loadedConnections) {
+        if (connection.connectionOptions.oidc?.serializedState) {
+          delete connection.connectionOptions.oidc?.serializedState;
+          toBeReSaved.push(connection);
+        }
+      }
+    }
 
     dispatch({
       type: 'set-connections',
       connections: loadedConnections,
     });
+
+    await Promise.all(
+      toBeReSaved.map(async (connection) => {
+        await connectionStorage.save(connection);
+      })
+    );
   } catch (error) {
     debug('error loading connections', error);
   }
@@ -294,14 +370,60 @@ export function useConnections({
 
         if (!shouldSaveConnectionInfo) return;
 
+        let mergeConnectionInfo = {};
+        if (preferences.getPreferences().persistOIDCTokens) {
+          mergeConnectionInfo = {
+            connectionOptions: await dataService.getUpdatedSecrets(),
+          };
+          dispatch({
+            type: 'add-connection-merge-info',
+            id: connectionInfo.id,
+            mergeConnectionInfo,
+          });
+        }
+
         // if a connection has been saved already we only want to update the lastUsed
         // attribute, otherwise we are going to save the entire connection info.
         const connectionInfoToBeSaved =
           (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
 
         await saveConnectionInfo({
-          ...cloneDeep(connectionInfoToBeSaved),
+          ...merge(connectionInfoToBeSaved, mergeConnectionInfo),
           lastUsed: new Date(),
+        });
+
+        // ?. because mocks in tests don't provide it
+        dataService.on?.('connectionInfoSecretsChanged', () => {
+          void (async () => {
+            try {
+              if (!preferences.getPreferences().persistOIDCTokens) return;
+              // Get updated secrets first (and not in parallel) so that the
+              // race condition window between load() and save() is as short as possible.
+              const mergeConnectionInfo = {
+                connectionOptions: await dataService.getUpdatedSecrets(),
+              };
+              if (!mergeConnectionInfo) return;
+              dispatch({
+                type: 'add-connection-merge-info',
+                id: connectionInfo.id,
+                mergeConnectionInfo,
+              });
+              const currentSavedInfo = await connectionStorage.load(
+                connectionInfo.id
+              );
+              if (!currentSavedInfo) return;
+              await saveConnectionInfo(
+                merge(currentSavedInfo, mergeConnectionInfo)
+              );
+            } catch (err: any) {
+              log.warn(
+                mongoLogId(1_001_000_195),
+                'Connection Store',
+                'Failed to update connection store with updated secrets',
+                { err: err?.stack }
+              );
+            }
+          })();
         });
 
         // Remove the oldest recent connection if are adding a new one and
@@ -355,6 +477,11 @@ export function useConnections({
     };
   }, [getAutoConnectInfo]);
 
+  const persistOIDCTokens = usePreference('persistOIDCTokens', React);
+  useEffectOnChange(() => {
+    if (!persistOIDCTokens) void loadConnections(dispatch, connectionStorage);
+  }, [persistOIDCTokens]);
+
   const connect = async (
     getAutoConnectInfo:
       | ConnectionInfo
@@ -387,22 +514,54 @@ export function useConnections({
         shouldSaveConnectionInfo = true;
       }
 
+      connectionInfo = merge(
+        cloneDeep(connectionInfo),
+        state.connectionMergeInfos[connectionInfo.id] ?? {}
+      );
+
+      const isOIDCConnectionAttempt = isOIDCAuth(
+        connectionInfo.connectionOptions.connectionString
+      );
       dispatch({
         type: 'attempt-connect',
         connectingStatusText: `Connecting to ${getConnectionTitle(
           connectionInfo
-        )}`,
+        )}${
+          isOIDCConnectionAttempt
+            ? '. Go to the browser to complete authentication.'
+            : ''
+        }`,
         connectionAttempt: newConnectionAttempt,
       });
 
       trackConnectionAttemptEvent(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
 
+      let notifyDeviceFlow:
+        | ((deviceFlowInformation: {
+            verificationUrl: string;
+            userCode: string;
+          }) => void)
+        | undefined;
+      if (isOIDCConnectionAttempt) {
+        notifyDeviceFlow = (deviceFlowInformation: {
+          verificationUrl: string;
+          userCode: string;
+        }) => {
+          dispatch({
+            type: 'oidc-attempt-connect-notify-device-auth',
+            verificationUrl: deviceFlowInformation.verificationUrl,
+            userCode: deviceFlowInformation.userCode,
+          });
+        };
+      }
+
       const newConnectionDataService = await newConnectionAttempt.connect(
-        adjustConnectionOptionsBeforeConnect(
-          connectionInfo.connectionOptions,
-          appName
-        )
+        adjustConnectionOptionsBeforeConnect({
+          connectionOptions: connectionInfo.connectionOptions,
+          defaultAppName: appName,
+          notifyDeviceFlow,
+        })
       );
       connectingConnectionAttempt.current = undefined;
 
@@ -520,6 +679,7 @@ export function useConnections({
         ...cloneDeep(connectionInfo),
         id: uuidv4(),
       };
+
       if (duplicate.favorite?.name) {
         duplicate.favorite.name += ' (copy)';
       }

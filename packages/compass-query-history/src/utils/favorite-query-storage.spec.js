@@ -26,18 +26,29 @@ async function loadById(_id) {
 
 describe('favorite-query-storage [Utils]', function () {
   let tmpDir;
+  let tmpDirs = [];
   let favoriteQueryStorage;
   beforeEach(function () {
     tmpDir = fs.mkdtempSync(
       path.join(os.tmpdir(), 'favorite-query-storage-tests')
     );
+    tmpDirs.push(tmpDir);
     TestBackend.enable(tmpDir);
     favoriteQueryStorage = new FavoriteQueryStorage();
   });
 
   afterEach(function () {
     TestBackend.disable();
-    fs.rmdirSync(tmpDir, { recursive: true });
+  });
+
+  after(async function () {
+    // The tests here perform async fs operations without waiting for their
+    // completion. Removing the tmp directories while the tests still have
+    // those active fs operations can make them fail, so we wait a bit here.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all(
+      tmpDirs.map((tmpDir) => fs.promises.rmdir(tmpDir, { recursive: true }))
+    );
   });
 
   it('loads all queries', async function () {

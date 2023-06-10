@@ -36,6 +36,9 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     protectConnectionStrings?: boolean;
     forceConnectionOptions?: [key: string, value: string][];
     showKerberosPasswordField: boolean;
+    showOIDCDeviceAuthFlow: boolean;
+    browserCommandForOIDCAuth?: string;
+    persistOIDCTokens?: boolean;
     enableDevTools: boolean;
     theme: THEMES;
     maxTimeMS?: number;
@@ -514,6 +517,51 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Show Kerberos Password Field',
       long: 'Show a password field for Kerberos authentication. Typically only useful when attempting to authenticate as another user than the current system user.',
+    },
+  },
+  /**
+   * Switch to show the OIDC device auth flow option in the connection form.
+   */
+  showOIDCDeviceAuthFlow: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Device Auth Flow Checkbox',
+      long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
+    },
+  },
+  /**
+   * Input to change the browser command used for OIDC authentication.
+   */
+  browserCommandForOIDCAuth: {
+    type: 'string',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Browser command to use for OIDC Authentication',
+      long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default browser.',
+    },
+  },
+  /**
+   * Input to change the browser command used for OIDC authentication.
+   */
+  persistOIDCTokens: {
+    type: 'boolean',
+    required: false,
+    default: true,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Stay logged in with OIDC',
+      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism. Access tokens are encrypted using the system keychain before being stored.',
     },
   },
   /**

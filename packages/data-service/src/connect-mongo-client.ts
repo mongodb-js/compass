@@ -26,11 +26,61 @@ export type CloneableMongoClient = MongoClient & {
   [createClonedClient](): Promise<CloneableMongoClient>;
 };
 
-export async function connectMongoClientCompass(
+export type ReauthenticationHandler = () => PromiseLike<void> | void;
+
+export function prepareOIDCOptions(
   connectionOptions: Readonly<ConnectionOptions>,
-  setupListeners: (client: MongoClient) => void,
-  logger?: UnboundDataServiceImplLogger
-): Promise<
+  signal?: AbortSignal,
+  reauthenticationHandler?: ReauthenticationHandler
+): Required<Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>> {
+  const options: Required<
+    Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>
+  > = {
+    oidc: { ...connectionOptions.oidc },
+    authMechanismProperties: {},
+  };
+
+  const allowedFlows = connectionOptions.oidc?.allowedFlows ?? ['auth-code'];
+
+  let isFirstAuthAttempt = true; // Don't need to prompt for re-auth on first attempt
+  options.oidc.allowedFlows = async function () {
+    if (!isFirstAuthAttempt) {
+      await reauthenticationHandler?.();
+    }
+    isFirstAuthAttempt = false;
+    return allowedFlows;
+  };
+
+  // Set the driver's `authMechanismProperties` (non-url)
+  // `ALLOWED_HOSTS` value to `*`.
+  if (connectionOptions.oidc?.enableUntrustedEndpoints) {
+    options.authMechanismProperties.ALLOWED_HOSTS = ['*'];
+  }
+
+  // @ts-expect-error Will go away on @types/node update
+  // with proper `AbortSignal` typings
+  options.oidc.signal = signal;
+
+  return options;
+}
+
+export async function connectMongoClientDataService({
+  connectionOptions,
+  setupListeners,
+  signal,
+  logger,
+  productName,
+  productDocsLink,
+  reauthenticationHandler,
+}: {
+  connectionOptions: Readonly<ConnectionOptions>;
+  setupListeners: (client: MongoClient) => void;
+  signal?: AbortSignal;
+  logger?: UnboundDataServiceImplLogger;
+  productName?: string;
+  productDocsLink?: string;
+  reauthenticationHandler?: ReauthenticationHandler;
+}): Promise<
   [
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
@@ -44,22 +94,21 @@ export async function connectMongoClientCompass(
     redactConnectionOptions(connectionOptions)
   );
 
+  const oidcOptions = prepareOIDCOptions(
+    connectionOptions,
+    signal,
+    reauthenticationHandler
+  );
+
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
-    productName: 'MongoDB Compass',
-    productDocsLink: 'https://www.mongodb.com/docs/compass/',
+    productName: productName ?? 'MongoDB Compass',
+    productDocsLink: productDocsLink ?? 'https://www.mongodb.com/docs/compass/',
     monitorCommands: true,
     useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
+    ...oidcOptions,
   };
-
-  // TODO(COMPASS-6849): Add a way to properly override openBrowser
-  if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
-    options.oidc ??= {};
-    options.oidc.openBrowser = {
-      command: process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY,
-    };
-  }
 
   if (options.autoEncryption && process.env.COMPASS_CRYPT_LIBRARY_PATH) {
     options.autoEncryption = {

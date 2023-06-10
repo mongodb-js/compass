@@ -15,7 +15,9 @@ export type FeatureFlagDefinition = {
 
 export type FeatureFlags = {
   enableLgDarkmode: boolean;
+  enableOidc: boolean; // COMPASS-6803 // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
+  newExplainPlan: boolean;
 };
 
 export const featureFlags: Required<{
@@ -35,14 +37,34 @@ export const featureFlags: Required<{
   },
 
   /**
+   * Feature flag for enabling OIDC authentication.
+   * Epic: COMPASS-5955
+   * TODO(COMPASS-6803): Enable/remove this feature flag.
+   */
+  enableOidc: {
+    stage: 'development',
+    description: {
+      short: 'Enable OIDC Authentication',
+    },
+  },
+
+  /**
    * Feature flag for enabling the use of Stage Wizard
    * in the Pipeline Builder. Epic: COMPASS-5817
    */
   enableStageWizard: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Stage Wizard',
       long: 'Create aggregation stages using Wizard.',
+    },
+  },
+
+  newExplainPlan: {
+    stage: 'preview',
+    description: {
+      short: 'Access explain plan from query bar',
+      long: 'Explain plan is now accessible right from the query bar. To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.',
     },
   },
 };

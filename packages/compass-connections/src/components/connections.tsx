@@ -100,6 +100,8 @@ function Connections({
     connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
+    oidcDeviceAuthVerificationUrl,
+    oidcDeviceAuthUserCode,
   } = state;
 
   const [showExportConnectionsModal, setShowExportConnectionsModal] =
@@ -168,6 +170,8 @@ function Connections({
       </div>
       {!!connectionAttempt && !connectionAttempt.isClosed() && (
         <Connecting
+          oidcDeviceAuthVerificationUrl={oidcDeviceAuthVerificationUrl}
+          oidcDeviceAuthUserCode={oidcDeviceAuthUserCode}
           connectingStatusText={connectingStatusText}
           onCancelConnectionClicked={cancelConnectionAttempt}
         />

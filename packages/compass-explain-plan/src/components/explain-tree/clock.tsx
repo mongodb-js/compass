@@ -5,19 +5,19 @@ import React, { useEffect, useMemo, useRef } from 'react';
 const lightModeColors = {
   clockBackgroundColor: palette.white,
   clockFaceColor: palette.gray.light1,
-  textColor: palette.gray.dark1,
-  msColor: palette.blue.light1,
-  previusElapsedArcColor: palette.gray.light1,
-  currentElapsedArcColor: palette.blue.light1,
+  textColor: palette.gray.base,
+  msColor: palette.blue.base,
+  previousElapsedArcColor: palette.gray.light2,
+  currentElapsedArcColor: palette.blue.base,
 };
 
 const darkModeColors = {
   clockBackgroundColor: palette.black,
-  clockFaceColor: palette.gray.dark1,
-  textColor: palette.gray.dark1,
-  msColor: palette.blue.light1,
-  previusElapsedArcColor: palette.gray.dark1,
-  currentElapsedArcColor: palette.blue.light1,
+  clockFaceColor: palette.gray.light1,
+  textColor: palette.gray.base,
+  msColor: palette.blue.light2,
+  previousElapsedArcColor: palette.gray.dark2,
+  currentElapsedArcColor: palette.blue.light2,
 };
 
 const containerStyles = css({
@@ -42,13 +42,20 @@ const executionTimeStyles = css({
   position: 'absolute',
   top: 0,
   left: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
 });
 
 const msecsStyles = css({
-  display: 'block',
-  fontSize: '14px',
   fontWeight: 'bold',
-  paddingTop: '11px',
+  fontSize: '13px',
+  lineHeight: '13px',
+});
+
+const msStyles = css({
+  fontSize: '11px',
+  lineHeight: '11px',
 });
 
 const msecsStylesLightMode = css({
@@ -69,7 +76,7 @@ function drawElapsedTimes({
   totalExecTimeMS,
   curStageExecTimeMS,
   prevStageExecTimeMS,
-  previusElapsedArcColor,
+  previousElapsedArcColor,
   currentElapsedArcColor,
 }: {
   svgElement: SVGSVGElement;
@@ -79,7 +86,7 @@ function drawElapsedTimes({
   totalExecTimeMS: number;
   curStageExecTimeMS: number;
   prevStageExecTimeMS: number;
-  previusElapsedArcColor: string;
+  previousElapsedArcColor: string;
   currentElapsedArcColor: string;
 }) {
   // Transforms to get the right percentage of arc for each piece of the clock
@@ -96,7 +103,7 @@ function drawElapsedTimes({
     {
       startAngle: prevArcStart,
       endAngle: prevArcEnd,
-      fill: previusElapsedArcColor,
+      fill: previousElapsedArcColor,
     },
     {
       startAngle: curArcStart,
@@ -108,8 +115,8 @@ function drawElapsedTimes({
   arcs.forEach(({ startAngle, endAngle, fill }) => {
     const svgArc = d3.svg
       .arc()
-      .innerRadius(radius - strokeWidth)
-      .outerRadius(radius)
+      .innerRadius(radius - strokeWidth / 2)
+      .outerRadius(radius + strokeWidth / 2)
       .startAngle(startAngle)
       .endAngle(endAngle);
 
@@ -168,26 +175,27 @@ function drawClockFace({
     .style('fill', strokeColor);
 
   // clock position lines
+  const ANGLE_LINE_WIDTH = 1;
   const angles = [0, 45, 90, 135, 180, 225, 270, 315];
-  const longLineLength = 0.25 * radius;
-  const shortLineLength = 0.16 * radius;
 
   angles.forEach((angle) => {
-    const length = angle % 10 === 0 ? longLineLength : shortLineLength;
+    const ANGLE_LINE_LENGTH = 0.3 * radius;
     d3.select(svgElement)
       .append('line')
       .attr(
         'x1',
-        radius + (radius - length) * Math.sin(angle * (Math.PI / 180))
+        radius +
+          (radius - ANGLE_LINE_LENGTH) * Math.sin(angle * (Math.PI / 180))
       )
       .attr(
         'y1',
-        radius - (radius - length) * Math.cos(angle * (Math.PI / 180))
+        radius -
+          (radius - ANGLE_LINE_LENGTH) * Math.cos(angle * (Math.PI / 180))
       )
       .attr('x2', radius + radius * Math.sin(angle * (Math.PI / 180)))
       .attr('y2', radius - radius * Math.cos(angle * (Math.PI / 180)))
       .attr('stroke', strokeColor)
-      .attr('stroke-width', 2);
+      .attr('stroke-width', ANGLE_LINE_WIDTH);
   });
 }
 
@@ -197,6 +205,7 @@ type ClockProps = {
   prevStageExecTimeMS: number;
   width: number;
   height: number;
+  strokeWidth: number;
   className?: string;
 };
 
@@ -207,6 +216,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
   className,
   width,
   height,
+  strokeWidth,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -220,7 +230,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
   const {
     clockFaceColor,
     clockBackgroundColor,
-    previusElapsedArcColor,
+    previousElapsedArcColor,
     currentElapsedArcColor,
   } = useMemo(() => {
     return darkmode ? darkModeColors : lightModeColors;
@@ -248,12 +258,12 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     drawElapsedTimes({
       width: width,
       height: height,
-      strokeWidth: 3,
+      strokeWidth,
       svgElement,
       curStageExecTimeMS,
       prevStageExecTimeMS,
       totalExecTimeMS,
-      previusElapsedArcColor,
+      previousElapsedArcColor,
       currentElapsedArcColor,
     });
 
@@ -266,9 +276,10 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     totalExecTimeMS,
     width,
     height,
+    strokeWidth,
     clockBackgroundColor,
     clockFaceColor,
-    previusElapsedArcColor,
+    previousElapsedArcColor,
     currentElapsedArcColor,
   ]);
 
@@ -287,6 +298,12 @@ const Clock: React.FunctionComponent<ClockProps> = ({
           height={height}
           ref={svgRef}
           className={svgStyles}
+          // Our svg clock has additional arcs that expands outside of the clock
+          // radius which is === width supplied here so to avoid the
+          // out-rendered arcs from being cut-off because of dimension restrains
+          // we configure our svg viewbox to zoom out the svg and transpose it
+          // to exact center
+          viewBox="-3 -3 56 56"
         ></svg>
         <div className={executionTimeStyles} style={{ width, height }}>
           <span
@@ -297,7 +314,7 @@ const Clock: React.FunctionComponent<ClockProps> = ({
           >
             {deltaExecTime}
           </span>
-          ms
+          <span className={msStyles}>ms</span>
         </div>
       </div>
     </div>

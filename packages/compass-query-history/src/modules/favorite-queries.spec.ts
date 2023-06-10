@@ -16,12 +16,15 @@ import { deleteFavorite, saveFavorite } from './favorite-queries';
 
 describe('FavoritesListStore reducer', function () {
   let store;
-  let tmpDir;
+  let tmpDir: string;
+  let tmpDirs: string[] = [];
 
-  beforeEach(function () {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recent-list-store-tests'));
-    // tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'recent-list-store-tests'));
-    console.log(`aa\n\ntmpDir: ${tmpDir}\n\n`);
+  beforeEach(async function () {
+    // tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'favorite-queries-module-tests'));
+    tmpDir = await fs.promises.mkdtemp(
+      path.join(os.tmpdir(), 'favorite-queries-module-tests')
+    );
+    tmpDirs.push(tmpDir);
     TestBackend.enable(tmpDir);
     store = configureStore({
       namespace: 'test.test',
@@ -31,7 +34,16 @@ describe('FavoritesListStore reducer', function () {
 
   afterEach(function () {
     TestBackend.disable();
-    fs.rmdirSync(tmpDir, { recursive: true });
+  });
+
+  after(async function () {
+    // The tests here perform async fs operations without waiting for their
+    // completion. Removing the tmp directories while the tests still have
+    // those active fs operations can make them fail, so we wait a bit here.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all(
+      tmpDirs.map((tmpDir) => fs.promises.rm(tmpDir, { recursive: true }))
+    );
   });
 
   describe('#init', function () {

@@ -81,7 +81,7 @@ function AtlasHelpSection() {
       <Body className={descriptionStyles}>
         If you don&apos;t already have a cluster, you can create one for free
         using{' '}
-        <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
+        <Link href="https://www.mongodb.com/atlas/database" target="_blank">
           MongoDB Atlas
         </Link>
       </Body>

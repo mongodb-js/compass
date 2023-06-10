@@ -14,19 +14,22 @@ import {
   defaultCardHeight,
   defaultCardWidth,
   highlightFieldHeight,
-  shardCardHeight,
   ExplainTreeStage,
+  shardCardHeight,
 } from './explain-tree-stage';
 
 interface ExplainTreeProps {
   executionStats: ExplainPlan['executionStats'];
+  scale?: number;
 }
 
 const explainTreeStyles = css({
   zIndex: 1,
-  margin: 'auto',
-  marginTop: spacing[5],
 });
+
+const TREE_VERTICAL_SPACING = 38;
+const TREE_VERTICAL_SPACING_BELOW_SHARD_CARD = 12;
+const TREE_HORIZONTAL_SPACING = spacing[6];
 
 const getNodeSize = (node: ExplainTreeNodeData): [number, number] => {
   // Note: these values must match the actual styles of the explain stage card:
@@ -35,15 +38,43 @@ const getNodeSize = (node: ExplainTreeNodeData): [number, number] => {
     Object.keys(node.highlights).length * highlightFieldHeight;
 
   const notShardHeight = defaultCardHeight + highlightsHeight;
-  const height = node.isShard ? shardCardHeight : notShardHeight;
+  const height = node.isShard
+    ? // In tree layout we add `TREE_VERTICAL_SPACING` amount to the height of the
+      // node to account for gap. Here we wish to reduce the space between a shard
+      // card and its descendent and to keep the layout logic decoupled from the
+      // index tree specifics we reduce that amount and add our custom amount of
+      // space for a shard card
+      shardCardHeight +
+      TREE_VERTICAL_SPACING_BELOW_SHARD_CARD -
+      TREE_VERTICAL_SPACING
+    : notShardHeight;
 
   return [defaultCardWidth, height];
+};
+
+type LinkWidthMetadata = { isFirstVerticalHalf?: boolean };
+
+const getLinkWidth = (
+  sourceNode: ExplainTreeNodeData,
+  targetNode: ExplainTreeNodeData,
+  metaData?: LinkWidthMetadata
+): number => {
+  if (sourceNode.isShard || targetNode.isShard) {
+    if (metaData?.isFirstVerticalHalf) {
+      return spacing[4];
+    }
+
+    return spacing[2];
+  }
+
+  return spacing[1];
 };
 
 const getNodeKey = (node: ExplainTreeNodeData) => node.id;
 
 const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
   executionStats,
+  scale,
 }) => {
   const darkMode = useDarkMode();
   const [detailsOpen, setDetailsOpen] = useState<string | null>(null);
@@ -56,16 +87,18 @@ const ExplainTree: React.FunctionComponent<ExplainTreeProps> = ({
   if (!root) return null;
 
   return (
-    <TreeLayout<ExplainTreeNodeData>
+    <TreeLayout<ExplainTreeNodeData, LinkWidthMetadata>
       data-testid="explain-tree"
       data={root}
       getNodeSize={getNodeSize}
       getNodeKey={getNodeKey}
-      linkColor={darkMode ? palette.gray.base : palette.gray.light2}
-      linkWidth={6}
-      horizontalSpacing={spacing[6]}
-      verticalSpacing={spacing[6]}
+      linkColor={darkMode ? palette.gray.dark2 : palette.gray.light2}
+      arrowColor={darkMode ? palette.gray.base : palette.gray.light1}
+      getLinkWidth={getLinkWidth}
+      horizontalSpacing={TREE_HORIZONTAL_SPACING}
+      verticalSpacing={TREE_VERTICAL_SPACING}
       className={explainTreeStyles}
+      scale={scale}
     >
       {(node) => {
         const key = getNodeKey(node);

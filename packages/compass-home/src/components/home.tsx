@@ -8,12 +8,17 @@ import {
   getScrollbarStyles,
   palette,
   Body,
+  useConfirmationModal,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Settings from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
 import ipc from 'hadron-ipc';
-import type { ConnectionInfo, DataService } from 'mongodb-data-service';
+import type {
+  ConnectionInfo,
+  DataService,
+  ReauthenticationHandler,
+} from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 import toNS from 'mongodb-ns';
 import React, {
@@ -161,12 +166,25 @@ function Home({
     ...initialState,
   });
 
+  const { showConfirmation } = useConfirmationModal();
+  const reauthenticationHandler = useRef<ReauthenticationHandler>(async () => {
+    const confirmed = await showConfirmation({
+      title: 'Authentication expired',
+      description:
+        'You need to re-authenticate to the database in order to continue.',
+    });
+    if (!confirmed) {
+      throw new Error('Reauthentication declined by user');
+    }
+  });
+
   function onDataServiceConnected(
     err: Error | undefined | null,
     ds: DataService,
     connectionInfo: ConnectionInfo
   ) {
     connectedDataService.current = ds;
+    ds.addReauthenticationHandler(reauthenticationHandler.current);
     dispatch({
       type: 'connected',
       connectionTitle: getConnectionTitle(connectionInfo) || '',
