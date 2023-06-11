@@ -98,10 +98,10 @@ class GuideCueService extends EventTarget {
       return this.onNext();
     }
 
-    return this.triggerActiveCue();
+    return this.dispatchShowCueEvent();
   }
 
-  private triggerActiveCue() {
+  private dispatchShowCueEvent() {
     if (!this._activeCue) {
       return;
     }
@@ -165,7 +165,7 @@ class GuideCueService extends EventTarget {
 
   onNext() {
     this._activeCue = this.findNextCue();
-    return this.triggerActiveCue();
+    return this.dispatchShowCueEvent();
   }
 
   getCountOfSteps(groupId?: string) {

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  GuideCue,
   ItemActionControls,
   Subtitle,
   css,
@@ -46,13 +47,26 @@ export default function ConnectionsTitle({
   return (
     <div className={containerStyles} data-testid="connections-title">
       <Subtitle className={connectionsTitleStyles}>Compass</Subtitle>
-      <ItemActionControls<Action>
-        onAction={onAction}
-        iconSize="small"
-        actions={actions}
-        data-testid="connections-sidebar-title-actions"
-        iconClassName={iconStyles}
-      ></ItemActionControls>
+      <GuideCue
+        cueId="Home Settings"
+        step={1}
+        title="Compass settings"
+        trigger={({ refEl }) => {
+          return (
+            <span ref={refEl}>
+              <ItemActionControls<Action>
+                onAction={onAction}
+                iconSize="small"
+                actions={actions}
+                data-testid="connections-sidebar-title-actions"
+                iconClassName={iconStyles}
+              ></ItemActionControls>
+            </span>
+          );
+        }}
+      >
+        Compass settings can be found here.
+      </GuideCue>
     </div>
   );
 }

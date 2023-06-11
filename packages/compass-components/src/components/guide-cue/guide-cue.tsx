@@ -108,6 +108,8 @@ export const GuideCue = <T extends HTMLElement>({
     [cue]
   );
 
+  const content = React.useMemo(() => trigger({ refEl }), [refEl, trigger]);
+
   return (
     <>
       <LGGuideCue
@@ -124,7 +126,7 @@ export const GuideCue = <T extends HTMLElement>({
       >
         {children}
       </LGGuideCue>
-      {trigger({ refEl })}
+      {content}
     </>
   );
 };

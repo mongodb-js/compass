@@ -215,6 +215,7 @@ export function NavigationItems({
         cueId="Step: 2 - MyQueries"
         step={2}
         title="View your saved queries"
+        tooltipAlign="bottom"
         trigger={({ refEl }) => (
           <span ref={refEl}>
             <NavigationItem<''>
@@ -235,6 +236,7 @@ export function NavigationItems({
         cueId="Step: 1 - MyDatabases"
         step={1}
         title="View your databases"
+        tooltipAlign="bottom"
         trigger={({ refEl }) => (
           <span ref={refEl}>
             <NavigationItem<DatabasesActions>
