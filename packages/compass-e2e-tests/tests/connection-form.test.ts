@@ -625,6 +625,42 @@ describe('Connection form', function () {
     expect(await toggle.getAttribute('aria-checked')).to.equal('true');
   });
 
+  it('parses a URI for OIDC authentication', async function () {
+    const connectionString =
+      'mongodb://testUser@localhost:27017/?authMechanism=MONGODB-OIDC';
+
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      connectionString
+    );
+
+    const expectedState: ConnectFormState = {
+      connectionString,
+      scheme: 'MONGODB',
+      hosts: ['localhost:27017'],
+      directConnection: false,
+      authMethod: 'MONGODB-OIDC',
+      proxyMethod: 'none',
+      sslConnection: 'DEFAULT',
+      oidcUsername: 'testUser',
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      tlsInsecure: false,
+      useSystemCA: false,
+      readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+    };
+
+    const state = await browser.getConnectFormState(true);
+    expect(state).to.deep.equal(expectedState);
+
+    await browser.setConnectFormState(expectedState);
+    expect(await browser.getConnectFormConnectionString(true)).to.equal(
+      connectionString
+    );
+  });
+
   it('can save & connect', async function () {
     const favoriteName = 'My New Favorite';
 
@@ -661,42 +697,6 @@ describe('Connection form', function () {
     // It should use the new favorite name as the connection name in the top-left corner
     expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(
       favoriteName
-    );
-  });
-
-  it('parses a URI for OIDC authentication', async function () {
-    const connectionString =
-      'mongodb://testUser@localhost:27017/?authMechanism=MONGODB-OIDC';
-
-    await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
-      connectionString
-    );
-
-    const expectedState: ConnectFormState = {
-      connectionString,
-      scheme: 'MONGODB',
-      hosts: ['localhost:27017'],
-      directConnection: false,
-      authMethod: 'MONGODB-OIDC',
-      proxyMethod: 'none',
-      sslConnection: 'DEFAULT',
-      oidcUsername: 'testUser',
-      tlsAllowInvalidCertificates: false,
-      tlsAllowInvalidHostnames: false,
-      tlsInsecure: false,
-      useSystemCA: false,
-      readPreference: 'defaultReadPreference',
-      fleStoreCredentials: false,
-      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
-    };
-
-    const state = await browser.getConnectFormState(true);
-    expect(state).to.deep.equal(expectedState);
-
-    await browser.setConnectFormState(expectedState);
-    expect(await browser.getConnectFormConnectionString(true)).to.equal(
-      connectionString
     );
   });
 });
