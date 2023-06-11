@@ -13,7 +13,6 @@ import {
   spacing,
   css,
   useConfirmationModal,
-  GuideCue,
 } from '@mongodb-js/compass-components';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
@@ -168,22 +167,11 @@ function ConnectionStringInput({
           <Label htmlFor={connectionStringInputId} id={connectionStringLabelId}>
             URI
           </Label>
-          <GuideCue
-            cueId="URI HELP"
-            step={1}
-            title="Favorite your connection"
-            trigger={({ refEl }) => (
-              <span ref={refEl}>
-                <InlineInfoLink
-                  aria-label="Connection String Documentation"
-                  data-testid="connectionStringDocsButton"
-                  href="https://docs.mongodb.com/manual/reference/connection-string/"
-                />
-              </span>
-            )}
-          >
-            More info about the Connection String.
-          </GuideCue>
+          <InlineInfoLink
+            aria-label="Connection String Documentation"
+            data-testid="connectionStringDocsButton"
+            href="https://docs.mongodb.com/manual/reference/connection-string/"
+          />
         </div>
         {!protectConnectionStrings && (
           <div className={editToggleContainerStyles}>

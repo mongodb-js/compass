@@ -5,7 +5,6 @@ import {
   css,
   rgba,
   palette,
-  GuideCue,
 } from '@mongodb-js/compass-components';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
@@ -41,35 +40,24 @@ function AdvancedConnectionOptions({
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
   return (
-    <GuideCue
-      cueId="AdvancedOptions"
-      step={1}
-      title="Advanced connection options"
-      trigger={({ refEl }) => (
-        <span ref={refEl}>
-          <Accordion
-            data-testid="advanced-connection-options"
-            text="Advanced Connection Options"
-          >
-            <div className={connectionTabsContainer}>
-              {disabled && (
-                <div
-                  className={disabledOverlayStyles}
-                  title="The connection form is disabled when the connection string cannot be parsed."
-                />
-              )}
-              <AdvancedOptionsTabs
-                errors={errors}
-                updateConnectionFormField={updateConnectionFormField}
-                connectionOptions={connectionOptions}
-              />
-            </div>
-          </Accordion>
-        </span>
-      )}
+    <Accordion
+      data-testid="advanced-connection-options"
+      text="Advanced Connection Options"
     >
-      More advanced connection string options.
-    </GuideCue>
+      <div className={connectionTabsContainer}>
+        {disabled && (
+          <div
+            className={disabledOverlayStyles}
+            title="The connection form is disabled when the connection string cannot be parsed."
+          />
+        )}
+        <AdvancedOptionsTabs
+          errors={errors}
+          updateConnectionFormField={updateConnectionFormField}
+          connectionOptions={connectionOptions}
+        />
+      </div>
+    </Accordion>
   );
 }
 

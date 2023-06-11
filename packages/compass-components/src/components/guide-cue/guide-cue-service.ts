@@ -85,7 +85,8 @@ class GuideCueService extends EventTarget {
   }
 
   addCue(cue: Cue) {
-    if (this.getCueIndex(cue.cueId, cue.groupId) !== -1) {
+    const cueIndex = this.getCueIndex(cue.cueId, cue.groupId);
+    if (cueIndex !== -1) {
       console.warn(`The Cue ${cue.cueId} is already `);
       return;
     }
@@ -187,11 +188,9 @@ class GuideCueService extends EventTarget {
   }
 
   private getNextCueFromNextGroup() {
-    const cues = this._cues;
-
     let nextPossibleIndex = 0;
-    while (nextPossibleIndex < cues.length) {
-      const cue = cues[nextPossibleIndex];
+    while (nextPossibleIndex < this._cues.length) {
+      const cue = this._cues[nextPossibleIndex];
 
       // standalone
       if (!cue.groupId) {
@@ -200,7 +199,7 @@ class GuideCueService extends EventTarget {
           return cue;
         }
       } else {
-        const groupCues = cues.filter((x) => x.groupId === cue.groupId);
+        const groupCues = this._cues.filter((x) => x.groupId === cue.groupId);
         if (groupCues.length === GROUP_TO_STEPS[cue.groupId]) {
           const unseenCues = groupCues.filter(
             (x) => !x.isVisited && x.isIntersecting
@@ -273,3 +272,5 @@ class GuideCueService extends EventTarget {
 export const guideCueService = new GuideCueService(
   new CompassGuideCueStorage()
 );
+
+(window as any).guideCueService = guideCueService;

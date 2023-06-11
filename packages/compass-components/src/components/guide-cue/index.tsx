@@ -102,13 +102,8 @@ export const GuideCue = <T extends HTMLElement>({
 
   const props = React.useMemo(
     () => ({
-      title: cue.title,
+      ...cue,
       popoverZIndex: 4,
-      beaconAlign: cue.beaconAlign,
-      tooltipAlign: cue.tooltipAlign,
-      tooltipClassName: cue.tooltipClassName,
-      tooltipJustify: cue.tooltipJustify,
-      buttonText: cue.buttonText,
     }),
     [cue]
   );
