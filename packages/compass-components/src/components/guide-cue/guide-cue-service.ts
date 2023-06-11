@@ -258,6 +258,7 @@ class GuideCueService extends EventTarget {
       .forEach(({ cueId }) => {
         this.markCueAsVisited(cueId, groupId);
       });
+    this._activeGroupId = null;
   }
 
   updateCueIntersection(isIntersecting: boolean, { cueId, groupId }: Cue) {
