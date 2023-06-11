@@ -12,6 +12,7 @@ import type {
   ConnectionFormError,
   ConnectionFormWarning,
 } from '../utils/validation';
+import { GuideCue } from '@mongodb-js/compass-components';
 
 const formActionStyles = css({
   paddingLeft: spacing[4],
@@ -97,13 +98,24 @@ function ConnectFormActions({
           </div>
         )}
 
-        <Button
-          data-testid="connect-button"
-          variant={ButtonVariant.Primary}
-          onClick={onConnectClicked}
+        <GuideCue
+          groupId="ConnectionForm"
+          cueId="Step: 2 - Connect"
+          step={2}
+          title="Connect your connection"
+          trigger={({ refEl }) => (
+            <Button
+              ref={refEl}
+              data-testid="connect-button"
+              variant={ButtonVariant.Primary}
+              onClick={onConnectClicked}
+            >
+              Connect
+            </Button>
+          )}
         >
-          Connect
-        </Button>
+          Click here to connect.
+        </GuideCue>
       </div>
     </div>
   );

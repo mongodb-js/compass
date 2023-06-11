@@ -11,6 +11,7 @@ import {
   css,
   cx,
   useDarkMode,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -81,25 +82,48 @@ function AtlasHelpSection() {
       <Body className={descriptionStyles}>
         If you don&apos;t already have a cluster, you can create one for free
         using{' '}
-        <Link href="https://www.mongodb.com/atlas/database" target="_blank">
-          MongoDB Atlas
-        </Link>
+        <GuideCue
+          groupId="FormHelp"
+          cueId="Step: 2 - MongoDB Atlas"
+          step={2}
+          title="MongoDB Atlas"
+          trigger={({ refEl }) => (
+            <span ref={refEl}>
+              <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
+                MongoDB Atlas
+              </Link>
+            </span>
+          )}
+        >
+          MongoDB Atlas help.
+        </GuideCue>
       </Body>
       <div className={createClusterContainerStyles}>
-        <Button
-          data-testid="atlas-cta-link"
-          className={cx(
-            createClusterButtonStyles,
-            !darkMode && createClusterButtonLightModeStyles
+        <GuideCue
+          groupId="FormHelp"
+          cueId="Step: 4 - Create Atlas"
+          step={4}
+          title="Create free cluster"
+          trigger={({ refEl }) => (
+            <Button
+              ref={refEl}
+              data-testid="atlas-cta-link"
+              className={cx(
+                createClusterButtonStyles,
+                !darkMode && createClusterButtonLightModeStyles
+              )}
+              onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
+              variant={ButtonVariant.PrimaryOutline}
+              href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
+              target="_blank"
+              size={ButtonSize.Small}
+            >
+              CREATE FREE CLUSTER
+            </Button>
           )}
-          onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
-          variant={ButtonVariant.PrimaryOutline}
-          href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
-          target="_blank"
-          size={ButtonSize.Small}
         >
-          CREATE FREE CLUSTER
-        </Button>
+          Create atlas link
+        </GuideCue>
       </div>
     </div>
   );
@@ -118,23 +142,47 @@ function FormHelp(): React.ReactElement {
           &apos;Connect&apos; button for the cluster to which you wish to
           connect.
         </Body>
-        <Link
-          href="https://docs.atlas.mongodb.com/compass-connection/"
-          target="_blank"
+        <GuideCue
+          groupId="FormHelp"
+          cueId="Step: 3 - Find string"
+          step={3}
+          title="See example about finding string"
+          trigger={({ refEl }) => (
+            <span ref={refEl}>
+              <Link
+                href="https://docs.atlas.mongodb.com/compass-connection/"
+                target="_blank"
+              >
+                See example
+              </Link>
+            </span>
+          )}
         >
-          See example
-        </Link>
+          Example about string
+        </GuideCue>
       </div>
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
           How do I format my connection string?
         </Subtitle>
-        <Link
-          href="https://docs.mongodb.com/manual/reference/connection-string/"
-          target="_blank"
+        <GuideCue
+          groupId="FormHelp"
+          cueId="Step: 1 - Format string"
+          step={1}
+          title="See example about formatting string"
+          trigger={({ refEl }) => (
+            <span ref={refEl}>
+              <Link
+                href="https://docs.mongodb.com/manual/reference/connection-string/"
+                target="_blank"
+              >
+                See example
+              </Link>
+            </span>
+          )}
         >
-          See example
-        </Link>
+          Example link
+        </GuideCue>
       </div>
     </div>
   );

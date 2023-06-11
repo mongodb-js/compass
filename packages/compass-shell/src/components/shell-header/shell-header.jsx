@@ -9,6 +9,7 @@ import {
   SpinLoader,
   withDarkMode,
   useHotkeys,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -106,7 +107,26 @@ export const ShellHeader = ({
           onClick={onShellToggleClicked}
           aria-pressed={isExpanded}
         >
-          &gt;_MONGOSH
+          <GuideCue
+            step={1}
+            groupId="Shell"
+            cueId="Title"
+            title="Introducing Mongo Shell"
+            onClick={() => {
+              if (!isExpanded) {
+                onShellToggleClicked();
+              }
+            }}
+            buttonText={!isExpanded ? 'Toggle Shell' : undefined}
+            trigger={({ refEl }) => (
+              <span>
+                <span ref={refEl}>&gt;</span>
+                _MONGOSH
+              </span>
+            )}
+          >
+            Run your queries from here.
+          </GuideCue>
           {!isExpanded && isOperationInProgress && (
             <span className={operationInProgressStyles}>
               <SpinLoader darkMode={true} />
@@ -117,16 +137,26 @@ export const ShellHeader = ({
       </div>
       <div className={shellHeaderRightStyles}>
         {isExpanded && (
-          <IconButton
-            data-testid="shell-info-button"
-            className={infoButtonStyles}
-            variant="dark"
-            aria-label="Shell Info"
-            aria-haspopup="dialog"
-            onClick={showInfoModal}
+          <GuideCue
+            step={2}
+            groupId="Shell"
+            cueId="Shell Header"
+            title="Shell Info"
+            trigger={({ refEl }) => (
+              <IconButton
+                ref={refEl}
+                data-testid="shell-info-button"
+                variant="dark"
+                aria-label="Shell Info"
+                aria-haspopup="dialog"
+                onClick={showInfoModal}
+              >
+                <Icon glyph="InfoWithCircle" size="small" />
+              </IconButton>
+            )}
           >
-            <Icon glyph="InfoWithCircle" size="small" />
-          </IconButton>
+            All the information regarding the shell is here.
+          </GuideCue>
         )}
         <IconButton
           variant="dark"

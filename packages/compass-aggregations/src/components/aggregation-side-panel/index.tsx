@@ -10,7 +10,7 @@ import {
   spacing,
   useDarkMode,
   SearchInput,
-  GuideCue,
+  LGGuideCue,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -153,7 +153,7 @@ export const AggregationSidePanel = ({
       <div className={contentStyles} data-testid="side-panel-content">
         {filteredUseCases.map((useCase, index) => (
           <div key={index}>
-            <GuideCue
+            <LGGuideCue
               data-testid="stage-wizard-use-case-list-guide-cue"
               open={isCueVisible && index === 0}
               setOpen={markCueVisited}
@@ -166,7 +166,7 @@ export const AggregationSidePanel = ({
             >
               Choose from the list and use our easy drag & drop functionality to
               add it in the pipeline overview.
-            </GuideCue>
+            </LGGuideCue>
             <div
               ref={(r) => {
                 if (index === 0) {

@@ -9,6 +9,7 @@ import {
   palette,
   useDarkMode,
   IconButton,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
@@ -127,26 +128,88 @@ export function StageToolbar({
       )}
     >
       <div className={leftStyles}>
-        <StageCollapser index={index} />
-        <Body weight="medium">Stage {idxInPipeline + 1}</Body>
+        <GuideCue
+          groupId="Stage Toolbar"
+          step={1}
+          cueId="StageCollapse"
+          title="Collage a stage"
+          trigger={({ refEl }) => (
+            <span ref={refEl}>
+              <StageCollapser index={index} />
+            </span>
+          )}
+        >
+          Here you can toggle collapse state of your stage.
+        </GuideCue>
+        <GuideCue
+          groupId="Stage Toolbar"
+          step={2}
+          cueId="StageTitle"
+          title="Stage title"
+          trigger={({ refEl }) => (
+            <span ref={refEl}>
+              <Body weight="medium">Stage {idxInPipeline + 1}</Body>
+            </span>
+          )}
+        >
+          This is your stage operator.
+        </GuideCue>
         <div className={selectStyles}>
-          <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
+          <GuideCue
+            groupId="Stage Toolbar"
+            step={3}
+            cueId="StageOperator"
+            title="Stage operator"
+            trigger={({ refEl }) => (
+              <span ref={refEl}>
+                <StageOperatorSelect
+                  onChange={onStageOperatorChange}
+                  index={index}
+                />
+              </span>
+            )}
+          >
+            You can change your stage operator here.
+          </GuideCue>
         </div>
-        <ToggleStage index={index} />
+        <GuideCue
+          groupId="Stage Toolbar"
+          step={4}
+          cueId="StageToggle"
+          title="Toggle a stage"
+          trigger={({ refEl }) => (
+            <span ref={refEl}>
+              <ToggleStage index={index} />
+            </span>
+          )}
+        >
+          You can enable or disabled a stage here.
+        </GuideCue>
       </div>
       <div className={textStyles}>
         {isDisabled ? DISABLED_TEXT : isCollapsed ? COLLAPSED_TEXT : null}
       </div>
       <div className={rightStyles}>
-        <IconButton
-          onClick={() => onOpenFocusMode(index)}
-          aria-label="Open stage in focus mode"
-          title="Open stage in focus mode"
-          data-testid="focus-mode-button"
-          data-guide-cue-ref="focus-mode-button"
+        <GuideCue
+          groupId="Stage Toolbar"
+          step={5}
+          cueId="StageFocus"
+          title="Focus mode"
+          trigger={({ refEl }) => (
+            <IconButton
+              ref={refEl}
+              onClick={() => onOpenFocusMode(index)}
+              aria-label="Open stage in focus mode"
+              title="Open stage in focus mode"
+              data-testid="focus-mode-button"
+              data-guide-cue-ref="focus-mode-button"
+            >
+              <Icon glyph="FullScreenEnter" size="small"></Icon>
+            </IconButton>
+          )}
         >
-          <Icon glyph="FullScreenEnter" size="small"></Icon>
-        </IconButton>
+          Please try writing aggregations in Focus Mode. its awesome
+        </GuideCue>
         <OptionMenu index={index} />
       </div>
     </div>

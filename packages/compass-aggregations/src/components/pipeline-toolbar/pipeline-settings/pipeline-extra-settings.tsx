@@ -9,7 +9,7 @@ import {
   spacing,
   SegmentedControl,
   SegmentedControlOption,
-  GuideCue,
+  LGGuideCue,
 } from '@mongodb-js/compass-components';
 import { toggleSettingsIsExpanded } from '../../../modules/settings';
 import { toggleAutoPreview } from '../../../modules/auto-preview';
@@ -133,7 +133,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
       </SegmentedControl>
       {showStageWizard && (
         <>
-          <GuideCue
+          <LGGuideCue
             data-testid="stage-wizard-guide-cue"
             open={isCueVisible && pipelineMode === 'builder-ui'}
             setOpen={markCueVisited}
@@ -144,7 +144,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
           >
             You can quickly build your stages based on your needs. You should
             try it out.
-          </GuideCue>
+          </LGGuideCue>
           <IconButton
             ref={cueRefEl}
             title="Toggle Side Panel"

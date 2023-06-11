@@ -10,6 +10,7 @@ import {
   useFocusRing,
   mergeProps,
   useDefaultAction,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -209,23 +210,47 @@ export function NavigationItems({
 
   return (
     <>
-      <NavigationItem<''>
-        isExpanded={isExpanded}
-        onAction={onAction}
-        glyph="CurlyBraces"
-        label="My Queries"
-        tabName="My Queries"
-        isActive={currentLocation === 'My Queries'}
-      />
-      <NavigationItem<DatabasesActions>
-        isExpanded={isExpanded}
-        onAction={onAction}
-        glyph="Database"
-        label="Databases"
-        tabName="Databases"
-        actions={databasesActions}
-        isActive={currentLocation === 'Databases'}
-      />
+      <GuideCue
+        groupId="SidebarNavigation"
+        cueId="Step: 2 - MyQueries"
+        step={2}
+        title="View your saved queries"
+        trigger={({ refEl }) => (
+          <span ref={refEl}>
+            <NavigationItem<''>
+              isExpanded={isExpanded}
+              onAction={onAction}
+              glyph="CurlyBraces"
+              label="My Queries"
+              tabName="My Queries"
+              isActive={currentLocation === 'My Queries'}
+            />
+          </span>
+        )}
+      >
+        View your saved queries here! Find all of them.
+      </GuideCue>
+      <GuideCue
+        groupId="SidebarNavigation"
+        cueId="Step: 1 - MyDatabases"
+        step={1}
+        title="View your databases"
+        trigger={({ refEl }) => (
+          <span ref={refEl}>
+            <NavigationItem<DatabasesActions>
+              isExpanded={isExpanded}
+              onAction={onAction}
+              glyph="Database"
+              label="Databases"
+              tabName="Databases"
+              actions={databasesActions}
+              isActive={currentLocation === 'Databases'}
+            />
+          </span>
+        )}
+      >
+        View your databases here! Find all of them.
+      </GuideCue>
       {isExpanded && (
         <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
       )}

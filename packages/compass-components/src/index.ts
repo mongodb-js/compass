@@ -65,7 +65,7 @@ export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
-export { GuideCue } from '@leafygreen-ui/guide-cue';
+export { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 
 export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
 
@@ -166,3 +166,4 @@ export {
 export { rafraf } from './utils/rafraf';
 export { ComboboxWithCustomOption } from './components/combobox-with-custom-option';
 export { usePersistedState } from './hooks/use-persisted-state';
+export { GuideCue } from './components/guide-cue';

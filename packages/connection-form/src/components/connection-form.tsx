@@ -19,6 +19,7 @@ import {
   palette,
   useDarkMode,
   ConfirmationModalArea,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
@@ -266,10 +267,22 @@ function ConnectionForm({
                   }}
                 >
                   <div className={favoriteButtonContentStyles}>
-                    <FavoriteIcon
-                      isFavorite={!!initialConnectionInfo.favorite}
-                      size={spacing[5]}
-                    />
+                    <GuideCue
+                      groupId="ConnectionForm"
+                      cueId="Step: 1 - Favorite"
+                      step={1}
+                      title="Favorite your connection"
+                      trigger={({ refEl }) => (
+                        <span ref={refEl}>
+                          <FavoriteIcon
+                            isFavorite={!!initialConnectionInfo.favorite}
+                            size={spacing[5]}
+                          />
+                        </span>
+                      )}
+                    >
+                      Your favorites.
+                    </GuideCue>
                     <Overline className={favoriteButtonLabelStyles}>
                       FAVORITE
                     </Overline>
