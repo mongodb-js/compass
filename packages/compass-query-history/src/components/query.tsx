@@ -102,15 +102,22 @@ const childrenHoveredStyles = css({
 export const Query: React.FunctionComponent<{
   title: string;
   attributes: QueryAttributesType;
-  runQuery: () => void;
+  onClickQuery: () => void;
   ['data-testid']?: string;
   customHeading?: JSX.Element;
-}> = ({ title, attributes, runQuery, customHeading, children, ...props }) => {
+}> = ({
+  title,
+  attributes,
+  onClickQuery,
+  customHeading,
+  children,
+  ...props
+}) => {
   const [hoverProps, isHovered] = useHoverState();
 
   return (
     <KeylineCard
-      onClick={runQuery}
+      onClick={onClickQuery}
       data-testid={props['data-testid']}
       className={cx(queryStyles, isHovered ? queryHoveredStyles : undefined)}
       {...hoverProps}

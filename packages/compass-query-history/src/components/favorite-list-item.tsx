@@ -32,7 +32,7 @@ export function FavoriteListItem({
     <Query
       title={model._name}
       attributes={attributes}
-      runQuery={() => runFavoriteQuery(attributes)}
+      onClickQuery={() => runFavoriteQuery(attributes)}
       data-testid="favorite-query-list-item"
     >
       <IconButton

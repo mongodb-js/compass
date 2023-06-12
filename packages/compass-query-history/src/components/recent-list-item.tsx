@@ -88,12 +88,16 @@ function SaveForm({ saveFavorite, onCancel }: SaveFormProps) {
 type RecentListItemProps = {
   model: QueryModelType;
   runRecentQuery: (queryAttributes: QueryAttributes) => void;
-  //   showFavorites: () => void;
   deleteRecent: (queryModel: QueryModelType) => void;
   saveFavorite: (recentQueryModel: QueryModelType, name: string) => void;
 };
 
-export function RecentListItem({ model }: RecentListItemProps) {
+export function RecentListItem({
+  runRecentQuery,
+  deleteRecent,
+  saveFavorite,
+  model,
+}: RecentListItemProps) {
   const [showSave, setShowSave] = useState(false);
 
   const attributes = model.getAttributes({ props: true });
@@ -102,14 +106,8 @@ export function RecentListItem({ model }: RecentListItemProps) {
     .filter((key) => key.charAt(0) === '_')
     .forEach((key) => delete attributes[key as keyof typeof attributes]);
 
-  // TODO: This was doing more than our current save reducer, nice we can cleanup.
-  // const saveFavorite = (name: string) => {
-  //   actions.saveFavorite(model, name);
-  //   setShowSave(false);
-  //   actions.showFavorites();
-  // };
-
   // TODO: This used to be   const lastExecuted = useFormattedDate(model._lastExecuted.getTime()); even though it was a number.
+  // Raw vs not raw in attributes ampersand
   const lastExecuted = useFormattedDate(
     (model._lastExecuted as Date).getTime?.()
   );
@@ -118,7 +116,7 @@ export function RecentListItem({ model }: RecentListItemProps) {
     <Query
       title={lastExecuted}
       attributes={attributes}
-      runQuery={() => runRecentQuery(attributes)}
+      onClickQuery={() => runRecentQuery(attributes)}
       data-testid="recent-query-list-item"
       customHeading={
         showSave ? (
