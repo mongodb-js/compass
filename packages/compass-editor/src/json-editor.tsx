@@ -1150,8 +1150,6 @@ const multilineEditorContainerStyle = css({
 
 const multilineEditorContainerWithActionsStyle = css({
   minHeight: spacing[5] - 2,
-  display: 'flex',
-  alignItems: 'center',
 });
 
 const multilineEditorContainerDarkModeStyle = css({
