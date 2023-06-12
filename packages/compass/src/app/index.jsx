@@ -1,7 +1,11 @@
+import dns from 'dns';
 import ipc from 'hadron-ipc';
 import * as remote from '@electron/remote';
 
 import preferences from 'compass-preferences-model';
+
+// https://github.com/nodejs/node/issues/40537
+dns.setDefaultResultOrder('ipv4first');
 
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
