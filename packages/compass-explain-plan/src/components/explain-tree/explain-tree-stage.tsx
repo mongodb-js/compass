@@ -280,10 +280,6 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
                   prevStageExecTimeMS={prevStageExecTimeMS}
                   curStageExecTimeMS={curStageExecTimeMS}
                   totalExecTimeMS={totalExecTimeMS}
-                  formatDisplayTime={milliSecondsToNormalisedValue}
-                  width={50}
-                  height={50}
-                  strokeWidth={5}
                 />
               </div>
             )}
