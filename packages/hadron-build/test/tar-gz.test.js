@@ -8,7 +8,7 @@ const tar = require('../lib/tar-gz');
 
 describe('tar', function() {
   before(function() {
-    if (os.platform === 'win32') {
+    if (!['linux', 'darwin'].includes(process.platform)) {
       this.skip();
     }
   });
