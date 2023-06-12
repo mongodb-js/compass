@@ -60,12 +60,12 @@ describe('ExplainTreeStage', function () {
               5,
               5
             );
-            expect(trimmedValue).to.equal('Devto...mpass');
+            expect(trimmedValue).to.equal('Devto…mpass');
           });
 
           it('will trim the text, while making sure that the chars that are already at front do not come at the back of ellipsis', function () {
             const trimmedValue = trimInMiddle('Devtools', 5, 5, 5);
-            expect(trimmedValue).to.equal('Devto...ols');
+            expect(trimmedValue).to.equal('Devto…ols');
           });
         }
       );
