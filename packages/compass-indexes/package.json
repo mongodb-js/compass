@@ -80,7 +80,6 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.7",
     "lodash.clonedeep": "^4.5.0",
-    "lodash.contains": "^2.4.3",
     "mocha": "^10.2.0",
     "mongodb": "^5.5.0",
     "mongodb-data-service": "^22.8.0",
