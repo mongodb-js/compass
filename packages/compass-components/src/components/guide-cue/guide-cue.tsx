@@ -52,10 +52,12 @@ export const GuideCue = <T extends HTMLElement>({
   const [isIntersecting, setIsIntersecting] = React.useState(true);
   const refEl = React.createRef<T>();
 
-  const cueData = React.useMemo(
-    () => ({ cueId, groupId, step }),
-    [cueId, groupId, step]
-  );
+  const cueData = React.useMemo(() => {
+    if (!groupId) {
+      return { cueId, step: 1 };
+    }
+    return { cueId, groupId, step };
+  }, [cueId, groupId, step]);
 
   const observerCallback = React.useCallback(
     (entries: IntersectionObserverEntry[]) => {
