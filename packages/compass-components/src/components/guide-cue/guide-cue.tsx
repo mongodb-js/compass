@@ -1,8 +1,22 @@
 import React from 'react';
-import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
+import {
+  guideCueService,
+  type ShowCueEventDetail,
+  type GroupName,
+} from './guide-cue-service';
 import { LGGuideCue } from '../..';
 
 type LGGuideCueProps = React.ComponentProps<typeof LGGuideCue>;
+
+type GroupAndStep =
+  | {
+      groupId: GroupName;
+      step: number;
+    }
+  | {
+      groupId?: never;
+      step?: never;
+    };
 
 export type GuideCueProps<T> = Pick<
   LGGuideCueProps,
@@ -11,14 +25,13 @@ export type GuideCueProps<T> = Pick<
   | 'tooltipJustify'
   | 'tooltipClassName'
   | 'buttonText'
-> & {
-  groupId?: string;
-  cueId: string;
-  step: number;
-  title: string;
-  onClick?: LGGuideCueProps['onPrimaryButtonClick'];
-  trigger: ({ refEl }: { refEl: React.RefObject<T> }) => JSX.Element;
-};
+> &
+  GroupAndStep & {
+    cueId: string;
+    title: string;
+    onClick?: LGGuideCueProps['onPrimaryButtonClick'];
+    trigger: ({ refEl }: { refEl: React.RefObject<T> }) => JSX.Element;
+  };
 
 export const GuideCue = <T extends HTMLElement>({
   children,

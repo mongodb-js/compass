@@ -31,7 +31,7 @@ interface GuideCueService extends EventTarget {
 }
 
 type Cue = {
-  groupId?: string;
+  groupId?: GroupName;
   step: number;
   cueId: string;
 };
@@ -41,12 +41,7 @@ type CueWithServiceProps = Cue & {
   isIntersecting: boolean;
 };
 
-type Group = {
-  readonly id: string;
-  readonly steps: number;
-};
-
-export const GROUPS: Group[] = [
+export const GROUPS = [
   {
     id: 'ConnectionForm',
     steps: 2,
@@ -67,7 +62,9 @@ export const GROUPS: Group[] = [
     id: 'Stage Toolbar',
     steps: 5,
   },
-];
+] as const;
+
+export type GroupName = typeof GROUPS[number]['id'];
 
 const GROUP_TO_STEPS = Object.fromEntries(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
