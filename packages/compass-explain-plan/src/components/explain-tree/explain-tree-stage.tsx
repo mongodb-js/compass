@@ -85,7 +85,7 @@ export const trimInMiddle = (
   const charsAfterEllipsis = remainingText.substring(
     remainingText.length - charsToKeepInBack
   );
-  return `${charsBeforeEllipsis}...${charsAfterEllipsis}`;
+  return `${charsBeforeEllipsis}…${charsAfterEllipsis}`;
 };
 
 export const milliSecondsToNormalisedValue: ClockProps['formatDisplayTime'] = (
