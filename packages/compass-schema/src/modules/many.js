@@ -1,6 +1,5 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
-import $ from 'jquery';
 import { map, minBy, maxBy, sortBy } from 'lodash';
 import shared from './shared';
 import { hasDistinctValue, inValueRange } from 'mongodb-query-util';
@@ -191,9 +190,10 @@ const minicharts_d3fns_many = (appRegistry) => {
       }
     }
 
-    const parent = $(this).closest('.minichart');
-    const background = parent.find('g.brush > rect.background')[0];
-    const brushNode = parent.find('g.brush')[0];
+    const parent = this.closest('.minichart');
+    const background = parent.querySelector('g.brush > rect.background');
+    const brushNode = parent.querySelector('g.brush');
+
     const start = d3.mouse(background)[0];
 
     const w = d3
