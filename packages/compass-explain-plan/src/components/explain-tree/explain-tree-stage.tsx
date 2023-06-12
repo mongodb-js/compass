@@ -16,7 +16,6 @@ import {
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 import { Clock } from './clock';
-import type { ClockProps } from './clock';
 
 interface ExplainTreeStageProps {
   name: string;
@@ -88,9 +87,9 @@ export const trimInMiddle = (
   return `${charsBeforeEllipsis}…${charsAfterEllipsis}`;
 };
 
-export const milliSecondsToNormalisedValue: ClockProps['formatDisplayTime'] = (
+export const milliSecondsToNormalisedValue = (
   ms: number
-) => {
+): { value: string; unit: 'h' | 'min' | 's' | 'ms' } => {
   const hasDecimalPoint = (n: number) => n - Math.floor(n) !== 0;
   const hours = ms / (1000 * 60 * 60);
   if (hours >= 1) {
