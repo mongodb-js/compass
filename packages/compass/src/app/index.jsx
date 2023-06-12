@@ -7,6 +7,12 @@ import preferences from 'compass-preferences-model';
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
 
+// this is so sub-processes (ie. the shell) will do the same
+process.env.NODE_OPTIONS ??= '';
+if (!process.env.NODE_OPTIONS.includes('--dns-result-order')) {
+  process.env.NODE_OPTIONS += ` --dns-result-order=ipv4first`;
+}
+
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
   event.preventDefault();
