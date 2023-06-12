@@ -92,9 +92,6 @@ export const milliSecondsToNormalisedValue: ClockProps['formatDisplayTime'] = (
   ms: number
 ) => {
   const hasDecimalPoint = (n: number) => n - Math.floor(n) !== 0;
-
-  // For our use-case it is unrealistic that a stage would take hours to execute
-  // but keeping this just to cover the case
   const hours = ms / (1000 * 60 * 60);
   if (hours >= 1) {
     return {
