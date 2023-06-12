@@ -30,7 +30,13 @@ export type GuideCueProps<T> = Pick<
     cueId: string;
     title: string;
     onClick?: LGGuideCueProps['onPrimaryButtonClick'];
-    trigger: ({ refEl }: { refEl: React.RefObject<T> }) => JSX.Element;
+    trigger: ({
+      refEl,
+      isOpen,
+    }: {
+      refEl: React.RefObject<T>;
+      isOpen: boolean;
+    }) => JSX.Element;
   };
 
 export const GuideCue = <T extends HTMLElement>({
@@ -121,7 +127,10 @@ export const GuideCue = <T extends HTMLElement>({
     [cue]
   );
 
-  const content = React.useMemo(() => trigger({ refEl }), [refEl, trigger]);
+  const content = React.useMemo(
+    () => trigger({ refEl, isOpen }),
+    [refEl, isOpen, trigger]
+  );
 
   return (
     <>
@@ -133,7 +142,7 @@ export const GuideCue = <T extends HTMLElement>({
         setOpen={() => {
           //
         }}
-        currentStep={cueData.step}
+        currentStep={cueData.step || 1}
         refEl={refEl}
         {...props}
       >
