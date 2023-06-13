@@ -1148,6 +1148,10 @@ const multilineEditorContainerStyle = css({
   },
 });
 
+const multilineEditorContainerWithActionsStyle = css({
+  minHeight: spacing[5] - 2,
+});
+
 const multilineEditorContainerDarkModeStyle = css({
   backgroundColor: editorPalette.dark.backgroundColor,
 });
@@ -1274,6 +1278,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         className={cx(
           multilineEditorContainerStyle,
           darkMode && multilineEditorContainerDarkModeStyle,
+          !!actions.length && multilineEditorContainerWithActionsStyle,
           className
         )}
         // We want folks to be able to click into the container element
