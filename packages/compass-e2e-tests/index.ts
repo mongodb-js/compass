@@ -19,6 +19,9 @@ import {
 import { createUnlockedKeychain } from './helpers/keychain';
 import ResultLogger from './helpers/result-logger';
 
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+
 const debug = Debug('compass-e2e-tests');
 const keychain = createUnlockedKeychain();
 
