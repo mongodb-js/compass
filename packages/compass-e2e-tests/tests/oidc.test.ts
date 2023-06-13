@@ -197,12 +197,7 @@ describe('OIDC integration', function () {
     oidcMockProviderEndpointAccesses = {};
     getTokenPayload = () => DEFAULT_TOKEN_PAYLOAD;
     overrideRequestHandler = () => {};
-    compass = await beforeTests({
-      // TODO(COMPASS-6803): Remove feature flag: enableOidc.
-      // Note: This isn't needed to connect, but shows the oidc options in the
-      // connect form and settings.
-      extraSpawnArgs: ['--enable-oidc'],
-    });
+    compass = await beforeTests();
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',

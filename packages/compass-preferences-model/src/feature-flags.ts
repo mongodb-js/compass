@@ -15,7 +15,7 @@ export type FeatureFlagDefinition = {
 
 export type FeatureFlags = {
   enableLgDarkmode: boolean;
-  enableOidc: boolean; // COMPASS-6803 // Not capitalized "OIDC" for spawn arg casing.
+  enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
   newExplainPlan: boolean;
 };
@@ -39,10 +39,9 @@ export const featureFlags: Required<{
   /**
    * Feature flag for enabling OIDC authentication.
    * Epic: COMPASS-5955
-   * TODO(COMPASS-6803): Enable/remove this feature flag.
    */
   enableOidc: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable OIDC Authentication',
     },
