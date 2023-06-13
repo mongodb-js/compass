@@ -6,6 +6,7 @@ import {
 import { uniq } from 'lodash';
 
 const GROUP_TO_STEPS = Object.fromEntries(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Object.entries(GROUPS).map(([_, val]) => [val.id, val.steps])
 );
 

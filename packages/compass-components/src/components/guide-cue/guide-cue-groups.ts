@@ -22,8 +22,9 @@ export const GROUPS = [
 ] as const;
 
 export type GroupName = typeof GROUPS[number]['id'];
-// todo: group with step
-type GroupMaxStep<T extends GroupName = GroupName> = Extract<
+
+// todo: use it
+export type GroupMaxStep<T extends GroupName = GroupName> = Extract<
   typeof GROUPS[number],
   { id: T }
 >['steps'];
