@@ -1,8 +1,7 @@
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const toNS = require('mongodb-ns');
-const round = require('lodash.round');
-const isEmpty = require('lodash.isempty');
+const { round, isEmpty } = require('lodash');
 
 const debug = require('debug')('mongodb-compass:server-stats:top-store');
 

@@ -1,8 +1,8 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import groupBy from 'lodash.groupby';
-import map from 'lodash.map';
-import sortByOrder from 'lodash.sortbyorder';
+import { groupBy } from 'lodash';
+import { map } from 'lodash';
+import { orderBy } from 'lodash';
 import few from './few';
 import shared from './shared';
 
@@ -35,7 +35,8 @@ const minicharts_d3fns_boolean = (localAppRegistry) => {
           count: v.length,
         };
       });
-      const grouped = sortByOrder(grdm, 'label', [false]); // order: false, true
+
+      const grouped = orderBy(grdm, ['label'], ['desc']);
 
       fewChart.width(innerWidth).height(innerHeight).options(options);
 
