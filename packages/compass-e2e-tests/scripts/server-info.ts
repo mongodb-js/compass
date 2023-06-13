@@ -1,5 +1,8 @@
 import { MongoClient } from 'mongodb';
 
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+
 export async function getServerVersion(connectionString: string) {
   const client = await MongoClient.connect(connectionString);
   try {
