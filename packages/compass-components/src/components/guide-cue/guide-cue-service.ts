@@ -1,14 +1,15 @@
-import { type GroupName, GROUPS } from './guide-cue-groups';
+import {
+  DuplicateCueStepError,
+  GroupStepsCompleteError,
+  InvalidCueStepError,
+  UnregisteredGroupError,
+} from './guide-cue-exceptions';
+import { type GroupName, GROUPS, GROUP_TO_STEPS } from './guide-cue-groups';
 import {
   CompassGuideCueStorage,
   type GuideCueStorage,
 } from './guide-cue-storage';
 import { uniq } from 'lodash';
-
-const GROUP_TO_STEPS = Object.fromEntries(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Object.entries(GROUPS).map(([_, val]) => [val.id, val.steps])
-);
 
 export type ShowCueEventDetail = CustomEvent<{
   cueId: string;
@@ -19,7 +20,7 @@ interface GuideCueEventMap {
   'show-cue': ShowCueEventDetail;
 }
 
-interface GuideCueService extends EventTarget {
+export interface GuideCueService extends EventTarget {
   addEventListener<K extends keyof GuideCueEventMap>(
     type: K,
     listener: (this: GuideCueEventMap, ev: GuideCueEventMap[K]) => void
@@ -46,7 +47,7 @@ type Cue = {
   isVisited: boolean;
 };
 
-class GuideCueService extends EventTarget {
+export class GuideCueService extends EventTarget {
   private _cues: Cue[] = [];
 
   private _activeGroupId: string | null = null;
@@ -63,7 +64,9 @@ class GuideCueService extends EventTarget {
       return;
     }
 
-    this.validateCueData(cue);
+    if (cue.groupId) {
+      this.validateCueData(cue.groupId, cue.step);
+    }
 
     this._cues.push({
       ...cue,
@@ -91,38 +94,24 @@ class GuideCueService extends EventTarget {
     );
   }
 
-  private validateCueData({
-    cueId,
-    step,
-    groupId,
-  }: Omit<Cue, 'isVisited' | 'isIntersecting'>) {
-    if (!groupId) {
-      return;
-    }
-
+  private validateCueData(groupId: string, step: number) {
     if (!GROUPS.find((x) => x.id === groupId)) {
-      throw new Error(`The group ${groupId} not registered.`);
+      throw new UnregisteredGroupError(groupId);
     }
 
     const groupCues = this._cues.filter((x) => x.groupId === groupId);
     const groupSteps = GROUP_TO_STEPS[groupId];
 
     if (groupCues.length >= groupSteps) {
-      throw new Error(
-        `Group ${groupId} has already ${GROUP_TO_STEPS[groupId]} step(s). Can not add ${cueId}.`
-      );
+      throw new GroupStepsCompleteError(groupId, groupSteps);
     }
 
     if (step > groupSteps) {
-      throw new Error(
-        `Group ${groupId} has only ${GROUP_TO_STEPS[groupId]} steps. Can not add another with step:${step}.`
-      );
+      throw new InvalidCueStepError(groupId, groupSteps, step);
     }
 
     if (groupCues.find((x) => x.step === step)) {
-      throw new Error(
-        `Cue with step ${step} is already registered with ${groupId}.`
-      );
+      throw new DuplicateCueStepError(groupId, step);
     }
   }
 
@@ -149,7 +138,9 @@ class GuideCueService extends EventTarget {
   }
 
   getCountOfSteps(groupId?: GroupName) {
-    return !groupId ? 1 : GROUP_TO_STEPS[groupId] || 1;
+    return !groupId
+      ? 1
+      : this._cues.filter((x) => x.groupId === groupId).length || 1;
   }
 
   private findNextCue(): Cue | null {
@@ -160,7 +151,9 @@ class GuideCueService extends EventTarget {
       }
     }
 
-    return this.getNextCueFromNextGroup();
+    const nextCue = this.getNextCueFromNextGroup();
+    this._activeGroupId = nextCue?.groupId || null;
+    return nextCue;
   }
 
   private getNextCueFromGroup(groupId: string) {
@@ -186,13 +179,11 @@ class GuideCueService extends EventTarget {
       // standalone
       if (!cue.groupId) {
         if (!cue.isVisited && cue.isIntersecting) {
-          this._activeGroupId = null;
           return cue;
         }
       } else {
         const nextCue = this.getNextCueFromGroup(cue.groupId);
         if (nextCue) {
-          this._activeGroupId = cue.groupId;
           return nextCue;
         }
       }
