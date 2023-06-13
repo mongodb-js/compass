@@ -2,6 +2,7 @@
 
 'use strict';
 
+const dns = require('dns');
 const path = require('path');
 const crossSpawn = require('cross-spawn');
 const fs = require('fs');
@@ -11,6 +12,8 @@ const findUp = require('find-up');
 const yargsParser = require('yargs-parser');
 const { rimraf } = require('rimraf');
 const glob = require('glob');
+
+dns.setDefaultResultOrder('ipv4first');
 
 const isDebug = !!(process.env.DEBUG || '')
   .split(',')
