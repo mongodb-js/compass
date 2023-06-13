@@ -413,7 +413,7 @@ export function removeUserDataDir(): void {
   }
 }
 
-async function getCompassExecutionParameters(): Promise<{
+export async function getCompassExecutionParameters(): Promise<{
   testPackagedApp: boolean;
   binary: string;
 }> {
