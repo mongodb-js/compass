@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 import {
   Button,
   Icon,
@@ -11,10 +11,8 @@ import {
   Label,
   Link,
   GuideCue,
-  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { useInView } from 'react-intersection-observer';
 import type { QueryOption } from '../constants/query-option-definition';
 import QueryOptionComponent, {
   documentEditorLabelContainerStyles,
@@ -148,19 +146,8 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   placeholders,
   onExplain,
 }) => {
-  const showExplainButtonRef = useRef<HTMLDivElement>(null);
-  const [showExplainButtonCue, setShowExplainButtonCue] = usePersistedState(
-    'show-explain-button-cue',
-    true
-  );
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
-  const [inViewRef, inView] = useInView({ initialInView: false });
-
-  const onExplainClick = useCallback(() => {
-    onExplain?.();
-    setShowExplainButtonCue(false);
-  }, [onExplain, setShowExplainButtonCue]);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -181,7 +168,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-result-id={resultId}
       data-apply-id={applyId}
     >
-      <div ref={inViewRef} className={queryBarFirstRowStyles}>
+      <div className={queryBarFirstRowStyles}>
         <div className={documentEditorLabelContainerStyles}>
           <Label
             htmlFor={filterQueryOptionId}
@@ -203,31 +190,26 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           />
         </div>
         {showExplainButton && newExplainPlan && (
-          <>
-            <div ref={showExplainButtonRef}>
+          <GuideCue
+            cueId="query-bar-explain-plan"
+            title="“Explain Plan” has changed"
+            trigger={({ ref }) => (
               <Button
+                ref={ref}
                 aria-label="Reset query"
                 data-testid="query-bar-explain-button"
-                onClick={onExplainClick}
+                onClick={onExplain}
                 disabled={!isQueryValid}
                 size="small"
                 type="button"
               >
                 Explain
               </Button>
-            </div>
-            <GuideCue
-              refEl={showExplainButtonRef}
-              open={inView && showExplainButtonCue}
-              setOpen={setShowExplainButtonCue}
-              title="“Explain Plan” has changed"
-              numberOfSteps={1}
-              currentStep={1}
-            >
-              To view a query’s execution plan, click “Explain” as you would on
-              an aggregation pipeline.
-            </GuideCue>
-          </>
+            )}
+          >
+            To view a query’s execution plan, click “Explain” as you would on an
+            aggregation pipeline.
+          </GuideCue>
         )}
         <Button
           aria-label="Reset query"

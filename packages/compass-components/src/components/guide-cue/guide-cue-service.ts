@@ -12,7 +12,7 @@ const GROUP_TO_STEPS = Object.fromEntries(
 
 export type ShowCueEventDetail = CustomEvent<{
   cueId: string;
-  groupId?: string;
+  groupId?: GroupName;
 }>;
 
 interface GuideCueEventMap {
@@ -42,23 +42,21 @@ type Cue = {
   groupId?: GroupName;
   step: number;
   cueId: string;
-};
-
-type CueWithServiceProps = Cue & {
+  isIntersecting: boolean;
   isVisited: boolean;
 };
 
 class GuideCueService extends EventTarget {
-  private _cues: Array<CueWithServiceProps> = [];
+  private _cues: Cue[] = [];
 
   private _activeGroupId: string | null = null;
-  private _activeCue: CueWithServiceProps | null = null;
+  private _activeCue: Cue | null = null;
 
   constructor(private readonly _storage: GuideCueStorage) {
     super();
   }
 
-  addCue(cue: Cue) {
+  addCue(cue: Omit<Cue, 'isVisited'>) {
     const cueIndex = this.getCueIndex(cue.cueId, cue.groupId);
     if (cueIndex !== -1) {
       console.warn(`The Cue ${cue.cueId} is already `);
@@ -93,7 +91,11 @@ class GuideCueService extends EventTarget {
     );
   }
 
-  private validateCueData({ cueId, step, groupId }: Cue) {
+  private validateCueData({
+    cueId,
+    step,
+    groupId,
+  }: Omit<Cue, 'isVisited' | 'isIntersecting'>) {
     if (!groupId) {
       return;
     }
@@ -124,7 +126,7 @@ class GuideCueService extends EventTarget {
     }
   }
 
-  removeCue({ cueId, groupId }: Cue) {
+  removeCue(cueId: string, groupId?: GroupName) {
     const cueIndex = this._cues.findIndex(
       (cue) => cue.cueId === cueId && cue.groupId === groupId
     );
@@ -146,11 +148,11 @@ class GuideCueService extends EventTarget {
     return this.dispatchShowCueEvent();
   }
 
-  getCountOfSteps(groupId?: string) {
+  getCountOfSteps(groupId?: GroupName) {
     return !groupId ? 1 : GROUP_TO_STEPS[groupId] || 1;
   }
 
-  private findNextCue(): CueWithServiceProps | null {
+  private findNextCue(): Cue | null {
     if (this._activeGroupId) {
       const nextCue = this.getNextCueFromGroup(this._activeGroupId);
       if (nextCue) {
@@ -166,12 +168,13 @@ class GuideCueService extends EventTarget {
     if (groupCues.length !== GROUP_TO_STEPS[groupId]) {
       return null;
     }
-    groupCues.sort((a, b) => a.step - b.step);
-
-    const unseenCues = groupCues.filter((x) => !x.isVisited);
+    const unseenCues = groupCues.filter(
+      (x) => !x.isVisited && x.isIntersecting
+    );
     if (unseenCues.length === 0) {
       return null;
     }
+    unseenCues.sort((a, b) => a.step - b.step);
     return unseenCues[0];
   }
 
@@ -182,7 +185,7 @@ class GuideCueService extends EventTarget {
 
       // standalone
       if (!cue.groupId) {
-        if (!cue.isVisited) {
+        if (!cue.isVisited && cue.isIntersecting) {
           this._activeGroupId = null;
           return cue;
         }
@@ -198,22 +201,23 @@ class GuideCueService extends EventTarget {
     return null;
   }
 
-  private getCueIndex(cueId: string, groupId?: string) {
+  private getCueIndex(cueId: string, groupId?: GroupName) {
     return this._cues.findIndex(
       (cue) => cue.cueId === cueId && cue.groupId === groupId
     );
   }
 
-  markCueAsVisited(cueId: string, groupId?: string) {
+  markCueAsVisited(cueId: string, groupId?: GroupName) {
     const cueIndex = this.getCueIndex(cueId, groupId);
     if (cueIndex === -1) {
       return;
     }
     this._cues[cueIndex].isVisited = true;
     this._storage.markCueAsVisited(cueId, groupId);
+    this._activeCue = null;
   }
 
-  markGroupAsVisited(groupId?: string) {
+  markGroupAsVisited(groupId?: GroupName) {
     // standalone
     if (!groupId) {
       return;
@@ -243,11 +247,28 @@ class GuideCueService extends EventTarget {
     const groupIds = uniq(this._cues.map((x) => x.groupId));
     groupIds.forEach((groupId) => this.markGroupAsVisited(groupId));
   }
+
+  onCueIntersectionChange(
+    isIntersecting: boolean,
+    cueId: string,
+    groupId?: GroupName
+  ) {
+    const cueIndex = this.getCueIndex(cueId, groupId);
+    if (cueIndex === -1) {
+      return;
+    }
+    this._cues[cueIndex].isIntersecting = isIntersecting;
+
+    const isNewCueShowable = !this._activeCue && isIntersecting;
+    const isActiveCueNotShowable =
+      this._activeCue?.cueId === cueId && this._activeCue.groupId === groupId;
+
+    if (isActiveCueNotShowable || isNewCueShowable) {
+      return this.onNext();
+    }
+  }
 }
 
 export const guideCueService = new GuideCueService(
   new CompassGuideCueStorage()
 );
-
-// todo: remove. for debugging.
-(window as any).guideCueService = guideCueService;

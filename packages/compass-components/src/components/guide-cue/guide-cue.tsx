@@ -28,7 +28,7 @@ const getDataCueId = ({
   cueId: string;
   groupId?: string;
 }): string => {
-  return `guide-cue-${cueId}$-${groupId ?? ''}`;
+  return `guide-cue-${cueId}${groupId ? `-${groupId}` : ''}`;
 };
 
 // omit the props we are handling
@@ -44,7 +44,11 @@ export type GuideCueProps<T> = Omit<
 > &
   GroupAndStep & {
     cueId: string;
-    trigger: ({ refEl }: { refEl: React.RefObject<T> }) => JSX.Element;
+    trigger: ({
+      ref,
+    }: {
+      ref: React.MutableRefObject<T | null>;
+    }) => JSX.Element;
   };
 
 export const GuideCue = <T extends HTMLElement>({
@@ -57,7 +61,7 @@ export const GuideCue = <T extends HTMLElement>({
 }: React.PropsWithChildren<GuideCueProps<T>>) => {
   const [isOpen, setIsOpen] = useState(false);
   const intersectionRef = useRef(true);
-  const refEl = useRef<T>(null);
+  const refEl = useRef<T | null>(null);
 
   const cueData = useMemo(() => {
     if (!groupId) {
@@ -70,8 +74,15 @@ export const GuideCue = <T extends HTMLElement>({
     (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
       intersectionRef.current = entry.isIntersecting;
+
+      guideCueService.onCueIntersectionChange(
+        entry.isIntersecting,
+        cueData.cueId,
+        cueData.groupId
+      );
+
       if (!entry.isIntersecting && isOpen) {
-        guideCueService.onNext();
+        setIsOpen(false);
       }
     },
     [isOpen, intersectionRef]
@@ -107,50 +118,17 @@ export const GuideCue = <T extends HTMLElement>({
   }, [setIsOpen, cueData, intersectionRef]);
 
   useEffect(() => {
-    if (refEl.current && intersectionRef.current) {
-      guideCueService.addCue(cueData);
-    }
-    return () => {
-      guideCueService.removeCue(cueData);
-    };
-  }, [refEl, cueData]);
-
-  // todo: implement the dismiss
-  useEffect(() => {
-    if (!isOpen) {
+    if (!refEl.current) {
       return;
     }
-    const listener = (event: MouseEvent) => {
-      if (!refEl.current) {
-        return;
-      }
-      const popover = document.querySelector(
-        `[data-cueId="${getDataCueId(cueData)}"]`
-      );
-      if (!popover) {
-        return;
-      }
-      const isClickInsidePopover = event.composedPath().includes(popover);
-      if (isClickInsidePopover) {
-        return;
-      }
-
-      const isClickFromRefEl = event.composedPath().includes(refEl.current);
-      if (isClickFromRefEl) {
-        console.log('RefEl clicked');
-      } else {
-        console.log('Outside clicked');
-      }
-
-      // guideCueService.markAllCuesAsVisited();
-      // setIsOpen(false);
-    };
-
-    document.addEventListener('mousedown', listener);
+    guideCueService.addCue({
+      ...cueData,
+      isIntersecting: intersectionRef.current,
+    });
     return () => {
-      document.removeEventListener('mousedown', listener);
+      guideCueService.removeCue(cueData.cueId, cueData.groupId);
     };
-  }, [isOpen, cueData, refEl]);
+  }, [refEl, cueData]);
 
   const onNextGroup = useCallback(() => {
     setIsOpen(false);
@@ -164,12 +142,46 @@ export const GuideCue = <T extends HTMLElement>({
     guideCueService.onNext();
   }, [cueData]);
 
-  const content = useMemo(() => trigger({ refEl }), [refEl, trigger]);
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    const listener = (event: MouseEvent) => {
+      if (!refEl.current) {
+        return;
+      }
+      const popover = document.querySelector(
+        `[data-cueid="${getDataCueId(cueData)}"]`
+      );
+      if (!popover) {
+        return;
+      }
+      const isClickInsidePopover = event.composedPath().includes(popover);
+      if (isClickInsidePopover) {
+        return;
+      }
+
+      const isClickFromRefEl = event.composedPath().includes(refEl.current);
+      if (isClickFromRefEl) {
+        onNext();
+      } else {
+        guideCueService.markAllCuesAsVisited();
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', listener);
+    return () => {
+      document.removeEventListener('mousedown', listener);
+    };
+  }, [isOpen, cueData, refEl, onNext]);
+
+  const content = useMemo(() => trigger({ ref: refEl }), [refEl, trigger]);
 
   return (
     <>
       <LGGuideCue
-        open={isOpen && intersectionRef.current}
+        open={isOpen}
         numberOfSteps={guideCueService.getCountOfSteps(cueData.groupId)}
         onDismiss={onNextGroup}
         onPrimaryButtonClick={onNext}
@@ -178,7 +190,7 @@ export const GuideCue = <T extends HTMLElement>({
         }}
         currentStep={cueData.step || 1}
         refEl={refEl}
-        data-cueId={getDataCueId(cueData)}
+        data-cueid={getDataCueId(cueData)}
         {...restOfCueProps}
       >
         {children}
