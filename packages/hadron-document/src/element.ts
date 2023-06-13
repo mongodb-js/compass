@@ -1,7 +1,7 @@
 'use strict';
 
 import EventEmitter from 'eventemitter3';
-import { isObject, isArray, isEqual, isString } from 'lodash';
+import { isPlainObject, isArray, isEqual, isString } from 'lodash';
 import type { ObjectGeneratorOptions } from './object-generator';
 import ObjectGenerator from './object-generator';
 import TypeChecker from 'hadron-type-checker';
@@ -772,7 +772,7 @@ export class Element extends EventEmitter {
    * @returns If the value is expandable.
    */
   _isExpandable(value: BSONValue): value is BSONObject | BSONArray {
-    return isObject(value) || isArray(value);
+    return isPlainObject(value) || isArray(value);
   }
 
   /**
