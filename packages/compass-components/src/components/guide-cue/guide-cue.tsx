@@ -48,7 +48,7 @@ export type GuideCueProps<T> = Omit<
       ref,
     }: {
       ref: React.MutableRefObject<T | null>;
-    }) => JSX.Element;
+    }) => React.ReactElement;
   };
 
 export const GuideCue = <T extends HTMLElement>({
@@ -143,13 +143,10 @@ export const GuideCue = <T extends HTMLElement>({
   }, [cueData]);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!isOpen || !refEl.current) {
       return;
     }
     const listener = (event: MouseEvent) => {
-      if (!refEl.current) {
-        return;
-      }
       const popover = document.querySelector(
         `[data-cueid="${getDataCueId(cueData)}"]`
       );
@@ -163,7 +160,7 @@ export const GuideCue = <T extends HTMLElement>({
       }
 
       // Clicked within refEl
-      if (event.composedPath().includes(refEl.current)) {
+      if (event.composedPath().includes(refEl.current!)) {
         return onNext();
       }
 
