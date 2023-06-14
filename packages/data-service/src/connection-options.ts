@@ -6,8 +6,8 @@ export type OIDCOptions = Omit<
   NonNullable<DevtoolsConnectOptions['oidc']>,
   'notifyDeviceFlow' | 'signal' | 'allowedFlows'
 > & {
-  // This sets the driver's `authMechanismProperties` (non-url)
-  // `ALLOWED_HOSTS` value to `*`.
+  // Set the driver's `authMechanismProperties` (non-url) `ALLOWED_HOSTS` value
+  // to match the connection string hosts, including possible SRV "sibling" domains.
   enableUntrustedEndpoints?: boolean;
 
   allowedFlows?: ExtractArrayEntryType<

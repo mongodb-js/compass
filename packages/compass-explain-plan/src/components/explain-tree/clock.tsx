@@ -1,6 +1,7 @@
 import { palette, css, cx, useDarkMode } from '@mongodb-js/compass-components';
 import d3 from 'd3';
 import React, { useEffect, useMemo, useRef } from 'react';
+import { milliSecondsToNormalisedValue } from './explain-tree-stage';
 
 const lightModeColors = {
   clockBackgroundColor: palette.white,
@@ -199,31 +200,30 @@ function drawClockFace({
   });
 }
 
-type ClockProps = {
+export type ClockProps = {
   totalExecTimeMS: number;
   curStageExecTimeMS: number;
   prevStageExecTimeMS: number;
-  width: number;
-  height: number;
-  strokeWidth: number;
   className?: string;
 };
+
+const CLOCK_WIDTH = 50;
+const CLOCK_HEIGHT = 50;
+const ARC_STROKE_WIDTH = 5;
 
 const Clock: React.FunctionComponent<ClockProps> = ({
   totalExecTimeMS,
   curStageExecTimeMS,
   prevStageExecTimeMS,
   className,
-  width,
-  height,
-  strokeWidth,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const deltaExecTime = useMemo(
-    () => curStageExecTimeMS - prevStageExecTimeMS,
-    [curStageExecTimeMS, prevStageExecTimeMS]
-  );
+  const { value: normalisedDeltaExecTime, unit: normalisedDeltaExecTimeUnit } =
+    useMemo(() => {
+      const deltaExecTime = curStageExecTimeMS - prevStageExecTimeMS;
+      return milliSecondsToNormalisedValue(deltaExecTime);
+    }, [curStageExecTimeMS, prevStageExecTimeMS]);
 
   const darkmode = useDarkMode();
 
@@ -248,17 +248,17 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     };
 
     drawClockFace({
-      width: width,
-      height: height,
+      width: CLOCK_WIDTH,
+      height: CLOCK_HEIGHT,
       strokeColor: clockFaceColor,
       fillColor: clockBackgroundColor,
       svgElement,
     });
 
     drawElapsedTimes({
-      width: width,
-      height: height,
-      strokeWidth,
+      width: CLOCK_WIDTH,
+      height: CLOCK_HEIGHT,
+      strokeWidth: ARC_STROKE_WIDTH,
       svgElement,
       curStageExecTimeMS,
       prevStageExecTimeMS,
@@ -274,9 +274,6 @@ const Clock: React.FunctionComponent<ClockProps> = ({
     curStageExecTimeMS,
     prevStageExecTimeMS,
     totalExecTimeMS,
-    width,
-    height,
-    strokeWidth,
     clockBackgroundColor,
     clockFaceColor,
     previousElapsedArcColor,
@@ -290,12 +287,15 @@ const Clock: React.FunctionComponent<ClockProps> = ({
         containerStyles,
         darkmode ? containerStylesDarkMode : containerStylesLightMode
       )}
-      style={{ width, height }}
+      style={{ width: CLOCK_WIDTH, height: CLOCK_HEIGHT }}
     >
-      <div className={faceContainerStyle} style={{ width, height }}>
+      <div
+        className={faceContainerStyle}
+        style={{ width: CLOCK_WIDTH, height: CLOCK_HEIGHT }}
+      >
         <svg
-          width={width}
-          height={height}
+          width={CLOCK_WIDTH}
+          height={CLOCK_HEIGHT}
           ref={svgRef}
           className={svgStyles}
           // Our svg clock has additional arcs that expands outside of the clock
@@ -305,16 +305,19 @@ const Clock: React.FunctionComponent<ClockProps> = ({
           // to exact center
           viewBox="-3 -3 56 56"
         ></svg>
-        <div className={executionTimeStyles} style={{ width, height }}>
+        <div
+          className={executionTimeStyles}
+          style={{ width: CLOCK_WIDTH, height: CLOCK_HEIGHT }}
+        >
           <span
             className={cx(
               msecsStyles,
               darkmode ? msecsStylesDarkMode : msecsStylesLightMode
             )}
           >
-            {deltaExecTime}
+            {normalisedDeltaExecTime}
           </span>
-          <span className={msStyles}>ms</span>
+          <span className={msStyles}>{normalisedDeltaExecTimeUnit}</span>
         </div>
       </div>
     </div>

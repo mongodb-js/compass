@@ -149,7 +149,7 @@ export const editorPalette = {
     cursorColor: palette.green.base,
     // Semi-transparent opacity so that the selection background can still be seen.
     activeLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
-    selectionBackgroundColor: palette.gray.dark1,
+    selectionBackgroundColor: palette.gray.dark2,
     bracketBorderColor: palette.gray.light1,
     infoGutterIconColor: encodeURIComponent(palette.blue.light1),
     warningGutterIconColor: encodeURIComponent(palette.yellow.light2),
@@ -245,6 +245,9 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         color: editorPalette[theme].gutterFoldButtonColor,
       },
       '& .cm-selectionBackground': {
+        backgroundColor: editorPalette[theme].selectionBackgroundColor,
+      },
+      '&.cm-focused .cm-selectionBackground, ::selection': {
         backgroundColor: editorPalette[theme].selectionBackgroundColor,
       },
       '&.cm-focused .cm-matchingBracket': {
@@ -1148,6 +1151,10 @@ const multilineEditorContainerStyle = css({
   },
 });
 
+const multilineEditorContainerWithActionsStyle = css({
+  minHeight: spacing[5] - 2,
+});
+
 const multilineEditorContainerDarkModeStyle = css({
   backgroundColor: editorPalette.dark.backgroundColor,
 });
@@ -1274,6 +1281,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         className={cx(
           multilineEditorContainerStyle,
           darkMode && multilineEditorContainerDarkModeStyle,
+          !!actions.length && multilineEditorContainerWithActionsStyle,
           className
         )}
         // We want folks to be able to click into the container element

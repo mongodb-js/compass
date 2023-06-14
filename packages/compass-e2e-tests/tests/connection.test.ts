@@ -273,6 +273,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -284,6 +285,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -300,6 +302,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -326,6 +329,7 @@ describe('Connection screen', function () {
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
+      assertNotError(result);
       expect(result).to.have.property('ok', 1);
     } finally {
       if (tempdir) {
@@ -352,6 +356,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -382,6 +387,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -401,6 +407,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -427,6 +434,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -455,6 +463,7 @@ describe('Connection screen', function () {
       true
     );
     await new Promise((resolve) => setTimeout(resolve, 10000));
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -471,6 +480,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -492,6 +502,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -508,6 +519,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -524,6 +536,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
 
@@ -539,6 +552,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
 
     await assertCanReadData(browser, 'companies', 'info');
@@ -556,6 +570,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
 
     await assertCanReadData(browser, 'companies', 'info');
@@ -576,6 +591,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
 
     await assertCanReadData(browser, 'test', 'users');
@@ -595,6 +611,7 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    assertNotError(result);
     expect(result).to.have.property('ok', 1);
 
     await assertCanReadData(browser, 'test', 'users');
@@ -681,6 +698,7 @@ describe('System CA access', function () {
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
+      assertNotError(result);
       expect(result).to.have.property('ok', 1);
     } finally {
       // make sure the browser gets closed otherwise if this fails the process wont exit
@@ -751,3 +769,9 @@ describe('FLE2', function () {
     expect(result).to.be.equal('test');
   });
 });
+
+function assertNotError(result: any) {
+  if (typeof result === 'string' && result.includes('MongoNetworkError')) {
+    expect.fail(result);
+  }
+}

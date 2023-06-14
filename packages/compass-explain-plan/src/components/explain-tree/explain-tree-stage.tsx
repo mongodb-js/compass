@@ -60,6 +60,67 @@ interface ExecutionstatsProps {
   totalExecTimeMS: number;
 }
 
+// Instead of using CSS ellipsis which trims the text towards the end / front,
+// we use this custom implementation to trim the text in middle because shard
+// names could have similar text in the front and the differentiating numbers
+// are generally available at the end of the name. For example: atlas-shard-0,
+// atlas-shard-1, etc. The trimThreshold is taken from a hit and try approach to
+// fit as many big chars as possible (worst case scenario) in the shard card
+// because other sophisticated approaches require understanding font specifics
+// like kerning, font-constant, etc to properly determine the width of character
+// for a particular font.
+export const trimInMiddle = (
+  text: string,
+  trimThreshold = 20,
+  charsToKeepInFront = 6,
+  charsToKeepInBack = 4
+) => {
+  if (text.length <= trimThreshold) {
+    return text;
+  }
+
+  const charsBeforeEllipsis = text.substring(0, charsToKeepInFront);
+  const remainingText = text.substring(charsToKeepInFront);
+  const charsAfterEllipsis = remainingText.substring(
+    remainingText.length - charsToKeepInBack
+  );
+  return `${charsBeforeEllipsis}…${charsAfterEllipsis}`;
+};
+
+export const milliSecondsToNormalisedValue = (
+  ms: number
+): { value: string; unit: 'h' | 'min' | 's' | 'ms' } => {
+  const hasDecimalPoint = (n: number) => n - Math.floor(n) !== 0;
+  const hours = ms / (1000 * 60 * 60);
+  if (hours >= 1) {
+    return {
+      value: hasDecimalPoint(hours) ? hours.toFixed(1) : hours.toString(),
+      unit: 'h',
+    };
+  }
+
+  const minutes = ms / (1000 * 60);
+  if (minutes >= 1) {
+    return {
+      value: hasDecimalPoint(minutes) ? minutes.toFixed(1) : minutes.toString(),
+      unit: 'min',
+    };
+  }
+
+  const seconds = ms / 1000;
+  if (seconds >= 1) {
+    return {
+      value: hasDecimalPoint(seconds) ? seconds.toFixed(1) : seconds.toString(),
+      unit: 's',
+    };
+  }
+
+  return {
+    value: ms.toString(),
+    unit: 'ms',
+  };
+};
+
 const cardStyles = css({
   position: 'absolute',
   width: defaultCardWidth,
@@ -170,7 +231,7 @@ const ShardView: React.FunctionComponent<ShardViewProps> = (props) => {
   return (
     <KeylineCard className={shardViewContainerStyles} title={props.name}>
       <Body baseFontSize={16} className={shardViewTextStyles}>
-        {props.name}
+        {trimInMiddle(props.name)}
       </Body>
     </KeylineCard>
   );
@@ -218,16 +279,14 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
                   prevStageExecTimeMS={prevStageExecTimeMS}
                   curStageExecTimeMS={curStageExecTimeMS}
                   totalExecTimeMS={totalExecTimeMS}
-                  width={50}
-                  height={50}
-                  strokeWidth={5}
                 />
               </div>
             )}
           >
             The clock represents the total time the query took to complete. The
-            blue clock segment is the time taken by the highlighted stage. The
-            gray clock segment is the time taken by preceding stages.
+            blue clock segment is the time taken by the highlighted stage (
+            {curStageExecTimeMS - prevStageExecTimeMS} ms). The gray clock
+            segment is the time taken by preceding stages.
           </Tooltip>
         </span>
       </div>
@@ -269,7 +328,7 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
             showLineNumbers={false}
             initialJSONFoldAll={false}
             showAnnotationsGutter={false}
-            minLines={2}
+            minLines={1}
             maxLines={15}
             text={JSON.stringify(props.details, null, ' ') || '{}'}
             data-testid="explain-stage-details"

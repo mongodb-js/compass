@@ -38,6 +38,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     showKerberosPasswordField: boolean;
     showOIDCDeviceAuthFlow: boolean;
     browserCommandForOIDCAuth?: string;
+    persistOIDCTokens?: boolean;
     enableDevTools: boolean;
     theme: THEMES;
     maxTimeMS?: number;
@@ -546,6 +547,21 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Browser command to use for OIDC Authentication',
       long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default browser.',
+    },
+  },
+  /**
+   * Input to change the browser command used for OIDC authentication.
+   */
+  persistOIDCTokens: {
+    type: 'boolean',
+    required: false,
+    default: true,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Stay logged in with OIDC',
+      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism. Access tokens are encrypted using the system keychain before being stored.',
     },
   },
   /**

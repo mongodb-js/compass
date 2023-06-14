@@ -22,7 +22,6 @@ type IndexField = { name: string; type: string };
 
 type CreateIndexFormProps = {
   fields: IndexField[];
-  newIndexField: string | null;
   schemaFields: string[];
 
   serverVersion: string;
@@ -31,12 +30,10 @@ type CreateIndexFormProps = {
   updateFieldType: (idx: number, fType: string) => void;
   addField: () => void; // Plus icon.
   removeField: (idx: number) => void; // Minus icon.
-  createNewIndexField: (newField: string) => void; // Create a new index name.
 };
 
 function CreateIndexForm({
   fields,
-  newIndexField,
   schemaFields,
 
   serverVersion,
@@ -45,7 +42,6 @@ function CreateIndexForm({
   updateFieldType,
   addField,
   removeField,
-  createNewIndexField,
 }: CreateIndexFormProps) {
   return (
     <>
@@ -66,8 +62,6 @@ function CreateIndexForm({
             updateFieldType={updateFieldType}
             addField={addField}
             removeField={removeField}
-            newIndexField={newIndexField}
-            createNewIndexField={createNewIndexField}
           />
         ) : null}
       </div>
