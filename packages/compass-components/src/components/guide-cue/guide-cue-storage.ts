@@ -12,7 +12,7 @@ export class CompassGuideCueStorage implements GuideCueStorage {
     private readonly storage: Pick<
       Storage,
       'getItem' | 'setItem'
-    > = localStorage,
+    > = globalThis.localStorage,
     private readonly key: string = GUIDE_CUE_KEY
   ) {}
 
