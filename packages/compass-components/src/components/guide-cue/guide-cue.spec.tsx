@@ -1,21 +1,32 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
-import { render, screen, cleanup, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  within,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Icon, IconButton, Button } from '../..';
+import * as GuideCueGroups from './guide-cue-groups';
 import { GuideCue } from './guide-cue';
+import Sinon from 'sinon';
 
 const renderGuideCue = (
   props: Partial<ComponentProps<typeof GuideCue>>,
   content?: string
 ) => {
+  const containerRef = React.createRef<any>();
   // Wrapping GuideCue component in this way as it is easier to test for
   // outside clicks.
   render(
-    <div>
+    <div ref={containerRef}>
       <Button data-testid="outside-component">
         Outside Guide Cue Component
       </Button>
-      <GuideCue
+      <GuideCue<HTMLButtonElement>
         cueId=""
         title=""
         trigger={({ ref }) => (
@@ -34,7 +45,8 @@ const renderGuideCue = (
     </div>
   );
 
-  expect(screen.getByTestId('guide-cue-trigger')).to.exist;
+  expect(within(containerRef.current).getByTestId('guide-cue-trigger')).to
+    .exist;
 };
 
 const getGuideCuePopover = () => {
@@ -44,20 +56,46 @@ const getGuideCuePopover = () => {
   return screen.getByRole('dialog');
 };
 
+const GROUPS = [
+  {
+    id: 'group-one',
+    steps: 1,
+  },
+  {
+    id: 'group-two',
+    steps: 2,
+  },
+];
+const GROUP_TO_STEPS = {
+  'group-one': 1,
+  'group-two': 2,
+};
+
 describe('GuideCue', function () {
-  afterEach(function () {
+  const sandbox = Sinon.createSandbox();
+
+  before(function () {
+    sandbox.replace(GuideCueGroups, 'GROUPS', GROUPS);
+    sandbox.replace(GuideCueGroups, 'GROUP_TO_STEPS', GROUP_TO_STEPS);
+  });
+
+  after(function () {
     cleanup();
-    // todo: clean this
-    localStorage.clear();
+    sandbox.restore();
   });
 
   context('guide cue component', function () {
-    it('renders a guide cue', function () {
+    afterEach(function () {
+      localStorage.clear();
+    });
+
+    it('renders a guide cue', async function () {
       renderGuideCue(
         { title: 'Login with Atlas', cueId: 'gc' },
         'Now you can login with your atlas account'
       );
 
+      await waitFor(() => getGuideCuePopover());
       const popover = getGuideCuePopover();
       expect(within(popover).getByText(/login with atlas/i)).to.exist;
       expect(
@@ -65,54 +103,174 @@ describe('GuideCue', function () {
       ).to.exist;
     });
 
-    it('hides guide cue when action button is clicked', function () {
+    it('hides guide cue when action button is clicked', async function () {
       renderGuideCue(
         { title: 'Login with Atlas', cueId: 'gc' },
         'Now you can login with your atlas account'
       );
 
-      const popover = getGuideCuePopover();
+      await waitFor(() => getGuideCuePopover());
 
-      const actionButton = within(popover).getByRole('button', {
-        name: /got it/i,
-      });
-      expect(actionButton).to.exist;
-      actionButton.click();
+      const popover = getGuideCuePopover();
+      userEvent.click(
+        within(popover).getByRole('button', {
+          name: /got it/i,
+        })
+      );
+
+      await waitForElementToBeRemoved(() => getGuideCuePopover());
+
       expect(() => getGuideCuePopover()).to.throw;
     });
 
-    it('hides guide cue when user clicks outside guide cue popover', function () {
+    it('hides guide cue when user clicks outside guide cue popover', async function () {
       renderGuideCue(
         { title: 'Login with Atlas', cueId: 'gc' },
         'Now you can login with your atlas account'
       );
 
-      const popover = getGuideCuePopover();
-      expect(popover).to.exist;
+      await waitFor(() => getGuideCuePopover());
 
       const outsideButton = screen.getByTestId('outside-component');
-      outsideButton.click();
+      userEvent.click(outsideButton);
+
+      await waitForElementToBeRemoved(() => getGuideCuePopover());
       expect(() => getGuideCuePopover()).to.throw;
     });
 
-    it('does not hide guide cue when user clicks inside guide cue popover', function () {
+    it('does not hide guide cue when user clicks inside guide cue popover', async function () {
       renderGuideCue(
         { title: 'Login with Atlas', cueId: 'gc' },
         'Now you can login with your atlas account'
       );
 
+      await waitFor(() => getGuideCuePopover());
+
       const popover = getGuideCuePopover();
-      expect(popover).to.exist;
 
-      within(popover)
-        .getByText(/login with atlas/i)
-        .click();
+      userEvent.click(within(popover).getByText(/login with atlas/i));
       expect(getGuideCuePopover()).to.exist;
 
-      within(popover)
-        .getByText(/now you can login with your atlas account/i)
-        .click();
+      userEvent.click(
+        within(popover).getByText(/now you can login with your atlas account/i)
+      );
       expect(getGuideCuePopover()).to.exist;
+    });
+  });
+
+  context('list of cues', function () {
+    it('renders cues when group is complete', async function () {
+      // add first cue from the group
+      renderGuideCue(
+        {
+          title: 'Login with Atlas',
+          cueId: 'one',
+          groupId: 'group-two',
+          step: 1,
+        },
+        'Now you can login with your atlas account'
+      );
+
+      // when added GC is not visible as the group is not complete
+      expect(() => getGuideCuePopover()).to.throw;
+
+      // add second cue from the group
+      renderGuideCue(
+        {
+          title: 'Your Atlas connections',
+          cueId: 'two',
+          groupId: 'group-two',
+          step: 2,
+        },
+        'These are your Atlas connections'
+      );
+
+      // wait for cue to show up
+      await waitFor(() => getGuideCuePopover());
+
+      const popover1 = within(getGuideCuePopover());
+      expect(popover1.getByText('Login with Atlas')).to.exist;
+      expect(
+        popover1.getByText('Now you can login with your atlas account')
+      ).to.exist;
+      expect(popover1.getByText('1 of 2')).to.exist;
+
+      // on next to cue 2
+      userEvent.click(
+        popover1.getByRole('button', {
+          name: /next/i,
+        })
+      );
+
+      // wait for current cue to be removed
+      await waitForElementToBeRemoved(() => getGuideCuePopover());
+
+      // wait for next cue to show up
+      await waitFor(() => getGuideCuePopover());
+
+      const popover2 = within(getGuideCuePopover());
+      expect(popover2.getByText('Your Atlas connections')).to.exist;
+      expect(popover2.getByText('These are your Atlas connections')).to.exist;
+      expect(popover2.getByText('2 of 2')).to.exist;
+      // on next to nothing
+      userEvent.click(
+        popover2.getByRole('button', {
+          name: /got it/i,
+        })
+      );
+
+      // wait for current cue to be removed
+      await waitForElementToBeRemoved(() => getGuideCuePopover());
+
+      expect(() => getGuideCuePopover()).to.throw;
+    });
+
+    it('renders standalone cues', async function () {
+      renderGuideCue(
+        { title: 'Connection Form', cueId: 'one' },
+        'Favorite your connection here'
+      );
+      renderGuideCue(
+        { title: 'Connection List', cueId: 'two' },
+        'All your connections are here - recent and favorite'
+      );
+
+      await waitFor(() => getGuideCuePopover());
+
+      const popover1 = within(getGuideCuePopover());
+      expect(popover1.getByText('Connection Form')).to.exist;
+      expect(popover1.getByText('Favorite your connection here')).to.exist;
+
+      // mark this cue as visited.
+      userEvent.click(
+        popover1.getByRole('button', {
+          name: /got it/i,
+        })
+      );
+
+      // wait for current cue to be removed
+      await waitForElementToBeRemoved(() => getGuideCuePopover());
+
+      // wait for next cue to show up
+      await waitFor(() => getGuideCuePopover());
+
+      const popover2 = within(getGuideCuePopover());
+      expect(popover2.getByText('Connection List')).to.exist;
+      expect(
+        popover2.getByText(
+          'All your connections are here - recent and favorite'
+        )
+      ).to.exist;
+      userEvent.click(
+        popover2.getByRole('button', {
+          name: /got it/i,
+        })
+      );
+
+      // wait for current cue to be removed
+      await waitForElementToBeRemoved(() => getGuideCuePopover());
+
+      expect(() => getGuideCuePopover()).to.throw;
     });
   });
 });
