@@ -128,7 +128,7 @@ export const GuideCue = <T extends HTMLElement>({
     return () => {
       guideCueService.removeCue(cueData.cueId, cueData.groupId);
     };
-  }, [refEl, cueData]);
+  }, [refEl, cueData, intersectionRef]);
 
   const onNextGroup = useCallback(() => {
     setIsOpen(false);
@@ -156,18 +156,20 @@ export const GuideCue = <T extends HTMLElement>({
       if (!popover) {
         return;
       }
-      const isClickInsidePopover = event.composedPath().includes(popover);
-      if (isClickInsidePopover) {
+
+      // Clicked within popover
+      if (event.composedPath().includes(popover)) {
         return;
       }
 
-      const isClickFromRefEl = event.composedPath().includes(refEl.current);
-      if (isClickFromRefEl) {
-        onNext();
-      } else {
-        guideCueService.markAllCuesAsVisited();
-        setIsOpen(false);
+      // Clicked within refEl
+      if (event.composedPath().includes(refEl.current)) {
+        return onNext();
       }
+
+      // Or else, user clicked outside GC
+      guideCueService.markAllCuesAsVisited();
+      setIsOpen(false);
     };
 
     document.addEventListener('mousedown', listener);
