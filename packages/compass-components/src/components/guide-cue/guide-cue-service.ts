@@ -252,7 +252,9 @@ export class GuideCueService extends EventTarget {
 
     const isNewCueShowable = !this._activeCue && isIntersecting;
     const isActiveCueNotShowable =
-      this._activeCue?.cueId === cueId && this._activeCue.groupId === groupId;
+      this._activeCue?.cueId === cueId &&
+      this._activeCue.groupId === groupId &&
+      !isIntersecting;
 
     if (isActiveCueNotShowable || isNewCueShowable) {
       return this.onNext();

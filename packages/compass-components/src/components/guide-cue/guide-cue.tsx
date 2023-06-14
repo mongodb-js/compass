@@ -9,6 +9,16 @@ import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 import type { GroupName } from './guide-cue-groups';
 
+const getDataCueId = ({
+  cueId,
+  groupId,
+}: {
+  cueId: string;
+  groupId?: string;
+}): string => {
+  return `guide-cue-${cueId}${groupId ? `-${groupId}` : ''}`;
+};
+
 type LGGuideCueProps = React.ComponentProps<typeof LGGuideCue>;
 
 type GroupAndStep =
@@ -20,16 +30,6 @@ type GroupAndStep =
       groupId?: never;
       step?: never;
     };
-
-const getDataCueId = ({
-  cueId,
-  groupId,
-}: {
-  cueId: string;
-  groupId?: string;
-}): string => {
-  return `guide-cue-${cueId}${groupId ? `-${groupId}` : ''}`;
-};
 
 // omit the props we are handling
 export type GuideCueProps<T> = Omit<
