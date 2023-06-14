@@ -23,6 +23,8 @@ const renderIndexes = (
       sortIndexes={() => {}}
       refreshIndexes={() => {}}
       dropFailedIndex={() => {}}
+      onHideIndex={() => {}}
+      onUnhideIndex={() => {}}
       {...props}
     />
   );

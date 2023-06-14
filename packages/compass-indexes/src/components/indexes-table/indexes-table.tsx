@@ -71,18 +71,22 @@ const tableStyles = css({
 
 type IndexesTableProps = {
   indexes: IndexDefinition[];
-  canDeleteIndex: boolean;
+  canModifyIndex: boolean;
   scrollHeight: number;
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
   onDeleteIndex: (index: IndexDefinition) => void;
+  onHideIndex: (name: string) => void;
+  onUnhideIndex: (name: string) => void;
 };
 
 export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   indexes,
-  canDeleteIndex,
+  canModifyIndex,
   scrollHeight,
   onSortTable,
   onDeleteIndex,
+  onHideIndex,
+  onUnhideIndex,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const columns = useMemo(() => {
@@ -107,11 +111,11 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
       );
     });
     // The delete column
-    if (canDeleteIndex) {
+    if (canModifyIndex) {
       _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
     }
     return _columns;
-  }, [canDeleteIndex, onSortTable]);
+  }, [canModifyIndex, onSortTable]);
 
   useEffect(() => {
     /**
@@ -160,8 +164,8 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
                 properties={index.properties}
               />
             </Cell>
-            {/* Delete column is conditional */}
-            {canDeleteIndex && (
+            {/* Index actions column is conditional */}
+            {canModifyIndex && (
               <Cell data-testid="index-actions-field" className={cellStyles}>
                 {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
                   <div
@@ -170,6 +174,8 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
                     <IndexActions
                       index={index}
                       onDeleteIndex={onDeleteIndex}
+                      onHideIndex={onHideIndex}
+                      onUnhideIndex={onUnhideIndex}
                     ></IndexActions>
                   </div>
                 )}
@@ -178,7 +184,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
             <Row>
               <Cell
                 className={cx(nestedRowCellStyles, cellStyles)}
-                colSpan={canDeleteIndex ? 6 : 5}
+                colSpan={canModifyIndex ? 6 : 5}
               >
                 <IndexKeysBadge keys={index.fields} />
               </Cell>

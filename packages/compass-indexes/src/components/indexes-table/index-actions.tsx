@@ -6,16 +6,31 @@ import type { IndexDefinition } from '../../modules/indexes';
 type IndexActionsProps = {
   index: IndexDefinition;
   onDeleteIndex: (index: IndexDefinition) => void;
+  onHideIndex: (name: string) => void;
+  onUnhideIndex: (name: string) => void;
 };
 
-type IndexAction = 'delete';
+type IndexAction = 'delete' | 'hide' | 'unhide';
 
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
   onDeleteIndex,
+  onHideIndex,
+  onUnhideIndex,
 }) => {
   const indexActions: ItemAction<IndexAction>[] = useMemo(
     () => [
+      index.extra?.hidden
+        ? {
+            action: 'unhide',
+            label: `Unhide Index ${index.name}`,
+            icon: 'Visibility',
+          }
+        : {
+            action: 'hide',
+            label: `Hide Index ${index.name}`,
+            icon: 'VisibilityOff',
+          },
       {
         action: 'delete',
         label: `Drop Index ${index.name}`,
@@ -29,9 +44,13 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     (action: IndexAction) => {
       if (action === 'delete') {
         onDeleteIndex(index);
+      } else if (action === 'hide') {
+        onHideIndex(index.name);
+      } else if (action === 'unhide') {
+        onUnhideIndex(index.name);
       }
     },
-    [onDeleteIndex, index]
+    [onDeleteIndex, onHideIndex, onUnhideIndex, index]
   );
 
   return (

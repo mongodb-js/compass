@@ -423,6 +423,22 @@ export interface DataService {
    */
   dropIndex(ns: string, name: string): Promise<Document>;
 
+  /**
+   * Hides an index from query planner in a collection
+   *
+   * @param ns - The namespace.
+   * @param name - The index name.
+   */
+  hideIndex(ns: string, name: string): Promise<Document>;
+
+  /**
+   * Unhides an index in a collection
+   *
+   * @param ns - The namespace.
+   * @param name - The index name.
+   */
+  unhideIndex(ns: string, name: string): Promise<Document>;
+
   /*** Aggregation ***/
 
   /**
@@ -1510,6 +1526,34 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async dropIndex(ns: string, name: string): Promise<Document> {
     const coll = this._collection(ns, 'CRUD');
     return await coll.dropIndex(name);
+  }
+
+  @op(mongoLogId(1_001_000_184), ([ns, name], result) => {
+    return { ns, name, ...(result && { result }) };
+  })
+  async hideIndex(ns: string, name: string): Promise<Document> {
+    const db = this._database(ns, 'CRUD');
+    return await runCommand(db, {
+      collMod: this._collectionName(ns),
+      index: {
+        name,
+        hidden: true,
+      },
+    });
+  }
+
+  @op(mongoLogId(1_001_000_185), ([ns, name], result) => {
+    return { ns, name, ...(result && { result }) };
+  })
+  async unhideIndex(ns: string, name: string): Promise<Document> {
+    const db = this._database(ns, 'CRUD');
+    return await runCommand(db, {
+      collMod: this._collectionName(ns),
+      index: {
+        name,
+        hidden: false,
+      },
+    });
   }
 
   @op(mongoLogId(1_001_000_041), ([ns, pipeline]) => {

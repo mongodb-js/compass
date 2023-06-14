@@ -272,7 +272,55 @@ describe('DataService', function () {
         const namespace = testNamespace;
         await dataService.dropIndex(namespace, 'a_1');
         const indexes = await dataService.indexes(namespace);
-        expect(indexes).to.not.have.property('name', 'a_1');
+        const deletedIndex = indexes.find((index) => index.name === 'a_1');
+        expect(deletedIndex).to.be.undefined;
+      });
+    });
+
+    describe('#hideIndex', function () {
+      beforeEach(async function () {
+        await mongoClient
+          .db(testDatabaseName)
+          .collection(testCollectionName)
+          .createIndex(
+            {
+              a: 1,
+            },
+            {}
+          );
+      });
+
+      it('hides an index in a collection', async function () {
+        await dataService.hideIndex(testNamespace, 'a_1');
+        const indexes = await dataService.indexes(testNamespace);
+        const modifiedIndex = indexes.find((index) => index.name === 'a_1');
+        expect(modifiedIndex).to.not.be.undefined;
+        expect(modifiedIndex).to.not.have.property('extra.hidden', true);
+      });
+    });
+
+    describe('#unhideIndex', function () {
+      beforeEach(async function () {
+        await mongoClient
+          .db(testDatabaseName)
+          .collection(testCollectionName)
+          .createIndex(
+            {
+              a: 1,
+            },
+            {}
+          );
+
+        await dataService.hideIndex(testNamespace, 'a_1');
+      });
+
+      it('unhides an index in a collection', async function () {
+        await dataService.unhideIndex(testNamespace, 'a_1');
+        const indexes = await dataService.indexes(testNamespace);
+        const modifiedIndex = indexes.find((index) => index.name === 'a_1');
+        console.log(modifiedIndex);
+        expect(modifiedIndex).to.not.be.undefined;
+        expect(modifiedIndex).to.not.have.property('extra.hidden');
       });
     });
 
