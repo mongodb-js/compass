@@ -962,6 +962,17 @@ export const DropIndexModalConfirmButton =
 
 export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
 
+export const HiddenIndexBadge = (indexName: string) =>
+  `${indexComponent(indexName)} [data-testid="HIDDEN-badge"]`;
+export const HideIndexModal = '[data-testid="hide-index-confirmation-modal"]';
+export const HideIndexModalConfirmButton = `${HideIndexModal} [role=dialog] div:nth-child(2) button:first-child`;
+export const HideIndexButton = '[data-testid="index-actions-hide-action"]';
+
+export const UnhideIndexModal =
+  '[data-testid="unhide-index-confirmation-modal"]';
+export const UnhideIndexModalConfirmButton = `${UnhideIndexModal} [role=dialog] div:nth-child(2) button:first-child`;
+export const UnhideIndexButton = '[data-testid="index-actions-unhide-action"]';
+
 // Validation tab
 export const AddRuleButton = '[data-testid="add-rule-button"]';
 export const ValidationEditor = '[data-testid="validation-editor"]';

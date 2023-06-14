@@ -233,6 +233,7 @@ export const hideIndex = (
   return async (dispatch, getState) => {
     const { dataService, namespace } = getState();
     const confirmed = await showConfirmation({
+      dataTestId: 'hide-index-confirmation-modal',
       title: `Hiding \`${indexName}\``,
       description: `The index ${indexName} will no longer be visible to the query planner and cannot be used to support a query. If the impact is negative, you can unhide this index.`,
     });
@@ -262,6 +263,7 @@ export const unhideIndex = (
   return async (dispatch, getState) => {
     const { namespace, dataService } = getState();
     const confirmed = await showConfirmation({
+      dataTestId: 'unhide-index-confirmation-modal',
       title: `Unhiding \`${indexName}\``,
       description: `The index ${indexName} will become visible to the query planner and can be used to support a query. If the impact is negative you can hide this index.`,
     });

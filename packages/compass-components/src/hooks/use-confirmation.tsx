@@ -12,6 +12,7 @@ type ConfirmationProperties = {
   description: string;
   buttonText?: string;
   variant?: ConfirmationModalVariant;
+  dataTestId?: string;
 };
 type ConfirmationCallback = (value: boolean) => void;
 
@@ -129,7 +130,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     <ConfirmationModalContext.Provider value={contextValue}>
       {children}
       <ConfirmationModal
-        data-testid="confirmation-modal"
+        data-testid={confirmationProps.dataTestId ?? 'confirmation-modal'}
         open={confirmationProps.open}
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
