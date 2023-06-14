@@ -16,7 +16,7 @@ import GeoscatterMapItem from './marker';
 
 import { LIGHTMODE_TILE_URL, DARKMODE_TILE_URL } from './constants';
 import { getHereAttributionMessage } from './utils';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash';
 import { withDarkMode } from '@mongodb-js/compass-components';
 
 // TODO: Disable boxZoom handler for circle lasso.

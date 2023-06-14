@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import isString from 'lodash.isstring';
+import { isString } from 'lodash';
 import { hasDistinctValue } from 'mongodb-query-util';
 import {
   Body,

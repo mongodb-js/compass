@@ -1,8 +1,6 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import map from 'lodash.map';
-import groupBy from 'lodash.groupby';
-import sortByOrder from 'lodash.sortbyorder';
+import { map, groupBy, orderBy } from 'lodash';
 import few from './few';
 import many from './many';
 import shared from './shared';
@@ -37,7 +35,8 @@ const minicharts_d3fns_string = (appRegistry) => {
           count: v.length,
         };
       });
-      const grouped = sortByOrder(grm, 'count', [false]); // descending on value
+
+      const grouped = orderBy(grm, ['count'], ['desc']);
 
       const g = el.selectAll('g').data([grouped]);
 
