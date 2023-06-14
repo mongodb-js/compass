@@ -9,7 +9,7 @@ export { ConfirmationModalVariant };
 
 type ConfirmationProperties = {
   title: string;
-  description: string;
+  description: React.ReactNode;
   buttonText?: string;
   variant?: ConfirmationModalVariant;
   dataTestId?: string;

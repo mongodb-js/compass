@@ -1,3 +1,4 @@
+import { Fragment, createElement } from 'react';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { IndexDefinition as _IndexDefinition } from 'mongodb-data-service';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
@@ -235,7 +236,15 @@ export const hideIndex = (
     const confirmed = await showConfirmation({
       dataTestId: 'hide-index-confirmation-modal',
       title: `Hiding \`${indexName}\``,
-      description: `The index ${indexName} will no longer be visible to the query planner and cannot be used to support a query. If the impact is negative, you can unhide this index.`,
+      description: createElement(Fragment, {
+        children: [
+          'The index `',
+          createElement('b', {
+            children: indexName,
+          }),
+          '` will no longer be visible to the query planner and cannot be used to support a query. If the impact is negative, you can unhide this index.',
+        ],
+      }),
     });
 
     if (!confirmed) {
@@ -265,7 +274,15 @@ export const unhideIndex = (
     const confirmed = await showConfirmation({
       dataTestId: 'unhide-index-confirmation-modal',
       title: `Unhiding \`${indexName}\``,
-      description: `The index ${indexName} will become visible to the query planner and can be used to support a query. If the impact is negative you can hide this index.`,
+      description: createElement(Fragment, {
+        children: [
+          'The index `',
+          createElement('b', {
+            children: indexName,
+          }),
+          '` will become visible to the query planner and can be used to support a query. If the impact is negative, you can hide this index.',
+        ],
+      }),
     });
 
     if (!confirmed) {
