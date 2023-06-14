@@ -147,8 +147,8 @@ export const PipelineExtraSettings: React.FunctionComponent<
           </GuideCue>
           <IconButton
             ref={cueRefEl}
-            title="Toggle Side Panel"
-            aria-label="Toggle Side Panel"
+            title="Toggle Stage Wizard"
+            aria-label="Toggle Stage Wizard"
             onClick={onClickWizardButton}
             data-testid="pipeline-toolbar-side-panel-button"
             disabled={pipelineMode === 'as-text'}
