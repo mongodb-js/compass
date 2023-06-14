@@ -20,10 +20,7 @@ import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-
 import { toggleSidePanel } from '../../../modules/side-panel';
 import { usePreference } from 'compass-preferences-model';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { GuideCueStorageKeys, useGuideCue } from '../../use-guide-cue';
-
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
   display: 'flex',
@@ -46,7 +43,6 @@ const toggleLabelStyles = css({
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
   isPipelineModeDisabled: boolean;
-  isSidePanelOpen: boolean;
   pipelineMode: PipelineMode;
   onToggleAutoPreview: (newVal: boolean) => void;
   onChangePipelineMode: (newVal: PipelineMode) => void;
@@ -58,7 +54,6 @@ export const PipelineExtraSettings: React.FunctionComponent<
   PipelineExtraSettingsProps
 > = ({
   isAutoPreview,
-  isSidePanelOpen,
   isPipelineModeDisabled,
   pipelineMode,
   onToggleAutoPreview,
@@ -70,12 +65,6 @@ export const PipelineExtraSettings: React.FunctionComponent<
 
   const { cueRefEl, cueIntersectingRef, isCueVisible, markCueVisited } =
     useGuideCue(GuideCueStorageKeys.STAGE_WIZARD);
-
-  useEffect(() => {
-    if (isSidePanelOpen) {
-      track('Aggregation Side Panel Opened');
-    }
-  }, [isSidePanelOpen]);
 
   const onClickWizardButton = () => {
     markCueVisited();
@@ -174,7 +163,6 @@ const mapState = (state: RootState) => {
     isAutoPreview: state.autoPreview,
     isPipelineModeDisabled: getIsPipelineInvalidFromBuilderState(state, false),
     pipelineMode: state.pipelineBuilder.pipelineMode,
-    isSidePanelOpen: state.sidePanel.isPanelOpen,
   };
 };
 
