@@ -40,6 +40,7 @@ import ResizableSidebar, {
 } from './components/resizeable-sidebar';
 import {
   ItemAction,
+  GroupedItemAction,
   MenuAction,
   ItemActionControls,
   ItemActionGroup,
@@ -70,7 +71,7 @@ export { GuideCue } from '@leafygreen-ui/guide-cue';
 export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-export { Tooltip } from './components/tooltip';
+export { Tooltip, TooltipProps } from './components/tooltip';
 import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';
@@ -97,6 +98,7 @@ export {
   WarningSummary,
   WorkspaceTabs,
   ItemAction,
+  GroupedItemAction,
   MenuAction,
   ItemActionControls,
   ItemActionGroup,
