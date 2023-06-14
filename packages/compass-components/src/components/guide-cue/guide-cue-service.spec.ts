@@ -25,6 +25,22 @@ class TestGuideCueStorage implements GuideCueStorage {
   }
 }
 
+const GROUPS = [
+  {
+    id: 'group-one',
+    steps: 1,
+  },
+  {
+    id: 'group-two',
+    steps: 2,
+  },
+];
+
+const GROUP_TO_STEPS = {
+  'group-one': 1,
+  'group-two': 2,
+};
+
 describe('GuideCueService', function () {
   let guideCueService: GuideCueService;
   let guideCueStorage: GuideCueStorage;
@@ -37,20 +53,6 @@ describe('GuideCueService', function () {
   });
 
   before(function () {
-    const GROUPS = [
-      {
-        id: 'group-one',
-        steps: 1,
-      },
-      {
-        id: 'group-two',
-        steps: 2,
-      },
-    ];
-    const GROUP_TO_STEPS = {
-      'group-one': 1,
-      'group-two': 2,
-    };
     sandbox.replace(GuideCueGroups, 'GROUPS', GROUPS);
     sandbox.replace(GuideCueGroups, 'GROUP_TO_STEPS', GROUP_TO_STEPS);
   });
