@@ -1528,7 +1528,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await coll.dropIndex(name);
   }
 
-  @op(mongoLogId(1_001_000_184), ([ns, name], result) => {
+  @op(mongoLogId(1_001_000_196), ([ns, name], result) => {
     return { ns, name, ...(result && { result }) };
   })
   async hideIndex(ns: string, name: string): Promise<Document> {
@@ -1542,7 +1542,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     });
   }
 
-  @op(mongoLogId(1_001_000_185), ([ns, name], result) => {
+  @op(mongoLogId(1_001_000_197), ([ns, name], result) => {
     return { ns, name, ...(result && { result }) };
   })
   async unhideIndex(ns: string, name: string): Promise<Document> {
