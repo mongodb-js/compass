@@ -1,20 +1,38 @@
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 
 const MAX_SIZE_MB = 200;
 const MIN_SIZE_MB = 50;
 
+async function getDirectorySize(dirPath: string): Promise<number> {
+  let size = 0; // bytes
+  const files = await fs.readdir(dirPath);
+
+  for (const file of files) {
+    const filePath = path.join(dirPath, file);
+    const stats = await fs.stat(filePath);
+
+    if (stats.isFile()) {
+      size += stats.size;
+    } else if (stats.isDirectory()) {
+      size += await getDirectorySize(filePath);
+    }
+  }
+
+  return size;
+}
+
 (async function main() {
   const appBundleDirectory = path.resolve(__dirname, '..', 'dist');
   const sizeMB =
-    (await fs.statSync(appBundleDirectory)).size /
+    (await getDirectorySize(appBundleDirectory)) /
     (1024 * 1024); /* convert to MB */
 
   if (sizeMB > MAX_SIZE_MB) {
     throw new Error(
       `app bundle size too big, expected max ${MAX_SIZE_MB}MB, got ${sizeMB}.`
     );
-  } else if (sizeMB < MAX_SIZE_MB) {
+  } else if (sizeMB < MIN_SIZE_MB) {
     throw new Error(
       `app bundle size too small, expected minimum ${MIN_SIZE_MB}MB, got ${sizeMB}.`
     );

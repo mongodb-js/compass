@@ -413,7 +413,7 @@ export function removeUserDataDir(): void {
   }
 }
 
-export async function getCompassExecutionParameters(): Promise<{
+async function getCompassExecutionParameters(): Promise<{
   testPackagedApp: boolean;
   binary: string;
 }> {
@@ -704,7 +704,7 @@ export async function compileCompassAssets(
   await compileAssetsAsync({ dir: compassPath });
 }
 
-export async function getCompassBuildMetadata(): Promise<BinPathOptions> {
+async function getCompassBuildMetadata(): Promise<BinPathOptions> {
   try {
     let metadata;
     if (process.env.COMPASS_APP_PATH && process.env.COMPASS_APP_NAME) {
