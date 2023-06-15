@@ -108,8 +108,8 @@ export type CrudToolbarProps = {
   resultId: string;
   start: number;
   viewSwitchHandler: (view: 'List' | 'JSON' | 'Table') => void;
-  unindexedQuery?: boolean;
-  onUnindexedQueryInsightActionButtonClick?: () => void;
+  isCollectionScan?: boolean;
+  onCollectionScanInsightActionButtonClick?: () => void;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -134,8 +134,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   resultId,
   start,
   viewSwitchHandler,
-  unindexedQuery,
-  onUnindexedQueryInsightActionButtonClick,
+  isCollectionScan,
+  onCollectionScanInsightActionButtonClick,
 }) => {
   const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
 
@@ -184,7 +184,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             onReset={onResetClicked}
             showExplainButton
             insights={
-              unindexedQuery
+              isCollectionScan
                 ? {
                     title: 'Query executed without index',
                     description: (
@@ -197,7 +197,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
                     primaryActionButtonLabel: 'Create index',
                     primaryActionButtonIcon: 'Plus',
                     onPrimaryActionButtonClick:
-                      onUnindexedQueryInsightActionButtonClick,
+                      onCollectionScanInsightActionButtonClick,
                   }
                 : undefined
             }

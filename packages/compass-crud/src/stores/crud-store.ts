@@ -329,7 +329,7 @@ type CrudState = {
   isWritable: boolean;
   instanceDescription: string;
   fields: string[];
-  unindexedQuery?: boolean;
+  isCollectionScan?: boolean;
 };
 
 class CrudStoreImpl
@@ -387,7 +387,7 @@ class CrudStoreImpl
       isWritable: false,
       instanceDescription: '',
       fields: [],
-      unindexedQuery: false,
+      isCollectionScan: false,
     };
   }
 
@@ -1353,7 +1353,7 @@ class CrudStoreImpl
         .then((rawExplainPlan) => {
           const explainPlan = new ExplainPlan(rawExplainPlan as Stage);
           this.setState({
-            unindexedQuery: explainPlan.usedIndexes.length === 0,
+            isCollectionScan: explainPlan.isCollectionScan,
           });
         })
         .catch(() => {
@@ -1362,7 +1362,7 @@ class CrudStoreImpl
           // error parsing explan, we don't care and ignore it
         });
     } else {
-      this.setState({ unindexedQuery: false });
+      this.setState({ isCollectionScan: false });
     }
 
     // Don't wait for the count to finish. Set the result asynchronously.

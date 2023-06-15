@@ -230,7 +230,7 @@ describe('store', function () {
           path: [],
           types: [],
         },
-        unindexedQuery: false,
+        isCollectionScan: false,
         version: '6.0.0',
         view: 'List',
         fields: [],
