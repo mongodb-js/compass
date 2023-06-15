@@ -35,12 +35,7 @@ function hasSquirrel() {
     '..',
     'Update.exe'
   );
-  try {
-    fs.statSync(updateExe);
-    return true;
-  } catch (err) {
-    return false;
-  }
+  return fs.existsSync(updateExe);
 }
 
 function supportsAutoupdater() {
