@@ -37,7 +37,7 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
   type,
   extra,
 }) => {
-  const link = getIndexHelpLink(type?.toUpperCase());
+  const link = getIndexHelpLink(type);
   return (
     <Tooltip
       enabled={canRenderTooltip(type)}
