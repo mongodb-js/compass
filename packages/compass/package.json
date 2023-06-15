@@ -139,6 +139,7 @@
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
     "postcompile": "npm run generate-3rd-party-notices",
+    "check-bundled-app-size": "ts-node ./scripts/check-bundled-app-size.ts",
     "generate-3rd-party-notices": "mongodb-sbom-tools generate-3rd-party-notices --product='Mongodb Compass' --dependencies=../../.sbom/dependencies.json > THIRD-PARTY-NOTICES.md",
     "postgenerate-3rd-party-notices": "prettier --write THIRD-PARTY-NOTICES.md",
     "run-compiled": "electron .",
@@ -267,6 +268,7 @@
     "source-code-pro": "^2.38.0",
     "storage-mixin": "^5.1.5",
     "tar": "^6.1.11",
+    "ts-node": "^10.9.1",
     "uuid": "^3.0.0",
     "web-vitals": "^2.1.2",
     "winreg-ts": "^1.0.4"
