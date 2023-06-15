@@ -110,7 +110,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
         />
       );
     });
-    // The delete column
+    // Actions column
     if (canModifyIndex) {
       _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
     }
