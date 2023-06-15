@@ -35,3 +35,4 @@ config/*/.npmrc
 .sbom
 .testserver
 .evergreen/logs
+.deps
