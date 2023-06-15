@@ -81,7 +81,7 @@ export const AggregationSidePanel = ({
   const filteredUseCases = useMemo(() => {
     return STAGE_WIZARD_USE_CASES.filter(({ title, stageOperator }) => {
       return title.includes(searchText) || stageOperator.includes(searchText);
-    });
+    }).map(({ id, title, stageOperator }) => ({ id, title, stageOperator }));
   }, [searchText]);
 
   const handleSearchTextChange = useCallback(
@@ -134,38 +134,42 @@ export const AggregationSidePanel = ({
         placeholder="How can we help?"
         aria-label="How can we help?"
       />
-      <GuideCue<HTMLDivElement>
-        data-testid="stage-wizard-use-case-list-guide-cue"
-        cueId="aggregation-sidebar-wizard-use-case"
-        title="Quick access to the stages"
-        tooltipAlign="left"
-        trigger={({ ref }) => (
-          <div className={contentStyles} data-testid="side-panel-content">
-            {filteredUseCases.map((useCase, index) => (
-              <div
-                key={index}
-                ref={(r) => {
-                  if (index === 0) {
-                    ref.current = r;
-                  }
-                }}
-              >
-                <UseCaseCard
-                  key={useCase.id}
-                  id={useCase.id}
-                  title={useCase.title}
-                  stageOperator={useCase.stageOperator}
-                  onSelect={() => onSelect(useCase.id)}
-                />
-              </div>
-            ))}
-            <FeedbackLink />
-          </div>
-        )}
-      >
-        Choose from the list and use our easy drag & drop functionality to add
-        it in the pipeline overview.
-      </GuideCue>
+      <div className={contentStyles} data-testid="side-panel-content">
+        {filteredUseCases.map((useCase, index) => {
+          if (index !== 0) {
+            return (
+              <UseCaseCard
+                {...useCase}
+                key={useCase.id}
+                onSelect={() => onSelect(useCase.id)}
+              />
+            );
+          }
+
+          return (
+            <GuideCue<HTMLDivElement>
+              key={useCase.id}
+              data-testid="stage-wizard-use-case-list-guide-cue"
+              cueId="aggregation-sidebar-wizard-use-case"
+              title="Quick access to the stages"
+              tooltipAlign="left"
+              trigger={({ ref }) => (
+                <div ref={ref}>
+                  <UseCaseCard
+                    {...useCase}
+                    onSelect={() => onSelect(useCase.id)}
+                  />
+                  ;
+                </div>
+              )}
+            >
+              Choose from the list and use our easy drag & drop functionality to
+              add it in the pipeline overview.
+            </GuideCue>
+          );
+        })}
+        <FeedbackLink />
+      </div>
     </KeylineCard>
   );
 };

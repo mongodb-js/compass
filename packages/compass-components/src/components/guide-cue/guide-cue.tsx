@@ -44,11 +44,7 @@ export type GuideCueProps<T> = Omit<
 > &
   GroupAndStep & {
     cueId: string;
-    trigger: ({
-      ref,
-    }: {
-      ref: React.MutableRefObject<T | null>;
-    }) => React.ReactElement;
+    trigger: ({ ref }: { ref: React.Ref<T> }) => React.ReactElement;
   };
 
 export const GuideCue = <T extends HTMLElement>({
@@ -61,7 +57,7 @@ export const GuideCue = <T extends HTMLElement>({
 }: React.PropsWithChildren<GuideCueProps<T>>) => {
   const [isOpen, setIsOpen] = useState(false);
   const intersectionRef = useRef(true);
-  const refEl = useRef<T | null>(null);
+  const refEl = useRef<T>(null);
 
   const cueData = useMemo(() => {
     if (!groupId) {
@@ -75,17 +71,17 @@ export const GuideCue = <T extends HTMLElement>({
       const [entry] = entries;
       intersectionRef.current = entry.isIntersecting;
 
+      if (!entry.isIntersecting) {
+        setIsOpen(false);
+      }
+
       guideCueService.onCueIntersectionChange(
         entry.isIntersecting,
         cueData.cueId,
         cueData.groupId
       );
-
-      if (!entry.isIntersecting && isOpen) {
-        setIsOpen(false);
-      }
     },
-    [isOpen, intersectionRef]
+    [intersectionRef]
   );
 
   useEffect(() => {

@@ -26,7 +26,7 @@ const renderGuideCue = (
       <Button data-testid="outside-component">
         Outside Guide Cue Component
       </Button>
-      <GuideCue<HTMLButtonElement>
+      <GuideCue
         cueId=""
         title=""
         trigger={({ ref }) => (
@@ -56,27 +56,15 @@ const getGuideCuePopover = () => {
   return screen.getByRole('dialog');
 };
 
-const GROUPS = [
-  {
-    id: 'group-one',
-    steps: 1,
-  },
-  {
-    id: 'group-two',
-    steps: 2,
-  },
-];
-const GROUP_TO_STEPS = {
-  'group-one': 1,
-  'group-two': 2,
-};
+const GROUP_STEPS_MAP = new Map();
+GROUP_STEPS_MAP.set('group-one', 1);
+GROUP_STEPS_MAP.set('group-two', 2);
 
 describe('GuideCue', function () {
   const sandbox = Sinon.createSandbox();
 
   before(function () {
-    sandbox.replace(GuideCueGroups, 'GROUPS', GROUPS);
-    sandbox.replace(GuideCueGroups, 'GROUP_TO_STEPS', GROUP_TO_STEPS);
+    sandbox.replace(GuideCueGroups, 'GROUP_STEPS_MAP', GROUP_STEPS_MAP);
   });
 
   after(function () {

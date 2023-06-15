@@ -4,7 +4,7 @@ import {
   InvalidCueStepError,
   UnregisteredGroupError,
 } from './guide-cue-exceptions';
-import { type GroupName, GROUPS, GROUP_TO_STEPS } from './guide-cue-groups';
+import { type GroupName, GROUP_STEPS_MAP } from './guide-cue-groups';
 import {
   CompassGuideCueStorage,
   type GuideCueStorage,
@@ -39,7 +39,7 @@ export interface GuideCueService extends EventTarget {
   ): void;
 }
 
-type Cue = {
+export type Cue = {
   groupId?: GroupName;
   step: number;
   cueId: string;
@@ -50,7 +50,7 @@ type Cue = {
 export class GuideCueService extends EventTarget {
   private _cues: Cue[] = [];
 
-  private _activeGroupId: string | null = null;
+  private _activeGroupId: GroupName | null = null;
   private _activeCue: Cue | null = null;
 
   constructor(private readonly _storage: GuideCueStorage) {
@@ -94,13 +94,13 @@ export class GuideCueService extends EventTarget {
     );
   }
 
-  private validateCueData(groupId: string, step: number) {
-    if (!GROUPS.find((x) => x.id === groupId)) {
+  private validateCueData(groupId: GroupName, step: number) {
+    if (!GROUP_STEPS_MAP.has(groupId)) {
       throw new UnregisteredGroupError(groupId);
     }
 
     const groupCues = this._cues.filter((x) => x.groupId === groupId);
-    const groupSteps = GROUP_TO_STEPS[groupId];
+    const groupSteps = GROUP_STEPS_MAP.get(groupId)!;
 
     if (groupCues.length >= groupSteps) {
       throw new GroupStepsCompleteError(groupId, groupSteps);
@@ -156,9 +156,9 @@ export class GuideCueService extends EventTarget {
     return nextCue;
   }
 
-  private getNextCueFromGroup(groupId: string) {
+  private getNextCueFromGroup(groupId: GroupName) {
     const groupCues = this._cues.filter((x) => x.groupId === groupId);
-    if (groupCues.length !== GROUP_TO_STEPS[groupId]) {
+    if (groupCues.length !== GROUP_STEPS_MAP.get(groupId)) {
       return null;
     }
     const unseenCues = groupCues.filter(
@@ -216,7 +216,7 @@ export class GuideCueService extends EventTarget {
 
     // validate if all the cues of a group have been registered
     const groupCues = this._cues.filter((x) => x.groupId === groupId);
-    if (groupCues.length === GROUP_TO_STEPS[groupId]) {
+    if (groupCues.length === GROUP_STEPS_MAP.get(groupId)) {
       groupCues.forEach(({ cueId }) => {
         this.markCueAsVisited(cueId, groupId);
       });

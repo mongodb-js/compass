@@ -1,5 +1,5 @@
 import * as GuideCueGroups from './guide-cue-groups';
-import { GuideCueService } from './guide-cue-service';
+import { GuideCueService, type Cue } from './guide-cue-service';
 import { type GuideCueStorage } from './guide-cue-storage';
 import { expect } from 'chai';
 import {
@@ -25,21 +25,9 @@ class TestGuideCueStorage implements GuideCueStorage {
   }
 }
 
-const GROUPS = [
-  {
-    id: 'group-one',
-    steps: 1,
-  },
-  {
-    id: 'group-two',
-    steps: 2,
-  },
-];
-
-const GROUP_TO_STEPS = {
-  'group-one': 1,
-  'group-two': 2,
-};
+const GROUP_STEPS_MAP = new Map();
+GROUP_STEPS_MAP.set('group-one', 1);
+GROUP_STEPS_MAP.set('group-two', 2);
 
 describe('GuideCueService', function () {
   let guideCueService: GuideCueService;
@@ -53,8 +41,7 @@ describe('GuideCueService', function () {
   });
 
   before(function () {
-    sandbox.replace(GuideCueGroups, 'GROUPS', GROUPS);
-    sandbox.replace(GuideCueGroups, 'GROUP_TO_STEPS', GROUP_TO_STEPS);
+    sandbox.replace(GuideCueGroups, 'GROUP_STEPS_MAP', GROUP_STEPS_MAP);
   });
 
   after(function () {
@@ -234,9 +221,9 @@ describe('GuideCueService', function () {
       step: 1,
       groupId: 'group-one',
       isIntersecting: true,
-    };
+    } as unknown as Cue;
     beforeEach(function () {
-      guideCueService.addCue(cue as any);
+      guideCueService.addCue(cue);
       expect((guideCueService as any)._cues).to.have.lengthOf(1);
     });
 
@@ -336,7 +323,7 @@ describe('GuideCueService', function () {
           isIntersecting: true,
           isVisited: false,
         },
-      ];
+      ] as unknown as Cue[];
 
       (guideCueService as any)._cues = [cues[0], cues[1]];
 
@@ -378,7 +365,7 @@ describe('GuideCueService', function () {
       step: 1,
       groupId: 'group-one',
       isIntersecting: true,
-    };
+    } as unknown as Cue;
     let markCueAsVisited: Sinon.SinonSpy;
     beforeEach(function () {
       markCueAsVisited = Sinon.spy(guideCueStorage, 'markCueAsVisited');
@@ -415,7 +402,7 @@ describe('GuideCueService', function () {
         step: 1,
         groupId: 'group-two',
         isIntersecting: true,
-      };
+      } as unknown as Cue;
       const cue2 = {
         cueId: 'two',
         step: 2,
@@ -462,7 +449,7 @@ describe('GuideCueService', function () {
         step: 1,
         groupId: 'group-two',
         isIntersecting: true,
-      };
+      } as unknown as Cue;
 
       let markCueAsVisited: Sinon.SinonSpy;
 
