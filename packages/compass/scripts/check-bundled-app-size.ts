@@ -22,6 +22,7 @@ async function getDirectorySize(dirPath: string): Promise<number> {
   return size;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async function main() {
   const appBundleDirectory = path.resolve(__dirname, '..', 'dist');
   const sizeMB =
