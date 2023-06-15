@@ -10,6 +10,7 @@ import {
   useFocusRing,
   mergeProps,
   useDefaultAction,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -75,6 +76,7 @@ const itemWrapper = css({
   display: 'flex',
   alignItems: 'center',
   height: spacing[5],
+  gap: spacing[2],
   zIndex: 1,
 });
 
@@ -92,7 +94,11 @@ const itemButtonWrapper = css({
   alignItems: 'center',
   minWidth: 0,
   paddingLeft: spacing[3],
-  paddingRight: spacing[1],
+});
+
+const signalContainerStyles = css({
+  flex: 'none',
+  fontSize: 0,
 });
 
 const navigationItemLabel = css({
@@ -112,6 +118,7 @@ export function NavigationItem<Actions extends string>({
   actions,
   tabName,
   isActive,
+  showTooManyCollectionsInsight,
 }: {
   isExpanded?: boolean;
   onAction(actionName: string, ...rest: any[]): void;
@@ -120,6 +127,7 @@ export function NavigationItem<Actions extends string>({
   actions?: ItemAction<Actions>[];
   tabName: string;
   isActive: boolean;
+  showTooManyCollectionsInsight?: boolean;
 }) {
   const onClick = useCallback(() => {
     onAction('open-instance-workspace', tabName);
@@ -148,6 +156,20 @@ export function NavigationItem<Actions extends string>({
           <Icon glyph={glyph} size="small"></Icon>
           {isExpanded && <span className={navigationItemLabel}>{label}</span>}
         </div>
+        {isExpanded && showTooManyCollectionsInsight && (
+          <div className={signalContainerStyles}>
+            <SignalPopover
+              signals={{
+                id: 'too-many-collections',
+                title: 'Databases with too many collections',
+                description:
+                  "An excessive number of collections and their associated indexes can drain resources and impact your database's performance. In general, try to limit your replica set to 10,000 collections.",
+                learnMoreLink:
+                  'https://www.mongodb.com/docs/v3.0/core/data-model-operations/#large-number-of-collections',
+              }}
+            ></SignalPopover>
+          </div>
+        )}
         {isExpanded && actions && (
           <ItemActionControls<Actions>
             iconSize="small"
@@ -177,6 +199,7 @@ export function NavigationItems({
   onAction,
   currentLocation,
   readOnly,
+  showTooManyCollectionsInsight = false,
 }: {
   isExpanded?: boolean;
   isDataLake?: boolean;
@@ -185,6 +208,7 @@ export function NavigationItems({
   onAction(actionName: string, ...rest: any[]): void;
   currentLocation: string | null;
   readOnly?: boolean;
+  showTooManyCollectionsInsight?: boolean;
 }) {
   const isReadOnly = readOnly || isDataLake || !isWritable;
   const databasesActions = useMemo(() => {
@@ -225,6 +249,7 @@ export function NavigationItems({
         tabName="Databases"
         actions={databasesActions}
         isActive={currentLocation === 'Databases'}
+        showTooManyCollectionsInsight={showTooManyCollectionsInsight}
       />
       {isExpanded && (
         <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
@@ -234,19 +259,31 @@ export function NavigationItems({
   );
 }
 
-const mapStateToProps = (state: {
-  location: string | null;
-  instance?: {
-    dataLake: {
-      isDataLake: boolean;
+const mapStateToProps =
+  (state: // TODO(COMPASS-6914): Properly type stores instead of this
+  {
+    location: string | null;
+    databases: any;
+    instance?: {
+      dataLake: {
+        isDataLake: boolean;
+      };
+      isWritable: boolean;
     };
-    isWritable: boolean;
+  }) => {
+    const totalCollectionsCound = state.databases.databases.reduce(
+      (acc: number, db: { collectionsLength: number }) => {
+        return acc + db.collectionsLength;
+      },
+      0
+    );
+    return {
+      currentLocation: state.location,
+      isDataLake: state.instance?.dataLake.isDataLake,
+      isWritable: state.instance?.isWritable,
+      showTooManyCollectionsInsight: totalCollectionsCound > 10_000,
+    };
   };
-}) => ({
-  currentLocation: state.location,
-  isDataLake: state.instance?.dataLake.isDataLake,
-  isWritable: state.instance?.isWritable,
-});
 
 const MappedNavigationItems = connect(mapStateToProps, {
   changeFilterRegex,
