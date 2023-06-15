@@ -1,15 +1,16 @@
+import fs from 'fs';
 import path from 'path';
 import { EventEmitter } from 'events';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { AutoUpdater, FeedURLOptions } from 'electron';
 import { autoUpdater as electronAutoUpdater } from 'electron';
-import { pathExistsSync } from 'fs-extra';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-AUTO-UPDATES');
 
 /**
- * Electron autoUpdater doesn't support linux, so we provide our noop
- * implementation so that we can use autoUpdater seamlessly in the manager code
+ * Electron autoUpdater doesn't support linux and MSI installs on windows don't
+ * have squirrel, so we provide our noop implementation so that we can use
+ * autoUpdater seamlessly in the manager code
  */
 class NoopAutoUpdater extends EventEmitter implements AutoUpdater {
   private feedURLOptions: FeedURLOptions | null = null;
@@ -34,7 +35,12 @@ function hasSquirrel() {
     '..',
     'Update.exe'
   );
-  return pathExistsSync(updateExe);
+  try {
+    fs.statSync(updateExe);
+    return true;
+  } catch (err) {
+    return false;
+  }
 }
 
 function supportsAutoupdater() {
