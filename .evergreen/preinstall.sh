@@ -60,8 +60,19 @@ else
 
     echo "Installing npm v${NPM_VERSION}..."
 
-    curl -qL https://www.npmjs.com/install.sh | sh
-    echo "got npm version:"
+    echo "before installing npm:"
+    which npm
     npm -v
-    npm i -g npm@${NPM_VERSION}
+
+    npm i -g npm@${NPM_VERSION} --prefix=.
+    bin/node lib/node_modules/npm/bin/npm-cli.js i -g npm@${NPM_VERSION} --prefix=.
+
+    echo "got npm version:"
+    which npm
+    npm -v
+    echo "bin:"
+    ls -alh bin
+
+    echo ".deps:"
+    ls -alh
 fi
