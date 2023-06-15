@@ -104,6 +104,8 @@ export type DocumentListProps = {
     | 'instanceDescription'
     | 'refreshDocuments'
     | 'resultId'
+    | 'unindexedQuery'
+    | 'onUnindexedQueryInsightActionButtonClick'
   >;
 
 /**
@@ -314,6 +316,10 @@ class DocumentList extends React.Component<DocumentListProps> {
               instanceDescription={this.props.instanceDescription}
               refreshDocuments={this.props.refreshDocuments}
               resultId={this.props.resultId}
+              unindexedQuery={this.props.unindexedQuery}
+              onUnindexedQueryInsightActionButtonClick={this.props.store.openCreateIndexModal.bind(
+                this.props.store
+              )}
             />
           }
         >

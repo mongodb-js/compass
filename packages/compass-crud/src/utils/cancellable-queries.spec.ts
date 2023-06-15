@@ -4,11 +4,7 @@ import Connection from 'mongodb-connection-model';
 import type { DataService } from 'mongodb-data-service';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 
-import {
-  findDocuments,
-  countDocuments,
-  fetchShardingKeys,
-} from './cancellable-queries';
+import { countDocuments, fetchShardingKeys } from './cancellable-queries';
 
 const CONNECTION = new Connection({
   hostname: '127.0.0.1',
@@ -92,56 +88,6 @@ describe('cancellable-queries', function () {
 
   afterEach(function () {
     sinon.restore();
-  });
-
-  describe('findDocuments', function () {
-    it('resolves to the documents', async function () {
-      const docs = await findDocuments(
-        dataService,
-        'cancel.numbers',
-        { i: { $gt: 5 } },
-        {
-          signal,
-          // making sure arbitrary options make it through
-          skip: 5,
-          limit: 5,
-          projection: { _id: 0 },
-        }
-      );
-      expect(docs).to.deep.equal([
-        { i: 11 },
-        { i: 12 },
-        { i: 13 },
-        { i: 14 },
-        { i: 15 },
-      ]);
-    });
-
-    it('can be aborted', async function () {
-      // make sure there are no operations in progress before we start
-      let ops = await currentOpsByNS('cancel.numbers');
-      expect(ops).to.be.empty;
-
-      const filter = { $where: 'function() { return sleep(10000) || true; }' };
-      const promise = findDocuments(dataService, 'cancel.numbers', filter, {
-        signal,
-      });
-
-      // give it enough time to start
-      await delay(100);
-      ops = await currentOpsByNS('cancel.numbers');
-      expect(ops).to.have.lengthOf(1);
-
-      // abort the promise
-      abortController.abort();
-      const error = await promise.catch((err) => err);
-      expect(dataService.isCancelError(error)).to.equal(true);
-
-      // give it enough time to be killed
-      await delay(100);
-      ops = await currentOpsByNS('cancel.numbers');
-      expect(ops).to.have.lengthOf(0);
-    });
   });
 
   describe('countDocuments', function () {
