@@ -122,7 +122,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     [id, activeSubTab, localAppRegistry, globalAppRegistry, changeActiveSubTab]
   );
 
-  useMemo(() => {
+  useEffect(() => {
     const indexesTabId = tabs.indexOf('Indexes');
     const onOpenCreateIndexEvent = onSubTabClicked.bind(
       null,
