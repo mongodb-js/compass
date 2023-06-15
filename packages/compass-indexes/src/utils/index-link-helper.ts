@@ -24,11 +24,15 @@ const HELP_URLS = {
   UNKNOWN: null,
 };
 
+type HELP_URL_KEY =
+  | Uppercase<keyof typeof HELP_URLS>
+  | Lowercase<keyof typeof HELP_URLS>;
+
 /**
  * The function looks up index help links.
  *
  * @param {String} section - The name of the section to open.
  */
-export default function getIndexHelpLink(section = 'UNKNOWN') {
-  return (HELP_URLS as Record<string, string | null>)[section] ?? null;
+export default function getIndexHelpLink(section: HELP_URL_KEY = 'UNKNOWN') {
+  return HELP_URLS[section?.toUpperCase() as Uppercase<typeof section>] ?? null;
 }
