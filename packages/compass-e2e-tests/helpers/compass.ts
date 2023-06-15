@@ -704,7 +704,7 @@ export async function compileCompassAssets(
   await compileAssetsAsync({ dir: compassPath });
 }
 
-async function getCompassBuildMetadata(): Promise<BinPathOptions> {
+export async function getCompassBuildMetadata(): Promise<BinPathOptions> {
   try {
     let metadata;
     if (process.env.COMPASS_APP_PATH && process.env.COMPASS_APP_NAME) {
