@@ -59,7 +59,7 @@ describe('Collection indexes tab', function () {
       'create-index-modal-basic.png'
     );
 
-    await browser.dropIndex(createdIndexName);
+    await browser.dropIndex(createdIndexName, 'drop-index-modal-basic.png');
   });
 
   it('supports hiding and unhiding indexes', async function () {
@@ -68,8 +68,8 @@ describe('Collection indexes tab', function () {
       indexType: 'text',
     });
 
-    await browser.hideIndex(indexName);
-    await browser.unhideIndex(indexName);
+    await browser.hideIndex(indexName, 'hide-index-modal.png');
+    await browser.unhideIndex(indexName, 'unhide-index-modal.png');
   });
 
   describe('server version 4.2.0', function () {
@@ -95,7 +95,7 @@ describe('Collection indexes tab', function () {
       const indexFieldTypeElement = await browser.$(indexFieldTypeSelector);
       expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
 
-      await browser.dropIndex(indexName);
+      await browser.dropIndex(indexName, 'drop-index-modal-wildcard.png');
     });
   });
 
@@ -167,7 +167,11 @@ describe('Collection indexes tab', function () {
       const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
       await confirmInput.waitForDisplayed();
       await confirmInput.setValue('columnstore');
-      await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
+
+      const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
+        Selectors.DropIndexModal
+      );
+      await browser.clickVisible(ConfirmButtonSelector);
 
       await dropModal.waitForDisplayed({ reverse: true });
 

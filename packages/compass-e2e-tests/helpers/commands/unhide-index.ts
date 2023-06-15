@@ -1,7 +1,11 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-export async function unhideIndex(browser: CompassBrowser, indexName: string) {
+export async function unhideIndex(
+  browser: CompassBrowser,
+  indexName: string,
+  screenshotName?: string
+) {
   const indexComponentSelector = Selectors.indexComponent(indexName);
   const indexComponent = await browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
@@ -14,9 +18,14 @@ export async function unhideIndex(browser: CompassBrowser, indexName: string) {
   const hideModal = await browser.$(Selectors.UnhideIndexModal);
   await hideModal.waitForDisplayed();
 
-  await browser.screenshot(`unhide-index-modal.png`);
+  if (screenshotName) {
+    await browser.screenshot(screenshotName);
+  }
 
-  await browser.clickVisible(Selectors.UnhideIndexModalConfirmButton);
+  const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
+    Selectors.UnhideIndexModal
+  );
+  await browser.clickVisible(ConfirmButtonSelector);
 
   await hideModal.waitForDisplayed({ reverse: true });
 
