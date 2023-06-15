@@ -448,6 +448,9 @@ class CompassAutoUpdateManager {
     from: string;
     to: string;
   } | null> {
+    // temporary hack to test this
+    return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+    /*
     try {
       const response = await fetch(this.getUpdateCheckURL());
       if (response.status !== 200) {
@@ -473,6 +476,7 @@ class CompassAutoUpdateManager {
       );
       return null;
     }
+    */
   }
 
   private static currentActionAbortController: AbortController =
