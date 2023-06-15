@@ -39,7 +39,7 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
   void,
   SidePanelToggledAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const {
       sidePanel: { isPanelOpen },
     } = getState();
