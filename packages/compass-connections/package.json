@@ -87,7 +87,7 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb-build-info": "^1.5.0",
-    "mongodb-cloud-info": "^2.0.0",
+    "mongodb-cloud-info": "^2.0.1",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-data-service": "^22.8.0",
     "nyc": "^15.1.0",
