@@ -290,17 +290,47 @@ describe('prepareOIDCOptions', function () {
     ]);
   });
 
-  it('sets ALLOWED_HOSTS on the authMechanismProperties (non-url) to * when enableUntrustedEndpoints is true', function () {
-    const options = prepareOIDCOptions({
-      connectionString: 'mongodb://localhost:27017',
-      oidc: {
-        enableUntrustedEndpoints: true,
-      },
-    });
+  it('maps ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is true', function () {
+    function actual(connectionString: string) {
+      return prepareOIDCOptions({
+        connectionString,
+        oidc: {
+          enableUntrustedEndpoints: true,
+        },
+      }).authMechanismProperties;
+    }
 
-    expect(options.authMechanismProperties).to.deep.equal({
-      ALLOWED_HOSTS: ['*'],
-    });
+    function expected(ALLOWED_HOSTS: string[]) {
+      return { ALLOWED_HOSTS };
+    }
+
+    expect(actual('mongodb://localhost/')).to.deep.equal(
+      expected(['localhost'])
+    );
+    expect(actual('mongodb://localhost:27017/')).to.deep.equal(
+      expected(['localhost'])
+    );
+    expect(actual('mongodb://localhost:12345/')).to.deep.equal(
+      expected(['localhost'])
+    );
+    expect(actual('mongodb://localhost:12345,[::1]/')).to.deep.equal(
+      expected(['localhost', '::1'])
+    );
+    expect(actual('mongodb://localhost,[::1]:999/')).to.deep.equal(
+      expected(['localhost', '::1'])
+    );
+    expect(actual('mongodb://localhost,bar.foo.net/')).to.deep.equal(
+      expected(['localhost', 'bar.foo.net'])
+    );
+    expect(actual('mongodb+srv://bar.foo.net/')).to.deep.equal(
+      expected(['*.foo.net'])
+    );
+    expect(actual('mongodb://127.0.0.1:12345/')).to.deep.equal(
+      expected(['127.0.0.1'])
+    );
+    expect(actual('mongodb://2130706433:12345/')).to.deep.equal(
+      expected(['2130706433'])
+    ); // decimal IPv4
   });
 
   it('does not set ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is not set', function () {
