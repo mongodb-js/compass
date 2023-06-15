@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 
 import { getCompassExecutionParameters } from '../helpers/compass';
 
-describe.only('Time to first query', function () {
+describe('Total packaged app size', function () {
   let compassSize: number;
   before(async function () {
     const { testPackagedApp, binary } = await getCompassExecutionParameters();
@@ -12,30 +12,14 @@ describe.only('Time to first query', function () {
     }
     compassSize =
       (await fs.stat(binary)).size / (1024 * 1024) /* convert to MB */;
-    console.log(process.platform, 'compassSize', compassSize);
   });
 
-  describe('windows', function () {
-    before(function () {
-      if (process.platform !== 'win32') {
-        this.skip();
-      }
-    });
-
-    it('has a bundle size under 150mb', function () {
-      expect(compassSize).to.be.greaterThan(1);
-    });
-  });
-
-  describe('darwin (mac)', function () {
-    before(function () {
-      if (process.platform !== 'darwin') {
-        this.skip();
-      }
-    });
-
-    it('has a bundle size under 150mb', function () {
-      expect(compassSize).to.be.greaterThan(0);
-    });
+  it('has a bundle size under greater than 50MB, less than 200MB', function () {
+    // TODO: Check the bundle size on mac.
+    if (process.platform !== 'darwin') {
+      this.skip();
+    }
+    expect(compassSize).to.be.greaterThan(50);
+    expect(compassSize).to.be.lessThan(200);
   });
 });
