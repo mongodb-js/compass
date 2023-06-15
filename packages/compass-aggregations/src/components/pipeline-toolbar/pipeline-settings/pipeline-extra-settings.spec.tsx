@@ -106,24 +106,5 @@ describe('PipelineExtraSettings', function () {
           .getAttribute('aria-disabled')
       ).to.equal('true');
     });
-
-    // todo: only passes in isolation
-    describe.skip('shows guide cue', function () {
-      const storageSandbox: sinon.SinonSandbox = sinon.createSandbox();
-      beforeEach(function () {
-        storageSandbox
-          .stub(localStorage, 'getItem')
-          .returns(JSON.stringify([]));
-      });
-      afterEach(function () {
-        storageSandbox.restore();
-      });
-      it('stage wizard button guide cue', function () {
-        renderPipelineExtraSettings({
-          pipelineMode: 'builder-ui',
-        });
-        expect(screen.getByTestId('stage-wizard-guide-cue')).to.exist;
-      });
-    });
   });
 });

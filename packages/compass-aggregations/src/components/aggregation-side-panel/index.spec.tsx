@@ -101,23 +101,4 @@ describe('aggregation side panel', function () {
     screen.getByTestId('use-case-sort').click();
     expect(onSelectUseCase).to.have.been.calledOnceWith('sort', '$sort');
   });
-
-  // todo: only passes in isolation
-  context.skip('shows guide cue', function () {
-    const storageSandbox: sinon.SinonSandbox = sinon.createSandbox();
-    afterEach(function () {
-      storageSandbox.restore();
-    });
-
-    beforeEach(function () {
-      storageSandbox.stub(localStorage, 'getItem').returns(JSON.stringify([]));
-      renderAggregationSidePanel();
-    });
-
-    it('stage wizard guide use case guide cue', function () {
-      expect(
-        screen.getByTestId('stage-wizard-use-case-list-guide-cue')
-      ).to.exist;
-    });
-  });
 });

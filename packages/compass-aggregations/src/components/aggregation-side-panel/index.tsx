@@ -149,7 +149,6 @@ export const AggregationSidePanel = ({
           return (
             <GuideCue<HTMLDivElement>
               key={useCase.id}
-              data-testid="stage-wizard-use-case-list-guide-cue"
               cueId="aggregation-sidebar-wizard-use-case"
               title="Quick access to the stages"
               tooltipAlign="left"

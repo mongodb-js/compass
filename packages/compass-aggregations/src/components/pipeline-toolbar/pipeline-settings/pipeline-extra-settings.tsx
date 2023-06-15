@@ -123,7 +123,6 @@ export const PipelineExtraSettings: React.FunctionComponent<
       </SegmentedControl>
       {showStageWizard && (
         <GuideCue
-          data-testid="stage-wizard-guide-cue"
           cueId="aggregation-toolbar-stage-wizard"
           title="Stage Wizard"
           trigger={({ ref }) => (
