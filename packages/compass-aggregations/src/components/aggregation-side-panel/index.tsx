@@ -158,7 +158,6 @@ export const AggregationSidePanel = ({
                     {...useCase}
                     onSelect={() => onSelect(useCase.id)}
                   />
-                  ;
                 </div>
               )}
             >
