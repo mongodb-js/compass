@@ -78,6 +78,7 @@ const PipelineBuilderDndWrapper = ({
       if (draggedUseCase && overId !== null) {
         track('Aggregation Use Case Added', {
           drag_and_drop: true,
+          stage_name: draggedUseCase.stageOperator,
         });
         onUseCaseDropped(
           draggedUseCase.id,

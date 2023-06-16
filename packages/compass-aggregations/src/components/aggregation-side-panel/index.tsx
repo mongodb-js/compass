@@ -107,6 +107,7 @@ export const AggregationSidePanel = ({
       onSelectUseCase(id, useCase.stageOperator);
       track('Aggregation Use Case Added', {
         drag_and_drop: false,
+        stage_name: useCase.stageOperator,
       });
       markCueVisited();
     },
@@ -137,8 +138,8 @@ export const AggregationSidePanel = ({
         </Body>
         <IconButton
           className={closeButtonStyles}
-          title="Hide Side Panel"
-          aria-label="Hide Side Panel"
+          title="Hide Stage Wizard"
+          aria-label="Hide Stage Wizard"
           onClick={() => onCloseSidePanel()}
         >
           <Icon glyph="X" />

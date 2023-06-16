@@ -778,7 +778,9 @@ export const convertWizardToStage = (
       stage_index: afterStageIndex + 1,
       editor_view_type: 'stage',
     });
-    track('Aggregation Use Case Saved');
+    track('Aggregation Use Case Saved', {
+      stage_name: stage.operator,
+    });
 
     dispatch({
       type: StageEditorActionTypes.WizardToStageClicked,
