@@ -1,8 +1,4 @@
-export {
-  findDocuments,
-  countDocuments,
-  fetchShardingKeys,
-} from './cancellable-queries';
+export { countDocuments, fetchShardingKeys } from './cancellable-queries';
 
 /**
  * Get the size for the string value.

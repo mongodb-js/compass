@@ -108,6 +108,8 @@ export type CrudToolbarProps = {
   resultId: string;
   start: number;
   viewSwitchHandler: (view: 'List' | 'JSON' | 'Table') => void;
+  isCollectionScan?: boolean;
+  onCollectionScanInsightActionButtonClick?: () => void;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -132,6 +134,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   resultId,
   start,
   viewSwitchHandler,
+  isCollectionScan,
+  onCollectionScanInsightActionButtonClick,
 }) => {
   const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
 
@@ -179,6 +183,24 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             onApply={onApplyClicked}
             onReset={onResetClicked}
             showExplainButton
+            insights={
+              isCollectionScan
+                ? {
+                    title: 'Query executed without index',
+                    description: (
+                      <>
+                        This query ran without an index. If you plan on using
+                        this query <strong>heavily</strong> in your application,
+                        you should create an index that covers this query.
+                      </>
+                    ),
+                    primaryActionButtonLabel: 'Create index',
+                    primaryActionButtonIcon: 'Plus',
+                    onPrimaryActionButtonClick:
+                      onCollectionScanInsightActionButtonClick,
+                  }
+                : undefined
+            }
           />
         )}
       </div>
