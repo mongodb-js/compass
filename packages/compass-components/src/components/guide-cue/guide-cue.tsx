@@ -8,6 +8,14 @@ import React, {
 import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 import type { GroupName } from './guide-cue-groups';
+import { css, cx } from '../..';
+import { rafraf } from '../../utils/rafraf';
+
+const hiddenPopoverStyles = css({
+  display: 'none !important',
+  opacity: '0 !important',
+  transition: 'none !important',
+});
 
 const getDataCueId = ({
   cueId,
@@ -58,6 +66,7 @@ export const GuideCue = <T extends HTMLElement>({
   const [isOpen, setIsOpen] = useState(false);
   const intersectionRef = useRef(true);
   const refEl = useRef<T>(null);
+  const [readyToRender, setReadyToRender] = useState(false);
 
   const cueData = useMemo(() => {
     if (!groupId) {
@@ -126,6 +135,19 @@ export const GuideCue = <T extends HTMLElement>({
     };
   }, [refEl, cueData, intersectionRef]);
 
+  useEffect(() => {
+    // In order to ensure proper positioning, we have introduced
+    // a delay in rendering the cue for a few frames. The issue at
+    // hand is that the LG GC component fails to attach itself
+    // correctly to the refEl element, resulting in an undesired gap
+    // between the GC and refEl. Furthermore, when the position of
+    // refEl changes, the GC does not adjust accordingly. This
+    // somehow seems to be LG issue which we are unable to recreate.
+    return rafraf(() => {
+      setReadyToRender(true);
+    });
+  }, []);
+
   const onNextGroup = useCallback(() => {
     setIsOpen(false);
     guideCueService.markGroupAsVisited(cueData.groupId);
@@ -171,26 +193,30 @@ export const GuideCue = <T extends HTMLElement>({
     };
   }, [isOpen, cueData, refEl, onNext]);
 
-  const content = useMemo(() => trigger({ ref: refEl }), [refEl, trigger]);
-
   return (
     <>
-      <LGGuideCue
-        open={isOpen}
-        numberOfSteps={guideCueService.getCountOfSteps(cueData.groupId)}
-        onDismiss={onNextGroup}
-        onPrimaryButtonClick={onNext}
-        setOpen={() => {
-          // noop
-        }}
-        currentStep={cueData.step || 1}
-        refEl={refEl}
-        data-cueid={getDataCueId(cueData)}
-        {...restOfCueProps}
-      >
-        {children}
-      </LGGuideCue>
-      {content}
+      {readyToRender && (
+        <LGGuideCue
+          {...restOfCueProps}
+          open={isOpen}
+          numberOfSteps={guideCueService.getCountOfSteps(cueData.groupId)}
+          onDismiss={onNextGroup}
+          onPrimaryButtonClick={onNext}
+          setOpen={() => {
+            // noop
+          }}
+          currentStep={cueData.step || 1}
+          refEl={refEl}
+          data-cueid={getDataCueId(cueData)}
+          tooltipClassName={cx(
+            // Avoid flicker when the component (trigger) becomes invisible
+            !intersectionRef.current && hiddenPopoverStyles
+          )}
+        >
+          {children}
+        </LGGuideCue>
+      )}
+      {trigger({ ref: refEl })}
     </>
   );
 };
