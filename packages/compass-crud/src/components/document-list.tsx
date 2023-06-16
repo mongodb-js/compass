@@ -104,6 +104,8 @@ export type DocumentListProps = {
     | 'instanceDescription'
     | 'refreshDocuments'
     | 'resultId'
+    | 'isCollectionScan'
+    | 'onCollectionScanInsightActionButtonClick'
   >;
 
 /**
@@ -314,6 +316,10 @@ class DocumentList extends React.Component<DocumentListProps> {
               instanceDescription={this.props.instanceDescription}
               refreshDocuments={this.props.refreshDocuments}
               resultId={this.props.resultId}
+              isCollectionScan={this.props.isCollectionScan}
+              onCollectionScanInsightActionButtonClick={this.props.store.openCreateIndexModal.bind(
+                this.props.store
+              )}
             />
           }
         >

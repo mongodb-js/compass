@@ -137,10 +137,9 @@ describe('IndexesToolbar Component', function () {
       userEvent.click(createIndexButton);
     });
 
-    it('should emit "toggle-create-index-modal" on the local app registry', function () {
+    it('should emit "open-create-index-modal" on the local app registry', function () {
       expect(emitSpy).to.have.been.calledOnce;
-      expect(emitSpy.firstCall.args[0]).to.equal('toggle-create-index-modal');
-      expect(emitSpy.firstCall.args[1]).to.equal(true);
+      expect(emitSpy.firstCall.args[0]).to.equal('open-create-index-modal');
     });
   });
 

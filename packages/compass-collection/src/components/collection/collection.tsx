@@ -122,6 +122,22 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     [id, activeSubTab, localAppRegistry, globalAppRegistry, changeActiveSubTab]
   );
 
+  useEffect(() => {
+    const indexesTabId = tabs.indexOf('Indexes');
+    const onOpenCreateIndexEvent = onSubTabClicked.bind(
+      null,
+      indexesTabId,
+      tabs[indexesTabId]
+    );
+    localAppRegistry.on('open-create-index-modal', onOpenCreateIndexEvent);
+    return () => {
+      localAppRegistry.removeListener(
+        'open-create-index-modal',
+        onOpenCreateIndexEvent
+      );
+    };
+  }, [localAppRegistry, onSubTabClicked, tabs]);
+
   return (
     <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>

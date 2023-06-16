@@ -5,22 +5,6 @@ import type { BSONObject } from '../stores/crud-store';
 
 const { log, mongoLogId, debug } = createLogger('cancellable-queries');
 
-export async function findDocuments(
-  dataService: DataService,
-  ns: string,
-  filter: BSONObject,
-  {
-    signal,
-    ...options
-  }: {
-    signal: AbortSignal;
-  } & Omit<Parameters<typeof dataService.find>[2], 'sort'>
-): Promise<BSONObject[]> {
-  return dataService.find(ns, filter, options, {
-    abortSignal: signal,
-  });
-}
-
 export async function countDocuments(
   dataService: DataService,
   ns: string,

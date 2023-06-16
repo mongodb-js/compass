@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useHoverState } from '../hooks/use-focus-hover';
 import { Button, Icon, IconButton, Link } from './leafygreen';
 import { InteractivePopover } from './interactive-popover';
@@ -8,7 +8,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
 
-type Signal = {
+export type Signal = {
   /**
    * Unique signal id that will be used to resolve the dismissing logic.
    * If signal was dismissed before and should stay dismissed, it will
@@ -35,15 +35,15 @@ type Signal = {
   primaryActionButtonIcon?: string;
 
   primaryActionButtonVariant?: 'primaryOutline' | 'dangerOutline';
-};
 
-type SignalPopoverProps = {
   /**
    * Optional, when provided will be called with a signal id on primary action
    * button click
    */
-  onPrimaryAction?: (signalId: string) => void;
+  onPrimaryActionButtonClick?: React.MouseEventHandler;
+};
 
+type SignalPopoverProps = {
   /** List of signals to render */
   signals: Signal | Signal[];
 
@@ -84,9 +84,7 @@ const signalCardLearnMoreLinkStyles = css({
   flex: 'none',
 });
 
-const SignalCard: React.FunctionComponent<
-  Signal & Pick<SignalPopoverProps, 'onPrimaryAction'>
-> = ({
+const SignalCard: React.FunctionComponent<Signal> = ({
   id,
   title,
   description,
@@ -95,7 +93,7 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonLabel,
   primaryActionButtonIcon,
   primaryActionButtonVariant,
-  onPrimaryAction,
+  onPrimaryActionButtonClick,
 }) => {
   return (
     <div
@@ -116,9 +114,7 @@ const SignalCard: React.FunctionComponent<
                 <Icon glyph={primaryActionButtonIcon}></Icon>
               ) : undefined
             }
-            onClick={() => {
-              onPrimaryAction?.(id);
-            }}
+            onClick={onPrimaryActionButtonClick}
           >
             {primaryActionButtonLabel}
           </Button>
@@ -191,6 +187,12 @@ const MultiSignalHeader: React.FunctionComponent<{
 
 const popoverStyles = css({
   width: 315,
+});
+
+const popoverHiddenStyles = css({
+  display: 'none !important',
+  opacity: '0 !important',
+  transition: 'none !important',
 });
 
 const popoverContentContainerStyles = css({
@@ -285,11 +287,11 @@ const closeButtonMultiSignalStyles = css({
 });
 
 const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
-  onPrimaryAction,
   signals: _signals,
   darkMode: _darkMode,
 }) => {
   const darkMode = useDarkMode(_darkMode);
+  const [triggerVisible, setTriggerVisible] = useState(true);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [hoverProps, isHovered] = useHoverState();
   const [currentSignalIndex, setCurrentSignalIndex] = useState(0);
@@ -297,6 +299,24 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
   const isActive = isHovered || popoverOpen;
+
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useLayoutEffect(() => {
+    if (!triggerRef.current) {
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      const isVisible = entries[0].isIntersecting;
+      setTriggerVisible(isVisible);
+      // Close popover if trigger is not visible on the screen anymore
+      if (!isVisible) {
+        setPopoverOpen(false);
+      }
+    });
+    observer.observe(triggerRef.current);
+    return observer.disconnect.bind(observer);
+  }, []);
 
   const onPopoverOpenChange = useCallback((newStatus: boolean) => {
     setPopoverOpen(newStatus);
@@ -328,8 +348,17 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
 
   return (
     <InteractivePopover
-      className={popoverStyles}
-      containerClassName={popoverContentContainerStyles}
+      className={cx(
+        popoverStyles,
+        // If trigger is not visible, we are in this weird state where trigger
+        // component is hidden by something, but the popover might still be on
+        // the screen. We already started closing popover, but because
+        // leafygreen provides animations that you can't disable, this means
+        // that the popover dissapearance can't be correctly animated in this
+        // case and so we just hide it with styles
+        !triggerVisible && popoverHiddenStyles
+      )}
+      containerClassName={cx(popoverContentContainerStyles)}
       closeButtonClassName={
         multiSignals ? closeButtonMultiSignalStyles : closeButtonStyles
       }
@@ -344,6 +373,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
             darkMode && badgeDarkModeStyles
           ),
           style: { width: isActive ? activeBadgeWidth : 18 },
+          ref: triggerRef,
         });
         return (
           <>
@@ -378,10 +408,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
           onIndexChange={setCurrentSignalIndex}
         ></MultiSignalHeader>
       )}
-      <SignalCard
-        {...currentSignal}
-        onPrimaryAction={onPrimaryAction}
-      ></SignalCard>
+      <SignalCard {...currentSignal}></SignalCard>
     </InteractivePopover>
   );
 };
