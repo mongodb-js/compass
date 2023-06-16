@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -19,10 +19,6 @@ import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mo
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { toggleSidePanel } from '../../../modules/side-panel';
 import { usePreference } from 'compass-preferences-model';
-
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
   display: 'flex',
@@ -45,7 +41,6 @@ const toggleLabelStyles = css({
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
   isPipelineModeDisabled: boolean;
-  isSidePanelOpen: boolean;
   pipelineMode: PipelineMode;
   onToggleAutoPreview: (newVal: boolean) => void;
   onChangePipelineMode: (newVal: PipelineMode) => void;
@@ -57,7 +52,6 @@ export const PipelineExtraSettings: React.FunctionComponent<
   PipelineExtraSettingsProps
 > = ({
   isAutoPreview,
-  isSidePanelOpen,
   isPipelineModeDisabled,
   pipelineMode,
   onToggleAutoPreview,
@@ -66,12 +60,6 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onToggleSidePanel,
 }) => {
   const showStageWizard = usePreference('enableStageWizard', React);
-
-  useEffect(() => {
-    if (isSidePanelOpen) {
-      track('Aggregation Side Panel Opened');
-    }
-  }, [isSidePanelOpen]);
 
   return (
     <div
@@ -128,8 +116,8 @@ export const PipelineExtraSettings: React.FunctionComponent<
           trigger={({ ref }) => (
             <IconButton
               ref={ref}
-              title="Toggle Side Panel"
-              aria-label="Toggle Side Panel"
+              title="Toggle Stage Wizard"
+              aria-label="Toggle Stage Wizard"
               onClick={onToggleSidePanel}
               data-testid="pipeline-toolbar-side-panel-button"
               disabled={pipelineMode === 'as-text'}
@@ -159,7 +147,6 @@ const mapState = (state: RootState) => {
     isAutoPreview: state.autoPreview,
     isPipelineModeDisabled: getIsPipelineInvalidFromBuilderState(state, false),
     pipelineMode: state.pipelineBuilder.pipelineMode,
-    isSidePanelOpen: state.sidePanel.isPanelOpen,
   };
 };
 

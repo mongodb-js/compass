@@ -34,6 +34,7 @@ import {
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import { usePreference } from 'compass-preferences-model';
+import type { Signal } from '@mongodb-js/compass-components';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -122,6 +123,7 @@ type QueryBarProps = {
   expanded: boolean;
   placeholders?: Record<QueryProperty, string>;
   onExplain?: () => void;
+  insights?: Signal | Signal[];
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -145,6 +147,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   expanded: isQueryOptionsExpanded,
   placeholders,
   onExplain,
+  insights,
 }) => {
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
@@ -187,6 +190,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             id={filterQueryOptionId}
             onApply={onApply}
             placeholder={placeholders?.filter}
+            insights={insights}
           />
         </div>
         {showExplainButton && newExplainPlan && (

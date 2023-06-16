@@ -22,6 +22,7 @@ import type {
   BadgeVariant,
   IconGlyph,
   ItemAction,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
 import { NamespaceParam } from './namespace-param';
 import type { ItemType } from './use-create';
@@ -156,6 +157,7 @@ export type DataProp = {
   label: React.ReactNode;
   value: React.ReactNode;
   hint?: React.ReactNode;
+  insights?: React.ComponentProps<typeof SignalPopover>['signals'];
 };
 
 export type NamespaceItemCardProps = {
@@ -281,7 +283,7 @@ export const NamespaceItemCard: React.FunctionComponent<
       {viewType === 'grid' && badgesGroup}
 
       <div className={cx(namespaceDataGroup, viewType === 'grid' && column)}>
-        {data.map(({ label, value, hint }, idx) => {
+        {data.map(({ label, value, hint, insights }, idx) => {
           return (
             <NamespaceParam
               key={idx}
@@ -290,6 +292,7 @@ export const NamespaceItemCard: React.FunctionComponent<
               value={value}
               status={status}
               viewType={viewType}
+              insights={insights}
             ></NamespaceParam>
           );
         })}

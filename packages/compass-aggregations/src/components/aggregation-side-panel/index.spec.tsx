@@ -37,13 +37,13 @@ describe('aggregation side panel', function () {
 
     it('renders close button', function () {
       renderAggregationSidePanel();
-      expect(screen.getByLabelText('Hide Side Panel')).to.exist;
+      expect(screen.getByLabelText('Hide Stage Wizard')).to.exist;
     });
 
     it('calls onCloseSidePanel when close button is clicked', function () {
       const onCloseSidePanel = sinon.spy();
       renderAggregationSidePanel({ onCloseSidePanel });
-      screen.getByLabelText('Hide Side Panel').click();
+      screen.getByLabelText('Hide Stage Wizard').click();
       expect(onCloseSidePanel).to.have.been.calledOnce;
     });
   });

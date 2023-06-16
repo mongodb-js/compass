@@ -61,7 +61,6 @@ export default reducer;
 
 export const closeCreateIndexModal = () => {
   return (dispatch: Dispatch) => {
-    dispatch(localAppRegistryEmit('refresh-data'));
     dispatch(toggleIsVisible(false));
     dispatch(resetForm());
   };

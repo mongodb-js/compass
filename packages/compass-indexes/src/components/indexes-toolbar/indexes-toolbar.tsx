@@ -55,7 +55,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   readOnly, // preferences readOnly.
 }) => {
   const onClickCreateIndex = useCallback(() => {
-    localAppRegistry.emit('toggle-create-index-modal', true);
+    localAppRegistry.emit('open-create-index-modal');
   }, [localAppRegistry]);
   const showCreateIndexButton =
     !isReadonly && !isReadonlyView && !readOnly && !errorMessage;

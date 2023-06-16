@@ -125,6 +125,7 @@ export {
 export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
 export { SignalPopover } from './components/signal-popover';
+export type { Signal } from './components/signal-popover';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { EmptyContent } from './components/empty-content';

@@ -315,6 +315,9 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
+          # Check the app bundle size.
+          npm run --workspace mongodb-compass check-bundled-app-size
+
           echo "Unpacking ${app_archive_name} ..."
 
           # Unpack the app archive
