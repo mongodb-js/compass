@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Jun 15 2023.
+This document was automatically generated on Fri Jun 16 2023.
 
 ## List of dependencies
 
@@ -558,6 +558,7 @@ This document was automatically generated on Thu Jun 15 2023.
 | **[semver](#e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d)**                                        | 5.7.1        | ISC                                 |
 | **[semver](#24cd86d9f27cebacf43c9e9870102fe20fe9d787608ebd41dca9afe1d2e4790c)**                                        | 6.3.0        | ISC                                 |
 | **[semver](#37ac96eaf12c2e26f71e38ad2458ac1cc4c424d9b8c9da62a9737625817f2455)**                                        | 7.5.1        | ISC                                 |
+| **[semver](#c76a6327bb95658a6811574fb25947962bbf7675ba13c8ecc8ef383fc85aa450)**                                        | 7.5.2        | ISC                                 |
 | **[send](#a5aa96052b8bf57c58c38d6fae3a3b7d94ec212b6100f58a8260eb2f6a8cff6d)**                                          | 0.18.0       | MIT                                 |
 | **[serve-static](#03156d123ff3a9482fa09d97af4668d5e2ae058c4e3d2c67fe4a1c0c072403f0)**                                  | 1.15.0       | MIT                                 |
 | **[setprototypeof](#7787a1d3bc2f39b65d75407d5d8d02d8ddb70f1cdb74897f15115e995fb64a56)**                                | 1.2.0        | ISC                                 |
@@ -42427,6 +42428,32 @@ License files:
 <a id="37ac96eaf12c2e26f71e38ad2458ac1cc4c424d9b8c9da62a9737625817f2455"></a>
 
 ### [semver](https://www.npmjs.com/package/semver) (version 7.5.1)
+
+License tags: ISC
+
+License files:
+
+- LICENSE:
+
+      The ISC License
+
+      Copyright (c) Isaac Z. Schlueter and Contributors
+
+      Permission to use, copy, modify, and/or distribute this software for any
+      purpose with or without fee is hereby granted, provided that the above
+      copyright notice and this permission notice appear in all copies.
+
+      THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+      WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+      MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+      ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+      IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+<a id="c76a6327bb95658a6811574fb25947962bbf7675ba13c8ecc8ef383fc85aa450"></a>
+
+### [semver](https://www.npmjs.com/package/semver) (version 7.5.2)
 
 License tags: ISC
 
