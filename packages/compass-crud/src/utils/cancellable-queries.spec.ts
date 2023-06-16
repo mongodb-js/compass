@@ -17,30 +17,18 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
-function delay(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 describe('cancellable-queries', function () {
   this.timeout(5000);
 
   let dataService: DataService;
   let abortController;
   let signal;
-  let currentOpsByNS;
 
   before(async function () {
     const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect({
       connectionOptions: info.connectionOptions,
     });
-
-    currentOpsByNS = async function (ns) {
-      const ops = await dataService.currentOp();
-      return ops.inprog.filter((op) => op.ns === ns);
-    };
 
     const docs = [...Array(1000).keys()].map((i) => ({ i }));
 
