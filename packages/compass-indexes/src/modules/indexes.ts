@@ -2,7 +2,7 @@ import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regis
 import type { IndexDefinition as _IndexDefinition } from 'mongodb-data-service';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import _debug from 'debug';
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from 'lodash';
 import type { AnyAction } from 'redux';
 
 import type { RootState } from './index';

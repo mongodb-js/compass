@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ValueBubble } from '../value-bubble';
-import sampleSize from 'lodash.samplesize';
+import { sampleSize } from 'lodash';
 import { Icon, IconButton } from '@mongodb-js/compass-components';
 
 class UniqueMiniChart extends Component {

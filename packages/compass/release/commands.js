@@ -75,7 +75,9 @@ async function startRelease(bumpFn, evergreenProject) {
       `Make sure that ${chalk.bold(
         evergreenProject
       )} is building from ${chalk.bold(currentBranch)}:\n`,
-      ux.link(`https://evergreen.mongodb.com/projects##${evergreenProject}`)
+      ux.link(
+        `https://spruce.mongodb.com/project/${evergreenProject}/settings/general`
+      )
     ),
     '\n'
   );
@@ -89,7 +91,7 @@ async function startRelease(bumpFn, evergreenProject) {
     '\n',
     ux.manualAction(
       'Make sure that the build is running in evergreen:\n',
-      ux.link(`https://evergreen.mongodb.com/waterfall/${evergreenProject}`)
+      ux.link(`https://spruce.mongodb.com/commits/${evergreenProject}`)
     ),
     '\n'
   );
