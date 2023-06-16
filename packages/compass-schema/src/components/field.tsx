@@ -8,7 +8,7 @@ import {
   spacing,
   KeylineCard,
 } from '@mongodb-js/compass-components';
-import find from 'lodash.find';
+import { find } from 'lodash';
 import { withPreferences } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
 import type {

@@ -100,7 +100,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
           <PropertyBadgeWithTooltip
             key={property}
             text={property}
-            link={getIndexHelpLink(property?.toUpperCase()) ?? '#'}
+            link={getIndexHelpLink(property) ?? '#'}
             tooltip={getPropertyTooltip(property, extra)}
           />
         );
@@ -108,7 +108,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
           text={cardinality}
-          link={getIndexHelpLink(cardinality?.toUpperCase()) ?? '#'}
+          link={getIndexHelpLink(cardinality) ?? '#'}
         />
       )}
       {extra.status === 'inprogress' && (

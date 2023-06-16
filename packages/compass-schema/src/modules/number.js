@@ -1,8 +1,6 @@
 /* eslint camelcase: 0 */
 import d3 from 'd3';
-import groupBy from 'lodash.groupby';
-import sortBy from 'lodash.sortby';
-import map from 'lodash.map';
+import { groupBy, sortBy, map } from 'lodash';
 import many from './many';
 import shared from './shared';
 
