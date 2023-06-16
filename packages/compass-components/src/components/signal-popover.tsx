@@ -51,6 +51,7 @@ type SignalPopoverProps = {
 };
 
 const signalCardContentStyles = css({
+  '--signalCardBackgroundColor': palette.white,
   width: '100%',
   display: 'grid',
   gridTemplateColumns: '1fr',
@@ -59,7 +60,11 @@ const signalCardContentStyles = css({
   paddingBottom: spacing[4],
   paddingLeft: spacing[4],
   paddingRight: spacing[4],
-  backgroundColor: palette.white,
+  backgroundColor: 'var(--signalCardBackgroundColor)',
+});
+
+const signalCardContentDarkModeStyles = css({
+  '--signalCardBackgroundColor': palette.gray.dark4,
 });
 
 const signalCardTitleStyles = css({
@@ -84,7 +89,9 @@ const signalCardLearnMoreLinkStyles = css({
   flex: 'none',
 });
 
-const SignalCard: React.FunctionComponent<Signal> = ({
+const SignalCard: React.FunctionComponent<
+  Signal & Pick<SignalPopoverProps, 'darkMode'>
+> = ({
   id,
   title,
   description,
@@ -93,11 +100,17 @@ const SignalCard: React.FunctionComponent<Signal> = ({
   primaryActionButtonLabel,
   primaryActionButtonIcon,
   primaryActionButtonVariant,
+  darkMode: _darkMode,
   onPrimaryActionButtonClick,
 }) => {
+  const darkMode = useDarkMode(_darkMode);
+
   return (
     <div
-      className={signalCardContentStyles}
+      className={cx(
+        signalCardContentStyles,
+        darkMode && signalCardContentDarkModeStyles
+      )}
       data-testid="insight-signal-card"
       data-signal-id={id}
     >
@@ -147,13 +160,25 @@ const multiSignalHeaderContainerStyles = css({
   fontVariantNumeric: 'tabular-nums',
 });
 
+const multiSignalHeaderContainerDarkModeStyles = css({
+  '--multiSignalHeaderBorderColor': palette.gray.dark2,
+  '--multiSignalHeaderBackgroundColor': palette.gray.dark3,
+});
+
 const MultiSignalHeader: React.FunctionComponent<{
   currentIndex: number;
   total: number;
   onIndexChange(newVal: number): void;
-}> = ({ currentIndex, total, onIndexChange }) => {
+  darkMode?: boolean;
+}> = ({ currentIndex, total, onIndexChange, darkMode: _darkMode }) => {
+  const darkMode = useDarkMode(_darkMode);
   return (
-    <div className={multiSignalHeaderContainerStyles}>
+    <div
+      className={cx(
+        multiSignalHeaderContainerStyles,
+        darkMode && multiSignalHeaderContainerDarkModeStyles
+      )}
+    >
       <IconButton
         data-testid="insight-signal-show-prev-button"
         aria-label="Show previous insight"
@@ -200,7 +225,8 @@ const popoverContentContainerStyles = css({
 });
 
 const transitionStyles = css({
-  transitionProperty: 'opacity, width, border-radius',
+  transitionProperty:
+    'opacity, width, border-radius, color, box-shadow, background-color',
   transitionTimingFunction: 'linear',
   transitionDuration: '0.15s',
 });
@@ -213,9 +239,6 @@ const badgeStyles = css(
     background: 'none',
   },
   {
-    '--badgeBackgroundColor': palette.blue.light3,
-    '--badgeBorderColor': palette.blue.light2,
-    '--badgeColor': palette.blue.dark1,
     position: 'relative',
     display: 'inline-block',
     width: 18,
@@ -233,18 +256,33 @@ const badgeStyles = css(
   transitionStyles
 );
 
-const badgeDarkModeStyles = css({
-  // TODO: https://jira.mongodb.org/browse/COMPASS-6912
+const badgeLightModeStyles = css({
   '--badgeBackgroundColor': palette.blue.light3,
   '--badgeBorderColor': palette.blue.light2,
   '--badgeColor': palette.blue.dark1,
 });
 
+const badgeDarkModeStyles = css({
+  '--badgeBackgroundColor': palette.blue.dark2,
+  '--badgeBorderColor': palette.blue.dark1,
+  '--badgeColor': palette.blue.light2,
+});
+
 const badgeHoveredStyles = css({
+  borderRadius: 5,
+});
+
+const badgeHoveredLightModeStyles = css({
   '--badgeBackgroundColor': palette.blue.light1,
   '--badgeBorderColor': palette.blue.dark1,
   '--badgeColor': palette.white,
   borderRadius: 5,
+});
+
+const badgeHoveredDarkModeStyles = css({
+  '--badgeBackgroundColor': palette.blue.dark1,
+  '--badgeBorderColor': palette.blue.base,
+  '--badgeColor': palette.blue.light3,
 });
 
 const badgeIconStyles = css({});
@@ -366,18 +404,29 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
       setOpen={onPopoverOpenChange}
       spacing={spacing[2]}
       trigger={({ children, ...triggerProps }) => {
+        const onTriggerClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
+          evt.stopPropagation();
+          triggerProps.onClick(evt);
+        };
         const props = mergeProps<HTMLButtonElement>(hoverProps, triggerProps, {
           className: cx(
             badgeStyles,
             isActive && badgeHoveredStyles,
-            darkMode && badgeDarkModeStyles
+            ...(darkMode
+              ? [badgeDarkModeStyles, isActive && badgeHoveredDarkModeStyles]
+              : [badgeLightModeStyles, isActive && badgeHoveredLightModeStyles])
           ),
           style: { width: isActive ? activeBadgeWidth : 18 },
           ref: triggerRef,
         });
         return (
           <>
-            <button {...props} data-testid="insight-badge-button" type="button">
+            <button
+              {...props}
+              onClick={onTriggerClick}
+              data-testid="insight-badge-button"
+              type="button"
+            >
               <Icon
                 glyph="Bulb"
                 size="small"
@@ -406,9 +455,10 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
           currentIndex={currentSignalIndex}
           total={signals.length}
           onIndexChange={setCurrentSignalIndex}
+          darkMode={darkMode}
         ></MultiSignalHeader>
       )}
-      <SignalCard {...currentSignal}></SignalCard>
+      <SignalCard {...currentSignal} darkMode={darkMode}></SignalCard>
     </InteractivePopover>
   );
 };

@@ -46,7 +46,7 @@ type InteractivePopoverProps = {
   className?: string;
   children: React.ReactNode;
   trigger: (triggerProps: {
-    onClick: (event: React.MouseEvent | React.TouchEvent) => void;
+    onClick: React.MouseEventHandler<HTMLButtonElement>;
     ref: React.LegacyRef<HTMLButtonElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
@@ -185,7 +185,10 @@ function InteractivePopover({
             <IconButton
               className={cx(closeButtonStyles, closeButtonClassName)}
               data-testid="interactive-popover-close-button"
-              onClick={onClose}
+              onClick={(evt) => {
+                evt.stopPropagation();
+                onClose();
+              }}
               aria-label="Close"
               id={closeButtonId}
               ref={closeButtonRef}
