@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   Button,
   Icon,
@@ -10,8 +10,11 @@ import {
   useDarkMode,
   Label,
   Link,
+  GuideCue,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { useInView } from 'react-intersection-observer';
 import type { QueryOption } from '../constants/query-option-definition';
 import QueryOptionComponent, {
   documentEditorLabelContainerStyles,
@@ -28,9 +31,12 @@ import {
   applyQuery,
   openExportToLanguage,
   resetQuery,
+  explainQuery,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
+import { usePreference } from 'compass-preferences-model';
+import type { Signal } from '@mongodb-js/compass-components';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -86,7 +92,15 @@ const queryBarDocumentationLink =
 
 const QueryMoreOptionsToggle = connect(
   (state: QueryBarState) => {
-    return { isExpanded: state.expanded };
+    return {
+      isExpanded: state.expanded,
+      label() {
+        return 'Options';
+      },
+      'aria-label'(expanded: boolean) {
+        return expanded ? 'Fewer Options' : 'More Options';
+      },
+    };
   },
   { onToggleOptions: toggleQueryOptions }
 )(MoreOptionsToggle);
@@ -104,11 +118,14 @@ type QueryBarProps = {
    * clicked or not
    */
   applyId: number;
+  showExplainButton?: boolean;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
   valid: boolean;
   expanded: boolean;
   placeholders?: Record<QueryProperty, string>;
+  onExplain?: () => void;
+  insights?: Signal | Signal[];
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -125,13 +142,28 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   queryChanged,
   resultId,
   applyId,
+  showExplainButton = false,
   showExportToLanguageButton = true,
   showQueryHistoryButton = true,
   valid: isQueryValid,
   expanded: isQueryOptionsExpanded,
   placeholders,
+  onExplain,
+  insights,
 }) => {
+  const showExplainButtonRef = useRef<HTMLDivElement>(null);
+  const [showExplainButtonCue, setShowExplainButtonCue] = usePersistedState(
+    'show-explain-button-cue',
+    true
+  );
   const darkMode = useDarkMode();
+  const newExplainPlan = usePreference('newExplainPlan', React);
+  const [inViewRef, inView] = useInView({ initialInView: false });
+
+  const onExplainClick = useCallback(() => {
+    onExplain?.();
+    setShowExplainButtonCue(false);
+  }, [onExplain, setShowExplainButtonCue]);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -152,7 +184,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-result-id={resultId}
       data-apply-id={applyId}
     >
-      <div className={queryBarFirstRowStyles}>
+      <div ref={inViewRef} className={queryBarFirstRowStyles}>
         <div className={documentEditorLabelContainerStyles}>
           <Label
             htmlFor={filterQueryOptionId}
@@ -171,8 +203,36 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             id={filterQueryOptionId}
             onApply={onApply}
             placeholder={placeholders?.filter}
+            insights={insights}
           />
         </div>
+        {showExplainButton && newExplainPlan && (
+          <>
+            <div ref={showExplainButtonRef}>
+              <Button
+                aria-label="Reset query"
+                data-testid="query-bar-explain-button"
+                onClick={onExplainClick}
+                disabled={!isQueryValid}
+                size="small"
+                type="button"
+              >
+                Explain
+              </Button>
+            </div>
+            <GuideCue
+              refEl={showExplainButtonRef}
+              open={inView && showExplainButtonCue}
+              setOpen={setShowExplainButtonCue}
+              title="“Explain Plan” has changed"
+              numberOfSteps={1}
+              currentStep={1}
+            >
+              To view a query’s execution plan, click “Explain” as you would on
+              an aggregation pipeline.
+            </GuideCue>
+          </>
+        )}
         <Button
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
@@ -250,6 +310,9 @@ export default connect(
     ownProps: { onApply?(query: unknown): void; onReset?(query: unknown): void }
   ) => {
     return {
+      onExplain: () => {
+        dispatch(explainQuery());
+      },
       onOpenExportToLanguage: () => {
         dispatch(openExportToLanguage());
       },

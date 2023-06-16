@@ -127,8 +127,8 @@ function ExplainToolbar({
             <SegmentedControlOption aria-label="Visual Tree View" value="tree">
               Visual Tree
             </SegmentedControlOption>
-            <SegmentedControlOption aria-label="Raw Json View" value="json">
-              Raw Json
+            <SegmentedControlOption aria-label="Raw Output View" value="json">
+              Raw Output
             </SegmentedControlOption>
           </SegmentedControl>
         </div>

@@ -43,11 +43,11 @@ const closeButtonStyles = css({
 });
 
 type InteractivePopoverProps = {
-  className: string;
-  children: React.ReactElement;
+  className?: string;
+  children: React.ReactNode;
   trigger: (triggerProps: {
-    onClick: (event: React.MouseEvent | React.TouchEvent) => void;
-    ref: React.RefObject<HTMLButtonElement>;
+    onClick: React.MouseEventHandler<HTMLButtonElement>;
+    ref: React.LegacyRef<HTMLButtonElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
   open: boolean;
@@ -56,7 +56,12 @@ type InteractivePopoverProps = {
    * List of selector to consider contained elements to skip closing on click
    */
   containedElements?: string[];
-};
+  containerClassName?: string;
+  closeButtonClassName?: string;
+} & Pick<
+  React.ComponentProps<typeof Popover>,
+  'align' | 'justify' | 'spacing' | 'popoverZIndex'
+>;
 
 function InteractivePopover({
   className,
@@ -65,6 +70,12 @@ function InteractivePopover({
   open,
   setOpen,
   containedElements = [],
+  align,
+  justify,
+  spacing,
+  popoverZIndex,
+  containerClassName,
+  closeButtonClassName,
 }: InteractivePopoverProps): React.ReactElement {
   const darkMode = useDarkMode();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -141,47 +152,51 @@ function InteractivePopover({
     ref: triggerRef,
     children: (
       <Popover
-        align="bottom"
-        justify="start"
+        align={align ?? 'bottom'}
+        justify={justify ?? 'start'}
         active={open}
         adjustOnMutation
         usePortal
-        spacing={0}
+        spacing={spacing ?? 0}
         className={className}
         refEl={triggerRef}
+        popoverZIndex={popoverZIndex}
       >
-        {open && (
-          <FocusTrap
-            focusTrapOptions={{
-              clickOutsideDeactivates: true,
-              // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
-              fallbackFocus: `#${closeButtonId}`,
-            }}
+        <FocusTrap
+          active={open}
+          focusTrapOptions={{
+            clickOutsideDeactivates: true,
+            // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
+            fallbackFocus: `#${closeButtonId}`,
+          }}
+        >
+          <div
+            className={cx(
+              contentContainerStyles,
+              darkMode
+                ? contentContainerStylesDark
+                : contentContainerStylesLight,
+              containerClassName
+            )}
+            ref={popoverContentContainerRef}
           >
-            <div
-              className={cx(
-                contentContainerStyles,
-                darkMode
-                  ? contentContainerStylesDark
-                  : contentContainerStylesLight
-              )}
-              ref={popoverContentContainerRef}
-            >
-              {children}
+            {children}
 
-              <IconButton
-                className={closeButtonStyles}
-                data-testid="interactive-popover-close-button"
-                onClick={onClose}
-                aria-label="Close"
-                id={closeButtonId}
-                ref={closeButtonRef}
-              >
-                <Icon glyph="X" />
-              </IconButton>
-            </div>
-          </FocusTrap>
-        )}
+            <IconButton
+              className={cx(closeButtonStyles, closeButtonClassName)}
+              data-testid="interactive-popover-close-button"
+              onClick={(evt) => {
+                evt.stopPropagation();
+                onClose();
+              }}
+              aria-label="Close"
+              id={closeButtonId}
+              ref={closeButtonRef}
+            >
+              <Icon glyph="X" />
+            </IconButton>
+          </div>
+        </FocusTrap>
       </Popover>
     ),
   });

@@ -5,7 +5,6 @@ ignores:
   # around weird npm workspace hoising issues caused by outdated transient
   # dependencies. This can go away when we update webpack and leafygreen to the
   # same version everywhere.
-  - '@webpack-cli/serve'
   - '@testing-library/dom'
   # TODO: To work around https://github.com/depcheck/depcheck/issues/688 we keep
   # some babel dependencies at the root to guarantee that their version is not

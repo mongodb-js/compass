@@ -134,6 +134,7 @@ describe('Collection documents tab', function () {
       has_limit: false,
       has_projection: false,
       has_skip: false,
+      has_sort: false,
       used_regex: false,
     });
 
@@ -162,6 +163,7 @@ describe('Collection documents tab', function () {
       has_collation: false,
       has_limit: true,
       has_projection: true,
+      has_sort: true,
       has_skip: true,
       used_regex: false,
     });
@@ -259,7 +261,7 @@ describe('Collection documents tab', function () {
     });
   }
 
-  it('keeps the query when navigating to schema and explain', async function () {
+  it('keeps the query when navigating to schema', async function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     const documentListActionBarMessageElement = await browser.$(
@@ -282,19 +284,6 @@ describe('Collection documents tab', function () {
     const analysisMessage = await schemaAnalysisMessageElement.getText();
     expect(analysisMessage.replace(/\s/g, ' ')).to.equal(
       'This report is based on a sample of 1 document.'
-    );
-
-    await navigateToTab(browser, 'Explain Plan');
-
-    await browser.runFind('Explain Plan', true);
-
-    // if the eplain plan tab only matched one document, then it is presumably the same query
-    const explainSummaryElement = await browser.$(
-      Selectors.ExplainDocumentsReturnedSummary
-    );
-    const explainSummary = await explainSummaryElement.getText();
-    expect(explainSummary.replace(/\s+/g, ' ')).to.equal(
-      'Documents Returned: 1'
     );
 
     await navigateToTab(browser, 'Documents');

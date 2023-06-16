@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import {
   Accordion,
-  Banner,
   Checkbox,
   Description,
   FormFieldContainer,
@@ -18,8 +17,7 @@ import { errorMessageByFieldName } from '../../../utils/validation';
 import { getConnectionStringUsername } from '../../../utils/connection-string-helpers';
 import type { OIDCOptions } from '../../../utils/oidc-handler';
 
-type ExtractArrayEntryType<T> = T extends (infer U)[] ? U : never;
-type AuthFlowType = ExtractArrayEntryType<OIDCOptions['allowedFlows']>;
+type AuthFlowType = NonNullable<OIDCOptions['allowedFlows']>[number];
 
 function AuthenticationOIDC({
   connectionStringUrl,
@@ -46,9 +44,8 @@ function AuthenticationOIDC({
     [updateConnectionFormField]
   );
 
-  const hasEnabledDeviceAuthFlow = !!(
-    connectionOptions.oidc?.allowedFlows as AuthFlowType[]
-  )?.includes?.('device-auth');
+  const hasEnabledDeviceAuthFlow =
+    !!connectionOptions.oidc?.allowedFlows?.includes?.('device-auth');
 
   const showOIDCDeviceAuthFlow = !!usePreference(
     'showOIDCDeviceAuthFlow',
@@ -57,10 +54,6 @@ function AuthenticationOIDC({
 
   return (
     <>
-      <Banner variant="warning">
-        The OIDC authentication preview is not intended to be used in production
-        environments.
-      </Banner>
       <FormFieldContainer>
         <TextInput
           data-testid="connection-oidc-username-input"

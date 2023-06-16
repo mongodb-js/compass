@@ -9,9 +9,10 @@ import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { Stage } from '@mongodb-js/explain-plan-helper';
+import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 
 import {
-  findDocuments,
   countDocuments,
   fetchShardingKeys,
   objectContainsRegularExpression,
@@ -328,6 +329,7 @@ type CrudState = {
   isWritable: boolean;
   instanceDescription: string;
   fields: string[];
+  isCollectionScan?: boolean;
 };
 
 class CrudStoreImpl
@@ -385,6 +387,7 @@ class CrudStoreImpl
       isWritable: false,
       instanceDescription: '',
       fields: [],
+      isCollectionScan: false,
     };
   }
 
@@ -824,7 +827,6 @@ class CrudStoreImpl
     const signal = abortController.signal;
 
     const opts = {
-      signal,
       skip,
       limit: nextPageCount,
       sort,
@@ -846,12 +848,9 @@ class CrudStoreImpl
     let error: Error | undefined;
     let documents: BSONObject[];
     try {
-      documents = await findDocuments(
-        this.dataService,
-        ns,
-        filter,
-        opts as any
-      );
+      documents = await this.dataService.find(ns, filter, opts as any, {
+        abortSignal: signal,
+      });
     } catch (err: any) {
       documents = [];
       error = err;
@@ -864,7 +863,8 @@ class CrudStoreImpl
         ? DOCUMENTS_STATUS_ERROR
         : DOCUMENTS_STATUS_FETCHED_PAGINATION,
       docs: documents.map((doc: BSONObject) => new HadronDocument(doc)),
-      start: skip + 1,
+      // making sure we don't set start to 1 if length is 0
+      start: length === 0 ? 0 : skip + 1,
       end: skip + length,
       page,
       table: this.getInitialTableState(),
@@ -1282,6 +1282,7 @@ class CrudStoreImpl
         has_projection:
           !!query.project && Object.keys(query.project).length > 0,
         has_skip: query.skip > 0,
+        has_sort: !!query.sort && Object.keys(query.sort).length > 0,
         has_limit: query.limit > 0,
         has_collation: !!query.collation,
         changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,
@@ -1327,7 +1328,6 @@ class CrudStoreImpl
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
       promoteValues: false,
       bsonRegExp: true,
-      signal,
     };
 
     // only set limit if it's > 0, read-only views cannot handle 0 limit.
@@ -1342,6 +1342,28 @@ class CrudStoreImpl
       findOptions,
       countOptions,
     });
+
+    // Only check if index was used if query filter or sort is not empty
+    if (!isEmpty(query.filter) || !isEmpty(query.sort)) {
+      void this.dataService
+        .explainFind(ns, query.filter, findOptions as any, {
+          explainVerbosity: 'queryPlanner',
+          abortSignal: signal,
+        })
+        .then((rawExplainPlan) => {
+          const explainPlan = new ExplainPlan(rawExplainPlan as Stage);
+          this.setState({
+            isCollectionScan: explainPlan.isCollectionScan,
+          });
+        })
+        .catch(() => {
+          // We are only fetching this to get information about index usage for
+          // insight badge, if this fails for any reason, server, cancel, or
+          // error parsing explan, we don't care and ignore it
+        });
+    } else {
+      this.setState({ isCollectionScan: false });
+    }
 
     // Don't wait for the count to finish. Set the result asynchronously.
     countDocuments(this.dataService, ns, query.filter, countOptions)
@@ -1358,7 +1380,9 @@ class CrudStoreImpl
 
     const promises = [
       fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
-      findDocuments(this.dataService, ns, query.filter, findOptions as any),
+      this.dataService.find(ns, query.filter, findOptions as any, {
+        abortSignal: signal,
+      }),
     ] as const;
 
     // This is so that the UI can update to show that we're fetching
@@ -1461,6 +1485,10 @@ class CrudStoreImpl
     if (!error) {
       this.dataService = dataService;
     }
+  }
+
+  openCreateIndexModal() {
+    this.localAppRegistry.emit('open-create-index-modal');
   }
 }
 

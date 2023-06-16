@@ -8,6 +8,7 @@ import {
   ContentWithFallback,
   Placeholder,
   keyframes,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
 import type { ViewType } from './use-view-type';
 
@@ -37,6 +38,12 @@ const namespaceParamValueContainer = css({
   width: '100%',
   // Keeping container height for the placeholder to appear
   minHeight: 20,
+});
+
+const namespaceParamValueContainerWithInsights = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
 });
 
 const namespaceParamValue = css({
@@ -87,7 +94,8 @@ export const NamespaceParam: React.FunctionComponent<{
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   hint?: React.ReactNode;
   viewType: ViewType;
-}> = ({ label, value, status, hint, viewType }) => {
+  insights?: React.ComponentProps<typeof SignalPopover>['signals'];
+}> = ({ label, value, status, hint, viewType, insights }) => {
   const renderedValue = useMemo(() => {
     const isReady = status !== 'initial' && status !== 'fetching';
     return (
@@ -145,7 +153,15 @@ export const NamespaceParam: React.FunctionComponent<{
           <>{label}:</>
         )}
       </span>
-      <span className={namespaceParamValueContainer}>{renderedValue}</span>
+      <span
+        className={cx(
+          namespaceParamValueContainer,
+          insights && namespaceParamValueContainerWithInsights
+        )}
+      >
+        {renderedValue}
+        {insights && <SignalPopover signals={insights}></SignalPopover>}
+      </span>
     </div>
   );
 };

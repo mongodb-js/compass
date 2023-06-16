@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -45,7 +45,7 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.5",
+    "@mongodb-js/eslint-config-compass": "^1.0.6",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@types/cli-progress": "^3.9.2",
@@ -74,7 +74,7 @@
     "cli-progress": "^3.9.1",
     "core-js": "^3.17.3",
     "css-loader": "^4.3.0",
-    "electron": "^22.3.12",
+    "electron": "^23.3.6",
     "html-webpack-plugin": "^5.3.2",
     "less-loader": "^10.0.1",
     "mini-css-extract-plugin": "^2.3.0",
@@ -84,10 +84,10 @@
     "postcss-preset-env": "^6.7.0",
     "react-refresh": "^0.10.0",
     "style-loader": "^3.2.1",
-    "webpack": "^5.85.0",
-    "webpack-bundle-analyzer": "^4.4.2",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.9.0",
-    "webpack-merge": "^5.8.0"
+    "webpack": "^5.86.0",
+    "webpack-bundle-analyzer": "^4.9.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.0",
+    "webpack-merge": "^5.9.0"
   }
 }

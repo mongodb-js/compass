@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import type { CommandStartedEvent } from 'mongodb';
 
 import {
-  connectMongoClientCompass as connectMongoClient,
+  connectMongoClientDataService as connectMongoClient,
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
@@ -50,12 +50,12 @@ describe('connectMongoClient', function () {
 
     it('should return connection config when connected successfully', async function () {
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
-        await connectMongoClient(
-          {
+        await connectMongoClient({
+          connectionOptions: {
             connectionString: 'mongodb://localhost:27021',
           },
-          setupListeners
-        );
+          setupListeners,
+        });
 
       for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
@@ -70,13 +70,16 @@ describe('connectMongoClient', function () {
         useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
-          allowedFlows: ['auth-code'],
+          allowedFlows: options.oidc?.allowedFlows,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
         ...defaultOptions,
       });
+      expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
+        'auth-code',
+      ]);
     });
 
     it('should return two different clients when AutoEncryption is enabled', async function () {
@@ -88,16 +91,16 @@ describe('connectMongoClient', function () {
         bypassAutoEncryption: true,
       };
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
-        await connectMongoClient(
-          {
+        await connectMongoClient({
+          connectionOptions: {
             connectionString: 'mongodb://localhost:27021',
             fleOptions: {
               storeCredentials: false,
               autoEncryption,
             },
           },
-          setupListeners
-        );
+          setupListeners,
+        });
 
       for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
@@ -115,23 +118,26 @@ describe('connectMongoClient', function () {
         autoEncryption,
         authMechanismProperties: {},
         oidc: {
-          allowedFlows: ['auth-code'],
+          allowedFlows: options.oidc?.allowedFlows,
           signal: undefined,
         },
         parentHandle: options.parentHandle,
         ...defaultOptions,
       });
+      expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
+        'auth-code',
+      ]);
     });
 
     it('should not override a user-specified directConnection option', async function () {
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
-        await connectMongoClient(
-          {
+        await connectMongoClient({
+          connectionOptions: {
             connectionString:
               'mongodb://localhost:27021/?directConnection=false',
           },
-          setupListeners
-        );
+          setupListeners,
+        });
 
       for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
         toBeClosed.add(closeLater);
@@ -143,28 +149,31 @@ describe('connectMongoClient', function () {
       );
 
       expect(options.parentHandle).to.be.a('string');
-      assert.deepStrictEqual(options, {
+      expect(options).to.deep.equal({
         monitorCommands: true,
         useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
-          allowedFlows: ['auth-code'],
+          allowedFlows: options.oidc?.allowedFlows,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
         ...defaultOptions,
       });
+      expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
+        'auth-code',
+      ]);
     });
 
     it('should at least try to run a ping command to verify connectivity', async function () {
       try {
-        await connectMongoClient(
-          {
+        await connectMongoClient({
+          connectionOptions: {
             connectionString: 'mongodb://localhost:1/?loadBalanced=true',
           },
-          setupListeners
-        );
+          setupListeners,
+        });
         expect.fail('missed exception');
       } catch (err: any) {
         expect(err.name).to.equal('MongoNetworkError');
@@ -173,13 +182,14 @@ describe('connectMongoClient', function () {
 
     it('should run the ping command with the specified ReadPreference', async function () {
       const commands: CommandStartedEvent[] = [];
-      const [metadataClient, crudClient, , state] = await connectMongoClient(
-        {
+      const [metadataClient, crudClient, , state] = await connectMongoClient({
+        connectionOptions: {
           connectionString:
             'mongodb://localhost:27021/?readPreference=secondaryPreferred',
         },
-        (client) => client.on('commandStarted', (ev) => commands.push(ev))
-      );
+        setupListeners: (client) =>
+          client.on('commandStarted', (ev) => commands.push(ev)),
+      });
       expect(commands).to.have.lengthOf(1);
       expect(commands[0].commandName).to.equal('ping');
       expect(commands[0].command.$readPreference).to.deep.equal({
@@ -229,10 +239,10 @@ describe('connectMongoClient', function () {
           },
         };
 
-        const error = await connectMongoClient(
+        const error = await connectMongoClient({
           connectionOptions,
-          setupListeners
-        ).catch((err) => err);
+          setupListeners,
+        }).catch((err) => err);
 
         expect(error).to.be.instanceOf(Error);
 
@@ -257,38 +267,70 @@ describe('connectMongoClient', function () {
 
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('prepareOIDCOptions', function () {
-  it('defaults allowedFlows to "auth-code"', function () {
+  it('defaults allowedFlows to "auth-code"', async function () {
     const options = prepareOIDCOptions({
       connectionString: 'mongodb://localhost:27017',
     });
 
-    expect(options.oidc.allowedFlows).to.deep.equal(['auth-code']);
+    expect(await (options.oidc.allowedFlows as any)()).to.deep.equal([
+      'auth-code',
+    ]);
   });
 
-  it('does not override allowedFlows when set', function () {
+  it('does not override allowedFlows when set', async function () {
     const options = prepareOIDCOptions({
       connectionString: 'mongodb://localhost:27017',
       oidc: {
         allowedFlows: ['auth-code', 'device-auth'],
       },
     });
-    expect(options.oidc.allowedFlows).to.deep.equal([
+    expect(await (options.oidc.allowedFlows as any)()).to.deep.equal([
       'auth-code',
       'device-auth',
     ]);
   });
 
-  it('sets ALLOWED_HOSTS on the authMechanismProperties (non-url) to * when enableUntrustedEndpoints is true', function () {
-    const options = prepareOIDCOptions({
-      connectionString: 'mongodb://localhost:27017',
-      oidc: {
-        enableUntrustedEndpoints: true,
-      },
-    });
+  it('maps ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is true', function () {
+    function actual(connectionString: string) {
+      return prepareOIDCOptions({
+        connectionString,
+        oidc: {
+          enableUntrustedEndpoints: true,
+        },
+      }).authMechanismProperties;
+    }
 
-    expect(options.authMechanismProperties).to.deep.equal({
-      ALLOWED_HOSTS: ['*'],
-    });
+    function expected(ALLOWED_HOSTS: string[]) {
+      return { ALLOWED_HOSTS };
+    }
+
+    expect(actual('mongodb://localhost/')).to.deep.equal(
+      expected(['localhost'])
+    );
+    expect(actual('mongodb://localhost:27017/')).to.deep.equal(
+      expected(['localhost'])
+    );
+    expect(actual('mongodb://localhost:12345/')).to.deep.equal(
+      expected(['localhost'])
+    );
+    expect(actual('mongodb://localhost:12345,[::1]/')).to.deep.equal(
+      expected(['localhost', '::1'])
+    );
+    expect(actual('mongodb://localhost,[::1]:999/')).to.deep.equal(
+      expected(['localhost', '::1'])
+    );
+    expect(actual('mongodb://localhost,bar.foo.net/')).to.deep.equal(
+      expected(['localhost', 'bar.foo.net'])
+    );
+    expect(actual('mongodb+srv://bar.foo.net/')).to.deep.equal(
+      expected(['*.foo.net'])
+    );
+    expect(actual('mongodb://127.0.0.1:12345/')).to.deep.equal(
+      expected(['127.0.0.1'])
+    );
+    expect(actual('mongodb://2130706433:12345/')).to.deep.equal(
+      expected(['2130706433'])
+    ); // decimal IPv4
   });
 
   it('does not set ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is not set', function () {

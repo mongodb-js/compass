@@ -125,7 +125,9 @@ describe('store', function () {
 
   before(async function () {
     const info = convertConnectionModelToInfo(CONNECTION);
-    dataService = await connect(info.connectionOptions);
+    dataService = await connect({
+      connectionOptions: info.connectionOptions,
+    });
 
     // Add some validation so that we can test what happens when insert/update
     // fails below.
@@ -228,6 +230,7 @@ describe('store', function () {
           path: [],
           types: [],
         },
+        isCollectionScan: false,
         version: '6.0.0',
         view: 'List',
         fields: [],
@@ -1926,7 +1929,7 @@ describe('store', function () {
       findSpy.restore();
       const findStub = sinon
         .stub(store.dataService, 'find')
-        .throws(new Error('This is a fake error.'));
+        .rejects(new Error('This is a fake error.'));
 
       expect(store.state.abortController).to.be.null;
 

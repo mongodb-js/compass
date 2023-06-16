@@ -37,5 +37,6 @@ export {
   mergeSecrets,
 };
 
+export type { ReauthenticationHandler } from './connect-mongo-client';
 export type { ExplainExecuteOptions } from './data-service';
 export type { IndexDefinition } from './index-detail-helper';

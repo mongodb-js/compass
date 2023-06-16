@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 const specs = process.argv.slice(2).filter((arg) => !arg.startsWith('-'));
 
@@ -23,6 +24,8 @@ module.exports = {
     path.resolve(__dirname, 'register', 'assets-import-register.js'),
     path.resolve(__dirname, 'register', 'tsnode-register.js'),
     path.resolve(__dirname, 'register', 'sinon-chai-register.js'),
+    path.resolve(__dirname, 'register', 'unhandled-rejections.js'),
+    path.resolve(__dirname, 'register', 'dns-config-register.js'),
   ],
   // Allows to run tests against a particular set of specs instead of all of them
   spec: specs.length > 0 ? specs : defaultSpecs,

@@ -1,3 +1,4 @@
+'use strict';
 const identityObjProxy = require('identity-obj-proxy');
 
 const identityProxyExports = (module) => {

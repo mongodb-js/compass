@@ -42,7 +42,10 @@ const _getUnshardedAggregationStats = (explain: Stage): ExecutionStats => {
   const stats = _getFindStats(firstStage[cursorKey]) ?? {};
   stats.nReturned = lastStage.nReturned;
   stats.stageIndexes = getIndexesFromStages(explain.stages);
-  stats.executionTimeMillis = getExecutionTime(stats, explain.stages);
+  stats.executionTimeMillis = getAggregationExecutionTime(
+    stats,
+    explain.stages
+  );
   return stats;
 };
 const _getShardedAggregationStats = (explain: Stage): ExecutionStats => {
@@ -109,12 +112,16 @@ function getIndexesFromStages(
     .map((index: string) => ({ index, shard: shard ?? null, fields: {} }));
 }
 
-function getExecutionTime(stats: ExecutionStats, stages: Stage[]): number {
-  // We sum executionTimeMillisEstimate from all the stages, except for first
-  // as we use its executationStats.executionTimeMillis
-  const [, ...allStages] = stages;
+function getAggregationExecutionTime(
+  stats: ExecutionStats,
+  stages: Stage[]
+): number {
   return (
-    (stats.executionTimeMillis ?? 0) +
-    sumArrayProp(allStages, 'executionTimeMillisEstimate')
+    // Aggregation execution time is either accessible as part of stats, or as
+    // the estimated time of the last stage as execution time for stages is
+    // accumulated: every next stage includes the time for the previous stages
+    stats.executionTimeMillis ??
+    stages[stages.length - 1]?.executionTimeMillisEstimate ??
+    0
   );
 }

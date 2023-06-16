@@ -85,6 +85,9 @@ describe('aggregation module', function () {
         aggregate() {
           throw createCancelError();
         }
+        isCancelError() {
+          return true;
+        }
       })(),
     });
 

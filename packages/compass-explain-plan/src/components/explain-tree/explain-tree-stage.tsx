@@ -1,16 +1,19 @@
 import React from 'react';
 import {
-  Badge,
-  Button,
-  Code,
   css,
   KeylineCard,
   palette,
-  rgba,
   spacing,
   Subtitle,
   HorizontalRule,
+  Icon,
+  Tooltip,
+  cx,
+  useDarkMode,
+  Card,
+  Body,
 } from '@mongodb-js/compass-components';
+import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 import { Clock } from './clock';
 
@@ -45,10 +48,10 @@ interface StageViewProps {
 
 // NOTE: these values are used to layout the tree and must match
 // the actual size of the elements.
-export const defaultCardWidth = 264;
-export const defaultCardHeight = 118;
-export const shardCardHeight = 42;
-export const highlightFieldHeight = 36;
+export const defaultCardWidth = 278;
+export const defaultCardHeight = 84;
+export const shardCardHeight = 32;
+export const highlightFieldHeight = 20;
 
 interface ExecutionstatsProps {
   nReturned: number;
@@ -57,10 +60,83 @@ interface ExecutionstatsProps {
   totalExecTimeMS: number;
 }
 
+// Instead of using CSS ellipsis which trims the text towards the end / front,
+// we use this custom implementation to trim the text in middle because shard
+// names could have similar text in the front and the differentiating numbers
+// are generally available at the end of the name. For example: atlas-shard-0,
+// atlas-shard-1, etc. The trimThreshold is taken from a hit and try approach to
+// fit as many big chars as possible (worst case scenario) in the shard card
+// because other sophisticated approaches require understanding font specifics
+// like kerning, font-constant, etc to properly determine the width of character
+// for a particular font.
+export const trimInMiddle = (
+  text: string,
+  trimThreshold = 20,
+  charsToKeepInFront = 6,
+  charsToKeepInBack = 4
+) => {
+  if (text.length <= trimThreshold) {
+    return text;
+  }
+
+  const charsBeforeEllipsis = text.substring(0, charsToKeepInFront);
+  const remainingText = text.substring(charsToKeepInFront);
+  const charsAfterEllipsis = remainingText.substring(
+    remainingText.length - charsToKeepInBack
+  );
+  return `${charsBeforeEllipsis}…${charsAfterEllipsis}`;
+};
+
+export const milliSecondsToNormalisedValue = (
+  ms: number
+): { value: string; unit: 'h' | 'min' | 's' | 'ms' } => {
+  const hasDecimalPoint = (n: number) => n - Math.floor(n) !== 0;
+  const hours = ms / (1000 * 60 * 60);
+  if (hours >= 1) {
+    return {
+      value: hasDecimalPoint(hours) ? hours.toFixed(1) : hours.toString(),
+      unit: 'h',
+    };
+  }
+
+  const minutes = ms / (1000 * 60);
+  if (minutes >= 1) {
+    return {
+      value: hasDecimalPoint(minutes) ? minutes.toFixed(1) : minutes.toString(),
+      unit: 'min',
+    };
+  }
+
+  const seconds = ms / 1000;
+  if (seconds >= 1) {
+    return {
+      value: hasDecimalPoint(seconds) ? seconds.toFixed(1) : seconds.toString(),
+      unit: 's',
+    };
+  }
+
+  return {
+    value: ms.toString(),
+    unit: 'ms',
+  };
+};
+
 const cardStyles = css({
   position: 'absolute',
   width: defaultCardWidth,
-  padding: spacing[2],
+  padding: '14px',
+  borderRadius: spacing[2],
+});
+
+const cardStylesDarkMode = css({
+  borderColor: palette.gray.light2,
+});
+
+const stageTitleStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+  cursor: 'pointer',
 });
 
 const separatorStyles = css({
@@ -71,27 +147,94 @@ const separatorStyles = css({
 const contentStyles = css({ position: 'relative' });
 const clockStyles = css({
   position: 'absolute',
-  top: -(12 + spacing[2]),
-  right: -(30 + spacing[2]),
+  top: -spacing[5],
+  right: -(8 + spacing[5]),
 });
 
 const codeContainerStyles = css({
-  marginTop: spacing[2],
-});
-
-const codeStyles = css({
-  maxHeight: spacing[5] * 10,
-  overflow: 'scroll',
+  marginTop: spacing[3],
+  height: '100%',
+  overflow: 'hidden',
 });
 
 const executionStatsStyle = css({
   position: 'relative',
   display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
+  gridTemplateColumns: '1fr 110px',
+  marginTop: '12px',
+  alignItems: 'center',
 });
 
+const statsBadgeCircle = css({
+  display: 'inline-block',
+  width: spacing[4] - 4,
+  height: spacing[4] - 4,
+  lineHeight: `${spacing[4] - 4}px`,
+  borderRadius: '100px',
+  textAlign: 'center',
+  fontWeight: 700,
+
+  backgroundColor: palette.blue.base,
+  color: palette.white,
+});
+
+const statsBadgeOval = css({
+  width: 'auto',
+  padding: `0 ${spacing[2]}px`,
+});
+
+const statsBadgeColorDark = css({
+  backgroundColor: palette.blue.light2,
+  color: palette.black,
+});
+
+const shardViewContainerStyles = css({
+  borderRadius: 0,
+  borderColor: palette.gray.base,
+  width: defaultCardWidth,
+  height: spacing[5],
+  paddingLeft: spacing[2],
+  paddingRight: spacing[2],
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+const shardViewTextStyles = css({
+  color: palette.gray.base,
+  fontSize: '16px',
+  fontWeight: 600,
+  textAlign: 'center',
+  overflow: 'hidden',
+  textTransform: 'uppercase',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+const StatsBadge: React.FunctionComponent<{
+  stats: number | string;
+}> = ({ stats }) => {
+  const darkMode = useDarkMode();
+  return (
+    <span
+      className={cx(statsBadgeCircle, {
+        [statsBadgeOval]: String(stats).length > 1,
+        [statsBadgeColorDark]: darkMode,
+      })}
+    >
+      {stats}
+    </span>
+  );
+};
+
 const ShardView: React.FunctionComponent<ShardViewProps> = (props) => {
-  return <Subtitle>{props.name}</Subtitle>;
+  return (
+    <KeylineCard className={shardViewContainerStyles} title={props.name}>
+      <Body baseFontSize={16} className={shardViewTextStyles}>
+        {trimInMiddle(props.name)}
+      </Body>
+    </KeylineCard>
+  );
 };
 
 const Highlights: React.FunctionComponent<{
@@ -120,22 +263,31 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
   return (
     <div className={executionStatsStyle}>
       <div>
-        <span>nReturned </span>
-        <span>
-          <Badge>{nReturned}</Badge>
-        </span>
+        <span>Returned </span>
+        <StatsBadge stats={nReturned} />
       </div>
       <div>
         <span>Execution Time</span>
         <span>
-          <Clock
-            prevStageExecTimeMS={prevStageExecTimeMS}
-            curStageExecTimeMS={curStageExecTimeMS}
-            totalExecTimeMS={totalExecTimeMS}
-            width={60}
-            height={60}
-            className={clockStyles}
-          />
+          <Tooltip
+            align="top"
+            justify="middle"
+            trigger={({ children, ...props }) => (
+              <div {...props} className={clockStyles}>
+                {children}
+                <Clock
+                  prevStageExecTimeMS={prevStageExecTimeMS}
+                  curStageExecTimeMS={curStageExecTimeMS}
+                  totalExecTimeMS={totalExecTimeMS}
+                />
+              </div>
+            )}
+          >
+            The clock represents the total time the query took to complete. The
+            blue clock segment is the time taken by the highlighted stage (
+            {curStageExecTimeMS - prevStageExecTimeMS} ms). The gray clock
+            segment is the time taken by preceding stages.
+          </Tooltip>
         </span>
       </div>
     </div>
@@ -145,15 +297,17 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
 const StageView: React.FunctionComponent<StageViewProps> = (props) => {
   return (
     <>
-      <Subtitle>{props.name}</Subtitle>
-      <HorizontalRule className={separatorStyles} />
+      <div className={stageTitleStyles}>
+        <Icon glyph={props.detailsOpen ? 'ChevronDown' : 'ChevronRight'} />
+        <Subtitle>{props.name}</Subtitle>
+      </div>
 
       <ExecutionStats
         nReturned={props.nReturned}
         prevStageExecTimeMS={props.prevStageExecTimeMS}
         curStageExecTimeMS={props.curStageExecTimeMS}
         totalExecTimeMS={props.totalExecTimeMS}
-      ></ExecutionStats>
+      />
 
       {Object.entries(props.highlights).length > 0 && (
         <div>
@@ -161,21 +315,25 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
           <Highlights highlights={props.highlights}></Highlights>
         </div>
       )}
-      <HorizontalRule className={separatorStyles} />
-      <Button
-        type="button"
-        size="xsmall"
-        variant="default"
-        onClick={() => props.onToggleDetailsClick()}
-      >
-        Details
-      </Button>
+
       {props.detailsOpen && (
-        <div className={codeContainerStyles}>
-          <Code copyable={false} language="json" className={codeStyles}>
-            {JSON.stringify(props.details, null, ' ') || '{}'}
-          </Code>
-        </div>
+        <KeylineCard
+          className={codeContainerStyles}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CodemirrorMultilineEditor
+            language="json"
+            readOnly={true}
+            formattable={false}
+            showLineNumbers={false}
+            initialJSONFoldAll={false}
+            showAnnotationsGutter={false}
+            minLines={1}
+            maxLines={15}
+            text={JSON.stringify(props.details, null, ' ') || '{}'}
+            data-testid="explain-stage-details"
+          />
+        </KeylineCard>
       )}
     </>
   );
@@ -193,34 +351,34 @@ const ExplainTreeStage: React.FunctionComponent<ExplainTreeStageProps> = ({
   detailsOpen = false,
   onToggleDetailsClick = () => undefined,
 }) => {
+  const isDarkMode = useDarkMode();
+  if (isShard) {
+    return <ShardView name={name} />;
+  }
+
   return (
-    <KeylineCard
+    <Card
       data-testid="explain-stage"
-      className={cardStyles}
-      style={{
-        boxShadow: detailsOpen
-          ? `0px 2px 4px -1px ${rgba(palette.black, 0.15)}`
-          : '',
-      }}
+      className={cx(cardStyles, {
+        [cardStylesDarkMode]: isDarkMode,
+      })}
+      style={{ boxShadow: !detailsOpen ? 'none' : undefined }}
+      onClick={onToggleDetailsClick}
     >
       <div className={contentStyles}>
-        {isShard ? (
-          <ShardView name={name} />
-        ) : (
-          <StageView
-            name={name}
-            nReturned={nReturned}
-            highlights={highlights}
-            curStageExecTimeMS={curStageExecTimeMS}
-            prevStageExecTimeMS={prevStageExecTimeMS}
-            totalExecTimeMS={totalExecTimeMS}
-            onToggleDetailsClick={onToggleDetailsClick}
-            detailsOpen={detailsOpen}
-            details={details}
-          />
-        )}
+        <StageView
+          name={name}
+          nReturned={nReturned}
+          highlights={highlights}
+          curStageExecTimeMS={curStageExecTimeMS}
+          prevStageExecTimeMS={prevStageExecTimeMS}
+          totalExecTimeMS={totalExecTimeMS}
+          onToggleDetailsClick={onToggleDetailsClick}
+          detailsOpen={detailsOpen}
+          details={details}
+        />
       </div>
-    </KeylineCard>
+    </Card>
   );
 };
 

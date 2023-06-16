@@ -1,5 +1,9 @@
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
+import { type PipelineBuilderThunkAction } from '.';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 enum ActionTypes {
   SidePanelToggled = 'compass-aggregations/sidePanelToggled',
@@ -31,6 +35,25 @@ export default function reducer(
   return state;
 }
 
-export const toggleSidePanel = (): SidePanelToggledAction => ({
-  type: ActionTypes.SidePanelToggled,
-});
+export const toggleSidePanel = (): PipelineBuilderThunkAction<
+  void,
+  SidePanelToggledAction
+> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const {
+      sidePanel: { isPanelOpen },
+    } = getState();
+
+    // When user is opening the panel
+    if (!isPanelOpen) {
+      track('Aggregation Side Panel Opened', {
+        num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder)
+          .length,
+      });
+    }
+
+    dispatch({
+      type: ActionTypes.SidePanelToggled,
+    });
+  };
+};

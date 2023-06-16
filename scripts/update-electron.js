@@ -54,19 +54,17 @@ async function getLatestVersion(packageName) {
   return latestVersion;
 }
 
-async function getLatestElectronVersionMatchingNodeVersion(
-  nodeVersionComparator
-) {
+async function getLatestElectronVersionThatSatisfies(electronRange) {
   const releasesUrl = 'https://releases.electronjs.org/releases.json';
 
   const response = await fetch(releasesUrl);
   const releases = await response.json();
 
-  // Filter the releases to exclude any pre-releases and those that don't match the Node version comparator
+  // Filter the releases to exclude any pre-releases and those that don't match the Electron version range
   const filteredReleases = releases.filter(
     (release) =>
       !semver.prerelease(release.version) &&
-      semver.satisfies(release.node, nodeVersionComparator)
+      semver.satisfies(release.version, electronRange)
   );
 
   // Sort the filtered releases by version number in descending order
@@ -75,19 +73,20 @@ async function getLatestElectronVersionMatchingNodeVersion(
   const latest = filteredReleases[0].version;
 
   console.log(
-    `latest electron version built on node ${nodeVersionComparator}: ${latest}`
+    `latest electron version that satisfies ${electronRange}: ${latest}`
   );
 
   return latest;
 }
 
 async function main() {
-  const nodeVersionComparator = `${
-    semver.minVersion(require('../package.json').engines.node).major
+  const electronVersionRange = `${
+    semver.minVersion(require('electron/package.json').version).major
   }.x`;
 
-  const latestElectronVersion =
-    await getLatestElectronVersionMatchingNodeVersion(nodeVersionComparator);
+  const latestElectronVersion = await getLatestElectronVersionThatSatisfies(
+    electronVersionRange
+  );
 
   const latestNodeAbiVersion = await getLatestVersion('node-abi');
   const latestElectronRemoteVersion = await getLatestVersion(

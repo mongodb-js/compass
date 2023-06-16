@@ -417,7 +417,7 @@ describe('use-connections hook', function () {
       });
 
       it('does not add the new connection to the current connections list', function () {
-        expect(hookResult.current.state.connections).to.be.undefined;
+        expect(hookResult.current.state.connections).to.be.deep.equal([]);
       });
     });
 

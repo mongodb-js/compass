@@ -19,7 +19,7 @@ import {
 type KeysMatching<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: P;
 };
-// Currently, only boolean and numeric options are supported in the UI.
+// Currently, boolean, numeric, and string options are supported in the UI.
 type BooleanPreferences = KeysMatching<
   UserConfigurablePreferences,
   boolean | undefined
@@ -28,7 +28,14 @@ type NumericPreferences = KeysMatching<
   UserConfigurablePreferences,
   number | undefined
 >;
-type SupportedPreferences = BooleanPreferences | NumericPreferences;
+type StringPreferences = KeysMatching<
+  UserConfigurablePreferences,
+  string | undefined
+>;
+type SupportedPreferences =
+  | BooleanPreferences
+  | NumericPreferences
+  | StringPreferences;
 
 const inputStyles = css({
   marginTop: spacing[3],
@@ -148,6 +155,51 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
     </>
   );
 }
+function StringSetting<PreferenceName extends StringPreferences>({
+  name,
+  handleChange,
+  value,
+  disabled,
+  required,
+}: {
+  name: PreferenceName;
+  handleChange: HandleChange<PreferenceName>;
+  value: string | undefined;
+  disabled: boolean;
+  required: boolean;
+}) {
+  const handleChangeEvent = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+      handleChange(
+        name,
+        (value === ''
+          ? required
+            ? ''
+            : undefined
+          : value) as UserConfigurablePreferences[PreferenceName]
+      );
+    },
+    [name, handleChange, required]
+  );
+
+  return (
+    <>
+      <SettingLabel name={name} />
+      <TextInput
+        className={inputStyles}
+        aria-labelledby={`${name}-label`}
+        id={name}
+        name={name}
+        data-testid={name}
+        value={value === undefined ? '' : `${value}`}
+        onChange={handleChangeEvent}
+        disabled={disabled}
+        optional={!required}
+      />
+    </>
+  );
+}
 
 export function SettingsList<PreferenceName extends SupportedPreferences>({
   fields,
@@ -159,7 +211,7 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
     <>
       {fields.map((name) => {
         const { type, required } = getSettingDescription(name);
-        if (type !== 'boolean' && type !== 'number') {
+        if (type !== 'boolean' && type !== 'number' && type !== 'string') {
           throw new Error(
             `do not know how to render type ${
               type as string
@@ -182,6 +234,16 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
                   handleChange={handleChange}
                   value={
                     currentValues[name as NumericPreferences & PreferenceName]
+                  }
+                  required={required}
+                  disabled={!!preferenceStates[name]}
+                />
+              ) : type === 'string' ? (
+                <StringSetting
+                  name={name as StringPreferences}
+                  handleChange={handleChange}
+                  value={
+                    currentValues[name as StringPreferences & PreferenceName]
                   }
                   required={required}
                   disabled={!!preferenceStates[name]}

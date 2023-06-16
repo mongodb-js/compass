@@ -860,14 +860,10 @@ export function Combobox<M extends boolean>({
       // Set the selection to that value if the component is not controlled
       if (exactMatchedOption && !value) {
         setSelection(exactMatchedOption.value as SelectValueType<M>);
-      } else {
-        // Revert the value to the previous selection
-        const displayName =
-          getDisplayNameForValue(
-            selection as SelectValueType<false>,
-            allOptions
-          ) ?? '';
-        setInputValue(displayName);
+      } else if (selection) {
+        // Revert the value to the previous selection.
+        // Set the value instead of displayName to align with handleInputChange COMPASS-6511
+        setInputValue(selection);
       }
     }
   }, [
@@ -886,13 +882,9 @@ export function Combobox<M extends boolean>({
         // Scroll the wrapper to the end. No effect if not `overflow="scroll-x"`
         scrollInputToEnd();
       } else if (!isMultiselect(selection)) {
-        // Update the text input
-        const displayName =
-          getDisplayNameForValue(
-            selection as SelectValueType<false>,
-            allOptions
-          ) ?? '';
-        setInputValue(displayName);
+        // Update the text input.
+        // Set the value instead of displayName to align with handleInputChange COMPASS-6511
+        setInputValue(selection);
         closeMenu();
       }
     } else {

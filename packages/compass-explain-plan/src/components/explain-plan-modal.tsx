@@ -52,7 +52,10 @@ const loaderContainerStyles = css({
 
 const Loader: React.FunctionComponent = () => {
   return (
-    <div className={explainPlanModalLoadingStyles}>
+    <div
+      className={explainPlanModalLoadingStyles}
+      data-testid="explain-plan-loading"
+    >
       <SpinLoaderWithLabel progressText="Running explain"></SpinLoaderWithLabel>
     </div>
   );
@@ -109,7 +112,7 @@ export const ExplainPlanModal: React.FunctionComponent<
       </div>
 
       <ModalFooter>
-        <Button onClick={onModalClose}>
+        <Button onClick={onModalClose} data-testid="explain-close-button">
           {status === 'loading' ? 'Cancel' : 'Close'}
         </Button>
       </ModalFooter>

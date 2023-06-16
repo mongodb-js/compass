@@ -1,10 +1,6 @@
 /* eslint no-use-before-define: 0, camelcase: 0 */
 import d3 from 'd3';
-import $ from 'jquery';
-import map from 'lodash.map';
-import sortBy from 'lodash.sortby';
-import sum from 'lodash.sum';
-import slice from 'lodash.slice';
+import { map, sortBy, sum, slice } from 'lodash';
 import shared from './shared';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { palette } from '@mongodb-js/compass-components';
@@ -73,9 +69,10 @@ const minicharts_d3fns_few = (localAppRegistry) => {
   }
 
   function handleMouseDown(d) {
-    const parent = $(this).closest('.minichart');
-    const background = parent.find('g.brush > rect.background')[0];
-    const brushNode = parent.find('g.brush')[0];
+    const parent = this.closest('.minichart');
+    const background = parent.querySelector('g.brush > rect.background');
+    const brushNode = parent.querySelector('g.brush');
+
     const start = xScale.invert(d3.mouse(background)[0]);
 
     localAppRegistry.emit('query-bar-change-filter', {

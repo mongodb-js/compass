@@ -25,6 +25,7 @@ export class ExplainPlan {
   totalDocsExamined: number | null;
   originalExplainData: Stage;
   executionStats?: ExecutionStats;
+  winningPlan: Stage;
 
   constructor(originalExplainData: Stage) {
     const rawExplainObject = convertExplainCompat(originalExplainData);
@@ -38,12 +39,13 @@ export class ExplainPlan {
     this.executionStats = executionStats;
     this.namespace = qpInfo.namespace;
     this.parsedQuery = qpInfo.parsedQuery;
-    this.executionSuccess = esInfo.executionSuccess;
+    this.executionSuccess = esInfo?.executionSuccess ?? false;
     this.nReturned = executionStats?.nReturned ?? null;
     this.executionTimeMillis = executionStats?.executionTimeMillis ?? null;
     this.totalKeysExamined = executionStats?.totalKeysExamined ?? null;
     this.totalDocsExamined = executionStats?.totalDocsExamined ?? null;
     this.originalExplainData = originalExplainData;
+    this.winningPlan = qpInfo.winningPlan;
   }
 
   get usedIndexes(): IndexInformation[] {
@@ -192,7 +194,8 @@ export class ExplainPlan {
 
   /** DFS stack iterator implementation */
   *_getStageIterator(root?: Stage): Iterable<Stage> {
-    const stage = root ?? this.executionStats?.executionStages;
+    const stage =
+      root ?? this.executionStats?.executionStages ?? this.winningPlan;
 
     if (!stage) {
       return;

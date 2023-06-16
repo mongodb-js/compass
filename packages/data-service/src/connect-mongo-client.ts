@@ -7,8 +7,10 @@ import type {
 } from '@mongodb-js/devtools-connect';
 import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import EventEmitter from 'events';
-import { redactConnectionOptions, redactConnectionString } from './redact';
+import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';
+
+import { redactConnectionOptions, redactConnectionString } from './redact';
 import type { ConnectionOptions } from './connection-options';
 import {
   forceCloseTunnel,
@@ -26,9 +28,42 @@ export type CloneableMongoClient = MongoClient & {
   [createClonedClient](): Promise<CloneableMongoClient>;
 };
 
+export type ReauthenticationHandler = () => PromiseLike<void> | void;
+
+// Return an ALLOWED_HOSTS value that matches the hosts listed in the connection
+// string, including possible SRV "sibling" domains.
+function matchingAllowedHosts(
+  connectionOptions: Readonly<ConnectionOptions>
+): string[] {
+  const connectionString = new ConnectionString(
+    connectionOptions.connectionString,
+    { looseValidation: true }
+  );
+  const suffixes = connectionString.hosts.map((hostStr) => {
+    // eslint-disable-next-line
+    const { host } = hostStr.match(/^(?<host>.+?)(?<port>:[^:\]\[]+)?$/)
+      ?.groups!;
+    if (host.startsWith('[') && host.endsWith(']')) {
+      return host.slice(1, -1); // IPv6
+    }
+    if (host.match(/^[0-9.]+$/)) {
+      return host; // IPv4
+    }
+    if (!host.includes('.') || !connectionString.isSRV) {
+      return host;
+    }
+    // An SRV record for foo.bar.net can resolve to any hosts that match `*.bar.net`
+    const parts = host.split('.');
+    parts[0] = '*';
+    return parts.join('.');
+  });
+  return [...new Set(suffixes)];
+}
+
 export function prepareOIDCOptions(
   connectionOptions: Readonly<ConnectionOptions>,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  reauthenticationHandler?: ReauthenticationHandler
 ): Required<Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>> {
   const options: Required<
     Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>
@@ -37,19 +72,22 @@ export function prepareOIDCOptions(
     authMechanismProperties: {},
   };
 
-  options.oidc.allowedFlows ??= ['auth-code'];
+  const allowedFlows = connectionOptions.oidc?.allowedFlows ?? ['auth-code'];
 
-  // TODO(COMPASS-6849): Add a way to properly override openBrowser.
-  if (process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY) {
-    options.oidc.openBrowser = {
-      command: process.env.COMPASS_TEST_OIDC_BROWSER_DUMMY,
-    };
-  }
+  let isFirstAuthAttempt = true; // Don't need to prompt for re-auth on first attempt
+  options.oidc.allowedFlows = async function () {
+    if (!isFirstAuthAttempt) {
+      await reauthenticationHandler?.();
+    }
+    isFirstAuthAttempt = false;
+    return allowedFlows;
+  };
 
-  // Set the driver's `authMechanismProperties` (non-url)
-  // `ALLOWED_HOSTS` value to `*`.
   if (connectionOptions.oidc?.enableUntrustedEndpoints) {
-    options.authMechanismProperties.ALLOWED_HOSTS = ['*'];
+    // Set the driver's `authMechanismProperties` (non-url) `ALLOWED_HOSTS` value
+    // to match the connection string hosts, including possible SRV "sibling" domains.
+    options.authMechanismProperties.ALLOWED_HOSTS =
+      matchingAllowedHosts(connectionOptions);
   }
 
   // @ts-expect-error Will go away on @types/node update
@@ -59,12 +97,23 @@ export function prepareOIDCOptions(
   return options;
 }
 
-export async function connectMongoClientCompass(
-  connectionOptions: Readonly<ConnectionOptions>,
-  setupListeners: (client: MongoClient) => void,
-  signal?: AbortSignal,
-  logger?: UnboundDataServiceImplLogger
-): Promise<
+export async function connectMongoClientDataService({
+  connectionOptions,
+  setupListeners,
+  signal,
+  logger,
+  productName,
+  productDocsLink,
+  reauthenticationHandler,
+}: {
+  connectionOptions: Readonly<ConnectionOptions>;
+  setupListeners: (client: MongoClient) => void;
+  signal?: AbortSignal;
+  logger?: UnboundDataServiceImplLogger;
+  productName?: string;
+  productDocsLink?: string;
+  reauthenticationHandler?: ReauthenticationHandler;
+}): Promise<
   [
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
@@ -78,12 +127,16 @@ export async function connectMongoClientCompass(
     redactConnectionOptions(connectionOptions)
   );
 
-  const oidcOptions = prepareOIDCOptions(connectionOptions, signal);
+  const oidcOptions = prepareOIDCOptions(
+    connectionOptions,
+    signal,
+    reauthenticationHandler
+  );
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
-    productName: 'MongoDB Compass',
-    productDocsLink: 'https://www.mongodb.com/docs/compass/',
+    productName: productName ?? 'MongoDB Compass',
+    productDocsLink: productDocsLink ?? 'https://www.mongodb.com/docs/compass/',
     monitorCommands: true,
     useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,

@@ -42,6 +42,7 @@ export * from './set-export-filename';
 export * from './get-feature';
 export * from './set-feature';
 export * from './save-favorite';
+export * from './save-connection-string-as-favorite';
 export * from './select-favorite';
 export * from './select-connection-menu-item';
 export * from './select-favorites-menu-item';

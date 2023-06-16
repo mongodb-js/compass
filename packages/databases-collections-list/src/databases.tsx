@@ -78,6 +78,17 @@ const DatabasesList: React.FunctionComponent<{
               {
                 label: 'Collections',
                 value: compactNumber(db.collectionsLength),
+                insights:
+                  db.collectionsLength >= 10_000
+                    ? {
+                        id: 'too-many-collections',
+                        title: 'Databases with too many collections',
+                        description:
+                          "An excessive number of collections and their associated indexes can drain resources and impact your database's performance. In general, try to limit your replica set to 10,000 collections.",
+                        learnMoreLink:
+                          'https://www.mongodb.com/docs/v3.0/core/data-model-operations/#large-number-of-collections',
+                      }
+                    : undefined,
               },
               {
                 label: 'Indexes',

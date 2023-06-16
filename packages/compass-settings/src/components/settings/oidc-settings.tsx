@@ -7,7 +7,11 @@ import type { SettingsListProps } from './settings-list';
 import { SettingsList } from './settings-list';
 import { pick } from '../../utils/pick';
 
-const oidcFields = ['showOIDCDeviceAuthFlow'] as const;
+const oidcFields = [
+  'browserCommandForOIDCAuth',
+  'showOIDCDeviceAuthFlow',
+  'persistOIDCTokens',
+] as const;
 type OIDCFields = typeof oidcFields[number];
 type OIDCSettingsProps = Omit<SettingsListProps<OIDCFields>, 'fields'>;
 

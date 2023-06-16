@@ -43,10 +43,10 @@ describe('sort', function () {
       sortFormGroup = screen.getByTestId('sort-form-0');
     });
 
-    it('renders labels', function () {
-      expect(within(sortFormGroup).findByText('Sort documents by')).to.exist;
-      expect(within(sortFormGroup).findByText('in')).to.exist;
-      expect(within(sortFormGroup).findByText('order')).to.exist;
+    it('renders labels', async function () {
+      expect(await within(sortFormGroup).findByText('Sort documents by')).to
+        .exist;
+      expect(await within(sortFormGroup).findByText('in')).to.exist;
     });
 
     it('renders add button', function () {

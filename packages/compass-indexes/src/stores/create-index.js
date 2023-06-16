@@ -46,9 +46,9 @@ const configureStore = (options = {}) => {
       );
     });
 
-    localAppRegistry.on('toggle-create-index-modal', (isVisible) => {
+    localAppRegistry.on('open-create-index-modal', () => {
       track('Index Create Opened');
-      store.dispatch(toggleIsVisible(isVisible));
+      store.dispatch(toggleIsVisible(true));
     });
 
     localAppRegistry.on('data-service-connected', (error, ds) => {

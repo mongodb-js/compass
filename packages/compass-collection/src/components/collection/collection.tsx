@@ -1,9 +1,9 @@
 import type AppRegistry from 'hadron-app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { TabNavBar, css } from '@mongodb-js/compass-components';
-
+import { usePreference } from 'compass-preferences-model';
 import CollectionHeader from '../collection-header';
 import { getCollectionStatsInitialState } from '../../modules/stats';
 import type { CollectionStatsMap } from '../../modules/stats';
@@ -77,13 +77,26 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   sourceName,
   activeSubTab,
   id,
-  tabs,
-  views,
+  tabs: _tabs,
+  views: _views,
   localAppRegistry,
   globalAppRegistry,
   changeActiveSubTab,
   scopedModals,
 }: CollectionProps) => {
+  const newExplainPlan = usePreference('newExplainPlan', React);
+  const explainPlanTabId = _tabs.indexOf('Explain Plan');
+  const tabs = useMemo(() => {
+    return _tabs.filter((_, id) => {
+      return !newExplainPlan || id !== explainPlanTabId;
+    });
+  }, [newExplainPlan, explainPlanTabId, _tabs]);
+  const views = useMemo(() => {
+    return _views.filter((_, id) => {
+      return !newExplainPlan || id !== explainPlanTabId;
+    });
+  }, [newExplainPlan, explainPlanTabId, _views]);
+
   const activeSubTabName =
     tabs && tabs.length > 0
       ? trackingIdForTabName(tabs[activeSubTab] || 'Unknown')
@@ -108,6 +121,22 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     },
     [id, activeSubTab, localAppRegistry, globalAppRegistry, changeActiveSubTab]
   );
+
+  useEffect(() => {
+    const indexesTabId = tabs.indexOf('Indexes');
+    const onOpenCreateIndexEvent = onSubTabClicked.bind(
+      null,
+      indexesTabId,
+      tabs[indexesTabId]
+    );
+    localAppRegistry.on('open-create-index-modal', onOpenCreateIndexEvent);
+    return () => {
+      localAppRegistry.removeListener(
+        'open-create-index-modal',
+        onOpenCreateIndexEvent
+      );
+    };
+  }, [localAppRegistry, onSubTabClicked, tabs]);
 
   return (
     <div className={collectionStyles} data-testid="collection">

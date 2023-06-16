@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import type { Signal } from '@mongodb-js/compass-components';
 import {
   Label,
   TextInput,
@@ -82,6 +83,7 @@ type QueryOptionProps = {
   onChange: (name: QueryProperty, value: string) => void;
   placeholder?: string;
   onApply?(): void;
+  insights?: Signal | Signal[];
 };
 
 // Helper component to allow flexible computation of extra props for the TextInput
@@ -112,6 +114,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   name,
   value,
   onApply,
+  insights,
 }) => {
   const darkMode = useDarkMode();
 
@@ -168,6 +171,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             value={value}
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
+            insights={insights}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>

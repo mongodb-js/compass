@@ -1,9 +1,10 @@
 import { createStore } from 'redux';
 import reducer from '../modules';
-import { setupRuntime } from '../modules/runtime';
+import { changeEnableShell, setupRuntime } from '../modules/runtime';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import preferences from 'compass-preferences-model';
 
 const { log, debug, track } = createLoggerAndTelemetry('COMPASS-SHELL');
 
@@ -22,6 +23,12 @@ export default class CompassShellStore {
     appRegistry.on('data-service-connected', this.onDataServiceConnected);
 
     appRegistry.on('data-service-disconnected', this.onDataServiceDisconnected);
+
+    preferences.onPreferenceValueChanged(
+      'enableShell',
+      this.onEnableShellChanged
+    );
+    this.onEnableShellChanged(preferences.getPreferences().enableShell);
 
     setupLoggerAndTelemetry(
       appRegistry,
@@ -47,6 +54,10 @@ export default class CompassShellStore {
     this.reduxStore.dispatch(globalAppRegistryActivated(appRegistry));
   }
 
+  onEnableShellChanged = (value) => {
+    this.reduxStore.dispatch(changeEnableShell(value));
+  };
+
   onDataServiceConnected = (error, dataService) => {
     this.reduxStore.dispatch(
       setupRuntime(error, dataService, this.globalAppRegistry)
@@ -54,14 +65,6 @@ export default class CompassShellStore {
   };
 
   onDataServiceDisconnected = () => {
-    const {
-      runtime: { runtime },
-    } = this.reduxStore.getState();
-
-    if (runtime) {
-      runtime.terminate();
-    }
-
     this.reduxStore.dispatch(setupRuntime(null, null, null));
   };
 }

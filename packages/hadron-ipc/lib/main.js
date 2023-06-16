@@ -1,8 +1,7 @@
 'use strict';
 
 const getResponseChannel = require('./common').getResponseChannel;
-const forIn = require('lodash.forin');
-const isPlainObject = require('lodash.isplainobject');
+const { forIn, isPlainObject } = require('lodash');
 const isPromise = require('is-promise');
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
