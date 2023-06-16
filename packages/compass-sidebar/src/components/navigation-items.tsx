@@ -271,7 +271,7 @@ const mapStateToProps =
       isWritable: boolean;
     };
   }) => {
-    const totalCollectionsCound = state.databases.databases.reduce(
+    const totalCollectionsCount = state.databases.databases.reduce(
       (acc: number, db: { collectionsLength: number }) => {
         return acc + db.collectionsLength;
       },
@@ -281,7 +281,7 @@ const mapStateToProps =
       currentLocation: state.location,
       isDataLake: state.instance?.dataLake.isDataLake,
       isWritable: state.instance?.isWritable,
-      showTooManyCollectionsInsight: totalCollectionsCound > 10_000,
+      showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
     };
   };
 
