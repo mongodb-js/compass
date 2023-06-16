@@ -15,19 +15,16 @@ export async function unhideIndex(
     `${indexComponentSelector} ${Selectors.UnhideIndexButton}`
   );
 
-  const hideModal = await browser.$(Selectors.UnhideIndexModal);
-  await hideModal.waitForDisplayed();
+  const unhideModal = await browser.$(Selectors.ConfirmationModal);
+  await unhideModal.waitForDisplayed();
 
   if (screenshotName) {
     await browser.screenshot(screenshotName);
   }
 
-  const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
-    Selectors.UnhideIndexModal
-  );
-  await browser.clickVisible(ConfirmButtonSelector);
+  await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
 
-  await hideModal.waitForDisplayed({ reverse: true });
+  await unhideModal.waitForDisplayed({ reverse: true });
 
   const hiddenBadge = await browser.$(Selectors.HiddenIndexBadge(indexName));
   await hiddenBadge.waitForDisplayed({ reverse: true });

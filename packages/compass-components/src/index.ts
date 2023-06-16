@@ -71,7 +71,7 @@ export { GuideCue } from '@leafygreen-ui/guide-cue';
 export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-export { Tooltip, TooltipProps } from './components/tooltip';
+export { Tooltip } from './components/tooltip';
 import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';

@@ -15,17 +15,14 @@ export async function hideIndex(
     `${indexComponentSelector} ${Selectors.HideIndexButton}`
   );
 
-  const hideModal = await browser.$(Selectors.HideIndexModal);
+  const hideModal = await browser.$(Selectors.ConfirmationModal);
   await hideModal.waitForDisplayed();
 
   if (screenshotName) {
     await browser.screenshot(screenshotName);
   }
 
-  const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
-    Selectors.HideIndexModal
-  );
-  await browser.clickVisible(ConfirmButtonSelector);
+  await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
 
   await hideModal.waitForDisplayed({ reverse: true });
 
