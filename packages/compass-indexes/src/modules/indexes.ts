@@ -252,7 +252,12 @@ export const hideIndex = (
     }
 
     try {
-      await dataService?.hideIndex(namespace, indexName);
+      await dataService?.updateCollection(namespace, {
+        index: {
+          name: indexName,
+          hidden: true,
+        },
+      });
       void dispatch(fetchIndexes());
     } catch (error) {
       openToast('hide-index-error', {
@@ -290,7 +295,12 @@ export const unhideIndex = (
     }
 
     try {
-      await dataService?.unhideIndex(namespace, indexName);
+      await dataService?.updateCollection(namespace, {
+        index: {
+          name: indexName,
+          hidden: false,
+        },
+      });
       void dispatch(fetchIndexes());
     } catch (error) {
       openToast('unhide-index-error', {
