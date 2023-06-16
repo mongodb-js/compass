@@ -100,6 +100,7 @@ const renderIndexList = (
   render(
     <IndexesTable
       indexes={[]}
+      serverVersion="4.4.0"
       canModifyIndex={true}
       onSortTable={() => {}}
       onDeleteIndex={() => {}}

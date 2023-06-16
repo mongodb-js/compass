@@ -62,16 +62,6 @@ describe('Collection indexes tab', function () {
     await browser.dropIndex(createdIndexName, 'drop-index-modal-basic.png');
   });
 
-  it('supports hiding and unhiding indexes', async function () {
-    const indexName = await browser.createIndex({
-      fieldName: 'i',
-      indexType: 'text',
-    });
-
-    await browser.hideIndex(indexName, 'hide-index-modal.png');
-    await browser.unhideIndex(indexName, 'unhide-index-modal.png');
-  });
-
   describe('server version 4.2.0', function () {
     it('supports creating a wildcard index', async function () {
       if (serverSatisfies('< 4.2.0')) {
@@ -96,6 +86,22 @@ describe('Collection indexes tab', function () {
       expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
 
       await browser.dropIndex(indexName, 'drop-index-modal-wildcard.png');
+    });
+  });
+
+  describe('server version 4.4.0', function () {
+    it('supports hiding and unhiding indexes', async function () {
+      if (serverSatisfies('< 4.4.0')) {
+        return this.skip();
+      }
+
+      const indexName = await browser.createIndex({
+        fieldName: 'i',
+        indexType: 'text',
+      });
+
+      await browser.hideIndex(indexName, 'hide-index-modal.png');
+      await browser.unhideIndex(indexName, 'unhide-index-modal.png');
     });
   });
 

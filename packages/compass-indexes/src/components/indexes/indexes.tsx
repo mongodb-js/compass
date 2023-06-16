@@ -43,6 +43,7 @@ type IndexesProps = {
   error: string | null;
   localAppRegistry: AppRegistry;
   isRefreshing: boolean;
+  serverVersion: string;
   sortIndexes: (name: SortColumn, direction: SortDirection) => void;
   refreshIndexes: () => void;
   dropFailedIndex: (id: string) => void;
@@ -60,6 +61,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   error,
   localAppRegistry,
   isRefreshing,
+  serverVersion,
   sortIndexes,
   refreshIndexes,
   dropFailedIndex,
@@ -92,6 +94,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
           {({ height }) => (
             <IndexesTable
               indexes={indexes}
+              serverVersion={serverVersion}
               canModifyIndex={isWritable && !isReadonly && !readOnly}
               onSortTable={sortIndexes}
               onDeleteIndex={deleteIndex}
@@ -115,6 +118,7 @@ const mapState = ({
   description,
   error,
   isRefreshing,
+  serverVersion,
   appRegistry,
 }: RootState) => ({
   indexes,
@@ -125,6 +129,7 @@ const mapState = ({
   error,
   localAppRegistry: (appRegistry as any).localAppRegistry,
   isRefreshing,
+  serverVersion,
 });
 
 const mapDispatch = {

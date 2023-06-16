@@ -73,6 +73,7 @@ type IndexesTableProps = {
   indexes: IndexDefinition[];
   canModifyIndex: boolean;
   scrollHeight: number;
+  serverVersion: string;
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
   onDeleteIndex: (index: IndexDefinition) => void;
   onHideIndex: (name: string) => void;
@@ -83,6 +84,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   indexes,
   canModifyIndex,
   scrollHeight,
+  serverVersion,
   onSortTable,
   onDeleteIndex,
   onHideIndex,
@@ -173,6 +175,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
                   >
                     <IndexActions
                       index={index}
+                      serverVersion={serverVersion}
                       onDeleteIndex={onDeleteIndex}
                       onHideIndex={onHideIndex}
                       onUnhideIndex={onUnhideIndex}
