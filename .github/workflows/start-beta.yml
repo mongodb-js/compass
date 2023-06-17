@@ -1,0 +1,79 @@
+name: Start new beta release
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Each Monday at 5 AM UTC
+    - cron: '0 5 * * 1'
+
+jobs:
+  publish:
+    name: Start new beta release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      # only needed for npm version and npx
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
+      - name: Start Release
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          set -e
+          next_ga=$( \
+            curl -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
+            'https://jira.mongodb.org/rest/api/2/project/COMPASS/versions' | \
+            jq -r '[.[] | select(.released == false)] | sort_by(.startDate) | last | .name' \
+          )
+
+          if [[ ! $next_ga =~ "^[0-9]+\.[0-9]+\.[0-9]+$" ]]; then
+            echo "Error: ${next_ga} is not a valid version string."
+            exit 1;
+          fi
+
+          release_branch=$(echo "${next_ga}" | awk -F. '{print $1 "." $2}')-releases
+
+          git checkout -b "${release_branch}" || git checkout "${release_branch}"
+          package_json_version=$(cat package.json | jq .version)
+          package_json_version=${package_json_version:-0.0.0}
+
+          # if the previous version is newer we fail the release:
+          if npx semver@latest -r ">=${next_ga}" "${package_json_version}"; then
+            echo Error: the previous release in ${release_branch} is already >= then the next GA.
+            exit 1;
+          fi
+
+          # if the previous version is too old (not in the range of the same minor GA)
+          # we can assume that we need to release a beta.0,
+          # otherwise we bump whatever other prerelease was in the package.json:
+          if npx semver@latest -r "<=${next_ga}-beta.0" $package_json_version; then
+            next_beta=${next_ga}-beta.0
+          else
+            next_beta=$(npx semver@latest -i prerelease $package_json_version)
+          fi
+
+          if [[ ! $next_beta =~ "^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$" ]]; then
+              echo "Error: ${next_beta} is not a valid beta version string."
+              exit 1;
+          fi
+
+          # merge the latest changes
+          git merge main
+
+          # bump the package version and push
+          npm version "${next_beta}"
+          git commit -m "v${next_beta}" -- package.json package-lock.json
+          git tag "v${next_beta}"
+          git push origin "${release_branch}"
+          git push --tags
+
+
+
