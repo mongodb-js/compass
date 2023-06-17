@@ -70,4 +70,3 @@ jobs:
           git tag "v${next_ga}"
           git push origin "${release_branch}"
           git push --tags
-

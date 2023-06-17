@@ -74,6 +74,3 @@ jobs:
           git tag "v${next_beta}"
           git push origin "${release_branch}"
           git push --tags
-
-
-
