@@ -623,7 +623,7 @@ export const HadronElement: React.FunctionComponent<{
               // See above
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus={autoFocus?.id === id && autoFocus.type === 'type'}
-              onChange={(newType: HadronElementType) => {
+              onChange={(newType) => {
                 type.change(newType);
 
                 // When we change the type to an object or array we auto
