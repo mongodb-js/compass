@@ -10,7 +10,10 @@ import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
-import configureStore, { findAndModifyWithFLEFallback } from './crud-store';
+import configureStore, {
+  CRUD_VIEW_TYPE_SETTINGS_KEY,
+  findAndModifyWithFLEFallback,
+} from './crud-store';
 import configureActions from '../actions';
 
 chai.use(chaiAsPromised);
@@ -234,6 +237,26 @@ describe('store', function () {
         version: '6.0.0',
         view: 'List',
         fields: [],
+      });
+    });
+
+    describe('with the view type set in the local storage', function () {
+      beforeEach(function () {
+        window.sessionStorage.setItem(CRUD_VIEW_TYPE_SETTINGS_KEY, 'JSON');
+
+        store = configureStore({
+          localAppRegistry: localAppRegistry,
+          globalAppRegistry: globalAppRegistry,
+          actions: actions,
+        });
+      });
+
+      afterEach(function () {
+        window.sessionStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
+      });
+
+      it('sets the view accordingly', function () {
+        expect(store.state.view).to.equal('JSON');
       });
     });
   });
@@ -1531,6 +1554,7 @@ describe('store', function () {
     let actions;
 
     beforeEach(function () {
+      window.sessionStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1544,6 +1568,10 @@ describe('store', function () {
       });
     });
 
+    afterEach(function () {
+      window.sessionStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
+    });
+
     it('sets the view', async function () {
       const listener = waitForState(store, (state) => {
         expect(state.view).to.equal('Table');
@@ -1552,6 +1580,13 @@ describe('store', function () {
       store.viewChanged('Table');
 
       await listener;
+
+      // Check that the view is set in the local storage,
+      // to be used as the last seen view.
+      const localStorageItem = window.sessionStorage.getItem(
+        CRUD_VIEW_TYPE_SETTINGS_KEY
+      );
+      expect(localStorageItem).to.equal('Table');
     });
   });
 

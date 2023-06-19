@@ -11,7 +11,6 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
-import preferences from 'compass-preferences-model';
 
 import {
   countDocuments,
@@ -242,7 +241,7 @@ export const isListEditable = ({
   return !hasProjection && !isDataLake && !isReadonly;
 };
 
-const CRUD_VIEW_TYPE_SETTINGS_KEY = 'compass_crud_view_type';
+export const CRUD_VIEW_TYPE_SETTINGS_KEY = 'compass_crud_view_type';
 type CrudViewType = 'List' | 'JSON' | 'Table';
 function getViewTypeFromSessionStorage(
   defaultView: CrudViewType = 'List'
