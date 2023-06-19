@@ -61,10 +61,6 @@ const bsonValuePrewrap = css({
   whiteSpace: 'pre-wrap',
 });
 
-const arrayLengthStyles = css({
-  display: 'inline-block',
-});
-
 export const BSONValueContainer: React.FunctionComponent<
   React.HTMLProps<HTMLDivElement> & {
     type?: ValueTypes;
@@ -340,7 +336,7 @@ const ArrayValue: React.FunctionComponent<PropsByValueType<'Array'>> = ({
 
   return (
     <BSONValueContainer title={`Array ${lengthString}`}>
-      Array <span className={arrayLengthStyles}>{lengthString}</span>
+      Array {lengthString}
     </BSONValueContainer>
   );
 };
