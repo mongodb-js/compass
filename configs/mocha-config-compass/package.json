@@ -24,7 +24,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.9",
+    "@electron/remote": "^2.0.10",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "chai": "^4.3.4",
     "chai-dom": "^1.9.0",
