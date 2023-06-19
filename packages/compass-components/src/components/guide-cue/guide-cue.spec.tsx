@@ -56,9 +56,10 @@ const getGuideCuePopover = () => {
   return screen.getByRole('dialog');
 };
 
-const GROUP_STEPS_MAP = new Map();
-GROUP_STEPS_MAP.set('group-one', 1);
-GROUP_STEPS_MAP.set('group-two', 2);
+const GROUP_STEPS_MAP = new Map([
+  ['group-one', 1],
+  ['group-two', 2],
+]);
 
 describe('GuideCue', function () {
   const sandbox = Sinon.createSandbox();
@@ -72,11 +73,11 @@ describe('GuideCue', function () {
     sandbox.restore();
   });
 
-  context('guide cue component', function () {
-    afterEach(function () {
-      localStorage.clear();
-    });
+  afterEach(function () {
+    localStorage.clear();
+  });
 
+  context('guide cue component', function () {
     it('renders a guide cue', async function () {
       renderGuideCue(
         { title: 'Login with Atlas', cueId: 'gc' },
@@ -143,6 +144,34 @@ describe('GuideCue', function () {
         within(popover).getByText(/now you can login with your atlas account/i)
       );
       expect(getGuideCuePopover()).to.exist;
+    });
+
+    it('calls onPrimaryButtonClick when button is primary action is clicked', async function () {
+      const onPrimaryButtonClick = Sinon.spy();
+      renderGuideCue(
+        { title: 'Login with Atlas', cueId: 'gc', onPrimaryButtonClick },
+        'Now you can login with your atlas account'
+      );
+
+      await waitFor(() => getGuideCuePopover());
+
+      const popover = getGuideCuePopover();
+      userEvent.click(
+        within(popover).getByRole('button', {
+          name: /got it/i,
+        })
+      );
+
+      // LG GC uses 100ms timeout for calling onPrimaryButtonClick
+      // Adding 100 more just to be safe
+      await waitFor(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 200);
+          })
+      );
+
+      expect(onPrimaryButtonClick.calledOnce).to.be.true;
     });
   });
 
@@ -211,6 +240,50 @@ describe('GuideCue', function () {
       await waitForElementToBeRemoved(() => getGuideCuePopover());
 
       expect(() => getGuideCuePopover()).to.throw;
+    });
+
+    it('calls onDismiss when dismiss action is clicked', async function () {
+      const onDismiss = Sinon.spy();
+      renderGuideCue(
+        {
+          title: 'Login with Atlas',
+          cueId: 'one',
+          groupId: 'group-two',
+          step: 1,
+          onDismiss,
+        },
+        'Now you can login with your atlas account'
+      );
+      renderGuideCue(
+        {
+          title: 'Your Atlas connections',
+          cueId: 'two',
+          groupId: 'group-two',
+          step: 2,
+        },
+        'These are your Atlas connections'
+      );
+
+      // wait for cue to show up
+      await waitFor(() => getGuideCuePopover());
+
+      const popover = getGuideCuePopover();
+      userEvent.click(
+        within(popover).getByRole('button', {
+          name: /close tooltip/i,
+        })
+      );
+
+      // LG GC uses 400ms timeout for calling onDismiss
+      // Adding 100 for extra safety.
+      await waitFor(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 500);
+          })
+      );
+
+      expect(onDismiss.calledOnce).to.be.true;
     });
 
     it('renders standalone cues', async function () {

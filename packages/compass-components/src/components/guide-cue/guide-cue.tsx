@@ -42,7 +42,7 @@ type GroupAndStep =
 // omit the props we are handling
 export type GuideCueProps<T> = Omit<
   LGGuideCueProps,
-  'currentStep' | 'refEl' | 'numberOfSteps' | 'onDismiss' | 'open' | 'setOpen'
+  'currentStep' | 'refEl' | 'numberOfSteps' | 'open' | 'setOpen'
 > &
   GroupAndStep & {
     cueId: string;
@@ -55,6 +55,8 @@ export const GuideCue = <T extends HTMLElement>({
   cueId,
   groupId,
   step,
+  onPrimaryButtonClick,
+  onDismiss,
   ...restOfCueProps
 }: React.PropsWithChildren<GuideCueProps<T>>) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -140,14 +142,16 @@ export const GuideCue = <T extends HTMLElement>({
   }, []);
 
   const onNextGroup = useCallback(() => {
+    onDismiss?.();
     guideCueService.markGroupAsVisited(cueData.groupId);
     guideCueService.onNext();
-  }, [cueData]);
+  }, [cueData, onDismiss]);
 
   const onNext = useCallback(() => {
+    onPrimaryButtonClick?.();
     guideCueService.markCueAsVisited(cueData.cueId, cueData.groupId);
     guideCueService.onNext();
-  }, [cueData]);
+  }, [cueData, onPrimaryButtonClick]);
 
   useEffect(() => {
     if (!isOpen || !refEl.current) {
