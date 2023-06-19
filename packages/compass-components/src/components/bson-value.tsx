@@ -61,6 +61,10 @@ const bsonValuePrewrap = css({
   whiteSpace: 'pre-wrap',
 });
 
+const arrayLengthStyles = css({
+  display: 'inline-block',
+});
+
 export const BSONValueContainer: React.FunctionComponent<
   React.HTMLProps<HTMLDivElement> & {
     type?: ValueTypes;
@@ -104,9 +108,9 @@ const encryptedHelpLinkStyle = css({
   marginLeft: spacing[1],
 });
 
-export const ObjectIdValue: React.FunctionComponent<
-  PropsByValueType<'ObjectId'>
-> = ({ value }) => {
+const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
+  value,
+}) => {
   const stringifiedValue = useMemo(() => {
     return String(value);
   }, [value]);
@@ -120,9 +124,9 @@ export const ObjectIdValue: React.FunctionComponent<
   );
 };
 
-export const BinaryValue: React.FunctionComponent<
-  PropsByValueType<'Binary'>
-> = ({ value }) => {
+const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
+  value,
+}) => {
   const { stringifiedValue, title, additionalHints } = useMemo(() => {
     if (value.sub_type === Binary.SUBTYPE_ENCRYPTED) {
       return {
@@ -178,7 +182,7 @@ export const BinaryValue: React.FunctionComponent<
   );
 };
 
-export const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
+const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
@@ -194,7 +198,7 @@ export const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   );
 };
 
-export const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
+const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
@@ -212,7 +216,7 @@ export const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   );
 };
 
-export const NumberValue: React.FunctionComponent<
+const NumberValue: React.FunctionComponent<
   PropsByValueType<'Int32' | 'Double'> & { type: 'Int32' | 'Double' }
 > = ({ type, value }) => {
   const stringifiedValue = useMemo(() => {
@@ -226,9 +230,9 @@ export const NumberValue: React.FunctionComponent<
   );
 };
 
-export const StringValue: React.FunctionComponent<
-  PropsByValueType<'String'>
-> = ({ value }) => {
+const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
+  value,
+}) => {
   const truncatedValue = useMemo(() => {
     return truncate(value, 70);
   }, [value]);
@@ -240,9 +244,9 @@ export const StringValue: React.FunctionComponent<
   );
 };
 
-export const RegExpValue: React.FunctionComponent<
-  PropsByValueType<'BSONRegExp'>
-> = ({ value }) => {
+const RegExpValue: React.FunctionComponent<PropsByValueType<'BSONRegExp'>> = ({
+  value,
+}) => {
   const stringifiedValue = useMemo(() => {
     return `/${value.pattern}/${value.options}`;
   }, [value.pattern, value.options]);
@@ -254,7 +258,7 @@ export const RegExpValue: React.FunctionComponent<
   );
 };
 
-export const TimestampValue: React.FunctionComponent<
+const TimestampValue: React.FunctionComponent<
   PropsByValueType<'Timestamp'>
 > = ({ value }) => {
   const stringifiedValue = useMemo(() => {
@@ -268,7 +272,7 @@ export const TimestampValue: React.FunctionComponent<
   );
 };
 
-export const KeyValue: React.FunctionComponent<{
+const KeyValue: React.FunctionComponent<{
   type: 'MinKey' | 'MaxKey';
 }> = ({ type }) => {
   const stringifiedValue = useMemo(() => {
@@ -282,7 +286,7 @@ export const KeyValue: React.FunctionComponent<{
   );
 };
 
-export const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
+const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
@@ -298,9 +302,9 @@ export const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   );
 };
 
-export const SymbolValue: React.FunctionComponent<
-  PropsByValueType<'BSONSymbol'>
-> = ({ value }) => {
+const SymbolValue: React.FunctionComponent<PropsByValueType<'BSONSymbol'>> = ({
+  value,
+}) => {
   const stringifiedValue = useMemo(() => {
     return `Symbol('${String(value)}')`;
   }, [value]);
@@ -312,7 +316,7 @@ export const SymbolValue: React.FunctionComponent<
   );
 };
 
-export const UnknownValue: React.FunctionComponent<{
+const UnknownValue: React.FunctionComponent<{
   type: string;
   value: unknown;
 }> = ({ value }) => {
@@ -323,6 +327,20 @@ export const UnknownValue: React.FunctionComponent<{
   return (
     <BSONValueContainer title={stringifiedValue}>
       {stringifiedValue}
+    </BSONValueContainer>
+  );
+};
+
+const ArrayValue: React.FunctionComponent<PropsByValueType<'Array'>> = ({
+  value,
+}) => {
+  const lengthString = useMemo(() => {
+    return `(${value.length > 0 ? value.length : 'empty'})`;
+  }, [value.length]);
+
+  return (
+    <BSONValueContainer title={`Array ${lengthString}`}>
+      Array <span className={arrayLengthStyles}>{lengthString}</span>
     </BSONValueContainer>
   );
 };
@@ -353,8 +371,9 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
       return <TimestampValue value={props.value}></TimestampValue>;
     case 'BSONSymbol':
       return <SymbolValue value={props.value}></SymbolValue>;
-    case 'Object':
     case 'Array':
+      return <ArrayValue value={props.value}></ArrayValue>;
+    case 'Object':
       return <UnknownValue type={props.type} value={props.type}></UnknownValue>;
     default:
       return (
