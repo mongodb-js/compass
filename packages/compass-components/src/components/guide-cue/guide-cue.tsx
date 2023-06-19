@@ -153,16 +153,14 @@ export const GuideCue = <T extends HTMLElement>({
   }, []);
 
   const onNextGroup = useCallback(() => {
-    onDismiss?.();
     guideCueService.markGroupAsVisited(cueData.groupId);
     guideCueService.onNext();
-  }, [cueData, onDismiss]);
+  }, [cueData]);
 
   const onNext = useCallback(() => {
-    onPrimaryButtonClick?.();
     guideCueService.markCueAsVisited(cueData.cueId, cueData.groupId);
     guideCueService.onNext();
-  }, [cueData, onPrimaryButtonClick]);
+  }, [cueData]);
 
   useEffect(() => {
     if (!isCueOpen || !refEl.current) {
@@ -205,8 +203,14 @@ export const GuideCue = <T extends HTMLElement>({
           {...restOfCueProps}
           open={isCueOpen}
           numberOfSteps={guideCueService.getCountOfSteps(cueData.groupId)}
-          onDismiss={onNextGroup}
-          onPrimaryButtonClick={onNext}
+          onDismiss={() => {
+            onDismiss?.();
+            onNextGroup();
+          }}
+          onPrimaryButtonClick={() => {
+            onPrimaryButtonClick?.();
+            onNext();
+          }}
           setOpen={() => setOpen(false)}
           currentStep={cueData.step || 1}
           refEl={refEl}
