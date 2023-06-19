@@ -55,7 +55,7 @@
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@electron/remote": "^2.0.9",
+    "@electron/remote": "^2.0.10",
     "@mongodb-js/eslint-config-compass": "^1.0.6",
     "@mongodb-js/mocha-config-compass": "^1.2.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
