@@ -11,6 +11,7 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
+import preferences from 'compass-preferences-model';
 
 import {
   countDocuments,
@@ -101,11 +102,6 @@ const ERROR = 'error';
  * Modifying constant.
  */
 const MODIFYING = 'modifying';
-
-/**
- * The list view constant.
- */
-const LIST = 'List';
 
 /**
  * The delete error message.
@@ -246,6 +242,29 @@ export const isListEditable = ({
   return !hasProjection && !isDataLake && !isReadonly;
 };
 
+const CRUD_VIEW_TYPE_SETTINGS_KEY = 'compass_crud_view_type';
+type CrudViewType = 'List' | 'JSON' | 'Table';
+function getViewTypeFromSessionStorage(
+  defaultView: CrudViewType = 'List'
+): CrudViewType {
+  try {
+    return (
+      (window.sessionStorage.getItem(
+        CRUD_VIEW_TYPE_SETTINGS_KEY
+      ) as CrudViewType) ?? defaultView
+    );
+  } catch {
+    return defaultView;
+  }
+}
+function setViewTypeOnSessionStorage(view: CrudViewType) {
+  try {
+    window.sessionStorage.setItem(CRUD_VIEW_TYPE_SETTINGS_KEY, view);
+  } catch {
+    // noop
+  }
+}
+
 type CrudStoreOptions = {
   actions: {
     [key in keyof CrudActions]: Listenable;
@@ -312,7 +331,7 @@ type CrudState = {
   page: number;
   version: string;
   isEditable: boolean;
-  view: 'List' | 'JSON' | 'Table';
+  view: CrudViewType;
   count: number | null;
   insert: InsertState;
   table: TableState;
@@ -370,7 +389,7 @@ class CrudStoreImpl
       end: 0,
       page: 0,
       isEditable: true,
-      view: LIST,
+      view: getViewTypeFromSessionStorage(),
       count: 0,
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
@@ -1218,6 +1237,7 @@ class CrudStoreImpl
   viewChanged(view: CrudState['view']) {
     this.globalAppRegistry.emit('document-view-changed', view);
     this.localAppRegistry.emit('document-view-changed', view);
+    setViewTypeOnSessionStorage(view);
     this.setState({ view: view });
   }
 
