@@ -623,8 +623,14 @@ export const HadronElement: React.FunctionComponent<{
               // See above
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus={autoFocus?.id === id && autoFocus.type === 'type'}
-              onChange={(newType) => {
+              onChange={(newType: HadronElementType) => {
                 type.change(newType);
+
+                // When we change the type to an object or array we auto
+                // expand them to make seeding data a bit quicker.
+                if (newType === 'Array' || newType === 'Object') {
+                  setExpanded(true);
+                }
               }}
             ></TypeEditor>
           </div>
