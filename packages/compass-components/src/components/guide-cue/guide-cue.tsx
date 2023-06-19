@@ -168,6 +168,7 @@ export const GuideCue = <T extends HTMLElement>({
 
       // Clicked within refEl
       if (event.composedPath().includes(refEl.current!)) {
+        setIsOpen(false);
         return onNext();
       }
 
