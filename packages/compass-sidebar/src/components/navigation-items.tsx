@@ -98,7 +98,6 @@ const itemButtonWrapper = css({
 
 const signalContainerStyles = css({
   flex: 'none',
-  fontSize: 0,
 });
 
 const navigationItemLabel = css({
@@ -165,7 +164,7 @@ export function NavigationItem<Actions extends string>({
                 description:
                   "An excessive number of collections and their associated indexes can drain resources and impact your database's performance. In general, try to limit your replica set to 10,000 collections.",
                 learnMoreLink:
-                  'https://www.mongodb.com/docs/v3.0/core/data-model-operations/#large-number-of-collections',
+                  'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#large-number-of-collections',
               }}
             ></SignalPopover>
           </div>

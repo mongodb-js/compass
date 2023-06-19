@@ -240,7 +240,7 @@ const badgeStyles = css(
   },
   {
     position: 'relative',
-    display: 'inline-block',
+    display: 'block',
     width: 18,
     height: 18,
     color: 'var(--badgeColor)',

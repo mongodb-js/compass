@@ -52,7 +52,6 @@ const editorWithErrorStyles = css({
 
 const queryBarEditorOptionInsightsStyles = css({
   position: 'absolute',
-  fontSize: 0,
   // Horizontally the insight is in the middle of the first line of the editor
   top: `calc((${spacing[4]}px - 18px) / 2)`,
   right: spacing[1],

@@ -24,6 +24,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isOutputStage } from '../../utils/stage';
 import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
+import { fetchExplainForPipeline } from '../insights';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
@@ -390,6 +391,7 @@ export const changeStageValue = (
     stage.changeValue(newVal);
     dispatch({ type: StageEditorActionTypes.StageValueChange, id, stage });
     dispatch(loadPreviewForStagesFrom(id));
+    void dispatch(fetchExplainForPipeline());
   };
 };
 
@@ -497,6 +499,7 @@ export const changeStageOperator = (
     }
 
     dispatch(loadPreviewForStagesFrom(id));
+    void dispatch(fetchExplainForPipeline());
 
     return newSnippet;
   };
@@ -531,6 +534,7 @@ export const changeStageDisabled = (
       disabled: newVal,
     });
     dispatch(loadPreviewForStagesFrom(id));
+    void dispatch(fetchExplainForPipeline());
   };
 };
 
@@ -603,6 +607,7 @@ export const removeStage = (
     });
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
     dispatch(loadPreviewForStagesFrom(at));
+    void dispatch(fetchExplainForPipeline());
   };
 };
 
@@ -657,6 +662,7 @@ export const moveStage = (
       pipelineBuilder.moveStage(stageAtFromIdx.idxInPipeline, toIdxInPipeline);
       dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
       dispatch(loadPreviewForStagesFrom(Math.min(from, to)));
+      void dispatch(fetchExplainForPipeline());
     }
   };
 };
@@ -789,6 +795,7 @@ export const convertWizardToStage = (
     });
 
     dispatch(loadPreviewForStagesFrom(at));
+    void dispatch(fetchExplainForPipeline());
   };
 };
 

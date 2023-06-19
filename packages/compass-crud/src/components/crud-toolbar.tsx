@@ -186,6 +186,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             insights={
               isCollectionScan
                 ? {
+                    id: 'query-executed-without-index',
                     title: 'Query executed without index',
                     description: (
                       <>
@@ -194,6 +195,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
                         you should create an index that covers this query.
                       </>
                     ),
+                    learnMoreLink:
+                      'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
                     primaryActionButtonLabel: 'Create index',
                     primaryActionButtonIcon: 'Plus',
                     onPrimaryActionButtonClick:
