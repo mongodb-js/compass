@@ -42,13 +42,7 @@ type GroupAndStep =
 // omit the props we are handling
 export type GuideCueProps<T> = Omit<
   LGGuideCueProps,
-  | 'currentStep'
-  | 'refEl'
-  | 'numberOfSteps'
-  | 'onDismiss'
-  | 'open'
-  | 'onPrimaryButtonClick'
-  | 'setOpen'
+  'currentStep' | 'refEl' | 'numberOfSteps' | 'onDismiss' | 'open' | 'setOpen'
 > &
   GroupAndStep & {
     cueId: string;
@@ -75,8 +69,11 @@ export const GuideCue = <T extends HTMLElement>({
     return { cueId, groupId, step };
   }, [cueId, groupId, step]);
 
-  const observerCallback = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
+  useEffect(() => {
+    if (!refEl.current) {
+      return;
+    }
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
       intersectionRef.current = entry.isIntersecting;
 
@@ -89,14 +86,8 @@ export const GuideCue = <T extends HTMLElement>({
         cueData.cueId,
         cueData.groupId
       );
-    },
-    [intersectionRef]
-  );
+    };
 
-  useEffect(() => {
-    if (!refEl.current) {
-      return;
-    }
     const node = refEl.current;
     const observer = new IntersectionObserver(observerCallback, {
       threshold: 0.5,
@@ -106,7 +97,7 @@ export const GuideCue = <T extends HTMLElement>({
       observer.unobserve(node);
       observer.disconnect();
     };
-  }, [refEl, observerCallback]);
+  }, [cueData]);
 
   useEffect(() => {
     const listener = ({ detail }: ShowCueEventDetail) => {
@@ -120,7 +111,7 @@ export const GuideCue = <T extends HTMLElement>({
     return () => {
       guideCueService.removeEventListener('show-cue', listener);
     };
-  }, [setIsOpen, cueData, intersectionRef]);
+  }, [cueData]);
 
   useEffect(() => {
     if (!refEl.current) {
@@ -133,7 +124,7 @@ export const GuideCue = <T extends HTMLElement>({
     return () => {
       guideCueService.removeCue(cueData.cueId, cueData.groupId);
     };
-  }, [refEl, cueData, intersectionRef]);
+  }, [cueData]);
 
   useEffect(() => {
     // In order to ensure proper positioning, we have introduced
@@ -191,7 +182,7 @@ export const GuideCue = <T extends HTMLElement>({
     return () => {
       document.removeEventListener('mousedown', listener);
     };
-  }, [isOpen, cueData, refEl, onNext]);
+  }, [isOpen, cueData, onNext]);
 
   return (
     <>
