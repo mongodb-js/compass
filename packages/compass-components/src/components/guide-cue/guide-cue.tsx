@@ -42,15 +42,16 @@ type GroupAndStep =
 // omit the props we are handling
 export type GuideCueProps<T> = Omit<
   LGGuideCueProps,
-  'currentStep' | 'refEl' | 'numberOfSteps' | 'open' | 'setOpen'
+  'currentStep' | 'refEl' | 'numberOfSteps' | 'open' | 'setOpen' | 'children'
 > &
   GroupAndStep & {
+    description: string | React.ReactElement;
     cueId: string;
     trigger: ({ ref }: { ref: React.Ref<T> }) => React.ReactElement;
   };
 
 export const GuideCue = <T extends HTMLElement>({
-  children,
+  description,
   trigger,
   cueId,
   groupId,
@@ -58,7 +59,7 @@ export const GuideCue = <T extends HTMLElement>({
   onPrimaryButtonClick,
   onDismiss,
   ...restOfCueProps
-}: React.PropsWithChildren<GuideCueProps<T>>) => {
+}: GuideCueProps<T>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isIntersecting, setIsIntersecting] = useState(true);
   const refEl = useRef<T>(null);
@@ -205,7 +206,7 @@ export const GuideCue = <T extends HTMLElement>({
             !isIntersecting && hiddenPopoverStyles
           )}
         >
-          {children}
+          {description}
         </LGGuideCue>
       )}
       {trigger({ ref: refEl })}

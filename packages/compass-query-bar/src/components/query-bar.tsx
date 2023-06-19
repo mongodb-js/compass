@@ -197,6 +197,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           <GuideCue
             cueId="query-bar-explain-plan"
             title="“Explain Plan” has changed"
+            description={
+              'To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.'
+            }
             trigger={({ ref }) => (
               <Button
                 ref={ref}
@@ -210,10 +213,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
                 Explain
               </Button>
             )}
-          >
-            To view a query’s execution plan, click “Explain” as you would on an
-            aggregation pipeline.
-          </GuideCue>
+          />
         )}
         <Button
           aria-label="Reset query"

@@ -113,6 +113,9 @@ export const PipelineExtraSettings: React.FunctionComponent<
         <GuideCue
           cueId="aggregation-toolbar-stage-wizard"
           title="Stage Wizard"
+          description={
+            'You can quickly build your stages based on your needs. You should try it out.'
+          }
           trigger={({ ref }) => (
             <IconButton
               ref={ref}
@@ -125,10 +128,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
               <Icon glyph="Wizard" />
             </IconButton>
           )}
-        >
-          You can quickly build your stages based on your needs. You should try
-          it out.
-        </GuideCue>
+        />
       )}
       <IconButton
         title="More Settings"

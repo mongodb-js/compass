@@ -14,10 +14,7 @@ import * as GuideCueGroups from './guide-cue-groups';
 import { GuideCue } from './guide-cue';
 import Sinon from 'sinon';
 
-const renderGuideCue = (
-  props: Partial<ComponentProps<typeof GuideCue>>,
-  content?: string
-) => {
+const renderGuideCue = (props: Partial<ComponentProps<typeof GuideCue>>) => {
   const containerRef = React.createRef<any>();
   // Wrapping GuideCue component in this way as it is easier to test for
   // outside clicks.
@@ -29,6 +26,7 @@ const renderGuideCue = (
       <GuideCue
         cueId=""
         title=""
+        description=""
         trigger={({ ref }) => (
           <IconButton
             data-testid="guide-cue-trigger"
@@ -39,9 +37,7 @@ const renderGuideCue = (
           </IconButton>
         )}
         {...props}
-      >
-        {content}
-      </GuideCue>
+      />
     </div>
   );
 
@@ -79,10 +75,11 @@ describe('GuideCue', function () {
 
   context('guide cue component', function () {
     it('renders a guide cue', async function () {
-      renderGuideCue(
-        { title: 'Login with Atlas', cueId: 'gc' },
-        'Now you can login with your atlas account'
-      );
+      renderGuideCue({
+        title: 'Login with Atlas',
+        cueId: 'gc',
+        description: 'Now you can login with your atlas account',
+      });
 
       await waitFor(() => getGuideCuePopover());
       const popover = getGuideCuePopover();
@@ -93,10 +90,11 @@ describe('GuideCue', function () {
     });
 
     it('hides guide cue when action button is clicked', async function () {
-      renderGuideCue(
-        { title: 'Login with Atlas', cueId: 'gc' },
-        'Now you can login with your atlas account'
-      );
+      renderGuideCue({
+        title: 'Login with Atlas',
+        cueId: 'gc',
+        description: 'Now you can login with your atlas account',
+      });
 
       await waitFor(() => getGuideCuePopover());
 
@@ -113,10 +111,11 @@ describe('GuideCue', function () {
     });
 
     it('hides guide cue when user clicks outside guide cue popover', async function () {
-      renderGuideCue(
-        { title: 'Login with Atlas', cueId: 'gc' },
-        'Now you can login with your atlas account'
-      );
+      renderGuideCue({
+        title: 'Login with Atlas',
+        cueId: 'gc',
+        description: 'Now you can login with your atlas account',
+      });
 
       await waitFor(() => getGuideCuePopover());
 
@@ -128,10 +127,11 @@ describe('GuideCue', function () {
     });
 
     it('does not hide guide cue when user clicks inside guide cue popover', async function () {
-      renderGuideCue(
-        { title: 'Login with Atlas', cueId: 'gc' },
-        'Now you can login with your atlas account'
-      );
+      renderGuideCue({
+        title: 'Login with Atlas',
+        cueId: 'gc',
+        description: 'Now you can login with your atlas account',
+      });
 
       await waitFor(() => getGuideCuePopover());
 
@@ -148,10 +148,12 @@ describe('GuideCue', function () {
 
     it('calls onPrimaryButtonClick when button is primary action is clicked', async function () {
       const onPrimaryButtonClick = Sinon.spy();
-      renderGuideCue(
-        { title: 'Login with Atlas', cueId: 'gc', onPrimaryButtonClick },
-        'Now you can login with your atlas account'
-      );
+      renderGuideCue({
+        title: 'Login with Atlas',
+        cueId: 'gc',
+        onPrimaryButtonClick,
+        description: 'Now you can login with your atlas account',
+      });
 
       await waitFor(() => getGuideCuePopover());
 
@@ -178,29 +180,25 @@ describe('GuideCue', function () {
   context('list of cues', function () {
     it('renders cues when group is complete', async function () {
       // add first cue from the group
-      renderGuideCue(
-        {
-          title: 'Login with Atlas',
-          cueId: 'one',
-          groupId: 'group-two',
-          step: 1,
-        },
-        'Now you can login with your atlas account'
-      );
+      renderGuideCue({
+        title: 'Login with Atlas',
+        cueId: 'one',
+        groupId: 'group-two',
+        step: 1,
+        description: 'Now you can login with your atlas account',
+      });
 
       // when added GC is not visible as the group is not complete
       expect(() => getGuideCuePopover()).to.throw;
 
       // add second cue from the group
-      renderGuideCue(
-        {
-          title: 'Your Atlas connections',
-          cueId: 'two',
-          groupId: 'group-two',
-          step: 2,
-        },
-        'These are your Atlas connections'
-      );
+      renderGuideCue({
+        title: 'Your Atlas connections',
+        cueId: 'two',
+        groupId: 'group-two',
+        step: 2,
+        description: 'These are your Atlas connections',
+      });
 
       // wait for cue to show up
       await waitFor(() => getGuideCuePopover());
@@ -244,25 +242,21 @@ describe('GuideCue', function () {
 
     it('calls onDismiss when dismiss action is clicked', async function () {
       const onDismiss = Sinon.spy();
-      renderGuideCue(
-        {
-          title: 'Login with Atlas',
-          cueId: 'one',
-          groupId: 'group-two',
-          step: 1,
-          onDismiss,
-        },
-        'Now you can login with your atlas account'
-      );
-      renderGuideCue(
-        {
-          title: 'Your Atlas connections',
-          cueId: 'two',
-          groupId: 'group-two',
-          step: 2,
-        },
-        'These are your Atlas connections'
-      );
+      renderGuideCue({
+        title: 'Login with Atlas',
+        cueId: 'one',
+        groupId: 'group-two',
+        step: 1,
+        onDismiss,
+        description: 'Now you can login with your atlas account',
+      });
+      renderGuideCue({
+        title: 'Your Atlas connections',
+        cueId: 'two',
+        groupId: 'group-two',
+        step: 2,
+        description: 'These are your Atlas connections',
+      });
 
       // wait for cue to show up
       await waitFor(() => getGuideCuePopover());
@@ -287,14 +281,16 @@ describe('GuideCue', function () {
     });
 
     it('renders standalone cues', async function () {
-      renderGuideCue(
-        { title: 'Connection Form', cueId: 'one' },
-        'Favorite your connection here'
-      );
-      renderGuideCue(
-        { title: 'Connection List', cueId: 'two' },
-        'All your connections are here - recent and favorite'
-      );
+      renderGuideCue({
+        title: 'Connection Form',
+        cueId: 'one',
+        description: 'Favorite your connection here',
+      });
+      renderGuideCue({
+        title: 'Connection List',
+        cueId: 'two',
+        description: 'All your connections are here - recent and favorite',
+      });
 
       await waitFor(() => getGuideCuePopover());
 

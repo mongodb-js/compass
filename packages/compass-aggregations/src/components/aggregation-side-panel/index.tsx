@@ -152,6 +152,9 @@ export const AggregationSidePanel = ({
               key={useCase.id}
               cueId="aggregation-sidebar-wizard-use-case"
               title="Quick access to the stages"
+              description={
+                'Choose from the list and use our easy drag & drop functionality to add it in the pipeline overview.'
+              }
               tooltipAlign="left"
               trigger={({ ref }) => (
                 <div ref={ref}>
@@ -161,10 +164,7 @@ export const AggregationSidePanel = ({
                   />
                 </div>
               )}
-            >
-              Choose from the list and use our easy drag & drop functionality to
-              add it in the pipeline overview.
-            </GuideCue>
+            />
           );
         })}
         <FeedbackLink />
