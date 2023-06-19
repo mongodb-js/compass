@@ -58,7 +58,7 @@ export const GuideCue = <T extends HTMLElement>({
   ...restOfCueProps
 }: React.PropsWithChildren<GuideCueProps<T>>) => {
   const [isOpen, setIsOpen] = useState(false);
-  const intersectionRef = useRef(true);
+  const [isIntersecting, setIsIntersecting] = useState(true);
   const refEl = useRef<T>(null);
   const [readyToRender, setReadyToRender] = useState(false);
 
@@ -75,7 +75,7 @@ export const GuideCue = <T extends HTMLElement>({
     }
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       const [entry] = entries;
-      intersectionRef.current = entry.isIntersecting;
+      setIsIntersecting(entry.isIntersecting);
 
       if (!entry.isIntersecting) {
         setIsOpen(false);
@@ -104,14 +104,14 @@ export const GuideCue = <T extends HTMLElement>({
       setIsOpen(
         cueData.cueId === detail.cueId &&
           cueData.groupId === detail.groupId &&
-          intersectionRef.current
+          isIntersecting
       );
     };
     guideCueService.addEventListener('show-cue', listener);
     return () => {
       guideCueService.removeEventListener('show-cue', listener);
     };
-  }, [cueData]);
+  }, [cueData, isIntersecting]);
 
   useEffect(() => {
     if (!refEl.current) {
@@ -119,12 +119,12 @@ export const GuideCue = <T extends HTMLElement>({
     }
     guideCueService.addCue({
       ...cueData,
-      isIntersecting: intersectionRef.current,
+      isIntersecting,
     });
     return () => {
       guideCueService.removeCue(cueData.cueId, cueData.groupId);
     };
-  }, [cueData]);
+  }, [cueData, isIntersecting]);
 
   useEffect(() => {
     // In order to ensure proper positioning, we have introduced
@@ -197,7 +197,7 @@ export const GuideCue = <T extends HTMLElement>({
           data-cueid={getDataCueId(cueData)}
           tooltipClassName={cx(
             // Avoid flicker when the component (trigger) becomes invisible
-            !intersectionRef.current && hiddenPopoverStyles
+            !isIntersecting && hiddenPopoverStyles
           )}
         >
           {children}
