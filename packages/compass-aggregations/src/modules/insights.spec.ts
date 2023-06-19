@@ -57,7 +57,7 @@ describe('fetchExplainForPipeline', function () {
     );
   });
 
-  it('should set isCollectionScan to true if index was used', async function () {
+  it('should set isCollectionScan to false if index was used', async function () {
     const dataService = {
       explainAggregate: Sinon.stub().resolves(explainWithIndex),
     };
