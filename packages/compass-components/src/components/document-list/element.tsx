@@ -134,7 +134,7 @@ function useHadronElement(el: HadronElementType) {
     value: {
       value: editor.value(),
       originalValue:
-        el.currentType === 'Array' ? el.elements.elements : el.currentValue,
+        el.currentType === 'Array' ? [...(el.elements || [])] : el.currentValue,
       change(newVal: string) {
         editor.edit(newVal);
       },
