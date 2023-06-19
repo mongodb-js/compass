@@ -48,6 +48,7 @@ export type GuideCueProps<T> = Omit<
     description: string | React.ReactElement;
     cueId: string;
     trigger: ({ ref }: { ref: React.Ref<T> }) => React.ReactElement;
+    onOpenChange?: (isOpen: boolean) => void;
   };
 
 export const GuideCue = <T extends HTMLElement>({
@@ -58,9 +59,10 @@ export const GuideCue = <T extends HTMLElement>({
   step,
   onPrimaryButtonClick,
   onDismiss,
+  onOpenChange,
   ...restOfCueProps
 }: GuideCueProps<T>) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isCueOpen, setIsCueOpen] = useState(false);
   const [isIntersecting, setIsIntersecting] = useState(true);
   const refEl = useRef<T>(null);
   const [readyToRender, setReadyToRender] = useState(false);
@@ -72,6 +74,14 @@ export const GuideCue = <T extends HTMLElement>({
     return { cueId, groupId, step };
   }, [cueId, groupId, step]);
 
+  const setOpen = useCallback(
+    (open: boolean) => {
+      setIsCueOpen(open);
+      onOpenChange?.(open);
+    },
+    [onOpenChange]
+  );
+
   useEffect(() => {
     if (!refEl.current) {
       return;
@@ -81,7 +91,7 @@ export const GuideCue = <T extends HTMLElement>({
       setIsIntersecting(entry.isIntersecting);
 
       if (!entry.isIntersecting) {
-        setIsOpen(false);
+        setOpen(false);
       }
 
       guideCueService.onCueIntersectionChange(
@@ -100,11 +110,11 @@ export const GuideCue = <T extends HTMLElement>({
       observer.unobserve(node);
       observer.disconnect();
     };
-  }, [cueData]);
+  }, [cueData, setOpen]);
 
   useEffect(() => {
     const listener = ({ detail }: ShowCueEventDetail) => {
-      setIsOpen(
+      setOpen(
         cueData.cueId === detail.cueId &&
           cueData.groupId === detail.groupId &&
           isIntersecting
@@ -114,7 +124,7 @@ export const GuideCue = <T extends HTMLElement>({
     return () => {
       guideCueService.removeEventListener('show-cue', listener);
     };
-  }, [cueData, isIntersecting]);
+  }, [cueData, isIntersecting, setOpen]);
 
   useEffect(() => {
     if (!refEl.current) {
@@ -155,7 +165,7 @@ export const GuideCue = <T extends HTMLElement>({
   }, [cueData, onPrimaryButtonClick]);
 
   useEffect(() => {
-    if (!isOpen || !refEl.current) {
+    if (!isCueOpen || !refEl.current) {
       return;
     }
     const listener = (event: MouseEvent) => {
@@ -173,31 +183,31 @@ export const GuideCue = <T extends HTMLElement>({
 
       // Clicked within refEl
       if (event.composedPath().includes(refEl.current!)) {
-        setIsOpen(false);
+        setOpen(false);
         return onNext();
       }
 
       // Or else, user clicked outside GC
       guideCueService.markAllCuesAsVisited();
-      setIsOpen(false);
+      setOpen(false);
     };
 
     document.addEventListener('mousedown', listener);
     return () => {
       document.removeEventListener('mousedown', listener);
     };
-  }, [isOpen, cueData, onNext]);
+  }, [isCueOpen, cueData, onNext, setOpen]);
 
   return (
     <>
       {readyToRender && (
         <LGGuideCue
           {...restOfCueProps}
-          open={isOpen}
+          open={isCueOpen}
           numberOfSteps={guideCueService.getCountOfSteps(cueData.groupId)}
           onDismiss={onNextGroup}
           onPrimaryButtonClick={onNext}
-          setOpen={() => setIsOpen(false)}
+          setOpen={() => setOpen(false)}
           currentStep={cueData.step || 1}
           refEl={refEl}
           data-cueid={getDataCueId(cueData)}

@@ -175,6 +175,31 @@ describe('GuideCue', function () {
 
       expect(onPrimaryButtonClick.calledOnce).to.be.true;
     });
+
+    it('calls onOpenChange when cue open state changes', async function () {
+      const onOpenChange = Sinon.spy();
+      renderGuideCue({
+        title: 'Login with Atlas',
+        cueId: 'gc',
+        onOpenChange,
+        description: 'Now you can login with your atlas account',
+      });
+
+      await waitFor(() => getGuideCuePopover());
+
+      expect(onOpenChange.calledOnce).to.be.true;
+      expect(onOpenChange.firstCall.args[0]).to.be.true;
+
+      const popover = getGuideCuePopover();
+      userEvent.click(
+        within(popover).getByRole('button', {
+          name: /got it/i,
+        })
+      );
+
+      expect(onOpenChange.calledTwice).to.be.true;
+      expect(onOpenChange.secondCall.args[0]).to.be.false;
+    });
   });
 
   context('list of cues', function () {
