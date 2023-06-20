@@ -7,7 +7,9 @@ import {
   spacing,
   H3,
   cx,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
+import type { Signal } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import React, { Component } from 'react';
 import toNS from 'mongodb-ns';
@@ -99,6 +101,57 @@ const collectionHeaderTitleCollectionDarkStyles = css({
   color: palette.gray.light1,
 });
 
+const insightsContainerStyles = css({
+  display: 'inline-flex',
+  marginLeft: spacing[2],
+});
+
+const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
+  const insights: Record<string, Signal> = {};
+  for (const stage of pipeline) {
+    if ('$lookup' in stage) {
+      const signal = {
+        id: 'lookup-usage-in-view',
+        title: 'This view uses $lookup',
+        description:
+          '$lookup operations can be resource intensive because they perform operations on two collections instead of one. Consider embedding documents or arrays to increase read performance.',
+        learnMoreLink:
+          'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
+      };
+      insights[signal.id] = signal;
+    }
+
+    if ('$match' in stage) {
+      const stringifiedStageValue = JSON.stringify(stage);
+      if (
+        stringifiedStageValue.includes('$regex') ||
+        stringifiedStageValue.includes('$text')
+      ) {
+        const signal = isAtlas
+          ? {
+              id: 'atlas-text-regex-usage-in-view',
+              title: 'This view uses an inefficient text search operator',
+              description:
+                "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your view’s query to $search for a wider range of functionality.",
+              learnMoreLink:
+                'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+            }
+          : {
+              id: 'non-atlas-text-regex-usage-in-view',
+              title: 'This view uses an inefficient text search operator',
+              description:
+                "In many cases, Atlas Search is MongoDB's most efficient full text search option. Connect with Atlas to explore the power of Atlas Search.",
+              learnMoreLink:
+                'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+            };
+
+        insights[signal.id] = signal;
+      }
+    }
+  }
+  return Object.values(insights);
+};
+
 type CollectionHeaderProps = {
   darkMode?: boolean;
   globalAppRegistry: AppRegistry;
@@ -114,6 +167,7 @@ type CollectionHeaderProps = {
   editViewName?: string;
   pipeline: Document[];
   stats: CollectionStatsObject;
+  isAtlas: boolean;
 };
 
 class CollectionHeader extends Component<CollectionHeaderProps> {
@@ -162,6 +216,11 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
     const ns = toNS(this.props.namespace);
     const database = ns.database;
     const collection = ns.collection;
+
+    const isView = this.props.isReadonly && this.props.sourceName;
+    const insights = isView
+      ? getInsightsForPipeline(this.props.pipeline, this.props.isAtlas)
+      : [];
 
     return (
       <div
@@ -218,6 +277,11 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
           {this.props.isClustered && <ClusteredBadge />}
           {this.props.isFLE && <FLEBadge />}
           {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
+          {!!insights.length && (
+            <div className={insightsContainerStyles}>
+              <SignalPopover signals={insights} />
+            </div>
+          )}
           <CollectionHeaderActions
             editViewName={this.props.editViewName}
             isReadonly={this.props.isReadonly}

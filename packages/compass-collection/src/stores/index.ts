@@ -2,7 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type Collection from 'mongodb-collection-model';
 import { combineReducers } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
-import type { AnyAction } from 'redux';
+import type { AnyAction, Store } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
@@ -41,6 +41,10 @@ import namespace, {
   INITIAL_STATE as NS_INITIAL_STATE,
 } from '../modules/namespace';
 import type { WorkspaceTabObject } from '../modules/tabs';
+import isAtlas, {
+  isAtlasChanged,
+  INITIAL_STATE as IS_ATLAS_INITIAL_STATE,
+} from '../modules/is-atlas';
 
 /**
  * Reset action constant.
@@ -67,6 +71,7 @@ export const INITIAL_STATE = {
   isDataLake: IS_DATA_LAKE_INITIAL_STATE,
   stats: getInitialStatsState(),
   namespace: NS_INITIAL_STATE,
+  isAtlas: IS_ATLAS_INITIAL_STATE,
 };
 
 /**
@@ -92,6 +97,7 @@ const appReducer = combineReducers({
   isDataLake,
   stats,
   namespace,
+  isAtlas,
 });
 
 export type RootState = ReturnType<typeof appReducer>;
@@ -308,6 +314,16 @@ store.onActivated = (appRegistry: AppRegistry) => {
       store.dispatch(dataServiceConnected(error, dataService));
     }
   );
+
+  appRegistry.on('instance-refreshed', () => {
+    const isAtlas = (
+      appRegistry.getStore('App.InstanceStore') as Store | undefined
+    )?.getState().instance.isAtlas as boolean | undefined;
+    const isAtlasInStore = store.getState().isAtlas;
+    if (isAtlas !== undefined && isAtlas !== isAtlasInStore) {
+      store.dispatch(isAtlasChanged(isAtlas));
+    }
+  });
 
   /**
    * When we disconnect from the instance, clear all the tabs.
