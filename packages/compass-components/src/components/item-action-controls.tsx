@@ -269,6 +269,7 @@ export function ItemActionGroup<Action extends string>({
         if (tooltip) {
           return (
             <Tooltip
+              key={action}
               {...tooltipProps}
               trigger={({ children, ...props }) => (
                 <div {...props} style={{ display: 'inherit' }}>
