@@ -21,6 +21,7 @@ import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
+import { usePreference } from 'compass-preferences-model';
 
 const toolbarStyles = css({
   width: '100%',
@@ -118,6 +119,7 @@ export function StageToolbar({
   onOpenFocusMode,
   onStageOperatorChange,
 }: StageToolbarProps) {
+  const showInsights = usePreference('showInsights', React);
   const darkMode = useDarkMode();
 
   return (
@@ -138,7 +140,7 @@ export function StageToolbar({
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
         <ToggleStage className={spacingRightStyles} index={index} />
-        {insight && <SignalPopover signals={insight} />}
+        {showInsights && insight && <SignalPopover signals={insight} />}
       </div>
       <div className={textStyles}>
         {isDisabled ? DISABLED_TEXT : isCollapsed ? COLLAPSED_TEXT : null}
