@@ -18,6 +18,7 @@ export type FeatureFlags = {
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
   newExplainPlan: boolean;
+  showInsights: boolean;
 };
 
 export const featureFlags: Required<{
@@ -64,6 +65,14 @@ export const featureFlags: Required<{
     description: {
       short: 'Access explain plan from query bar',
       long: 'Explain plan is now accessible right from the query bar. To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.',
+    },
+  },
+
+  showInsights: {
+    stage: 'development',
+    description: {
+      short: 'Show performance insights',
+      long: 'Surface visual signals in the Compass interface to highlight potential performance issues and anti-patterns.',
     },
   },
 };
