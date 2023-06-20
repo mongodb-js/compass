@@ -4,14 +4,6 @@ import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
 const ATLAS_LINK = 'https://www.mongodb.com/cloud/atlas/lp/search-1';
 
 const SIGNALS = {
-  'lookup-usage-in-stage': {
-    id: 'lookup-usage-in-stage',
-    title: '$lookup usage',
-    description:
-      '$lookup operations can be resource intensive because they perform operations on two collections instead of one. Consider embedding documents or arrays to increase read performance.',
-    learnMoreLink:
-      'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
-  },
   'atlas-text-regex-usage-in-stage': {
     id: 'atlas-text-regex-usage-in-stage',
     title: 'Inefficient text search operator',
@@ -36,9 +28,7 @@ export const getInsightForStage = (
   { stageOperator, value }: StoreStage,
   isAtlas: boolean
 ): Signal | undefined => {
-  if (stageOperator === '$lookup') {
-    return SIGNALS['lookup-usage-in-stage'];
-  } else if (
+  if (
     stageOperator === '$match' &&
     (value?.includes('$regex') || value?.includes('$text'))
   ) {

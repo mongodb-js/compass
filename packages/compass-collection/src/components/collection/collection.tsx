@@ -37,18 +37,6 @@ const collectionModalContainerStyles = css({
 const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
   const insights: Record<string, Signal> = {};
   for (const stage of pipeline) {
-    if ('$lookup' in stage) {
-      const signal = {
-        id: 'lookup-usage-in-view',
-        title: 'This view uses $lookup',
-        description:
-          '$lookup operations can be resource intensive because they perform operations on two collections instead of one. Consider embedding documents or arrays to increase read performance.',
-        learnMoreLink:
-          'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
-      };
-      insights[signal.id] = signal;
-    }
-
     if ('$match' in stage) {
       const stringifiedStageValue = JSON.stringify(stage);
       if (
