@@ -59,6 +59,24 @@ describe('PropertyField', function () {
         getIndexHelpLink('COMPOUND')
       );
     });
+
+    it('renders hidden badge when its hidden', function () {
+      render(
+        <PropertyField
+          cardinality={'single'}
+          extra={{ hidden: 'true' }}
+          properties={[]}
+        />
+      );
+      const badge = screen.getByTestId('HIDDEN-badge');
+      expect(badge).to.exist;
+      expect(badge.textContent).to.equal('HIDDEN');
+      const infoIcon = within(badge).getByRole('img', {
+        name: /info with circle icon/i,
+      });
+      expect(infoIcon).to.exist;
+      expect(infoIcon.closest('a')?.href).to.equal(getIndexHelpLink('HIDDEN'));
+    });
   });
 
   describe('getPropertyTooltip', function () {

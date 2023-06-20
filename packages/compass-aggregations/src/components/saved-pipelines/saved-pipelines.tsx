@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   css,
   spacing,
@@ -11,6 +11,7 @@ import { SavePipelineCard } from './saved-pipeline-card';
 import {
   confirmOpenPipeline,
   confirmDeletePipeline,
+  getSavedPipelines,
 } from '../../modules/saved-pipeline';
 import type { RootState } from '../../modules';
 import type { StoredPipeline } from '../../utils/pipeline-storage';
@@ -60,6 +61,7 @@ type SavedPipelinesProps = {
   savedPipelines: StoredPipeline[];
   onOpenPipeline: (pipelineData: StoredPipeline) => void;
   onDeletePipeline: (pipelineId: string) => void;
+  onMount: () => void;
 };
 
 export const SavedPipelines = ({
@@ -67,8 +69,13 @@ export const SavedPipelines = ({
   savedPipelines,
   onOpenPipeline,
   onDeletePipeline,
+  onMount,
 }: SavedPipelinesProps) => {
   const darkMode = useDarkMode();
+  const onMountRef = useRef(onMount);
+  useEffect(() => {
+    onMountRef.current();
+  }, []);
   return (
     <div className={savedPipelinesStyles} data-testid="saved-pipelines">
       <div className={toolbarContentStyles}>
@@ -120,6 +127,7 @@ const mapState = (state: RootState) => ({
 const mapDispatch = {
   onOpenPipeline: confirmOpenPipeline,
   onDeletePipeline: confirmDeletePipeline,
+  onMount: getSavedPipelines,
 };
 
 export default connect(mapState, mapDispatch)(SavedPipelines);

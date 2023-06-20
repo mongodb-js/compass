@@ -9,7 +9,7 @@ export { ConfirmationModalVariant };
 
 type ConfirmationProperties = {
   title: string;
-  description: string;
+  description: React.ReactNode;
   buttonText?: string;
   variant?: ConfirmationModalVariant;
 };
@@ -129,7 +129,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
     <ConfirmationModalContext.Provider value={contextValue}>
       {children}
       <ConfirmationModal
-        data-testid="confirmation-modal"
+        data-testid={'confirmation-modal'}
         open={confirmationProps.open}
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}

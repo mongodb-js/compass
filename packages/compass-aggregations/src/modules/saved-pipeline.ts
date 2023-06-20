@@ -20,27 +20,17 @@ const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const PREFIX = 'aggregations/saved-pipeline';
 
-export const SET_SHOW_SAVED_PIPELINES = `${PREFIX}/SET_SHOW`;
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE`;
 
 export type SavedPipelineState = {
   pipelines: StoredPipeline[];
   isLoaded: boolean;
-  isListVisible: boolean;
 };
 
 export const INITIAL_STATE: SavedPipelineState = {
   pipelines: [],
   isLoaded: false,
-  isListVisible: false,
-};
-
-const setShowSavedPipelinesList = (
-  state: SavedPipelineState,
-  action: AnyAction
-) => {
-  return { ...state, isListVisible: !!action.show };
 };
 
 const addSavedPipeline = (state: SavedPipelineState, action: AnyAction) => {
@@ -52,7 +42,6 @@ const doRestoreSavedPipeline = (state: SavedPipelineState) => {
 };
 
 const MAPPINGS = {
-  [SET_SHOW_SAVED_PIPELINES]: setShowSavedPipelinesList,
   [SAVED_PIPELINE_ADD]: addSavedPipeline,
   [RESTORE_PIPELINE]: doRestoreSavedPipeline,
 };
@@ -61,18 +50,6 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : state;
 }
-
-export const setShowSavedPipelines =
-  (show: boolean): PipelineBuilderThunkAction<void> =>
-  (dispatch) => {
-    if (show) {
-      dispatch(getSavedPipelines());
-    }
-    dispatch({
-      type: SET_SHOW_SAVED_PIPELINES,
-      show,
-    });
-  };
 
 export const savedPipelineAdd = (pipelines: StoredPipeline[]) => ({
   type: SAVED_PIPELINE_ADD,

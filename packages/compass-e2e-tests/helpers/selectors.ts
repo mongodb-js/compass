@@ -957,10 +957,16 @@ export const CreateIndexConfirmButton = `${CreateIndexModal} [data-testid="creat
 export const DropIndexModal = '[data-testid="drop-index-modal"]';
 export const DropIndexModalConfirmName =
   '[data-testid="confirm-drop-index-name"]';
-export const DropIndexModalConfirmButton =
-  '[data-testid="drop-index-modal"] [role=dialog] > div:nth-child(2) button:first-child';
-
 export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
+
+export const HiddenIndexBadge = (indexName: string) =>
+  `${indexComponent(indexName)} [data-testid="HIDDEN-badge"]`;
+export const HideIndexModal = '[data-testid="hide-index-confirmation-modal"]';
+export const HideIndexButton = '[data-testid="index-actions-hide-action"]';
+
+export const UnhideIndexModal =
+  '[data-testid="unhide-index-confirmation-modal"]';
+export const UnhideIndexButton = '[data-testid="index-actions-unhide-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-testid="add-rule-button"]';
@@ -1079,7 +1085,9 @@ export const ExportToLanguageQueryOutput =
 
 // Confirmation modal
 export const ConfirmationModal = '[data-testid="confirmation-modal"]';
-export const ConfirmationModalConfirmButton = `${ConfirmationModal} [role=dialog] > div:nth-child(2) button:first-child`;
+export const ConfirmationModalConfirmButton = (
+  modalSelector = ConfirmationModal
+) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
