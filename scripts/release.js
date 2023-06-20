@@ -123,7 +123,7 @@ async function syncWithBranch(branch, version) {
     cwd: monorepoRoot,
   });
 
-  // only commits if there where staged changes with differences
+  // only commits if there were staged changes with differences
   // between the two branches
   await execFile(
     'git',
