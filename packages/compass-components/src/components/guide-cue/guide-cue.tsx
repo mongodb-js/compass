@@ -160,11 +160,10 @@ export const GuideCue = <T extends HTMLElement>({
     guideCueService.markGroupAsVisited(cueData.groupId);
     guideCueService.onNext();
 
-    // when the group was dismissed before reaching
-    // last guide cue item
     if (cueData.groupId) {
       const isCurrentCueLast =
         cueData.step === GROUP_STEPS_MAP.get(cueData.groupId);
+      // the group was dismissed before reaching to the last guide cue item
       if (!isCurrentCueLast) {
         track('Guide Cue Group Dismissed', {
           groupId: cueData.groupId,
