@@ -40,6 +40,7 @@ import ResizableSidebar, {
 } from './components/resizeable-sidebar';
 import {
   ItemAction,
+  GroupedItemAction,
   MenuAction,
   ItemActionControls,
   ItemActionGroup,
@@ -96,6 +97,7 @@ export {
   WarningSummary,
   WorkspaceTabs,
   ItemAction,
+  GroupedItemAction,
   MenuAction,
   ItemActionControls,
   ItemActionGroup,

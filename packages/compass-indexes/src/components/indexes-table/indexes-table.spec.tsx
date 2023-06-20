@@ -32,7 +32,9 @@ const indexes = [
     size: 20,
     relativeSize: 25,
     type: 'text',
-    extra: {},
+    extra: {
+      hidden: true,
+    },
     properties: [],
     fields: [
       {
@@ -98,9 +100,12 @@ const renderIndexList = (
   render(
     <IndexesTable
       indexes={[]}
-      canDeleteIndex={true}
+      serverVersion="4.4.0"
+      canModifyIndex={true}
       onSortTable={() => {}}
       onDeleteIndex={() => {}}
+      onHideIndex={() => {}}
+      onUnhideIndex={() => {}}
       scrollHeight={400}
       {...props}
     />
@@ -112,7 +117,7 @@ describe('IndexesTable Component', function () {
   afterEach(cleanup);
 
   it('renders indexes list', function () {
-    renderIndexList({ canDeleteIndex: true, indexes: indexes });
+    renderIndexList({ canModifyIndex: true, indexes: indexes });
 
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
@@ -143,8 +148,8 @@ describe('IndexesTable Component', function () {
     });
   });
 
-  it('does not render delete button when a user can not delete indexes', function () {
-    renderIndexList({ canDeleteIndex: false, indexes: indexes });
+  it('does not render delete and hide/unhide button when a user can not modify indexes', function () {
+    renderIndexList({ canModifyIndex: false, indexes: indexes });
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
@@ -160,7 +165,7 @@ describe('IndexesTable Component', function () {
       it(`sorts table by ${column}`, function () {
         const onSortTableSpy = spy();
         renderIndexList({
-          canDeleteIndex: true,
+          canModifyIndex: true,
           indexes: indexes,
           onSortTable: onSortTableSpy,
         });
