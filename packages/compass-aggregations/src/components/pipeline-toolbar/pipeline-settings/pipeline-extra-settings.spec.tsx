@@ -1,11 +1,10 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import type { SinonSandbox } from 'sinon';
 import { spy, createSandbox } from 'sinon';
-import * as guideCueHook from '../../use-guide-cue';
 
 import { PipelineExtraSettings } from './pipeline-extra-settings';
 import preferences from 'compass-preferences-model';
@@ -80,6 +79,7 @@ describe('PipelineExtraSettings', function () {
     });
     afterEach(function () {
       sandbox.restore();
+      cleanup();
     });
 
     it('calls onToggleSidePanel when clicked', function () {
@@ -104,58 +104,6 @@ describe('PipelineExtraSettings', function () {
           .getByTestId('pipeline-toolbar-side-panel-button')
           .getAttribute('aria-disabled')
       ).to.equal('true');
-    });
-
-    context('guide cue', function () {
-      const guideCueSandbox: sinon.SinonSandbox = sinon.createSandbox();
-
-      afterEach(function () {
-        guideCueSandbox.restore();
-      });
-
-      context('shows guide cue', function () {
-        let markCueVisitedSpy: sinon.SinonSpy;
-        beforeEach(function () {
-          markCueVisitedSpy = sinon.spy();
-          guideCueSandbox.stub(guideCueHook, 'useGuideCue').returns({
-            isCueVisible: true,
-            markCueVisited: markCueVisitedSpy,
-          } as any);
-          renderPipelineExtraSettings({
-            pipelineMode: 'builder-ui',
-          });
-        });
-        it('shows guide cue first time', function () {
-          expect(screen.getByTestId('stage-wizard-guide-cue')).to.exist;
-        });
-        it('marks cue visited when stage wizard button is clicked', function () {
-          expect(markCueVisitedSpy.callCount).to.equal(0);
-          screen.getByTestId('pipeline-toolbar-side-panel-button').click();
-          expect(markCueVisitedSpy.callCount).to.equal(1);
-        });
-      });
-
-      context('does not show guide cue', function () {
-        it('when its already shown', function () {
-          guideCueSandbox
-            .stub(guideCueHook, 'useGuideCue')
-            .returns({ isCueVisible: false } as any);
-          renderPipelineExtraSettings({
-            pipelineMode: 'builder-ui',
-          });
-          expect(() => screen.getByTestId('stage-wizard-guide-cue')).to.throw;
-        });
-
-        it('in text mode', function () {
-          guideCueSandbox
-            .stub(guideCueHook, 'useGuideCue')
-            .returns({ isCueVisible: true } as any);
-          renderPipelineExtraSettings({
-            pipelineMode: 'as-text',
-          });
-          expect(() => screen.getByTestId('stage-wizard-guide-cue')).to.throw;
-        });
-      });
     });
   });
 });

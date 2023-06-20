@@ -48,8 +48,8 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
     "bson": "^5.2.0",
     "compass-preferences-model": "^2.10.0",
-    "hadron-type-checker": "^7.0.3",
     "hadron-document": "^8.2.1",
+    "hadron-type-checker": "^7.0.3",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -94,8 +94,7 @@
     "redux-thunk": "^2.4.1",
     "semver": "^5.7.1",
     "sinon": "^9.2.3",
-    "xvfb-maybe": "^0.2.1",
-    "react-intersection-observer": "^8.34.0"
+    "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.10.0",
@@ -108,8 +107,8 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
     "bson": "^5.2.0",
     "compass-preferences-model": "^2.10.0",
-    "hadron-type-checker": "^7.0.3",
-    "hadron-document": "^8.2.1"
+    "hadron-document": "^8.2.1",
+    "hadron-type-checker": "^7.0.3"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
