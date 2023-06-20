@@ -199,8 +199,6 @@ const GuideCueDatabaseIcon = () => {
       description={
         'Aside from the default databases, you’ll need to create your first database to get to working with data.'
       }
-      buttonText="Create a database now"
-      onPrimaryButtonClick={() => console.log('open-create-database')}
       trigger={({ ref }) => (
         <span ref={ref}>
           <Icon glyph="Plus" />

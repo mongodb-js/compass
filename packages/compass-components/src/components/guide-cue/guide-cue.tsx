@@ -7,9 +7,13 @@ import React, {
 } from 'react';
 import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
+import { GROUP_STEPS_MAP } from './guide-cue-groups';
 import type { GroupName } from './guide-cue-groups';
 import { css, cx } from '../..';
 import { rafraf } from '../../utils/rafraf';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-COMPONENTS');
 
 const hiddenPopoverStyles = css({
   display: 'none !important',
@@ -155,11 +159,30 @@ export const GuideCue = <T extends HTMLElement>({
   const onNextGroup = useCallback(() => {
     guideCueService.markGroupAsVisited(cueData.groupId);
     guideCueService.onNext();
+
+    // when the group was dismissed before reaching
+    // last guide cue item
+    if (cueData.groupId) {
+      const isCurrentCueLast =
+        cueData.step === GROUP_STEPS_MAP.get(cueData.groupId);
+      if (!isCurrentCueLast) {
+        track('Guide Cue Group Dismissed', {
+          groupId: cueData.groupId,
+          cueId: cueData.cueId,
+          step: cueData.step,
+        });
+      }
+    }
   }, [cueData]);
 
   const onNext = useCallback(() => {
     guideCueService.markCueAsVisited(cueData.cueId, cueData.groupId);
     guideCueService.onNext();
+
+    track('Guide Cue Dismissed', {
+      cueId: cueData.cueId,
+      groupId: cueData.groupId,
+    });
   }, [cueData]);
 
   useEffect(() => {

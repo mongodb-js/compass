@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { NavigationItems } from './navigation-items';
@@ -22,6 +22,7 @@ function renderNavigationItems(
           /* noop */
         }}
         currentLocation={null}
+        showCreateDatabaseGuideCue={false}
         {...props}
       />
     </Provider>
@@ -33,28 +34,40 @@ const refreshCTAText = 'Refresh databases';
 
 describe('NavigationItems [Component]', function () {
   describe('when rendered', function () {
-    beforeEach(function () {
-      renderNavigationItems();
-    });
-
     it('renders the create database button', function () {
+      renderNavigationItems();
       expect(screen.getByLabelText(createDatabaseText)).to.be.visible;
     });
 
     it('renders the refresh databases button', function () {
+      renderNavigationItems();
       expect(screen.getByLabelText(refreshCTAText)).to.be.visible;
+    });
+
+    it('shows guide cue when no databases are created', async function () {
+      renderNavigationItems({
+        showCreateDatabaseGuideCue: true,
+      });
+
+      await waitFor(() => screen.getByRole('dialog'));
+      expect(screen.getByText('It looks a bit empty around here')).to.exist;
     });
   });
 
   describe('when rendered read only', function () {
-    beforeEach(function () {
+    it('does not render the create database button', function () {
       renderNavigationItems({
         readOnly: true,
       });
+      expect(screen.queryByLabelText(createDatabaseText)).to.not.exist;
     });
 
-    it('does not render the create database button', function () {
-      expect(screen.queryByLabelText(createDatabaseText)).to.not.exist;
+    it('shows guide cue when no databases are created', function () {
+      renderNavigationItems({
+        readOnly: true,
+        showCreateDatabaseGuideCue: true,
+      });
+      expect(() => screen.getByRole('dialog')).to.throw;
     });
   });
 });
