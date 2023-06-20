@@ -65,7 +65,7 @@ program
 
 program
   .command('ga')
-  .description('Promote a beta to GA')
+  .description('Starts a new GA')
   .option('--release-ticket <releaseTicket>')
   .option('--merge-branch <mergeBranch>', BETA_RELEASE_BRANCH)
   .action(async (options) => {
