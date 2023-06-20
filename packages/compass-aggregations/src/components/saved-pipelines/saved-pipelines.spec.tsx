@@ -26,6 +26,7 @@ const renderSavedPipelines = (
       namespace="test.test123"
       onDeletePipeline={() => {}}
       onOpenPipeline={() => {}}
+      onMount={() => {}}
       {...props}
     />
   );

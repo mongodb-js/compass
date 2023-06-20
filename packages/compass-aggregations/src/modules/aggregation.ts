@@ -12,6 +12,7 @@ import {
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
 import { getStageOperator } from '../utils/stage';
+import { fetchExplainForPipeline } from './insights';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -176,6 +177,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
 export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    void dispatch(fetchExplainForPipeline());
     dispatch({
       type: ActionTypes.RunAggregation,
       pipeline,

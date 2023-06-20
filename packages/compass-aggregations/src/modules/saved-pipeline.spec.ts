@@ -22,16 +22,6 @@ describe('saved pipelines module', function () {
   });
 
   describe('#reducer', function () {
-    context('an empty action type returns an initial state', function () {
-      it('isListVisible is set to true', function () {
-        expect(reducer(undefined, {} as any)).to.deep.equal({
-          pipelines: [],
-          isLoaded: false,
-          isListVisible: false,
-        });
-      });
-    });
-
     context('action type is add saved pipelines', function () {
       it('returns new state with an additional pipeline item ', function () {
         const pipelines = [
@@ -40,7 +30,6 @@ describe('saved pipelines module', function () {
         expect(reducer(undefined, savedPipelineAdd(pipelines))).to.deep.equal({
           pipelines: pipelines,
           isLoaded: true,
-          isListVisible: false,
         });
       });
     });
