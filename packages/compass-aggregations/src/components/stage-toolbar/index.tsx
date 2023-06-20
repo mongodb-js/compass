@@ -9,7 +9,9 @@ import {
   palette,
   useDarkMode,
   IconButton,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
+import type { Signal } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -18,6 +20,7 @@ import { hasSyntaxError } from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { getInsightForStage } from '../../utils/insights';
 
 const toolbarStyles = css({
   width: '100%',
@@ -63,7 +66,7 @@ const leftStyles = css({
   width: '388px', // default width of the stage editor
 });
 
-const selectStyles = css({
+const spacingRightStyles = css({
   marginRight: spacing[2],
 });
 
@@ -91,6 +94,7 @@ type StageToolbarProps = {
   hasServerError?: boolean;
   isCollapsed?: boolean;
   isDisabled?: boolean;
+  insight?: Signal;
   onOpenFocusMode: (index: number) => void;
   onStageOperatorChange?: (
     index: number,
@@ -110,6 +114,7 @@ export function StageToolbar({
   hasServerError,
   isCollapsed,
   isDisabled,
+  insight,
   onOpenFocusMode,
   onStageOperatorChange,
 }: StageToolbarProps) {
@@ -129,10 +134,11 @@ export function StageToolbar({
       <div className={leftStyles}>
         <StageCollapser index={index} />
         <Body weight="medium">Stage {idxInPipeline + 1}</Body>
-        <div className={selectStyles}>
+        <div className={spacingRightStyles}>
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
-        <ToggleStage index={index} />
+        <ToggleStage className={spacingRightStyles} index={index} />
+        {insight && <SignalPopover signals={insight} />}
       </div>
       <div className={textStyles}>
         {isDisabled ? DISABLED_TEXT : isCollapsed ? COLLAPSED_TEXT : null}
@@ -170,6 +176,7 @@ export default connect(
       hasServerError: !!stage.serverError,
       isCollapsed: stage.collapsed,
       isDisabled: stage.disabled,
+      insight: getInsightForStage(stage, state.env === 'atlas'),
     };
   },
   {

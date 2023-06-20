@@ -12,7 +12,9 @@ import {
   Tooltip,
   useHotkeys,
   formatHotkey,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
+import type { Signal } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
@@ -22,6 +24,7 @@ import {
 } from '../../modules/focus-mode';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { getInsightForStage } from '../../utils/insights';
 
 type Stage = {
   idxInStore: number;
@@ -32,6 +35,7 @@ type FocusModeModalHeaderProps = {
   stageIndex: number;
   isEnabled: boolean;
   stages: Stage[];
+  insight: Signal | undefined;
   onStageSelect: (index: number) => void;
   onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;
@@ -88,6 +92,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 > = ({
   stageIndex,
   isEnabled,
+  insight,
   stages,
   onAddStageClick,
   onStageSelect,
@@ -301,6 +306,8 @@ export const FocusModeModalHeader: React.FunctionComponent<
           Add stage before
         </MenuItem>
       </Menu>
+
+      {insight && <SignalPopover signals={insight} />}
     </div>
   );
 };
@@ -308,6 +315,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 export default connect(
   (state: RootState) => {
     const {
+      env,
       focusMode: { stageIndex },
       pipelineBuilder: {
         stageEditor: { stages },
@@ -318,6 +326,7 @@ export default connect(
     return {
       stageIndex,
       isEnabled: !stage?.disabled,
+      insight: stage ? getInsightForStage(stage, env === 'atlas') : undefined,
       stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
         if (stage.type === 'stage') {
           accumulator.push({
