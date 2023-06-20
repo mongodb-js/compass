@@ -58,6 +58,8 @@ export type CrudActions = {
   copyToClipboard(doc: Document): void; //XXX
 };
 
+export type DocumentView = 'List' | 'JSON' | 'Table';
+
 const { debug, log, mongoLogId, track } =
   createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
@@ -312,7 +314,7 @@ type CrudState = {
   page: number;
   version: string;
   isEditable: boolean;
-  view: 'List' | 'JSON' | 'Table';
+  view: DocumentView;
   count: number | null;
   insert: InsertState;
   table: TableState;
@@ -989,7 +991,7 @@ class CrudStoreImpl
    * Also modifies doc and jsonDoc states to keep accurate data for each view.
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocument(view: CrudState['view']) {
+  toggleInsertDocument(view: DocumentView) {
     if (view === 'JSON') {
       const jsonDoc = this.state.insert.doc?.toEJSON();
 
@@ -1034,7 +1036,7 @@ class CrudStoreImpl
    *
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocumentView(view: CrudState['view']) {
+  toggleInsertDocumentView(view: DocumentView) {
     const jsonView = view === 'JSON';
     this.setState({
       insert: {

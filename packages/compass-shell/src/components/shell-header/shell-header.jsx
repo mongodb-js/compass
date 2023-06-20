@@ -9,6 +9,8 @@ import {
   SpinLoader,
   withDarkMode,
   useHotkeys,
+  GuideCue,
+  Link,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -73,10 +75,7 @@ const shellHeaderRightStyles = css({
   display: 'flex',
   paddingTop: spacing[1] / 2,
   paddingRight: spacing[2],
-});
-
-const infoButtonStyles = css({
-  marginRight: spacing[2],
+  gap: spacing[2],
 });
 
 const operationInProgressStyles = css({
@@ -106,7 +105,25 @@ export const ShellHeader = ({
           onClick={onShellToggleClicked}
           aria-pressed={isExpanded}
         >
-          &gt;_MONGOSH
+          <GuideCue
+            groupId="shell-header"
+            step={1}
+            cueId="shell-title"
+            title="Using the embedded MongoDB Shell"
+            description={
+              <>
+                Compass includes an embedded mongosh, allowing you to test
+                queries and operations in your databases.
+                <Link
+                  href="https://www.mongodb.com/docs/compass/beta/embedded-shell/#embedded-mongodb-shell"
+                  hideExternalIcon
+                >
+                  Learn more about running operations in mongosh.
+                </Link>
+              </>
+            }
+            trigger={({ ref }) => <span ref={ref}>&gt;_MONGOSH</span>}
+          />
           {!isExpanded && isOperationInProgress && (
             <span className={operationInProgressStyles}>
               <SpinLoader darkMode={true} />
@@ -116,18 +133,27 @@ export const ShellHeader = ({
         </button>
       </div>
       <div className={shellHeaderRightStyles}>
-        {isExpanded && (
-          <IconButton
-            data-testid="shell-info-button"
-            className={infoButtonStyles}
-            variant="dark"
-            aria-label="Shell Info"
-            aria-haspopup="dialog"
-            onClick={showInfoModal}
-          >
-            <Icon glyph="InfoWithCircle" size="small" />
-          </IconButton>
-        )}
+        <GuideCue
+          groupId="shell-header"
+          step={2}
+          cueId="shell-info"
+          title="Using the embedded MongoDB Shell"
+          description={
+            'When expanded, mongosh enables you to run commands on your data. Click on the info icon to learn more about the keyboard shortcuts available to you when using mongosh.'
+          }
+          trigger={({ ref }) => (
+            <IconButton
+              ref={ref}
+              data-testid="shell-info-button"
+              variant="dark"
+              aria-label="Shell Info"
+              aria-haspopup="dialog"
+              onClick={showInfoModal}
+            >
+              <Icon glyph="InfoWithCircle" size="small" />
+            </IconButton>
+          )}
+        />
         <IconButton
           variant="dark"
           aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}

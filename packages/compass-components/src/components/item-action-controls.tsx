@@ -10,7 +10,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 export type ItemAction<Action> = {
   action: Action;
   label: string;
-  icon: string;
+  icon: string | React.ReactElement;
 };
 
 export type GroupedItemAction<Action> = ItemAction<Action> & {
@@ -21,7 +21,7 @@ export type GroupedItemAction<Action> = ItemAction<Action> & {
 export type MenuAction<Action> = {
   action: Action;
   label: string;
-  icon?: string;
+  icon?: string | React.ReactElement;
 };
 
 const ItemActionButtonSize = {
@@ -77,10 +77,29 @@ function actionTestId<Action extends string>(
   return dataTestId ? `${dataTestId}-${action}-action` : undefined;
 }
 
+const ActionGlyph = ({
+  glyph,
+  size,
+  className,
+}: {
+  glyph?: string | React.ReactElement;
+  size?: ItemActionButtonSize;
+  className?: string;
+}) => {
+  if (!glyph) {
+    return null;
+  }
+  if (typeof glyph === 'string') {
+    return <Icon size={size} glyph={glyph} className={className} />;
+  }
+
+  return glyph;
+};
+
 const ItemActionButton = forwardRef<
   HTMLButtonElement,
   {
-    glyph: string;
+    glyph: string | React.ReactElement;
     label: string;
     title?: string;
     size: ItemActionButtonSize;
@@ -102,7 +121,7 @@ const ItemActionButton = forwardRef<
       {...rest}
     >
       <span role="presentation" className={iconContainerStyle}>
-        <Icon size={size} glyph={glyph}></Icon>
+        <ActionGlyph glyph={glyph} size={size} />
       </span>
       {/* Only here to make leafygreen menus work */}
       {children}
@@ -200,7 +219,7 @@ export function ItemActionMenu<Action extends string>({
               data-testid={actionTestId<Action>(dataTestId, action)}
               data-action={action}
               data-menuitem={true}
-              glyph={icon ? <Icon glyph={icon} /> : undefined}
+              glyph={<ActionGlyph glyph={icon} size={iconSize} />}
               onClick={onClick}
             >
               {label}
@@ -355,6 +374,7 @@ export function DropdownMenuButton<Action extends string>({
   activeAction,
   buttonText,
   buttonProps,
+  iconSize = ItemActionButtonSize.Default,
   'data-testid': dataTestId,
 }: {
   actions: MenuAction<Action>[];
@@ -432,7 +452,7 @@ export function DropdownMenuButton<Action extends string>({
             data-testid={actionTestId<Action>(dataTestId, action)}
             data-action={action}
             data-menuitem={true}
-            glyph={icon ? <Icon glyph={icon} /> : undefined}
+            glyph={<ActionGlyph glyph={icon} size={iconSize} />}
             onClick={onClick}
           >
             {label}
