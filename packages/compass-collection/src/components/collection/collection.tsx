@@ -34,6 +34,8 @@ const collectionModalContainerStyles = css({
   zIndex: 100,
 });
 
+const ATLAS_SEARCH_LP_LINK = 'https://www.mongodb.com/cloud/atlas/lp/search-1';
+
 const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
   const insights: Record<string, Signal> = {};
   for (const stage of pipeline) {
@@ -51,6 +53,8 @@ const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
                 "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your view’s query to $search for a wider range of functionality.",
               learnMoreLink:
                 'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+              primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
+              primaryActionButtonLabel: 'Create Search Index',
             }
           : {
               id: 'non-atlas-text-regex-usage-in-view',
@@ -59,6 +63,8 @@ const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
                 "In many cases, Atlas Search is MongoDB's most efficient full text search option. Connect with Atlas to explore the power of Atlas Search.",
               learnMoreLink:
                 'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+              primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
+              primaryActionButtonLabel: 'Create Search Index',
             };
 
         insights[signal.id] = signal;

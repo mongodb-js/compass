@@ -38,6 +38,11 @@ export type Signal = {
   primaryActionButtonVariant?: 'primaryOutline' | 'dangerOutline';
 
   /**
+   * Optional, when provided the primary action button will behave as a link.
+   */
+  primaryActionButtonLink?: string;
+
+  /**
    * Optional, when provided will be called with a signal id on primary action
    * button click
    */
@@ -101,6 +106,7 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonLabel,
   primaryActionButtonIcon,
   primaryActionButtonVariant,
+  primaryActionButtonLink,
   darkMode: _darkMode,
   onPrimaryActionButtonClick,
 }) => {
@@ -120,6 +126,9 @@ const SignalCard: React.FunctionComponent<
       <div className={signalCardActionGroupStyles}>
         {primaryActionButtonLabel && (
           <Button
+            as={primaryActionButtonLink ? 'a' : 'button'}
+            target={primaryActionButtonLink ? '_blank' : undefined}
+            href={primaryActionButtonLink}
             data-testid="insight-signal-primary-action"
             variant={primaryActionButtonVariant ?? 'primaryOutline'}
             className={signalCardActionButtonStyles}
