@@ -4,6 +4,7 @@ import {
   afterTests,
   afterTest,
   runCompassOnce,
+  serverSatisfies,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
@@ -85,6 +86,10 @@ describe('OIDC integration', function () {
     // TODO(MONGOSH-1306): Get rid of all the setup code to download mongod here... :(
     if (process.platform !== 'linux') {
       // OIDC is only supported on Linux in the 7.0+ enterprise server.
+      return this.skip();
+    }
+
+    if (!serverSatisfies('> 7.0.0-alpha0', true)) {
       return this.skip();
     }
 
