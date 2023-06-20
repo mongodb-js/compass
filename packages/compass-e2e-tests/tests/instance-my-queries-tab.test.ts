@@ -162,7 +162,7 @@ describe('Instance my queries tab', function () {
     const deleteModal = await browser.$(Selectors.ConfirmationModal);
     await deleteModal.waitForDisplayed();
     const confirmDeleteButton = await browser.$(
-      Selectors.ConfirmationModalConfirmButton
+      Selectors.ConfirmationModalConfirmButton()
     );
     confirmDeleteButton.waitForEnabled();
 

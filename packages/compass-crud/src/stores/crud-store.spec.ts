@@ -230,6 +230,7 @@ describe('store', function () {
           path: [],
           types: [],
         },
+        isCollectionScan: false,
         version: '6.0.0',
         view: 'List',
         fields: [],
@@ -1928,7 +1929,7 @@ describe('store', function () {
       findSpy.restore();
       const findStub = sinon
         .stub(store.dataService, 'find')
-        .throws(new Error('This is a fake error.'));
+        .rejects(new Error('This is a fake error.'));
 
       expect(store.state.abortController).to.be.null;
 

@@ -94,7 +94,7 @@ describe('Connection Import / Export', function () {
   ) {
     await browser.selectFavorite(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
+    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       variant === 'protected'
         ? connectionStringWithoutCredentials

@@ -118,6 +118,9 @@ describe('Aggregation Store', function () {
             serverVersion: INITIAL_STATE.serverVersion,
             isModified: INITIAL_STATE.isModified,
             isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
+            insights: {
+              isCollectionScan: false,
+            },
             collationString: INITIAL_STATE.collationString,
             settings: INITIAL_STATE.settings,
             limit: INITIAL_STATE.limit,
