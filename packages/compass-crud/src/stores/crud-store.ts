@@ -243,12 +243,12 @@ export const isListEditable = ({
 
 export const CRUD_VIEW_TYPE_SETTINGS_KEY = 'compass_crud_view_type';
 type CrudViewType = 'List' | 'JSON' | 'Table';
-function getViewTypeFromSessionStorage(
+function getViewTypeFromLocalStorage(
   defaultView: CrudViewType = 'List'
 ): CrudViewType {
   try {
     return (
-      (window.sessionStorage.getItem(
+      (window.localStorage.getItem(
         CRUD_VIEW_TYPE_SETTINGS_KEY
       ) as CrudViewType) ?? defaultView
     );
@@ -256,9 +256,9 @@ function getViewTypeFromSessionStorage(
     return defaultView;
   }
 }
-function setViewTypeOnSessionStorage(view: CrudViewType) {
+function setViewTypeOnLocalStorage(view: CrudViewType) {
   try {
-    window.sessionStorage.setItem(CRUD_VIEW_TYPE_SETTINGS_KEY, view);
+    window.localStorage.setItem(CRUD_VIEW_TYPE_SETTINGS_KEY, view);
   } catch {
     // noop
   }
@@ -388,7 +388,7 @@ class CrudStoreImpl
       end: 0,
       page: 0,
       isEditable: true,
-      view: getViewTypeFromSessionStorage(),
+      view: getViewTypeFromLocalStorage(),
       count: 0,
       insert: this.getInitialInsertState(),
       table: this.getInitialTableState(),
@@ -1236,7 +1236,7 @@ class CrudStoreImpl
   viewChanged(view: CrudState['view']) {
     this.globalAppRegistry.emit('document-view-changed', view);
     this.localAppRegistry.emit('document-view-changed', view);
-    setViewTypeOnSessionStorage(view);
+    setViewTypeOnLocalStorage(view);
     this.setState({ view: view });
   }
 

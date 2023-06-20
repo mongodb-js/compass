@@ -242,7 +242,7 @@ describe('store', function () {
 
     describe('with the view type set in the local storage', function () {
       beforeEach(function () {
-        window.sessionStorage.setItem(CRUD_VIEW_TYPE_SETTINGS_KEY, 'JSON');
+        window.localStorage.setItem(CRUD_VIEW_TYPE_SETTINGS_KEY, 'JSON');
 
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -252,7 +252,7 @@ describe('store', function () {
       });
 
       afterEach(function () {
-        window.sessionStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
+        window.localStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
       });
 
       it('sets the view accordingly', function () {
@@ -1554,7 +1554,7 @@ describe('store', function () {
     let actions;
 
     beforeEach(function () {
-      window.sessionStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
+      window.localStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
       actions = configureActions();
       store = configureStore({
         localAppRegistry: localAppRegistry,
@@ -1569,7 +1569,7 @@ describe('store', function () {
     });
 
     afterEach(function () {
-      window.sessionStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
+      window.localStorage.removeItem(CRUD_VIEW_TYPE_SETTINGS_KEY);
     });
 
     it('sets the view', async function () {
@@ -1583,7 +1583,7 @@ describe('store', function () {
 
       // Check that the view is set in the local storage,
       // to be used as the last seen view.
-      const localStorageItem = window.sessionStorage.getItem(
+      const localStorageItem = window.localStorage.getItem(
         CRUD_VIEW_TYPE_SETTINGS_KEY
       );
       expect(localStorageItem).to.equal('Table');
