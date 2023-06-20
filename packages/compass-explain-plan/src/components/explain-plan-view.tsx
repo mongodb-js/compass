@@ -14,7 +14,7 @@ import {
 } from '@mongodb-js/compass-editor';
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
 import ExplainTree from './explain-tree';
-import { ExplainPlanSummary } from './explain-plan-side-summary';
+import ExplainPlanSummary from './explain-plan-side-summary';
 import ExplainCannotVisualizeBanner from './explain-cannot-visualize-banner';
 import { ZoomControl } from './zoom-control';
 

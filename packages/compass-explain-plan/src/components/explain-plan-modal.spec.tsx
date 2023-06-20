@@ -3,14 +3,25 @@ import { expect } from 'chai';
 import { cleanup, screen, render as _render } from '@testing-library/react';
 import type { ExplainPlanModalProps } from './explain-plan-modal';
 import { ExplainPlanModal } from './explain-plan-modal';
+import { Provider } from 'react-redux';
+import { configureStore } from '../stores/explain-plan-modal-store';
 
 function render(props: Partial<ExplainPlanModalProps>) {
   return _render(
-    <ExplainPlanModal
-      isModalOpen={true}
-      onModalClose={() => {}}
-      {...props}
-    ></ExplainPlanModal>
+    <Provider
+      store={configureStore({
+        namespace: 'test.test',
+        dataProvider: { dataProvider: {} as any },
+        isDataLake: false,
+        localAppRegistry: { on() {}, emit() {} } as any,
+      })}
+    >
+      <ExplainPlanModal
+        isModalOpen={true}
+        onModalClose={() => {}}
+        {...props}
+      ></ExplainPlanModal>
+    </Provider>
   );
 }
 
