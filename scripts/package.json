@@ -40,6 +40,7 @@
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
     "@mongodb-js/webpack-config-compass": "^1.1.0",
     "@mongodb-js/monorepo-tools": "^1.1.1",
+    "commander": "^11.0.0",
     "cross-spawn": "^7.0.3",
     "electron": "^23.3.8",
     "find-up": "^4.1.0",

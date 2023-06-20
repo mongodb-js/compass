@@ -1,14 +1,22 @@
-name: Start new beta release
+name: Start new Beta release
 
 on:
   workflow_dispatch:
+    inputs:
+      mergeBranch:
+        description: 'mergeBranch (optional, default="main"): the branch to merge from, useful to perform quick fixes outside of main.'
+        default: 'main'
+        required: false
+      overrideNextGa:
+        description: 'overrideNextGa (optional): set this param if you want to override the nextGa version that is fetched from jira versions, and use a different one.'
+        required: false
   schedule:
     # Each Monday at 5 AM UTC
     - cron: '0 5 * * 1'
 
 jobs:
-  publish:
-    name: Start new beta release
+  startRelease:
+    name: Start new Beta release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,60 +25,23 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      # only needed for npm version and npx
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 20.x
+          node-version: ^16.x
+          cache: 'npm'
+
+      - name: Install npm@8.19.4
+        run: |
+          npm install -g npm@8.19.4
+
+      - name: Install Dependencies
+        run: |
+          npm -v
+          npm ci
 
       - name: Start Release
-        env:
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
-          set -e
-          next_ga=$( \
-            curl -H "Authorization: Bearer ${JIRA_API_TOKEN}" \
-            'https://jira.mongodb.org/rest/api/2/project/COMPASS/versions' | \
-            jq -r '[.[] | select(.released == false)] | sort_by(.startDate) | last | .name' \
-          )
+          node scripts/release.js beta \
+            --merge-branch="${{ github.event.inputs.mergeBranch || 'main' }}"
+            --next-ga="${{ github.event.inputs.overrideNextGa }}"
 
-          if [[ ! $next_ga =~ "^[0-9]+\.[0-9]+\.[0-9]+$" ]]; then
-            echo "Error: ${next_ga} is not a valid version string."
-            exit 1;
-          fi
-
-          release_branch=$(echo "${next_ga}" | awk -F. '{print $1 "." $2}')-releases
-
-          git checkout -b "${release_branch}" || git checkout "${release_branch}"
-          package_json_version=$(cat package.json | jq .version)
-          package_json_version=${package_json_version:-0.0.0}
-
-          # if the previous version is newer we fail the release:
-          if npx semver@latest -r ">=${next_ga}" "${package_json_version}"; then
-            echo Error: the previous release in ${release_branch} is already >= then the next GA.
-            exit 1;
-          fi
-
-          # if the previous version is too old (not in the range of the same minor GA)
-          # we can assume that we need to release a beta.0,
-          # otherwise we bump whatever other prerelease was in the package.json:
-          if npx semver@latest -r "<=${next_ga}-beta.0" $package_json_version; then
-            next_beta=${next_ga}-beta.0
-          else
-            next_beta=$(npx semver@latest -i prerelease $package_json_version)
-          fi
-
-          if [[ ! $next_beta =~ "^[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$" ]]; then
-              echo "Error: ${next_beta} is not a valid beta version string."
-              exit 1;
-          fi
-
-          # merge the latest changes
-          git merge main
-
-          # bump the package version and push
-          npm version "${next_beta}"
-          git commit -m "v${next_beta}" -- package.json package-lock.json
-          git tag "v${next_beta}"
-          git push origin "${release_branch}"
-          git push --tags
