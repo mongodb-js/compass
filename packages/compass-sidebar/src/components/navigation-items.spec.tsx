@@ -62,7 +62,7 @@ describe('NavigationItems [Component]', function () {
       expect(screen.queryByLabelText(createDatabaseText)).to.not.exist;
     });
 
-    it('shows guide cue when no databases are created', function () {
+    it('does not show guide cue when no databases are created', function () {
       renderNavigationItems({
         readOnly: true,
         showCreateDatabaseGuideCue: true,
