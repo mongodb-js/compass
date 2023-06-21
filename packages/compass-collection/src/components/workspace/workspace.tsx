@@ -203,6 +203,8 @@ const Workspace = ({
     [tabs]
   );
 
+  useHotkeys('ctrl + tab', nextTab);
+  useHotkeys('ctrl + shift + tab', prevTab);
   useHotkeys('meta + shift + ]', nextTab);
   useHotkeys('meta + shift + [', prevTab);
   useHotkeys(
