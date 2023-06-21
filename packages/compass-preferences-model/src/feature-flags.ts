@@ -14,6 +14,7 @@ export type FeatureFlagDefinition = {
 };
 
 export type FeatureFlags = {
+  enableAIExperience: boolean;
   enableLgDarkmode: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
@@ -24,6 +25,18 @@ export type FeatureFlags = {
 export const featureFlags: Required<{
   [K in keyof FeatureFlags]: FeatureFlagDefinition;
 }> = {
+  /**
+   * Feature flag for enabling the natural text input on the query bar.
+   * Epic: COMPASS-6866
+   */
+  enableAIExperience: {
+    stage: 'development',
+    description: {
+      short: 'AI Query Generator',
+      long: 'Use AI to generate queries with a natural language text input on the query bar.',
+    },
+  },
+
   /**
    * Currently Compass uses `darkreader` to globally change the views of
    * Compass to a dark theme. Turning on this feature flag stops darkreader
