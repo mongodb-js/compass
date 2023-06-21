@@ -579,6 +579,9 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
   process.env.CHROME_LOG_FILE = chromedriverLogPath;
 
+  // Skip showing Guide Cues
+  process.env.DISABLE_GUIDE_CUES = 'true';
+
   const options = {
     capabilities: {
       browserName: 'chrome',
