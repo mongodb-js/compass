@@ -7,6 +7,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
+import { GuideCue } from './guide-cue/guide-cue';
 
 export type Signal = {
   /**
@@ -328,6 +329,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   signals: _signals,
   darkMode: _darkMode,
 }) => {
+  const [cueOpen, setCueOpen] = useState(false);
   const darkMode = useDarkMode(_darkMode);
   const [triggerVisible, setTriggerVisible] = useState(true);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -336,7 +338,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const signals = Array.isArray(_signals) ? _signals : [_signals];
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
-  const isActive = isHovered || popoverOpen;
+  const isActive = cueOpen || isHovered || popoverOpen;
 
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -408,45 +410,76 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
           evt.stopPropagation();
           triggerProps.onClick(evt);
         };
-        const props = mergeProps<HTMLButtonElement>(hoverProps, triggerProps, {
-          className: cx(
-            badgeStyles,
-            isActive && badgeHoveredStyles,
-            ...(darkMode
-              ? [badgeDarkModeStyles, isActive && badgeHoveredDarkModeStyles]
-              : [badgeLightModeStyles, isActive && badgeHoveredLightModeStyles])
-          ),
-          style: { width: isActive ? activeBadgeWidth : 18 },
-          ref: triggerRef,
-        });
         return (
-          <>
-            <button
-              {...props}
-              onClick={onTriggerClick}
-              data-testid="insight-badge-button"
-              type="button"
-            >
-              <Icon
-                glyph="Bulb"
-                size="small"
-                className={cx(badgeIconStyles, badgeIconCollapsedStyles)}
-                style={{ opacity: isActive ? 0 : 1 }}
-              ></Icon>
-              <strong
-                className={cx(
-                  badgeLabelStyles,
-                  !multiSignals && singleInsightBadge
-                )}
-                style={{ width: activeBadgeWidth, opacity: isActive ? 1 : 0 }}
-              >
-                {badgeLabel}
-              </strong>
-            </button>
-            {/* Popover needs to be rendered outside of the badge container so */}
-            {/* that hover is not "stuck" when closing popover from  */}
-            {children}
-          </>
+          <GuideCue<HTMLButtonElement>
+            cueId="insights"
+            title="Introducing insights"
+            description="Across Compass, you may now see icons like this to clue you in on potential areas of improvement for your data."
+            buttonText="See insights in action"
+            onPrimaryButtonClick={() => {
+              triggerRef.current?.click();
+            }}
+            // So that the insight badge can animate without messing the tooltip
+            // position
+            tooltipAlign="right"
+            onOpenChange={setCueOpen}
+            trigger={({ ref: guideCueRef }) => {
+              const props = mergeProps<HTMLButtonElement>(
+                hoverProps,
+                triggerProps,
+                {
+                  className: cx(
+                    badgeStyles,
+                    isActive && badgeHoveredStyles,
+                    ...(darkMode
+                      ? [
+                          badgeDarkModeStyles,
+                          isActive && badgeHoveredDarkModeStyles,
+                        ]
+                      : [
+                          badgeLightModeStyles,
+                          isActive && badgeHoveredLightModeStyles,
+                        ])
+                  ),
+                  style: { width: isActive ? activeBadgeWidth : 18 },
+                  ref: triggerRef,
+                },
+                { ref: guideCueRef }
+              );
+              return (
+                <>
+                  <button
+                    {...props}
+                    onClick={onTriggerClick}
+                    data-testid="insight-badge-button"
+                    type="button"
+                  >
+                    <Icon
+                      glyph="Bulb"
+                      size="small"
+                      className={cx(badgeIconStyles, badgeIconCollapsedStyles)}
+                      style={{ opacity: isActive ? 0 : 1 }}
+                    ></Icon>
+                    <strong
+                      className={cx(
+                        badgeLabelStyles,
+                        !multiSignals && singleInsightBadge
+                      )}
+                      style={{
+                        width: activeBadgeWidth,
+                        opacity: isActive ? 1 : 0,
+                      }}
+                    >
+                      {badgeLabel}
+                    </strong>
+                  </button>
+                  {/* Popover needs to be rendered outside of the badge container so */}
+                  {/* that hover is not "stuck" when closing popover from  */}
+                  {children}
+                </>
+              );
+            }}
+          ></GuideCue>
         );
       }}
     >
