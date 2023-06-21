@@ -2,7 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type Collection from 'mongodb-collection-model';
 import { combineReducers } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
-import type { AnyAction, Store } from 'redux';
+import type { AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
