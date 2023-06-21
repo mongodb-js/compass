@@ -107,7 +107,10 @@ const fetchDocuments: (
         serverVersion,
         // $bsonSize is only supported for mongodb >= 4.4.0
         '4.4.0'
-      ) && isEmpty(options?.projection)
+      ) &&
+      // Accessing $$ROOT is not possible with CSFLE
+      ['disabled', 'unavailable'].includes(dataService?.getCSFLEMode()) &&
+      isEmpty(options?.projection)
         ? { _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } }
         : options?.projection,
   };
