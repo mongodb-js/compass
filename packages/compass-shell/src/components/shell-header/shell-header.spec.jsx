@@ -50,12 +50,7 @@ describe('ShellHeader', function () {
 
     it('renders an open chevron button', function () {
       expect(wrapper.find(IconButton).exists()).to.equal(true);
-      expect(wrapper.find(Icon).at(1).prop('glyph')).to.equal('ChevronUp');
-    });
-
-    it('renders an info button', function () {
-      expect(wrapper.find(IconButton).exists()).to.equal(true);
-      expect(wrapper.find(Icon).at(0).prop('glyph')).to.equal('InfoWithCircle');
+      expect(wrapper.find(Icon).prop('glyph')).to.equal('ChevronUp');
     });
 
     it('does not render the loader', function () {

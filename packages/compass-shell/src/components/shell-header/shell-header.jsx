@@ -106,8 +106,6 @@ export const ShellHeader = ({
           aria-pressed={isExpanded}
         >
           <GuideCue
-            groupId="shell-header"
-            step={1}
             cueId="shell-title"
             title="Using the embedded MongoDB Shell"
             description={
@@ -133,27 +131,27 @@ export const ShellHeader = ({
         </button>
       </div>
       <div className={shellHeaderRightStyles}>
-        <GuideCue
-          groupId="shell-header"
-          step={2}
-          cueId="shell-info"
-          title="Using the embedded MongoDB Shell"
-          description={
-            'When expanded, mongosh enables you to run commands on your data. Click on the info icon to learn more about the keyboard shortcuts available to you when using mongosh.'
-          }
-          trigger={({ ref }) => (
-            <IconButton
-              ref={ref}
-              data-testid="shell-info-button"
-              variant="dark"
-              aria-label="Shell Info"
-              aria-haspopup="dialog"
-              onClick={showInfoModal}
-            >
-              <Icon glyph="InfoWithCircle" size="small" />
-            </IconButton>
-          )}
-        />
+        {isExpanded && (
+          <GuideCue
+            cueId="shell-info"
+            title="Using the embedded MongoDB Shell"
+            description={
+              'When expanded, mongosh enables you to run commands on your data. Click on the info icon to learn more about the keyboard shortcuts available to you when using mongosh.'
+            }
+            trigger={({ ref }) => (
+              <IconButton
+                ref={ref}
+                data-testid="shell-info-button"
+                variant="dark"
+                aria-label="Shell Info"
+                aria-haspopup="dialog"
+                onClick={showInfoModal}
+              >
+                <Icon glyph="InfoWithCircle" size="small" />
+              </IconButton>
+            )}
+          />
+        )}
         <IconButton
           variant="dark"
           aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
