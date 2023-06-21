@@ -36,7 +36,7 @@ type FocusModeModalHeaderProps = {
   stageIndex: number;
   isEnabled: boolean;
   stages: Stage[];
-  insight: Signal | undefined;
+  insight?: Signal;
   onStageSelect: (index: number) => void;
   onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;

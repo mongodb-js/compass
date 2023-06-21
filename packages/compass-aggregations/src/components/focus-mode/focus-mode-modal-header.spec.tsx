@@ -26,7 +26,6 @@ describe('FocusModeModalHeader', function () {
     return render(
       <FocusModeModalHeader
         isEnabled
-        insight={undefined}
         stageIndex={0}
         stages={[
           {
