@@ -595,4 +595,38 @@ describe('GuideCueService', function () {
       expect(onNextSpy.callCount).to.equal(1);
     });
   });
+
+  context('when disabled', function () {
+    const initialValue = process.env.DISABLE_GUIDE_CUES;
+    before(function () {
+      process.env.DISABLE_GUIDE_CUES = 'true';
+
+      guideCueService.addCue({ cueId: '1', isIntersecting: true, step: 1 });
+      guideCueService.addCue({
+        cueId: '3',
+        groupId: 'abc',
+        isIntersecting: true,
+        step: 1,
+      });
+      guideCueService.addCue({
+        cueId: '4',
+        groupId: 'abc',
+        isIntersecting: true,
+        step: 2,
+      });
+    });
+
+    after(function () {
+      process.env.DISABLE_GUIDE_CUES = initialValue;
+    });
+
+    it('does not add a cue', function () {
+      expect((guideCueService as any)._cues.length).to.equal(0);
+    });
+
+    it('returns undefined on onNext', function () {
+      const next = guideCueService.onNext();
+      expect(next).to.be.undefined;
+    });
+  });
 });
