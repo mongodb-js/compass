@@ -11,6 +11,7 @@ import {
   IconButton,
   SignalPopover,
 } from '@mongodb-js/compass-components';
+import { ATLAS, ADL } from '@mongodb-js/mongodb-constants';
 import type { Signal } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
@@ -178,7 +179,7 @@ export default connect(
       hasServerError: !!stage.serverError,
       isCollapsed: stage.collapsed,
       isDisabled: stage.disabled,
-      insight: getInsightForStage(stage, state.env === 'atlas'),
+      insight: getInsightForStage(stage, [ATLAS, ADL].includes(state.env)),
     };
   },
   {

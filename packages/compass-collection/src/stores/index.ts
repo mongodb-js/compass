@@ -155,6 +155,11 @@ store.onActivated = (appRegistry: AppRegistry) => {
       }
     );
 
+    instance.on('change:isAtlas', (_model: unknown, value: boolean) => {
+      store.dispatch(isAtlasChanged(value));
+    });
+    store.dispatch(isAtlasChanged(instance.isAtlas));
+
     instance.dataLake.on(
       'change:isDataLake',
       (_model: unknown, value: boolean) => {
@@ -314,16 +319,6 @@ store.onActivated = (appRegistry: AppRegistry) => {
       store.dispatch(dataServiceConnected(error, dataService));
     }
   );
-
-  appRegistry.on('instance-refreshed', () => {
-    const isAtlas = (
-      appRegistry.getStore('App.InstanceStore') as Store | undefined
-    )?.getState().instance.isAtlas as boolean | undefined;
-    const isAtlasInStore = store.getState().isAtlas;
-    if (isAtlas !== undefined && isAtlas !== isAtlasInStore) {
-      store.dispatch(isAtlasChanged(isAtlas));
-    }
-  });
 
   /**
    * When we disconnect from the instance, clear all the tabs.
