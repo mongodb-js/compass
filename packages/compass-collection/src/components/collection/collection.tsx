@@ -48,23 +48,23 @@ const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
         const signal = isAtlas
           ? {
               id: 'atlas-text-regex-usage-in-view',
-              title: 'This view uses an inefficient text search operator',
+              title: 'Alternate text search options available',
               description:
                 "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your view’s query to $search for a wider range of functionality.",
               learnMoreLink:
                 'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
               primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
-              primaryActionButtonLabel: 'Create Search Index',
+              primaryActionButtonLabel: 'Try Atlas Search',
             }
           : {
               id: 'non-atlas-text-regex-usage-in-view',
-              title: 'This view uses an inefficient text search operator',
+              title: 'Alternate text search options available',
               description:
                 "In many cases, Atlas Search is MongoDB's most efficient full text search option. Connect with Atlas to explore the power of Atlas Search.",
               learnMoreLink:
                 'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
               primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
-              primaryActionButtonLabel: 'Create Search Index',
+              primaryActionButtonLabel: 'Try Atlas Search',
             };
 
         insights[signal.id] = signal;
