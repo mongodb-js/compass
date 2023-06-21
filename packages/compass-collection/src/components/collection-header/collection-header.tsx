@@ -41,6 +41,7 @@ const collectionHeaderTitleStyles = css({
   padding: `0 ${String(spacing[3])}px`,
   margin: 0,
   overflow: 'hidden',
+  gap: spacing[2],
 });
 
 const collectionHeaderDBLinkStyles = css({
@@ -104,7 +105,6 @@ const collectionHeaderTitleCollectionDarkStyles = css({
 
 const insightsContainerStyles = css({
   display: 'inline-flex',
-  marginLeft: spacing[2],
 });
 
 type CollectionHeaderProps = {
