@@ -25,6 +25,7 @@ import {
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
+import { usePreference } from 'compass-preferences-model';
 
 type Stage = {
   idxInStore: number;
@@ -99,6 +100,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onStageDisabledToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const showInsights = usePreference('showInsights', React);
 
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
@@ -307,7 +309,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </MenuItem>
       </Menu>
 
-      {insight && <SignalPopover signals={insight} />}
+      {showInsights && insight && <SignalPopover signals={insight} />}
     </div>
   );
 };
