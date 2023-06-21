@@ -11,8 +11,14 @@ import {
   cx,
   IndexBadge,
   Icon,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
-import type { SerializedExplainPlan } from '../stores/explain-plan-modal-store';
+import {
+  openCreateIndexModal,
+  type SerializedExplainPlan,
+} from '../stores/explain-plan-modal-store';
+import { connect } from 'react-redux';
+import { usePreference } from 'compass-preferences-model';
 
 const defaultFormatter = (_: unknown) => String(_);
 
@@ -78,6 +84,7 @@ type ExplainPlanSummaryProps = {
   indexKeysExamined: number;
   indexType: SerializedExplainPlan['indexType'];
   indexKeys: [string, unknown][];
+  onCreateIndexInsightClick(): void;
 };
 
 const summaryCardStyles = css({
@@ -128,8 +135,10 @@ export const ExplainPlanSummary: React.FunctionComponent<
   indexKeysExamined,
   indexType,
   indexKeys,
+  onCreateIndexInsightClick,
 }) => {
   const darkMode = useDarkMode();
+  const showInsights = usePreference('showInsights', React);
 
   const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
 
@@ -266,9 +275,33 @@ export const ExplainPlanSummary: React.FunctionComponent<
           <div className={statsStyles} style={{ color: warningColor }}>
             <Icon glyph="Warning"></Icon>
             <span>No index available for this query.</span>
+            {showInsights && (
+              <SignalPopover
+                signals={{
+                  id: 'explain-plan-without-index',
+                  title: 'Query executed without index',
+                  description: (
+                    <>
+                      This query ran without an index. If you plan on using this
+                      query <strong>heavily</strong> in your application, you
+                      should create an index that covers this aggregation.
+                    </>
+                  ),
+                  learnMoreLink:
+                    'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
+                  primaryActionButtonLabel: 'Create index',
+                  primaryActionButtonIcon: 'Plus',
+                  onPrimaryActionButtonClick: onCreateIndexInsightClick,
+                }}
+              ></SignalPopover>
+            )}
           </div>
         )}
       </ul>
     </KeylineCard>
   );
 };
+
+export default connect(null, {
+  onCreateIndexInsightClick: openCreateIndexModal,
+})(ExplainPlanSummary);

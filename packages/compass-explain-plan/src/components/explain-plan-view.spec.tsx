@@ -4,6 +4,8 @@ import { ExplainPlanView } from './explain-plan-view';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { expect } from 'chai';
+import { Provider } from 'react-redux';
+import { configureStore } from '../stores/explain-plan-modal-store';
 
 const simpleExplain = new ExplainPlan({
   queryPlanner: {
@@ -48,10 +50,19 @@ describe('ExplainPlanView', function () {
 
   it('should render explain plan', function () {
     render(
-      <ExplainPlanView
-        explainPlan={simpleExplain}
-        rawExplainPlan={simpleExplain.originalExplainData}
-      ></ExplainPlanView>
+      <Provider
+        store={configureStore({
+          namespace: 'test.test',
+          dataProvider: { dataProvider: {} as any },
+          isDataLake: false,
+          localAppRegistry: { on() {}, emit() {} } as any,
+        })}
+      >
+        <ExplainPlanView
+          explainPlan={simpleExplain}
+          rawExplainPlan={simpleExplain.originalExplainData}
+        ></ExplainPlanView>
+      </Provider>
     );
     expect(screen.getByText('COLLSCAN')).to.exist;
     expect(screen.getByText('Query Performance Summary')).to.exist;

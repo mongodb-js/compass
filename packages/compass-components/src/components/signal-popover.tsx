@@ -1,6 +1,6 @@
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useHoverState } from '../hooks/use-focus-hover';
-import { Button, Icon, IconButton, Link } from './leafygreen';
+import { Body, Button, Icon, IconButton, Link } from './leafygreen';
 import { InteractivePopover } from './interactive-popover';
 import { mergeProps } from '../utils/merge-props';
 import { css, cx } from '@leafygreen-ui/emotion';
@@ -140,10 +140,13 @@ const SignalCard: React.FunctionComponent<
       <strong className={cx(signalCardTitleStyles, cardTitleStyles)}>
         {title}
       </strong>
-      <div className={signalCardDescriptionStyles}>{description}</div>
+      <Body as="div" baseFontSize={13} className={signalCardDescriptionStyles}>
+        {description}
+      </Body>
       <div className={signalCardActionGroupStyles}>
         {primaryActionButtonLabel && (
           <Button
+            size="small"
             as={primaryActionButtonLink ? 'a' : 'button'}
             target={primaryActionButtonLink ? '_blank' : undefined}
             href={primaryActionButtonLink}
