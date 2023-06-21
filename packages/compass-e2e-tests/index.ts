@@ -124,6 +124,9 @@ async function main() {
     return;
   }
 
+  // Skip showing Guide Cues
+  process.env.DISABLE_GUIDE_CUES = 'true';
+
   await setup();
 
   const shouldTestPackagedApp = process.argv.includes('--test-packaged-app');
