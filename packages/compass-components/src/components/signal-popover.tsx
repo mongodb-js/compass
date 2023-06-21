@@ -74,6 +74,7 @@ const signalCardContentDarkModeStyles = css({
 });
 
 const signalCardTitleStyles = css({
+  maxWidth: '90%',
   marginBottom: spacing[2],
   fontSize: spacing[3],
 });
@@ -497,15 +498,30 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
         );
       }}
     >
-      {multiSignals && (
-        <MultiSignalHeader
-          currentIndex={currentSignalIndex}
-          total={signals.length}
-          onIndexChange={setCurrentSignalIndex}
-          darkMode={darkMode}
-        ></MultiSignalHeader>
-      )}
-      <SignalCard {...currentSignal} darkMode={darkMode}></SignalCard>
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        onMouseDown={(event) => {
+          // Our InteractivePopover makes use of FocusTrap with
+          // `clickOutsideDeactivates` set to true. This will let the MouseDown
+          // and Click event propagate down to the leaf node in DOM and in certain
+          // cases it is undesirable because there might be some functionalities
+          // attached for these events on the leaf nodes. Example - Stage List in
+          // Aggregation builder where SortableList listens and responds to these
+          // events. For that reason we do not let mouse down event propagate out
+          // of this card.'
+          event.stopPropagation();
+        }}
+      >
+        {multiSignals && (
+          <MultiSignalHeader
+            currentIndex={currentSignalIndex}
+            total={signals.length}
+            onIndexChange={setCurrentSignalIndex}
+            darkMode={darkMode}
+          ></MultiSignalHeader>
+        )}
+        <SignalCard {...currentSignal} darkMode={darkMode}></SignalCard>
+      </div>
     </InteractivePopover>
   );
 };
