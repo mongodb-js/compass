@@ -20,6 +20,7 @@ import {
 } from '../../../modules/pipeline-builder/builder-helpers';
 import { isOutputStage } from '../../../utils/stage';
 import { openCreateIndexModal } from '../../../modules/insights';
+import { usePreference } from 'compass-preferences-model';
 
 const containerStyles = css({
   display: 'flex',
@@ -72,9 +73,10 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   showCollectionScanInsight,
   onCollectionScanInsightActionButtonClick,
 }) => {
+  const showInsights = usePreference('showInsights', React);
   return (
     <div className={containerStyles}>
-      {showCollectionScanInsight && (
+      {showInsights && showCollectionScanInsight && (
         <div>
           <SignalPopover
             signals={{

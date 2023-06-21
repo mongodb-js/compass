@@ -11,6 +11,7 @@ import {
   SignalPopover,
 } from '@mongodb-js/compass-components';
 import type { ViewType } from './use-view-type';
+import { usePreference } from 'compass-preferences-model';
 
 const namespaceParam = css({
   display: 'flex',
@@ -96,6 +97,8 @@ export const NamespaceParam: React.FunctionComponent<{
   viewType: ViewType;
   insights?: React.ComponentProps<typeof SignalPopover>['signals'];
 }> = ({ label, value, status, hint, viewType, insights }) => {
+  const showInsights = usePreference('showInsights', React);
+
   const renderedValue = useMemo(() => {
     const isReady = status !== 'initial' && status !== 'fetching';
     return (
@@ -160,7 +163,9 @@ export const NamespaceParam: React.FunctionComponent<{
         )}
       >
         {renderedValue}
-        {insights && <SignalPopover signals={insights}></SignalPopover>}
+        {showInsights && insights && (
+          <SignalPopover signals={insights}></SignalPopover>
+        )}
       </span>
     </div>
   );

@@ -13,7 +13,7 @@ import {
   SignalPopover,
   GuideCue,
 } from '@mongodb-js/compass-components';
-import { withPreferences } from 'compass-preferences-model';
+import { usePreference, withPreferences } from 'compass-preferences-model';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
 
@@ -129,10 +129,10 @@ export function NavigationItem<Actions extends string>({
   isActive: boolean;
   showTooManyCollectionsInsight?: boolean;
 }) {
+  const showInsights = usePreference('showInsights', React);
   const onClick = useCallback(() => {
     onAction('open-instance-workspace', tabName);
   }, [onAction, tabName]);
-
   const [hoverProps] = useHoverState();
   const focusRingProps = useFocusRing();
   const defaultActionProps = useDefaultAction(onClick);
@@ -156,7 +156,7 @@ export function NavigationItem<Actions extends string>({
           <Icon glyph={glyph} size="small"></Icon>
           {isExpanded && <span className={navigationItemLabel}>{label}</span>}
         </div>
-        {isExpanded && showTooManyCollectionsInsight && (
+        {showInsights && isExpanded && showTooManyCollectionsInsight && (
           <div className={signalContainerStyles}>
             <SignalPopover
               signals={{
