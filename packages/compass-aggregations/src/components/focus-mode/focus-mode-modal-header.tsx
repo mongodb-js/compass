@@ -326,7 +326,7 @@ export default connect(
     return {
       stageIndex,
       isEnabled: !stage?.disabled,
-      insight: stage ? getInsightForStage(stage, env === 'atlas') : undefined,
+      insight: stage ? getInsightForStage(stage, env) : undefined,
       stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
         if (stage.type === 'stage') {
           accumulator.push({

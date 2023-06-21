@@ -11,7 +11,6 @@ import {
   IconButton,
   SignalPopover,
 } from '@mongodb-js/compass-components';
-import { ATLAS, ADL } from '@mongodb-js/mongodb-constants';
 import type { Signal } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
@@ -167,6 +166,7 @@ type StageToolbarOwnProps = Pick<StageToolbarProps, 'index'>;
 export default connect(
   (state: RootState, ownProps: StageToolbarOwnProps) => {
     const {
+      env,
       pipelineBuilder: {
         stageEditor: { stages },
       },
@@ -179,7 +179,7 @@ export default connect(
       hasServerError: !!stage.serverError,
       isCollapsed: stage.collapsed,
       isDisabled: stage.disabled,
-      insight: getInsightForStage(stage, [ATLAS, ADL].includes(state.env)),
+      insight: getInsightForStage(stage, env),
     };
   },
   {

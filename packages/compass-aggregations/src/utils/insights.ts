@@ -1,3 +1,4 @@
+import { ADL, ATLAS } from '@mongodb-js/mongodb-constants';
 import type { Signal } from '@mongodb-js/compass-components';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
 
@@ -28,8 +29,9 @@ const SIGNALS: Record<string, Signal> = {
 
 export const getInsightForStage = (
   { stageOperator, value }: StoreStage,
-  isAtlas: boolean
+  env: string
 ): Signal | undefined => {
+  const isAtlas = [ATLAS, ADL].includes(env);
   if (
     stageOperator === '$match' &&
     (value?.includes('$regex') || value?.includes('$text'))
