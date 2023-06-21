@@ -103,10 +103,6 @@ const collectionHeaderTitleCollectionDarkStyles = css({
   color: palette.gray.light1,
 });
 
-const insightsContainerStyles = css({
-  display: 'inline-flex',
-});
-
 type CollectionHeaderProps = {
   darkMode?: boolean;
   showInsights: boolean;
@@ -271,11 +267,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
           {this.props.isClustered && <ClusteredBadge />}
           {this.props.isFLE && <FLEBadge />}
           {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
-          {!!insights.length && (
-            <div className={insightsContainerStyles}>
-              <SignalPopover signals={insights} />
-            </div>
-          )}
+          {!!insights.length && <SignalPopover signals={insights} />}
           <CollectionHeaderActions
             editViewName={this.props.editViewName}
             isReadonly={this.props.isReadonly}
