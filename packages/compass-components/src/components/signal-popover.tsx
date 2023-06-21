@@ -69,14 +69,25 @@ const signalCardContentStyles = css({
   backgroundColor: 'var(--signalCardBackgroundColor)',
 });
 
+const CLOSE_BTN_TOP_WITH_MULTI_SIGNALS = 5;
+const CLOSE_BTN_RIGHT_WITH_MULTI_SIGNALS = 5;
+
+const CLOSE_BTN_TOP = 18;
+const CLOSE_BTN_RIGHT = 18;
+
 const signalCardContentDarkModeStyles = css({
   '--signalCardBackgroundColor': palette.gray.dark4,
 });
 
 const signalCardTitleStyles = css({
-  maxWidth: '90%',
   marginBottom: spacing[2],
   fontSize: spacing[3],
+});
+
+// This is to avoid the longer card title getting shadowed under the close icon
+// button
+const signalCardTitleStylesWithOneSignal = css({
+  paddingRight: CLOSE_BTN_RIGHT,
 });
 
 const signalCardDescriptionStyles = css({
@@ -97,7 +108,10 @@ const signalCardLearnMoreLinkStyles = css({
 });
 
 const SignalCard: React.FunctionComponent<
-  Signal & Pick<SignalPopoverProps, 'darkMode'>
+  Signal &
+    Pick<SignalPopoverProps, 'darkMode'> & {
+      cardTitleStyles?: string;
+    }
 > = ({
   id,
   title,
@@ -110,6 +124,7 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonLink,
   darkMode: _darkMode,
   onPrimaryActionButtonClick,
+  cardTitleStyles,
 }) => {
   const darkMode = useDarkMode(_darkMode);
 
@@ -122,7 +137,9 @@ const SignalCard: React.FunctionComponent<
       data-testid="insight-signal-card"
       data-signal-id={id}
     >
-      <strong className={signalCardTitleStyles}>{title}</strong>
+      <strong className={cx(signalCardTitleStyles, cardTitleStyles)}>
+        {title}
+      </strong>
       <div className={signalCardDescriptionStyles}>{description}</div>
       <div className={signalCardActionGroupStyles}>
         {primaryActionButtonLabel && (
@@ -326,13 +343,13 @@ const singleInsightBadge = css({
 
 const closeButtonStyles = css({
   // No other way to correctly align this button with the content
-  top: 18,
-  right: 18,
+  top: CLOSE_BTN_TOP,
+  right: CLOSE_BTN_RIGHT,
 });
 
 const closeButtonMultiSignalStyles = css({
-  top: 5,
-  right: 5,
+  top: CLOSE_BTN_TOP_WITH_MULTI_SIGNALS,
+  right: CLOSE_BTN_RIGHT_WITH_MULTI_SIGNALS,
 });
 
 const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
@@ -520,7 +537,13 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
             darkMode={darkMode}
           ></MultiSignalHeader>
         )}
-        <SignalCard {...currentSignal} darkMode={darkMode}></SignalCard>
+        <SignalCard
+          {...currentSignal}
+          darkMode={darkMode}
+          cardTitleStyles={
+            !multiSignals ? signalCardTitleStylesWithOneSignal : undefined
+          }
+        ></SignalCard>
       </div>
     </InteractivePopover>
   );
