@@ -110,7 +110,7 @@ const signalCardLearnMoreLinkStyles = css({
 const SignalCard: React.FunctionComponent<
   Signal &
     Pick<SignalPopoverProps, 'darkMode'> & {
-      cardTitleStyles?: string;
+      hasMultiSignals?: boolean;
     }
 > = ({
   id,
@@ -124,7 +124,7 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonLink,
   darkMode: _darkMode,
   onPrimaryActionButtonClick,
-  cardTitleStyles,
+  hasMultiSignals,
 }) => {
   const darkMode = useDarkMode(_darkMode);
 
@@ -137,7 +137,11 @@ const SignalCard: React.FunctionComponent<
       data-testid="insight-signal-card"
       data-signal-id={id}
     >
-      <strong className={cx(signalCardTitleStyles, cardTitleStyles)}>
+      <strong
+        className={cx(signalCardTitleStyles, {
+          [signalCardTitleStylesWithOneSignal]: !hasMultiSignals,
+        })}
+      >
         {title}
       </strong>
       <Body as="div" baseFontSize={13} className={signalCardDescriptionStyles}>
@@ -543,9 +547,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
         <SignalCard
           {...currentSignal}
           darkMode={darkMode}
-          cardTitleStyles={
-            !multiSignals ? signalCardTitleStylesWithOneSignal : undefined
-          }
+          hasMultiSignals={multiSignals}
         ></SignalCard>
       </div>
     </InteractivePopover>
