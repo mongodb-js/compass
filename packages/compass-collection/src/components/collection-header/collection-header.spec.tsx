@@ -16,7 +16,7 @@ describe('CollectionHeader [Component]', function () {
     beforeEach(function () {
       render(
         <CollectionHeader
-          insights={[]}
+          isAtlas={false}
           isReadonly={false}
           isTimeSeries={false}
           isClustered={false}
@@ -69,7 +69,7 @@ describe('CollectionHeader [Component]', function () {
     beforeEach(function () {
       render(
         <CollectionHeader
-          insights={[]}
+          isAtlas={false}
           isReadonly={true}
           isTimeSeries={false}
           isClustered={false}
@@ -121,7 +121,7 @@ describe('CollectionHeader [Component]', function () {
     beforeEach(function () {
       render(
         <CollectionHeader
-          insights={[]}
+          isAtlas={false}
           isReadonly={true}
           isTimeSeries={false}
           isClustered={false}
@@ -158,7 +158,7 @@ describe('CollectionHeader [Component]', function () {
     beforeEach(function () {
       render(
         <CollectionHeader
-          insights={[]}
+          isAtlas={false}
           isReadonly={false}
           isTimeSeries={true}
           isClustered={false}
@@ -195,7 +195,7 @@ describe('CollectionHeader [Component]', function () {
     beforeEach(function () {
       render(
         <CollectionHeader
-          insights={[]}
+          isAtlas={false}
           isReadonly={false}
           isTimeSeries={false}
           isClustered={true}
@@ -236,7 +236,7 @@ describe('CollectionHeader [Component]', function () {
     beforeEach(function () {
       render(
         <CollectionHeader
-          insights={[]}
+          isAtlas={false}
           isReadonly={false}
           isTimeSeries={false}
           isClustered={false}
@@ -267,7 +267,7 @@ describe('CollectionHeader [Component]', function () {
 
       render(
         <CollectionHeader
-          insights={[]}
+          isAtlas={false}
           isReadonly={false}
           isTimeSeries={false}
           isClustered={false}

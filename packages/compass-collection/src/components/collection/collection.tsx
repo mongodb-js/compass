@@ -3,7 +3,6 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { TabNavBar, css } from '@mongodb-js/compass-components';
-import type { Signal } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model';
 import CollectionHeader from '../collection-header';
 import { getCollectionStatsInitialState } from '../../modules/stats';
@@ -33,46 +32,6 @@ const collectionContainerStyles = css({
 const collectionModalContainerStyles = css({
   zIndex: 100,
 });
-
-const ATLAS_SEARCH_LP_LINK = 'https://www.mongodb.com/cloud/atlas/lp/search-1';
-
-const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
-  const insights: Record<string, Signal> = {};
-  for (const stage of pipeline) {
-    if ('$match' in stage) {
-      const stringifiedStageValue = JSON.stringify(stage);
-      if (
-        stringifiedStageValue.includes('$regex') ||
-        stringifiedStageValue.includes('$text')
-      ) {
-        const signal = isAtlas
-          ? {
-              id: 'atlas-text-regex-usage-in-view',
-              title: 'Alternate text search options available',
-              description:
-                "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your view’s query to $search for a wider range of functionality.",
-              learnMoreLink:
-                'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
-              primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
-              primaryActionButtonLabel: 'Try Atlas Search',
-            }
-          : {
-              id: 'non-atlas-text-regex-usage-in-view',
-              title: 'Alternate text search options available',
-              description:
-                "In many cases, Atlas Search is MongoDB's most efficient full text search option. Connect with Atlas to explore the power of Atlas Search.",
-              learnMoreLink:
-                'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
-              primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
-              primaryActionButtonLabel: 'Try Atlas Search',
-            };
-
-        insights[signal.id] = signal;
-      }
-    }
-  }
-  return Object.values(insights);
-};
 
 type CollectionProps = {
   darkMode?: boolean;
@@ -181,14 +140,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     };
   }, [localAppRegistry, onSubTabClicked, tabs]);
 
-  const showInsights = usePreference('showInsights', React);
-
-  const insights = useMemo(() => {
-    return showInsights && pipeline?.length
-      ? getInsightsForPipeline(pipeline, isAtlas)
-      : [];
-  }, [pipeline, isAtlas, showInsights]);
-
   return (
     <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>
@@ -199,6 +150,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           isTimeSeries={isTimeSeries}
           isClustered={isClustered}
           isFLE={isFLE}
+          isAtlas={isAtlas}
           editViewName={editViewName}
           sourceReadonly={sourceReadonly}
           sourceViewOn={sourceViewOn}
@@ -206,7 +158,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           pipeline={pipeline}
           sourceName={sourceName}
           stats={stats[namespace] ?? getCollectionStatsInitialState()}
-          insights={insights}
         />
         <TabNavBar
           data-testid="collection-tabs"
