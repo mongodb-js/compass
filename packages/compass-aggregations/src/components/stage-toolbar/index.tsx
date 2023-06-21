@@ -63,12 +63,15 @@ const leftStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-start',
-  gap: spacing[1],
+  gap: spacing[1] * 3,
   width: '388px', // default width of the stage editor
 });
 
-const spacingRightStyles = css({
-  marginRight: spacing[2],
+const shortSpacedStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+  whiteSpace: 'nowrap',
 });
 
 const textStyles = css({
@@ -134,12 +137,12 @@ export function StageToolbar({
       )}
     >
       <div className={leftStyles}>
-        <StageCollapser index={index} />
-        <Body weight="medium">Stage {idxInPipeline + 1}</Body>
-        <div className={spacingRightStyles}>
+        <div className={shortSpacedStyles}>
+          <StageCollapser index={index} />
+          <Body weight="medium">Stage {idxInPipeline + 1}</Body>
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
-        <ToggleStage className={spacingRightStyles} index={index} />
+        <ToggleStage index={index} />
         {showInsights && insight && <SignalPopover signals={insight} />}
       </div>
       <div className={textStyles}>
