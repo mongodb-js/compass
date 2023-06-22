@@ -7,10 +7,13 @@ import {
   spacing,
   H3,
   cx,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
+import type { Signal } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import React, { Component } from 'react';
 import toNS from 'mongodb-ns';
+import { withPreferences } from 'compass-preferences-model';
 
 import CollectionHeaderActions from '../collection-header-actions';
 import ReadOnlyBadge from './read-only-badge';
@@ -38,6 +41,7 @@ const collectionHeaderTitleStyles = css({
   padding: `0 ${String(spacing[3])}px`,
   margin: 0,
   overflow: 'hidden',
+  gap: spacing[2],
 });
 
 const collectionHeaderDBLinkStyles = css({
@@ -101,12 +105,14 @@ const collectionHeaderTitleCollectionDarkStyles = css({
 
 type CollectionHeaderProps = {
   darkMode?: boolean;
+  showInsights: boolean;
   globalAppRegistry: AppRegistry;
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
   isClustered: boolean;
   isFLE: boolean;
+  isAtlas: boolean;
   selectOrCreateTab: (options: any) => any;
   sourceName?: string;
   sourceReadonly?: boolean;
@@ -114,6 +120,46 @@ type CollectionHeaderProps = {
   editViewName?: string;
   pipeline: Document[];
   stats: CollectionStatsObject;
+};
+
+const ATLAS_SEARCH_LP_LINK = 'https://www.mongodb.com/cloud/atlas/lp/search-1';
+
+const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
+  const insights: Record<string, Signal> = {};
+  for (const stage of pipeline) {
+    if ('$match' in stage) {
+      const stringifiedStageValue = JSON.stringify(stage);
+      if (
+        stringifiedStageValue.includes('$regex') ||
+        stringifiedStageValue.includes('$text')
+      ) {
+        const signal = isAtlas
+          ? {
+              id: 'atlas-text-regex-usage-in-view',
+              title: 'Alternate text search options available',
+              description:
+                "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your view’s query to $search for a wider range of functionality.",
+              learnMoreLink:
+                'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+              primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
+              primaryActionButtonLabel: 'Try Atlas Search',
+            }
+          : {
+              id: 'non-atlas-text-regex-usage-in-view',
+              title: 'Alternate text search options available',
+              description:
+                "In many cases, Atlas Search is MongoDB's most efficient full text search option. Connect with Atlas to explore the power of Atlas Search.",
+              learnMoreLink:
+                'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+              primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
+              primaryActionButtonLabel: 'Try Atlas Search',
+            };
+
+        insights[signal.id] = signal;
+      }
+    }
+  }
+  return Object.values(insights);
 };
 
 class CollectionHeader extends Component<CollectionHeaderProps> {
@@ -162,7 +208,10 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
     const ns = toNS(this.props.namespace);
     const database = ns.database;
     const collection = ns.collection;
-
+    const insights =
+      this.props.showInsights && this.props.pipeline?.length
+        ? getInsightsForPipeline(this.props.pipeline, this.props.isAtlas)
+        : [];
     return (
       <div
         className={cx(
@@ -218,6 +267,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
           {this.props.isClustered && <ClusteredBadge />}
           {this.props.isFLE && <FLEBadge />}
           {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
+          {!!insights.length && <SignalPopover signals={insights} />}
           <CollectionHeaderActions
             editViewName={this.props.editViewName}
             isReadonly={this.props.isReadonly}
@@ -237,4 +287,8 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
   }
 }
 
-export default withDarkMode(CollectionHeader);
+export default withPreferences(
+  withDarkMode(CollectionHeader),
+  ['showInsights'],
+  React
+);

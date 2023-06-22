@@ -38,6 +38,11 @@ export type Signal = {
   primaryActionButtonVariant?: 'primaryOutline' | 'dangerOutline';
 
   /**
+   * Optional, when provided the primary action button will behave as a link.
+   */
+  primaryActionButtonLink?: string;
+
+  /**
    * Optional, when provided will be called with a signal id on primary action
    * button click
    */
@@ -64,6 +69,12 @@ const signalCardContentStyles = css({
   backgroundColor: 'var(--signalCardBackgroundColor)',
 });
 
+const CLOSE_BTN_TOP_WITH_MULTI_SIGNALS = 5;
+const CLOSE_BTN_RIGHT_WITH_MULTI_SIGNALS = 5;
+
+const CLOSE_BTN_TOP = 18;
+const CLOSE_BTN_RIGHT = 18;
+
 const signalCardContentDarkModeStyles = css({
   '--signalCardBackgroundColor': palette.gray.dark4,
 });
@@ -71,6 +82,12 @@ const signalCardContentDarkModeStyles = css({
 const signalCardTitleStyles = css({
   marginBottom: spacing[2],
   fontSize: spacing[3],
+});
+
+// This is to avoid the longer card title getting shadowed under the close icon
+// button
+const signalCardTitleStylesWithOneSignal = css({
+  paddingRight: CLOSE_BTN_RIGHT,
 });
 
 const signalCardDescriptionStyles = css({
@@ -91,7 +108,10 @@ const signalCardLearnMoreLinkStyles = css({
 });
 
 const SignalCard: React.FunctionComponent<
-  Signal & Pick<SignalPopoverProps, 'darkMode'>
+  Signal &
+    Pick<SignalPopoverProps, 'darkMode'> & {
+      hasMultiSignals?: boolean;
+    }
 > = ({
   id,
   title,
@@ -101,8 +121,10 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonLabel,
   primaryActionButtonIcon,
   primaryActionButtonVariant,
+  primaryActionButtonLink,
   darkMode: _darkMode,
   onPrimaryActionButtonClick,
+  hasMultiSignals,
 }) => {
   const darkMode = useDarkMode(_darkMode);
 
@@ -115,7 +137,13 @@ const SignalCard: React.FunctionComponent<
       data-testid="insight-signal-card"
       data-signal-id={id}
     >
-      <strong className={signalCardTitleStyles}>{title}</strong>
+      <strong
+        className={cx(signalCardTitleStyles, {
+          [signalCardTitleStylesWithOneSignal]: !hasMultiSignals,
+        })}
+      >
+        {title}
+      </strong>
       <Body as="div" baseFontSize={13} className={signalCardDescriptionStyles}>
         {description}
       </Body>
@@ -123,6 +151,9 @@ const SignalCard: React.FunctionComponent<
         {primaryActionButtonLabel && (
           <Button
             size="small"
+            as={primaryActionButtonLink ? 'a' : 'button'}
+            target={primaryActionButtonLink ? '_blank' : undefined}
+            href={primaryActionButtonLink}
             data-testid="insight-signal-primary-action"
             variant={primaryActionButtonVariant ?? 'primaryOutline'}
             className={signalCardActionButtonStyles}
@@ -319,13 +350,13 @@ const singleInsightBadge = css({
 
 const closeButtonStyles = css({
   // No other way to correctly align this button with the content
-  top: 18,
-  right: 18,
+  top: CLOSE_BTN_TOP,
+  right: CLOSE_BTN_RIGHT,
 });
 
 const closeButtonMultiSignalStyles = css({
-  top: 5,
-  right: 5,
+  top: CLOSE_BTN_TOP_WITH_MULTI_SIGNALS,
+  right: CLOSE_BTN_RIGHT_WITH_MULTI_SIGNALS,
 });
 
 const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
@@ -491,15 +522,34 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
         );
       }}
     >
-      {multiSignals && (
-        <MultiSignalHeader
-          currentIndex={currentSignalIndex}
-          total={signals.length}
-          onIndexChange={setCurrentSignalIndex}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        onMouseDown={(event) => {
+          // Our InteractivePopover makes use of FocusTrap with
+          // `clickOutsideDeactivates` set to true. This will let the MouseDown
+          // and Click event propagate down to the leaf node in DOM and in certain
+          // cases it is undesirable because there might be some functionalities
+          // attached for these events on the leaf nodes. Example - Stage List in
+          // Aggregation builder where SortableList listens and responds to these
+          // events. For that reason we do not let mouse down event propagate out
+          // of this card.'
+          event.stopPropagation();
+        }}
+      >
+        {multiSignals && (
+          <MultiSignalHeader
+            currentIndex={currentSignalIndex}
+            total={signals.length}
+            onIndexChange={setCurrentSignalIndex}
+            darkMode={darkMode}
+          ></MultiSignalHeader>
+        )}
+        <SignalCard
+          {...currentSignal}
           darkMode={darkMode}
-        ></MultiSignalHeader>
-      )}
-      <SignalCard {...currentSignal} darkMode={darkMode}></SignalCard>
+          hasMultiSignals={multiSignals}
+        ></SignalCard>
+      </div>
     </InteractivePopover>
   );
 };
