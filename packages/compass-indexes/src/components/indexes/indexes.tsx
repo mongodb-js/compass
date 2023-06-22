@@ -52,6 +52,10 @@ type IndexesProps = {
   readOnly?: boolean;
 };
 
+// This constant is used as a trigger to show an insight whenever number of
+// indexes in a collection is more than what is specified here.
+const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
+
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
   indexes,
   isWritable,
@@ -87,6 +91,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         localAppRegistry={localAppRegistry}
         isRefreshing={isRefreshing}
         writeStateDescription={description}
+        hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
         onRefreshIndexes={refreshIndexes}
       />
       {!isReadonlyView && !error && (
