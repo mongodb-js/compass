@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormModal, TextInput } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-DATABASES-COLLECTIONS-UI');
 
 /**
  * Saving pipeline modal.
@@ -18,6 +20,12 @@ class SavingPipelineModal extends PureComponent {
     saveCurrentPipeline: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
   };
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
+      track('Screen', { name: 'save_pipeline_modal' });
+    }
+  }
 
   /**
    * Handle the value of the input being changed.
@@ -59,7 +67,6 @@ class SavingPipelineModal extends PureComponent {
         onCancel={this.props.savingPipelineCancel}
         submitButtonText="Save"
         submitDisabled={this.props.name === ''}
-        trackingId="save_pipeline_modal"
         data-testid="save-pipeline-modal"
       >
         <TextInput

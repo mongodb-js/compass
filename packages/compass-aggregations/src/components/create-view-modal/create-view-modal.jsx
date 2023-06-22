@@ -15,6 +15,8 @@ import {
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
 import { toggleIsVisible } from '../../modules/create-view/is-visible';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -50,6 +52,12 @@ class CreateViewModal extends PureComponent {
     isDuplicating: false,
   };
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.isVisible !== this.props.isVisible && this.props.isVisible) {
+      track('Screen', { name: 'create_view_modal' });
+    }
+  }
+
   onNameChange = (evt) => {
     this.props.changeViewName(evt.target.value);
   };
@@ -77,7 +85,6 @@ class CreateViewModal extends PureComponent {
         onSubmit={this.props.createView}
         onCancel={this.onCancel}
         submitButtonText="Create"
-        trackingId="create_view_modal"
         data-testid="create-view-modal"
       >
         <TextInput
