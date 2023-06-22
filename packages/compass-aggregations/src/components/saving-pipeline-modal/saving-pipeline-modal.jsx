@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormModal, TextInput } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-DATABASES-COLLECTIONS-UI');
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
  * Saving pipeline modal.

@@ -17,7 +17,7 @@ import { changeViewName } from '../../modules/create-view/name';
 import { toggleIsVisible } from '../../modules/create-view/is-visible';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-DATABASES-COLLECTIONS-UI');
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const TITLE = 'Duplicate a View';
 
