@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "description": "Shared Compass prettier configuration",
   "license": "SSPL",
-  "main": "index.json",
+  "main": "index.js",
   "peerDependencies": {
     "prettier": "^2.7.1"
   },
   "devDependencies": {
-    "prettier": "^2.7.1"
+    "prettier": "^2.7.1",
+    "@mongodb-js/prettier-config-devtools": "^1.0.0"
   },
   "scripts": {
     "check": "npm run lint",
