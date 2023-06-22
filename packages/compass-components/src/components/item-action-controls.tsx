@@ -77,17 +77,20 @@ function actionTestId<Action extends string>(
   return dataTestId ? `${dataTestId}-${action}-action` : undefined;
 }
 
+// As we are using this component to render icon in MenuItem,
+// and it does cloneElement on glyph, here we are accepting all the
+// props that are passed during clone process.
+type IconProps = React.ComponentProps<typeof Icon>;
 const ActionGlyph = ({
   glyph,
   size,
-  className,
-}: {
+  ...props
+}: Omit<IconProps, 'size' | 'glyph'> & {
   glyph?: React.ReactChild;
   size?: ItemActionButtonSize;
-  className?: string;
 }) => {
   if (typeof glyph === 'string') {
-    return <Icon size={size} glyph={glyph} className={className} />;
+    return <Icon size={size} glyph={glyph} {...props} />;
   }
 
   if (React.isValidElement(glyph)) {
