@@ -81,7 +81,7 @@ type QueryOptionProps = {
   value?: string;
   hasError: boolean;
   onChange: (name: QueryProperty, value: string) => void;
-  placeholder?: string;
+  placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
 };
@@ -193,7 +193,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                 onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
                   onValueChange(evt.currentTarget.value)
                 }
-                placeholder={placeholder}
+                placeholder={placeholder as string}
                 {...props}
               />
             )}

@@ -51,6 +51,13 @@ const editorWithErrorStyles = css({
   },
 });
 
+// Override codemirror styles to make the `Ask AI` button clickable.
+const codeEditorStyles = css({
+  '& .cm-placeholder': {
+    pointerEvents: 'auto !important',
+  },
+});
+
 const queryBarEditorOptionInsightsStyles = css({
   position: 'absolute',
   // Horizontally the insight is in the middle of the first line of the editor
@@ -63,7 +70,7 @@ type OptionEditorProps = {
   id: string;
   onChange: (value: string) => void;
   onApply?(): void;
-  placeholder?: string;
+  placeholder?: string | HTMLElement;
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
@@ -135,6 +142,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     >
       <InlineEditor
         id={id}
+        className={codeEditorStyles}
         text={value}
         onChangeText={onChange}
         placeholder={placeholder}
