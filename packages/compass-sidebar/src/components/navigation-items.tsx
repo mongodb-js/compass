@@ -14,7 +14,7 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import { usePreference, withPreferences } from 'compass-preferences-model';
-
+import toNS from 'mongodb-ns';
 import type { ItemAction } from '@mongodb-js/compass-components';
 
 import DatabaseCollectionFilter from './database-collection-filter';
@@ -248,7 +248,7 @@ export function NavigationItems({
     }
 
     return actions;
-  }, [isReadOnly, onAction, showCreateDatabaseGuideCue]);
+  }, [isReadOnly, showCreateDatabaseGuideCue]);
 
   return (
     <>
@@ -278,8 +278,6 @@ export function NavigationItems({
   );
 }
 
-const DEFAULT_SERVER_DATABASES = ['admin', 'config', 'local'];
-
 const mapStateToProps =
   (state: // TODO(COMPASS-6914): Properly type stores instead of this
   {
@@ -307,16 +305,16 @@ const mapStateToProps =
       databasesStatus !== undefined &&
       !['initial', 'fetching'].includes(databasesStatus);
 
-    const numberOfUserDatabases = state.databases.databases
-      .map((x: { _id: string }) => x._id)
-      .filter((x) => !DEFAULT_SERVER_DATABASES.includes(x)).length;
+    const numNonSpecialDatabases = state.databases.databases
+      .map((x: { _id: string }) => toNS(x._id))
+      .filter((x) => !x.specialish).length;
 
     return {
       currentLocation: state.location,
       isDataLake: state.instance?.dataLake.isDataLake,
       isWritable: state.instance?.isWritable,
       showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
-      showCreateDatabaseGuideCue: isReady && numberOfUserDatabases === 0,
+      showCreateDatabaseGuideCue: isReady && numNonSpecialDatabases === 0,
     };
   };
 

@@ -5,7 +5,6 @@ import {
   cx,
   spacing,
   palette,
-  keyframes,
   SpinLoader,
   withDarkMode,
   useHotkeys,
@@ -32,20 +31,6 @@ const shellHeaderLeftStyles = css({
 });
 
 const shellHeaderDefaultColor = palette.gray.light1;
-const shellHeaderFlashColorDark = palette.gray.base;
-const shellHeaderFlashColorLight = palette.gray.light2;
-const shellLoaderFlash = keyframes`
-  0% { color: ${shellHeaderDefaultColor}; }
-  10% { color: ${shellHeaderFlashColorDark}; }
-  20% { color: ${shellHeaderFlashColorLight}; }
-  30% { color: ${shellHeaderFlashColorDark}; }
-  40% { color: ${shellHeaderFlashColorLight}; }
-  50% { color: ${shellHeaderFlashColorDark}; }
-  60% { color: ${shellHeaderFlashColorLight}; }
-  70% { color: ${shellHeaderFlashColorDark}; }
-  80% { color: ${shellHeaderFlashColorLight}; }
-  100% { color: ${shellHeaderDefaultColor}; }
-`;
 
 const shellHeaderToggleStyles = css({
   background: 'none',
@@ -65,7 +50,6 @@ const shellHeaderToggleStyles = css({
   transition: 'all 200ms',
   userSelect: 'none',
   textTransform: 'uppercase',
-  animation: `${shellLoaderFlash} 2s linear`,
   '&:hover': {
     color: palette.gray.light3,
   },

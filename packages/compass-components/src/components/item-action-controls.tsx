@@ -10,7 +10,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 export type ItemAction<Action extends string> = {
   action: Action;
   label: string;
-  icon: string | React.ReactElement;
+  icon: React.ReactChild;
 };
 
 export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
@@ -21,7 +21,7 @@ export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
 export type MenuAction<Action extends string> = {
   action: Action;
   label: string;
-  icon?: string | React.ReactElement;
+  icon?: React.ReactChild;
 };
 
 const ItemActionButtonSize = {
@@ -82,24 +82,25 @@ const ActionGlyph = ({
   size,
   className,
 }: {
-  glyph?: string | React.ReactElement;
+  glyph?: React.ReactChild;
   size?: ItemActionButtonSize;
   className?: string;
 }) => {
-  if (!glyph) {
-    return null;
-  }
   if (typeof glyph === 'string') {
     return <Icon size={size} glyph={glyph} className={className} />;
   }
 
-  return glyph;
+  if (React.isValidElement(glyph)) {
+    return glyph;
+  }
+
+  return null;
 };
 
 const ItemActionButton = forwardRef<
   HTMLButtonElement,
   {
-    glyph: string | React.ReactElement;
+    glyph: React.ReactChild;
     label: string;
     title?: string;
     size: ItemActionButtonSize;

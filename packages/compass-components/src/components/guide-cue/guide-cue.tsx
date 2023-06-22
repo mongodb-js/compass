@@ -83,7 +83,7 @@ export type GuideCueProps<T> = Omit<
 > &
   GroupAndStep & {
     cueId: string;
-    description: string | React.ReactElement;
+    description: React.ReactChild;
     trigger: ({ ref }: { ref: React.Ref<T> }) => React.ReactElement;
     onOpenChange?: (isOpen: boolean) => void;
   };
