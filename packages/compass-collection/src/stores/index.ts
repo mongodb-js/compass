@@ -41,6 +41,10 @@ import namespace, {
   INITIAL_STATE as NS_INITIAL_STATE,
 } from '../modules/namespace';
 import type { WorkspaceTabObject } from '../modules/tabs';
+import isAtlas, {
+  isAtlasChanged,
+  INITIAL_STATE as IS_ATLAS_INITIAL_STATE,
+} from '../modules/is-atlas';
 
 /**
  * Reset action constant.
@@ -67,6 +71,7 @@ export const INITIAL_STATE = {
   isDataLake: IS_DATA_LAKE_INITIAL_STATE,
   stats: getInitialStatsState(),
   namespace: NS_INITIAL_STATE,
+  isAtlas: IS_ATLAS_INITIAL_STATE,
 };
 
 /**
@@ -92,6 +97,7 @@ const appReducer = combineReducers({
   isDataLake,
   stats,
   namespace,
+  isAtlas,
 });
 
 export type RootState = ReturnType<typeof appReducer>;
@@ -148,6 +154,11 @@ store.onActivated = (appRegistry: AppRegistry) => {
         }
       }
     );
+
+    instance.on('change:isAtlas', (_model: unknown, value: boolean) => {
+      store.dispatch(isAtlasChanged(value));
+    });
+    store.dispatch(isAtlasChanged(instance.isAtlas));
 
     instance.dataLake.on(
       'change:isDataLake',

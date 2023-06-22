@@ -16,6 +16,7 @@ function renderCollection(
 
   return render(
     <Collection
+      isAtlas={false}
       isReadonly={false}
       isTimeSeries={false}
       isClustered={false}

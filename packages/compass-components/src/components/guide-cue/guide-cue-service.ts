@@ -58,6 +58,9 @@ export class GuideCueService extends EventTarget {
   }
 
   addCue(cue: Omit<Cue, 'isVisited'>) {
+    if (process.env.DISABLE_GUIDE_CUES === 'true') {
+      return;
+    }
     const cueIndex = this.getCueIndex(cue.cueId, cue.groupId);
     if (cueIndex !== -1) {
       console.warn(`The Cue ${cue.cueId} is already added.`);

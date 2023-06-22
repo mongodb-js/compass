@@ -376,7 +376,7 @@ export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
-// Query bar (Find, Schema, Explain Plan)
+// Query bar (Find, Schema)
 export const QueryBarMenuActions = '#query-bar-menu-actions';
 
 // Instance screen
@@ -901,7 +901,7 @@ export const SchemaField = '[data-testid="schema-field"';
 export const SchemaFieldName = '[data-testid="schema-field-name"]';
 export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
-// Explain Plan tab
+// Explain Plan modal
 export const ExecuteExplainButton = '[data-testid="query-bar-explain-button"]';
 export const ExplainLoader = '[data-testid="explain-plan-loading"]';
 export const ExplainSummary = '[data-testid="explain-plan-summary"]';
@@ -986,7 +986,7 @@ export const ValidationActionSelector =
 export const ValidationLevelSelector =
   '[data-testid="validation-level-selector"]';
 
-// Find (Documents, Schema and Explain Plan tabs)
+// Find (Documents and Schema tabs)
 export const queryBar = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar"]`;

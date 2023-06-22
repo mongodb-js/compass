@@ -17,6 +17,7 @@ class FakeBuild extends EventEmitter {
 }
 
 class FakeInstance extends EventEmitter {
+  isAtlas = false;
   dataLake = new FakeDataLake();
   build = new FakeBuild();
 }

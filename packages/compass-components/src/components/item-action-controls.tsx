@@ -7,18 +7,18 @@ import type { ButtonProps } from '@leafygreen-ui/button';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 
-export type ItemAction<Action> = {
+export type ItemAction<Action extends string> = {
   action: Action;
   label: string;
   icon: string | React.ReactElement;
 };
 
-export type GroupedItemAction<Action> = ItemAction<Action> & {
+export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
   tooltip?: string;
   tooltipProps?: TooltipProps;
 };
 
-export type MenuAction<Action> = {
+export type MenuAction<Action extends string> = {
   action: Action;
   label: string;
   icon?: string | React.ReactElement;
@@ -288,6 +288,7 @@ export function ItemActionGroup<Action extends string>({
         if (tooltip) {
           return (
             <Tooltip
+              key={action}
               {...tooltipProps}
               trigger={({ children, ...props }) => (
                 <div {...props} style={{ display: 'inherit' }}>

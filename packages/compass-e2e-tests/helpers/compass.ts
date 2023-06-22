@@ -579,6 +579,11 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
   process.env.CHROME_LOG_FILE = chromedriverLogPath;
 
+  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
+  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
+  // we disable the cues completely for the e2e tests
+  process.env.DISABLE_GUIDE_CUES = 'true';
+
   const options = {
     capabilities: {
       browserName: 'chrome',
