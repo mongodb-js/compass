@@ -1,4 +1,11 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useHoverState } from '../hooks/use-focus-hover';
 import { Body, Button, Icon, IconButton, Link } from './leafygreen';
 import { InteractivePopover } from './interactive-popover';
@@ -8,6 +15,65 @@ import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { GuideCue } from './guide-cue/guide-cue';
+import { useEffectOnChange } from '../hooks/use-effect-on-change';
+
+type SignalTrackingHooks = {
+  onSignalMount(id: string): void;
+  onSignalOpen(id: string): void;
+  onSignalLinkClick(id: string): void;
+  onSignalPrimaryActionClick(id: string): void;
+  onSignalClose(id: string): void;
+};
+
+const TrackingHooksContext = React.createContext<SignalTrackingHooks>({
+  onSignalMount() {
+    /** noop */
+  },
+  onSignalOpen() {
+    /** noop */
+  },
+  onSignalLinkClick() {
+    /** noop */
+  },
+  onSignalPrimaryActionClick() {
+    /** noop */
+  },
+  onSignalClose() {
+    /** noop */
+  },
+});
+
+const SignalHooksProvider: React.FunctionComponent<
+  Partial<SignalTrackingHooks>
+> = ({ children, ..._hooks }) => {
+  const hooksRef = useRef(_hooks);
+  hooksRef.current = _hooks;
+  const hooks = useMemo(() => {
+    return {
+      onSignalMount(id: string) {
+        hooksRef.current.onSignalMount?.(id);
+      },
+      onSignalOpen(id: string) {
+        hooksRef.current.onSignalOpen?.(id);
+      },
+      onSignalLinkClick(id: string) {
+        hooksRef.current.onSignalLinkClick?.(id);
+      },
+      onSignalPrimaryActionClick(id: string) {
+        hooksRef.current.onSignalPrimaryActionClick?.(id);
+      },
+      onSignalClose(id: string) {
+        hooksRef.current.onSignalClose?.(id);
+      },
+    };
+  }, []);
+
+  return (
+    <TrackingHooksContext.Provider value={hooks}>
+      {children}
+    </TrackingHooksContext.Provider>
+  );
+};
 
 export type Signal = {
   /**
@@ -127,6 +193,7 @@ const SignalCard: React.FunctionComponent<
   hasMultiSignals,
 }) => {
   const darkMode = useDarkMode(_darkMode);
+  const hooks = useContext(TrackingHooksContext);
 
   return (
     <div
@@ -162,7 +229,10 @@ const SignalCard: React.FunctionComponent<
                 <Icon glyph={primaryActionButtonIcon}></Icon>
               ) : undefined
             }
-            onClick={onPrimaryActionButtonClick}
+            onClick={(evt) => {
+              hooks.onSignalPrimaryActionClick(id);
+              onPrimaryActionButtonClick?.(evt);
+            }}
           >
             {primaryActionButtonLabel}
           </Button>
@@ -172,6 +242,9 @@ const SignalCard: React.FunctionComponent<
           className={signalCardLearnMoreLinkStyles}
           href={learnMoreLink}
           target="_blank"
+          onClick={() => {
+            hooks.onSignalLinkClick(id);
+          }}
         >
           {learnMoreLabel ?? 'Learn more'}
         </Link>
@@ -363,6 +436,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   signals: _signals,
   darkMode: _darkMode,
 }) => {
+  const hooks = useContext(TrackingHooksContext);
   const [cueOpen, setCueOpen] = useState(false);
   const darkMode = useDarkMode(_darkMode);
   const [triggerVisible, setTriggerVisible] = useState(true);
@@ -373,8 +447,27 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
   const isActive = cueOpen || isHovered || popoverOpen;
-
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // To make sure we are covering signals added to the signal popover during the
+  // whole component lifecycle and at the same time avoid calling onSignalMount
+  // for ids that were already mounted, we keep track of "mounted" signals in a
+  // Set ref that will stay the same through the whole component lifecycle
+  const mountedSignalsRef = useRef(new Set<string>());
+  signals.forEach(({ id }) => {
+    if (!mountedSignalsRef.current.has(id)) {
+      hooks.onSignalMount(id);
+      mountedSignalsRef.current.add(id);
+    }
+  });
+
+  useEffectOnChange(() => {
+    if (popoverOpen) {
+      hooks.onSignalOpen(currentSignal.id);
+    } else {
+      hooks.onSignalClose(currentSignal.id);
+    }
+  }, [currentSignal.id, popoverOpen]);
 
   useLayoutEffect(() => {
     if (!triggerRef.current) {
@@ -549,4 +642,4 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   );
 };
 
-export { SignalPopover };
+export { SignalPopover, SignalHooksProvider };
