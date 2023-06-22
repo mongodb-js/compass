@@ -4,6 +4,7 @@ import React, {
   useRef,
   useMemo,
   useState,
+  useContext,
 } from 'react';
 import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
@@ -11,15 +12,47 @@ import { GROUP_STEPS_MAP } from './guide-cue-groups';
 import type { GroupName } from './guide-cue-groups';
 import { css, cx } from '../..';
 import { rafraf } from '../../utils/rafraf';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-COMPONENTS');
 
 const hiddenPopoverStyles = css({
   display: 'none !important',
   opacity: '0 !important',
   transition: 'none !important',
 });
+
+export type Cue = {
+  cueId: string;
+  step: number;
+  groupId?: GroupName;
+};
+
+export type GroupCue = Cue & {
+  groupSteps: number;
+  groupId: GroupName;
+};
+
+type GuideCueContextValue = {
+  onNext?: (cue: Cue) => void;
+  onNextGroup?: (groupCue: GroupCue) => void;
+};
+const GuideCueContext = React.createContext<GuideCueContextValue>({});
+export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
+  children,
+  onNext,
+  onNextGroup,
+}) => {
+  const value = useMemo(
+    () => ({
+      onNext,
+      onNextGroup,
+    }),
+    [onNext, onNextGroup]
+  );
+  return (
+    <GuideCueContext.Provider value={value}>
+      {children}
+    </GuideCueContext.Provider>
+  );
+};
 
 const getDataCueId = ({
   cueId,
@@ -49,8 +82,8 @@ export type GuideCueProps<T> = Omit<
   'currentStep' | 'refEl' | 'numberOfSteps' | 'open' | 'setOpen' | 'children'
 > &
   GroupAndStep & {
-    description: string | React.ReactElement;
     cueId: string;
+    description: string | React.ReactElement;
     trigger: ({ ref }: { ref: React.Ref<T> }) => React.ReactElement;
     onOpenChange?: (isOpen: boolean) => void;
   };
@@ -70,6 +103,7 @@ export const GuideCue = <T extends HTMLElement>({
   const [isIntersecting, setIsIntersecting] = useState(true);
   const refEl = useRef<T>(null);
   const [readyToRender, setReadyToRender] = useState(false);
+  const context = useContext(GuideCueContext);
 
   const cueData = useMemo(() => {
     if (!groupId) {
@@ -157,32 +191,24 @@ export const GuideCue = <T extends HTMLElement>({
   }, []);
 
   const onNextGroup = useCallback(() => {
+    // onNextGroup is only possible with grouped guide cues.
+    if (!cueData.groupId) {
+      return;
+    }
     guideCueService.markGroupAsVisited(cueData.groupId);
     guideCueService.onNext();
 
-    if (cueData.groupId) {
-      const isCurrentCueLast =
-        cueData.step === GROUP_STEPS_MAP.get(cueData.groupId);
-      // the group was dismissed before reaching to the last guide cue item
-      if (!isCurrentCueLast) {
-        track('Guide Cue Group Dismissed', {
-          groupId: cueData.groupId,
-          cueId: cueData.cueId,
-          step: cueData.step,
-        });
-      }
-    }
-  }, [cueData]);
+    context.onNextGroup?.({
+      ...cueData,
+      groupSteps: GROUP_STEPS_MAP.get(cueData.groupId) ?? 0,
+    });
+  }, [cueData, context.onNextGroup]);
 
   const onNext = useCallback(() => {
     guideCueService.markCueAsVisited(cueData.cueId, cueData.groupId);
     guideCueService.onNext();
-
-    track('Guide Cue Dismissed', {
-      cueId: cueData.cueId,
-      groupId: cueData.groupId,
-    });
-  }, [cueData]);
+    context.onNext?.(cueData);
+  }, [cueData, context.onNext]);
 
   useEffect(() => {
     if (!isCueOpen || !refEl.current) {
