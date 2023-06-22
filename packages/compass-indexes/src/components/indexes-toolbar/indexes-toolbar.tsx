@@ -9,6 +9,7 @@ import {
   spacing,
   Icon,
   SpinLoader,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 
@@ -20,7 +21,8 @@ const toolbarButtonsContainer = css({
   display: 'flex',
   flexDirection: 'row',
   gap: spacing[2],
-  justifyContent: 'flex-end',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
 });
 
 const errorStyles = css({ marginTop: spacing[2] });
@@ -36,6 +38,7 @@ type IndexesToolbarProps = {
   isReadonly: boolean;
   isReadonlyView: boolean;
   isWritable: boolean;
+  hasTooManyIndexes: boolean;
   localAppRegistry: AppRegistry;
   isRefreshing: boolean;
   writeStateDescription?: string;
@@ -51,6 +54,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   localAppRegistry,
   isRefreshing,
   writeStateDescription,
+  hasTooManyIndexes,
   onRefreshIndexes,
   readOnly, // preferences readOnly.
 }) => {
@@ -72,16 +76,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       {!isReadonlyView && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
-            <Button
-              data-testid="refresh-indexes-button"
-              disabled={isRefreshing}
-              onClick={() => onRefreshIndexes()}
-              variant="default"
-              size="small"
-              leftGlyph={refreshButtonIcon}
-            >
-              Refresh
-            </Button>
             {showCreateIndexButton && (
               <Tooltip
                 enabled={!isWritable}
@@ -111,6 +105,28 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
               >
                 {writeStateDescription}
               </Tooltip>
+            )}
+            <Button
+              data-testid="refresh-indexes-button"
+              disabled={isRefreshing}
+              onClick={() => onRefreshIndexes()}
+              variant="default"
+              size="small"
+              leftGlyph={refreshButtonIcon}
+            >
+              Refresh
+            </Button>
+            {hasTooManyIndexes && (
+              <SignalPopover
+                signals={{
+                  id: 'too-many-indexes',
+                  title: 'High number of indexes on collection',
+                  description:
+                    'Consider reviewing your indexes to remove any that are unnecessary. Learn more about this anti-pattern',
+                  learnMoreLink:
+                    'https://www.mongodb.com/docs/v3.2/reference/limits/#Number-of-Indexes-per-Collection',
+                }}
+              />
             )}
           </div>
         </div>
