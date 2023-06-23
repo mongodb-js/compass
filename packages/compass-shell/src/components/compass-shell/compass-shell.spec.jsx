@@ -149,6 +149,8 @@ describe('CompassShell', function () {
             value: 'pineapple',
           },
         ]);
+
+        wrapper.unmount();
       });
     });
 
@@ -159,6 +161,8 @@ describe('CompassShell', function () {
         );
 
         expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
+
+        wrapper.unmount();
       });
     });
 
@@ -241,6 +245,8 @@ describe('CompassShell', function () {
       expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([
         'line1',
       ]);
+
+      wrapper.unmount();
     });
 
     it('saves the history when history changes', async function () {
@@ -259,6 +265,8 @@ describe('CompassShell', function () {
       onHistoryChanged(['line1']);
 
       expect(fakeStorage.save.calledWith(['line1'])).to.equal(true);
+
+      wrapper.unmount();
     });
   });
 
