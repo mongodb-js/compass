@@ -20,11 +20,6 @@ const fakeRuntime = {
 };
 
 describe('CompassShell', function () {
-  before(function () {
-    // https://github.com/jsdom/jsdom/issues/1695
-    HTMLElement.prototype.scrollIntoView = function () {};
-  });
-
   context('when rendered', function () {
     let wrapper;
     let emitShellOpenedSpy;
