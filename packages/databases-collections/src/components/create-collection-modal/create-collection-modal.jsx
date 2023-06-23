@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { FormModal } from '@mongodb-js/compass-components';
 import { Banner } from '@mongodb-js/compass-components';
@@ -10,6 +11,8 @@ import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 
 import CollectionFields from '../collection-fields';
+
+const { track } = createLoggerAndTelemetry('COMPASS-DATABASES-COLLECTIONS-UI');
 
 class CreateCollectionModal extends PureComponent {
   static propTypes = {
@@ -27,6 +30,12 @@ class CreateCollectionModal extends PureComponent {
   constructor() {
     super();
     this.state = { data: {} };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.isVisible !== this.props.isVisible && this.props.isVisible) {
+      track('Screen', { name: 'create_collection_modal' });
+    }
   }
 
   onCancel = () => {
@@ -62,7 +71,6 @@ class CreateCollectionModal extends PureComponent {
         onCancel={this.onCancel}
         submitButtonText="Create Collection"
         submitDisabled={!(this.state.data.collection || '').trim()}
-        trackingId="create_collection_modal"
         data-testid="create-collection-modal"
       >
         <CollectionFields
