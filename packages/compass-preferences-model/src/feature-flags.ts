@@ -14,15 +14,29 @@ export type FeatureFlagDefinition = {
 };
 
 export type FeatureFlags = {
+  enableAIExperience: boolean;
   enableLgDarkmode: boolean;
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   enableStageWizard: boolean;
   newExplainPlan: boolean;
+  showInsights: boolean;
 };
 
 export const featureFlags: Required<{
   [K in keyof FeatureFlags]: FeatureFlagDefinition;
 }> = {
+  /**
+   * Feature flag for enabling the natural text input on the query bar.
+   * Epic: COMPASS-6866
+   */
+  enableAIExperience: {
+    stage: 'development',
+    description: {
+      short: 'AI Query Generator',
+      long: 'Use AI to generate queries with a natural language text input on the query bar.',
+    },
+  },
+
   /**
    * Currently Compass uses `darkreader` to globally change the views of
    * Compass to a dark theme. Turning on this feature flag stops darkreader
@@ -60,10 +74,18 @@ export const featureFlags: Required<{
   },
 
   newExplainPlan: {
-    stage: 'preview',
+    stage: 'released',
     description: {
       short: 'Access explain plan from query bar',
       long: 'Explain plan is now accessible right from the query bar. To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.',
+    },
+  },
+
+  showInsights: {
+    stage: 'development',
+    description: {
+      short: 'Show performance insights',
+      long: 'Surface visual signals in the Compass interface to highlight potential performance issues and anti-patterns.',
     },
   },
 };

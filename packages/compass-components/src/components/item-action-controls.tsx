@@ -1,17 +1,24 @@
 import React, { useRef, forwardRef, useCallback, useState } from 'react';
 import { Button, Icon, IconButton, Menu, MenuItem } from './leafygreen';
+import { Tooltip } from './tooltip';
+import type { TooltipProps } from './tooltip';
 import type { ButtonProps } from '@leafygreen-ui/button';
 
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 
-export type ItemAction<Action> = {
+export type ItemAction<Action extends string> = {
   action: Action;
   label: string;
   icon: string;
 };
 
-export type MenuAction<Action> = {
+export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
+  tooltip?: string;
+  tooltipProps?: TooltipProps;
+};
+
+export type MenuAction<Action extends string> = {
   action: Action;
   label: string;
   icon?: string;
@@ -215,7 +222,7 @@ export function ItemActionGroup<Action extends string>({
   isVisible = true,
   'data-testid': dataTestId,
 }: {
-  actions: ItemAction<Action>[];
+  actions: GroupedItemAction<Action>[];
   onAction(actionName: Action): void;
   className?: string;
   iconClassName?: string;
@@ -243,21 +250,40 @@ export function ItemActionGroup<Action extends string>({
       className={cx(actionControlsStyle, className)}
       data-testid={dataTestId}
     >
-      {actions.map(({ action, icon, label }) => {
-        return (
+      {actions.map(({ action, icon, label, tooltip, tooltipProps }) => {
+        const button = (
           <ItemActionButton
             key={action}
             glyph={icon}
             label={label}
-            title={label}
+            title={!tooltip ? label : undefined}
             size={iconSize}
             data-action={action}
             data-testid={actionTestId<Action>(dataTestId, action)}
             onClick={onClick}
             className={cx(actionGroupButtonStyle, iconClassName)}
             style={iconStyle}
-          ></ItemActionButton>
+          />
         );
+
+        if (tooltip) {
+          return (
+            <Tooltip
+              key={action}
+              {...tooltipProps}
+              trigger={({ children, ...props }) => (
+                <div {...props} style={{ display: 'inherit' }}>
+                  {button}
+                  {children}
+                </div>
+              )}
+            >
+              {tooltip}
+            </Tooltip>
+          );
+        }
+
+        return button;
       })}
     </div>
   );

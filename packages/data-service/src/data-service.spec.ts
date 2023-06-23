@@ -272,7 +272,8 @@ describe('DataService', function () {
         const namespace = testNamespace;
         await dataService.dropIndex(namespace, 'a_1');
         const indexes = await dataService.indexes(namespace);
-        expect(indexes).to.not.have.property('name', 'a_1');
+        const deletedIndex = indexes.find((index) => index.name === 'a_1');
+        expect(deletedIndex).to.be.undefined;
       });
     });
 

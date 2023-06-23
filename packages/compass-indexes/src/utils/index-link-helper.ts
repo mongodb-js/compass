@@ -21,6 +21,7 @@ const HELP_URLS = {
   COLLATION:
     'https://docs.mongodb.com/master/reference/bson-type-comparison-order/#collation',
   COLLATION_REF: 'https://docs.mongodb.com/master/reference/collation',
+  HIDDEN: 'https://www.mongodb.com/docs/manual/core/index-hidden/',
   UNKNOWN: null,
 };
 

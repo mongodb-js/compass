@@ -60,3 +60,7 @@ export * from './add-wizard';
 export * from './set-combo-box-value';
 export * from './wait-for-export-to-finish';
 export * from './get-connect-form-connection-string';
+export * from './create-index';
+export * from './drop-index';
+export * from './hide-index';
+export * from './unhide-index';

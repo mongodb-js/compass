@@ -376,7 +376,7 @@ export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
-// Query bar (Find, Schema, Explain Plan)
+// Query bar (Find, Schema)
 export const QueryBarMenuActions = '#query-bar-menu-actions';
 
 // Instance screen
@@ -901,7 +901,7 @@ export const SchemaField = '[data-testid="schema-field"';
 export const SchemaFieldName = '[data-testid="schema-field-name"]';
 export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
-// Explain Plan tab
+// Explain Plan modal
 export const ExecuteExplainButton = '[data-testid="query-bar-explain-button"]';
 export const ExplainLoader = '[data-testid="explain-plan-loading"]';
 export const ExplainSummary = '[data-testid="explain-plan-summary"]';
@@ -957,10 +957,16 @@ export const CreateIndexConfirmButton = `${CreateIndexModal} [data-testid="creat
 export const DropIndexModal = '[data-testid="drop-index-modal"]';
 export const DropIndexModalConfirmName =
   '[data-testid="confirm-drop-index-name"]';
-export const DropIndexModalConfirmButton =
-  '[data-testid="drop-index-modal"] [role=dialog] > div:nth-child(2) button:first-child';
-
 export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
+
+export const HiddenIndexBadge = (indexName: string) =>
+  `${indexComponent(indexName)} [data-testid="HIDDEN-badge"]`;
+export const HideIndexModal = '[data-testid="hide-index-confirmation-modal"]';
+export const HideIndexButton = '[data-testid="index-actions-hide-action"]';
+
+export const UnhideIndexModal =
+  '[data-testid="unhide-index-confirmation-modal"]';
+export const UnhideIndexButton = '[data-testid="index-actions-unhide-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-testid="add-rule-button"]';
@@ -980,7 +986,7 @@ export const ValidationActionSelector =
 export const ValidationLevelSelector =
   '[data-testid="validation-level-selector"]';
 
-// Find (Documents, Schema and Explain Plan tabs)
+// Find (Documents and Schema tabs)
 export const queryBar = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar"]`;
@@ -1079,7 +1085,9 @@ export const ExportToLanguageQueryOutput =
 
 // Confirmation modal
 export const ConfirmationModal = '[data-testid="confirmation-modal"]';
-export const ConfirmationModalConfirmButton = `${ConfirmationModal} [role=dialog] > div:nth-child(2) button:first-child`;
+export const ConfirmationModalConfirmButton = (
+  modalSelector = ConfirmationModal
+) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
 
 // New pipeline from text modal
 export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';

@@ -1,12 +1,13 @@
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useHoverState } from '../hooks/use-focus-hover';
-import { Button, Icon, IconButton, Link } from './leafygreen';
+import { Body, Button, Icon, IconButton, Link } from './leafygreen';
 import { InteractivePopover } from './interactive-popover';
 import { mergeProps } from '../utils/merge-props';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
+import { GuideCue } from './guide-cue/guide-cue';
 
 export type Signal = {
   /**
@@ -37,6 +38,11 @@ export type Signal = {
   primaryActionButtonVariant?: 'primaryOutline' | 'dangerOutline';
 
   /**
+   * Optional, when provided the primary action button will behave as a link.
+   */
+  primaryActionButtonLink?: string;
+
+  /**
    * Optional, when provided will be called with a signal id on primary action
    * button click
    */
@@ -46,8 +52,8 @@ export type Signal = {
 type SignalPopoverProps = {
   /** List of signals to render */
   signals: Signal | Signal[];
-
   darkMode?: boolean;
+  onPopoverOpenChange?: (open: boolean) => void;
 };
 
 const signalCardContentStyles = css({
@@ -63,6 +69,12 @@ const signalCardContentStyles = css({
   backgroundColor: 'var(--signalCardBackgroundColor)',
 });
 
+const CLOSE_BTN_TOP_WITH_MULTI_SIGNALS = 5;
+const CLOSE_BTN_RIGHT_WITH_MULTI_SIGNALS = 5;
+
+const CLOSE_BTN_TOP = 18;
+const CLOSE_BTN_RIGHT = 18;
+
 const signalCardContentDarkModeStyles = css({
   '--signalCardBackgroundColor': palette.gray.dark4,
 });
@@ -70,6 +82,12 @@ const signalCardContentDarkModeStyles = css({
 const signalCardTitleStyles = css({
   marginBottom: spacing[2],
   fontSize: spacing[3],
+});
+
+// This is to avoid the longer card title getting shadowed under the close icon
+// button
+const signalCardTitleStylesWithOneSignal = css({
+  paddingRight: CLOSE_BTN_RIGHT,
 });
 
 const signalCardDescriptionStyles = css({
@@ -90,7 +108,10 @@ const signalCardLearnMoreLinkStyles = css({
 });
 
 const SignalCard: React.FunctionComponent<
-  Signal & Pick<SignalPopoverProps, 'darkMode'>
+  Signal &
+    Pick<SignalPopoverProps, 'darkMode'> & {
+      hasMultiSignals?: boolean;
+    }
 > = ({
   id,
   title,
@@ -100,8 +121,10 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonLabel,
   primaryActionButtonIcon,
   primaryActionButtonVariant,
+  primaryActionButtonLink,
   darkMode: _darkMode,
   onPrimaryActionButtonClick,
+  hasMultiSignals,
 }) => {
   const darkMode = useDarkMode(_darkMode);
 
@@ -114,11 +137,23 @@ const SignalCard: React.FunctionComponent<
       data-testid="insight-signal-card"
       data-signal-id={id}
     >
-      <strong className={signalCardTitleStyles}>{title}</strong>
-      <div className={signalCardDescriptionStyles}>{description}</div>
+      <strong
+        className={cx(signalCardTitleStyles, {
+          [signalCardTitleStylesWithOneSignal]: !hasMultiSignals,
+        })}
+      >
+        {title}
+      </strong>
+      <Body as="div" baseFontSize={13} className={signalCardDescriptionStyles}>
+        {description}
+      </Body>
       <div className={signalCardActionGroupStyles}>
         {primaryActionButtonLabel && (
           <Button
+            size="small"
+            as={primaryActionButtonLink ? 'a' : 'button'}
+            target={primaryActionButtonLink ? '_blank' : undefined}
+            href={primaryActionButtonLink}
             data-testid="insight-signal-primary-action"
             variant={primaryActionButtonVariant ?? 'primaryOutline'}
             className={signalCardActionButtonStyles}
@@ -240,7 +275,7 @@ const badgeStyles = css(
   },
   {
     position: 'relative',
-    display: 'inline-block',
+    display: 'block',
     width: 18,
     height: 18,
     color: 'var(--badgeColor)',
@@ -315,19 +350,21 @@ const singleInsightBadge = css({
 
 const closeButtonStyles = css({
   // No other way to correctly align this button with the content
-  top: 18,
-  right: 18,
+  top: CLOSE_BTN_TOP,
+  right: CLOSE_BTN_RIGHT,
 });
 
 const closeButtonMultiSignalStyles = css({
-  top: 5,
-  right: 5,
+  top: CLOSE_BTN_TOP_WITH_MULTI_SIGNALS,
+  right: CLOSE_BTN_RIGHT_WITH_MULTI_SIGNALS,
 });
 
 const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   signals: _signals,
   darkMode: _darkMode,
+  onPopoverOpenChange: _onPopoverOpenChange,
 }) => {
+  const [cueOpen, setCueOpen] = useState(false);
   const darkMode = useDarkMode(_darkMode);
   const [triggerVisible, setTriggerVisible] = useState(true);
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -336,7 +373,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const signals = Array.isArray(_signals) ? _signals : [_signals];
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
-  const isActive = isHovered || popoverOpen;
+  const isActive = cueOpen || isHovered || popoverOpen;
 
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -356,15 +393,19 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
     return observer.disconnect.bind(observer);
   }, []);
 
-  const onPopoverOpenChange = useCallback((newStatus: boolean) => {
-    setPopoverOpen(newStatus);
-    // Reset current signal index when popover is being opened. If we do this on
-    // close instead, the popover content is weirdly changed while the closing
-    // animation is happening
-    if (newStatus === true) {
-      setCurrentSignalIndex(0);
-    }
-  }, []);
+  const onPopoverOpenChange = useCallback(
+    (newStatus: boolean) => {
+      setPopoverOpen(newStatus);
+      _onPopoverOpenChange?.(newStatus);
+      // Reset current signal index when popover is being opened. If we do this on
+      // close instead, the popover content is weirdly changed while the closing
+      // animation is happening
+      if (newStatus === true) {
+        setCurrentSignalIndex(0);
+      }
+    },
+    [_onPopoverOpenChange]
+  );
 
   const badgeLabel = multiSignals ? (
     <>{signals.length}&nbsp;insights</>
@@ -408,57 +449,107 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
           evt.stopPropagation();
           triggerProps.onClick(evt);
         };
-        const props = mergeProps<HTMLButtonElement>(hoverProps, triggerProps, {
-          className: cx(
-            badgeStyles,
-            isActive && badgeHoveredStyles,
-            ...(darkMode
-              ? [badgeDarkModeStyles, isActive && badgeHoveredDarkModeStyles]
-              : [badgeLightModeStyles, isActive && badgeHoveredLightModeStyles])
-          ),
-          style: { width: isActive ? activeBadgeWidth : 18 },
-          ref: triggerRef,
-        });
         return (
-          <>
-            <button
-              {...props}
-              onClick={onTriggerClick}
-              data-testid="insight-badge-button"
-              type="button"
-            >
-              <Icon
-                glyph="Bulb"
-                size="small"
-                className={cx(badgeIconStyles, badgeIconCollapsedStyles)}
-                style={{ opacity: isActive ? 0 : 1 }}
-              ></Icon>
-              <strong
-                className={cx(
-                  badgeLabelStyles,
-                  !multiSignals && singleInsightBadge
-                )}
-                style={{ width: activeBadgeWidth, opacity: isActive ? 1 : 0 }}
-              >
-                {badgeLabel}
-              </strong>
-            </button>
-            {/* Popover needs to be rendered outside of the badge container so */}
-            {/* that hover is not "stuck" when closing popover from  */}
-            {children}
-          </>
+          <GuideCue<HTMLButtonElement>
+            cueId="insights"
+            title="Introducing insights"
+            description="Across Compass, you may now see icons like this to clue you in on potential areas of improvement for your data."
+            buttonText="See insights in action"
+            onPrimaryButtonClick={() => {
+              triggerRef.current?.click();
+            }}
+            // So that the insight badge can animate without messing the tooltip
+            // position
+            tooltipAlign="right"
+            onOpenChange={setCueOpen}
+            trigger={({ ref: guideCueRef }) => {
+              const props = mergeProps<HTMLButtonElement>(
+                hoverProps,
+                triggerProps,
+                {
+                  className: cx(
+                    badgeStyles,
+                    isActive && badgeHoveredStyles,
+                    ...(darkMode
+                      ? [
+                          badgeDarkModeStyles,
+                          isActive && badgeHoveredDarkModeStyles,
+                        ]
+                      : [
+                          badgeLightModeStyles,
+                          isActive && badgeHoveredLightModeStyles,
+                        ])
+                  ),
+                  style: { width: isActive ? activeBadgeWidth : 18 },
+                  ref: triggerRef,
+                },
+                { ref: guideCueRef }
+              );
+              return (
+                <>
+                  <button
+                    {...props}
+                    onClick={onTriggerClick}
+                    data-testid="insight-badge-button"
+                    type="button"
+                  >
+                    <Icon
+                      glyph="Bulb"
+                      size="small"
+                      className={cx(badgeIconStyles, badgeIconCollapsedStyles)}
+                      style={{ opacity: isActive ? 0 : 1 }}
+                    ></Icon>
+                    <strong
+                      className={cx(
+                        badgeLabelStyles,
+                        !multiSignals && singleInsightBadge
+                      )}
+                      style={{
+                        width: activeBadgeWidth,
+                        opacity: isActive ? 1 : 0,
+                      }}
+                    >
+                      {badgeLabel}
+                    </strong>
+                  </button>
+                  {/* Popover needs to be rendered outside of the badge container so */}
+                  {/* that hover is not "stuck" when closing popover from  */}
+                  {children}
+                </>
+              );
+            }}
+          ></GuideCue>
         );
       }}
     >
-      {multiSignals && (
-        <MultiSignalHeader
-          currentIndex={currentSignalIndex}
-          total={signals.length}
-          onIndexChange={setCurrentSignalIndex}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        onMouseDown={(event) => {
+          // Our InteractivePopover makes use of FocusTrap with
+          // `clickOutsideDeactivates` set to true. This will let the MouseDown
+          // and Click event propagate down to the leaf node in DOM and in certain
+          // cases it is undesirable because there might be some functionalities
+          // attached for these events on the leaf nodes. Example - Stage List in
+          // Aggregation builder where SortableList listens and responds to these
+          // events. For that reason we do not let mouse down event propagate out
+          // of this card.'
+          event.stopPropagation();
+        }}
+      >
+        {multiSignals && (
+          <MultiSignalHeader
+            currentIndex={currentSignalIndex}
+            total={signals.length}
+            onIndexChange={setCurrentSignalIndex}
+            darkMode={darkMode}
+          ></MultiSignalHeader>
+        )}
+        <SignalCard
+          {...currentSignal}
           darkMode={darkMode}
-        ></MultiSignalHeader>
-      )}
-      <SignalCard {...currentSignal} darkMode={darkMode}></SignalCard>
+          hasMultiSignals={multiSignals}
+        ></SignalCard>
+      </div>
     </InteractivePopover>
   );
 };

@@ -11,21 +11,17 @@ import { PipelineHeader } from '.';
 
 describe('PipelineHeader', function () {
   let container: HTMLElement;
-  let onShowSavedPipelinesSpy: SinonSpy;
   let onToggleOptionsSpy: SinonSpy;
   beforeEach(function () {
-    onShowSavedPipelinesSpy = spy();
     onToggleOptionsSpy = spy();
     render(
       <Provider store={configureStore()}>
         <PipelineHeader
           isOpenPipelineVisible
-          isSavedPipelineVisible={false}
           isOptionsVisible
           showRunButton
           showExportButton
           showExplainButton
-          onToggleSavedPipelines={onShowSavedPipelinesSpy}
           onToggleOptions={onToggleOptionsSpy}
         />
       </Provider>
@@ -37,7 +33,7 @@ describe('PipelineHeader', function () {
     expect(within(container).getByText('Pipeline')).to.exist;
   });
 
-  it('open saved pipelines button', function () {
+  it('open saved pipelines button', async function () {
     const button = within(container).getByTestId(
       'pipeline-toolbar-open-pipelines-button'
     );
@@ -45,6 +41,6 @@ describe('PipelineHeader', function () {
 
     userEvent.click(button);
 
-    expect(onShowSavedPipelinesSpy.calledOnce).to.be.true;
+    expect(await screen.findByTestId('saved-pipelines')).to.exist;
   });
 });

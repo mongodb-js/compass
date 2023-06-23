@@ -20,9 +20,12 @@ const renderIndexes = (
       error={null}
       localAppRegistry={appRegistry}
       isRefreshing={false}
+      serverVersion="4.4.0"
       sortIndexes={() => {}}
       refreshIndexes={() => {}}
       dropFailedIndex={() => {}}
+      onHideIndex={() => {}}
+      onUnhideIndex={() => {}}
       {...props}
     />
   );

@@ -36,6 +36,7 @@ describe('PipelineActions', function () {
           isExplainButtonDisabled={false}
           onExplainAggregation={onExplainAggregationSpy}
           onUpdateView={() => {}}
+          onCollectionScanInsightActionButtonClick={() => {}}
         />
       );
     });
@@ -101,6 +102,7 @@ describe('PipelineActions', function () {
           onUpdateView={() => {}}
           onExplainAggregation={() => {}}
           isAtlasDeployed={false}
+          onCollectionScanInsightActionButtonClick={() => {}}
         />
       );
     });
@@ -137,6 +139,7 @@ describe('PipelineActions', function () {
           onUpdateView={() => {}}
           onExplainAggregation={() => {}}
           isAtlasDeployed={true}
+          onCollectionScanInsightActionButtonClick={() => {}}
         />
       );
     });
@@ -170,6 +173,7 @@ describe('PipelineActions', function () {
           onExportAggregationResults={onExportAggregationResultsSpy}
           onExplainAggregation={onExplainAggregationSpy}
           onUpdateView={() => {}}
+          onCollectionScanInsightActionButtonClick={() => {}}
         />
       );
     });

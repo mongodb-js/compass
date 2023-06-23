@@ -18,6 +18,7 @@ import {
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
 import type { QueryBarState } from '../stores/query-bar-reducer';
+import { usePreference } from 'compass-preferences-model';
 
 const editorStyles = css({
   position: 'relative',
@@ -52,7 +53,6 @@ const editorWithErrorStyles = css({
 
 const queryBarEditorOptionInsightsStyles = css({
   position: 'absolute',
-  fontSize: 0,
   // Horizontally the insight is in the middle of the first line of the editor
   top: `calc((${spacing[4]}px - 18px) / 2)`,
   right: spacing[1],
@@ -83,6 +83,8 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   ['data-testid']: dataTestId,
   insights,
 }) => {
+  const showInsights = usePreference('showInsights', React);
+
   const editorContainerRef = useRef<HTMLDivElement>(null);
 
   const focusRingProps = useFocusRing({
@@ -140,7 +142,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         commands={commands}
         data-testid={dataTestId}
       />
-      {insights && (
+      {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>
           <SignalPopover signals={insights}></SignalPopover>
         </div>

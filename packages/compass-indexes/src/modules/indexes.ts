@@ -12,6 +12,11 @@ import { ActionTypes as RefreshActionTypes } from './is-refreshing';
 import type { RefreshFinishedAction } from './is-refreshing';
 import type { InProgressIndex } from '../modules/in-progress-indexes';
 import { inProgressIndexRemoved } from '../modules/in-progress-indexes';
+import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import {
+  hideModalDescription,
+  unhideModalDescription,
+} from '../utils/modal-descriptions';
 
 const debug = _debug('mongodb-compass:modules:indexes');
 
@@ -223,5 +228,73 @@ export const dropFailedIndex = (
   return (dispatch) => {
     dispatch(inProgressIndexRemoved(id));
     void dispatch(fetchIndexes());
+  };
+};
+
+export const hideIndex = (
+  indexName: string
+): ThunkAction<Promise<void>, RootState, void, AnyAction> => {
+  return async (dispatch, getState) => {
+    const { dataService, namespace } = getState();
+    const confirmed = await showConfirmation({
+      title: `Hiding \`${indexName}\``,
+      description: hideModalDescription(indexName),
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await dataService?.updateCollection(namespace, {
+        index: {
+          name: indexName,
+          hidden: true,
+        },
+      });
+      void dispatch(fetchIndexes());
+    } catch (error) {
+      openToast('hide-index-error', {
+        title: 'Failed to hide the index',
+        variant: 'warning',
+        description: `An error occurred while hiding the index. ${
+          (error as Error).message
+        }`,
+      });
+    }
+  };
+};
+
+export const unhideIndex = (
+  indexName: string
+): ThunkAction<Promise<void>, RootState, void, AnyAction> => {
+  return async (dispatch, getState) => {
+    const { namespace, dataService } = getState();
+    const confirmed = await showConfirmation({
+      title: `Unhiding \`${indexName}\``,
+      description: unhideModalDescription(indexName),
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await dataService?.updateCollection(namespace, {
+        index: {
+          name: indexName,
+          hidden: false,
+        },
+      });
+      void dispatch(fetchIndexes());
+    } catch (error) {
+      openToast('unhide-index-error', {
+        title: 'Failed to unhide the index',
+        variant: 'warning',
+        description: `An error occurred while unhiding the index. ${
+          (error as Error).message
+        }`,
+      });
+    }
   };
 };

@@ -20,8 +20,6 @@ import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-
 import { toggleSidePanel } from '../../../modules/side-panel';
 import { usePreference } from 'compass-preferences-model';
 
-import { GuideCueStorageKeys, useGuideCue } from '../../use-guide-cue';
-
 const containerStyles = css({
   display: 'flex',
   gap: spacing[2],
@@ -63,19 +61,10 @@ export const PipelineExtraSettings: React.FunctionComponent<
 }) => {
   const showStageWizard = usePreference('enableStageWizard', React);
 
-  const { cueRefEl, cueIntersectingRef, isCueVisible, markCueVisited } =
-    useGuideCue(GuideCueStorageKeys.STAGE_WIZARD);
-
-  const onClickWizardButton = () => {
-    markCueVisited();
-    onToggleSidePanel();
-  };
-
   return (
     <div
       className={containerStyles}
       data-testid="pipeline-toolbar-extra-settings"
-      ref={cueIntersectingRef}
     >
       <div className={toggleStyles}>
         <Toggle
@@ -121,30 +110,25 @@ export const PipelineExtraSettings: React.FunctionComponent<
         </SegmentedControlOption>
       </SegmentedControl>
       {showStageWizard && (
-        <>
-          <GuideCue
-            data-testid="stage-wizard-guide-cue"
-            open={isCueVisible && pipelineMode === 'builder-ui'}
-            setOpen={markCueVisited}
-            refEl={cueRefEl}
-            numberOfSteps={1}
-            popoverZIndex={2}
-            title="Stage Wizard"
-          >
-            You can quickly build your stages based on your needs. You should
-            try it out.
-          </GuideCue>
-          <IconButton
-            ref={cueRefEl}
-            title="Toggle Stage Wizard"
-            aria-label="Toggle Stage Wizard"
-            onClick={onClickWizardButton}
-            data-testid="pipeline-toolbar-side-panel-button"
-            disabled={pipelineMode === 'as-text'}
-          >
-            <Icon glyph="Wizard" />
-          </IconButton>
-        </>
+        <GuideCue
+          cueId="aggregation-toolbar-stage-wizard"
+          title="Stage Wizard"
+          description={
+            'You can quickly build your stages based on your needs. You should try it out.'
+          }
+          trigger={({ ref }) => (
+            <IconButton
+              ref={ref}
+              title="Toggle Stage Wizard"
+              aria-label="Toggle Stage Wizard"
+              onClick={onToggleSidePanel}
+              data-testid="pipeline-toolbar-side-panel-button"
+              disabled={pipelineMode === 'as-text'}
+            >
+              <Icon glyph="Wizard" />
+            </IconButton>
+          )}
+        />
       )}
       <IconButton
         title="More Settings"

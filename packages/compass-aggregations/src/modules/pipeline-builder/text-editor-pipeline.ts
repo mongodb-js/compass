@@ -14,6 +14,7 @@ import type { PipelineModeToggledAction } from './pipeline-mode';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { fetchExplainForPipeline } from '../insights';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
@@ -279,6 +280,7 @@ export const changeEditorValue = (
     });
 
     void dispatch(loadPreviewForPipeline());
+    void dispatch(fetchExplainForPipeline());
   };
 };
 

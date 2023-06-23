@@ -40,6 +40,10 @@ const controls = css({
 
 const button = css({
   flex: 'none',
+  // Because leafygreen buttons have transition: all by default and this causes
+  // a lag when trying to hide the buttons, because the browser will transition
+  // properties like display or visibility
+  transitionProperty: 'background-color, box-shadow, border-color',
 });
 
 export const SavePipelineCard: React.FunctionComponent<

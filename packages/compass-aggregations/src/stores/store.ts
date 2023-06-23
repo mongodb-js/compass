@@ -32,7 +32,9 @@ export type ConfigureStoreOptions = {
     dataProvider: Pick<
       DataService,
       'isCancelError' | 'estimatedCount' | 'aggregate' | 'getConnectionString'
-    >;
+    > &
+      // Optional methods for getting insights
+      Partial<Pick<DataService, 'explainAggregate'>>;
     error?: Error;
   };
   /**
@@ -164,10 +166,12 @@ const configureStore = (options: ConfigureStoreOptions) => {
   const store = createStore(
     reducer,
     {
+      // TODO: move this to thunk extra arg
       appRegistry: {
         localAppRegistry: options.localAppRegistry ?? null,
         globalAppRegistry: options.globalAppRegistry ?? null,
       },
+      // TODO: move this to thunk extra arg
       dataService: {
         error: options.dataProvider?.error ?? null,
         dataService:

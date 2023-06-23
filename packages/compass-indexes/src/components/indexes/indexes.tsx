@@ -5,7 +5,12 @@ import type AppRegistry from 'hadron-app-registry';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { withPreferences } from 'compass-preferences-model';
 
-import { sortIndexes, dropFailedIndex } from '../../modules/indexes';
+import {
+  sortIndexes,
+  dropFailedIndex,
+  hideIndex,
+  unhideIndex,
+} from '../../modules/indexes';
 import type {
   IndexDefinition,
   SortColumn,
@@ -38,9 +43,12 @@ type IndexesProps = {
   error: string | null;
   localAppRegistry: AppRegistry;
   isRefreshing: boolean;
+  serverVersion: string;
   sortIndexes: (name: SortColumn, direction: SortDirection) => void;
   refreshIndexes: () => void;
   dropFailedIndex: (id: string) => void;
+  onHideIndex: (name: string) => void;
+  onUnhideIndex: (name: string) => void;
   readOnly?: boolean;
 };
 
@@ -53,9 +61,12 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   error,
   localAppRegistry,
   isRefreshing,
+  serverVersion,
   sortIndexes,
   refreshIndexes,
   dropFailedIndex,
+  onHideIndex,
+  onUnhideIndex,
   readOnly, // preferences readOnly.
 }) => {
   const deleteIndex = (index: IndexDefinition) => {
@@ -83,9 +94,12 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
           {({ height }) => (
             <IndexesTable
               indexes={indexes}
-              canDeleteIndex={isWritable && !isReadonly && !readOnly}
+              serverVersion={serverVersion}
+              canModifyIndex={isWritable && !isReadonly && !readOnly}
               onSortTable={sortIndexes}
               onDeleteIndex={deleteIndex}
+              onHideIndex={onHideIndex}
+              onUnhideIndex={onUnhideIndex}
               // Preserve the bottom paddings
               scrollHeight={height - paddingBottom}
             />
@@ -104,6 +118,7 @@ const mapState = ({
   description,
   error,
   isRefreshing,
+  serverVersion,
   appRegistry,
 }: RootState) => ({
   indexes,
@@ -114,12 +129,15 @@ const mapState = ({
   error,
   localAppRegistry: (appRegistry as any).localAppRegistry,
   isRefreshing,
+  serverVersion,
 });
 
 const mapDispatch = {
   sortIndexes,
   refreshIndexes,
   dropFailedIndex,
+  onHideIndex: hideIndex,
+  onUnhideIndex: unhideIndex,
 };
 
 export default connect(

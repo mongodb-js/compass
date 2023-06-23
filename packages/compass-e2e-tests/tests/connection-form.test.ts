@@ -617,7 +617,7 @@ describe('Connection form', function () {
 
     await browser.screenshot('edit-uri-confirmation-modal.png');
 
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
+    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
 
     await confirmModal.waitForDisplayed({ reverse: true });
 

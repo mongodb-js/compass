@@ -66,8 +66,11 @@ type ExplainPlanDataService = Pick<
   'explainAggregate' | 'explainFind' | 'isCancelError'
 >;
 
+type ExplainPlanAppRegistry = Pick<AppRegistry, 'on' | 'emit'>;
+
 type ExplainPlanModalExtraArgs = {
   dataService: ExplainPlanDataService;
+  localAppRegistry?: ExplainPlanAppRegistry;
 };
 
 type ExplainPlanModalThunkAction<R, A extends Action = AnyAction> = ThunkAction<
@@ -349,8 +352,14 @@ export const closeExplainPlanModal = (): ExplainPlanModalThunkAction<void> => {
   };
 };
 
+export const openCreateIndexModal = (): ExplainPlanModalThunkAction<void> => {
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry?.emit('open-create-index-modal');
+  };
+};
+
 export type ExplainPlanModalConfigureStoreOptions = {
-  localAppRegistry: Pick<AppRegistry, 'on'>;
+  localAppRegistry: ExplainPlanAppRegistry;
   dataProvider?: {
     dataProvider?: ExplainPlanDataService;
   };
@@ -374,6 +383,7 @@ export function configureStore({
     applyMiddleware(
       thunk.withExtraArgument({
         dataService: dataProvider.dataProvider,
+        localAppRegistry,
       })
     )
   );
