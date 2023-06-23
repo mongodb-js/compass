@@ -60,6 +60,7 @@ type CollectionProps = {
     key: number | string;
   }[];
   stats: CollectionStatsMap;
+  isAtlas: boolean;
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
@@ -83,6 +84,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   globalAppRegistry,
   changeActiveSubTab,
   scopedModals,
+  isAtlas,
 }: CollectionProps) => {
   const newExplainPlan = usePreference('newExplainPlan', React);
   const explainPlanTabId = _tabs.indexOf('Explain Plan');
@@ -148,6 +150,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           isTimeSeries={isTimeSeries}
           isClustered={isClustered}
           isFLE={isFLE}
+          isAtlas={isAtlas}
           editViewName={editViewName}
           sourceReadonly={sourceReadonly}
           sourceViewOn={sourceViewOn}

@@ -61,7 +61,7 @@
     "@babel/parser": "7.16.0",
     "@mongodb-js/devtools-scripts": "^0.1.20",
     "@mongodb-js/bump-monorepo-packages": "^0.2.1",
-    "@mongodb-js/sbom-tools": "^0.5.0",
+    "@mongodb-js/sbom-tools": "^0.5.2",
     "@testing-library/dom": "^8.11.1",
     "babel-loader": "^7.1.5",
     "husky": "^8.0.3",

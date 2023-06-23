@@ -7,21 +7,21 @@ import type { ButtonProps } from '@leafygreen-ui/button';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 
-export type ItemAction<Action> = {
+export type ItemAction<Action extends string> = {
   action: Action;
   label: string;
-  icon: string;
+  icon: React.ReactChild;
 };
 
-export type GroupedItemAction<Action> = ItemAction<Action> & {
+export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
   tooltip?: string;
   tooltipProps?: TooltipProps;
 };
 
-export type MenuAction<Action> = {
+export type MenuAction<Action extends string> = {
   action: Action;
   label: string;
-  icon?: string;
+  icon?: React.ReactChild;
 };
 
 const ItemActionButtonSize = {
@@ -77,10 +77,33 @@ function actionTestId<Action extends string>(
   return dataTestId ? `${dataTestId}-${action}-action` : undefined;
 }
 
+// As we are using this component to render icon in MenuItem,
+// and it does cloneElement on glyph, here we are accepting all the
+// props that are passed during clone process.
+type IconProps = React.ComponentProps<typeof Icon>;
+const ActionGlyph = ({
+  glyph,
+  size,
+  ...props
+}: Omit<IconProps, 'size' | 'glyph'> & {
+  glyph?: React.ReactChild;
+  size?: ItemActionButtonSize;
+}) => {
+  if (typeof glyph === 'string') {
+    return <Icon size={size} glyph={glyph} {...props} />;
+  }
+
+  if (React.isValidElement(glyph)) {
+    return glyph;
+  }
+
+  return null;
+};
+
 const ItemActionButton = forwardRef<
   HTMLButtonElement,
   {
-    glyph: string;
+    glyph: React.ReactChild;
     label: string;
     title?: string;
     size: ItemActionButtonSize;
@@ -102,7 +125,7 @@ const ItemActionButton = forwardRef<
       {...rest}
     >
       <span role="presentation" className={iconContainerStyle}>
-        <Icon size={size} glyph={glyph}></Icon>
+        <ActionGlyph glyph={glyph} size={size} />
       </span>
       {/* Only here to make leafygreen menus work */}
       {children}
@@ -200,7 +223,7 @@ export function ItemActionMenu<Action extends string>({
               data-testid={actionTestId<Action>(dataTestId, action)}
               data-action={action}
               data-menuitem={true}
-              glyph={icon ? <Icon glyph={icon} /> : undefined}
+              glyph={<ActionGlyph glyph={icon} size={iconSize} />}
               onClick={onClick}
             >
               {label}
@@ -269,6 +292,7 @@ export function ItemActionGroup<Action extends string>({
         if (tooltip) {
           return (
             <Tooltip
+              key={action}
               {...tooltipProps}
               trigger={({ children, ...props }) => (
                 <div {...props} style={{ display: 'inherit' }}>
@@ -355,6 +379,7 @@ export function DropdownMenuButton<Action extends string>({
   activeAction,
   buttonText,
   buttonProps,
+  iconSize = ItemActionButtonSize.Default,
   'data-testid': dataTestId,
 }: {
   actions: MenuAction<Action>[];
@@ -432,7 +457,7 @@ export function DropdownMenuButton<Action extends string>({
             data-testid={actionTestId<Action>(dataTestId, action)}
             data-action={action}
             data-menuitem={true}
-            glyph={icon ? <Icon glyph={icon} /> : undefined}
+            glyph={<ActionGlyph glyph={icon} size={iconSize} />}
             onClick={onClick}
           >
             {label}

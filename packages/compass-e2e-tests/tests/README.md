@@ -80,7 +80,7 @@
 - [ ] Verify navigation through the documents using <> buttons on the action bar
 - [ ] Verify running query with all available options in the filter bar
 - [ ] Verify Reset button clears the filter bar out and loads all documents
-- [ ] Verify query bar is shared across Documents, Schema and Explain Plan tabs
+- [ ] Verify query bar is shared across Documents, Schema tabs
 - [ ] Verify query can be exported to language
 - [ ] Verify Query History shows past queries ordered by time desc
 

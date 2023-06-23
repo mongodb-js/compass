@@ -99,6 +99,7 @@ type WorkspaceProps = {
   };
   changeActiveSubTab: (activeSubTab: number, id: string) => void;
   stats: CollectionStatsMap;
+  isAtlas: boolean;
 };
 
 const WorkspaceTab = ({
@@ -108,6 +109,7 @@ const WorkspaceTab = ({
   globalAppRegistry,
   localAppRegistry,
   stats,
+  isAtlas,
 }: {
   tab: WorkspaceTabObject;
   changeActiveSubTab: (activeSubTab: number, id: string) => void;
@@ -115,6 +117,7 @@ const WorkspaceTab = ({
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   stats: CollectionStatsMap;
+  isAtlas: boolean;
 }) => {
   return (
     <div
@@ -147,6 +150,7 @@ const WorkspaceTab = ({
         globalAppRegistry={globalAppRegistry}
         localAppRegistry={localAppRegistry}
         stats={stats}
+        isAtlas={isAtlas}
       />
     </div>
   );
@@ -167,6 +171,7 @@ const Workspace = ({
   selectTab,
   changeActiveSubTab,
   stats,
+  isAtlas,
 }: WorkspaceProps) => {
   const onCreateNewTab = useCallback(() => {
     const activeTab = tabs.find((tab: WorkspaceTabObject) => tab.isActive);
@@ -203,6 +208,8 @@ const Workspace = ({
     [tabs]
   );
 
+  useHotkeys('ctrl + tab', nextTab);
+  useHotkeys('ctrl + shift + tab', prevTab);
   useHotkeys('meta + shift + ]', nextTab);
   useHotkeys('meta + shift + [', prevTab);
   useHotkeys(
@@ -238,6 +245,7 @@ const Workspace = ({
             globalAppRegistry={appRegistry}
             localAppRegistry={tab.localAppRegistry}
             stats={stats}
+            isAtlas={isAtlas}
           />
         ))}
       </div>
@@ -256,6 +264,7 @@ const mapStateToProps = (state: any) => ({
   tabs: state.tabs,
   appRegistry: state.appRegistry,
   stats: state.stats,
+  isAtlas: state.isAtlas,
 });
 
 /**

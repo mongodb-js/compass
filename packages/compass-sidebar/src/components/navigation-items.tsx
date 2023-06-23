@@ -11,9 +11,10 @@ import {
   mergeProps,
   useDefaultAction,
   SignalPopover,
+  GuideCue,
 } from '@mongodb-js/compass-components';
 import { usePreference, withPreferences } from 'compass-preferences-model';
-
+import toNS from 'mongodb-ns';
 import type { ItemAction } from '@mongodb-js/compass-components';
 
 import DatabaseCollectionFilter from './database-collection-filter';
@@ -190,6 +191,23 @@ export function NavigationItem<Actions extends string>({
   );
 }
 
+const GuideCueDatabaseIcon = () => {
+  return (
+    <GuideCue
+      cueId="sidebar-no-databases"
+      title="It looks a bit empty around here"
+      description={
+        'Aside from the default databases, you’ll need to create your first database to get to working with data.'
+      }
+      trigger={({ ref }) => (
+        <span ref={ref}>
+          <Icon glyph="Plus" />
+        </span>
+      )}
+    />
+  );
+};
+
 export function NavigationItems({
   isExpanded,
   isDataLake,
@@ -199,6 +217,7 @@ export function NavigationItems({
   currentLocation,
   readOnly,
   showTooManyCollectionsInsight = false,
+  showCreateDatabaseGuideCue,
 }: {
   isExpanded?: boolean;
   isDataLake?: boolean;
@@ -208,6 +227,7 @@ export function NavigationItems({
   currentLocation: string | null;
   readOnly?: boolean;
   showTooManyCollectionsInsight?: boolean;
+  showCreateDatabaseGuideCue: boolean;
 }) {
   const isReadOnly = readOnly || isDataLake || !isWritable;
   const databasesActions = useMemo(() => {
@@ -223,12 +243,12 @@ export function NavigationItems({
       actions.push({
         action: 'open-create-database',
         label: 'Create database',
-        icon: 'Plus',
+        icon: showCreateDatabaseGuideCue ? <GuideCueDatabaseIcon /> : 'Plus',
       });
     }
 
     return actions;
-  }, [isReadOnly]);
+  }, [isReadOnly, showCreateDatabaseGuideCue]);
 
   return (
     <>
@@ -262,12 +282,15 @@ const mapStateToProps =
   (state: // TODO(COMPASS-6914): Properly type stores instead of this
   {
     location: string | null;
-    databases: any;
+    databases: {
+      databases: any[];
+    };
     instance?: {
       dataLake: {
         isDataLake: boolean;
       };
       isWritable: boolean;
+      databasesStatus: string;
     };
   }) => {
     const totalCollectionsCount = state.databases.databases.reduce(
@@ -276,11 +299,22 @@ const mapStateToProps =
       },
       0
     );
+
+    const databasesStatus = state.instance?.databasesStatus;
+    const isReady =
+      databasesStatus !== undefined &&
+      !['initial', 'fetching'].includes(databasesStatus);
+
+    const numNonSpecialDatabases = state.databases.databases
+      .map((x: { _id: string }) => toNS(x._id))
+      .filter((x) => !x.specialish).length;
+
     return {
       currentLocation: state.location,
       isDataLake: state.instance?.dataLake.isDataLake,
       isWritable: state.instance?.isWritable,
       showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
+      showCreateDatabaseGuideCue: isReady && numNonSpecialDatabases === 0,
     };
   };
 

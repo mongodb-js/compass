@@ -101,7 +101,7 @@ describe('FieldStore', function () {
         ]);
         expect(state.autocompleteFields).to.deep.equal(expected);
       }, done);
-      appRegistry.emit('documents-refreshed', null, [doc]);
+      appRegistry.emit('documents-refreshed', doc);
     });
 
     it('on documents-inserted', function (done) {
@@ -125,7 +125,7 @@ describe('FieldStore', function () {
         ]);
         expect(state.autocompleteFields).to.deep.equal(expected);
       }, done);
-      appRegistry.emit('documents-paginated', null, [doc]);
+      appRegistry.emit('documents-paginated', doc);
     });
   });
   /**

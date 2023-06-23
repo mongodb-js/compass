@@ -6,16 +6,15 @@ import {
   DropdownMenuButton,
   Icon,
   IconButton,
-  SegmentedControl,
-  SegmentedControlOption,
   SpinLoader,
   css,
   spacing,
-  useId,
   WarningSummary,
   ErrorSummary,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
+import { ViewSwitcher } from './view-switcher';
+import type { DocumentView } from '../stores/crud-store';
 
 import { AddDataMenu } from './add-data-menu';
 
@@ -87,7 +86,7 @@ function isOperationTimedOutError(err: ErrorWithPossibleCode) {
 }
 
 export type CrudToolbarProps = {
-  activeDocumentView: string;
+  activeDocumentView: DocumentView;
   count?: number;
   end: number;
   error?: ErrorWithPossibleCode | null;
@@ -107,7 +106,7 @@ export type CrudToolbarProps = {
   refreshDocuments: () => void;
   resultId: string;
   start: number;
-  viewSwitchHandler: (view: 'List' | 'JSON' | 'Table') => void;
+  viewSwitchHandler: (view: DocumentView) => void;
   isCollectionScan?: boolean;
   onCollectionScanInsightActionButtonClick?: () => void;
 };
@@ -162,7 +161,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     ? queryBarRef.current!.component
     : null;
 
-  const controlId = useId();
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(
     // If we don't know the count, we can't know if there are more pages.
@@ -269,35 +267,10 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               <Icon glyph="ChevronRight" />
             </IconButton>
           </div>
-
-          <SegmentedControl
-            id={controlId}
-            aria-label="View"
-            size="small"
-            value={activeDocumentView}
-            onChange={(value) =>
-              viewSwitchHandler(value as 'List' | 'JSON' | 'Table')
-            }
-          >
-            <SegmentedControlOption
-              data-testid="toolbar-view-list"
-              aria-label="Document list"
-              value="List"
-              glyph={<Icon glyph="Menu" />}
-            ></SegmentedControlOption>
-            <SegmentedControlOption
-              data-testid="toolbar-view-json"
-              aria-label="E-JSON View"
-              value="JSON"
-              glyph={<Icon glyph="CurlyBraces" />}
-            ></SegmentedControlOption>
-            <SegmentedControlOption
-              data-testid="toolbar-view-table"
-              aria-label="Table View"
-              value="Table"
-              glyph={<Icon glyph="Table" />}
-            ></SegmentedControlOption>
-          </SegmentedControl>
+          <ViewSwitcher
+            activeView={activeDocumentView}
+            onChange={viewSwitchHandler}
+          />
         </div>
       </div>
       {error && (

@@ -16,6 +16,9 @@ import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
 import { toggleIsVisible } from '../../modules/create-view/is-visible';
 
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+
 const TITLE = 'Duplicate a View';
 
 const progressContainerStyles = css({
@@ -50,6 +53,12 @@ class DuplicateViewModal extends PureComponent {
     isVisible: false,
   };
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.isVisible !== this.props.isVisible && this.props.isVisible) {
+      track('Screen', { name: 'duplicate_view_modal' });
+    }
+  }
+
   onNameChange = (evt) => {
     this.props.changeViewName(evt.target.value);
   };
@@ -71,7 +80,6 @@ class DuplicateViewModal extends PureComponent {
         onSubmit={this.props.createView}
         onCancel={this.onCancel}
         submitButtonText="Duplicate"
-        trackingId="duplicate_view_modal"
         data-testid="duplicate-view-modal"
       >
         <TextInput

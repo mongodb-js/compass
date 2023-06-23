@@ -1,6 +1,11 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { Icon, IconButton, SpinLoader } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  IconButton,
+  SpinLoader,
+  GuideCue,
+} from '@mongodb-js/compass-components';
 import { expect } from 'chai';
 
 import { ShellHeader } from './shell-header';
@@ -20,14 +25,21 @@ describe('ShellHeader', function () {
       );
     });
 
+    afterEach(function () {
+      wrapper.unmount();
+    });
+
     it('renders a close chevron button', function () {
       expect(wrapper.find(IconButton).exists()).to.equal(true);
       expect(wrapper.find(Icon).at(1).prop('glyph')).to.equal('ChevronDown');
     });
 
-    it('renders an info button', function () {
-      expect(wrapper.find(IconButton).exists()).to.equal(true);
-      expect(wrapper.find(Icon).at(0).prop('glyph')).to.equal('InfoWithCircle');
+    it('renders an info button with guide cue', function () {
+      const cue = wrapper.find(GuideCue);
+      expect(cue.exists()).to.be.true;
+
+      expect(cue.find(IconButton).exists()).to.equal(true);
+      expect(cue.find(Icon).at(0).prop('glyph')).to.equal('InfoWithCircle');
     });
 
     it('does not render the loader', function () {
@@ -48,6 +60,10 @@ describe('ShellHeader', function () {
       );
     });
 
+    afterEach(function () {
+      wrapper.unmount();
+    });
+
     it('renders an open chevron button', function () {
       expect(wrapper.find(IconButton).exists()).to.equal(true);
       expect(wrapper.find(Icon).prop('glyph')).to.equal('ChevronUp');
@@ -55,6 +71,13 @@ describe('ShellHeader', function () {
 
     it('does not render the loader', function () {
       expect(wrapper.find(SpinLoader).exists()).to.equal(false);
+    });
+
+    it('renders title with guide cue', function () {
+      const cue = wrapper.find(GuideCue);
+      expect(cue.exists()).to.be.true;
+
+      expect(cue.text()).to.contain('_MONGOSH');
     });
   });
 
@@ -72,6 +95,7 @@ describe('ShellHeader', function () {
         );
 
         expect(wrapper.find(SpinLoader).exists()).to.equal(true);
+        wrapper.unmount();
       });
     }
   );
@@ -91,6 +115,8 @@ describe('ShellHeader', function () {
       expect(
         wrapper.find('[data-testid="shell-expand-button"]')
       ).to.be.present();
+
+      wrapper.unmount();
     });
   });
 });
