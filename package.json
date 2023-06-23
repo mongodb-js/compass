@@ -48,7 +48,8 @@
     "snyk-test": "node scripts/snyk-test.js",
     "pregenerate-vulnerability-report": "npm run compile -w packages/compass && npm run snyk-test",
     "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --fail-on=high > .sbom/vulnerability-report.md",
-    "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --create-jira-issues"
+    "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --create-jira-issues",
+    "precommit": "precommit"
   },
   "repository": {
     "type": "git",
@@ -58,7 +59,7 @@
   "devDependencies": {
     "@babel/core": "7.16.0",
     "@babel/parser": "7.16.0",
-    "@mongodb-js/devtools-scripts": "^0.1.18",
+    "@mongodb-js/devtools-scripts": "^0.1.20",
     "@mongodb-js/bump-monorepo-packages": "^0.2.1",
     "@mongodb-js/sbom-tools": "^0.5.0",
     "@testing-library/dom": "^8.11.1",

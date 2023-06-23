@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "prettier": "^2.7.1",
-    "@mongodb-js/prettier-config-devtools": "^1.0.0"
+    "@mongodb-js/prettier-config-devtools": "^1.0.1"
   },
   "scripts": {
     "check": "npm run lint",
