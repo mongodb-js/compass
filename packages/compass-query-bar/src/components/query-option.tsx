@@ -10,12 +10,13 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
-import type { QueryBarState } from '../stores/query-bar-reducer';
 import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
+import type { RootState } from '../stores/query-bar-store';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -205,8 +206,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
 };
 
 const ConnectedQueryOption = connect(
-  (state: QueryBarState, ownProps: { name: QueryProperty }) => {
-    const field = state.fields[ownProps.name];
+  (state: RootState, ownProps: { name: QueryProperty }) => {
+    const field = state.queryBar.fields[ownProps.name];
     return {
       value: field.string,
       hasError: !field.valid,

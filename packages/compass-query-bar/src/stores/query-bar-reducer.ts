@@ -1,18 +1,18 @@
 import type { Reducer, AnyAction, Store } from 'redux';
+import React from 'react';
+import queryParser from 'mongodb-query-parser';
+import preferences from 'compass-preferences-model';
+import { cloneDeep, isEqual } from 'lodash';
+
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
 } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import { QUERY_PROPERTIES } from '../constants/query-properties';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import React from 'react';
-import type AppRegistry from 'hadron-app-registry';
-import queryParser from 'mongodb-query-parser';
-import preferences from 'compass-preferences-model';
-import { cloneDeep, isEqual } from 'lodash';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
+import type { QueryBarThunkAction } from './query-bar-store';
 
 export function isQueryValid(state: QueryBarState) {
   return QUERY_PROPERTIES.every((prop) => {
@@ -105,19 +105,6 @@ export function mapQueryToValidQueryFields(query?: unknown, onlyValid = true) {
   ) as Record<QueryProperty, QueryBarFormField>;
 }
 
-export type QueryBarExtraArgs = {
-  globalAppRegistry?: AppRegistry;
-  localAppRegistry?: AppRegistry;
-};
-
-export type QueryBarThunkAction<
-  R,
-  A extends AnyAction = AnyAction
-> = ThunkAction<R, QueryBarState, QueryBarExtraArgs, A>;
-
-export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
-  ThunkDispatch<QueryBarState, QueryBarExtraArgs, A>;
-
 function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']
@@ -187,7 +174,9 @@ type ChangeFieldAction = {
  */
 const emitOnQueryChange = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
-    const { lastAppliedQuery, fields } = getState();
+    const {
+      queryBar: { lastAppliedQuery, fields },
+    } = getState();
     const query = pickValuesFromFields(fields);
     if (lastAppliedQuery === null || !isEqual(lastAppliedQuery, query)) {
       localAppRegistry?.emit('query-changed', query);
@@ -223,7 +212,9 @@ export const applyQuery = (): QueryBarThunkAction<
   ApplyQueryAction
 > => {
   return (dispatch, getState, { localAppRegistry }) => {
-    const { fields } = getState();
+    const {
+      queryBar: { fields },
+    } = getState();
     if (!isQueryFieldsValid(fields)) {
       return false;
     }
@@ -247,7 +238,7 @@ export const resetQuery = (): QueryBarThunkAction<
   false | Record<string, unknown>
 > => {
   return (dispatch, getState, { localAppRegistry }) => {
-    if (isEqualDefaultQuery(getState())) {
+    if (isEqualDefaultQuery(getState().queryBar)) {
       return false;
     }
     dispatch({ type: QueryBarActions.ResetQuery });
@@ -270,7 +261,7 @@ export const applyFilterChange = (
   event: ChangeFilterEvent
 ): QueryBarThunkAction<void> => {
   return (dispatch, getState) => {
-    const currentFilterValue = getState().fields.filter.value;
+    const currentFilterValue = getState().queryBar.fields.filter.value;
     dispatch(
       setQuery({
         filter: changeFilter(event.type, currentFilterValue, event.payload),
@@ -284,7 +275,7 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
     localAppRegistry?.emit(
       'open-query-export-to-language',
       Object.fromEntries(
-        Object.entries(getState().fields).map(([key, field]) => {
+        Object.entries(getState().queryBar.fields).map(([key, field]) => {
           return [key, field.string];
         })
       )
@@ -388,7 +379,9 @@ export const queryBarReducer: Reducer<QueryBarState> = (
 
 export const explainQuery = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
-    const { fields } = getState();
+    const {
+      queryBar: { fields },
+    } = getState();
     const query = pickValuesFromFields(fields);
     localAppRegistry?.emit('open-explain-plan-modal', { query });
   };
@@ -415,5 +408,3 @@ export const renderQueryHistoryComponent =
       return React.createElement(QueryHistory, { store, actions });
     };
   };
-
-export type QueryBarRootStore = Store<QueryBarState>;

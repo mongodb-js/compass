@@ -1,18 +1,26 @@
 import type AppRegistry from 'hadron-app-registry';
-import { createStore as _createStore, applyMiddleware } from 'redux';
+import {
+  createStore as _createStore,
+  applyMiddleware,
+  combineReducers,
+} from 'redux';
 import thunk from 'redux-thunk';
+import type { AnyAction } from 'redux';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import {
   queryBarReducer,
-  INITIAL_STATE,
+  INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   mapQueryToValidQueryFields,
   changeSchemaFields,
   pickValuesFromFields,
   applyFilterChange,
   applyFromHistory,
 } from './query-bar-reducer';
+import { aiQueryReducer } from './ai-query-reducer';
 
 type QueryBarStoreOptions = {
   serverVersion: string;
@@ -21,14 +29,39 @@ type QueryBarStoreOptions = {
   query: Partial<Record<QueryProperty, unknown>>;
 };
 
+const rootQueryBarReducer = combineReducers({
+  queryBar: queryBarReducer,
+  aiQuery: aiQueryReducer,
+});
+
+export type RootState = ReturnType<typeof rootQueryBarReducer>;
+
+export type QueryBarExtraArgs = {
+  globalAppRegistry?: AppRegistry;
+  localAppRegistry?: AppRegistry;
+};
+
+export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
+  ThunkDispatch<RootState, QueryBarExtraArgs, A>;
+
+export type QueryBarThunkAction<
+  R,
+  A extends AnyAction = AnyAction
+> = ThunkAction<R, RootState, QueryBarExtraArgs, A>;
+
 function createStore(options: Partial<QueryBarStoreOptions> = {}) {
   const { serverVersion, localAppRegistry, globalAppRegistry, query } = options;
   return _createStore(
-    queryBarReducer,
+    rootQueryBarReducer,
     {
-      ...INITIAL_STATE,
-      serverVersion: serverVersion ?? '3.6.0',
-      fields: mapQueryToValidQueryFields({ ...DEFAULT_FIELD_VALUES, ...query }),
+      queryBar: {
+        ...INITIAL_QUERY_BAR_STATE,
+        serverVersion: serverVersion ?? '3.6.0',
+        fields: mapQueryToValidQueryFields({
+          ...DEFAULT_FIELD_VALUES,
+          ...query,
+        }),
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({ localAppRegistry, globalAppRegistry })
@@ -54,7 +87,7 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
   });
 
   (store as any).getCurrentQuery = () => {
-    return pickValuesFromFields(store.getState().fields);
+    return pickValuesFromFields(store.getState().queryBar.fields);
   };
 
   return store as ReturnType<typeof createStore> & {

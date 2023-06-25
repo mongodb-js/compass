@@ -7,8 +7,9 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { renderQueryHistoryComponent } from '../stores/query-bar-reducer';
 import { connect } from 'react-redux';
+
+import { renderQueryHistoryComponent } from '../stores/query-bar-reducer';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
