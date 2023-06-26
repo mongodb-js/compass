@@ -416,7 +416,7 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
         errorLogFilePath: errorLogFilePath,
       });
     } else {
-      if (result.biggestDocSize > 10 && appRegistry !== null) {
+      if (result.biggestDocSize > 10_000_000 && appRegistry !== null) {
         await signalBloatedDocuments(appRegistry);
       }
 
