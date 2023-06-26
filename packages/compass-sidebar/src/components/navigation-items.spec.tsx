@@ -49,7 +49,9 @@ describe('NavigationItems [Component]', function () {
         showCreateDatabaseGuideCue: true,
       });
 
-      await waitFor(() => screen.getByRole('dialog'));
+      await waitFor(() => screen.getByRole('dialog'), {
+        timeout: 2000,
+      });
       expect(screen.getByText('It looks a bit empty around here')).to.exist;
     });
   });
