@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
   ErrorSummary,
@@ -114,6 +114,7 @@ function AITextInput({
   onSubmitText,
 }: AITextInputProps) {
   const [text, setText] = useState('');
+  const promptTextInputRef = useRef<HTMLInputElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const darkMode = useDarkMode();
 
@@ -141,6 +142,12 @@ function AITextInput({
     }
   }, [didSucceed]);
 
+  useEffect(() => {
+    if (show) {
+      promptTextInputRef.current?.focus();
+    }
+  }, [show]);
+
   if (!show) {
     return null;
   }
@@ -150,7 +157,7 @@ function AITextInput({
       <div className={inputContainerStyles}>
         <TextInput
           className={textInputStyles}
-          autoFocus
+          ref={promptTextInputRef}
           sizeVariant="small"
           aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
           placeholder="Tell Compass what documents to find (e.g. how many users signed up last month)"
@@ -191,9 +198,7 @@ function AITextInput({
       </div>
       {errorMessage && (
         <div className={errorSummaryContainer}>
-          <ErrorSummary variant="danger" errors={errorMessage}>
-            {errorMessage}
-          </ErrorSummary>
+          <ErrorSummary errors={errorMessage}>{errorMessage}</ErrorSummary>
         </div>
       )}
     </div>

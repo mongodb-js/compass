@@ -1,6 +1,4 @@
 import { expect } from 'chai';
-import { applyMiddleware, createStore as _createStore } from 'redux';
-import thunk from 'redux-thunk';
 import { DEFAULT_QUERY_VALUES } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import {
@@ -8,16 +6,13 @@ import {
   applyQuery,
   changeField,
   changeSchemaFields,
-  queryBarReducer,
   resetQuery,
   setQuery,
 } from './query-bar-reducer';
+import configureStore from './query-bar-store';
 
 function createStore() {
-  return _createStore(
-    queryBarReducer,
-    applyMiddleware(thunk.withExtraArgument({}))
-  );
+  return configureStore();
 }
 
 describe('queryBarReducer', function () {
@@ -53,7 +48,7 @@ describe('queryBarReducer', function () {
       it(spec, function () {
         const store = createStore();
         function getField() {
-          return store.getState().fields[field];
+          return store.getState().queryBar.fields[field];
         }
         expect(getField()).to.have.property('string', '');
         expect(getField()).to.have.property(
@@ -85,7 +80,7 @@ describe('queryBarReducer', function () {
       );
 
       function getField(field: QueryProperty) {
-        return store.getState().fields[field];
+        return store.getState().queryBar.fields[field];
       }
 
       expect(getField('filter'))
@@ -131,7 +126,7 @@ describe('queryBarReducer', function () {
         filter: { _id: '123' },
         limit: 10,
       });
-      expect(store.getState())
+      expect(store.getState().queryBar)
         .to.have.property('lastAppliedQuery')
         .deep.eq(appliedQuery);
     });
@@ -141,7 +136,10 @@ describe('queryBarReducer', function () {
       store.dispatch(changeField('filter', '{ _id'));
       const appliedQuery = store.dispatch(applyQuery() as any);
       expect(appliedQuery).to.eq(false);
-      expect(store.getState()).to.have.property('lastAppliedQuery', null);
+      expect(store.getState().queryBar).to.have.property(
+        'lastAppliedQuery',
+        null
+      );
     });
   });
 
@@ -151,7 +149,7 @@ describe('queryBarReducer', function () {
       const query = { filter: { _id: 1 } };
       store.dispatch(setQuery(query));
       store.dispatch(applyQuery());
-      expect(store.getState())
+      expect(store.getState().queryBar)
         .to.have.property('lastAppliedQuery')
         .deep.eq({
           ...DEFAULT_QUERY_VALUES,
@@ -159,20 +157,26 @@ describe('queryBarReducer', function () {
         });
       const wasReset = store.dispatch(resetQuery());
       expect(wasReset).to.deep.eq(DEFAULT_QUERY_VALUES);
-      expect(store.getState()).to.have.property('lastAppliedQuery', null);
+      expect(store.getState().queryBar).to.have.property(
+        'lastAppliedQuery',
+        null
+      );
     });
 
     it('should not reset query if last applied query is default query', function () {
       const store = createStore();
       // Resetting without applying at all first
       let wasReset = store.dispatch(resetQuery());
-      expect(store.getState()).to.have.property('lastAppliedQuery', null);
+      expect(store.getState().queryBar).to.have.property(
+        'lastAppliedQuery',
+        null
+      );
       expect(wasReset).to.eq(false);
       // Now apply default query and try to reset again
       store.dispatch(applyQuery());
       wasReset = store.dispatch(resetQuery());
       expect(wasReset).to.eq(false);
-      expect(store.getState())
+      expect(store.getState().queryBar)
         .to.have.property('lastAppliedQuery')
         .deep.eq({
           ...DEFAULT_QUERY_VALUES,
@@ -183,10 +187,14 @@ describe('queryBarReducer', function () {
   describe('changeSchemaFields', function () {
     it('should save fields in the store', function () {
       const store = createStore();
-      expect(store.getState()).to.have.property('schemaFields').deep.eq([]);
+      expect(store.getState().queryBar)
+        .to.have.property('schemaFields')
+        .deep.eq([]);
       const fields = [{ name: 'a' }, { name: 'b' }, { name: 'c' }];
       store.dispatch(changeSchemaFields(fields));
-      expect(store.getState()).to.have.property('schemaFields').deep.eq(fields);
+      expect(store.getState().queryBar)
+        .to.have.property('schemaFields')
+        .deep.eq(fields);
     });
   });
 
@@ -200,18 +208,18 @@ describe('queryBarReducer', function () {
 
       store.dispatch(applyFromHistory(newQuery));
 
-      expect(store.getState())
+      expect(store.getState().queryBar)
         .to.have.nested.property('fields.filter.value')
         .deep.eq(newQuery.filter);
-      expect(store.getState()).to.have.nested.property(
+      expect(store.getState().queryBar).to.have.nested.property(
         'fields.filter.string',
         '{_id: 2}'
       );
 
-      expect(store.getState())
+      expect(store.getState().queryBar)
         .to.have.nested.property('fields.sort.value')
         .deep.eq(newQuery.sort);
-      expect(store.getState()).to.have.nested.property(
+      expect(store.getState().queryBar).to.have.nested.property(
         'fields.sort.string',
         '{_id: -1}'
       );
