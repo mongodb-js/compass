@@ -1,5 +1,5 @@
 import React from 'react';
-import { Body, openToast } from '@mongodb-js/compass-components';
+import { Body, css, openToast } from '@mongodb-js/compass-components';
 import path from 'path';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
@@ -81,6 +81,11 @@ export function showCompletedToast({ docsWritten }: { docsWritten: number }) {
   });
 }
 
+const reviewDocumentsCTAStyles = css({
+  cursor: 'pointer',
+  textDecoration: 'underline',
+});
+
 export function showBloatedDocumentSignalToast({
   onReviewDocumentsClick,
 }: {
@@ -97,7 +102,7 @@ export function showBloatedDocumentSignalToast({
         <Body
           as="strong"
           onClick={onReviewDocumentsClick}
-          style={{ cursor: 'pointer', textDecoration: 'underline' }}
+          className={reviewDocumentsCTAStyles}
         >
           Review Documents
         </Body>
