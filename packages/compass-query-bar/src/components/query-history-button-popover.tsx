@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   Icon,
   InteractivePopover,
@@ -6,11 +6,10 @@ import {
   focusRing,
   spacing,
 } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { renderQueryHistoryComponent } from '../stores/query-bar-reducer';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
+import QueryHistory from './query-history';
 import { connect } from 'react-redux';
-
-const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+import { fetchRecents } from '../stores/query-bar-reducer';
 
 const openQueryHistoryButtonStyles = css(
   {
@@ -34,33 +33,36 @@ const queryHistoryPopoverStyles = css({
   display: 'flex',
 });
 
-type QueryHistoryProps = {
-  renderQueryHistoryComponent: () => React.ReactElement | null;
-};
-
-const QueryHistoryButtonPopover: React.FunctionComponent<QueryHistoryProps> = ({
-  renderQueryHistoryComponent = () => null,
+const QueryHistoryButtonPopover = ({
+  onOpenPopover,
+}: {
+  onOpenPopover: () => void;
 }) => {
-  const [showQueryHistory, setShowQueryHistory] = useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  const onSetShowQueryHistory = useCallback(
-    (newShowQueryHistory: boolean) => {
-      if (newShowQueryHistory) {
+  useTrackOnChange(
+    'COMPASS-QUERY-BAR-UI',
+    (track) => {
+      if (isOpen) {
         track('Query History Opened');
       } else {
         track('Query History Closed');
       }
-
-      setShowQueryHistory(newShowQueryHistory);
     },
-    [setShowQueryHistory]
+    [isOpen],
+    undefined,
+    React
   );
 
-  const queryHistory = renderQueryHistoryComponent();
-
-  if (!queryHistory) {
-    return null;
-  }
+  const setOpen = useCallback(
+    (newValue: boolean) => {
+      if (newValue) {
+        onOpenPopover();
+      }
+      setIsOpen(newValue);
+    },
+    [onOpenPopover]
+  );
 
   return (
     <InteractivePopover
@@ -75,7 +77,7 @@ const QueryHistoryButtonPopover: React.FunctionComponent<QueryHistoryProps> = ({
             aria-haspopup="true"
             title="Query History"
             tabIndex={0}
-            aria-expanded={showQueryHistory ? true : undefined}
+            aria-expanded={isOpen ? true : undefined}
             type="button"
             ref={ref}
           >
@@ -85,14 +87,14 @@ const QueryHistoryButtonPopover: React.FunctionComponent<QueryHistoryProps> = ({
           {children}
         </>
       )}
-      open={showQueryHistory}
-      setOpen={onSetShowQueryHistory}
+      open={isOpen}
+      setOpen={setOpen}
     >
-      {queryHistory}
+      <QueryHistory />
     </InteractivePopover>
   );
 };
 
-export default connect(null, { renderQueryHistoryComponent })(
-  QueryHistoryButtonPopover
-);
+export default connect(null, {
+  onOpenPopover: fetchRecents,
+})(QueryHistoryButtonPopover);

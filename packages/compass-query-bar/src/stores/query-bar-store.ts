@@ -13,25 +13,56 @@ import {
   applyFilterChange,
   applyFromHistory,
 } from './query-bar-reducer';
+import { FavoriteQueryStorage, RecentQueryStorage } from '../utils';
+import { getStoragePaths } from '@mongodb-js/compass-utils';
+const { basepath } = getStoragePaths() || {};
 
 type QueryBarStoreOptions = {
   serverVersion: string;
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   query: Partial<Record<QueryProperty, unknown>>;
+  namespace: string;
+  dataProvider: {
+    dataProvider?: {
+      getConnectionString: () => {
+        hosts: string[];
+      };
+    };
+  };
 };
 
 function createStore(options: Partial<QueryBarStoreOptions> = {}) {
-  const { serverVersion, localAppRegistry, globalAppRegistry, query } = options;
+  const {
+    serverVersion,
+    localAppRegistry,
+    globalAppRegistry,
+    query,
+    namespace,
+    dataProvider,
+  } = options;
+
+  const recentQueryStorage = new RecentQueryStorage(basepath, namespace);
+  const favoriteQueryStorage = new FavoriteQueryStorage(basepath, namespace);
+
   return _createStore(
     queryBarReducer,
     {
       ...INITIAL_STATE,
+      namespace: namespace ?? '',
+      host:
+        dataProvider?.dataProvider?.getConnectionString().hosts.join(',') ??
+        null,
       serverVersion: serverVersion ?? '3.6.0',
       fields: mapQueryToValidQueryFields({ ...DEFAULT_FIELD_VALUES, ...query }),
     },
     applyMiddleware(
-      thunk.withExtraArgument({ localAppRegistry, globalAppRegistry })
+      thunk.withExtraArgument({
+        localAppRegistry,
+        globalAppRegistry,
+        recentQueryStorage,
+        favoriteQueryStorage,
+      })
     )
   );
 }
