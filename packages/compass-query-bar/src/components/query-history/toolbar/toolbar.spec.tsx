@@ -1,47 +1,34 @@
 import React from 'react';
 import { expect } from 'chai';
-import sinon from 'sinon';
+import Sinon from 'sinon';
 import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import mongodbns from 'mongodb-ns';
 
 import { Toolbar } from './toolbar';
 
-function renderQueryHistoryToolbar(
-  props?: Partial<React.ComponentProps<typeof Toolbar>>
-) {
+function renderToolbar(props?: Partial<React.ComponentProps<typeof Toolbar>>) {
   return render(
     <Toolbar
-      actions={{
-        showRecent: sinon.stub(),
-        showFavorites: sinon.stub(),
-      }}
-      namespace={mongodbns('test.test')}
-      showing="recent"
+      tab="recent"
+      namespace={'test.test'}
+      onChange={() => {}}
       {...props}
     />
   );
 }
 
 describe('Toolbar [Component]', function () {
-  let actions;
-
+  let onChangeSpy: Sinon.SinonSpy;
   beforeEach(function () {
-    actions = {
-      showRecent: sinon.stub(),
-      showFavorites: sinon.stub(),
-    };
+    onChangeSpy = Sinon.spy();
   });
 
   afterEach(cleanup);
 
   describe('#rendering', function () {
     beforeEach(function () {
-      renderQueryHistoryToolbar({
-        actions,
-      });
+      renderToolbar();
     });
-
     it('renders a tablist component', function () {
       expect(screen.getByRole('tablist')).to.be.visible;
     });
@@ -55,9 +42,9 @@ describe('Toolbar [Component]', function () {
   describe('#behavior', function () {
     describe('when viewing the Recent Queries tab', function () {
       beforeEach(function () {
-        renderQueryHistoryToolbar({
-          actions,
-          showing: 'recent',
+        renderToolbar({
+          tab: 'recent',
+          onChange: onChangeSpy,
         });
       });
 
@@ -67,7 +54,8 @@ describe('Toolbar [Component]', function () {
         ).getByRole('tab');
 
         userEvent.click(favoritesTab);
-        expect(actions.showFavorites).to.have.been.calledOnce;
+        expect(onChangeSpy.calledOnce).to.be.true;
+        expect(onChangeSpy.firstCall.firstArg).to.equal('favorite');
       });
 
       it('it should be a no-op when the Recents button is clicked', function () {
@@ -76,15 +64,15 @@ describe('Toolbar [Component]', function () {
         ).getByRole('tab');
 
         userEvent.click(recentsTab);
-        expect(actions.showFavorites).to.not.have.been.calledOnce;
+        expect(onChangeSpy.callCount).to.equal(0);
       });
     });
 
     describe('when viewing the Favorites tab', function () {
       beforeEach(function () {
-        renderQueryHistoryToolbar({
-          actions,
-          showing: 'favorites',
+        renderToolbar({
+          tab: 'favorite',
+          onChange: onChangeSpy,
         });
       });
 
@@ -94,7 +82,8 @@ describe('Toolbar [Component]', function () {
         ).getByRole('tab');
 
         userEvent.click(recentsTab);
-        expect(actions.showRecent).to.have.been.calledOnce;
+        expect(onChangeSpy.calledOnce).to.be.true;
+        expect(onChangeSpy.firstCall.firstArg).to.equal('recent');
       });
 
       it('it should be a no-op when the Favorites button is clicked', function () {
@@ -103,7 +92,7 @@ describe('Toolbar [Component]', function () {
         ).getByRole('tab');
 
         userEvent.click(favoritesTab);
-        expect(actions.showRecent).to.not.have.been.calledOnce;
+        expect(onChangeSpy.callCount).to.equal(0);
       });
     });
   });

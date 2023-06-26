@@ -9,7 +9,7 @@ import {
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import QueryHistory from './query-history';
 import { connect } from 'react-redux';
-import { fetchRecents } from '../stores/query-bar-reducer';
+import { fetchSavedQueries } from '../stores/query-bar-reducer';
 
 const openQueryHistoryButtonStyles = css(
   {
@@ -96,5 +96,5 @@ const QueryHistoryButtonPopover = ({
 };
 
 export default connect(null, {
-  onOpenPopover: fetchRecents,
+  onOpenPopover: fetchSavedQueries,
 })(QueryHistoryButtonPopover);

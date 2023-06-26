@@ -1,7 +1,7 @@
 import type { Document } from 'mongodb';
 
 // these state properties make up a "query"
-const QUERY_PROPERTIES = [
+export const QUERY_PROPERTIES = [
   'filter',
   'project',
   'collation',
@@ -13,15 +13,23 @@ const QUERY_PROPERTIES = [
 
 export type QueryProperty = typeof QUERY_PROPERTIES[number];
 
-export type BaseQuery = Partial<{
-  filter: Document;
-  project: Document;
-  collation: Document;
-  sort: Document;
-  skip: number;
-  limit: number;
-  maxTimeMS: number;
-}>;
+// How each query property is represented in state.
+type FormField<T> = {
+  value: T;
+  string: string;
+  valid: boolean;
+};
 
-export default QUERY_PROPERTIES;
-export { QUERY_PROPERTIES };
+export type QueryFormFields = {
+  filter: FormField<Document>;
+  project: FormField<Document>;
+  collation: FormField<Document>;
+  sort: FormField<Document>;
+  skip: FormField<number>;
+  limit: FormField<number>;
+  maxTimeMS: FormField<number>;
+};
+
+export type BaseQuery = Partial<{
+  [key in keyof QueryFormFields]: QueryFormFields[key]['value'];
+}>;

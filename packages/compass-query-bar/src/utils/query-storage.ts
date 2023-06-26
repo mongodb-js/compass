@@ -8,10 +8,10 @@ const ENCODING_UTF8 = 'utf8';
 
 // We do not save maxTimeMS
 export type RecentQuery = Omit<BaseQuery, 'maxTimeMS'> & {
-  _host: string;
   _id: string;
   _lastExecuted: Date;
   _ns: string;
+  _host?: string;
 };
 
 export type FavoriteQuery = RecentQuery & {
@@ -20,7 +20,7 @@ export type FavoriteQuery = RecentQuery & {
   _dateSaved: Date;
 };
 
-abstract class QueryStorage<T extends RecentQuery> {
+export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
   constructor(
     protected readonly path: string,
     protected readonly namespace: string = ''
@@ -36,12 +36,7 @@ abstract class QueryStorage<T extends RecentQuery> {
       await Promise.all(files.map((filePath) => this.getFileData(filePath)))
     ).filter(Boolean) as T[];
 
-    // todo: new Date
-    const sortedData = orderBy(
-      data,
-      (query) => new Date(query._lastExecuted),
-      'desc'
-    );
+    const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
 
     if (this.namespace) {
       return sortedData.filter((x) => x._ns === this.namespace);
@@ -64,7 +59,6 @@ abstract class QueryStorage<T extends RecentQuery> {
       EJSON.stringify(updated, undefined, 2),
       ENCODING_UTF8
     );
-    // todo: fix type
     return updated as T;
   }
 

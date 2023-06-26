@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import AppRegistry from 'hadron-app-registry';
 import QueryBar from './query-bar';
 import { Provider } from 'react-redux';
 import { configureStore } from '../stores/query-bar-store';
@@ -17,46 +16,13 @@ const noop = () => {
 
 const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
-const queryHistoryComponentTestId = 'query-history-component-test-id';
-
-const QueryHistoryMockComponent = () => (
-  <div data-testid={queryHistoryComponentTestId}>
-    <div>Query history</div>
-    <button type="button" onClick={() => {}}>
-      Button
-    </button>
-  </div>
-);
-
-const mockQueryHistoryRole = {
-  name: 'Query History',
-  // eslint-disable-next-line react/display-name
-  component: QueryHistoryMockComponent,
-  configureStore: () => ({}),
-  configureActions: () => {},
-  storeName: 'Query.History',
-  actionName: 'Query.History.Actions',
-};
+const queryHistoryComponentTestId = 'query-history';
 
 const renderQueryBar = ({
   expanded = false,
   ...props
 }: Partial<ComponentProps<typeof QueryBar>> & { expanded?: boolean } = {}) => {
-  const globalAppRegistry = new AppRegistry();
-  globalAppRegistry.registerRole('Query.QueryHistory', mockQueryHistoryRole);
-
-  const localAppRegistry = new AppRegistry();
-
-  localAppRegistry.registerStore('Query.History', {
-    onActivated: noop,
-  });
-
-  localAppRegistry.registerAction('Query.History.Actions', {
-    actions: true,
-  });
-
-  const store = configureStore({ localAppRegistry, globalAppRegistry });
-
+  const store = configureStore();
   store.dispatch(toggleQueryOptions(expanded));
 
   render(

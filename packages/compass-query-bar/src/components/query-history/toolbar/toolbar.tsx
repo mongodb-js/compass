@@ -10,7 +10,7 @@ import {
   Icon,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { SavedQueryTab } from '..';
+import { type QueryHistoryTab } from '../../../stores/query-bar-reducer';
 
 const titleStyles = css({
   display: 'block',
@@ -42,8 +42,8 @@ const viewSwitcherStyles = css({
 });
 
 type ToolbarProps = {
-  tab: SavedQueryTab;
-  onChange: (tab: SavedQueryTab) => void;
+  tab: QueryHistoryTab;
+  onChange: (tab: QueryHistoryTab) => void;
   namespace: string;
 };
 
@@ -73,9 +73,10 @@ function Toolbar({
         id={controlId}
         aria-labelledby={labelId}
         value={tab}
-        onChange={(value: string) => onChange(value as SavedQueryTab)}
+        onChange={(value: string) => onChange(value as QueryHistoryTab)}
       >
         <SegmentedControlOption
+          aria-controls="recent"
           value="recent"
           data-testid="past-queries-recent"
           glyph={<Icon glyph="Clock" />}
@@ -83,6 +84,7 @@ function Toolbar({
           Recents
         </SegmentedControlOption>
         <SegmentedControlOption
+          aria-controls="favorite"
           value="favorite"
           data-testid="past-queries-favorites"
           glyph={<Icon glyph="Favorite" />}

@@ -37,6 +37,7 @@ export const SaveQueryForm = forwardRef<HTMLFormElement, SaveQueryFormProps>(
     const controlId = useId();
     return (
       <form
+        data-testid="query-history-favorite-form"
         ref={ref}
         className={formStyles}
         onSubmit={(event) => {
