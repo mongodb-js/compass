@@ -49,7 +49,6 @@ import {
   showStartingToast,
 } from '../components/import-toast';
 import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
-import type AppRegistry from 'hadron-app-registry';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -197,18 +196,6 @@ async function getErrorLogPath(fileName: string) {
   const errorLogFileName = `import-${path.basename(fileName)}.log`;
 
   return path.join(importErrorLogsPath, errorLogFileName);
-}
-
-async function signalBloatedDocuments(appRegistry: AppRegistry) {
-  const instanceStore: any = appRegistry.getStore('App.InstanceStore');
-  if (instanceStore && instanceStore.fetchCollectionMetadata) {
-    const collMetadata = await instanceStore.fetchCollectionMetadata(ns);
-    showBloatedDocumentSignalToast({
-      onReviewDocumentsClick: () => {
-        appRegistry.emit('open-namespace-in-new-tab', collMetadata);
-      },
-    });
-  }
 }
 
 export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
@@ -417,7 +404,13 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
       });
     } else {
       if (result.biggestDocSize > 10_000_000 && appRegistry !== null) {
-        await signalBloatedDocuments(appRegistry);
+        showBloatedDocumentSignalToast({
+          onReviewDocumentsClick: () => {
+            appRegistry.emit('import-export-open-collection-in-new-tab', {
+              ns,
+            });
+          },
+        });
       }
 
       if (errors.length > 0) {
