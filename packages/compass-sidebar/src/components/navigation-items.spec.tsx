@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { NavigationItems } from './navigation-items';
@@ -49,7 +49,9 @@ describe('NavigationItems [Component]', function () {
         showCreateDatabaseGuideCue: true,
       });
 
-      await waitFor(() => screen.getByRole('dialog'));
+      await screen.findByRole('dialog', undefined, {
+        timeout: 2000,
+      });
       expect(screen.getByText('It looks a bit empty around here')).to.exist;
     });
   });
