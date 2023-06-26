@@ -198,7 +198,6 @@
     "@mongodb-js/compass-instance": "^4.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-query-bar": "^8.10.0",
-    "@mongodb-js/compass-query-history": "^9.10.0",
     "@mongodb-js/compass-saved-aggregations-queries": "^1.11.0",
     "@mongodb-js/compass-schema": "^6.11.0",
     "@mongodb-js/compass-schema-validation": "^6.10.0",

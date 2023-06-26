@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
-import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
+import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
-import type { Query } from '@mongodb-js/compass-query-history';
+import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
 import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
@@ -36,7 +36,7 @@ type EditItemCancelledAction = {
 type EditItemUpdatedAction = {
   type: ActionTypes.EditItemUpdated;
   id: string;
-  payload: Query | StoredPipeline;
+  payload: FavoriteQuery | StoredPipeline;
 };
 
 export type Actions =

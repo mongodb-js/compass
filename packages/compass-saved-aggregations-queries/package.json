@@ -58,7 +58,7 @@
     "@mongodb-js/compass-aggregations": "^9.11.0",
     "@mongodb-js/compass-components": "^1.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
-    "@mongodb-js/compass-query-history": "^9.10.0",
+    "@mongodb-js/compass-query-bar": "^8.10.0",
     "bson": "^5.2.0",
     "react": "^17.0.2"
   },
@@ -66,7 +66,7 @@
     "@mongodb-js/compass-aggregations": "^9.11.0",
     "@mongodb-js/compass-components": "^1.10.0",
     "@mongodb-js/compass-logging": "^1.1.6",
-    "@mongodb-js/compass-query-history": "^9.10.0",
+    "@mongodb-js/compass-query-bar": "^8.10.0",
     "bson": "^5.2.0"
   },
   "devDependencies": {

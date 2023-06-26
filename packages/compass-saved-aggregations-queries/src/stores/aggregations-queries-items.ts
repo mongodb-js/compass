@@ -1,7 +1,7 @@
 import type { Dispatch, Reducer } from 'redux';
 import toNS from 'mongodb-ns';
-import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
-import type { Query } from '@mongodb-js/compass-query-history';
+import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
+import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
@@ -29,7 +29,7 @@ export type Item = {
 } & (
   | {
       type: 'query';
-      query: Query;
+      query: FavoriteQuery;
     }
   | {
       type: 'aggregation';
@@ -75,7 +75,7 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
       }
       const updatedItem =
         item.type === 'query'
-          ? mapQueryToItem(action.payload as Query)
+          ? mapQueryToItem(action.payload as FavoriteQuery)
           : mapAggregationToItem(action.payload as StoredPipeline);
       return {
         ...state,
@@ -131,12 +131,12 @@ const mapAggregationToItem = (aggregation: StoredPipeline): Item => {
   };
 };
 
-const mapQueryToItem = (query: Query): Item => {
+const mapQueryToItem = (query: FavoriteQuery): Item => {
   const { database, collection } = toNS(query._ns);
   return {
     id: query._id,
     name: query._name,
-    lastModified: query._dateModified ?? query._dateSaved,
+    lastModified: (query._dateModified ?? query._dateSaved).getTime(),
     database,
     collection,
     type: 'query',

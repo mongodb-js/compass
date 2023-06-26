@@ -1,4 +1,4 @@
-import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
+import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
