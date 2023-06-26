@@ -1,4 +1,5 @@
 import os from 'os';
+import { Transform } from 'stream';
 import type { Writable } from 'stream';
 
 import type { ImportResult, ErrorJSON } from './import-types';
@@ -12,6 +13,7 @@ const debug = createDebug('import');
 export function makeImportResult(
   collectionStream: WritableCollectionStream,
   numProcessed: number,
+  biggestDocSize: number,
   aborted?: boolean
 ): ImportResult {
   const result: ImportResult = {
@@ -22,6 +24,7 @@ export function makeImportResult(
     // produced parse errors and therefore never made it to the collection
     // stream.
     docsProcessed: numProcessed,
+    biggestDocSize,
   };
 
   if (aborted) {
@@ -124,4 +127,28 @@ export function processParseError({
       callback();
     }
   }
+}
+
+export function makeDocStatsStream() {
+  let biggestDocSize = 0;
+  const stream = new Transform({
+    objectMode: true,
+    transform: function (doc, encoding, callback) {
+      try {
+        const docString = JSON.stringify(doc);
+        biggestDocSize = Math.max(biggestDocSize, docString.length);
+      } catch (error) {
+        // We ignore the JSON stringification error
+      } finally {
+        callback(null, doc);
+      }
+    },
+  });
+
+  return {
+    docStatsStream: stream,
+    getStats: () => ({
+      biggestDocSize,
+    }),
+  };
 }

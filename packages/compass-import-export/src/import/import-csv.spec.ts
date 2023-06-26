@@ -12,6 +12,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
+import { omit } from 'lodash';
 
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
@@ -108,7 +109,7 @@ describe('importCSV', function () {
           ignoreEmptyStrings: true,
         });
 
-        expect(result).to.deep.equal({
+        expect(omit(result, 'biggestDocSize')).to.deep.equal({
           docsProcessed: totalRows,
           docsWritten: totalRows,
           dbErrors: [],
@@ -258,7 +259,7 @@ describe('importCSV', function () {
           stopOnErrors: true,
         });
 
-        expect(result).to.deep.equal({
+        expect(omit(result, 'biggestDocSize')).to.deep.equal({
           docsProcessed: totalRows,
           docsWritten: totalRows,
           dbErrors: [],
@@ -349,7 +350,7 @@ describe('importCSV', function () {
     const errorLog = await fs.promises.readFile(output.path, 'utf8');
     expect(errorLog).to.equal('');
 
-    expect(result).to.deep.equal({
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
       docsProcessed: totalRows,
       docsWritten: totalRows,
       dbErrors: [],
@@ -421,7 +422,7 @@ describe('importCSV', function () {
     const errorLog = await fs.promises.readFile(output.path, 'utf8');
     expect(errorLog).to.equal('');
 
-    expect(result).to.deep.equal({
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
       docsProcessed: 2000,
       docsWritten: 2000,
       dbErrors: [],
@@ -869,7 +870,7 @@ describe('importCSV', function () {
     });
 
     // only looked at the first row because we aborted before even starting
-    expect(result).to.deep.equal({
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
       aborted: true,
       docsProcessed: 0,
       docsWritten: 0,

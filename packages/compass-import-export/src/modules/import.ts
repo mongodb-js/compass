@@ -40,6 +40,7 @@ import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
 import {
+  showBloatedDocumentSignalToast,
   showCancelledToast,
   showCompletedToast,
   showCompletedWithErrorsToast,
@@ -48,6 +49,7 @@ import {
   showStartingToast,
 } from '../components/import-toast';
 import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
+import type AppRegistry from 'hadron-app-registry';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -197,6 +199,18 @@ async function getErrorLogPath(fileName: string) {
   return path.join(importErrorLogsPath, errorLogFileName);
 }
 
+async function signalBloatedDocuments(appRegistry: AppRegistry) {
+  const instanceStore: any = appRegistry.getStore('App.InstanceStore');
+  if (instanceStore && instanceStore.fetchCollectionMetadata) {
+    const collMetadata = await instanceStore.fetchCollectionMetadata(ns);
+    showBloatedDocumentSignalToast({
+      onReviewDocumentsClick: () => {
+        appRegistry.emit('open-namespace-in-new-tab', collMetadata);
+      },
+    });
+  }
+}
+
 export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
   return async (
     dispatch: ImportThunkDispatch<AnyAction>,
@@ -219,6 +233,7 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
         transform,
       },
       dataService: { dataService },
+      globalAppRegistry: appRegistry,
     } = getState();
 
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
@@ -401,6 +416,10 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
         errorLogFilePath: errorLogFilePath,
       });
     } else {
+      if (result.biggestDocSize > 10 && appRegistry !== null) {
+        await signalBloatedDocuments(appRegistry);
+      }
+
       if (errors.length > 0) {
         showCompletedWithErrorsToast({
           docsWritten: result.docsWritten,
