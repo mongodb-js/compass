@@ -9,7 +9,9 @@ import {
   palette,
   useDarkMode,
   IconButton,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
+import type { Signal } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -18,6 +20,8 @@ import { hasSyntaxError } from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { getInsightForStage } from '../../utils/insights';
+import { usePreference } from 'compass-preferences-model';
 
 const toolbarStyles = css({
   width: '100%',
@@ -59,12 +63,15 @@ const leftStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-start',
-  gap: spacing[1],
+  gap: spacing[1] * 3,
   width: '388px', // default width of the stage editor
 });
 
-const selectStyles = css({
-  marginRight: spacing[2],
+const shortSpacedStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+  whiteSpace: 'nowrap',
 });
 
 const textStyles = css({
@@ -91,6 +98,7 @@ type StageToolbarProps = {
   hasServerError?: boolean;
   isCollapsed?: boolean;
   isDisabled?: boolean;
+  insight?: Signal;
   onOpenFocusMode: (index: number) => void;
   onStageOperatorChange?: (
     index: number,
@@ -110,9 +118,11 @@ export function StageToolbar({
   hasServerError,
   isCollapsed,
   isDisabled,
+  insight,
   onOpenFocusMode,
   onStageOperatorChange,
 }: StageToolbarProps) {
+  const showInsights = usePreference('showInsights', React);
   const darkMode = useDarkMode();
 
   return (
@@ -127,12 +137,13 @@ export function StageToolbar({
       )}
     >
       <div className={leftStyles}>
-        <StageCollapser index={index} />
-        <Body weight="medium">Stage {idxInPipeline + 1}</Body>
-        <div className={selectStyles}>
+        <div className={shortSpacedStyles}>
+          <StageCollapser index={index} />
+          <Body weight="medium">Stage {idxInPipeline + 1}</Body>
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
         <ToggleStage index={index} />
+        {showInsights && insight && <SignalPopover signals={insight} />}
       </div>
       <div className={textStyles}>
         {isDisabled ? DISABLED_TEXT : isCollapsed ? COLLAPSED_TEXT : null}
@@ -158,6 +169,7 @@ type StageToolbarOwnProps = Pick<StageToolbarProps, 'index'>;
 export default connect(
   (state: RootState, ownProps: StageToolbarOwnProps) => {
     const {
+      env,
       pipelineBuilder: {
         stageEditor: { stages },
       },
@@ -170,6 +182,7 @@ export default connect(
       hasServerError: !!stage.serverError,
       isCollapsed: stage.collapsed,
       isDisabled: stage.disabled,
+      insight: getInsightForStage(stage, env),
     };
   },
   {
