@@ -1,8 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
   ErrorSummary,
+  Icon,
   IconButton,
+  SpinLoader,
   TextInput,
   css,
   palette,
@@ -42,13 +44,23 @@ const floatingButtonsContainerStyles = css({
   top: spacing[2],
   right: spacing[1],
   display: 'flex',
-  gap: spacing[1],
+  gap: spacing[2],
   alignItems: 'center',
   height: spacing[4] + spacing[1],
 });
 
-const closeButtonStyles = css({
-  // display: ''
+const successIndicatorDarkModeStyles = css({
+  color: palette.gray.dark3,
+  backgroundColor: palette.green.base,
+  padding: spacing[1],
+  borderRadius: '50%',
+});
+
+const successIndicatorLightModeStyles = css({
+  color: palette.white,
+  backgroundColor: palette.green.dark1,
+  padding: spacing[1],
+  borderRadius: '50%',
 });
 
 const generateButtonStyles = css({
@@ -61,6 +73,7 @@ const generateButtonStyles = css({
 const closeText = 'Close AI Query';
 
 type AITextInputProps = {
+  isFetching?: boolean;
   didSucceed: boolean;
   errorMessage?: string;
   show: boolean;
@@ -93,12 +106,15 @@ const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
 );
 
 function AITextInput({
+  isFetching,
+  didSucceed,
   errorMessage,
   show,
   onClose,
   onSubmitText,
 }: AITextInputProps) {
   const [text, setText] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
   const darkMode = useDarkMode();
 
   const onTextInputKeyDown = useCallback(
@@ -107,12 +123,23 @@ function AITextInput({
         evt.preventDefault();
         onSubmitText(text);
       } else if (evt.key === 'Escape') {
-        // TODO: Is it esc?
         onClose();
       }
     },
     [text, onClose, onSubmitText]
   );
+
+  useEffect(() => {
+    if (didSucceed) {
+      setShowSuccess(true);
+
+      const timeoutId = setTimeout(() => {
+        setShowSuccess(false);
+      }, 1500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [didSucceed]);
 
   if (!show) {
     return null;
@@ -134,6 +161,17 @@ function AITextInput({
           onKeyDown={onTextInputKeyDown}
         />
         <div className={floatingButtonsContainerStyles}>
+          {isFetching && <SpinLoader />}
+          {showSuccess && (
+            <Icon
+              className={
+                darkMode
+                  ? successIndicatorDarkModeStyles
+                  : successIndicatorLightModeStyles
+              }
+              glyph="CheckmarkWithCircle"
+            />
+          )}
           <Button
             size="small"
             className={generateButtonStyles}
@@ -145,7 +183,6 @@ function AITextInput({
           <IconButton
             aria-label={closeText}
             title={closeText}
-            className={closeButtonStyles}
             onClick={() => onClose()}
           >
             <RobotSVG />
@@ -163,12 +200,14 @@ function AITextInput({
   );
 }
 
-export {};
 const ConnectedAITextInput = connect(
   (state: RootState) => {
     return {
-      errorMessage: state.aiQuery.errorMessage,
+      isFetching:
+        state.aiQuery.aiQueryAbortController &&
+        !state.aiQuery.aiQueryAbortController.signal.aborted,
       didSucceed: state.aiQuery.didSucceed,
+      errorMessage: state.aiQuery.errorMessage,
     };
   },
   {

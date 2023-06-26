@@ -2,6 +2,8 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
+import { runFetchAIQuery } from '../modules/ai-query-request';
+
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
 export type AIQueryState = {
@@ -47,22 +49,13 @@ type AIQueryFailedAction = {
   errorMessage: string;
 };
 
-type AIQuerySucceededAction = {
+export type AIQuerySucceededAction = {
   type: AIQueryActionTypes.AIQuerySucceeded;
+  query: unknown;
 };
 
-function getAIQueryEndpoint(): string {
-  if (!process.env.DEV_AI_QUERY_ENDPOINT) {
-    throw new Error(
-      'No AI Query endpoint to fetch. Please specific in the environment variable `DEV_AI_QUERY_ENDPOINT`'
-    );
-  }
-
-  return process.env.DEV_AI_QUERY_ENDPOINT;
-}
-
 export const runAIQuery = (
-  text: string
+  userPrompt: string
 ): AIQueryThunkAction<
   Promise<void>,
   | AIQueryStartedAction
@@ -71,11 +64,11 @@ export const runAIQuery = (
   | AIQuerySucceededAction
 > => {
   return async (dispatch, getState) => {
-    const { aiQueryAbortController } = getState();
+    const { aiQueryAbortController: existingAbortController } = getState();
 
-    if (aiQueryAbortController) {
+    if (existingAbortController) {
       // Cancel any current request (this one will override).
-      aiQueryAbortController.abort();
+      existingAbortController.abort();
     }
 
     const abortController = new AbortController();
@@ -85,24 +78,18 @@ export const runAIQuery = (
       abortController,
     });
 
-    log.info(mongoLogId(1_001_000_193), 'AIQuery', 'Start AI Query Request', {
-      text,
-    });
-
+    let jsonResponse;
     try {
-      // TODO: run ai query with env variable for the endpoint.
-      const endpoint = `${getAIQueryEndpoint()}/api/v1/generate-query`;
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text,
-        }),
+      jsonResponse = await runFetchAIQuery({
+        signal: abortController.signal,
+        userPrompt,
       });
-      console.log('res', res);
     } catch (err: any) {
+      if (abortController.signal.aborted) {
+        // If we already aborted so we ignore the error.
+        return;
+      }
+
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
@@ -111,15 +98,42 @@ export const runAIQuery = (
     }
 
     if (abortController.signal.aborted) {
-      // TODO: Also in the catch?
       dispatch({
         type: AIQueryActionTypes.AIQueryCancelled,
       });
       return;
     }
 
+    let query;
+    try {
+      if (!jsonResponse?.query) {
+        throw new Error(
+          'No query returned. Please try again with a different prompt.'
+        );
+      }
+
+      query = jsonResponse.query;
+    } catch (err: any) {
+      dispatch({
+        type: AIQueryActionTypes.AIQueryFailed,
+        errorMessage: err?.message,
+      });
+      return;
+    }
+
+    // Error if the response is empty.
+    if (!query || Object.keys(query)) {
+      dispatch({
+        type: AIQueryActionTypes.AIQueryFailed,
+        errorMessage:
+          'No query was returned from the ai. Consider re-wording your prompt.',
+      });
+      return;
+    }
+
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
+      query,
     });
   };
 };
@@ -153,15 +167,22 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       AIQueryActionTypes.AIQueryCancelled
     )
   ) {
-    return {
-      ...state,
-      errorMessage: 'Cancelled', // TODO: Cancelling messaging
-    };
+    log.info(
+      mongoLogId(1_001_000_197),
+      'AIQuery',
+      'Cancelled ai query request'
+    );
+    return state;
   }
 
   if (isAction<AIQueryFailedAction>(action, AIQueryActionTypes.AIQueryFailed)) {
+    log.info(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+      errorMessage: action.errorMessage,
+    });
+
     return {
       ...state,
+      aiQueryAbortController: undefined,
       errorMessage: action.errorMessage,
     };
   }
@@ -172,8 +193,17 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       AIQueryActionTypes.AIQuerySucceeded
     )
   ) {
+    log.info(
+      mongoLogId(1_001_000_199),
+      'AIQuery',
+      'AI query request succeeded',
+      {
+        query: action.query,
+      }
+    );
     return {
       ...state,
+      aiQueryAbortController: undefined,
       didSucceed: true,
     };
   }

@@ -75,6 +75,11 @@ const moreOptionsContainerStyles = css({
 const filterContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
+
+  // Override codemirror styles to make the `Ask AI` button clickable.
+  '& .cm-placeholder': {
+    pointerEvents: 'auto !important',
+  },
 });
 
 const filterLabelStyles = css({
@@ -106,14 +111,6 @@ const QueryMoreOptionsToggle = connect(
   },
   { onToggleOptions: toggleQueryOptions }
 )(MoreOptionsToggle);
-
-// TODO: Have somewhere nice.
-// // Override codemirror styles to make the `Ask AI` button clickable.
-// const codeEditorStyles = css({
-//   '& .cm-placeholder': {
-//     pointerEvents: 'auto',
-//   },
-// });
 
 type QueryBarProps = {
   buttonLabel?: string;

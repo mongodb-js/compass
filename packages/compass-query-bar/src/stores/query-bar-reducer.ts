@@ -1,4 +1,4 @@
-import type { Reducer, AnyAction, Store } from 'redux';
+import type { Reducer, AnyAction } from 'redux';
 import React from 'react';
 import queryParser from 'mongodb-query-parser';
 import preferences from 'compass-preferences-model';
@@ -13,6 +13,8 @@ import { QUERY_PROPERTIES } from '../constants/query-properties';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
 import type { QueryBarThunkAction } from './query-bar-store';
+import { AIQueryActionTypes } from './ai-query-reducer';
+import type { AIQuerySucceededAction } from './ai-query-reducer';
 
 export function isQueryValid(state: QueryBarState) {
   return QUERY_PROPERTIES.every((prop) => {
@@ -363,7 +365,14 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (
-    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
+    isAction<ApplyFromHistoryAction>(
+      action,
+      QueryBarActions.ApplyFromHistory
+    ) ||
+    isAction<AIQuerySucceededAction>(
+      action,
+      AIQueryActionTypes.AIQuerySucceeded
+    )
   ) {
     return {
       ...state,

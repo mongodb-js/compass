@@ -97,16 +97,13 @@ function createAIPlaceholderHTMLPlaceholder({
     onClickAI();
   };
 
-  // The styles are applied to the className.
   aiButtonEl.className = cx(
     aiQueryEntryStyles,
     darkMode ? aiQueryEntryDarkModeStyles : aiQueryEntryLightModeStyles
   );
 
-  const aiColor = darkMode ? palette.green.dark1 : palette.green.dark2;
-
   const robotIconSVG = `<span>Ask AI</span>
-${getRobotSVGString(aiColor)}`;
+${getRobotSVGString()}`;
   aiButtonEl.innerHTML = robotIconSVG;
 
   containerEl.appendChild(aiButtonEl);
