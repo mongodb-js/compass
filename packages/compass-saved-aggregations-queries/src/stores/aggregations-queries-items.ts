@@ -10,6 +10,7 @@ import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
 import type { Actions as EditItemActions } from './edit-item';
 import { ActionTypes as EditItemActionTypes } from './edit-item';
+import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 export enum ActionTypes {
   ITEMS_FETCHED = 'compass-saved-aggregations-queries/itemsFetched',
@@ -47,7 +48,8 @@ const INITIAL_STATE: State = {
   items: [],
 };
 
-const favoriteQueryStorage = new FavoriteQueryStorage();
+const { basepath } = getStoragePaths() ?? {};
+const favoriteQueryStorage = new FavoriteQueryStorage(basepath);
 const pipelineStorage = new PipelineStorage();
 
 const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
