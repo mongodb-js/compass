@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Jun 20 2023.
+This document was automatically generated on Tue Jun 27 2023.
 
 ## List of dependencies
 
@@ -256,7 +256,7 @@ This document was automatically generated on Tue Jun 20 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                            | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                   | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                     | 1.0.0        | Apache-2.0                          |
-| **[electron](#f37cfbbadc9e500b7c8f95e854950f78ae937c81c01442de1f7157e077632b1f)**                                      | 23.3.7       | MIT                                 |
+| **[electron](#6717a6bffa40416abb080743ada9d1cbc9006eafc5f3751f08d9f2f9fbadcedc)**                                      | 23.3.8       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                     | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                 | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                  | 3.0.1        | MIT                                 |
@@ -557,7 +557,7 @@ This document was automatically generated on Tue Jun 20 2023.
 | **[semver](#e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d)**                                        | 5.7.1        | ISC                                 |
 | **[semver](#24cd86d9f27cebacf43c9e9870102fe20fe9d787608ebd41dca9afe1d2e4790c)**                                        | 6.3.0        | ISC                                 |
 | **[semver](#37ac96eaf12c2e26f71e38ad2458ac1cc4c424d9b8c9da62a9737625817f2455)**                                        | 7.5.1        | ISC                                 |
-| **[semver](#c76a6327bb95658a6811574fb25947962bbf7675ba13c8ecc8ef383fc85aa450)**                                        | 7.5.2        | ISC                                 |
+| **[semver](#dc15557e7a5e410129cada0ae41bbe5dca51b2cee667108e2846d4da1bc87950)**                                        | 7.5.3        | ISC                                 |
 | **[send](#a5aa96052b8bf57c58c38d6fae3a3b7d94ec212b6100f58a8260eb2f6a8cff6d)**                                          | 0.18.0       | MIT                                 |
 | **[serve-static](#03156d123ff3a9482fa09d97af4668d5e2ae058c4e3d2c67fe4a1c0c072403f0)**                                  | 1.15.0       | MIT                                 |
 | **[setprototypeof](#7787a1d3bc2f39b65d75407d5d8d02d8ddb70f1cdb74897f15115e995fb64a56)**                                | 1.2.0        | ISC                                 |
@@ -23137,9 +23137,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="f37cfbbadc9e500b7c8f95e854950f78ae937c81c01442de1f7157e077632b1f"></a>
+<a id="6717a6bffa40416abb080743ada9d1cbc9006eafc5f3751f08d9f2f9fbadcedc"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 23.3.7)
+### [electron](https://www.npmjs.com/package/electron) (version 23.3.8)
 
 License tags: MIT
 
@@ -42418,9 +42418,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="c76a6327bb95658a6811574fb25947962bbf7675ba13c8ecc8ef383fc85aa450"></a>
+<a id="dc15557e7a5e410129cada0ae41bbe5dca51b2cee667108e2846d4da1bc87950"></a>
 
-### [semver](https://www.npmjs.com/package/semver) (version 7.5.2)
+### [semver](https://www.npmjs.com/package/semver) (version 7.5.3)
 
 License tags: ISC
 

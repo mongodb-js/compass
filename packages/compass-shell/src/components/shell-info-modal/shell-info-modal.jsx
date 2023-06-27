@@ -8,6 +8,7 @@ import {
   Subtitle,
   spacing,
 } from '@mongodb-js/compass-components';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
 
@@ -26,6 +27,18 @@ const shortcutsTitleStyles = css({
 });
 
 function ShellInfoModal({ hideInfoModal, show }) {
+  useTrackOnChange(
+    'COMPASS-SHELL',
+    (track) => {
+      if (show) {
+        track('Screen', { name: 'shell_info_modal' });
+      }
+    },
+    [show],
+    undefined,
+    React
+  );
+
   const onClose = useCallback(() => {
     hideInfoModal();
   }, [hideInfoModal]);
@@ -34,7 +47,6 @@ function ShellInfoModal({ hideInfoModal, show }) {
     <InfoModal
       open={show}
       title={`mongosh ${mongoshVersion}`}
-      trackingId="shell_info_modal"
       data-testid="shell-info-modal"
       onClose={onClose}
     >

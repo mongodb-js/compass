@@ -12,7 +12,9 @@ import {
   Tooltip,
   useHotkeys,
   formatHotkey,
+  SignalPopover,
 } from '@mongodb-js/compass-components';
+import type { Signal } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
@@ -22,6 +24,8 @@ import {
 } from '../../modules/focus-mode';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { getInsightForStage } from '../../utils/insights';
+import { usePreference } from 'compass-preferences-model';
 
 type Stage = {
   idxInStore: number;
@@ -32,6 +36,7 @@ type FocusModeModalHeaderProps = {
   stageIndex: number;
   isEnabled: boolean;
   stages: Stage[];
+  insight?: Signal;
   onStageSelect: (index: number) => void;
   onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;
@@ -88,12 +93,14 @@ export const FocusModeModalHeader: React.FunctionComponent<
 > = ({
   stageIndex,
   isEnabled,
+  insight,
   stages,
   onAddStageClick,
   onStageSelect,
   onStageDisabledToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const showInsights = usePreference('showInsights', React);
 
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
@@ -301,6 +308,8 @@ export const FocusModeModalHeader: React.FunctionComponent<
           Add stage before
         </MenuItem>
       </Menu>
+
+      {showInsights && insight && <SignalPopover signals={insight} />}
     </div>
   );
 };
@@ -308,6 +317,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
 export default connect(
   (state: RootState) => {
     const {
+      env,
       focusMode: { stageIndex },
       pipelineBuilder: {
         stageEditor: { stages },
@@ -318,6 +328,7 @@ export default connect(
     return {
       stageIndex,
       isEnabled: !stage?.disabled,
+      insight: stage ? getInsightForStage(stage, env) : undefined,
       stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
         if (stage.type === 'stage') {
           accumulator.push({

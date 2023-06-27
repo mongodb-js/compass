@@ -2,12 +2,14 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { FormModal, Banner, Link } from '@mongodb-js/compass-components';
-
 import { createDatabase } from '../../modules/create-database';
 import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 import CollectionFields from '../collection-fields';
 import styles from './create-database-modal.module.less';
+
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-DATABASES-COLLECTIONS-UI');
 
 // The more information url.
 const INFO_URL_CREATE_DB =
@@ -34,6 +36,12 @@ class CreateDatabaseModal extends PureComponent {
   state = {
     data: {},
   };
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.isVisible !== this.props.isVisible && this.props.isVisible) {
+      track('Screen', { name: 'create_database_modal' });
+    }
+  }
 
   /**
    * Called when the error message close icon is clicked.
@@ -96,7 +104,6 @@ class CreateDatabaseModal extends PureComponent {
         submitDisabled={
           !hasCollectionName || !(this.state.data.database || '').trim()
         }
-        trackingId="create_database_modal"
         data-testid="create-database-modal"
       >
         <CollectionFields

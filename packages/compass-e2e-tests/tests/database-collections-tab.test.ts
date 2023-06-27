@@ -77,7 +77,6 @@ describe('Database collections tab', function () {
       'Documents',
       'Aggregations',
       'Schema',
-      'Explain Plan',
       'Indexes',
       'Validation',
     ].map((selector) => Selectors.collectionTab(selector));
