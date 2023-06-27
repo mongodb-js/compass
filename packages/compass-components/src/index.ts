@@ -169,4 +169,5 @@ export {
 export { rafraf } from './utils/rafraf';
 export { ComboboxWithCustomOption } from './components/combobox-with-custom-option';
 export { usePersistedState } from './hooks/use-persisted-state';
-export { GuideCue } from './components/guide-cue/guide-cue';
+export { GuideCue, GuideCueProvider } from './components/guide-cue/guide-cue';
+export type { Cue, GroupCue } from './components/guide-cue/guide-cue';

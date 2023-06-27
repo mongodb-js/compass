@@ -1,9 +1,9 @@
 import { createContext, useContext, useState } from 'react';
 import type React from 'react';
 import AppRegistry from 'hadron-app-registry';
-import debugModule from 'debug';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-const debug = debugModule('mongodb-compass:home:app-registry-context');
+const { debug } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
 const AppRegistryContext = createContext(new AppRegistry());
 export default AppRegistryContext;
