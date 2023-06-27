@@ -6,7 +6,7 @@
  */
 const path = require('path');
 
-const { getPackages } = require('./monorepo/for-each-package');
+const { getPackages } = require('@mongodb-js/monorepo-tools');
 
 const rootDir = path.resolve(__dirname, '..');
 

@@ -2,9 +2,12 @@
 // private packages and peer dependencies being ignored by `lerna version`
 // command (see https://github.com/lerna/lerna/issues/1575)
 const path = require('path');
-const { runInDir } = require('./run-in-dir');
-const { updatePackageJson } = require('./monorepo/update-package-json');
-const { withProgress } = require('./monorepo/with-progress');
+
+const {
+  runInDir,
+  withProgress,
+  updatePackageJson,
+} = require('@mongodb-js/monorepo-tools');
 
 const LERNA_BIN = path.resolve(
   __dirname,

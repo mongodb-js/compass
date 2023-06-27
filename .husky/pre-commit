@@ -4,4 +4,4 @@
 # listings staged files only
 fileList=$(git diff --diff-filter=AM --cached --name-only)
 
-precommit $fileList
+npm run precommit $fileList
