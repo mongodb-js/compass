@@ -56,28 +56,36 @@ const COMPLEX_DOC = {
   ],
 };
 
-const createMockReadable = (readFn?: () => void) => {
+const createMockReadable = (readFn?: (readable: Readable) => void) => {
   let readCount = 0;
   return new Readable({
     objectMode: true,
-    read:
-      readFn ??
-      function () {
-        if (readCount === 0) {
-          this.push(SIMPLE_DOC_1);
-        } else if (readCount === 1) {
-          this.push(COMPLEX_DOC);
-        } else if (readCount === 2) {
-          this.push(SIMPLE_DOC_2);
-        } else {
-          this.push(null);
+    read: readFn
+      ? function () {
+          readFn(this);
         }
-        readCount++;
-      },
+      : function () {
+          if (readCount === 0) {
+            this.push(SIMPLE_DOC_1);
+          } else if (readCount === 1) {
+            this.push(COMPLEX_DOC);
+          } else if (readCount === 2) {
+            this.push(SIMPLE_DOC_2);
+          } else {
+            this.push(null);
+          }
+          readCount++;
+        },
   });
 };
 
-const createMockWritable = (writeFn = (c, e, callback) => callback()) =>
+const createMockWritable = (
+  writeFn = (
+    c: any,
+    e: string,
+    callback: (error?: Error, chunk?: any) => void
+  ) => callback()
+) =>
   new Writable({
     objectMode: true,
     write: writeFn,
@@ -99,9 +107,11 @@ describe('import-utils', function () {
     });
 
     it('should pass through the input unaltered', async function () {
-      const mockReadableStream = createMockReadable(function () {
-        this.push(COMPLEX_DOC);
-        this.push(null);
+      const mockReadableStream = createMockReadable(function (
+        readable: Readable
+      ) {
+        readable.push(COMPLEX_DOC);
+        readable.push(null);
       });
 
       const { docStatsStream } = makeDocStatsStream();
@@ -126,9 +136,11 @@ describe('import-utils', function () {
         };
         CIRCULAR_REF_DOC.refDoc = CIRCULAR_REF_DOC;
 
-        const mockReadableStream = createMockReadable(function () {
-          this.push(CIRCULAR_REF_DOC);
-          this.push(null);
+        const mockReadableStream = createMockReadable(function (
+          readable: Readable
+        ) {
+          readable.push(CIRCULAR_REF_DOC);
+          readable.push(null);
         });
 
         const { docStatsStream, getStats } = makeDocStatsStream();
