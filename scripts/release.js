@@ -50,17 +50,7 @@ program
     // if the previous version is too old (not in the range of the same minor GA)
     // we can assume that we need to release a beta.0,
     // otherwise we bump whatever other prerelease was in the package.json:
-
-    console.log({
-      currentCompassPackageVersion,
-      x: `${nextGa}-beta.0`,
-      lte: semver.lte(currentCompassPackageVersion, `${nextGa}-beta.0`),
-      inc: semver.inc(currentCompassPackageVersion, 'prerelease', 'beta'),
-    });
-    const nextBeta = semver.lte(
-      currentCompassPackageVersion,
-      `${nextGa}-beta.0`
-    )
+    const nextBeta = semver.lt(currentCompassPackageVersion, `${nextGa}-beta.0`)
       ? `${nextGa}-beta.0`
       : semver.inc(currentCompassPackageVersion, 'prerelease', 'beta');
 
@@ -145,13 +135,10 @@ async function getCompassPackageVersion() {
 
 async function gitCheckout(releaseBranchName) {
   try {
-    console.log('here');
-
     await execFile('git', ['checkout', releaseBranchName], {
       cwd: monorepoRoot,
     });
   } catch (e) {
-    console.log('here 1', e);
     await execFile('git', ['checkout', '-b', releaseBranchName], {
       cwd: monorepoRoot,
     });
@@ -169,7 +156,7 @@ async function bumpAndPush(nextBeta, releaseBranch) {
   });
 
   // await execFile('git', ['tag', `v${nextBeta}`], { cwd: monorepoRoot });
-  // await execFile('git', ['push', 'origin'`${releaseBranch}`], {
+  // await execFile('git', ['push', 'origin', `${releaseBranch}`], {
   //   cwd: monorepoRoot,
   // });
   // await execFile('git', ['push', '--tags'], { cwd: monorepoRoot });
