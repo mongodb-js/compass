@@ -211,12 +211,7 @@ export class GuideCueService extends EventTarget {
     this._activeCue = null;
   }
 
-  markGroupAsVisited(groupId?: GroupName) {
-    // standalone
-    if (!groupId) {
-      return;
-    }
-
+  markGroupAsVisited(groupId: GroupName) {
     // validate if all the cues of a group have been registered
     const groupCues = this._cues.filter((x) => x.groupId === groupId);
     if (groupCues.length === GROUP_STEPS_MAP.get(groupId)) {
@@ -238,7 +233,9 @@ export class GuideCueService extends EventTarget {
       });
 
     // Mark all the groups with all cues
-    const groupIds = uniq(this._cues.map((x) => x.groupId));
+    const groupIds = uniq(this._cues.map((x) => x.groupId)).filter(
+      Boolean
+    ) as GroupName[];
     groupIds.forEach((groupId) => this.markGroupAsVisited(groupId));
   }
 
