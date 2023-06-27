@@ -24,15 +24,13 @@ const descriptionStyles = css({
   margin: '0 auto',
 });
 
-function ZeroGraphic() {
+function ZeroGraphic({ text }: { text: string }) {
   return (
     <div className={containerStyles}>
       <div className={iconContainerStyles}>
         <NoSavedItemsIcon size={spacing[4] * 2} />
       </div>
-      <Body className={descriptionStyles}>
-        Your recent and favorite queries will appear here.
-      </Body>
+      <Body className={descriptionStyles}>{text}</Body>
     </div>
   );
 }

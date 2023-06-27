@@ -75,7 +75,7 @@ const FavoriteList = ({
   queries: FavoriteQuery[];
 }) => {
   if (queries.length === 0) {
-    return <ZeroGraphic />;
+    return <ZeroGraphic text={'Your favorite queries will appear here.'} />;
   }
   const content = queries.map((query) => (
     <FavoriteItem

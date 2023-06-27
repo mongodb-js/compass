@@ -114,7 +114,7 @@ const RecentList = ({
   );
 
   if (queries.length === 0) {
-    return <ZeroGraphic />;
+    return <ZeroGraphic text={'Your recent queries will appear here.'} />;
   }
   const content = queries.map((query) => (
     <RecentItem

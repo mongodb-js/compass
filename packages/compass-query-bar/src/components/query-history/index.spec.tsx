@@ -95,7 +95,7 @@ describe('query-history', function () {
       renderQueryHistory();
       userEvent.click(screen.getByText(/recents/i));
       expect(
-        screen.getByText(/your recent and favorite queries will appear here\./i)
+        screen.getByText(/your recent queries will appear here\./i)
       ).to.exist;
     });
 
@@ -103,7 +103,7 @@ describe('query-history', function () {
       renderQueryHistory();
       userEvent.click(screen.getByText(/favorites/i));
       expect(
-        screen.getByText(/your recent and favorite queries will appear here\./i)
+        screen.getByText(/your favorite queries will appear here\./i)
       ).to.exist;
     });
   });
