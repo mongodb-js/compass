@@ -50,6 +50,13 @@ program
     // if the previous version is too old (not in the range of the same minor GA)
     // we can assume that we need to release a beta.0,
     // otherwise we bump whatever other prerelease was in the package.json:
+
+    console.log({
+      currentCompassPackageVersion,
+      x: `${nextGa}-beta.0`,
+      lte: semver.lte(currentCompassPackageVersion, `${nextGa}-beta.0`),
+      inc: semver.inc(currentCompassPackageVersion, 'prerelease', 'beta'),
+    });
     const nextBeta = semver.lte(
       currentCompassPackageVersion,
       `${nextGa}-beta.0`
