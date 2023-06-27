@@ -18,11 +18,13 @@ describe('Field', function () {
     testAppRegistry.registerStore('Query.Store', {
       getState() {
         return {
-          fields: {
-            filter: {
-              value: {},
-              string: '',
-              valid: true,
+          queryBar: {
+            fields: {
+              filter: {
+                value: {},
+                string: '',
+                valid: true,
+              },
             },
           },
         };
