@@ -60,7 +60,7 @@ program
     console.info(`Promoting ${currentCompassPackageVersion} to ${nextBeta}`);
 
     await syncWithBranch(options.mergeBranch, nextBeta);
-    // await bumpAndPush(nextBeta, BETA_RELEASE_BRANCH);
+    await bumpAndPush(nextBeta, BETA_RELEASE_BRANCH);
   });
 
 program
@@ -161,11 +161,11 @@ async function bumpAndPush(nextBeta, releaseBranch) {
     cwd: monorepoRoot,
   });
 
-  await execFile('git', ['tag', `v${nextBeta}`], { cwd: monorepoRoot });
-  await execFile('git', ['push', 'origin'`${releaseBranch}`], {
-    cwd: monorepoRoot,
-  });
-  await execFile('git', ['push', '--tags'], { cwd: monorepoRoot });
+  // await execFile('git', ['tag', `v${nextBeta}`], { cwd: monorepoRoot });
+  // await execFile('git', ['push', 'origin'`${releaseBranch}`], {
+  //   cwd: monorepoRoot,
+  // });
+  // await execFile('git', ['push', '--tags'], { cwd: monorepoRoot });
 }
 
 // NOTE: if there are more "unreleased" versions it will
