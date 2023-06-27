@@ -74,7 +74,6 @@ program
       throw new Error('releaseTicket is required');
     }
 
-    console.log(options);
     // can happen if `--merge-branch=` is passed as argument
     if (!options.mergeBranch) {
       throw new Error('mergeBranch is required');
@@ -100,7 +99,7 @@ program
     }
 
     console.info(`Promoting ${currentCompassPackageVersion} to ${nextGa}`);
-    // await bumpAndPush(nextGa, GA_RELEASE_BRANCH);
+    await bumpAndPush(nextGa, GA_RELEASE_BRANCH);
   });
 
 program.parseAsync();
@@ -160,11 +159,11 @@ async function bumpAndPush(nextBeta, releaseBranch) {
     cwd: monorepoRoot,
   });
 
-  // await execFile('git', ['tag', `v${nextBeta}`], { cwd: monorepoRoot });
-  // await execFile('git', ['push', 'origin', `${releaseBranch}`], {
-  //   cwd: monorepoRoot,
-  // });
-  // await execFile('git', ['push', '--tags'], { cwd: monorepoRoot });
+  await execFile('git', ['tag', `v${nextBeta}`], { cwd: monorepoRoot });
+  await execFile('git', ['push', 'origin', `${releaseBranch}`], {
+    cwd: monorepoRoot,
+  });
+  await execFile('git', ['push', '--tags'], { cwd: monorepoRoot });
 }
 
 // NOTE: if there are more "unreleased" versions it will
