@@ -60,7 +60,7 @@ program
     console.info(`Promoting ${currentCompassPackageVersion} to ${nextGa}`);
 
     await syncWithBranch(options.mergeBranch, nextBeta);
-    await bumpAndPush(nextBeta, BETA_RELEASE_BRANCH);
+    // await bumpAndPush(nextBeta, BETA_RELEASE_BRANCH);
   });
 
 program
@@ -98,7 +98,7 @@ program
     }
 
     console.info(`Promoting ${currentCompassPackageVersion} to ${nextGa}`);
-    await bumpAndPush(nextGa, GA_RELEASE_BRANCH);
+    // await bumpAndPush(nextGa, GA_RELEASE_BRANCH);
   });
 
 program.parseAsync();
@@ -138,10 +138,13 @@ async function getCompassPackageVersion() {
 
 async function gitCheckout(releaseBranchName) {
   try {
+    console.log('here');
+
     await execFile('git', ['checkout', releaseBranchName], {
       cwd: monorepoRoot,
     });
-  } catch {
+  } catch (e) {
+    console.log('here 1', e);
     await execFile('git', ['checkout', '-b', releaseBranchName], {
       cwd: monorepoRoot,
     });
