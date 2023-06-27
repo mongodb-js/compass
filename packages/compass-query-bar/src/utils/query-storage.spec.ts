@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import fs from 'fs';
 import os from 'os';
-import { v4 as uuidV4 } from 'uuid';
 import { join } from 'path';
-import { EJSON } from 'bson';
+import { EJSON, UUID } from 'bson';
 
 import { QueryStorage } from './query-storage';
 
@@ -17,14 +16,14 @@ class QueryHistoryStorage extends QueryStorage {
 const queries = [
   {
     filter: {},
-    _id: uuidV4(),
+    _id: new UUID().toString(),
     _lastExecuted: new Date(),
     _ns: 'airbnb.listings',
   },
   {
     filter: { name: 1 },
     project: { _id: 1 },
-    _id: uuidV4(),
+    _id: new UUID().toString(),
     _lastExecuted: new Date(),
     _ns: 'airbnb.listings',
   },
@@ -80,7 +79,7 @@ describe('QueryStorage', function () {
   it('creates item in storage if files does not exist', async function () {
     const query = {
       sort: { name: 1 },
-      _id: uuidV4(),
+      _id: new UUID().toString(),
       _lastExecuted: new Date(),
       _ns: 'airbnb.listings',
     };

@@ -29,7 +29,7 @@ export const QueryItemCard: React.FunctionComponent<{
     <KeylineCard
       onClick={onClick}
       data-testid={dataTestId}
-      className={cx(queryStyles, isHovered ? queryHoveredStyles : undefined)}
+      className={cx(queryStyles, isHovered && queryHoveredStyles)}
       {...hoverProps}
     >
       {header(isHovered)}

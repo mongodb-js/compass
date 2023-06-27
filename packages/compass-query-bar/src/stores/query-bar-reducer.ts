@@ -28,7 +28,7 @@ import {
   getQueryAttributes,
 } from '../utils';
 import _ from 'lodash';
-import { v4 as uuidV4 } from 'uuid';
+import { UUID } from 'bson';
 import type { Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
@@ -397,7 +397,7 @@ const saveRecentQuery = (
         await recentQueryStorage.delete(lastRecent._id);
       }
 
-      const _id = uuidV4();
+      const _id = new UUID().toString();
       const recentQuery: RecentQuery = {
         ...queryAttributes,
         _id,
