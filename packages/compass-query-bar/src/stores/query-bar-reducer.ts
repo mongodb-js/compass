@@ -28,7 +28,7 @@ import {
   getQueryAttributes,
 } from '../utils';
 import _ from 'lodash';
-import uuid from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 import type { Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
@@ -171,10 +171,7 @@ export const applyQuery = (): QueryBarThunkAction<
     dispatch(emitOnQueryChange());
     dispatch({ type: QueryBarActions.ApplyQuery, query });
 
-    // we save query without maxTimeMS
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    const { maxTimeMS: _maxTimeMS, ...restOfQuery } = query;
-    void dispatch(saveRecentQuery(restOfQuery));
+    void dispatch(saveRecentQuery(query));
     return query;
   };
 };
@@ -322,9 +319,13 @@ export const saveRecentAsFavorite = (
   return async (dispatch, getState, { favoriteQueryStorage }) => {
     try {
       const now = new Date();
+      const { _id, _host, _lastExecuted, _ns, ...baseQuery } = recentQuery;
       const favoriteQuery: FavoriteQuery = {
-        ...recentQuery,
-        _host: recentQuery._host ?? getState().host,
+        ...getQueryAttributes(baseQuery),
+        _id,
+        _ns,
+        _lastExecuted,
+        _host: _host ?? getState().host,
         _name: name,
         _dateSaved: now,
         _dateModified: now,
@@ -340,7 +341,7 @@ export const saveRecentAsFavorite = (
       void dispatch(fetchFavorites());
 
       // remove from recents
-      void dispatch(deleteRecentQuery(recentQuery._id));
+      void dispatch(deleteRecentQuery(_id));
 
       void dispatch(changeQueryHistoryTab('favorite'));
     } catch (e) {
@@ -412,9 +413,9 @@ const saveRecentQuery = (
         await recentQueryStorage.delete(lastRecent._id);
       }
 
-      const _id = uuid.v4();
+      const _id = uuidV4();
       const recentQuery: RecentQuery = {
-        ...query,
+        ...queryAttributes,
         _id,
         _lastExecuted: new Date(),
         _ns: namespace,

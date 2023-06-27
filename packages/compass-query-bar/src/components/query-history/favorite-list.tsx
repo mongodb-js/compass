@@ -39,6 +39,15 @@ const FavoriteItem = ({
     });
     onApply(attributes);
   }, [onApply, query._id, attributes]);
+
+  const onDeleteClick = useCallback(() => {
+    track('Query History Favorite Removed', {
+      id: query._id,
+      screen: 'documents',
+    });
+    onDelete(query._id);
+  }, [onDelete, query._id]);
+
   return (
     <QueryItemCard
       key={query._id}
@@ -49,7 +58,7 @@ const FavoriteItem = ({
           <CopyActionButton
             onClick={() => copyToClipboard(formatQuery(attributes))}
           />
-          <DeleteActionButton onClick={() => onDelete(query._id)} />
+          <DeleteActionButton onClick={onDeleteClick} />
         </QueryItemHeading>
       )}
     >
