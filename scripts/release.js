@@ -36,7 +36,8 @@ program
 
     console.info(`Found ${nextGa} as next ga version in Jira`);
 
-    await gitCheckout(BETA_RELEASE_BRANCH);
+    // checks out the beta branch (from main if it did not exist before)
+    await gitCheckout(BETA_RELEASE_BRANCH, 'main');
 
     const currentCompassPackageVersion = await getCompassPackageVersion();
 
@@ -87,7 +88,8 @@ program
 
     console.info(`Found ${nextGa} as fixVersion in ${options.releaseTicket}`);
 
-    await gitCheckout(GA_RELEASE_BRANCH);
+    // checks out the ga branch (from beta if it did not exist before)
+    await gitCheckout(GA_RELEASE_BRANCH, BETA_RELEASE_BRANCH);
     await syncWithBranch(options.mergeBranch, nextGa);
 
     const currentCompassPackageVersion = await getCompassPackageVersion();
@@ -137,15 +139,19 @@ async function getCompassPackageVersion() {
   return JSON.parse(await fs.readFile(compassPackageJsonPath)).version;
 }
 
-async function gitCheckout(releaseBranchName) {
+async function gitCheckout(releaseBranchName, startingBranch) {
   try {
     await execFile('git', ['checkout', releaseBranchName], {
       cwd: monorepoRoot,
     });
   } catch (e) {
-    await execFile('git', ['checkout', '-b', releaseBranchName], {
-      cwd: monorepoRoot,
-    });
+    await execFile(
+      'git',
+      ['checkout', '-b', releaseBranchName, startingBranch],
+      {
+        cwd: monorepoRoot,
+      }
+    );
   }
 }
 
