@@ -64,12 +64,17 @@ program
   .command('ga')
   .description('Starts a new GA')
   .option('--release-ticket <releaseTicket>')
-  .option('--merge-branch <mergeBranch>', BETA_RELEASE_BRANCH)
+  .option(
+    '--merge-branch <mergeBranch>',
+    'branch to merge',
+    BETA_RELEASE_BRANCH
+  )
   .action(async (options) => {
     if (!options.releaseTicket) {
       throw new Error('releaseTicket is required');
     }
 
+    console.log(options);
     // can happen if `--merge-branch=` is passed as argument
     if (!options.mergeBranch) {
       throw new Error('mergeBranch is required');
