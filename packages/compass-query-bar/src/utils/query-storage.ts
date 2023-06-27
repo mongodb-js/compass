@@ -27,22 +27,26 @@ export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
   ) {}
 
   async loadAll(): Promise<T[]> {
-    const dir = this.path;
-    const files = (await fs.readdir(dir))
-      .filter((file) => file.endsWith('.json'))
-      .map((file) => join(dir, file));
+    try {
+      const dir = this.path;
+      const files = (await fs.readdir(dir))
+        .filter((file) => file.endsWith('.json'))
+        .map((file) => join(dir, file));
 
-    const data = (
-      await Promise.all(files.map((filePath) => this.getFileData(filePath)))
-    ).filter(Boolean) as T[];
+      const data = (
+        await Promise.all(files.map((filePath) => this.getFileData(filePath)))
+      ).filter(Boolean) as T[];
 
-    const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
+      const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
 
-    if (this.namespace) {
-      return sortedData.filter((x) => x._ns === this.namespace);
+      if (this.namespace) {
+        return sortedData.filter((x) => x._ns === this.namespace);
+      }
+
+      return sortedData;
+    } catch (e) {
+      return [];
     }
-
-    return sortedData;
   }
 
   async updateAttributes(id: string, data: Partial<T>): Promise<T> {
