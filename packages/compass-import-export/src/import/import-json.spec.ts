@@ -10,6 +10,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
+import { omit } from 'lodash';
 
 temp.track();
 
@@ -111,7 +112,7 @@ describe('importJSON', function () {
           docsProcessed: totalRows,
         });
 
-        expect(result).to.deep.equal({
+        expect(omit(result, 'biggestDocSize')).to.deep.equal({
           docsWritten: totalRows,
           docsProcessed: totalRows,
           dbErrors: [],
@@ -180,7 +181,7 @@ describe('importJSON', function () {
       jsonVariant: 'jsonl',
     });
 
-    expect(result).to.deep.equal({
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
       docsProcessed: 1,
       docsWritten: 1,
       dbErrors: [],
@@ -229,7 +230,7 @@ describe('importJSON', function () {
       jsonVariant: 'jsonl',
     });
 
-    expect(result).to.deep.equal({
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
       docsProcessed: 2000,
       docsWritten: 2000,
       dbErrors: [],
@@ -598,7 +599,7 @@ describe('importJSON', function () {
     });
 
     // only looked at the first row because we aborted before even starting
-    expect(result).to.deep.equal({
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
       aborted: true,
       docsProcessed: 0,
       docsWritten: 0,

@@ -325,10 +325,16 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('select-namespace', metadata);
   });
 
-  appRegistry.on('sidebar-open-collection-in-new-tab', async ({ ns }) => {
+  const openCollectionInNewTab = async ({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('open-namespace-in-new-tab', metadata);
-  });
+  };
+
+  appRegistry.on('sidebar-open-collection-in-new-tab', openCollectionInNewTab);
+  appRegistry.on(
+    'import-export-open-collection-in-new-tab',
+    openCollectionInNewTab
+  );
 
   appRegistry.on('sidebar-modify-view', async ({ ns }) => {
     const coll = await store.fetchCollectionDetails(ns);

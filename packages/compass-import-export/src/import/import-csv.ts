@@ -9,6 +9,7 @@ import stripBomStream from 'strip-bom-stream';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import { makeDocFromCSV, parseCSVHeaderName } from '../csv/csv-utils';
 import {
+  makeDocStatsStream,
   makeImportResult,
   processParseError,
   processWriteStreamErrors,
@@ -133,6 +134,8 @@ export async function importCSV({
     },
   });
 
+  const { docStatsStream, getStats } = makeDocStatsStream();
+
   const collectionStream = createCollectionWriteStream(
     dataService,
     ns,
@@ -157,6 +160,7 @@ export async function importCSV({
     stripBomStream(),
     parseStream,
     docStream,
+    docStatsStream,
     collectionStream,
     ...(abortSignal ? [{ signal: abortSignal }] : []),
   ] as const;
@@ -173,13 +177,22 @@ export async function importCSV({
         errorCallback,
       });
 
-      const result = makeImportResult(collectionStream, numProcessed, true);
+      const result = makeImportResult(
+        collectionStream,
+        numProcessed,
+        getStats().biggestDocSize,
+        true
+      );
       debug('importCSV:aborted', result);
       return result;
     }
 
     // stick the result onto the error so that we can tell how far it got
-    err.result = makeImportResult(collectionStream, numProcessed);
+    err.result = makeImportResult(
+      collectionStream,
+      numProcessed,
+      getStats().biggestDocSize
+    );
 
     throw err;
   }
@@ -192,7 +205,11 @@ export async function importCSV({
     errorCallback,
   });
 
-  const result = makeImportResult(collectionStream, numProcessed);
+  const result = makeImportResult(
+    collectionStream,
+    numProcessed,
+    getStats().biggestDocSize
+  );
   debug('importCSV:completed', result);
   return result;
 }
