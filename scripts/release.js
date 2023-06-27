@@ -190,15 +190,10 @@ async function getNextGaVersionInJira() {
 }
 
 async function getReleaseVersionFromTicket(releaseTicket) {
-  if (!process.env.JIRA_API_TOKEN) {
-    throw new Error('missing process.env.JIRA_API_TOKEN');
-  }
-
   const ticket = await (
     await fetch(`https://jira.mongodb.org/rest/api/2/issue/${releaseTicket}`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${process.env.JIRA_API_TOKEN}`,
         Accept: 'application/json',
       },
     })
