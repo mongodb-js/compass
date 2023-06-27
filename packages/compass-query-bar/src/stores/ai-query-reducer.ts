@@ -67,7 +67,7 @@ export const runAIQuery = (
     const { aiQueryAbortController: existingAbortController } = getState();
 
     if (existingAbortController) {
-      // Cancel any current request (this one will override).
+      // Cancel the active request as this one will override.
       existingAbortController.abort();
     }
 
@@ -122,7 +122,7 @@ export const runAIQuery = (
     }
 
     // Error if the response is empty.
-    if (!query || Object.keys(query)) {
+    if (!query || Object.keys(query).length === 0) {
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage:
@@ -130,6 +130,9 @@ export const runAIQuery = (
       });
       return;
     }
+
+    // Rename `find` to `filter` as the AI will use the normal `find` syntax.
+    query.filter = query.find;
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,

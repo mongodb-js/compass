@@ -78,7 +78,7 @@ const filterContainerStyles = css({
 
   // Override codemirror styles to make the `Ask AI` button clickable.
   '& .cm-placeholder': {
-    pointerEvents: 'auto !important',
+    pointerEvents: 'auto !important' as any, // Cast to any as !important errors ts.
   },
 });
 

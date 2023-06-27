@@ -20,7 +20,7 @@ export async function runFetchAIQuery({
   signal: AbortSignal;
   userPrompt: string;
 }) {
-  const endpoint = `${getAIQueryEndpoint()}/api/v1/ai/generate-query`;
+  const endpoint = `${getAIQueryEndpoint()}/ai/api/v1/mql-query`;
 
   const res = await fetch(endpoint, {
     signal: signal as NodeFetchAbortSignal,
@@ -29,16 +29,16 @@ export async function runFetchAIQuery({
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      // TODO: Send the schema and example document(s).
+      // TODO(COMPASS-6979): Send the schema, example documents, and collection name.
       userPrompt,
     }),
   });
-  console.log('res', res);
+
+  if (!res.ok) {
+    throw new Error(`Error: ${res.status} ${res.statusText}`);
+  }
 
   const jsonResponse = await res.json();
-  console.log('jsonResponse', jsonResponse);
-  console.log('keys', Object.keys(jsonResponse));
-  console.log('typeof jsonResponse', typeof jsonResponse);
 
   return jsonResponse;
 }

@@ -7,6 +7,7 @@ import {
   SpinLoader,
   TextInput,
   css,
+  cx,
   palette,
   spacing,
   useDarkMode,
@@ -32,7 +33,7 @@ const inputContainerStyles = css({
 });
 
 const textInputStyles = css({
-  width: '100%', // TODO: fill flex
+  width: '100%',
 });
 
 const errorSummaryContainer = css({
@@ -46,20 +47,19 @@ const floatingButtonsContainerStyles = css({
   display: 'flex',
   gap: spacing[2],
   alignItems: 'center',
+  // Match the whole textbox.
   height: spacing[4] + spacing[1],
 });
 
 const successIndicatorDarkModeStyles = css({
   color: palette.gray.dark3,
   backgroundColor: palette.green.base,
-  padding: spacing[1],
   borderRadius: '50%',
 });
 
 const successIndicatorLightModeStyles = css({
   color: palette.white,
   backgroundColor: palette.green.dark1,
-  padding: spacing[1],
   borderRadius: '50%',
 });
 
@@ -68,6 +68,11 @@ const generateButtonStyles = css({
   height: spacing[4] - spacing[1],
   display: 'flex',
   fontSize: '12px',
+  borderRadius: spacing[1],
+});
+
+const generateButtonLightModeStyles = css({
+  backgroundColor: palette.gray.light2,
 });
 
 const closeText = 'Close AI Query';
@@ -181,7 +186,10 @@ function AITextInput({
           )}
           <Button
             size="small"
-            className={generateButtonStyles}
+            className={cx(
+              generateButtonStyles,
+              !darkMode && generateButtonLightModeStyles
+            )}
             onClick={() => onSubmitText(text)}
           >
             <div>Generate</div>
