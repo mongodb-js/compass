@@ -1,5 +1,5 @@
 import React from 'react';
-import { openToast } from '@mongodb-js/compass-components';
+import { Body, css, openToast } from '@mongodb-js/compass-components';
 import path from 'path';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
@@ -9,6 +9,7 @@ import { openFile } from '../utils/open-file';
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
 const importToastId = 'import-toast';
+const bloatedDocumentSignalToastId = 'import-toast-bloated-document';
 const toastMessageCharacterLimit = 180;
 
 function trackLogFileOpened(errors: Error[]) {
@@ -77,6 +78,37 @@ export function showCompletedToast({ docsWritten }: { docsWritten: number }) {
       docsWritten === 1 ? '' : 's'
     } imported.`,
     variant: 'success',
+  });
+}
+
+const reviewDocumentsCTAStyles = css({
+  cursor: 'pointer',
+  textDecoration: 'underline',
+});
+
+export function showBloatedDocumentSignalToast({
+  onReviewDocumentsClick,
+}: {
+  onReviewDocumentsClick: () => void;
+}) {
+  openToast(bloatedDocumentSignalToastId, {
+    title: 'Possibly bloated documents',
+    description: (
+      <>
+        <Body as="span">
+          The imported documents might exceed a reasonable size for performance.
+        </Body>
+        <br />
+        <Body
+          as="strong"
+          onClick={onReviewDocumentsClick}
+          className={reviewDocumentsCTAStyles}
+        >
+          Review Documents
+        </Body>
+      </>
+    ),
+    variant: 'note',
   });
 }
 
