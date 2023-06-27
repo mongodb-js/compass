@@ -1,7 +1,4 @@
-import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
-import { PipelineStorage } from '@mongodb-js/compass-aggregations';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { SavedQueryAggregationThunkAction } from '.';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   showConfirmation,
@@ -14,9 +11,6 @@ export enum ActionTypes {
   DeleteItemConfirm = 'compass-saved-aggregations-queries/deleteItemConfirm',
 }
 
-const favoriteQueryStorage = new FavoriteQueryStorage();
-const pipelineStorage = new PipelineStorage();
-
 type DeleteItemConfirmAction = {
   type: ActionTypes.DeleteItemConfirm;
   id: string;
@@ -26,8 +20,8 @@ export type Actions = DeleteItemConfirmAction;
 
 export const confirmDeleteItem = (
   id: string
-): ThunkAction<Promise<void>, RootState, void, DeleteItemConfirmAction> => {
-  return async (dispatch, getState) => {
+): SavedQueryAggregationThunkAction<Promise<void>, DeleteItemConfirmAction> => {
+  return async (dispatch, getState, { pipelineStorage, queryStorage }) => {
     const {
       savedItems: { items },
     } = getState();
@@ -61,7 +55,7 @@ export const confirmDeleteItem = (
 
     const deleteAction =
       item.type === 'query'
-        ? favoriteQueryStorage.delete.bind(favoriteQueryStorage)
+        ? queryStorage.delete.bind(queryStorage)
         : pipelineStorage.delete.bind(pipelineStorage);
     await deleteAction(item.id);
     dispatch({ type: ActionTypes.DeleteItemConfirm, id: item.id });
