@@ -84,6 +84,7 @@ export const updateItem =
       item.type === 'query'
         ? await queryStorage.updateAttributes(id, {
             _name: attributes.name,
+            _dateModified: new Date(),
           })
         : ((await pipelineStorage.updateAttributes(
             id,
