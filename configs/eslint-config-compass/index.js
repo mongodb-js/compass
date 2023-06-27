@@ -13,8 +13,8 @@ const tsRules = {
 
 const tsOverrides = {
   ...common.tsOverrides,
+  rules: { ...tsRules },
 };
-tsOverrides.rules = { ...tsRules };
 
 const tsxRules = {
   ...common.tsxRules,
@@ -23,17 +23,17 @@ const tsxRules = {
 
 const tsxOverrides = {
   ...common.tsxOverrides,
+  rules: { ...tsxRules },
 };
-tsxOverrides.rules = { ...tsxRules };
 
 const testOverrides = {
   ...common.testOverrides,
-};
-testOverrides.rules = {
-  ...common.testRules,
-  '@typescript-eslint/no-unsafe-argument': 'off',
-  '@typescript-eslint/restrict-template-expressions': 'off',
-  '@mongodb-js/compass/unique-mongodb-log-id': 'off',
+  rules: {
+    ...common.testRules,
+    '@typescript-eslint/no-unsafe-argument': 'off',
+    '@typescript-eslint/restrict-template-expressions': 'off',
+    '@mongodb-js/compass/unique-mongodb-log-id': 'off',
+  },
 };
 
 module.exports = {
