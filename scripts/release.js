@@ -57,7 +57,7 @@ program
       ? `${nextGa}-beta.0`
       : semver.inc(currentCompassPackageVersion, 'prerelease', 'beta');
 
-    console.info(`Promoting ${currentCompassPackageVersion} to ${nextGa}`);
+    console.info(`Promoting ${currentCompassPackageVersion} to ${nextBeta}`);
 
     await syncWithBranch(options.mergeBranch, nextBeta);
     // await bumpAndPush(nextBeta, BETA_RELEASE_BRANCH);
