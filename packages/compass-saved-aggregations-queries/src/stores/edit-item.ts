@@ -1,10 +1,7 @@
 import type { Reducer } from 'redux';
-import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
-import { PipelineStorage } from '@mongodb-js/compass-aggregations';
-import type { Query } from '@mongodb-js/compass-query-history';
+import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
 import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { SavedQueryAggregationThunkAction } from '.';
 
 export type UpdateItemAttributes = {
   name: string;
@@ -36,7 +33,7 @@ type EditItemCancelledAction = {
 type EditItemUpdatedAction = {
   type: ActionTypes.EditItemUpdated;
   id: string;
-  payload: Query | StoredPipeline;
+  payload: FavoriteQuery | StoredPipeline;
 };
 
 export type Actions =
@@ -73,8 +70,8 @@ export const updateItem =
   (
     id: string,
     attributes: UpdateItemAttributes
-  ): ThunkAction<void, RootState, void, Actions> =>
-  async (dispatch, getState) => {
+  ): SavedQueryAggregationThunkAction<void, Actions> =>
+  async (dispatch, getState, { queryStorage, pipelineStorage }) => {
     const {
       savedItems: { items },
     } = getState();
@@ -85,8 +82,14 @@ export const updateItem =
     }
     const payload =
       item.type === 'query'
-        ? await updateQuery(id, attributes)
-        : await updateAggregation(id, attributes);
+        ? await queryStorage.updateAttributes(id, {
+            _name: attributes.name,
+            _dateModified: new Date(),
+          })
+        : ((await pipelineStorage.updateAttributes(
+            id,
+            attributes
+          )) as StoredPipeline);
 
     dispatch({
       type: ActionTypes.EditItemUpdated,
@@ -94,19 +97,5 @@ export const updateItem =
       payload,
     });
   };
-
-const updateQuery = (id: string, attributes: UpdateItemAttributes) => {
-  const favoriteQueryStorage = new FavoriteQueryStorage();
-  return favoriteQueryStorage.updateAttributes(id, {
-    _name: attributes.name,
-  });
-};
-
-const updateAggregation = (id: string, attributes: UpdateItemAttributes) => {
-  const pipelineStorage = new PipelineStorage();
-  return pipelineStorage.updateAttributes(id, {
-    name: attributes.name,
-  }) as Promise<StoredPipeline>;
-};
 
 export default reducer;

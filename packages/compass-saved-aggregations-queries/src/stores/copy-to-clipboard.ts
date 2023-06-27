@@ -2,10 +2,11 @@ import type { RootActions, RootState } from './index';
 import type { ThunkAction } from 'redux-thunk';
 import { EJSON } from 'bson';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { type FavoriteQuery } from '@mongodb-js/compass-query-bar';
 
 const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
-function formatQuery(query: Query) {
+function formatQuery(query: FavoriteQuery) {
   const { collation, filter, limit, project, skip, sort } = query;
   return EJSON.stringify(
     {

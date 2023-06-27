@@ -3,111 +3,43 @@ import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
 } from '../constants/query-bar-store';
-import type { QueryProperty } from '../constants/query-properties';
-import { QUERY_PROPERTIES } from '../constants/query-properties';
+import type {
+  QueryProperty,
+  BaseQuery,
+  QueryFormFields,
+} from '../constants/query-properties';
+import {
+  mapFormFieldsToQuery,
+  mapQueryToFormFields,
+  isQueryFieldsValid,
+  validateField,
+  isEqualDefaultQuery,
+} from '../utils/query';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import React from 'react';
 import type AppRegistry from 'hadron-app-registry';
-import queryParser from 'mongodb-query-parser';
-import preferences from 'compass-preferences-model';
 import { cloneDeep, isEqual } from 'lodash';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
+import {
+  type FavoriteQueryStorage,
+  type RecentQueryStorage,
+  type RecentQuery,
+  type FavoriteQuery,
+  getQueryAttributes,
+} from '../utils';
+import _ from 'lodash';
+import { UUID } from 'bson';
+import type { Document } from 'mongodb';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
-export function isQueryValid(state: QueryBarState) {
-  return QUERY_PROPERTIES.every((prop) => {
-    return state.fields[prop].valid;
-  });
-}
-
-export function isQueryProperty(field: string): field is QueryProperty {
-  return (QUERY_PROPERTIES as readonly string[]).includes(field);
-}
-
-export function validateField(field: string, value: string) {
-  const validated = queryParser.validate(field, value, { validate: false });
-  if (field === 'filter' && validated === '') {
-    // TODO(COMPASS-5205): Things like { i: $} confuses queryParser and
-    // ultimately it sets filter to '' whereas it has to be a {} (if valid) or
-    // false (if invalid). Should probably be fixed in mongodb-query-parser,
-    // though.
-    return false;
-  }
-
-  // Additional validation for maxTimeMS to make sure that we are not over the
-  // upper bound set in preferences
-  if (field === 'maxTimeMS') {
-    const preferencesMaxTimeMS = preferences.getPreferences().maxTimeMS;
-    if (
-      typeof preferencesMaxTimeMS !== 'undefined' &&
-      value &&
-      Number(value) >
-        (preferencesMaxTimeMS ?? DEFAULT_FIELD_VALUES['maxTimeMS'])
-    ) {
-      return false;
-    }
-  }
-
-  return validated;
-}
-
-export function isQueryFieldsValid(fields: Record<string, QueryBarFormField>) {
-  return Object.entries(fields).every(
-    ([key, value]) => validateField(key, value.string) !== false
-  );
-}
-
-export function pickValuesFromFields(
-  fields: Record<string, QueryBarFormField>
-) {
-  // We always want filter field to be in the query, even if the field
-  // is empty. Probably would be better to handle where the query is
-  // actually used, but a lot of code in Compass relies on this
-  return {
-    filter: {},
-    ...Object.fromEntries(
-      Object.entries(fields)
-        .map(([key, field]) => {
-          return [key, field.value];
-        })
-        .filter(([, value]) => {
-          return typeof value !== 'undefined';
-        })
-    ),
-  };
-}
-
-/**
- * Map query document to the query fields state only preserving valid values
- */
-export function mapQueryToValidQueryFields(query?: unknown, onlyValid = true) {
-  return Object.fromEntries(
-    Object.entries(query ?? {})
-      .map(([key, _value]) => {
-        if (!isQueryProperty(key)) {
-          return null;
-        }
-        const valueAsString =
-          typeof _value === 'undefined' ? '' : queryParser.stringify(_value);
-        const value = validateField(key, valueAsString);
-        const valid: boolean = value !== false;
-        if (onlyValid && !valid) {
-          return null;
-        }
-        return [
-          key,
-          { string: valueAsString, value: valid ? value : null, valid },
-        ] as const;
-      })
-      .filter((value) => {
-        return value !== null;
-      }) as [string, unknown][]
-  ) as Record<QueryProperty, QueryBarFormField>;
-}
+const TOTAL_RECENTS_ALLOWED = 30;
 
 export type QueryBarExtraArgs = {
   globalAppRegistry?: AppRegistry;
   localAppRegistry?: AppRegistry;
+  favoriteQueryStorage: FavoriteQueryStorage;
+  recentQueryStorage: RecentQueryStorage;
 };
 
 export type QueryBarThunkAction<
@@ -125,32 +57,33 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export type QueryBarFormField = {
-  value: unknown;
-  string: string;
-  valid: boolean;
-};
-
 export type QueryBarState = {
-  fields: Record<QueryProperty, QueryBarFormField>;
+  fields: QueryFormFields;
   expanded: boolean;
   serverVersion: string;
   schemaFields: unknown[];
-  lastAppliedQuery: unknown | null;
+  lastAppliedQuery: BaseQuery | null;
   /**
    * For testing purposes only, allows to track whether or not apply button was
    * clicked or not
    */
   applyId: number;
+  namespace: string;
+  host?: string;
+  recentQueries: RecentQuery[];
+  favoriteQueries: FavoriteQuery[];
 };
 
 export const INITIAL_STATE: QueryBarState = {
-  fields: mapQueryToValidQueryFields(DEFAULT_FIELD_VALUES),
+  fields: mapQueryToFormFields(DEFAULT_FIELD_VALUES),
   expanded: false,
   serverVersion: '3.6.0',
   schemaFields: [],
   lastAppliedQuery: null,
   applyId: 0,
+  namespace: '',
+  recentQueries: [],
+  favoriteQueries: [],
 };
 
 enum QueryBarActions {
@@ -161,6 +94,8 @@ enum QueryBarActions {
   ApplyQuery = 'compass-query-bar/ApplyQuery',
   ResetQuery = 'compass-query-bar/ResetQuery',
   ApplyFromHistory = 'compass-query-bar/ApplyFromHistory',
+  RecentQueriesFetched = 'compass-query-bar/RecentQueriesFetched',
+  FavoriteQueriesFetched = 'compass-query-bar/FavoriteQueriesFetched',
 }
 
 type ToggleQueryOptionsAction = {
@@ -188,7 +123,7 @@ type ChangeFieldAction = {
 const emitOnQueryChange = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
     const { lastAppliedQuery, fields } = getState();
-    const query = pickValuesFromFields(fields);
+    const query = mapFormFieldsToQuery(fields);
     if (lastAppliedQuery === null || !isEqual(lastAppliedQuery, query)) {
       localAppRegistry?.emit('query-changed', query);
     }
@@ -215,22 +150,23 @@ export const changeSchemaFields = (
 
 type ApplyQueryAction = {
   type: QueryBarActions.ApplyQuery;
-  query: unknown;
+  query: BaseQuery;
 };
 
 export const applyQuery = (): QueryBarThunkAction<
-  false | Record<string, unknown>,
+  false | BaseQuery,
   ApplyQueryAction
 > => {
-  return (dispatch, getState, { localAppRegistry }) => {
+  return (dispatch, getState) => {
     const { fields } = getState();
     if (!isQueryFieldsValid(fields)) {
       return false;
     }
-    const query = pickValuesFromFields(fields);
+    const query = mapFormFieldsToQuery(fields);
     dispatch(emitOnQueryChange());
     dispatch({ type: QueryBarActions.ApplyQuery, query });
-    localAppRegistry?.emit('query-applied', query);
+
+    void dispatch(saveRecentQuery(query));
     return query;
   };
 };
@@ -239,30 +175,27 @@ type ResetQueryAction = {
   type: QueryBarActions.ResetQuery;
 };
 
-export function isEqualDefaultQuery(state: QueryBarState): boolean {
-  return isEqual(pickValuesFromFields(state.fields), DEFAULT_QUERY_VALUES);
-}
-
 export const resetQuery = (): QueryBarThunkAction<
   false | Record<string, unknown>
 > => {
   return (dispatch, getState, { localAppRegistry }) => {
-    if (isEqualDefaultQuery(getState())) {
+    if (isEqualDefaultQuery(getState().fields)) {
       return false;
     }
     dispatch({ type: QueryBarActions.ResetQuery });
     dispatch(emitOnQueryChange());
-    localAppRegistry?.emit('query-reset', cloneDeep(DEFAULT_QUERY_VALUES));
-    return cloneDeep(DEFAULT_QUERY_VALUES);
+    const defaultQuery = cloneDeep(DEFAULT_QUERY_VALUES);
+    localAppRegistry?.emit('query-reset', defaultQuery);
+    return defaultQuery;
   };
 };
 
 type SetQueryAction = {
   type: QueryBarActions.SetQuery;
-  query: unknown;
+  query: BaseQuery;
 };
 
-export const setQuery = (query: unknown): SetQueryAction => {
+export const setQuery = (query: BaseQuery): SetQueryAction => {
   return { type: QueryBarActions.SetQuery, query };
 };
 
@@ -273,7 +206,11 @@ export const applyFilterChange = (
     const currentFilterValue = getState().fields.filter.value;
     dispatch(
       setQuery({
-        filter: changeFilter(event.type, currentFilterValue, event.payload),
+        filter: changeFilter(
+          event.type,
+          currentFilterValue,
+          event.payload
+        ) as Document,
       })
     );
   };
@@ -294,11 +231,186 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
 
 type ApplyFromHistoryAction = {
   type: QueryBarActions.ApplyFromHistory;
-  query: unknown;
+  query: BaseQuery;
 };
 
-export const applyFromHistory = (query: unknown): ApplyFromHistoryAction => {
+export const applyFromHistory = (query: BaseQuery): ApplyFromHistoryAction => {
   return { type: QueryBarActions.ApplyFromHistory, query };
+};
+
+type RecentQueriesFetchedAction = {
+  type: QueryBarActions.RecentQueriesFetched;
+  recents: RecentQuery[];
+};
+export const fetchRecents = (): QueryBarThunkAction<
+  Promise<void>,
+  RecentQueriesFetchedAction
+> => {
+  return async (dispatch, _getState, { recentQueryStorage }) => {
+    try {
+      const recents = await recentQueryStorage.loadAll();
+      dispatch({
+        type: QueryBarActions.RecentQueriesFetched,
+        recents,
+      });
+    } catch (e) {
+      debug('Failed to fetch recent queries', e);
+    }
+  };
+};
+
+export const fetchSavedQueries = (): QueryBarThunkAction<void> => {
+  return (dispatch) => {
+    void dispatch(fetchRecents());
+    void dispatch(fetchFavorites());
+  };
+};
+
+type FavoriteQueriesFetchedAction = {
+  type: QueryBarActions.FavoriteQueriesFetched;
+  favorites: FavoriteQuery[];
+};
+export const fetchFavorites = (): QueryBarThunkAction<
+  Promise<void>,
+  FavoriteQueriesFetchedAction
+> => {
+  return async (dispatch, _getState, { favoriteQueryStorage }) => {
+    try {
+      const favorites = await favoriteQueryStorage.loadAll();
+      dispatch({
+        type: QueryBarActions.FavoriteQueriesFetched,
+        favorites,
+      });
+    } catch (e) {
+      debug('Failed to fetch favorite queries', e);
+    }
+  };
+};
+
+export const explainQuery = (): QueryBarThunkAction<void> => {
+  return (dispatch, getState, { localAppRegistry }) => {
+    const { fields } = getState();
+    const query = mapFormFieldsToQuery(fields);
+    localAppRegistry?.emit('open-explain-plan-modal', { query });
+  };
+};
+
+export const saveRecentAsFavorite = (
+  recentQuery: RecentQuery,
+  name: string
+): QueryBarThunkAction<Promise<boolean>> => {
+  return async (dispatch, getState, { favoriteQueryStorage }) => {
+    try {
+      const now = new Date();
+      const { _id, _host, _lastExecuted, _ns, ...baseQuery } = recentQuery;
+      const favoriteQuery: FavoriteQuery = {
+        ...getQueryAttributes(baseQuery),
+        _id,
+        _ns,
+        _lastExecuted,
+        _host: _host ?? getState().host,
+        _name: name,
+        _dateSaved: now,
+        _dateModified: now,
+      };
+
+      // add it in the favorite
+      await favoriteQueryStorage.updateAttributes(
+        favoriteQuery._id,
+        favoriteQuery
+      );
+
+      // update favorites
+      void dispatch(fetchFavorites());
+
+      // remove from recents
+      void dispatch(deleteRecentQuery(_id));
+
+      return true;
+    } catch (e) {
+      debug('Failed to save recent query as favorite', e);
+      return false;
+    }
+  };
+};
+
+export const deleteRecentQuery = (
+  id: string
+): QueryBarThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, { recentQueryStorage }) => {
+    try {
+      await recentQueryStorage.delete(id);
+      return dispatch(fetchRecents());
+    } catch (e) {
+      debug('Failed to delete recent query', e);
+    }
+  };
+};
+
+export const deleteFavoriteQuery = (
+  id: string
+): QueryBarThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, { favoriteQueryStorage }) => {
+    try {
+      await favoriteQueryStorage.delete(id);
+      return dispatch(fetchFavorites());
+    } catch (e) {
+      debug('Failed to delete favorite query', e);
+    }
+  };
+};
+
+const saveRecentQuery = (
+  query: Omit<BaseQuery, 'maxTimeMS'>
+): QueryBarThunkAction<Promise<void>> => {
+  return async (_dispatch, getState, { recentQueryStorage }) => {
+    try {
+      const { recentQueries, host, namespace } = getState();
+
+      const queryAttributes = getQueryAttributes(query);
+      // Ignore empty or default queries
+      if (_.isEmpty(queryAttributes)) {
+        return;
+      }
+
+      // Ignore duplicate queries
+      const existingQuery = recentQueries.find((recentQuery) =>
+        _.isEqual(getQueryAttributes(recentQuery), queryAttributes)
+      );
+
+      if (existingQuery) {
+        // update the existing query's lastExecuted to move it to the top
+        const updateAttributes = {
+          _host: existingQuery._host ?? host,
+          _lastExecuted: new Date(),
+        };
+        await recentQueryStorage.updateAttributes(
+          existingQuery._id,
+          updateAttributes
+        );
+        return;
+      }
+
+      // Keep length of each recent list to TOTAL_RECENTS_ALLOWED
+      if (recentQueries.length >= TOTAL_RECENTS_ALLOWED) {
+        const lastRecent = recentQueries[recentQueries.length - 1];
+        await recentQueryStorage.delete(lastRecent._id);
+      }
+
+      const _id = new UUID().toString();
+      const recentQuery: RecentQuery = {
+        ...queryAttributes,
+        _id,
+        _lastExecuted: new Date(),
+        _ns: namespace,
+        _host: host ?? '',
+      };
+
+      await recentQueryStorage.updateAttributes(_id, recentQuery);
+    } catch (e) {
+      debug('Failed to save recent query', e);
+    }
+  };
 };
 
 export const queryBarReducer: Reducer<QueryBarState> = (
@@ -338,7 +450,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
       ...state,
       fields: {
         ...state.fields,
-        ...mapQueryToValidQueryFields(action.query),
+        ...mapQueryToFormFields(action.query),
       },
     };
   }
@@ -355,7 +467,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     return {
       ...state,
       lastAppliedQuery: null,
-      fields: mapQueryToValidQueryFields(DEFAULT_FIELD_VALUES),
+      fields: mapQueryToFormFields(DEFAULT_FIELD_VALUES),
     };
   }
 
@@ -376,44 +488,38 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   ) {
     return {
       ...state,
-      fields: mapQueryToValidQueryFields({
+      fields: mapQueryToFormFields({
         ...DEFAULT_FIELD_VALUES,
         ...(action.query ?? {}),
       }),
     };
   }
 
+  if (
+    isAction<RecentQueriesFetchedAction>(
+      action,
+      QueryBarActions.RecentQueriesFetched
+    )
+  ) {
+    return {
+      ...state,
+      recentQueries: action.recents,
+    };
+  }
+
+  if (
+    isAction<FavoriteQueriesFetchedAction>(
+      action,
+      QueryBarActions.FavoriteQueriesFetched
+    )
+  ) {
+    return {
+      ...state,
+      favoriteQueries: action.favorites,
+    };
+  }
+
   return state;
 };
-
-export const explainQuery = (): QueryBarThunkAction<void> => {
-  return (dispatch, getState, { localAppRegistry }) => {
-    const { fields } = getState();
-    const query = pickValuesFromFields(fields);
-    localAppRegistry?.emit('open-explain-plan-modal', { query });
-  };
-};
-
-/**
- * This is arguably a total hack, but more or less the only easy way to get
- * components out of registry without passing the whole registry around or
- * inventing another one-off abstraction for this
- */
-export const renderQueryHistoryComponent =
-  (): QueryBarThunkAction<React.ReactElement | null> => {
-    return (dispatch, getState, { globalAppRegistry, localAppRegistry }) => {
-      const QueryHistory =
-        globalAppRegistry?.getRole('Query.QueryHistory')?.[0].component;
-
-      if (!QueryHistory) {
-        return null;
-      }
-
-      const store = localAppRegistry?.getStore('Query.History');
-      const actions = localAppRegistry?.getAction('Query.History.Actions');
-
-      return React.createElement(QueryHistory, { store, actions });
-    };
-  };
 
 export type QueryBarRootStore = Store<QueryBarState>;

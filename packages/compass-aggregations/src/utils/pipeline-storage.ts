@@ -67,14 +67,18 @@ function hasAllRequiredKeys(pipeline?: any): pipeline is StoredPipeline {
 
 export class PipelineStorage {
   async loadAll(): Promise<StoredPipeline[]> {
-    const dir = getDirectory();
-    const files = (await fs.readdir(dir))
-      .filter((file) => file.endsWith('.json'))
-      .map((file) => path.join(dir, file));
+    try {
+      const dir = getDirectory();
+      const files = (await fs.readdir(dir))
+        .filter((file) => file.endsWith('.json'))
+        .map((file) => path.join(dir, file));
 
-    return (
-      await Promise.all(files.map((filePath) => this._loadOne(filePath)))
-    ).filter(Boolean) as StoredPipeline[];
+      return (
+        await Promise.all(files.map((filePath) => this._loadOne(filePath)))
+      ).filter(Boolean) as StoredPipeline[];
+    } catch (e) {
+      return [];
+    }
   }
 
   async load(id: string): Promise<StoredPipeline | null> {

@@ -16,7 +16,7 @@ import {
 function createStore() {
   return _createStore(
     queryBarReducer,
-    applyMiddleware(thunk.withExtraArgument({}))
+    applyMiddleware(thunk.withExtraArgument({} as any))
   );
 }
 

@@ -23,8 +23,6 @@ import type {
   QueryBarState,
   QueryBarThunkDispatch,
 } from '../stores/query-bar-reducer';
-import { isEqualDefaultQuery } from '../stores/query-bar-reducer';
-import { isQueryValid } from '../stores/query-bar-reducer';
 import {
   applyQuery,
   openExportToLanguage,
@@ -32,6 +30,7 @@ import {
   explainQuery,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
 import type { QueryProperty } from '../constants/query-properties';
 import { usePreference } from 'compass-preferences-model';
 import type { Signal } from '@mongodb-js/compass-components';
@@ -279,12 +278,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 };
 
 export default connect(
-  (state: QueryBarState) => {
+  ({ expanded, fields, applyId }: QueryBarState) => {
     return {
-      expanded: state.expanded,
-      queryChanged: !isEqualDefaultQuery(state),
-      valid: isQueryValid(state),
-      applyId: state.applyId,
+      expanded: expanded,
+      queryChanged: !isEqualDefaultQuery(fields),
+      valid: isQueryValid(fields),
+      applyId: applyId,
     };
   },
   (
