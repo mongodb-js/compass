@@ -10,7 +10,7 @@ import {
   Icon,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { type QueryHistoryTab } from '../../../stores/query-bar-reducer';
+import type { QueryHistoryTab } from '..';
 
 const titleStyles = css({
   display: 'block',

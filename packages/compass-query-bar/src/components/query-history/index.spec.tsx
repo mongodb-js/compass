@@ -19,7 +19,6 @@ import { FavoriteQueryStorage, RecentQueryStorage } from '../../utils';
 import {
   queryBarReducer,
   INITIAL_STATE,
-  changeQueryHistoryTab,
   fetchRecents,
   fetchFavorites,
 } from '../../stores/query-bar-reducer';
@@ -93,16 +92,16 @@ describe('query-history', function () {
 
   context('zero state', function () {
     it('in recents', function () {
-      const { store } = renderQueryHistory();
-      store.dispatch(changeQueryHistoryTab('recent') as any);
+      renderQueryHistory();
+      userEvent.click(screen.getByText(/recents/i));
       expect(
         screen.getByText(/your recent and favorite queries will appear here\./i)
       ).to.exist;
     });
 
     it('in favorites', function () {
-      const { store } = renderQueryHistory();
-      store.dispatch(changeQueryHistoryTab('favorite') as any);
+      renderQueryHistory();
+      userEvent.click(screen.getByText(/favorites/i));
       expect(
         screen.getByText(/your recent and favorite queries will appear here\./i)
       ).to.exist;
@@ -117,7 +116,7 @@ describe('query-history', function () {
       );
 
       await store.dispatch(fetchRecents());
-      store.dispatch(changeQueryHistoryTab('recent'));
+      userEvent.click(screen.getByText(/recents/i));
 
       const attrs = screen.getAllByTestId('query-history-query-attribute');
       const labels = attrs.map(
@@ -134,7 +133,7 @@ describe('query-history', function () {
       );
 
       await store.dispatch(fetchFavorites());
-      store.dispatch(changeQueryHistoryTab('favorite'));
+      userEvent.click(screen.getByText(/favorites/i));
 
       const attrs = screen.getAllByTestId('query-history-query-attribute');
       const labels = attrs.map(
@@ -176,7 +175,7 @@ describe('query-history', function () {
       );
 
       await store.dispatch(fetchFavorites());
-      store.dispatch(changeQueryHistoryTab('favorite'));
+      userEvent.click(screen.getByText(/favorites/i));
 
       const spy = Sinon.spy(favoriteQueryStorage, 'delete');
 
@@ -207,7 +206,7 @@ describe('query-history', function () {
     );
 
     await store.dispatch(fetchRecents());
-    store.dispatch(changeQueryHistoryTab('recent'));
+    userEvent.click(screen.getByText(/recents/i));
 
     const queryCard = screen.getByTestId('recent-query-list-item');
     userEvent.hover(queryCard);

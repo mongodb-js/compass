@@ -24,7 +24,7 @@ import type { BaseQuery } from '../../constants/query-properties';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type RecentActions = {
-  onFavorite: (query: RecentQuery, name: string) => void;
+  onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;
   onDelete: (id: string) => void;
   onApply: (query: BaseQuery) => void;
 };
@@ -57,7 +57,7 @@ const RecentItem = ({
   const onSaveQuery = useCallback(
     (name: string) => {
       track('Query History Favorite Added');
-      onFavorite(query, name);
+      void onFavorite(query, name);
     },
     [query, onFavorite]
   );
@@ -95,11 +95,24 @@ const RecentItem = ({
 const RecentList = ({
   queries,
   onDelete,
-  onFavorite,
+  onFavorite: _onFavorite,
   onApply,
+  onSaveFavorite,
 }: RecentActions & {
   queries: RecentQuery[];
+  onSaveFavorite: () => void;
 }) => {
+  const onFavorite = useCallback(
+    async (query: RecentQuery, name: string) => {
+      const saved = await _onFavorite(query, name);
+      if (saved) {
+        onSaveFavorite();
+      }
+      return saved;
+    },
+    [_onFavorite, onSaveFavorite]
+  );
+
   if (queries.length === 0) {
     return <ZeroGraphic />;
   }

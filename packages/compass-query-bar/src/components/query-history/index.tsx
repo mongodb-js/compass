@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 
 import { Toolbar } from './toolbar/toolbar';
@@ -6,13 +6,8 @@ import RecentList from './recent-list';
 import FavoriteList from './favorite-list';
 
 import { connect } from 'react-redux';
-import {
-  type QueryBarState,
-  type QueryHistoryTab,
-  changeQueryHistoryTab,
-} from '../../stores/query-bar-reducer';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+import type { QueryBarState } from '../../stores/query-bar-reducer';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const containerStyle = css({
   display: 'flex',
@@ -28,42 +23,42 @@ const contentStyles = css({
   paddingTop: 0,
 });
 
+export type QueryHistoryTab = 'recent' | 'favorite';
+
 type QueryHistoryProps = {
-  tab: QueryHistoryTab;
   namespace: string;
-  onChangeTab: (tab: QueryHistoryTab) => void;
 };
 
-const QueryHistory = ({ tab, namespace, onChangeTab }: QueryHistoryProps) => {
-  const onChange = useCallback(
-    (newTab: QueryHistoryTab) => {
-      if (newTab === 'favorite') {
+const QueryHistory = ({ namespace }: QueryHistoryProps) => {
+  const [tab, setTab] = useState<QueryHistoryTab>('recent');
+
+  useTrackOnChange(
+    'COMPASS-QUERY-BAR-UI',
+    (track) => {
+      if (tab === 'favorite') {
         track('Query History Favorites');
       } else {
         track('Query History Recent');
       }
-      onChangeTab(newTab);
     },
-    [onChangeTab]
+    [tab],
+    undefined,
+    React
   );
 
   return (
     <div data-testid="query-history" className={containerStyle}>
-      <Toolbar tab={tab} onChange={onChange} namespace={namespace} />
+      <Toolbar tab={tab} onChange={setTab} namespace={namespace} />
       <div className={contentStyles}>
-        {tab === 'recent' && <RecentList />}
+        {tab === 'recent' && (
+          <RecentList onSaveFavorite={() => setTab('favorite')} />
+        )}
         {tab === 'favorite' && <FavoriteList />}
       </div>
     </div>
   );
 };
 
-export default connect(
-  ({ namespace, activeTab }: QueryBarState) => ({
-    namespace,
-    tab: activeTab,
-  }),
-  {
-    onChangeTab: changeQueryHistoryTab,
-  }
-)(QueryHistory);
+export default connect(({ namespace }: QueryBarState) => ({
+  namespace,
+}))(QueryHistory);

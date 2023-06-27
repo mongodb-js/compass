@@ -35,8 +35,6 @@ const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const TOTAL_RECENTS_ALLOWED = 30;
 
-export type QueryHistoryTab = 'recent' | 'favorite';
-
 export type QueryBarExtraArgs = {
   globalAppRegistry?: AppRegistry;
   localAppRegistry?: AppRegistry;
@@ -70,7 +68,6 @@ export type QueryBarState = {
    * clicked or not
    */
   applyId: number;
-  activeTab: QueryHistoryTab;
   namespace: string;
   host?: string;
   recentQueries: RecentQuery[];
@@ -84,7 +81,6 @@ export const INITIAL_STATE: QueryBarState = {
   schemaFields: [],
   lastAppliedQuery: null,
   applyId: 0,
-  activeTab: 'recent',
   namespace: '',
   recentQueries: [],
   favoriteQueries: [],
@@ -98,7 +94,6 @@ enum QueryBarActions {
   ApplyQuery = 'compass-query-bar/ApplyQuery',
   ResetQuery = 'compass-query-bar/ResetQuery',
   ApplyFromHistory = 'compass-query-bar/ApplyFromHistory',
-  ChangeQueryHistoryTab = 'compass-query-bar/ChangeQueryHistoryTab',
   RecentQueriesFetched = 'compass-query-bar/RecentQueriesFetched',
   FavoriteQueriesFetched = 'compass-query-bar/FavoriteQueriesFetched',
 }
@@ -243,18 +238,6 @@ export const applyFromHistory = (query: BaseQuery): ApplyFromHistoryAction => {
   return { type: QueryBarActions.ApplyFromHistory, query };
 };
 
-type ChangeQueryHistoryTabAction = {
-  type: QueryBarActions.ChangeQueryHistoryTab;
-  tab: QueryHistoryTab;
-};
-
-export const changeQueryHistoryTab = (
-  tab: QueryHistoryTab
-): ChangeQueryHistoryTabAction => ({
-  type: QueryBarActions.ChangeQueryHistoryTab,
-  tab,
-});
-
 type RecentQueriesFetchedAction = {
   type: QueryBarActions.RecentQueriesFetched;
   recents: RecentQuery[];
@@ -315,7 +298,7 @@ export const explainQuery = (): QueryBarThunkAction<void> => {
 export const saveRecentAsFavorite = (
   recentQuery: RecentQuery,
   name: string
-): QueryBarThunkAction<Promise<void>> => {
+): QueryBarThunkAction<Promise<boolean>> => {
   return async (dispatch, getState, { favoriteQueryStorage }) => {
     try {
       const now = new Date();
@@ -343,9 +326,10 @@ export const saveRecentAsFavorite = (
       // remove from recents
       void dispatch(deleteRecentQuery(_id));
 
-      void dispatch(changeQueryHistoryTab('favorite'));
+      return true;
     } catch (e) {
       debug('Failed to save recent query as favorite', e);
+      return false;
     }
   };
 };
@@ -508,18 +492,6 @@ export const queryBarReducer: Reducer<QueryBarState> = (
         ...DEFAULT_FIELD_VALUES,
         ...(action.query ?? {}),
       }),
-    };
-  }
-
-  if (
-    isAction<ChangeQueryHistoryTabAction>(
-      action,
-      QueryBarActions.ChangeQueryHistoryTab
-    )
-  ) {
-    return {
-      ...state,
-      activeTab: action.tab,
     };
   }
 
