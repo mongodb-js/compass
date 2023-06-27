@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Jun 26 2023.
+This document was automatically generated on Tue Jun 27 2023.
 
 ## List of dependencies
 
@@ -256,7 +256,7 @@ This document was automatically generated on Mon Jun 26 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                            | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                   | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                     | 1.0.0        | Apache-2.0                          |
-| **[electron](#f37cfbbadc9e500b7c8f95e854950f78ae937c81c01442de1f7157e077632b1f)**                                      | 23.3.7       | MIT                                 |
+| **[electron](#6717a6bffa40416abb080743ada9d1cbc9006eafc5f3751f08d9f2f9fbadcedc)**                                      | 23.3.8       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                     | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                 | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                  | 3.0.1        | MIT                                 |
@@ -23137,9 +23137,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="f37cfbbadc9e500b7c8f95e854950f78ae937c81c01442de1f7157e077632b1f"></a>
+<a id="6717a6bffa40416abb080743ada9d1cbc9006eafc5f3751f08d9f2f9fbadcedc"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 23.3.7)
+### [electron](https://www.npmjs.com/package/electron) (version 23.3.8)
 
 License tags: MIT
 
