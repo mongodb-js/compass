@@ -1,3 +1,5 @@
+import _ from 'lodash';
+import type { Element } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -30,6 +32,29 @@ export type AddCollectionOptions = {
   };
   encryptedFields?: string;
 };
+
+async function waitForAnimations(
+  browser: CompassBrowser,
+  element: Element<'async'>
+): Promise<void> {
+  let previousResult = {
+    ...(await element.getLocation()),
+    ...(await element.getSize()),
+  };
+  await browser.waitUntil(async function () {
+    // small delay to make sure that if it is busy animating it had time to move
+    // before the first check and between each two checks
+    await browser.pause(50);
+
+    const result = {
+      ...(await element.getLocation()),
+      ...(await element.getSize()),
+    };
+    const stopped = _.isEqual(result, previousResult);
+    previousResult = result;
+    return stopped;
+  });
+}
 
 export async function addCollection(
   browser: CompassBrowser,
@@ -78,7 +103,9 @@ export async function addCollection(
       await menu.waitForDisplayed();
       const span = await menu.$(`span=${value.toString()}`);
       await span.waitForDisplayed();
+      await waitForAnimations(browser, span);
       await span.click();
+      await menu.waitForDisplayed({ reverse: true });
     }
 
     // scroll to the locale one so the screenshot will include it.
