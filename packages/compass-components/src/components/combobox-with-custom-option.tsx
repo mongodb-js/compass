@@ -62,11 +62,11 @@ export const ComboboxWithCustomOption = <
       {...props}
       multiselect={multiselect}
       onFilter={setSearch}
-      onBlur={() => {
+      onBlur={(evt) => {
         // Set a search value as the combobox value onBlur event to fix missing values on modal submit COMPASS-6511
         // We don't do this for multiselect, because in this case, you should explicitly check the value in the list.
         if (!multiselect) {
-          selectValueAndRunOnChange(search);
+          selectValueAndRunOnChange(evt.target.value);
         }
       }}
       onChange={selectValueAndRunOnChange}
