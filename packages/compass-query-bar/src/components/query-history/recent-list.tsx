@@ -2,11 +2,11 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { useFormattedDate } from '@mongodb-js/compass-components';
 import {
-  type QueryBarState,
   deleteRecentQuery,
   saveRecentAsFavorite,
   applyFromHistory,
 } from '../../stores/query-bar-reducer';
+import type { RootState } from '../../stores/query-bar-store';
 import type { RecentQuery } from '../../utils/query-storage';
 import { ZeroGraphic } from './zero-graphic';
 import {
@@ -129,7 +129,7 @@ const RecentList = ({
 };
 
 export default connect(
-  ({ recentQueries }: QueryBarState) => ({
+  ({ queryBar: { recentQueries } }: RootState) => ({
     queries: recentQueries,
   }),
   {

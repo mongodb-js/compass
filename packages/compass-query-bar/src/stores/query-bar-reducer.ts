@@ -1,8 +1,17 @@
-import type { Reducer, AnyAction, Store } from 'redux';
+import type { Reducer, AnyAction } from 'redux';
+import { cloneDeep, isEqual } from 'lodash';
+import _ from 'lodash';
+import { UUID } from 'bson';
+import type { Document } from 'mongodb';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
 } from '../constants/query-bar-store';
+import type { QueryBarThunkAction } from './query-bar-store';
+import { AIQueryActionTypes } from './ai-query-reducer';
+import type { AIQuerySucceededAction } from './ai-query-reducer';
 import type {
   QueryProperty,
   BaseQuery,
@@ -15,40 +24,16 @@ import {
   validateField,
   isEqualDefaultQuery,
 } from '../utils/query';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type AppRegistry from 'hadron-app-registry';
-import { cloneDeep, isEqual } from 'lodash';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
 import {
-  type FavoriteQueryStorage,
-  type RecentQueryStorage,
   type RecentQuery,
   type FavoriteQuery,
   getQueryAttributes,
 } from '../utils';
-import _ from 'lodash';
-import { UUID } from 'bson';
-import type { Document } from 'mongodb';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const TOTAL_RECENTS_ALLOWED = 30;
-
-export type QueryBarExtraArgs = {
-  globalAppRegistry?: AppRegistry;
-  localAppRegistry?: AppRegistry;
-  favoriteQueryStorage: FavoriteQueryStorage;
-  recentQueryStorage: RecentQueryStorage;
-};
-
-export type QueryBarThunkAction<
-  R,
-  A extends AnyAction = AnyAction
-> = ThunkAction<R, QueryBarState, QueryBarExtraArgs, A>;
-
-export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
-  ThunkDispatch<QueryBarState, QueryBarExtraArgs, A>;
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -57,7 +42,7 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export type QueryBarState = {
+type QueryBarState = {
   fields: QueryFormFields;
   expanded: boolean;
   serverVersion: string;
@@ -122,7 +107,9 @@ type ChangeFieldAction = {
  */
 const emitOnQueryChange = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
-    const { lastAppliedQuery, fields } = getState();
+    const {
+      queryBar: { lastAppliedQuery, fields },
+    } = getState();
     const query = mapFormFieldsToQuery(fields);
     if (lastAppliedQuery === null || !isEqual(lastAppliedQuery, query)) {
       localAppRegistry?.emit('query-changed', query);
@@ -158,7 +145,9 @@ export const applyQuery = (): QueryBarThunkAction<
   ApplyQueryAction
 > => {
   return (dispatch, getState) => {
-    const { fields } = getState();
+    const {
+      queryBar: { fields },
+    } = getState();
     if (!isQueryFieldsValid(fields)) {
       return false;
     }
@@ -179,7 +168,7 @@ export const resetQuery = (): QueryBarThunkAction<
   false | Record<string, unknown>
 > => {
   return (dispatch, getState, { localAppRegistry }) => {
-    if (isEqualDefaultQuery(getState().fields)) {
+    if (isEqualDefaultQuery(getState().queryBar.fields)) {
       return false;
     }
     dispatch({ type: QueryBarActions.ResetQuery });
@@ -203,7 +192,7 @@ export const applyFilterChange = (
   event: ChangeFilterEvent
 ): QueryBarThunkAction<void> => {
   return (dispatch, getState) => {
-    const currentFilterValue = getState().fields.filter.value;
+    const currentFilterValue = getState().queryBar.fields.filter.value;
     dispatch(
       setQuery({
         filter: changeFilter(
@@ -221,7 +210,7 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
     localAppRegistry?.emit(
       'open-query-export-to-language',
       Object.fromEntries(
-        Object.entries(getState().fields).map(([key, field]) => {
+        Object.entries(getState().queryBar.fields).map(([key, field]) => {
           return [key, field.string];
         })
       )
@@ -289,7 +278,9 @@ export const fetchFavorites = (): QueryBarThunkAction<
 
 export const explainQuery = (): QueryBarThunkAction<void> => {
   return (dispatch, getState, { localAppRegistry }) => {
-    const { fields } = getState();
+    const {
+      queryBar: { fields },
+    } = getState();
     const query = mapFormFieldsToQuery(fields);
     localAppRegistry?.emit('open-explain-plan-modal', { query });
   };
@@ -308,7 +299,7 @@ export const saveRecentAsFavorite = (
         _id,
         _ns,
         _lastExecuted,
-        _host: _host ?? getState().host,
+        _host: _host ?? getState().queryBar.host,
         _name: name,
         _dateSaved: now,
         _dateModified: now,
@@ -365,7 +356,9 @@ const saveRecentQuery = (
 ): QueryBarThunkAction<Promise<void>> => {
   return async (_dispatch, getState, { recentQueryStorage }) => {
     try {
-      const { recentQueries, host, namespace } = getState();
+      const {
+        queryBar: { recentQueries, host, namespace },
+      } = getState();
 
       const queryAttributes = getQueryAttributes(query);
       // Ignore empty or default queries
@@ -484,7 +477,14 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (
-    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
+    isAction<ApplyFromHistoryAction>(
+      action,
+      QueryBarActions.ApplyFromHistory
+    ) ||
+    isAction<AIQuerySucceededAction>(
+      action,
+      AIQueryActionTypes.AIQuerySucceeded
+    )
   ) {
     return {
       ...state,
@@ -521,5 +521,3 @@ export const queryBarReducer: Reducer<QueryBarState> = (
 
   return state;
 };
-
-export type QueryBarRootStore = Store<QueryBarState>;

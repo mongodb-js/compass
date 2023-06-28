@@ -6,7 +6,7 @@ import RecentList from './recent-list';
 import FavoriteList from './favorite-list';
 
 import { connect } from 'react-redux';
-import type { QueryBarState } from '../../stores/query-bar-reducer';
+import type { RootState } from '../../stores/query-bar-store';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 const containerStyle = css({
@@ -59,6 +59,6 @@ const QueryHistory = ({ namespace }: QueryHistoryProps) => {
   );
 };
 
-export default connect(({ namespace }: QueryBarState) => ({
+export default connect(({ queryBar: { namespace } }: RootState) => ({
   namespace,
 }))(QueryHistory);

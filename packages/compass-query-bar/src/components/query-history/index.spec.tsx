@@ -17,11 +17,11 @@ import os from 'os';
 import QueryHistory from '.';
 import { FavoriteQueryStorage, RecentQueryStorage } from '../../utils';
 import {
-  queryBarReducer,
   INITIAL_STATE,
   fetchRecents,
   fetchFavorites,
 } from '../../stores/query-bar-reducer';
+import { rootQueryBarReducer } from '../../stores/query-bar-store';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },
@@ -49,11 +49,13 @@ function createStore(basepath?: string) {
   const recentQueryStorage = new RecentQueryStorage(basepath);
 
   const store = _createStore(
-    queryBarReducer,
+    rootQueryBarReducer,
     {
-      ...INITIAL_STATE,
-      namespace: 'airbnb.listings',
-      host: 'localhost',
+      queryBar: {
+        ...INITIAL_STATE,
+        namespace: 'airbnb.listings',
+        host: 'localhost',
+      },
     } as any,
     applyMiddleware(
       thunk.withExtraArgument({

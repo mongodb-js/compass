@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import {
   Icon,
   InteractivePopover,
@@ -7,8 +8,8 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
+
 import QueryHistory from './query-history';
-import { connect } from 'react-redux';
 import { fetchSavedQueries } from '../stores/query-bar-reducer';
 
 const openQueryHistoryButtonStyles = css(

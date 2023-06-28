@@ -1,16 +1,24 @@
 import type AppRegistry from 'hadron-app-registry';
-import { createStore as _createStore, applyMiddleware } from 'redux';
+import {
+  createStore as _createStore,
+  applyMiddleware,
+  combineReducers,
+} from 'redux';
 import thunk from 'redux-thunk';
+import type { AnyAction } from 'redux';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { BaseQuery } from '../constants/query-properties';
 import { mapFormFieldsToQuery, mapQueryToFormFields } from '../utils/query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import {
   queryBarReducer,
-  INITIAL_STATE,
+  INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   changeSchemaFields,
   applyFilterChange,
 } from './query-bar-reducer';
+import { aiQueryReducer } from './ai-query-reducer';
 import {
   FavoriteQueryStorage,
   RecentQueryStorage,
@@ -19,7 +27,7 @@ import {
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 const { basepath } = getStoragePaths() || {};
 
-type QueryBarStoreOptions = {
+export type QueryBarStoreOptions = {
   serverVersion: string;
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
@@ -32,7 +40,32 @@ type QueryBarStoreOptions = {
       };
     };
   };
+
+  // For testing.
+  basepath?: string;
 };
+
+export const rootQueryBarReducer = combineReducers({
+  queryBar: queryBarReducer,
+  aiQuery: aiQueryReducer,
+});
+
+export type RootState = ReturnType<typeof rootQueryBarReducer>;
+
+export type QueryBarExtraArgs = {
+  globalAppRegistry?: AppRegistry;
+  localAppRegistry?: AppRegistry;
+  favoriteQueryStorage: FavoriteQueryStorage;
+  recentQueryStorage: RecentQueryStorage;
+};
+
+export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
+  ThunkDispatch<RootState, QueryBarExtraArgs, A>;
+
+export type QueryBarThunkAction<
+  R,
+  A extends AnyAction = AnyAction
+> = ThunkAction<R, RootState, QueryBarExtraArgs, A>;
 
 function createStore(options: Partial<QueryBarStoreOptions> = {}) {
   const {
@@ -44,20 +77,28 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     dataProvider,
   } = options;
 
-  const recentQueryStorage = new RecentQueryStorage(basepath, namespace);
-  const favoriteQueryStorage = new FavoriteQueryStorage(basepath, namespace);
+  const recentQueryStorage = new RecentQueryStorage(
+    options.basepath ?? basepath,
+    namespace
+  );
+  const favoriteQueryStorage = new FavoriteQueryStorage(
+    options.basepath ?? basepath,
+    namespace
+  );
 
   return _createStore(
-    queryBarReducer,
+    rootQueryBarReducer,
     {
-      ...INITIAL_STATE,
-      namespace: namespace ?? '',
-      host: dataProvider?.dataProvider?.getConnectionString().hosts.join(','),
-      serverVersion: serverVersion ?? '3.6.0',
-      fields: mapQueryToFormFields({
-        ...DEFAULT_FIELD_VALUES,
-        ...getQueryAttributes(query ?? {}),
-      }),
+      queryBar: {
+        ...INITIAL_QUERY_BAR_STATE,
+        namespace: namespace ?? '',
+        host: dataProvider?.dataProvider?.getConnectionString().hosts.join(','),
+        serverVersion: serverVersion ?? '3.6.0',
+        fields: mapQueryToFormFields({
+          ...DEFAULT_FIELD_VALUES,
+          ...getQueryAttributes(query ?? {}),
+        }),
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -84,7 +125,7 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
   });
 
   (store as any).getCurrentQuery = () => {
-    return mapFormFieldsToQuery(store.getState().fields);
+    return mapFormFieldsToQuery(store.getState().queryBar.fields);
   };
 
   return store as ReturnType<typeof createStore> & {

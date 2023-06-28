@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import {
   applyFromHistory,
   deleteFavoriteQuery,
-  type QueryBarState,
 } from '../../stores/query-bar-reducer';
 import type { FavoriteQuery } from '../../utils/query-storage';
 import { ZeroGraphic } from './zero-graphic';
@@ -17,6 +16,7 @@ import {
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { BaseQuery } from '../../constants/query-properties';
+import type { RootState } from '../../stores/query-bar-store';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 type FavoriteActions = {
@@ -89,7 +89,7 @@ const FavoriteList = ({
 };
 
 export default connect(
-  ({ favoriteQueries }: QueryBarState) => ({
+  ({ queryBar: { favoriteQueries } }: RootState) => ({
     queries: favoriteQueries,
   }),
   {
