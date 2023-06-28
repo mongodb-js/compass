@@ -1,0 +1,27 @@
+name: Merge bump packages PR
+on:
+  workflow_dispatch:
+  schedule:
+    # Each Tuesday at 5 AM UTC
+    - cron: '0 5 * * 2'
+
+jobs:
+  merge_bump_packages_pr:
+    name: Merge bump packages PR
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Merge PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
+        run: |
+          set -e
+          PR_NUMBER=$(gh pr list -s open --head=ci/bump-packages --limit=1 --json number | jq '.[0].number')
+          if [ -n "${PR_NUMBER}" ]; then
+            gh pr checks "${PR_NUMBER}" --watch --fail-fast
+            echo "Merging PR #${PR_NUMBER}"
+            gh pr merge "${PR_NUMBER}" --squash --delete-branch
+          else
+            echo "PR not found"
+          fi

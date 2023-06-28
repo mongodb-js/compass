@@ -40,6 +40,7 @@ import ResizableSidebar, {
 } from './components/resizeable-sidebar';
 import {
   ItemAction,
+  GroupedItemAction,
   MenuAction,
   ItemActionControls,
   ItemActionGroup,
@@ -65,7 +66,6 @@ export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
-export { GuideCue } from '@leafygreen-ui/guide-cue';
 
 export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
 
@@ -97,6 +97,7 @@ export {
   WarningSummary,
   WorkspaceTabs,
   ItemAction,
+  GroupedItemAction,
   MenuAction,
   ItemActionControls,
   ItemActionGroup,
@@ -126,6 +127,7 @@ export {
 export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
 export { SignalPopover } from './components/signal-popover';
+export type { Signal } from './components/signal-popover';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { EmptyContent } from './components/empty-content';
@@ -167,3 +169,5 @@ export {
 export { rafraf } from './utils/rafraf';
 export { ComboboxWithCustomOption } from './components/combobox-with-custom-option';
 export { usePersistedState } from './hooks/use-persisted-state';
+export { GuideCue, GuideCueProvider } from './components/guide-cue/guide-cue';
+export type { Cue, GroupCue } from './components/guide-cue/guide-cue';

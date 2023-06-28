@@ -10,6 +10,7 @@ import StreamValues from 'stream-json/streamers/StreamValues';
 import stripBomStream from 'strip-bom-stream';
 
 import {
+  makeDocStatsStream,
   makeImportResult,
   processParseError,
   processWriteStreamErrors,
@@ -92,6 +93,8 @@ export async function importJSON({
     },
   });
 
+  const { docStatsStream, getStats } = makeDocStatsStream();
+
   const collectionStream = createCollectionWriteStream(
     dataService,
     ns,
@@ -117,6 +120,7 @@ export async function importJSON({
         stripBomStream(),
         ...parserStreams,
         docStream,
+        docStatsStream,
         collectionStream,
       ],
       ...(abortSignal ? [{ signal: abortSignal }] : [])
@@ -129,11 +133,20 @@ export async function importJSON({
         errorCallback,
       });
 
-      return makeImportResult(collectionStream, numProcessed, true);
+      return makeImportResult(
+        collectionStream,
+        numProcessed,
+        getStats().biggestDocSize,
+        true
+      );
     }
 
     // stick the result onto the error so that we can tell how far it got
-    err.result = makeImportResult(collectionStream, numProcessed);
+    err.result = makeImportResult(
+      collectionStream,
+      numProcessed,
+      getStats().biggestDocSize
+    );
 
     throw err;
   }
@@ -144,5 +157,9 @@ export async function importJSON({
     errorCallback,
   });
 
-  return makeImportResult(collectionStream, numProcessed);
+  return makeImportResult(
+    collectionStream,
+    numProcessed,
+    getStats().biggestDocSize
+  );
 }

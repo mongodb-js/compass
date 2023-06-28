@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   Body,
   Icon,
@@ -12,7 +12,6 @@ import { connect } from 'react-redux';
 
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
-import { setShowSavedPipelines } from '../../../modules/saved-pipeline';
 import SavedPipelines from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
 
@@ -66,10 +65,47 @@ type PipelineHeaderProps = {
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
-  onToggleSavedPipelines: (show: boolean) => void;
   onToggleOptions: () => void;
   isOpenPipelineVisible: boolean;
-  isSavedPipelineVisible: boolean;
+};
+
+const containedElements = [
+  '[data-id="open-pipeline-confirmation-modal"]',
+  '[data-id="delete-pipeline-confirmation-modal"]',
+];
+
+const SavedPipelinesButton: React.FunctionComponent = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  return (
+    <InteractivePopover
+      className={savedAggregationsPopoverStyles}
+      // To prevent popover from closing when confirmation modal is shown
+      containedElements={containedElements}
+      trigger={({ onClick, ref, children }) => {
+        return (
+          <button
+            data-testid="pipeline-toolbar-open-pipelines-button"
+            onClick={onClick}
+            className={openSavedPipelinesStyles}
+            aria-label="Open saved pipelines"
+            aria-haspopup="true"
+            aria-expanded={isVisible ? true : undefined}
+            title="Saved Pipelines"
+            type="button"
+            ref={ref}
+          >
+            <Icon glyph="Folder" />
+            <Icon glyph="CaretDown" />
+            {children}
+          </button>
+        );
+      }}
+      open={isVisible}
+      setOpen={setIsVisible}
+    >
+      <SavedPipelines />
+    </InteractivePopover>
+  );
 };
 
 export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
@@ -77,54 +113,19 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   showExportButton,
   showExplainButton,
   onToggleOptions,
-  onToggleSavedPipelines,
   isOptionsVisible,
   isOpenPipelineVisible,
-  isSavedPipelineVisible,
 }) => {
-  const containedElements = useMemo(() => {
-    return [
-      '[data-id="open-pipeline-confirmation-modal"]',
-      '[data-id="delete-pipeline-confirmation-modal"]',
-    ];
-  }, []);
-
   return (
     <div className={containerStyles} data-testid="pipeline-header">
-      {/* TODO: PipelineHeader component should only be concerned with layout, move the popover to a more appropriate place */}
       {isOpenPipelineVisible && (
-        <InteractivePopover
-          className={savedAggregationsPopoverStyles}
-          // To prevent popover from closing when confirmation modal is shown
-          containedElements={containedElements}
-          trigger={({ onClick, ref, children }) => (
-            <div
-              data-testid="saved-pipelines-popover"
-              className={pipelineTextAndOpenStyles}
-            >
-              <Body weight="medium">Pipeline</Body>
-              <button
-                data-testid="pipeline-toolbar-open-pipelines-button"
-                onClick={onClick}
-                className={openSavedPipelinesStyles}
-                aria-label="Open saved pipelines"
-                aria-haspopup="true"
-                aria-expanded={isSavedPipelineVisible ? true : undefined}
-                title="Saved Pipelines"
-                type="button"
-                ref={ref}
-              >
-                <Icon glyph="Folder" />
-                <Icon glyph="CaretDown" />
-              </button>
-              {children}
-            </div>
-          )}
-          open={isSavedPipelineVisible}
-          setOpen={onToggleSavedPipelines}
+        <div
+          data-testid="saved-pipelines-popover"
+          className={pipelineTextAndOpenStyles}
         >
-          <SavedPipelines />
-        </InteractivePopover>
+          <Body weight="medium">Pipeline</Body>
+          <SavedPipelinesButton></SavedPipelinesButton>
+        </div>
       )}
       <div className={pipelineStagesStyles}>
         <PipelineStages />
@@ -142,14 +143,8 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   );
 };
 
-export default connect(
-  (state: RootState) => {
-    return {
-      isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
-      isSavedPipelineVisible: state.savedPipeline.isListVisible,
-    };
-  },
-  {
-    onToggleSavedPipelines: setShowSavedPipelines,
-  }
-)(PipelineHeader);
+export default connect((state: RootState) => {
+  return {
+    isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
+  };
+})(PipelineHeader);

@@ -14,14 +14,12 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { useDndMonitor } from '@dnd-kit/core';
 
 import { toggleSidePanel } from '../../modules/side-panel';
 import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';
 import { FeedbackLink } from './feedback-link';
 import { addWizard } from '../../modules/pipeline-builder/stage-editor';
 import { UseCaseCard } from './stage-wizard-use-cases';
-import { useGuideCue, GuideCueStorageKeys } from '../use-guide-cue';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -80,13 +78,10 @@ export const AggregationSidePanel = ({
   const [searchText, setSearchText] = useState<string>('');
   const darkMode = useDarkMode();
 
-  const { cueIntersectingRef, cueRefEl, isCueVisible, markCueVisited } =
-    useGuideCue(GuideCueStorageKeys.STAGE_WIZARD_LIST);
-
   const filteredUseCases = useMemo(() => {
     return STAGE_WIZARD_USE_CASES.filter(({ title, stageOperator }) => {
       return title.includes(searchText) || stageOperator.includes(searchText);
-    });
+    }).map(({ id, title, stageOperator }) => ({ id, title, stageOperator }));
   }, [searchText]);
 
   const handleSearchTextChange = useCallback(
@@ -107,24 +102,14 @@ export const AggregationSidePanel = ({
       onSelectUseCase(id, useCase.stageOperator);
       track('Aggregation Use Case Added', {
         drag_and_drop: false,
+        stage_name: useCase.stageOperator,
       });
-      markCueVisited();
     },
-    [onSelectUseCase, markCueVisited]
+    [onSelectUseCase]
   );
-
-  // Hide guide cue when use-case card is dragged from the list
-  useDndMonitor({
-    onDragStart(event) {
-      if (event.active.data.current?.type === 'use-case') {
-        markCueVisited();
-      }
-    },
-  });
 
   return (
     <KeylineCard
-      ref={cueIntersectingRef}
       data-testid="aggregation-side-panel"
       className={cx(containerStyles, darkMode && darkModeContainerStyles)}
     >
@@ -137,8 +122,8 @@ export const AggregationSidePanel = ({
         </Body>
         <IconButton
           className={closeButtonStyles}
-          title="Hide Side Panel"
-          aria-label="Hide Side Panel"
+          title="Hide Stage Wizard"
+          aria-label="Hide Stage Wizard"
           onClick={() => onCloseSidePanel()}
         >
           <Icon glyph="X" />
@@ -151,39 +136,37 @@ export const AggregationSidePanel = ({
         aria-label="How can we help?"
       />
       <div className={contentStyles} data-testid="side-panel-content">
-        {filteredUseCases.map((useCase, index) => (
-          <div key={index}>
-            <GuideCue
-              data-testid="stage-wizard-use-case-list-guide-cue"
-              open={isCueVisible && index === 0}
-              setOpen={markCueVisited}
-              refEl={cueRefEl}
-              numberOfSteps={1}
-              popoverZIndex={2}
-              title="Quick access to the stages"
-              tooltipJustify="end"
-              tooltipAlign="left"
-            >
-              Choose from the list and use our easy drag & drop functionality to
-              add it in the pipeline overview.
-            </GuideCue>
-            <div
-              ref={(r) => {
-                if (index === 0) {
-                  cueRefEl.current = r;
-                }
-              }}
-            >
+        {filteredUseCases.map((useCase, index) => {
+          if (index !== 0) {
+            return (
               <UseCaseCard
+                {...useCase}
                 key={useCase.id}
-                id={useCase.id}
-                title={useCase.title}
-                stageOperator={useCase.stageOperator}
                 onSelect={() => onSelect(useCase.id)}
               />
-            </div>
-          </div>
-        ))}
+            );
+          }
+
+          return (
+            <GuideCue<HTMLDivElement>
+              key={useCase.id}
+              cueId="aggregation-sidebar-wizard-use-case"
+              title="Quick access to the stages"
+              description={
+                'Choose from the list and use our easy drag & drop functionality to add it in the pipeline overview.'
+              }
+              tooltipAlign="left"
+              trigger={({ ref }) => (
+                <div ref={ref}>
+                  <UseCaseCard
+                    {...useCase}
+                    onSelect={() => onSelect(useCase.id)}
+                  />
+                </div>
+              )}
+            />
+          );
+        })}
         <FeedbackLink />
       </div>
     </KeylineCard>

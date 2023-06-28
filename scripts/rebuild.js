@@ -5,8 +5,7 @@
 const { promises: fs } = require('fs');
 const path = require('path');
 const pkgUp = require('pkg-up');
-const { runInDir } = require('./run-in-dir');
-const { withProgress } = require('./monorepo/with-progress');
+const { runInDir, withProgress } = require('@mongodb-js/monorepo-tools');
 
 async function getBinPath(pkgName, resolveFrom = process.cwd()) {
   try {

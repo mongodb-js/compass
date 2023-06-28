@@ -112,6 +112,8 @@ describe('BSONValue', function () {
     { type: 'Null', value: null, expected: 'null' },
     { type: 'Boolean', value: false, expected: 'false' },
     { type: 'Boolean', value: true, expected: 'true' },
+    { type: 'Array', value: [1, 2, 3], expected: 'Array (3)' },
+    { type: 'Array', value: [], expected: 'Array (empty)' },
   ];
 
   valuesToRender.forEach(function ({ expected, ...props }) {
@@ -119,7 +121,7 @@ describe('BSONValue', function () {
       const { container } = render(<BSONValue {...(props as any)}></BSONValue>);
 
       expect(container.querySelector('.element-value')).to.exist;
-      expect(container.querySelector('.element-value').textContent).to.eq(
+      expect(container.querySelector('.element-value')?.textContent).to.eq(
         expected
       );
     });

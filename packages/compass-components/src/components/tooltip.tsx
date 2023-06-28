@@ -23,12 +23,19 @@ type LeafyGreenTooltipProps = React.ComponentPropsWithoutRef<
 
 type TooltipTrigger = React.FunctionComponent;
 
-const Tooltip: React.FunctionComponent<
-  TooltipTriggerProps &
-    Omit<LeafyGreenTooltipProps, 'trigger'> & {
-      trigger: TooltipTrigger;
-    }
-> = ({ isDisabled, triggerOn, delay, trigger, children, ...rest }) => {
+type TooltipProps = TooltipTriggerProps &
+  Omit<LeafyGreenTooltipProps, 'trigger'> & {
+    trigger: TooltipTrigger;
+  };
+
+const Tooltip: React.FunctionComponent<TooltipProps> = ({
+  isDisabled,
+  triggerOn,
+  delay,
+  trigger,
+  children,
+  ...rest
+}) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const tooltipState = useTooltipTriggerState({
     isDisabled,
@@ -66,4 +73,4 @@ const Tooltip: React.FunctionComponent<
   );
 };
 
-export { Tooltip };
+export { Tooltip, TooltipProps };

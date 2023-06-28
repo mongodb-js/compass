@@ -38,6 +38,7 @@ import type { PipelineStorage } from '../utils/pipeline-storage';
 import focusMode from './focus-mode';
 import sidePanel from './side-panel';
 import collectionsFields from './collections-fields';
+import insights from './insights';
 
 /**
  * The main application reducer.
@@ -81,6 +82,7 @@ const rootReducer = combineReducers({
   focusMode,
   sidePanel,
   collectionsFields,
+  insights,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   Button,
   MoreOptionsToggle,
+  SignalPopover,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -18,6 +19,8 @@ import {
   getPipelineStageOperatorsFromBuilderState,
 } from '../../../modules/pipeline-builder/builder-helpers';
 import { isOutputStage } from '../../../utils/stage';
+import { openCreateIndexModal } from '../../../modules/insights';
+import { usePreference } from 'compass-preferences-model';
 
 const containerStyles = css({
   display: 'flex',
@@ -46,6 +49,9 @@ type PipelineActionsProps = {
   onToggleOptions: () => void;
 
   isAtlasDeployed?: boolean;
+
+  showCollectionScanInsight?: boolean;
+  onCollectionScanInsightActionButtonClick: () => void;
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
@@ -64,9 +70,35 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onExportAggregationResults,
   onExplainAggregation,
   isAtlasDeployed,
+  showCollectionScanInsight,
+  onCollectionScanInsightActionButtonClick,
 }) => {
+  const showInsights = usePreference('showInsights', React);
   return (
     <div className={containerStyles}>
+      {showInsights && showCollectionScanInsight && (
+        <div>
+          <SignalPopover
+            signals={{
+              id: 'aggregation-executed-without-index',
+              title: 'Aggregation executed without index',
+              description: (
+                <>
+                  This aggregation ran without an index. If you plan on using
+                  this query <strong>heavily</strong> in your application, you
+                  should create an index that covers this aggregation.
+                </>
+              ),
+              learnMoreLink:
+                'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
+              primaryActionButtonLabel: 'Create index',
+              primaryActionButtonIcon: 'Plus',
+              onPrimaryActionButtonClick:
+                onCollectionScanInsightActionButtonClick,
+            }}
+          ></SignalPopover>
+        </div>
+      )}
       {showUpdateViewButton && (
         <Button
           aria-label="Update view"
@@ -141,6 +173,7 @@ const mapState = (state: RootState) => {
     showUpdateViewButton: Boolean(state.editViewName),
     isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors,
     isAtlasDeployed: state.isAtlasDeployed,
+    showCollectionScanInsight: state.insights.isCollectionScan,
   };
 };
 
@@ -149,6 +182,7 @@ const mapDispatch = {
   onRunAggregation: runAggregation,
   onExportAggregationResults: exportAggregationResults,
   onExplainAggregation: explainAggregation,
+  onCollectionScanInsightActionButtonClick: openCreateIndexModal,
 };
 
 export default connect(mapState, mapDispatch)(React.memo(PipelineActions));

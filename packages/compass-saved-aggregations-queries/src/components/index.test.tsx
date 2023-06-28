@@ -3,11 +3,13 @@ import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
-import type { Query } from '@mongodb-js/compass-query-history';
+import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
 import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
 
 import { createProxyquireMockForQueriesAndAggregationsPlugins } from '../../test/mock';
 import { queries, pipelines } from '../../test/fixtures';
+
+const DATE = new Date('01/01/2020');
 
 describe('AggregationsQueriesList', function () {
   // Even though we are mocking dependencies, the code is still processed by
@@ -44,8 +46,8 @@ describe('AggregationsQueriesList', function () {
             _id: '123',
             _name: 'Query',
             _ns: 'bar.foo',
-            _dateSaved: 0,
-          } as Query,
+            _dateSaved: DATE,
+          } as unknown as FavoriteQuery,
         ]
       ) as any),
       // XXX: It's important that the proxyquire required module has the same
@@ -101,10 +103,10 @@ describe('AggregationsQueriesList', function () {
               _id: '123',
               _name: 'My Query',
               _ns: 'bar.foo',
-              _dateSaved: 0,
+              _dateSaved: DATE,
               filter: { foo: 'bar' },
               sort: { bar: -1 },
-            } as unknown as Query,
+            } as unknown as FavoriteQuery,
           ]
         ) as any),
         // XXX: It's important that the proxyquire required module has the same

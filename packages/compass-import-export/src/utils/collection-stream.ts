@@ -159,7 +159,9 @@ export class WritableCollectionStream extends Writable {
       result = await this.dataService.bulkWrite(
         this.ns,
         documents.map(
-          (doc: any): AnyBulkWriteOperation<Document> => ({ insertOne: doc })
+          (document: any): AnyBulkWriteOperation<Document> => ({
+            insertOne: { document },
+          })
         ),
         {
           ordered: this.stopOnErrors,

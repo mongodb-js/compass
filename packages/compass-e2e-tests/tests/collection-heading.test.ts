@@ -36,7 +36,6 @@ describe('Collection heading', function () {
       'Documents',
       'Aggregations',
       'Schema',
-      'Explain Plan',
       'Indexes',
       'Validation',
     ].map((selector) => Selectors.collectionTab(selector));

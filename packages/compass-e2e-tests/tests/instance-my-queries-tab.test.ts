@@ -62,6 +62,14 @@ describe('Instance my queries tab', function () {
     });
     await browser.clickVisible(Selectors.QueryBarHistoryButton);
 
+    // Wait for the popover to show
+    const history = await browser.$(Selectors.QueryBarHistory);
+    await history.waitForDisplayed();
+
+    // wait for the recent item to show.
+    const recentCard = await browser.$(Selectors.QueryHistoryRecentItem);
+    await recentCard.waitForDisplayed();
+
     // Save the ran query
     await browser.hover(Selectors.QueryHistoryRecentItem);
     await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
@@ -162,7 +170,7 @@ describe('Instance my queries tab', function () {
     const deleteModal = await browser.$(Selectors.ConfirmationModal);
     await deleteModal.waitForDisplayed();
     const confirmDeleteButton = await browser.$(
-      Selectors.ConfirmationModalConfirmButton
+      Selectors.ConfirmationModalConfirmButton()
     );
     confirmDeleteButton.waitForEnabled();
 

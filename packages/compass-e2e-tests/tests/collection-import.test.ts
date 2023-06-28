@@ -393,8 +393,8 @@ describe('Collection import', function () {
 
     // Array and Object could be expanded, but this is probably good enough.
     expect(result).to.deep.equal({
-      arrayField_canonical: 'Array',
-      arrayField_relaxed: 'Array',
+      arrayField_canonical: 'Array (2)',
+      arrayField_relaxed: 'Array (2)',
       dateBefore1970: '1920-01-01T00:00:00.000+00:00',
       dateField_canonical: '2019-08-11T17:54:14.692+00:00',
       dateField_relaxed: '2019-08-11T17:54:14.692+00:00',
@@ -748,7 +748,7 @@ describe('Collection import', function () {
         access: '"Pool, hot tub and tennis"',
         accommodates: '2',
         address: 'Object',
-        amenities: 'Array',
+        amenities: 'Array (36)',
         availability: 'Object',
         bathrooms: '1',
         bed_type: '"Real Bed"',
@@ -780,7 +780,7 @@ describe('Collection import', function () {
         price: '115',
         property_type: '"Condominium"',
         review_scores: 'Object',
-        reviews: 'Array',
+        reviews: 'Array (96)',
         room_type: '"Entire home/apt"',
         space:
           '"Great studio located on Ala Moana across the street from Yacht Harbor …"',

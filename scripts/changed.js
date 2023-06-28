@@ -1,7 +1,7 @@
 const { spawnSync } = require('child_process');
 const prompts = require('prompts');
 const { runInDir } = require('./run-in-dir');
-const { withProgress } = require('./monorepo/with-progress');
+const { withProgress } = require('@mongodb-js/monorepo-tools');
 
 async function runCommandForPackages(command, packages) {
   packages = [...packages];

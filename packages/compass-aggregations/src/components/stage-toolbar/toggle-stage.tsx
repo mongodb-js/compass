@@ -8,10 +8,12 @@ import type { RootState } from '../../modules';
 const ToggleStage = ({
   index,
   isEnabled,
+  className,
   onChange,
 }: {
   index: number;
   isEnabled: boolean;
+  className?: string;
   onChange: (index: number, isEnabled: boolean) => void;
 }) => {
   const TOOLTIP = isEnabled
@@ -19,6 +21,7 @@ const ToggleStage = ({
     : 'Include stage in pipeline';
   return (
     <Toggle
+      className={className}
       id="toggle-stage-button"
       checked={isEnabled}
       onChange={(val) => onChange(index, !val)}

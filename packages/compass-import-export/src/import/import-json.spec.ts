@@ -10,6 +10,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import temp from 'temp';
+import { omit } from 'lodash';
 
 temp.track();
 
@@ -111,7 +112,7 @@ describe('importJSON', function () {
           docsProcessed: totalRows,
         });
 
-        expect(result).to.deep.equal({
+        expect(omit(result, 'biggestDocSize')).to.deep.equal({
           docsWritten: totalRows,
           docsProcessed: totalRows,
           dbErrors: [],
@@ -162,6 +163,52 @@ describe('importJSON', function () {
     }
   }
 
+  it('imports a file with a document field', async function () {
+    const lines: string[] = [JSON.stringify({ document: 1 })];
+
+    const progressCallback = sinon.spy();
+
+    const ns = 'db.col';
+
+    const output = temp.createWriteStream();
+
+    const result = await importJSON({
+      dataService,
+      ns,
+      input: Readable.from(lines.join('\n')),
+      output,
+      progressCallback,
+      jsonVariant: 'jsonl',
+    });
+
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
+      docsProcessed: 1,
+      docsWritten: 1,
+      dbErrors: [],
+      dbStats: {
+        nInserted: 1,
+        nMatched: 0,
+        nModified: 0,
+        nRemoved: 0,
+        nUpserted: 0,
+        ok: 1,
+        writeConcernErrors: [],
+        writeErrors: [],
+      },
+    });
+
+    const docs: any[] = await dataService.find(ns, {});
+
+    expect(docs).to.have.length(1);
+
+    for (const doc of docs) {
+      delete doc._id;
+      expect(doc).to.deep.equal({ document: 1 });
+    }
+
+    expect(progressCallback.callCount).to.equal(1);
+  });
+
   it('imports a file containing multiple batches', async function () {
     const lines: string[] = [];
     for (let i = 0; i < 2000; i++) {
@@ -183,7 +230,7 @@ describe('importJSON', function () {
       jsonVariant: 'jsonl',
     });
 
-    expect(result).to.deep.equal({
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
       docsProcessed: 2000,
       docsWritten: 2000,
       dbErrors: [],
@@ -552,7 +599,7 @@ describe('importJSON', function () {
     });
 
     // only looked at the first row because we aborted before even starting
-    expect(result).to.deep.equal({
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
       aborted: true,
       docsProcessed: 0,
       docsWritten: 0,

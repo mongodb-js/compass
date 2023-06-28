@@ -10,9 +10,11 @@ import {
   useFocusRing,
   mergeProps,
   useDefaultAction,
+  SignalPopover,
+  GuideCue,
 } from '@mongodb-js/compass-components';
-import { withPreferences } from 'compass-preferences-model';
-
+import { usePreference, withPreferences } from 'compass-preferences-model';
+import toNS from 'mongodb-ns';
 import type { ItemAction } from '@mongodb-js/compass-components';
 
 import DatabaseCollectionFilter from './database-collection-filter';
@@ -75,6 +77,7 @@ const itemWrapper = css({
   display: 'flex',
   alignItems: 'center',
   height: spacing[5],
+  gap: spacing[2],
   zIndex: 1,
 });
 
@@ -92,7 +95,10 @@ const itemButtonWrapper = css({
   alignItems: 'center',
   minWidth: 0,
   paddingLeft: spacing[3],
-  paddingRight: spacing[1],
+});
+
+const signalContainerStyles = css({
+  flex: 'none',
 });
 
 const navigationItemLabel = css({
@@ -112,6 +118,7 @@ export function NavigationItem<Actions extends string>({
   actions,
   tabName,
   isActive,
+  showTooManyCollectionsInsight,
 }: {
   isExpanded?: boolean;
   onAction(actionName: string, ...rest: any[]): void;
@@ -120,11 +127,12 @@ export function NavigationItem<Actions extends string>({
   actions?: ItemAction<Actions>[];
   tabName: string;
   isActive: boolean;
+  showTooManyCollectionsInsight?: boolean;
 }) {
+  const showInsights = usePreference('showInsights', React);
   const onClick = useCallback(() => {
     onAction('open-instance-workspace', tabName);
   }, [onAction, tabName]);
-
   const [hoverProps] = useHoverState();
   const focusRingProps = useFocusRing();
   const defaultActionProps = useDefaultAction(onClick);
@@ -148,6 +156,20 @@ export function NavigationItem<Actions extends string>({
           <Icon glyph={glyph} size="small"></Icon>
           {isExpanded && <span className={navigationItemLabel}>{label}</span>}
         </div>
+        {showInsights && isExpanded && showTooManyCollectionsInsight && (
+          <div className={signalContainerStyles}>
+            <SignalPopover
+              signals={{
+                id: 'too-many-collections',
+                title: 'Databases with too many collections',
+                description:
+                  "An excessive number of collections and their associated indexes can drain resources and impact your database's performance. In general, try to limit your replica set to 10,000 collections.",
+                learnMoreLink:
+                  'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#large-number-of-collections',
+              }}
+            ></SignalPopover>
+          </div>
+        )}
         {isExpanded && actions && (
           <ItemActionControls<Actions>
             iconSize="small"
@@ -169,6 +191,23 @@ export function NavigationItem<Actions extends string>({
   );
 }
 
+const GuideCueDatabaseIcon = () => {
+  return (
+    <GuideCue
+      cueId="sidebar-no-databases"
+      title="It looks a bit empty around here"
+      description={
+        'Aside from the default databases, you’ll need to create your first database to get to working with data.'
+      }
+      trigger={({ ref }) => (
+        <span ref={ref}>
+          <Icon glyph="Plus" />
+        </span>
+      )}
+    />
+  );
+};
+
 export function NavigationItems({
   isExpanded,
   isDataLake,
@@ -177,6 +216,8 @@ export function NavigationItems({
   onAction,
   currentLocation,
   readOnly,
+  showTooManyCollectionsInsight = false,
+  showCreateDatabaseGuideCue,
 }: {
   isExpanded?: boolean;
   isDataLake?: boolean;
@@ -185,6 +226,8 @@ export function NavigationItems({
   onAction(actionName: string, ...rest: any[]): void;
   currentLocation: string | null;
   readOnly?: boolean;
+  showTooManyCollectionsInsight?: boolean;
+  showCreateDatabaseGuideCue: boolean;
 }) {
   const isReadOnly = readOnly || isDataLake || !isWritable;
   const databasesActions = useMemo(() => {
@@ -200,12 +243,12 @@ export function NavigationItems({
       actions.push({
         action: 'open-create-database',
         label: 'Create database',
-        icon: 'Plus',
+        icon: showCreateDatabaseGuideCue ? <GuideCueDatabaseIcon /> : 'Plus',
       });
     }
 
     return actions;
-  }, [isReadOnly]);
+  }, [isReadOnly, showCreateDatabaseGuideCue]);
 
   return (
     <>
@@ -225,6 +268,7 @@ export function NavigationItems({
         tabName="Databases"
         actions={databasesActions}
         isActive={currentLocation === 'Databases'}
+        showTooManyCollectionsInsight={showTooManyCollectionsInsight}
       />
       {isExpanded && (
         <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
@@ -234,19 +278,45 @@ export function NavigationItems({
   );
 }
 
-const mapStateToProps = (state: {
-  location: string | null;
-  instance?: {
-    dataLake: {
-      isDataLake: boolean;
+const mapStateToProps =
+  (state: // TODO(COMPASS-6914): Properly type stores instead of this
+  {
+    location: string | null;
+    databases: {
+      databases: any[];
     };
-    isWritable: boolean;
+    instance?: {
+      dataLake: {
+        isDataLake: boolean;
+      };
+      isWritable: boolean;
+      databasesStatus: string;
+    };
+  }) => {
+    const totalCollectionsCount = state.databases.databases.reduce(
+      (acc: number, db: { collectionsLength: number }) => {
+        return acc + db.collectionsLength;
+      },
+      0
+    );
+
+    const databasesStatus = state.instance?.databasesStatus;
+    const isReady =
+      databasesStatus !== undefined &&
+      !['initial', 'fetching'].includes(databasesStatus);
+
+    const numNonSpecialDatabases = state.databases.databases
+      .map((x: { _id: string }) => toNS(x._id))
+      .filter((x) => !x.specialish).length;
+
+    return {
+      currentLocation: state.location,
+      isDataLake: state.instance?.dataLake.isDataLake,
+      isWritable: state.instance?.isWritable,
+      showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
+      showCreateDatabaseGuideCue: isReady && numNonSpecialDatabases === 0,
+    };
   };
-}) => ({
-  currentLocation: state.location,
-  isDataLake: state.instance?.dataLake.isDataLake,
-  isWritable: state.instance?.isWritable,
-});
 
 const MappedNavigationItems = connect(mapStateToProps, {
   changeFilterRegex,

@@ -12,9 +12,9 @@ describe('side-panel module', function () {
     });
 
     it('toggles the side panel', function () {
-      store.dispatch(toggleSidePanel());
+      store.dispatch(toggleSidePanel() as any);
       expect(store.getState().sidePanel.isPanelOpen).to.equal(true);
-      store.dispatch(toggleSidePanel());
+      store.dispatch(toggleSidePanel() as any);
       expect(store.getState().sidePanel.isPanelOpen).to.equal(false);
     });
   });

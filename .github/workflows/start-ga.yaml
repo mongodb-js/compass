@@ -1,0 +1,50 @@
+# Starts a new GA from the latest beta or
+# from another branch, the release version is taken from the fixVersion of the
+# Release ticket supplied as input.
+name: Start new GA release
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseTicket:
+        description: 'releaseTicket (required): it must have a fixVersion which will be used as release version.'
+        required: true
+      mergeBranch:
+        description: 'mergeBranch (optional, default="beta-releases"): the branch to merge from, useful to perform quick fixes or to skip beta.'
+        default: 'beta-releases'
+        required: false
+
+jobs:
+  startRelease:
+    name: Start new GA release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ^16.x
+          cache: 'npm'
+
+      - name: Install npm@8.19.4
+        run: |
+          npm install -g npm@8.19.4
+
+      - name: Install Dependencies
+        run: |
+          npm -v
+          npm ci
+
+      - name: Start Release
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          node scripts/release.js ga \
+            --release-ticket="${{ github.event.inputs.releaseTicket }}" \
+            --merge-branch="${{ github.event.inputs.mergeBranch || 'beta-releases' }}"

@@ -60,6 +60,7 @@ type CollectionProps = {
     key: number | string;
   }[];
   stats: CollectionStatsMap;
+  isAtlas: boolean;
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
@@ -83,6 +84,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   globalAppRegistry,
   changeActiveSubTab,
   scopedModals,
+  isAtlas,
 }: CollectionProps) => {
   const newExplainPlan = usePreference('newExplainPlan', React);
   const explainPlanTabId = _tabs.indexOf('Explain Plan');
@@ -122,6 +124,22 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     [id, activeSubTab, localAppRegistry, globalAppRegistry, changeActiveSubTab]
   );
 
+  useEffect(() => {
+    const indexesTabId = tabs.indexOf('Indexes');
+    const onOpenCreateIndexEvent = onSubTabClicked.bind(
+      null,
+      indexesTabId,
+      tabs[indexesTabId]
+    );
+    localAppRegistry.on('open-create-index-modal', onOpenCreateIndexEvent);
+    return () => {
+      localAppRegistry.removeListener(
+        'open-create-index-modal',
+        onOpenCreateIndexEvent
+      );
+    };
+  }, [localAppRegistry, onSubTabClicked, tabs]);
+
   return (
     <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>
@@ -132,6 +150,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           isTimeSeries={isTimeSeries}
           isClustered={isClustered}
           isFLE={isFLE}
+          isAtlas={isAtlas}
           editViewName={editViewName}
           sourceReadonly={sourceReadonly}
           sourceViewOn={sourceViewOn}

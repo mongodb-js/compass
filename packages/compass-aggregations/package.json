@@ -43,12 +43,13 @@
     "@mongodb-js/compass-editor": "^0.9.0",
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.3.1",
+    "@mongodb-js/explain-plan-helper": "^1.0.7",
     "@mongodb-js/mongodb-constants": "^0.6.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
     "bson": "^5.2.0",
     "compass-preferences-model": "^2.10.0",
-    "hadron-type-checker": "^7.0.3",
     "hadron-document": "^8.2.1",
+    "hadron-type-checker": "^7.0.3",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -58,7 +59,7 @@
     "@dnd-kit/core": "^6.0.7",
     "@dnd-kit/sortable": "^7.0.2",
     "@dnd-kit/utilities": "^3.2.1",
-    "@electron/remote": "^2.0.9",
+    "@electron/remote": "^2.0.10",
     "@mongodb-js/eslint-config-compass": "^1.0.6",
     "@mongodb-js/mocha-config-compass": "^1.2.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
@@ -72,13 +73,13 @@
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
     "ejson-shell-parser": "^1.2.4",
-    "electron": "^23.3.6",
+    "electron": "^23.3.8",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.7",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb": "^5.5.0",
+    "mongodb": "^5.6.0",
     "mongodb-data-service": "^22.8.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.5.0",
@@ -93,8 +94,7 @@
     "redux-thunk": "^2.4.1",
     "semver": "^5.7.1",
     "sinon": "^9.2.3",
-    "xvfb-maybe": "^0.2.1",
-    "react-intersection-observer": "^8.34.0"
+    "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.10.0",
@@ -102,12 +102,13 @@
     "@mongodb-js/compass-editor": "^0.9.0",
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.3.1",
+    "@mongodb-js/explain-plan-helper": "^1.0.7",
     "@mongodb-js/mongodb-constants": "^0.6.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
     "bson": "^5.2.0",
     "compass-preferences-model": "^2.10.0",
-    "hadron-type-checker": "^7.0.3",
-    "hadron-document": "^8.2.1"
+    "hadron-document": "^8.2.1",
+    "hadron-type-checker": "^7.0.3"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

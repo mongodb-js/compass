@@ -50,61 +50,16 @@ describe('Collection indexes tab', function () {
   });
 
   it('supports creating and dropping indexes', async function () {
-    await browser.clickVisible(Selectors.CreateIndexButton);
-
-    const createModal = await browser.$(Selectors.CreateIndexModal);
-    await createModal.waitForDisplayed();
-
-    const fieldNameSelect = await browser.$(
-      Selectors.createIndexModalFieldNameSelectInput(0)
+    const createdIndexName = await browser.createIndex(
+      {
+        fieldName: 'i',
+        indexType: 'text',
+      },
+      undefined,
+      'create-index-modal-basic.png'
     );
 
-    await browser.setValueVisible(fieldNameSelect, 'i');
-    await browser.keys(['Enter']);
-
-    const fieldTypeSelect = await browser.$(
-      Selectors.createIndexModalFieldTypeSelectButton(0)
-    );
-    await fieldTypeSelect.waitForDisplayed();
-    await fieldTypeSelect.click();
-
-    const fieldTypeSelectMenu = await browser.$(
-      Selectors.createIndexModalFieldTypeSelectMenu(0)
-    );
-    await fieldTypeSelectMenu.waitForDisplayed();
-
-    await browser.clickVisible('li[value="text"]');
-
-    await browser.screenshot('create-index-modal-basic.png');
-
-    await browser.clickVisible(Selectors.CreateIndexConfirmButton);
-
-    await createModal.waitForDisplayed({ reverse: true });
-
-    const indexComponentSelector = Selectors.indexComponent('i_text');
-
-    const indexComponent = await browser.$(indexComponentSelector);
-    await indexComponent.waitForDisplayed();
-
-    await browser.hover(indexComponentSelector);
-    await browser.clickVisible(
-      `${indexComponentSelector} ${Selectors.DropIndexButton}`
-    );
-
-    const dropModal = await browser.$(Selectors.DropIndexModal);
-    await dropModal.waitForDisplayed();
-
-    const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
-    await confirmInput.waitForDisplayed();
-    await confirmInput.setValue('i_text');
-
-    await browser.screenshot('drop-index-modal.png');
-
-    await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
-
-    await dropModal.waitForDisplayed({ reverse: true });
-
-    await indexComponent.waitForDisplayed({ reverse: true });
+    await browser.dropIndex(createdIndexName, 'drop-index-modal-basic.png');
   });
 
   describe('server version 4.2.0', function () {
@@ -113,59 +68,40 @@ describe('Collection indexes tab', function () {
         return this.skip();
       }
 
-      await browser.clickVisible(Selectors.CreateIndexButton);
-
-      const createModal = await browser.$(Selectors.CreateIndexModal);
-      await createModal.waitForDisplayed();
-
-      // Select i filed name from Combobox.
-      const fieldNameSelect = await browser.$(
-        Selectors.createIndexModalFieldNameSelectInput(0)
+      const indexName = await browser.createIndex(
+        {
+          fieldName: '$**',
+          indexType: '1',
+        },
+        {
+          wildcardProjection: '{ "fieldA": 1, "fieldB.fieldC": 1 }',
+        },
+        'create-index-modal-wildcard.png'
       );
 
-      await browser.setValueVisible(fieldNameSelect, '$**');
-      await browser.keys(['Enter']);
-
-      // Select text filed type from Select.
-      const fieldTypeSelect = await browser.$(
-        Selectors.createIndexModalFieldTypeSelectButton(0)
-      );
-      await fieldTypeSelect.waitForDisplayed();
-
-      await fieldTypeSelect.click();
-
-      const fieldTypeSelectMenu = await browser.$(
-        Selectors.createIndexModalFieldTypeSelectMenu(0)
-      );
-      await fieldTypeSelectMenu.waitForDisplayed();
-
-      await browser.clickVisible('li[value="1 (asc)"]');
-
-      await browser.clickVisible(Selectors.IndexToggleOptions);
-      await browser.clickVisible(
-        Selectors.indexToggleOption('wildcardProjection')
-      );
-
-      // set the text in the editor
-      await browser.setCodemirrorEditorValue(
-        Selectors.indexOptionInput('wildcardProjection', 'code'),
-        '{ "fieldA": 1, "fieldB.fieldC": 1 }'
-      );
-
-      await browser.screenshot('create-index-modal-wildcard.png');
-
-      await browser.clickVisible(Selectors.CreateIndexConfirmButton);
-
-      await createModal.waitForDisplayed({ reverse: true });
-
-      const indexComponent = await browser.$(Selectors.indexComponent('$**_1'));
-      await indexComponent.waitForDisplayed();
-
-      const indexFieldTypeSelector = `${Selectors.indexComponent('$**_1')} ${
+      const indexFieldTypeSelector = `${Selectors.indexComponent(indexName)} ${
         Selectors.IndexFieldType
       }`;
       const indexFieldTypeElement = await browser.$(indexFieldTypeSelector);
       expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
+
+      await browser.dropIndex(indexName, 'drop-index-modal-wildcard.png');
+    });
+  });
+
+  describe('server version 4.4.0', function () {
+    it('supports hiding and unhiding indexes', async function () {
+      if (serverSatisfies('< 4.4.0')) {
+        return this.skip();
+      }
+
+      const indexName = await browser.createIndex({
+        fieldName: 'i',
+        indexType: 'text',
+      });
+
+      await browser.hideIndex(indexName, 'hide-index-modal.png');
+      await browser.unhideIndex(indexName, 'unhide-index-modal.png');
     });
   });
 
@@ -237,7 +173,11 @@ describe('Collection indexes tab', function () {
       const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
       await confirmInput.waitForDisplayed();
       await confirmInput.setValue('columnstore');
-      await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
+
+      const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
+        Selectors.DropIndexModal
+      );
+      await browser.clickVisible(ConfirmButtonSelector);
 
       await dropModal.waitForDisplayed({ reverse: true });
 

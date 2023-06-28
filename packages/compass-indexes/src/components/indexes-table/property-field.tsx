@@ -86,6 +86,8 @@ type PropertyFieldProps = {
   cardinality: IndexDefinition['cardinality'];
 };
 
+const HIDDEN_INDEX_TEXT = 'HIDDEN';
+
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   extra,
   properties,
@@ -100,7 +102,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
           <PropertyBadgeWithTooltip
             key={property}
             text={property}
-            link={getIndexHelpLink(property?.toUpperCase()) ?? '#'}
+            link={getIndexHelpLink(property) ?? '#'}
             tooltip={getPropertyTooltip(property, extra)}
           />
         );
@@ -108,7 +110,13 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
           text={cardinality}
-          link={getIndexHelpLink(cardinality?.toUpperCase()) ?? '#'}
+          link={getIndexHelpLink(cardinality) ?? '#'}
+        />
+      )}
+      {extra.hidden && (
+        <PropertyBadgeWithTooltip
+          text={HIDDEN_INDEX_TEXT}
+          link={getIndexHelpLink(HIDDEN_INDEX_TEXT) ?? '#'}
         />
       )}
       {extra.status === 'inprogress' && (

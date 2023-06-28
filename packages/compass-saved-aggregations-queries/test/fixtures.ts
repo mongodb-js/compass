@@ -1,4 +1,5 @@
 import type { Item } from '../src/stores/aggregations-queries-items';
+const DATE = new Date('01/01/2020');
 export const queries: Item[] = [
   {
     id: '1234',
@@ -11,8 +12,9 @@ export const queries: Item[] = [
       _id: '1234',
       _name: 'spaces in berlin',
       _ns: 'airbnb.listings',
-      _dateSaved: 123456,
-      _dateModified: 123456,
+      _dateSaved: DATE,
+      _dateModified: DATE,
+      _lastExecuted: DATE,
       filter: {
         host_location: RegExp('berlin'),
       },
@@ -42,8 +44,9 @@ export const queries: Item[] = [
       _id: '5678',
       _name: 'best spaces in berlin',
       _ns: 'airbnb.listings',
-      _dateSaved: 123456,
-      _dateModified: 123456,
+      _dateSaved: DATE,
+      _dateModified: DATE,
+      _lastExecuted: DATE,
       filter: {
         host_location: RegExp('berlin'),
       },
@@ -74,8 +77,9 @@ export const queries: Item[] = [
       _id: '9012',
       _name: 'best hosts in berlin',
       _ns: 'airbnb.hosts',
-      _dateSaved: 123456,
-      _dateModified: 123456,
+      _dateSaved: DATE,
+      _dateModified: DATE,
+      _lastExecuted: DATE,
       filter: {
         host_location: RegExp('berlin'),
       },

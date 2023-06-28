@@ -938,7 +938,7 @@ describe('Collection aggregations tab', function () {
     const modalElement = await browser.$(Selectors.ConfirmationModal);
     await modalElement.waitForDisplayed();
 
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
+    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
     await modalElement.waitForDisplayed({ reverse: true });
   });
 
@@ -1183,7 +1183,7 @@ describe('Collection aggregations tab', function () {
 
       const confirmOpenModal = await browser.$(Selectors.ConfirmationModal);
       await confirmOpenModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
+      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
       await confirmOpenModal.waitForDisplayed({ reverse: true });
     });
 
@@ -1203,7 +1203,7 @@ describe('Collection aggregations tab', function () {
 
       const confirmDeleteModal = await browser.$(Selectors.ConfirmationModal);
       await confirmDeleteModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton);
+      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
       await confirmDeleteModal.waitForDisplayed({ reverse: true });
     });
   });

@@ -2,6 +2,7 @@ import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
+import semver from 'semver';
 // @ts-expect-error no types available
 import StateMixin from 'reflux-state-mixin';
 import type { Element } from 'hadron-document';
@@ -9,9 +10,10 @@ import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import type { Stage } from '@mongodb-js/explain-plan-helper';
+import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 
 import {
-  findDocuments,
   countDocuments,
   fetchShardingKeys,
   objectContainsRegularExpression,
@@ -57,6 +59,8 @@ export type CrudActions = {
   copyToClipboard(doc: Document): void; //XXX
 };
 
+export type DocumentView = 'List' | 'JSON' | 'Table';
+
 const { debug, log, mongoLogId, track } =
   createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
@@ -85,6 +89,46 @@ function pickQueryProps({
   }
   return query;
 }
+
+const fetchDocuments: (
+  dataService: DataService,
+  serverVersion: string,
+  ...args: Parameters<DataService['find']>
+) => Promise<HadronDocument[]> = async (
+  dataService: DataService,
+  serverVersion,
+  ns,
+  filter,
+  options,
+  executionOptions
+) => {
+  options = {
+    ...options,
+    projection:
+      semver.gte(
+        serverVersion,
+        // $bsonSize is only supported for mongodb >= 4.4.0
+        '4.4.0'
+      ) &&
+      // Accessing $$ROOT is not possible with CSFLE
+      ['disabled', 'unavailable'].includes(dataService?.getCSFLEMode()) &&
+      isEmpty(options?.projection)
+        ? { _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } }
+        : options?.projection,
+  };
+
+  return (await dataService.find(ns, filter, options, executionOptions)).map(
+    (doc) => {
+      const { __doc, __size, ...rest } = doc;
+      if (__doc && __size && Object.keys(rest).length === 0) {
+        const hadronDoc = new HadronDocument(__doc);
+        hadronDoc.size = __size;
+        return hadronDoc;
+      }
+      return new HadronDocument(doc);
+    }
+  );
+};
 
 /**
  * Number of docs per page.
@@ -311,7 +355,7 @@ type CrudState = {
   page: number;
   version: string;
   isEditable: boolean;
-  view: 'List' | 'JSON' | 'Table';
+  view: DocumentView;
   count: number | null;
   insert: InsertState;
   table: TableState;
@@ -328,6 +372,7 @@ type CrudState = {
   isWritable: boolean;
   instanceDescription: string;
   fields: string[];
+  isCollectionScan?: boolean;
 };
 
 class CrudStoreImpl
@@ -385,6 +430,7 @@ class CrudStoreImpl
       isWritable: false,
       instanceDescription: '',
       fields: [],
+      isCollectionScan: false,
     };
   }
 
@@ -647,8 +693,6 @@ class CrudStoreImpl
         doc.emit('update-error', error.message);
       } else if (d) {
         doc.emit('update-success', d);
-        this.localAppRegistry.emit('document-updated', this.state.view);
-        this.globalAppRegistry.emit('document-updated', this.state.view);
         const index = this.findDocumentIndex(doc);
         this.state.docs![index] = new HadronDocument(d);
         this.trigger(this.state);
@@ -740,8 +784,6 @@ class CrudStoreImpl
         doc.emit('update-error', error.message);
       } else {
         doc.emit('update-success', d);
-        this.localAppRegistry.emit('document-updated', this.state.view);
-        this.globalAppRegistry.emit('document-updated', this.state.view);
         const index = this.findDocumentIndex(doc);
         this.state.docs![index] = new HadronDocument(d);
         this.trigger(this.state);
@@ -785,7 +827,7 @@ class CrudStoreImpl
    * @param {Number} page - The page that is being shown.
    */
   async getPage(page: number) {
-    const { ns, status, view } = this.state;
+    const { ns, status } = this.state;
 
     if (page < 0) {
       return;
@@ -824,7 +866,6 @@ class CrudStoreImpl
     const signal = abortController.signal;
 
     const opts = {
-      signal,
       skip,
       limit: nextPageCount,
       sort,
@@ -844,13 +885,17 @@ class CrudStoreImpl
     const cancelDebounceLoad = this.debounceLoading();
 
     let error: Error | undefined;
-    let documents: BSONObject[];
+    let documents: HadronDocument[];
     try {
-      documents = await findDocuments(
+      documents = await fetchDocuments(
         this.dataService,
+        this.state.version,
         ns,
         filter,
-        opts as any
+        opts as any,
+        {
+          abortSignal: signal,
+        }
       );
     } catch (err: any) {
       documents = [];
@@ -863,7 +908,7 @@ class CrudStoreImpl
       status: error
         ? DOCUMENTS_STATUS_ERROR
         : DOCUMENTS_STATUS_FETCHED_PAGINATION,
-      docs: documents.map((doc: BSONObject) => new HadronDocument(doc)),
+      docs: documents,
       // making sure we don't set start to 1 if length is 0
       start: length === 0 ? 0 : skip + 1,
       end: skip + length,
@@ -872,8 +917,10 @@ class CrudStoreImpl
       resultId: resultId(),
       abortController: null,
     });
-    this.localAppRegistry.emit('documents-paginated', view, documents);
-    this.globalAppRegistry.emit('documents-paginated', view, documents);
+    this.localAppRegistry.emit(
+      'documents-paginated',
+      documents[0]?.generateObject()
+    );
 
     cancelDebounceLoad();
   }
@@ -894,7 +941,7 @@ class CrudStoreImpl
    * @param {Boolean} clone - Whether this is a clone operation.
    */
   async openInsertDocumentDialog(doc: BSONObject, clone: boolean) {
-    const hadronDoc = new HadronDocument(doc, false);
+    const hadronDoc = new HadronDocument(doc);
 
     if (clone) {
       track('Document Cloned', { mode: this.modeForTelemetry() });
@@ -990,7 +1037,7 @@ class CrudStoreImpl
    * Also modifies doc and jsonDoc states to keep accurate data for each view.
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocument(view: CrudState['view']) {
+  toggleInsertDocument(view: DocumentView) {
     if (view === 'JSON') {
       const jsonDoc = this.state.insert.doc?.toEJSON();
 
@@ -1035,7 +1082,7 @@ class CrudStoreImpl
    *
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocumentView(view: CrudState['view']) {
+  toggleInsertDocumentView(view: DocumentView) {
     const jsonView = view === 'JSON';
     this.setState({
       insert: {
@@ -1271,7 +1318,7 @@ class CrudStoreImpl
       return;
     }
 
-    const { ns, status, view, query } = this.state;
+    const { ns, status, query } = this.state;
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
       return;
@@ -1329,7 +1376,6 @@ class CrudStoreImpl
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
       promoteValues: false,
       bsonRegExp: true,
-      signal,
     };
 
     // only set limit if it's > 0, read-only views cannot handle 0 limit.
@@ -1344,6 +1390,28 @@ class CrudStoreImpl
       findOptions,
       countOptions,
     });
+
+    // Only check if index was used if query filter or sort is not empty
+    if (!isEmpty(query.filter) || !isEmpty(query.sort)) {
+      void this.dataService
+        .explainFind(ns, query.filter, findOptions as any, {
+          explainVerbosity: 'queryPlanner',
+          abortSignal: signal,
+        })
+        .then((rawExplainPlan) => {
+          const explainPlan = new ExplainPlan(rawExplainPlan as Stage);
+          this.setState({
+            isCollectionScan: explainPlan.isCollectionScan,
+          });
+        })
+        .catch(() => {
+          // We are only fetching this to get information about index usage for
+          // insight badge, if this fails for any reason, server, cancel, or
+          // error parsing explan, we don't care and ignore it
+        });
+    } else {
+      this.setState({ isCollectionScan: false });
+    }
 
     // Don't wait for the count to finish. Set the result asynchronously.
     countDocuments(this.dataService, ns, query.filter, countOptions)
@@ -1360,7 +1428,16 @@ class CrudStoreImpl
 
     const promises = [
       fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
-      findDocuments(this.dataService, ns, query.filter, findOptions as any),
+      fetchDocuments(
+        this.dataService,
+        this.state.version,
+        ns,
+        query.filter,
+        findOptions as any,
+        {
+          abortSignal: signal,
+        }
+      ),
     ] as const;
 
     // This is so that the UI can update to show that we're fetching
@@ -1388,7 +1465,7 @@ class CrudStoreImpl
           ? DOCUMENTS_STATUS_FETCHED_INITIAL
           : DOCUMENTS_STATUS_FETCHED_CUSTOM,
         error: null,
-        docs: docs.map((doc) => new HadronDocument(doc)),
+        docs: docs,
         page: 0,
         start: docs.length > 0 ? 1 : 0,
         end: docs.length,
@@ -1396,8 +1473,10 @@ class CrudStoreImpl
         shardKeys,
       });
 
-      this.localAppRegistry.emit('documents-refreshed', view, docs);
-      this.globalAppRegistry.emit('documents-refreshed', view, docs);
+      this.localAppRegistry.emit(
+        'documents-refreshed',
+        docs[0]?.generateObject()
+      );
     } catch (error) {
       log.error(
         mongoLogId(1_001_000_074),
@@ -1463,6 +1542,10 @@ class CrudStoreImpl
     if (!error) {
       this.dataService = dataService;
     }
+  }
+
+  openCreateIndexModal() {
+    this.localAppRegistry.emit('open-create-index-modal');
   }
 }
 

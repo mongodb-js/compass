@@ -31,7 +31,7 @@ import {
 } from '../constants/documents-statuses';
 
 import './index.less';
-import type { CrudStore, BSONObject } from '../stores/crud-store';
+import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
 import type Document from 'hadron-document';
 
 const listAndJsonStyles = css({
@@ -52,7 +52,7 @@ export type DocumentListProps = {
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
   docs: Document[];
-  view: 'List' | 'JSON' | 'Table';
+  view: DocumentView;
   insert: Partial<InsertDocumentDialogProps> &
     Required<
       Pick<
@@ -104,6 +104,8 @@ export type DocumentListProps = {
     | 'instanceDescription'
     | 'refreshDocuments'
     | 'resultId'
+    | 'isCollectionScan'
+    | 'onCollectionScanInsightActionButtonClick'
   >;
 
 /**
@@ -314,6 +316,10 @@ class DocumentList extends React.Component<DocumentListProps> {
               instanceDescription={this.props.instanceDescription}
               refreshDocuments={this.props.refreshDocuments}
               resultId={this.props.resultId}
+              isCollectionScan={this.props.isCollectionScan}
+              onCollectionScanInsightActionButtonClick={this.props.store.openCreateIndexModal.bind(
+                this.props.store
+              )}
             />
           }
         >
@@ -353,7 +359,7 @@ class DocumentList extends React.Component<DocumentListProps> {
     updateDocument: PropTypes.func,
     updateJsonDoc: PropTypes.func,
     version: PropTypes.string.isRequired,
-    view: PropTypes.oneOf(['List', 'JSON', 'Table'] as const).isRequired,
+    view: PropTypes.oneOf<DocumentView>(['List', 'JSON', 'Table']).isRequired,
     viewChanged: PropTypes.func.isRequired,
     docs: PropTypes.array.isRequired,
     ns: PropTypes.string,

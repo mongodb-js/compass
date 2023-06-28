@@ -5,10 +5,11 @@ import {
   cx,
   spacing,
   palette,
-  keyframes,
   SpinLoader,
   withDarkMode,
   useHotkeys,
+  GuideCue,
+  Link,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -30,20 +31,6 @@ const shellHeaderLeftStyles = css({
 });
 
 const shellHeaderDefaultColor = palette.gray.light1;
-const shellHeaderFlashColorDark = palette.gray.base;
-const shellHeaderFlashColorLight = palette.gray.light2;
-const shellLoaderFlash = keyframes`
-  0% { color: ${shellHeaderDefaultColor}; }
-  10% { color: ${shellHeaderFlashColorDark}; }
-  20% { color: ${shellHeaderFlashColorLight}; }
-  30% { color: ${shellHeaderFlashColorDark}; }
-  40% { color: ${shellHeaderFlashColorLight}; }
-  50% { color: ${shellHeaderFlashColorDark}; }
-  60% { color: ${shellHeaderFlashColorLight}; }
-  70% { color: ${shellHeaderFlashColorDark}; }
-  80% { color: ${shellHeaderFlashColorLight}; }
-  100% { color: ${shellHeaderDefaultColor}; }
-`;
 
 const shellHeaderToggleStyles = css({
   background: 'none',
@@ -63,7 +50,6 @@ const shellHeaderToggleStyles = css({
   transition: 'all 200ms',
   userSelect: 'none',
   textTransform: 'uppercase',
-  animation: `${shellLoaderFlash} 2s linear`,
   '&:hover': {
     color: palette.gray.light3,
   },
@@ -73,10 +59,7 @@ const shellHeaderRightStyles = css({
   display: 'flex',
   paddingTop: spacing[1] / 2,
   paddingRight: spacing[2],
-});
-
-const infoButtonStyles = css({
-  marginRight: spacing[2],
+  gap: spacing[2],
 });
 
 const operationInProgressStyles = css({
@@ -106,7 +89,23 @@ export const ShellHeader = ({
           onClick={onShellToggleClicked}
           aria-pressed={isExpanded}
         >
-          &gt;_MONGOSH
+          <GuideCue
+            cueId="shell-title"
+            title="Using the embedded MongoDB Shell"
+            description={
+              <>
+                Compass includes an embedded mongosh, allowing you to test
+                queries and operations in your databases.
+                <Link
+                  href="https://www.mongodb.com/docs/compass/beta/embedded-shell/#embedded-mongodb-shell"
+                  hideExternalIcon
+                >
+                  Learn more about running operations in mongosh.
+                </Link>
+              </>
+            }
+            trigger={({ ref }) => <span ref={ref}>&gt;_MONGOSH</span>}
+          />
           {!isExpanded && isOperationInProgress && (
             <span className={operationInProgressStyles}>
               <SpinLoader darkMode={true} />
@@ -117,16 +116,25 @@ export const ShellHeader = ({
       </div>
       <div className={shellHeaderRightStyles}>
         {isExpanded && (
-          <IconButton
-            data-testid="shell-info-button"
-            className={infoButtonStyles}
-            variant="dark"
-            aria-label="Shell Info"
-            aria-haspopup="dialog"
-            onClick={showInfoModal}
-          >
-            <Icon glyph="InfoWithCircle" size="small" />
-          </IconButton>
+          <GuideCue
+            cueId="shell-info"
+            title="Using the embedded MongoDB Shell"
+            description={
+              'When expanded, mongosh enables you to run commands on your data. Click on the info icon to learn more about the keyboard shortcuts available to you when using mongosh.'
+            }
+            trigger={({ ref }) => (
+              <IconButton
+                ref={ref}
+                data-testid="shell-info-button"
+                variant="dark"
+                aria-label="Shell Info"
+                aria-haspopup="dialog"
+                onClick={showInfoModal}
+              >
+                <Icon glyph="InfoWithCircle" size="small" />
+              </IconButton>
+            )}
+          />
         )}
         <IconButton
           variant="dark"

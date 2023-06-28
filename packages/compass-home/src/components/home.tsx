@@ -9,7 +9,9 @@ import {
   palette,
   Body,
   useConfirmationModal,
+  GuideCueProvider,
 } from '@mongodb-js/compass-components';
+import type { Cue, GroupCue } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Settings from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
@@ -30,11 +32,14 @@ import React, {
   useState,
 } from 'react';
 import preferences from 'compass-preferences-model';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
+
+const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let remote: typeof import('@electron/remote') | undefined;
@@ -430,6 +435,24 @@ function ThemedHome(
     setIsSettingsOpen(false);
   }, [setIsSettingsOpen]);
 
+  const onGuideCueNext = useCallback((cue: Cue) => {
+    track('Guide Cue Dismissed', {
+      groupId: cue.groupId,
+      cueId: cue.cueId,
+      step: cue.step,
+    });
+  }, []);
+
+  const onGuideCueNextGroup = useCallback((cue: GroupCue) => {
+    if (cue.groupSteps !== cue.step) {
+      track('Guide Cue Group Dismissed', {
+        groupId: cue.groupId,
+        cueId: cue.cueId,
+        step: cue.step,
+      });
+    }
+  }, []);
+
   return (
     <LeafyGreenProvider
       darkMode={darkMode}
@@ -437,31 +460,36 @@ function ThemedHome(
         portalContainer: scrollbarsContainerRef,
       }}
     >
-      {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
-      <Body as="div">
-        <div
-          className={getScrollbarStyles(darkMode)}
-          ref={setScrollbarsContainerRef}
-        >
-          {showWelcomeModal && (
-            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-          )}
-          <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
-          <ConfirmationModalArea>
-            <ToastArea>
-              <div
-                className={cx(
-                  homeContainerStyles,
-                  darkMode ? globalDarkThemeStyles : globalLightThemeStyles
-                )}
-                data-theme={theme.theme}
-              >
-                <Home {...props}></Home>
-              </div>
-            </ToastArea>
-          </ConfirmationModalArea>
-        </div>
-      </Body>
+      <GuideCueProvider
+        onNext={onGuideCueNext}
+        onNextGroup={onGuideCueNextGroup}
+      >
+        {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
+        <Body as="div">
+          <div
+            className={getScrollbarStyles(darkMode)}
+            ref={setScrollbarsContainerRef}
+          >
+            {showWelcomeModal && (
+              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+            )}
+            <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+            <ConfirmationModalArea>
+              <ToastArea>
+                <div
+                  className={cx(
+                    homeContainerStyles,
+                    darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+                  )}
+                  data-theme={theme.theme}
+                >
+                  <Home {...props}></Home>
+                </div>
+              </ToastArea>
+            </ConfirmationModalArea>
+          </div>
+        </Body>
+      </GuideCueProvider>
     </LeafyGreenProvider>
   );
 }

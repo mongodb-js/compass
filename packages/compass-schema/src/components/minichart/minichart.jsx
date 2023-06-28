@@ -38,8 +38,8 @@ class MiniChart extends Component {
 
     const onQueryChanged = (state) => {
       this.setState((prevState) => {
-        const filter = state.fields.filter.value;
-        const valid = [...Object.values(state.fields)].every(
+        const filter = state.queryBar.fields.filter.value;
+        const valid = [...Object.values(state.queryBar.fields)].every(
           (value) => value.valid
         );
         if (!valid || prevState.filter === filter) {

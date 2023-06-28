@@ -10,6 +10,7 @@ import type { Stage } from './index';
 type PlannerInfo = {
   namespace: string;
   parsedQuery: Stage;
+  winningPlan: Stage;
 };
 
 export const getPlannerInfo = (explain: Stage): PlannerInfo => {
@@ -19,6 +20,7 @@ export const getPlannerInfo = (explain: Stage): PlannerInfo => {
   return {
     namespace: queryPlanner.namespace,
     parsedQuery: queryPlanner.parsedQuery,
+    winningPlan: queryPlanner.winningPlan,
   };
 };
 const _getAggregationPlanner = (explain: Stage): Stage => {
