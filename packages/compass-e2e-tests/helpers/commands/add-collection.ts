@@ -95,7 +95,8 @@ export async function addCollection(
       collectionOptions.customCollation
     )) {
       await browser.clickVisible(
-        Selectors.createCollectionCustomCollationFieldButton(key)
+        Selectors.createCollectionCustomCollationFieldButton(key),
+        { scroll: true }
       );
       const menu = await browser.$(
         Selectors.createCollectionCustomCollationFieldMenu(key)
@@ -103,7 +104,7 @@ export async function addCollection(
       await menu.waitForDisplayed();
       const span = await menu.$(`span=${value.toString()}`);
       await span.waitForDisplayed();
-      await waitForAnimations(browser, span);
+      await waitForAnimations(browser, span as Element<'async'>);
       await span.click();
       await menu.waitForDisplayed({ reverse: true });
     }
