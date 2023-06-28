@@ -40,7 +40,6 @@ program
 
     console.info(`Found ${nextGa} as next ga version in Jira`);
 
-    // checks out the beta branch (from main if it did not exist before)
     await gitCheckout(BETA_RELEASE_BRANCH);
 
     const currentCompassPackageVersion = await getCompassPackageVersion();
@@ -61,7 +60,7 @@ program
 
     console.info(`Promoting ${currentCompassPackageVersion} to ${nextBeta}`);
 
-    await syncWithBranch(options.mergeBranch, nextBeta);
+    await syncWithBranch(options.mergeBranch);
     await bumpAndPush(nextBeta, BETA_RELEASE_BRANCH);
   });
 
@@ -92,9 +91,8 @@ program
 
     console.info(`Found ${nextGa} as fixVersion in ${options.releaseTicket}`);
 
-    // checks out the ga branch (from beta if it did not exist before)
     await gitCheckout(GA_RELEASE_BRANCH);
-    await syncWithBranch(options.mergeBranch, nextGa);
+    await syncWithBranch(options.mergeBranch);
 
     const currentCompassPackageVersion = await getCompassPackageVersion();
 
@@ -118,7 +116,7 @@ program.parseAsync();
 // This way we always release exactly what is in the incoming branch,
 // we don't destroy the history of the release and incoming branches,
 // and we never incur in conflicts.
-async function syncWithBranch(branch, version) {
+async function syncWithBranch(branch) {
   const remoteBranch = branch.startsWith('origin/')
     ? branch
     : `origin/${branch}`;
