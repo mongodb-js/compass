@@ -6,7 +6,7 @@ import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
 function getAIQueryEndpoint(): string {
   if (!process.env.DEV_AI_QUERY_ENDPOINT) {
     throw new Error(
-      'No AI Query endpoint to fetch. Please specific in the environment variable `DEV_AI_QUERY_ENDPOINT`'
+      'No AI Query endpoint to fetch. Please set the environment variable `DEV_AI_QUERY_ENDPOINT`'
     );
   }
 

@@ -2,6 +2,10 @@ import type AppRegistry from 'hadron-app-registry';
 
 import QueryBarPlugin from './plugin';
 import configureStore from './stores';
+import {
+  type FavoriteQuery,
+  FavoriteQueryStorage,
+} from './utils/query-storage';
 
 /**
  * A sample role for the component.
@@ -30,5 +34,11 @@ function deactivate(appRegistry: AppRegistry): void {
 }
 
 export default QueryBarPlugin;
-export { activate, deactivate, configureStore };
+export {
+  activate,
+  deactivate,
+  configureStore,
+  FavoriteQuery,
+  FavoriteQueryStorage,
+};
 export { default as metadata } from '../package.json';

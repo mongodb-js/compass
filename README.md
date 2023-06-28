@@ -33,7 +33,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-indexes**](packages/compass-indexes): Collection index management for Compass
 - [**@mongodb-js/compass-instance**](packages/compass-instance): Compass instance plugin
 - [**@mongodb-js/compass-query-bar**](packages/compass-query-bar): Renders a component for executing MongoDB queries through a GUI
-- [**@mongodb-js/compass-query-history**](packages/compass-query-history): Load and manage saved queries in Compass
 - [**@mongodb-js/compass-saved-aggregations-queries**](packages/compass-saved-aggregations-queries): Instance tab plugin that shows saved queries and aggregations
 - [**@mongodb-js/compass-schema**](packages/compass-schema): Compass Schema Tab Plugin
 - [**@mongodb-js/compass-schema-validation**](packages/compass-schema-validation): Compass plugin for document JSON schema validation

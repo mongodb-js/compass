@@ -72,7 +72,7 @@ describe('#runFetchAIQuery', function () {
       });
 
       await expect(promise).to.be.rejectedWith(
-        'No AI Query endpoint to fetch. Please specify in the environment variable `DEV_AI_QUERY_ENDPOINT`'
+        'No AI Query endpoint to fetch. Please set the environment variable `DEV_AI_QUERY_ENDPOINT`'
       );
     });
   });

@@ -22,8 +22,6 @@ import QueryOptionComponent, {
 } from './query-option';
 import QueryHistoryButtonPopover from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
-import { isEqualDefaultQuery } from '../stores/query-bar-reducer';
-import { isQueryValid } from '../stores/query-bar-reducer';
 import {
   applyQuery,
   openExportToLanguage,
@@ -31,6 +29,7 @@ import {
   explainQuery,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
 import type { QueryProperty } from '../constants/query-properties';
 import { AITextInput } from './generative-ai/ai-text-input';
 import type {
@@ -303,12 +302,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 };
 
 export default connect(
-  (state: RootState) => {
+  ({ queryBar: { expanded, fields, applyId } }: RootState) => {
     return {
-      expanded: state.queryBar.expanded,
-      queryChanged: !isEqualDefaultQuery(state.queryBar),
-      valid: isQueryValid(state.queryBar),
-      applyId: state.queryBar.applyId,
+      expanded: expanded,
+      queryChanged: !isEqualDefaultQuery(fields),
+      valid: isQueryValid(fields),
+      applyId: applyId,
     };
   },
   (

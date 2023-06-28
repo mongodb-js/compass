@@ -1,0 +1,49 @@
+name: Start new Beta release
+
+on:
+  workflow_dispatch:
+    inputs:
+      mergeBranch:
+        description: 'mergeBranch (optional, default="main"): the branch to merge from, useful to perform quick fixes outside of main.'
+        default: 'main'
+        required: false
+      overrideNextGa:
+        description: 'overrideNextGa (optional): set this param if you want to override the nextGa version that is fetched from jira versions, and use a different one.'
+        required: false
+  schedule:
+    # Each Monday at 5 AM UTC
+    - cron: '0 5 * * 1'
+
+jobs:
+  startRelease:
+    name: Start new Beta release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ^16.x
+          cache: 'npm'
+
+      - name: Install npm@8.19.4
+        run: |
+          npm install -g npm@8.19.4
+
+      - name: Install Dependencies
+        run: |
+          npm -v
+          npm ci
+
+      - name: Start Release
+        run: |
+          node scripts/release.js beta \
+            --merge-branch="${{ github.event.inputs.mergeBranch || 'main' }}"
+            --next-ga="${{ github.event.inputs.overrideNextGa }}"
+

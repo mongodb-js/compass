@@ -2,14 +2,15 @@ const path = require('path');
 const { promises: fs } = require('fs');
 const prompts = require('prompts');
 const pacote = require('pacote');
+
 const {
   collectWorkspacesDependencies,
   collectWorkspacesMeta,
-} = require('./workspace-dependencies');
-const { getHighestRange } = require('./semver-helpers');
-const { runInDir } = require('./run-in-dir');
-const { updatePackageJson } = require('./monorepo/update-package-json');
-const { withProgress } = require('./monorepo/with-progress');
+  updatePackageJson,
+  withProgress,
+  runInDir,
+  getHighestRange,
+} = require('@mongodb-js/monorepo-tools');
 
 function packageNameToDir(pkgName) {
   return pkgName ? pkgName.replace(/^@mongodb-js\//, '') : pkgName;

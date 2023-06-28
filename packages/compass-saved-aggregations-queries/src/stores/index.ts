@@ -1,7 +1,8 @@
 import type AppRegistry from 'hadron-app-registry';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
-import type { Store, AnyAction } from 'redux';
+import type { Store, AnyAction, Action } from 'redux';
 import thunk from 'redux-thunk';
+import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
 import instanceReducer, { setInstance, resetInstance } from './instance';
 import dataServiceReducer, {
@@ -12,6 +13,14 @@ import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
 import appRegistryReducer, { setAppRegistry } from './app-registry';
 
+import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
+import { PipelineStorage } from '@mongodb-js/compass-aggregations';
+import { getStoragePaths } from '@mongodb-js/compass-utils';
+
+const { basepath } = getStoragePaths() ?? {};
+const queryStorage = new FavoriteQueryStorage(basepath);
+const pipelineStorage = new PipelineStorage();
+
 const _store = createStore(
   combineReducers({
     savedItems: itemsReducer,
@@ -21,8 +30,23 @@ const _store = createStore(
     editItem: editItemReducer,
     appRegistry: appRegistryReducer,
   }),
-  applyMiddleware(thunk)
+  applyMiddleware(
+    thunk.withExtraArgument({
+      pipelineStorage,
+      queryStorage,
+    })
+  )
 );
+
+export type SavedQueryAggregationExtraArgs = {
+  pipelineStorage: PipelineStorage;
+  queryStorage: FavoriteQueryStorage;
+};
+
+export type SavedQueryAggregationThunkAction<
+  R,
+  A extends Action = AnyAction
+> = ThunkAction<R, RootState, SavedQueryAggregationExtraArgs, A>;
 
 type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
 

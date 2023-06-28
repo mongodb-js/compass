@@ -1,4 +1,7 @@
 import { expect } from 'chai';
+import { promises as fs } from 'fs';
+import os from 'os';
+
 import { DEFAULT_QUERY_VALUES } from '../constants/query-bar-store';
 import type { QueryProperty } from '../constants/query-properties';
 import {
@@ -10,12 +13,30 @@ import {
   setQuery,
 } from './query-bar-reducer';
 import configureStore from './query-bar-store';
+import type { QueryBarStoreOptions } from './query-bar-store';
 
-function createStore() {
-  return configureStore();
+function createStore(opts: Partial<QueryBarStoreOptions>) {
+  return configureStore(opts);
 }
 
 describe('queryBarReducer', function () {
+  let tmpDir: string;
+  let store: ReturnType<typeof createStore>;
+
+  before(async function () {
+    tmpDir = await fs.mkdtemp(os.tmpdir());
+  });
+
+  beforeEach(function () {
+    store = createStore({
+      basepath: tmpDir,
+    });
+  });
+
+  after(async function () {
+    await fs.rmdir(tmpDir, { recursive: true });
+  });
+
   describe('changeField', function () {
     const specs: [QueryProperty, string, unknown, boolean][] = [
       ['filter', '{ foo: true }', { foo: true }, true],
@@ -46,7 +67,6 @@ describe('queryBarReducer', function () {
       } value`;
 
       it(spec, function () {
-        const store = createStore();
         function getField() {
           return store.getState().queryBar.fields[field];
         }
@@ -66,7 +86,6 @@ describe('queryBarReducer', function () {
 
   describe('setQuery', function () {
     it('should set field properties from valid query options', function () {
-      const store = createStore();
       store.dispatch(
         setQuery({
           filter: { _id: '123' },
@@ -118,7 +137,6 @@ describe('queryBarReducer', function () {
 
   describe('applyQuery', function () {
     it('should "apply" query if query is valid', function () {
-      const store = createStore();
       store.dispatch(setQuery({ filter: { _id: '123' }, limit: 10 }));
       const appliedQuery = store.dispatch(applyQuery() as any);
       expect(appliedQuery).to.deep.eq({
@@ -132,7 +150,6 @@ describe('queryBarReducer', function () {
     });
 
     it('should not "apply" query if query is invalid', function () {
-      const store = createStore();
       store.dispatch(changeField('filter', '{ _id'));
       const appliedQuery = store.dispatch(applyQuery() as any);
       expect(appliedQuery).to.eq(false);
@@ -145,7 +162,6 @@ describe('queryBarReducer', function () {
 
   describe('resetQuery', function () {
     it('should reset query form if last applied query is different from the default query', function () {
-      const store = createStore();
       const query = { filter: { _id: 1 } };
       store.dispatch(setQuery(query));
       store.dispatch(applyQuery());
@@ -164,7 +180,6 @@ describe('queryBarReducer', function () {
     });
 
     it('should not reset query if last applied query is default query', function () {
-      const store = createStore();
       // Resetting without applying at all first
       let wasReset = store.dispatch(resetQuery());
       expect(store.getState().queryBar).to.have.property(
@@ -186,7 +201,6 @@ describe('queryBarReducer', function () {
 
   describe('changeSchemaFields', function () {
     it('should save fields in the store', function () {
-      const store = createStore();
       expect(store.getState().queryBar)
         .to.have.property('schemaFields')
         .deep.eq([]);
@@ -200,7 +214,6 @@ describe('queryBarReducer', function () {
 
   describe('applyFromHistory', function () {
     it('should reset query to whatever was passed in the action', function () {
-      const store = createStore();
       const newQuery = {
         filter: { _id: 2 },
         sort: { _id: -1 },
