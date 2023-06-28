@@ -14,6 +14,10 @@ const { program } = require('commander');
 const BETA_RELEASE_BRANCH = 'beta-releases';
 const GA_RELEASE_BRANCH = 'ga-releases';
 
+if (process.env.GITHUB_ACTIONS !== 'true') {
+  throw new Error('this script is meant to be run from CI');
+}
+
 program
   .command('beta')
   .description('Starts a new beta')
@@ -37,7 +41,7 @@ program
     console.info(`Found ${nextGa} as next ga version in Jira`);
 
     // checks out the beta branch (from main if it did not exist before)
-    await gitCheckout(BETA_RELEASE_BRANCH, 'main');
+    await gitCheckout(BETA_RELEASE_BRANCH);
 
     const currentCompassPackageVersion = await getCompassPackageVersion();
 
@@ -89,7 +93,7 @@ program
     console.info(`Found ${nextGa} as fixVersion in ${options.releaseTicket}`);
 
     // checks out the ga branch (from beta if it did not exist before)
-    await gitCheckout(GA_RELEASE_BRANCH, BETA_RELEASE_BRANCH);
+    await gitCheckout(GA_RELEASE_BRANCH);
     await syncWithBranch(options.mergeBranch, nextGa);
 
     const currentCompassPackageVersion = await getCompassPackageVersion();
@@ -108,21 +112,39 @@ program.parseAsync();
 
 // ---
 
-// sync the current branch with the content of the incoming branch,
-// performs a merge and a soft rebase.
+// syncs the current branch with the content of the incoming branch:
+// performs a merge and a clean checkout of the contents from the incoming
+// branch to the current branch.
 // This way we always release exactly what is in the incoming branch,
 // we don't destroy the history of the release and incoming branches,
 // and we never incur in conflicts.
 async function syncWithBranch(branch, version) {
+  const remoteBranch = branch.startsWith('origin/')
+    ? branch
+    : `origin/${branch}`;
+
   await execFile(
     'git',
-    ['merge', '--no-ff', '--strategy-option=theirs', branch],
+    ['merge', '--no-ff', '--strategy-option=theirs', remoteBranch],
     {
       cwd: monorepoRoot,
     }
   );
 
-  await execFile('git', ['reset', '--soft', branch], {
+  // remove any tracked and untracked file keeping .git (this would also remove node_modules, which we don't need at this point)
+  // and then copies all of the files from the incoming branch.
+  // this seems to be the most reliable and non-destructive way to add a commit that would resync
+  // the target branch with the incoming branch, undoing any previous change that may have come
+  // from hot-fixes, and ensuring that we are releasing exactly the content of the incoming branch.
+  await execFile('git', ['clean', '-fdx']);
+  await execFile('git', ['rm', '-r', '*'], {
+    cwd: monorepoRoot,
+  });
+  await execFile('git', ['checkout', remoteBranch, '--', '.'], {
+    cwd: monorepoRoot,
+  });
+
+  await execFile('git', ['add', '.'], {
     cwd: monorepoRoot,
   });
 
@@ -139,33 +161,23 @@ async function getCompassPackageVersion() {
   return JSON.parse(await fs.readFile(compassPackageJsonPath)).version;
 }
 
-async function gitCheckout(releaseBranchName, startingBranch) {
-  try {
-    await execFile('git', ['checkout', releaseBranchName], {
-      cwd: monorepoRoot,
-    });
-  } catch (e) {
-    await execFile(
-      'git',
-      ['checkout', '-b', releaseBranchName, startingBranch],
-      {
-        cwd: monorepoRoot,
-      }
-    );
-  }
+async function gitCheckout(branchName) {
+  await execFile('git', ['checkout', branchName], {
+    cwd: monorepoRoot,
+  });
 }
 
-async function bumpAndPush(nextBeta, releaseBranch) {
-  await execFile('npm', ['version', nextBeta], { cwd: compassPackagePath });
+async function bumpAndPush(nextVersion, releaseBranch) {
+  await execFile('npm', ['version', nextVersion], { cwd: compassPackagePath });
   await execFile('git', ['add', compassPackageJsonPath, `package-lock.json`], {
     cwd: monorepoRoot,
   });
 
-  await execFile('git', ['commit', `-m`, `v${nextBeta}`], {
+  await execFile('git', ['commit', `-m`, `v${nextVersion}`], {
     cwd: monorepoRoot,
   });
 
-  await execFile('git', ['tag', `v${nextBeta}`], { cwd: monorepoRoot });
+  await execFile('git', ['tag', `v${nextVersion}`], { cwd: monorepoRoot });
   await execFile('git', ['push', 'origin', `${releaseBranch}`], {
     cwd: monorepoRoot,
   });
