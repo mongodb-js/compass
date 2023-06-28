@@ -164,7 +164,7 @@ async function bumpAndPush(nextVersion, releaseBranch) {
     cwd: monorepoRoot,
   });
 
-  await execFile('git', ['commit', `--no-verify`, `-m`, `v${nextVersion}`], {
+  await execFile('git', ['commit', '--no-verify', '-m', `v${nextVersion}`], {
     cwd: monorepoRoot,
   });
 
