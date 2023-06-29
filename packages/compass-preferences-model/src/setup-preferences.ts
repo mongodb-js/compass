@@ -85,6 +85,7 @@ const makePreferenceMain = (preferences: () => Preferences | undefined) => ({
   async ensureDefaultConfigurableUserPreferences(): Promise<void> {
     return preferences()?.ensureDefaultConfigurableUserPreferences?.();
   },
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     return (
       preferences()?.getConfigurableUserPreferences?.() ??

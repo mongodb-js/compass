@@ -2,8 +2,6 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import type { UserPreferences } from './preferences';
 
-const ENCODING_UTF8 = 'utf8';
-
 export abstract class BasePreferencesStorage {
   read() {
     return this.getPreferences();
@@ -61,14 +59,18 @@ export class StoragePreferences extends BasePreferencesStorage {
   }
 
   async setup() {
+    // Ensure folder exists
     await fs.mkdir(this.getFolderPath(), { recursive: true });
 
     try {
-      await fs.access(this.getFilePath());
+      this.preferences = JSON.parse(
+        (await fs.readFile(this.getFilePath())).toString()
+      );
     } catch (e) {
       if ((e as any).code !== 'ENOENT') {
         throw e;
       }
+      // Create the file for the first time
       await fs.writeFile(
         this.getFilePath(),
         JSON.stringify(this.defaultPreferences, null, 2)
@@ -80,15 +82,14 @@ export class StoragePreferences extends BasePreferencesStorage {
     return this.preferences;
   }
 
-  async updatePreferences(attributes: Partial<UserPreferences>): Promise<void> {
+  async updatePreferences(attributes: Partial<UserPreferences>) {
     const newPreferences = {
       ...this.preferences,
       ...attributes,
     };
     await fs.writeFile(
       this.getFilePath(),
-      JSON.stringify(newPreferences, null, 2),
-      ENCODING_UTF8
+      JSON.stringify(newPreferences, null, 2)
     );
 
     this.preferences = newPreferences;

@@ -1006,7 +1006,7 @@ export class Preferences {
    *
    * @returns The currently active set of UI-modifiable preferences.
    */
-  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
+  getConfigurableUserPreferences(): UserConfigurablePreferences {
     const preferences = this.getPreferences();
     return Object.fromEntries(
       Object.entries(preferences).filter(
