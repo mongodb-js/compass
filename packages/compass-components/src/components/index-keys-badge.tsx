@@ -11,6 +11,7 @@ const keyListStyles = css({
 });
 
 const badgeStyles = css({
+  textTransform: 'none',
   gap: spacing[1],
 });
 
