@@ -11,9 +11,11 @@ export async function startMockAIServer(
     sendError?: boolean;
   } = {
     response: {
-      query: {
-        find: {
-          test: 'pineapple',
+      content: {
+        query: {
+          find: {
+            test: 'pineapple',
+          },
         },
       },
     },

@@ -106,13 +106,13 @@ export const runAIQuery = (
 
     let query;
     try {
-      if (!jsonResponse?.query) {
+      if (!jsonResponse?.content?.query) {
         throw new Error(
           'No query returned. Please try again with a different prompt.'
         );
       }
 
-      query = jsonResponse.query;
+      query = jsonResponse?.content?.query;
     } catch (err: any) {
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
