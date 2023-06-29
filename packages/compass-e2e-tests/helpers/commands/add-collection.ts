@@ -105,13 +105,14 @@ export async function addCollection(
       const span = await menu.$(`span=${value.toString()}`);
       await span.waitForDisplayed();
       await waitForAnimations(browser, span as Element<'async'>);
+      await browser.screenshot(`custom-collation-${key}.png`);
       await span.click();
       await menu.waitForDisplayed({ reverse: true });
 
       const button = await browser.$(
         Selectors.createCollectionCustomCollationFieldButton(key)
       );
-      console.log({ key: await button.getText() });
+      console.log({ [key]: await button.getText() });
     }
 
     // scroll to the locale one so the screenshot will include it.
