@@ -31,6 +31,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
       directory,
       gzip: true,
       retentionDays: 30,
+      maxLogFileCount: 100,
       onerror: (err, filepath) => debug('Failed to access path', filepath, err),
       onwarn: (err, filepath) => debug('Failed to access path', filepath, err),
     });
