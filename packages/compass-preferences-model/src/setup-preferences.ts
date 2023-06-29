@@ -27,7 +27,7 @@ export async function setupPreferences(
     globalPreferences
   ));
 
-  await preferences.fetchPreferences();
+  await preferences.setupStorage();
 
   const { ipcMain } = hadronIpc;
   preferences.onPreferencesChanged(

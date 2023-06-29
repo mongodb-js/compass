@@ -1,17 +1,15 @@
-import storageMixin from 'storage-mixin';
-import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
-import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
-
+import {
+  SandboxPreferences,
+  StoragePreferences,
+  type BasePreferencesStorage,
+} from './storage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Model = require('ampersand-model');
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
@@ -56,8 +54,7 @@ export type InternalUserPreferences = {
   telemetryAnonymousId: string;
 };
 
-// UserPreferences contains all preferences stored to disk in the
-// per-user preferences model (currently the Ampersand model).
+// UserPreferences contains all preferences stored to disk.
 export type UserPreferences = UserConfigurablePreferences &
   InternalUserPreferences;
 
@@ -87,19 +84,7 @@ type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<AllPreferences>
 ) => void;
 
-declare class PreferencesAmpersandModel {
-  fetch: () => void;
-  save: (
-    attributes?: AmpersandMethodOptions<void>,
-    options?: AmpersandMethodOptions<void>
-  ) => void;
-  getAttributes: (options?: {
-    props?: boolean;
-    derived?: boolean;
-  }) => UserPreferences;
-}
-
-export type AmpersandType<T> = T extends string
+export type PreferenceValue<T> = T extends string
   ? 'string'
   : T extends boolean
   ? 'boolean'
@@ -119,10 +104,11 @@ type PostProcessFunction<T> = (
 ) => T;
 
 type PreferenceDefinition<K extends keyof AllPreferences> = {
-  /** The type of the preference value, in Ampersand naming */
-  type: AmpersandType<AllPreferences[K]>;
+  /** The type of the preference value */
+  type: PreferenceValue<AllPreferences[K]>;
   /** An optional default value for the preference */
   default?: AllPreferences[K];
+  // todo: do we need it
   /** Whether the preference is required in the Ampersand model */
   required: boolean;
   /** An exhaustive list of possible values for this preference (also an Ampersand feature) */
@@ -278,7 +264,7 @@ const allFeatureFlagsProps: Required<{
   ...featureFlagsProps,
 };
 
-const modelPreferencesProps: Required<{
+const defaultUserPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
   /**
@@ -758,7 +744,7 @@ const nonUserPreferences: Required<{
 export const allPreferencesProps: Required<{
   [K in keyof AllPreferences]: PreferenceDefinition<K>;
 }> = {
-  ...modelPreferencesProps,
+  ...defaultUserPreferencesProps,
   ...cliOnlyPreferencesProps,
   ...nonUserPreferences,
 };
@@ -795,7 +781,7 @@ type PreferenceSandboxPropertiesImpl = {
 
 export class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
-  private _userPreferencesModel: PreferencesAmpersandModel;
+  private _preferencesStorage: BasePreferencesStorage;
   private _globalPreferences: {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
@@ -807,28 +793,18 @@ export class Preferences {
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
     isSandbox?: boolean
   ) {
-    const ampersandModelDefinition = {
-      props: modelPreferencesProps,
-      extraProperties: 'ignore',
-      idAttribute: 'id',
-    };
-    // User preferences are stored to disk via the Ampersand model,
-    // or not stored externally at all if that was requested.
-    const PreferencesModel = Model.extend(storageMixin, {
-      ...ampersandModelDefinition,
-      namespace: 'AppPreferences',
-      storage: isSandbox
-        ? {
-            backend: 'null',
-          }
-        : {
-            backend: 'disk',
-            basepath,
-          },
-    });
+    const defaultPreferences = Object.fromEntries(
+      Object.entries(defaultUserPreferencesProps)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .filter(([_key, value]) => value.default !== undefined)
+        .map(([key, value]) => [key, value.default])
+    ) as UserPreferences;
+
+    this._preferencesStorage = isSandbox
+      ? new SandboxPreferences(defaultPreferences)
+      : new StoragePreferences(defaultPreferences, basepath);
 
     this._onPreferencesChangedCallbacks = [];
-    this._userPreferencesModel = new PreferencesModel();
     this._globalPreferences = {
       cli: {},
       global: {},
@@ -846,10 +822,14 @@ export class Preferences {
     }
   }
 
+  setupStorage() {
+    return this._preferencesStorage.setup();
+  }
+
   // Returns a value that can be passed to Preferences.CreateSandbox()
-  getPreferenceSandboxProperties(): Promise<PreferenceSandboxProperties> {
+  async getPreferenceSandboxProperties(): Promise<PreferenceSandboxProperties> {
     const value: PreferenceSandboxPropertiesImpl = {
-      user: this._getUserPreferenceModelValues(),
+      user: this._getUserPreferenceValues(),
       global: this._globalPreferences,
     };
     return Promise.resolve(JSON.stringify(value));
@@ -868,40 +848,6 @@ export class Preferences {
   }
 
   /**
-   * Load preferences from the user preference storage.
-   * The return value also accounts for preferences set from other sources.
-   *
-   * @returns The currently active set of preferences.
-   */
-  async fetchPreferences(): Promise<AllPreferences> {
-    const originalPreferences = this.getPreferences();
-    const userPreferencesModel = this._userPreferencesModel;
-
-    // Fetch user preferences from the Ampersand model.
-    const fetchUserPreferences = promisifyAmpersandMethod(
-      userPreferencesModel.fetch.bind(userPreferencesModel)
-    );
-
-    try {
-      await fetchUserPreferences();
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_156),
-        'preferences',
-        'Failed to load preferences, error while fetching models',
-        {
-          error: (err as Error).message,
-        }
-      );
-    }
-
-    const newPreferences = this.getPreferences();
-    this._afterPreferencesUpdate(originalPreferences, newPreferences);
-
-    return newPreferences;
-  }
-
-  /**
    * Change preferences in the user's preference storage.
    * This method validates that the preference is one that is stored in the
    * underlying storage model. It does *not* validate that the preference
@@ -917,12 +863,12 @@ export class Preferences {
     attributes: Partial<UserPreferences> = {}
   ): Promise<AllPreferences> {
     const keys = Object.keys(attributes) as (keyof UserPreferences)[];
-    const originalPreferences = await this.fetchPreferences();
+    const originalPreferences = this.getPreferences();
     if (keys.length === 0) {
       return originalPreferences;
     }
 
-    const invalidKey = keys.find((key) => !modelPreferencesProps[key]);
+    const invalidKey = keys.find((key) => !defaultUserPreferencesProps[key]);
     if (invalidKey !== undefined) {
       // Guard against accidentally saving non-model settings here.
       throw new Error(
@@ -930,17 +876,8 @@ export class Preferences {
       );
     }
 
-    const userPreferencesModel = this._userPreferencesModel;
-
-    // Save user preferences to the Ampersand model.
-    const saveUserPreferences: (
-      attributes: Partial<UserPreferences>
-    ) => Promise<void> = promisifyAmpersandMethod(
-      userPreferencesModel.save.bind(userPreferencesModel)
-    );
-
     try {
-      await saveUserPreferences(attributes);
+      await this._preferencesStorage.update(attributes);
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_157),
@@ -982,16 +919,13 @@ export class Preferences {
     return this._computePreferenceValuesAndStates().values;
   }
 
-  private _getUserPreferenceModelValues(): UserPreferences {
-    return this._userPreferencesModel.getAttributes({
-      props: true,
-      derived: true,
-    });
+  private _getUserPreferenceValues(): UserPreferences {
+    return this._preferencesStorage.read();
   }
 
   private _getStoredValues(): AllPreferences {
     return {
-      ...this._getUserPreferenceModelValues(),
+      ...this._getUserPreferenceValues(),
       ...this._globalPreferences.cli,
       ...this._globalPreferences.global,
       ...this._globalPreferences.hardcoded,
@@ -1054,7 +988,7 @@ export class Preferences {
    */
   async ensureDefaultConfigurableUserPreferences(): Promise<void> {
     // Set the defaults and also update showedNetworkOptIn flag.
-    const { showedNetworkOptIn } = await this.fetchPreferences();
+    const { showedNetworkOptIn } = this.getPreferences();
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
@@ -1073,7 +1007,7 @@ export class Preferences {
    * @returns The currently active set of UI-modifiable preferences.
    */
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
-    const preferences = await this.fetchPreferences();
+    const preferences = this.getPreferences();
     return Object.fromEntries(
       Object.entries(preferences).filter(
         ([key]) =>

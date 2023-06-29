@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import type { Options as YargsOptions } from 'yargs-parser';
 import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
-import type { AmpersandType, AllPreferences } from './preferences';
+import type { PreferenceValue, AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -91,7 +91,7 @@ async function loadGlobalPreferences(
 const cliProps = Object.entries(allPreferencesProps).filter(
   ([, definition]) => definition.cli
 );
-function getCliPropNamesByType(type: AmpersandType<any>): string[] {
+function getCliPropNamesByType(type: PreferenceValue<any>): string[] {
   return [
     ...new Set(
       cliProps
