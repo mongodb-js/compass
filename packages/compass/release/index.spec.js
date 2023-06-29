@@ -15,6 +15,7 @@ async function runReleaseCommand(args, options = {}) {
     env: {
       ...options.env,
       MONGODB_COMPASS_RELEASE_MAX_WAIT_TIME: '0',
+      FORCE_COLOR: '0',
     },
   };
 

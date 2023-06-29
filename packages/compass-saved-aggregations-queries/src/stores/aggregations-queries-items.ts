@@ -1,11 +1,8 @@
-import type { Dispatch, Reducer } from 'redux';
+import type { Reducer } from 'redux';
 import toNS from 'mongodb-ns';
-import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
-import type { Query } from '@mongodb-js/compass-query-history';
-import { PipelineStorage } from '@mongodb-js/compass-aggregations';
+import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
 import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { SavedQueryAggregationThunkAction } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
 import { ActionTypes as DeleteItemActionTypes } from './delete-item';
 import type { Actions as EditItemActions } from './edit-item';
@@ -29,7 +26,7 @@ export type Item = {
 } & (
   | {
       type: 'query';
-      query: Query;
+      query: FavoriteQuery;
     }
   | {
       type: 'aggregation';
@@ -46,9 +43,6 @@ const INITIAL_STATE: State = {
   loading: true,
   items: [],
 };
-
-const favoriteQueryStorage = new FavoriteQueryStorage();
-const pipelineStorage = new PipelineStorage();
 
 const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
   state = INITIAL_STATE,
@@ -75,7 +69,7 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
       }
       const updatedItem =
         item.type === 'query'
-          ? mapQueryToItem(action.payload as Query)
+          ? mapQueryToItem(action.payload as FavoriteQuery)
           : mapAggregationToItem(action.payload as StoredPipeline);
       return {
         ...state,
@@ -86,36 +80,26 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
   return state;
 };
 
-export const fetchItems = (): ThunkAction<
+export const fetchItems = (): SavedQueryAggregationThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
-  return async (dispatch: Dispatch<Actions>): Promise<void> => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineStorage, queryStorage }
+  ): Promise<void> => {
     const payload = await Promise.allSettled([
-      getAggregationItems(),
-      getQueryItems(),
+      (await pipelineStorage.loadAll()).map(mapAggregationToItem),
+      (await queryStorage.loadAll()).map(mapQueryToItem),
     ]);
     dispatch({
       type: ActionTypes.ITEMS_FETCHED,
       payload: payload
-        .map((result: PromiseSettledResult<Item[]>) =>
-          result.status === 'fulfilled' ? result.value : []
-        )
+        .map((result) => (result.status === 'fulfilled' ? result.value : []))
         .flat(),
     });
   };
-};
-
-const getAggregationItems = async (): Promise<Item[]> => {
-  const aggregations = await pipelineStorage.loadAll();
-  return aggregations.map(mapAggregationToItem);
-};
-
-const getQueryItems = async (): Promise<Item[]> => {
-  const queries = await favoriteQueryStorage.loadAll();
-  return queries.map(mapQueryToItem);
 };
 
 const mapAggregationToItem = (aggregation: StoredPipeline): Item => {
@@ -131,12 +115,12 @@ const mapAggregationToItem = (aggregation: StoredPipeline): Item => {
   };
 };
 
-const mapQueryToItem = (query: Query): Item => {
+const mapQueryToItem = (query: FavoriteQuery): Item => {
   const { database, collection } = toNS(query._ns);
   return {
     id: query._id,
     name: query._name,
-    lastModified: query._dateModified ?? query._dateSaved,
+    lastModified: (query._dateModified ?? query._dateSaved).getTime(),
     database,
     collection,
     type: 'query',

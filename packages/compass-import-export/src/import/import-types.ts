@@ -11,6 +11,7 @@ export type ImportResult = {
   dbStats: CollectionStreamStats;
   docsWritten: number;
   docsProcessed: number;
+  biggestDocSize: number;
 };
 
 export type ErrorJSON = {

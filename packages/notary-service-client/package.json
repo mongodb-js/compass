@@ -10,9 +10,6 @@
     "depcheck": "depcheck",
     "test-ci": "npm run test"
   },
-  "bin": {
-    "notary": "cli.js"
-  },
   "main": "index.js",
   "compass:main": "index.js",
   "homepage": "https://github.com/mongodb-js/compass",
@@ -25,12 +22,9 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "cli-table": "^0.3.1",
-    "commander": "^2.9.0",
     "debug": "^2.2.0",
     "dotenv": "^4.0.0",
     "lodash": "^4.17.21",
-    "mongodb-js-cli": "^0.0.3",
     "pbkdf2": "^3.0.9",
     "superagent": "^3.3.1"
   },

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Button,
   Icon,
@@ -13,18 +13,15 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { QueryOption } from '../constants/query-option-definition';
+import { usePreference } from 'compass-preferences-model';
+import type { Signal } from '@mongodb-js/compass-components';
+
+import { type QueryOption } from '../constants/query-option-definition';
 import QueryOptionComponent, {
   documentEditorLabelContainerStyles,
 } from './query-option';
 import QueryHistoryButtonPopover from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
-import type {
-  QueryBarState,
-  QueryBarThunkDispatch,
-} from '../stores/query-bar-reducer';
-import { isEqualDefaultQuery } from '../stores/query-bar-reducer';
-import { isQueryValid } from '../stores/query-bar-reducer';
 import {
   applyQuery,
   openExportToLanguage,
@@ -32,9 +29,14 @@ import {
   explainQuery,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
 import type { QueryProperty } from '../constants/query-properties';
-import { usePreference } from 'compass-preferences-model';
-import type { Signal } from '@mongodb-js/compass-components';
+import { AITextInput } from './generative-ai/ai-text-input';
+import type {
+  QueryBarThunkDispatch,
+  RootState,
+} from '../stores/query-bar-store';
+import { createAIPlaceholderHTMLPlaceholder } from './generative-ai/ai-experience-entry';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -70,7 +72,13 @@ const moreOptionsContainerStyles = css({
 });
 
 const filterContainerStyles = css({
+  position: 'relative',
   flexGrow: 1,
+
+  // Override codemirror styles to make the `Ask AI` button clickable.
+  '& .cm-placeholder': {
+    pointerEvents: 'auto !important' as any, // Cast to any as !important errors ts.
+  },
 });
 
 const filterLabelStyles = css({
@@ -89,9 +97,9 @@ const queryBarDocumentationLink =
   'https://docs.mongodb.com/compass/current/query/filter/';
 
 const QueryMoreOptionsToggle = connect(
-  (state: QueryBarState) => {
+  (state: RootState) => {
     return {
-      isExpanded: state.expanded,
+      isExpanded: state.queryBar.expanded,
       label() {
         return 'Options';
       },
@@ -151,6 +159,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
+  const enableAIQuery = usePreference('enableAIExperience', React);
+
+  const [showAIQuery, setShowAIQuery] = useState(false);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -161,6 +172,15 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   );
 
   const filterQueryOptionId = 'query-bar-option-input-filter';
+
+  const filterPlaceholder = useMemo(() => {
+    return enableAIQuery && !showAIQuery
+      ? createAIPlaceholderHTMLPlaceholder({
+          onClickAI: () => setShowAIQuery(true),
+          darkMode,
+        })
+      : placeholders?.filter;
+  }, [darkMode, showAIQuery, enableAIQuery, placeholders?.filter]);
 
   return (
     <form
@@ -189,7 +209,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             name="filter"
             id={filterQueryOptionId}
             onApply={onApply}
-            placeholder={placeholders?.filter}
+            placeholder={filterPlaceholder}
             insights={insights}
           />
         </div>
@@ -274,17 +294,20 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             ))}
           </div>
         )}
+      {enableAIQuery && (
+        <AITextInput onClose={() => setShowAIQuery(false)} show={showAIQuery} />
+      )}
     </form>
   );
 };
 
 export default connect(
-  (state: QueryBarState) => {
+  ({ queryBar: { expanded, fields, applyId } }: RootState) => {
     return {
-      expanded: state.expanded,
-      queryChanged: !isEqualDefaultQuery(state),
-      valid: isQueryValid(state),
-      applyId: state.applyId,
+      expanded: expanded,
+      queryChanged: !isEqualDefaultQuery(fields),
+      valid: isQueryValid(fields),
+      applyId: applyId,
     };
   },
   (

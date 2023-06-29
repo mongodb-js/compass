@@ -17,8 +17,9 @@ import {
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
-import type { QueryBarState } from '../stores/query-bar-reducer';
 import { usePreference } from 'compass-preferences-model';
+
+import type { RootState } from '../stores/query-bar-store';
 
 const editorStyles = css({
   position: 'relative',
@@ -63,7 +64,7 @@ type OptionEditorProps = {
   id: string;
   onChange: (value: string) => void;
   onApply?(): void;
-  placeholder?: string;
+  placeholder?: string | HTMLElement;
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
@@ -151,10 +152,10 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   );
 };
 
-const ConnectedOptionEditor = connect((state: QueryBarState) => {
+const ConnectedOptionEditor = connect((state: RootState) => {
   return {
-    schemaFields: state.schemaFields as CompletionWithServerInfo[],
-    serverVersion: state.serverVersion,
+    schemaFields: state.queryBar.schemaFields as CompletionWithServerInfo[],
+    serverVersion: state.queryBar.serverVersion,
   };
 })(OptionEditor);
 
