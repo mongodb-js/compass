@@ -62,6 +62,7 @@
     "@mongodb-js/compass-utils": "^0.3.1",
     "@mongodb-js/mongodb-constants": "^0.6.0",
     "bson": "^5.3.0",
+    "mongodb-query-util": "^2.0.0",
     "compass-preferences-model": "^2.10.0",
     "react": "^17.0.2"
   },
@@ -85,8 +86,11 @@
     "mongodb-data-service": "^22.8.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.5.0",
+<<<<<<< HEAD
     "mongodb-query-util": "^2.0.0",
     "mongodb-schema": "^11.2.1",
+=======
+>>>>>>> d77850be2 (fix checks)
     "node-fetch": "^2.6.7",
     "nyc": "^15.1.0",
     "react": "^17.0.2",
@@ -99,6 +103,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.10.0",
+    "mongodb-query-util": "^2.0.0",
     "@mongodb-js/compass-editor": "^0.9.0",
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.3.1",
