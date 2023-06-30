@@ -42,7 +42,7 @@
     "@mongodb-js/monorepo-tools": "^1.1.1",
     "commander": "^11.0.0",
     "cross-spawn": "^7.0.3",
-    "electron": "^23.3.8",
+    "electron": "^23.3.9",
     "find-up": "^4.1.0",
     "glob": "^10.2.5",
     "jsdom": "^21.1.0",
