@@ -86,7 +86,7 @@
     "mongodb-data-service": "^22.8.0",
     "mongodb-instance-model": "^12.8.0",
     "mongodb-ns": "^2.4.0",
-    "mongodb-query-parser": "^2.5.0",
+    "mongodb-query-parser": "^3.1.2",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
     "react-dom": "^17.0.2",

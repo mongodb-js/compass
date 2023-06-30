@@ -17,13 +17,14 @@ const DEFAULT_FIELD_VALUES = {
  * Default values as will be returned from query parser during validation
  */
 const DEFAULT_QUERY_VALUES = {
-  filter: validate('filter'),
-  project: validate('project'),
-  collation: validate('collation'),
-  sort: validate('sort'),
-  skip: validate('skip'),
-  limit: validate('limit'),
-  maxTimeMS: validate('maxTimeMS'),
+  // TODO: Fix - can we remove these?
+  filter: {},
+  project: null,
+  collation: null,
+  sort: '',
+  skip: 0,
+  limit: 0,
+  maxTimeMS: 60000,
 } as const;
 
 export { DEFAULT_FIELD_VALUES, DEFAULT_QUERY_VALUES };

@@ -7,7 +7,7 @@ import type {
   Document,
 } from 'mongodb';
 import type { KMSProviderName } from './csfle-kms-fields';
-import queryParser from 'mongodb-query-parser';
+import queryParser, { toJSString } from 'mongodb-query-parser';
 
 const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
   storeCredentials: false,
@@ -246,7 +246,7 @@ export function encryptedFieldConfigToText(
   const withoutCompassKeys = Object.fromEntries(
     Object.entries(config).filter(([key]) => !key.startsWith('$compass.'))
   );
-  return queryParser.toJSString(withoutCompassKeys);
+  return toJSString(withoutCompassKeys) || '';
 }
 
 // The CSFLE encryptedFieldConfigMap contains BSON values, including
