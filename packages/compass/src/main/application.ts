@@ -13,10 +13,10 @@ import { setupCSFLELibrary } from './setup-csfle-library';
 import { setupPreferencesAndUserModel } from './setup-preferences-and-user-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 import preferences from 'compass-preferences-model';
-
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
+import { AtlasSignIn } from '@mongodb-js/atlas-signin/main';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
@@ -85,6 +85,8 @@ class CompassApplication {
     if (mode === 'CLI') {
       return;
     }
+
+    AtlasSignIn.init();
 
     await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
     await setupCSFLELibrary();
