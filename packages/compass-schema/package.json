@@ -90,7 +90,7 @@
     "mongodb": "^5.6.0",
     "mongodb-data-service": "^22.8.0",
     "mongodb-ns": "^2.4.0",
-    "mongodb-query-util": "^0.0.3",
+    "mongodb-query-util": "^2.0.0",
     "mongodb-schema": "^11.2.1",
     "numeral": "^1.5.6",
     "nyc": "^15.1.0",
