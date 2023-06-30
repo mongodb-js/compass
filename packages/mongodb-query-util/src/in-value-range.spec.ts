@@ -3,7 +3,7 @@ import { ObjectId, Decimal128 } from 'bson';
 import { expect } from 'chai';
 
 describe('inValueRange [Util]', function () {
-  let query;
+  let query: any;
 
   afterEach(function () {
     query = null;
