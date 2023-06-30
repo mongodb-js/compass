@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { css, cx } from '@leafygreen-ui/emotion';
+import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Button, Icon } from '../leafygreen';
 import { Tooltip } from '../tooltip';
-import type { Signal } from '../signal-popover';
-import { SignalPopover } from '../signal-popover';
 
 const actionsGroupContainer = css({
   position: 'absolute',
   display: 'flex',
-  alignItems: 'center',
   gap: spacing[2],
   width: '100%',
   top: spacing[2] + spacing[1],
@@ -25,24 +22,6 @@ const actionsGroupItem = css({
 
 const actionsGroupItemSeparator = css({
   flex: '1 0 auto',
-  pointerEvents: 'none',
-});
-
-const actionsGroupIdle = css({
-  '& > button': {
-    display: 'none',
-  },
-});
-
-const actionsGroupHovered = css({
-  '& > button': {
-    display: 'block',
-  },
-});
-
-// Insight icon is always visible, even when action buttons are not
-const actionsGroupSignalPopover = css({
-  display: 'block !important',
 });
 
 function useElementParentHoverState<T extends HTMLElement>(
@@ -80,7 +59,6 @@ const DocumentActionsGroup: React.FunctionComponent<
     onClone?: () => void;
     onRemove?: () => void;
     onlyShowOnHover?: boolean;
-    insights?: Signal | Signal[];
   } & (
     | { onExpand?: never; expanded?: never }
     | { onExpand: () => void; expanded: boolean }
@@ -93,13 +71,10 @@ const DocumentActionsGroup: React.FunctionComponent<
   onExpand,
   expanded,
   onlyShowOnHover = true,
-  insights,
 }) => {
-  const [signalOpened, setSignalOpened] = useState(false);
   const conatinerRef = useRef<HTMLDivElement | null>(null);
   const isHovered = useElementParentHoverState(conatinerRef);
   const [showCopyButtonTooltip, setShowCopyButtonTooltip] = useState(false);
-  const isActive = isHovered || signalOpened;
 
   useEffect(() => {
     if (showCopyButtonTooltip === true) {
@@ -115,10 +90,10 @@ const DocumentActionsGroup: React.FunctionComponent<
   return (
     <div
       ref={conatinerRef}
-      className={cx(
-        actionsGroupContainer,
-        onlyShowOnHover && (isActive ? actionsGroupHovered : actionsGroupIdle)
-      )}
+      className={actionsGroupContainer}
+      style={{
+        display: onlyShowOnHover ? (isHovered ? 'flex' : 'none') : 'flex',
+      }}
     >
       {onExpand && (
         <Button
@@ -138,14 +113,6 @@ const DocumentActionsGroup: React.FunctionComponent<
         ></Button>
       )}
       <span className={actionsGroupItemSeparator}></span>
-      {insights && (
-        <div className={cx(actionsGroupItem, actionsGroupSignalPopover)}>
-          <SignalPopover
-            signals={insights}
-            onPopoverOpenChange={setSignalOpened}
-          ></SignalPopover>
-        </div>
-      )}
       {onEdit && (
         <Button
           size="xsmall"
