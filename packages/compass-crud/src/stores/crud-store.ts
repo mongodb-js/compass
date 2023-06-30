@@ -2,7 +2,6 @@ import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
-import semver from 'semver';
 // @ts-expect-error no types available
 import StateMixin from 'reflux-state-mixin';
 import type { Element } from 'hadron-document';
@@ -89,46 +88,6 @@ function pickQueryProps({
   }
   return query;
 }
-
-const fetchDocuments: (
-  dataService: DataService,
-  serverVersion: string,
-  ...args: Parameters<DataService['find']>
-) => Promise<HadronDocument[]> = async (
-  dataService: DataService,
-  serverVersion,
-  ns,
-  filter,
-  options,
-  executionOptions
-) => {
-  options = {
-    ...options,
-    projection:
-      semver.gte(
-        serverVersion,
-        // $bsonSize is only supported for mongodb >= 4.4.0
-        '4.4.0'
-      ) &&
-      // Accessing $$ROOT is not possible with CSFLE
-      ['disabled', 'unavailable'].includes(dataService?.getCSFLEMode()) &&
-      isEmpty(options?.projection)
-        ? { _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } }
-        : options?.projection,
-  };
-
-  return (await dataService.find(ns, filter, options, executionOptions)).map(
-    (doc) => {
-      const { __doc, __size, ...rest } = doc;
-      if (__doc && __size && Object.keys(rest).length === 0) {
-        const hadronDoc = new HadronDocument(__doc);
-        hadronDoc.size = __size;
-        return hadronDoc;
-      }
-      return new HadronDocument(doc);
-    }
-  );
-};
 
 /**
  * Number of docs per page.
@@ -693,6 +652,8 @@ class CrudStoreImpl
         doc.emit('update-error', error.message);
       } else if (d) {
         doc.emit('update-success', d);
+        this.localAppRegistry.emit('document-updated', this.state.view);
+        this.globalAppRegistry.emit('document-updated', this.state.view);
         const index = this.findDocumentIndex(doc);
         this.state.docs![index] = new HadronDocument(d);
         this.trigger(this.state);
@@ -784,6 +745,8 @@ class CrudStoreImpl
         doc.emit('update-error', error.message);
       } else {
         doc.emit('update-success', d);
+        this.localAppRegistry.emit('document-updated', this.state.view);
+        this.globalAppRegistry.emit('document-updated', this.state.view);
         const index = this.findDocumentIndex(doc);
         this.state.docs![index] = new HadronDocument(d);
         this.trigger(this.state);
@@ -827,7 +790,7 @@ class CrudStoreImpl
    * @param {Number} page - The page that is being shown.
    */
   async getPage(page: number) {
-    const { ns, status } = this.state;
+    const { ns, status, view } = this.state;
 
     if (page < 0) {
       return;
@@ -885,18 +848,11 @@ class CrudStoreImpl
     const cancelDebounceLoad = this.debounceLoading();
 
     let error: Error | undefined;
-    let documents: HadronDocument[];
+    let documents: BSONObject[];
     try {
-      documents = await fetchDocuments(
-        this.dataService,
-        this.state.version,
-        ns,
-        filter,
-        opts as any,
-        {
-          abortSignal: signal,
-        }
-      );
+      documents = await this.dataService.find(ns, filter, opts as any, {
+        abortSignal: signal,
+      });
     } catch (err: any) {
       documents = [];
       error = err;
@@ -908,7 +864,7 @@ class CrudStoreImpl
       status: error
         ? DOCUMENTS_STATUS_ERROR
         : DOCUMENTS_STATUS_FETCHED_PAGINATION,
-      docs: documents,
+      docs: documents.map((doc: BSONObject) => new HadronDocument(doc)),
       // making sure we don't set start to 1 if length is 0
       start: length === 0 ? 0 : skip + 1,
       end: skip + length,
@@ -917,10 +873,8 @@ class CrudStoreImpl
       resultId: resultId(),
       abortController: null,
     });
-    this.localAppRegistry.emit(
-      'documents-paginated',
-      documents[0]?.generateObject()
-    );
+    this.localAppRegistry.emit('documents-paginated', view, documents);
+    this.globalAppRegistry.emit('documents-paginated', view, documents);
 
     cancelDebounceLoad();
   }
@@ -941,7 +895,7 @@ class CrudStoreImpl
    * @param {Boolean} clone - Whether this is a clone operation.
    */
   async openInsertDocumentDialog(doc: BSONObject, clone: boolean) {
-    const hadronDoc = new HadronDocument(doc);
+    const hadronDoc = new HadronDocument(doc, false);
 
     if (clone) {
       track('Document Cloned', { mode: this.modeForTelemetry() });
@@ -1318,7 +1272,7 @@ class CrudStoreImpl
       return;
     }
 
-    const { ns, status, query } = this.state;
+    const { ns, status, view, query } = this.state;
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
       return;
@@ -1428,16 +1382,9 @@ class CrudStoreImpl
 
     const promises = [
       fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
-      fetchDocuments(
-        this.dataService,
-        this.state.version,
-        ns,
-        query.filter,
-        findOptions as any,
-        {
-          abortSignal: signal,
-        }
-      ),
+      this.dataService.find(ns, query.filter, findOptions as any, {
+        abortSignal: signal,
+      }),
     ] as const;
 
     // This is so that the UI can update to show that we're fetching
@@ -1465,7 +1412,7 @@ class CrudStoreImpl
           ? DOCUMENTS_STATUS_FETCHED_INITIAL
           : DOCUMENTS_STATUS_FETCHED_CUSTOM,
         error: null,
-        docs: docs,
+        docs: docs.map((doc) => new HadronDocument(doc)),
         page: 0,
         start: docs.length > 0 ? 1 : 0,
         end: docs.length,
@@ -1473,10 +1420,8 @@ class CrudStoreImpl
         shardKeys,
       });
 
-      this.localAppRegistry.emit(
-        'documents-refreshed',
-        docs[0]?.generateObject()
-      );
+      this.localAppRegistry.emit('documents-refreshed', view, docs);
+      this.globalAppRegistry.emit('documents-refreshed', view, docs);
     } catch (error) {
       log.error(
         mongoLogId(1_001_000_074),
