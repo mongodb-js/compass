@@ -374,4 +374,14 @@ describe('inValueRange [Util]', function () {
       ).to.equal('no');
     });
   });
+
+  describe('with invalid operators', function () {
+    it('should not throw', function () {
+      query = { $gte: 10000000000, $l: 10100000000 };
+
+      expect(
+        inValueRange(query, { value: 9900000000, dx: 100000000 })
+      ).to.equal('no');
+    });
+  });
 });

@@ -36,7 +36,7 @@ import { bsonEqual } from './bson-equal';
  */
 export const inValueRange = (
   field: any,
-  d: { value: number; dx: number; bson?: any }
+  d: { value: any; dx?: number; bson?: any }
 ) => {
   const compOperators: Record<string, (a: number, b: number) => boolean> = {
     $gte: function (a: number, b: number) {
@@ -71,9 +71,11 @@ export const inValueRange = (
   } else {
     forOwn(field, function (value, key) {
       const comparator = compOperators[key];
-      // add comparison condition(s), right-curried with the value of the query
-      conditions.push(curryRight(comparator)(value));
-      edgeCase.push(value);
+      if (comparator) {
+        // add comparison condition(s), right-curried with the value of the query
+        conditions.push(curryRight(comparator)(value));
+        edgeCase.push(value);
+      }
     });
   }
   const dx = get(d, 'dx', null);
@@ -81,6 +83,16 @@ export const inValueRange = (
   // extract bound(s): if a dx value is set, create a 2-element array of
   // upper and lower bound. otherwise create a single value array of the
   // original bson type (if available) or the extracted value.
+
+  // NOTE: this package is a copy of https://github.com/mongodb-js/mongodb-query-util/tree/main.
+  // Once we converted the code to typescript, eslint started to complain about the fact
+  // that the sum is not happening always between numbers.
+  // From tests, it seems expected for d.value to also be a BSON type, and the sum
+  // here may not make sense.
+  // Potentially there could be bugs deriving from it, but tests are passing and
+  // is not easy to tell what is the original intent here, so we suppress the eslint warning.
+  //
+  // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
   const bounds = dx ? uniq([d.value, d.value + dx]) : [d.bson || d.value];
 
   /*
