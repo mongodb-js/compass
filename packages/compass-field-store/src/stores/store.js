@@ -196,8 +196,8 @@ const configureStore = (options = {}) => {
   if (options.localAppRegistry) {
     const appRegistry = options.localAppRegistry;
 
-    appRegistry.on('documents-refreshed', (doc = {}) => {
-      store.processSingleDocument(doc);
+    appRegistry.on('documents-refreshed', (view, docs) => {
+      store.processSingleDocument(docs[0] || {});
     });
 
     // process new document a user inserts
@@ -205,8 +205,8 @@ const configureStore = (options = {}) => {
       store.processSingleDocument(docs[0] || {});
     });
 
-    appRegistry.on('documents-paginated', (doc = {}) => {
-      store.processSingleDocument(doc);
+    appRegistry.on('documents-paginated', (view, docs) => {
+      store.processSingleDocument(docs[0] || {});
     });
 
     // optionally also subscribe to the SchemaStore if present
