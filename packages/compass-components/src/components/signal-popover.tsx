@@ -52,8 +52,8 @@ export type Signal = {
 type SignalPopoverProps = {
   /** List of signals to render */
   signals: Signal | Signal[];
+
   darkMode?: boolean;
-  onPopoverOpenChange?: (open: boolean) => void;
 };
 
 const signalCardContentStyles = css({
@@ -362,7 +362,6 @@ const closeButtonMultiSignalStyles = css({
 const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   signals: _signals,
   darkMode: _darkMode,
-  onPopoverOpenChange: _onPopoverOpenChange,
 }) => {
   const [cueOpen, setCueOpen] = useState(false);
   const darkMode = useDarkMode(_darkMode);
@@ -393,19 +392,15 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
     return observer.disconnect.bind(observer);
   }, []);
 
-  const onPopoverOpenChange = useCallback(
-    (newStatus: boolean) => {
-      setPopoverOpen(newStatus);
-      _onPopoverOpenChange?.(newStatus);
-      // Reset current signal index when popover is being opened. If we do this on
-      // close instead, the popover content is weirdly changed while the closing
-      // animation is happening
-      if (newStatus === true) {
-        setCurrentSignalIndex(0);
-      }
-    },
-    [_onPopoverOpenChange]
-  );
+  const onPopoverOpenChange = useCallback((newStatus: boolean) => {
+    setPopoverOpen(newStatus);
+    // Reset current signal index when popover is being opened. If we do this on
+    // close instead, the popover content is weirdly changed while the closing
+    // animation is happening
+    if (newStatus === true) {
+      setCurrentSignalIndex(0);
+    }
+  }, []);
 
   const badgeLabel = multiSignals ? (
     <>{signals.length}&nbsp;insights</>

@@ -4,7 +4,6 @@ import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import { DocumentList } from '@mongodb-js/compass-components';
 import type { CrudActions } from '../stores/crud-store';
-import { withPreferences } from 'compass-preferences-model';
 
 /**
  * The base class.
@@ -34,12 +33,12 @@ const TEST_ID = 'editable-document';
 export type EditableDocumentProps = {
   doc: Document;
   expandAll?: boolean;
+
   removeDocument?: CrudActions['removeDocument'];
   replaceDocument?: CrudActions['replaceDocument'];
   updateDocument?: CrudActions['updateDocument'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
   copyToClipboard?: CrudActions['copyToClipboard'];
-  showInsights?: boolean;
 };
 
 type EditableDocumentState = {
@@ -222,18 +221,6 @@ class EditableDocument extends React.Component<
           onClone={this.handleClone.bind(this)}
           onExpand={this.handleExpandAll.bind(this)}
           expanded={!!this.state.expandAll}
-          insights={
-            this.props.showInsights && (this.props.doc?.size ?? 0) > 10_000_000
-              ? {
-                  id: 'bloated-document',
-                  title: 'Possibly bloated document',
-                  description:
-                    'Large documents can slow down queries by decreasing the number of documents that can be stored in RAM. Consider breaking up your data into more collections with smaller documents, and using references to consolidate the data you need.',
-                  learnMoreLink:
-                    'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-document-size/',
-                }
-              : undefined
-          }
         />
       );
     }
@@ -312,8 +299,7 @@ class EditableDocument extends React.Component<
     updateDocument: PropTypes.func.isRequired,
     openInsertDocumentDialog: PropTypes.func.isRequired,
     copyToClipboard: PropTypes.func.isRequired,
-    showInsights: PropTypes.bool,
   };
 }
 
-export default withPreferences(EditableDocument, ['showInsights'], React);
+export default EditableDocument;
