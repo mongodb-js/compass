@@ -7,7 +7,6 @@ import {
 import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { BaseQuery } from '../constants/query-properties';
 import { mapFormFieldsToQuery, mapQueryToFormFields } from '../utils/query';
@@ -25,6 +24,9 @@ import {
   getQueryAttributes,
 } from '../utils';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
+import { AtlasSignIn } from '@mongodb-js/atlas-signin/renderer';
+import atlasSignInReducer from './atlas-signin-reducer';
+
 const { basepath } = getStoragePaths() || {};
 
 export type QueryBarStoreOptions = {
@@ -48,6 +50,7 @@ export type QueryBarStoreOptions = {
 export const rootQueryBarReducer = combineReducers({
   queryBar: queryBarReducer,
   aiQuery: aiQueryReducer,
+  atlasSignIn: atlasSignInReducer,
 });
 
 export type RootState = ReturnType<typeof rootQueryBarReducer>;
@@ -57,6 +60,7 @@ export type QueryBarExtraArgs = {
   localAppRegistry?: AppRegistry;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
+  atlasSignIn: typeof AtlasSignIn;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -106,6 +110,7 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
         globalAppRegistry,
         recentQueryStorage,
         favoriteQueryStorage,
+        atlasSignIn: AtlasSignIn,
       })
     )
   );

@@ -30,17 +30,11 @@ import {
   type RecentQuery,
   type FavoriteQuery,
   getQueryAttributes,
+  isAction,
 } from '../utils';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const TOTAL_RECENTS_ALLOWED = 30;
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
 
 type QueryBarState = {
   fields: QueryFormFields;

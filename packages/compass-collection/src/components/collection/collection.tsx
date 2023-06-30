@@ -166,7 +166,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           views={views}
           activeTabIndex={activeSubTab}
           onTabClicked={(tabIdx) => onSubTabClicked(tabIdx, tabs[tabIdx])}
-          mountAllViews
+          // mountAllViews
         />
       </div>
       <div className={collectionModalContainerStyles}>

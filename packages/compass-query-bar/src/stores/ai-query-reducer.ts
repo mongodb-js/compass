@@ -1,8 +1,10 @@
-import type { Action, AnyAction, Reducer } from 'redux';
-import type { ThunkAction } from 'redux-thunk';
+import type { Reducer } from 'redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-
 import { runFetchAIQuery } from '../modules/ai-query-request';
+import { isAction } from '../utils';
+import type { QueryBarThunkAction } from './query-bar-store';
+import type { AtlasSignInSuccessAction } from './atlas-signin-reducer';
+import { AtlasSignInActions, cancelSignIn } from './atlas-signin-reducer';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -11,12 +13,16 @@ export type AIQueryState = {
   errorMessage: string | undefined;
   // Used to indicate in the UI when an AI query has succeeded.
   didSucceed: boolean;
+  isInputVisible: boolean;
+  isOptInVisible: boolean;
 };
 
 export const initialState: AIQueryState = {
   aiQueryAbortController: undefined,
   errorMessage: undefined,
   didSucceed: false,
+  isInputVisible: false,
+  isOptInVisible: false,
 };
 
 export const enum AIQueryActionTypes {
@@ -24,16 +30,28 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
-
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
+  ShowInput = 'compass-query-bar/ai-query/ShowInput',
+  HideInput = 'compass-query-bar/ai-query/HideInput',
+  ShowOptIn = 'compass-query-bar/ai-query/ShowOptIn',
+  HideOptIn = 'compass-query-bar/ai-query/HideOptIn',
 }
 
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+type ShowInputAction = {
+  type: AIQueryActionTypes.ShowInput;
+};
+
+type HideInputAction = {
+  type: AIQueryActionTypes.HideInput;
+};
+
+type ShowOptInAction = {
+  type: AIQueryActionTypes.ShowOptIn;
+};
+
+type HideOptInAction = {
+  type: AIQueryActionTypes.HideOptIn;
+};
 
 type AIQueryStartedAction = {
   type: AIQueryActionTypes.AIQueryStarted;
@@ -56,7 +74,7 @@ export type AIQuerySucceededAction = {
 
 export const runAIQuery = (
   userPrompt: string
-): AIQueryThunkAction<
+): QueryBarThunkAction<
   Promise<void>,
   | AIQueryStartedAction
   | AIQueryCancelledAction
@@ -64,7 +82,9 @@ export const runAIQuery = (
   | AIQuerySucceededAction
 > => {
   return async (dispatch, getState) => {
-    const { aiQueryAbortController: existingAbortController } = getState();
+    const {
+      aiQuery: { aiQueryAbortController: existingAbortController },
+    } = getState();
 
     if (existingAbortController) {
       // Cancel the active request as this one will override.
@@ -149,6 +169,31 @@ export const cancelAIQuery = (): CancelAIQueryAction => ({
   type: AIQueryActionTypes.CancelAIQuery,
 });
 
+export const showInput = (): QueryBarThunkAction<void> => {
+  return (dispatch, getState) => {
+    if (['initial', 'error'].includes(getState().atlasSignIn.state)) {
+      dispatch(showOptIn());
+    } else {
+      dispatch({ type: AIQueryActionTypes.ShowInput });
+    }
+  };
+};
+
+export const hideInput = () => {
+  return { type: AIQueryActionTypes.HideInput };
+};
+
+export const showOptIn = () => {
+  return { type: AIQueryActionTypes.ShowOptIn };
+};
+
+export const hideOptIn = (): QueryBarThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(cancelSignIn());
+    dispatch({ type: AIQueryActionTypes.HideOptIn });
+  };
+};
+
 const aiQueryReducer: Reducer<AIQueryState> = (
   state = initialState,
   action
@@ -221,14 +266,43 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     };
   }
 
+  if (isAction<ShowInputAction>(action, AIQueryActionTypes.ShowInput)) {
+    return {
+      ...state,
+      isInputVisible: true,
+    };
+  }
+
+  if (isAction<HideInputAction>(action, AIQueryActionTypes.HideInput)) {
+    return {
+      ...state,
+      isInputVisible: false,
+    };
+  }
+
+  if (isAction<ShowOptInAction>(action, AIQueryActionTypes.ShowOptIn)) {
+    return {
+      ...state,
+      isOptInVisible: true,
+    };
+  }
+
+  if (isAction<HideOptInAction>(action, AIQueryActionTypes.HideOptIn)) {
+    return {
+      ...state,
+      isOptInVisible: false,
+    };
+  }
+
+  if (isAction<AtlasSignInSuccessAction>(action, AtlasSignInActions.Success)) {
+    return {
+      ...state,
+      isOptInVisible: false,
+      isInputVisible: true,
+    };
+  }
+
   return state;
 };
-
-type AIQueryThunkAction<R, A extends Action = AnyAction> = ThunkAction<
-  R,
-  AIQueryState,
-  void,
-  A
->;
 
 export { aiQueryReducer };

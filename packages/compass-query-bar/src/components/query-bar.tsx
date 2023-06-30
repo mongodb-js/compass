@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Button,
   Icon,
@@ -37,6 +37,8 @@ import type {
   RootState,
 } from '../stores/query-bar-store';
 import { createAIPlaceholderHTMLPlaceholder } from './generative-ai/ai-experience-entry';
+import { hideInput, showInput } from '../stores/ai-query-reducer';
+import OptInModal from './generative-ai/opt-in-modal';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -132,6 +134,9 @@ type QueryBarProps = {
   placeholders?: Record<QueryProperty, string>;
   onExplain?: () => void;
   insights?: Signal | Signal[];
+  isAIInputVisible?: boolean;
+  onShowAIInputClick?: () => void;
+  onHideAIInputClick?: () => void;
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -156,12 +161,13 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   placeholders,
   onExplain,
   insights,
+  isAIInputVisible = false,
+  onShowAIInputClick,
+  onHideAIInputClick,
 }) => {
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
   const enableAIQuery = usePreference('enableAIExperience', React);
-
-  const [showAIQuery, setShowAIQuery] = useState(false);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -174,13 +180,21 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const filterQueryOptionId = 'query-bar-option-input-filter';
 
   const filterPlaceholder = useMemo(() => {
-    return enableAIQuery && !showAIQuery
+    return enableAIQuery && !isAIInputVisible
       ? createAIPlaceholderHTMLPlaceholder({
-          onClickAI: () => setShowAIQuery(true),
+          onClickAI: () => {
+            onShowAIInputClick?.();
+          },
           darkMode,
         })
       : placeholders?.filter;
-  }, [darkMode, showAIQuery, enableAIQuery, placeholders?.filter]);
+  }, [
+    enableAIQuery,
+    isAIInputVisible,
+    darkMode,
+    placeholders?.filter,
+    onShowAIInputClick,
+  ]);
 
   return (
     <form
@@ -295,19 +309,26 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           </div>
         )}
       {enableAIQuery && (
-        <AITextInput onClose={() => setShowAIQuery(false)} show={showAIQuery} />
+        <AITextInput
+          onClose={() => {
+            onHideAIInputClick?.();
+          }}
+          show={isAIInputVisible}
+        />
       )}
+      <OptInModal></OptInModal>
     </form>
   );
 };
 
 export default connect(
-  ({ queryBar: { expanded, fields, applyId } }: RootState) => {
+  ({ queryBar: { expanded, fields, applyId }, aiQuery }: RootState) => {
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
       valid: isQueryValid(fields),
       applyId: applyId,
+      isAIInputVisible: aiQuery.isInputVisible,
     };
   },
   (
@@ -334,6 +355,12 @@ export default connect(
           return;
         }
         ownProps.onReset?.(reset);
+      },
+      onShowAIInputClick: () => {
+        dispatch(showInput());
+      },
+      onHideAIInputClick: () => {
+        dispatch(hideInput());
       },
     };
   }
