@@ -16,12 +16,13 @@ type GlobalHotkeysArgs = Parameters<typeof useGlobalHotkeys>;
  * The modifier keys are interpreted differently on macOS and Windows/Linux.
  * useGlobalHotkeys hook normalizes the modifier keys so that they are interpreted on both platforms as follows:
  *
- * Modifier | macOS       | Windows/Linux
- * -------- | ----------- | -------------
- * ctrl     | control     | ctrl
- * shift    | shift       | shift
- * alt      | option      | alt
- * meta     | command     | ctrl
+ * Modifier | macOS     | Windows | Linux
+ * -------- | --------- | ------- | -------
+ * ctrl     | control   | ctrl    | ctrl
+ * shift    | shift     | shift   | shift
+ * alt      | option    | alt     | alt
+ * meta     | command   | windows | meta
+ * mod      | command   | ctrl    | ctrl
  *
  */
 export const useHotkeys = (
@@ -37,8 +38,11 @@ export const formatHotkey = (key: string) => {
   let shortcut = key.toLowerCase();
   // map the modifier keys to the platform specific keys
   shortcut = isMac()
-    ? shortcut.replace(/\bmeta\b/, '⌘').replace(/\balt\b/, 'option')
-    : shortcut.replace(/\bmeta\b/, 'ctrl');
+    ? shortcut
+        .replace(/\bmeta\b/, '⌘')
+        .replace(/\balt\b/, 'option')
+        .replace(/\bmod\b/, '⌘')
+    : shortcut.replace(/\bmeta\b/, 'meta').replace(/\bmod\b/, 'ctrl');
 
   return shortcut
     .replace(/\+/g, ' + ') // Add space on both sides of each '+'

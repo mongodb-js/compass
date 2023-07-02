@@ -210,10 +210,10 @@ const Workspace = ({
 
   useHotkeys('ctrl + tab', nextTab);
   useHotkeys('ctrl + shift + tab', prevTab);
-  useHotkeys('meta + shift + ]', nextTab);
-  useHotkeys('meta + shift + [', prevTab);
+  useHotkeys('mod + shift + ]', nextTab);
+  useHotkeys('mod + shift + [', prevTab);
   useHotkeys(
-    'meta + w',
+    'mod + w',
     (e) => {
       closeTab(selectedTabIndex);
       // This prevents the browser from closing the window
@@ -222,7 +222,7 @@ const Workspace = ({
     },
     [selectedTabIndex]
   );
-  useHotkeys('meta + t', onCreateNewTab);
+  useHotkeys('mod + t', onCreateNewTab);
 
   return (
     <div className={workspaceStyles} data-testid="workspace-tabs">
