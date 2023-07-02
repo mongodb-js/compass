@@ -1,7 +1,8 @@
-import type { Action, AnyAction, Reducer } from 'redux';
-import type { ThunkAction } from 'redux-thunk';
+import type { Reducer } from 'redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
+import type { QueryBarThunkAction } from './query-bar-store';
+import { isAction } from '../utils';
 import { runFetchAIQuery } from '../modules/ai-query-request';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
@@ -11,12 +12,14 @@ export type AIQueryState = {
   errorMessage: string | undefined;
   // Used to indicate in the UI when an AI query has succeeded.
   didSucceed: boolean;
+  isInputVisible: boolean;
 };
 
 export const initialState: AIQueryState = {
   aiQueryAbortController: undefined,
   errorMessage: undefined,
   didSucceed: false,
+  isInputVisible: false,
 };
 
 export const enum AIQueryActionTypes {
@@ -24,16 +27,18 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
-
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
+  ShowInput = 'compass-query-bar/ai-query/ShowInput',
+  HideInput = 'compass-query-bar/ai-query/HideInput',
 }
 
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+type ShowInputAction = {
+  type: AIQueryActionTypes.ShowInput;
+};
+
+type HideInputAction = {
+  type: AIQueryActionTypes.HideInput;
+};
 
 type AIQueryStartedAction = {
   type: AIQueryActionTypes.AIQueryStarted;
@@ -56,7 +61,7 @@ export type AIQuerySucceededAction = {
 
 export const runAIQuery = (
   userPrompt: string
-): AIQueryThunkAction<
+): QueryBarThunkAction<
   Promise<void>,
   | AIQueryStartedAction
   | AIQueryCancelledAction
@@ -64,7 +69,9 @@ export const runAIQuery = (
   | AIQuerySucceededAction
 > => {
   return async (dispatch, getState) => {
-    const { aiQueryAbortController: existingAbortController } = getState();
+    const {
+      aiQuery: { aiQueryAbortController: existingAbortController },
+    } = getState();
 
     if (existingAbortController) {
       // Cancel the active request as this one will override.
@@ -121,7 +128,8 @@ export const runAIQuery = (
       return;
     }
 
-    // Error if the response is empty.
+    // Error if the response is empty. TODO: We'll want to also parse if no
+    // applicable query fields are detected.
     if (!query || Object.keys(query).length === 0) {
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
@@ -130,9 +138,6 @@ export const runAIQuery = (
       });
       return;
     }
-
-    // Rename `find` to `filter` as the AI will use the normal `find` syntax.
-    query.filter = query.find;
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
@@ -148,6 +153,14 @@ type CancelAIQueryAction = {
 export const cancelAIQuery = (): CancelAIQueryAction => ({
   type: AIQueryActionTypes.CancelAIQuery,
 });
+
+export const showInput = (): ShowInputAction => ({
+  type: AIQueryActionTypes.ShowInput,
+});
+
+export const hideInput = () => {
+  return { type: AIQueryActionTypes.HideInput };
+};
 
 const aiQueryReducer: Reducer<AIQueryState> = (
   state = initialState,
@@ -212,23 +225,31 @@ const aiQueryReducer: Reducer<AIQueryState> = (
   }
 
   if (isAction<CancelAIQueryAction>(action, AIQueryActionTypes.CancelAIQuery)) {
-    if (state.aiQueryAbortController) {
-      state.aiQueryAbortController.abort();
-    }
+    state.aiQueryAbortController?.abort();
     return {
       ...state,
       aiQueryAbortController: undefined,
     };
   }
 
+  if (isAction<ShowInputAction>(action, AIQueryActionTypes.ShowInput)) {
+    return {
+      ...state,
+      isInputVisible: true,
+    };
+  }
+
+  if (isAction<HideInputAction>(action, AIQueryActionTypes.HideInput)) {
+    // When we hide the ai query we cancel any in progress request.
+    state.aiQueryAbortController?.abort();
+
+    return {
+      ...state,
+      isInputVisible: false,
+    };
+  }
+
   return state;
 };
-
-type AIQueryThunkAction<R, A extends Action = AnyAction> = ThunkAction<
-  R,
-  AIQueryState,
-  void,
-  A
->;
 
 export { aiQueryReducer };

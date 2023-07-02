@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 
 import { RobotSVG } from './robot-svg';
 import type { RootState } from '../../stores/query-bar-store';
-import { runAIQuery } from '../../stores/ai-query-reducer';
+import { cancelAIQuery, runAIQuery } from '../../stores/ai-query-reducer';
 
 const containerStyles = css({
   display: 'flex',
@@ -75,9 +75,30 @@ const generateButtonLightModeStyles = css({
   backgroundColor: palette.gray.light2,
 });
 
+const highlightSize = 14;
+
+const buttonHighlightStyles = css({
+  // Custom button styles.
+  height: `${highlightSize}px`,
+  lineHeight: `${highlightSize}px`,
+  padding: `0px ${spacing[1]}px`,
+  borderRadius: '2px',
+});
+
+const buttonHighlightDarkModeStyles = css({
+  backgroundColor: palette.gray.dark1,
+  color: palette.gray.light1,
+});
+
+const buttonHighlightLightModeStyles = css({
+  backgroundColor: palette.gray.light1,
+  color: palette.gray.dark1,
+});
+
 const closeText = 'Close AI Query';
 
 type AITextInputProps = {
+  cancelAIQuery: () => void;
   isFetching?: boolean;
   didSucceed: boolean;
   errorMessage?: string;
@@ -88,8 +109,8 @@ type AITextInputProps = {
 
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
   <svg
-    width="14"
-    height="14"
+    width={highlightSize}
+    height={highlightSize}
     viewBox="0 0 14 14"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -111,6 +132,7 @@ const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
 );
 
 function AITextInput({
+  cancelAIQuery,
   isFetching,
   didSucceed,
   errorMessage,
@@ -129,10 +151,10 @@ function AITextInput({
         evt.preventDefault();
         onSubmitText(text);
       } else if (evt.key === 'Escape') {
-        onClose();
+        isFetching ? cancelAIQuery() : onClose();
       }
     },
-    [text, onClose, onSubmitText]
+    [text, onClose, onSubmitText, isFetching, cancelAIQuery]
   );
 
   useEffect(() => {
@@ -152,6 +174,11 @@ function AITextInput({
       promptTextInputRef.current?.focus();
     }
   }, [show]);
+
+  useEffect(() => {
+    // When unmounting, ensure we cancel any ongoing requests.
+    return () => cancelAIQuery();
+  }, [cancelAIQuery]);
 
   if (!show) {
     return null;
@@ -190,10 +217,28 @@ function AITextInput({
               generateButtonStyles,
               !darkMode && generateButtonLightModeStyles
             )}
-            onClick={() => onSubmitText(text)}
+            onClick={() => (isFetching ? cancelAIQuery() : onSubmitText(text))}
           >
-            <div>Generate</div>
-            <SubmitArrowSVG darkMode={darkMode} />
+            {isFetching ? (
+              <>
+                <div>Cancel</div>
+                <span
+                  className={cx(
+                    buttonHighlightStyles,
+                    darkMode
+                      ? buttonHighlightDarkModeStyles
+                      : buttonHighlightLightModeStyles
+                  )}
+                >
+                  esc
+                </span>
+              </>
+            ) : (
+              <>
+                <div>Generate</div>
+                <SubmitArrowSVG darkMode={darkMode} />
+              </>
+            )}
           </Button>
           <IconButton
             aria-label={closeText}
@@ -224,6 +269,7 @@ const ConnectedAITextInput = connect(
     };
   },
   {
+    cancelAIQuery: cancelAIQuery,
     onSubmitText: runAIQuery,
   }
 )(AITextInput);
