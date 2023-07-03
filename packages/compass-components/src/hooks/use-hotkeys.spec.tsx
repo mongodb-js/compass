@@ -23,7 +23,7 @@ const mappingUseCases = {
     { key: 'shift+ArrowDown', shortcut: 'Shift + ↓' },
   ],
   windows_linux: [
-    { key: 'meta+1', shortcut: 'Ctrl + 1' },
+    { key: 'meta+1', shortcut: 'Meta + 1' },
     { key: 'alt+1', shortcut: 'Alt + 1' },
     { key: 'ctrl+1', shortcut: 'Ctrl + 1' },
     { key: 'meta+ shift+a +c', shortcut: 'Meta + Shift + A + C' },
