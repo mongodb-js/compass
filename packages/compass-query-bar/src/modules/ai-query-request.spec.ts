@@ -43,9 +43,11 @@ describe('#runFetchAIQuery', function () {
       expect(requests[0].req.url).to.equal('/ai/api/v1/mql-query');
 
       expect(response).to.deep.equal({
-        query: {
-          find: {
-            test: 'pineapple',
+        content: {
+          query: {
+            find: {
+              test: 'pineapple',
+            },
           },
         },
       });

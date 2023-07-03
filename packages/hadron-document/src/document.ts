@@ -35,7 +35,6 @@ export class Document extends EventEmitter {
   elements: ElementList;
   type: 'Document';
   currentType: 'Document';
-  size: number | null = null;
 
   /**
    * Send cancel event.
