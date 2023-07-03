@@ -42,7 +42,7 @@ export const formatHotkey = (key: string) => {
         .replace(/\bmeta\b/, '⌘')
         .replace(/\balt\b/, 'option')
         .replace(/\bmod\b/, '⌘')
-    : shortcut.replace(/\bmeta\b/, 'meta').replace(/\bmod\b/, 'ctrl');
+    : shortcut.replace(/\bmod\b/, 'ctrl');
 
   return shortcut
     .replace(/\+/g, ' + ') // Add space on both sides of each '+'
