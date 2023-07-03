@@ -1,5 +1,6 @@
 import type { Reducer } from 'redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { getSimplifiedSchema } from 'mongodb-schema';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
