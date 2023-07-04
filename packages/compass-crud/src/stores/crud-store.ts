@@ -90,13 +90,15 @@ function pickQueryProps({
   return query;
 }
 
-const fetchDocuments: (
+export const fetchDocuments: (
   dataService: DataService,
   serverVersion: string,
+  isDataLake: boolean,
   ...args: Parameters<DataService['find']>
 ) => Promise<HadronDocument[]> = async (
   dataService: DataService,
   serverVersion,
+  isDataLake,
   ns,
   filter,
   options,
@@ -110,6 +112,8 @@ const fetchDocuments: (
         // $bsonSize is only supported for mongodb >= 4.4.0
         '4.4.0'
       ) &&
+      // ADF doesn't support $bsonSize
+      !isDataLake &&
       // Accessing $$ROOT is not possible with CSFLE
       ['disabled', 'unavailable'].includes(dataService?.getCSFLEMode()) &&
       isEmpty(options?.projection)
@@ -122,7 +126,7 @@ const fetchDocuments: (
       const { __doc, __size, ...rest } = doc;
       if (__doc && __size && Object.keys(rest).length === 0) {
         const hadronDoc = new HadronDocument(__doc);
-        hadronDoc.size = __size;
+        hadronDoc.size = Number(__size);
         return hadronDoc;
       }
       return new HadronDocument(doc);
@@ -890,6 +894,7 @@ class CrudStoreImpl
       documents = await fetchDocuments(
         this.dataService,
         this.state.version,
+        this.state.isDataLake,
         ns,
         filter,
         opts as any,
@@ -1431,6 +1436,7 @@ class CrudStoreImpl
       fetchDocuments(
         this.dataService,
         this.state.version,
+        this.state.isDataLake,
         ns,
         query.filter,
         findOptions as any,

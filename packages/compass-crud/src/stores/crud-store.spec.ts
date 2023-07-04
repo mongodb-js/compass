@@ -9,9 +9,12 @@ import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-
-import configureStore, { findAndModifyWithFLEFallback } from './crud-store';
+import configureStore, {
+  findAndModifyWithFLEFallback,
+  fetchDocuments,
+} from './crud-store';
 import configureActions from '../actions';
+import { Int32 } from 'bson';
 
 chai.use(chaiAsPromised);
 
@@ -2242,6 +2245,93 @@ describe('store', function () {
       expect(replaceOneFake.firstCall.args[2]).to.deep.equal({
         name: 'document_12345',
       });
+    });
+  });
+
+  describe('fetchDocuments', function () {
+    let findResult: unknown[] = [];
+    let csfleMode = 'disabled';
+    const find = sinon.stub().callsFake(() => {
+      return Promise.resolve(findResult);
+    });
+    const dataService = {
+      find,
+      getCSFLEMode() {
+        return csfleMode;
+      },
+    } as unknown as DataService;
+
+    afterEach(function () {
+      csfleMode = 'disabled';
+      findResult = [];
+      find.resetHistory();
+    });
+
+    it('should call find with $bsonSize projection when mongodb version is >= 4.4, not connected to ADF and csfle is disabled', async function () {
+      await fetchDocuments(dataService, '5.0.0', false, 'test.test', {});
+      expect(find).to.have.been.calledOnce;
+      expect(find.getCall(0))
+        .to.have.nested.property('args.2.projection')
+        .deep.eq({ _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } });
+    });
+
+    it('should return hadron documents with size set if $bsonSize projection is supported', async function () {
+      findResult = [{ __size: new Int32(42), __doc: { _id: 1 } }];
+      const docs = await fetchDocuments(
+        dataService,
+        '4.0.0',
+        false,
+        'test.test',
+        {}
+      );
+      expect(docs[0]).to.be.instanceOf(HadronDocument);
+      expect(docs[0]).to.have.property('size', 42);
+      expect(docs[0].getId()).to.have.property('value', 1);
+    });
+
+    it('should NOT call find with $bsonSize projection when mongodb version is < 4.4', async function () {
+      await fetchDocuments(dataService, '4.0.0', false, 'test.test', {});
+      expect(find).to.have.been.calledOnce;
+      expect(find.getCall(0)).to.have.nested.property(
+        'args.2.projection',
+        undefined
+      );
+    });
+
+    it('should NOT call find with $bsonSize projection when connected to ADF', async function () {
+      await fetchDocuments(dataService, '5.0.0', true, 'test.test', {});
+      expect(find).to.have.been.calledOnce;
+      expect(find.getCall(0)).to.have.nested.property(
+        'args.2.projection',
+        undefined
+      );
+    });
+
+    it('should NOT call find with $bsonSize projection when csfle is enabled', async function () {
+      csfleMode = 'enabled';
+      await fetchDocuments(dataService, '5.0.0', false, 'test.test', {});
+      expect(find).to.have.been.calledOnce;
+      expect(find.getCall(0)).to.have.nested.property(
+        'args.2.projection',
+        undefined
+      );
+    });
+
+    it('should keep user projection when provided', async function () {
+      await fetchDocuments(
+        dataService,
+        '5.0.0',
+        false,
+        'test.test',
+        {},
+        {
+          projection: { _id: 1 },
+        }
+      );
+      expect(find).to.have.been.calledOnce;
+      expect(find.getCall(0))
+        .to.have.nested.property('args.2.projection')
+        .deep.eq({ _id: 1 });
     });
   });
 });
