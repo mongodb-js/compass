@@ -12,6 +12,7 @@ import {
   SignalPopover,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
+import { usePreference } from 'compass-preferences-model';
 
 const containerStyles = css({
   margin: `${spacing[3]}px 0`,
@@ -58,6 +59,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   readOnly, // preferences readOnly.
 }) => {
+  const showInsights = usePreference('showInsights', React);
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('open-create-index-modal');
   }, [localAppRegistry]);
@@ -116,7 +118,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             >
               Refresh
             </Button>
-            {hasTooManyIndexes && (
+            {showInsights && hasTooManyIndexes && (
               <SignalPopover
                 signals={{
                   id: 'too-many-indexes',
