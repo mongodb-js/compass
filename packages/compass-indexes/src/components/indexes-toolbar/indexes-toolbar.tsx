@@ -124,7 +124,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                   description:
                     'Consider reviewing your indexes to remove any that are unnecessary. Learn more about this anti-pattern',
                   learnMoreLink:
-                    'https://www.mongodb.com/docs/v3.2/reference/limits/#Number-of-Indexes-per-Collection',
+                    'https://www.mongodb.com/docs/manual/core/data-model-operations/#indexes',
                 }}
               />
             )}
