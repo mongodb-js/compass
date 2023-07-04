@@ -162,15 +162,10 @@ export const reducer: Reducer<ExplainPlanModalState> = (
 
 type OpenExplainPlanModalEvent =
   | {
-      query: {
-        filter: Document;
-        project?: unknown;
-        collation?: unknown;
-        sort?: unknown;
-        skip?: number;
-        limit?: number;
-        maxTimeMS?: number;
-      };
+      query: { filter: Document } & Pick<
+        FindOptions,
+        'projection' | 'collation' | 'sort' | 'skip' | 'limit' | 'maxTimeMS'
+      >;
       aggregation?: never;
     }
   | {
@@ -294,7 +289,7 @@ export const openExplainPlanModal = (
         rawExplainPlan = await dataService.explainFind(
           namespace,
           filter,
-          explainOptions as FindOptions,
+          explainOptions,
           { explainVerbosity, abortSignal: signal }
         );
 
