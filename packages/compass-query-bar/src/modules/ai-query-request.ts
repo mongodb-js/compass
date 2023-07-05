@@ -86,7 +86,5 @@ export async function runFetchAIQuery({
 
   const jsonResponse = await res.json();
 
-  console.log('\naaa response:', jsonResponse);
-
   return jsonResponse;
 }

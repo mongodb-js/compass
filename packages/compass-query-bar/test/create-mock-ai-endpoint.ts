@@ -10,9 +10,7 @@ function checkReqAuth(req: http.IncomingMessage) {
   const header = req.headers.authorization ?? '';
   const token = header.split(/\s+/).pop() ?? '';
   const auth = Buffer.from(token, 'base64').toString();
-  const parts = auth.split(/:/);
-  const username = parts.splice(0, 1)[0];
-  const password = parts.join(':');
+  const [username, password] = auth.split(':');
 
   if (username !== TEST_AUTH_USERNAME || password !== TEST_AUTH_PASSWORD) {
     throw new Error('no match');

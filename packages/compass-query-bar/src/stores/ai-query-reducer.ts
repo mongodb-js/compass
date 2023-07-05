@@ -129,16 +129,7 @@ export const runAIQuery = (
           abortSignal: signal,
         }
       );
-      if (signal.aborted) {
-        // TODO: Does this error when aborted or should we include this check.
-        return;
-      }
-
       const schema = await getSimplifiedSchema(sampleDocuments);
-
-      if (signal.aborted) {
-        return;
-      }
 
       const { collection: collectionName } = toNS(namespace);
       jsonResponse = await runFetchAIQuery({
