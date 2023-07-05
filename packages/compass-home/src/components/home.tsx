@@ -38,7 +38,6 @@ import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
-import { getHashedNamespace } from '../modules/hashed-namespace';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -322,29 +321,19 @@ function Home({
   return (
     <SignalHooksProvider
       onSignalMount={(id) => {
-        void getHashedNamespace(namespace.ns).then((ns) => {
-          track('Signal Shown', { id, namespace: ns });
-        });
+        track('Signal Shown', { id, namespace: namespace.ns });
       }}
       onSignalOpen={(id) => {
-        void getHashedNamespace(namespace.ns).then((ns) => {
-          track('Signal Opened', { id, namespace: ns });
-        });
+        track('Signal Opened', { id, namespace: namespace.ns });
       }}
       onSignalPrimaryActionClick={(id) => {
-        void getHashedNamespace(namespace.ns).then((ns) => {
-          track('Signal Action Button Clicked', { id, namespace: ns });
-        });
+        track('Signal Action Button Clicked', { id, namespace: namespace.ns });
       }}
       onSignalLinkClick={(id) => {
-        void getHashedNamespace(namespace.ns).then((ns) => {
-          track('Signal Link Clicked', { id, namespace: ns });
-        });
+        track('Signal Link Clicked', { id, namespace: namespace.ns });
       }}
       onSignalClose={(id) => {
-        void getHashedNamespace(namespace.ns).then((ns) => {
-          track('Signal Closed', { id, namespace: ns });
-        });
+        track('Signal Closed', { id, namespace: namespace.ns });
       }}
     >
       {isConnected && <Workspace namespace={namespace} />}
