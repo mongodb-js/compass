@@ -14,6 +14,7 @@ const renderIndexesToolbar = (
 
   render(
     <IndexesToolbar
+      hasTooManyIndexes={false}
       errorMessage={null}
       isReadonly={false}
       isReadonlyView={false}
