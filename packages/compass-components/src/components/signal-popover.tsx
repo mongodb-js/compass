@@ -456,8 +456,8 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   const mountedSignalsRef = useRef(new Set<string>());
   signals.forEach(({ id }) => {
     if (!mountedSignalsRef.current.has(id)) {
-      hooks.onSignalMount(id);
       mountedSignalsRef.current.add(id);
+      hooks.onSignalMount(id);
     }
   });
 
