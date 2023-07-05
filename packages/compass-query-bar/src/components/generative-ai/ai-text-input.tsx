@@ -97,16 +97,6 @@ const buttonHighlightLightModeStyles = css({
 
 const closeText = 'Close AI Query';
 
-type AITextInputProps = {
-  cancelAIQuery: () => void;
-  isFetching?: boolean;
-  didSucceed: boolean;
-  errorMessage?: string;
-  show: boolean;
-  onClose: () => void;
-  onSubmitText: (text: string) => void;
-};
-
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
   <svg
     width={highlightSize}
@@ -131,8 +121,18 @@ const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
   </svg>
 );
 
+type AITextInputProps = {
+  onCancelAIQuery: () => void;
+  isFetching?: boolean;
+  didSucceed: boolean;
+  errorMessage?: string;
+  show: boolean;
+  onClose: () => void;
+  onSubmitText: (text: string) => void;
+};
+
 function AITextInput({
-  cancelAIQuery,
+  onCancelAIQuery,
   isFetching,
   didSucceed,
   errorMessage,
@@ -151,10 +151,10 @@ function AITextInput({
         evt.preventDefault();
         onSubmitText(text);
       } else if (evt.key === 'Escape') {
-        isFetching ? cancelAIQuery() : onClose();
+        isFetching ? onCancelAIQuery() : onClose();
       }
     },
-    [text, onClose, onSubmitText, isFetching, cancelAIQuery]
+    [text, onClose, onSubmitText, isFetching, onCancelAIQuery]
   );
 
   useEffect(() => {
@@ -175,10 +175,13 @@ function AITextInput({
     }
   }, [show]);
 
+  const onCancelAIQueryRef = useRef(onCancelAIQuery);
+  onCancelAIQueryRef.current = onCancelAIQuery;
+
   useEffect(() => {
     // When unmounting, ensure we cancel any ongoing requests.
-    return () => cancelAIQuery();
-  }, [cancelAIQuery]);
+    return () => onCancelAIQueryRef.current?.();
+  }, []);
 
   if (!show) {
     return null;
@@ -217,7 +220,9 @@ function AITextInput({
               generateButtonStyles,
               !darkMode && generateButtonLightModeStyles
             )}
-            onClick={() => (isFetching ? cancelAIQuery() : onSubmitText(text))}
+            onClick={() =>
+              isFetching ? onCancelAIQuery() : onSubmitText(text)
+            }
           >
             {isFetching ? (
               <>
@@ -261,15 +266,13 @@ function AITextInput({
 const ConnectedAITextInput = connect(
   (state: RootState) => {
     return {
-      isFetching:
-        state.aiQuery.aiQueryAbortController &&
-        !state.aiQuery.aiQueryAbortController.signal.aborted,
-      didSucceed: state.aiQuery.didSucceed,
+      isFetching: state.aiQuery.status === 'fetching',
+      didSucceed: state.aiQuery.status === 'success',
       errorMessage: state.aiQuery.errorMessage,
     };
   },
   {
-    cancelAIQuery: cancelAIQuery,
+    onCancelAIQuery: cancelAIQuery,
     onSubmitText: runAIQuery,
   }
 )(AITextInput);
