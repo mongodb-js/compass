@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, cleanup, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { SignalPopover } from './signal-popover';
+import { SignalPopover, SignalHooksProvider } from './signal-popover';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 
 const signals = [
   {
@@ -37,5 +38,46 @@ describe('SignalPopover', function () {
     expect(screen.getByText('Unbounded array detected')).to.exist;
     userEvent.click(screen.getByTitle('Show next insight'));
     expect(screen.getByText('Possibly bloated documents')).to.exist;
+  });
+
+  describe('SignalHooksProvider', function () {
+    it('should call hooks through the signal lifecycle', function () {
+      const hooks: React.ComponentProps<typeof SignalHooksProvider> = {
+        onSignalMount: Sinon.spy(),
+        onSignalOpen: Sinon.spy(),
+        onSignalClose: Sinon.spy(),
+        onSignalLinkClick: Sinon.spy(),
+        onSignalPrimaryActionClick: Sinon.spy(),
+      };
+
+      render(
+        <SignalHooksProvider {...hooks}>
+          <SignalPopover signals={signals}></SignalPopover>
+        </SignalHooksProvider>
+      );
+
+      userEvent.click(screen.getByTestId('insight-badge-button'));
+      userEvent.click(screen.getByText('Bound those arrays'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+      userEvent.click(screen.getByTitle('Show next insight'));
+      userEvent.click(screen.getByText('Learn more'));
+      userEvent.click(screen.getByLabelText('Close'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      expect(hooks.onSignalMount).to.have.been.calledTwice;
+      expect(hooks.onSignalMount).to.have.been.calledWith('unbounded-array');
+      expect(hooks.onSignalMount).to.have.been.calledWith('bloated-docs');
+      expect(
+        hooks.onSignalPrimaryActionClick
+      ).to.have.been.calledOnceWithExactly('unbounded-array');
+      expect(hooks.onSignalLinkClick).to.have.been.calledOnceWithExactly(
+        'bloated-docs'
+      );
+      expect(hooks.onSignalClose).to.have.been.calledOnceWithExactly(
+        'bloated-docs'
+      );
+    });
   });
 });

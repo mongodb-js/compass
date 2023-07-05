@@ -36,10 +36,12 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
-import type Namespace from '../types/namespace';
 import Workspace from './workspace';
+import { SignalHooksProvider } from '@mongodb-js/compass-components';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
+
+type Namespace = ReturnType<typeof toNS>;
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let remote: typeof import('@electron/remote') | undefined;
@@ -89,10 +91,7 @@ const globalDarkThemeStyles = css({
   color: palette.white,
 });
 
-const defaultNS: Namespace = {
-  database: '',
-  collection: '',
-};
+const defaultNS: Namespace = toNS('');
 
 type ThemeState = {
   theme: Theme;
@@ -320,7 +319,23 @@ function Home({
   }, [appRegistry, onDataServiceDisconnected]);
 
   return (
-    <>
+    <SignalHooksProvider
+      onSignalMount={(id) => {
+        track('Signal Shown', { id });
+      }}
+      onSignalOpen={(id) => {
+        track('Signal Opened', { id });
+      }}
+      onSignalPrimaryActionClick={(id) => {
+        track('Signal Action Button Clicked', { id });
+      }}
+      onSignalLinkClick={(id) => {
+        track('Signal Link Clicked', { id });
+      }}
+      onSignalClose={(id) => {
+        track('Signal Closed', { id });
+      }}
+    >
       {isConnected && <Workspace namespace={namespace} />}
       {/* Hide <Connections> but keep it in scope if connected so that the connection
           import/export functionality can still be used through the application menu */}
@@ -341,7 +356,7 @@ function Home({
           />
         </div>
       </div>
-    </>
+    </SignalHooksProvider>
   );
 }
 
