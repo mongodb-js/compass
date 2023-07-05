@@ -8,7 +8,11 @@ const { expect } = chai;
 chai.use(chaiAsPromised);
 
 import { runFetchAIQuery } from './ai-query-request';
-import { startMockAIServer } from '../../test/create-mock-ai-endpoint';
+import {
+  startMockAIServer,
+  TEST_AUTH_USERNAME,
+  TEST_AUTH_PASSWORD,
+} from '../../test/create-mock-ai-endpoint';
 
 const mockUserPrompt: {
   userPrompt: string;
@@ -51,11 +55,15 @@ describe('#runFetchAIQuery', function () {
       getRequests = _getRequests;
       stopServer = stop;
       process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+      process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+      process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
     });
 
     afterEach(async function () {
       await stopServer();
       delete process.env.DEV_AI_QUERY_ENDPOINT;
+      delete process.env.DEV_AI_USERNAME;
+      delete process.env.DEV_AI_PASSWORD;
     });
 
     it('makes a post request with the user prompt to the endpoint in the environment', async function () {
@@ -122,6 +130,51 @@ describe('#runFetchAIQuery', function () {
 
       await expect(promise).to.be.rejectedWith('The user aborted a request.');
     });
+
+    it('throws if the request would be too much for the ai', async function () {
+      const promise = runFetchAIQuery({
+        ...mockUserPrompt,
+        sampleDocuments: [
+          {
+            test: '4'.repeat(6000),
+          },
+        ],
+        signal: new AbortController().signal,
+      });
+
+      await expect(promise).to.be.rejectedWith(
+        'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+      );
+    });
+
+    it('passes fewer documents if the request would be too much for the ai with all of the documents', async function () {
+      const response = await runFetchAIQuery({
+        ...mockUserPrompt,
+        sampleDocuments: [
+          {
+            a: ['1'],
+          },
+          {
+            a: ['2'],
+          },
+          {
+            a: ['3'],
+          },
+          {
+            a: ['4'.repeat(5000)],
+          },
+        ],
+        signal: new AbortController().signal,
+      });
+
+      const requests = getRequests();
+      expect(requests[0].content.sampleDocuments).to.deep.equal([
+        {
+          a: ['1'],
+        },
+      ]);
+      expect(!!response).to.be.true;
+    });
   });
 
   describe('with no endpoint set in environment', function () {
@@ -150,11 +203,15 @@ describe('#runFetchAIQuery', function () {
 
       stopServer = stop;
       process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+      process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+      process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
     });
 
     afterEach(async function () {
       await stopServer();
       delete process.env.DEV_AI_QUERY_ENDPOINT;
+      delete process.env.DEV_AI_USERNAME;
+      delete process.env.DEV_AI_PASSWORD;
     });
 
     it('throws the error', async function () {

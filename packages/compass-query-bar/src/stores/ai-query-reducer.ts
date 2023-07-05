@@ -36,7 +36,7 @@ export const enum AIQueryActionTypes {
   HideInput = 'compass-query-bar/ai-query/HideInput',
 }
 
-const NUM_DOCUMENTS_TO_SAMPLE = 10;
+const NUM_DOCUMENTS_TO_SAMPLE = 4;
 
 const AIQueryAbortControllerMap = new Map<number, AbortController>();
 

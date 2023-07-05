@@ -10,7 +10,11 @@ import {
   cancelAIQuery,
   runAIQuery,
 } from './ai-query-reducer';
-import { startMockAIServer } from '../../test/create-mock-ai-endpoint';
+import {
+  startMockAIServer,
+  TEST_AUTH_USERNAME,
+  TEST_AUTH_PASSWORD,
+} from '../../test/create-mock-ai-endpoint';
 
 function _createStore(opts: Partial<QueryBarStoreOptions>) {
   return configureStore({
@@ -63,11 +67,15 @@ describe('aiQueryReducer', function () {
         stopServer = stop;
         getRequests = _getRequests;
         process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+        process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+        process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
       });
 
       afterEach(async function () {
         await stopServer();
         delete process.env.DEV_AI_QUERY_ENDPOINT;
+        delete process.env.DEV_AI_USERNAME;
+        delete process.env.DEV_AI_PASSWORD;
       });
 
       it('should succeed', async function () {
@@ -167,11 +175,15 @@ describe('aiQueryReducer', function () {
 
         stopServer = stop;
         process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+        process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+        process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
       });
 
       afterEach(async function () {
         await stopServer();
         delete process.env.DEV_AI_QUERY_ENDPOINT;
+        delete process.env.DEV_AI_USERNAME;
+        delete process.env.DEV_AI_PASSWORD;
       });
 
       it('sets the error on the store', async function () {
