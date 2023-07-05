@@ -175,10 +175,13 @@ function AITextInput({
     }
   }, [show]);
 
+  const onCancelAIQueryRef = useRef(onCancelAIQuery);
+  onCancelAIQueryRef.current = onCancelAIQuery;
+
   useEffect(() => {
     // When unmounting, ensure we cancel any ongoing requests.
-    return () => onCancelAIQuery();
-  }, [onCancelAIQuery]);
+    return () => onCancelAIQueryRef.current?.();
+  }, []);
 
   if (!show) {
     return null;
@@ -263,7 +266,7 @@ function AITextInput({
 const ConnectedAITextInput = connect(
   (state: RootState) => {
     return {
-      isFetching: state.aiQuery.aiQueryFetchId !== -1,
+      isFetching: state.aiQuery.status === 'fetching',
       didSucceed: state.aiQuery.status === 'success',
       errorMessage: state.aiQuery.errorMessage,
     };
