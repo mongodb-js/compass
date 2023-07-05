@@ -25,6 +25,14 @@ const SIGNALS: Record<string, Signal> = {
     primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
     primaryActionButtonLabel: 'Try Atlas Search',
   },
+  'lookup-in-stage': {
+    id: 'lookup-in-stage',
+    title: '$lookup usage',
+    description:
+      '$lookup operations can be resource intensive because they perform operations on two collections instead of one. In certain situations, consider embedding documents or arrays to enhance read performance.',
+    learnMoreLink:
+      'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
+  },
 } as const;
 
 export const getInsightForStage = (
@@ -32,12 +40,12 @@ export const getInsightForStage = (
   env: string
 ): Signal | undefined => {
   const isAtlas = [ATLAS, ADL].includes(env);
-  if (
-    stageOperator === '$match' &&
-    (value?.includes('$regex') || value?.includes('$text'))
-  ) {
+  if (stageOperator === '$match' && /\$(text|regex)\b/.test(value ?? '')) {
     return isAtlas
       ? SIGNALS['atlas-text-regex-usage-in-stage']
       : SIGNALS['non-atlas-text-regex-usage-in-stage'];
+  }
+  if (stageOperator === '$lookup') {
+    return SIGNALS['lookup-in-stage'];
   }
 };
