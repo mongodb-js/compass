@@ -39,24 +39,22 @@ describe('aiQueryReducer', function () {
 
       it('should succeed', async function () {
         const store = createStore();
-        let didSetAbortController = false;
+        let didSetFetchId = false;
         store.subscribe(() => {
-          if (store.getState().aiQuery.aiQueryAbortController) {
-            didSetAbortController = true;
+          if (store.getState().aiQuery.aiQueryFetchId !== -1) {
+            didSetFetchId = true;
           }
         });
-        expect(store.getState().aiQuery.didSucceed).to.equal(false);
+        expect(store.getState().aiQuery.status).to.equal('ready');
         await store.dispatch(runAIQuery('testing prompt') as any);
 
-        expect(didSetAbortController).to.equal(true);
+        expect(didSetFetchId).to.equal(true);
         expect(getRequests()[0].content).to.deep.equal({
           userPrompt: 'testing prompt',
         });
-        expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-          undefined
-        );
+        expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
-        expect(store.getState().aiQuery.didSucceed).to.equal(true);
+        expect(store.getState().aiQuery.status).to.equal('success');
       });
     });
 
@@ -82,42 +80,28 @@ describe('aiQueryReducer', function () {
         const store = createStore();
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
-        expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-          undefined
-        );
+        expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(
           'Error: 500 Internal Server Error'
         );
-        expect(store.getState().aiQuery.didSucceed).to.equal(false);
+        expect(store.getState().aiQuery.status).to.equal('ready');
       });
     });
   });
 
   describe('cancelAIQuery', function () {
-    it('should cancel the abort controller on the store', function () {
+    it('should unset the fetching id on the store', function () {
       const store = createStore();
-      expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-        undefined
-      );
+      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
 
-      const abortController = new AbortController();
       store.dispatch({
         type: AIQueryActionTypes.AIQueryStarted,
-        abortController,
+        fetchId: 1,
       });
 
-      expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-        abortController
-      );
-      expect(
-        store.getState().aiQuery.aiQueryAbortController?.signal.aborted
-      ).to.equal(false);
-
+      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(1);
       store.dispatch(cancelAIQuery());
-      expect(abortController?.signal.aborted).to.equal(true);
-      expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-        undefined
-      );
+      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
     });
   });
 });

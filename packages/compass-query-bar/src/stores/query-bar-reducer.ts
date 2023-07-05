@@ -275,8 +275,10 @@ export const explainQuery = (): QueryBarThunkAction<void> => {
     const {
       queryBar: { fields },
     } = getState();
-    const query = mapFormFieldsToQuery(fields);
-    localAppRegistry?.emit('open-explain-plan-modal', { query });
+    const { project, ...query } = mapFormFieldsToQuery(fields);
+    localAppRegistry?.emit('open-explain-plan-modal', {
+      query: { ...query, projection: project },
+    });
   };
 };
 

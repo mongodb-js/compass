@@ -9,11 +9,14 @@ import {
   applyQuery,
   changeField,
   changeSchemaFields,
+  explainQuery,
   resetQuery,
   setQuery,
 } from './query-bar-reducer';
 import configureStore from './query-bar-store';
 import type { QueryBarStoreOptions } from './query-bar-store';
+import Sinon from 'sinon';
+import type AppRegistry from 'hadron-app-registry';
 
 function createStore(opts: Partial<QueryBarStoreOptions>) {
   return configureStore(opts);
@@ -235,6 +238,39 @@ describe('queryBarReducer', function () {
       expect(store.getState().queryBar).to.have.nested.property(
         'fields.sort.string',
         '{_id: -1}'
+      );
+    });
+  });
+
+  describe('explainQuery', function () {
+    it('should call localAppStorage with a correct query', function () {
+      const localAppRegistry = {
+        on: Sinon.spy(),
+        emit: Sinon.spy(),
+      } as unknown as AppRegistry;
+      const store = createStore({
+        localAppRegistry,
+        query: {
+          filter: { _id: { $exists: true } },
+          project: { _id: 1 },
+          limit: 10,
+        },
+      });
+      store.dispatch(explainQuery());
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(localAppRegistry.emit).to.have.been.calledOnceWith(
+        'open-explain-plan-modal',
+        {
+          query: {
+            filter: { _id: { $exists: true } },
+            collation: null,
+            sort: null,
+            skip: 0,
+            limit: 10,
+            maxTimeMS: 60000,
+            projection: { _id: 1 },
+          },
+        }
       );
     });
   });
