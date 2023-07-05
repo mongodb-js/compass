@@ -29,7 +29,7 @@ const SIGNALS: Record<string, Signal> = {
     id: 'lookup-in-stage',
     title: '$lookup usage',
     description:
-      '$lookup operations can be resource intensive because they perform operations on two collections instead of one. In certain situations, consider embedding documents or arrays to enhance read performance.',
+      '$lookup operations can be resource-intensive because they perform operations on two collections instead of one. In certain situations, embedding documents or arrays can enhance read performance.',
     learnMoreLink:
       'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
   },
