@@ -321,19 +321,19 @@ function Home({
   return (
     <SignalHooksProvider
       onSignalMount={(id) => {
-        track('Signal Shown', { id, namespace: namespace.ns });
+        track('Signal Shown', { id });
       }}
       onSignalOpen={(id) => {
-        track('Signal Opened', { id, namespace: namespace.ns });
+        track('Signal Opened', { id });
       }}
       onSignalPrimaryActionClick={(id) => {
-        track('Signal Action Button Clicked', { id, namespace: namespace.ns });
+        track('Signal Action Button Clicked', { id });
       }}
       onSignalLinkClick={(id) => {
-        track('Signal Link Clicked', { id, namespace: namespace.ns });
+        track('Signal Link Clicked', { id });
       }}
       onSignalClose={(id) => {
-        track('Signal Closed', { id, namespace: namespace.ns });
+        track('Signal Closed', { id });
       }}
     >
       {isConnected && <Workspace namespace={namespace} />}
