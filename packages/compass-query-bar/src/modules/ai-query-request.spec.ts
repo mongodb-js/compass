@@ -1,11 +1,38 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import { ObjectId } from 'mongodb';
+import type { Document } from 'mongodb';
+import type { SimplifiedSchema } from 'mongodb-schema';
 
 const { expect } = chai;
 chai.use(chaiAsPromised);
 
 import { runFetchAIQuery } from './ai-query-request';
 import { startMockAIServer } from '../../test/create-mock-ai-endpoint';
+
+const mockUserPrompt: {
+  userPrompt: string;
+  collectionName: string;
+  schema?: SimplifiedSchema;
+  sampleDocuments?: Document[];
+} = {
+  userPrompt: 'test',
+  collectionName: 'jam',
+  schema: {
+    _id: {
+      types: [
+        {
+          bsonType: 'ObjectId',
+        },
+      ],
+    },
+  },
+  sampleDocuments: [
+    {
+      _id: new ObjectId(),
+    },
+  ],
+};
 
 describe('#runFetchAIQuery', function () {
   describe('with a valid server endpoint set in the environment', function () {
@@ -32,13 +59,44 @@ describe('#runFetchAIQuery', function () {
     });
 
     it('makes a post request with the user prompt to the endpoint in the environment', async function () {
+      const id = new ObjectId();
       const response = await runFetchAIQuery({
         userPrompt: 'test',
         signal: new AbortController().signal,
+        collectionName: 'jam',
+        schema: {
+          _id: {
+            types: [
+              {
+                bsonType: 'ObjectId',
+              },
+            ],
+          },
+        },
+        sampleDocuments: [
+          {
+            _id: id,
+          },
+        ],
       });
       const requests = getRequests();
       expect(requests[0].content).to.deep.equal({
         userPrompt: 'test',
+        collectionName: 'jam',
+        schema: {
+          _id: {
+            types: [
+              {
+                bsonType: 'ObjectId',
+              },
+            ],
+          },
+        },
+        sampleDocuments: [
+          {
+            _id: id.toString(),
+          },
+        ],
       });
       expect(requests[0].req.url).to.equal('/ai/api/v1/mql-query');
 
@@ -58,7 +116,7 @@ describe('#runFetchAIQuery', function () {
       abortController.abort();
 
       const promise = runFetchAIQuery({
-        userPrompt: 'test',
+        ...mockUserPrompt,
         signal: abortController.signal,
       });
 
@@ -69,7 +127,7 @@ describe('#runFetchAIQuery', function () {
   describe('with no endpoint set in environment', function () {
     it('throws an error', async function () {
       const promise = runFetchAIQuery({
-        userPrompt: 'test',
+        ...mockUserPrompt,
         signal: new AbortController().signal,
       });
 
@@ -101,7 +159,7 @@ describe('#runFetchAIQuery', function () {
 
     it('throws the error', async function () {
       const promise = runFetchAIQuery({
-        userPrompt: 'test',
+        ...mockUserPrompt,
         signal: new AbortController().signal,
       });
 
