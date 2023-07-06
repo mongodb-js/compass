@@ -29,6 +29,8 @@ import {
 } from './export';
 import type { RootState } from './export';
 import { dataServiceConnected, globalAppRegistryActivated } from './compass';
+import type { MongoCluster } from '@mongodb-js/compass-testserver';
+import { startTestServer } from '@mongodb-js/compass-testserver';
 
 type DispatchFunctionType = ThunkDispatch<RootState, void, AnyAction>;
 
@@ -292,6 +294,7 @@ describe('export [module]', function () {
   });
 
   describe('#runExport', function () {
+    let cluster: MongoCluster;
     let dataService: DataService;
     let tmpdir: string;
     let appRegistry: AppRegistry;
@@ -307,9 +310,10 @@ describe('export [module]', function () {
       );
       await fs.promises.mkdir(tmpdir, { recursive: true });
 
+      cluster = await startTestServer();
       dataService = await connect({
         connectionOptions: {
-          connectionString: 'mongodb://localhost:27019/local',
+          connectionString: cluster.connectionString,
         },
       });
 

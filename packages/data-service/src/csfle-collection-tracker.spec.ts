@@ -4,17 +4,30 @@ import type { DataService, DataServiceImpl } from './data-service';
 import type { AutoEncryptionOptions, MongoClient } from 'mongodb';
 import type { Binary } from 'bson';
 import connect from './connect';
+import type { MongoCluster } from '@mongodb-js/compass-testserver';
+import { startTestServer } from '@mongodb-js/compass-testserver';
 
 describe('CSFLECollectionTracker', function () {
+  this.timeout(30_000);
+
   const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
   const ALGO_DET = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
   const ALGO_RND = 'AEAD_AES_256_CBC_HMAC_SHA_512-Random';
 
+  let cluster: MongoCluster;
   let dataService: DataService;
   let tracker: CSFLECollectionTracker;
   let dbName: string;
 
-  before(function () {
+  before(async function () {
+    cluster = await startTestServer({
+      topology: 'replset',
+      secondaries: 0,
+      version: '>= 7.0.0-rc5',
+      downloadOptions: {
+        enterprise: true,
+      },
+    });
     if (!process.env.COMPASS_CRYPT_LIBRARY_PATH) {
       return this.skip();
     }
@@ -45,7 +58,7 @@ describe('CSFLECollectionTracker', function () {
 
     const dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27021',
+        connectionString: cluster.connectionString,
         fleOptions: {
           storeCredentials: false,
           autoEncryption: {

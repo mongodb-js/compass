@@ -25,6 +25,8 @@ import {
 } from './gather-fields';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
+import type { MongoCluster } from '@mongodb-js/compass-testserver';
+import { startTestServer } from '@mongodb-js/compass-testserver';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -33,12 +35,14 @@ chai.use(chaiAsPromised);
 const testNS = 'gather-fields-test.test-col';
 
 describe('gatherFields', function () {
+  let cluster: MongoCluster;
   let dataService: DataService;
 
   beforeEach(async function () {
+    cluster = await startTestServer();
     dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27019/local',
+        connectionString: cluster.connectionString,
       },
     });
 

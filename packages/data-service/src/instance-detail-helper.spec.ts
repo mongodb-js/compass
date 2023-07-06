@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import type { ConnectionOptions } from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
 import {
   configuredKMSProviders,
@@ -12,20 +11,22 @@ import {
 
 import * as fixtures from '../test/fixtures';
 import { createMongoClientMock } from '../test/helpers';
-
-const connectionOptions: ConnectionOptions = {
-  connectionString: 'mongodb://localhost:27021/data-service',
-};
+import type { MongoCluster } from '@mongodb-js/compass-testserver';
+import { startTestServer } from '@mongodb-js/compass-testserver';
 
 describe('instance-detail-helper', function () {
+  let cluster: MongoCluster;
+
+  before(async function () {
+    cluster = await startTestServer();
+  });
+
   describe('#getInstance', function () {
     context('with local', function () {
       let mongoClient: MongoClient;
 
       before(async function () {
-        mongoClient = await MongoClient.connect(
-          connectionOptions.connectionString
-        );
+        mongoClient = await MongoClient.connect(cluster.connectionString);
       });
 
       after(async function () {
@@ -39,7 +40,7 @@ describe('instance-detail-helper', function () {
       });
 
       describe('instance details', function () {
-        let instanceDetails: InstanceDetails;
+        let instanceDetails: Omit<InstanceDetails, 'csfleMode'>;
 
         before(async function () {
           instanceDetails = await getInstance(mongoClient);

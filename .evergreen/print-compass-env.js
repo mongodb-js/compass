@@ -104,7 +104,6 @@ function printCompassEnv() {
   printVar('IS_UBUNTU', process.env.IS_UBUNTU);
   printVar('DEBUG', process.env.DEBUG);
   printVar('MONGODB_VERSION', process.env.MONGODB_VERSION || process.env.MONGODB_DEFAULT_VERSION);
-  printVar('MONGODB_USE_ENTERPRISE', process.env.MONGODB_USE_ENTERPRISE);
 }
 
 printCompassEnv();

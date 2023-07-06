@@ -27,18 +27,22 @@ import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
+import type { MongoCluster } from '@mongodb-js/compass-testserver';
+import { startTestServer } from '@mongodb-js/compass-testserver';
 
 const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('exportCSV', function () {
+  let cluster: MongoCluster;
   let dataService: DataService;
 
   beforeEach(async function () {
+    cluster = await startTestServer();
     dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27019/local',
+        connectionString: cluster.connectionString,
       },
     });
 

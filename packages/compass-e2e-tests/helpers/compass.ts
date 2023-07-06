@@ -41,7 +41,8 @@ const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
 const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
 let MONGODB_VERSION = '';
-let MONGODB_USE_ENTERPRISE = process.env.MONGODB_USE_ENTERPRISE ?? 'no';
+let MONGODB_USE_ENTERPRISE =
+  (process.env.MONGODB_VERSION?.endsWith('-enterprise') && 'yes') ?? 'no';
 
 export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091

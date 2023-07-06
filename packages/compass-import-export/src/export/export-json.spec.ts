@@ -19,6 +19,8 @@ temp.track();
 import { fixtures } from '../../test/fixtures';
 
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
+import type { MongoCluster } from '@mongodb-js/compass-testserver';
+import { startTestServer } from '@mongodb-js/compass-testserver';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -35,6 +37,7 @@ function replaceIds(text: string) {
 }
 
 describe('exportJSON', function () {
+  let cluster: MongoCluster;
   let dataService: DataService;
   let tmpdir: string;
 
@@ -47,9 +50,10 @@ describe('exportJSON', function () {
     );
     await fs.promises.mkdir(tmpdir, { recursive: true });
 
+    cluster = await startTestServer();
     dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27019/local',
+        connectionString: cluster.connectionString,
       },
     });
 
