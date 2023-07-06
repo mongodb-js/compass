@@ -30,7 +30,7 @@ function getAIBasicAuth(): string {
   return `Basic ${authBuffer.toString('base64')}`;
 }
 
-const MAX_REQUEST_SIZE = 10000;
+const MAX_REQUEST_SIZE = 5000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 
 export async function runFetchAIQuery({
