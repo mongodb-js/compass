@@ -1,5 +1,8 @@
 import type { Reducer } from 'redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { getSimplifiedSchema } from 'mongodb-schema';
+import toNS from 'mongodb-ns';
+import preferences from 'compass-preferences-model';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
@@ -32,6 +35,8 @@ export const enum AIQueryActionTypes {
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
 }
+
+const NUM_DOCUMENTS_TO_SAMPLE = 4;
 
 const AIQueryAbortControllerMap = new Map<number, AbortController>();
 
@@ -89,9 +94,10 @@ export const runAIQuery = (
   Promise<void>,
   AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { dataProvider }) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
+      queryBar: { namespace },
     } = getState();
 
     if (aiQueryFetchId !== -1) {
@@ -109,9 +115,29 @@ export const runAIQuery = (
 
     let jsonResponse;
     try {
+      const sampleDocuments = await dataProvider.sample(
+        namespace,
+        {
+          query: {},
+          size: NUM_DOCUMENTS_TO_SAMPLE,
+        },
+        {
+          maxTimeMS: preferences.getPreferences().maxTimeMS,
+          promoteValues: false,
+        },
+        {
+          abortSignal: signal,
+        }
+      );
+      const schema = await getSimplifiedSchema(sampleDocuments);
+
+      const { collection: collectionName } = toNS(namespace);
       jsonResponse = await runFetchAIQuery({
         signal: abortController.signal,
         userPrompt,
+        collectionName,
+        schema,
+        sampleDocuments,
       });
     } catch (err: any) {
       if (signal.aborted) {
