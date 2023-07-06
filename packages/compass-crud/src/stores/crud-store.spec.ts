@@ -111,7 +111,7 @@ function waitForState(store, cb, timeout) {
 }
 
 describe('store', function () {
-  this.timeout(60_000);
+  this.timeout(120_000);
 
   let cluster: MongoCluster;
   let dataService: DataService;

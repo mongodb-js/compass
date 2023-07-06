@@ -37,6 +37,8 @@ function replaceIds(text: string) {
 }
 
 describe('exportJSON', function () {
+  this.timeout(120_000);
+
   let cluster: MongoCluster;
   let dataService: DataService;
   let tmpdir: string;

@@ -34,7 +34,7 @@ const TEST_DOCS = [
 describe('DataService', function () {
   context('with real client', function () {
     this.slow(10_000);
-    this.timeout(60_000);
+    this.timeout(120_000);
 
     let cluster: MongoCluster;
 

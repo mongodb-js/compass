@@ -35,6 +35,8 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('exportCSV', function () {
+  this.timeout(120_000);
+
   let cluster: MongoCluster;
   let dataService: DataService;
 

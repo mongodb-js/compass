@@ -1,14 +1,16 @@
 import assert from 'assert';
 import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
-import { MongoClientOptions, type CommandStartedEvent } from 'mongodb';
+import type { MongoClientOptions } from 'mongodb';
+import { type CommandStartedEvent } from 'mongodb';
 
 import {
   connectMongoClientDataService as connectMongoClient,
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
-import { MongoCluster, startTestServer } from '@mongodb-js/compass-test-server';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 import ConnectionString from 'mongodb-connection-string-url';
 
 const defaultOptions = {
@@ -21,6 +23,8 @@ const setupListeners = () => {
 };
 
 describe('connectMongoClient', function () {
+  this.timeout(120_000);
+
   let cluster: MongoCluster;
   let clusterConnectionStringURL: ConnectionString;
 

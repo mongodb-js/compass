@@ -12,7 +12,7 @@ import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
 describe('cancellable-queries', function () {
-  this.timeout(60_000);
+  this.timeout(120_000);
 
   let cluster: MongoCluster;
   let dataService: DataService;

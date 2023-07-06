@@ -35,6 +35,8 @@ chai.use(chaiAsPromised);
 const testNS = 'gather-fields-test.test-col';
 
 describe('gatherFields', function () {
+  this.timeout(120_000);
+
   let cluster: MongoCluster;
   let dataService: DataService;
 

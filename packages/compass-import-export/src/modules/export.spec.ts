@@ -294,6 +294,8 @@ describe('export [module]', function () {
   });
 
   describe('#runExport', function () {
+    this.timeout(120_000);
+
     let cluster: MongoCluster;
     let dataService: DataService;
     let tmpdir: string;

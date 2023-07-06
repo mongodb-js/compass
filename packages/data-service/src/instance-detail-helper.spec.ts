@@ -15,6 +15,8 @@ import type { MongoCluster } from '@mongodb-js/compass-test-server';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 
 describe('instance-detail-helper', function () {
+  this.timeout(120_000);
+
   let cluster: MongoCluster;
 
   before(async function () {

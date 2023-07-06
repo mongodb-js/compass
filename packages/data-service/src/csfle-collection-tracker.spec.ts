@@ -8,7 +8,7 @@ import type { MongoCluster } from '@mongodb-js/compass-test-server';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 
 describe('CSFLECollectionTracker', function () {
-  this.timeout(30_000);
+  this.timeout(120_000);
 
   const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
   const ALGO_DET = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
