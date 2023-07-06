@@ -556,7 +556,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
               // button is clicked, the popover position can be calculated
               // incorrectly because the expand animation will be triggered at
               // the same time as popover show animation. To work around that,
-              // we will first manually trigger, wait for the transition
+              // we will first manually trigger hover state, wait for the transition
               // duration, and only then will click the trigger to open the
               // popup
               setHovered(true);
