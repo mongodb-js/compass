@@ -10,7 +10,7 @@ const clusters = new Map<string, MongoCluster>();
 const defaults: MongoClusterOptions = {
   topology: 'standalone',
   tmpDir: path.join(os.tmpdir(), `compass-tests-${Date.now()}`),
-  logDir: process.env.COMPASS_TEST_SERVER_LOGDIR,
+  logDir: process.env.MONGODB_RUNNER_LOGDIR,
   version: process.env.MONGODB_VERSION,
 };
 
