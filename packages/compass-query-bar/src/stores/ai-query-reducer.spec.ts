@@ -1,18 +1,55 @@
 import { expect } from 'chai';
+import { ObjectId } from 'mongodb';
+import { promises as fs } from 'fs';
+import os from 'os';
 
 import configureStore from './query-bar-store';
+import type { QueryBarStoreOptions } from './query-bar-store';
 import {
   AIQueryActionTypes,
   cancelAIQuery,
   runAIQuery,
 } from './ai-query-reducer';
-import { startMockAIServer } from '../../test/create-mock-ai-endpoint';
+import {
+  startMockAIServer,
+  TEST_AUTH_USERNAME,
+  TEST_AUTH_PASSWORD,
+} from '../../test/create-mock-ai-endpoint';
 
-function createStore() {
-  return configureStore();
+function _createStore(opts: Partial<QueryBarStoreOptions>) {
+  return configureStore({
+    dataProvider: {
+      dataProvider: {
+        getConnectionString: () =>
+          ({
+            hosts: [],
+          } as any),
+        sample: () =>
+          Promise.resolve([
+            {
+              _id: new ObjectId(),
+            },
+          ]),
+      },
+    },
+    ...opts,
+  });
 }
 
 describe('aiQueryReducer', function () {
+  let tmpDir: string;
+
+  before(async function () {
+    tmpDir = await fs.mkdtemp(os.tmpdir());
+  });
+
+  function createStore(opts: Partial<QueryBarStoreOptions> = {}) {
+    return _createStore({
+      basepath: tmpDir,
+      ...opts,
+    });
+  }
+
   describe('runAIQuery', function () {
     describe('with a successful server response (mock server)', function () {
       let stopServer: () => Promise<void>;
@@ -30,15 +67,80 @@ describe('aiQueryReducer', function () {
         stopServer = stop;
         getRequests = _getRequests;
         process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+        process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+        process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
       });
 
       afterEach(async function () {
         await stopServer();
         delete process.env.DEV_AI_QUERY_ENDPOINT;
+        delete process.env.DEV_AI_USERNAME;
+        delete process.env.DEV_AI_PASSWORD;
       });
 
       it('should succeed', async function () {
-        const store = createStore();
+        const sampleDocs = [
+          {
+            _id: new ObjectId(),
+            a: {
+              b: 3,
+            },
+          },
+          {
+            _id: new ObjectId(),
+            a: {
+              b: 'a',
+            },
+            c: 'pineapple',
+          },
+        ];
+        const resultSchema = {
+          _id: {
+            types: [
+              {
+                bsonType: 'ObjectId',
+              },
+            ],
+          },
+          a: {
+            types: [
+              {
+                bsonType: 'Document',
+                fields: {
+                  b: {
+                    types: [
+                      {
+                        bsonType: 'Number',
+                      },
+                      {
+                        bsonType: 'String',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          c: {
+            types: [
+              {
+                bsonType: 'String',
+              },
+            ],
+          },
+        };
+        const store = createStore({
+          namespace: 'database.collection',
+          dataProvider: {
+            dataProvider: {
+              getConnectionString: () =>
+                ({
+                  hosts: [],
+                } as any),
+              sample: () => Promise.resolve(sampleDocs),
+            },
+          },
+        });
         let didSetFetchId = false;
         store.subscribe(() => {
           if (store.getState().aiQuery.aiQueryFetchId !== -1) {
@@ -46,11 +148,15 @@ describe('aiQueryReducer', function () {
           }
         });
         expect(store.getState().aiQuery.status).to.equal('ready');
-        await store.dispatch(runAIQuery('testing prompt') as any);
+        await store.dispatch(runAIQuery('testing prompt'));
 
         expect(didSetFetchId).to.equal(true);
         expect(getRequests()[0].content).to.deep.equal({
           userPrompt: 'testing prompt',
+          schema: resultSchema,
+          // Parse stringify to make _ids stringified for deep check.
+          sampleDocuments: JSON.parse(JSON.stringify(sampleDocs)),
+          collectionName: 'collection',
         });
         expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
@@ -69,11 +175,15 @@ describe('aiQueryReducer', function () {
 
         stopServer = stop;
         process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+        process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+        process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
       });
 
       afterEach(async function () {
         await stopServer();
         delete process.env.DEV_AI_QUERY_ENDPOINT;
+        delete process.env.DEV_AI_USERNAME;
+        delete process.env.DEV_AI_PASSWORD;
       });
 
       it('sets the error on the store', async function () {
