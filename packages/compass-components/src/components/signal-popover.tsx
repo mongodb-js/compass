@@ -16,6 +16,7 @@ import { useDarkMode } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { GuideCue } from './guide-cue/guide-cue';
 import { useEffectOnChange } from '../hooks/use-effect-on-change';
+import { rafraf } from '../utils/rafraf';
 
 type SignalTrackingHooks = {
   onSignalMount(id: string): void;
@@ -74,6 +75,8 @@ const SignalHooksProvider: React.FunctionComponent<
     </TrackingHooksContext.Provider>
   );
 };
+
+const TRANSITION_DURATION_MS = 150;
 
 export type Signal = {
   /**
@@ -336,7 +339,7 @@ const transitionStyles = css({
   transitionProperty:
     'opacity, width, border-radius, color, box-shadow, background-color',
   transitionTimingFunction: 'linear',
-  transitionDuration: '0.15s',
+  transitionDuration: `${TRANSITION_DURATION_MS}ms`,
 });
 
 const badgeStyles = css(
@@ -438,16 +441,16 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   onPopoverOpenChange: _onPopoverOpenChange,
 }) => {
   const hooks = useContext(TrackingHooksContext);
-  const [cueOpen, setCueOpen] = useState(false);
   const darkMode = useDarkMode(_darkMode);
   const [triggerVisible, setTriggerVisible] = useState(true);
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const [hoverProps, isHovered] = useHoverState();
+  const [hoverProps, isHovered, setHovered] = useHoverState();
   const [currentSignalIndex, setCurrentSignalIndex] = useState(0);
   const signals = Array.isArray(_signals) ? _signals : [_signals];
   const currentSignal = signals[currentSignalIndex];
   const multiSignals = signals.length > 1;
-  const isActive = cueOpen || isHovered || popoverOpen;
+  const isActive = isHovered || popoverOpen;
+
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // To make sure we are covering signals added to the signal popover during the
@@ -549,12 +552,20 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
             description="Across Compass, you may now see icons like this to clue you in on potential areas of improvement for your data."
             buttonText="See insights in action"
             onPrimaryButtonClick={() => {
-              triggerRef.current?.click();
+              // Because the guide cue is currently in inactive state when this
+              // button is clicked, the popover position can be calculated
+              // incorrectly because the expand animation will be triggered at
+              // the same time as popover show animation. To work around that,
+              // we will first manually trigger, wait for the transition
+              // duration, and only then will click the trigger to open the
+              // popup
+              setHovered(true);
+              setTimeout(() => {
+                rafraf(() => {
+                  triggerRef.current?.click();
+                });
+              }, TRANSITION_DURATION_MS);
             }}
-            // So that the insight badge can animate without messing the tooltip
-            // position
-            tooltipAlign="right"
-            onOpenChange={setCueOpen}
             trigger={({ ref: guideCueRef }) => {
               const props = mergeProps<HTMLButtonElement>(
                 hoverProps,
