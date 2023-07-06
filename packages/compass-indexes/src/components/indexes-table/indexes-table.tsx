@@ -72,7 +72,7 @@ const tableStyles = css({
 type IndexesTableProps = {
   indexes: IndexDefinition[];
   canModifyIndex: boolean;
-  scrollHeight: number;
+  scrollHeight?: number;
   serverVersion: string;
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
   onDeleteIndex: (index: IndexDefinition) => void;
@@ -126,75 +126,75 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
      */
     const container =
       containerRef.current?.getElementsByTagName('table')[0]?.parentElement;
-    if (container) {
+    if (container && scrollHeight) {
       container.style.height = `${scrollHeight}px`;
     }
   }, [scrollHeight]);
 
   return (
     // LG table does not forward ref
-    <div ref={containerRef}>
-      <Table
-        className={tableStyles}
-        data={indexes}
-        columns={columns}
-        data-testid="indexes-list"
-        aria-label="Indexes List Table"
-      >
-        {({ datum: index }) => (
-          <Row
-            key={index.name}
-            data-testid={`index-row-${index.name}`}
-            className={rowStyles}
-          >
-            <Cell data-testid="index-name-field" className={cellStyles}>
-              {index.name}
+    // <div ref={containerRef}>
+    <Table
+      className={tableStyles}
+      data={indexes}
+      columns={columns}
+      data-testid="indexes-list"
+      aria-label="Indexes List Table"
+    >
+      {({ datum: index }) => (
+        <Row
+          key={index.name}
+          data-testid={`index-row-${index.name}`}
+          className={rowStyles}
+        >
+          <Cell data-testid="index-name-field" className={cellStyles}>
+            {index.name}
+          </Cell>
+          <Cell data-testid="index-type-field" className={cellStyles}>
+            <TypeField type={index.type} extra={index.extra} />
+          </Cell>
+          <Cell data-testid="index-size-field" className={cellStyles}>
+            <SizeField size={index.size} relativeSize={index.relativeSize} />
+          </Cell>
+          <Cell data-testid="index-usage-field" className={cellStyles}>
+            <UsageField usage={index.usageCount} since={index.usageSince} />
+          </Cell>
+          <Cell data-testid="index-property-field" className={cellStyles}>
+            <PropertyField
+              cardinality={index.cardinality}
+              extra={index.extra}
+              properties={index.properties}
+            />
+          </Cell>
+          {/* Index actions column is conditional */}
+          {canModifyIndex && (
+            <Cell data-testid="index-actions-field" className={cellStyles}>
+              {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
+                <div
+                  className={cx(indexActionsCellStyles, 'index-actions-cell')}
+                >
+                  <IndexActions
+                    index={index}
+                    serverVersion={serverVersion}
+                    onDeleteIndex={onDeleteIndex}
+                    onHideIndex={onHideIndex}
+                    onUnhideIndex={onUnhideIndex}
+                  ></IndexActions>
+                </div>
+              )}
             </Cell>
-            <Cell data-testid="index-type-field" className={cellStyles}>
-              <TypeField type={index.type} extra={index.extra} />
+          )}
+          <Row>
+            <Cell
+              className={cx(nestedRowCellStyles, cellStyles)}
+              colSpan={canModifyIndex ? 6 : 5}
+            >
+              <IndexKeysBadge keys={index.fields} />
             </Cell>
-            <Cell data-testid="index-size-field" className={cellStyles}>
-              <SizeField size={index.size} relativeSize={index.relativeSize} />
-            </Cell>
-            <Cell data-testid="index-usage-field" className={cellStyles}>
-              <UsageField usage={index.usageCount} since={index.usageSince} />
-            </Cell>
-            <Cell data-testid="index-property-field" className={cellStyles}>
-              <PropertyField
-                cardinality={index.cardinality}
-                extra={index.extra}
-                properties={index.properties}
-              />
-            </Cell>
-            {/* Index actions column is conditional */}
-            {canModifyIndex && (
-              <Cell data-testid="index-actions-field" className={cellStyles}>
-                {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
-                  <div
-                    className={cx(indexActionsCellStyles, 'index-actions-cell')}
-                  >
-                    <IndexActions
-                      index={index}
-                      serverVersion={serverVersion}
-                      onDeleteIndex={onDeleteIndex}
-                      onHideIndex={onHideIndex}
-                      onUnhideIndex={onUnhideIndex}
-                    ></IndexActions>
-                  </div>
-                )}
-              </Cell>
-            )}
-            <Row>
-              <Cell
-                className={cx(nestedRowCellStyles, cellStyles)}
-                colSpan={canModifyIndex ? 6 : 5}
-              >
-                <IndexKeysBadge keys={index.fields} />
-              </Cell>
-            </Row>
           </Row>
-        )}
-      </Table>
-    </div>
+        </Row>
+      )}
+    </Table>
+    // </div>
   );
 };
