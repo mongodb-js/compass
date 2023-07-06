@@ -5,6 +5,8 @@ import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 
+const serverErrorMessageName = 'AIError';
+
 function getAIQueryEndpoint(): string {
   if (!process.env.DEV_AI_QUERY_ENDPOINT) {
     throw new Error(
@@ -28,7 +30,7 @@ function getAIBasicAuth(): string {
   return `Basic ${authBuffer.toString('base64')}`;
 }
 
-const MAX_REQUEST_SIZE = 5000;
+const MAX_REQUEST_SIZE = 10000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 
 export async function runFetchAIQuery({
@@ -81,7 +83,20 @@ export async function runFetchAIQuery({
   });
 
   if (!res.ok) {
-    throw new Error(`Error: ${res.status} ${res.statusText}`);
+    // We try to parse the response to see if the server returned any
+    // information we can show a user.
+    let serverErrorMessage = `${res.status} ${res.statusText}`;
+    try {
+      const messageJSON = await res.json();
+      if (messageJSON.name === serverErrorMessageName) {
+        serverErrorMessage = `${messageJSON.codeName as string}: ${
+          messageJSON.errorMessage as string
+        }`;
+      }
+    } catch (err) {
+      // no-op, use the default status and statusText in the message.
+    }
+    throw new Error(`Error: ${serverErrorMessage}`);
   }
 
   const jsonResponse = await res.json();

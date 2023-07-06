@@ -7,6 +7,9 @@ import preferences from 'compass-preferences-model';
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
 import { runFetchAIQuery } from '../modules/ai-query-request';
+import { mapQueryToFormFields } from '../utils/query';
+import type { QueryFormFields } from '../constants/query-properties';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -79,7 +82,7 @@ type AIQueryFailedAction = {
 
 export type AIQuerySucceededAction = {
   type: AIQueryActionTypes.AIQuerySucceeded;
-  query: unknown;
+  fields: QueryFormFields;
 };
 
 function logFailed(errorMessage: string) {
@@ -166,7 +169,7 @@ export const runAIQuery = (
       return;
     }
 
-    let query;
+    let fields;
     try {
       if (!jsonResponse?.content?.query) {
         throw new Error(
@@ -174,7 +177,11 @@ export const runAIQuery = (
         );
       }
 
-      query = jsonResponse?.content?.query;
+      const query = jsonResponse?.content?.query;
+      fields = mapQueryToFormFields({
+        ...DEFAULT_FIELD_VALUES,
+        ...(query ?? {}),
+      });
     } catch (err: any) {
       logFailed(err?.message);
       dispatch({
@@ -184,9 +191,8 @@ export const runAIQuery = (
       return;
     }
 
-    // Error if the response is empty. TODO: We'll want to also parse if no
-    // applicable query fields are detected.
-    if (!query || Object.keys(query).length === 0) {
+    // Error when the response is empty or there is nothing to map.
+    if (!fields || Object.keys(fields).length === 0) {
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
       logFailed(msg);
@@ -202,13 +208,15 @@ export const runAIQuery = (
       'AIQuery',
       'AI query request succeeded',
       {
-        query,
+        query: {
+          ...fields,
+        },
       }
     );
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
-      query,
+      fields,
     });
   };
 };

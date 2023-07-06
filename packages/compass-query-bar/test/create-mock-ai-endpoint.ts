@@ -20,16 +20,20 @@ function checkReqAuth(req: http.IncomingMessage) {
 export async function startMockAIServer(
   {
     response,
-    sendError,
   }: {
-    response: any;
-    sendError?: boolean;
+    response: {
+      status: number;
+      body: any;
+    };
   } = {
     response: {
-      content: {
-        query: {
-          find: {
-            test: 'pineapple',
+      status: 200,
+      body: {
+        content: {
+          query: {
+            find: {
+              test: 'pineapple',
+            },
           },
         },
       },
@@ -71,14 +75,11 @@ export async function startMockAIServer(
             content: jsonObject,
           });
 
-          if (sendError) {
-            res.writeHead(500);
-            res.end('Error occurred.');
-            return;
-          }
-
           res.setHeader('Content-Type', 'application/json');
-          return res.end(JSON.stringify(response));
+          if (response.status !== 200) {
+            res.writeHead(response.status);
+          }
+          return res.end(JSON.stringify(response.body));
         });
     })
     .listen(0);
