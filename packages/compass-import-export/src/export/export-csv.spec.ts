@@ -27,8 +27,8 @@ import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);

@@ -19,8 +19,8 @@ temp.track();
 import { fixtures } from '../../test/fixtures';
 
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);

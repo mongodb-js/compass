@@ -29,8 +29,8 @@ import {
 } from './export';
 import type { RootState } from './export';
 import { dataServiceConnected, globalAppRegistryActivated } from './compass';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 
 type DispatchFunctionType = ThunkDispatch<RootState, void, AnyAction>;
 

@@ -17,8 +17,8 @@ import { createMongoClientMock } from '../test/helpers';
 import { AbortController } from '../test/mocks';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 
 const TEST_DOCS = [
   {
@@ -32,15 +32,11 @@ const TEST_DOCS = [
 ];
 
 describe('DataService', function () {
-  let cluster: MongoCluster;
-
-  before(async function () {
-    cluster = await startTestServer();
-  });
-
   context('with real client', function () {
-    this.slow(10000);
-    this.timeout(20000);
+    this.slow(10_000);
+    this.timeout(60_000);
+
+    let cluster: MongoCluster;
 
     let dataService: DataServiceImpl;
     let mongoClient: MongoClient;
@@ -51,6 +47,8 @@ describe('DataService', function () {
     let testNamespace: string;
 
     before(async function () {
+      cluster = await startTestServer();
+
       testDatabaseName = `compass-data-service-tests`;
       connectionOptions = {
         connectionString: cluster.connectionString,
@@ -64,6 +62,7 @@ describe('DataService', function () {
     });
 
     after(async function () {
+      await cluster?.close();
       await dataService?.disconnect().catch(console.log);
       await mongoClient?.close();
     });

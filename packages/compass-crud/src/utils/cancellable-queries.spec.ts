@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 
 import { countDocuments, fetchShardingKeys } from './cancellable-queries';
 
@@ -12,7 +12,7 @@ import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
 describe('cancellable-queries', function () {
-  this.timeout(30_000);
+  this.timeout(60_000);
 
   let cluster: MongoCluster;
   let dataService: DataService;

@@ -15,8 +15,8 @@ import os from 'os';
 import { promises as fs } from 'fs';
 import { once, EventEmitter } from 'events';
 import { expect } from 'chai';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 import ConnectionString from 'mongodb-connection-string-url';
 
 const DEFAULT_TOKEN_PAYLOAD = {
@@ -117,10 +117,6 @@ describe('OIDC integration', function () {
       };
 
       cluster = await startTestServer({
-        version: '>= 7.0.0-rc5',
-        downloadOptions: {
-          enterprise: true,
-        },
         args: [
           '--setParameter',
           'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',

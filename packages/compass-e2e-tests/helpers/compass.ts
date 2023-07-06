@@ -44,10 +44,6 @@ let MONGODB_VERSION = '';
 let MONGODB_USE_ENTERPRISE =
   (process.env.MONGODB_VERSION?.endsWith('-enterprise') && 'yes') ?? 'no';
 
-export const MONGODB_TEST_SERVER_PORT = Number(
-  process.env.MONGODB_TEST_SERVER_PORT ?? 27091
-);
-
 export function updateMongoDBServerInfo() {
   try {
     const { stdout, stderr } = crossSpawn.sync(

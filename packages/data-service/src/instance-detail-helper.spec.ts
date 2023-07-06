@@ -11,8 +11,8 @@ import {
 
 import * as fixtures from '../test/fixtures';
 import { createMongoClientMock } from '../test/helpers';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 
 describe('instance-detail-helper', function () {
   let cluster: MongoCluster;

@@ -4,8 +4,8 @@ import type { DataService, DataServiceImpl } from './data-service';
 import type { AutoEncryptionOptions, MongoClient } from 'mongodb';
 import type { Binary } from 'bson';
 import connect from './connect';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 
 describe('CSFLECollectionTracker', function () {
   this.timeout(30_000);

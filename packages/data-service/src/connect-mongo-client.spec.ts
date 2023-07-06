@@ -8,7 +8,7 @@ import {
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
-import { MongoCluster, startTestServer } from '@mongodb-js/compass-testserver';
+import { MongoCluster, startTestServer } from '@mongodb-js/compass-test-server';
 import ConnectionString from 'mongodb-connection-string-url';
 
 const defaultOptions = {

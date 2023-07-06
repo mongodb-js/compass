@@ -14,8 +14,8 @@ import configureStore, {
 } from './crud-store';
 import configureActions from '../actions';
 import { Int32 } from 'bson';
-import type { MongoCluster } from '@mongodb-js/compass-testserver';
-import { startTestServer } from '@mongodb-js/compass-testserver';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
 
 chai.use(chaiAsPromised);
 
@@ -111,7 +111,7 @@ function waitForState(store, cb, timeout) {
 }
 
 describe('store', function () {
-  this.timeout(30_000);
+  this.timeout(60_000);
 
   let cluster: MongoCluster;
   let dataService: DataService;
