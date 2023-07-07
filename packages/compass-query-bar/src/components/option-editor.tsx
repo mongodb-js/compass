@@ -54,8 +54,10 @@ const editorWithErrorStyles = css({
 
 const queryBarEditorOptionInsightsStyles = css({
   position: 'absolute',
-  // Horizontally the insight is in the middle of the first line of the editor
-  top: `calc((${spacing[4]}px - 18px) / 2)`,
+  // Horizontally the insight is in the middle of the first line of the editor:
+  // (input height - insight badge height) / 2 to get the empty space + 1px
+  // because top indicates where element starts, not where padding ends
+  top: `calc((${spacing[4]}px - 18px) / 2 + 1px)`,
   right: spacing[1],
 });
 
