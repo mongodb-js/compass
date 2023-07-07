@@ -59,7 +59,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   readOnly, // preferences readOnly.
 }) => {
-  const showInsights = usePreference('showInsights', React);
+  const showInsights = usePreference('showInsights', React) && !errorMessage;
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('open-create-index-modal');
   }, [localAppRegistry]);

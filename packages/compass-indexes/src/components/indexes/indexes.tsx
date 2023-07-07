@@ -1,8 +1,7 @@
 import React from 'react';
-import { css, KeylineCard, spacing } from '@mongodb-js/compass-components';
+import { css, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
-import AutoSizer from 'react-virtualized-auto-sizer';
 import { withPreferences } from 'compass-preferences-model';
 
 import {
@@ -22,19 +21,12 @@ import { IndexesTable } from '../indexes-table/indexes-table';
 import { refreshIndexes } from '../../modules/is-refreshing';
 import type { RootState } from '../../modules';
 
-const paddingBottom = spacing[3];
 const containerStyles = css({
   margin: spacing[3],
   marginTop: 0,
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-});
-const tableContainerStyles = css({
-  padding: spacing[3],
-  overflow: 'hidden',
-  // flex: 1,
-  // height: '500px'
 });
 
 type IndexesProps = {
@@ -97,25 +89,17 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
         onRefreshIndexes={refreshIndexes}
       />
-      <KeylineCard className={tableContainerStyles} data-testid="indexes">
-        {!isReadonlyView && !error && (
-          // <AutoSizer disableWidth>
-          //   {({ height }) => (
-          <IndexesTable
-            indexes={indexes}
-            serverVersion={serverVersion}
-            canModifyIndex={isWritable && !isReadonly && !readOnly}
-            onSortTable={sortIndexes}
-            onDeleteIndex={deleteIndex}
-            onHideIndex={onHideIndex}
-            onUnhideIndex={onUnhideIndex}
-            // Preserve the bottom paddings
-            // scrollHeight={height - paddingBottom}
-          />
-          //   )}
-          // </AutoSizer>
-        )}
-      </KeylineCard>
+      {!isReadonlyView && !error && (
+        <IndexesTable
+          indexes={indexes}
+          serverVersion={serverVersion}
+          canModifyIndex={isWritable && !isReadonly && !readOnly}
+          onSortTable={sortIndexes}
+          onDeleteIndex={deleteIndex}
+          onHideIndex={onHideIndex}
+          onUnhideIndex={onUnhideIndex}
+        />
+      )}
     </div>
   );
 };

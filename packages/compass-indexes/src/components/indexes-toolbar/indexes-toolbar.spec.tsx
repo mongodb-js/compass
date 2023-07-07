@@ -175,4 +175,23 @@ describe('IndexesToolbar Component', function () {
       expect(onRefreshIndexesSpy).to.have.been.calledOnce;
     });
   });
+
+  describe('when there are too many indexes', function () {
+    it('should render insights for too many indexes', function () {
+      renderIndexesToolbar({
+        hasTooManyIndexes: true,
+      });
+      expect(() => screen.getByTestId('insight-badge-button')).to.not.throw;
+    });
+
+    context('and when there is an error', function () {
+      it('should not render insights', function () {
+        renderIndexesToolbar({
+          hasTooManyIndexes: true,
+          errorMessage: 'Something bad happened',
+        });
+        expect(() => screen.getByTestId('insight-badge-button')).to.throw;
+      });
+    });
+  });
 });
