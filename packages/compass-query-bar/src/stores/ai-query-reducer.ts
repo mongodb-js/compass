@@ -15,12 +15,14 @@ type AIQueryStatus = 'ready' | 'fetching' | 'success';
 export type AIQueryState = {
   errorMessage: string | undefined;
   isInputVisible: boolean;
+  aiPromptText: string;
   status: AIQueryStatus;
   aiQueryFetchId: number; // Maps to the AbortController of the current fetch (or -1).
 };
 
 export const initialState: AIQueryState = {
   status: 'ready',
+  aiPromptText: '',
   errorMessage: undefined,
   isInputVisible: false,
   aiQueryFetchId: -1,
@@ -34,6 +36,7 @@ export const enum AIQueryActionTypes {
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
+  ChangeAIPromptText = 'compass-query-bar/ai-query/ChangeAIPromptText',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -66,6 +69,16 @@ type ShowInputAction = {
 type HideInputAction = {
   type: AIQueryActionTypes.HideInput;
 };
+
+type ChangeAIPromptTextAction = {
+  type: AIQueryActionTypes.ChangeAIPromptText;
+  text: string;
+};
+
+export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
+  type: AIQueryActionTypes.ChangeAIPromptText,
+  text,
+});
 
 type AIQueryStartedAction = {
   type: AIQueryActionTypes.AIQueryStarted;
@@ -300,6 +313,18 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     return {
       ...state,
       isInputVisible: false,
+    };
+  }
+
+  if (
+    isAction<ChangeAIPromptTextAction>(
+      action,
+      AIQueryActionTypes.ChangeAIPromptText
+    )
+  ) {
+    return {
+      ...state,
+      aiPromptText: action.text,
     };
   }
 
