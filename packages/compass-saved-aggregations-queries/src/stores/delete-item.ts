@@ -44,7 +44,7 @@ export const confirmDeleteItem = (
     }
 
     track(
-      item.type == 'aggregation'
+      item.type === 'aggregation'
         ? 'Aggregation Deleted'
         : 'Query History Favorite Removed',
       {

@@ -129,7 +129,7 @@ describe('Home [Component]', function () {
         // Skip disconnect testing when we're not running in a renderer instance.
         // eslint-disable-next-line mocha/no-setup-in-describe
         if (!ipc.ipcRenderer) {
-          // eslint-disable-next-line mocha/no-setup-in-describe
+          // eslint-disable-next-line mocha/no-setup-in-describe, no-console
           console.warn(
             'Skipping "app:disconnect" ipc event tests on non-renderer environment.'
           );

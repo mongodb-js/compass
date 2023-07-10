@@ -228,7 +228,7 @@ const openItem =
     const metadata = await coll.fetchMetadata({ dataService });
 
     track(
-      item.type == 'aggregation'
+      item.type === 'aggregation'
         ? 'Aggregation Opened'
         : 'Query History Favorite Used',
       {

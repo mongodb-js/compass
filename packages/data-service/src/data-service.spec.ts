@@ -56,6 +56,7 @@ describe('DataService', function () {
     });
 
     after(async function () {
+      // eslint-disable-next-line no-console
       await dataService?.disconnect().catch(console.log);
       await mongoClient?.close();
     });
@@ -980,6 +981,7 @@ describe('DataService', function () {
       });
 
       after(async function () {
+        // eslint-disable-next-line no-console
         await csfleDataService?.disconnect().catch(console.log);
       });
 
