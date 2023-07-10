@@ -363,6 +363,7 @@ describe('export [module]', function () {
       try {
         resultText = await fs.promises.readFile(textExportFilePath, 'utf8');
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log(textExportFilePath);
         throw err;
       }
@@ -411,6 +412,7 @@ describe('export [module]', function () {
       try {
         resultText = await fs.promises.readFile(textExportFilePath, 'utf8');
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log(textExportFilePath);
         throw err;
       }

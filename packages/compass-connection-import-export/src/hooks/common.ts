@@ -76,6 +76,7 @@ export function useOpenModalThroughIpc(
     ipc_ ??= require('hadron-ipc').ipcRenderer;
   } catch (err) {
     ipc_ ??= {};
+    // eslint-disable-next-line no-console
     console.warn('could not load hadron-ipc', err);
   }
   const ipc = ipcForTesting ?? ipc_;

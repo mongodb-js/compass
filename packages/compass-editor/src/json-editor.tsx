@@ -478,7 +478,7 @@ async function sheduleDispatch(
   transactions: TransactionSpec | TransactionSpec[],
   signal?: AbortSignal
 ): Promise<boolean> {
-  while ((editorView as any).updateState != 0) {
+  while ((editorView as any).updateState !== 0) {
     if (signal?.aborted) {
       return false;
     }

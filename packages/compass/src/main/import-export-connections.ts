@@ -8,6 +8,7 @@ export async function doExportConnections(
   filename: string,
   options: ExportConnectionOptions = {}
 ): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log(
     `Exporting connections to "${filename}" (${
       options.passphrase ? 'with' : 'without'
@@ -26,6 +27,7 @@ export async function doImportConnections(
   filename: string,
   options: ImportConnectionOptions = {}
 ): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log(
     `Importing connections from "${filename}" (${
       options.passphrase ? 'with' : 'without'

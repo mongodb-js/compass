@@ -1,3 +1,4 @@
+/* eslint-disable filename-rules/match */
 import React, { useCallback, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
@@ -10,11 +11,11 @@ import { palette } from '@leafygreen-ui/palette';
 import { fontFamilies, spacing, typeScales } from '@leafygreen-ui/tokens';
 
 import { menuItemHeight, menuItemPadding } from './ComboboxMenu/Menu.styles';
-import {
+import type {
   ComboboxOptionProps,
-  ComboboxSize as Size,
   InternalComboboxOptionProps,
 } from './Combobox.types';
+import { ComboboxSize as Size } from './Combobox.types';
 import { ComboboxContext } from './ComboboxContext';
 import { wrapJSX } from './utils';
 
@@ -227,6 +228,7 @@ const InternalComboboxOption = React.forwardRef<
         if (isComponentGlyph(glyph)) {
           return glyph;
         }
+        // eslint-disable-next-line no-console
         console.error(
           '`ComboboxOption` instance did not render icon because it is not a known glyph element.',
           glyph
@@ -335,6 +337,7 @@ const InternalComboboxOption = React.forwardRef<
 InternalComboboxOption.displayName = 'ComboboxOption';
 
 export { InternalComboboxOption };
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function ComboboxOption(_: ComboboxOptionProps): JSX.Element {
   throw Error('`ComboboxOption` must be a child of a `Combobox` instance');
 }
