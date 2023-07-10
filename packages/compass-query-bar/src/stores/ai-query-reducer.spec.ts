@@ -169,8 +169,10 @@ describe('aiQueryReducer', function () {
 
       beforeEach(async function () {
         const { endpoint, stop } = await startMockAIServer({
-          response: {},
-          sendError: true,
+          response: {
+            status: 500,
+            body: 'test',
+          },
         });
 
         stopServer = stop;

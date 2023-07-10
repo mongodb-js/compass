@@ -136,7 +136,7 @@ describe('#runFetchAIQuery', function () {
         ...mockUserPrompt,
         sampleDocuments: [
           {
-            test: '4'.repeat(6000),
+            test: '4'.repeat(60000),
           },
         ],
         signal: new AbortController().signal,
@@ -161,7 +161,7 @@ describe('#runFetchAIQuery', function () {
             a: ['3'],
           },
           {
-            a: ['4'.repeat(5000)],
+            a: ['4'.repeat(50000)],
           },
         ],
         signal: new AbortController().signal,
@@ -190,15 +190,17 @@ describe('#runFetchAIQuery', function () {
     });
   });
 
-  describe('when the endpoint is set and the server errors', function () {
+  describe('when the server errors', function () {
     let stopServer: () => Promise<void>;
 
     beforeEach(async function () {
       // Start a mock server to pass an ai response.
       // Set the server endpoint in the env.
       const { endpoint, stop } = await startMockAIServer({
-        response: {},
-        sendError: true,
+        response: {
+          status: 500,
+          body: 'error',
+        },
       });
 
       stopServer = stop;
@@ -223,6 +225,46 @@ describe('#runFetchAIQuery', function () {
       await expect(promise).to.be.rejectedWith(
         'Error: 500 Internal Server Error'
       );
+    });
+  });
+
+  describe('when the server errors with an AIError', function () {
+    let stopServer: () => Promise<void>;
+
+    beforeEach(async function () {
+      // Start a mock server to pass an ai response.
+      // Set the server endpoint in the env.
+      const { endpoint, stop } = await startMockAIServer({
+        response: {
+          status: 500,
+          body: {
+            name: 'AIError',
+            errorMessage: 'tortillas',
+            codeName: 'ExampleCode',
+          },
+        },
+      });
+
+      stopServer = stop;
+      process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+      process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+      process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
+    });
+
+    afterEach(async function () {
+      await stopServer();
+      delete process.env.DEV_AI_QUERY_ENDPOINT;
+      delete process.env.DEV_AI_USERNAME;
+      delete process.env.DEV_AI_PASSWORD;
+    });
+
+    it('throws the error', async function () {
+      const promise = runFetchAIQuery({
+        ...mockUserPrompt,
+        signal: new AbortController().signal,
+      });
+
+      await expect(promise).to.be.rejectedWith('Error: ExampleCode: tortillas');
     });
   });
 });
