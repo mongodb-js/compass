@@ -146,8 +146,14 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
       // height of the container is less than what we get here
       const heightWithoutSpacing = availableHeightInContainer - spacing[3] * 3;
 
-      // This is the actual height of the table content
-      const tableHeight = table.clientHeight;
+      // This will be the height of the table. We take whichever is the max of
+      // the actual table height vs the half of the height available to make
+      // sure that our table does not always render in a super small keyline
+      // card when there are only a few rows in the table.
+      const tableHeight = Math.max(
+        table.clientHeight,
+        heightWithoutSpacing / 2
+      );
 
       // When we have enough space available to render the table, we simply want
       // our keyline card to have a height as much as that of the table content
