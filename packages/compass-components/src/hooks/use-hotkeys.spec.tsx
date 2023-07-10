@@ -16,16 +16,24 @@ const mappingUseCases = {
     { key: 'meta+ shift +   +', shortcut: '⌘ + Shift + +' },
     { key: 'META+ SHIFT +   +', shortcut: '⌘ + Shift + +' },
     { key: 'META+ArrowUp', shortcut: '⌘ + ↑' },
+    { key: 'mod +shift+  a+ c', shortcut: '⌘ + Shift + A + C' },
+    { key: 'mod+ shift +   +', shortcut: '⌘ + Shift + +' },
+    { key: 'MOD+ SHIFT +   +', shortcut: '⌘ + Shift + +' },
+    { key: 'MOD+ArrowUp', shortcut: '⌘ + ↑' },
     { key: 'shift+ArrowDown', shortcut: 'Shift + ↓' },
   ],
   windows_linux: [
-    { key: 'meta+1', shortcut: 'Ctrl + 1' },
+    { key: 'meta+1', shortcut: 'Meta + 1' },
     { key: 'alt+1', shortcut: 'Alt + 1' },
     { key: 'ctrl+1', shortcut: 'Ctrl + 1' },
-    { key: 'meta+ shift+a +c', shortcut: 'Ctrl + Shift + A + C' },
-    { key: 'meta +shift  + +', shortcut: 'Ctrl + Shift + +' },
-    { key: 'META+SHIFT  + +', shortcut: 'Ctrl + Shift + +' },
-    { key: 'META+ArrowUp', shortcut: 'Ctrl + ↑' },
+    { key: 'meta+ shift+a +c', shortcut: 'Meta + Shift + A + C' },
+    { key: 'meta +shift  + +', shortcut: 'Meta + Shift + +' },
+    { key: 'META+SHIFT  + +', shortcut: 'Meta + Shift + +' },
+    { key: 'META+ArrowUp', shortcut: 'Meta + ↑' },
+    { key: 'mod+ shift+a +c', shortcut: 'Ctrl + Shift + A + C' },
+    { key: 'mod +shift  + +', shortcut: 'Ctrl + Shift + +' },
+    { key: 'MOD+SHIFT  + +', shortcut: 'Ctrl + Shift + +' },
+    { key: 'MOD+ArrowUp', shortcut: 'Ctrl + ↑' },
     { key: 'shift+ArrowDown', shortcut: 'Shift + ↓' },
   ],
 };
@@ -50,6 +58,14 @@ describe('use-hotkeys', function () {
     it('handles meta key and maps it to command', function () {
       const callback = sinon.spy();
       renderHook(() => useHotkeys('meta + 1', callback));
+      expect(callback).not.to.have.been.called;
+      fireEvent.keyDown(document, { key: '1', metaKey: true });
+      expect(callback).to.have.been.calledOnce;
+    });
+
+    it('handles mod key and maps it to meta', function () {
+      const callback = sinon.spy();
+      renderHook(() => useHotkeys('mod + 1', callback));
       expect(callback).not.to.have.been.called;
       fireEvent.keyDown(document, { key: '1', metaKey: true });
       expect(callback).to.have.been.calledOnce;
@@ -89,11 +105,19 @@ describe('use-hotkeys', function () {
       });
     });
 
-    it('handles meta key and maps it to ctrl', function () {
+    it('handles meta key and maps it to meta', function () {
       const callback = sinon.spy();
       renderHook(() => useHotkeys('meta + 1', callback));
       expect(callback).not.to.have.been.called;
       fireEvent.keyDown(document, { key: '1', metaKey: true });
+      expect(callback).to.have.been.calledOnce;
+    });
+
+    it('handles mod key and maps it to ctrl', function () {
+      const callback = sinon.spy();
+      renderHook(() => useHotkeys('mod + 1', callback));
+      expect(callback).not.to.have.been.called;
+      fireEvent.keyDown(document, { key: '1', ctrlKey: true });
       expect(callback).to.have.been.calledOnce;
     });
 

@@ -116,6 +116,7 @@ try {
   // environment with dependency injection
   ClientEncryption = extension(mongodb).ClientEncryption;
 } catch (e) {
+  // eslint-disable-next-line no-console
   console.warn(e);
 }
 

@@ -41,6 +41,7 @@ describe('connectMongoClient', function () {
     before(function () {
       if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
         // TODO: COMPASS-4866
+        // eslint-disable-next-line no-console
         console.warn(
           'test suites using mongodb-runner are flaky on RHEL, skipping'
         );

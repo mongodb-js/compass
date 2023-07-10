@@ -897,6 +897,7 @@ function compareTypes(
   try {
     expect(types, selectedType).to.deep.equal(expected);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.dir(types);
     throw err;
   }

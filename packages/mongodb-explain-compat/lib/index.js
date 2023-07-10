@@ -175,7 +175,7 @@ function mapShardedFind(explain) {
   }
   queryPlanner.winningPlan.shards.forEach((shard, index) => {
     const winningPlan = shard.winningPlan.queryPlan;
-    if (winningPlan) {
+    if (winningPlan && executionStats) {
       const executionStages = mapStages(
         winningPlan,
         executionStats.executionStages.shards[index].executionStages
@@ -204,10 +204,12 @@ function _mapPlannerStage(planner) {
     const winningPlan = planner.queryPlanner.winningPlan.queryPlan;
     planner.queryPlanner.winningPlan = winningPlan;
 
-    planner.executionStats.executionStages = mapStages(
-      winningPlan,
-      planner.executionStats.executionStages
-    );
+    if (planner.executionStats) {
+      planner.executionStats.executionStages = mapStages(
+        winningPlan,
+        planner.executionStats.executionStages
+      );
+    }
   }
   return planner;
 }

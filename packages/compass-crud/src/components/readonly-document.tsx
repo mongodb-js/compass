@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { DocumentList } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
+import { withPreferences } from 'compass-preferences-model';
 type BSONObject = TypeCastMap['Object'];
 
 /**
@@ -25,6 +26,7 @@ export type ReadonlyDocumentProps = {
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
   expandAll: boolean;
+  showInsights?: boolean;
 };
 
 /**
@@ -66,6 +68,18 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
         onClone={
           this.props.openInsertDocumentDialog ? this.handleClone : undefined
         }
+        insights={
+          this.props.showInsights && (this.props.doc?.size ?? 0) > 10_000_000
+            ? {
+                id: 'bloated-document',
+                title: 'Possibly bloated document',
+                description:
+                  'Large documents can slow down queries by decreasing the number of documents that can be stored in RAM. Consider breaking up your data into more collections with smaller documents, and using references to consolidate the data you need.',
+                learnMoreLink:
+                  'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-document-size/',
+              }
+            : undefined
+        }
       />
     );
   }
@@ -93,7 +107,8 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
     doc: PropTypes.object.isRequired,
     expandAll: PropTypes.bool,
     openInsertDocumentDialog: PropTypes.func,
+    showInsights: PropTypes.bool,
   };
 }
 
-export default ReadonlyDocument;
+export default withPreferences(ReadonlyDocument, ['showInsights'], React);

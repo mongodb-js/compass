@@ -1,18 +1,55 @@
 import { expect } from 'chai';
+import { ObjectId } from 'mongodb';
+import { promises as fs } from 'fs';
+import os from 'os';
 
 import configureStore from './query-bar-store';
+import type { QueryBarStoreOptions } from './query-bar-store';
 import {
   AIQueryActionTypes,
   cancelAIQuery,
   runAIQuery,
 } from './ai-query-reducer';
-import { startMockAIServer } from '../../test/create-mock-ai-endpoint';
+import {
+  startMockAIServer,
+  TEST_AUTH_USERNAME,
+  TEST_AUTH_PASSWORD,
+} from '../../test/create-mock-ai-endpoint';
 
-function createStore() {
-  return configureStore();
+function _createStore(opts: Partial<QueryBarStoreOptions>) {
+  return configureStore({
+    dataProvider: {
+      dataProvider: {
+        getConnectionString: () =>
+          ({
+            hosts: [],
+          } as any),
+        sample: () =>
+          Promise.resolve([
+            {
+              _id: new ObjectId(),
+            },
+          ]),
+      },
+    },
+    ...opts,
+  });
 }
 
 describe('aiQueryReducer', function () {
+  let tmpDir: string;
+
+  before(async function () {
+    tmpDir = await fs.mkdtemp(os.tmpdir());
+  });
+
+  function createStore(opts: Partial<QueryBarStoreOptions> = {}) {
+    return _createStore({
+      basepath: tmpDir,
+      ...opts,
+    });
+  }
+
   describe('runAIQuery', function () {
     describe('with a successful server response (mock server)', function () {
       let stopServer: () => Promise<void>;
@@ -30,33 +67,100 @@ describe('aiQueryReducer', function () {
         stopServer = stop;
         getRequests = _getRequests;
         process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+        process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+        process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
       });
 
       afterEach(async function () {
         await stopServer();
         delete process.env.DEV_AI_QUERY_ENDPOINT;
+        delete process.env.DEV_AI_USERNAME;
+        delete process.env.DEV_AI_PASSWORD;
       });
 
       it('should succeed', async function () {
-        const store = createStore();
-        let didSetAbortController = false;
+        const sampleDocs = [
+          {
+            _id: new ObjectId(),
+            a: {
+              b: 3,
+            },
+          },
+          {
+            _id: new ObjectId(),
+            a: {
+              b: 'a',
+            },
+            c: 'pineapple',
+          },
+        ];
+        const resultSchema = {
+          _id: {
+            types: [
+              {
+                bsonType: 'ObjectId',
+              },
+            ],
+          },
+          a: {
+            types: [
+              {
+                bsonType: 'Document',
+                fields: {
+                  b: {
+                    types: [
+                      {
+                        bsonType: 'Number',
+                      },
+                      {
+                        bsonType: 'String',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+          c: {
+            types: [
+              {
+                bsonType: 'String',
+              },
+            ],
+          },
+        };
+        const store = createStore({
+          namespace: 'database.collection',
+          dataProvider: {
+            dataProvider: {
+              getConnectionString: () =>
+                ({
+                  hosts: [],
+                } as any),
+              sample: () => Promise.resolve(sampleDocs),
+            },
+          },
+        });
+        let didSetFetchId = false;
         store.subscribe(() => {
-          if (store.getState().aiQuery.aiQueryAbortController) {
-            didSetAbortController = true;
+          if (store.getState().aiQuery.aiQueryFetchId !== -1) {
+            didSetFetchId = true;
           }
         });
-        expect(store.getState().aiQuery.didSucceed).to.equal(false);
-        await store.dispatch(runAIQuery('testing prompt') as any);
+        expect(store.getState().aiQuery.status).to.equal('ready');
+        await store.dispatch(runAIQuery('testing prompt'));
 
-        expect(didSetAbortController).to.equal(true);
+        expect(didSetFetchId).to.equal(true);
         expect(getRequests()[0].content).to.deep.equal({
           userPrompt: 'testing prompt',
+          schema: resultSchema,
+          // Parse stringify to make _ids stringified for deep check.
+          sampleDocuments: JSON.parse(JSON.stringify(sampleDocs)),
+          collectionName: 'collection',
         });
-        expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-          undefined
-        );
+        expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
-        expect(store.getState().aiQuery.didSucceed).to.equal(true);
+        expect(store.getState().aiQuery.status).to.equal('success');
       });
     });
 
@@ -65,59 +169,51 @@ describe('aiQueryReducer', function () {
 
       beforeEach(async function () {
         const { endpoint, stop } = await startMockAIServer({
-          response: {},
-          sendError: true,
+          response: {
+            status: 500,
+            body: 'test',
+          },
         });
 
         stopServer = stop;
         process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
+        process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
+        process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
       });
 
       afterEach(async function () {
         await stopServer();
         delete process.env.DEV_AI_QUERY_ENDPOINT;
+        delete process.env.DEV_AI_USERNAME;
+        delete process.env.DEV_AI_PASSWORD;
       });
 
       it('sets the error on the store', async function () {
         const store = createStore();
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
-        expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-          undefined
-        );
+        expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(
           'Error: 500 Internal Server Error'
         );
-        expect(store.getState().aiQuery.didSucceed).to.equal(false);
+        expect(store.getState().aiQuery.status).to.equal('ready');
       });
     });
   });
 
   describe('cancelAIQuery', function () {
-    it('should cancel the abort controller on the store', function () {
+    it('should unset the fetching id on the store', function () {
       const store = createStore();
-      expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-        undefined
-      );
+      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
 
-      const abortController = new AbortController();
       store.dispatch({
         type: AIQueryActionTypes.AIQueryStarted,
-        abortController,
+        fetchId: 1,
       });
 
-      expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-        abortController
-      );
-      expect(
-        store.getState().aiQuery.aiQueryAbortController?.signal.aborted
-      ).to.equal(false);
-
+      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(1);
       store.dispatch(cancelAIQuery());
-      expect(abortController?.signal.aborted).to.equal(true);
-      expect(store.getState().aiQuery.aiQueryAbortController).to.equal(
-        undefined
-      );
+      expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
     });
   });
 });

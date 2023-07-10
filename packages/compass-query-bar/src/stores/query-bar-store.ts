@@ -7,6 +7,7 @@ import {
 import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { DataService } from 'mongodb-data-service';
 
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { BaseQuery } from '../constants/query-properties';
@@ -27,6 +28,12 @@ import {
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 const { basepath } = getStoragePaths() || {};
 
+// Partial of DataService that mms shares with Compass.
+type DataProvider = {
+  getConnectionString: DataService['getConnectionString'];
+  sample: DataService['sample'];
+};
+
 export type QueryBarStoreOptions = {
   serverVersion: string;
   globalAppRegistry: AppRegistry;
@@ -34,11 +41,7 @@ export type QueryBarStoreOptions = {
   query: BaseQuery;
   namespace: string;
   dataProvider: {
-    dataProvider?: {
-      getConnectionString: () => {
-        hosts: string[];
-      };
-    };
+    dataProvider?: DataProvider;
   };
 
   // For testing.
@@ -57,6 +60,9 @@ export type QueryBarExtraArgs = {
   localAppRegistry?: AppRegistry;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
+  dataProvider: {
+    sample: DataProvider['sample'];
+  };
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -102,6 +108,12 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        dataProvider: dataProvider?.dataProvider ?? {
+          sample: () => {
+            /* no-op for unsupported environments. */
+            return Promise.resolve([]);
+          },
+        },
         localAppRegistry,
         globalAppRegistry,
         recentQueryStorage,
