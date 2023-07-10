@@ -7,7 +7,7 @@ import type {
   Document,
 } from 'mongodb';
 import type { KMSProviderName } from './csfle-kms-fields';
-import queryParser, { toJSString } from 'mongodb-query-parser';
+import { parseFilter, toJSString } from 'mongodb-query-parser';
 
 const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
   storeCredentials: false,
@@ -213,7 +213,7 @@ export function textToEncryptedFieldConfig(text: string): Document | undefined {
 
   let parsed: Document = {};
   try {
-    parsed = queryParser(text);
+    parsed = parseFilter(text);
     if (!parsed || typeof parsed !== 'object') {
       // XXX(COMPASS-5689): We've hit the condition in
       // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36

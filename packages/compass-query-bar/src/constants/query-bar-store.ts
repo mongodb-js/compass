@@ -1,4 +1,12 @@
-import { validate } from 'mongodb-query-parser';
+import {
+  DEFAULT_FILTER,
+  DEFAULT_SORT,
+  DEFAULT_LIMIT,
+  DEFAULT_SKIP,
+  DEFAULT_PROJECT,
+  DEFAULT_COLLATION,
+  DEFAULT_MAX_TIME_MS,
+} from 'mongodb-query-parser';
 
 /**
  * Default values for the query bar form inputs
@@ -13,20 +21,17 @@ const DEFAULT_FIELD_VALUES = {
   maxTimeMS: undefined,
 } as const;
 
-// TODO: Make this a different default export of query-parser.
-type SingleArgumentValidate = (input: string) => any;
-
 /**
  * Default values as will be returned from query parser during validation
  */
 const DEFAULT_QUERY_VALUES = {
-  filter: (validate as SingleArgumentValidate)('filter'),
-  project: (validate as SingleArgumentValidate)('project'),
-  collation: (validate as SingleArgumentValidate)('collation'),
-  sort: (validate as SingleArgumentValidate)('sort'),
-  skip: (validate as SingleArgumentValidate)('skip'),
-  limit: (validate as SingleArgumentValidate)('limit'),
-  maxTimeMS: (validate as SingleArgumentValidate)('maxTimeMS'),
+  filter: DEFAULT_FILTER,
+  project: DEFAULT_PROJECT,
+  collation: DEFAULT_COLLATION,
+  sort: DEFAULT_SORT,
+  skip: DEFAULT_SKIP,
+  limit: DEFAULT_LIMIT,
+  maxTimeMS: DEFAULT_MAX_TIME_MS,
 } as const;
 
 export { DEFAULT_FIELD_VALUES, DEFAULT_QUERY_VALUES };
