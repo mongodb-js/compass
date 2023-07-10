@@ -25,12 +25,14 @@
   ],
   "scripts": {
     "lint": "eslint **/*.js",
-    "test": "npm run lint && npm run compile && nyc mocha --colors test/*.js",
+    "test": "npm run compile && nyc mocha --colors test/*.js",
     "compile": "gen-esm-wrapper . ./.esm-wrapper.mjs",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "test-ci": "npm run test",
     "depcheck": "depcheck",
-    "bootstrap": "npm run compile"
+    "bootstrap": "npm run compile",
+    "check": "npm run lint && npm run depcheck",
+    "check-ci": "npm run check"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "repository": {

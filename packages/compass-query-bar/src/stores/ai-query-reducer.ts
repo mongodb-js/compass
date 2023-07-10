@@ -1,22 +1,29 @@
-import type { Action, AnyAction, Reducer } from 'redux';
-import type { ThunkAction } from 'redux-thunk';
+import type { Reducer } from 'redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { getSimplifiedSchema } from 'mongodb-schema';
+import toNS from 'mongodb-ns';
+import preferences from 'compass-preferences-model';
 
+import type { QueryBarThunkAction } from './query-bar-store';
+import { isAction } from '../utils';
 import { runFetchAIQuery } from '../modules/ai-query-request';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
+type AIQueryStatus = 'ready' | 'fetching' | 'success';
+
 export type AIQueryState = {
-  aiQueryAbortController: AbortController | undefined;
   errorMessage: string | undefined;
-  // Used to indicate in the UI when an AI query has succeeded.
-  didSucceed: boolean;
+  isInputVisible: boolean;
+  status: AIQueryStatus;
+  aiQueryFetchId: number; // Maps to the AbortController of the current fetch (or -1).
 };
 
 export const initialState: AIQueryState = {
-  aiQueryAbortController: undefined,
+  status: 'ready',
   errorMessage: undefined,
-  didSucceed: false,
+  isInputVisible: false,
+  aiQueryFetchId: -1,
 };
 
 export const enum AIQueryActionTypes {
@@ -24,24 +31,45 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
-
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
+  ShowInput = 'compass-query-bar/ai-query/ShowInput',
+  HideInput = 'compass-query-bar/ai-query/HideInput',
 }
 
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
+const NUM_DOCUMENTS_TO_SAMPLE = 4;
+
+const AIQueryAbortControllerMap = new Map<number, AbortController>();
+
+let aiQueryFetchId = 0;
+
+function getAbortSignal() {
+  const id = ++aiQueryFetchId;
+  const controller = new AbortController();
+  AIQueryAbortControllerMap.set(id, controller);
+  return { id, signal: controller.signal };
 }
+
+function abort(id: number) {
+  const controller = AIQueryAbortControllerMap.get(id);
+  controller?.abort();
+  return AIQueryAbortControllerMap.delete(id);
+}
+
+function cleanupAbortSignal(id: number) {
+  return AIQueryAbortControllerMap.delete(id);
+}
+
+type ShowInputAction = {
+  type: AIQueryActionTypes.ShowInput;
+};
+
+type HideInputAction = {
+  type: AIQueryActionTypes.HideInput;
+};
 
 type AIQueryStartedAction = {
   type: AIQueryActionTypes.AIQueryStarted;
-  abortController: AbortController;
-};
-
-type AIQueryCancelledAction = {
-  type: AIQueryActionTypes.AIQueryCancelled;
+  fetchId: number;
 };
 
 type AIQueryFailedAction = {
@@ -54,53 +82,87 @@ export type AIQuerySucceededAction = {
   query: unknown;
 };
 
+function logFailed(errorMessage: string) {
+  log.info(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+    errorMessage,
+  });
+}
+
 export const runAIQuery = (
   userPrompt: string
-): AIQueryThunkAction<
+): QueryBarThunkAction<
   Promise<void>,
-  | AIQueryStartedAction
-  | AIQueryCancelledAction
-  | AIQueryFailedAction
-  | AIQuerySucceededAction
+  AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
-  return async (dispatch, getState) => {
-    const { aiQueryAbortController: existingAbortController } = getState();
+  return async (dispatch, getState, { dataProvider }) => {
+    const {
+      aiQuery: { aiQueryFetchId: existingFetchId },
+      queryBar: { namespace },
+    } = getState();
 
-    if (existingAbortController) {
+    if (aiQueryFetchId !== -1) {
       // Cancel the active request as this one will override.
-      existingAbortController.abort();
+      abort(existingFetchId);
     }
 
     const abortController = new AbortController();
+    const { id: fetchId, signal } = getAbortSignal();
 
     dispatch({
       type: AIQueryActionTypes.AIQueryStarted,
-      abortController,
+      fetchId,
     });
 
     let jsonResponse;
     try {
+      const sampleDocuments = await dataProvider.sample(
+        namespace,
+        {
+          query: {},
+          size: NUM_DOCUMENTS_TO_SAMPLE,
+        },
+        {
+          maxTimeMS: preferences.getPreferences().maxTimeMS,
+          promoteValues: false,
+        },
+        {
+          abortSignal: signal,
+        }
+      );
+      const schema = await getSimplifiedSchema(sampleDocuments);
+
+      const { collection: collectionName } = toNS(namespace);
       jsonResponse = await runFetchAIQuery({
         signal: abortController.signal,
         userPrompt,
+        collectionName,
+        schema,
+        sampleDocuments,
       });
     } catch (err: any) {
-      if (abortController.signal.aborted) {
+      if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
       }
 
+      logFailed(err?.message);
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
       });
       return;
+    } finally {
+      // Remove the AbortController from the Map as we either finished
+      // waiting for the fetch or cancelled at this point.
+      cleanupAbortSignal(fetchId);
     }
 
-    if (abortController.signal.aborted) {
-      dispatch({
-        type: AIQueryActionTypes.AIQueryCancelled,
-      });
+    if (signal.aborted) {
+      log.info(
+        mongoLogId(1_001_000_197),
+        'AIQuery',
+        'Cancelled ai query request'
+      );
       return;
     }
 
@@ -114,6 +176,7 @@ export const runAIQuery = (
 
       query = jsonResponse?.content?.query;
     } catch (err: any) {
+      logFailed(err?.message);
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
@@ -121,18 +184,27 @@ export const runAIQuery = (
       return;
     }
 
-    // Error if the response is empty.
+    // Error if the response is empty. TODO: We'll want to also parse if no
+    // applicable query fields are detected.
     if (!query || Object.keys(query).length === 0) {
+      const msg =
+        'No query was returned from the ai. Consider re-wording your prompt.';
+      logFailed(msg);
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
-        errorMessage:
-          'No query was returned from the ai. Consider re-wording your prompt.',
+        errorMessage: msg,
       });
       return;
     }
 
-    // Rename `find` to `filter` as the AI will use the normal `find` syntax.
-    query.filter = query.find;
+    log.info(
+      mongoLogId(1_001_000_199),
+      'AIQuery',
+      'AI query request succeeded',
+      {
+        query,
+      }
+    );
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
@@ -145,9 +217,32 @@ type CancelAIQueryAction = {
   type: AIQueryActionTypes.CancelAIQuery;
 };
 
-export const cancelAIQuery = (): CancelAIQueryAction => ({
-  type: AIQueryActionTypes.CancelAIQuery,
+export const cancelAIQuery = (): QueryBarThunkAction<
+  void,
+  CancelAIQueryAction
+> => {
+  return (dispatch, getState) => {
+    // Abort any ongoing op.
+    abort(getState().aiQuery.aiQueryFetchId);
+
+    dispatch({
+      type: AIQueryActionTypes.CancelAIQuery,
+    });
+  };
+};
+
+export const showInput = (): ShowInputAction => ({
+  type: AIQueryActionTypes.ShowInput,
 });
+
+export const hideInput = (): QueryBarThunkAction<void, HideInputAction> => {
+  return (dispatch) => {
+    // Cancel any ongoing op when we hide.
+    dispatch(cancelAIQuery());
+
+    dispatch({ type: AIQueryActionTypes.HideInput });
+  };
+};
 
 const aiQueryReducer: Reducer<AIQueryState> = (
   state = initialState,
@@ -158,34 +253,17 @@ const aiQueryReducer: Reducer<AIQueryState> = (
   ) {
     return {
       ...state,
-      didSucceed: false,
+      status: 'fetching',
       errorMessage: undefined,
-      aiQueryAbortController: action.abortController,
+      aiQueryFetchId: action.fetchId,
     };
   }
 
-  if (
-    isAction<AIQueryCancelledAction>(
-      action,
-      AIQueryActionTypes.AIQueryCancelled
-    )
-  ) {
-    log.info(
-      mongoLogId(1_001_000_197),
-      'AIQuery',
-      'Cancelled ai query request'
-    );
-    return state;
-  }
-
   if (isAction<AIQueryFailedAction>(action, AIQueryActionTypes.AIQueryFailed)) {
-    log.info(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
-      errorMessage: action.errorMessage,
-    });
-
     return {
       ...state,
-      aiQueryAbortController: undefined,
+      status: 'ready',
+      aiQueryFetchId: -1,
       errorMessage: action.errorMessage,
     };
   }
@@ -196,39 +274,36 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       AIQueryActionTypes.AIQuerySucceeded
     )
   ) {
-    log.info(
-      mongoLogId(1_001_000_199),
-      'AIQuery',
-      'AI query request succeeded',
-      {
-        query: action.query,
-      }
-    );
     return {
       ...state,
-      aiQueryAbortController: undefined,
+      status: 'success',
+      aiQueryFetchId: -1,
       didSucceed: true,
     };
   }
 
   if (isAction<CancelAIQueryAction>(action, AIQueryActionTypes.CancelAIQuery)) {
-    if (state.aiQueryAbortController) {
-      state.aiQueryAbortController.abort();
-    }
     return {
       ...state,
-      aiQueryAbortController: undefined,
+      aiQueryFetchId: -1,
+    };
+  }
+
+  if (isAction<ShowInputAction>(action, AIQueryActionTypes.ShowInput)) {
+    return {
+      ...state,
+      isInputVisible: true,
+    };
+  }
+
+  if (isAction<HideInputAction>(action, AIQueryActionTypes.HideInput)) {
+    return {
+      ...state,
+      isInputVisible: false,
     };
   }
 
   return state;
 };
-
-type AIQueryThunkAction<R, A extends Action = AnyAction> = ThunkAction<
-  R,
-  AIQueryState,
-  void,
-  A
->;
 
 export { aiQueryReducer };

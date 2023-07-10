@@ -109,7 +109,7 @@
     "mongodb-data-service": "^22.8.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^3.1.2",
-    "mongodb-schema": "^11.1.0",
+    "mongodb-schema": "^11.2.1",
     "nyc": "^15.1.0",
     "papaparse": "^5.3.2",
     "prettier": "^2.7.1",

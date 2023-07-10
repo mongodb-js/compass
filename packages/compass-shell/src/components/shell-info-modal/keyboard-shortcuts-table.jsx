@@ -43,7 +43,7 @@ const hotkeys = [
     description: 'Erases one character, similar to hitting backspace.',
   },
   {
-    key: 'meta+L',
+    key: 'mod+L',
     description: 'Clears the screen, similar to the clear command.',
   },
   {

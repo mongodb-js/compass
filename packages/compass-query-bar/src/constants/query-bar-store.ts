@@ -13,18 +13,20 @@ const DEFAULT_FIELD_VALUES = {
   maxTimeMS: undefined,
 } as const;
 
+// TODO: Make this a different default export of query-parser.
+type SingleArgumentValidate = (input: string) => any;
+
 /**
  * Default values as will be returned from query parser during validation
  */
 const DEFAULT_QUERY_VALUES = {
-  // TODO: Fix - can we remove these?
-  filter: {},
-  project: null,
-  collation: null,
-  sort: '',
-  skip: 0,
-  limit: 0,
-  maxTimeMS: 60000,
+  filter: (validate as SingleArgumentValidate)('filter'),
+  project: (validate as SingleArgumentValidate)('project'),
+  collation: (validate as SingleArgumentValidate)('collation'),
+  sort: (validate as SingleArgumentValidate)('sort'),
+  skip: (validate as SingleArgumentValidate)('skip'),
+  limit: (validate as SingleArgumentValidate)('limit'),
+  maxTimeMS: (validate as SingleArgumentValidate)('maxTimeMS'),
 } as const;
 
 export { DEFAULT_FIELD_VALUES, DEFAULT_QUERY_VALUES };

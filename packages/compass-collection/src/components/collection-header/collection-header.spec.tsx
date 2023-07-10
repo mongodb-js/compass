@@ -1,5 +1,6 @@
 import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
+import type { ComponentProps } from 'react';
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import { spy } from 'sinon';
@@ -8,7 +9,29 @@ import userEvent from '@testing-library/user-event';
 import CollectionHeader from '../collection-header';
 import { getCollectionStatsInitialState } from '../../modules/stats';
 
+function renderCollectionHeader(
+  props: Partial<ComponentProps<typeof CollectionHeader>>
+) {
+  return render(
+    <CollectionHeader
+      isAtlas={false}
+      isReadonly={false}
+      isTimeSeries={false}
+      isClustered={false}
+      isFLE={false}
+      globalAppRegistry={new AppRegistry()}
+      namespace="test.test"
+      selectOrCreateTab={() => {}}
+      pipeline={[]}
+      stats={getCollectionStatsInitialState()}
+      {...props}
+    />
+  );
+}
+
 describe('CollectionHeader [Component]', function () {
+  afterEach(cleanup);
+
   context('when the collection is not readonly', function () {
     const globalAppRegistry = new AppRegistry();
     const selectOrCreateTabSpy = spy();
@@ -30,8 +53,6 @@ describe('CollectionHeader [Component]', function () {
         />
       );
     });
-
-    afterEach(cleanup);
 
     it('renders the correct root classname', function () {
       expect(screen.getByTestId('collection-header')).to.exist;
@@ -136,8 +157,6 @@ describe('CollectionHeader [Component]', function () {
       );
     });
 
-    afterEach(cleanup);
-
     it('does not render the source collection', function () {
       expect(screen.queryByTestId('collection-view-on')).to.not.exist;
     });
@@ -173,8 +192,6 @@ describe('CollectionHeader [Component]', function () {
       );
     });
 
-    afterEach(cleanup);
-
     it('does not render the source collection', function () {
       expect(screen.queryByTestId('collection-view-on')).to.not.exist;
     });
@@ -209,8 +226,6 @@ describe('CollectionHeader [Component]', function () {
         />
       );
     });
-
-    afterEach(cleanup);
 
     it('does not render the source collection', function () {
       expect(screen.queryByTestId('collection-view-on')).to.not.exist;
@@ -251,8 +266,6 @@ describe('CollectionHeader [Component]', function () {
       );
     });
 
-    afterEach(cleanup);
-
     it('renders the clustered badge', function () {
       expect(screen.getByTestId('collection-header-badge-fle2')).to.exist;
     });
@@ -289,13 +302,45 @@ describe('CollectionHeader [Component]', function () {
         />
       );
 
-      afterEach(cleanup);
-
       const link = screen.getByTestId('collection-header-title-db');
       expect(link).to.exist;
       userEvent.click(link);
       expect(emmittedEventName).to.equal('select-database');
       expect(emmittedDbName).to.equal('db');
+    });
+  });
+
+  describe('insights', function () {
+    it('should show an insight when $text is used in the pipeline source', function () {
+      renderCollectionHeader({
+        showInsights: true,
+        pipeline: [{ $match: { $text: {} } }],
+      });
+      expect(screen.getByTestId('insight-badge-button')).to.exist;
+      userEvent.click(screen.getByTestId('insight-badge-button'));
+      expect(screen.getByText('Alternate text search options available')).to
+        .exist;
+    });
+
+    it('should show an insight when $regex is used in the pipeline source', function () {
+      renderCollectionHeader({
+        showInsights: true,
+        pipeline: [{ $match: { $regex: {} } }],
+      });
+      expect(screen.getByTestId('insight-badge-button')).to.exist;
+      userEvent.click(screen.getByTestId('insight-badge-button'));
+      expect(screen.getByText('Alternate text search options available')).to
+        .exist;
+    });
+
+    it('should show an insight when $lookup is used in the pipeline source', function () {
+      renderCollectionHeader({
+        showInsights: true,
+        pipeline: [{ $lookup: {} }],
+      });
+      expect(screen.getByTestId('insight-badge-button')).to.exist;
+      userEvent.click(screen.getByTestId('insight-badge-button'));
+      expect(screen.getByText('$lookup usage')).to.exist;
     });
   });
 });

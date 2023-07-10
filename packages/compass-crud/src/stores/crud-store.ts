@@ -90,44 +90,65 @@ function pickQueryProps({
   return query;
 }
 
-const fetchDocuments: (
+export const fetchDocuments: (
   dataService: DataService,
   serverVersion: string,
+  isDataLake: boolean,
   ...args: Parameters<DataService['find']>
 ) => Promise<HadronDocument[]> = async (
   dataService: DataService,
   serverVersion,
+  isDataLake,
   ns,
   filter,
   options,
   executionOptions
 ) => {
-  options = {
+  const canCalculateDocSize =
+    // $bsonSize is only supported for mongodb >= 4.4.0
+    semver.gte(serverVersion, '4.4.0') &&
+    // ADF doesn't support $bsonSize
+    !isDataLake &&
+    // Accessing $$ROOT is not possible with CSFLE
+    ['disabled', 'unavailable'].includes(dataService?.getCSFLEMode()) &&
+    // User provided their own projection, we can handle this in some cases, but
+    // it's hard to get right, so we will just skip this case
+    isEmpty(options?.projection);
+
+  const modifiedOptions = {
     ...options,
-    projection:
-      semver.gte(
-        serverVersion,
-        // $bsonSize is only supported for mongodb >= 4.4.0
-        '4.4.0'
-      ) &&
-      // Accessing $$ROOT is not possible with CSFLE
-      ['disabled', 'unavailable'].includes(dataService?.getCSFLEMode()) &&
-      isEmpty(options?.projection)
-        ? { _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } }
-        : options?.projection,
+    projection: canCalculateDocSize
+      ? { _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } }
+      : options?.projection,
   };
 
-  return (await dataService.find(ns, filter, options, executionOptions)).map(
-    (doc) => {
+  try {
+    return (
+      await dataService.find(ns, filter, modifiedOptions, executionOptions)
+    ).map((doc) => {
       const { __doc, __size, ...rest } = doc;
       if (__doc && __size && Object.keys(rest).length === 0) {
         const hadronDoc = new HadronDocument(__doc);
-        hadronDoc.size = __size;
+        hadronDoc.size = Number(__size);
         return hadronDoc;
       }
       return new HadronDocument(doc);
+    });
+  } catch (err) {
+    // We are handling all the cases where the size calculating projection might
+    // not work, but just in case we run into some other environment or use-case
+    // that we haven't anticipated, we will try re-running query without the
+    // modified projection once more before failing again if this didn't work
+    if (canCalculateDocSize && (err as Error).name === 'MongoServerError') {
+      return (
+        await dataService.find(ns, filter, options, executionOptions)
+      ).map((doc) => {
+        return new HadronDocument(doc);
+      });
     }
-  );
+
+    throw err;
+  }
 };
 
 /**
@@ -890,6 +911,7 @@ class CrudStoreImpl
       documents = await fetchDocuments(
         this.dataService,
         this.state.version,
+        this.state.isDataLake,
         ns,
         filter,
         opts as any,
@@ -1431,6 +1453,7 @@ class CrudStoreImpl
       fetchDocuments(
         this.dataService,
         this.state.version,
+        this.state.isDataLake,
         ns,
         query.filter,
         findOptions as any,
