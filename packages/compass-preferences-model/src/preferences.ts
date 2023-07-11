@@ -91,8 +91,6 @@ type PostProcessFunction<T> = (
 ) => T;
 
 type PreferenceDefinition<K extends keyof AllPreferences> = {
-  /** An optional default value for the preference */
-  default?: AllPreferences[K];
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
@@ -181,7 +179,6 @@ function featureFlagToPreferenceDefinition(
   featureFlag: FeatureFlagDefinition
 ): PreferenceDefinition<keyof FeatureFlags> {
   return {
-    default: false,
     cli: true,
     global: true,
     ui: true,
@@ -192,7 +189,7 @@ function featureFlagToPreferenceDefinition(
       featureFlag.stage === 'released'
         ? () => ({ value: true, state: 'hardcoded' })
         : undefined,
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(false),
   };
 }
 
@@ -212,7 +209,6 @@ const allFeatureFlagsProps: Required<{
 }> = {
   /** Meta-feature-flag! Whether to show the dev flags of the feature flag settings modal */
   showDevFeatureFlags: {
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -229,7 +225,6 @@ const allFeatureFlagsProps: Required<{
    * officially support the CSFLE schemaMap property.
    */
   enableDebugUseCsfleSchemaMap: {
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -249,49 +244,47 @@ const storedUserPreferencesProps: Required<{
    * String identifier for this set of preferences. Default is `General`.
    */
   id: {
-    default: 'General',
     ui: false,
     cli: false,
     global: false,
     description: null,
-    validator: Joi.string(),
+    validator: Joi.string().default('General'),
   },
   /**
    * Stores the last version compass was run as, e.g. `1.0.5`.
    */
   lastKnownVersion: {
-    default: '0.0.0',
     ui: false,
     cli: false,
     global: false,
     description: null,
-    validator: Joi.string(),
+    validator: Joi.string().default('0.0.0'),
   },
   /**
    * Stores whether or not the network opt-in screen has been shown to
    * the user already.
    */
   showedNetworkOptIn: {
-    default: false,
     ui: false,
     cli: true,
     global: false,
     description: null,
     omitFromHelp: true,
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Stores the theme preference for the user.
    */
   theme: {
-    default: 'LIGHT',
     ui: true,
     cli: true,
     global: true,
     description: {
       short: 'Compass UI Theme',
     },
-    validator: Joi.string<THEMES>().valid(...THEMES_VALUES),
+    validator: Joi.string<THEMES>()
+      .valid(...THEMES_VALUES)
+      .default('LIGHT'),
   },
   /**
    * Stores a unique MongoDB ID for the current user.
@@ -310,7 +303,6 @@ const storedUserPreferencesProps: Required<{
    * Stores a unique telemetry anonymous ID (uuid) for the current user.
    */
   telemetryAnonymousId: {
-    default: '',
     ui: false,
     cli: false,
     global: false,
@@ -324,20 +316,18 @@ const storedUserPreferencesProps: Required<{
    * (which includes maps, telemetry, auto-updates).
    */
   networkTraffic: {
-    default: true,
     ui: true,
     cli: true,
     global: true,
     description: {
       short: 'Enable network traffic other than to the MongoDB database',
     },
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(true),
   },
   /**
    * Removes features that write to the database from the UI.
    */
   readOnly: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -345,13 +335,12 @@ const storedUserPreferencesProps: Required<{
       short: 'Set Read-Only Mode',
       long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
     },
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable/disable the embedded shell.
    */
   enableShell: {
-    default: true,
     ui: true,
     cli: true,
     global: true,
@@ -360,13 +349,12 @@ const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(true),
   },
   /**
    * Switch to enable/disable maps rendering.
    */
   enableMaps: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -375,13 +363,12 @@ const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
    */
   enableFeedbackPanel: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -390,14 +377,13 @@ const storedUserPreferencesProps: Required<{
       long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableFeedbackPanel'),
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable/disable usage statistics collection
    * (renamed from `googleAnalytics`).
    */
   trackUsageStatistics: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -406,13 +392,12 @@ const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to send anonymous usage statistics.',
     },
     deriveValue: deriveNetworkTrafficOptionState('trackUsageStatistics'),
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable/disable automatic updates.
    */
   autoUpdates: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -421,13 +406,12 @@ const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to periodically check for new updates.',
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to hide credentials in connection strings from users.
    */
   protectConnectionStrings: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -435,13 +419,12 @@ const storedUserPreferencesProps: Required<{
       short: 'Protect Connection String Secrets',
       long: 'Hide credentials in connection strings from users.',
     },
-    validator: Joi.boolean().optional(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable DevTools in Electron.
    */
   enableDevTools: {
-    default: process.env.APP_ENV === 'webdriverio',
     ui: true,
     cli: true,
     global: true,
@@ -450,13 +433,12 @@ const storedUserPreferencesProps: Required<{
       long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
     },
     deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
-    validator: Joi.boolean().optional(),
+    validator: Joi.boolean().default(process.env.APP_ENV === 'webdriverio'),
   },
   /**
    * Switch to show the Kerberos password field in the connection form.
    */
   showKerberosPasswordField: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -464,13 +446,12 @@ const storedUserPreferencesProps: Required<{
       short: 'Show Kerberos Password Field',
       long: 'Show a password field for Kerberos authentication. Typically only useful when attempting to authenticate as another user than the current system user.',
     },
-    validator: Joi.boolean().optional(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to show the OIDC device auth flow option in the connection form.
    */
   showOIDCDeviceAuthFlow: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -478,13 +459,12 @@ const storedUserPreferencesProps: Required<{
       short: 'Show Device Auth Flow Checkbox',
       long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
     },
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Input to change the browser command used for OIDC authentication.
    */
   browserCommandForOIDCAuth: {
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -498,7 +478,6 @@ const storedUserPreferencesProps: Required<{
    * Input to change the browser command used for OIDC authentication.
    */
   persistOIDCTokens: {
-    default: true,
     ui: true,
     cli: true,
     global: true,
@@ -506,13 +485,12 @@ const storedUserPreferencesProps: Required<{
       short: 'Stay logged in with OIDC',
       long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism. Access tokens are encrypted using the system keychain before being stored.',
     },
-    validator: Joi.boolean().optional(),
+    validator: Joi.boolean().default(true),
   },
   /**
    * Override certain connection string properties.
    */
   forceConnectionOptions: {
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -529,7 +507,6 @@ const storedUserPreferencesProps: Required<{
    * Set an upper limit for maxTimeMS for operations started by Compass.
    */
   maxTimeMS: {
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -542,7 +519,6 @@ const storedUserPreferencesProps: Required<{
    * Do not handle mongodb:// and mongodb+srv:// URLs via Compass
    */
   installURLHandlers: {
-    default: true,
     ui: true,
     cli: true,
     global: true,
@@ -550,14 +526,13 @@ const storedUserPreferencesProps: Required<{
       short: 'Install Compass as URL Protocol Handler',
       long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
     },
-    validator: Joi.boolean(),
+    validator: Joi.boolean().default(true),
   },
   /**
    * Determines if the toggle to edit connection string for new connections
    * should be in the off state or in the on state by default
    */
   protectConnectionStringsForNewConnections: {
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -565,7 +540,7 @@ const storedUserPreferencesProps: Required<{
       short:
         'If true, "Edit connection string" is disabled for new connections by default',
     },
-    validator: Joi.boolean().optional(),
+    validator: Joi.boolean().default(false),
   },
   ...allFeatureFlagsProps,
 };
@@ -636,7 +611,6 @@ const nonUserPreferences: Required<{
   [K in keyof NonUserPreferences]: PreferenceDefinition<K>;
 }> = {
   ignoreAdditionalCommandLineFlags: {
-    default: false,
     ui: false,
     cli: true,
     global: true,
@@ -644,7 +618,7 @@ const nonUserPreferences: Required<{
       short: 'Allow Additional CLI Flags',
       long: 'Allow specifying command-line flags that Compass does not understand, e.g. Electron or Chromium flags',
     },
-    validator: Joi.boolean().optional(),
+    validator: Joi.boolean().default(false),
   },
   positionalArguments: {
     ui: false,
@@ -741,12 +715,14 @@ export class Preferences {
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
     isSandbox?: boolean
   ) {
-    // todo: validate
     const defaultPreferences = Object.fromEntries(
       Object.entries(storedUserPreferencesProps)
+        .map(([key, value]) => [
+          key,
+          value.validator.validate(undefined)?.value,
+        ])
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .filter(([_key, value]) => value.default !== undefined)
-        .map(([key, value]) => [key, value.default])
+        .filter(([key, value]) => value !== undefined)
     ) as UserPreferences;
 
     this._preferencesStorage = isSandbox
