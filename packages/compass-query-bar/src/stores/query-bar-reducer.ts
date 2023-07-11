@@ -1,4 +1,4 @@
-import type { Reducer, AnyAction } from 'redux';
+import type { Reducer } from 'redux';
 import { cloneDeep, isEqual } from 'lodash';
 import _ from 'lodash';
 import { UUID } from 'bson';
@@ -23,6 +23,7 @@ import {
   isQueryFieldsValid,
   validateField,
   isEqualDefaultQuery,
+  doesQueryHaveExtraOptionsSet,
 } from '../utils/query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
@@ -30,17 +31,11 @@ import {
   type RecentQuery,
   type FavoriteQuery,
   getQueryAttributes,
+  isAction,
 } from '../utils';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const TOTAL_RECENTS_ALLOWED = 30;
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
 
 type QueryBarState = {
   fields: QueryFormFields;
@@ -281,8 +276,10 @@ export const explainQuery = (): QueryBarThunkAction<void> => {
     const {
       queryBar: { fields },
     } = getState();
-    const query = mapFormFieldsToQuery(fields);
-    localAppRegistry?.emit('open-explain-plan-modal', { query });
+    const { project, ...query } = mapFormFieldsToQuery(fields);
+    localAppRegistry?.emit('open-explain-plan-modal', {
+      query: { ...query, projection: project },
+    });
   };
 };
 
@@ -477,14 +474,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (
-    isAction<ApplyFromHistoryAction>(
-      action,
-      QueryBarActions.ApplyFromHistory
-    ) ||
-    isAction<AIQuerySucceededAction>(
-      action,
-      AIQueryActionTypes.AIQuerySucceeded
-    )
+    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
   ) {
     return {
       ...state,
@@ -492,6 +482,19 @@ export const queryBarReducer: Reducer<QueryBarState> = (
         ...DEFAULT_FIELD_VALUES,
         ...(action.query ?? {}),
       }),
+    };
+  }
+
+  if (
+    isAction<AIQuerySucceededAction>(
+      action,
+      AIQueryActionTypes.AIQuerySucceeded
+    )
+  ) {
+    return {
+      ...state,
+      expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
+      fields: action.fields,
     };
   }
 

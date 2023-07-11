@@ -124,42 +124,59 @@ type CollectionHeaderProps = {
 
 const ATLAS_SEARCH_LP_LINK = 'https://www.mongodb.com/cloud/atlas/lp/search-1';
 
+const INSIGHTS = {
+  'atlas-text-regex-usage-in-view': {
+    id: 'atlas-text-regex-usage-in-view',
+    title: 'Alternate text search options available',
+    description:
+      "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your view’s query to $search for a wider range of functionality.",
+    learnMoreLink:
+      'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+    primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
+    primaryActionButtonLabel: 'Try Atlas Search',
+  },
+  'non-atlas-text-regex-usage-in-view': {
+    id: 'non-atlas-text-regex-usage-in-view',
+    title: 'Alternate text search options available',
+    description:
+      "In many cases, Atlas Search is MongoDB's most efficient full text search option. Connect with Atlas to explore the power of Atlas Search.",
+    learnMoreLink:
+      'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
+    primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
+    primaryActionButtonLabel: 'Try Atlas Search',
+  },
+  'lookup-in-view': {
+    id: 'lookup-in-view',
+    title: '$lookup usage',
+    description:
+      '$lookup operations can be resource-intensive because they perform operations on two collections instead of one. In certain situations, embedding documents or arrays can enhance read performance.',
+    learnMoreLink:
+      'https://www.mongodb.com/docs/atlas/schema-suggestions/reduce-lookup-operations/#std-label-anti-pattern-denormalization',
+  },
+} as const;
+
 const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
-  const insights: Record<string, Signal> = {};
+  const insights = new Set<Signal>();
   for (const stage of pipeline) {
     if ('$match' in stage) {
       const stringifiedStageValue = JSON.stringify(stage);
-      if (
-        stringifiedStageValue.includes('$regex') ||
-        stringifiedStageValue.includes('$text')
-      ) {
-        const signal = isAtlas
-          ? {
-              id: 'atlas-text-regex-usage-in-view',
-              title: 'Alternate text search options available',
-              description:
-                "In many cases, Atlas Search is MongoDB's most efficient full text search option. Convert your view’s query to $search for a wider range of functionality.",
-              learnMoreLink:
-                'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
-              primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
-              primaryActionButtonLabel: 'Try Atlas Search',
-            }
-          : {
-              id: 'non-atlas-text-regex-usage-in-view',
-              title: 'Alternate text search options available',
-              description:
-                "In many cases, Atlas Search is MongoDB's most efficient full text search option. Connect with Atlas to explore the power of Atlas Search.",
-              learnMoreLink:
-                'https://www.mongodb.com/docs/atlas/atlas-search/best-practices/',
-              primaryActionButtonLink: ATLAS_SEARCH_LP_LINK,
-              primaryActionButtonLabel: 'Try Atlas Search',
-            };
-
-        insights[signal.id] = signal;
+      if (/\$(text|regex)\b/.test(stringifiedStageValue)) {
+        insights.add(
+          INSIGHTS[
+            isAtlas
+              ? 'atlas-text-regex-usage-in-view'
+              : 'non-atlas-text-regex-usage-in-view'
+          ]
+        );
       }
     }
+
+    if ('$lookup' in stage) {
+      insights.add(INSIGHTS['lookup-in-view']);
+    }
   }
-  return Object.values(insights);
+
+  return Array.from(insights);
 };
 
 class CollectionHeader extends Component<CollectionHeaderProps> {

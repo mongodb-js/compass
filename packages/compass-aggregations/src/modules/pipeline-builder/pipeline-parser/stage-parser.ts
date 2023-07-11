@@ -76,6 +76,7 @@ export function assertStageNode(
   } else if (
     node.properties.length !== 1 ||
     node.properties[0].type !== 'ObjectProperty' ||
+    // eslint-disable-next-line eqeqeq
     node.properties[0].key == null
   ) {
     error =
@@ -87,6 +88,7 @@ export function assertStageNode(
     error = `Unrecognized pipeline stage name${key ? `: '${key}'` : ''}`;
     errorCode = StageAssertionErrorCodes.UnrecognizedStageName;
     causedBy = node.properties[0].key;
+    // eslint-disable-next-line eqeqeq
   } else if (!loose && node.properties[0].value == null) {
     error = 'Stage value can not be empty';
     errorCode = StageAssertionErrorCodes.NoStageValue;

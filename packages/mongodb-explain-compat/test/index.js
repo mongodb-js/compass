@@ -6,7 +6,9 @@ const fs = require('fs');
 const path = require('path');
 
 function fixture(name) {
-  return JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', name + '.json'), 'utf8'));
+  return JSON.parse(
+    fs.readFileSync(path.join(__dirname, 'fixtures', name + '.json'), 'utf8')
+  );
 }
 
 describe('convertExplainCompat', () => {
@@ -102,6 +104,14 @@ describe('convertExplainCompat', () => {
         convertExplainCompat(fixture('unsharded-find.sbe.in')),
         fixture('unsharded-find.sbe.out')
       );
+    });
+  });
+
+  describe('explain mode "queryPlanner"', function () {
+    it('should work without failing', function () {
+      assert.doesNotThrow(() => {
+        convertExplainCompat(fixture('query-planner-only'));
+      });
     });
   });
 });

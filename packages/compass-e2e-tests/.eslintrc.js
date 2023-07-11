@@ -5,4 +5,12 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig-lint.json'],
   },
+  overrides: [
+    {
+      files: ['**/*.ts'],
+      rules: {
+        'no-console': 0,
+      },
+    },
+  ],
 };

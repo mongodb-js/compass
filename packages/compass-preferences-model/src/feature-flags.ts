@@ -82,7 +82,7 @@ export const featureFlags: Required<{
   },
 
   showInsights: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Show performance insights',
       long: 'Surface visual signals in the Compass interface to highlight potential performance issues and anti-patterns.',

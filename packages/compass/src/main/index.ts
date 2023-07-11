@@ -115,6 +115,7 @@ async function main(): Promise<void> {
       return app.exit(1);
     }
     process.on('uncaughtException', (err) => {
+      // eslint-disable-next-line no-console
       console.error(err);
       CompassApplication.runExitHandlers().finally(() => app.exit(1));
     });
@@ -156,6 +157,7 @@ async function main(): Promise<void> {
         );
       }
     } catch (err: any) {
+      // eslint-disable-next-line no-console
       console.error('Failed to perform operation', err?.messsage ?? err);
       exitCode = 1;
     } finally {

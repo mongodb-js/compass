@@ -57,7 +57,11 @@ export function useFocusState(): [
   return [mergedProps, focusStateRef.current, focusStateRef];
 }
 
-export function useHoverState(): [React.HTMLAttributes<HTMLElement>, boolean] {
+export function useHoverState(): [
+  React.HTMLAttributes<HTMLElement>,
+  boolean,
+  React.Dispatch<React.SetStateAction<boolean>>
+] {
   const [isHovered, setIsHovered] = useState(false);
   const hoverProps = {
     onMouseEnter() {
@@ -67,5 +71,5 @@ export function useHoverState(): [React.HTMLAttributes<HTMLElement>, boolean] {
       setIsHovered(false);
     },
   };
-  return [hoverProps, isHovered];
+  return [hoverProps, isHovered, setIsHovered];
 }

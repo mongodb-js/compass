@@ -1129,3 +1129,7 @@ export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} button[typ
 
 // Modify view
 export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
+
+// Insights
+export const InsightIconButton = '[data-testid="insight-badge-button"]';
+export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
