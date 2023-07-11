@@ -7,6 +7,7 @@ import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
 import type { AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
+import type { Types as JoiTypes } from 'joi';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
@@ -91,7 +92,7 @@ async function loadGlobalPreferences(
 const cliProps = Object.entries(allPreferencesProps).filter(
   ([, definition]) => definition.cli
 );
-function getCliPropNamesByType(type: unknown): string[] {
+function getCliPropNamesByType(type: JoiTypes): string[] {
   return [
     ...new Set(
       cliProps

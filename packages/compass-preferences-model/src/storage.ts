@@ -2,8 +2,6 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import type { UserPreferences } from './preferences';
 
-const ENCODING_UTF8 = 'utf8';
-
 export abstract class BasePreferencesStorage {
   abstract setup(): Promise<void>;
   abstract getPreferences(): UserPreferences;
@@ -58,7 +56,7 @@ export class StoragePreferences extends BasePreferencesStorage {
 
     try {
       this.preferences = JSON.parse(
-        (await fs.readFile(this.getFilePath(), 'utf8'))
+        await fs.readFile(this.getFilePath(), 'utf8')
       );
     } catch (e) {
       if ((e as any).code !== 'ENOENT') {
@@ -68,7 +66,7 @@ export class StoragePreferences extends BasePreferencesStorage {
       await fs.writeFile(
         this.getFilePath(),
         JSON.stringify(this.defaultPreferences, null, 2),
-        ENCODING_UTF8
+        'utf-8'
       );
     }
   }
@@ -85,7 +83,7 @@ export class StoragePreferences extends BasePreferencesStorage {
     await fs.writeFile(
       this.getFilePath(),
       JSON.stringify(newPreferences, null, 2),
-      ENCODING_UTF8
+      'utf-8'
     );
 
     this.preferences = newPreferences;
