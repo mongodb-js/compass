@@ -86,11 +86,8 @@
     "mongodb-data-service": "^22.8.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.5.0",
-<<<<<<< HEAD
     "mongodb-query-util": "^2.0.0",
     "mongodb-schema": "^11.2.1",
-=======
->>>>>>> d77850be2 (fix checks)
     "node-fetch": "^2.6.7",
     "nyc": "^15.1.0",
     "react": "^17.0.2",
