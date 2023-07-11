@@ -50,6 +50,16 @@ describe('Preferences class', function () {
     expect(result.enableMaps).to.equal(true);
   });
 
+  it('throws when saving invalid data', async function () {
+    const preferences = await setupPreferences(tmpdir);
+    expect(
+      async () =>
+        await preferences.savePreferences({
+          telemetryAnonymousId: 'not-a-uuid',
+        })
+    ).to.throw;
+  });
+
   it('forbids saving non-model preferences', async function () {
     const preferences = await setupPreferences(tmpdir);
     try {

@@ -178,7 +178,7 @@ function validatePreferences(
       continue;
     }
 
-    obj[key] = validationResults.value;
+    obj[key] = validationResults.value as any;
   }
   return [obj, errors];
 }
