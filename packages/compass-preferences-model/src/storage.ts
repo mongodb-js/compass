@@ -58,7 +58,7 @@ export class StoragePreferences extends BasePreferencesStorage {
 
     try {
       this.preferences = JSON.parse(
-        (await fs.readFile(this.getFilePath(), ENCODING_UTF8)).toString()
+        (await fs.readFile(this.getFilePath(), 'utf8'))
       );
     } catch (e) {
       if ((e as any).code !== 'ENOENT') {
