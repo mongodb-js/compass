@@ -500,7 +500,7 @@ const storedUserPreferencesProps: Required<{
     },
     customPostProcess: parseRecord,
     validator: Joi.array()
-      .items(Joi.array().items(Joi.string(), Joi.string()))
+      .items(Joi.array().length(2).items(Joi.string()))
       .optional(),
   },
   /**
