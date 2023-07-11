@@ -17,8 +17,9 @@ import {
   createQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
-import type { QueryBarState } from '../stores/query-bar-reducer';
 import { usePreference } from 'compass-preferences-model';
+
+import type { RootState } from '../stores/query-bar-store';
 
 const editorStyles = css({
   position: 'relative',
@@ -53,8 +54,10 @@ const editorWithErrorStyles = css({
 
 const queryBarEditorOptionInsightsStyles = css({
   position: 'absolute',
-  // Horizontally the insight is in the middle of the first line of the editor
-  top: `calc((${spacing[4]}px - 18px) / 2)`,
+  // Horizontally the insight is in the middle of the first line of the editor:
+  // (input height - insight badge height) / 2 to get the empty space + 1px
+  // because top indicates where element starts, not where padding ends
+  top: `calc((${spacing[4]}px - 18px) / 2 + 1px)`,
   right: spacing[1],
 });
 
@@ -63,7 +66,7 @@ type OptionEditorProps = {
   id: string;
   onChange: (value: string) => void;
   onApply?(): void;
-  placeholder?: string;
+  placeholder?: string | HTMLElement;
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
@@ -151,10 +154,10 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   );
 };
 
-const ConnectedOptionEditor = connect((state: QueryBarState) => {
+const ConnectedOptionEditor = connect((state: RootState) => {
   return {
-    schemaFields: state.schemaFields as CompletionWithServerInfo[],
-    serverVersion: state.serverVersion,
+    schemaFields: state.queryBar.schemaFields as CompletionWithServerInfo[],
+    serverVersion: state.queryBar.serverVersion,
   };
 })(OptionEditor);
 

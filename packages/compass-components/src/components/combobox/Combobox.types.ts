@@ -1,6 +1,7 @@
-import { ReactElement, ReactNode } from 'react';
+/* eslint-disable filename-rules/match */
 
-import { Either, HTMLElementProps } from '@leafygreen-ui/lib';
+import type { ReactElement, ReactNode } from 'react';
+import type { Either, HTMLElementProps } from '@leafygreen-ui/lib';
 
 /**
  * Prop Enums & Types

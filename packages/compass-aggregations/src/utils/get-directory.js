@@ -4,6 +4,7 @@ let electronApp;
 try {
   electronApp = require('@electron/remote').app;
 } catch (e) {
+  // eslint-disable-next-line no-console
   console.log('Could not load @electron/remote', e.message);
 }
 

@@ -40,6 +40,7 @@ import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
 import {
+  showBloatedDocumentSignalToast,
   showCancelledToast,
   showCompletedToast,
   showCompletedWithErrorsToast,
@@ -219,6 +220,7 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
         transform,
       },
       dataService: { dataService },
+      globalAppRegistry: appRegistry,
     } = getState();
 
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
@@ -401,6 +403,16 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
         errorLogFilePath: errorLogFilePath,
       });
     } else {
+      if (result.biggestDocSize > 10_000_000 && appRegistry !== null) {
+        showBloatedDocumentSignalToast({
+          onReviewDocumentsClick: () => {
+            appRegistry.emit('import-export-open-collection-in-new-tab', {
+              ns,
+            });
+          },
+        });
+      }
+
       if (errors.length > 0) {
         showCompletedWithErrorsToast({
           docsWritten: result.docsWritten,

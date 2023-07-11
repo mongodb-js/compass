@@ -1,8 +1,8 @@
 const semver = require('semver');
 const fetch = require('make-fetch-happen');
-const { forEachPackage } = require('./monorepo/for-each-package');
 const fs = require('fs');
 const path = require('path');
+const { forEachPackage } = require('@mongodb-js/monorepo-tools');
 const { runInDir } = require('./run-in-dir');
 
 async function cleanAndBootstrap(electronVersion) {

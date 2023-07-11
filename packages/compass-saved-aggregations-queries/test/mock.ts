@@ -1,11 +1,14 @@
-import type { Query } from '@mongodb-js/compass-query-history';
+import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
 import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
 
 type UpdateAttributes = Record<string, unknown>;
 interface FavoriteQueryStorage {
   new (): {
-    loadAll(): Promise<Query[]>;
-    updateAttributes(id: string, attributes: UpdateAttributes): Promise<Query>;
+    loadAll(): Promise<FavoriteQuery[]>;
+    updateAttributes(
+      id: string,
+      attributes: UpdateAttributes
+    ): Promise<FavoriteQuery>;
     delete(id: string): Promise<void>;
   };
 }
@@ -52,7 +55,7 @@ export function createCompassAggregationsMock(aggregations: StoredPipeline[]): {
   };
 }
 
-export function createCompassQueryHistoryMock(queries: Query[]): {
+export function createCompassQueryHistoryMock(queries: FavoriteQuery[]): {
   FavoriteQueryStorage: FavoriteQueryStorage;
 } {
   let data = [...queries];
@@ -64,7 +67,7 @@ export function createCompassQueryHistoryMock(queries: Query[]): {
       updateAttributes(
         id: string,
         attributes: UpdateAttributes
-      ): Promise<Query> {
+      ): Promise<FavoriteQuery> {
         const index = data.findIndex((x) => x._id === id);
         if (index >= 0) {
           data[index] = {
@@ -76,7 +79,7 @@ export function createCompassQueryHistoryMock(queries: Query[]): {
         throw new Error('Can not find query');
       }
       delete(id: string): Promise<void> {
-        data = data.filter((x: Query) => x._id !== id);
+        data = data.filter((x: FavoriteQuery) => x._id !== id);
         return Promise.resolve();
       }
     },
@@ -85,10 +88,10 @@ export function createCompassQueryHistoryMock(queries: Query[]): {
 
 export function createProxyquireMockForQueriesAndAggregationsPlugins(
   pipelines: StoredPipeline[],
-  queries: Query[]
+  queries: FavoriteQuery[]
 ): unknown {
   return {
-    '@mongodb-js/compass-query-history': {
+    '@mongodb-js/compass-query-bar': {
       ...createCompassQueryHistoryMock(queries),
       '@global': true,
       '@noCallThru': true,

@@ -1,0 +1,39 @@
+{
+  "explainVersion": "2",
+  "queryPlanner": {
+    "namespace": "test.test",
+    "indexFilterSet": false,
+    "parsedQuery": {
+      "foo": {
+        "$eq": 1
+      }
+    },
+    "queryHash": "AFE90209",
+    "planCacheKey": "AFE90209",
+    "maxIndexedOrSolutionsReached": false,
+    "maxIndexedAndSolutionsReached": false,
+    "maxScansToExplodeReached": false,
+    "winningPlan": {
+      "queryPlan": {
+        "stage": "LIMIT",
+        "planNodeId": 2,
+        "limitAmount": 20,
+        "inputStage": {
+          "stage": "COLLSCAN",
+          "planNodeId": 1,
+          "filter": {
+            "foo": {
+              "$eq": 1
+            }
+          },
+          "direction": "forward"
+        }
+      },
+      "slotBasedPlan": {
+        "slots": "$$RESULT=s4 $$RID=s5 env: { s1 = TimeZoneDatabase(America/Indiana/Vevay...Europe/Brussels) (timeZoneDB), s2 = Nothing (SEARCH_META), s3 = 1688644646710 (NOW) }",
+        "stages": "[2] limit 20 \n[1] filter {fillEmpty (s8, false)} \n[1] traverse s8 s7 s6 [s4, s5] {s8 || s7} {s8} \nfrom \n    [1] project [s6 = getField (s4, \"foo\")] \n    [1] scan s4 s5 none none none none [] @\"5a530bd0-f7ef-4245-9568-c67723199e33\" true false \nin \n    [1] project [s7 = fillEmpty (s6 == 1, false)] \n    [1] limit 1 \n    [1] coscan \n"
+      }
+    },
+    "rejectedPlans": []
+  }
+}

@@ -10,7 +10,7 @@ import React, {
 import type { Command, KeyBinding } from '@codemirror/view';
 import {
   keymap,
-  placeholder,
+  placeholder as codemirrorPlaceholder,
   drawSelection,
   highlightActiveLine,
   lineNumbers,
@@ -415,7 +415,7 @@ type EditorProps = {
   minLines?: number;
   maxLines?: number;
   lineHeight?: number;
-  placeholder?: string;
+  placeholder?: Parameters<typeof codemirrorPlaceholder>[0];
   commands?: readonly KeyBinding[];
   initialJSONFoldAll?: boolean;
 } & (
@@ -478,7 +478,7 @@ async function sheduleDispatch(
   transactions: TransactionSpec | TransactionSpec[],
   signal?: AbortSignal
 ): Promise<boolean> {
-  while ((editorView as any).updateState != 0) {
+  while ((editorView as any).updateState !== 0) {
     if (signal?.aborted) {
       return false;
     }
@@ -568,7 +568,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     minLines,
     maxLines,
     lineHeight = 16,
-    placeholder: placeholderString,
+    placeholder,
     commands,
     initialJSONFoldAll: _initialJSONFoldAll = true,
     ...props
@@ -744,9 +744,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
   const placeholderExtension = useCodemirrorExtensionCompartment(
     () => {
-      return placeholderString ? placeholder(placeholderString) : [];
+      return placeholder ? codemirrorPlaceholder(placeholder) : [];
     },
-    placeholderString,
+    placeholder,
     editorViewRef
   );
 
