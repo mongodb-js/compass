@@ -90,31 +90,6 @@ describe('Preferences class', function () {
     expect(calls).to.deep.equal([{ enableMaps: true }]);
   });
 
-  it.skip('handles concurrent modifications to different preferences', async function () {
-    const calls: any[] = [];
-
-    const preferences1 = new Preferences(tmpdir);
-    preferences1.onPreferencesChanged((prefs) => calls.push(1, prefs));
-
-    const preferences2 = new Preferences(tmpdir);
-    preferences2.onPreferencesChanged((prefs) => calls.push(2, prefs));
-
-    await preferences1.savePreferences({ enableMaps: true });
-    await preferences2.savePreferences({ autoUpdates: true });
-    const result1 = preferences1.getPreferences();
-    const result2 = preferences2.getPreferences();
-    expect(result1).to.deep.equal(result2);
-    expect(result1.enableMaps).to.equal(true);
-    expect(result1.autoUpdates).to.equal(true);
-
-    expect(calls).to.deep.equal([
-      1,
-      { enableMaps: true },
-      2,
-      { autoUpdates: true },
-    ]);
-  });
-
   it('can return user-configurable preferences after setting their defaults', async function () {
     const preferences = await setupPreferences(tmpdir);
     await preferences.ensureDefaultConfigurableUserPreferences();
