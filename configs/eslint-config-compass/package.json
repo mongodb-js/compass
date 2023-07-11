@@ -15,7 +15,7 @@
   "dependencies": {
     "@babel/core": "^7.21.4",
     "@babel/eslint-parser": "^7.14.3",
-    "@mongodb-js/eslint-config-devtools": "^0.9.7",
+    "@mongodb-js/eslint-config-devtools": "^0.9.9",
     "@mongodb-js/eslint-plugin-compass": "^1.0.6",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",

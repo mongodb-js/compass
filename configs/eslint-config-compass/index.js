@@ -4,11 +4,18 @@ const path = require('path');
 const shared = require('@mongodb-js/eslint-config-devtools');
 const common = require('@mongodb-js/eslint-config-devtools/common');
 
-const tsRules = {
-  ...common.tsRules,
+const extraTsRules = {
   // Newly converted plugins use `any` quite a lot, we can't enable the rule,
   // but we can warn so we can eventually address this
   '@typescript-eslint/no-unsafe-argument': 'warn',
+  '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
+  '@typescript-eslint/restrict-template-expressions': 'warn',
+  '@typescript-eslint/restrict-plus-operands': 'warn',
+};
+
+const tsRules = {
+  ...common.tsRules,
+  ...extraTsRules,
 };
 
 const tsOverrides = {
@@ -18,7 +25,7 @@ const tsOverrides = {
 
 const tsxRules = {
   ...common.tsxRules,
-  '@typescript-eslint/no-unsafe-argument': 'warn',
+  ...extraTsRules,
 };
 
 const tsxOverrides = {
@@ -26,12 +33,20 @@ const tsxOverrides = {
   rules: { ...tsxRules },
 };
 
-const testOverrides = {
+const testJsOverrides = {
   ...common.testOverrides,
+  files: ['**/*.spec.js', '**/*.spec.jsx', '**/*.test.js'],
   rules: {
     ...common.testRules,
-    '@typescript-eslint/no-unsafe-argument': 'off',
-    '@typescript-eslint/restrict-template-expressions': 'off',
+    '@mongodb-js/compass/unique-mongodb-log-id': 'off',
+  },
+};
+
+const testTsOverrides = {
+  files: ['**/*.spec.ts', '**/*.spec.tsx', '**/*.test.tsx', '**/*.test.ts'],
+  rules: {
+    ...common.testRules,
+    ...extraTsRules,
     '@mongodb-js/compass/unique-mongodb-log-id': 'off',
   },
 };
@@ -54,7 +69,8 @@ module.exports = {
     common.jsxOverrides,
     tsOverrides,
     tsxOverrides,
-    testOverrides,
+    testJsOverrides,
+    testTsOverrides,
   ],
   settings: {
     ...shared.settings,
