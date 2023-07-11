@@ -34,11 +34,11 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableShell: boolean;
     protectConnectionStrings?: boolean;
     forceConnectionOptions?: [key: string, value: string][];
-    showKerberosPasswordField?: boolean;
+    showKerberosPasswordField: boolean;
     showOIDCDeviceAuthFlow: boolean;
     browserCommandForOIDCAuth?: string;
     persistOIDCTokens?: boolean;
-    enableDevTools?: boolean;
+    enableDevTools: boolean;
     theme: THEMES;
     maxTimeMS?: number;
     installURLHandlers: boolean;
