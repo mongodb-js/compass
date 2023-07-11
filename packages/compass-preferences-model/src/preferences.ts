@@ -801,14 +801,14 @@ export class Preferences {
       );
     }
 
-    keys.forEach((key) => {
+    for (const key of keys) {
       const { error } = storedUserPreferencesProps[key].validator.validate(
         attributes[key]
       );
       if (error) {
         throw error;
       }
-    });
+    }
 
     try {
       await this._preferencesStorage.updatePreferences(attributes);
