@@ -210,7 +210,7 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
   return (
     <>
       {fields.map((name) => {
-        const { type, required } = getSettingDescription(name);
+        const { type } = getSettingDescription(name);
         if (type !== 'boolean' && type !== 'number' && type !== 'string') {
           throw new Error(
             `do not know how to render type ${
@@ -235,7 +235,7 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
                   value={
                     currentValues[name as NumericPreferences & PreferenceName]
                   }
-                  required={required}
+                  required={false}
                   disabled={!!preferenceStates[name]}
                 />
               ) : type === 'string' ? (
@@ -245,7 +245,7 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
                   value={
                     currentValues[name as StringPreferences & PreferenceName]
                   }
-                  required={required}
+                  required={false}
                   disabled={!!preferenceStates[name]}
                 />
               ) : null}
