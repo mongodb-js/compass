@@ -9,7 +9,10 @@ let isClosed = false;
 const clusters = new Map<string, MongoCluster>();
 const defaults: MongoClusterOptions = {
   topology: 'standalone',
-  tmpDir: path.join(os.tmpdir(), `compass-tests-${Date.now()}`),
+  tmpDir: path.join(
+    os.tmpdir(),
+    `compass-tests-${process.env.EVERGREEN_TASK_ID ?? 'local'}`
+  ),
   logDir: process.env.MONGODB_RUNNER_LOGDIR,
   version: process.env.MONGODB_VERSION,
 };
@@ -41,7 +44,9 @@ export function mochaTestServer(
   let cluster: MongoCluster | undefined;
 
   before(async function () {
-    this.timeout(180_000);
+    // Downloading Windows executables in CI takes a long time because
+    // they include debug symbols...
+    this.timeout(500_000);
     cluster = await startTestServer(...args);
   });
 

@@ -72,7 +72,7 @@ variables:
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
     EVERGREEN_BUCKET_NAME: mciuploads
     EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
-    MONGODB_RUNNER_LOGDIR: ${workdir}/src/.testserver/
+    MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
 
 # This is here with the variables because anchors aren't supported across includes
 post:
