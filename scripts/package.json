@@ -38,8 +38,8 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
-    "@mongodb-js/webpack-config-compass": "^1.1.0",
     "@mongodb-js/monorepo-tools": "^1.1.1",
+    "@mongodb-js/webpack-config-compass": "^1.1.0",
     "commander": "^11.0.0",
     "electron": "^23.3.9",
     "glob": "^10.2.5",
@@ -53,7 +53,7 @@
     "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
     "prompts": "^2.4.1",
-    "semver": "^7.3.5",
+    "semver": "^7.5.4",
     "uuid": "^8.3.2"
   }
 }

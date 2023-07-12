@@ -98,7 +98,7 @@
     "react-dom": "^17.0.2",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
-    "semver": "^7.5.2",
+    "semver": "^7.5.4",
     "sinon": "^8.1.1"
   },
   "dependencies": {
