@@ -63,7 +63,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**bson-transpilers**](packages/bson-transpilers): Source to source compilers using ANTLR
 - [**compass-e2e-tests**](packages/compass-e2e-tests): E2E test suite for Compass app that follows smoke tests / feature testing matrix
 - [**compass-preferences-model**](packages/compass-preferences-model): Compass preferences model
-- [**compass-user-model**](packages/compass-user-model): MongoDB user model
 - [**electron-license**](packages/electron-license): Tools for electron apps to work with licenses
 - [**hadron-app**](packages/hadron-app): Hadron Application Singleton
 - [**hadron-app-registry**](packages/hadron-app-registry): Hadron App Registry

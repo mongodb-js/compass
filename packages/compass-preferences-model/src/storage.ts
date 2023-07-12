@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import type { UserPreferences } from './preferences';
+import { UUID } from 'bson';
 
 export abstract class BasePreferencesStorage {
   abstract setup(): Promise<void>;
@@ -89,5 +90,65 @@ export class StoragePreferences extends BasePreferencesStorage {
     );
 
     this.preferences = newPreferences;
+  }
+}
+
+export type User = {
+  id: string;
+  createdAt: Date;
+  lastUsed: Date;
+};
+
+export class UserStorage {
+  private readonly folder = 'Users';
+  constructor(private readonly basepath: string = '') {}
+
+  private getFilePath(id: string) {
+    return join(this.basepath, this.folder, `${id}.json`);
+  }
+
+  async getOrCreate(id: string): Promise<User> {
+    try {
+      return this.getUser(id);
+    } catch (e) {
+      if ((e as any).code !== 'ENOENT') {
+        throw e;
+      }
+      return this.createUser();
+    }
+  }
+
+  async getUser(id: string): Promise<User> {
+    return JSON.parse(await fs.readFile(this.getFilePath(id), 'utf-8'));
+  }
+
+  private async createUser(): Promise<User> {
+    const id = new UUID().toString();
+    const user = {
+      id,
+      createdAt: new Date(),
+      lastUsed: new Date(),
+    };
+    await fs.writeFile(
+      this.getFilePath(id),
+      JSON.stringify(user, null, 2),
+      'utf-8'
+    );
+    return user;
+  }
+
+  async updateUser(id: string, attributes: Partial<User>): Promise<User> {
+    const user = await this.getUser(id);
+    const newData = {
+      ...user,
+      ...attributes,
+    };
+
+    await fs.writeFile(
+      this.getFilePath(id),
+      JSON.stringify(newData, null, 2),
+      'utf-8'
+    );
+    return newData;
   }
 }

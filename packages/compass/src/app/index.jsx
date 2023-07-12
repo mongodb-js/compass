@@ -2,7 +2,7 @@ import dns from 'dns';
 import ipc from 'hadron-ipc';
 import * as remote from '@electron/remote';
 
-import preferences from 'compass-preferences-model';
+import preferences, { getActiveUser } from 'compass-preferences-model';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -52,8 +52,6 @@ const APP_VERSION = remote.app.getVersion() || '';
 import View from 'ampersand-view';
 import async from 'async';
 import * as webvitals from 'web-vitals';
-
-import User from 'compass-user-model';
 
 import './menu-renderer';
 marky.mark('Migrations');
@@ -111,9 +109,6 @@ const Application = View.extend({
       type: 'string',
       default: '0.0.0',
     },
-  },
-  children: {
-    user: User,
   },
   initialize: function () {
     /**
@@ -211,21 +206,10 @@ const Application = View.extend({
 
     document.querySelector('#loading-placeholder')?.remove();
   },
-  fetchUser: async function () {
-    debug('getting user preferences');
-    const { telemetryAnonymousId, lastKnownVersion } =
-      preferences.getPreferences();
-
-    // The main process ensured that `telemetryAnonymousId` contains the id of the User model.
-    const user = await User.getOrCreate(telemetryAnonymousId);
-
-    this.user.set(user.serialize());
-    this.user.trigger('sync');
-    debug('user fetch successful', user.serialize());
-
+  updateAppVersion: async function () {
+    const { lastKnownVersion } = preferences.getPreferences();
     this.previousVersion = lastKnownVersion || '0.0.0';
     await preferences.savePreferences({ lastKnownVersion: APP_VERSION });
-    return user;
   },
 });
 
@@ -240,8 +224,7 @@ app.extend({
       [
         // Check if migrations are required.
         migrateApp.bind(state),
-        // Get user.
-        state.fetchUser.bind(state),
+        state.updateAppVersion.bind(state),
       ],
       function (err) {
         if (err) {
@@ -251,7 +234,7 @@ app.extend({
         // Get theme from the preferences and set accordingly.
         setupTheme();
 
-        Action.pluginActivationCompleted.listen(() => {
+        Action.pluginActivationCompleted.listen(async () => {
           state.preRender();
           global.hadronApp.appRegistry.onActivated();
           global.hadronApp.appRegistry.emit(
@@ -259,7 +242,8 @@ app.extend({
             APP_VERSION,
             process.env.HADRON_PRODUCT_NAME
           );
-          setupIntercom(state.user);
+          const user = await getActiveUser();
+          setupIntercom(user);
           // Catch a data refresh coming from window-manager.
           ipc.on('app:refresh-data', () =>
             global.hadronApp.appRegistry.emit('refresh-data')
@@ -309,12 +293,6 @@ Object.defineProperty(app, 'connection', {
 Object.defineProperty(app, 'router', {
   get: function () {
     return state.router;
-  },
-});
-
-Object.defineProperty(app, 'user', {
-  get: function () {
-    return state.user;
   },
 });
 
