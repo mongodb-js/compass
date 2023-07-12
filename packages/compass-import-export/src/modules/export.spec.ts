@@ -29,6 +29,7 @@ import {
 } from './export';
 import type { RootState } from './export';
 import { dataServiceConnected, globalAppRegistryActivated } from './compass';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 type DispatchFunctionType = ThunkDispatch<RootState, void, AnyAction>;
 
@@ -292,6 +293,7 @@ describe('export [module]', function () {
   });
 
   describe('#runExport', function () {
+    const cluster = mochaTestServer();
     let dataService: DataService;
     let tmpdir: string;
     let appRegistry: AppRegistry;
@@ -309,7 +311,7 @@ describe('export [module]', function () {
 
       dataService = await connect({
         connectionOptions: {
-          connectionString: 'mongodb://localhost:27019/local',
+          connectionString: cluster().connectionString,
         },
       });
 

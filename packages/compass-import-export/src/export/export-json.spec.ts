@@ -20,6 +20,7 @@ temp.track();
 import { fixtures } from '../../test/fixtures';
 
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -36,6 +37,7 @@ function replaceIds(text: string) {
 }
 
 describe('exportJSON', function () {
+  const cluster = mochaTestServer();
   let dataService: DataService;
   let tmpdir: string;
 
@@ -50,7 +52,7 @@ describe('exportJSON', function () {
 
     dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27019/local',
+        connectionString: cluster().connectionString,
       },
     });
 
