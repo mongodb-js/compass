@@ -1,9 +1,14 @@
 import type { MongoClusterOptions } from 'mongodb-runner';
 import { MongoCluster } from 'mongodb-runner';
+import { createHash } from 'crypto';
 import path from 'path';
 import os from 'os';
 
 export type { MongoCluster, MongoClusterOptions } from 'mongodb-runner';
+
+function hash(input: string): string {
+  return createHash('sha256').update(input).digest('hex').slice(0, 12);
+}
 
 let isClosed = false;
 const clusters = new Map<string, MongoCluster>();
@@ -11,7 +16,7 @@ const defaults: MongoClusterOptions = {
   topology: 'standalone',
   tmpDir: path.join(
     os.tmpdir(),
-    `compass-tests-${process.env.EVERGREEN_TASK_ID ?? 'local'}`
+    `compass-tests-${hash(process.env.EVERGREEN_TASK_ID ?? '')}`
   ),
   logDir: process.env.MONGODB_RUNNER_LOGDIR,
   version: process.env.MONGODB_VERSION,

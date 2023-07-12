@@ -1,8 +1,7 @@
 import assert from 'assert';
 import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
-import type { MongoClientOptions } from 'mongodb';
-import { type CommandStartedEvent } from 'mongodb';
+import type { MongoClientOptions, CommandStartedEvent } from 'mongodb';
 
 import {
   connectMongoClientDataService as connectMongoClient,
