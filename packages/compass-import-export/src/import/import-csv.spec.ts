@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import os from 'os';
 import _ from 'lodash';
 import assert from 'assert';

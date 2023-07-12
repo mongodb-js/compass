@@ -1,3 +1,4 @@
+/* eslint-disable filename-rules/match */
 import React, {
   useCallback,
   useEffect,
@@ -50,16 +51,18 @@ import {
   labelDescriptionContainerStyle,
   multiselectInputElementStyle,
 } from './Combobox.styles';
-import {
-  ComboboxElement,
+import type {
   ComboboxProps,
-  ComboboxSize,
-  getNullSelection,
   onChangeType,
   OptionObject,
+  SelectValueType,
+} from './Combobox.types';
+import {
+  ComboboxElement,
+  ComboboxSize,
+  getNullSelection,
   Overflow,
   SearchState,
-  SelectValueType,
   State,
   TruncationLocation,
 } from './Combobox.types';
@@ -189,7 +192,7 @@ export function Combobox<M extends boolean>({
    */
   const isMultiselect = useCallback(
     <T extends string>(val?: Array<T> | T | null): val is Array<T> => {
-      if (multiselect && (typeof val == 'string' || typeof val == 'number')) {
+      if (multiselect && (typeof val === 'string' || typeof val === 'number')) {
         consoleOnce.error(
           `Error in Combobox: multiselect is set to \`true\`, but received a ${typeof val} value: "${val}"`
         );
@@ -245,9 +248,7 @@ export function Combobox<M extends boolean>({
           }
         }
         setSelection(newSelection as SelectValueType<M>);
-        (onChange as onChangeType<true>)?.(
-          newSelection as SelectValueType<true>
-        );
+        (onChange as onChangeType<true>)?.(newSelection);
       } else {
         const newSelection: SelectValueType<M> = value as SelectValueType<M>;
         setSelection(newSelection);
@@ -901,7 +902,7 @@ export function Combobox<M extends boolean>({
           initialValue.filter((value) => isValueValid(value)) ?? [];
         setSelection(filteredValue as SelectValueType<M>);
       } else {
-        if (isValueValid(initialValue as string)) {
+        if (isValueValid(initialValue)) {
           setSelection(initialValue);
         }
       }
@@ -1366,7 +1367,7 @@ export function Combobox<M extends boolean>({
 
   /**
    * Scrolls the combobox to the far right.
-   * Used when `overflow == 'scroll-x'`.
+   * Used when `overflow === 'scroll-x'`.
    * Has no effect otherwise
    */
   function scrollInputToEnd() {

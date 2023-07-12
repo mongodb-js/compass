@@ -1,9 +1,15 @@
 import type { Reducer } from 'redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { getSimplifiedSchema } from 'mongodb-schema';
+import toNS from 'mongodb-ns';
+import preferences from 'compass-preferences-model';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
 import { runFetchAIQuery } from '../modules/ai-query-request';
+import { mapQueryToFormFields } from '../utils/query';
+import type { QueryFormFields } from '../constants/query-properties';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -12,12 +18,14 @@ type AIQueryStatus = 'ready' | 'fetching' | 'success';
 export type AIQueryState = {
   errorMessage: string | undefined;
   isInputVisible: boolean;
+  aiPromptText: string;
   status: AIQueryStatus;
   aiQueryFetchId: number; // Maps to the AbortController of the current fetch (or -1).
 };
 
 export const initialState: AIQueryState = {
   status: 'ready',
+  aiPromptText: '',
   errorMessage: undefined,
   isInputVisible: false,
   aiQueryFetchId: -1,
@@ -31,7 +39,10 @@ export const enum AIQueryActionTypes {
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
+  ChangeAIPromptText = 'compass-query-bar/ai-query/ChangeAIPromptText',
 }
+
+const NUM_DOCUMENTS_TO_SAMPLE = 4;
 
 const AIQueryAbortControllerMap = new Map<number, AbortController>();
 
@@ -62,6 +73,16 @@ type HideInputAction = {
   type: AIQueryActionTypes.HideInput;
 };
 
+type ChangeAIPromptTextAction = {
+  type: AIQueryActionTypes.ChangeAIPromptText;
+  text: string;
+};
+
+export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
+  type: AIQueryActionTypes.ChangeAIPromptText,
+  text,
+});
+
 type AIQueryStartedAction = {
   type: AIQueryActionTypes.AIQueryStarted;
   fetchId: number;
@@ -74,7 +95,7 @@ type AIQueryFailedAction = {
 
 export type AIQuerySucceededAction = {
   type: AIQueryActionTypes.AIQuerySucceeded;
-  query: unknown;
+  fields: QueryFormFields;
 };
 
 function logFailed(errorMessage: string) {
@@ -89,9 +110,10 @@ export const runAIQuery = (
   Promise<void>,
   AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { dataProvider }) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
+      queryBar: { namespace },
     } = getState();
 
     if (aiQueryFetchId !== -1) {
@@ -109,9 +131,29 @@ export const runAIQuery = (
 
     let jsonResponse;
     try {
+      const sampleDocuments = await dataProvider.sample(
+        namespace,
+        {
+          query: {},
+          size: NUM_DOCUMENTS_TO_SAMPLE,
+        },
+        {
+          maxTimeMS: preferences.getPreferences().maxTimeMS,
+          promoteValues: false,
+        },
+        {
+          abortSignal: signal,
+        }
+      );
+      const schema = await getSimplifiedSchema(sampleDocuments);
+
+      const { collection: collectionName } = toNS(namespace);
       jsonResponse = await runFetchAIQuery({
         signal: abortController.signal,
         userPrompt,
+        collectionName,
+        schema,
+        sampleDocuments,
       });
     } catch (err: any) {
       if (signal.aborted) {
@@ -140,7 +182,7 @@ export const runAIQuery = (
       return;
     }
 
-    let query;
+    let fields;
     try {
       if (!jsonResponse?.content?.query) {
         throw new Error(
@@ -148,7 +190,11 @@ export const runAIQuery = (
         );
       }
 
-      query = jsonResponse?.content?.query;
+      const query = jsonResponse?.content?.query;
+      fields = mapQueryToFormFields({
+        ...DEFAULT_FIELD_VALUES,
+        ...(query ?? {}),
+      });
     } catch (err: any) {
       logFailed(err?.message);
       dispatch({
@@ -158,9 +204,8 @@ export const runAIQuery = (
       return;
     }
 
-    // Error if the response is empty. TODO: We'll want to also parse if no
-    // applicable query fields are detected.
-    if (!query || Object.keys(query).length === 0) {
+    // Error when the response is empty or there is nothing to map.
+    if (!fields || Object.keys(fields).length === 0) {
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
       logFailed(msg);
@@ -176,13 +221,15 @@ export const runAIQuery = (
       'AIQuery',
       'AI query request succeeded',
       {
-        query,
+        query: {
+          ...fields,
+        },
       }
     );
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
-      query,
+      fields,
     });
   };
 };
@@ -274,6 +321,18 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     return {
       ...state,
       isInputVisible: false,
+    };
+  }
+
+  if (
+    isAction<ChangeAIPromptTextAction>(
+      action,
+      AIQueryActionTypes.ChangeAIPromptText
+    )
+  ) {
+    return {
+      ...state,
+      aiPromptText: action.text,
     };
   }
 

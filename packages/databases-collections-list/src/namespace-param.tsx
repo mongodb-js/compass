@@ -109,6 +109,7 @@ export const NamespaceParam: React.FunctionComponent<{
             return null;
           }
 
+          // eslint-disable-next-line eqeqeq
           const missingValue = value == null || status === 'error';
 
           return (

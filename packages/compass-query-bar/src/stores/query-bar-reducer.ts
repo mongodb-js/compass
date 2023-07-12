@@ -23,6 +23,7 @@ import {
   isQueryFieldsValid,
   validateField,
   isEqualDefaultQuery,
+  doesQueryHaveExtraOptionsSet,
 } from '../utils/query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
@@ -473,14 +474,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (
-    isAction<ApplyFromHistoryAction>(
-      action,
-      QueryBarActions.ApplyFromHistory
-    ) ||
-    isAction<AIQuerySucceededAction>(
-      action,
-      AIQueryActionTypes.AIQuerySucceeded
-    )
+    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
   ) {
     return {
       ...state,
@@ -488,6 +482,19 @@ export const queryBarReducer: Reducer<QueryBarState> = (
         ...DEFAULT_FIELD_VALUES,
         ...(action.query ?? {}),
       }),
+    };
+  }
+
+  if (
+    isAction<AIQuerySucceededAction>(
+      action,
+      AIQueryActionTypes.AIQuerySucceeded
+    )
+  ) {
+    return {
+      ...state,
+      expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
+      fields: action.fields,
     };
   }
 

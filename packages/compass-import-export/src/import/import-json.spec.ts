@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import os from 'os';
 import assert from 'assert';
 import { BSONError, EJSON } from 'bson';

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import os from 'os';
 import { EJSON, Long } from 'bson';
 import fs from 'fs';

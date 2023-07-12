@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable mocha/max-top-level-suites */
 import _ from 'lodash';
 import assert from 'assert';
