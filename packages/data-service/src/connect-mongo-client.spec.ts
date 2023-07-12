@@ -54,7 +54,7 @@ describe('connectMongoClient', function () {
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
-            connectionString: cluster.connectionString,
+            connectionString: cluster().connectionString,
           },
           setupListeners,
         });
@@ -64,7 +64,7 @@ describe('connectMongoClient', function () {
       }
 
       expect(metadataClient).to.equal(crudClient);
-      expect(url).to.equal(cluster.connectionString);
+      expect(url).to.equal(cluster().connectionString);
 
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
@@ -95,7 +95,7 @@ describe('connectMongoClient', function () {
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
-            connectionString: cluster.connectionString,
+            connectionString: cluster().connectionString,
             fleOptions: {
               storeCredentials: false,
               autoEncryption,
@@ -111,7 +111,7 @@ describe('connectMongoClient', function () {
       expect(metadataClient).to.not.equal(crudClient);
       expect(metadataClient.options.autoEncryption).to.equal(undefined);
       expect(crudClient.options.autoEncryption).to.be.an('object');
-      expect(url).to.equal(cluster.connectionString);
+      expect(url).to.equal(cluster().connectionString);
 
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
