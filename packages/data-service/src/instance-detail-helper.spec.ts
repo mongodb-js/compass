@@ -11,24 +11,17 @@ import {
 
 import * as fixtures from '../test/fixtures';
 import { createMongoClientMock } from '../test/helpers';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
-import { startTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 describe('instance-detail-helper', function () {
-  this.timeout(120_000);
-
-  let cluster: MongoCluster;
-
-  before(async function () {
-    cluster = await startTestServer();
-  });
+  const cluster = mochaTestServer();
 
   describe('#getInstance', function () {
     context('with local', function () {
       let mongoClient: MongoClient;
 
       before(async function () {
-        mongoClient = await MongoClient.connect(cluster.connectionString);
+        mongoClient = await MongoClient.connect(cluster().connectionString);
       });
 
       after(async function () {

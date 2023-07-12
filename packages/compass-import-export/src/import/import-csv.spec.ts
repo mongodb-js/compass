@@ -26,8 +26,7 @@ import { importCSV } from './import-csv';
 import { formatCSVHeaderName } from '../csv/csv-utils';
 import type { CSVParsableFieldType, PathPart } from '../csv/csv-types';
 import type { ErrorJSON } from '../import/import-types';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
-import { startTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 temp.track();
 
@@ -36,16 +35,13 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('importCSV', function () {
-  this.timeout(120_000);
-
-  let cluster: MongoCluster;
+  const cluster = mochaTestServer();
   let dataService: DataService;
 
   beforeEach(async function () {
-    cluster = await startTestServer();
     dataService = await connect({
       connectionOptions: {
-        connectionString: cluster.connectionString,
+        connectionString: cluster().connectionString,
       },
     });
 

@@ -28,24 +28,20 @@ import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
-import { startTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('exportCSV', function () {
-  this.timeout(120_000);
-
-  let cluster: MongoCluster;
+  const cluster = mochaTestServer();
   let dataService: DataService;
 
   beforeEach(async function () {
-    cluster = await startTestServer();
     dataService = await connect({
       connectionOptions: {
-        connectionString: cluster.connectionString,
+        connectionString: cluster().connectionString,
       },
     });
 

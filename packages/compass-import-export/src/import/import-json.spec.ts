@@ -24,24 +24,20 @@ import type { ErrorJSON } from './import-types';
 
 import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
-import { startTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('importJSON', function () {
-  this.timeout(120_000);
-
-  let cluster: MongoCluster;
+  const cluster = mochaTestServer();
   let dataService: DataService;
 
   beforeEach(async function () {
-    cluster = await startTestServer();
     dataService = await connect({
       connectionOptions: {
-        connectionString: cluster.connectionString,
+        connectionString: cluster().connectionString,
       },
     });
 

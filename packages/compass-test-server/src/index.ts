@@ -33,6 +33,29 @@ export async function startTestServer(
   return cluster;
 }
 
+// mocha-ized variant of startTestServer(), convenient
+// for automatic teardown at the right scope and integrated timeout
+export function mochaTestServer(
+  ...args: Parameters<typeof startTestServer>
+): () => MongoCluster {
+  let cluster: MongoCluster | undefined;
+
+  before(async function () {
+    this.timeout(180_000);
+    cluster = await startTestServer(...args);
+  });
+
+  after(async function () {
+    await cluster?.close();
+    cluster = undefined;
+  });
+
+  return () => {
+    if (!cluster) throw new Error('before() hook not ran yet');
+    return cluster;
+  };
+}
+
 if (typeof globalThis.after === 'function') {
   after(async function () {
     isClosed = true;

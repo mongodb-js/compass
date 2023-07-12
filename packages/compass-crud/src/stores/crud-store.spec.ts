@@ -14,8 +14,7 @@ import configureStore, {
 } from './crud-store';
 import configureActions from '../actions';
 import { Int32 } from 'bson';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
-import { startTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 chai.use(chaiAsPromised);
 
@@ -111,9 +110,9 @@ function waitForState(store, cb, timeout) {
 }
 
 describe('store', function () {
-  this.timeout(120_000);
+  this.timeout(5000);
 
-  let cluster: MongoCluster;
+  const cluster = mochaTestServer();
   let dataService: DataService;
 
   const localAppRegistry = new AppRegistry();
@@ -122,11 +121,9 @@ describe('store', function () {
   globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
   before(async function () {
-    cluster = await startTestServer();
-
     dataService = await connect({
       connectionOptions: {
-        connectionString: cluster.connectionString,
+        connectionString: cluster().connectionString,
       },
     });
 

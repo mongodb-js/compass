@@ -9,8 +9,7 @@ import {
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
-import { startTestServer } from '@mongodb-js/compass-test-server';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import ConnectionString from 'mongodb-connection-string-url';
 
 const defaultOptions = {
@@ -23,14 +22,13 @@ const setupListeners = () => {
 };
 
 describe('connectMongoClient', function () {
-  this.timeout(120_000);
-
-  let cluster: MongoCluster;
+  const cluster = mochaTestServer();
   let clusterConnectionStringURL: ConnectionString;
 
-  before(async function () {
-    cluster = await startTestServer();
-    clusterConnectionStringURL = new ConnectionString(cluster.connectionString);
+  before(function () {
+    clusterConnectionStringURL = new ConnectionString(
+      cluster().connectionString
+    );
   });
 
   const toBeClosed = new Set<
