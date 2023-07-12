@@ -55,9 +55,7 @@ export class StoragePreferences extends BasePreferencesStorage {
     await fs.mkdir(this.getFolderPath(), { recursive: true });
 
     try {
-      this.preferences = JSON.parse(
-        await fs.readFile(this.getFilePath(), 'utf8')
-      );
+      this.preferences = await this.readPreferences();
     } catch (e) {
       if ((e as any).code !== 'ENOENT') {
         throw e;
@@ -71,13 +69,17 @@ export class StoragePreferences extends BasePreferencesStorage {
     }
   }
 
+  private async readPreferences(): Promise<UserPreferences> {
+    return JSON.parse(await fs.readFile(this.getFilePath(), 'utf8'));
+  }
+
   getPreferences() {
     return this.preferences;
   }
 
   async updatePreferences(attributes: Partial<UserPreferences>) {
     const newPreferences = {
-      ...this.preferences,
+      ...(await this.readPreferences()),
       ...attributes,
     };
     await fs.writeFile(
