@@ -67,8 +67,7 @@ import { setupTheme } from './theme';
 import { setupIntercom } from './intercom';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { log, mongoLogId, debug, track } =
-  createLoggerAndTelemetry('COMPASS-APP');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 /**
  * The top-level application singleton that brings everything together!
