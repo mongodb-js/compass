@@ -55,7 +55,7 @@ describe('CSFLECollectionTracker', function () {
 
     const dataService = await connect({
       connectionOptions: {
-        connectionString: cluster.connectionString,
+        connectionString: cluster().connectionString,
         fleOptions: {
           storeCredentials: false,
           autoEncryption: {
@@ -509,7 +509,7 @@ describe('CSFLECollectionTracker', function () {
           .db(dbName)
           .collection('test4')
           .findOne();
-        expect(result.a).to.equal(2);
+        expect(result?.a).to.equal(2);
       });
     });
   });
