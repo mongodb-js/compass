@@ -120,7 +120,7 @@ export class UserStorage {
     }
 
     try {
-      return this.getUser(id);
+      return await this.getUser(id);
     } catch (e) {
       if ((e as any).code !== 'ENOENT') {
         throw e;
@@ -130,7 +130,12 @@ export class UserStorage {
   }
 
   async getUser(id: string): Promise<User> {
-    return JSON.parse(await fs.readFile(this.getFilePath(id), 'utf-8'));
+    const user = JSON.parse(await fs.readFile(this.getFilePath(id), 'utf-8'));
+    return {
+      id: user.id,
+      createdAt: new Date(user.createdAt),
+      lastUsed: new Date(user.lastUsed),
+    };
   }
 
   private async createUser(): Promise<User> {
@@ -140,12 +145,7 @@ export class UserStorage {
       createdAt: new Date(),
       lastUsed: new Date(),
     };
-    await fs.writeFile(
-      this.getFilePath(id),
-      JSON.stringify(user, null, 2),
-      'utf-8'
-    );
-    return user;
+    return this.writeUser(user);
   }
 
   async updateUser(id: string, attributes: Partial<User>): Promise<User> {
@@ -154,12 +154,15 @@ export class UserStorage {
       ...user,
       ...attributes,
     };
+    return this.writeUser(newData);
+  }
 
+  private async writeUser(user: User): Promise<User> {
     await fs.writeFile(
-      this.getFilePath(id),
-      JSON.stringify(newData, null, 2),
+      this.getFilePath(user.id),
+      JSON.stringify(user, null, 2),
       'utf-8'
     );
-    return newData;
+    return this.getUser(user.id);
   }
 }
