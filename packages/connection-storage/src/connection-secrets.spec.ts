@@ -75,6 +75,7 @@ describe('connection secrets', function () {
       });
 
       expect(newConnectionInfo).to.be.deep.equal({
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://username:userPassword@localhost:27017/?' +
@@ -107,6 +108,7 @@ describe('connection secrets', function () {
       });
 
       expect(newConnectionInfo).to.be.deep.equal({
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://database-ut:userPassword@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
@@ -233,6 +235,7 @@ describe('connection secrets', function () {
       );
 
       expect(newConnectionInfo).to.be.deep.equal({
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://username@localhost:27017/?proxyHost=localhost&proxyUsername=foo',
@@ -360,6 +363,7 @@ describe('connection secrets', function () {
       );
 
       expect(newConnectionInfo).to.be.deep.equal({
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://database-ut@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
