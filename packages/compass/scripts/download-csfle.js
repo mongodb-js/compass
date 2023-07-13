@@ -1,12 +1,8 @@
 /* eslint-disable no-console */
 const os = require('os');
 const path = require('path');
-const { promises: fs, createWriteStream, createReadStream } = require('fs');
-const { getDownloadURL } = require('mongodb-download-url');
-const { pipeline } = require('stream');
-const { promisify } = require('util');
-const decompress = require('decompress');
-const tar = require('tar');
+const { promises: fs } = require('fs');
+const { downloadMongoDb } = require('@mongodb-js/mongodb-downloader');
 
 const PACKAGE_ROOT = process.cwd();
 
@@ -14,34 +10,9 @@ const PACKAGE_ROOT = process.cwd();
 
 const CACHE_DIR = path.join(os.tmpdir(), '.compass-csfle-library-cache');
 
-const fetch = require('make-fetch-happen').defaults({
-  cacheManager: CACHE_DIR,
-});
-
 const UPDATE_CACHE = process.argv.includes('--update-cache');
 
 const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
-
-const download = async (url, destDir) => {
-  const destFileName = path.basename(url);
-  const destFilePath = path.join(destDir, destFileName);
-
-  const res = await fetch(url);
-
-  // If cache item stored by `make-fetch-happen` is stale, it will check if
-  // resource was not modified with the remote and can return a 304 with a body
-  // present. In that case we don't want to throw an error, but rather proceed
-  // with the normal flow
-  if (!res.ok && res.status !== 304) {
-    throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
-  }
-
-  if (!UPDATE_CACHE) {
-    await promisify(pipeline)(res.body, createWriteStream(destFilePath));
-  }
-
-  return destFilePath;
-};
 
 (async () => {
   const packageJson = require(path.join(PACKAGE_ROOT, 'package.json'));
@@ -70,29 +41,18 @@ const download = async (url, destDir) => {
     // such as RHEL7.
     downloadOptions.distro = 'rhel70';
   }
-  const artifactInfo = await getDownloadURL(downloadOptions);
 
-  console.log(
-    'Downloading csfle artifact',
-    artifactInfo,
-    'to',
-    CSFLE_DIRECTORY
+  const downloaded = await downloadMongoDb(
+    CACHE_DIR,
+    'continuous',
+    downloadOptions
   );
   await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
-  const artifactPath = await download(artifactInfo.url, CSFLE_DIRECTORY);
-
-  if (artifactInfo.ext === 'zip') {
-    // For .zip files, use `decompress`
-    await decompress(artifactPath, CSFLE_DIRECTORY);
-  } else {
-    // For .tar files, `decompress` is buggy, so we use `tar` instead
-    await promisify(pipeline)(
-      createReadStream(artifactPath),
-      tar.x({
-        C: CSFLE_DIRECTORY,
-      })
-    );
-  }
+  await fs.cp(path.dirname(downloaded), CSFLE_DIRECTORY, {
+    force: true,
+    recursive: true,
+    preserveTimestamps: true,
+  });
 })().catch((err) => {
   if (err) {
     console.error(err);

@@ -1,13 +1,15 @@
 import assert from 'assert';
 import asyncHooks from 'async_hooks';
 import { expect } from 'chai';
-import type { CommandStartedEvent } from 'mongodb';
+import type { MongoClientOptions, CommandStartedEvent } from 'mongodb';
 
 import {
   connectMongoClientDataService as connectMongoClient,
   prepareOIDCOptions,
 } from './connect-mongo-client';
 import type { ConnectionOptions } from './connection-options';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import ConnectionString from 'mongodb-connection-string-url';
 
 const defaultOptions = {
   productDocsLink: 'https://www.mongodb.com/docs/compass/',
@@ -19,6 +21,15 @@ const setupListeners = () => {
 };
 
 describe('connectMongoClient', function () {
+  const cluster = mochaTestServer();
+  let clusterConnectionStringURL: ConnectionString;
+
+  before(function () {
+    clusterConnectionStringURL = new ConnectionString(
+      cluster().connectionString
+    );
+  });
+
   const toBeClosed = new Set<
     | undefined
     | { close: () => Promise<void> }
@@ -38,22 +49,11 @@ describe('connectMongoClient', function () {
   });
 
   describe('local', function () {
-    before(function () {
-      if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
-        // TODO: COMPASS-4866
-        // eslint-disable-next-line no-console
-        console.warn(
-          'test suites using mongodb-runner are flaky on RHEL, skipping'
-        );
-        return this.skip();
-      }
-    });
-
     it('should return connection config when connected successfully', async function () {
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
-            connectionString: 'mongodb://localhost:27021',
+            connectionString: cluster().connectionString,
           },
           setupListeners,
         });
@@ -63,7 +63,7 @@ describe('connectMongoClient', function () {
       }
 
       expect(metadataClient).to.equal(crudClient);
-      expect(url).to.equal('mongodb://localhost:27021');
+      expect(url).to.equal(cluster().connectionString);
 
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
@@ -94,7 +94,7 @@ describe('connectMongoClient', function () {
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
-            connectionString: 'mongodb://localhost:27021',
+            connectionString: cluster().connectionString,
             fleOptions: {
               storeCredentials: false,
               autoEncryption,
@@ -110,7 +110,7 @@ describe('connectMongoClient', function () {
       expect(metadataClient).to.not.equal(crudClient);
       expect(metadataClient.options.autoEncryption).to.equal(undefined);
       expect(crudClient.options.autoEncryption).to.be.an('object');
-      expect(url).to.equal('mongodb://localhost:27021');
+      expect(url).to.equal(cluster().connectionString);
 
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
@@ -131,11 +131,14 @@ describe('connectMongoClient', function () {
     });
 
     it('should not override a user-specified directConnection option', async function () {
+      const connectionString = clusterConnectionStringURL.clone();
+      connectionString
+        .typedSearchParams<MongoClientOptions>()
+        .set('directConnection', 'false');
       const [metadataClient, crudClient, tunnel, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
-            connectionString:
-              'mongodb://localhost:27021/?directConnection=false',
+            connectionString: connectionString.toString(),
           },
           setupListeners,
         });
@@ -144,10 +147,7 @@ describe('connectMongoClient', function () {
         toBeClosed.add(closeLater);
       }
 
-      assert.strictEqual(
-        url,
-        'mongodb://localhost:27021/?directConnection=false'
-      );
+      assert.strictEqual(url, connectionString.toString());
 
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
@@ -182,11 +182,14 @@ describe('connectMongoClient', function () {
     });
 
     it('should run the ping command with the specified ReadPreference', async function () {
+      const connectionString = clusterConnectionStringURL.clone();
+      connectionString
+        .typedSearchParams<MongoClientOptions>()
+        .set('readPreference', 'secondaryPreferred');
       const commands: CommandStartedEvent[] = [];
       const [metadataClient, crudClient, , state] = await connectMongoClient({
         connectionOptions: {
-          connectionString:
-            'mongodb://localhost:27021/?readPreference=secondaryPreferred',
+          connectionString: connectionString.toString(),
         },
         setupListeners: (client) =>
           client.on('commandStarted', (ev) => commands.push(ev)),

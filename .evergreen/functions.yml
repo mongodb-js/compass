@@ -72,6 +72,7 @@ variables:
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
     EVERGREEN_BUCKET_NAME: mciuploads
     EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
+    MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -199,7 +200,7 @@ functions:
           <<: *compass-env
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
         script: |
           set -e
 
@@ -225,7 +226,7 @@ functions:
           <<: *compass-env
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
         script: |
           set -e
 
@@ -352,7 +353,7 @@ functions:
           <<: *compass-env
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
         script: |
           set -e
           # Load environment variables
@@ -376,20 +377,14 @@ functions:
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           source .evergreen/start-docker-envs.sh
 
-          MONGODB_TYPE="community";
-
-          if [[ "$MONGODB_USE_ENTERPRISE" == "yes" ]]; then
-            MONGODB_TYPE="enterprise"
-          fi
-
-          echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION ($MONGODB_TYPE)..."
+          echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION..."
 
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/BUILD-14458)"

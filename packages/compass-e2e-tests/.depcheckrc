@@ -4,3 +4,4 @@ ignores:
   - '@wdio/types'
   - 'mongodb-compass'
   - 'ps-list'
+  - 'mongodb-runner'

@@ -53,8 +53,7 @@
         {
           "name": "40x-enterprise",
           "vars": {
-            "mongodb_version": "4.0.x",
-            "mongodb_use_enterprise": "yes"
+            "mongodb_version": "4.0.x-enterprise"
           },
           "skip_on": ["macos-1100", "macos-1100-arm64"],
           "//": "MongoDB 4.0 / 4.2 Enterprise doesn't work on Ubuntu 20.04 without additional dependencies installed, it's easier to use an older machine than install missing dependencies as machines we are using are stateful",
@@ -72,8 +71,7 @@
         {
           "name": "42x-enterprise",
           "vars": {
-            "mongodb_version": "4.2.x",
-            "mongodb_use_enterprise": "yes"
+            "mongodb_version": "4.2.x-enterprise"
           },
           "skip_on": ["macos-1100", "macos-1100-arm64"],
           "run_on_override": {
@@ -90,8 +88,7 @@
         {
           "name": "44x-enterprise",
           "vars": {
-            "mongodb_version": "4.4.x",
-            "mongodb_use_enterprise": "yes"
+            "mongodb_version": "4.4.x-enterprise"
           },
           "skip_on": ["macos-1100", "macos-1100-arm64"]
         },
@@ -105,8 +102,7 @@
         {
           "name": "5x-enterprise",
           "vars": {
-            "mongodb_version": "5.x.x",
-            "mongodb_use_enterprise": "yes"
+            "mongodb_version": "5.x.x-enterprise"
           },
           "skip_on": ["macos-1100", "macos-1100-arm64"]
         },
@@ -119,15 +115,13 @@
         {
           "name": "60x-enterprise",
           "vars": {
-            "mongodb_version": "6.0.x",
-            "mongodb_use_enterprise": "yes"
+            "mongodb_version": "6.0.x-enterprise"
           }
         },
         {
           "name": "latest",
           "vars": {
-            "mongodb_version": "latest-alpha",
-            "mongodb_use_enterprise": "yes"
+            "mongodb_version": "latest-alpha-enterprise"
           },
           "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large"]
         }

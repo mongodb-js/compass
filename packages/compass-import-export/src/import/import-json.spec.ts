@@ -24,18 +24,20 @@ import type { ErrorJSON } from './import-types';
 
 import { guessFileType } from './guess-filetype';
 import { importJSON } from './import-json';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('importJSON', function () {
+  const cluster = mochaTestServer();
   let dataService: DataService;
 
   beforeEach(async function () {
     dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27019/local',
+        connectionString: cluster().connectionString,
       },
     });
 
