@@ -1,4 +1,4 @@
-import type { ConnectionInfo } from './connection-info';
+import type { ConnectionInfo } from '../../connection-storage/src/connection-info';
 
 import { validate as uuidValidate } from 'uuid';
 import type { LegacyConnectionModel } from './legacy/legacy-connection-model';
@@ -130,7 +130,7 @@ export class ConnectionStorage {
    *
    * @param {string} id Id of the ConnectionInfo to fetch
    */
-  async load(id: string): Promise<ConnectionInfo | undefined> {
+  async load(id?: string): Promise<ConnectionInfo | undefined> {
     if (!id) {
       return undefined;
     }

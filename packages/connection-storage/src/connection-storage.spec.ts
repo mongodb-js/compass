@@ -31,7 +31,7 @@ async function eventually(
       await fn();
       return;
     } catch (e) {
-      err = e;
+      err = e as Error;
     }
 
     await new Promise((resolve) => setTimeout(resolve, options.frequency));
@@ -184,7 +184,7 @@ describe('ConnectionStorage', function () {
 
       const connectionStorage = new ConnectionStorage();
       const connection = await connectionStorage.load(id);
-      expect(connection.lastUsed).to.deep.equal(lastUsed);
+      expect(connection?.lastUsed).to.deep.equal(lastUsed);
     });
   });
 

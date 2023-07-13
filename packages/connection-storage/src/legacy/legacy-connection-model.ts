@@ -7,7 +7,7 @@ import type { ConnectionInfo } from '../connection-info';
 import type {
   ConnectionOptions,
   ConnectionSshOptions,
-} from '../connection-options';
+} from 'mongodb-data-service';
 import type { ConnectionSecrets } from '../connection-secrets';
 import { extractSecrets, mergeSecrets } from '../connection-secrets';
 

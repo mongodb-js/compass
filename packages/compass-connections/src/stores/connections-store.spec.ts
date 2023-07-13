@@ -5,7 +5,10 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
 
 import { useConnections } from './connections-store';
-import type { ConnectionInfo, ConnectionStorage } from 'mongodb-data-service';
+import type {
+  ConnectionInfo,
+  ConnectionStorage,
+} from '@mongodb-js/connection-storage';
 
 const noop = (): any => {
   /* no-op */

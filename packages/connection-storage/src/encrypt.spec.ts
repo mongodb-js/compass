@@ -32,7 +32,7 @@ describe('Encryption support', function () {
       await decrypter.decrypt(ciphertext);
       expect.fail('missed exception');
     } catch (err) {
-      expect(err.message).to.equal(
+      expect((err as Error).message).to.equal(
         'Cannot decrypt due to corrupt data or wrong passphrase'
       );
     }

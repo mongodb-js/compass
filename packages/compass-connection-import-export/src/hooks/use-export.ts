@@ -5,8 +5,8 @@ import {
   makeConnectionInfoFilter,
   useImportExportConnectionsCommon,
 } from './common';
-import type { ConnectionInfo } from 'mongodb-data-service';
-import { exportConnections as dataServiceExportConnections } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import { exportConnections as storageExportConnections } from '@mongodb-js/connection-storage';
 import { promises as fs } from 'fs';
 import type {
   ImportExportResult,
@@ -48,7 +48,7 @@ export function useExportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  exportConnections = dataServiceExportConnections
+  exportConnections = storageExportConnections
 ): {
   onCancel: () => void;
   onSubmit: () => void;

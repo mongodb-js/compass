@@ -17,11 +17,11 @@ import Settings from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
 import ipc from 'hadron-ipc';
 import type {
-  ConnectionInfo,
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
-import { getConnectionTitle } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import { getConnectionTitle } from '@mongodb-js/connection-storage';
 import toNS from 'mongodb-ns';
 import React, {
   useCallback,

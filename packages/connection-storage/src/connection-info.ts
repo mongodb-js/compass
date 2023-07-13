@@ -1,4 +1,4 @@
-import type { ConnectionOptions } from './connection-options';
+import type { ConnectionOptions } from 'mongodb-data-service';
 
 export interface ConnectionInfo {
   /**

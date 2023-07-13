@@ -13,8 +13,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from 'mongodb-data-service';
-import { getConnectionTitle } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import { getConnectionTitle } from '@mongodb-js/connection-storage';
 
 import ConnectionIcon from './connection-icon';
 import { useConnectionColor } from '@mongodb-js/connection-form';

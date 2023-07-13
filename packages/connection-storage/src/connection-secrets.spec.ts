@@ -8,6 +8,7 @@ describe('connection secrets', function () {
   describe('mergeSecrets', function () {
     it('does not modify the original object', function () {
       const originalConnectionInfo: ConnectionInfo = {
+        id: '123',
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017',
           sshTunnel: {
@@ -52,6 +53,7 @@ describe('connection secrets', function () {
 
     it('merges secrets', function () {
       const originalConnectionInfo: ConnectionInfo = {
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://username@localhost:27017/?proxyHost=localhost&proxyUsername=foo',
@@ -93,6 +95,7 @@ describe('connection secrets', function () {
 
     it('merges secrets for a cosmosdb connection string', function () {
       const originalConnectionInfo: ConnectionInfo = {
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://database-ut@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
@@ -115,6 +118,7 @@ describe('connection secrets', function () {
   describe('extractSecrets', function () {
     it('does not modify the original object', function () {
       const originalConnectionInfo: ConnectionInfo = {
+        id: '123',
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017',
           sshTunnel: {
@@ -155,6 +159,7 @@ describe('connection secrets', function () {
 
     it('extracts secrets', function () {
       const originalConnectionInfo: ConnectionInfo = {
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://username:userPassword@localhost:27017/?' +
@@ -343,6 +348,7 @@ describe('connection secrets', function () {
 
     it('extracts secrets for a cosmosdb connection string', function () {
       const originalConnectionInfo: ConnectionInfo = {
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://database-ut:somerandomsecret@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',

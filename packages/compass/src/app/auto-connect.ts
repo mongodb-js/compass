@@ -1,5 +1,5 @@
-import { importConnections } from 'mongodb-data-service';
-import type { ConnectionInfo } from 'mongodb-data-service';
+import { importConnections } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
 import { ipcRenderer } from 'hadron-ipc';
