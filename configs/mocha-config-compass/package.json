@@ -24,6 +24,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@mongodb-js/mocha-config-devtools": "^1.0.0",
     "@electron/remote": "^2.0.10",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "chai": "^4.3.4",
