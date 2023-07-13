@@ -103,11 +103,22 @@ export class UserStorage {
   private readonly folder = 'Users';
   constructor(private readonly basepath: string = '') {}
 
+  private getFolderPath() {
+    return join(this.basepath, this.folder);
+  }
+
   private getFilePath(id: string) {
-    return join(this.basepath, this.folder, `${id}.json`);
+    return join(this.getFolderPath(), `${id}.json`);
   }
 
   async getOrCreate(id: string): Promise<User> {
+    // Ensure folder exists
+    await fs.mkdir(this.getFolderPath(), { recursive: true });
+
+    if (!id) {
+      return this.createUser();
+    }
+
     try {
       return this.getUser(id);
     } catch (e) {
