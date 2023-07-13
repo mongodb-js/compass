@@ -228,7 +228,6 @@
     "clean-stack": "^2.0.0",
     "cli-ux": "^5.5.1",
     "compass-preferences-model": "^2.10.0",
-    "compass-user-model": "^2.8.0",
     "darkreader": "^4.9.40",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
