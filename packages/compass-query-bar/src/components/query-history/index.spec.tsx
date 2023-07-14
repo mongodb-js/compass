@@ -61,6 +61,12 @@ function createStore(basepath?: string) {
       thunk.withExtraArgument({
         favoriteQueryStorage,
         recentQueryStorage,
+        dataProvider: {
+          sample: () => {
+            /* no-op for unsupported environments. */
+            return Promise.resolve([]);
+          },
+        },
       })
     )
   );

@@ -1,17 +1,10 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import Connection from 'mongodb-connection-model';
 import type { DataService } from 'mongodb-data-service';
-import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
+import { connect } from 'mongodb-data-service';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 import { countDocuments, fetchShardingKeys } from './cancellable-queries';
-
-const CONNECTION = new Connection({
-  hostname: '127.0.0.1',
-  port: 27022,
-  ns: 'compass-crud',
-  mongodb_database_name: 'admin',
-});
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -20,14 +13,16 @@ chai.use(chaiAsPromised);
 describe('cancellable-queries', function () {
   this.timeout(5000);
 
+  const cluster = mochaTestServer();
   let dataService: DataService;
   let abortController;
   let signal;
 
   before(async function () {
-    const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect({
-      connectionOptions: info.connectionOptions,
+      connectionOptions: {
+        connectionString: cluster().connectionString,
+      },
     });
 
     const docs = [...Array(1000).keys()].map((i) => ({ i }));

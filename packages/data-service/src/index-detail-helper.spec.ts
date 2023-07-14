@@ -196,6 +196,7 @@ describe('createIndexDefinition', function () {
   });
 
   it('should recognize single wildcard indexes', function () {
+    // eslint-disable-next-line no-console
     console.log(definitionsMap.get('wildcard_single_subtree'));
     expect(definitionsMap.get('wildcard_single_subtree')).to.have.property(
       'type',

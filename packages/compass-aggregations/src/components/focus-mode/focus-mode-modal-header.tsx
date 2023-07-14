@@ -83,10 +83,10 @@ const tooltipContentItemStyles = css({
   flexShrink: 0,
 });
 
-const PREVIOUS_STAGE_HOTKEY = 'meta+shift+9';
-const NEXT_STAGE_HOTKEY = 'meta+shift+0';
-const ADD_STAGE_AFTER_HOTKEY = 'meta+shift+a';
-const ADD_STAGE_BEFORE_HOTKEY = 'meta+shift+b';
+const PREVIOUS_STAGE_HOTKEY = 'mod+shift+9';
+const NEXT_STAGE_HOTKEY = 'mod+shift+0';
+const ADD_STAGE_AFTER_HOTKEY = 'mod+shift+a';
+const ADD_STAGE_BEFORE_HOTKEY = 'mod+shift+b';
 
 export const FocusModeModalHeader: React.FunctionComponent<
   FocusModeModalHeaderProps

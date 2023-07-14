@@ -10,20 +10,14 @@ import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
-import type { ChildProcess } from 'child_process';
-import { spawn } from 'child_process';
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
-import { getDownloadURL } from 'mongodb-download-url';
-import tar from 'tar';
-import { promisify } from 'util';
-import type { Readable } from 'stream';
-import { pipeline, PassThrough } from 'stream';
-import { createInterface as readline } from 'readline';
-import https from 'https';
 import { once, EventEmitter } from 'events';
 import { expect } from 'chai';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
+import { startTestServer } from '@mongodb-js/compass-test-server';
+import ConnectionString from 'mongodb-connection-string-url';
 
 const DEFAULT_TOKEN_PAYLOAD = {
   expires_in: 3600,
@@ -39,8 +33,6 @@ const DEFAULT_AUTH_INFO = {
   authenticatedUsers: [{ user: 'dev/testuser', db: '$external' }],
   authenticatedUserRoles: [{ role: 'dev/testgroup', db: 'admin' }],
 };
-
-const host = '127.0.0.1';
 
 function getTestBrowserShellCommand() {
   return `${process.execPath} ${path.resolve(
@@ -63,10 +55,8 @@ describe('OIDC integration', function () {
   let oidcMockProviderEndpointAccesses: Record<string, number>;
 
   let i = 0;
-  let port: number;
   let tmpdir: string;
-  let server: ChildProcess;
-  let serverExit: Promise<unknown>;
+  let cluster: MongoCluster;
   let connectionString: string;
   let getFavoriteConnectionInfo: (
     favoriteName: string
@@ -83,7 +73,6 @@ describe('OIDC integration', function () {
       }
     }
 
-    // TODO(MONGOSH-1306): Get rid of all the setup code to download mongod here... :(
     if (process.platform !== 'linux') {
       // OIDC is only supported on Linux in the 7.0+ enterprise server.
       return this.skip();
@@ -118,18 +107,6 @@ describe('OIDC integration', function () {
     }
 
     {
-      const { url } = await getDownloadURL({
-        version: '>= 7.0.0-rc0',
-        enterprise: true,
-      });
-
-      await promisify(pipeline)(
-        await new Promise<Readable>((resolve) => https.get(url, resolve).end()),
-        tar.x({ cwd: tmpdir, strip: 1 })
-      );
-    }
-
-    {
       const serverOidcConfig = {
         issuer: oidcMockProvider.issuer,
         clientId: 'testServer',
@@ -139,9 +116,8 @@ describe('OIDC integration', function () {
         authNamePrefix: 'dev',
       };
 
-      server = spawn(
-        path.join(tmpdir, 'bin', 'mongod'),
-        [
+      cluster = await startTestServer({
+        args: [
           '--setParameter',
           'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
           // enableTestCommands allows using http:// issuers such as http://localhost
@@ -149,41 +125,13 @@ describe('OIDC integration', function () {
           'enableTestCommands=true',
           '--setParameter',
           `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
-          '--dbpath',
-          path.join(tmpdir, 'db'),
-          '--port',
-          '0',
         ],
-        {
-          cwd: tmpdir,
-          stdio: ['inherit', 'pipe', 'inherit'],
-        }
-      );
+      });
 
-      serverExit = once(server, 'exit');
+      const cs = new ConnectionString(cluster.connectionString);
+      cs.searchParams.set('authMechanism', 'MONGODB-OIDC');
 
-      port = await Promise.race([
-        serverExit.then((code) => {
-          throw new Error(`mongod exited with code ${code}`);
-        }),
-        (async () => {
-          // Parse the log output written by mongod to stdout until we know
-          // which port it chose.
-          const pt = new PassThrough();
-          server.stdout?.pipe(pt);
-          if (process.env.CI) server.stdout?.pipe(process.stderr);
-          for await (const l of readline({ input: pt })) {
-            const line = JSON.parse(l);
-            if (line.id === 23016 /* Waiting for connections */) {
-              server.stdout?.unpipe(pt); // Ignore all further output
-              return line.attr.port;
-            }
-          }
-        })(),
-      ]);
-      expect(port).to.be.a('number');
-
-      connectionString = `mongodb://${host}:${port}/?authMechanism=MONGODB-OIDC`;
+      connectionString = cs.toString();
     }
 
     {
@@ -219,8 +167,7 @@ describe('OIDC integration', function () {
   });
 
   after(async function () {
-    server?.kill();
-    await serverExit;
+    await cluster?.close();
     await oidcMockProvider?.close();
     if (tmpdir) await fs.rmdir(tmpdir, { recursive: true });
 
@@ -293,7 +240,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.connectWithConnectionForm({
-      hosts: [`${host}:${port}`],
+      hosts: [cluster.hostport],
       authMethod: 'MONGODB-OIDC',
     });
 

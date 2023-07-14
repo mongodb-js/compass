@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import fs from 'fs';
 import { analyzeCSVFields } from '../src/import/analyze-csv-fields';
 

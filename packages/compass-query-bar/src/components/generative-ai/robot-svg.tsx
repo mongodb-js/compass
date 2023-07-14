@@ -30,10 +30,12 @@ export const robotSVGLightModeStyles = css({
   },
 });
 
+export const DEFAULT_ROBOT_SIZE = 20;
+
 // Note: This is duplicated below as a string for HTML.
 const RobotSVG = ({
   darkMode,
-  size = 20,
+  size = DEFAULT_ROBOT_SIZE,
 }: {
   darkMode?: boolean;
   size?: number;

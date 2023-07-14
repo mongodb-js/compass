@@ -562,4 +562,19 @@ FindIterable<Document> result = collection.find(filter);`);
     const noDocuments = await browser.$('.document-list-zero-state');
     await noDocuments.waitForDisplayed();
   });
+
+  it('shows insight for the unindexed query', async function () {
+    await browser.runFindOperation('Documents', '{ i: 35 }');
+    await browser.clickVisible(Selectors.InsightIconButton);
+    await browser.waitForAnimations(Selectors.InsightPopoverCard);
+    const unindexedQuerySignal = await browser.$(
+      'strong=Query executed without index'
+    );
+    // Looks redundant, but selector above can return a special webdriver
+    // non-existing element, so we try to get some text so that it will actually
+    // throw if not found in DOM
+    expect(await unindexedQuerySignal.getText()).to.eq(
+      'Query executed without index'
+    );
+  });
 });

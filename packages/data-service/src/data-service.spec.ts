@@ -17,6 +17,7 @@ import { createMongoClientMock } from '../test/helpers';
 import { AbortController } from '../test/mocks';
 import { createClonedClient } from './connect-mongo-client';
 import { runCommand } from './run-command';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const TEST_DOCS = [
   {
@@ -31,8 +32,10 @@ const TEST_DOCS = [
 
 describe('DataService', function () {
   context('with real client', function () {
-    this.slow(10000);
-    this.timeout(20000);
+    this.slow(10_000);
+    this.timeout(20_000);
+
+    const cluster = mochaTestServer();
 
     let dataService: DataServiceImpl;
     let mongoClient: MongoClient;
@@ -45,7 +48,7 @@ describe('DataService', function () {
     before(async function () {
       testDatabaseName = `compass-data-service-tests`;
       connectionOptions = {
-        connectionString: `mongodb://127.0.0.1:27021/${testDatabaseName}`,
+        connectionString: cluster().connectionString,
       };
 
       mongoClient = new MongoClient(connectionOptions.connectionString);
@@ -56,6 +59,7 @@ describe('DataService', function () {
     });
 
     after(async function () {
+      // eslint-disable-next-line no-console
       await dataService?.disconnect().catch(console.log);
       await mongoClient?.close();
     });
@@ -980,6 +984,7 @@ describe('DataService', function () {
       });
 
       after(async function () {
+        // eslint-disable-next-line no-console
         await csfleDataService?.disconnect().catch(console.log);
       });
 
