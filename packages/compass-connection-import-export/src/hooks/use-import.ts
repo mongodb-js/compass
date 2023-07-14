@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ConnectionInfo } from 'mongodb-data-service';
-import { importConnections as dataServiceImportConnections } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import { importConnections as storageImportConnections } from '@mongodb-js/connection-storage';
 import { promises as fs } from 'fs';
 import {
   COMMON_INITIAL_STATE,
@@ -36,7 +36,7 @@ async function loadFile(
   }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
     favoriteConnectionIds: string[];
   },
-  importConnections: typeof dataServiceImportConnections
+  importConnections: typeof storageImportConnections
 ): Promise<Partial<ImportConnectionsState>> {
   if (!filename) {
     return INITIAL_STATE;
@@ -90,7 +90,7 @@ export function useImportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  importConnections = dataServiceImportConnections
+  importConnections = storageImportConnections
 ): {
   onCancel: () => void;
   onSubmit: () => void;

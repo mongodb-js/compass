@@ -1,4 +1,4 @@
-import { ConnectionStorage } from 'mongodb-data-service';
+import { ConnectionStorage } from '@mongodb-js/connection-storage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-SIDEBAR');

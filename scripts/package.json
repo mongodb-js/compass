@@ -37,6 +37,7 @@
     "prettier": "^2.7.1"
   },
   "dependencies": {
+    "@mongodb-js/connection-storage": "^0.1.0",
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
     "@mongodb-js/monorepo-tools": "^1.1.1",
     "@mongodb-js/webpack-config-compass": "^1.1.0",
@@ -47,9 +48,7 @@
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
     "make-fetch-happen": "^8.0.14",
-    "mongodb": "^5.6.0",
     "mongodb-connection-string-url": "^2.6.0",
-    "mongodb-data-service": "^22.8.0",
     "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
     "prompts": "^2.4.1",

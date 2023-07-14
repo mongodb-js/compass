@@ -205,6 +205,7 @@
     "@mongodb-js/compass-shell": "^3.10.0",
     "@mongodb-js/compass-sidebar": "^5.10.0",
     "@mongodb-js/compass-utils": "^0.3.1",
+    "@mongodb-js/connection-storage": "^0.1.0",
     "@mongodb-js/eslint-config-compass": "^1.0.6",
     "@mongodb-js/get-os-info": "^0.3.13",
     "@mongodb-js/hadron-plugin-manager": "^7.0.7",

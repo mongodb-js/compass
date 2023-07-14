@@ -62,9 +62,9 @@
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.8.0",
     "@mongodb-js/connection-form": "^1.10.0",
+    "@mongodb-js/connection-storage": "^0.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
     "compass-preferences-model": "^2.10.0",
-    "mongodb-data-service": "^22.8.0",
     "mongodb-instance-model": "^12.8.0",
     "react": "^17.0.2"
   },
@@ -74,9 +74,9 @@
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.8.0",
     "@mongodb-js/connection-form": "^1.10.0",
+    "@mongodb-js/connection-storage": "^0.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.8",
     "compass-preferences-model": "^2.10.0",
-    "mongodb-data-service": "^22.8.0",
     "mongodb-instance-model": "^12.8.0"
   },
   "devDependencies": {

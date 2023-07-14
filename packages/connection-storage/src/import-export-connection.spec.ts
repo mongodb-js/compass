@@ -163,7 +163,9 @@ describe('Connection export/import', function () {
       });
       expect.fail('missed exception');
     } catch (err) {
-      expect(err.message).to.include('Could not parse connections list');
+      expect((err as Error).message).to.include(
+        'Could not parse connections list'
+      );
     }
   });
 
@@ -174,7 +176,7 @@ describe('Connection export/import', function () {
       });
       expect.fail('missed exception');
     } catch (err) {
-      expect(err.message).to.include(
+      expect((err as Error).message).to.include(
         'Input is in unrecognized format (expected Compass import file)'
       );
     }
@@ -188,7 +190,7 @@ describe('Connection export/import', function () {
       );
       expect.fail('missed exception');
     } catch (err) {
-      expect(err.message).to.include(
+      expect((err as Error).message).to.include(
         'Input is in unrecognized format (expected version 1, got 123456)'
       );
     }
@@ -206,10 +208,10 @@ describe('Connection export/import', function () {
       });
       expect.fail('missed exception');
     } catch (err) {
-      expect(err.message).to.include(
+      expect((err as Error).message).to.include(
         'Input file contains encrypted secrets but no passphrase was provided'
       );
-      expect(err.passphraseRequired).to.equal(true);
+      expect((err as any).passphraseRequired).to.equal(true);
     }
   });
 
@@ -227,7 +229,7 @@ describe('Connection export/import', function () {
       });
       expect.fail('missed exception');
     } catch (err) {
-      expect(err.message).to.include(
+      expect((err as Error).message).to.include(
         'Cannot decrypt due to corrupt data or wrong passphrase'
       );
     }
@@ -245,7 +247,7 @@ describe('Connection export/import', function () {
       });
       expect.fail('missed exception');
     } catch (err) {
-      expect(err.message).to.include(
+      expect((err as Error).message).to.include(
         'Cannot decrypt due to corrupt data or wrong passphrase'
       );
     }

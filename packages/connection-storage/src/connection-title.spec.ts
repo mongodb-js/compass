@@ -5,6 +5,7 @@ describe('getConnectionTitle', function () {
   it('works with default host', function () {
     expect(
       getConnectionTitle({
+        id: '123',
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017',
         },
@@ -15,6 +16,7 @@ describe('getConnectionTitle', function () {
   it('returns the hostname if the connection is srv', function () {
     expect(
       getConnectionTitle({
+        id: '123',
         connectionOptions: {
           connectionString: 'mongodb+srv://somehost',
         },
@@ -25,6 +27,7 @@ describe('getConnectionTitle', function () {
   it('returns hosts if the connection is not srv', function () {
     expect(
       getConnectionTitle({
+        id: '123',
         connectionOptions: {
           connectionString:
             'mongodb://example.com:12345,example123.com:123452/',
@@ -36,6 +39,7 @@ describe('getConnectionTitle', function () {
   it('returns the name of the favorite if connection is favorite', function () {
     expect(
       getConnectionTitle({
+        id: '123',
         connectionOptions: {
           connectionString: 'somethingwrong',
         },
@@ -49,6 +53,7 @@ describe('getConnectionTitle', function () {
   it('falls back to hostname:port if nothing else match', function () {
     expect(
       getConnectionTitle({
+        id: '123',
         connectionOptions: {
           connectionString: 'mongodb://somehost:12345',
         },
@@ -59,6 +64,7 @@ describe('getConnectionTitle', function () {
   it('falls back to connection string if it is an invalid connection string', function () {
     expect(
       getConnectionTitle({
+        id: '123',
         connectionOptions: {
           connectionString: 'pineapple',
         },
@@ -69,6 +75,7 @@ describe('getConnectionTitle', function () {
   it('falls back to the default name Connection if there is no connection string', function () {
     expect(
       getConnectionTitle({
+        id: '123',
         connectionOptions: {
           connectionString: '',
         },

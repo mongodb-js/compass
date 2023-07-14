@@ -58,7 +58,6 @@
     "@mongodb-js/ssh-tunnel": "^2.0.6",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.5.0",
-    "mongodb-connection-model": "^22.4.1",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-ns": "^2.4.0",
     "uuid": "^8.3.2"
@@ -83,7 +82,6 @@
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
-    "storage-mixin": "^5.1.5",
     "typescript": "^5.0.4"
   },
   "optionalDependencies": {

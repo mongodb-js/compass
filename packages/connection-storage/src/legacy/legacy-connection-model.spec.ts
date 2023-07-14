@@ -34,7 +34,7 @@ describe('LegacyConnectionModel', function () {
         sslMethod: 'ALL',
         sshTunnelPort: 22,
       };
-      const { id } = convertConnectionModelToInfo(rawModel);
+      const { id } = convertConnectionModelToInfo(rawModel as any);
 
       expect(id).to.deep.equal('1234-1234-1234-1234');
     });
@@ -909,12 +909,12 @@ describe('LegacyConnectionModel', function () {
 
       expect(connectionModel.authStrategy).to.equal('NONE');
       expect(
-        connectionModel.connectionInfo.connectionOptions.connectionString
+        connectionModel.connectionInfo?.connectionOptions.connectionString
       ).to.equal(
         'mongodb://username@localhost:27017/?authMechanism=MONGODB-AWS'
       );
 
-      expect(connectionModel.secrets.awsSessionToken).to.equal('sessionToken');
+      expect(connectionModel.secrets?.awsSessionToken).to.equal('sessionToken');
       expect(connectionModel.driverUrlWithSsh).to.equal(
         'mongodb://localhost:27017/?readPreference=primary&directConnection=true&ssl=true'
       );
