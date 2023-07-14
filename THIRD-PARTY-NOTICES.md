@@ -197,7 +197,7 @@ This document was automatically generated on Fri Jul 14 2023.
 | **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**                               | 1.1.11       | MIT                                 |
 | **[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**                                          | 1.1.6        | Apache-2.0                          |
 | **[bson](#4bbce2a918506c3440e5ce8b9d95d2ddef52cbfd1ac4e0062b53fb259904fe7d)**                                          | 4.7.2        | Apache-2.0                          |
-| **[bson](#e93ced4120b51600a8ec6dfd5011e09677df2d1b3932a3423e33c84b8e0d8ec1)**                                          | 5.3.0        | Apache-2.0                          |
+| **[bson](#8f4e378725ea2b2d6aea528bde67eeab7974475daeff7c40ad85e254bd623b49)**                                          | 5.4.0        | Apache-2.0                          |
 | **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**                           | 1.1.0        | MIT                                 |
 | **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**                                  | 1.2.0        | MIT                                 |
 | **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**                                   | 1.0.0        | MIT                                 |
@@ -468,7 +468,7 @@ This document was automatically generated on Fri Jul 14 2023.
 | **[mongodb-schema](#51b48b1d63ceb84206cf38237d271f70e4afe080402284a50dfadb74460a96d2)**                                | 11.2.1       | Apache-2.0                          |
 | **[mongodb-url](#400fa16b044759954266738cf4137a5e2f65f4e056588d7caee023180703347b)**                                   | 3.0.3        | Apache-2.0                          |
 | **[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**                                       | 3.6.9        | Apache-2.0                          |
-| **[mongodb](#9d661fd2aedc03947456d8e0bf3f828e213a3c828ff2f172c6edad79ff221785)**                                       | 5.6.0        | Apache-2.0                          |
+| **[mongodb](#57a36c29c4257cc17c77d07542a08f31d2de23b7b5af86bb888e3ba97972bc72)**                                       | 5.7.0        | Apache-2.0                          |
 | **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**                                            | 2.0.0        | MIT                                 |
 | **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**                                            | 2.1.2        | MIT                                 |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                            | 2.1.3        | MIT                                 |
@@ -21069,9 +21069,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="e93ced4120b51600a8ec6dfd5011e09677df2d1b3932a3423e33c84b8e0d8ec1"></a>
+<a id="8f4e378725ea2b2d6aea528bde67eeab7974475daeff7c40ad85e254bd623b49"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 5.3.0)
+### [bson](https://www.npmjs.com/package/bson) (version 5.4.0)
 
 License tags: Apache-2.0
 
@@ -32923,9 +32923,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="9d661fd2aedc03947456d8e0bf3f828e213a3c828ff2f172c6edad79ff221785"></a>
+<a id="57a36c29c4257cc17c77d07542a08f31d2de23b7b5af86bb888e3ba97972bc72"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.6.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.7.0)
 
 License tags: Apache-2.0
 
