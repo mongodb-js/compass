@@ -1037,6 +1037,8 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
 };
 
 // Workspace tabs at the top
+export const SelectedWorkspaceTabButton =
+  '[data-testid=workspace-tab-button][aria-selected="true"]';
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 
 // Export modal
