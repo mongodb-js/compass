@@ -10,8 +10,10 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import ConnectionForm from '@mongodb-js/connection-form';
-import type { ConnectionInfo, DataService } from 'mongodb-data-service';
-import { ConnectionStorage, connect } from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
+import { connect } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import { ConnectionStorage } from '@mongodb-js/connection-storage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type AppRegistry from 'hadron-app-registry';
 

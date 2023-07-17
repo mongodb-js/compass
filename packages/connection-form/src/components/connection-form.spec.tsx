@@ -13,7 +13,7 @@ import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
 import preferences from 'compass-preferences-model';
 import { defaultConnectionString } from '../constants/default-connection';
-import type { ConnectionInfo } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage';
 
 const DEFAULT_CONNECTION: ConnectionInfo = {
   id: 'default',

@@ -5,7 +5,7 @@ import sinon from 'sinon';
 import { setupIntercom } from './setup-intercom';
 import { expect } from 'chai';
 import type { IntercomScript } from './intercom-script';
-import preferences from 'compass-preferences-model';
+import preferences, { type User } from 'compass-preferences-model';
 
 const setupIpc = () => {
   let savedPreferences = {};
@@ -23,7 +23,7 @@ const setupIpc = () => {
   });
 };
 
-async function testRunSetupIntercom(user: { id: string; createdAt: Date }) {
+async function testRunSetupIntercom(user: User) {
   const intercomScript = {
     load: sinon.spy(),
     unload: sinon.spy(),
@@ -32,9 +32,10 @@ async function testRunSetupIntercom(user: { id: string; createdAt: Date }) {
   return { intercomScript };
 }
 
-const mockUser = {
+const mockUser: User = {
   id: 'user-123',
   createdAt: new Date(1649432549945),
+  lastUsed: new Date(1649432549945),
 };
 
 describe('setupIntercom', function () {

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { loadAutoConnectInfo } from './auto-connect';
-import { exportConnections } from 'mongodb-data-service';
-import type { ConnectionInfo } from 'mongodb-data-service';
+import { exportConnections } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage';
 import { ipcRenderer } from 'hadron-ipc';
 
 describe('auto connection argument parsing', function () {

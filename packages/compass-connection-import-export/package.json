@@ -63,6 +63,7 @@
     "mongodb-data-service": "^22.8.0"
   },
   "devDependencies": {
+    "@mongodb-js/connection-storage": "^0.1.0",
     "@mongodb-js/eslint-config-compass": "^1.0.6",
     "@mongodb-js/mocha-config-compass": "^1.2.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",

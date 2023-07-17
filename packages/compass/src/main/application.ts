@@ -10,9 +10,10 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
-import { setupPreferencesAndUserModel } from './setup-preferences-and-user-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
-import preferences from 'compass-preferences-model';
+import preferences, {
+  setupPreferencesAndUser,
+} from 'compass-preferences-model';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
@@ -68,9 +69,9 @@ class CompassApplication {
 
     this.setupUserDirectory();
     // need to happen after setupUserDirectory
-    await setupPreferencesAndUserModel(globalPreferences);
+    await setupPreferencesAndUser(globalPreferences);
     await this.setupLogging();
-    // need to happen after setupPreferencesAndUserModel
+    // need to happen after setupPreferencesAndUser
     await this.setupTelemetry();
     await setupProtocolHandlers(
       process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install'

@@ -1,11 +1,10 @@
 import React from 'react';
+import type { DataService, connect } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
-  DataService,
   ConnectionStorage,
-  connect,
-} from 'mongodb-data-service';
-import { getConnectionTitle } from 'mongodb-data-service';
+} from '@mongodb-js/connection-storage';
+import { getConnectionTitle } from '@mongodb-js/connection-storage';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';

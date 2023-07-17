@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import type {
   ExportConnectionOptions,
   ImportConnectionOptions,
-} from 'mongodb-data-service';
+} from '@mongodb-js/connection-storage';
 
 export async function doExportConnections(
   filename: string,
@@ -18,7 +18,7 @@ export async function doExportConnections(
   // and its dependencies to the main process startup sequence, since 99 % of the time
   // it is not going to be used.
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { exportConnections } = await import('mongodb-data-service');
+  const { exportConnections } = await import('@mongodb-js/connection-storage');
   const json = await exportConnections(options);
   await fs.writeFile(filename, json);
 }
@@ -34,7 +34,7 @@ export async function doImportConnections(
     } passphrase)`
   );
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { importConnections } = await import('mongodb-data-service');
+  const { importConnections } = await import('@mongodb-js/connection-storage');
   const json = await fs.readFile(filename, 'utf8');
   await importConnections(json, options);
 }

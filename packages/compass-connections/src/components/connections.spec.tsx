@@ -7,11 +7,11 @@ import {
   fireEvent,
 } from '@testing-library/react';
 import { expect } from 'chai';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
-  ConnectionOptions,
   ConnectionStorage,
-} from 'mongodb-data-service';
+} from '@mongodb-js/connection-storage';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
 

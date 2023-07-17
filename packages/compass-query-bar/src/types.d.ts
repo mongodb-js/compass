@@ -6,11 +6,3 @@ declare module 'mongodb-query-parser' {
   export { validate, stringify, toJSString };
   export default queryParser;
 }
-
-declare module 'mongodb-query-util' {
-  const bsonEqual: any;
-  const hasDistinctValue: any;
-  const queryUtil: any;
-  export { bsonEqual, hasDistinctValue };
-  export default queryUtil;
-}
