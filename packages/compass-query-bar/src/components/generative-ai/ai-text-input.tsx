@@ -22,6 +22,7 @@ import {
   changeAIPromptText,
   runAIQuery,
 } from '../../stores/ai-query-reducer';
+import { QuerySuggestions } from './query-suggestions';
 
 const containerStyles = css({
   display: 'flex',
@@ -308,6 +309,9 @@ function AITextInput({
           <ErrorSummary errors={errorMessage}>{errorMessage}</ErrorSummary>
         </div>
       )}
+      <div>
+        <QuerySuggestions />
+      </div>
     </div>
   );
 }

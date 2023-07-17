@@ -103,3 +103,74 @@ export async function runFetchAIQuery({
 
   return jsonResponse;
 }
+
+// TODO: Rename/refactor this file for more generalized ai requests.
+export async function runFetchAISuggestions({
+  signal,
+  collectionName,
+  schema,
+  sampleDocuments,
+}: {
+  signal: AbortSignal;
+  collectionName: string;
+  schema?: SimplifiedSchema;
+  sampleDocuments?: Document[];
+}) {
+  let msgBody = JSON.stringify({
+    collectionName,
+    schema,
+    sampleDocuments,
+  });
+  if (msgBody.length > MAX_REQUEST_SIZE) {
+    // When the message body is over the max size, we try
+    // to see if with fewer sample documents we can still perform the request.
+    // If that fails we throw an error indicating this collection's
+    // documents are too large to send to the ai.
+    msgBody = JSON.stringify({
+      collectionName,
+      schema,
+      sampleDocuments: sampleDocuments?.slice(0, MIN_SAMPLE_DOCUMENTS),
+    });
+    if (msgBody.length > MAX_REQUEST_SIZE) {
+      throw new Error(
+        'Error: too large of a request to send to the ai. Please use a collection with smaller documents.'
+      );
+    }
+  }
+
+  const endpoint = `${getAIQueryEndpoint()}/ai/api/v1/query-prompt-suggestions`;
+
+  const res = await fetch(endpoint, {
+    signal: signal as NodeFetchAbortSignal,
+    method: 'POST',
+    headers: {
+      Authorization: getAIBasicAuth(),
+      'Content-Type': 'application/json',
+    },
+    body: msgBody,
+  });
+
+  console.log('aaa res:', res);
+
+  if (!res.ok) {
+    // We try to parse the response to see if the server returned any
+    // information we can show a user.
+    let serverErrorMessage = `${res.status} ${res.statusText}`;
+    try {
+      const messageJSON = await res.json();
+      if (messageJSON.name === serverErrorMessageName) {
+        serverErrorMessage = `${messageJSON.codeName as string}: ${
+          messageJSON.errorMessage as string
+        }`;
+      }
+    } catch (err) {
+      // no-op, use the default status and statusText in the message.
+    }
+    throw new Error(`Error: ${serverErrorMessage}`);
+  }
+
+  const jsonResponse = await res.json();
+  console.log('aaa json response:', jsonResponse);
+
+  return jsonResponse;
+}

@@ -20,6 +20,7 @@ import {
   applyFilterChange,
 } from './query-bar-reducer';
 import { aiQueryReducer } from './ai-query-reducer';
+import { suggestionsReducer } from './suggestions-reducer';
 import {
   FavoriteQueryStorage,
   RecentQueryStorage,
@@ -51,6 +52,7 @@ export type QueryBarStoreOptions = {
 export const rootQueryBarReducer = combineReducers({
   queryBar: queryBarReducer,
   aiQuery: aiQueryReducer,
+  suggestions: suggestionsReducer,
 });
 
 export type RootState = ReturnType<typeof rootQueryBarReducer>;
