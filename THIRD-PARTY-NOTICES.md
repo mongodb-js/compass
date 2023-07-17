@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Jul 13 2023.
+This document was automatically generated on Sun Jul 16 2023.
 
 ## List of dependencies
 
@@ -197,7 +197,7 @@ This document was automatically generated on Thu Jul 13 2023.
 | **[brace-expansion](#2ba3ee23cc6a2718243e9c0c59ce154058f292965f563aa291b459a414e863cb)**                               | 1.1.11       | MIT                                 |
 | **[bson](#0c3905081f337a1ac6cc1a4744855c40138d69fc755198cec54e9163f1bd1a87)**                                          | 1.1.6        | Apache-2.0                          |
 | **[bson](#4bbce2a918506c3440e5ce8b9d95d2ddef52cbfd1ac4e0062b53fb259904fe7d)**                                          | 4.7.2        | Apache-2.0                          |
-| **[bson](#e93ced4120b51600a8ec6dfd5011e09677df2d1b3932a3423e33c84b8e0d8ec1)**                                          | 5.3.0        | Apache-2.0                          |
+| **[bson](#8f4e378725ea2b2d6aea528bde67eeab7974475daeff7c40ad85e254bd623b49)**                                          | 5.4.0        | Apache-2.0                          |
 | **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**                           | 1.1.0        | MIT                                 |
 | **[buffer-alloc](#d5cbc95b9dde4a46cd45334630efe3bc9025c904074bee845376bd60651441c0)**                                  | 1.2.0        | MIT                                 |
 | **[buffer-fill](#c3747dfd267829ceeb564a1717d0c65d88d2b366e215f640067abefac59e3fd4)**                                   | 1.0.0        | MIT                                 |
@@ -398,19 +398,14 @@ This document was automatically generated on Thu Jul 13 2023.
 | **[lodash.assign](#279f6350b38f924a812ff5d74a5f9c9023f5923a7c70dcb75bdb1670ad35ab50)**                                 | 3.2.0        | MIT                                 |
 | **[lodash.before](#2fef595ae4ab5ca92be6f59e86e4d7f2b4ad0c224c22d828dfd0bae48af64645)**                                 | 3.0.3        | MIT                                 |
 | **[lodash.bind](#3acab10f30bde74cc48a35928697ce1670df78f45fdca78b8bcb8c047a698b0e)**                                   | 3.1.0        | MIT                                 |
-| **[lodash.curryright](#112211d7b51cd6961e492e1d48460ed489bd2f1591115ea5c706afc9f6501961)**                             | 4.1.1        | MIT                                 |
 | **[lodash.difference](#43791df64f8fe405fc866c836325719f4060084c461c21882bef3b606d98ebcd)**                             | 3.2.2        | MIT                                 |
 | **[lodash.escape](#b2c0e0aeb488595574952c98b5f54e03f435b75e913a2bd5e5355645a576f866)**                                 | 3.2.0        | MIT                                 |
-| **[lodash.every](#8058e781759e08065a3c2f424bae9471bc229814a69536c4a1143109a7157217)**                                  | 4.6.0        | MIT                                 |
 | **[lodash.find](#83ef2b0f6879ce20ff4050bf0aba209ccab6beceed27ea68be7dc15e088aed7c)**                                   | 3.2.1        | MIT                                 |
 | **[lodash.flatten](#6adc3792aefcf12132c36a2d446686218a80ce413c20b2533d551509cc79c542)**                                | 3.0.2        | MIT                                 |
 | **[lodash.foreach](#27063675a97582e63d10521797ca5436c38ec0a71341733744333edec40fe4e1)**                                | 3.0.3        | MIT                                 |
 | **[lodash.forown](#b50edd80fd196dfaace7b3aa2a90290a00fed380636e15429b37a7d2f8e3776a)**                                 | 3.0.2        | MIT                                 |
-| **[lodash.forown](#e780126a353baa4c87d1821d16634d021f23f7717d570b3e387c0ae038f6f218)**                                 | 4.4.0        | MIT                                 |
 | **[lodash.get](#632dd5085bea3b2734eae88903cfc1e91fb5b4ddb9213e10ffeadf7121ce5ea2)**                                    | 3.7.0        | MIT                                 |
-| **[lodash.get](#e5ce5e5690d48c3f72aebc4763ee92ca9745f0387f665ac66908030648d3d6df)**                                    | 4.4.2        | MIT                                 |
 | **[lodash.has](#d0e17f0b2e78b1a2618102c4f3b743c662a0f7cb0d3ef613b22a5595f46c3667)**                                    | 3.2.1        | MIT                                 |
-| **[lodash.has](#8eb28eb5657fcbd0376823d83cb0ab0366f8225af6df62477ecab78dad14e280)**                                    | 4.5.2        | MIT                                 |
 | **[lodash.includes](#3adf597b6163c3ba3343235b44071cb955635e582da311d5b57ac35f2692f9b4)**                               | 3.1.3        | MIT                                 |
 | **[lodash.invoke](#43d25e539b3db0cb448dfaeac571c6f35c805ed7336f54c63392ccdb88c7ec91)**                                 | 3.2.3        | MIT                                 |
 | **[lodash.isarguments](#fc005d458a81bf6d8d32c52123952311bdd5e02c5564720455bd4d9480b20da7)**                            | 3.1.0        | MIT                                 |
@@ -418,17 +413,14 @@ This document was automatically generated on Thu Jul 13 2023.
 | **[lodash.isdate](#54396c41d452d46f8d06091b9ab83f35cbafd80f53b8a3337c4567d1009556f4)**                                 | 3.0.3        | MIT                                 |
 | **[lodash.isempty](#f1f61f99f9012392c9bc1dd4b01eccd42224ff516c50b507c0041845df62bcbe)**                                | 3.0.4        | MIT                                 |
 | **[lodash.isequal](#3c009e1972544c1bf8dba82eb0bffe6230cf8760bd49d8ee6e120d20b4296b2c)**                                | 3.0.4        | MIT                                 |
-| **[lodash.isequal](#106d21203734183e15a99a127b7c262e583d9e653e4a967a00d2ab38761f7c52)**                                | 4.5.0        | MIT                                 |
 | **[lodash.isfunction](#037b8981ee3ca5d6ef852835683db8dfb102f43763b561aa365c7567a766ff60)**                             | 3.0.9        | MIT                                 |
 | **[lodash.isobject](#247f42305767fcd88c563da8a196a61fcaecdd7d4ddab3d72d1a9eb05bbf5405)**                               | 3.0.2        | MIT                                 |
-| **[lodash.isplainobject](#96316781a230b8a73d3259e2ed8210e2e0c2e346825ccf812cdd12d62872b740)**                          | 4.0.6        | MIT                                 |
 | **[lodash.isstring](#10489ff0ae921489d537bc6aecec98d63d40c04e55ced77d1f68331a7f2dcd56)**                               | 3.0.1        | MIT                                 |
 | **[lodash.isstring](#0103ef60e6b5d9c04fe5527db0d91b50851203d166f29cbcf5fdf6c655194132)**                               | 4.0.1        | MIT                                 |
 | **[lodash.istypedarray](#1968cf985099120c230a51c77054d5e662feeea4825ca0218c1c728f80b5839a)**                           | 3.0.6        | MIT                                 |
 | **[lodash.keys](#c588afca24b161c04c66b7fe976458f32d1871dbdc38343d2249c15af51e6df0)**                                   | 3.1.2        | MIT                                 |
 | **[lodash.keysin](#eb438504bc7bde2a75d470d2723add90d5a7e2948c7a9320eebed39d20e9e133)**                                 | 3.0.8        | MIT                                 |
 | **[lodash.last](#541caa1523f10bb2a8b2f52174d1de4ab2d64fb7a02719e69eb7d4e1e10b1065)**                                   | 3.0.0        | MIT                                 |
-| **[lodash.map](#d74c0601bc9b02113d2328829c720cffc701cfd2022be5acb8ddec9d0ba84850)**                                    | 4.6.0        | MIT                                 |
 | **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**                                  | 4.6.2        | MIT                                 |
 | **[lodash.omit](#babde7076e3dbe66c1cd8dd0af071af1fcd4b49d2c7dbf8a306cc09b860c9ad9)**                                   | 3.1.0        | MIT                                 |
 | **[lodash.once](#e794f12866dca62acdae15f1b5b4495ad6dee09c7150f71a96044adc2ced1286)**                                   | 3.0.1        | MIT                                 |
@@ -436,9 +428,7 @@ This document was automatically generated on Thu Jul 13 2023.
 | **[lodash.pick](#d54a2e0c0e3d3024a4b364b8917d59c1170262088fb3bfc4ab4a71f53ecbb3ae)**                                   | 3.1.0        | MIT                                 |
 | **[lodash.restparam](#212ef51d65362b73a8d548dcc6dda631ef012bdd6d7d724281ab9bb0a1dbcec5)**                              | 3.6.1        | MIT                                 |
 | **[lodash.result](#7a09af41b88107096ee9071a254bacf1e324ecab5c9fb56d81dcda873144de35)**                                 | 3.1.2        | MIT                                 |
-| **[lodash.some](#9058b1002d884f7117866cec613d7b9bce7450f45591ad72e0fd3a23c0ee64ca)**                                   | 4.6.0        | MIT                                 |
 | **[lodash.union](#9ee2120113e7c91fbcbee571e2fae44f1e7f87afb331cca6eb46a3d318d6169e)**                                  | 3.1.0        | MIT                                 |
-| **[lodash.uniq](#6ef7ab2716c5a794e5c3ac43ec11e2dde83495f5eb3de0df5a367fe00409587a)**                                   | 4.5.0        | MIT                                 |
 | **[lodash.uniqueid](#f4693b5b22365d675cec07ce8ca01fc235054f442963585ee0097efdae26995b)**                               | 3.2.0        | MIT                                 |
 | **[lodash](#adaac4144887ebc2c1b682380ff385210f681fc58b4bc1ef3986148cf8dcd28a)**                                        | 4.17.21      | MIT                                 |
 | **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**                                     | 5.1.1        | ISC                                 |
@@ -474,13 +464,11 @@ This document was automatically generated on Thu Jul 13 2023.
 | **[mongodb-log-writer](#4ae070b46b6b4330535f663805f95577c3d7db48e878002656aed26f3c5ce9f7)**                            | 1.3.0        | Apache-2.0                          |
 | **[mongodb-ns](#d99637af4fc3f4918f33167526619cdfd8cdf31550f209f0c885f2f47c550209)**                                    | 2.4.0        | MIT                                 |
 | **[mongodb-query-parser](#75d580f3e024e8d64f195ef59eaa11a305066192f40b8a373815f7cf5b065692)**                          | 2.5.0        | Apache-2.0                          |
-| **[mongodb-query-util](#1cdb3b70a5e114dae29f1b35f9d6db51c92eb87f2577dc4054c75119970b2df1)**                            | 0.0.3        | Apache-2.0                          |
-| **[mongodb-query-util](#cca38af88354cbe08b44f198be120ccf55e468b2aad0dc82a55f98aa972b9686)**                            | 0.2.1        | Apache-2.0                          |
 | **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**                                | 0.2.2        | Apache-2.0                          |
 | **[mongodb-schema](#51b48b1d63ceb84206cf38237d271f70e4afe080402284a50dfadb74460a96d2)**                                | 11.2.1       | Apache-2.0                          |
 | **[mongodb-url](#400fa16b044759954266738cf4137a5e2f65f4e056588d7caee023180703347b)**                                   | 3.0.3        | Apache-2.0                          |
 | **[mongodb](#79df6e249dafb087f46c11ba03a5438d6884a12fd8b3ae5397e74d271f0a569f)**                                       | 3.6.9        | Apache-2.0                          |
-| **[mongodb](#9d661fd2aedc03947456d8e0bf3f828e213a3c828ff2f172c6edad79ff221785)**                                       | 5.6.0        | Apache-2.0                          |
+| **[mongodb](#57a36c29c4257cc17c77d07542a08f31d2de23b7b5af86bb888e3ba97972bc72)**                                       | 5.7.0        | Apache-2.0                          |
 | **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**                                            | 2.0.0        | MIT                                 |
 | **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**                                            | 2.1.2        | MIT                                 |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                            | 2.1.3        | MIT                                 |
@@ -21081,9 +21069,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="e93ced4120b51600a8ec6dfd5011e09677df2d1b3932a3423e33c84b8e0d8ec1"></a>
+<a id="8f4e378725ea2b2d6aea528bde67eeab7974475daeff7c40ad85e254bd623b49"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 5.3.0)
+### [bson](https://www.npmjs.com/package/bson) (version 5.4.0)
 
 License tags: Apache-2.0
 
@@ -28282,64 +28270,6 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="112211d7b51cd6961e492e1d48460ed489bd2f1591115ea5c706afc9f6501961"></a>
-
-### [lodash.curryright](https://www.npmjs.com/package/lodash.curryright) (version 4.1.1)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-
 <a id="43791df64f8fe405fc866c836325719f4060084c461c21882bef3b606d98ebcd"></a>
 
 ### [lodash.difference](https://www.npmjs.com/package/lodash.difference) (version 3.2.2)
@@ -28405,64 +28335,6 @@ License files:
       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="8058e781759e08065a3c2f424bae9471bc229814a69536c4a1143109a7157217"></a>
-
-### [lodash.every](https://www.npmjs.com/package/lodash.every) (version 4.6.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
 
 <a id="83ef2b0f6879ce20ff4050bf0aba209ccab6beceed27ea68be7dc15e088aed7c"></a>
 
@@ -28596,64 +28468,6 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="e780126a353baa4c87d1821d16634d021f23f7717d570b3e387c0ae038f6f218"></a>
-
-### [lodash.forown](https://www.npmjs.com/package/lodash.forown) (version 4.4.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-
 <a id="632dd5085bea3b2734eae88903cfc1e91fb5b4ddb9213e10ffeadf7121ce5ea2"></a>
 
 ### [lodash.get](https://www.npmjs.com/package/lodash.get) (version 3.7.0)
@@ -28687,64 +28501,6 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="e5ce5e5690d48c3f72aebc4763ee92ca9745f0387f665ac66908030648d3d6df"></a>
-
-### [lodash.get](https://www.npmjs.com/package/lodash.get) (version 4.4.2)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-
 <a id="d0e17f0b2e78b1a2618102c4f3b743c662a0f7cb0d3ef613b22a5595f46c3667"></a>
 
 ### [lodash.has](https://www.npmjs.com/package/lodash.has) (version 3.2.1)
@@ -28777,64 +28533,6 @@ License files:
       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="8eb28eb5657fcbd0376823d83cb0ab0366f8225af6df62477ecab78dad14e280"></a>
-
-### [lodash.has](https://www.npmjs.com/package/lodash.has) (version 4.5.2)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
 
 <a id="3adf597b6163c3ba3343235b44071cb955635e582da311d5b57ac35f2692f9b4"></a>
 
@@ -29092,64 +28790,6 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="106d21203734183e15a99a127b7c262e583d9e653e4a967a00d2ab38761f7c52"></a>
-
-### [lodash.isequal](https://www.npmjs.com/package/lodash.isequal) (version 4.5.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright JS Foundation and other contributors <https://js.foundation/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-
 <a id="037b8981ee3ca5d6ef852835683db8dfb102f43763b561aa365c7567a766ff60"></a>
 
 ### [lodash.isfunction](https://www.npmjs.com/package/lodash.isfunction) (version 3.0.9)
@@ -29240,64 +28880,6 @@ License files:
       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="96316781a230b8a73d3259e2ed8210e2e0c2e346825ccf812cdd12d62872b740"></a>
-
-### [lodash.isplainobject](https://www.npmjs.com/package/lodash.isplainobject) (version 4.0.6)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
 
 <a id="10489ff0ae921489d537bc6aecec98d63d40c04e55ced77d1f68331a7f2dcd56"></a>
 
@@ -29521,64 +29103,6 @@ License files:
       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="d74c0601bc9b02113d2328829c720cffc701cfd2022be5acb8ddec9d0ba84850"></a>
-
-### [lodash.map](https://www.npmjs.com/package/lodash.map) (version 4.6.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
 
 <a id="996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db"></a>
 
@@ -29836,64 +29360,6 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="9058b1002d884f7117866cec613d7b9bce7450f45591ad72e0fd3a23c0ee64ca"></a>
-
-### [lodash.some](https://www.npmjs.com/package/lodash.some) (version 4.6.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
-
 <a id="9ee2120113e7c91fbcbee571e2fae44f1e7f87afb331cca6eb46a3d318d6169e"></a>
 
 ### [lodash.union](https://www.npmjs.com/package/lodash.union) (version 3.1.0)
@@ -29926,64 +29392,6 @@ License files:
       LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="6ef7ab2716c5a794e5c3ac43ec11e2dde83495f5eb3de0df5a367fe00409587a"></a>
-
-### [lodash.uniq](https://www.npmjs.com/package/lodash.uniq) (version 4.5.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright jQuery Foundation and other contributors <https://jquery.org/>
-
-      Based on Underscore.js, copyright Jeremy Ashkenas,
-      DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-      This software consists of voluntary contributions made by many
-      individuals. For exact contribution history, see the revision history
-      available at https://github.com/lodash/lodash
-
-      The following license applies to all parts of this software except as
-      documented below:
-
-      ====
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-      ====
-
-      Copyright and related rights for sample code are waived via CC0. Sample
-      code is defined as all source code displayed within the prose of the
-      documentation.
-
-      CC0: http://creativecommons.org/publicdomain/zero/1.0/
-
-      ====
-
-      Files located in the node_modules and vendor directories are externally
-      maintained libraries used by this software which have their own
-      licenses; we recommend you read them, as their terms may differ from the
-      terms above.
 
 <a id="f4693b5b22365d675cec07ce8ca01fc235054f442963585ee0097efdae26995b"></a>
 
@@ -32667,18 +32075,6 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="1cdb3b70a5e114dae29f1b35f9d6db51c92eb87f2577dc4054c75119970b2df1"></a>
-
-### [mongodb-query-util](https://www.npmjs.com/package/mongodb-query-util) (version 0.0.3)
-
-License tags: Apache-2.0
-
-<a id="cca38af88354cbe08b44f198be120ccf55e468b2aad0dc82a55f98aa972b9686"></a>
-
-### [mongodb-query-util](https://www.npmjs.com/package/mongodb-query-util) (version 0.2.1)
-
-License tags: Apache-2.0
-
 <a id="00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421"></a>
 
 ### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 0.2.2)
@@ -33527,9 +32923,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="9d661fd2aedc03947456d8e0bf3f828e213a3c828ff2f172c6edad79ff221785"></a>
+<a id="57a36c29c4257cc17c77d07542a08f31d2de23b7b5af86bb888e3ba97972bc72"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.6.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.7.0)
 
 License tags: Apache-2.0
 
