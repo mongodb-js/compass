@@ -217,7 +217,7 @@ describe('use-connections hook', function () {
       await waitFor(() => {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(mockConnectionStorage.delete).to.have.been.calledWith(
-          mockRecents[mockRecents.length - 1]
+          mockRecents[mockRecents.length - 1].id
         );
       });
     });

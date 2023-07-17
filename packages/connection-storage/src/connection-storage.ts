@@ -1,57 +1,90 @@
-import type { ConnectionInfo } from '../../connection-storage/src/connection-info';
-
+import { join } from 'path';
 import { validate as uuidValidate } from 'uuid';
-import type { LegacyConnectionModel } from './legacy/legacy-connection-model';
-import {
-  convertConnectionInfoToModel,
-  convertConnectionModelToInfo,
-} from './legacy/legacy-connection-model';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
+import fs from 'fs/promises';
+import keytar from 'keytar';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
+import type { ConnectionInfo } from './connection-info';
+import { convertConnectionInfoToModel } from './legacy/legacy-connection-model';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { type ConnectionSecrets, mergeSecrets } from './connection-secrets';
+import { getKeytarServiceName, deleteCompassAppNameParam } from './utils';
+
+const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 export class ConnectionStorage {
-  /**
-   * Loads all the ConnectionInfo currently stored.
-   *
-   * @returns Promise<ConnectionInfo[]>
-   */
+  private readonly folder = 'Connections';
+  private readonly keytarService: string;
+
+  constructor(protected readonly path: string = '') {
+    this.keytarService = getKeytarServiceName();
+  }
+
+  private getFolderPath() {
+    return join(this.path, this.folder);
+  }
+
+  private getFilePath(id: string) {
+    return join(this.getFolderPath(), `${id}.json`);
+  }
+
+  private mapStoredConnectionToConnectionInfo(
+    storeConnectionInfo: ConnectionInfo,
+    secrets: ConnectionSecrets
+  ): ConnectionInfo {
+    const connectionInfo = mergeSecrets(storeConnectionInfo, secrets);
+    if (connectionInfo.lastUsed) {
+      // could be parsed from json and be a string
+      connectionInfo.lastUsed = new Date(connectionInfo.lastUsed);
+    }
+    return deleteCompassAppNameParam(connectionInfo);
+  }
+
   async loadAll(): Promise<ConnectionInfo[]> {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { ConnectionCollection } = require('mongodb-connection-model');
-    const connectionCollection = new ConnectionCollection();
-    const fetchConnectionModels = promisifyAmpersandMethod(
-      connectionCollection.fetch.bind(connectionCollection)
-    );
+    // Ensure folder exists
+    await fs.mkdir(this.getFolderPath(), { recursive: true });
+
+    const connectionIds = (await fs.readdir(this.getFolderPath()))
+      .filter((file) => file.endsWith('.json'))
+      .map((file) => file.replace('.json', ''))
+      .filter(Boolean) as string[];
 
     try {
-      await fetchConnectionModels();
+      const data = await Promise.all(connectionIds.map(this.load.bind(this)));
+      return data.filter(Boolean) as ConnectionInfo[];
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_101),
         'Connection Storage',
-        'Failed to load connection, error while fetching models',
+        'Failed to load connections',
         { message: (err as Error).message }
       );
-
       return [];
     }
+  }
 
-    return connectionCollection
-      .map((model: LegacyConnectionModel) => {
-        try {
-          return convertConnectionModelToInfo(model);
-        } catch (err) {
-          log.error(
-            mongoLogId(1_001_000_102),
-            'Connection Storage',
-            'Failed to load connection, error while converting from model',
-            { message: (err as Error).message }
-          );
-        }
-      })
-      .filter(Boolean);
+  async load(id?: string): Promise<ConnectionInfo | undefined> {
+    if (!id) {
+      return undefined;
+    }
+    try {
+      const connection = JSON.parse(
+        await fs.readFile(this.getFilePath(id), 'utf8')
+      );
+      const password = await keytar.getPassword(this.keytarService, id);
+      const secrets = password ? JSON.parse(password).secrets : {};
+      return this.mapStoredConnectionToConnectionInfo(
+        connection.connectionInfo,
+        secrets
+      );
+    } catch (e) {
+      log.error(
+        mongoLogId(1_001_000_102),
+        'Connection Storage',
+        'Failed to load connection',
+        { message: (e as Error).message }
+      );
+      return undefined;
+    }
   }
 
   /**
@@ -92,27 +125,14 @@ export class ConnectionStorage {
     }
   }
 
-  /**
-   * Deletes a ConnectionInfo object from the storage.
-   *
-   * If the ConnectionInfo does not have an id, the operation will
-   * ignore and return.
-   *
-   * Trying to remove a ConnectionInfo that is not stored has no effect
-   * and won't throw an exception.
-   *
-   * @param connectionInfo - The ConnectionInfo object to be deleted.
-   */
-  async delete(connectionInfo: ConnectionInfo): Promise<void> {
-    if (!connectionInfo.id) {
-      // don't throw attempting to delete a connection
-      // that was never saved.
+  async delete(id?: string): Promise<void> {
+    if (!id) {
       return;
     }
 
     try {
-      const model = await convertConnectionInfoToModel(connectionInfo);
-      model.destroy();
+      await fs.unlink(this.getFilePath(id));
+      await keytar.deletePassword(this.keytarService, id);
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_104),
@@ -123,26 +143,5 @@ export class ConnectionStorage {
 
       throw err;
     }
-  }
-
-  /**
-   * Fetch one ConnectionInfo.
-   *
-   * @param {string} id Id of the ConnectionInfo to fetch
-   */
-  async load(id?: string): Promise<ConnectionInfo | undefined> {
-    if (!id) {
-      return undefined;
-    }
-
-    // model.fetch doesn't seem to fail or return any useful info
-    // to determine if the model exists or not on disk
-    // this is why here we have to re-load all the connections in
-    // in order to ensure we can return undefined for a connection id
-    // that does not exist.
-
-    const connections = await this.loadAll();
-
-    return connections.find((connection) => id === connection.id);
   }
 }

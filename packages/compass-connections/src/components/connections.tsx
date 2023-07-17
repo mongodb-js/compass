@@ -22,10 +22,13 @@ import Connecting from './connecting/connecting';
 import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
+import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
 );
+
+const { basepath } = getStoragePaths() ?? {};
 
 type ConnectFn = typeof connect;
 
@@ -59,7 +62,7 @@ function Connections({
   appRegistry,
   onConnected,
   isConnected,
-  connectionStorage = new ConnectionStorage(),
+  connectionStorage = new ConnectionStorage(basepath),
   appName,
   getAutoConnectInfo,
   connectFn = connect,
