@@ -7,15 +7,23 @@ import preferences from 'compass-preferences-model';
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
 import { runFetchAISuggestions } from '../modules/ai-query-request';
+import type { BaseQuery, QueryFormFields } from '../constants/query-properties';
+import { mapQueryToFormFields } from '../utils/query';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
 type AISuggestionsStatus = 'ready' | 'fetching' | 'success';
 
+type QuerySuggestion = {
+  text: string;
+  query: BaseQuery;
+};
+
 export type SuggestionsState = {
   errorMessage: string | undefined;
   status: AISuggestionsStatus;
-  suggestions: string[];
+  suggestions: QuerySuggestion[];
   aiSuggestionsFetchId: number; // Maps to the AbortController of the current fetch (or -1).
 };
 
@@ -28,11 +36,12 @@ export const initialState: SuggestionsState = {
 };
 
 export const enum SuggestionsActionTypes {
-  AISuggestionsStarted = 'compass-query-bar/ai-query/AISuggestionsStarted',
-  AISuggestionsCancelled = 'compass-query-bar/ai-query/AISuggestionsCancelled',
-  AISuggestionsFailed = 'compass-query-bar/ai-query/AISuggestionsFailed',
-  AISuggestionsSucceeded = 'compass-query-bar/ai-query/AISuggestionsSucceeded',
-  CancelAISuggestions = 'compass-query-bar/ai-query/CancelAISuggestions',
+  AISuggestionsStarted = 'compass-query-bar/suggestions/AISuggestionsStarted',
+  AISuggestionsCancelled = 'compass-query-bar/suggestions/AISuggestionsCancelled',
+  AISuggestionsFailed = 'compass-query-bar/suggestions/AISuggestionsFailed',
+  AISuggestionsSucceeded = 'compass-query-bar/suggestions/AISuggestionsSucceeded',
+  CancelAISuggestions = 'compass-query-bar/suggestions/CancelAISuggestions',
+  ApplySuggestion = 'compass-query-bar/suggestions/ApplySuggestion',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -70,8 +79,21 @@ type AISuggestionsFailedAction = {
 
 export type AISuggestionsSucceededAction = {
   type: SuggestionsActionTypes.AISuggestionsSucceeded;
-  suggestions: string[];
+  suggestions: QuerySuggestion[];
 };
+
+export type ApplySuggestionAction = {
+  type: SuggestionsActionTypes.ApplySuggestion;
+  fields: QueryFormFields;
+};
+
+export const applySuggestion = (query: BaseQuery): ApplySuggestionAction => ({
+  type: SuggestionsActionTypes.ApplySuggestion,
+  fields: mapQueryToFormFields({
+    ...DEFAULT_FIELD_VALUES,
+    ...(query ?? {}),
+  }),
+});
 
 function logFailed(errorMessage: string) {
   log.info(
@@ -162,10 +184,11 @@ export const runAISuggestions = (): QueryBarThunkAction<
       return;
     }
 
-    const rawSuggestions = jsonResponse?.content;
+    // TODO: parse suggestion nicer.
+    const suggestions = jsonResponse?.content;
 
     // Error when the response is empty or there is nothing to map.
-    if (!rawSuggestions || !rawSuggestions.length) {
+    if (!suggestions || !suggestions.length) {
       const msg = 'No suggestions were returned from the ai.';
       logFailed(msg);
       dispatch({
@@ -174,11 +197,6 @@ export const runAISuggestions = (): QueryBarThunkAction<
       });
       return;
     }
-
-    // TODO: parse suggestion and use the query.
-    const suggestions = rawSuggestions.map((suggestion: unknown) =>
-      JSON.stringify(suggestion)
-    );
 
     log.info(
       mongoLogId(1_001_000_202),

@@ -33,6 +33,9 @@ import {
   getQueryAttributes,
   isAction,
 } from '../utils';
+import { SuggestionsActionTypes } from './suggestions-reducer';
+import type { ApplySuggestionAction } from './suggestions-reducer';
+
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const TOTAL_RECENTS_ALLOWED = 30;
@@ -489,6 +492,10 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     isAction<AIQuerySucceededAction>(
       action,
       AIQueryActionTypes.AIQuerySucceeded
+    ) ||
+    isAction<ApplySuggestionAction>(
+      action,
+      SuggestionsActionTypes.ApplySuggestion
     )
   ) {
     return {
