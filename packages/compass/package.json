@@ -182,6 +182,7 @@
   "devDependencies": {
     "@electron/rebuild": "^3.2.13",
     "@electron/remote": "^2.0.10",
+    "@mongodb-js/atlas-service": "^0.1.0",
     "@mongodb-js/compass-aggregations": "^9.11.0",
     "@mongodb-js/compass-app-stores": "^0.4.0",
     "@mongodb-js/compass-collection": "^4.10.0",

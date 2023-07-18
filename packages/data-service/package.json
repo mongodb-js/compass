@@ -53,8 +53,8 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.3.1",
-    "@mongodb-js/devtools-connect": "^2.2.0",
-    "@mongodb-js/oidc-plugin": "^0.2.3",
+    "@mongodb-js/devtools-connect": "^2.3.0",
+    "@mongodb-js/oidc-plugin": "^0.3.0",
     "@mongodb-js/ssh-tunnel": "^2.0.6",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.5.0",

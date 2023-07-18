@@ -14,6 +14,7 @@ import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 import preferences, {
   setupPreferencesAndUser,
 } from 'compass-preferences-model';
+import { AtlasService } from '@mongodb-js/atlas-service/main';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
@@ -86,6 +87,8 @@ class CompassApplication {
     if (mode === 'CLI') {
       return;
     }
+
+    AtlasService.init();
 
     await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
     await setupCSFLELibrary();
