@@ -5,12 +5,15 @@ import { openToast } from '@mongodb-js/compass-components';
 
 type UserInfo = unknown;
 
+type Token = unknown;
+
 type AtlasSignInState = {
   // For managing abort controller out of the state
   currentAttemptId: number;
   state: 'initial' | 'in-progress' | 'success' | 'error';
   error: string | null;
   user: UserInfo | null;
+  token: Token | null;
 };
 
 export const enum AtlasSignInActions {
@@ -28,6 +31,7 @@ export type AtlasSignInStartAction = {
 export type AtlasSignInSuccessAction = {
   type: AtlasSignInActions.Success;
   user: UserInfo;
+  token: Token;
 };
 
 export type AtlasSignInErrorAction = {
@@ -42,6 +46,7 @@ const INITIAL_STATE = {
   state: 'initial' as const,
   error: null,
   user: null,
+  token: null,
 };
 
 const AbortControllerMap = new Map<number, AbortController>();
@@ -68,7 +73,13 @@ const reducer: Reducer<AtlasSignInState> = (
   }
 
   if (isAction<AtlasSignInSuccessAction>(action, AtlasSignInActions.Success)) {
-    return { ...state, state: 'success', user: action.user, error: null };
+    return {
+      ...state,
+      state: 'success',
+      user: action.user,
+      token: action.token,
+      error: null,
+    };
   }
 
   if (isAction<AtlasSignInErrorAction>(action, AtlasSignInActions.Error)) {
@@ -87,18 +98,18 @@ const reducer: Reducer<AtlasSignInState> = (
  */
 export const signIn = (): QueryBarThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasSignIn }) => {
-    const onSuccess = (user: UserInfo) => {
+    const onSuccess = (user: UserInfo, token: Token) => {
       openToast('atlas-sign-in-success', {
         variant: 'success',
         title: `Signed in as ${user.login}`,
         timeout: 10_000,
       });
-      dispatch({ type: AtlasSignInActions.Success, user });
+      dispatch({ type: AtlasSignInActions.Success, user, token });
     };
 
     if (await atlasSignIn.isAuthenticated()) {
       const user = await atlasSignIn.userInfo();
-      onSuccess(user);
+      onSuccess(user, {});
     } else {
       const {
         id,
@@ -106,9 +117,10 @@ export const signIn = (): QueryBarThunkAction<Promise<void>> => {
       } = getAbortSignal();
       dispatch({ type: AtlasSignInActions.Start, id });
       try {
-        await atlasSignIn.signIn();
+        const token = await atlasSignIn.signIn();
+        console.log({ token });
         const user = await atlasSignIn.userInfo();
-        onSuccess(user);
+        onSuccess(user, token);
       } catch (err) {
         openToast('atlas-sign-in-error', {
           variant: 'important',

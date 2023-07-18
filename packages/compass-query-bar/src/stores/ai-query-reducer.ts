@@ -103,6 +103,7 @@ export const runAIQuery = (
       jsonResponse = await runFetchAIQuery({
         signal: abortController.signal,
         userPrompt,
+        token: getState().atlasSignIn.token as any,
       });
     } catch (err: any) {
       if (abortController.signal.aborted) {
