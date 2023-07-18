@@ -170,7 +170,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.348.0",
+    "@aws-sdk/credential-providers": "^3.370.0",
     "@mongosh/node-runtime-worker-thread": "^1.10.0",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
