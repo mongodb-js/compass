@@ -7,6 +7,10 @@ ignore:
         reason: "Security patches released for semver 5.x (5.7.2) and 6.x (6.3.1) are not yet known to Snyk which is why we would like to ignore this vulnerability until the mentioned expiry."
         expires: 2023-08-11T09:00:55.553Z
         created: 2023-07-12T09:00:55.557Z
+  SNYK-JS-AGGRIDCOMMUNITY-1932011:
+    - '*':
+      reason: "We don't use valueFormatter or a cellRenderer function. We have our own CellRenderer component."
+
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
