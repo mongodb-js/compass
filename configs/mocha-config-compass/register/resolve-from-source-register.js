@@ -29,16 +29,14 @@ const sourcePaths = Object.fromEntries(
         );
       }
       if (packageJson['compass:exports']) {
-        return [
-          Object.entries(packageJson['compass:exports']).map(
-            ([submodule, subpath]) => {
-              return [
-                path.join(packageJson.name, submodule),
-                path.join(workspacePath, subpath),
-              ];
-            }
-          ),
-        ];
+        return Object.entries(packageJson['compass:exports']).map(
+          ([submodule, subpath]) => {
+            return [
+              path.join(packageJson.name, submodule),
+              path.join(workspacePath, subpath),
+            ];
+          }
+        );
       }
       if (packageJson['compass:main']) {
         return [
