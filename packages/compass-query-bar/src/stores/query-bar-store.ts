@@ -119,7 +119,7 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
         globalAppRegistry,
         recentQueryStorage,
         favoriteQueryStorage,
-        atlasService: new AtlasService(),
+        atlasService: AtlasService(),
       })
     )
   );

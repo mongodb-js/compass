@@ -73,7 +73,12 @@ export class AtlasService {
       return;
     }
     this.calledOnce = true;
-    ipcExpose(this, ['getUserInfo', 'introspect', 'isAuthenticated', 'signIn']);
+    ipcExpose('AtlasService', this, [
+      'getUserInfo',
+      'introspect',
+      'isAuthenticated',
+      'signIn',
+    ]);
   }
 
   static async isAuthenticated(): Promise<boolean> {
@@ -101,7 +106,7 @@ export class AtlasService {
           );
         return this.token;
       })();
-      return this.signInPromise;
+      return await this.signInPromise;
     } finally {
       this.signInPromise = null;
     }

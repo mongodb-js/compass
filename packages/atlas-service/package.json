@@ -63,5 +63,11 @@
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@mongodb-js/devtools-connect": "^2.3.0",
+    "@mongodb-js/oidc-plugin": "^0.3.0",
+    "electron": "^23.3.9",
+    "node-fetch": "^2.6.7"
   }
 }

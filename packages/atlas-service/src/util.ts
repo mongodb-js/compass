@@ -32,6 +32,7 @@ type PickByValue<T, K> = Pick<
 >;
 
 export function ipcExpose<T>(
+  serviceName: string,
   obj: T,
   methodNames: Extract<
     keyof PickByValue<T, (...args: any) => Promise<any>>,
@@ -39,7 +40,7 @@ export function ipcExpose<T>(
   >[]
 ) {
   for (const name of methodNames) {
-    ipcMain.handle(name, async (_evt, ...args) => {
+    ipcMain.handle(`${serviceName}.${name}`, async (_evt, ...args) => {
       try {
         return await (obj[name] as (...args: any[]) => any).call(obj, ...args);
       } catch (err) {
@@ -49,18 +50,22 @@ export function ipcExpose<T>(
   }
 }
 
-export function ipcInvoke<T>(
-  methodNames: Extract<
+export function ipcInvoke<
+  T,
+  K extends Extract<
     keyof PickByValue<T, (...args: any) => Promise<any>>,
     string
-  >[]
-): Pick<T, typeof methodNames[number]> {
+  >
+>(serviceName: string, methodNames: K[]) {
   return Object.fromEntries(
     methodNames.map((name) => {
       return [
         name,
         async (...args: any[]) => {
-          const res = await ipcRenderer.invoke(name, ...args);
+          const res = await ipcRenderer.invoke(
+            `${serviceName}.${name}`,
+            ...args
+          );
           if (isSerializedError(res)) {
             throw deserializeErrorFromIpc(res);
           }
@@ -68,5 +73,5 @@ export function ipcInvoke<T>(
         },
       ];
     })
-  ) as T;
+  ) as Pick<T, K>;
 }
