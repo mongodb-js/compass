@@ -32,7 +32,10 @@ const sourcePaths = Object.fromEntries(
         return Object.entries(packageJson['compass:exports']).map(
           ([submodule, subpath]) => {
             return [
-              path.join(packageJson.name, submodule),
+              path
+                .join(packageJson.name, submodule)
+                // Handle windows case where join will convert `/` to `\`
+                .replace(/\\/g, '/'),
               path.join(workspacePath, subpath),
             ];
           }
