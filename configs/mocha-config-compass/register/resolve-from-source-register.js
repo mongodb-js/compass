@@ -19,7 +19,7 @@ const workspaces = fs
 
 const sourcePaths = Object.fromEntries(
   workspaces
-    .map((workspacePath) => {
+    .flatMap((workspacePath) => {
       let packageJson = {};
       try {
         packageJson = require(path.join(workspacePath, 'package.json'));
@@ -28,13 +28,24 @@ const sourcePaths = Object.fromEntries(
           `\x1b[33mWarning: Directory at path "${workspacePath}" is not a workspace. Did you forget to clean up?\x1b[0m`
         );
       }
-      if (packageJson['compass:main'] || packageJson['compass:exports']) {
+      if (packageJson['compass:exports']) {
         return [
-          packageJson.name,
-          path.join(
-            workspacePath,
-            packageJson['compass:exports']?.['.'] ?? packageJson['compass:main']
+          Object.entries(packageJson['compass:exports']).map(
+            ([submodule, subpath]) => {
+              return [
+                path.join(packageJson.name, submodule),
+                path.join(workspacePath, subpath),
+              ];
+            }
           ),
+        ];
+      }
+      if (packageJson['compass:main']) {
+        return [
+          [
+            packageJson.name,
+            path.join(workspacePath, packageJson['compass:main']),
+          ],
         ];
       }
       return false;

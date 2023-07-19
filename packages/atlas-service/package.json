@@ -23,8 +23,8 @@
   ],
   "license": "SSPL",
   "exports": {
-    "./main": "./dist/main.js",
-    "./renderer": "./dist/renderer.js"
+    "./main": "./main.js",
+    "./renderer": "./renderer.js"
   },
   "compass:exports": {
     "./main": "./src/main.ts",
