@@ -124,12 +124,14 @@ export class AtlasService {
     ]);
   }
 
-  static async isAuthenticated(): Promise<boolean> {
+  static async isAuthenticated({
+    signal,
+  }: { signal?: AbortSignal } = {}): Promise<boolean> {
     if (!this.token) {
       return false;
     }
     try {
-      return (await this.introspect()).active;
+      return (await this.introspect({ signal })).active;
     } catch (err) {
       return false;
     }
