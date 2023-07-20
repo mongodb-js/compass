@@ -2,9 +2,14 @@ import { shell } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import * as plugin from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
+// TODO(https://github.com/node-fetch/node-fetch/issues/1652): Remove this when
+// node-fetch types match the built in AbortSignal from node.
+import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
 import type { Response } from 'node-fetch';
 import fetch from 'node-fetch';
-import type { IntrospectInfo, Token, UserInfo } from './util';
+import type { SimplifiedSchema } from 'mongodb-schema';
+import type { Document } from 'mongodb';
+import type { AIQuery, IntrospectInfo, Token, UserInfo } from './util';
 import { ipcExpose } from './util';
 
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
@@ -12,15 +17,41 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productDocsLink: 'https://www.mongodb.com/docs/compass',
 });
 
-function throwIfNotOk(res: Response) {
+const SPECIAL_AI_ERROR_NAME = 'AIError';
+
+export async function throwIfNotOk(
+  res: Pick<Response, 'ok' | 'status' | 'statusText' | 'json'>
+) {
   if (res.ok) {
     return;
   }
-  const err = new Error(`NetworkError: ${res.statusText}`);
-  err.name = 'NetworkError';
+
+  let serverErrorName = 'NetworkError';
+  let serverErrorMessage = `${res.status} ${res.statusText}`;
+  // Special case for AI endpoint only:
+  // We try to parse the response to see if the server returned any information
+  // we can show a user.
+  try {
+    // Why are we having a custom format and not following what mms does?
+    const messageJSON = await res.json();
+    if (messageJSON.name === SPECIAL_AI_ERROR_NAME) {
+      serverErrorName = 'Error';
+      serverErrorMessage = `${messageJSON.codeName as string}: ${
+        messageJSON.errorMessage as string
+      }`;
+    }
+  } catch (err) {
+    // no-op, use the default status and statusText in the message.
+  }
+  const err = new Error(serverErrorMessage);
+  err.name = serverErrorName;
   (err as any).statusCode = res.status;
   throw err;
 }
+
+const MAX_REQUEST_SIZE = 5000;
+
+const MIN_SAMPLE_DOCUMENTS = 1;
 
 export class AtlasService {
   private constructor() {
@@ -54,6 +85,8 @@ export class AtlasService {
 
   private static signInPromise: Promise<Token> | null = null;
 
+  private static fetch: typeof fetch = fetch;
+
   private static get clientId() {
     if (!process.env.COMPASS_CLIENT_ID) {
       throw new Error('COMPASS_CLIENT_ID is required');
@@ -68,6 +101,15 @@ export class AtlasService {
     return process.env.COMPASS_OIDC_ISSUER;
   }
 
+  private static get apiBaseUrl() {
+    if (!process.env.DEV_AI_QUERY_ENDPOINT) {
+      throw new Error(
+        'No AI Query endpoint to fetch. Please set the environment variable `DEV_AI_QUERY_ENDPOINT`'
+      );
+    }
+    return process.env.DEV_AI_QUERY_ENDPOINT;
+  }
+
   static init() {
     if (this.calledOnce) {
       return;
@@ -78,6 +120,7 @@ export class AtlasService {
       'introspect',
       'isAuthenticated',
       'signIn',
+      'getQueryFromUserPrompt',
     ]);
   }
 
@@ -113,20 +156,20 @@ export class AtlasService {
   }
 
   static async getUserInfo(): Promise<UserInfo> {
-    const res = await fetch(`${this.issuer}/v1/userinfo`, {
+    const res = await this.fetch(`${this.issuer}/v1/userinfo`, {
       headers: {
         Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
         Accept: 'application/json',
       },
     });
-    throwIfNotOk(res);
+    await throwIfNotOk(res);
     return res.json();
   }
 
   static async introspect() {
     const url = new URL(`${this.issuer}/v1/introspect`);
     url.searchParams.set('client_id', this.clientId);
-    const res = await fetch(url.toString(), {
+    const res = await this.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', this.token?.accessToken ?? ''],
@@ -136,7 +179,65 @@ export class AtlasService {
         Accept: 'application/json',
       },
     });
-    throwIfNotOk(res);
+    await throwIfNotOk(res);
     return res.json() as Promise<IntrospectInfo>;
+  }
+
+  static async getQueryFromUserPrompt({
+    signal,
+    userPrompt,
+    collectionName,
+    schema,
+    sampleDocuments,
+  }: {
+    userPrompt: string;
+    collectionName: string;
+    schema?: SimplifiedSchema;
+    sampleDocuments?: Document[];
+    signal?: AbortSignal;
+  }) {
+    if (signal?.aborted) {
+      const err = signal.reason ?? new Error('This operation was aborted.');
+      throw err;
+    }
+
+    let msgBody = JSON.stringify({
+      userPrompt,
+      collectionName,
+      schema,
+      sampleDocuments,
+    });
+    if (msgBody.length > MAX_REQUEST_SIZE) {
+      // When the message body is over the max size, we try
+      // to see if with fewer sample documents we can still perform the request.
+      // If that fails we throw an error indicating this collection's
+      // documents are too large to send to the ai.
+      msgBody = JSON.stringify({
+        userPrompt,
+        collectionName,
+        schema,
+        sampleDocuments: sampleDocuments?.slice(0, MIN_SAMPLE_DOCUMENTS),
+      });
+      // Why this is not happening on the backend?
+      if (msgBody.length > MAX_REQUEST_SIZE) {
+        throw new Error(
+          'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+        );
+      }
+    }
+
+    const res = await this.fetch(`${this.apiBaseUrl}/ai/api/v1/mql-query`, {
+      signal: signal as NodeFetchAbortSignal | undefined,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: msgBody,
+    });
+
+    await throwIfNotOk(res);
+
+    return res.json() as Promise<AIQuery>;
   }
 }

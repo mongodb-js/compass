@@ -7,6 +7,12 @@ export type IntrospectInfo = { active: boolean };
 
 export type Token = plugin.IdPServerResponse;
 
+export type AIQuery = {
+  content?: {
+    query?: unknown;
+  };
+};
+
 type SerializedError = { $$error: Error & { statusCode?: number } };
 
 function serializeErrorForIpc(err: any): SerializedError {
