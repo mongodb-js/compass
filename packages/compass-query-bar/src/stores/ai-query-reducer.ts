@@ -204,7 +204,6 @@ export const runAIQuery = (
       }
 
       const query = jsonResponse?.content?.query;
-      console.log({ query });
       fields = mapQueryToFormFields({
         ...DEFAULT_FIELD_VALUES,
         ...(query ?? {}),
