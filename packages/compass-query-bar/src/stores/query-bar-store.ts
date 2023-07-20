@@ -8,7 +8,6 @@ import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
-
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { BaseQuery } from '../constants/query-properties';
 import { mapFormFieldsToQuery, mapQueryToFormFields } from '../utils/query';
@@ -26,6 +25,8 @@ import {
   getQueryAttributes,
 } from '../utils';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+
 const { basepath } = getStoragePaths() || {};
 
 // Partial of DataService that mms shares with Compass.
@@ -118,6 +119,7 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
         globalAppRegistry,
         recentQueryStorage,
         favoriteQueryStorage,
+        atlasService: AtlasService(),
       })
     )
   );
