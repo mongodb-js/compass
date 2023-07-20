@@ -4,6 +4,16 @@ import { ipcInvoke } from './util';
 export function AtlasService() {
   return ipcInvoke<
     typeof AtlasServiceMain,
-    'getUserInfo' | 'introspect' | 'isAuthenticated' | 'signIn'
-  >('AtlasService', ['getUserInfo', 'introspect', 'isAuthenticated', 'signIn']);
+    | 'getUserInfo'
+    | 'introspect'
+    | 'isAuthenticated'
+    | 'signIn'
+    | 'getQueryFromUserPrompt'
+  >('AtlasService', [
+    'getUserInfo',
+    'introspect',
+    'isAuthenticated',
+    'signIn',
+    'getQueryFromUserPrompt',
+  ]);
 }
