@@ -135,17 +135,29 @@ export class AtlasService {
     }
   }
 
-  static async signIn(): Promise<Token> {
+  static async signIn({
+    signal,
+  }: { signal?: AbortSignal } = {}): Promise<Token> {
     if (this.signInPromise) {
       return this.signInPromise;
     }
     try {
+      if (signal?.aborted) {
+        const err = signal.reason ?? new Error('This operation was aborted.');
+        throw err;
+      }
+
       this.signInPromise = (async () => {
         this.token =
           await this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
             { clientId: this.clientId, issuer: this.issuer },
-            // Required driver specific stuff
-            { version: 0 }
+            {
+              // Required driver specific stuff
+              version: 0,
+              // This seems to be just an abort signal? We probably can make it
+              // explicit when adding a proper interface for this
+              timeoutContext: signal,
+            }
           );
         return this.token;
       })();
@@ -155,20 +167,36 @@ export class AtlasService {
     }
   }
 
-  static async getUserInfo(): Promise<UserInfo> {
+  static async getUserInfo({
+    signal,
+  }: { signal?: AbortSignal } = {}): Promise<UserInfo> {
+    if (signal?.aborted) {
+      const err = signal.reason ?? new Error('This operation was aborted.');
+      throw err;
+    }
+
     const res = await this.fetch(`${this.issuer}/v1/userinfo`, {
       headers: {
         Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
         Accept: 'application/json',
       },
+      signal: signal as NodeFetchAbortSignal | undefined,
     });
+
     await throwIfNotOk(res);
+
     return res.json();
   }
 
-  static async introspect() {
+  static async introspect({ signal }: { signal?: AbortSignal } = {}) {
+    if (signal?.aborted) {
+      const err = signal.reason ?? new Error('This operation was aborted.');
+      throw err;
+    }
+
     const url = new URL(`${this.issuer}/v1/introspect`);
     url.searchParams.set('client_id', this.clientId);
+
     const res = await this.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
@@ -178,8 +206,11 @@ export class AtlasService {
       headers: {
         Accept: 'application/json',
       },
+      signal: signal as NodeFetchAbortSignal | undefined,
     });
+
     await throwIfNotOk(res);
+
     return res.json() as Promise<IntrospectInfo>;
   }
 
