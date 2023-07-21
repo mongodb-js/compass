@@ -27,7 +27,7 @@ export const STAGE_WIZARD_USE_CASES: StageWizardUseCase[] = [
   {
     id: 'sort',
     title:
-      'Sort documents in [ascending/descending] order based on a single or a set of fields',
+      'Sort documents based on a single or set of fields',
     stageOperator: '$sort',
     wizardComponent: SortUseCase,
   },
