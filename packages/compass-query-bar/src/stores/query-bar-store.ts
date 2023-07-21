@@ -44,7 +44,7 @@ export type QueryBarStoreOptions = {
   dataProvider: {
     dataProvider?: QueryBarDataService;
   };
-  atlasService: ReturnType<typeof AtlasService>;
+  atlasService: AtlasService;
 
   // For testing.
   basepath?: string;
@@ -66,7 +66,7 @@ export type QueryBarExtraArgs = {
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
   dataService: Pick<QueryBarDataService, 'sample'>;
-  atlasService: ReturnType<typeof AtlasService>;
+  atlasService: AtlasService;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -85,7 +85,7 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     query,
     namespace,
     dataProvider,
-    atlasService = AtlasService(),
+    atlasService = new AtlasService(),
     recentQueryStorage = new RecentQueryStorage(
       options.basepath ?? basepath,
       namespace

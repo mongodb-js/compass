@@ -7,7 +7,7 @@ const bannerStyles = css({
   height: 300,
 });
 
-export const OptInImageBanner = () => {
+export const AISignInImageBanner = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

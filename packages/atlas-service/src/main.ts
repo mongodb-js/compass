@@ -127,6 +127,10 @@ export class AtlasService {
   static async isAuthenticated({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
+    if (signal?.aborted) {
+      const err = signal.reason ?? new Error('This operation was aborted.');
+      throw err;
+    }
     if (!this.token) {
       return false;
     }

@@ -1,8 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores/query-bar-store';
-import { signIn } from '../../stores/atlas-signin-reducer';
-import { hideOptIn } from '../../stores/ai-query-reducer';
+import { signIn, closeSignInModal } from '../../stores/atlas-signin-reducer';
 import {
   Badge,
   Button,
@@ -14,12 +13,12 @@ import {
   cx,
   spacing,
 } from '@mongodb-js/compass-components';
-import { OptInImageBanner } from './opt-in-banner-image';
+import { AISignInImageBanner } from './ai-sign-in-banner-image';
 
-type OptInModalProps = {
-  isOptInVisible?: boolean;
+type SignInModalProps = {
+  isSignInModalVisible?: boolean;
   isSignInInProgress?: boolean;
-  onOptInModalClose?: () => void;
+  onSignInModalClose?: () => void;
   onSignInClick?: () => void;
 };
 
@@ -52,23 +51,23 @@ const maybeLaterButtonStyles = css({
   borderColor: 'transparent !important',
 });
 
-const OptInModal: React.FunctionComponent<OptInModalProps> = ({
-  isOptInVisible = false,
+const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
+  isSignInModalVisible = false,
   isSignInInProgress = false,
-  onOptInModalClose,
+  onSignInModalClose,
   onSignInClick,
 }) => {
   return (
     <Modal
-      open={isOptInVisible}
+      open={isSignInModalVisible}
       setOpen={(open) => {
         if (open === false) {
-          onOptInModalClose?.();
+          onSignInModalClose?.();
         }
       }}
       contentClassName={modalContentStyles}
     >
-      <OptInImageBanner></OptInImageBanner>
+      <AISignInImageBanner></AISignInImageBanner>
       <div className={containerStyles}>
         <Subtitle className={titleStyles}>
           Build faster with AI&nbsp;<Badge>Experimental</Badge>
@@ -105,7 +104,7 @@ const OptInModal: React.FunctionComponent<OptInModalProps> = ({
           </Button>
           <Button
             variant="primaryOutline"
-            onClick={onOptInModalClose}
+            onClick={onSignInModalClose}
             className={cx(buttonStyles, maybeLaterButtonStyles)}
           >
             Maybe later
@@ -119,9 +118,9 @@ const OptInModal: React.FunctionComponent<OptInModalProps> = ({
 export default connect(
   (state: RootState) => {
     return {
-      isOptInVisible: state.aiQuery.isOptInVisible,
+      isSignInModalVisible: state.atlasSignIn.isModalOpen,
       isSignInInProgress: state.atlasSignIn.state === 'in-progress',
     };
   },
-  { onOptInModalClose: hideOptIn, onSignInClick: signIn }
-)(OptInModal);
+  { onSignInModalClose: closeSignInModal, onSignInClick: signIn }
+)(AISignInModal);

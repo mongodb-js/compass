@@ -38,7 +38,7 @@ import type {
 } from '../stores/query-bar-store';
 import { createAIPlaceholderHTMLPlaceholder } from './generative-ai/ai-experience-entry';
 import { hideInput, showInput } from '../stores/ai-query-reducer';
-import OptInModal from './generative-ai/opt-in-modal';
+import AISignInModal from './generative-ai/ai-sign-in-modal';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -317,7 +317,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           show={isAIInputVisible}
         />
       )}
-      <OptInModal></OptInModal>
+      <AISignInModal></AISignInModal>
     </form>
   );
 };

@@ -10,7 +10,7 @@ import { mapQueryToFormFields } from '../utils/query';
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { AtlasSignInSuccessAction } from './atlas-signin-reducer';
-import { AtlasSignInActions, cancelSignIn } from './atlas-signin-reducer';
+import { AtlasSignInActions, openSignInModal } from './atlas-signin-reducer';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -22,7 +22,6 @@ export type AIQueryState = {
   aiPromptText: string;
   status: AIQueryStatus;
   aiQueryFetchId: number; // Maps to the AbortController of the current fetch (or -1).
-  isOptInVisible: boolean;
 };
 
 export const initialState: AIQueryState = {
@@ -31,7 +30,6 @@ export const initialState: AIQueryState = {
   errorMessage: undefined,
   isInputVisible: false,
   aiQueryFetchId: -1,
-  isOptInVisible: false,
 };
 
 export const enum AIQueryActionTypes {
@@ -101,14 +99,6 @@ type AIQueryFailedAction = {
 export type AIQuerySucceededAction = {
   type: AIQueryActionTypes.AIQuerySucceeded;
   fields: QueryFormFields;
-};
-
-type ShowOptInAction = {
-  type: AIQueryActionTypes.ShowOptIn;
-};
-
-type HideOptInAction = {
-  type: AIQueryActionTypes.HideOptIn;
 };
 
 function logFailed(errorMessage: string) {
@@ -265,23 +255,12 @@ export const cancelAIQuery = (): QueryBarThunkAction<
   };
 };
 
-export const showOptIn = () => {
-  return { type: AIQueryActionTypes.ShowOptIn };
-};
-
-export const hideOptIn = (): QueryBarThunkAction<void> => {
-  return (dispatch) => {
-    dispatch(cancelSignIn());
-    dispatch({ type: AIQueryActionTypes.HideOptIn });
-  };
-};
-
 export const showInput = (): QueryBarThunkAction<void> => {
   return (dispatch, getState) => {
     if (getState().atlasSignIn.state === 'success') {
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } else {
-      dispatch(showOptIn());
+      dispatch(openSignInModal());
     }
   };
 };
@@ -365,24 +344,9 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     };
   }
 
-  if (isAction<ShowOptInAction>(action, AIQueryActionTypes.ShowOptIn)) {
-    return {
-      ...state,
-      isOptInVisible: true,
-    };
-  }
-
-  if (isAction<HideOptInAction>(action, AIQueryActionTypes.HideOptIn)) {
-    return {
-      ...state,
-      isOptInVisible: false,
-    };
-  }
-
   if (isAction<AtlasSignInSuccessAction>(action, AtlasSignInActions.Success)) {
     return {
       ...state,
-      isOptInVisible: false,
       isInputVisible: true,
     };
   }

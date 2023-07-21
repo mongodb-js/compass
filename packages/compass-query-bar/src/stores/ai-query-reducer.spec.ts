@@ -14,7 +14,7 @@ describe('aiQueryReducer', function () {
   const sandbox = Sinon.createSandbox();
 
   afterEach(function () {
-    sandbox.resetHistory();
+    sandbox.reset();
   });
 
   let tmpDir: string;

@@ -1,8 +1,8 @@
 import type { Reducer } from 'redux';
-import { isAction } from '../utils';
-import type { QueryBarThunkAction } from './query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
 import type { UserInfo } from '@mongodb-js/atlas-service/renderer';
+import type { QueryBarThunkAction } from './query-bar-store';
+import { isAction } from '../utils';
 
 type AtlasSignInState = {
   state:
@@ -14,11 +14,14 @@ type AtlasSignInState = {
     | 'error'
     | 'canceled';
   error: string | null;
+  isModalOpen: boolean;
   // For managing abort controller out of the state
   currentAttemptId: number;
 };
 
 export const enum AtlasSignInActions {
+  OpenSignInModal = 'compass-query-bar/atlas-signin/OpenSignInModal',
+  CloseSignInModal = 'compass-query-bar/atlas-signin/CloseSignInModal',
   RestoringStart = 'compass-query-bar/atlas-signin/StartRestoring',
   RestoringFailed = 'compass-query-bar/atlas-signin/RestoringFailed',
   RestoringSuccess = 'compass-query-bar/atlas-signin/RestoringSuccess',
@@ -27,6 +30,13 @@ export const enum AtlasSignInActions {
   Error = 'compass-query-bar/atlas-signin/AtlasSignInError',
   Cancel = 'compass-query-bar/atlas-signin/AtlasSignInCancel',
 }
+export type AtlasSignInOpenModalAction = {
+  type: AtlasSignInActions.OpenSignInModal;
+};
+
+export type AtlasSignInCloseModalAction = {
+  type: AtlasSignInActions.CloseSignInModal;
+};
 
 export type AtlasSignInRestoringStartAction = {
   type: AtlasSignInActions.RestoringStart;
@@ -61,7 +71,7 @@ const INITIAL_STATE = {
   currentAttemptId: -1,
   state: 'initial' as const,
   error: null,
-  user: null,
+  isModalOpen: false,
 };
 
 const AbortControllerMap = new Map<number, AbortController>();
@@ -116,7 +126,7 @@ const reducer: Reducer<AtlasSignInState> = (
   }
 
   if (isAction<AtlasSignInSuccessAction>(action, AtlasSignInActions.Success)) {
-    return { ...state, state: 'success', error: null };
+    return { ...state, isModalOpen: false, state: 'success', error: null };
   }
 
   if (isAction<AtlasSignInErrorAction>(action, AtlasSignInActions.Error)) {
@@ -125,6 +135,24 @@ const reducer: Reducer<AtlasSignInState> = (
 
   if (isAction<AtlasSignInCancelAction>(action, AtlasSignInActions.Cancel)) {
     return { ...INITIAL_STATE, state: 'canceled' };
+  }
+
+  if (
+    isAction<AtlasSignInOpenModalAction>(
+      action,
+      AtlasSignInActions.OpenSignInModal
+    )
+  ) {
+    return { ...state, isModalOpen: true };
+  }
+
+  if (
+    isAction<AtlasSignInCloseModalAction>(
+      action,
+      AtlasSignInActions.CloseSignInModal
+    )
+  ) {
+    return { ...state, isModalOpen: false };
   }
 
   return state;
@@ -138,16 +166,29 @@ export const getInitialSignInState = (): QueryBarThunkAction<Promise<void>> => {
     dispatch(cancelSignIn());
     const { id, signal } = getAbortSignal();
     dispatch({ type: AtlasSignInActions.RestoringStart, id });
-    dispatch({
-      type: (await atlasService.isAuthenticated({ signal }).catch(() => {
-        // For the initial state check if failed to check auth for any reason we
-        // will just allow user to sign in again, ignoring the error. This will
-        // show the error in the toast if it fails again
-        return false;
-      }))
-        ? AtlasSignInActions.RestoringSuccess
-        : AtlasSignInActions.RestoringFailed,
-    });
+    try {
+      dispatch({
+        type: (await atlasService.isAuthenticated({ signal }))
+          ? AtlasSignInActions.RestoringSuccess
+          : AtlasSignInActions.RestoringFailed,
+      });
+    } catch (err) {
+      if (signal.aborted) {
+        return;
+      }
+      // For the initial state check if failed to check auth for any reason we
+      // will just allow user to sign in again, ignoring the error. This will
+      // show the error in the toast if it fails again
+      dispatch({
+        type: AtlasSignInActions.RestoringFailed,
+      });
+    }
+  };
+};
+
+export const openSignInModal = () => {
+  return {
+    type: AtlasSignInActions.OpenSignInModal,
   };
 };
 
@@ -179,20 +220,28 @@ export const signIn = (): QueryBarThunkAction<Promise<void>> => {
         const user = await atlasService.getUserInfo({ signal });
         onSuccess(user);
       } catch (err) {
-        if (!signal.aborted) {
-          // Only show error toast if sign in wasn't aborted by the user
-          openToast('atlas-sign-in-error', {
-            variant: 'important',
-            title: 'Sign in failed',
-            description: (err as Error).message,
-          });
+        // Only handle error state if sign in wasn't aborted by the user
+        if (signal.aborted) {
+          return;
         }
+        openToast('atlas-sign-in-error', {
+          variant: 'important',
+          title: 'Sign in failed',
+          description: (err as Error).message,
+        });
         dispatch({
           type: AtlasSignInActions.Error,
           error: (err as Error).message,
         });
       }
     }
+  };
+};
+
+export const closeSignInModal = (): QueryBarThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(cancelSignIn());
+    dispatch({ type: AtlasSignInActions.CloseSignInModal });
   };
 };
 
