@@ -150,10 +150,12 @@ export const runAISuggestions = (): QueryBarThunkAction<
       );
       const schema = await getSimplifiedSchema(sampleDocuments);
 
-      const { collection: collectionName } = toNS(namespace);
+      const { collection: collectionName, database: databaseName } =
+        toNS(namespace);
       jsonResponse = await runFetchAISuggestions({
         signal: abortController.signal,
         collectionName,
+        databaseName,
         schema,
         sampleDocuments,
       });

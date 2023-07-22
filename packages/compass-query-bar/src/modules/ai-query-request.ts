@@ -30,25 +30,28 @@ function getAIBasicAuth(): string {
   return `Basic ${authBuffer.toString('base64')}`;
 }
 
-const MAX_REQUEST_SIZE = 5000;
+const MAX_REQUEST_SIZE = 15000;
 const MIN_SAMPLE_DOCUMENTS = 1;
 
 export async function runFetchAIQuery({
   signal,
   userPrompt,
   collectionName,
+  databaseName,
   schema,
   sampleDocuments,
 }: {
   signal: AbortSignal;
   userPrompt: string;
   collectionName: string;
+  databaseName: string;
   schema?: SimplifiedSchema;
   sampleDocuments?: Document[];
 }) {
   let msgBody = JSON.stringify({
     userPrompt,
     collectionName,
+    databaseName,
     schema,
     sampleDocuments,
   });
@@ -60,6 +63,7 @@ export async function runFetchAIQuery({
     msgBody = JSON.stringify({
       userPrompt,
       collectionName,
+      databaseName,
       schema,
       sampleDocuments: sampleDocuments?.slice(0, MIN_SAMPLE_DOCUMENTS),
     });
@@ -108,16 +112,19 @@ export async function runFetchAIQuery({
 export async function runFetchAISuggestions({
   signal,
   collectionName,
+  databaseName,
   schema,
   sampleDocuments,
 }: {
   signal: AbortSignal;
   collectionName: string;
+  databaseName: string;
   schema?: SimplifiedSchema;
   sampleDocuments?: Document[];
 }) {
   let msgBody = JSON.stringify({
     collectionName,
+    databaseName,
     schema,
     sampleDocuments,
   });
@@ -128,6 +135,7 @@ export async function runFetchAISuggestions({
     // documents are too large to send to the ai.
     msgBody = JSON.stringify({
       collectionName,
+      databaseName,
       schema,
       sampleDocuments: sampleDocuments?.slice(0, MIN_SAMPLE_DOCUMENTS),
     });

@@ -147,11 +147,13 @@ export const runAIQuery = (
       );
       const schema = await getSimplifiedSchema(sampleDocuments);
 
-      const { collection: collectionName } = toNS(namespace);
+      const { collection: collectionName, database: databaseName } =
+        toNS(namespace);
       jsonResponse = await runFetchAIQuery({
         signal: abortController.signal,
         userPrompt,
         collectionName,
+        databaseName,
         schema,
         sampleDocuments,
       });

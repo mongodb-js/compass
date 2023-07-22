@@ -1,7 +1,12 @@
 import {
+  Body,
   CancelLoader,
   ErrorSummary,
+  Icon,
+  IconButton,
+  LeafyGreenProvider,
   Link,
+  Overline,
   css,
   focusRing,
   palette,
@@ -19,8 +24,20 @@ import {
 import type { BaseQuery } from '../../constants/query-properties';
 
 const containerStyles = css({
+  padding: spacing[3],
+  backgroundColor: palette.black,
   display: 'flex',
   flexDirection: 'column',
+});
+
+const overlineContainerStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+  alignItems: 'center',
+});
+
+const overlineStyles = css({
+  color: palette.green.base,
 });
 
 const suggestionStyles = css({});
@@ -41,12 +58,14 @@ const generateButtonStyles = css(buttonResetStyles, {
 const suggestionButtonStyles = css(
   buttonResetStyles,
   {
-    padding: spacing[1],
+    padding: `${spacing[1]}px ${spacing[2]}px`,
+    borderRadius: spacing[1],
 
     // Maybe todo:
     // display: 'inline-grid',
 
     display: 'flex',
+    gap: spacing[2],
     textAlign: 'left',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
@@ -55,24 +74,22 @@ const suggestionButtonStyles = css(
 
     width: '100%',
     '&:hover': {
-      // TODO: Darkmode.
-      backgroundColor: palette.gray.light3,
+      backgroundColor: palette.gray.dark3,
+      cursor: 'pointer',
     },
   },
   focusRing
 );
 
 const suggestionTextStyles = css({
-  // flexGrow: 1,
-  fontWeight: 'bold',
-  textOverflow: 'ellipsis', // todo
+  //
 });
 
 const suggestionDescriptionStyles = css({
   // maxWidth:
   // TODO: darkmode styles
-  color: palette.gray.light1,
-  marginLeft: spacing[1],
+  color: palette.gray.base,
+  // marginLeft: spacing[1],
   textOverflow: 'ellipsis', // todo
 });
 
@@ -92,7 +109,9 @@ function Suggestion({
         onClick={() => onClick(query)}
         title={text}
       >
-        <span className={suggestionTextStyles}>{text}</span>
+        <Body as="span" className={suggestionTextStyles}>
+          {text}
+        </Body>
         <span className={suggestionDescriptionStyles}>
           {JSON.stringify(query)}
         </span>
@@ -121,32 +140,36 @@ function QuerySuggestions({
   }[];
 }) {
   return (
-    <div className={containerStyles}>
-      {/* {didSucceed && (
-        <div
-      )} */}
-      <ul
-      // TODO: Should we have a specific `role` set here?
-      >
-        {suggestions.map(({ text, query }) => (
-          <Suggestion
-            key={text}
-            text={text}
-            query={query}
-            onClick={onClickApply}
-          />
-        ))}
-      </ul>
-      {errorMessage && <ErrorSummary errors={errorMessage} />}
-      <div>
-        {/* TODO: Eventually we don't want this as a button,
-        instead auto generate on ai expand? */}
-        {isFetching ? (
-          <CancelLoader
-            progressText="Generating Suggestions"
-            cancelText="Stop"
-            onCancel={onClickCancel}
-          />
+    <LeafyGreenProvider darkMode>
+      <div className={containerStyles}>
+        {suggestions.length > 0 ? (
+          <div className={overlineContainerStyles}>
+            <Overline className={overlineStyles}>Suggested Prompts</Overline>
+
+            <IconButton
+              // className={generateButtonStyles}
+              // arrowAppearance="none"
+              aria-label="Regenerate Suggestions"
+              title="Regenerate Suggestions"
+              // hideExternalIcon
+              onClick={onClickGenerateSuggestions}
+              disabled={isFetching}
+            >
+              <Icon glyph="Refresh" />
+            </IconButton>
+            {/* <Link
+            className={generateButtonStyles}
+            as="button"
+            arrowAppearance="none"
+            aria-label="Regenerate Suggestions"
+            title="Regenerate Suggestions"
+            hideExternalIcon
+            onClick={onClickGenerateSuggestions}
+            disabled={isFetching}
+          >
+            <Icon glyph="Refresh" />
+          </Link> */}
+          </div>
         ) : (
           <Link
             className={generateButtonStyles}
@@ -159,8 +182,32 @@ function QuerySuggestions({
             Generate Suggestions
           </Link>
         )}
+        <ul
+        // TODO: Should we have a specific `role` set here?
+        >
+          {suggestions.map(({ text, query }) => (
+            <Suggestion
+              key={text}
+              text={text}
+              query={query}
+              onClick={onClickApply}
+            />
+          ))}
+        </ul>
+        {errorMessage && <ErrorSummary errors={errorMessage} />}
+        <div>
+          {/* TODO: Eventually we don't want this as a button,
+          instead auto generate on ai expand? */}
+          {isFetching && (
+            <CancelLoader
+              progressText="Generating Suggestions"
+              cancelText="Stop"
+              onCancel={onClickCancel}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </LeafyGreenProvider>
   );
 }
 
