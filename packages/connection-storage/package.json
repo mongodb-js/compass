@@ -55,7 +55,6 @@
     "@mongodb-js/eslint-config-compass": "^1.0.6",
     "@mongodb-js/mocha-config-compass": "^1.2.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/ssh-tunnel": "^2.0.6",
     "@mongodb-js/tsconfig-compass": "^1.0.2",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
@@ -69,13 +68,11 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^5.7.0",
-    "mongodb-connection-model": "^22.4.1",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-data-service": "^22.8.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
-    "storage-mixin": "^5.1.5",
     "typescript": "^5.0.4",
     "uuid": "^8.3.2"
   }

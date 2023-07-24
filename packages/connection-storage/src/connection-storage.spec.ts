@@ -1,50 +1,15 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { TestBackend } = require('storage-mixin');
-
 import { expect } from 'chai';
 
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { v4 as uuid } from 'uuid';
+import keytar from 'keytar';
 
 import { ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
-
-async function eventually(
-  fn: () => void | Promise<void>,
-  opts: { frequency?: number; timeout?: number } = {}
-): Promise<void> {
-  const options = {
-    frequency: 100,
-    timeout: 2000,
-    ...opts,
-  };
-
-  let attempts = Math.round(options.timeout / options.frequency);
-  let err: Error = new Error('Timed out');
-
-  while (attempts) {
-    attempts--;
-
-    try {
-      await fn();
-      return;
-    } catch (e) {
-      err = e as Error;
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, options.frequency));
-  }
-
-  Object.assign(err, {
-    message: `Timed out ${options.timeout}: ${err.message}`,
-    timedOut: true,
-    timeout: options.timeout,
-  });
-
-  throw err;
-}
+import { getKeytarServiceName } from './utils';
+import Sinon from 'sinon';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
@@ -78,13 +43,13 @@ describe('ConnectionStorage', function () {
   let connectionStorage: ConnectionStorage;
   beforeEach(function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connection-storage-tests'));
-    TestBackend.enable(tmpDir);
+    fs.mkdirSync(path.join(tmpDir, 'Connections'));
     connectionStorage = new ConnectionStorage(tmpDir);
   });
 
   afterEach(function () {
-    TestBackend.disable();
     fs.rmdirSync(tmpDir, { recursive: true });
+    Sinon.restore();
   });
 
   describe('loadAll', function () {
@@ -168,47 +133,26 @@ describe('ConnectionStorage', function () {
       const id: string = uuid();
       expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
 
-      await connectionStorage.save({
-        id,
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017',
-        },
-      });
-
-      await eventually(() => {
-        expect(
-          JSON.parse(
-            fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
-          )._id
-        ).to.be.equal(id);
-      });
-    });
-
-    it('attempts to preserve old model properties', async function () {
-      const id: string = uuid();
-      expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
+      const setPasswordSpy = Sinon.spy(keytar, 'setPassword');
 
       await connectionStorage.save({
         id,
-        favorite: {
-          name: 'Favorite',
-        },
         connectionOptions: {
-          connectionString: 'mongodb://localhost:27017?ssl=true',
+          connectionString: 'mongodb://root:password@localhost:27017',
         },
       });
 
-      await eventually(() => {
-        const { isFavorite, sslMethod, name } = JSON.parse(
-          fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
-        );
+      expect(
+        JSON.parse(fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8'))
+          .connectionInfo.id
+      ).to.be.equal(id);
 
-        expect({ isFavorite, sslMethod, name }).to.deep.equal({
-          isFavorite: true,
-          name: 'Favorite',
-          sslMethod: 'SYSTEMCA',
-        });
-      });
+      expect(setPasswordSpy.calledOnce).to.be.true;
+      expect(setPasswordSpy.firstCall.args).to.deep.equal([
+        getKeytarServiceName(),
+        id,
+        JSON.stringify({ secrets: { password: 'password' } }, null, 2),
+      ]);
     });
 
     it('saves a connection with arbitrary authMechanism (bypass Ampersand validations)', async function () {
@@ -220,13 +164,10 @@ describe('ConnectionStorage', function () {
         },
       });
 
-      await eventually(() => {
-        expect(
-          JSON.parse(
-            fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
-          ).connectionInfo?.connectionOptions?.connectionString
-        ).to.be.equal('mongodb://localhost:27017/?authMechanism=FAKEAUTH');
-      });
+      expect(
+        JSON.parse(fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8'))
+          .connectionInfo?.connectionOptions?.connectionString
+      ).to.be.equal('mongodb://localhost:27017/?authMechanism=FAKEAUTH');
     });
 
     it('requires id to be set', async function () {
@@ -255,8 +196,22 @@ describe('ConnectionStorage', function () {
       expect(error.message).to.be.equal('id must be a uuid');
     });
 
+    it('requires connection string to be set', async function () {
+      const error = await connectionStorage
+        .save({
+          id: uuid(),
+          connectionOptions: {
+            connectionString: '',
+          },
+        })
+        .catch((err) => err);
+
+      expect(error.message).to.be.equal('Connection string is required.');
+    });
+
     it('does not save fle secrets if fleOptions.storeCredentials is false', async function () {
       const id = uuid();
+      const setPasswordSpy = Sinon.spy(keytar, 'setPassword');
       await connectionStorage.save({
         id,
         connectionOptions: {
@@ -275,27 +230,28 @@ describe('ConnectionStorage', function () {
         },
       });
 
-      await eventually(() => {
-        const { secrets, connectionInfo } = JSON.parse(
-          fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
-        );
+      const { connectionInfo } = JSON.parse(
+        fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+      );
 
-        expect(connectionInfo.connectionOptions.fleOptions).to.deep.equal({
-          storeCredentials: false,
-          autoEncryption: {
-            keyVaultNamespace: 'db.coll',
-            kmsProviders: {},
-          },
-        });
-
-        // NOTE: this would be available in the file only during tests cause
-        // we disable extracting secrets to keytar
-        expect(secrets.autoEncryption).to.be.undefined;
+      expect(connectionInfo.connectionOptions.fleOptions).to.deep.equal({
+        storeCredentials: false,
+        autoEncryption: {
+          keyVaultNamespace: 'db.coll',
+          kmsProviders: {},
+        },
       });
+      expect(setPasswordSpy.calledOnce).to.be.true;
+      expect(setPasswordSpy.firstCall.args).to.deep.equal([
+        getKeytarServiceName(),
+        id,
+        JSON.stringify({ secrets: {} }, null, 2),
+      ]);
     });
 
     it('saves fle secrets if fleOptions.storeCredentials is true', async function () {
       const id = uuid();
+      const setPasswordSpy = Sinon.spy(keytar, 'setPassword');
       await connectionStorage.save({
         id,
         connectionOptions: {
@@ -314,59 +270,43 @@ describe('ConnectionStorage', function () {
         },
       });
 
-      await eventually(() => {
-        const { secrets, connectionInfo } = JSON.parse(
-          fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
-        );
+      const { connectionInfo } = JSON.parse(
+        fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+      );
 
-        expect(connectionInfo.connectionOptions.fleOptions).to.deep.equal({
-          storeCredentials: true,
-          autoEncryption: {
-            keyVaultNamespace: 'db.coll',
-            kmsProviders: {},
-          },
-        });
-
-        // NOTE: this is available in the file only during tests cause
-        // we disable extracting secrets to keytar
-        expect(secrets.autoEncryption).to.deep.equal({
-          kmsProviders: {
-            local: {
-              key: 'my-key',
-            },
-          },
-        });
-      });
-    });
-
-    it('does not trigger old connection-model validations', async function () {
-      const id = uuid();
-      await connectionStorage.save({
-        id,
-        connectionOptions: {
-          connectionString:
-            'mongodb://localhost:27017/?tls=true&tlsCertificateKeyFile=%2FUsers%2Fmaurizio%2FDownloads%2FX509-cert-2577072670755779500.pem',
+      expect(connectionInfo.connectionOptions.fleOptions).to.deep.equal({
+        storeCredentials: true,
+        autoEncryption: {
+          keyVaultNamespace: 'db.coll',
+          kmsProviders: {},
         },
       });
 
-      await eventually(() => {
-        const { connectionInfo } = JSON.parse(
-          fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
-        );
-
-        expect(connectionInfo).to.deep.equal({
-          id,
-          connectionOptions: {
-            connectionString:
-              'mongodb://localhost:27017/?tls=true&tlsCertificateKeyFile=%2FUsers%2Fmaurizio%2FDownloads%2FX509-cert-2577072670755779500.pem',
+      expect(setPasswordSpy.calledOnce).to.be.true;
+      expect(setPasswordSpy.firstCall.args).to.deep.equal([
+        getKeytarServiceName(),
+        id,
+        JSON.stringify(
+          {
+            secrets: {
+              autoEncryption: {
+                kmsProviders: {
+                  local: {
+                    key: 'my-key',
+                  },
+                },
+              },
+            },
           },
-        });
-      });
+          null,
+          2
+        ),
+      ]);
     });
   });
 
   describe('destroy', function () {
-    it('removes a model', async function () {
+    it('removes a connection', async function () {
       const connectionInfo = getConnectionInfo();
       writeFakeConnection(tmpDir, {
         connectionInfo,
@@ -375,12 +315,50 @@ describe('ConnectionStorage', function () {
       expect(fs.existsSync(getConnectionFilePath(tmpDir, connectionInfo.id))).to
         .be.true;
 
+      const deletePasswordSpy = Sinon.spy(keytar, 'deletePassword');
       await connectionStorage.delete(connectionInfo.id);
 
-      await eventually(() => {
-        const filePath = getConnectionFilePath(tmpDir, connectionInfo.id);
-        expect(fs.existsSync(filePath)).to.be.false;
+      const filePath = getConnectionFilePath(tmpDir, connectionInfo.id);
+      expect(fs.existsSync(filePath)).to.be.false;
+
+      expect(deletePasswordSpy.calledOnce).to.be.true;
+      expect(deletePasswordSpy.firstCall.args).to.deep.equal([
+        getKeytarServiceName(),
+        connectionInfo.id,
+      ]);
+    });
+  });
+
+  describe('hasLegacyConnections', function () {
+    it('returns false if there are no legacy connections', async function () {
+      const connectionInfo = getConnectionInfo();
+      writeFakeConnection(tmpDir, {
+        connectionInfo,
       });
+      const hasLegacyConnections =
+        await connectionStorage.hasLegacyConnections();
+      expect(hasLegacyConnections).to.be.false;
+    });
+
+    it('returns true if there are legacy connections', async function () {
+      const _id = uuid();
+
+      // Save a legacy connection (connection without connectionInfo)
+      const filePath = getConnectionFilePath(tmpDir, _id);
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify({
+          _id,
+          hosts: [{ host: 'localhost', port: 27017 }],
+          readPreference: 'primary',
+          port: 27017,
+          hostname: 'localhost',
+        })
+      );
+
+      const hasLegacyConnections =
+        await connectionStorage.hasLegacyConnections();
+      expect(hasLegacyConnections).to.be.true;
     });
   });
 });
