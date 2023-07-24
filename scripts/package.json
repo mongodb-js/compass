@@ -46,7 +46,6 @@
     "glob": "^10.2.5",
     "jsdom": "^21.1.0",
     "keytar": "^7.9.0",
-    "lodash": "^4.17.21",
     "make-fetch-happen": "^8.0.14",
     "mongodb-connection-string-url": "^2.6.0",
     "pacote": "^11.3.5",

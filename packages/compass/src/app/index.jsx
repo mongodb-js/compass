@@ -54,9 +54,6 @@ import async from 'async';
 import * as webvitals from 'web-vitals';
 
 import './menu-renderer';
-marky.mark('Migrations');
-import migrateApp from './migrations';
-marky.stop('Migrations');
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -87,12 +84,6 @@ const Application = View.extend({
     },
   },
   session: {
-    /**
-     *
-     * The connection details for the MongoDB Instance we want to/are currently connected to.
-     * @see mongodb-connection-model.js
-     */
-    connection: 'state',
     /**
      * Details of the MongoDB Instance we're currently connected to.
      */
@@ -219,52 +210,45 @@ app.extend({
   init: async function () {
     await preferences.refreshPreferences();
 
-    async.series(
-      [
-        // Check if migrations are required.
-        migrateApp.bind(state),
-        state.updateAppVersion.bind(state),
-      ],
-      function (err) {
-        if (err) {
-          throw err;
-        }
-
-        // Get theme from the preferences and set accordingly.
-        setupTheme();
-
-        Action.pluginActivationCompleted.listen(async () => {
-          state.preRender();
-          global.hadronApp.appRegistry.onActivated();
-          global.hadronApp.appRegistry.emit(
-            'application-initialized',
-            APP_VERSION,
-            process.env.HADRON_PRODUCT_NAME
-          );
-          const user = await getActiveUser();
-          setupIntercom(user);
-          // Catch a data refresh coming from window-manager.
-          ipc.on('app:refresh-data', () =>
-            global.hadronApp.appRegistry.emit('refresh-data')
-          );
-          // Catch a toggle sidebar coming from window-manager.
-          ipc.on('app:toggle-sidebar', () =>
-            global.hadronApp.appRegistry.emit('toggle-sidebar')
-          );
-          // As soon as dom is ready, render and set up the rest.
-          state.render();
-          marky.stop('Time to Connect rendered');
-          state.postRender();
-          marky.stop('Time to user can Click Connect');
-          if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
-            queueMicrotask(() => {
-              throw new Error('fake exception');
-            });
-          }
-        });
-        require('./setup-plugin-manager');
+    async.series([state.updateAppVersion.bind(state)], function (err) {
+      if (err) {
+        throw err;
       }
-    );
+
+      // Get theme from the preferences and set accordingly.
+      setupTheme();
+
+      Action.pluginActivationCompleted.listen(async () => {
+        state.preRender();
+        global.hadronApp.appRegistry.onActivated();
+        global.hadronApp.appRegistry.emit(
+          'application-initialized',
+          APP_VERSION,
+          process.env.HADRON_PRODUCT_NAME
+        );
+        const user = await getActiveUser();
+        setupIntercom(user);
+        // Catch a data refresh coming from window-manager.
+        ipc.on('app:refresh-data', () =>
+          global.hadronApp.appRegistry.emit('refresh-data')
+        );
+        // Catch a toggle sidebar coming from window-manager.
+        ipc.on('app:toggle-sidebar', () =>
+          global.hadronApp.appRegistry.emit('toggle-sidebar')
+        );
+        // As soon as dom is ready, render and set up the rest.
+        state.render();
+        marky.stop('Time to Connect rendered');
+        state.postRender();
+        marky.stop('Time to user can Click Connect');
+        if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
+          queueMicrotask(() => {
+            throw new Error('fake exception');
+          });
+        }
+      });
+      require('./setup-plugin-manager');
+    });
   },
 });
 
@@ -280,12 +264,6 @@ Object.defineProperty(app, 'instance', {
   },
   set: function (instance) {
     state.instance = instance;
-  },
-});
-
-Object.defineProperty(app, 'connection', {
-  get: function () {
-    return state.connection;
   },
 });
 

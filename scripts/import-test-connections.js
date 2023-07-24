@@ -1,11 +1,8 @@
 const createTestEnvs = require('@mongodb-js/devtools-docker-test-envs').default;
 const ConnectionStringUrl = require('mongodb-connection-string-url').default;
-const {
-  convertConnectionInfoToModel,
-} = require('@mongodb-js/connection-storage');
+const { extractSecrets } = require('@mongodb-js/connection-storage');
 const uuidV5 = require('uuid/v5');
 const { app } = require('electron');
-const _ = require('lodash');
 const fs = require('fs').promises;
 const keytar = require('keytar');
 const path = require('path');
@@ -266,14 +263,11 @@ async function main() {
         ...connectionInfo,
         id: uuidV5(JSON.stringify(connectionInfo), uuidNamespace),
       };
-      const secureCondition = (val, key) =>
-        key.match(/(password|passphrase|secrets)/i);
       const serviceName = `${appName}/Connections`;
       const accountName = connectionInfoWithId.id;
-      const model = await convertConnectionInfoToModel(connectionInfoWithId);
-      const jsonModel = model.serialize();
-      const modelWithoutSecrets = _.omitBy(jsonModel, secureCondition);
-      const secrets = _.pickBy(jsonModel, secureCondition);
+
+      const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
+        extractSecrets(connectionInfoWithId);
 
       await keytar.setPassword(
         serviceName,
@@ -282,7 +276,7 @@ async function main() {
       );
       await fs.writeFile(
         path.join(destDir, `${connectionInfoWithId.id}.json`),
-        JSON.stringify(modelWithoutSecrets)
+        JSON.stringify(connectionInfoWithoutSecrets)
       );
 
       console.log('Saved', connectionInfo.favorite.name);
