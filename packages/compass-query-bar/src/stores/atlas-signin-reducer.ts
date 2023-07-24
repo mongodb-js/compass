@@ -1,6 +1,5 @@
 import type { Reducer } from 'redux';
 import { openToast } from '@mongodb-js/compass-components';
-import type { UserInfo } from '@mongodb-js/atlas-service/renderer';
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
 

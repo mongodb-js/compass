@@ -7,17 +7,11 @@ import {
 } from './atlas-signin-reducer';
 import { expect } from 'chai';
 
-import why from 'why-is-node-running';
-
 describe('atlasSignInReducer', function () {
   const sandbox = Sinon.createSandbox();
 
   afterEach(function () {
     sandbox.reset();
-  });
-
-  after(function () {
-    why();
   });
 
   describe('getInitialSignInState', function () {
