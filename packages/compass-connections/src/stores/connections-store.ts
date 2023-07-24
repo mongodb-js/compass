@@ -60,6 +60,7 @@ function ensureWellFormedConnectionString(connectionString: string) {
 }
 
 type State = {
+  hasLegacyConnections: boolean;
   activeConnectionId?: string;
   activeConnectionInfo: ConnectionInfo;
   connectingStatusText: string;
@@ -78,6 +79,7 @@ type State = {
 
 export function defaultConnectionsState(): State {
   return {
+    hasLegacyConnections: false,
     activeConnectionId: undefined,
     activeConnectionInfo: createNewConnectionInfo(),
     connectingStatusText: '',
@@ -132,6 +134,10 @@ type Action =
       type: 'add-connection-merge-info';
       id: string;
       mergeConnectionInfo: RecursivePartial<ConnectionInfo>;
+    }
+  | {
+      type: 'set-has-legacy-connections';
+      hasLegacyConnections: boolean;
     };
 
 export function connectionsReducer(state: State, action: Action): State {
@@ -207,6 +213,11 @@ export function connectionsReducer(state: State, action: Action): State {
             action.mergeConnectionInfo
           ),
         },
+      };
+    case 'set-has-legacy-connections':
+      return {
+        ...state,
+        hasLegacyConnections: action.hasLegacyConnections,
       };
     default:
       return state;
@@ -480,6 +491,17 @@ export function useConnections({
   useEffectOnChange(() => {
     if (!persistOIDCTokens) void loadConnections(dispatch, connectionStorage);
   }, [persistOIDCTokens]);
+
+  useEffect(() => {
+    void connectionStorage
+      .hasLegacyConnections()
+      .then((hasLegacyConnections) => {
+        dispatch({
+          type: 'set-has-legacy-connections',
+          hasLegacyConnections,
+        });
+      });
+  }, [connectionStorage]);
 
   const connect = async (
     getAutoConnectInfo:

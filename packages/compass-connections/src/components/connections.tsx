@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ImportConnectionsModal,
   ExportConnectionsModal,
@@ -8,6 +8,8 @@ import {
   ErrorBoundary,
   spacing,
   css,
+  openToast,
+  Link,
 } from '@mongodb-js/compass-components';
 import ConnectionForm from '@mongodb-js/connection-form';
 import type { DataService } from 'mongodb-data-service';
@@ -57,6 +59,51 @@ const formContainerStyles = css({
   overflow: 'auto',
   height: '100%',
 });
+
+const toastListStyle = css({
+  listStyle: 'inherit',
+  paddingLeft: spacing[1] + spacing[2],
+});
+
+const MigrateLegacyConnectionDescription = () => (
+  <>
+    Compass has identified connections created with an older version, which are
+    no longer supported by the current version. To migrate these connections,
+    follow the steps below:
+    <ul className={toastListStyle}>
+      <li>
+        Install Compass{' '}
+        <Link
+          target="_blank"
+          hideExternalIcon
+          href="https://github.com/mongodb-js/compass/releases/tag/v1.39.0"
+        >
+          v1.39.0
+        </Link>{' '}
+        and{' '}
+        <Link
+          target="_blank"
+          hideExternalIcon
+          href="https://www.mongodb.com/docs/compass/current/connect/favorite-connections/import-export-ui/export/"
+        >
+          export all the connections
+        </Link>
+        .
+      </li>
+      <li>
+        Update Compass to the latest version and{' '}
+        <Link
+          target="_blank"
+          hideExternalIcon
+          href="https://www.mongodb.com/docs/compass/current/connect/favorite-connections/import-export-ui/import/"
+        >
+          import the connections
+        </Link>{' '}
+        exported.
+      </li>
+    </ul>
+  </>
+);
 
 function Connections({
   appRegistry,
@@ -124,6 +171,15 @@ function Connections({
     },
     []
   );
+
+  useEffect(() => {
+    if (state.hasLegacyConnections) {
+      openToast('legacy-connections', {
+        title: 'Legacy connections detected',
+        description: <MigrateLegacyConnectionDescription />,
+      });
+    }
+  }, [state.hasLegacyConnections]);
 
   return (
     <div data-testid="connections-wrapper" className={connectStyles}>
