@@ -50,6 +50,7 @@ export type QueryBarStoreOptions = {
   basepath?: string;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
+  restoreSignInStateOnCreate?: boolean;
 };
 
 export const rootQueryBarReducer = combineReducers({
@@ -129,14 +130,16 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
 }
 
 export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
-  const { localAppRegistry } = options;
+  const { localAppRegistry, restoreSignInStateOnCreate = true } = options;
 
   const store = createStore(options);
 
-  // Every tab will have its own instance of the store, we are kicking off sign
-  // in state restorating right when the tab is created to make sure users will
-  // not see the opt in modal if they are already signed in
-  void store.dispatch(getInitialSignInState());
+  if (restoreSignInStateOnCreate) {
+    // Every tab will have its own instance of the store, we are kicking off sign
+    // in state restorating right when the tab is created to make sure users will
+    // not see the opt in modal if they are already signed in
+    void store.dispatch(getInitialSignInState());
+  }
 
   localAppRegistry?.on('fields-changed', (fields) => {
     store.dispatch(changeSchemaFields(fields.autocompleteFields));

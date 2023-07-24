@@ -200,40 +200,34 @@ export const signIn = (): QueryBarThunkAction<Promise<void>> => {
     if (getState().atlasSignIn.state === 'success') {
       return;
     }
-    const onSuccess = (user: UserInfo) => {
+    dispatch(cancelSignIn());
+    const { id, signal } = getAbortSignal();
+    dispatch({ type: AtlasSignInActions.Start, id });
+    try {
+      if ((await atlasService.isAuthenticated({ signal })) === false) {
+        await atlasService.signIn({ signal });
+      }
+      const user = await atlasService.getUserInfo({ signal });
       openToast('atlas-sign-in-success', {
         variant: 'success',
         title: `Signed in as ${user.login}`,
         timeout: 10_000,
       });
       dispatch({ type: AtlasSignInActions.Success });
-    };
-    dispatch(cancelSignIn());
-    const { id, signal } = getAbortSignal();
-    dispatch({ type: AtlasSignInActions.Start, id });
-    if (await atlasService.isAuthenticated({ signal })) {
-      const user = await atlasService.getUserInfo({ signal });
-      onSuccess(user);
-    } else {
-      try {
-        await atlasService.signIn({ signal });
-        const user = await atlasService.getUserInfo({ signal });
-        onSuccess(user);
-      } catch (err) {
-        // Only handle error state if sign in wasn't aborted by the user
-        if (signal.aborted) {
-          return;
-        }
-        openToast('atlas-sign-in-error', {
-          variant: 'important',
-          title: 'Sign in failed',
-          description: (err as Error).message,
-        });
-        dispatch({
-          type: AtlasSignInActions.Error,
-          error: (err as Error).message,
-        });
+    } catch (err) {
+      // Only handle error state if sign in wasn't aborted by the user
+      if (signal.aborted) {
+        return;
       }
+      openToast('atlas-sign-in-error', {
+        variant: 'important',
+        title: 'Sign in failed',
+        description: (err as Error).message,
+      });
+      dispatch({
+        type: AtlasSignInActions.Error,
+        error: (err as Error).message,
+      });
     }
   };
 };
