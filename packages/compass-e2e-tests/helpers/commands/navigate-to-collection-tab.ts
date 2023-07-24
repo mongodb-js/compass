@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -58,4 +59,11 @@ export async function navigateToCollectionTab(
   await browser.clickVisible(tabSelector);
 
   await tabSelectedSelectorElement.waitForDisplayed();
+
+  // regression test: The workspace tab should contain the document tab name.
+  const workspaceTabText = await browser
+    .$(Selectors.SelectedWorkspaceTabButton)
+    .getText();
+  // example: 'Indexestest.test'
+  expect(workspaceTabText).to.contain(tabName);
 }

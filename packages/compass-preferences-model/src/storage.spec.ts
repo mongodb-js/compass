@@ -1,8 +1,9 @@
 import { mkdtempSync, rmdirSync } from 'fs';
 import path from 'path';
 import os from 'os';
-import { UserStorage, type User } from './storage';
+import { UserStorage, StoragePreferences, type User } from './storage';
 import { expect } from 'chai';
+import type { UserPreferences } from './preferences';
 
 describe('storage', function () {
   let tmpDir: string;
@@ -39,6 +40,30 @@ describe('storage', function () {
         ...storedUser,
         lastUsed,
       });
+    });
+  });
+
+  describe('StoragePreferences', function () {
+    before(function () {
+      tmpDir = mkdtempSync(path.join(os.tmpdir()));
+    });
+
+    after(function () {
+      rmdirSync(tmpDir, { recursive: true });
+    });
+
+    it('will strip unknown prefs', async function () {
+      const prefsStorage = new StoragePreferences(
+        { showedNetworkOptIn: true, foo: true } as unknown as UserPreferences,
+        tmpDir
+      );
+      await prefsStorage.setup();
+
+      // roundabout way to make it load because setup doesn't fill prefsStorage.preferences if it writes the file
+      await prefsStorage.updatePreferences({});
+
+      const prefs = prefsStorage.getPreferences();
+      expect(prefs).to.deep.equal({ showedNetworkOptIn: true });
     });
   });
 });

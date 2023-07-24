@@ -1,7 +1,9 @@
+import { UUID } from 'bson';
 import { promises as fs } from 'fs';
+import { pick } from 'lodash';
 import { join } from 'path';
 import type { UserPreferences } from './preferences';
-import { UUID } from 'bson';
+import { allPreferencesProps } from './preferences';
 
 export abstract class BasePreferencesStorage {
   abstract setup(): Promise<void>;
@@ -71,7 +73,19 @@ export class StoragePreferences extends BasePreferencesStorage {
   }
 
   private async readPreferences(): Promise<UserPreferences> {
-    return JSON.parse(await fs.readFile(this.getFilePath(), 'utf8'));
+    const preferences = JSON.parse(
+      await fs.readFile(this.getFilePath(), 'utf8')
+    );
+
+    // Exclude old and renamed preferences so we don't try and save those back.
+    // (This is still technically a lie because we could only have a subset of
+    // UserPreferences. ie. imagine a JSON file that has an empty object. Or
+    // that was saved with the previous version of compass where we had fewer
+    // settings.)
+    return pick(
+      preferences,
+      Object.keys(allPreferencesProps)
+    ) as UserPreferences;
   }
 
   getPreferences() {
