@@ -6,7 +6,6 @@ import preferences from 'compass-preferences-model';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
-import { runFetchAIQuery } from '../modules/ai-query-request';
 import { mapQueryToFormFields } from '../utils/query';
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
@@ -110,7 +109,7 @@ export const runAIQuery = (
   Promise<void>,
   AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
-  return async (dispatch, getState, { dataProvider }) => {
+  return async (dispatch, getState, { dataService, atlasService }) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
       queryBar: { namespace },
@@ -131,7 +130,7 @@ export const runAIQuery = (
 
     let jsonResponse;
     try {
-      const sampleDocuments = await dataProvider.sample(
+      const sampleDocuments = await dataService.sample(
         namespace,
         {
           query: {},
@@ -148,7 +147,7 @@ export const runAIQuery = (
       const schema = await getSimplifiedSchema(sampleDocuments);
 
       const { collection: collectionName } = toNS(namespace);
-      jsonResponse = await runFetchAIQuery({
+      jsonResponse = await atlasService.getQueryFromUserPrompt({
         signal: abortController.signal,
         userPrompt,
         collectionName,

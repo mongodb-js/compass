@@ -170,7 +170,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@aws-sdk/credential-providers": "^3.348.0",
+    "@aws-sdk/credential-providers": "^3.370.0",
     "@mongosh/node-runtime-worker-thread": "^1.10.0",
     "clipboard": "^2.0.6",
     "kerberos": "^2.0.0",
@@ -182,6 +182,7 @@
   "devDependencies": {
     "@electron/rebuild": "^3.2.13",
     "@electron/remote": "^2.0.10",
+    "@mongodb-js/atlas-service": "^0.1.0",
     "@mongodb-js/compass-aggregations": "^9.11.0",
     "@mongodb-js/compass-app-stores": "^0.4.0",
     "@mongodb-js/compass-collection": "^4.10.0",
