@@ -4,11 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { v4 as uuid } from 'uuid';
-import keytar from 'keytar';
 
 import { ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
-import { getKeytarServiceName } from './utils';
 import Sinon from 'sinon';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
@@ -38,6 +36,8 @@ function writeFakeConnection(
   fs.writeFileSync(filePath, JSON.stringify(connection));
 }
 
+const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+
 describe('ConnectionStorage', function () {
   let tmpDir: string;
   let connectionStorage: ConnectionStorage;
@@ -45,11 +45,13 @@ describe('ConnectionStorage', function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connection-storage-tests'));
     fs.mkdirSync(path.join(tmpDir, 'Connections'));
     connectionStorage = new ConnectionStorage(tmpDir);
+    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
   afterEach(function () {
     fs.rmdirSync(tmpDir, { recursive: true });
     Sinon.restore();
+    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
   });
 
   describe('loadAll', function () {
@@ -133,8 +135,6 @@ describe('ConnectionStorage', function () {
       const id: string = uuid();
       expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
 
-      const setPasswordSpy = Sinon.spy(keytar, 'setPassword');
-
       await connectionStorage.save({
         id,
         connectionOptions: {
@@ -146,21 +146,14 @@ describe('ConnectionStorage', function () {
         JSON.parse(fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8'))
           .connectionInfo.id
       ).to.be.equal(id);
-
-      expect(setPasswordSpy.calledOnce).to.be.true;
-      expect(setPasswordSpy.firstCall.args).to.deep.equal([
-        getKeytarServiceName(),
-        id,
-        JSON.stringify({ secrets: { password: 'password' } }, null, 2),
-      ]);
     });
 
-    it('saves a connection with arbitrary authMechanism (bypass Ampersand validations)', async function () {
+    it('saves a connection with arbitrary authMechanism', async function () {
       const id: string = uuid();
       await connectionStorage.save({
         id,
         connectionOptions: {
-          connectionString: 'mongodb://localhost:27017?authMechanism=FAKEAUTH',
+          connectionString: 'mongodb://localhost:27017/?authMechanism=FAKEAUTH',
         },
       });
 
@@ -209,10 +202,11 @@ describe('ConnectionStorage', function () {
       expect(error.message).to.be.equal('Connection string is required.');
     });
 
-    it('does not save fle secrets if fleOptions.storeCredentials is false', async function () {
+    // In tests we can not use keytar and have it disabled. When saving any data,
+    // its completely stored on disk without anythings removed.
+    it('it stores all the fleOptions on disk', async function () {
       const id = uuid();
-      const setPasswordSpy = Sinon.spy(keytar, 'setPassword');
-      await connectionStorage.save({
+      const connectionInfo = {
         id,
         connectionOptions: {
           connectionString: 'mongodb://localhost:27017',
@@ -228,80 +222,13 @@ describe('ConnectionStorage', function () {
             },
           },
         },
-      });
+      };
+      await connectionStorage.save(connectionInfo);
 
-      const { connectionInfo } = JSON.parse(
+      const { connectionInfo: expectedConnectionInfo } = JSON.parse(
         fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
       );
-
-      expect(connectionInfo.connectionOptions.fleOptions).to.deep.equal({
-        storeCredentials: false,
-        autoEncryption: {
-          keyVaultNamespace: 'db.coll',
-          kmsProviders: {},
-        },
-      });
-      expect(setPasswordSpy.calledOnce).to.be.true;
-      expect(setPasswordSpy.firstCall.args).to.deep.equal([
-        getKeytarServiceName(),
-        id,
-        JSON.stringify({ secrets: {} }, null, 2),
-      ]);
-    });
-
-    it('saves fle secrets if fleOptions.storeCredentials is true', async function () {
-      const id = uuid();
-      const setPasswordSpy = Sinon.spy(keytar, 'setPassword');
-      await connectionStorage.save({
-        id,
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017',
-          fleOptions: {
-            storeCredentials: true,
-            autoEncryption: {
-              keyVaultNamespace: 'db.coll',
-              kmsProviders: {
-                local: {
-                  key: 'my-key',
-                },
-              },
-            },
-          },
-        },
-      });
-
-      const { connectionInfo } = JSON.parse(
-        fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
-      );
-
-      expect(connectionInfo.connectionOptions.fleOptions).to.deep.equal({
-        storeCredentials: true,
-        autoEncryption: {
-          keyVaultNamespace: 'db.coll',
-          kmsProviders: {},
-        },
-      });
-
-      expect(setPasswordSpy.calledOnce).to.be.true;
-      expect(setPasswordSpy.firstCall.args).to.deep.equal([
-        getKeytarServiceName(),
-        id,
-        JSON.stringify(
-          {
-            secrets: {
-              autoEncryption: {
-                kmsProviders: {
-                  local: {
-                    key: 'my-key',
-                  },
-                },
-              },
-            },
-          },
-          null,
-          2
-        ),
-      ]);
+      expect(expectedConnectionInfo).to.deep.equal(connectionInfo);
     });
   });
 
@@ -315,17 +242,10 @@ describe('ConnectionStorage', function () {
       expect(fs.existsSync(getConnectionFilePath(tmpDir, connectionInfo.id))).to
         .be.true;
 
-      const deletePasswordSpy = Sinon.spy(keytar, 'deletePassword');
       await connectionStorage.delete(connectionInfo.id);
 
       const filePath = getConnectionFilePath(tmpDir, connectionInfo.id);
       expect(fs.existsSync(filePath)).to.be.false;
-
-      expect(deletePasswordSpy.calledOnce).to.be.true;
-      expect(deletePasswordSpy.firstCall.args).to.deep.equal([
-        getKeytarServiceName(),
-        connectionInfo.id,
-      ]);
     });
   });
 
