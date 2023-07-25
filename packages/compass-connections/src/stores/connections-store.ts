@@ -492,16 +492,17 @@ export function useConnections({
     if (!persistOIDCTokens) void loadConnections(dispatch, connectionStorage);
   }, [persistOIDCTokens]);
 
-  useEffect(() => {
-    void connectionStorage
-      .hasLegacyConnections()
-      .then((hasLegacyConnections) => {
-        dispatch({
-          type: 'set-has-legacy-connections',
-          hasLegacyConnections,
-        });
-      });
-  }, [connectionStorage]);
+  // useEffect(() => {
+  //   console.log('ConnectionStore useEffect hasLegacyConnections');
+  //   void connectionStorage
+  //     .hasLegacyConnections()
+  //     .then((hasLegacyConnections) => {
+  //       dispatch({
+  //         type: 'set-has-legacy-connections',
+  //         hasLegacyConnections,
+  //       });
+  //     });
+  // }, [connectionStorage]);
 
   const connect = async (
     getAutoConnectInfo:
