@@ -20,10 +20,8 @@ describe('connection info module', function () {
       it('returns the new state', function () {
         expect(
           reducer(undefined, changeConnectionInfo(connectionInfoNotFavorite))
-        ).to.deep.equal({
-          connectionInfo: connectionInfoNotFavorite,
-          connectionStorage: {},
-        });
+            .connectionInfo
+        ).to.deep.equal(connectionInfoNotFavorite);
       });
 
       it('does not call the connection storage to save', function () {

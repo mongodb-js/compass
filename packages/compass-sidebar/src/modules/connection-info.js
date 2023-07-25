@@ -82,7 +82,6 @@ const MAPPINGS = {
  * @param {String} state - The status state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
   const fn = MAPPINGS[action.type];
