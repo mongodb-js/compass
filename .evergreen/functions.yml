@@ -169,6 +169,13 @@ functions:
           set -e
           eval $(.evergreen/print-compass-env.sh)
 
+          # With removal of storage-mixin and top level import of 
+          # keytar, we need to rebuild the keytar.
+          if [[ "$IS_RHEL" == "true" ]]; then
+            echo "Rebuilding packages for rhel"
+            npm run node-rebuild
+          fi
+
           # Prepare workspaces in provided scope
           npx lerna run bootstrap \
             --stream \
