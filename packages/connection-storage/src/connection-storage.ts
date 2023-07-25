@@ -42,6 +42,9 @@ export class ConnectionStorage {
   }
 
   private async getKeytarCredentials() {
+    if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
+      return {};
+    }
     try {
       const credentials = await keytar.findCredentials(this.keytarServiceName);
       return Object.fromEntries(
@@ -95,26 +98,23 @@ export class ConnectionStorage {
     await fs.mkdir(this.getFolderPath(), { recursive: true });
 
     try {
-      const connections = (await this.getConnections())
-        // Ignore legacy connections and make sure connection has a connection string.
-        .filter(
-          (x: { connectionInfo?: ConnectionInfo }) =>
-            x.connectionInfo?.connectionOptions?.connectionString
-        )
-        .map((x) => x.connectionInfo) as ConnectionInfo[];
-
-      if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        return connections.map((connection) =>
-          this.mapStoredConnectionToConnectionInfo(connection)
-        );
-      }
-
-      const secrets = await this.getKeytarCredentials();
-      return connections.map((connection) =>
-        this.mapStoredConnectionToConnectionInfo(
-          connection,
-          secrets[connection.id]
-        )
+      const [connections, secrets] = await Promise.all([
+        this.getConnections(),
+        this.getKeytarCredentials(),
+      ]);
+      return (
+        connections
+          // Ignore legacy connections and make sure connection has a connection string.
+          .filter(
+            (x: { connectionInfo?: ConnectionInfo }) =>
+              x.connectionInfo?.connectionOptions?.connectionString
+          )
+          .map(({ connectionInfo }: { connectionInfo: ConnectionInfo }) =>
+            this.mapStoredConnectionToConnectionInfo(
+              connectionInfo,
+              secrets[connectionInfo.id]
+            )
+          )
       );
     } catch (err) {
       log.error(
