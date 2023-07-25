@@ -175,10 +175,13 @@ function Connections({
   // Handle Legacy Connections toast.
   const [hasSeenLegacyToast, setHasSeenLegacyToast] = useState(false);
   useEffect(() => {
+    if (hasSeenLegacyToast) {
+      return;
+    }
     void connectionStorage
       .hasLegacyConnections()
       .then((hasLegacyConnections) => {
-        if (hasLegacyConnections && !hasSeenLegacyToast) {
+        if (hasLegacyConnections) {
           openToast('legacy-connections', {
             title: 'Legacy connections detected',
             description: <MigrateLegacyConnectionDescription />,

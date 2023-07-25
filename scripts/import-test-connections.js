@@ -276,7 +276,9 @@ async function main() {
       );
       await fs.writeFile(
         path.join(destDir, `${connectionInfoWithId.id}.json`),
-        JSON.stringify(connectionInfoWithoutSecrets)
+        JSON.stringify({
+          connectionInfo: connectionInfoWithoutSecrets,
+        })
       );
 
       console.log('Saved', connectionInfo.favorite.name);
