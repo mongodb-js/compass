@@ -21,7 +21,10 @@ export function createMongoClientMock({
   commands = {},
   collections = {},
   clientOptions = {},
-}: Partial<ClientMockOptions> = {}): MongoClient {
+}: Partial<ClientMockOptions> = {}): {
+  client: MongoClient;
+  connectionString: string;
+} {
   const db = {
     command(spec: any) {
       const cmd = Object.keys(spec).find((key) =>
@@ -92,5 +95,19 @@ export function createMongoClientMock({
     },
   };
 
-  return client as unknown as MongoClient;
+  const connectionString = hosts.reduce<string>(
+    (connectionString, { host, port }, index) => {
+      const hostWithPort = port ? `${host}:${port}` : host;
+      if (index === 0) {
+        return `${connectionString}://${hostWithPort}`;
+      }
+      return `${connectionString},${hostWithPort}`;
+    },
+    'mongodb'
+  );
+
+  return {
+    client: client as unknown as MongoClient,
+    connectionString,
+  };
 }
