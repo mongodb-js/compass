@@ -68,7 +68,6 @@ describe('use-connections hook', function () {
       save: saveSpy,
       delete: deleteSpy,
       load: loadSpy,
-      hasLegacyConnections: sinon.fake.resolves(false),
     };
   });
 
@@ -157,26 +156,6 @@ describe('use-connections hook', function () {
         { id: '2', lastUsed: new Date(1647020087550), connectionOptions },
         { id: '4', connectionOptions },
       ]);
-    });
-
-    it('sets hasLegacyConnections to true when storage has any legacy connection', async function () {
-      const hasLegacyConnectionsSpy = sinon.fake.resolves(true);
-      mockConnectionStorage.hasLegacyConnections = hasLegacyConnectionsSpy;
-
-      const { result } = renderHook(() =>
-        useConnections({
-          onConnected: noop,
-          connectionStorage: mockConnectionStorage,
-          connectFn: noop,
-          appName: 'Test App Name',
-        })
-      );
-
-      await waitFor(
-        () => expect(result.current.state.hasLegacyConnections).to.be.true
-      );
-
-      expect(hasLegacyConnectionsSpy.callCount).to.equal(1);
     });
   });
 

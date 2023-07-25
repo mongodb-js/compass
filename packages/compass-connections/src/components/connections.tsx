@@ -172,14 +172,21 @@ function Connections({
     []
   );
 
+  // Handle Legacy Connections toast.
+  const [hasSeenLegacyToast, setHasSeenLegacyToast] = useState(false);
   useEffect(() => {
-    if (state.hasLegacyConnections) {
-      openToast('legacy-connections', {
-        title: 'Legacy connections detected',
-        description: <MigrateLegacyConnectionDescription />,
+    void connectionStorage
+      .hasLegacyConnections()
+      .then((hasLegacyConnections) => {
+        if (hasLegacyConnections && !hasSeenLegacyToast) {
+          openToast('legacy-connections', {
+            title: 'Legacy connections detected',
+            description: <MigrateLegacyConnectionDescription />,
+          });
+          setHasSeenLegacyToast(true);
+        }
       });
-    }
-  }, [state.hasLegacyConnections]);
+  }, [connectionStorage, hasSeenLegacyToast]);
 
   return (
     <div data-testid="connections-wrapper" className={connectStyles}>
