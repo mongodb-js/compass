@@ -1,4 +1,5 @@
 import type { MongoClient } from 'mongodb';
+import { ConnectionString } from 'mongodb-connection-string-url';
 
 export type ClientMockOptions = {
   hosts: [{ host: string; port: number }];
@@ -95,19 +96,14 @@ export function createMongoClientMock({
     },
   };
 
-  const connectionString = hosts.reduce<string>(
-    (connectionString, { host, port }, index) => {
-      const hostWithPort = port ? `${host}:${port}` : host;
-      if (index === 0) {
-        return `${connectionString}://${hostWithPort}`;
-      }
-      return `${connectionString},${hostWithPort}`;
-    },
-    'mongodb'
-  );
+  const hostsWithPorts = hosts.map(({ host, port }) => `${host}:${port}`);
+  // Note: This builds a dummy connection string only to replace the dummy host
+  // with actual hosts right after
+  const connectionString = new ConnectionString('mongodb://localhost:27017');
+  connectionString.hosts = hostsWithPorts;
 
   return {
     client: client as unknown as MongoClient,
-    connectionString,
+    connectionString: connectionString.toString(),
   };
 }
