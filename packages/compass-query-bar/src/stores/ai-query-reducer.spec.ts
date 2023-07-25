@@ -63,9 +63,13 @@ describe('aiQueryReducer', function () {
         expect(
           mockAtlasService.getQueryFromUserPrompt.getCall(0)
         ).to.have.nested.property('args[0].collectionName', 'collection');
-        expect(mockAtlasService.getQueryFromUserPrompt.getCall(0))
-          .to.have.nested.property('args[0].sampleDocuments')
-          .deep.eq([{ _id: 42 }]);
+        expect(
+          mockAtlasService.getQueryFromUserPrompt.getCall(0)
+        ).to.have.nested.property('args[0].databaseName', 'database');
+        // Sample documents are currently disabled.
+        expect(
+          mockAtlasService.getQueryFromUserPrompt.getCall(0)
+        ).to.not.have.nested.property('args[0].sampleDocuments');
 
         expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);

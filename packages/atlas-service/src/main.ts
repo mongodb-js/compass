@@ -49,7 +49,7 @@ export async function throwIfNotOk(
   throw err;
 }
 
-const MAX_REQUEST_SIZE = 5000;
+const MAX_REQUEST_SIZE = 10000;
 
 const MIN_SAMPLE_DOCUMENTS = 1;
 
@@ -218,11 +218,13 @@ export class AtlasService {
     signal,
     userPrompt,
     collectionName,
+    databaseName,
     schema,
     sampleDocuments,
   }: {
     userPrompt: string;
     collectionName: string;
+    databaseName: string;
     schema?: SimplifiedSchema;
     sampleDocuments?: Document[];
     signal?: AbortSignal;
@@ -235,6 +237,7 @@ export class AtlasService {
     let msgBody = JSON.stringify({
       userPrompt,
       collectionName,
+      databaseName,
       schema,
       sampleDocuments,
     });
@@ -246,6 +249,7 @@ export class AtlasService {
       msgBody = JSON.stringify({
         userPrompt,
         collectionName,
+        databaseName,
         schema,
         sampleDocuments: sampleDocuments?.slice(0, MIN_SAMPLE_DOCUMENTS),
       });

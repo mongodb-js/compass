@@ -146,13 +146,15 @@ export const runAIQuery = (
       );
       const schema = await getSimplifiedSchema(sampleDocuments);
 
-      const { collection: collectionName } = toNS(namespace);
+      const { collection: collectionName, database: databaseName } =
+        toNS(namespace);
       jsonResponse = await atlasService.getQueryFromUserPrompt({
         signal: abortController.signal,
         userPrompt,
         collectionName,
+        databaseName,
         schema,
-        sampleDocuments,
+        // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
     } catch (err: any) {
       if (signal.aborted) {
