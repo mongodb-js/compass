@@ -89,8 +89,7 @@ export class ConnectionStorage {
         // Ignore legacy connections and make sure connection has a connection string.
         .filter(
           (x: { connectionInfo?: ConnectionInfo }) =>
-            x.connectionInfo &&
-            x.connectionInfo.connectionOptions.connectionString
+            x.connectionInfo?.connectionOptions?.connectionString
         )
         .map((x) => x.connectionInfo) as ConnectionInfo[];
 
