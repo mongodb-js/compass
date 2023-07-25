@@ -83,7 +83,10 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
           </p>
           <p>
             To understand how your data is used with AI partners,{' '}
-            <Link href="https://example.com">learn more in the docs</Link>.
+            <Link href="https://www.mongodb.com/docs/compass/current/faq/#how-do-i-view-and-modify-my-privacy-settings-">
+              learn more in the docs
+            </Link>
+            .
           </p>
         </div>
         <div className={controlsStyles}>

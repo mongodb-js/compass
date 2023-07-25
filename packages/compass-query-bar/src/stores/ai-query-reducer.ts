@@ -41,8 +41,6 @@ export const enum AIQueryActionTypes {
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
   ChangeAIPromptText = 'compass-query-bar/ai-query/ChangeAIPromptText',
-  ShowOptIn = 'compass-query-bar/ai-query/ShowOptIn',
-  HideOptIn = 'compass-query-bar/ai-query/HideOptIn',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;

@@ -28,70 +28,127 @@ describe('AtlasServiceMain', function () {
   const issuer = process.env.COMPASS_OIDC_ISSUER;
   const clientId = process.env.COMPASS_CLIENT_ID;
 
-  before(function () {
+  beforeEach(function () {
     process.env.DEV_AI_QUERY_ENDPOINT = 'http://example.com';
     process.env.COMPASS_OIDC_ISSUER = 'http://example.com';
     process.env.COMPASS_CLIENT_ID = '1234abcd';
   });
 
-  after(function () {
+  afterEach(function () {
     process.env.DEV_AI_QUERY_ENDPOINT = apiBaseUrl;
     process.env.COMPASS_OIDC_ISSUER = issuer;
     process.env.COMPASS_CLIENT_ID = clientId;
-    AtlasService['fetch'] = fetch;
-  });
 
-  afterEach(function () {
+    AtlasService['fetch'] = fetch;
     AtlasService['token'] = null;
+
     sandbox.resetHistory();
   });
 
-  it('should sign in using oidc plugin', async function () {
-    const token = await AtlasService.signIn();
-    expect(
-      mockOidcPlugin.mongoClientOptions.authMechanismProperties
-        .REQUEST_TOKEN_CALLBACK
-    ).to.have.been.calledOnce;
-    expect(token).to.have.property('accessToken', '1234');
-  });
+  describe('signIn', function () {
+    it('should sign in using oidc plugin', async function () {
+      const token = await AtlasService.signIn();
+      expect(
+        mockOidcPlugin.mongoClientOptions.authMechanismProperties
+          .REQUEST_TOKEN_CALLBACK
+      ).to.have.been.calledOnce;
+      expect(token).to.have.property('accessToken', '1234');
+    });
 
-  it('should debounce inflight sign in requests', async function () {
-    void AtlasService.signIn();
-    void AtlasService.signIn();
-    void AtlasService.signIn();
-    void AtlasService.signIn();
+    it('should debounce inflight sign in requests', async function () {
+      void AtlasService.signIn();
+      void AtlasService.signIn();
+      void AtlasService.signIn();
+      void AtlasService.signIn();
 
-    await AtlasService.signIn();
-
-    expect(
-      mockOidcPlugin.mongoClientOptions.authMechanismProperties
-        .REQUEST_TOKEN_CALLBACK
-    ).to.have.been.calledOnce;
-  });
-
-  it('should throw if COMPASS_OIDC_ISSUER is not set', async function () {
-    delete process.env.COMPASS_OIDC_ISSUER;
-
-    try {
       await AtlasService.signIn();
-      expect.fail('Expected AtlasService.signIn() to throw');
-    } catch (err) {
-      expect(err).to.have.property(
-        'message',
-        'COMPASS_OIDC_ISSUER is required'
-      );
-    }
+
+      expect(
+        mockOidcPlugin.mongoClientOptions.authMechanismProperties
+          .REQUEST_TOKEN_CALLBACK
+      ).to.have.been.calledOnce;
+    });
+
+    it('should throw if COMPASS_OIDC_ISSUER is not set', async function () {
+      delete process.env.COMPASS_OIDC_ISSUER;
+
+      try {
+        await AtlasService.signIn();
+        expect.fail('Expected AtlasService.signIn() to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          'COMPASS_OIDC_ISSUER is required'
+        );
+      }
+    });
+
+    it('should throw if COMPASS_CLIENT_ID is not set', async function () {
+      delete process.env.COMPASS_CLIENT_ID;
+
+      try {
+        await AtlasService.signIn();
+        expect.fail('Expected AtlasService.signIn() to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          'COMPASS_CLIENT_ID is required'
+        );
+      }
+    });
   });
 
-  it('should throw if COMPASS_CLIENT_ID is not set', async function () {
-    delete process.env.COMPASS_CLIENT_ID;
+  describe('isAuthenticated', function () {
+    it('should return true if token is active', async function () {
+      AtlasService['token'] = { accessToken: '1234' };
+      AtlasService['fetch'] = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({ active: true });
+        },
+      }) as any;
 
-    try {
-      await AtlasService.signIn();
-      expect.fail('Expected AtlasService.signIn() to throw');
-    } catch (err) {
-      expect(err).to.have.property('message', 'COMPASS_CLIENT_ID is required');
-    }
+      expect(await AtlasService.isAuthenticated()).to.eq(true);
+    });
+
+    it('should return false if token is inactive', async function () {
+      AtlasService['token'] = { accessToken: '1234' };
+      AtlasService['fetch'] = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({ active: false });
+        },
+      }) as any;
+
+      expect(await AtlasService.isAuthenticated()).to.eq(false);
+    });
+
+    it('should return false if there is no token', async function () {
+      AtlasService['token'] = null;
+
+      expect(await AtlasService.isAuthenticated()).to.eq(false);
+    });
+
+    it('should return false if checking token fails', async function () {
+      AtlasService['token'] = { accessToken: '1234' };
+      AtlasService['fetch'] = sandbox
+        .stub()
+        .resolves({ ok: false, status: 500 }) as any;
+
+      expect(await AtlasService.isAuthenticated()).to.eq(false);
+    });
+
+    it('should throw if aborted signal is passed', async function () {
+      AtlasService['token'] = { accessToken: '1234' };
+      const c = new AbortController();
+      c.abort(new Error('Aborted'));
+      try {
+        await AtlasService.isAuthenticated({ signal: c.signal });
+        expect.fail('Expected isAuthenticated to throw');
+      } catch (err) {
+        expect(err).to.have.property('message', 'Aborted');
+      }
+    });
   });
 
   describe('getQueryFromUserPrompt', function () {
@@ -261,15 +318,14 @@ describe('AtlasServiceMain', function () {
           statusText: 'Whoops',
           json() {
             return Promise.resolve({
-              name: 'AIError',
-              errorMessage: 'tortillas',
-              codeName: 'ExampleCode',
+              errorCode: 'ExampleCode',
+              detail: 'tortillas',
             });
           },
         });
         expect.fail('Expected throwIfNotOk to throw');
       } catch (err) {
-        expect(err).to.have.property('name', 'Error');
+        expect(err).to.have.property('name', 'ServerError');
         expect(err).to.have.property('message', 'ExampleCode: tortillas');
       }
     });
