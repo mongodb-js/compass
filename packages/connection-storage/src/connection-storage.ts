@@ -42,13 +42,23 @@ export class ConnectionStorage {
   }
 
   private async getKeytarCredentials() {
-    const credentials = await keytar.findCredentials(this.keytarServiceName);
-    return Object.fromEntries(
-      credentials.map(({ account, password }) => [
-        account,
-        JSON.parse(password).secrets ?? {},
-      ])
-    ) as Record<string, ConnectionSecrets>;
+    try {
+      const credentials = await keytar.findCredentials(this.keytarServiceName);
+      return Object.fromEntries(
+        credentials.map(({ account, password }) => [
+          account,
+          JSON.parse(password).secrets ?? {},
+        ])
+      ) as Record<string, ConnectionSecrets>;
+    } catch (e) {
+      log.error(
+        mongoLogId(1_001_000_201),
+        'Connection Storage',
+        'Failed to load secrets from keychain',
+        { message: (e as Error).message }
+      );
+      return {};
+    }
   }
 
   private async getConnections(): Promise<any[]> {
@@ -152,11 +162,20 @@ export class ConnectionStorage {
         ),
         'utf-8'
       );
-      await keytar.setPassword(
-        this.keytarServiceName,
-        connectionInfo.id,
-        JSON.stringify({ secrets }, null, 2)
-      );
+      await keytar
+        .setPassword(
+          this.keytarServiceName,
+          connectionInfo.id,
+          JSON.stringify({ secrets }, null, 2)
+        )
+        .catch((e) => {
+          log.error(
+            mongoLogId(1_001_000_202),
+            'Connection Storage',
+            'Failed to save secrets to keychain',
+            { message: (e as Error).message }
+          );
+        });
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_103),
@@ -179,7 +198,14 @@ export class ConnectionStorage {
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         return;
       }
-      await keytar.deletePassword(this.keytarServiceName, id);
+      await keytar.deletePassword(this.keytarServiceName, id).catch((e) => {
+        log.error(
+          mongoLogId(1_001_000_203),
+          'Connection Storage',
+          'Failed to delete secrets from keychain',
+          { message: (e as Error).message }
+        );
+      });
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_104),
