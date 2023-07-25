@@ -56,11 +56,22 @@ export class ConnectionStorage {
       .filter((file) => file.endsWith('.json'))
       .map((file) => file.replace('.json', ''));
 
-    return await Promise.all(
-      connectionIds.map(async (id) =>
-        JSON.parse(await fs.readFile(this.getFilePath(id), 'utf8'))
-      )
+    const data = await Promise.all(
+      connectionIds.map(async (id) => {
+        try {
+          return JSON.parse(await fs.readFile(this.getFilePath(id), 'utf8'));
+        } catch (e) {
+          log.error(
+            mongoLogId(1_001_000_200),
+            'Connection Storage',
+            'Failed to parse connection',
+            { message: (e as Error).message, connectionId: id }
+          );
+          return undefined;
+        }
+      })
     );
+    return data.filter(Boolean);
   }
 
   async hasLegacyConnections() {
