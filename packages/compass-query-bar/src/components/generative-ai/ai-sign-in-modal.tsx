@@ -78,8 +78,8 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
             MongoDB’s AI-powered features, available today in Compass.
           </p>
           <p>
-            This feature is an experiment and may give inaccurate responses. You
-            can help make it better by leaving feedback.
+            This is an experimental feature and may give inaccurate responses.
+            You can help make it better by leaving feedback.
           </p>
           <p>
             To understand how your data is used with AI partners,{' '}
@@ -96,6 +96,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
             className={buttonStyles}
             disabled={isSignInInProgress}
             // TODO: will have to update leafygreen for that
+            // https://jira.mongodb.org/browse/COMPASS-7046
             // isLoading={isSignInInProgress}
           >
             Log in to enable AI
