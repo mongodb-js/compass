@@ -1132,7 +1132,7 @@ describe('DataService', function () {
       const dataService = new DataServiceImpl({
         connectionString: 'mongodb://localhost:27020',
       });
-      const client = createMongoClientMock(clientConfig);
+      const { client } = createMongoClientMock(clientConfig);
       (dataService as any)._crudClient = client;
       (dataService as any)._metadataClient = client;
       return dataService;
