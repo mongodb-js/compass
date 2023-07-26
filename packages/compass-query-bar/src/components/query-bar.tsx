@@ -13,7 +13,7 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
+import { usePreference, withPreferences } from 'compass-preferences-model';
 import type { Signal } from '@mongodb-js/compass-components';
 
 import { type QueryOption } from '../constants/query-option-definition';
@@ -38,6 +38,7 @@ import type {
 } from '../stores/query-bar-store';
 import { createAIPlaceholderHTMLPlaceholder } from './generative-ai/ai-experience-entry';
 import { hideInput, showInput } from '../stores/ai-query-reducer';
+import AISignInModal from './generative-ai/ai-sign-in-modal';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -136,6 +137,7 @@ type QueryBarProps = {
   isAIInputVisible?: boolean;
   onShowAIInputClick?: () => void;
   onHideAIInputClick?: () => void;
+  enableAIQuery?: boolean;
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -163,10 +165,10 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   isAIInputVisible = false,
   onShowAIInputClick,
   onHideAIInputClick,
+  enableAIQuery = false,
 }) => {
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
-  const enableAIQuery = usePreference('enableAIExperience', React);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -315,51 +317,73 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           show={isAIInputVisible}
         />
       )}
+      <AISignInModal></AISignInModal>
     </form>
   );
 };
 
-export default connect(
-  ({ queryBar: { expanded, fields, applyId }, aiQuery }: RootState) => {
-    return {
-      expanded: expanded,
-      queryChanged: !isEqualDefaultQuery(fields),
-      valid: isQueryValid(fields),
-      applyId: applyId,
-      isAIInputVisible: aiQuery.isInputVisible,
-    };
-  },
-  (
-    dispatch: QueryBarThunkDispatch,
-    ownProps: { onApply?(query: unknown): void; onReset?(query: unknown): void }
-  ) => {
-    return {
-      onExplain: () => {
-        dispatch(explainQuery());
-      },
-      onOpenExportToLanguage: () => {
-        dispatch(openExportToLanguage());
-      },
-      onApply: () => {
-        const applied = dispatch(applyQuery());
-        if (applied === false) {
-          return;
-        }
-        ownProps.onApply?.(applied);
-      },
-      onReset: () => {
-        const reset = dispatch(resetQuery());
-        if (reset === false) {
-          return;
-        }
-        ownProps.onReset?.(reset);
-      },
-      onShowAIInputClick: () => {
-        dispatch(showInput());
-      },
-      onHideAIInputClick: () => {
-        dispatch(hideInput());
-      },
-    };
-  }
-)(QueryBar);
+type OwnProps = {
+  enableAIExperience: boolean;
+  onApply?(query: unknown): void;
+  onReset?(query: unknown): void;
+};
+
+export default withPreferences(
+  connect(
+    (
+      {
+        queryBar: { expanded, fields, applyId },
+        aiQuery,
+        atlasSignIn: { state: signInState },
+      }: RootState,
+      ownProps: OwnProps
+    ) => {
+      return {
+        expanded: expanded,
+        queryChanged: !isEqualDefaultQuery(fields),
+        valid: isQueryValid(fields),
+        applyId: applyId,
+        isAIInputVisible: aiQuery.isInputVisible,
+        enableAIQuery:
+          ownProps.enableAIExperience &&
+          // Make sure we don't show the prompt to enable ai experience while we
+          // are restoring sign in state. This operation is quick, and the check
+          // makes sure that if user is already signed in, it will get to the ai
+          // input without the need to see opt in modal
+          !['initial', 'restoring'].includes(signInState),
+      };
+    },
+    (dispatch: QueryBarThunkDispatch, ownProps: OwnProps) => {
+      return {
+        onExplain: () => {
+          dispatch(explainQuery());
+        },
+        onOpenExportToLanguage: () => {
+          dispatch(openExportToLanguage());
+        },
+        onApply: () => {
+          const applied = dispatch(applyQuery());
+          if (applied === false) {
+            return;
+          }
+          ownProps.onApply?.(applied);
+        },
+        onReset: () => {
+          const reset = dispatch(resetQuery());
+          if (reset === false) {
+            return;
+          }
+          ownProps.onReset?.(reset);
+        },
+        onShowAIInputClick: () => {
+          dispatch(showInput());
+        },
+        onHideAIInputClick: () => {
+          dispatch(hideInput());
+        },
+      };
+    }
+  )(QueryBar),
+  ['enableAIExperience'],
+  React
+);

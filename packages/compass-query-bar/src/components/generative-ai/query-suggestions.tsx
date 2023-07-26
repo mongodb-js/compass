@@ -1,16 +1,17 @@
 import {
   Body,
+  Button,
   CancelLoader,
   ErrorSummary,
   Icon,
   IconButton,
-  LeafyGreenProvider,
-  Link,
   Overline,
   css,
+  cx,
   focusRing,
   palette,
   spacing,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -24,10 +25,15 @@ import {
 import type { BaseQuery } from '../../constants/query-properties';
 
 const containerStyles = css({
-  padding: spacing[3],
-  backgroundColor: palette.black,
+  // padding: spacing[3],
+  marginTop: spacing[2],
   display: 'flex',
+  gap: spacing[2],
   flexDirection: 'column',
+});
+
+const containerDarkModeStyles = css({
+  backgroundColor: palette.black,
 });
 
 const overlineContainerStyles = css({
@@ -51,9 +57,14 @@ const buttonResetStyles = css({
   cursor: 'pointer',
 });
 
-const generateButtonStyles = css(buttonResetStyles, {
+const generateButtonStyles = css({
+  display: 'block',
   //
 });
+
+// const generateButtonStyles = css(buttonResetStyles, {
+//   //
+// });
 
 const suggestionButtonStyles = css(
   buttonResetStyles,
@@ -139,25 +150,27 @@ function QuerySuggestions({
     query: BaseQuery;
   }[];
 }) {
-  return (
-    <LeafyGreenProvider darkMode>
-      <div className={containerStyles}>
-        {suggestions.length > 0 ? (
-          <div className={overlineContainerStyles}>
-            <Overline className={overlineStyles}>Suggested Prompts</Overline>
+  const darkMode = useDarkMode();
 
-            <IconButton
-              // className={generateButtonStyles}
-              // arrowAppearance="none"
-              aria-label="Regenerate Suggestions"
-              title="Regenerate Suggestions"
-              // hideExternalIcon
-              onClick={onClickGenerateSuggestions}
-              disabled={isFetching}
-            >
-              <Icon glyph="Refresh" />
-            </IconButton>
-            {/* <Link
+  return (
+    // <LeafyGreenProvider darkMode>
+    <div className={cx(containerStyles, darkMode && containerDarkModeStyles)}>
+      {suggestions.length > 0 ? (
+        <div className={overlineContainerStyles}>
+          <Overline className={overlineStyles}>Suggested Prompts</Overline>
+
+          <IconButton
+            // className={generateButtonStyles}
+            // arrowAppearance="none"
+            aria-label="Regenerate Suggestions"
+            title="Regenerate Suggestions"
+            // hideExternalIcon
+            onClick={onClickGenerateSuggestions}
+            disabled={isFetching}
+          >
+            <Icon glyph="Refresh" />
+          </IconButton>
+          {/* <Link
             className={generateButtonStyles}
             as="button"
             arrowAppearance="none"
@@ -169,45 +182,56 @@ function QuerySuggestions({
           >
             <Icon glyph="Refresh" />
           </Link> */}
-          </div>
-        ) : (
-          <Link
-            className={generateButtonStyles}
-            as="button"
-            arrowAppearance="none"
-            hideExternalIcon
-            onClick={onClickGenerateSuggestions}
-            disabled={isFetching}
-          >
-            Generate Suggestions
-          </Link>
-        )}
-        <ul
-        // TODO: Should we have a specific `role` set here?
-        >
-          {suggestions.map(({ text, query }) => (
-            <Suggestion
-              key={text}
-              text={text}
-              query={query}
-              onClick={onClickApply}
-            />
-          ))}
-        </ul>
-        {errorMessage && <ErrorSummary errors={errorMessage} />}
-        <div>
-          {/* TODO: Eventually we don't want this as a button,
-          instead auto generate on ai expand? */}
-          {isFetching && (
-            <CancelLoader
-              progressText="Generating Suggestions"
-              cancelText="Stop"
-              onCancel={onClickCancel}
-            />
-          )}
         </div>
+      ) : (
+        // <Link
+        //   className={generateButtonStyles}
+        //   as="button"
+        //   arrowAppearance="none"
+        //   hideExternalIcon
+        //   onClick={onClickGenerateSuggestions}
+        //   disabled={isFetching}
+        // >
+        //   Generate Suggestions
+        // </Link>
+        <Button
+          className={generateButtonStyles}
+          size="extra-small"
+          // as="button"
+          // arrowAppearance="none"
+          // hideExternalIcon
+          onClick={onClickGenerateSuggestions}
+          disabled={isFetching}
+        >
+          Generate Suggestions
+        </Button>
+      )}
+      <ul
+      // TODO: Should we have a specific `role` set here?
+      >
+        {suggestions.map(({ text, query }) => (
+          <Suggestion
+            key={text}
+            text={text}
+            query={query}
+            onClick={onClickApply}
+          />
+        ))}
+      </ul>
+      {errorMessage && <ErrorSummary errors={errorMessage} />}
+      <div>
+        {/* TODO: Eventually we don't want this as a button,
+          instead auto generate on ai expand? */}
+        {isFetching && (
+          <CancelLoader
+            progressText="Generating Suggestions"
+            cancelText="Stop"
+            onCancel={onClickCancel}
+          />
+        )}
       </div>
-    </LeafyGreenProvider>
+    </div>
+    // </LeafyGreenProvider>
   );
 }
 

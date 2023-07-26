@@ -1770,7 +1770,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async instance(): Promise<InstanceDetails> {
     return {
-      ...(await getInstance(this._initializedClient('META'))),
+      ...(await getInstance(
+        this._initializedClient('META'),
+        this._connectionOptions.connectionString
+      )),
       // Need to get the CSFLE flag from the CRUD client, not the META one
       csfleMode: this.getCSFLEMode(),
     };

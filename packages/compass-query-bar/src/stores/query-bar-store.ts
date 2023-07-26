@@ -8,7 +8,6 @@ import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
-
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { BaseQuery } from '../constants/query-properties';
 import { mapFormFieldsToQuery, mapQueryToFormFields } from '../utils/query';
@@ -27,13 +26,15 @@ import {
   getQueryAttributes,
 } from '../utils';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
+import atlasSignInReducer, {
+  getInitialSignInState,
+} from './atlas-signin-reducer';
+
 const { basepath } = getStoragePaths() || {};
 
 // Partial of DataService that mms shares with Compass.
-type DataProvider = {
-  getConnectionString: DataService['getConnectionString'];
-  sample: DataService['sample'];
-};
+type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
 
 export type QueryBarStoreOptions = {
   serverVersion: string;
@@ -42,17 +43,22 @@ export type QueryBarStoreOptions = {
   query: BaseQuery;
   namespace: string;
   dataProvider: {
-    dataProvider?: DataProvider;
+    dataProvider?: QueryBarDataService;
   };
+  atlasService: AtlasService;
 
   // For testing.
   basepath?: string;
+  favoriteQueryStorage?: FavoriteQueryStorage;
+  recentQueryStorage?: RecentQueryStorage;
+  restoreSignInStateOnCreate?: boolean;
 };
 
 export const rootQueryBarReducer = combineReducers({
   queryBar: queryBarReducer,
   aiQuery: aiQueryReducer,
   suggestions: suggestionsReducer,
+  atlasSignIn: atlasSignInReducer,
 });
 
 export type RootState = ReturnType<typeof rootQueryBarReducer>;
@@ -62,9 +68,8 @@ export type QueryBarExtraArgs = {
   localAppRegistry?: AppRegistry;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
-  dataProvider: {
-    sample: DataProvider['sample'];
-  };
+  dataService: Pick<QueryBarDataService, 'sample'>;
+  atlasService: AtlasService;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -83,16 +88,16 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     query,
     namespace,
     dataProvider,
+    atlasService = new AtlasService(),
+    recentQueryStorage = new RecentQueryStorage(
+      options.basepath ?? basepath,
+      namespace
+    ),
+    favoriteQueryStorage = new FavoriteQueryStorage(
+      options.basepath ?? basepath,
+      namespace
+    ),
   } = options;
-
-  const recentQueryStorage = new RecentQueryStorage(
-    options.basepath ?? basepath,
-    namespace
-  );
-  const favoriteQueryStorage = new FavoriteQueryStorage(
-    options.basepath ?? basepath,
-    namespace
-  );
 
   return _createStore(
     rootQueryBarReducer,
@@ -110,9 +115,9 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     },
     applyMiddleware(
       thunk.withExtraArgument({
-        dataProvider: dataProvider?.dataProvider ?? {
+        dataService: dataProvider?.dataProvider ?? {
           sample: () => {
-            /* no-op for unsupported environments. */
+            /* no-op for environments where dataService is not provided at all. */
             return Promise.resolve([]);
           },
         },
@@ -120,15 +125,23 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
         globalAppRegistry,
         recentQueryStorage,
         favoriteQueryStorage,
+        atlasService,
       })
     )
   );
 }
 
 export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
-  const { localAppRegistry } = options;
+  const { localAppRegistry, restoreSignInStateOnCreate = true } = options;
 
   const store = createStore(options);
+
+  if (restoreSignInStateOnCreate) {
+    // Every tab will have its own instance of the store, we are kicking off sign
+    // in state restorating right when the tab is created to make sure users will
+    // not see the opt in modal if they are already signed in
+    void store.dispatch(getInitialSignInState());
+  }
 
   localAppRegistry?.on('fields-changed', (fields) => {
     store.dispatch(changeSchemaFields(fields.autocompleteFields));

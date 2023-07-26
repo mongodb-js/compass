@@ -6,7 +6,6 @@ import preferences from 'compass-preferences-model';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
-import { runFetchAISuggestions } from '../modules/ai-query-request';
 import type { BaseQuery, QueryFormFields } from '../constants/query-properties';
 import { mapQueryToFormFields } from '../utils/query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
@@ -112,7 +111,7 @@ export const runAISuggestions = (): QueryBarThunkAction<
   | AISuggestionsFailedAction
   | AISuggestionsSucceededAction
 > => {
-  return async (dispatch, getState, { dataProvider }) => {
+  return async (dispatch, getState, { dataService, atlasService }) => {
     const {
       suggestions: { aiSuggestionsFetchId: existingFetchId },
       queryBar: { namespace },
@@ -134,7 +133,7 @@ export const runAISuggestions = (): QueryBarThunkAction<
     let jsonResponse;
     try {
       // TODO: Share this sampling with the prompt.
-      const sampleDocuments = await dataProvider.sample(
+      const sampleDocuments = await dataService.sample(
         namespace,
         {
           query: {},
@@ -152,7 +151,7 @@ export const runAISuggestions = (): QueryBarThunkAction<
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await runFetchAISuggestions({
+      jsonResponse = await atlasService.getAIQuerySuggestions({
         signal: abortController.signal,
         collectionName,
         databaseName,

@@ -1,6 +1,4 @@
 import React from 'react';
-import { applyMiddleware, createStore as _createStore } from 'redux';
-import thunk from 'redux-thunk';
 import { expect } from 'chai';
 import {
   render,
@@ -13,15 +11,10 @@ import { Provider } from 'react-redux';
 import Sinon from 'sinon';
 import fs from 'fs';
 import os from 'os';
-
 import QueryHistory from '.';
 import { FavoriteQueryStorage, RecentQueryStorage } from '../../utils';
-import {
-  INITIAL_STATE,
-  fetchRecents,
-  fetchFavorites,
-} from '../../stores/query-bar-reducer';
-import { rootQueryBarReducer } from '../../stores/query-bar-store';
+import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
+import configureStore from '../../stores/query-bar-store';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },
@@ -31,6 +24,7 @@ const BASE_QUERY = {
   skip: 10,
   limit: 20,
 };
+
 const RECENT_QUERY = {
   _id: 'one',
   _lastExecuted: new Date(),
@@ -48,28 +42,21 @@ function createStore(basepath?: string) {
   const favoriteQueryStorage = new FavoriteQueryStorage(basepath);
   const recentQueryStorage = new RecentQueryStorage(basepath);
 
-  const store = _createStore(
-    rootQueryBarReducer,
-    {
-      queryBar: {
-        ...INITIAL_STATE,
-        namespace: 'airbnb.listings',
-        host: 'localhost',
-      },
-    } as any,
-    applyMiddleware(
-      thunk.withExtraArgument({
-        favoriteQueryStorage,
-        recentQueryStorage,
-        dataProvider: {
-          sample: () => {
-            /* no-op for unsupported environments. */
-            return Promise.resolve([]);
-          },
+  const store = configureStore({
+    namespace: 'airbnb.listings',
+    favoriteQueryStorage,
+    recentQueryStorage,
+    dataProvider: {
+      dataProvider: {
+        sample() {
+          return Promise.resolve([]);
         },
-      })
-    )
-  );
+        getConnectionString() {
+          return { hosts: [] } as any;
+        },
+      },
+    },
+  });
 
   return {
     store,
