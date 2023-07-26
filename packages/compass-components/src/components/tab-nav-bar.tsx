@@ -41,7 +41,6 @@ type TabNavBarProps = {
   'data-testid'?: string;
   'aria-label': string;
   activeTabIndex: number;
-  mountAllViews?: boolean;
   tabs: string[];
   views: JSX.Element[];
   onTabClicked: (tabIndex: number) => void;
@@ -56,7 +55,6 @@ function TabNavBar({
   'data-testid': dataTestId,
   'aria-label': ariaLabel,
   activeTabIndex,
-  mountAllViews,
   tabs,
   views,
   onTabClicked,
@@ -93,7 +91,7 @@ function TabNavBar({
       </div>
       {views.map(
         (view, idx) =>
-          (mountAllViews || idx === activeTabIndex) && (
+          idx === activeTabIndex && (
             <div
               className={cx({
                 [tabStyles]: true,

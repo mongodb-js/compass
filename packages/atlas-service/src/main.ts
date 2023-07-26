@@ -17,7 +17,12 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productDocsLink: 'https://www.mongodb.com/docs/compass',
 });
 
-const SPECIAL_AI_ERROR_NAME = 'AIError';
+/**
+ * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
+ */
+function isServerError(err: any): err is { errorCode: string; detail: string } {
+  return Boolean(err.errorCode && err.detail);
+}
 
 export async function throwIfNotOk(
   res: Pick<Response, 'ok' | 'status' | 'statusText' | 'json'>
@@ -28,17 +33,14 @@ export async function throwIfNotOk(
 
   let serverErrorName = 'NetworkError';
   let serverErrorMessage = `${res.status} ${res.statusText}`;
-  // Special case for AI endpoint only:
   // We try to parse the response to see if the server returned any information
   // we can show a user.
+  //
   try {
-    // Why are we having a custom format and not following what mms does?
     const messageJSON = await res.json();
-    if (messageJSON.name === SPECIAL_AI_ERROR_NAME) {
-      serverErrorName = 'Error';
-      serverErrorMessage = `${messageJSON.codeName as string}: ${
-        messageJSON.errorMessage as string
-      }`;
+    if (isServerError(messageJSON)) {
+      serverErrorName = 'ServerError';
+      serverErrorMessage = `${messageJSON.errorCode}: ${messageJSON.detail}`;
     }
   } catch (err) {
     // no-op, use the default status and statusText in the message.
@@ -124,12 +126,18 @@ export class AtlasService {
     ]);
   }
 
-  static async isAuthenticated(): Promise<boolean> {
+  static async isAuthenticated({
+    signal,
+  }: { signal?: AbortSignal } = {}): Promise<boolean> {
+    if (signal?.aborted) {
+      const err = signal.reason ?? new Error('This operation was aborted.');
+      throw err;
+    }
     if (!this.token) {
       return false;
     }
     try {
-      return (await this.introspect()).active;
+      return (await this.introspect({ signal })).active;
     } catch (err) {
       return false;
     }

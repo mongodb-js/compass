@@ -14,7 +14,7 @@ describe('aiQueryReducer', function () {
   const sandbox = Sinon.createSandbox();
 
   afterEach(function () {
-    sandbox.resetHistory();
+    sandbox.reset();
   });
 
   let tmpDir: string;
@@ -34,6 +34,7 @@ describe('aiQueryReducer', function () {
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasService = {
+          isAuthenticated: sandbox.stub().resolves(true),
           getQueryFromUserPrompt: sandbox
             .stub()
             .resolves({ content: { query: { _id: 1 } } }),
@@ -76,6 +77,7 @@ describe('aiQueryReducer', function () {
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
         const mockAtlasService = {
+          isAuthenticated: sandbox.stub().resolves(true),
           getQueryFromUserPrompt: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),
