@@ -161,13 +161,13 @@ export class AtlasService {
     // NB: oidc-plugin only has a logger interface to listen to state updates,
     // it also doesn't expose renewed tokens or any other state in any usable
     // way from those events or otherwise, so to get the renewed token we listen
-    // to the refresh-succeeded event and then kick of the "refresh"
+    // to the refresh-succeeded event and then kick off the "refresh"
     // programmatically to be able to get the actual tokens back and sync them
     // to the service state
     let refreshing = false;
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-succeeded', () => {
       // In case our call to REFRESH_TOKEN_CALLBACK somehow started another
-      // refresh token instead of just returning token form the plugin state, we
+      // token refresh instead of just returning token from the plugin state, we
       // short circuit if plugin logged a refresh-succeeded event and this
       // listener got triggered
       if (refreshing) {
@@ -209,7 +209,7 @@ export class AtlasService {
       return;
     }
     // In cases where we ended up in expired state, we know that oidc-plugin
-    // will try to refresh the token automatically, we can wait for this process
+    // is trying to refresh the token automatically, we can wait for this process
     // to finish before proceeding with a request
     if (this.oidcPluginSyncedFromLoggerState === 'expired') {
       await Promise.race([
