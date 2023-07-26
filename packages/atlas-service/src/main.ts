@@ -212,21 +212,16 @@ export class AtlasService {
     // will try to refresh the token automatically, we can wait for this process
     // to finish before proceeding with a request
     if (this.oidcPluginSyncedFromLoggerState === 'expired') {
-      try {
-        await Promise.race([
-          // We are using our own events here and not oidc plugin ones because
-          // after plugin logged that token was refreshed, we still need to run
-          // REFRESH_TOKEN_CALLBACK to get the actual token value in the state
-          once(this.oidcPluginLogger, 'atlas-service-token-refreshed'),
-          once(this.oidcPluginLogger, 'atlas-service-token-refresh-failed'),
-          new Promise((resolve) => {
-            signal?.addEventListener('abort', resolve, { once: true });
-          }),
-        ]);
-      } catch {
-        // In case token refresh failed, we jsut allow the request to happen so
-        // that it can fail with an error that will be propagated to the user
-      }
+      await Promise.race([
+        // We are using our own events here and not oidc plugin ones because
+        // after plugin logged that token was refreshed, we still need to run
+        // REFRESH_TOKEN_CALLBACK to get the actual token value in the state
+        once(this.oidcPluginLogger, 'atlas-service-token-refreshed'),
+        once(this.oidcPluginLogger, 'atlas-service-token-refresh-failed'),
+        new Promise((resolve) => {
+          signal?.addEventListener('abort', resolve, { once: true });
+        }),
+      ]);
     }
   }
 
