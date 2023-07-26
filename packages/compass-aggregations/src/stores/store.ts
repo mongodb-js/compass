@@ -23,6 +23,9 @@ import {
   setCollections,
 } from '../modules/collections-fields';
 import type { CollectionInfo } from '../modules/collections-fields';
+import { getStoragePaths } from '@mongodb-js/compass-utils';
+
+const { basepath } = getStoragePaths() ?? {};
 
 export type ConfigureStoreOptions = {
   /**
@@ -156,7 +159,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
     options.dataProvider.dataProvider as DataService,
     initialPipelineSource
   );
-  const pipelineStorage = new PipelineStorage();
+  const pipelineStorage = new PipelineStorage(basepath);
 
   const stages = pipelineBuilder.stages.map((stage, idx) =>
     mapBuilderStageToStoreStage(stage, idx)

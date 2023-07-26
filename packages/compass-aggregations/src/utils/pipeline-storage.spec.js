@@ -1,13 +1,9 @@
-/* eslint-disable no-sync */
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
 
 import { PipelineStorage } from './pipeline-storage';
-
-const initialAggregationsPath =
-  process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH;
 
 const createPipeline = (tmpDir, data) => {
   fs.writeFileSync(
@@ -16,20 +12,17 @@ const createPipeline = (tmpDir, data) => {
   );
 };
 
-const pipelineStorage = new PipelineStorage();
-
 describe('PipelineStorage', function () {
   let tmpDir;
+  let pipelineStorage;
   beforeEach(function () {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'SavedPipelines'));
+    tmpDir = fs.mkdtempSync(os.tmpdir());
     fs.mkdirSync(path.join(tmpDir, 'SavedPipelines'));
-    process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH = tmpDir;
+    pipelineStorage = new PipelineStorage(tmpDir);
   });
 
   afterEach(function () {
     fs.rmdirSync(tmpDir, { recursive: true });
-    process.env.MONGODB_COMPASS_AGGREGATIONS_TEST_BASE_PATH =
-      initialAggregationsPath;
   });
 
   it('should read saved pipelines', async function () {

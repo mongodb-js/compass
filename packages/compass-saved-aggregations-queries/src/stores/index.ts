@@ -19,7 +19,7 @@ import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { basepath } = getStoragePaths() ?? {};
 const queryStorage = new FavoriteQueryStorage(basepath);
-const pipelineStorage = new PipelineStorage();
+const pipelineStorage = new PipelineStorage(basepath);
 
 const _store = createStore(
   combineReducers({

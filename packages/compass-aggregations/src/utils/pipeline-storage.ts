@@ -1,7 +1,6 @@
 import { promises as fs } from 'fs';
-import path from 'path';
+import { join, basename } from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { getDirectory } from './get-directory';
 import { prettify } from '../modules/pipeline-builder/pipeline-parser/utils';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -66,15 +65,27 @@ function hasAllRequiredKeys(pipeline?: any): pipeline is StoredPipeline {
 }
 
 export class PipelineStorage {
+  private readonly folder = 'SavedPipelines';
+  constructor(private readonly basepath: string = '') {}
+
+  private getFolderPath() {
+    return join(this.basepath, this.folder);
+  }
+
+  private getFilePath(id: string) {
+    return join(this.getFolderPath(), `${id}.json`);
+  }
+
   async loadAll(): Promise<StoredPipeline[]> {
     try {
-      const dir = getDirectory();
-      const files = (await fs.readdir(dir))
+      const fileIds = (await fs.readdir(this.getFolderPath()))
         .filter((file) => file.endsWith('.json'))
-        .map((file) => path.join(dir, file));
+        .map((file) => file.replace('.json', ''));
 
       return (
-        await Promise.all(files.map((filePath) => this._loadOne(filePath)))
+        await Promise.all(
+          fileIds.map((id) => this._loadOne(this.getFilePath(id)))
+        )
       ).filter(Boolean) as StoredPipeline[];
     } catch (e) {
       return [];
@@ -82,7 +93,7 @@ export class PipelineStorage {
   }
 
   async load(id: string): Promise<StoredPipeline | null> {
-    return this._loadOne(path.join(getDirectory(), `${id}.json`));
+    return this._loadOne(this.getFilePath(id));
   }
 
   async _loadOne(filePath: string): Promise<StoredPipeline | null> {
@@ -100,7 +111,7 @@ export class PipelineStorage {
         pipelineText: data.pipelineText ?? savedPipelineToText(data.pipeline),
       };
     } catch (err) {
-      debug(`Failed to load pipeline ${path.basename(filePath)}`, err);
+      debug(`Failed to load pipeline ${basename(filePath)}`, err);
       return null;
     }
   }
@@ -117,11 +128,10 @@ export class PipelineStorage {
     if (!id) {
       throw new Error('pipelineId is required');
     }
-    const dir = getDirectory();
     // If we are creating a new item and none were created before this directory
     // might be missing
-    await fs.mkdir(dir, { recursive: true });
-    const filePath = path.join(dir, `${id}.json`);
+    await fs.mkdir(this.getFolderPath(), { recursive: true });
+    const filePath = this.getFilePath(id);
     // lastModified is generated on file load, we don't want to store it
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { lastModified, ...data } = (await this._loadOne(filePath)) ?? {};
@@ -138,7 +148,6 @@ export class PipelineStorage {
   }
 
   async delete(id: string) {
-    const file = path.join(getDirectory(), `${id}.json`);
-    return fs.unlink(file);
+    await fs.unlink(this.getFilePath(id));
   }
 }
