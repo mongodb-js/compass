@@ -3,6 +3,7 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import preferences from 'compass-preferences-model';
+import { EJSON } from 'bson';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
@@ -148,13 +149,15 @@ export const runAIQuery = (
       );
       const schema = await getSimplifiedSchema(sampleDocuments);
 
-      const { collection: collectionName } = toNS(namespace);
+      const { collection: collectionName, database: databaseName } =
+        toNS(namespace);
       jsonResponse = await atlasService.getQueryFromUserPrompt({
         signal: abortController.signal,
         userPrompt,
         collectionName,
+        databaseName,
         schema,
-        sampleDocuments,
+        // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
     } catch (err: any) {
       if (signal.aborted) {
@@ -191,7 +194,8 @@ export const runAIQuery = (
         );
       }
 
-      const query = jsonResponse?.content?.query;
+      const query = EJSON.deserialize(jsonResponse?.content?.query);
+
       fields = mapQueryToFormFields({
         ...DEFAULT_FIELD_VALUES,
         ...(query ?? {}),

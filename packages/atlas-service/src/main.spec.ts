@@ -198,6 +198,7 @@ describe('AtlasServiceMain', function () {
         userPrompt: 'test',
         signal: new AbortController().signal,
         collectionName: 'jam',
+        databaseName: 'peanut',
         schema: { _id: { types: [{ bsonType: 'ObjectId' }] } },
         sampleDocuments: [{ _id: 1234 }],
       });
@@ -209,7 +210,7 @@ describe('AtlasServiceMain', function () {
       expect(AtlasService['fetch']).to.have.been.calledOnce;
       expect(args[0]).to.eq('http://example.com/ai/api/v1/mql-query');
       expect(args[1].body).to.eq(
-        '{"userPrompt":"test","collectionName":"jam","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
+        '{"userPrompt":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
       );
       expect(res).to.have.nested.property(
         'content.query.find.test',
@@ -224,7 +225,8 @@ describe('AtlasServiceMain', function () {
         await AtlasService.getQueryFromUserPrompt({
           signal: c.signal,
           userPrompt: 'test',
-          collectionName: 'test.test',
+          collectionName: 'test',
+          databaseName: 'peanut',
         });
         expect.fail('Expected getQueryFromUserPrompt to throw');
       } catch (err) {
@@ -236,7 +238,8 @@ describe('AtlasServiceMain', function () {
       try {
         await AtlasService.getQueryFromUserPrompt({
           userPrompt: 'test',
-          collectionName: 'test.test',
+          collectionName: 'test',
+          databaseName: 'peanut',
           sampleDocuments: [{ test: '4'.repeat(60000) }],
         });
         expect.fail('Expected getQueryFromUserPrompt to throw');
@@ -259,6 +262,7 @@ describe('AtlasServiceMain', function () {
       await AtlasService.getQueryFromUserPrompt({
         userPrompt: 'test',
         collectionName: 'test.test',
+        databaseName: 'peanut',
         sampleDocuments: [
           { a: '1' },
           { a: '2' },
@@ -273,7 +277,7 @@ describe('AtlasServiceMain', function () {
 
       expect(AtlasService['fetch']).to.have.been.calledOnce;
       expect(args[1].body).to.eq(
-        '{"userPrompt":"test","collectionName":"test.test","sampleDocuments":[{"a":"1"}]}'
+        '{"userPrompt":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
       );
     });
 
@@ -288,6 +292,7 @@ describe('AtlasServiceMain', function () {
         await AtlasService.getQueryFromUserPrompt({
           userPrompt: 'test',
           collectionName: 'test.test',
+          databaseName: 'peanut',
         });
         expect.fail('Expected getQueryFromUserPrompt to throw');
       } catch (err) {
@@ -302,6 +307,7 @@ describe('AtlasServiceMain', function () {
         await AtlasService.getQueryFromUserPrompt({
           userPrompt: 'test',
           collectionName: 'test.test',
+          databaseName: 'peanut',
         });
         expect.fail('Expected AtlasService.signIn() to throw');
       } catch (err) {
