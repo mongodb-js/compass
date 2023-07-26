@@ -24,18 +24,18 @@ describe('AtlasServiceMain', function () {
   AtlasService['plugin'] = mockOidcPlugin;
 
   const fetch = AtlasService['fetch'];
-  const apiBaseUrl = process.env.DEV_AI_QUERY_ENDPOINT;
+  const apiBaseUrl = process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
   const issuer = process.env.COMPASS_OIDC_ISSUER;
   const clientId = process.env.COMPASS_CLIENT_ID;
 
   beforeEach(function () {
-    process.env.DEV_AI_QUERY_ENDPOINT = 'http://example.com';
+    process.env.COMPASS_ATLAS_SERVICE_BASE_URL = 'http://example.com';
     process.env.COMPASS_OIDC_ISSUER = 'http://example.com';
     process.env.COMPASS_CLIENT_ID = '1234abcd';
   });
 
   afterEach(function () {
-    process.env.DEV_AI_QUERY_ENDPOINT = apiBaseUrl;
+    process.env.COMPASS_ATLAS_SERVICE_BASE_URL = apiBaseUrl;
     process.env.COMPASS_OIDC_ISSUER = issuer;
     process.env.COMPASS_CLIENT_ID = clientId;
 
@@ -263,8 +263,8 @@ describe('AtlasServiceMain', function () {
       }
     });
 
-    it('should throw if DEV_AI_QUERY_ENDPOINT is not set', async function () {
-      delete process.env.DEV_AI_QUERY_ENDPOINT;
+    it('should throw if COMPASS_ATLAS_SERVICE_BASE_URL is not set', async function () {
+      delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
 
       try {
         await AtlasService.getQueryFromUserPrompt({
@@ -275,7 +275,7 @@ describe('AtlasServiceMain', function () {
       } catch (err) {
         expect(err).to.have.property(
           'message',
-          'No AI Query endpoint to fetch. Please set the environment variable `DEV_AI_QUERY_ENDPOINT`'
+          'No AI Query endpoint to fetch. Please set the environment variable `COMPASS_ATLAS_SERVICE_BASE_URL`'
         );
       }
     });
