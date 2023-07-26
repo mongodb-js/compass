@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Jul 25 2023.
+This document was automatically generated on Wed Jul 26 2023.
 
 ## List of dependencies
 
@@ -455,7 +455,7 @@ This document was automatically generated on Tue Jul 25 2023.
 | **[mkdirp](#7595a6413eab53a79e87274c9ded4aabe4c22679d8050fe563756cb80adc87a2)**                                        | 0.5.6        | MIT                                 |
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                               | 1.1.0        | MIT                                 |
 | **[moment](#94975b5423311209f3beed9c2c6bb6157f622312a3f8563d507b52e804bf6285)**                                        | 2.29.4       | MIT                                 |
-| **[mongodb-build-info](#b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e)**                            | 1.5.0        | Apache-2.0                          |
+| **[mongodb-build-info](#814d6cd2e9993ca8d1ac8da53989db3720398e7279353cf6269df581e0524dad)**                            | 1.6.2        | Apache-2.0                          |
 | **[mongodb-client-encryption](#eadad9f56a3a6058eb827b4f4628588f400af24d54eedbc1f53d99a454f22936)**                     | 2.8.0        | Apache-2.0                          |
 | **[mongodb-cloud-info](#1e991e2d033d178c86dde59d3aba2727cd6e495a78426c4f452ddabbc43772a9)**                            | 2.0.1        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#ce5b616af8be619c9b55d24d0c177a8d7676deb45415078a03235e37f704ae4c)**                 | 2.6.0        | Apache-2.0                          |
@@ -30370,9 +30370,9 @@ License files:
       FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
       OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e"></a>
+<a id="814d6cd2e9993ca8d1ac8da53989db3720398e7279353cf6269df581e0524dad"></a>
 
-### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.5.0)
+### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.6.2)
 
 License tags: Apache-2.0
 
