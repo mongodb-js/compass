@@ -104,12 +104,12 @@ export class AtlasService {
   }
 
   private static get apiBaseUrl() {
-    if (!process.env.DEV_AI_QUERY_ENDPOINT) {
+    if (!process.env.COMPASS_ATLAS_SERVICE_BASE_URL) {
       throw new Error(
-        'No AI Query endpoint to fetch. Please set the environment variable `DEV_AI_QUERY_ENDPOINT`'
+        'No AI Query endpoint to fetch. Please set the environment variable `COMPASS_ATLAS_SERVICE_BASE_URL`'
       );
     }
-    return process.env.DEV_AI_QUERY_ENDPOINT;
+    return process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
   }
 
   static init() {
