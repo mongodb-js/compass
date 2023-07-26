@@ -3,6 +3,7 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import preferences from 'compass-preferences-model';
+import { EJSON } from 'bson';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
@@ -191,7 +192,8 @@ export const runAIQuery = (
         );
       }
 
-      const query = jsonResponse?.content?.query;
+      const query = EJSON.deserialize(jsonResponse?.content?.query);
+
       fields = mapQueryToFormFields({
         ...DEFAULT_FIELD_VALUES,
         ...(query ?? {}),
