@@ -329,7 +329,8 @@ describe('AtlasServiceMain', function () {
       const [query] = await Promise.all([
         AtlasService.getQueryFromUserPrompt({
           userPrompt: 'test',
-          collectionName: 'test.test',
+          collectionName: 'test',
+          databaseName: 'test',
           sampleDocuments: [],
         }),
         (async () => {
