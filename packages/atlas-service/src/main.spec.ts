@@ -177,6 +177,9 @@ describe('AtlasServiceMain', function () {
           AtlasService['oidcPluginLogger'].emit(
             'mongodb-oidc-plugin:refresh-succeeded'
           );
+          AtlasService['oidcPluginLogger'].emit(
+            'mongodb-oidc-plugin:state-updated'
+          );
         })(),
       ]);
       expect(authenticated).to.eq(true);
@@ -338,6 +341,9 @@ describe('AtlasServiceMain', function () {
           AtlasService['oidcPluginLogger'].emit(
             'mongodb-oidc-plugin:refresh-succeeded'
           );
+          AtlasService['oidcPluginLogger'].emit(
+            'mongodb-oidc-plugin:state-updated'
+          );
         })(),
       ]);
       expect(query).to.deep.eq({ test: 1 });
@@ -476,6 +482,7 @@ describe('AtlasServiceMain', function () {
         'oidcPluginSyncedFromLoggerState',
         'initial'
       );
+      mockOidcPlugin.logger.emit('mongodb-oidc-plugin:state-updated');
       await once(
         AtlasService['oidcPluginLogger'],
         'atlas-service-token-refreshed'

@@ -107,6 +107,8 @@ export class AtlasService {
 
   private static fetch: typeof fetch = fetch;
 
+  private static refreshing = false;
+
   private static get clientId() {
     if (!process.env.COMPASS_CLIENT_ID) {
       throw new Error('COMPASS_CLIENT_ID is required');
@@ -164,42 +166,68 @@ export class AtlasService {
     // to the refresh-succeeded event and then kick off the "refresh"
     // programmatically to be able to get the actual tokens back and sync them
     // to the service state
-    let refreshing = false;
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-succeeded', () => {
-      // In case our call to REFRESH_TOKEN_CALLBACK somehow started another
-      // token refresh instead of just returning token from the plugin state, we
-      // short circuit if plugin logged a refresh-succeeded event and this
-      // listener got triggered
-      if (refreshing) {
-        return;
-      }
-      refreshing = true;
-      void this.plugin.mongoClientOptions.authMechanismProperties
-        // WARN: in the oidc plugin refresh callback is actually the same method
-        // as sign in, so calling it here means that potentially this can start
-        // an actual sign in flow for the user instead of just trying to refresh
-        // the token
-        .REFRESH_TOKEN_CALLBACK(
-          { clientId: this.clientId, issuer: this.issuer },
-          {
-            // Required driver specific stuff
-            version: 0,
-          }
-        )
-        .then((token) => {
-          this.token = token;
-          this.oidcPluginSyncedFromLoggerState = 'authenticated';
-          this.oidcPluginLogger.emit('atlas-service-token-refreshed');
-        })
-        .catch(() => {
-          this.token = null;
-          this.oidcPluginSyncedFromLoggerState = 'error';
-          this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
-        })
-        .finally(() => {
-          refreshing = false;
-        });
+      void this.refreshToken();
     });
+  }
+
+  private static async refreshToken() {
+    // In case our call to REFRESH_TOKEN_CALLBACK somehow started another
+    // token refresh instead of just returning token from the plugin state, we
+    // short circuit if plugin logged a refresh-succeeded event and this
+    // listener got triggered
+    if (this.refreshing) {
+      return;
+    }
+    this.refreshing = true;
+    try {
+      await Promise.race([
+        // When oidc-plugin logged that token was refreshed, the token is not
+        // actually refreshed yet in the plugin state and so calling `REFRESH_TOKEN_CALLBACK`
+        // causes weird behavior that actually opens the browser again, to work
+        // around that we wait for the state update event in addition. We can't
+        // guarantee that this event will be emitted for our particular state as
+        // this is not something oidc-plugin exposes, but we can ignore this for
+        // now as only one auth state is created in this instance of oidc-plugin
+        once(this.oidcPluginLogger, 'mongodb-oidc-plugin:state-updated'),
+        // At the same time refresh can still fail at this stage, so to avoid
+        // refresh being stuck, we also wait for refresh-failed event and throw
+        // if it happens to avoid calling `REFRESH_TOKEN_CALLBACK`
+        once(this.oidcPluginLogger, 'mongodb-oidc-plugin:refresh-failed').then(
+          () => {
+            throw new Error('Refresh failed');
+          }
+        ),
+      ]);
+      try {
+        const token =
+          await this.plugin.mongoClientOptions.authMechanismProperties
+            // WARN: in the oidc plugin refresh callback is actually the same
+            // method as sign in, so calling it here means that potentially
+            // this can start an actual sign in flow for the user instead of
+            // just trying to refresh the token
+            .REFRESH_TOKEN_CALLBACK(
+              { clientId: this.clientId, issuer: this.issuer },
+              {
+                // Required driver specific stuff
+                version: 0,
+              }
+            );
+        this.token = token;
+        this.oidcPluginSyncedFromLoggerState = 'authenticated';
+        this.oidcPluginLogger.emit('atlas-service-token-refreshed');
+      } catch {
+        // REFRESH_TOKEN_CALLBACK call failed for some reason
+        this.token = null;
+        this.oidcPluginSyncedFromLoggerState = 'error';
+        this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
+      }
+    } catch {
+      // encountered 'mongodb-oidc-plugin:refresh-failed' event, do nothing, we
+      // already have a listener for this event
+    } finally {
+      this.refreshing = false;
+    }
   }
 
   private static async maybeWaitForToken({
