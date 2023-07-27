@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Jul 24 2023.
+This document was automatically generated on Wed Jul 26 2023.
 
 ## List of dependencies
 
@@ -261,7 +261,7 @@ This document was automatically generated on Mon Jul 24 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                            | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                   | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                     | 1.0.0        | Apache-2.0                          |
-| **[electron](#37ddb8ade7c7b63b0fe0f105d7ee6f0e133b657e68375789ca67c77e31004900)**                                      | 23.3.9       | MIT                                 |
+| **[electron](#24cac94df3ead200b9847fbe049109e9e0dcbee7c37d6be2fd16ad61765dbb31)**                                      | 23.3.10      | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                     | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                 | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                  | 3.0.1        | MIT                                 |
@@ -455,7 +455,7 @@ This document was automatically generated on Mon Jul 24 2023.
 | **[mkdirp](#7595a6413eab53a79e87274c9ded4aabe4c22679d8050fe563756cb80adc87a2)**                                        | 0.5.6        | MIT                                 |
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                               | 1.1.0        | MIT                                 |
 | **[moment](#94975b5423311209f3beed9c2c6bb6157f622312a3f8563d507b52e804bf6285)**                                        | 2.29.4       | MIT                                 |
-| **[mongodb-build-info](#b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e)**                            | 1.5.0        | Apache-2.0                          |
+| **[mongodb-build-info](#814d6cd2e9993ca8d1ac8da53989db3720398e7279353cf6269df581e0524dad)**                            | 1.6.2        | Apache-2.0                          |
 | **[mongodb-client-encryption](#eadad9f56a3a6058eb827b4f4628588f400af24d54eedbc1f53d99a454f22936)**                     | 2.8.0        | Apache-2.0                          |
 | **[mongodb-cloud-info](#1e991e2d033d178c86dde59d3aba2727cd6e495a78426c4f452ddabbc43772a9)**                            | 2.0.1        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#ce5b616af8be619c9b55d24d0c177a8d7676deb45415078a03235e37f704ae4c)**                 | 2.6.0        | Apache-2.0                          |
@@ -23232,9 +23232,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="37ddb8ade7c7b63b0fe0f105d7ee6f0e133b657e68375789ca67c77e31004900"></a>
+<a id="24cac94df3ead200b9847fbe049109e9e0dcbee7c37d6be2fd16ad61765dbb31"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 23.3.9)
+### [electron](https://www.npmjs.com/package/electron) (version 23.3.10)
 
 License tags: MIT
 
@@ -30370,9 +30370,9 @@ License files:
       FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
       OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="b490c1243a2cfcd0824757c5a177056f5546e98fb08195481f0e093613d59e0e"></a>
+<a id="814d6cd2e9993ca8d1ac8da53989db3720398e7279353cf6269df581e0524dad"></a>
 
-### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.5.0)
+### [mongodb-build-info](https://www.npmjs.com/package/mongodb-build-info) (version 1.6.2)
 
 License tags: Apache-2.0
 

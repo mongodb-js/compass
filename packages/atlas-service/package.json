@@ -69,7 +69,7 @@
   "dependencies": {
     "@mongodb-js/devtools-connect": "^2.4.0",
     "@mongodb-js/oidc-plugin": "^0.3.0",
-    "electron": "^23.3.9",
+    "electron": "^23.3.10",
     "node-fetch": "^2.6.7"
   }
 }

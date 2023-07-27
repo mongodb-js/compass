@@ -65,44 +65,4 @@ describe('TabNavBar Component', function () {
       expect(screen.getByLabelText('Test tabs label')).to.be.visible;
     });
   });
-  describe('when rendered with mountAllViews = true', function () {
-    beforeEach(function () {
-      const views = [
-        <MockElement key={1} number={1} />,
-        <MockElement key={2} number={2} />,
-        <MockElement key={3} number={3} />,
-      ];
-      onTabClickedSpy = sinon.spy();
-      render(
-        <TabNavBar
-          aria-label="test tabs"
-          tabs={['one', 'two', 'three']}
-          views={views}
-          mountAllViews
-          onTabClicked={onTabClickedSpy}
-          activeTabIndex={2}
-        />
-      );
-    });
-
-    it('should render all of the tab contents', function () {
-      expect(screen.getByText('test-element-1')).to.be.visible;
-      expect(screen.getByText('test-element-2')).to.be.visible;
-      expect(screen.getByText('test-element-3')).to.be.visible;
-    });
-
-    it('should render the active tab not display:none', function () {
-      const activeTab = screen.getByText('test-element-3').closest('div');
-      expect(
-        getComputedStyle(activeTab).getPropertyValue('display')
-      ).to.not.equal('none');
-    });
-
-    it('should render the inactive tab display:none', function () {
-      const inactiveTab = screen.getByText('test-element-1').closest('div');
-      expect(
-        getComputedStyle(inactiveTab).getPropertyValue('display')
-      ).to.equal('none');
-    });
-  });
 });

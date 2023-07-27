@@ -1,7 +1,12 @@
 import { ipcMain, ipcRenderer } from 'electron';
 import type * as plugin from '@mongodb-js/oidc-plugin';
 
-export type UserInfo = unknown;
+export type UserInfo = {
+  firstName: string;
+  lastName: string;
+  primaryEmail: string;
+  login: string;
+};
 
 export type IntrospectInfo = { active: boolean };
 

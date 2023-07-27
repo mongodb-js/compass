@@ -1,8 +1,8 @@
 import type { AtlasService as AtlasServiceMain } from './main';
 import { ipcInvoke } from './util';
 
-export function AtlasService() {
-  return ipcInvoke<
+export class AtlasService {
+  private ipc = ipcInvoke<
     typeof AtlasServiceMain,
     | 'getUserInfo'
     | 'introspect'
@@ -16,4 +16,12 @@ export function AtlasService() {
     'signIn',
     'getQueryFromUserPrompt',
   ]);
+
+  getUserInfo = this.ipc.getUserInfo;
+  introspect = this.ipc.introspect;
+  isAuthenticated = this.ipc.isAuthenticated;
+  getQueryFromUserPrompt = this.ipc.getQueryFromUserPrompt;
+  signIn = this.ipc.signIn;
 }
+
+export type { UserInfo, IntrospectInfo, Token } from './util';
