@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import type { ConnectionInfo } from './connection-info';
 import type { ConnectionSecrets } from './connection-secrets';
 import { mergeSecrets, extractSecrets } from './connection-secrets';
+import { v4 as uuid } from 'uuid';
 
 describe('connection secrets', function () {
   describe('mergeSecrets', function () {
@@ -391,6 +392,63 @@ describe('connection secrets', function () {
         )
       );
       expect(secretsNoFle).to.deep.equal(_.omit(secrets, 'autoEncryption'));
+    });
+
+    context('extracts fle secrets', function () {
+      it('does not extract fle secrets if fleOptions.storeCredentials is false', function () {
+        const id = uuid();
+        const connectionInfo = {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+            fleOptions: {
+              storeCredentials: false,
+              autoEncryption: {
+                keyVaultNamespace: 'db.coll',
+                kmsProviders: {
+                  local: {
+                    key: 'my-key',
+                  },
+                },
+              },
+            },
+          },
+        };
+
+        const { secrets } = extractSecrets(connectionInfo);
+        expect(secrets).to.deep.equal({});
+      });
+      it('extracts fle secrets if fleOptions.storeCredentials is true', function () {
+        const id = uuid();
+        const connectionInfo = {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+            fleOptions: {
+              storeCredentials: true,
+              autoEncryption: {
+                keyVaultNamespace: 'db.coll',
+                kmsProviders: {
+                  local: {
+                    key: 'my-key',
+                  },
+                },
+              },
+            },
+          },
+        };
+
+        const { secrets } = extractSecrets(connectionInfo);
+        expect(secrets).to.deep.equal({
+          autoEncryption: {
+            kmsProviders: {
+              local: {
+                key: 'my-key',
+              },
+            },
+          },
+        });
+      });
     });
   });
 });

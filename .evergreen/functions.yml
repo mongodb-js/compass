@@ -169,6 +169,14 @@ functions:
           set -e
           eval $(.evergreen/print-compass-env.sh)
 
+          # Pre-built binaries for keytar do not support older RHEL versions.
+          # Since we have started importing keytar from top-level scripts in packages,
+          # re-built keytar before the bootstrap process so that it is always usable.
+          if [[ "$IS_RHEL" == "true" ]]; then
+            echo "Rebuilding packages for rhel"
+            npm run node-rebuild
+          fi
+
           # Prepare workspaces in provided scope
           npx lerna run bootstrap \
             --stream \
