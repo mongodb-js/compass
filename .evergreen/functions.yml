@@ -549,7 +549,7 @@ functions:
             npm config list
             echo "Publishing packages as $(npm whoami)"
             git update-index --assume-unchanged .npmrc
-            npm run publish-packages-next
+            bash ".evergreen/retry-with-backoff.sh" npm run publish-packages-next
           fi
 
   generate-vulnerability-report:
