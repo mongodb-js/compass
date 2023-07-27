@@ -1,125 +1,95 @@
 import React from 'react';
-import { render, screen, cleanup, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  within,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import proxyquire from 'proxyquire';
-import type { FavoriteQuery } from '@mongodb-js/compass-query-bar';
-import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
+import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
+import { PipelineStorage } from '@mongodb-js/compass-aggregations';
+import ConnectedList from './index';
+import * as store from './../stores';
 
-import { createProxyquireMockForQueriesAndAggregationsPlugins } from '../../test/mock';
 import { queries, pipelines } from '../../test/fixtures';
+import Sinon from 'sinon';
 
 const DATE = new Date('01/01/2020');
 
 describe('AggregationsQueriesList', function () {
-  // Even though we are mocking dependencies, the code is still processed by
-  // ts-node (we're just not running it) so running this suite takes more time
-  // than is allowed by our default configuration
-  this.timeout(300000);
+  let sandbox: Sinon.SinonSandbox;
+  let favoriteQueryStorageMock: Sinon.SinonMock;
+  let pipelineStorageMock: Sinon.SinonMock;
 
-  afterEach(cleanup);
+  beforeEach(function () {
+    sandbox = Sinon.createSandbox();
+    favoriteQueryStorageMock = sandbox.mock(FavoriteQueryStorage.prototype);
+    pipelineStorageMock = sandbox.mock(PipelineStorage.prototype);
+
+    sandbox.stub(store, 'queryStorage').returns(favoriteQueryStorageMock);
+    sandbox.stub(store, 'pipelineStorage').returns(pipelineStorageMock);
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    cleanup();
+  });
 
   it('should display no saved items when user has no saved queries/aggregations', async function () {
-    const { default: ConnectedList }: any = proxyquire.load('./index', {
-      ...(createProxyquireMockForQueriesAndAggregationsPlugins([], []) as any),
-      // XXX: It's important that the proxyquire required module has the same
-      // instance of react that the code in this scope has, otherwise we will
-      // get a "multiple React instances" error while trying to render the
-      // component
-      react: Object.assign(React, {
-        '@global': true,
-        '@noCallThru': true,
-      }),
-    });
+    favoriteQueryStorageMock.expects('loadAll').resolves([]);
+    pipelineStorageMock.expects('loadAll').resolves([]);
 
     render(<ConnectedList></ConnectedList>);
-
     expect(await screen.findByText('No saved queries yet.')).to.exist;
   });
 
   it('should load queries and display them in the list', async function () {
-    const { default: ConnectedList }: any = proxyquire.load('./index', {
-      ...(createProxyquireMockForQueriesAndAggregationsPlugins(
-        [],
-        [
-          {
-            _id: '123',
-            _name: 'Query',
-            _ns: 'bar.foo',
-            _dateSaved: DATE,
-          } as unknown as FavoriteQuery,
-        ]
-      ) as any),
-      // XXX: It's important that the proxyquire required module has the same
-      // instance of react that the code in this scope has, otherwise we will
-      // get a "multiple React instances" error while trying to render the
-      // component
-      react: Object.assign(React, {
-        '@global': true,
-        '@noCallThru': true,
-      }),
-    });
-
+    favoriteQueryStorageMock.expects('loadAll').resolves([
+      {
+        _id: '123',
+        _name: 'Query',
+        _ns: 'bar.foo',
+        _dateSaved: DATE,
+      },
+    ]);
+    pipelineStorageMock.expects('loadAll').resolves([]);
     render(<ConnectedList></ConnectedList>);
-
     expect(await screen.findByText('Query')).to.exist;
   });
 
   it('should load aggregations and display them in the list', async function () {
-    const { default: ConnectedList }: any = proxyquire.load('./index', {
-      ...(createProxyquireMockForQueriesAndAggregationsPlugins(
-        [
-          {
-            id: '123',
-            name: 'Aggregation',
-            namespace: 'foo.bar',
-            lastModified: 0,
-          } as StoredPipeline,
-        ],
-        []
-      ) as any),
-      // XXX: It's important that the proxyquire required module has the same
-      // instance of react that the code in this scope has, otherwise we will
-      // get a "multiple React instances" error while trying to render the
-      // component
-      react: Object.assign(React, {
-        '@global': true,
-        '@noCallThru': true,
-      }),
-    });
-
+    favoriteQueryStorageMock.expects('loadAll').resolves([]);
+    pipelineStorageMock.expects('loadAll').resolves([
+      {
+        id: '123',
+        name: 'Aggregation',
+        namespace: 'foo.bar',
+        lastModified: 0,
+      },
+    ]);
     render(<ConnectedList></ConnectedList>);
-
     expect(await screen.findByText('Aggregation')).to.exist;
   });
 
   describe('copy to clipboard', function () {
     it('should copy query to the clipboard', async function () {
-      const { default: ConnectedList }: any = proxyquire.load('./index', {
-        ...(createProxyquireMockForQueriesAndAggregationsPlugins(
-          [],
-          [
-            {
-              _id: '123',
-              _name: 'My Query',
-              _ns: 'bar.foo',
-              _dateSaved: DATE,
-              filter: { foo: 'bar' },
-              sort: { bar: -1 },
-            } as unknown as FavoriteQuery,
-          ]
-        ) as any),
-        // XXX: It's important that the proxyquire required module has the same
-        // instance of react that the code in this scope has, otherwise we will
-        // get a "multiple React instances" error while trying to render the
-        // component
-        react: Object.assign(React, {
-          '@global': true,
-          '@noCallThru': true,
-        }),
-      });
+      favoriteQueryStorageMock.expects('loadAll').resolves([
+        {
+          _id: '123',
+          _name: 'My Query',
+          _ns: 'bar.foo',
+          _dateSaved: DATE,
+          filter: { foo: 'bar' },
+          sort: { bar: -1 },
+        },
+      ]);
+      pipelineStorageMock.expects('loadAll').resolves([]);
 
       render(<ConnectedList></ConnectedList>);
+
+      await waitFor(async () => await screen.findByText('My Query'));
 
       const card = await screen.findByRole('gridcell');
 
@@ -143,36 +113,26 @@ describe('AggregationsQueriesList', function () {
     });
 
     it('should copy aggregation to the clipboard', async function () {
-      const { default: ConnectedList }: any = proxyquire.load('./index', {
-        ...(createProxyquireMockForQueriesAndAggregationsPlugins(
-          [
-            {
-              id: '123',
-              name: 'My Aggregation',
-              namespace: 'foo.bar',
-              lastModified: 0,
-              pipelineText: `[
+      favoriteQueryStorageMock.expects('loadAll').resolves([]);
+      pipelineStorageMock.expects('loadAll').resolves([
+        {
+          id: '123',
+          name: 'My Aggregation',
+          namespace: 'foo.bar',
+          lastModified: 0,
+          pipelineText: `[
   {
     $match: {
       "field": 42
     }
   }
 ]`,
-            },
-          ],
-          []
-        ) as any),
-        // XXX: It's important that the proxyquire required module has the same
-        // instance of react that the code in this scope has, otherwise we will
-        // get a "multiple React instances" error while trying to render the
-        // component
-        react: Object.assign(React, {
-          '@global': true,
-          '@noCallThru': true,
-        }),
-      });
+        },
+      ]);
 
       render(<ConnectedList></ConnectedList>);
+
+      await waitFor(async () => await screen.findByText('My Aggregation'));
 
       const card = await screen.findByRole('gridcell');
 
@@ -193,21 +153,12 @@ describe('AggregationsQueriesList', function () {
 
   context('with fixtures', function () {
     beforeEach(async function () {
-      const { default: ConnectedList }: any = proxyquire.load('./index', {
-        ...(createProxyquireMockForQueriesAndAggregationsPlugins(
-          pipelines.map((item) => (item as any).aggregation),
-          queries.map((item) => (item as any).query)
-        ) as any),
-        // XXX: It's important that the proxyquire required module has the same
-        // instance of react that the code in this scope has, otherwise we will
-        // get a "multiple React instances" error while trying to render the
-        // component
-        react: Object.assign(React, {
-          '@global': true,
-          '@noCallThru': true,
-        }),
-      });
-
+      favoriteQueryStorageMock
+        .expects('loadAll')
+        .resolves(queries.map((item) => (item as any).query));
+      pipelineStorageMock
+        .expects('loadAll')
+        .resolves(pipelines.map((item) => (item as any).aggregation));
       render(<ConnectedList></ConnectedList>);
 
       // Wait for the items to "load"
@@ -252,6 +203,15 @@ describe('AggregationsQueriesList', function () {
 
     it('should rename an item', async function () {
       const item = queries[0];
+
+      const updatedName = 'the updated name';
+
+      // The first item is a query, so we are mocking that
+      favoriteQueryStorageMock.expects('updateAttributes').resolves({
+        ...(item as any).query,
+        _name: updatedName,
+      });
+
       const card = document.querySelector<HTMLElement>(
         `[data-id="${item.id}"]`
       );
@@ -266,10 +226,7 @@ describe('AggregationsQueriesList', function () {
 
       const modal = screen.getByTestId('edit-item-modal');
 
-      const title = new RegExp(
-        `rename ${item.type === 'query' ? 'query' : 'aggregation'}`,
-        'i'
-      );
+      const title = new RegExp('rename query', 'i');
       expect(within(modal).getByText(title), 'show title').to.exist;
 
       const nameInput = within(modal).getByRole<HTMLInputElement>('textbox', {
@@ -294,17 +251,17 @@ describe('AggregationsQueriesList', function () {
         'submit button is disabled when field value is empty'
       ).to.be.true;
 
-      userEvent.type(nameInput, 'the updated name');
+      userEvent.type(nameInput, updatedName);
       userEvent.click(
         within(modal).getByRole<HTMLButtonElement>('button', {
           name: /update/i,
         })
       );
 
-      await Promise.resolve();
-
-      expect(screen.queryByText(item.name)).to.not.exist;
-      expect(screen.getByText('the updated name')).to.exist;
+      await waitFor(() => {
+        expect(screen.queryByText(item.name)).to.not.exist;
+        expect(screen.getByText(updatedName)).to.exist;
+      });
     });
 
     it('should not update an item if rename was not confirmed', async function () {

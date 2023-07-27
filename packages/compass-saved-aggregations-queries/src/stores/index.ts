@@ -18,8 +18,9 @@ import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { basepath } = getStoragePaths() ?? {};
-const queryStorage = new FavoriteQueryStorage(basepath);
-const pipelineStorage = new PipelineStorage();
+// Exporting so that they can be stubed/spied in tests
+export const queryStorage = new FavoriteQueryStorage(basepath);
+export const pipelineStorage = new PipelineStorage();
 
 const _store = createStore(
   combineReducers({
