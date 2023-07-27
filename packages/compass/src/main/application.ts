@@ -90,7 +90,7 @@ class CompassApplication {
 
     AtlasService.init();
 
-    await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
+    this.setupAutoUpdate();
     await setupCSFLELibrary();
     setupTheme();
     this.setupJavaScriptArguments();
@@ -105,12 +105,6 @@ class CompassApplication {
     globalPreferences: ParsedGlobalPreferencesResult
   ): Promise<void> {
     return (this.initPromise ??= this._init(mode, globalPreferences));
-  }
-
-  private static async setupSecureStore(): Promise<void> {
-    // importing storage-mixin attaches secure-store ipc listeners to handle
-    // keychain requests from the renderer processes
-    await import('storage-mixin');
   }
 
   private static setupJavaScriptArguments(): void {
