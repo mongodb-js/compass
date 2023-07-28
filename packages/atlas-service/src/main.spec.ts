@@ -2,9 +2,16 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { AtlasService, throwIfNotOk } from './main';
 import { promisify } from 'util';
+import type { EventEmitter } from 'events';
 import { once } from 'events';
 
 const wait = promisify(setTimeout);
+
+function getListenerCount(emitter: EventEmitter) {
+  return emitter.eventNames().reduce((acc, name) => {
+    return acc + emitter.listenerCount(name);
+  }, 0);
+}
 
 describe('AtlasServiceMain', function () {
   const sandbox = Sinon.createSandbox();
@@ -446,6 +453,19 @@ describe('AtlasServiceMain', function () {
           })(),
         ]);
       });
+
+      it('should clean up listeners', async function () {
+        const logger = AtlasService['oidcPluginLogger'] as EventEmitter;
+        const initialCount = getListenerCount(logger);
+        AtlasService['oidcPluginSyncedFromLoggerState'] = 'expired';
+        const promise = AtlasService['maybeWaitForToken']();
+        const inflightCount = getListenerCount(logger);
+        // Sanity check, we added a bunch of listeners
+        expect(inflightCount > initialCount).to.eq(true);
+        logger.emit('atlas-service-token-refreshed');
+        await promise;
+        expect(getListenerCount(logger)).to.eq(initialCount);
+      });
     });
   });
 
@@ -471,6 +491,9 @@ describe('AtlasServiceMain', function () {
     });
 
     it('should refresh token in atlas service state on `mongodb-oidc-plugin:refresh-succeeded` event', async function () {
+      const initialListenerCount = getListenerCount(
+        mockOidcPlugin.logger as EventEmitter
+      );
       // Checking that multiple events while we are refreshing don't cause
       // multiple calls to REFRESH_TOKEN_CALLBACK
       mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-succeeded');
@@ -498,6 +521,10 @@ describe('AtlasServiceMain', function () {
       expect(AtlasService)
         .to.have.property('token')
         .deep.eq({ accessToken: '4321' });
+      // Checking that we cleaned up all listeners
+      expect(getListenerCount(mockOidcPlugin.logger as EventEmitter)).to.eq(
+        initialListenerCount
+      );
     });
   });
 });
