@@ -1,7 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { RootState } from '../../stores/query-bar-store';
-import { signIn, closeSignInModal } from '../../stores/atlas-signin-reducer';
 import {
   Badge,
   Button,
@@ -13,7 +11,9 @@ import {
   cx,
   spacing,
 } from '@mongodb-js/compass-components';
-import { AISignInImageBanner } from './ai-sign-in-banner-image';
+import { AISignInImageBanner } from './ai-signin-banner-image';
+import type { AtlasSignInState } from '../store/atlas-signin-reducer';
+import { closeSignInModal, signIn } from '../store/atlas-signin-reducer';
 
 type SignInModalProps = {
   isSignInModalVisible?: boolean;
@@ -120,10 +120,10 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
 };
 
 export default connect(
-  (state: RootState) => {
+  (state: AtlasSignInState) => {
     return {
-      isSignInModalVisible: state.atlasSignIn.isModalOpen,
-      isSignInInProgress: state.atlasSignIn.state === 'in-progress',
+      isSignInModalVisible: state.isModalOpen,
+      isSignInInProgress: state.state === 'in-progress',
     };
   },
   { onSignInModalClose: closeSignInModal, onSignInClick: signIn }

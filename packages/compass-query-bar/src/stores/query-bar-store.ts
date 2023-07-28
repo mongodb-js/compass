@@ -26,9 +26,6 @@ import {
 } from '../utils';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
-import atlasSignInReducer, {
-  getInitialSignInState,
-} from './atlas-signin-reducer';
 
 const { basepath } = getStoragePaths() || {};
 
@@ -50,13 +47,11 @@ export type QueryBarStoreOptions = {
   basepath?: string;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
-  restoreSignInStateOnCreate?: boolean;
 };
 
 export const rootQueryBarReducer = combineReducers({
   queryBar: queryBarReducer,
   aiQuery: aiQueryReducer,
-  atlasSignIn: atlasSignInReducer,
 });
 
 export type RootState = ReturnType<typeof rootQueryBarReducer>;
@@ -130,16 +125,9 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
 }
 
 export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
-  const { localAppRegistry, restoreSignInStateOnCreate = true } = options;
+  const { localAppRegistry } = options;
 
   const store = createStore(options);
-
-  if (restoreSignInStateOnCreate) {
-    // Every tab will have its own instance of the store, we are kicking off sign
-    // in state restorating right when the tab is created to make sure users will
-    // not see the opt in modal if they are already signed in
-    void store.dispatch(getInitialSignInState());
-  }
 
   localAppRegistry?.on('fields-changed', (fields) => {
     store.dispatch(changeSchemaFields(fields.autocompleteFields));

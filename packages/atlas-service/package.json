@@ -67,9 +67,14 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@mongodb-js/compass-components": "^1.10.0",
     "@mongodb-js/devtools-connect": "^2.4.0",
     "@mongodb-js/oidc-plugin": "^0.3.0",
     "electron": "^23.3.10",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "react": "^17.0.2",
+    "react-redux": "^8.0.5",
+    "redux": "^4.2.1",
+    "redux-thunk": "^2.4.1"
   }
 }
