@@ -181,24 +181,33 @@ export class AtlasService {
     }
     this.refreshing = true;
     try {
-      await Promise.race([
-        // When oidc-plugin logged that token was refreshed, the token is not
-        // actually refreshed yet in the plugin state and so calling `REFRESH_TOKEN_CALLBACK`
-        // causes weird behavior that actually opens the browser again, to work
-        // around that we wait for the state update event in addition. We can't
-        // guarantee that this event will be emitted for our particular state as
-        // this is not something oidc-plugin exposes, but we can ignore this for
-        // now as only one auth state is created in this instance of oidc-plugin
-        once(this.oidcPluginLogger, 'mongodb-oidc-plugin:state-updated'),
-        // At the same time refresh can still fail at this stage, so to avoid
-        // refresh being stuck, we also wait for refresh-failed event and throw
-        // if it happens to avoid calling `REFRESH_TOKEN_CALLBACK`
-        once(this.oidcPluginLogger, 'mongodb-oidc-plugin:refresh-failed').then(
-          () => {
+      // We expect only one promise below to resolve, to clean up listeners that
+      // never fired we are setting up an abort controller
+      const listenerController = new AbortController();
+      try {
+        await Promise.race([
+          // When oidc-plugin logged that token was refreshed, the token is not
+          // actually refreshed yet in the plugin state and so calling `REFRESH_TOKEN_CALLBACK`
+          // causes weird behavior that actually opens the browser again, to work
+          // around that we wait for the state update event in addition. We can't
+          // guarantee that this event will be emitted for our particular state as
+          // this is not something oidc-plugin exposes, but we can ignore this for
+          // now as only one auth state is created in this instance of oidc-plugin
+          once(this.oidcPluginLogger, 'mongodb-oidc-plugin:state-updated', {
+            signal: listenerController.signal,
+          }),
+          // At the same time refresh can still fail at this stage, so to avoid
+          // refresh being stuck, we also wait for refresh-failed event and throw
+          // if it happens to avoid calling `REFRESH_TOKEN_CALLBACK`
+          once(this.oidcPluginLogger, 'mongodb-oidc-plugin:refresh-failed', {
+            signal: listenerController.signal,
+          }).then(() => {
             throw new Error('Refresh failed');
-          }
-        ),
-      ]);
+          }),
+        ]);
+      } finally {
+        listenerController.abort();
+      }
       try {
         const token =
           await this.plugin.mongoClientOptions.authMechanismProperties
@@ -240,16 +249,30 @@ export class AtlasService {
     // is trying to refresh the token automatically, we can wait for this process
     // to finish before proceeding with a request
     if (this.oidcPluginSyncedFromLoggerState === 'expired') {
-      await Promise.race([
-        // We are using our own events here and not oidc plugin ones because
-        // after plugin logged that token was refreshed, we still need to run
-        // REFRESH_TOKEN_CALLBACK to get the actual token value in the state
-        once(this.oidcPluginLogger, 'atlas-service-token-refreshed'),
-        once(this.oidcPluginLogger, 'atlas-service-token-refresh-failed'),
-        new Promise((resolve) => {
-          signal?.addEventListener('abort', resolve, { once: true });
-        }),
-      ]);
+      // We expect only one promise below to resolve, to clean up listeners that
+      // never fired we are setting up an abort controller
+      const listenerController = new AbortController();
+      try {
+        await Promise.race([
+          // We are using our own events here and not oidc plugin ones because
+          // after plugin logged that token was refreshed, we still need to run
+          // REFRESH_TOKEN_CALLBACK to get the actual token value in the state
+          once(this.oidcPluginLogger, 'atlas-service-token-refreshed', {
+            signal: listenerController.signal,
+          }),
+          once(this.oidcPluginLogger, 'atlas-service-token-refresh-failed', {
+            signal: listenerController.signal,
+          }),
+          signal
+            ? once(signal, 'abort', { signal: listenerController.signal })
+            : new Promise(() => {
+                // This should just never resolve if no signal was passed to
+                // this method
+              }),
+        ]);
+      } finally {
+        listenerController.abort();
+      }
     }
   }
 
