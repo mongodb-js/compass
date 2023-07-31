@@ -129,6 +129,7 @@ describe('importJSON', function () {
             writeConcernErrors: [],
             writeErrors: [],
           },
+          hasUnboundArray: false,
         });
 
         const docs = await dataService.find(ns, {});
@@ -198,6 +199,7 @@ describe('importJSON', function () {
         writeConcernErrors: [],
         writeErrors: [],
       },
+      hasUnboundArray: false,
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -247,6 +249,7 @@ describe('importJSON', function () {
         writeConcernErrors: [],
         writeErrors: [],
       },
+      hasUnboundArray: false,
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -617,6 +620,7 @@ describe('importJSON', function () {
         writeConcernErrors: [],
         writeErrors: [],
       },
+      hasUnboundArray: false,
     });
   });
 

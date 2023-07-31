@@ -126,6 +126,7 @@ describe('importCSV', function () {
             writeConcernErrors: [],
             writeErrors: [],
           },
+          hasUnboundArray: false,
         });
 
         expect(progressCallback.callCount).to.equal(totalRows);
@@ -276,6 +277,7 @@ describe('importCSV', function () {
             writeConcernErrors: [],
             writeErrors: [],
           },
+          hasUnboundArray: false,
         });
 
         const docs = await dataService.find(
@@ -367,6 +369,7 @@ describe('importCSV', function () {
         writeConcernErrors: [],
         writeErrors: [],
       },
+      hasUnboundArray: false,
     });
 
     const docs = await dataService.find(
@@ -439,6 +442,7 @@ describe('importCSV', function () {
         writeConcernErrors: [],
         writeErrors: [],
       },
+      hasUnboundArray: false,
     });
 
     const docs: any[] = await dataService.find(ns, {});
@@ -888,6 +892,7 @@ describe('importCSV', function () {
         writeConcernErrors: [],
         writeErrors: [],
       },
+      hasUnboundArray: false,
     });
   });
 
