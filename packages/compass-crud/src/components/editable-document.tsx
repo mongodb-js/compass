@@ -2,12 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
-import {
-  DocumentList,
-  PerformanceSignals,
-} from '@mongodb-js/compass-components';
+import { DocumentList } from '@mongodb-js/compass-components';
 import type { CrudActions } from '../stores/crud-store';
 import { withPreferences } from 'compass-preferences-model';
+import { getInsightsForDocument } from '../utils';
 
 /**
  * The base class.
@@ -226,8 +224,8 @@ class EditableDocument extends React.Component<
           onExpand={this.handleExpandAll.bind(this)}
           expanded={!!this.state.expandAll}
           insights={
-            this.props.showInsights && (this.props.doc?.size ?? 0) > 10_000_000
-              ? PerformanceSignals.get('bloated-document')
+            this.props.showInsights
+              ? getInsightsForDocument(this.props.doc)
               : undefined
           }
         />

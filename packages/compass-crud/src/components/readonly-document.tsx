@@ -1,12 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  DocumentList,
-  PerformanceSignals,
-} from '@mongodb-js/compass-components';
+import { DocumentList } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model';
+import { getInsightsForDocument } from '../utils';
 type BSONObject = TypeCastMap['Object'];
 
 /**
@@ -72,8 +70,8 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
           this.props.openInsertDocumentDialog ? this.handleClone : undefined
         }
         insights={
-          this.props.showInsights && (this.props.doc?.size ?? 0) > 10_000_000
-            ? PerformanceSignals.get('bloated-document')
+          this.props.showInsights
+            ? getInsightsForDocument(this.props.doc)
             : undefined
         }
       />
