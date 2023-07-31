@@ -14,7 +14,7 @@ describe('aiQueryReducer', function () {
   const sandbox = Sinon.createSandbox();
 
   afterEach(function () {
-    sandbox.resetHistory();
+    sandbox.reset();
   });
 
   let tmpDir: string;
@@ -34,6 +34,7 @@ describe('aiQueryReducer', function () {
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasService = {
+          isAuthenticated: sandbox.stub().resolves(true),
           getQueryFromUserPrompt: sandbox
             .stub()
             .resolves({ content: { query: { _id: 1 } } }),
@@ -63,9 +64,13 @@ describe('aiQueryReducer', function () {
         expect(
           mockAtlasService.getQueryFromUserPrompt.getCall(0)
         ).to.have.nested.property('args[0].collectionName', 'collection');
-        expect(mockAtlasService.getQueryFromUserPrompt.getCall(0))
-          .to.have.nested.property('args[0].sampleDocuments')
-          .deep.eq([{ _id: 42 }]);
+        expect(
+          mockAtlasService.getQueryFromUserPrompt.getCall(0)
+        ).to.have.nested.property('args[0].databaseName', 'database');
+        // Sample documents are currently disabled.
+        expect(
+          mockAtlasService.getQueryFromUserPrompt.getCall(0)
+        ).to.not.have.nested.property('args[0].sampleDocuments');
 
         expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
@@ -76,6 +81,7 @@ describe('aiQueryReducer', function () {
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
         const mockAtlasService = {
+          isAuthenticated: sandbox.stub().resolves(true),
           getQueryFromUserPrompt: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),

@@ -25,6 +25,7 @@ function getMockConnectionStorage(
     loadAll: () => {
       return Promise.resolve(mockConnections);
     },
+    hasLegacyConnections: () => Promise.resolve(false),
     save: () => Promise.resolve(),
     delete: () => Promise.resolve(),
     load: (id: string) =>
@@ -443,5 +444,22 @@ describe('Connections Component', function () {
         });
       });
     });
+  });
+
+  it('shows toast when user has any legacy connection', async function () {
+    const mockStorage = getMockConnectionStorage([]);
+    sinon.stub(mockStorage, 'hasLegacyConnections').resolves(true);
+    render(
+      <ToastArea>
+        <Connections
+          onConnected={onConnectedSpy}
+          connectionStorage={mockStorage}
+          appName="Test App Name"
+        />
+      </ToastArea>
+    );
+    await waitFor(
+      () => expect(screen.getByTestId('toast-legacy-connections')).to.exist
+    );
   });
 });

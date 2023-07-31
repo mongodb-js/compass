@@ -344,7 +344,7 @@ export function useConnections({
   }
 
   async function removeConnection(connectionInfo: ConnectionInfo) {
-    await connectionStorage.delete(connectionInfo);
+    await connectionStorage.delete(connectionInfo.id);
     dispatch({
       type: 'set-connections',
       connections: connections.filter((conn) => conn.id !== connectionInfo.id),
@@ -437,7 +437,7 @@ export function useConnections({
           recentConnections.length >= MAX_RECENT_CONNECTIONS_LENGTH
         ) {
           await connectionStorage.delete(
-            recentConnections[recentConnections.length - 1]
+            recentConnections[recentConnections.length - 1].id
           );
         }
       } catch (err) {
@@ -700,7 +700,7 @@ export function useConnections({
         return !conn.favorite;
       });
       await Promise.all(
-        recentConnections.map((conn) => connectionStorage.delete(conn))
+        recentConnections.map((conn) => connectionStorage.delete(conn.id))
       );
       dispatch({
         type: 'set-connections',

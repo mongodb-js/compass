@@ -32,6 +32,9 @@ declare module 'process' {
         HADRON_METRICS_SEGMENT_API_KEY?: string;
         HADRON_METRICS_SEGMENT_HOST?: string;
         HADRON_AUTO_UPDATE_ENDPOINT: string;
+        COMPASS_ATLAS_SERVICE_BASE_URL?: string;
+        COMPASS_CLIENT_ID?: string;
+        COMPASS_OIDC_ISSUER?: string;
       }
     }
   }

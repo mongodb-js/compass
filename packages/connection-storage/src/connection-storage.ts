@@ -1,67 +1,132 @@
-import type { ConnectionInfo } from '../../connection-storage/src/connection-info';
-
+import { join } from 'path';
 import { validate as uuidValidate } from 'uuid';
-import type { LegacyConnectionModel } from './legacy/legacy-connection-model';
-import {
-  convertConnectionInfoToModel,
-  convertConnectionModelToInfo,
-} from './legacy/legacy-connection-model';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
+import fs from 'fs/promises';
+import keytar from 'keytar';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
+import type { ConnectionInfo } from './connection-info';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import {
+  type ConnectionSecrets,
+  mergeSecrets,
+  extractSecrets,
+} from './connection-secrets';
+import { getKeytarServiceName, deleteCompassAppNameParam } from './utils';
+
+const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 export class ConnectionStorage {
-  /**
-   * Loads all the ConnectionInfo currently stored.
-   *
-   * @returns Promise<ConnectionInfo[]>
-   */
-  async loadAll(): Promise<ConnectionInfo[]> {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { ConnectionCollection } = require('mongodb-connection-model');
-    const connectionCollection = new ConnectionCollection();
-    const fetchConnectionModels = promisifyAmpersandMethod(
-      connectionCollection.fetch.bind(connectionCollection)
+  private readonly folder = 'Connections';
+  private readonly keytarServiceName: string;
+
+  constructor(protected readonly path: string = '') {
+    this.keytarServiceName = getKeytarServiceName();
+  }
+
+  private getFolderPath() {
+    return join(this.path, this.folder);
+  }
+
+  private getFilePath(id: string) {
+    return join(this.getFolderPath(), `${id}.json`);
+  }
+
+  private mapStoredConnectionToConnectionInfo(
+    storedConnectionInfo: ConnectionInfo,
+    secrets?: ConnectionSecrets
+  ): ConnectionInfo {
+    const connectionInfo = mergeSecrets(storedConnectionInfo, secrets);
+    if (connectionInfo.lastUsed) {
+      connectionInfo.lastUsed = new Date(connectionInfo.lastUsed);
+    }
+    return deleteCompassAppNameParam(connectionInfo);
+  }
+
+  private async getKeytarCredentials() {
+    if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
+      return {};
+    }
+    try {
+      const credentials = await keytar.findCredentials(this.keytarServiceName);
+      return Object.fromEntries(
+        credentials.map(({ account, password }) => [
+          account,
+          JSON.parse(password).secrets ?? {},
+        ])
+      ) as Record<string, ConnectionSecrets>;
+    } catch (e) {
+      log.error(
+        mongoLogId(1_001_000_201),
+        'Connection Storage',
+        'Failed to load secrets from keychain',
+        { message: (e as Error).message }
+      );
+      return {};
+    }
+  }
+
+  private async getConnections(): Promise<any[]> {
+    const connectionIds = (await fs.readdir(this.getFolderPath()))
+      .filter((file) => file.endsWith('.json'))
+      .map((file) => file.replace('.json', ''));
+
+    const data = await Promise.all(
+      connectionIds.map(async (id) => {
+        try {
+          return JSON.parse(await fs.readFile(this.getFilePath(id), 'utf8'));
+        } catch (e) {
+          log.error(
+            mongoLogId(1_001_000_200),
+            'Connection Storage',
+            'Failed to parse connection',
+            { message: (e as Error).message, connectionId: id }
+          );
+          return undefined;
+        }
+      })
     );
+    return data.filter(Boolean);
+  }
+
+  async hasLegacyConnections() {
+    return (
+      (await this.getConnections()).filter((x) => !x.connectionInfo).length > 0
+    );
+  }
+
+  async loadAll(): Promise<ConnectionInfo[]> {
+    // Ensure folder exists
+    await fs.mkdir(this.getFolderPath(), { recursive: true });
 
     try {
-      await fetchConnectionModels();
+      const [connections, secrets] = await Promise.all([
+        this.getConnections(),
+        this.getKeytarCredentials(),
+      ]);
+      return (
+        connections
+          // Ignore legacy connections and make sure connection has a connection string.
+          .filter(
+            (x: { connectionInfo?: ConnectionInfo }) =>
+              x.connectionInfo?.connectionOptions?.connectionString
+          )
+          .map(({ connectionInfo }: { connectionInfo: ConnectionInfo }) =>
+            this.mapStoredConnectionToConnectionInfo(
+              connectionInfo,
+              secrets[connectionInfo.id]
+            )
+          )
+      );
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_101),
         'Connection Storage',
-        'Failed to load connection, error while fetching models',
+        'Failed to load connections',
         { message: (err as Error).message }
       );
-
       return [];
     }
-
-    return connectionCollection
-      .map((model: LegacyConnectionModel) => {
-        try {
-          return convertConnectionModelToInfo(model);
-        } catch (err) {
-          log.error(
-            mongoLogId(1_001_000_102),
-            'Connection Storage',
-            'Failed to load connection, error while converting from model',
-            { message: (err as Error).message }
-          );
-        }
-      })
-      .filter(Boolean);
   }
 
-  /**
-   * Inserts or replaces a ConnectionInfo object in the storage.
-   *
-   * The ConnectionInfo object must have an id set to a string
-   * matching the uuid format.
-   *
-   * @param connectionInfo - The ConnectionInfo object to be saved.
-   */
   async save(connectionInfo: ConnectionInfo): Promise<void> {
     try {
       if (!connectionInfo.id) {
@@ -72,14 +137,45 @@ export class ConnectionStorage {
         throw new Error('id must be a uuid');
       }
 
-      const model = await convertConnectionInfoToModel(connectionInfo);
-      await new Promise((resolve, reject) => {
-        model.save(undefined, {
-          success: resolve,
-          error: reject,
-          validate: false,
+      if (!connectionInfo.connectionOptions.connectionString) {
+        throw new Error('Connection string is required.');
+      }
+
+      // While testing, we don't use keychain to store secrets
+      if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
+        return await fs.writeFile(
+          this.getFilePath(connectionInfo.id),
+          JSON.stringify({ connectionInfo }, null, 2),
+          'utf-8'
+        );
+      }
+      const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
+        extractSecrets(connectionInfo);
+      await fs.writeFile(
+        this.getFilePath(connectionInfo.id),
+        JSON.stringify(
+          {
+            connectionInfo: connectionInfoWithoutSecrets,
+          },
+          null,
+          2
+        ),
+        'utf-8'
+      );
+      await keytar
+        .setPassword(
+          this.keytarServiceName,
+          connectionInfo.id,
+          JSON.stringify({ secrets }, null, 2)
+        )
+        .catch((e) => {
+          log.error(
+            mongoLogId(1_001_000_202),
+            'Connection Storage',
+            'Failed to save secrets to keychain',
+            { message: (e as Error).message }
+          );
         });
-      });
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_103),
@@ -92,27 +188,24 @@ export class ConnectionStorage {
     }
   }
 
-  /**
-   * Deletes a ConnectionInfo object from the storage.
-   *
-   * If the ConnectionInfo does not have an id, the operation will
-   * ignore and return.
-   *
-   * Trying to remove a ConnectionInfo that is not stored has no effect
-   * and won't throw an exception.
-   *
-   * @param connectionInfo - The ConnectionInfo object to be deleted.
-   */
-  async delete(connectionInfo: ConnectionInfo): Promise<void> {
-    if (!connectionInfo.id) {
-      // don't throw attempting to delete a connection
-      // that was never saved.
+  async delete(id?: string): Promise<void> {
+    if (!id) {
       return;
     }
 
     try {
-      const model = await convertConnectionInfoToModel(connectionInfo);
-      model.destroy();
+      await fs.unlink(this.getFilePath(id));
+      if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
+        return;
+      }
+      await keytar.deletePassword(this.keytarServiceName, id).catch((e) => {
+        log.error(
+          mongoLogId(1_001_000_203),
+          'Connection Storage',
+          'Failed to delete secrets from keychain',
+          { message: (e as Error).message }
+        );
+      });
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_104),
@@ -125,24 +218,11 @@ export class ConnectionStorage {
     }
   }
 
-  /**
-   * Fetch one ConnectionInfo.
-   *
-   * @param {string} id Id of the ConnectionInfo to fetch
-   */
   async load(id?: string): Promise<ConnectionInfo | undefined> {
     if (!id) {
       return undefined;
     }
-
-    // model.fetch doesn't seem to fail or return any useful info
-    // to determine if the model exists or not on disk
-    // this is why here we have to re-load all the connections in
-    // in order to ensure we can return undefined for a connection id
-    // that does not exist.
-
     const connections = await this.loadAll();
-
     return connections.find((connection) => id === connection.id);
   }
 }

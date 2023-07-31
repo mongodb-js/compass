@@ -38,6 +38,7 @@ import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
+import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -503,6 +504,7 @@ function ThemedHome(
               </ToastArea>
             </ConfirmationModalArea>
           </div>
+          <AtlasSignIn></AtlasSignIn>
         </Body>
       </GuideCueProvider>
     </LeafyGreenProvider>

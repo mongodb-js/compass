@@ -72,7 +72,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker
 - [**mongodb-collection-model**](packages/collection-model): MongoDB collection model
-- [**mongodb-connection-model**](packages/connection-model): MongoDB connection model
 - [**mongodb-data-service**](packages/data-service): MongoDB Data Service
 - [**mongodb-database-model**](packages/database-model): MongoDB database model
 - [**mongodb-explain-compat**](packages/mongodb-explain-compat): Convert mongodb SBE explain output to 4.4 explain output

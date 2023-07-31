@@ -1,4 +1,4 @@
-import { mkdtempSync, rmdirSync } from 'fs';
+import { mkdtempSync, rmdirSync, existsSync, readFileSync } from 'fs';
 import path from 'path';
 import os from 'os';
 import { UserStorage, StoragePreferences, type User } from './storage';
@@ -44,12 +44,54 @@ describe('storage', function () {
   });
 
   describe('StoragePreferences', function () {
-    before(function () {
+    const defaultPreferences = {
+      showedNetworkOptIn: true,
+    } as unknown as UserPreferences;
+    beforeEach(function () {
       tmpDir = mkdtempSync(path.join(os.tmpdir()));
     });
 
-    after(function () {
+    afterEach(function () {
       rmdirSync(tmpDir, { recursive: true });
+    });
+
+    it('sets up the storage', async function () {
+      // When user starts compass first time, it creates AppPreferences folder with
+      // General.json to store default preferences.
+
+      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+
+      const preferencesDir = path.join(tmpDir, 'AppPreferences');
+      const preferencesFile = path.join(
+        tmpDir,
+        'AppPreferences',
+        'General.json'
+      );
+
+      expect(existsSync(preferencesDir)).to.be.false;
+      expect(existsSync(preferencesFile)).to.be.false;
+
+      await storage.setup();
+
+      expect(existsSync(preferencesDir)).to.be.true;
+      expect(existsSync(preferencesFile)).to.be.true;
+      expect(
+        JSON.parse(readFileSync(preferencesFile).toString())
+      ).to.deep.equal(defaultPreferences);
+    });
+
+    it('updates preferences', async function () {
+      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+      await storage.setup();
+
+      await storage.updatePreferences({ currentUserId: '123456789' });
+
+      const newPreferences = storage.getPreferences();
+
+      expect(newPreferences).to.deep.equal({
+        ...defaultPreferences,
+        currentUserId: '123456789',
+      });
     });
 
     it('will strip unknown prefs', async function () {
