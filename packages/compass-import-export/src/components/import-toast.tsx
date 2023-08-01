@@ -122,7 +122,7 @@ export function showUnboundArraySignalToast({
   onReviewDocumentsClick?: () => void;
 }) {
   openToast(bloatedDocumentSignalToastId, {
-    title: 'Unbounded array(s) detected',
+    title: 'Large array detected',
     description: (
       <>
         <Body as="span">
