@@ -29,13 +29,13 @@ const actionsGroupItemSeparator = css({
 });
 
 const actionsGroupIdle = css({
-  '& > button': {
+  '& > [data-action-item]': {
     display: 'none',
   },
 });
 
 const actionsGroupHovered = css({
-  '& > button': {
+  '& > [data-action-item]': {
     display: 'block',
   },
 });
@@ -135,11 +135,15 @@ const DocumentActionsGroup: React.FunctionComponent<
           data-testid="expand-document-button"
           onClick={onExpand}
           className={actionsGroupItem}
+          data-action-item
         ></Button>
       )}
       <span className={actionsGroupItemSeparator}></span>
       {insights && (
-        <div className={cx(actionsGroupItem, actionsGroupSignalPopover)}>
+        <div
+          className={cx(actionsGroupItem, actionsGroupSignalPopover)}
+          data-action-item
+        >
           <SignalPopover
             signals={insights}
             onPopoverOpenChange={setSignalOpened}
@@ -155,6 +159,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           data-testid="edit-document-button"
           onClick={onEdit}
           className={actionsGroupItem}
+          data-action-item
         ></Button>
       )}
       {onCopy && (
@@ -162,7 +167,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           open={showCopyButtonTooltip}
           trigger={({ children }) => {
             return (
-              <div>
+              <div data-action-item>
                 <Button
                   size="xsmall"
                   rightGlyph={<Icon role="presentation" glyph="Copy"></Icon>}
@@ -193,6 +198,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           data-testid="clone-document-button"
           onClick={onClone}
           className={actionsGroupItem}
+          data-action-item
         ></Button>
       )}
       {onRemove && (
@@ -204,6 +210,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           data-testid="remove-document-button"
           onClick={onRemove}
           className={actionsGroupItem}
+          data-action-item
         ></Button>
       )}
     </div>

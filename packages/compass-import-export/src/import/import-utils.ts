@@ -13,18 +13,18 @@ const debug = createDebug('import');
 export function makeImportResult(
   collectionStream: WritableCollectionStream,
   numProcessed: number,
-  biggestDocSize: number,
+  docStatsStream: DocStatsStream,
   aborted?: boolean
 ): ImportResult {
   const result: ImportResult = {
     dbErrors: collectionStream.getErrors(),
     dbStats: collectionStream.getStats(),
     docsWritten: collectionStream.docsWritten,
+    ...docStatsStream.getStats(),
     // docsProcessed is not on collectionStream so that it includes docs that
     // produced parse errors and therefore never made it to the collection
     // stream.
     docsProcessed: numProcessed,
-    biggestDocSize,
   };
 
   if (aborted) {
@@ -129,26 +129,55 @@ export function processParseError({
   }
 }
 
-export function makeDocStatsStream() {
-  let biggestDocSize = 0;
-  const stream = new Transform({
-    objectMode: true,
-    transform: function (doc, encoding, callback) {
-      try {
-        const docString = JSON.stringify(doc);
-        biggestDocSize = Math.max(biggestDocSize, docString.length);
-      } catch (error) {
-        // We ignore the JSON stringification error
-      } finally {
-        callback(null, doc);
+function hasArrayOfLength(
+  val: unknown,
+  len = 250,
+  seen = new WeakSet()
+): boolean {
+  if (Array.isArray(val)) {
+    return val.length >= len;
+  }
+  if (typeof val === 'object' && val !== null) {
+    if (seen.has(val)) {
+      return false;
+    }
+    seen.add(val);
+    for (const prop of Object.values(val)) {
+      if (hasArrayOfLength(prop, len, seen)) {
+        return true;
       }
-    },
-  });
+    }
+  }
+  return false;
+}
 
-  return {
-    docStatsStream: stream,
-    getStats: () => ({
-      biggestDocSize,
-    }),
-  };
+type DocStats = { biggestDocSize: number; hasUnboundArray: boolean };
+
+export class DocStatsStream extends Transform {
+  private stats: DocStats = { biggestDocSize: 0, hasUnboundArray: false };
+
+  constructor() {
+    super({
+      objectMode: true,
+      transform: (doc, encoding, callback) => {
+        this.stats.hasUnboundArray =
+          this.stats.hasUnboundArray || hasArrayOfLength(doc, 250);
+        try {
+          const docString = JSON.stringify(doc);
+          this.stats.biggestDocSize = Math.max(
+            this.stats.biggestDocSize,
+            docString.length
+          );
+        } catch (error) {
+          // We ignore the JSON stringification error
+        } finally {
+          callback(null, doc);
+        }
+      },
+    });
+  }
+
+  getStats(): Readonly<DocStats> {
+    return this.stats;
+  }
 }

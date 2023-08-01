@@ -9,7 +9,7 @@ import stripBomStream from 'strip-bom-stream';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import { makeDocFromCSV, parseCSVHeaderName } from '../csv/csv-utils';
 import {
-  makeDocStatsStream,
+  DocStatsStream,
   makeImportResult,
   processParseError,
   processWriteStreamErrors,
@@ -134,7 +134,7 @@ export async function importCSV({
     },
   });
 
-  const { docStatsStream, getStats } = makeDocStatsStream();
+  const docStatsStream = new DocStatsStream();
 
   const collectionStream = createCollectionWriteStream(
     dataService,
@@ -180,7 +180,7 @@ export async function importCSV({
       const result = makeImportResult(
         collectionStream,
         numProcessed,
-        getStats().biggestDocSize,
+        docStatsStream,
         true
       );
       debug('importCSV:aborted', result);
@@ -191,7 +191,7 @@ export async function importCSV({
     err.result = makeImportResult(
       collectionStream,
       numProcessed,
-      getStats().biggestDocSize
+      docStatsStream
     );
 
     throw err;
@@ -208,7 +208,7 @@ export async function importCSV({
   const result = makeImportResult(
     collectionStream,
     numProcessed,
-    getStats().biggestDocSize
+    docStatsStream
   );
   debug('importCSV:completed', result);
   return result;
