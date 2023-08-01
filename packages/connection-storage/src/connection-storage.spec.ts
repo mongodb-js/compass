@@ -128,6 +128,38 @@ describe('ConnectionStorage', function () {
       const connection = await connectionStorage.load(connectionInfo.id);
       expect(connection!.lastUsed).to.deep.equal(lastUsed);
     });
+
+    context('handles appName param', function () {
+      it('should remove appName if it matches MongoDB Compass', async function () {
+        const connectionInfo = getConnectionInfo({
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/admin?appName=MongoDB+Compass',
+          },
+        });
+        writeFakeConnection(tmpDir, { connectionInfo });
+
+        const connection = await connectionStorage.load(connectionInfo.id);
+        expect(connection!.connectionOptions.connectionString).to.deep.equal(
+          'mongodb://localhost:27017/admin'
+        );
+      });
+
+      it('should not remove appName if it does not match MongoDB Compass', async function () {
+        const connectionInfo = getConnectionInfo({
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/admin?appName=Something+Else',
+          },
+        });
+        writeFakeConnection(tmpDir, { connectionInfo });
+
+        const connection = await connectionStorage.load(connectionInfo.id);
+        expect(connection!.connectionOptions.connectionString).to.deep.equal(
+          'mongodb://localhost:27017/admin?appName=Something+Else'
+        );
+      });
+    });
   });
 
   describe('save', function () {
