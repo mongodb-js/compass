@@ -249,7 +249,6 @@ async function loadConnections(
   }
 }
 
-const MAX_RECENT_CONNECTIONS_LENGTH = 10;
 export function useConnections({
   onConnected,
   isConnected,
@@ -424,22 +423,6 @@ export function useConnections({
             }
           })();
         });
-
-        // Remove the oldest recent connection if are adding a new one and
-        // there are already MAX_RECENT_CONNECTIONS_LENGTH recents.
-        // NOTE: there are edge cases that may lead to more than
-        // MAX_RECENT_CONNECTIONS_LENGTH to be saved (ie. concurrent run
-        // of Compass), however we accept it as long as the list of
-        // recent connections won't grow indefinitely.
-        if (
-          !connectionInfoToBeSaved.favorite &&
-          !connectionInfoToBeSaved.lastUsed &&
-          recentConnections.length >= MAX_RECENT_CONNECTIONS_LENGTH
-        ) {
-          await connectionStorage.delete(
-            recentConnections[recentConnections.length - 1].id
-          );
-        }
       } catch (err) {
         debug(
           `error occurred connection with id ${connectionInfo.id || ''}: ${
