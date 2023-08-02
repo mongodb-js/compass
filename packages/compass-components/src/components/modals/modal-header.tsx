@@ -2,29 +2,19 @@ import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors, palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 
 import { useDarkMode } from '../../hooks/use-theme';
 import { Body, Icon } from '../leafygreen';
-
-export const Variant = {
-  Default: ButtonVariant.Primary,
-  Danger: ButtonVariant.Danger,
-} as const;
-
-export type Variant = typeof Variant[keyof typeof Variant];
+import { ModalVariant } from './modal';
 
 const headerStyle = css({
   padding: spacing[5],
   paddingBottom: 0,
 });
 
-const variantStyle = {
-  [Variant.Default]: css({}),
-  [Variant.Danger]: css({
-    paddingLeft: '78px',
-  }),
-};
+const headerWithVariantStyles = css({
+  paddingLeft: '78px',
+});
 
 const titleStyle = css({
   fontSize: '24px',
@@ -40,11 +30,10 @@ const titleStyleDark = css({
   color: uiColors.gray.light2,
 });
 
-const warningIconStyles = css({
+const iconStyles = css({
   width: '32px',
   height: '32px',
   borderRadius: '50%',
-  background: `${palette.red.light3}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -57,32 +46,62 @@ const warningIconStyles = css({
   },
 });
 
-const warningIconStylesDark = css({
-  background: `${palette.red.dark2}`,
-});
+const variantLightStyles = {
+  [ModalVariant.Danger]: css({
+    background: `${palette.red.light3}`,
+  }),
+  [ModalVariant.Warn]: css({
+    background: `${palette.yellow.light3}`,
+  }),
+};
+const variantDarkStyles = {
+  [ModalVariant.Danger]: css({
+    background: `${palette.red.dark2}`,
+  }),
+  [ModalVariant.Warn]: css({
+    background: `${palette.yellow.dark2}`,
+  }),
+};
+
+const iconFillLight = {
+  [ModalVariant.Danger]: palette.red.base,
+  [ModalVariant.Warn]: palette.yellow.base,
+};
+const iconFillDark = {
+  [ModalVariant.Danger]: palette.red.light3,
+  [ModalVariant.Warn]: palette.yellow.light3,
+};
 
 type ModalHeaderProps = {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
-  variant?: Variant;
+  variant?: ModalVariant;
 };
 
 function ModalHeader({
   title,
   subtitle,
-  variant = Variant.Default,
+  variant = ModalVariant.Default,
 }: ModalHeaderProps) {
   const darkMode = useDarkMode();
 
   return (
-    <div className={cx(headerStyle, variantStyle[variant])}>
-      {variant === Variant.Danger && (
+    <div
+      className={cx(
+        headerStyle,
+        variant !== ModalVariant.Default && headerWithVariantStyles
+      )}
+    >
+      {variant !== ModalVariant.Default && (
         <div
-          className={cx(warningIconStyles, darkMode && warningIconStylesDark)}
+          className={cx(
+            iconStyles,
+            darkMode ? variantDarkStyles[variant] : variantLightStyles[variant]
+          )}
         >
           <Icon
             glyph="Warning"
-            fill={darkMode ? palette.red.light3 : palette.red.base}
+            fill={darkMode ? iconFillDark[variant] : iconFillLight[variant]}
             role="presentation"
           />
         </div>

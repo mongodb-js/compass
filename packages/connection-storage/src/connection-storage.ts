@@ -87,9 +87,18 @@ export class ConnectionStorage {
     return data.filter(Boolean);
   }
 
+  /**
+   * We only consider favorite legacy connections and ignore
+   * recent legacy connections.
+   *
+   * connection.connectionInfo  -> new connection
+   * connection.isFavorite      -> legacy favorite connection
+   */
   async hasLegacyConnections() {
     return (
-      (await this.getConnections()).filter((x) => !x.connectionInfo).length > 0
+      (await this.getConnections()).filter(
+        (x) => !x.connectionInfo && x.isFavorite
+      ).length > 0
     );
   }
 

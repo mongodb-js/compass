@@ -1,15 +1,8 @@
 import React, { forwardRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
-import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { useDarkMode } from '../../hooks/use-theme';
-
-export const Variant = {
-  Default: ButtonVariant.Primary,
-  Danger: ButtonVariant.Danger,
-} as const;
-
-export type Variant = typeof Variant[keyof typeof Variant];
+import { ModalVariant } from './modal';
 
 const contentStyle = css({
   padding: `0 ${spacing[5]}px`,
@@ -25,12 +18,9 @@ const contentStyle = css({
   },
 });
 
-const variantStyle = {
-  [Variant.Default]: css({}),
-  [Variant.Danger]: css({
-    paddingLeft: '78px',
-  }),
-};
+const contentWithVariantStyles = css({
+  paddingLeft: '78px',
+});
 
 // Leafygreen adds an upper border
 // to the footer in dark mode
@@ -39,7 +29,7 @@ const darkModeStyle = css({
 });
 
 type ModalBodyProps = {
-  variant?: Variant;
+  variant?: ModalVariant;
   className?: string;
   scroll?: boolean;
   minHeight?: number;
@@ -47,7 +37,13 @@ type ModalBodyProps = {
 };
 
 const ModalBody = forwardRef<HTMLDivElement, ModalBodyProps>(function ModalBody(
-  { variant = Variant.Default, className, scroll = true, minHeight, children },
+  {
+    variant = ModalVariant.Default,
+    className,
+    scroll = true,
+    minHeight,
+    children,
+  },
   ref
 ) {
   const darkMode = useDarkMode();
@@ -65,7 +61,7 @@ const ModalBody = forwardRef<HTMLDivElement, ModalBodyProps>(function ModalBody(
     <div
       className={cx(
         contentStyle,
-        variantStyle[variant],
+        variant !== ModalVariant.Default && contentWithVariantStyles,
         darkMode && darkModeStyle,
         className
       )}
