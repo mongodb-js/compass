@@ -19,6 +19,8 @@ import { AtlasService } from '@mongodb-js/atlas-service/main';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
+import { ConnectionStorage } from '@mongodb-js/connection-storage';
+import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
@@ -97,7 +99,7 @@ class CompassApplication {
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
-    this.trackApplicationLaunched(globalPreferences);
+    void this.trackApplicationLaunched(globalPreferences);
   }
 
   static init(
@@ -125,9 +127,9 @@ class CompassApplication {
     void CompassWindowManager.init(this);
   }
 
-  private static trackApplicationLaunched(
+  private static async trackApplicationLaunched(
     globalPreferences: ParsedGlobalPreferencesResult
-  ): void {
+  ): Promise<void> {
     const {
       protectConnectionStrings,
       readOnly,
@@ -135,6 +137,10 @@ class CompassApplication {
       positionalArguments,
       maxTimeMS,
     } = preferences.getPreferences();
+
+    const hasLegacyConnections = await new ConnectionStorage(
+      getStoragePaths()?.basepath
+    ).hasLegacyConnections();
 
     debug('application launched');
     track('Application Launched', {
@@ -145,6 +151,7 @@ class CompassApplication {
       maxTimeMS,
       global_config: hasConfig('global', globalPreferences),
       cli_args: hasConfig('cli', globalPreferences),
+      legacy_connections: hasLegacyConnections,
     });
   }
 

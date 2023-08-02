@@ -95,11 +95,15 @@ export class ConnectionStorage {
    * connection.isFavorite      -> legacy favorite connection
    */
   async hasLegacyConnections() {
-    return (
-      (await this.getConnections()).filter(
-        (x) => !x.connectionInfo && x.isFavorite
-      ).length > 0
-    );
+    try {
+      return (
+        (await this.getConnections()).filter(
+          (x) => !x.connectionInfo && x.isFavorite
+        ).length > 0
+      );
+    } catch (e) {
+      return false;
+    }
   }
 
   async loadAll(): Promise<ConnectionInfo[]> {
