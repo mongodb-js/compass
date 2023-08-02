@@ -27,7 +27,7 @@ function serializeErrorForIpc(err: any): SerializedError {
     $$error: {
       name: err.name,
       message: err.message,
-      statusCode: err.status,
+      statusCode: err.statusCode,
       stack: err.stack,
     },
   };
@@ -37,7 +37,7 @@ function deserializeErrorFromIpc({ $$error: err }: SerializedError) {
   const e = new Error(err.message);
   e.name = err.name;
   e.stack = err.stack;
-  (e as any).stausCode = err.statusCode;
+  (e as any).statusCode = err.statusCode;
   return e;
 }
 

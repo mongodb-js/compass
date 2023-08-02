@@ -34,7 +34,6 @@ describe('aiQueryReducer', function () {
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasService = {
-          isAuthenticated: sandbox.stub().resolves(true),
           getQueryFromUserPrompt: sandbox
             .stub()
             .resolves({ content: { query: { _id: 1 } } }),
@@ -81,7 +80,6 @@ describe('aiQueryReducer', function () {
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
         const mockAtlasService = {
-          isAuthenticated: sandbox.stub().resolves(true),
           getQueryFromUserPrompt: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),
@@ -95,6 +93,23 @@ describe('aiQueryReducer', function () {
           '500 Internal Server Error'
         );
         expect(store.getState().aiQuery.status).to.equal('ready');
+      });
+
+      it('resets the store if errs was caused by user being unauthorized', async function () {
+        const authError = new Error('Unauthorized');
+        (authError as any).statusCode = 401;
+        const mockAtlasService = {
+          getQueryFromUserPrompt: sandbox.stub().rejects(authError),
+        };
+        const store = createStore({ atlasService: mockAtlasService as any });
+        await store.dispatch(runAIQuery('testing prompt') as any);
+        expect(store.getState()).to.have.property('aiQuery').deep.eq({
+          status: 'ready',
+          aiPromptText: '',
+          errorMessage: undefined,
+          isInputVisible: false,
+          aiQueryFetchId: -1,
+        });
       });
     });
   });

@@ -31,15 +31,16 @@ export type AtlasSignInThunkAction<
 > = ThunkAction<R, AtlasSignInState, { atlasService: AtlasService }, A>;
 
 export const enum AtlasSignInActions {
-  OpenSignInModal = 'compass-query-bar/atlas-signin/OpenSignInModal',
-  CloseSignInModal = 'compass-query-bar/atlas-signin/CloseSignInModal',
-  RestoringStart = 'compass-query-bar/atlas-signin/StartRestoring',
-  RestoringFailed = 'compass-query-bar/atlas-signin/RestoringFailed',
-  RestoringSuccess = 'compass-query-bar/atlas-signin/RestoringSuccess',
-  Start = 'compass-query-bar/atlas-signin/AtlasSignInStart',
-  Success = 'compass-query-bar/atlas-signin/AtlasSignInSuccess',
-  Error = 'compass-query-bar/atlas-signin/AtlasSignInError',
-  Cancel = 'compass-query-bar/atlas-signin/AtlasSignInCancel',
+  OpenSignInModal = 'atlas-service/atlas-signin/OpenSignInModal',
+  CloseSignInModal = 'atlas-service/atlas-signin/CloseSignInModal',
+  RestoringStart = 'atlas-service/atlas-signin/StartRestoring',
+  RestoringFailed = 'atlas-service/atlas-signin/RestoringFailed',
+  RestoringSuccess = 'atlas-service/atlas-signin/RestoringSuccess',
+  Start = 'atlas-service/atlas-signin/AtlasSignInStart',
+  Success = 'atlas-service/atlas-signin/AtlasSignInSuccess',
+  Error = 'atlas-service/atlas-signin/AtlasSignInError',
+  Cancel = 'atlas-service/atlas-signin/AtlasSignInCancel',
+  TokenRefreshFailed = 'atlas-service/atlas-signin/TokenRefreshFailed',
 }
 
 export type AtlasSignInOpenModalAction = {
@@ -76,6 +77,10 @@ export type AtlasSignInSuccessAction = {
 export type AtlasSignInErrorAction = {
   type: AtlasSignInActions.Error;
   error: string;
+};
+
+export type AtlasSignInTokenRefreshFailedAction = {
+  type: AtlasSignInActions.TokenRefreshFailed;
 };
 
 export type AtlasSignInCancelAction = { type: AtlasSignInActions.Cancel };
@@ -214,6 +219,22 @@ const reducer: Reducer<AtlasSignInState> = (
     return { ...state, isModalOpen: false };
   }
 
+  if (
+    isAction<AtlasSignInTokenRefreshFailedAction>(
+      action,
+      AtlasSignInActions.TokenRefreshFailed
+    )
+  ) {
+    // Only reset state on refresh failed when we are currently successfully
+    // signed in. All other cases mean that either there is a sign in already
+    // in progress or something else already failed: no need to update either
+    // way
+    if (state.state !== 'success') {
+      return state;
+    }
+    return { ...INITIAL_STATE, state: 'error' };
+  }
+
   return state;
 };
 
@@ -314,6 +335,10 @@ export const closeSignInModal = (
     dispatch(cancelSignIn(reason));
     dispatch({ type: AtlasSignInActions.CloseSignInModal });
   };
+};
+
+export const tokenRefreshFailed = () => {
+  return { type: AtlasSignInActions.TokenRefreshFailed };
 };
 
 export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
