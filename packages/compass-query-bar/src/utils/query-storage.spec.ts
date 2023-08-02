@@ -137,7 +137,7 @@ describe('QueryStorage', function () {
       });
 
       it('does not remove recent query if recents are less then max allowed queries', async function () {
-        createNumberOfQueries(tmpDir, 11);
+        createNumberOfQueries(tmpDir, maxAllowedRecentQueries - 1);
 
         const deleteSpy = Sinon.spy(queryHistoryStorage, 'delete');
 
@@ -148,7 +148,7 @@ describe('QueryStorage', function () {
         });
 
         const numQueries = (await queryHistoryStorage.loadAll()).length;
-        expect(numQueries).to.equal(12);
+        expect(numQueries).to.equal(maxAllowedRecentQueries);
 
         expect(deleteSpy.called).to.be.false;
       });

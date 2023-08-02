@@ -268,7 +268,7 @@ describe('ConnectionStorage', function () {
       });
 
       it('does not remove recent if recent connections are less then max allowed connections', async function () {
-        createNumberOfConnections(8);
+        createNumberOfConnections(maxAllowedConnections - 1);
 
         const deleteSpy = Sinon.spy(connectionStorage, 'delete');
 
@@ -276,7 +276,7 @@ describe('ConnectionStorage', function () {
         await connectionStorage.save(getConnectionInfo());
 
         const numConnections = (await connectionStorage.loadAll()).length;
-        expect(numConnections).to.equal(9);
+        expect(numConnections).to.equal(maxAllowedConnections);
 
         expect(deleteSpy.called).to.be.false;
       });
