@@ -138,9 +138,15 @@ class CompassApplication {
       maxTimeMS,
     } = preferences.getPreferences();
 
-    const hasLegacyConnections = await new ConnectionStorage(
-      getStoragePaths()?.basepath
-    ).hasLegacyConnections();
+    let hasLegacyConnections: boolean;
+    try {
+      hasLegacyConnections = await new ConnectionStorage(
+        getStoragePaths()?.basepath
+      ).hasLegacyConnections();
+    } catch (e) {
+      debug('Failed to check legacy connections', e);
+      hasLegacyConnections = false;
+    }
 
     debug('application launched');
     track('Application Launched', {
