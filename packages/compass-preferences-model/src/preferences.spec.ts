@@ -50,6 +50,19 @@ describe('Preferences class', function () {
     expect(result.enableMaps).to.equal(true);
   });
 
+  it('will strip unknown saved preferences', async function () {
+    const preferences = await setupPreferences(tmpdir);
+    // Save any unknown preference. We validate everything in preferences class
+    // and do not validate anything in storage. As we are calling updatePreferences
+    // directly here, it should save this unknown prop.
+    await (preferences as any)._preferencesStorage.updatePreferences({
+      something: '1234',
+    });
+
+    const userPrefs = preferences.getPreferences();
+    expect(userPrefs).to.not.have.property('something');
+  });
+
   it('throws when saving invalid data', async function () {
     const preferences = await setupPreferences(tmpdir);
     expect(
