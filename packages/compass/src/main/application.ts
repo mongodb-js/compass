@@ -99,7 +99,11 @@ class CompassApplication {
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
-    void this.trackApplicationLaunched(globalPreferences);
+    void this.trackApplicationLaunched(globalPreferences).catch((e) => {
+      debug('Failed to track application launched event', {
+        message: (e as Error).message,
+      });
+    });
   }
 
   static init(
