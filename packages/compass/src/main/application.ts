@@ -99,11 +99,7 @@ class CompassApplication {
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
-    void this.trackApplicationLaunched(globalPreferences).catch((e) => {
-      debug('Failed to track application launched event', {
-        message: (e as Error).message,
-      });
-    });
+    this.trackApplicationLaunched(globalPreferences);
   }
 
   static init(
@@ -131,9 +127,9 @@ class CompassApplication {
     void CompassWindowManager.init(this);
   }
 
-  private static async trackApplicationLaunched(
+  private static trackApplicationLaunched(
     globalPreferences: ParsedGlobalPreferencesResult
-  ): Promise<void> {
+  ): void {
     const {
       protectConnectionStrings,
       readOnly,
@@ -142,26 +138,27 @@ class CompassApplication {
       maxTimeMS,
     } = preferences.getPreferences();
 
-    let hasLegacyConnections: boolean;
-    try {
-      hasLegacyConnections = await new ConnectionStorage(
-        getStoragePaths()?.basepath
-      ).hasLegacyConnections();
-    } catch (e) {
-      debug('Failed to check legacy connections', e);
-      hasLegacyConnections = false;
-    }
-
     debug('application launched');
-    track('Application Launched', {
-      context: getContext(),
-      launch_connection: getLaunchConnectionSource(file, positionalArguments),
-      protected: protectConnectionStrings,
-      readOnly,
-      maxTimeMS,
-      global_config: hasConfig('global', globalPreferences),
-      cli_args: hasConfig('cli', globalPreferences),
-      legacy_connections: hasLegacyConnections,
+    track('Application Launched', async () => {
+      let hasLegacyConnections: boolean;
+      try {
+        hasLegacyConnections = await new ConnectionStorage(
+          getStoragePaths()?.basepath
+        ).hasLegacyConnections();
+      } catch (e) {
+        debug('Failed to check legacy connections', e);
+        hasLegacyConnections = false;
+      }
+      return {
+        context: getContext(),
+        launch_connection: getLaunchConnectionSource(file, positionalArguments),
+        protected: protectConnectionStrings,
+        readOnly,
+        maxTimeMS,
+        global_config: hasConfig('global', globalPreferences),
+        cli_args: hasConfig('cli', globalPreferences),
+        legacy_connections: hasLegacyConnections,
+      };
     });
   }
 
