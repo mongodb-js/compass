@@ -79,7 +79,7 @@ export const LegacyConnectionsModal = ({
       open={isOpen}
       setOpen={() => hideModal()}
     >
-      <ModalHeader title="Legacy connections detected" variant="warn" />
+      <ModalHeader title="Legacy connections detected" />
       <ModalBody className={bodyStyles}>
         <Body>
           Compass has identified legacy connections that are no longer supported
@@ -127,7 +127,7 @@ export const LegacyConnectionsModal = ({
           onChange={(event) => setIsHideModalChecked(event.target.checked)}
           label="Don't show this again"
         />
-        <Button variant="primary" onClick={onCloseModal}>
+        <Button variant="default" onClick={onCloseModal}>
           Close
         </Button>
       </ModalFooter>

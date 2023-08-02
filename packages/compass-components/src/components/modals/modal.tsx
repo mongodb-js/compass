@@ -4,14 +4,6 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { Body, Modal as LeafyGreenModal } from '../leafygreen';
 import { useScrollbars } from '../../hooks/use-scrollbars';
 
-export const ModalVariant = {
-  Default: 'default',
-  Danger: 'danger',
-  Warn: 'warn',
-} as const;
-
-export type ModalVariant = typeof ModalVariant[keyof typeof ModalVariant];
-
 const contentStyles = css({
   width: '600px',
   letterSpacing: 0,

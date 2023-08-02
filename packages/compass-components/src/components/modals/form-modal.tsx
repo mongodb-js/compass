@@ -1,13 +1,21 @@
 import React from 'react';
-import { Modal, ModalVariant } from './modal';
+import { Variant as ButtonVariant } from '@leafygreen-ui/button';
+import { Modal } from './modal';
 import { ModalFooter } from '../leafygreen';
 
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
 import { ModalFooterButton } from './modal-footer-button';
 
+export const Variant = {
+  Default: ButtonVariant.Primary,
+  Danger: ButtonVariant.Danger,
+} as const;
+
+export type Variant = typeof Variant[keyof typeof Variant];
+
 type FormModalProps = React.ComponentProps<typeof Modal> & {
-  variant?: Exclude<ModalVariant, 'warn'>;
+  variant?: Variant;
   title: string;
   subtitle?: string;
   submitButtonText: string;
@@ -25,7 +33,7 @@ function FormModal({
   submitButtonText,
   cancelButtonText = 'Cancel',
   submitDisabled = false,
-  variant = ModalVariant.Default,
+  variant = Variant.Default,
   scroll = true,
   minBodyHeight,
   onSubmit,
