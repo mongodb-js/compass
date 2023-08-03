@@ -292,7 +292,28 @@ describe('ConnectionStorage', function () {
       expect(hasLegacyConnections).to.be.false;
     });
 
-    it('returns true if there are legacy connections', async function () {
+    it('returns false if there are no favorite legacy connections', async function () {
+      const _id = uuid();
+
+      // Save a legacy connection (connection without connectionInfo, which is not favorite)
+      const filePath = getConnectionFilePath(tmpDir, _id);
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify({
+          _id,
+          hosts: [{ host: 'localhost', port: 27017 }],
+          readPreference: 'primary',
+          port: 27017,
+          hostname: 'localhost',
+        })
+      );
+
+      const hasLegacyConnections =
+        await connectionStorage.hasLegacyConnections();
+      expect(hasLegacyConnections).to.be.false;
+    });
+
+    it('returns true if there are favorite legacy connections', async function () {
       const _id = uuid();
 
       // Save a legacy connection (connection without connectionInfo)
@@ -301,6 +322,7 @@ describe('ConnectionStorage', function () {
         filePath,
         JSON.stringify({
           _id,
+          isFavorite: true,
           hosts: [{ host: 'localhost', port: 27017 }],
           readPreference: 'primary',
           port: 27017,
