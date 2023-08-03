@@ -1,4 +1,4 @@
-import { ipcMain, ipcRenderer } from 'electron';
+import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
 import type * as plugin from '@mongodb-js/oidc-plugin';
 
 export type UserInfo = {
@@ -165,4 +165,11 @@ export function ipcInvoke<
       ];
     })
   ) as Pick<T, K>;
+}
+
+export function broadcast(channel: string, ...args: any[]) {
+  // We might not be in electron environment
+  BrowserWindow?.getAllWindows().forEach((browserWindow) => {
+    browserWindow.webContents.send(channel, ...args);
+  });
 }

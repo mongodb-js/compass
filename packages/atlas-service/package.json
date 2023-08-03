@@ -68,6 +68,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.10.0",
+    "@mongodb-js/compass-logging": "^1.1.6",
     "@mongodb-js/devtools-connect": "^2.4.0",
     "@mongodb-js/oidc-plugin": "^0.3.0",
     "electron": "^23.3.10",

@@ -1,4 +1,4 @@
-import { BrowserWindow, shell } from 'electron';
+import { shell } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { EventEmitter, once } from 'events';
 import type { MongoDBOIDCPluginOptions } from '@mongodb-js/oidc-plugin';
@@ -12,7 +12,7 @@ import fetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import type { AIQuery, IntrospectInfo, Token, UserInfo } from './util';
-import { ipcExpose } from './util';
+import { broadcast, ipcExpose } from './util';
 import {
   createLoggerAndTelemetry,
   mongoLogId,
@@ -151,7 +151,7 @@ export class AtlasService {
     ]);
     this.attachOidcPluginLoggerEvents();
     log.info(
-      mongoLogId(1_001_000_200),
+      mongoLogId(1_001_000_210),
       'AtlasService',
       'Atlas service initialized'
     );
@@ -164,7 +164,7 @@ export class AtlasService {
     // only one auth state is being part of oidc-plugin state
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-started', () => {
       log.info(
-        mongoLogId(1_001_000_201),
+        mongoLogId(1_001_000_211),
         'AtlasService',
         'Token refresh started by oidc-plugin'
       );
@@ -174,7 +174,7 @@ export class AtlasService {
       'mongodb-oidc-plugin:refresh-failed',
       ({ error }) => {
         log.error(
-          mongoLogId(1_001_000_202),
+          mongoLogId(1_001_000_212),
           'AtlasService',
           'Oidc-plugin failed to refresh token',
           { error }
@@ -192,21 +192,17 @@ export class AtlasService {
     // to the service state
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-succeeded', () => {
       log.info(
-        mongoLogId(1_001_000_203),
+        mongoLogId(1_001_000_213),
         'AtlasService',
         'Oidc-plugin refreshed token successfully'
       );
       void this.refreshToken();
     });
     this.oidcPluginLogger.on('atlas-service-token-refresh-failed', () => {
-      BrowserWindow.getAllWindows().forEach((browserWindow) => {
-        browserWindow.webContents.send('atlas-service-token-refresh-failed');
-      });
+      broadcast('atlas-service-token-refresh-failed');
     });
     this.oidcPluginLogger.on('atlas-service-token-refreshed', () => {
-      BrowserWindow.getAllWindows().forEach((browserWindow) => {
-        browserWindow.webContents.send('atlas-service-token-refreshed');
-      });
+      broadcast('atlas-service-token-refreshed');
     });
   }
 
@@ -220,7 +216,7 @@ export class AtlasService {
     }
     this.refreshing = true;
     log.info(
-      mongoLogId(1_001_000_204),
+      mongoLogId(1_001_000_214),
       'AtlasService',
       'Start atlas service token refresh'
     );
@@ -254,7 +250,7 @@ export class AtlasService {
       }
       try {
         log.info(
-          mongoLogId(1_001_000_205),
+          mongoLogId(1_001_000_215),
           'AtlasService',
           'Request token refresh from oidc-plugin'
         );
@@ -272,7 +268,7 @@ export class AtlasService {
               }
             );
         log.info(
-          mongoLogId(1_001_000_206),
+          mongoLogId(1_001_000_216),
           'AtlasService',
           'Oidc-plugin successfully returned new token'
         );
@@ -281,7 +277,7 @@ export class AtlasService {
         this.oidcPluginLogger.emit('atlas-service-token-refreshed');
       } catch (err) {
         log.error(
-          mongoLogId(1_001_000_207),
+          mongoLogId(1_001_000_217),
           'AtlasService',
           'Oidc-plugin failed to return refreshed token',
           { error: (err as Error).stack }
@@ -366,7 +362,7 @@ export class AtlasService {
       }
 
       this.signInPromise = (async () => {
-        log.info(mongoLogId(1_001_000_208), 'AtlasService', 'Starting sign in');
+        log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
         try {
           this.token =
             await this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
@@ -381,14 +377,14 @@ export class AtlasService {
             );
           this.oidcPluginSyncedFromLoggerState = 'authenticated';
           log.info(
-            mongoLogId(1_001_000_209),
+            mongoLogId(1_001_000_219),
             'AtlasService',
             'Signed in successfully'
           );
           return this.token;
         } catch (err) {
           log.error(
-            mongoLogId(1_001_000_210),
+            mongoLogId(1_001_000_220),
             'AtlasService',
             'Failed to sign in',
             { error: (err as Error).stack }
