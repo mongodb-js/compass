@@ -7,6 +7,8 @@ export enum FixQueryAction {
   REMOVED_WRAPPING_BRACES,
 }
 
+export type ProposedCaretPosition = number | undefined;
+
 function _isValidQuery(query: string): boolean {
   try {
     return !!detect(query);
@@ -15,14 +17,16 @@ function _isValidQuery(query: string): boolean {
   }
 }
 
-export function lenientlyFixQuery(query: string): [FixQueryAction, string] {
+export function lenientlyFixQuery(
+  query: string
+): [FixQueryAction, string, ProposedCaretPosition] {
   query = query.trim();
   if (query === '') {
-    return [FixQueryAction.ADDED_WRAPPING_BRACES_ON_EMPTY, '{}'];
+    return [FixQueryAction.ADDED_WRAPPING_BRACES_ON_EMPTY, '{}', 1];
   }
 
   if (query.length === 1) {
-    return [FixQueryAction.ADDED_WRAPPING_BRACES, `{${query}}`];
+    return [FixQueryAction.ADDED_WRAPPING_BRACES, `{${query}}`, 2];
   }
 
   const isValid = _isValidQuery(query);
@@ -35,10 +39,11 @@ export function lenientlyFixQuery(query: string): [FixQueryAction, string] {
         return [
           FixQueryAction.REMOVED_WRAPPING_BRACES,
           queryWithoutWrappingBraces,
+          queryWithoutWrappingBraces.length,
         ];
       }
     }
   }
 
-  return [FixQueryAction.NOTHING_FIXED, query];
+  return [FixQueryAction.NOTHING_FIXED, query, undefined];
 }
