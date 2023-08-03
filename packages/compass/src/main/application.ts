@@ -19,7 +19,10 @@ import { AtlasService } from '@mongodb-js/atlas-service/main';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
-import { ConnectionStorage } from '@mongodb-js/connection-storage';
+import {
+  ConnectionStorage,
+  KeytarService,
+} from '@mongodb-js/connection-storage';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
@@ -91,6 +94,7 @@ class CompassApplication {
     }
 
     AtlasService.init();
+    KeytarService.init();
 
     this.setupAutoUpdate();
     await setupCSFLELibrary();

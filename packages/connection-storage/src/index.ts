@@ -12,3 +12,4 @@ export {
   exportConnections,
   importConnections,
 } from './import-export-connection';
+export { KeytarService } from './keytar-service';

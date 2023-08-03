@@ -46,6 +46,12 @@ describe('ConnectionStorage', function () {
     fs.mkdirSync(path.join(tmpDir, 'Connections'));
     connectionStorage = new ConnectionStorage(tmpDir);
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
+
+    (connectionStorage as any).keytarIpc = {
+      findPasswords: Sinon.spy(() => ({})),
+      setPassword: Sinon.spy(),
+      deletePassword: Sinon.spy(),
+    };
   });
 
   afterEach(function () {
