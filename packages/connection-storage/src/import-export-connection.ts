@@ -8,8 +8,6 @@ import { Decrypter, Encrypter } from './encrypt';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 
-const { basepath } = getStoragePaths() ?? {};
-
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-CONNECTION-IMPORT-EXPORT'
 );
@@ -40,7 +38,8 @@ export async function exportConnections(
   options: ExportConnectionOptions = {}
 ): Promise<string> {
   const {
-    loadConnections = async () => new ConnectionStorage(basepath).loadAll(),
+    loadConnections = async () =>
+      new ConnectionStorage(getStoragePaths()?.basepath).loadAll(),
     filter = (info) => info.favorite?.name,
     passphrase = '',
     removeSecrets = false,
@@ -109,7 +108,7 @@ class CompassImportError extends Error {
 async function saveConnectionsToDefaultStorage(
   connections: ConnectionInfo[]
 ): Promise<void> {
-  const storage = new ConnectionStorage(basepath);
+  const storage = new ConnectionStorage(getStoragePaths()?.basepath);
   await Promise.all(connections.map((conn) => storage.save(conn)));
 }
 

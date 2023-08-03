@@ -29,8 +29,6 @@ const { log, mongoLogId } = createLoggerAndTelemetry(
   'mongodb-compass:connections:connections'
 );
 
-const { basepath } = getStoragePaths() ?? {};
-
 type ConnectFn = typeof connect;
 
 export type { ConnectFn };
@@ -63,7 +61,7 @@ function Connections({
   appRegistry,
   onConnected,
   isConnected,
-  connectionStorage = new ConnectionStorage(basepath),
+  connectionStorage = new ConnectionStorage(getStoragePaths()?.basepath),
   appName,
   getAutoConnectInfo,
   connectFn = connect,
