@@ -21,8 +21,9 @@ import { usePreference } from 'compass-preferences-model';
 
 import type { RootState } from '../stores/query-bar-store';
 
-const editorStyles = css({
+const editorContainerStyles = css({
   position: 'relative',
+  display: 'flex',
   width: '100%',
   minWidth: spacing[7],
   // To match codemirror editor with leafygreen inputs.
@@ -53,12 +54,13 @@ const editorWithErrorStyles = css({
 });
 
 const queryBarEditorOptionInsightsStyles = css({
-  position: 'absolute',
-  // Horizontally the insight is in the middle of the first line of the editor:
-  // (input height - insight badge height) / 2 to get the empty space + 1px
-  // because top indicates where element starts, not where padding ends
-  top: `calc((${spacing[4]}px - 18px) / 2 + 1px)`,
-  right: spacing[1],
+  alignSelf: 'flex-start',
+  paddingLeft: spacing[1],
+  paddingRight: spacing[1],
+  // To align the icon in the middle of the first line of the editor input
+  // (<input height> - <insight badge height>) / 2
+  paddingTop: 3,
+  paddingBottom: 3,
 });
 
 type OptionEditorProps = {
@@ -130,7 +132,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   return (
     <div
       className={cx(
-        editorStyles,
+        editorContainerStyles,
         focusRingProps.className,
         hasError && editorWithErrorStyles
       )}
