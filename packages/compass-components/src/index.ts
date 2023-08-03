@@ -174,3 +174,4 @@ export { ComboboxWithCustomOption } from './components/combobox-with-custom-opti
 export { usePersistedState } from './hooks/use-persisted-state';
 export { GuideCue, GuideCueProvider } from './components/guide-cue/guide-cue';
 export type { Cue, GroupCue } from './components/guide-cue/guide-cue';
+export { PerformanceSignals } from './components/signals';

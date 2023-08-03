@@ -130,6 +130,38 @@ describe('ConnectionStorage', function () {
       const connection = await connectionStorage.load(connectionInfo.id);
       expect(connection!.lastUsed).to.deep.equal(lastUsed);
     });
+
+    context('handles appName param', function () {
+      it('should remove appName if it matches MongoDB Compass', async function () {
+        const connectionInfo = getConnectionInfo({
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/admin?appName=MongoDB+Compass',
+          },
+        });
+        writeFakeConnection(tmpDir, { connectionInfo });
+
+        const connection = await connectionStorage.load(connectionInfo.id);
+        expect(connection!.connectionOptions.connectionString).to.deep.equal(
+          'mongodb://localhost:27017/admin'
+        );
+      });
+
+      it('should not remove appName if it does not match MongoDB Compass', async function () {
+        const connectionInfo = getConnectionInfo({
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/admin?appName=Something+Else',
+          },
+        });
+        writeFakeConnection(tmpDir, { connectionInfo });
+
+        const connection = await connectionStorage.load(connectionInfo.id);
+        expect(connection!.connectionOptions.connectionString).to.deep.equal(
+          'mongodb://localhost:27017/admin?appName=Something+Else'
+        );
+      });
+    });
   });
 
   describe('save', function () {
@@ -311,7 +343,28 @@ describe('ConnectionStorage', function () {
       expect(hasLegacyConnections).to.be.false;
     });
 
-    it('returns true if there are legacy connections', async function () {
+    it('returns false if there are no favorite legacy connections', async function () {
+      const _id = uuid();
+
+      // Save a legacy connection (connection without connectionInfo, which is not favorite)
+      const filePath = getConnectionFilePath(tmpDir, _id);
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify({
+          _id,
+          hosts: [{ host: 'localhost', port: 27017 }],
+          readPreference: 'primary',
+          port: 27017,
+          hostname: 'localhost',
+        })
+      );
+
+      const hasLegacyConnections =
+        await connectionStorage.hasLegacyConnections();
+      expect(hasLegacyConnections).to.be.false;
+    });
+
+    it('returns true if there are favorite legacy connections', async function () {
       const _id = uuid();
 
       // Save a legacy connection (connection without connectionInfo)
@@ -320,6 +373,7 @@ describe('ConnectionStorage', function () {
         filePath,
         JSON.stringify({
           _id,
+          isFavorite: true,
           hosts: [{ host: 'localhost', port: 27017 }],
           readPreference: 'primary',
           port: 27017,

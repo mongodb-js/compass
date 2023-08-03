@@ -7,6 +7,8 @@ import {
   palette,
   spacing,
   KeylineCard,
+  SignalPopover,
+  PerformanceSignals,
 } from '@mongodb-js/compass-components';
 import { find } from 'lodash';
 import { withPreferences } from 'compass-preferences-model';
@@ -79,7 +81,10 @@ const fieldTypeListStyles = css({
 });
 
 const fieldNameContainerStyles = css({
+  display: 'flex',
   paddingTop: spacing[2],
+  alignItems: 'center',
+  gap: spacing[2],
 });
 
 const fieldRowStyles = css({
@@ -191,6 +196,13 @@ function Field({
   const fieldAccordionButtonId = `${JSON.stringify(path)}.${name}-button`;
   const fieldListRegionId = `${JSON.stringify(path)}.${name}-fields-region`;
 
+  const hasUnboundArray = types.some((type) => {
+    return (
+      type.bsonType === 'Array' &&
+      ((type as { averageLength?: number })?.averageLength ?? 0) > 250
+    );
+  });
+
   return (
     <KeylineCard className={fieldContainerStyles}>
       <div
@@ -226,6 +238,11 @@ function Field({
                 </button>
               ) : (
                 <Subtitle className={fieldNameStyles}>{name}</Subtitle>
+              )}
+              {hasUnboundArray && (
+                <SignalPopover
+                  signals={PerformanceSignals.get('unbound-array')}
+                ></SignalPopover>
               )}
             </div>
             <div

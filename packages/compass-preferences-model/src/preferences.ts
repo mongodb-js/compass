@@ -9,6 +9,7 @@ import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
 import Joi from 'joi';
+import { pick } from 'lodash';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
@@ -854,7 +855,12 @@ export class Preferences {
   }
 
   private _getUserPreferenceValues(): UserPreferences {
-    return this._preferencesStorage.getPreferences();
+    const storePreferences = this._preferencesStorage.getPreferences();
+    // Exclude old and renamed preferences or any unknown property
+    return pick(
+      storePreferences,
+      Object.keys(storedUserPreferencesProps)
+    ) as UserPreferences;
   }
 
   private _getStoredValues(): AllPreferences {
