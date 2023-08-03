@@ -482,7 +482,8 @@ describe('AtlasServiceMain', function () {
 
     it('should set AtlasService state to error on `mongodb-oidc-plugin:refresh-failed` event', function () {
       AtlasService['oidcPluginLogger'].emit(
-        'mongodb-oidc-plugin:refresh-failed' as any
+        'mongodb-oidc-plugin:refresh-failed' as any,
+        { error: 'Stringified logger error' }
       );
       expect(AtlasService).to.have.property(
         'oidcPluginSyncedFromLoggerState',

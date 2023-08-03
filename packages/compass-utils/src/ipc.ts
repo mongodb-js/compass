@@ -1,4 +1,4 @@
-import { ipcMain, ipcRenderer } from 'electron';
+import { ipcMain, ipcRenderer, BrowserWindow } from 'electron';
 
 type SerializedError = { $$error: Error & { statusCode?: number } };
 
@@ -147,4 +147,14 @@ export function ipcInvoke<
       ];
     })
   ) as Pick<T, K>;
+}
+
+/**
+ * Broadcast an event to all the renderer processes
+ */
+export function broadcast(channel: string, ...args: any[]) {
+  // We might not be in electron environment
+  BrowserWindow?.getAllWindows().forEach((browserWindow) => {
+    browserWindow.webContents.send(channel, ...args);
+  });
 }
