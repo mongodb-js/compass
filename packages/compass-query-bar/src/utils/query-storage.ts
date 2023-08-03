@@ -1,6 +1,6 @@
 import { join } from 'path';
 import fs from 'fs/promises';
-import { EJSON } from 'bson';
+import { EJSON, UUID } from 'bson';
 import { orderBy } from 'lodash';
 import { type BaseQuery } from '../constants/query-properties';
 
@@ -85,8 +85,29 @@ export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
 }
 
 export class RecentQueryStorage extends QueryStorage<RecentQuery> {
+  private readonly maxAllowedQueries = 30;
+
   constructor(path?: string, namespace?: string) {
     super(join(path ?? '', 'RecentQueries'), namespace);
+  }
+
+  async saveQuery(
+    data: Omit<RecentQuery, '_id' | '_lastExecuted'>
+  ): Promise<void> {
+    const recentQueries = await this.loadAll();
+
+    if (recentQueries.length >= this.maxAllowedQueries) {
+      const lastRecent = recentQueries[recentQueries.length - 1];
+      await this.delete(lastRecent._id);
+    }
+
+    const _id = new UUID().toString();
+    const recentQuery: RecentQuery = {
+      ...data,
+      _id,
+      _lastExecuted: new Date(),
+    };
+    await this.updateAttributes(_id, recentQuery);
   }
 }
 

@@ -38,6 +38,8 @@ function writeFakeConnection(
 
 const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
 
+const maxAllowedConnections = 10;
+
 describe('ConnectionStorage', function () {
   let tmpDir: string;
   let connectionStorage: ConnectionStorage;
@@ -235,7 +237,7 @@ describe('ConnectionStorage', function () {
     });
 
     // In tests we can not use keytar and have it disabled. When saving any data,
-    // its completely stored on disk without anythings removed.
+    // its completely stored on disk without anything removed.
     it('it stores all the fleOptions on disk', async function () {
       const id = uuid();
       const connectionInfo = {
@@ -261,6 +263,55 @@ describe('ConnectionStorage', function () {
         fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
       );
       expect(expectedConnectionInfo).to.deep.equal(connectionInfo);
+    });
+
+    context(`max allowed connections ${maxAllowedConnections}`, function () {
+      const createNumberOfConnections = (num: number) => {
+        const connectionInfos = Array.from({ length: num }, (v, i) =>
+          getConnectionInfo({
+            lastUsed: new Date(1690876213077 - (i + 1) * 1000), // Difference of 1 sec
+          })
+        );
+        connectionInfos.forEach((connectionInfo) =>
+          writeFakeConnection(tmpDir, { connectionInfo })
+        );
+
+        return connectionInfos;
+      };
+
+      it('truncates recents to max allowed connections', async function () {
+        const connectionInfos = createNumberOfConnections(
+          maxAllowedConnections
+        );
+
+        const deleteSpy = Sinon.spy(connectionStorage, 'delete');
+
+        // Save another connection
+        await connectionStorage.save(getConnectionInfo());
+
+        const numConnections = (await connectionStorage.loadAll()).length;
+        expect(numConnections).to.equal(maxAllowedConnections);
+
+        expect(
+          deleteSpy.calledOnceWithExactly(
+            connectionInfos[connectionInfos.length - 1].id
+          )
+        ).to.be.true;
+      });
+
+      it('does not remove recent if recent connections are less then max allowed connections', async function () {
+        createNumberOfConnections(maxAllowedConnections - 1);
+
+        const deleteSpy = Sinon.spy(connectionStorage, 'delete');
+
+        // Save another connection
+        await connectionStorage.save(getConnectionInfo());
+
+        const numConnections = (await connectionStorage.loadAll()).length;
+        expect(numConnections).to.equal(maxAllowedConnections);
+
+        expect(deleteSpy.called).to.be.false;
+      });
     });
   });
 
