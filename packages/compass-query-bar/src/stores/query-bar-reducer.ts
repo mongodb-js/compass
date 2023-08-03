@@ -3,6 +3,8 @@ import { cloneDeep, isEqual } from 'lodash';
 import _ from 'lodash';
 import type { Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { openToast } from '@mongodb-js/compass-components';
+import { lenientlyFixQuery } from '../utils/leniently-fix-query';
 
 import {
   DEFAULT_FIELD_VALUES,
@@ -406,14 +408,31 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (isAction<ChangeFieldAction>(action, QueryBarActions.ChangeField)) {
+    let lenientlyFix = undefined;
+    let commandBarString: string = action.value;
+
+    if (action.name === 'filter') {
+      [lenientlyFix, commandBarString] = lenientlyFixQuery(action.value);
+
+      openToast('sample-log', {
+        title: `${lenientlyFix} - ${commandBarString}`,
+        description: commandBarString,
+        dismissible: true,
+        timeout: 10000,
+        variant: 'note',
+      });
+    }
+
     const newValue = validateField(action.name, action.value);
     const valid = newValue !== false;
+
     return {
       ...state,
       fields: {
         ...state.fields,
         [action.name]: {
-          string: action.value,
+          lenientlyFix,
+          string: commandBarString,
           valid: valid,
           value: valid ? newValue : state.fields[action.name].value,
         },
