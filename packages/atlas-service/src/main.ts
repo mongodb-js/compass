@@ -12,7 +12,7 @@ import fetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import type { AIQuery, IntrospectInfo, Token, UserInfo } from './util';
-import { ipcExpose } from './util';
+import { ipcExpose } from '@mongodb-js/compass-utils';
 
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',

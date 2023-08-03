@@ -9,3 +9,4 @@ export {
   createCancelError,
   isCancelError,
 } from './cancellable-promise';
+export * from './ipc';
