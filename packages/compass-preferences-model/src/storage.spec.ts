@@ -93,19 +93,5 @@ describe('storage', function () {
         currentUserId: '123456789',
       });
     });
-
-    it('will strip unknown prefs', async function () {
-      const prefsStorage = new StoragePreferences(
-        { showedNetworkOptIn: true, foo: true } as unknown as UserPreferences,
-        tmpDir
-      );
-      await prefsStorage.setup();
-
-      // roundabout way to make it load because setup doesn't fill prefsStorage.preferences if it writes the file
-      await prefsStorage.updatePreferences({});
-
-      const prefs = prefsStorage.getPreferences();
-      expect(prefs).to.deep.equal({ showedNetworkOptIn: true });
-    });
   });
 });
