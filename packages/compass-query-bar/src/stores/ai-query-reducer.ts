@@ -10,6 +10,7 @@ import { isAction } from '../utils';
 import { mapQueryToFormFields } from '../utils/query';
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { openToast } from '@mongodb-js/compass-components';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -91,6 +92,7 @@ type AIQueryStartedAction = {
 type AIQueryFailedAction = {
   type: AIQueryActionTypes.AIQueryFailed;
   errorMessage: string;
+  networkErrorCode?: number;
 };
 
 export type AIQuerySucceededAction = {
@@ -162,11 +164,21 @@ export const runAIQuery = (
         // If we already aborted so we ignore the error.
         return;
       }
-
       logFailed(err?.message);
+      // We're going to reset input state with this error, show the error in the
+      // toast instead
+      if (err.statusCode === 401) {
+        openToast('ai-unauthorized', {
+          variant: 'important',
+          title: 'Network Error',
+          description: 'Unauthorized',
+          timeout: 5000,
+        });
+      }
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
+        networkErrorCode: err.statusCode,
       });
       return;
     } finally {
@@ -290,6 +302,13 @@ const aiQueryReducer: Reducer<AIQueryState> = (
   }
 
   if (isAction<AIQueryFailedAction>(action, AIQueryActionTypes.AIQueryFailed)) {
+    // If fetching query failed due to authentication error, reset the state to
+    // hide the input and show the "Ask AI" button again: this should start the
+    // sign in flow for the user when clicked
+    if (action.networkErrorCode === 401) {
+      return { ...initialState };
+    }
+
     return {
       ...state,
       status: 'ready',
