@@ -55,12 +55,26 @@ const editorWithErrorStyles = css({
 
 const queryBarEditorOptionInsightsStyles = css({
   alignSelf: 'flex-start',
-  paddingLeft: spacing[1],
-  paddingRight: spacing[1],
   // To align the icon in the middle of the first line of the editor input
   // (<input height> - <insight badge height>) / 2
   paddingTop: 3,
   paddingBottom: 3,
+  paddingLeft: 3,
+  paddingRight: 3,
+
+  // We make container the size of the collapsed insight to avoid additional
+  // shrinking of the editor content when hoveing over the icon. In this case
+  // it's okay for the content to be hidden by the expanded badge as user is
+  // interacting with the badge
+  width: spacing[4],
+  height: spacing[4],
+  overflow: 'visible',
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
+const insightsBadgeStyles = css({
+  flex: 'none',
 });
 
 type OptionEditorProps = {
@@ -149,7 +163,10 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>
-          <SignalPopover signals={insights}></SignalPopover>
+          <SignalPopover
+            className={insightsBadgeStyles}
+            signals={insights}
+          ></SignalPopover>
         </div>
       )}
     </div>
