@@ -13,7 +13,7 @@ import {
   ItemActionControls,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type AppRegistry from 'hadron-app-registry';
 
 import Connection from './connection';

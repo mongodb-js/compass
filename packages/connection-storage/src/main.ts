@@ -1,6 +1,4 @@
-export { ConnectionInfo, ConnectionFavoriteOptions } from './connection-info';
-export { ConnectionStorage } from './connection-storage';
-export { getConnectionTitle } from './connection-title';
+export { ConnectionStorageMain as ConnectionStorage } from './connection-storage';
 export {
   ConnectionSecrets,
   extractSecrets,
@@ -12,3 +10,4 @@ export {
   exportConnections,
   importConnections,
 } from './import-export-connection';
+export { ConnectionInfo } from './connection-info';

@@ -13,7 +13,7 @@ import {
   Body,
 } from '@mongodb-js/compass-components';
 
-import type { ConnectionStorage } from '@mongodb-js/connection-storage';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 const LEGACY_MODAL_STORAGE_KEY = 'hide_legacy_connections_modal';
 

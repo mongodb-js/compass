@@ -19,8 +19,7 @@ import { AtlasService } from '@mongodb-js/atlas-service/main';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
-import { ConnectionStorage } from '@mongodb-js/connection-storage';
-import { getStoragePaths } from '@mongodb-js/compass-utils';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/main';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
@@ -91,6 +90,7 @@ class CompassApplication {
     }
 
     AtlasService.init();
+    ConnectionStorage.init();
 
     this.setupAutoUpdate();
     await setupCSFLELibrary();
@@ -142,9 +142,8 @@ class CompassApplication {
     track('Application Launched', async () => {
       let hasLegacyConnections: boolean;
       try {
-        hasLegacyConnections = await new ConnectionStorage(
-          getStoragePaths()?.basepath
-        ).hasLegacyConnections();
+        hasLegacyConnections =
+          await new ConnectionStorage().hasLegacyConnections();
       } catch (e) {
         debug('Failed to check legacy connections', e);
         hasLegacyConnections = false;

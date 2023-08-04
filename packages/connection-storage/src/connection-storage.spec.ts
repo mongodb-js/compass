@@ -5,7 +5,7 @@ import path from 'path';
 import os from 'os';
 import { v4 as uuid } from 'uuid';
 
-import { ConnectionStorage } from './connection-storage';
+import { ConnectionStorageMain as ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
 import Sinon from 'sinon';
 
@@ -54,6 +54,7 @@ describe('ConnectionStorage', function () {
     fs.rmdirSync(tmpDir, { recursive: true });
     Sinon.restore();
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
+    ConnectionStorage['instance'] = null;
   });
 
   describe('loadAll', function () {
@@ -102,12 +103,14 @@ describe('ConnectionStorage', function () {
 
   describe('load', function () {
     it('should return undefined if id is undefined', async function () {
-      expect(await connectionStorage.load(undefined)).to.be.undefined;
-      expect(await connectionStorage.load('')).to.be.undefined;
+      expect(await connectionStorage.load({ id: undefined })).to.be.undefined;
+      expect(await connectionStorage.load({ id: '' })).to.be.undefined;
     });
 
     it('should return undefined if a connection does not exist', async function () {
-      const connection = await connectionStorage.load('note-exis-stin-gone');
+      const connection = await connectionStorage.load({
+        id: 'note-exis-stin-gone',
+      });
       expect(connection).to.be.undefined;
     });
 
@@ -116,7 +119,9 @@ describe('ConnectionStorage', function () {
       writeFakeConnection(tmpDir, {
         connectionInfo,
       });
-      const connection = await connectionStorage.load(connectionInfo.id);
+      const connection = await connectionStorage.load({
+        id: connectionInfo.id,
+      });
       expect(connection).to.deep.equal(connectionInfo);
     });
 
@@ -127,7 +132,9 @@ describe('ConnectionStorage', function () {
       });
       writeFakeConnection(tmpDir, { connectionInfo });
 
-      const connection = await connectionStorage.load(connectionInfo.id);
+      const connection = await connectionStorage.load({
+        id: connectionInfo.id,
+      });
       expect(connection!.lastUsed).to.deep.equal(lastUsed);
     });
 
@@ -141,7 +148,9 @@ describe('ConnectionStorage', function () {
         });
         writeFakeConnection(tmpDir, { connectionInfo });
 
-        const connection = await connectionStorage.load(connectionInfo.id);
+        const connection = await connectionStorage.load({
+          id: connectionInfo.id,
+        });
         expect(connection!.connectionOptions.connectionString).to.deep.equal(
           'mongodb://localhost:27017/admin'
         );
@@ -156,7 +165,9 @@ describe('ConnectionStorage', function () {
         });
         writeFakeConnection(tmpDir, { connectionInfo });
 
-        const connection = await connectionStorage.load(connectionInfo.id);
+        const connection = await connectionStorage.load({
+          id: connectionInfo.id,
+        });
         expect(connection!.connectionOptions.connectionString).to.deep.equal(
           'mongodb://localhost:27017/admin?appName=Something+Else'
         );
@@ -170,9 +181,11 @@ describe('ConnectionStorage', function () {
       expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
 
       await connectionStorage.save({
-        id,
-        connectionOptions: {
-          connectionString: 'mongodb://root:password@localhost:27017',
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://root:password@localhost:27017',
+          },
         },
       });
 
@@ -185,9 +198,12 @@ describe('ConnectionStorage', function () {
     it('saves a connection with arbitrary authMechanism', async function () {
       const id: string = uuid();
       await connectionStorage.save({
-        id,
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017/?authMechanism=FAKEAUTH',
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?authMechanism=FAKEAUTH',
+          },
         },
       });
 
@@ -200,9 +216,11 @@ describe('ConnectionStorage', function () {
     it('requires id to be set', async function () {
       const error = await connectionStorage
         .save({
-          id: '',
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017',
+          connectionInfo: {
+            id: '',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
           },
         })
         .catch((err) => err);
@@ -213,9 +231,11 @@ describe('ConnectionStorage', function () {
     it('requires id to be a uuid', async function () {
       const error = await connectionStorage
         .save({
-          id: 'someid',
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017',
+          connectionInfo: {
+            id: 'someid',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
           },
         })
         .catch((err) => err);
@@ -226,9 +246,11 @@ describe('ConnectionStorage', function () {
     it('requires connection string to be set', async function () {
       const error = await connectionStorage
         .save({
-          id: uuid(),
-          connectionOptions: {
-            connectionString: '',
+          connectionInfo: {
+            id: uuid(),
+            connectionOptions: {
+              connectionString: '',
+            },
           },
         })
         .catch((err) => err);
@@ -257,7 +279,7 @@ describe('ConnectionStorage', function () {
           },
         },
       };
-      await connectionStorage.save(connectionInfo);
+      await connectionStorage.save({ connectionInfo });
 
       const { connectionInfo: expectedConnectionInfo } = JSON.parse(
         fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
@@ -287,15 +309,15 @@ describe('ConnectionStorage', function () {
         const deleteSpy = Sinon.spy(connectionStorage, 'delete');
 
         // Save another connection
-        await connectionStorage.save(getConnectionInfo());
+        await connectionStorage.save({ connectionInfo: getConnectionInfo() });
 
         const numConnections = (await connectionStorage.loadAll()).length;
         expect(numConnections).to.equal(maxAllowedConnections);
 
         expect(
-          deleteSpy.calledOnceWithExactly(
-            connectionInfos[connectionInfos.length - 1].id
-          )
+          deleteSpy.calledOnceWithExactly({
+            id: connectionInfos[connectionInfos.length - 1].id,
+          })
         ).to.be.true;
       });
 
@@ -305,7 +327,7 @@ describe('ConnectionStorage', function () {
         const deleteSpy = Sinon.spy(connectionStorage, 'delete');
 
         // Save another connection
-        await connectionStorage.save(getConnectionInfo());
+        await connectionStorage.save({ connectionInfo: getConnectionInfo() });
 
         const numConnections = (await connectionStorage.loadAll()).length;
         expect(numConnections).to.equal(maxAllowedConnections);
@@ -325,7 +347,7 @@ describe('ConnectionStorage', function () {
       expect(fs.existsSync(getConnectionFilePath(tmpDir, connectionInfo.id))).to
         .be.true;
 
-      await connectionStorage.delete(connectionInfo.id);
+      await connectionStorage.delete({ id: connectionInfo.id });
 
       const filePath = getConnectionFilePath(tmpDir, connectionInfo.id);
       expect(fs.existsSync(filePath)).to.be.false;

@@ -10,17 +10,72 @@ import {
   mergeSecrets,
   extractSecrets,
 } from './connection-secrets';
-import { getKeytarServiceName, deleteCompassAppNameParam } from './utils';
+import {
+  deleteCompassAppNameParam,
+  getKeytarServiceName,
+  throwIfAborted,
+} from './utils';
+import { ipcExpose, ipcInvoke } from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
-export class ConnectionStorage {
-  private readonly folder = 'Connections';
-  private readonly keytarServiceName: string;
-  private readonly maxAllowedRecentConnections = 10;
+type MethodProps<
+  IsMainProcess extends boolean,
+  Args extends Record<string, unknown>
+> = IsMainProcess extends true
+  ? Args & {
+      signal?: AbortSignal;
+    }
+  : Args;
 
-  constructor(protected readonly path: string = '') {
-    this.keytarServiceName = getKeytarServiceName();
+// The interface of the ConnectionStorage that's common between both
+// main and renderer process. When ConnectionStorage is triggered from
+// renderer process, we pass in the signal to the methods in ipcInvoke.
+interface ConnectionStorage<T extends boolean> {
+  loadAll(
+    options: MethodProps<T, Record<string, never>>
+  ): Promise<ConnectionInfo[]>;
+  load(
+    options: MethodProps<T, { id?: string }>
+  ): Promise<ConnectionInfo | undefined>;
+  hasLegacyConnections(
+    options: MethodProps<T, Record<string, never>>
+  ): Promise<boolean>;
+  save(
+    options: MethodProps<T, { connectionInfo: ConnectionInfo }>
+  ): Promise<void>;
+  delete(options: MethodProps<T, { id?: string }>): Promise<void>;
+}
+
+export class ConnectionStorageMain implements ConnectionStorage<true> {
+  private readonly path!: string;
+  private readonly folder = 'Connections';
+  private readonly maxAllowedRecentConnections = 10;
+  private readonly keytarServiceName = getKeytarServiceName();
+
+  private static instance: ConnectionStorageMain | null;
+
+  constructor(path = '') {
+    if (ConnectionStorageMain.instance) {
+      return ConnectionStorageMain.instance;
+    }
+    this.path = path;
+    ConnectionStorageMain.instance = this;
+  }
+
+  static init(path?: string) {
+    if (this.instance) {
+      return;
+    }
+    const instance = new this(path);
+    ipcExpose('ConnectionStorage', instance, [
+      'loadAll',
+      'load',
+      'hasLegacyConnections',
+      'save',
+      'delete',
+    ]);
+    this.instance = instance;
   }
 
   private getFolderPath() {
@@ -95,7 +150,12 @@ export class ConnectionStorage {
    * connection.connectionInfo  -> new connection
    * connection.isFavorite      -> legacy favorite connection
    */
-  async hasLegacyConnections() {
+  async hasLegacyConnections({
+    signal,
+  }: {
+    signal?: AbortSignal;
+  } = {}): Promise<boolean> {
+    throwIfAborted(signal);
     try {
       return (
         (await this.getConnections()).filter(
@@ -107,7 +167,12 @@ export class ConnectionStorage {
     }
   }
 
-  async loadAll(): Promise<ConnectionInfo[]> {
+  async loadAll({
+    signal,
+  }: {
+    signal?: AbortSignal;
+  } = {}): Promise<ConnectionInfo[]> {
+    throwIfAborted(signal);
     // Ensure folder exists
     await fs.mkdir(this.getFolderPath(), { recursive: true });
 
@@ -141,7 +206,14 @@ export class ConnectionStorage {
     }
   }
 
-  async save(connectionInfo: ConnectionInfo): Promise<void> {
+  async save({
+    connectionInfo,
+    signal,
+  }: {
+    signal?: AbortSignal;
+    connectionInfo: ConnectionInfo;
+  }): Promise<void> {
+    throwIfAborted(signal);
     try {
       if (!connectionInfo.id) {
         throw new Error('id is required');
@@ -204,7 +276,14 @@ export class ConnectionStorage {
     }
   }
 
-  async delete(id?: string): Promise<void> {
+  async delete({
+    id,
+    signal,
+  }: {
+    id?: string;
+    signal?: AbortSignal;
+  }): Promise<void> {
+    throwIfAborted(signal);
     if (!id) {
       return;
     }
@@ -236,7 +315,14 @@ export class ConnectionStorage {
     }
   }
 
-  async load(id?: string): Promise<ConnectionInfo | undefined> {
+  async load({
+    id,
+    signal,
+  }: {
+    id?: string;
+    signal?: AbortSignal;
+  }): Promise<ConnectionInfo | undefined> {
+    throwIfAborted(signal);
     if (!id) {
       return undefined;
     }
@@ -261,7 +347,28 @@ export class ConnectionStorage {
       });
 
     if (recentConnections.length >= this.maxAllowedRecentConnections) {
-      void this.delete(recentConnections[recentConnections.length - 1].id);
+      await this.delete({
+        id: recentConnections[recentConnections.length - 1].id,
+      });
     }
   }
+}
+
+export class ConnectionStorageRenderer implements ConnectionStorage<false> {
+  private ipc = ipcInvoke<
+    ConnectionStorage<false>,
+    'loadAll' | 'load' | 'hasLegacyConnections' | 'save' | 'delete'
+  >('ConnectionStorage', [
+    'loadAll',
+    'load',
+    'hasLegacyConnections',
+    'save',
+    'delete',
+  ]);
+
+  loadAll = this.ipc.loadAll;
+  load = this.ipc.load;
+  hasLegacyConnections = this.ipc.hasLegacyConnections;
+  save = this.ipc.save;
+  delete = this.ipc.delete;
 }

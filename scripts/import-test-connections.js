@@ -1,6 +1,6 @@
 const createTestEnvs = require('@mongodb-js/devtools-docker-test-envs').default;
 const ConnectionStringUrl = require('mongodb-connection-string-url').default;
-const { extractSecrets } = require('@mongodb-js/connection-storage');
+const { extractSecrets } = require('@mongodb-js/connection-storage/main');
 const uuidV5 = require('uuid/v5');
 const { app } = require('electron');
 const fs = require('fs').promises;

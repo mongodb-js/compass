@@ -3,10 +3,9 @@ import { cloneDeep } from 'lodash';
 import type { ConnectionInfo } from './connection-info';
 import type { ConnectionSecrets } from './connection-secrets';
 import { extractSecrets, mergeSecrets } from './connection-secrets';
-import { ConnectionStorage } from './connection-storage';
+import { ConnectionStorageMain } from './connection-storage';
 import { Decrypter, Encrypter } from './encrypt';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-CONNECTION-IMPORT-EXPORT'
@@ -19,7 +18,7 @@ interface ConnectionInfoWithEncryptedData extends ConnectionInfo {
 const kCurrentVersion = 1;
 const kFileTypeDescription = 'Compass Connections';
 
-export interface ExportImportConnectionOptions {
+interface ExportImportConnectionOptions {
   passphrase?: string;
   filter?: (info: ConnectionInfo) => boolean;
   trackingProps?: Record<string, unknown> | undefined;
@@ -38,8 +37,7 @@ export async function exportConnections(
   options: ExportConnectionOptions = {}
 ): Promise<string> {
   const {
-    loadConnections = async () =>
-      new ConnectionStorage(getStoragePaths()?.basepath).loadAll(),
+    loadConnections = async () => new ConnectionStorageMain().loadAll(),
     filter = (info) => info.favorite?.name,
     passphrase = '',
     removeSecrets = false,
@@ -108,8 +106,10 @@ class CompassImportError extends Error {
 async function saveConnectionsToDefaultStorage(
   connections: ConnectionInfo[]
 ): Promise<void> {
-  const storage = new ConnectionStorage(getStoragePaths()?.basepath);
-  await Promise.all(connections.map((conn) => storage.save(conn)));
+  const storage = new ConnectionStorageMain();
+  await Promise.all(
+    connections.map((connectionInfo) => storage.save({ connectionInfo }))
+  );
 }
 
 export async function importConnections(

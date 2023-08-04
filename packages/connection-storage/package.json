@@ -22,20 +22,18 @@
     "dist"
   ],
   "license": "SSPL",
-  "main": "dist/index.js",
-  "compass:main": "src/index.ts",
   "exports": {
-    "import": "./dist/.esm-wrapper.mjs",
-    "require": "./dist/index.js"
+    "./main": "./main.js",
+    "./renderer": "./renderer.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    "./main": "./src/main.ts",
+    "./renderer": "./src/renderer.ts"
   },
-  "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "compile": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -63,7 +61,6 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "gen-esm-wrapper": "^1.1.0",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",

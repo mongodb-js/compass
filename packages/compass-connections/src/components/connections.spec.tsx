@@ -12,7 +12,7 @@ import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
   ConnectionStorage,
-} from '@mongodb-js/connection-storage';
+} from '@mongodb-js/connection-storage/renderer';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
 
