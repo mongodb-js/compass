@@ -107,7 +107,7 @@ function logFailed(errorMessage: string) {
 }
 
 export const runAIQuery = (
-  userPrompt: string
+  userInput: string
 ): QueryBarThunkAction<
   Promise<void>,
   AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
@@ -151,9 +151,9 @@ export const runAIQuery = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await atlasService.getQueryFromUserPrompt({
+      jsonResponse = await atlasService.getQueryFromUserInput({
         signal: abortController.signal,
-        userPrompt,
+        userInput,
         collectionName,
         databaseName,
         schema,

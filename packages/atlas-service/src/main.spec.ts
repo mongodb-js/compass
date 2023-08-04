@@ -193,8 +193,8 @@ describe('AtlasServiceMain', function () {
     });
   });
 
-  describe('getQueryFromUserPrompt', function () {
-    it('makes a post request with the user prompt to the endpoint in the environment', async function () {
+  describe('getQueryFromUserInput', function () {
+    it('makes a post request with the user input to the endpoint in the environment', async function () {
       AtlasService['fetch'] = sandbox.stub().resolves({
         ok: true,
         json() {
@@ -204,8 +204,8 @@ describe('AtlasServiceMain', function () {
         },
       }) as any;
 
-      const res = await AtlasService.getQueryFromUserPrompt({
-        userPrompt: 'test',
+      const res = await AtlasService.getQueryFromUserInput({
+        userInput: 'test',
         signal: new AbortController().signal,
         collectionName: 'jam',
         databaseName: 'peanut',
@@ -220,7 +220,7 @@ describe('AtlasServiceMain', function () {
       expect(AtlasService['fetch']).to.have.been.calledOnce;
       expect(args[0]).to.eq('http://example.com/ai/api/v1/mql-query');
       expect(args[1].body).to.eq(
-        '{"userPrompt":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
+        '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
       );
       expect(res).to.have.nested.property(
         'content.query.find.test',
@@ -232,13 +232,13 @@ describe('AtlasServiceMain', function () {
       const c = new AbortController();
       c.abort();
       try {
-        await AtlasService.getQueryFromUserPrompt({
+        await AtlasService.getQueryFromUserInput({
           signal: c.signal,
-          userPrompt: 'test',
+          userInput: 'test',
           collectionName: 'test',
           databaseName: 'peanut',
         });
-        expect.fail('Expected getQueryFromUserPrompt to throw');
+        expect.fail('Expected getQueryFromUserInput to throw');
       } catch (err) {
         expect(err).to.have.property('message', 'This operation was aborted');
       }
@@ -246,13 +246,13 @@ describe('AtlasServiceMain', function () {
 
     it('throws if the request would be too much for the ai', async function () {
       try {
-        await AtlasService.getQueryFromUserPrompt({
-          userPrompt: 'test',
+        await AtlasService.getQueryFromUserInput({
+          userInput: 'test',
           collectionName: 'test',
           databaseName: 'peanut',
           sampleDocuments: [{ test: '4'.repeat(60000) }],
         });
-        expect.fail('Expected getQueryFromUserPrompt to throw');
+        expect.fail('Expected getQueryFromUserInput to throw');
       } catch (err) {
         expect(err).to.have.property(
           'message',
@@ -269,8 +269,8 @@ describe('AtlasServiceMain', function () {
         },
       }) as any;
 
-      await AtlasService.getQueryFromUserPrompt({
-        userPrompt: 'test',
+      await AtlasService.getQueryFromUserInput({
+        userInput: 'test',
         collectionName: 'test.test',
         databaseName: 'peanut',
         sampleDocuments: [
@@ -287,7 +287,7 @@ describe('AtlasServiceMain', function () {
 
       expect(AtlasService['fetch']).to.have.been.calledOnce;
       expect(args[1].body).to.eq(
-        '{"userPrompt":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
+        '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
       );
     });
 
@@ -299,12 +299,12 @@ describe('AtlasServiceMain', function () {
       }) as any;
 
       try {
-        await AtlasService.getQueryFromUserPrompt({
-          userPrompt: 'test',
+        await AtlasService.getQueryFromUserInput({
+          userInput: 'test',
           collectionName: 'test.test',
           databaseName: 'peanut',
         });
-        expect.fail('Expected getQueryFromUserPrompt to throw');
+        expect.fail('Expected getQueryFromUserInput to throw');
       } catch (err) {
         expect(err).to.have.property('message', '500 Internal Server Error');
       }
@@ -314,8 +314,8 @@ describe('AtlasServiceMain', function () {
       delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
 
       try {
-        await AtlasService.getQueryFromUserPrompt({
-          userPrompt: 'test',
+        await AtlasService.getQueryFromUserInput({
+          userInput: 'test',
           collectionName: 'test.test',
           databaseName: 'peanut',
         });
@@ -337,8 +337,8 @@ describe('AtlasServiceMain', function () {
       }) as any;
       AtlasService['oidcPluginSyncedFromLoggerState'] = 'expired';
       const [query] = await Promise.all([
-        AtlasService.getQueryFromUserPrompt({
-          userPrompt: 'test',
+        AtlasService.getQueryFromUserInput({
+          userInput: 'test',
           collectionName: 'test',
           databaseName: 'test',
           sampleDocuments: [],
