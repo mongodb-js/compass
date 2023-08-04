@@ -147,7 +147,7 @@ export class AtlasService {
       'introspect',
       'isAuthenticated',
       'signIn',
-      'getQueryFromUserPrompt',
+      'getQueryFromUserInput',
     ]);
     this.attachOidcPluginLoggerEvents();
     log.info(
@@ -448,15 +448,15 @@ export class AtlasService {
     return res.json() as Promise<IntrospectInfo>;
   }
 
-  static async getQueryFromUserPrompt({
+  static async getQueryFromUserInput({
     signal,
-    userPrompt,
+    userInput,
     collectionName,
     databaseName,
     schema,
     sampleDocuments,
   }: {
-    userPrompt: string;
+    userInput: string;
     collectionName: string;
     databaseName: string;
     schema?: SimplifiedSchema;
@@ -469,7 +469,7 @@ export class AtlasService {
     }
 
     let msgBody = JSON.stringify({
-      userPrompt,
+      userInput,
       collectionName,
       databaseName,
       schema,
@@ -481,7 +481,7 @@ export class AtlasService {
       // If that fails we throw an error indicating this collection's
       // documents are too large to send to the ai.
       msgBody = JSON.stringify({
-        userPrompt,
+        userInput,
         collectionName,
         databaseName,
         schema,
