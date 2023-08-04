@@ -4,8 +4,6 @@ import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-SIDEBAR');
 
-const { basepath } = getStoragePaths() ?? {};
-
 /**
  * Change connection action name.
  */
@@ -25,7 +23,7 @@ export const INITIAL_STATE = {
       connectionString: 'mongodb://localhost:27017',
     },
   },
-  connectionStorage: new ConnectionStorage(basepath),
+  connectionStorage: new ConnectionStorage(getStoragePaths()?.basepath),
 };
 
 async function saveConnectionInfo(connectionInfo, connectionStorage) {
