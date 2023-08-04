@@ -10,19 +10,26 @@ import {
 } from './connection-secrets';
 import { deleteCompassAppNameParam } from './utils';
 import { ipcInvoke } from '@mongodb-js/compass-utils';
-import type { KeytarService } from './keytar-service';
+import { KeytarService } from './keytar-service';
+import isElectronRenderer from 'is-electron-renderer';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 export class ConnectionStorage {
   private readonly folder = 'Connections';
   private readonly maxAllowedRecentConnections = 10;
-  private readonly keytarIpc = ipcInvoke<
-    typeof KeytarService,
-    'findPasswords' | 'setPassword' | 'deletePassword'
-  >('KeytarService', ['findPasswords', 'setPassword', 'deletePassword']);
+  private readonly keytarService;
 
-  constructor(protected readonly path: string = '') {}
+  constructor(protected readonly path: string = '') {
+    if (isElectronRenderer) {
+      this.keytarService = ipcInvoke<
+        typeof KeytarService,
+        'findPasswords' | 'setPassword' | 'deletePassword'
+      >('KeytarService', ['findPasswords', 'setPassword', 'deletePassword']);
+    } else {
+      this.keytarService = KeytarService;
+    }
+  }
 
   private getFolderPath() {
     return join(this.path, this.folder);
@@ -92,7 +99,7 @@ export class ConnectionStorage {
     try {
       const [connections, secrets] = await Promise.all([
         this.getConnections(),
-        this.keytarIpc.findPasswords(),
+        this.keytarService.findPasswords(),
       ]);
       return (
         connections
@@ -154,7 +161,7 @@ export class ConnectionStorage {
           ),
           'utf-8'
         );
-        await this.keytarIpc.setPassword({
+        await this.keytarService.setPassword({
           accountId: connectionInfo.id,
           password: JSON.stringify({ secrets }, null, 2),
         });
@@ -182,7 +189,7 @@ export class ConnectionStorage {
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         return;
       }
-      await this.keytarIpc.deletePassword({ accountId: id });
+      await this.keytarService.deletePassword({ accountId: id });
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_104),
