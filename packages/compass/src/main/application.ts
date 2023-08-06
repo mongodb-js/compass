@@ -86,12 +86,14 @@ class CompassApplication {
       return;
     }
 
+    // ConnectionStorage offers import/export which is used via CLI as well.
+    ConnectionStorage.init(getStoragePaths()?.basepath);
+
     if (mode === 'CLI') {
       return;
     }
 
     AtlasService.init();
-    ConnectionStorage.init(getStoragePaths()?.basepath);
 
     this.setupAutoUpdate();
     await setupCSFLELibrary();
