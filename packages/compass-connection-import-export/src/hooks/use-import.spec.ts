@@ -20,6 +20,7 @@ describe('useImportConnections', function () {
   let finish: sinon.SinonStub;
   let finishedPromise: Promise<ImportExportResult>;
   let importConnections: sinon.SinonStub;
+  let deserializeConnections: sinon.SinonStub;
   let defaultProps: UseImportConnectionsProps;
   let renderHookResult: RenderHookResult<
     Partial<UseImportConnectionsProps>,
@@ -36,6 +37,7 @@ describe('useImportConnections', function () {
       finish = sinon.stub().callsFake(resolve);
     });
     importConnections = sinon.stub();
+    deserializeConnections = sinon.stub();
     defaultProps = {
       finish,
       open: true,
@@ -46,7 +48,8 @@ describe('useImportConnections', function () {
       (props: Partial<UseImportConnectionsProps> = {}) => {
         return useImportConnections(
           { ...defaultProps, ...props },
-          importConnections
+          importConnections,
+          deserializeConnections
         );
       }
     );
@@ -68,15 +71,21 @@ describe('useImportConnections', function () {
   });
 
   it('updates filename if changed', async function () {
-    importConnections.callsFake((contents: string, options: any) => {
-      expect(contents).to.equal(exampleFileContents);
+    deserializeConnections.callsFake(function ({
+      content,
+      options,
+    }: {
+      content: string;
+      options: any;
+    }) {
+      expect(content).to.equal(exampleFileContents);
       expect(options.passphrase).to.equal('');
-      options.saveConnections([
+      return [
         {
           id: 'id1',
           favorite: { name: 'name1' },
         },
-      ]);
+      ];
     });
 
     act(() => {
@@ -89,27 +98,45 @@ describe('useImportConnections', function () {
       () => result.current.state.connectionList.length
     );
 
-    expect(importConnections).to.have.been.calledOnce;
+    expect(deserializeConnections).to.have.been.calledOnce;
     expect(result.current.state.connectionList).to.deep.equal([
       { id: 'id1', name: 'name1', selected: true, isExistingFavorite: false },
     ]);
   });
 
   it('updates passphrase if changed', async function () {
-    importConnections.callsFake((contents: string, options: any) => {
-      if (options.passphrase !== 's3cr3t') {
+    deserializeConnections
+      .onFirstCall()
+      .callsFake(function ({
+        content,
+        options,
+      }: {
+        content: string;
+        options: any;
+      }) {
+        expect(content).to.equal(exampleFileContents);
+        expect(options.passphrase).to.equal('wrong');
         throw Object.assign(new Error('wrong password'), {
           passphraseRequired: true,
         });
-      }
-      expect(contents).to.equal(exampleFileContents);
-      options.saveConnections([
-        {
-          id: 'id1',
-          favorite: { name: 'name1' },
-        },
-      ]);
-    });
+      })
+      .onSecondCall()
+      .callsFake(function ({
+        content,
+        options,
+      }: {
+        content: string;
+        options: any;
+      }) {
+        expect(content).to.equal(exampleFileContents);
+        expect(options.passphrase).to.equal('s3cr3t');
+        return [
+          {
+            id: 'id1',
+            favorite: { name: 'name1' },
+          },
+        ];
+      });
 
     act(() => {
       result.current.onChangeFilename(exampleFile);
@@ -139,20 +166,22 @@ describe('useImportConnections', function () {
   });
 
   it('does not select existing favorites by default', async function () {
-    importConnections.callsFake((contents: string, options: any) => {
-      expect(contents).to.equal(exampleFileContents);
-      expect(options.passphrase).to.equal('');
-      options.saveConnections([
-        {
-          id: 'id1',
-          favorite: { name: 'name1' },
-        },
-        {
-          id: 'id2',
-          favorite: { name: 'name2' },
-        },
-      ]);
-    });
+    deserializeConnections.callsFake(
+      ({ content, options }: { content: string; options: any }) => {
+        expect(content).to.equal(exampleFileContents);
+        expect(options.passphrase).to.equal('');
+        return [
+          {
+            id: 'id1',
+            favorite: { name: 'name1' },
+          },
+          {
+            id: 'id2',
+            favorite: { name: 'name2' },
+          },
+        ];
+      }
+    );
 
     rerender({
       favoriteConnections: [{ id: 'id1', favorite: { name: 'name1' } }],
@@ -182,18 +211,20 @@ describe('useImportConnections', function () {
   });
 
   it('handles actual import', async function () {
-    importConnections.callsFake((contents: string, options: any) => {
-      expect(contents).to.equal(exampleFileContents);
-      options.saveConnections?.([
-        {
-          id: 'id1',
-          favorite: { name: 'name1' },
-        },
-        {
-          id: 'id2',
-          favorite: { name: 'name2' },
-        },
-      ]);
+    const connections = [
+      {
+        id: 'id1',
+        favorite: { name: 'name1' },
+      },
+      {
+        id: 'id2',
+        favorite: { name: 'name2' },
+      },
+    ];
+    deserializeConnections.callsFake(() => connections);
+    importConnections.callsFake(({ content }: { content: string }) => {
+      expect(content).to.equal(exampleFileContents);
+      return connections;
     });
     act(() => {
       result.current.onChangeFilename(exampleFile);
@@ -214,12 +245,10 @@ describe('useImportConnections', function () {
     });
 
     expect(await finishedPromise).to.equal('succeeded');
-    expect(importConnections).to.have.been.calledTwice;
-    const arg = importConnections.secondCall.args[1];
-    expect(arg.trackingProps).to.deep.equal({ context: 'Tests' });
-    expect(arg.saveConnections).to.equal(undefined);
-    expect(arg.filter({ id: 'id1' })).to.equal(false);
-    expect(arg.filter({ id: 'id2' })).to.equal(true);
-    expect(arg.filter({ id: 'id3' })).to.equal(false);
+    expect(importConnections).to.have.been.calledOnce;
+    const arg = importConnections.firstCall.args[0];
+    expect(arg.options.trackingProps).to.deep.equal({ context: 'Tests' });
+    expect(arg.options.saveConnections).to.equal(undefined);
+    expect(arg.options.filterConnectionIds).to.deep.equal(['id2']);
   });
 });

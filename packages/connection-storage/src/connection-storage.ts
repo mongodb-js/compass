@@ -16,38 +16,18 @@ import {
   throwIfAborted,
 } from './utils';
 import { ipcExpose, ipcInvoke } from '@mongodb-js/compass-utils';
+import {
+  serializeConnections,
+  deserializeConnections,
+} from './import-export-connection';
+import type {
+  ImportConnectionOptions,
+  ExportConnectionOptions,
+} from './import-export-connection';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
-type MethodProps<
-  IsMainProcess extends boolean,
-  Args extends Record<string, unknown>
-> = IsMainProcess extends true
-  ? Args & {
-      signal?: AbortSignal;
-    }
-  : Args;
-
-// The interface of the ConnectionStorage that's common between both
-// main and renderer process. When ConnectionStorage is triggered from
-// renderer process, we pass in the signal to the methods in ipcInvoke.
-interface ConnectionStorage<T extends boolean> {
-  loadAll(
-    options: MethodProps<T, Record<string, never>>
-  ): Promise<ConnectionInfo[]>;
-  load(
-    options: MethodProps<T, { id?: string }>
-  ): Promise<ConnectionInfo | undefined>;
-  hasLegacyConnections(
-    options: MethodProps<T, Record<string, never>>
-  ): Promise<boolean>;
-  save(
-    options: MethodProps<T, { connectionInfo: ConnectionInfo }>
-  ): Promise<void>;
-  delete(options: MethodProps<T, { id?: string }>): Promise<void>;
-}
-
-export class ConnectionStorageMain implements ConnectionStorage<true> {
+export class ConnectionStorageMain {
   private readonly path!: string;
   private readonly folder = 'Connections';
   private readonly maxAllowedRecentConnections = 10;
@@ -74,6 +54,9 @@ export class ConnectionStorageMain implements ConnectionStorage<true> {
       'hasLegacyConnections',
       'save',
       'delete',
+      'deserializeConnections',
+      'exportConnections',
+      'importConnections',
     ]);
     this.instance = instance;
   }
@@ -352,18 +335,107 @@ export class ConnectionStorageMain implements ConnectionStorage<true> {
       });
     }
   }
+
+  async deserializeConnections({
+    content,
+    options = {},
+    signal,
+  }: {
+    content: string;
+    options: ImportConnectionOptions;
+    signal?: AbortSignal;
+  }): Promise<ConnectionInfo[]> {
+    throwIfAborted(signal);
+
+    const { passphrase, trackingProps, filterConnectionIds } = options;
+    const connections = await deserializeConnections(content, {
+      passphrase,
+      trackingProps,
+    });
+    return filterConnectionIds
+      ? connections.filter((x) => filterConnectionIds.includes(x.id))
+      : connections;
+  }
+
+  async importConnections({
+    content,
+    options = {},
+    signal,
+  }: {
+    content: string;
+    options?: ImportConnectionOptions;
+    signal?: AbortSignal;
+  }): Promise<void> {
+    throwIfAborted(signal);
+
+    const connections = await this.deserializeConnections({
+      content,
+      options,
+      signal,
+    });
+
+    log.info(
+      mongoLogId(1_001_000_149),
+      'Connection Import',
+      'Starting connection import',
+      {
+        count: connections.length,
+      }
+    );
+
+    await Promise.all(
+      connections.map((connectionInfo) => this.save({ connectionInfo, signal }))
+    );
+
+    log.info(
+      mongoLogId(1_001_000_150),
+      'Connection Import',
+      'Connection import complete',
+      {
+        count: connections.length,
+      }
+    );
+  }
+
+  async exportConnections({
+    options = {},
+    signal,
+  }: {
+    options?: ExportConnectionOptions;
+    signal?: AbortSignal;
+  } = {}): Promise<string> {
+    throwIfAborted(signal);
+
+    const { filterConnectionIds, ...restOfOptions } = options;
+    const connections = await this.loadAll({ signal });
+    const exportConnections = filterConnectionIds
+      ? connections.filter((x) => filterConnectionIds.includes(x.id))
+      : connections.filter((x) => x.favorite?.name);
+
+    return serializeConnections(exportConnections, restOfOptions);
+  }
 }
 
-export class ConnectionStorageRenderer implements ConnectionStorage<false> {
+export class ConnectionStorageRenderer {
   private ipc = ipcInvoke<
-    ConnectionStorage<false>,
-    'loadAll' | 'load' | 'hasLegacyConnections' | 'save' | 'delete'
+    NonNullable<typeof ConnectionStorageMain['instance']>,
+    | 'loadAll'
+    | 'load'
+    | 'hasLegacyConnections'
+    | 'save'
+    | 'delete'
+    | 'deserializeConnections'
+    | 'importConnections'
+    | 'exportConnections'
   >('ConnectionStorage', [
     'loadAll',
     'load',
     'hasLegacyConnections',
     'save',
     'delete',
+    'deserializeConnections',
+    'importConnections',
+    'exportConnections',
   ]);
 
   loadAll = this.ipc.loadAll;
@@ -371,4 +443,7 @@ export class ConnectionStorageRenderer implements ConnectionStorage<false> {
   hasLegacyConnections = this.ipc.hasLegacyConnections;
   save = this.ipc.save;
   delete = this.ipc.delete;
+  deserializeConnections = this.ipc.deserializeConnections;
+  importConnections = this.ipc.importConnections;
+  exportConnections = this.ipc.exportConnections;
 }

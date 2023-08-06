@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { v4 as uuid } from 'uuid';
+import { sortBy } from 'lodash';
 
 import { ConnectionStorageMain as ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
@@ -52,9 +53,9 @@ describe('ConnectionStorage', function () {
 
   afterEach(function () {
     fs.rmdirSync(tmpDir, { recursive: true });
-    Sinon.restore();
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
     ConnectionStorage['instance'] = null;
+    Sinon.restore();
   });
 
   describe('loadAll', function () {
@@ -406,6 +407,96 @@ describe('ConnectionStorage', function () {
       const hasLegacyConnections =
         await connectionStorage.hasLegacyConnections();
       expect(hasLegacyConnections).to.be.true;
+    });
+  });
+
+  describe('import/export connections', function () {
+    // By default we only export favorite connections
+    const CONNECTIONS = [
+      getConnectionInfo({
+        favorite: {
+          name: 'Connection 1',
+        },
+      }),
+      getConnectionInfo({
+        favorite: {
+          name: 'Connection 2',
+        },
+      }),
+    ];
+
+    beforeEach(function () {
+      CONNECTIONS.map((connectionInfo) =>
+        writeFakeConnection(tmpDir, { connectionInfo })
+      );
+    });
+
+    it('exports connections with default options', async function () {
+      const exportedConnections = await connectionStorage.exportConnections();
+      const parsedConnections = JSON.parse(exportedConnections);
+
+      const connectionNames = parsedConnections.connections.map(
+        (x: ConnectionInfo) => x.favorite?.name
+      );
+
+      expect(parsedConnections.connections).to.have.lengthOf(2);
+      expect(connectionNames.includes('Connection 1')).to.be.true;
+      expect(connectionNames.includes('Connection 2')).to.be.true;
+    });
+
+    it('exports connections with filter', async function () {
+      const exportedConnections = await connectionStorage.exportConnections({
+        options: {
+          filterConnectionIds: [CONNECTIONS[1].id],
+        },
+      });
+      const parsedConnections = JSON.parse(exportedConnections);
+
+      const connectionNames = parsedConnections.connections.map(
+        (x: ConnectionInfo) => x.favorite?.name
+      );
+
+      expect(parsedConnections.connections).to.have.lengthOf(1);
+      expect(connectionNames.includes('Connection 1')).to.be.false;
+      expect(connectionNames.includes('Connection 2')).to.be.true;
+    });
+
+    it('imports connections with default options', async function () {
+      const exportedConnections = await connectionStorage.exportConnections();
+
+      // now remove connections
+      await Promise.all(
+        CONNECTIONS.map(({ id }) => connectionStorage.delete({ id }))
+      );
+
+      await connectionStorage.importConnections({
+        content: exportedConnections,
+      });
+
+      const expectedConnections = await connectionStorage.loadAll();
+
+      expect(sortBy(expectedConnections, 'id')).to.deep.equal(
+        sortBy(CONNECTIONS, 'id')
+      );
+    });
+
+    it('imports connections with filter', async function () {
+      const exportedConnections = await connectionStorage.exportConnections();
+
+      // now remove connections
+      await Promise.all(
+        CONNECTIONS.map(({ id }) => connectionStorage.delete({ id }))
+      );
+
+      await connectionStorage.importConnections({
+        content: exportedConnections,
+        options: {
+          filterConnectionIds: [CONNECTIONS[1].id],
+        },
+      });
+
+      const expectedConnections = await connectionStorage.loadAll();
+      expect(expectedConnections).to.deep.equal([CONNECTIONS[1]]);
     });
   });
 });

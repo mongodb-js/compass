@@ -5,7 +5,7 @@ import {
   useImportExportConnectionsCommon,
 } from './common';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { ImportExportConnections } from '@mongodb-js/connection-storage/renderer';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import type {
   ImportExportResult,
@@ -47,7 +47,7 @@ export function useExportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  exportConnections = ImportExportConnections.export
+  exportConnections = new ConnectionStorage().exportConnections
 ): {
   onCancel: () => void;
   onSubmit: () => void;
@@ -94,7 +94,7 @@ export function useExportConnections(
   const onSubmit = useCallback(() => {
     setState((prevState) => ({ ...prevState, inProgress: true }));
     void (async () => {
-      const connectionIds = connectionList
+      const filterConnectionIds = connectionList
         .filter((x) => x.selected)
         .map((x) => x.id);
       // exportConnections() rejects specifying both removeSecrets + passphrase; here,
@@ -104,7 +104,7 @@ export function useExportConnections(
         const fileContents = await exportConnections({
           options: {
             passphrase,
-            connectionIds,
+            filterConnectionIds,
             trackingProps,
             removeSecrets,
           },

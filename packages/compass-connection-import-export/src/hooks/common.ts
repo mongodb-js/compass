@@ -1,4 +1,3 @@
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect } from 'react';
 import { useCallback } from 'react';
@@ -53,14 +52,6 @@ export function useImportExportConnectionsCommon<S>(
   }, []);
 
   return { onCancel, onChangeConnectionList, onChangePassphrase };
-}
-
-export function makeConnectionInfoFilter(
-  connectionList: ConnectionShortInfo[]
-) {
-  return (info: Pick<ConnectionInfo, 'id'>) => {
-    return !!connectionList.find((item) => item.id === info.id)?.selected;
-  };
 }
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports

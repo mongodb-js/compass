@@ -19,10 +19,7 @@ import { AtlasService } from '@mongodb-js/atlas-service/main';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
-import {
-  ConnectionStorage,
-  ImportExportConnections,
-} from '@mongodb-js/connection-storage/main';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/main';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
@@ -95,7 +92,6 @@ class CompassApplication {
 
     AtlasService.init();
     ConnectionStorage.init(getStoragePaths()?.basepath);
-    ImportExportConnections.init();
 
     this.setupAutoUpdate();
     await setupCSFLELibrary();

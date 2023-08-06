@@ -1,4 +1,4 @@
-import { ImportExportConnections } from '@mongodb-js/connection-storage/renderer';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
@@ -30,7 +30,8 @@ function applyUsernameAndPassword(
 
 export async function loadAutoConnectInfo(
   getPreferences: () => Promise<AutoConnectPreferences> = getWindowAutoConnectPreferences,
-  fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
+  fs: Pick<typeof fsPromises, 'readFile'> = fsPromises,
+  deserializeConnections = new ConnectionStorage().deserializeConnections
 ): Promise<undefined | (() => Promise<ConnectionInfo | undefined>)> {
   const autoConnectPreferences = await getPreferences();
   const {
@@ -48,8 +49,8 @@ export async function loadAutoConnectInfo(
   return async (): Promise<ConnectionInfo | undefined> => {
     if (file) {
       const fileContents = await fs.readFile(file, 'utf8');
-      const connections = await ImportExportConnections.deserializeConnections({
-        connectionList: fileContents,
+      const connections = await deserializeConnections({
+        content: fileContents,
         options: {
           trackingProps: { context: 'Autoconnect' },
           passphrase,

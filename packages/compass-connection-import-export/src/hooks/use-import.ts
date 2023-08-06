@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { ImportExportConnections } from '@mongodb-js/connection-storage/renderer';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import {
   COMMON_INITIAL_STATE,
@@ -35,7 +35,9 @@ async function loadFile(
   }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
     favoriteConnectionIds: string[];
   },
-  deserializeConnections = ImportExportConnections.deserializeConnections
+  deserializeConnections: InstanceType<
+    typeof ConnectionStorage
+  >['deserializeConnections']
 ): Promise<Partial<ImportConnectionsState>> {
   if (!filename) {
     return INITIAL_STATE;
@@ -44,7 +46,7 @@ async function loadFile(
     const fileContents = await fs.readFile(filename, 'utf8');
     const connectionList: ConnectionImportInfo[] = [];
     const connections = await deserializeConnections({
-      connectionList: fileContents,
+      content: fileContents,
       options: {
         passphrase,
       },
@@ -92,7 +94,8 @@ export function useImportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  importConnections = ImportExportConnections.import
+  importConnections = new ConnectionStorage().importConnections,
+  deserializeConnections = new ConnectionStorage().deserializeConnections
 ): {
   onCancel: () => void;
   onSubmit: () => void;
@@ -124,15 +127,15 @@ export function useImportConnections(
   const onSubmit = useCallback(() => {
     setState((prevState) => ({ ...prevState, inProgress: true }));
     void (async () => {
-      const connectionIds = connectionList
+      const filterConnectionIds = connectionList
         .filter((x) => x.selected)
         .map((x) => x.id);
       try {
         await importConnections({
-          connectionList: fileContents,
+          content: fileContents,
           options: {
             passphrase,
-            connectionIds,
+            filterConnectionIds,
             trackingProps,
           },
         });
@@ -155,20 +158,21 @@ export function useImportConnections(
     let timer: ReturnType<typeof setTimeout> | undefined;
     timer = setTimeout(() => {
       timer = undefined;
-      void loadFile({ filename, passphrase, favoriteConnectionIds }).then(
-        (stateUpdate) => {
-          setState((prevState) => {
-            if (
-              // Only update the state if filename and passphrase haven't changed
-              // while loading the connections list
-              filename === prevState.filename &&
-              passphrase === prevState.passphrase
-            )
-              return { ...prevState, ...stateUpdate };
-            return prevState;
-          });
-        }
-      );
+      void loadFile(
+        { filename, passphrase, favoriteConnectionIds },
+        deserializeConnections
+      ).then((stateUpdate) => {
+        setState((prevState) => {
+          if (
+            // Only update the state if filename and passphrase haven't changed
+            // while loading the connections list
+            filename === prevState.filename &&
+            passphrase === prevState.passphrase
+          )
+            return { ...prevState, ...stateUpdate };
+          return prevState;
+        });
+      });
     }, LOAD_CONNECTIONS_FILE_DEBOUNCE_DELAY);
     return () => {
       if (timer !== undefined) clearTimeout(timer);
