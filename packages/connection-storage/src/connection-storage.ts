@@ -13,6 +13,7 @@ import {
 import {
   deleteCompassAppNameParam,
   getKeytarServiceName,
+  parseStoredPassword,
   throwIfAborted,
 } from './utils';
 import { ipcExpose, ipcInvoke } from '@mongodb-js/compass-utils';
@@ -89,7 +90,7 @@ export class ConnectionStorageMain {
       return Object.fromEntries(
         credentials.map(({ account, password }) => [
           account,
-          JSON.parse(password).secrets ?? {},
+          parseStoredPassword(password),
         ])
       ) as Record<string, ConnectionSecrets>;
     } catch (e) {
