@@ -2,11 +2,10 @@ import React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import {
   COMMON_INITIAL_STATE,
-  makeConnectionInfoFilter,
   useImportExportConnectionsCommon,
 } from './common';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
-import { exportConnections as storageExportConnections } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { ImportExportConnections } from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import type {
   ImportExportResult,
@@ -48,7 +47,7 @@ export function useExportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  exportConnections = storageExportConnections
+  exportConnections = ImportExportConnections.export
 ): {
   onCancel: () => void;
   onSubmit: () => void;
@@ -95,16 +94,20 @@ export function useExportConnections(
   const onSubmit = useCallback(() => {
     setState((prevState) => ({ ...prevState, inProgress: true }));
     void (async () => {
-      const filter = makeConnectionInfoFilter(connectionList);
+      const connectionIds = connectionList
+        .filter((x) => x.selected)
+        .map((x) => x.id);
       // exportConnections() rejects specifying both removeSecrets + passphrase; here,
       // in the UI, we protect users against combining them by disabling the passphrase input.
       const passphrase = removeSecrets ? '' : state.passphrase;
       try {
         const fileContents = await exportConnections({
-          passphrase,
-          filter,
-          trackingProps,
-          removeSecrets,
+          options: {
+            passphrase,
+            connectionIds,
+            trackingProps,
+            removeSecrets,
+          },
         });
         await fs.writeFile(filename, fileContents);
       } catch (err: any) {

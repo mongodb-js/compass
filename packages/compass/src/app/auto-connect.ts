@@ -1,5 +1,5 @@
-import { importConnections } from '@mongodb-js/connection-storage';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import { ImportExportConnections } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
 import { ipcRenderer } from 'hadron-ipc';
@@ -48,12 +48,11 @@ export async function loadAutoConnectInfo(
   return async (): Promise<ConnectionInfo | undefined> => {
     if (file) {
       const fileContents = await fs.readFile(file, 'utf8');
-      const connections: ConnectionInfo[] = [];
-      await importConnections(fileContents, {
-        trackingProps: { context: 'Autoconnect' },
-        passphrase,
-        saveConnections(infos: ConnectionInfo[]) {
-          connections.push(...infos);
+      const connections = await ImportExportConnections.deserializeConnections({
+        connectionList: fileContents,
+        options: {
+          trackingProps: { context: 'Autoconnect' },
+          passphrase,
         },
       });
       let id: string | undefined;

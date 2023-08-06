@@ -3,10 +3,7 @@ import type {
   ExportConnectionOptions,
   ImportConnectionOptions,
 } from '@mongodb-js/connection-storage/main';
-import {
-  exportConnections,
-  importConnections,
-} from '@mongodb-js/connection-storage/main';
+import { ImportExportConnections } from '@mongodb-js/connection-storage/main';
 
 export async function doExportConnections(
   filename: string,
@@ -18,7 +15,7 @@ export async function doExportConnections(
       options.passphrase ? 'with' : 'without'
     } passphrase)`
   );
-  const json = await exportConnections(options);
+  const json = await ImportExportConnections.export({ options });
   await fs.writeFile(filename, json);
 }
 
@@ -32,6 +29,6 @@ export async function doImportConnections(
       options.passphrase ? 'with' : 'without'
     } passphrase)`
   );
-  const json = await fs.readFile(filename, 'utf8');
-  await importConnections(json, options);
+  const connectionList = await fs.readFile(filename, 'utf8');
+  await ImportExportConnections.import({ connectionList, options });
 }

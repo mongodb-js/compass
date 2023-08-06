@@ -1,4 +1,4 @@
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect } from 'react';
 import { useCallback } from 'react';

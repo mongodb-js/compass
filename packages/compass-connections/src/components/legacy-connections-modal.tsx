@@ -42,7 +42,7 @@ const useLegacyModel = (connectionStorage: ConnectionStorage) => {
 
   useEffect(() => {
     void connectionStorage
-      .hasLegacyConnections()
+      .hasLegacyConnections({})
       .then((hasLegacyConnections) => setIsModalOpen(hasLegacyConnections));
   }, []);
 

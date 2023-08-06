@@ -221,7 +221,7 @@ async function loadConnections(
   connectionStorage: ConnectionStorage
 ) {
   try {
-    const loadedConnections = await connectionStorage.loadAll();
+    const loadedConnections = await connectionStorage.loadAll({});
     const toBeReSaved: ConnectionInfo[] = [];
 
     // Scrub OIDC tokens from connections when the option to store them has been disabled
@@ -240,8 +240,8 @@ async function loadConnections(
     });
 
     await Promise.all(
-      toBeReSaved.map(async (connection) => {
-        await connectionStorage.save(connection);
+      toBeReSaved.map(async (connectionInfo) => {
+        await connectionStorage.save({ connectionInfo });
       })
     );
   } catch (error) {
@@ -319,7 +319,7 @@ export function useConnections({
       ensureWellFormedConnectionString(
         connectionInfo?.connectionOptions?.connectionString
       );
-      await connectionStorage.save(connectionInfo);
+      await connectionStorage.save({ connectionInfo });
       debug(`saved connection with id ${connectionInfo.id || ''}`);
 
       return true;
@@ -343,7 +343,9 @@ export function useConnections({
   }
 
   async function removeConnection(connectionInfo: ConnectionInfo) {
-    await connectionStorage.delete(connectionInfo.id);
+    await connectionStorage.delete({
+      id: connectionInfo.id,
+    });
     dispatch({
       type: 'set-connections',
       connections: connections.filter((conn) => conn.id !== connectionInfo.id),
@@ -383,7 +385,8 @@ export function useConnections({
         // if a connection has been saved already we only want to update the lastUsed
         // attribute, otherwise we are going to save the entire connection info.
         const connectionInfoToBeSaved =
-          (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
+          (await connectionStorage.load({ id: connectionInfo.id })) ??
+          connectionInfo;
 
         await saveConnectionInfo({
           ...merge(connectionInfoToBeSaved, mergeConnectionInfo),
@@ -406,9 +409,9 @@ export function useConnections({
                 id: connectionInfo.id,
                 mergeConnectionInfo,
               });
-              const currentSavedInfo = await connectionStorage.load(
-                connectionInfo.id
-              );
+              const currentSavedInfo = await connectionStorage.load({
+                id: connectionInfo.id,
+              });
               if (!currentSavedInfo) return;
               await saveConnectionInfo(
                 merge(currentSavedInfo, mergeConnectionInfo)
@@ -683,7 +686,7 @@ export function useConnections({
         return !conn.favorite;
       });
       await Promise.all(
-        recentConnections.map((conn) => connectionStorage.delete(conn.id))
+        recentConnections.map(({ id }) => connectionStorage.delete({ id }))
       );
       dispatch({
         type: 'set-connections',

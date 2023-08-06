@@ -7,7 +7,6 @@ export {
 export {
   ExportConnectionOptions,
   ImportConnectionOptions,
-  exportConnections,
-  importConnections,
+  ImportExportConnectionsMain as ImportExportConnections,
 } from './import-export-connection';
 export { ConnectionInfo } from './connection-info';

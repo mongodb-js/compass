@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
-import { importConnections as storageImportConnections } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { ImportExportConnections } from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import {
   COMMON_INITIAL_STATE,
-  makeConnectionInfoFilter,
   useImportExportConnectionsCommon,
 } from './common';
 import type {
@@ -36,7 +35,7 @@ async function loadFile(
   }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
     favoriteConnectionIds: string[];
   },
-  importConnections: typeof storageImportConnections
+  deserializeConnections = ImportExportConnections.deserializeConnections
 ): Promise<Partial<ImportConnectionsState>> {
   if (!filename) {
     return INITIAL_STATE;
@@ -44,22 +43,25 @@ async function loadFile(
   try {
     const fileContents = await fs.readFile(filename, 'utf8');
     const connectionList: ConnectionImportInfo[] = [];
-    await importConnections(fileContents, {
-      passphrase,
-      saveConnections(list: ConnectionInfo[]) {
-        for (const info of list) {
-          if (info.favorite?.name) {
-            const isExistingFavorite = favoriteConnectionIds.includes(info.id);
-            connectionList.push({
-              name: info.favorite.name,
-              id: info.id,
-              selected: !isExistingFavorite,
-              isExistingFavorite,
-            });
-          }
-        }
+    const connections = await deserializeConnections({
+      connectionList: fileContents,
+      options: {
+        passphrase,
       },
     });
+
+    for (const info of connections) {
+      if (info.favorite?.name) {
+        const isExistingFavorite = favoriteConnectionIds.includes(info.id);
+        connectionList.push({
+          name: info.favorite.name,
+          id: info.id,
+          selected: !isExistingFavorite,
+          isExistingFavorite,
+        });
+      }
+    }
+
     if (connectionList.length === 0) {
       throw new Error('File does not contain any connections');
     }
@@ -90,7 +92,7 @@ export function useImportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  importConnections = storageImportConnections
+  importConnections = ImportExportConnections.import
 ): {
   onCancel: () => void;
   onSubmit: () => void;
@@ -122,12 +124,17 @@ export function useImportConnections(
   const onSubmit = useCallback(() => {
     setState((prevState) => ({ ...prevState, inProgress: true }));
     void (async () => {
-      const filter = makeConnectionInfoFilter(connectionList);
+      const connectionIds = connectionList
+        .filter((x) => x.selected)
+        .map((x) => x.id);
       try {
-        await importConnections(fileContents, {
-          passphrase,
-          filter,
-          trackingProps,
+        await importConnections({
+          connectionList: fileContents,
+          options: {
+            passphrase,
+            connectionIds,
+            trackingProps,
+          },
         });
       } catch (err: any) {
         setState((prevState) => {
@@ -148,21 +155,20 @@ export function useImportConnections(
     let timer: ReturnType<typeof setTimeout> | undefined;
     timer = setTimeout(() => {
       timer = undefined;
-      void loadFile(
-        { filename, passphrase, favoriteConnectionIds },
-        importConnections
-      ).then((stateUpdate) => {
-        setState((prevState) => {
-          if (
-            // Only update the state if filename and passphrase haven't changed
-            // while loading the connections list
-            filename === prevState.filename &&
-            passphrase === prevState.passphrase
-          )
-            return { ...prevState, ...stateUpdate };
-          return prevState;
-        });
-      });
+      void loadFile({ filename, passphrase, favoriteConnectionIds }).then(
+        (stateUpdate) => {
+          setState((prevState) => {
+            if (
+              // Only update the state if filename and passphrase haven't changed
+              // while loading the connections list
+              filename === prevState.filename &&
+              passphrase === prevState.passphrase
+            )
+              return { ...prevState, ...stateUpdate };
+            return prevState;
+          });
+        }
+      );
     }, LOAD_CONNECTIONS_FILE_DEBOUNCE_DELAY);
     return () => {
       if (timer !== undefined) clearTimeout(timer);
