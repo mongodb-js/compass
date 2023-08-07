@@ -21,8 +21,9 @@ import { usePreference } from 'compass-preferences-model';
 
 import type { RootState } from '../stores/query-bar-store';
 
-const editorStyles = css({
+const editorContainerStyles = css({
   position: 'relative',
+  display: 'flex',
   width: '100%',
   minWidth: spacing[7],
   // To match codemirror editor with leafygreen inputs.
@@ -53,12 +54,27 @@ const editorWithErrorStyles = css({
 });
 
 const queryBarEditorOptionInsightsStyles = css({
-  position: 'absolute',
-  // Horizontally the insight is in the middle of the first line of the editor:
-  // (input height - insight badge height) / 2 to get the empty space + 1px
-  // because top indicates where element starts, not where padding ends
-  top: `calc((${spacing[4]}px - 18px) / 2 + 1px)`,
-  right: spacing[1],
+  alignSelf: 'flex-start',
+  // To align the icon in the middle of the first line of the editor input
+  // (<input height> - <insight badge height>) / 2
+  paddingTop: 3,
+  paddingBottom: 3,
+  paddingLeft: 3,
+  paddingRight: 3,
+
+  // We make container the size of the collapsed insight to avoid additional
+  // shrinking of the editor content when hoveing over the icon. In this case
+  // it's okay for the content to be hidden by the expanded badge as user is
+  // interacting with the badge
+  width: spacing[4],
+  height: spacing[4],
+  overflow: 'visible',
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
+const insightsBadgeStyles = css({
+  flex: 'none',
 });
 
 type OptionEditorProps = {
@@ -130,7 +146,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   return (
     <div
       className={cx(
-        editorStyles,
+        editorContainerStyles,
         focusRingProps.className,
         hasError && editorWithErrorStyles
       )}
@@ -147,7 +163,10 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>
-          <SignalPopover signals={insights}></SignalPopover>
+          <SignalPopover
+            className={insightsBadgeStyles}
+            signals={insights}
+          ></SignalPopover>
         </div>
       )}
     </div>

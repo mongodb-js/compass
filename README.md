@@ -76,7 +76,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**mongodb-database-model**](packages/database-model): MongoDB database model
 - [**mongodb-explain-compat**](packages/mongodb-explain-compat): Convert mongodb SBE explain output to 4.4 explain output
 - [**mongodb-instance-model**](packages/instance-model): MongoDB instance model
-- [**storage-mixin**](packages/storage-mixin): Ampersand model mixin to persist data via various storage backends
 
 ### Shared Configuration Files
 

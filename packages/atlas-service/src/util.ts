@@ -1,4 +1,4 @@
-import { ipcMain, ipcRenderer } from 'electron';
+import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
 import type * as plugin from '@mongodb-js/oidc-plugin';
 
 export type UserInfo = {
@@ -27,7 +27,7 @@ function serializeErrorForIpc(err: any): SerializedError {
     $$error: {
       name: err.name,
       message: err.message,
-      statusCode: err.status,
+      statusCode: err.statusCode,
       stack: err.stack,
     },
   };
@@ -37,7 +37,7 @@ function deserializeErrorFromIpc({ $$error: err }: SerializedError) {
   const e = new Error(err.message);
   e.name = err.name;
   e.stack = err.stack;
-  (e as any).stausCode = err.statusCode;
+  (e as any).statusCode = err.statusCode;
   return e;
 }
 
@@ -165,4 +165,11 @@ export function ipcInvoke<
       ];
     })
   ) as Pick<T, K>;
+}
+
+export function broadcast(channel: string, ...args: any[]) {
+  // We might not be in electron environment
+  BrowserWindow?.getAllWindows().forEach((browserWindow) => {
+    browserWindow.webContents.send(channel, ...args);
+  });
 }

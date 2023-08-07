@@ -19,6 +19,8 @@ import { AtlasService } from '@mongodb-js/atlas-service/main';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
+import { ConnectionStorage } from '@mongodb-js/connection-storage';
+import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
@@ -90,7 +92,7 @@ class CompassApplication {
 
     AtlasService.init();
 
-    await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
+    this.setupAutoUpdate();
     await setupCSFLELibrary();
     setupTheme();
     this.setupJavaScriptArguments();
@@ -105,12 +107,6 @@ class CompassApplication {
     globalPreferences: ParsedGlobalPreferencesResult
   ): Promise<void> {
     return (this.initPromise ??= this._init(mode, globalPreferences));
-  }
-
-  private static async setupSecureStore(): Promise<void> {
-    // importing storage-mixin attaches secure-store ipc listeners to handle
-    // keychain requests from the renderer processes
-    await import('storage-mixin');
   }
 
   private static setupJavaScriptArguments(): void {
@@ -143,14 +139,26 @@ class CompassApplication {
     } = preferences.getPreferences();
 
     debug('application launched');
-    track('Application Launched', {
-      context: getContext(),
-      launch_connection: getLaunchConnectionSource(file, positionalArguments),
-      protected: protectConnectionStrings,
-      readOnly,
-      maxTimeMS,
-      global_config: hasConfig('global', globalPreferences),
-      cli_args: hasConfig('cli', globalPreferences),
+    track('Application Launched', async () => {
+      let hasLegacyConnections: boolean;
+      try {
+        hasLegacyConnections = await new ConnectionStorage(
+          getStoragePaths()?.basepath
+        ).hasLegacyConnections();
+      } catch (e) {
+        debug('Failed to check legacy connections', e);
+        hasLegacyConnections = false;
+      }
+      return {
+        context: getContext(),
+        launch_connection: getLaunchConnectionSource(file, positionalArguments),
+        protected: protectConnectionStrings,
+        readOnly,
+        maxTimeMS,
+        global_config: hasConfig('global', globalPreferences),
+        cli_args: hasConfig('cli', globalPreferences),
+        legacy_connections: hasLegacyConnections,
+      };
     });
   }
 

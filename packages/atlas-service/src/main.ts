@@ -12,7 +12,13 @@ import fetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import type { AIQuery, IntrospectInfo, Token, UserInfo } from './util';
-import { ipcExpose } from './util';
+import { broadcast, ipcExpose } from './util';
+import {
+  createLoggerAndTelemetry,
+  mongoLogId,
+} from '@mongodb-js/compass-logging';
+
+const { log } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',
@@ -37,7 +43,6 @@ export async function throwIfNotOk(
   let serverErrorMessage = `${res.status} ${res.statusText}`;
   // We try to parse the response to see if the server returned any information
   // we can show a user.
-  //
   try {
     const messageJSON = await res.json();
     if (isServerError(messageJSON)) {
@@ -142,9 +147,14 @@ export class AtlasService {
       'introspect',
       'isAuthenticated',
       'signIn',
-      'getQueryFromUserPrompt',
+      'getQueryFromUserInput',
     ]);
     this.attachOidcPluginLoggerEvents();
+    log.info(
+      mongoLogId(1_001_000_210),
+      'AtlasService',
+      'Atlas service initialized'
+    );
   }
 
   private static attachOidcPluginLoggerEvents() {
@@ -153,13 +163,27 @@ export class AtlasService {
     // between them. This is okay to ignore for our case for now as we know that
     // only one auth state is being part of oidc-plugin state
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-started', () => {
+      log.info(
+        mongoLogId(1_001_000_211),
+        'AtlasService',
+        'Token refresh started by oidc-plugin'
+      );
       this.oidcPluginSyncedFromLoggerState = 'expired';
     });
-    this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-failed', () => {
-      this.token = null;
-      this.oidcPluginSyncedFromLoggerState = 'error';
-      this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
-    });
+    this.oidcPluginLogger.on(
+      'mongodb-oidc-plugin:refresh-failed',
+      ({ error }) => {
+        log.error(
+          mongoLogId(1_001_000_212),
+          'AtlasService',
+          'Oidc-plugin failed to refresh token',
+          { error }
+        );
+        this.token = null;
+        this.oidcPluginSyncedFromLoggerState = 'error';
+        this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
+      }
+    );
     // NB: oidc-plugin only has a logger interface to listen to state updates,
     // it also doesn't expose renewed tokens or any other state in any usable
     // way from those events or otherwise, so to get the renewed token we listen
@@ -167,7 +191,18 @@ export class AtlasService {
     // programmatically to be able to get the actual tokens back and sync them
     // to the service state
     this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-succeeded', () => {
+      log.info(
+        mongoLogId(1_001_000_213),
+        'AtlasService',
+        'Oidc-plugin refreshed token successfully'
+      );
       void this.refreshToken();
+    });
+    this.oidcPluginLogger.on('atlas-service-token-refresh-failed', () => {
+      broadcast('atlas-service-token-refresh-failed');
+    });
+    this.oidcPluginLogger.on('atlas-service-token-refreshed', () => {
+      broadcast('atlas-service-token-refreshed');
     });
   }
 
@@ -180,6 +215,11 @@ export class AtlasService {
       return;
     }
     this.refreshing = true;
+    log.info(
+      mongoLogId(1_001_000_214),
+      'AtlasService',
+      'Start atlas service token refresh'
+    );
     try {
       // We expect only one promise below to resolve, to clean up listeners that
       // never fired we are setting up an abort controller
@@ -209,6 +249,11 @@ export class AtlasService {
         listenerController.abort();
       }
       try {
+        log.info(
+          mongoLogId(1_001_000_215),
+          'AtlasService',
+          'Request token refresh from oidc-plugin'
+        );
         const token =
           await this.plugin.mongoClientOptions.authMechanismProperties
             // WARN: in the oidc plugin refresh callback is actually the same
@@ -222,10 +267,21 @@ export class AtlasService {
                 version: 0,
               }
             );
+        log.info(
+          mongoLogId(1_001_000_216),
+          'AtlasService',
+          'Oidc-plugin successfully returned new token'
+        );
         this.token = token;
         this.oidcPluginSyncedFromLoggerState = 'authenticated';
         this.oidcPluginLogger.emit('atlas-service-token-refreshed');
-      } catch {
+      } catch (err) {
+        log.error(
+          mongoLogId(1_001_000_217),
+          'AtlasService',
+          'Oidc-plugin failed to return refreshed token',
+          { error: (err as Error).stack }
+        );
         // REFRESH_TOKEN_CALLBACK call failed for some reason
         this.token = null;
         this.oidcPluginSyncedFromLoggerState = 'error';
@@ -306,6 +362,7 @@ export class AtlasService {
       }
 
       this.signInPromise = (async () => {
+        log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
         try {
           this.token =
             await this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
@@ -319,8 +376,19 @@ export class AtlasService {
               }
             );
           this.oidcPluginSyncedFromLoggerState = 'authenticated';
+          log.info(
+            mongoLogId(1_001_000_219),
+            'AtlasService',
+            'Signed in successfully'
+          );
           return this.token;
         } catch (err) {
+          log.error(
+            mongoLogId(1_001_000_220),
+            'AtlasService',
+            'Failed to sign in',
+            { error: (err as Error).stack }
+          );
           this.oidcPluginSyncedFromLoggerState = 'error';
           throw err;
         }
@@ -380,15 +448,15 @@ export class AtlasService {
     return res.json() as Promise<IntrospectInfo>;
   }
 
-  static async getQueryFromUserPrompt({
+  static async getQueryFromUserInput({
     signal,
-    userPrompt,
+    userInput,
     collectionName,
     databaseName,
     schema,
     sampleDocuments,
   }: {
-    userPrompt: string;
+    userInput: string;
     collectionName: string;
     databaseName: string;
     schema?: SimplifiedSchema;
@@ -401,7 +469,7 @@ export class AtlasService {
     }
 
     let msgBody = JSON.stringify({
-      userPrompt,
+      userInput,
       collectionName,
       databaseName,
       schema,
@@ -413,7 +481,7 @@ export class AtlasService {
       // If that fails we throw an error indicating this collection's
       // documents are too large to send to the ai.
       msgBody = JSON.stringify({
-        userPrompt,
+        userInput,
         collectionName,
         databaseName,
         schema,

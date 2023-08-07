@@ -41,6 +41,7 @@ import { importJSON } from '../import/import-json';
 import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
 import {
   showBloatedDocumentSignalToast,
+  showUnboundArraySignalToast,
   showCancelledToast,
   showCompletedToast,
   showCompletedWithErrorsToast,
@@ -403,14 +404,20 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
         errorLogFilePath: errorLogFilePath,
       });
     } else {
-      if (result.biggestDocSize > 10_000_000 && appRegistry !== null) {
-        showBloatedDocumentSignalToast({
-          onReviewDocumentsClick: () => {
+      const onReviewDocumentsClick = appRegistry
+        ? () => {
             appRegistry.emit('import-export-open-collection-in-new-tab', {
               ns,
             });
-          },
-        });
+          }
+        : undefined;
+
+      if (result.biggestDocSize > 10_000_000) {
+        showBloatedDocumentSignalToast({ onReviewDocumentsClick });
+      }
+
+      if (result.hasUnboundArray) {
+        showUnboundArraySignalToast({ onReviewDocumentsClick });
       }
 
       if (errors.length > 0) {

@@ -27,8 +27,6 @@ import {
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 
-const { basepath } = getStoragePaths() || {};
-
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
 
@@ -83,11 +81,11 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     dataProvider,
     atlasService = new AtlasService(),
     recentQueryStorage = new RecentQueryStorage(
-      options.basepath ?? basepath,
+      options.basepath ?? getStoragePaths()?.basepath,
       namespace
     ),
     favoriteQueryStorage = new FavoriteQueryStorage(
-      options.basepath ?? basepath,
+      options.basepath ?? getStoragePaths()?.basepath,
       namespace
     ),
   } = options;

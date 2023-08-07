@@ -10,7 +10,7 @@ import StreamValues from 'stream-json/streamers/StreamValues';
 import stripBomStream from 'strip-bom-stream';
 
 import {
-  makeDocStatsStream,
+  DocStatsStream,
   makeImportResult,
   processParseError,
   processWriteStreamErrors,
@@ -93,7 +93,7 @@ export async function importJSON({
     },
   });
 
-  const { docStatsStream, getStats } = makeDocStatsStream();
+  const docStatsStream = new DocStatsStream();
 
   const collectionStream = createCollectionWriteStream(
     dataService,
@@ -136,7 +136,7 @@ export async function importJSON({
       return makeImportResult(
         collectionStream,
         numProcessed,
-        getStats().biggestDocSize,
+        docStatsStream,
         true
       );
     }
@@ -145,7 +145,7 @@ export async function importJSON({
     err.result = makeImportResult(
       collectionStream,
       numProcessed,
-      getStats().biggestDocSize
+      docStatsStream
     );
 
     throw err;
@@ -157,9 +157,5 @@ export async function importJSON({
     errorCallback,
   });
 
-  return makeImportResult(
-    collectionStream,
-    numProcessed,
-    getStats().biggestDocSize
-  );
+  return makeImportResult(collectionStream, numProcessed, docStatsStream);
 }

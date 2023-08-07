@@ -38,6 +38,8 @@ function writeFakeConnection(
 
 const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
 
+const maxAllowedConnections = 10;
+
 describe('ConnectionStorage', function () {
   let tmpDir: string;
   let connectionStorage: ConnectionStorage;
@@ -128,6 +130,38 @@ describe('ConnectionStorage', function () {
       const connection = await connectionStorage.load(connectionInfo.id);
       expect(connection!.lastUsed).to.deep.equal(lastUsed);
     });
+
+    context('handles appName param', function () {
+      it('should remove appName if it matches MongoDB Compass', async function () {
+        const connectionInfo = getConnectionInfo({
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/admin?appName=MongoDB+Compass',
+          },
+        });
+        writeFakeConnection(tmpDir, { connectionInfo });
+
+        const connection = await connectionStorage.load(connectionInfo.id);
+        expect(connection!.connectionOptions.connectionString).to.deep.equal(
+          'mongodb://localhost:27017/admin'
+        );
+      });
+
+      it('should not remove appName if it does not match MongoDB Compass', async function () {
+        const connectionInfo = getConnectionInfo({
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/admin?appName=Something+Else',
+          },
+        });
+        writeFakeConnection(tmpDir, { connectionInfo });
+
+        const connection = await connectionStorage.load(connectionInfo.id);
+        expect(connection!.connectionOptions.connectionString).to.deep.equal(
+          'mongodb://localhost:27017/admin?appName=Something+Else'
+        );
+      });
+    });
   });
 
   describe('save', function () {
@@ -203,7 +237,7 @@ describe('ConnectionStorage', function () {
     });
 
     // In tests we can not use keytar and have it disabled. When saving any data,
-    // its completely stored on disk without anythings removed.
+    // its completely stored on disk without anything removed.
     it('it stores all the fleOptions on disk', async function () {
       const id = uuid();
       const connectionInfo = {
@@ -229,6 +263,55 @@ describe('ConnectionStorage', function () {
         fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
       );
       expect(expectedConnectionInfo).to.deep.equal(connectionInfo);
+    });
+
+    context(`max allowed connections ${maxAllowedConnections}`, function () {
+      const createNumberOfConnections = (num: number) => {
+        const connectionInfos = Array.from({ length: num }, (v, i) =>
+          getConnectionInfo({
+            lastUsed: new Date(1690876213077 - (i + 1) * 1000), // Difference of 1 sec
+          })
+        );
+        connectionInfos.forEach((connectionInfo) =>
+          writeFakeConnection(tmpDir, { connectionInfo })
+        );
+
+        return connectionInfos;
+      };
+
+      it('truncates recents to max allowed connections', async function () {
+        const connectionInfos = createNumberOfConnections(
+          maxAllowedConnections
+        );
+
+        const deleteSpy = Sinon.spy(connectionStorage, 'delete');
+
+        // Save another connection
+        await connectionStorage.save(getConnectionInfo());
+
+        const numConnections = (await connectionStorage.loadAll()).length;
+        expect(numConnections).to.equal(maxAllowedConnections);
+
+        expect(
+          deleteSpy.calledOnceWithExactly(
+            connectionInfos[connectionInfos.length - 1].id
+          )
+        ).to.be.true;
+      });
+
+      it('does not remove recent if recent connections are less then max allowed connections', async function () {
+        createNumberOfConnections(maxAllowedConnections - 1);
+
+        const deleteSpy = Sinon.spy(connectionStorage, 'delete');
+
+        // Save another connection
+        await connectionStorage.save(getConnectionInfo());
+
+        const numConnections = (await connectionStorage.loadAll()).length;
+        expect(numConnections).to.equal(maxAllowedConnections);
+
+        expect(deleteSpy.called).to.be.false;
+      });
     });
   });
 
@@ -260,7 +343,28 @@ describe('ConnectionStorage', function () {
       expect(hasLegacyConnections).to.be.false;
     });
 
-    it('returns true if there are legacy connections', async function () {
+    it('returns false if there are no favorite legacy connections', async function () {
+      const _id = uuid();
+
+      // Save a legacy connection (connection without connectionInfo, which is not favorite)
+      const filePath = getConnectionFilePath(tmpDir, _id);
+      fs.writeFileSync(
+        filePath,
+        JSON.stringify({
+          _id,
+          hosts: [{ host: 'localhost', port: 27017 }],
+          readPreference: 'primary',
+          port: 27017,
+          hostname: 'localhost',
+        })
+      );
+
+      const hasLegacyConnections =
+        await connectionStorage.hasLegacyConnections();
+      expect(hasLegacyConnections).to.be.false;
+    });
+
+    it('returns true if there are favorite legacy connections', async function () {
       const _id = uuid();
 
       // Save a legacy connection (connection without connectionInfo)
@@ -269,6 +373,7 @@ describe('ConnectionStorage', function () {
         filePath,
         JSON.stringify({
           _id,
+          isFavorite: true,
           hosts: [{ host: 'localhost', port: 27017 }],
           readPreference: 'primary',
           port: 27017,

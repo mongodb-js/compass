@@ -10,6 +10,7 @@ import {
   Icon,
   SpinLoader,
   SignalPopover,
+  PerformanceSignals,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 import { usePreference } from 'compass-preferences-model';
@@ -120,14 +121,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             </Button>
             {showInsights && hasTooManyIndexes && (
               <SignalPopover
-                signals={{
-                  id: 'too-many-indexes',
-                  title: 'High number of indexes on collection',
-                  description:
-                    'Consider reviewing your indexes to remove any that are unnecessary. Learn more about this anti-pattern',
-                  learnMoreLink:
-                    'https://www.mongodb.com/docs/manual/core/data-model-operations/#indexes',
-                }}
+                signals={PerformanceSignals.get('too-many-indexes')}
               />
             )}
           </div>

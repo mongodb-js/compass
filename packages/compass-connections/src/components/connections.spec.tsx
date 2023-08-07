@@ -5,6 +5,7 @@ import {
   screen,
   waitFor,
   fireEvent,
+  within,
 } from '@testing-library/react';
 import { expect } from 'chai';
 import type { ConnectionOptions } from 'mongodb-data-service';
@@ -18,9 +19,7 @@ import sinon from 'sinon';
 import Connections from './connections';
 import { ToastArea } from '@mongodb-js/compass-components';
 
-function getMockConnectionStorage(
-  mockConnections: ConnectionInfo[]
-): ConnectionStorage {
+function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {
     loadAll: () => {
       return Promise.resolve(mockConnections);
@@ -30,7 +29,7 @@ function getMockConnectionStorage(
     delete: () => Promise.resolve(),
     load: (id: string) =>
       Promise.resolve(mockConnections.find((conn) => conn.id === id)),
-  };
+  } as unknown as ConnectionStorage;
 }
 
 async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
@@ -446,20 +445,66 @@ describe('Connections Component', function () {
     });
   });
 
-  it('shows toast when user has any legacy connection', async function () {
-    const mockStorage = getMockConnectionStorage([]);
-    sinon.stub(mockStorage, 'hasLegacyConnections').resolves(true);
-    render(
-      <ToastArea>
-        <Connections
-          onConnected={onConnectedSpy}
-          connectionStorage={mockStorage}
-          appName="Test App Name"
-        />
-      </ToastArea>
-    );
-    await waitFor(
-      () => expect(screen.getByTestId('toast-legacy-connections')).to.exist
-    );
+  context('when user has any legacy connection', function () {
+    it('shows modal', async function () {
+      const mockStorage = getMockConnectionStorage([]);
+      sinon.stub(mockStorage, 'hasLegacyConnections').resolves(true);
+      render(
+        <ToastArea>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </ToastArea>
+      );
+      await waitFor(
+        () => expect(screen.getByTestId('legacy-connections-modal')).to.exist
+      );
+    });
+
+    it('does not show modal when user hides it', async function () {
+      const mockStorage = getMockConnectionStorage([]);
+      sinon.stub(mockStorage, 'hasLegacyConnections').resolves(true);
+      const { rerender } = render(
+        <ToastArea>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </ToastArea>
+      );
+
+      await waitFor(() => screen.getByTestId('legacy-connections-modal'));
+
+      const modal = screen.getByTestId('legacy-connections-modal');
+
+      const storageSpy = sinon.spy(Storage.prototype, 'setItem');
+
+      // Click the don't show again checkbox and close the modal
+      fireEvent.click(within(modal).getByText(/don't show this again/i));
+      fireEvent.click(within(modal).getByText(/close/i));
+
+      rerender(
+        <ToastArea>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </ToastArea>
+      );
+
+      // Saves data in storage
+      expect(storageSpy.firstCall.args).to.deep.equal([
+        'hide_legacy_connections_modal',
+        'true',
+      ]);
+
+      expect(() => {
+        screen.getByTestId('legacy-connections-modal');
+      }).to.throw;
+    });
   });
 });

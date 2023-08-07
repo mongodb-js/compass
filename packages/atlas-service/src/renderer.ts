@@ -1,7 +1,13 @@
 import type { AtlasService as AtlasServiceMain } from './main';
 import { ipcInvoke } from './util';
-import { signInWithModalPrompt } from './store/atlas-signin-reducer';
+import {
+  signInWithModalPrompt,
+  tokenRefreshFailed,
+} from './store/atlas-signin-reducer';
 import { dispatch } from './store/atlas-signin-store';
+import { ipcRenderer } from 'electron';
+
+let atlasServiceInstanceSingleton: AtlasService;
 
 export class AtlasService {
   private ipc = ipcInvoke<
@@ -10,19 +16,19 @@ export class AtlasService {
     | 'introspect'
     | 'isAuthenticated'
     | 'signIn'
-    | 'getQueryFromUserPrompt'
+    | 'getQueryFromUserInput'
   >('AtlasService', [
     'getUserInfo',
     'introspect',
     'isAuthenticated',
     'signIn',
-    'getQueryFromUserPrompt',
+    'getQueryFromUserInput',
   ]);
 
   getUserInfo = this.ipc.getUserInfo;
   introspect = this.ipc.introspect;
   isAuthenticated = this.ipc.isAuthenticated;
-  getQueryFromUserPrompt = this.ipc.getQueryFromUserPrompt;
+  getQueryFromUserInput = this.ipc.getQueryFromUserInput;
 
   async signIn(
     options: {
@@ -40,6 +46,20 @@ export class AtlasService {
       default:
         return Promise.reject(new Error('Not implemented'));
     }
+  }
+
+  constructor() {
+    if (atlasServiceInstanceSingleton) {
+      return atlasServiceInstanceSingleton;
+    }
+
+    // We might not be in electorn environment
+    ipcRenderer?.on('atlas-service-token-refresh-failed', () => {
+      dispatch(tokenRefreshFailed());
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    atlasServiceInstanceSingleton = this;
   }
 }
 
