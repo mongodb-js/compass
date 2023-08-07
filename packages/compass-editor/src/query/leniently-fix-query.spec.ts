@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { lenientlyFixQuery } from './leniently-fix-query';
 
-describe.only('lenientlyFixQuery [Utils]', function () {
+describe('lenientlyFixQuery [Utils]', function () {
   describe('when the value is empty', function () {
-    it('returns a fix action with the wrapping brances', function () {
+    it('returns a fix action with the wrapping braces', function () {
       const [newQuery, position] = lenientlyFixQuery(' ');
       expect(newQuery).to.equal('{}');
       expect(position).to.equal(1);
