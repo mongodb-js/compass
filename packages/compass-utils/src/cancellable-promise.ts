@@ -8,7 +8,7 @@ class AbortError extends Error {
 
 export const throwIfAborted = (signal?: AbortSignal) => {
   if (signal?.aborted) {
-    throw signal.reason ?? new AbortError();
+    throw signal.reason ?? createCancelError();
   }
 };
 

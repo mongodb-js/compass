@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/connection-storage/main';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { ipcRenderer } from 'hadron-ipc';
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
@@ -16,48 +16,51 @@ const loadAutoConnectWithConnection = async (
   connections: ConnectionInfo[] = [],
   exportOptions: ExportConnectionOptions = {}
 ) => {
-  const tmpDir = fs.mkdtempSync(
+  const tmpDir = await fs.mkdtemp(
     path.join(os.tmpdir(), 'connection-storage-tests')
   );
-  fs.mkdirSync(path.join(tmpDir, 'Connections'));
+  try {
+    await fs.mkdir(path.join(tmpDir, 'Connections'));
 
-  ConnectionStorage['path'] = tmpDir;
-  await Promise.all(
-    connections.map((connectionInfo) =>
-      ConnectionStorage.save({ connectionInfo })
-    )
-  );
+    ConnectionStorage['path'] = tmpDir;
+    await Promise.all(
+      connections.map((connectionInfo) =>
+        ConnectionStorage.save({ connectionInfo })
+      )
+    );
 
-  const fileContents = await ConnectionStorage.exportConnections({
-    options: exportOptions,
-  });
+    const fileContents = await ConnectionStorage.exportConnections({
+      options: exportOptions,
+    });
 
-  const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-  const deserializeConnections =
-    ConnectionStorage.deserializeConnections.bind(ConnectionStorage);
+    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
+    const deserializeConnections =
+      ConnectionStorage.deserializeConnections.bind(ConnectionStorage);
 
-  const fn = await loadAutoConnectInfo(
-    sinon.stub().resolves(connectPreferences),
-    fakeFs,
-    deserializeConnections
-  );
-
-  // clean up
-  fs.rmdirSync(tmpDir, { recursive: true });
-
-  return fn;
+    const fn = await loadAutoConnectInfo(
+      sinon.stub().resolves(connectPreferences),
+      fakeFs,
+      deserializeConnections
+    );
+    return fn;
+  } finally {
+    void fs.rmdir(tmpDir, { recursive: true });
+  }
 };
 
 describe('auto connection argument parsing', function () {
   let sandbox: sinon.SinonSandbox;
+  const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
 
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     sandbox.stub(ipcRenderer, 'call').resolves(true);
+    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
   afterEach(function () {
     sandbox.restore();
+    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
   });
 
   it('skips connecting if shouldAutoConnect is false', async function () {
