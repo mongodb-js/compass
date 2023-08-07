@@ -57,6 +57,7 @@ import {
   useDarkMode,
   useEffectOnChange,
   codePalette,
+  openToast,
 } from '@mongodb-js/compass-components';
 import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
@@ -417,6 +418,7 @@ type EditorProps = {
   lineHeight?: number;
   placeholder?: Parameters<typeof codemirrorPlaceholder>[0];
   commands?: readonly KeyBinding[];
+  cursorPosition?: number;
   initialJSONFoldAll?: boolean;
 } & (
   | { text: string; initialText?: never }
@@ -570,6 +572,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     lineHeight = 16,
     placeholder,
     commands,
+    cursorPosition,
     initialJSONFoldAll: _initialJSONFoldAll = true,
     ...props
   },
@@ -593,6 +596,26 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (cursorPosition) {
+        try {
+          editorViewRef.current?.dispatch({
+            selection: { anchor: cursorPosition, head: cursorPosition },
+          });
+        } catch (ex) {
+          openToast('error', {
+            title: 'Error on positioning',
+            description: `${ex.message}: ${cursorPosition}`,
+            timeout: 5000,
+            dismissible: true,
+          });
+          //
+        }
+      }
+    }, 50);
+  }, [cursorPosition]);
 
   useImperativeHandle(
     ref,
@@ -1112,6 +1135,7 @@ type InlineEditorProps = Omit<
   | 'annotations'
 > &
   (
+    | { cursorPosition?: number }
     | { text: string; initialText?: never }
     | { text?: never; initialText: string }
   );

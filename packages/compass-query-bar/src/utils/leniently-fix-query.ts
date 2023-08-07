@@ -1,13 +1,6 @@
 import detect from 'mongodb-query-parser';
 
-export enum FixQueryAction {
-  NOTHING_FIXED,
-  ADDED_WRAPPING_BRACES_ON_EMPTY,
-  ADDED_WRAPPING_BRACES,
-  REMOVED_WRAPPING_BRACES,
-}
-
-export type ProposedCaretPosition = number | undefined;
+export type CursorPlacement = number | undefined;
 
 function _isValidQuery(query: string): boolean {
   try {
@@ -17,33 +10,47 @@ function _isValidQuery(query: string): boolean {
   }
 }
 
-export function lenientlyFixQuery(
-  query: string
-): [FixQueryAction, string, ProposedCaretPosition] {
+export function lenientlyFixQuery(query: string): [string, CursorPlacement] {
   query = query.trim();
+  let modified = false;
+  let positioning: CursorPlacement = undefined;
+
   if (query === '') {
-    return [FixQueryAction.ADDED_WRAPPING_BRACES_ON_EMPTY, '{}', 1];
+    return ['{}', 1];
   }
 
-  if (query.length === 1) {
-    return [FixQueryAction.ADDED_WRAPPING_BRACES, `{${query}}`, 2];
+  if (query.startsWith('{}')) {
+    query = query.substring(2);
+    modified = true;
+  }
+
+  if (query.endsWith('{}')) {
+    query = query.substring(0, query.length - 2);
+    modified = true;
   }
 
   const isValid = _isValidQuery(query);
 
   if (!isValid) {
-    if (query[0] === '{' && query[query.length - 1] === '}') {
+    if (query.startsWith('{') && query.endsWith('}')) {
       const queryWithoutWrappingBraces = query.substring(1, query.length - 1);
       const isInnerQueryValid = _isValidQuery(queryWithoutWrappingBraces);
       if (isInnerQueryValid) {
-        return [
-          FixQueryAction.REMOVED_WRAPPING_BRACES,
-          queryWithoutWrappingBraces,
-          queryWithoutWrappingBraces.length,
-        ];
+        modified = true;
+        query = queryWithoutWrappingBraces;
+      }
+    } else {
+      const wrappedQuery = `{${query}}`;
+      if (_isValidQuery(wrappedQuery)) {
+        modified = true;
+        query = wrappedQuery;
       }
     }
   }
 
-  return [FixQueryAction.NOTHING_FIXED, query, undefined];
+  if (modified) {
+    positioning = query.lastIndexOf('}');
+  }
+
+  return [query, positioning];
 }

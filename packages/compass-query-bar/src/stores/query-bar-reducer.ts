@@ -5,7 +5,6 @@ import type { Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { openToast } from '@mongodb-js/compass-components';
 import { lenientlyFixQuery } from '../utils/leniently-fix-query';
-
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
@@ -68,6 +67,7 @@ export const INITIAL_STATE: QueryBarState = {
 enum QueryBarActions {
   ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',
   ChangeField = 'compass-query-bar/ChangeField',
+  FocusField = 'compass-query-bar/FocusField',
   ChangeSchemaFields = 'compass-query-bar/ChangeSchemaFields',
   SetQuery = 'compass-query-bar/SetQuery',
   ApplyQuery = 'compass-query-bar/ApplyQuery',
@@ -86,6 +86,11 @@ export const toggleQueryOptions = (
   force?: boolean
 ): ToggleQueryOptionsAction => {
   return { type: QueryBarActions.ToggleQueryOptions, force };
+};
+
+type FocusFieldAction = {
+  type: QueryBarActions.FocusField;
+  name: QueryProperty;
 };
 
 type ChangeFieldAction = {
@@ -116,6 +121,10 @@ export const changeField = (
   value: string
 ): ChangeFieldAction => {
   return { type: QueryBarActions.ChangeField, name, value };
+};
+
+export const focusField = (name: QueryProperty): FocusFieldAction => {
+  return { type: QueryBarActions.FocusField, name };
 };
 
 type ChangeSchemaFieldsAction = {
@@ -407,20 +416,41 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     };
   }
 
+  if (isAction<FocusFieldAction>(action, QueryBarActions.FocusField)) {
+    let currentFieldValue = state.fields[action.name].string.trim();
+    let positioning = undefined;
+
+    if (
+      action.name === 'filter' &&
+      (currentFieldValue === '' || currentFieldValue === '{}')
+    ) {
+      [currentFieldValue, positioning] = lenientlyFixQuery(currentFieldValue);
+    }
+
+    return {
+      ...state,
+      fields: {
+        ...state.fields,
+        [action.name]: {
+          ...state.fields[action.name],
+          string: currentFieldValue,
+          cursorPosition: positioning,
+        },
+      },
+    };
+  }
+
   if (isAction<ChangeFieldAction>(action, QueryBarActions.ChangeField)) {
-    let lenientlyFix = undefined;
     let commandBarString: string = action.value;
+    let positioning = undefined;
 
-    if (action.name === 'filter') {
-      [lenientlyFix, commandBarString] = lenientlyFixQuery(action.value);
+    const previousFilter = state.fields.filter.string.trim();
 
-      openToast('sample-log', {
-        title: `${lenientlyFix} - ${commandBarString}`,
-        description: commandBarString,
-        dismissible: true,
-        timeout: 10000,
-        variant: 'note',
-      });
+    if (
+      action.name === 'filter' &&
+      (previousFilter === '' || previousFilter === '{}')
+    ) {
+      [commandBarString, positioning] = lenientlyFixQuery(action.value);
     }
 
     const newValue = validateField(action.name, action.value);
@@ -431,10 +461,10 @@ export const queryBarReducer: Reducer<QueryBarState> = (
       fields: {
         ...state.fields,
         [action.name]: {
-          lenientlyFix,
           string: commandBarString,
           valid: valid,
           value: valid ? newValue : state.fields[action.name].value,
+          cursorPosition: positioning,
         },
       },
     };
