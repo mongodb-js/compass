@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-schema-validation",
   "productName": "Compass Json Schema Validation plugin",
-  "version": "6.11.0",
+  "version": "6.11.1",
   "description": "Compass plugin for document JSON schema validation",
   "author": {
     "name": "MongoDB Inc",
@@ -57,12 +57,12 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.11.0",
-    "@mongodb-js/compass-crud": "^13.11.0",
+    "@mongodb-js/compass-crud": "^13.11.1",
     "@mongodb-js/compass-editor": "^0.10.0",
     "@mongodb-js/compass-logging": "^1.1.7",
     "@mongodb-js/mongodb-redux-common": "^2.0.9",
     "bson": "^5.2.0",
-    "compass-preferences-model": "^2.11.0",
+    "compass-preferences-model": "^2.11.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -76,15 +76,15 @@
     "electron": "^23.3.12",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.9.0",
+    "hadron-app": "^5.9.1",
     "hadron-app-registry": "^9.0.8",
     "hadron-ipc": "^3.1.4",
     "javascript-stringify": "^2.0.1",
     "less": "^3.11.1",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb-data-service": "^22.9.0",
-    "mongodb-instance-model": "^12.9.0",
+    "mongodb-data-service": "^22.9.1",
+    "mongodb-instance-model": "^12.9.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.5.0",
     "nyc": "^15.1.0",
@@ -98,11 +98,11 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.11.0",
-    "@mongodb-js/compass-crud": "^13.11.0",
+    "@mongodb-js/compass-crud": "^13.11.1",
     "@mongodb-js/compass-editor": "^0.10.0",
     "@mongodb-js/compass-logging": "^1.1.7",
     "@mongodb-js/mongodb-redux-common": "^2.0.9",
     "bson": "^5.2.0",
-    "compass-preferences-model": "^2.11.0"
+    "compass-preferences-model": "^2.11.1"
   }
 }
