@@ -57,7 +57,6 @@ import {
   useDarkMode,
   useEffectOnChange,
   codePalette,
-  openToast,
 } from '@mongodb-js/compass-components';
 import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
