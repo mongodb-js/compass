@@ -1,4 +1,4 @@
-export { ConnectionStorageMain as ConnectionStorage } from './connection-storage';
+export { ConnectionStorage } from './connection-storage';
 export {
   ConnectionSecrets,
   extractSecrets,

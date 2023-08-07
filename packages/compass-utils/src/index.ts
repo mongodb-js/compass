@@ -8,5 +8,6 @@ export {
   cancellableWait,
   createCancelError,
   isCancelError,
+  throwIfAborted,
 } from './cancellable-promise';
 export { broadcast, ipcExpose, ipcInvoke } from './ipc';

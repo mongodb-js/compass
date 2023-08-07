@@ -35,9 +35,7 @@ async function loadFile(
   }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
     favoriteConnectionIds: string[];
   },
-  deserializeConnections: InstanceType<
-    typeof ConnectionStorage
-  >['deserializeConnections']
+  deserializeConnections: typeof ConnectionStorage['deserializeConnections']
 ): Promise<Partial<ImportConnectionsState>> {
   if (!filename) {
     return INITIAL_STATE;
@@ -94,8 +92,12 @@ export function useImportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  importConnections = new ConnectionStorage().importConnections,
-  deserializeConnections = new ConnectionStorage().deserializeConnections
+  importConnections = ConnectionStorage.importConnections.bind(
+    ConnectionStorage
+  ),
+  deserializeConnections = ConnectionStorage.deserializeConnections.bind(
+    ConnectionStorage
+  )
 ): {
   onCancel: () => void;
   onSubmit: () => void;

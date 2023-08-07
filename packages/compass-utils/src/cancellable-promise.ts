@@ -6,6 +6,12 @@ class AbortError extends Error {
   name = 'AbortError';
 }
 
+export const throwIfAborted = (signal?: AbortSignal) => {
+  if (signal?.aborted) {
+    throw signal.reason ?? new AbortError();
+  }
+};
+
 export const createCancelError = (): AbortError => {
   const controller = new AbortController();
   controller.abort();

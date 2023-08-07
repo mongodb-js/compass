@@ -22,7 +22,7 @@ export const INITIAL_STATE = {
       connectionString: 'mongodb://localhost:27017',
     },
   },
-  connectionStorage: new ConnectionStorage(),
+  connectionStorage: ConnectionStorage,
 };
 
 async function saveConnectionInfo(connectionInfo, connectionStorage) {

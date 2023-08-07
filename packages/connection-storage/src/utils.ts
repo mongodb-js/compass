@@ -40,13 +40,6 @@ export function deleteCompassAppNameParam(
   };
 }
 
-export const throwIfAborted = (signal?: AbortSignal) => {
-  if (signal?.aborted) {
-    const err = signal.reason ?? new Error('This operation was aborted.');
-    throw err;
-  }
-};
-
 export const parseStoredPassword = (
   password: string
 ): ConnectionSecrets | undefined => {

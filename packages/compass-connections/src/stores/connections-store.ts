@@ -218,10 +218,10 @@ async function loadConnections(
     type: 'set-connections';
     connections: ConnectionInfo[];
   }>,
-  connectionStorage: ConnectionStorage
+  connectionStorage: typeof ConnectionStorage
 ) {
   try {
-    const loadedConnections = await connectionStorage.loadAll({});
+    const loadedConnections = await connectionStorage.loadAll();
     const toBeReSaved: ConnectionInfo[] = [];
 
     // Scrub OIDC tokens from connections when the option to store them has been disabled
@@ -262,7 +262,7 @@ export function useConnections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
-  connectionStorage: ConnectionStorage;
+  connectionStorage: typeof ConnectionStorage;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn: ConnectFn;
   appName: string;

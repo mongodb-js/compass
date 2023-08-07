@@ -14,9 +14,12 @@ import {
   deleteCompassAppNameParam,
   getKeytarServiceName,
   parseStoredPassword,
-  throwIfAborted,
 } from './utils';
-import { ipcExpose, ipcInvoke } from '@mongodb-js/compass-utils';
+import {
+  getStoragePaths,
+  ipcExpose,
+  throwIfAborted,
+} from '@mongodb-js/compass-utils';
 import {
   serializeConnections,
   deserializeConnections,
@@ -28,28 +31,24 @@ import type {
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
-export class ConnectionStorageMain {
-  private readonly path!: string;
-  private readonly folder = 'Connections';
-  private readonly maxAllowedRecentConnections = 10;
-  private readonly keytarServiceName = getKeytarServiceName();
+export class ConnectionStorage {
+  private static calledOnce: boolean;
+  private static path: string;
 
-  private static instance: ConnectionStorageMain | null;
+  private static readonly folder = 'Connections';
+  private static readonly maxAllowedRecentConnections = 10;
+  private static readonly keytarServiceName = getKeytarServiceName();
 
-  constructor(path = '') {
-    if (ConnectionStorageMain.instance) {
-      return ConnectionStorageMain.instance;
-    }
-    this.path = path;
-    ConnectionStorageMain.instance = this;
+  private constructor() {
+    // singleton
   }
 
-  static init(path?: string) {
-    if (this.instance) {
+  static init(path = getStoragePaths()?.basepath ?? '') {
+    if (this.calledOnce) {
       return;
     }
-    const instance = new this(path);
-    ipcExpose('ConnectionStorage', instance, [
+    this.path = path;
+    ipcExpose('ConnectionStorage', this, [
       'loadAll',
       'load',
       'hasLegacyConnections',
@@ -59,18 +58,18 @@ export class ConnectionStorageMain {
       'exportConnections',
       'importConnections',
     ]);
-    this.instance = instance;
+    this.calledOnce = true;
   }
 
-  private getFolderPath() {
+  private static getFolderPath() {
     return join(this.path, this.folder);
   }
 
-  private getFilePath(id: string) {
+  private static getFilePath(id: string) {
     return join(this.getFolderPath(), `${id}.json`);
   }
 
-  private mapStoredConnectionToConnectionInfo(
+  private static mapStoredConnectionToConnectionInfo(
     storedConnectionInfo: ConnectionInfo,
     secrets?: ConnectionSecrets
   ): ConnectionInfo {
@@ -81,7 +80,7 @@ export class ConnectionStorageMain {
     return deleteCompassAppNameParam(connectionInfo);
   }
 
-  private async getKeytarCredentials() {
+  private static async getKeytarCredentials() {
     if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
       return {};
     }
@@ -104,7 +103,7 @@ export class ConnectionStorageMain {
     }
   }
 
-  private async getConnections(): Promise<any[]> {
+  private static async getConnections(): Promise<any[]> {
     const connectionIds = (await fs.readdir(this.getFolderPath()))
       .filter((file) => file.endsWith('.json'))
       .map((file) => file.replace('.json', ''));
@@ -134,7 +133,7 @@ export class ConnectionStorageMain {
    * connection.connectionInfo  -> new connection
    * connection.isFavorite      -> legacy favorite connection
    */
-  async hasLegacyConnections({
+  static async hasLegacyConnections({
     signal,
   }: {
     signal?: AbortSignal;
@@ -151,7 +150,7 @@ export class ConnectionStorageMain {
     }
   }
 
-  async loadAll({
+  static async loadAll({
     signal,
   }: {
     signal?: AbortSignal;
@@ -190,7 +189,7 @@ export class ConnectionStorageMain {
     }
   }
 
-  async save({
+  static async save({
     connectionInfo,
     signal,
   }: {
@@ -260,7 +259,7 @@ export class ConnectionStorageMain {
     }
   }
 
-  async delete({
+  static async delete({
     id,
     signal,
   }: {
@@ -299,7 +298,7 @@ export class ConnectionStorageMain {
     }
   }
 
-  async load({
+  static async load({
     id,
     signal,
   }: {
@@ -314,7 +313,7 @@ export class ConnectionStorageMain {
     return connections.find((connection) => id === connection.id);
   }
 
-  private async afterConnectionHasBeenSaved(
+  private static async afterConnectionHasBeenSaved(
     savedConnection: ConnectionInfo
   ): Promise<void> {
     if (savedConnection.favorite) {
@@ -337,7 +336,7 @@ export class ConnectionStorageMain {
     }
   }
 
-  async deserializeConnections({
+  static async deserializeConnections({
     content,
     options = {},
     signal,
@@ -358,7 +357,7 @@ export class ConnectionStorageMain {
       : connections;
   }
 
-  async importConnections({
+  static async importConnections({
     content,
     options = {},
     signal,
@@ -398,7 +397,7 @@ export class ConnectionStorageMain {
     );
   }
 
-  async exportConnections({
+  static async exportConnections({
     options = {},
     signal,
   }: {
@@ -415,36 +414,4 @@ export class ConnectionStorageMain {
 
     return serializeConnections(exportConnections, restOfOptions);
   }
-}
-
-export class ConnectionStorageRenderer {
-  private ipc = ipcInvoke<
-    NonNullable<typeof ConnectionStorageMain['instance']>,
-    | 'loadAll'
-    | 'load'
-    | 'hasLegacyConnections'
-    | 'save'
-    | 'delete'
-    | 'deserializeConnections'
-    | 'importConnections'
-    | 'exportConnections'
-  >('ConnectionStorage', [
-    'loadAll',
-    'load',
-    'hasLegacyConnections',
-    'save',
-    'delete',
-    'deserializeConnections',
-    'importConnections',
-    'exportConnections',
-  ]);
-
-  loadAll = this.ipc.loadAll;
-  load = this.ipc.load;
-  hasLegacyConnections = this.ipc.hasLegacyConnections;
-  save = this.ipc.save;
-  delete = this.ipc.delete;
-  deserializeConnections = this.ipc.deserializeConnections;
-  importConnections = this.ipc.importConnections;
-  exportConnections = this.ipc.exportConnections;
 }

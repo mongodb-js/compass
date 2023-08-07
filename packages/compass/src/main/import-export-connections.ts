@@ -15,7 +15,7 @@ export async function doExportConnections(
       options.passphrase ? 'with' : 'without'
     } passphrase)`
   );
-  const json = await new ConnectionStorage().exportConnections({ options });
+  const json = await ConnectionStorage.exportConnections({ options });
   await fs.writeFile(filename, json);
 }
 
@@ -30,5 +30,5 @@ export async function doImportConnections(
     } passphrase)`
   );
   const content = await fs.readFile(filename, 'utf8');
-  await new ConnectionStorage().importConnections({ content, options });
+  await ConnectionStorage.importConnections({ content, options });
 }

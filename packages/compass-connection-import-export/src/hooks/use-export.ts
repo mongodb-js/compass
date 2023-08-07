@@ -47,7 +47,9 @@ export function useExportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  exportConnections = new ConnectionStorage().exportConnections
+  exportConnections = ConnectionStorage.exportConnections.bind(
+    ConnectionStorage
+  )
 ): {
   onCancel: () => void;
   onSubmit: () => void;

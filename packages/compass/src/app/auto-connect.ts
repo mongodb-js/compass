@@ -31,7 +31,9 @@ function applyUsernameAndPassword(
 export async function loadAutoConnectInfo(
   getPreferences: () => Promise<AutoConnectPreferences> = getWindowAutoConnectPreferences,
   fs: Pick<typeof fsPromises, 'readFile'> = fsPromises,
-  deserializeConnections = new ConnectionStorage().deserializeConnections
+  deserializeConnections = ConnectionStorage.deserializeConnections.bind(
+    ConnectionStorage
+  )
 ): Promise<undefined | (() => Promise<ConnectionInfo | undefined>)> {
   const autoConnectPreferences = await getPreferences();
   const {

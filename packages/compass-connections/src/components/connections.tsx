@@ -60,7 +60,7 @@ function Connections({
   appRegistry,
   onConnected,
   isConnected,
-  connectionStorage = new ConnectionStorage(),
+  connectionStorage = ConnectionStorage,
   appName,
   getAutoConnectInfo,
   connectFn = connect,
@@ -71,7 +71,7 @@ function Connections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
-  connectionStorage?: ConnectionStorage;
+  connectionStorage?: typeof ConnectionStorage;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: ConnectFn;

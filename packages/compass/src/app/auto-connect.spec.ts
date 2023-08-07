@@ -21,20 +21,20 @@ const loadAutoConnectWithConnection = async (
   );
   fs.mkdirSync(path.join(tmpDir, 'Connections'));
 
-  const connectionStorage = new ConnectionStorage(tmpDir);
+  ConnectionStorage['path'] = tmpDir;
   await Promise.all(
     connections.map((connectionInfo) =>
-      connectionStorage.save({ connectionInfo })
+      ConnectionStorage.save({ connectionInfo })
     )
   );
 
-  const fileContents = await connectionStorage.exportConnections({
+  const fileContents = await ConnectionStorage.exportConnections({
     options: exportOptions,
   });
 
   const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
   const deserializeConnections =
-    connectionStorage.deserializeConnections.bind(connectionStorage);
+    ConnectionStorage.deserializeConnections.bind(ConnectionStorage);
 
   const fn = await loadAutoConnectInfo(
     sinon.stub().resolves(connectPreferences),
@@ -58,7 +58,6 @@ describe('auto connection argument parsing', function () {
 
   afterEach(function () {
     sandbox.restore();
-    ConnectionStorage['instance'] = null;
   });
 
   it('skips connecting if shouldAutoConnect is false', async function () {
