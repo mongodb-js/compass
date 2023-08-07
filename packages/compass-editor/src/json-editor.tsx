@@ -62,7 +62,12 @@ import {
 import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension, TransactionSpec } from '@codemirror/state';
-import { Facet, Compartment, EditorState } from '@codemirror/state';
+import {
+  Facet,
+  Compartment,
+  EditorState,
+  EditorSelection,
+} from '@codemirror/state';
 import {
   LanguageSupport,
   syntaxHighlighting,
@@ -73,6 +78,7 @@ import { rgba } from 'polished';
 
 import { prettify as _prettify } from './prettify';
 import { ActionButton, FormatIcon } from './actions';
+import { lenientlyFixQuery } from './query/leniently-fix-query';
 
 const editorStyle = css({
   fontSize: 13,
@@ -418,7 +424,6 @@ type EditorProps = {
   lineHeight?: number;
   placeholder?: Parameters<typeof codemirrorPlaceholder>[0];
   commands?: readonly KeyBinding[];
-  cursorPosition?: number;
   initialJSONFoldAll?: boolean;
 } & (
   | { text: string; initialText?: never }
@@ -572,7 +577,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     lineHeight = 16,
     placeholder,
     commands,
-    cursorPosition,
     initialJSONFoldAll: _initialJSONFoldAll = true,
     ...props
   },
@@ -596,26 +600,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (cursorPosition) {
-        try {
-          editorViewRef.current?.dispatch({
-            selection: { anchor: cursorPosition, head: cursorPosition },
-          });
-        } catch (ex) {
-          openToast('error', {
-            title: 'Error on positioning',
-            description: `${ex.message}: ${cursorPosition}`,
-            timeout: 5000,
-            dismissible: true,
-          });
-          //
-        }
-      }
-    }, 50);
-  }, [cursorPosition]);
 
   useImperativeHandle(
     ref,
@@ -861,10 +845,64 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
           updateEditorContentHeight();
-          if (update.docChanged) {
-            const text = editor.state.sliceDoc() ?? '';
-            onChangeTextRef.current?.(text, update);
+          const editorText = editor.state.sliceDoc() ?? '';
+          if (update.focusChanged && editorViewRef.current?.hasFocus) {
+            if (editorText.trim() === '') {
+              const [updatedQuery, cursorPosition] =
+                lenientlyFixQuery(editorText);
+
+              void sheduleDispatch(editorViewRef.current, {
+                changes: {
+                  from: 0,
+                  to: editorViewRef.current.state.doc.length,
+                  insert: updatedQuery,
+                },
+                selection: EditorSelection.cursor(cursorPosition || 0),
+              });
+            }
           }
+
+          if (update.docChanged) {
+            onChangeTextRef.current?.(editorText, update);
+          }
+        }),
+        EditorView.domEventHandlers({
+          paste(event, view) {
+            const editorText = view.state.sliceDoc() ?? '';
+            const allSelection = EditorSelection.range(
+              0,
+              view.state.doc.length
+            );
+
+            const currentSelection = editor.state.selection;
+            const nothingIsSelected =
+              !currentSelection.ranges ||
+              (currentSelection.ranges.length === 1 &&
+                currentSelection.ranges[0].anchor ===
+                  currentSelection.ranges[0].head);
+            const shouldApplyQueryFix =
+              (nothingIsSelected && editorText === '{}') || // no selection, only braces, initial state
+              currentSelection.main.eq(allSelection); // all selected, it is a replace
+
+            if (shouldApplyQueryFix) {
+              const clipboard =
+                event.clipboardData?.getData('text/plain') || '';
+              const [updatedQuery, cursorPosition] =
+                lenientlyFixQuery(clipboard);
+
+              event.preventDefault();
+              event.stopPropagation();
+
+              void sheduleDispatch(view, {
+                changes: {
+                  from: 0,
+                  to: view.state.doc.length,
+                  insert: updatedQuery,
+                },
+                selection: EditorSelection.cursor(cursorPosition || 0),
+              });
+            }
+          },
         }),
       ],
       parent: domNode,
@@ -1135,7 +1173,6 @@ type InlineEditorProps = Omit<
   | 'annotations'
 > &
   (
-    | { cursorPosition?: number }
     | { text: string; initialText?: never }
     | { text?: never; initialText: string }
   );

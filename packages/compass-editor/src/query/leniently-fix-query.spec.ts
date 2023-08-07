@@ -14,7 +14,7 @@ describe.only('lenientlyFixQuery [Utils]', function () {
     it('should wrap the valid query between braces', function () {
       const [newQuery, position] = lenientlyFixQuery('a: 1');
       expect(newQuery).to.equal('{a: 1}');
-      expect(position).to.equal(4);
+      expect(position).to.equal(5);
     });
   });
 
@@ -34,7 +34,7 @@ describe.only('lenientlyFixQuery [Utils]', function () {
       const [newQuery, position] = lenientlyFixQuery(`{}${validQuery}`);
 
       expect(newQuery).to.equal(validQuery);
-      expect(position).to.equal(10);
+      expect(position).to.equal(11);
     });
 
     it('returns a a fixed query removing the trailing right empty object', function () {
@@ -42,7 +42,7 @@ describe.only('lenientlyFixQuery [Utils]', function () {
       const [newQuery, position] = lenientlyFixQuery(`${validQuery}{}`);
 
       expect(newQuery).to.equal(validQuery);
-      expect(position).to.equal(10);
+      expect(position).to.equal(11);
     });
   });
 
@@ -52,7 +52,7 @@ describe.only('lenientlyFixQuery [Utils]', function () {
       const [newQuery, position] = lenientlyFixQuery(invalidQuery);
 
       expect(newQuery).to.equal('{ query: 1 }');
-      expect(position).to.equal(10);
+      expect(position).to.equal(11);
     });
   });
 });

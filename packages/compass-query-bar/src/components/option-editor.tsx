@@ -1,5 +1,4 @@
-import type { FocusEventHandler } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import type { Signal } from '@mongodb-js/compass-components';
 import {
   css,
@@ -82,7 +81,6 @@ type OptionEditorProps = {
   hasError: boolean;
   id: string;
   onChange: (value: string) => void;
-  onFocus?: FocusEventHandler;
   onApply?(): void;
   placeholder?: string | HTMLElement;
   schemaFields?: CompletionWithServerInfo[];
@@ -90,7 +88,6 @@ type OptionEditorProps = {
   value?: string;
   ['data-testid']?: string;
   insights?: Signal | Signal[];
-  cursorPosition: number | undefined;
 };
 
 const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -98,18 +95,17 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   id,
   onChange,
   onApply,
-  onFocus,
   placeholder,
   schemaFields = [],
   serverVersion = '3.6.0',
   value = '',
   ['data-testid']: dataTestId,
   insights,
-  cursorPosition,
 }) => {
   const showInsights = usePreference('showInsights', React);
 
   const editorContainerRef = useRef<HTMLDivElement>(null);
+
   const focusRingProps = useFocusRing({
     outer: true,
     focusWithin: true,
@@ -160,12 +156,10 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         id={id}
         text={value}
         onChangeText={onChange}
-        onFocus={onFocus}
         placeholder={placeholder}
         completer={completer}
         commands={commands}
         data-testid={dataTestId}
-        cursorPosition={cursorPosition}
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>

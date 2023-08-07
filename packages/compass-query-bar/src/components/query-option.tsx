@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import type { Signal } from '@mongodb-js/compass-components';
 import {
   Label,
@@ -10,10 +10,11 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
-import { changeField, focusField } from '../stores/query-bar-reducer';
+import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
 
@@ -81,11 +82,9 @@ type QueryOptionProps = {
   value?: string;
   hasError: boolean;
   onChange: (name: QueryProperty, value: string) => void;
-  onFocus?: (name: QueryProperty) => void;
   placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
-  cursorPosition: number | undefined;
 };
 
 // Helper component to allow flexible computation of extra props for the TextInput
@@ -111,14 +110,12 @@ const WithOptionDefinitionTextInputProps: React.FunctionComponent<{
 const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   hasError,
   onChange,
-  onFocus,
   id,
   placeholder,
   name,
   value,
   onApply,
   insights,
-  cursorPosition,
 }) => {
   const darkMode = useDarkMode();
 
@@ -127,11 +124,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
 
   placeholder ??= optionDefinition.placeholder;
   value ??= '';
-
-  const onFocusInput = useCallback(
-    () => onFocus && onFocus(name),
-    [name, onFocus]
-  );
 
   const onValueChange = useCallback(
     (newVal: string) => {
@@ -178,11 +170,9 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             onChange={onValueChange}
             placeholder={placeholder}
             value={value}
-            onFocus={onFocusInput}
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
             insights={insights}
-            cursorPosition={cursorPosition}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>
@@ -221,10 +211,9 @@ const ConnectedQueryOption = connect(
     return {
       value: field.string,
       hasError: !field.valid,
-      cursorPosition: field.cursorPosition,
     };
   },
-  { onChange: changeField, onFocus: focusField }
+  { onChange: changeField }
 )(QueryOption);
 
 export default ConnectedQueryOption;

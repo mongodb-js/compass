@@ -3,8 +3,7 @@ import { cloneDeep, isEqual } from 'lodash';
 import _ from 'lodash';
 import type { Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { openToast } from '@mongodb-js/compass-components';
-import { lenientlyFixQuery } from '../utils/leniently-fix-query';
+
 import {
   DEFAULT_FIELD_VALUES,
   DEFAULT_QUERY_VALUES,
@@ -67,7 +66,6 @@ export const INITIAL_STATE: QueryBarState = {
 enum QueryBarActions {
   ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',
   ChangeField = 'compass-query-bar/ChangeField',
-  FocusField = 'compass-query-bar/FocusField',
   ChangeSchemaFields = 'compass-query-bar/ChangeSchemaFields',
   SetQuery = 'compass-query-bar/SetQuery',
   ApplyQuery = 'compass-query-bar/ApplyQuery',
@@ -86,11 +84,6 @@ export const toggleQueryOptions = (
   force?: boolean
 ): ToggleQueryOptionsAction => {
   return { type: QueryBarActions.ToggleQueryOptions, force };
-};
-
-type FocusFieldAction = {
-  type: QueryBarActions.FocusField;
-  name: QueryProperty;
 };
 
 type ChangeFieldAction = {
@@ -121,10 +114,6 @@ export const changeField = (
   value: string
 ): ChangeFieldAction => {
   return { type: QueryBarActions.ChangeField, name, value };
-};
-
-export const focusField = (name: QueryProperty): FocusFieldAction => {
-  return { type: QueryBarActions.FocusField, name };
 };
 
 type ChangeSchemaFieldsAction = {
@@ -416,55 +405,17 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     };
   }
 
-  if (isAction<FocusFieldAction>(action, QueryBarActions.FocusField)) {
-    let currentFieldValue = state.fields[action.name].string.trim();
-    let positioning = undefined;
-
-    if (
-      action.name === 'filter' &&
-      (currentFieldValue === '' || currentFieldValue === '{}')
-    ) {
-      [currentFieldValue, positioning] = lenientlyFixQuery(currentFieldValue);
-    }
-
-    return {
-      ...state,
-      fields: {
-        ...state.fields,
-        [action.name]: {
-          ...state.fields[action.name],
-          string: currentFieldValue,
-          cursorPosition: positioning,
-        },
-      },
-    };
-  }
-
   if (isAction<ChangeFieldAction>(action, QueryBarActions.ChangeField)) {
-    let commandBarString: string = action.value;
-    let positioning = undefined;
-
-    const previousFilter = state.fields.filter.string.trim();
-
-    if (
-      action.name === 'filter' &&
-      (previousFilter === '' || previousFilter === '{}')
-    ) {
-      [commandBarString, positioning] = lenientlyFixQuery(action.value);
-    }
-
     const newValue = validateField(action.name, action.value);
     const valid = newValue !== false;
-
     return {
       ...state,
       fields: {
         ...state.fields,
         [action.name]: {
-          string: commandBarString,
+          string: action.value,
           valid: valid,
           value: valid ? newValue : state.fields[action.name].value,
-          cursorPosition: positioning,
         },
       },
     };
