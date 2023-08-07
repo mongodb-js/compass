@@ -44,6 +44,7 @@ const loadAutoConnectWithConnection = async (
     );
     return fn;
   } finally {
+    ConnectionStorage['path'] = null;
     void fs.rmdir(tmpDir, { recursive: true });
   }
 };
@@ -60,7 +61,11 @@ describe('auto connection argument parsing', function () {
 
   afterEach(function () {
     sandbox.restore();
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
+    if (initialKeytarEnvValue) {
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
+    } else {
+      delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+    }
   });
 
   it('skips connecting if shouldAutoConnect is false', async function () {
