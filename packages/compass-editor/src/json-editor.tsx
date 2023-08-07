@@ -490,6 +490,7 @@ async function sheduleDispatch(
     }
     await wait();
   }
+  console.log('called more than once', transactions);
   transactions = Array.isArray(transactions) ? transactions : [transactions];
   editorView.dispatch(...transactions);
   return true;
@@ -884,13 +885,14 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
               currentSelection.main.eq(allSelection); // all selected, it is a replace
 
             if (shouldApplyQueryFix) {
-              const clipboard =
-                event.clipboardData?.getData('text/plain') || '';
-              const [updatedQuery, cursorPosition] =
-                lenientlyFixQuery(clipboard);
-
               event.preventDefault();
               event.stopPropagation();
+
+              const clipboard =
+                event.clipboardData?.getData('text/plain') || '';
+
+              const [updatedQuery, cursorPosition] =
+                lenientlyFixQuery(clipboard);
 
               void sheduleDispatch(view, {
                 changes: {
