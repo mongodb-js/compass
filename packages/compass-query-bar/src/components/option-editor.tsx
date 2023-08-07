@@ -18,7 +18,7 @@ import {
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model';
-
+import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 
 const editorContainerStyles = css({
@@ -80,6 +80,7 @@ const insightsBadgeStyles = css({
 type OptionEditorProps = {
   hasError: boolean;
   id: string;
+  hasAutofix?: boolean;
   onChange: (value: string) => void;
   onApply?(): void;
   placeholder?: string | HTMLElement;
@@ -93,6 +94,7 @@ type OptionEditorProps = {
 const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   hasError,
   id,
+  hasAutofix,
   onChange,
   onApply,
   placeholder,
@@ -103,9 +105,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   insights,
 }) => {
   const showInsights = usePreference('showInsights', React);
-
   const editorContainerRef = useRef<HTMLDivElement>(null);
-
   const focusRingProps = useFocusRing({
     outer: true,
     focusWithin: true,
@@ -143,6 +143,38 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     });
   }, [schemaFields, serverVersion]);
 
+  const onFocus = (editorView: EditorEventCallbackContext, content: string) => {
+    if (hasAutofix && content === '') {
+      editorView.setContent('{}', 1);
+      onChange('{}');
+    }
+  };
+
+  const onReplace = (
+    editorView: EditorEventCallbackContext,
+    initialText: string,
+    finalText: string
+  ) => {
+    if (hasAutofix) {
+      const [fixedQuery, caretPosition] = lenientlyFixQuery(finalText);
+      editorView.setContent(fixedQuery, caretPosition);
+      onChange(fixedQuery);
+    }
+  };
+
+  const onPaste = (
+    editorView: EditorEventCallbackContext,
+    clipboard: string,
+    initialText: string,
+    finalText: string
+  ) => {
+    if (hasAutofix && initialText === '{}') {
+      const [fixedQuery, caretPosition] = lenientlyFixQuery(finalText);
+      editorView.setContent(fixedQuery, caretPosition);
+      onChange(fixedQuery);
+    }
+  };
+
   return (
     <div
       className={cx(
@@ -160,6 +192,9 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         completer={completer}
         commands={commands}
         data-testid={dataTestId}
+        onFocus={onFocus}
+        onReplace={onReplace}
+        onPaste={onPaste}
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>

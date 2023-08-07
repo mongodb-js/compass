@@ -61,12 +61,7 @@ import {
 import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
 import type { Extension, TransactionSpec } from '@codemirror/state';
-import {
-  Facet,
-  Compartment,
-  EditorState,
-  EditorSelection,
-} from '@codemirror/state';
+import { Facet, Compartment, EditorState } from '@codemirror/state';
 import {
   LanguageSupport,
   syntaxHighlighting,
@@ -77,7 +72,6 @@ import { rgba } from 'polished';
 
 import { prettify as _prettify } from './prettify';
 import { ActionButton, FormatIcon } from './actions';
-import { lenientlyFixQuery } from './query/leniently-fix-query';
 
 const editorStyle = css({
   fontSize: 13,
@@ -404,9 +398,26 @@ export type Annotation = Pick<
   'from' | 'to' | 'severity' | 'message'
 >;
 
+export type EditorEventCallbackContext = {
+  editorView: EditorView;
+  setContent: SetContent;
+};
+
 type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
+  onFocus?: (context: EditorEventCallbackContext, text: string) => void;
+  onPaste?: (
+    context: EditorEventCallbackContext,
+    clipboardContents: string,
+    initialText: string,
+    finalText: string
+  ) => void;
+  onReplace?: (
+    context: EditorEventCallbackContext,
+    initialText: string,
+    finalText: string
+  ) => void;
   onLoad?: (editor: EditorView) => void;
   darkMode?: boolean;
   showLineNumbers?: boolean;
@@ -428,10 +439,7 @@ type EditorProps = {
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
 ) &
-  Pick<
-    React.HTMLProps<HTMLDivElement>,
-    'id' | 'className' | 'onFocus' | 'onBlur'
-  >;
+  Pick<React.HTMLProps<HTMLDivElement>, 'id' | 'className' | 'onBlur'>;
 
 function createFoldGutterExtension() {
   return foldGutter({
@@ -469,6 +477,31 @@ async function wait(ms?: number): Promise<void> {
   });
 }
 
+async function waitUntilEditorIsReady(
+  editorView: EditorView,
+  signal?: AbortSignal
+): Promise<boolean> {
+  while ((editorView as any).updateState !== 0) {
+    if (signal?.aborted) {
+      return false;
+    }
+    await wait();
+  }
+
+  return true;
+}
+
+function callWhenEditorIsReady(
+  editorView: EditorView,
+  callback: () => void
+): void {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  setTimeout(async () => {
+    await waitUntilEditorIsReady(editorView);
+    callback();
+    return;
+  });
+}
 /**
  * Codemirror editor throws when the state update is being applied while another
  * one is in progress and doesn't give us a way to schedule updates otherwise.
@@ -479,18 +512,13 @@ async function wait(ms?: number): Promise<void> {
  *
  * [0]: https://discuss.codemirror.net/t/should-dispatched-transactions-be-added-to-a-queue/4610/4
  */
+export type SetContent = (content: string, caret: number | undefined) => void;
 async function sheduleDispatch(
   editorView: EditorView,
   transactions: TransactionSpec | TransactionSpec[],
   signal?: AbortSignal
 ): Promise<boolean> {
-  while ((editorView as any).updateState !== 0) {
-    if (signal?.aborted) {
-      return false;
-    }
-    await wait();
-  }
-  console.log('called more than once', transactions);
+  await waitUntilEditorIsReady(editorView, signal);
   transactions = Array.isArray(transactions) ? transactions : [transactions];
   editorView.dispatch(...transactions);
   return true;
@@ -558,6 +586,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     initialText: _initialText,
     text,
     onChangeText,
+    onFocus,
+    onPaste,
+    onReplace,
     language = 'json',
     showLineNumbers = true,
     showFoldGutter = true,
@@ -584,6 +615,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 ) {
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
+  const onFocusRef = useRef(onFocus);
+  const onPasteRef = useRef(onPaste);
+  const onReplaceRef = useRef(onReplace);
   const onLoadRef = useRef(onLoad);
   const initialTextProvided = useRef(!!_initialText);
   const initialText = useRef(_initialText ?? text);
@@ -600,6 +634,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
+  onFocusRef.current = onFocus;
+  onPasteRef.current = onPaste;
+  onReplaceRef.current = onReplace;
 
   useImperativeHandle(
     ref,
@@ -784,6 +821,24 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     });
   }, []);
 
+  const setContent = (content: string, position: number | undefined) => {
+    if (editorViewRef.current) {
+      const transaction: TransactionSpec = {
+        changes: {
+          from: 0,
+          // Replace all the content
+          to: editorViewRef.current.state.doc.length,
+          insert: content,
+        },
+      };
+
+      if (position !== undefined) {
+        transaction.selection = { head: position, anchor: position };
+      }
+      void sheduleDispatch(editorViewRef.current, transaction);
+    }
+  };
+
   useLayoutEffect(() => {
     if (!editorContainerRef.current) {
       throw new Error("Can't mount editor: DOM node is missing");
@@ -846,20 +901,11 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         EditorView.updateListener.of((update) => {
           updateEditorContentHeight();
           const editorText = editor.state.sliceDoc() ?? '';
-          if (update.focusChanged && editorViewRef.current?.hasFocus) {
-            if (editorText.trim() === '') {
-              const [updatedQuery, cursorPosition] =
-                lenientlyFixQuery(editorText);
 
-              void sheduleDispatch(editorViewRef.current, {
-                changes: {
-                  from: 0,
-                  to: editorViewRef.current.state.doc.length,
-                  insert: updatedQuery,
-                },
-                selection: EditorSelection.cursor(cursorPosition || 0),
-              });
-            }
+          if (update.focusChanged && editorViewRef.current?.hasFocus) {
+            const editorView = editorViewRef.current;
+
+            onFocusRef.current?.({ editorView, setContent }, editorText);
           }
 
           if (update.docChanged) {
@@ -868,41 +914,29 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         }),
         EditorView.domEventHandlers({
           paste(event, view) {
-            const editorText = view.state.sliceDoc() ?? '';
-            const allSelection = EditorSelection.range(
-              0,
-              view.state.doc.length
-            );
+            const initialState = view.state.sliceDoc() ?? '';
+            const clipboardContents =
+              event.clipboardData?.getData('text/plain') ?? '';
+            const selection = view.state.selection.main;
+            const isReplace =
+              selection.anchor === 0 && selection.head === initialState.length;
 
-            const currentSelection = editor.state.selection;
-            const nothingIsSelected =
-              !currentSelection.ranges ||
-              (currentSelection.ranges.length === 1 &&
-                currentSelection.ranges[0].anchor ===
-                  currentSelection.ranges[0].head);
-            const shouldApplyQueryFix =
-              (nothingIsSelected && editorText === '{}') || // no selection, only braces, initial state
-              currentSelection.main.eq(allSelection); // all selected, it is a replace
-
-            if (shouldApplyQueryFix) {
-              event.preventDefault();
-              event.stopPropagation();
-
-              const clipboard =
-                event.clipboardData?.getData('text/plain') || '';
-
-              const [updatedQuery, cursorPosition] =
-                lenientlyFixQuery(clipboard);
-
-              void sheduleDispatch(view, {
-                changes: {
-                  from: 0,
-                  to: view.state.doc.length,
-                  insert: updatedQuery,
-                },
-                selection: EditorSelection.cursor(cursorPosition || 0),
-              });
-            }
+            callWhenEditorIsReady(view, () => {
+              if (isReplace) {
+                onReplaceRef.current?.(
+                  { editorView: view, setContent },
+                  initialState,
+                  view.state.sliceDoc() ?? ''
+                );
+              } else {
+                onPasteRef.current?.(
+                  { editorView: view, setContent },
+                  clipboardContents,
+                  initialState,
+                  view.state.sliceDoc() ?? ''
+                );
+              }
+            });
           },
         }),
       ],
