@@ -1,5 +1,5 @@
-import { importConnections } from '@mongodb-js/connection-storage';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
 import { ipcRenderer } from 'hadron-ipc';
@@ -30,7 +30,10 @@ function applyUsernameAndPassword(
 
 export async function loadAutoConnectInfo(
   getPreferences: () => Promise<AutoConnectPreferences> = getWindowAutoConnectPreferences,
-  fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
+  fs: Pick<typeof fsPromises, 'readFile'> = fsPromises,
+  deserializeConnections = ConnectionStorage.deserializeConnections.bind(
+    ConnectionStorage
+  )
 ): Promise<undefined | (() => Promise<ConnectionInfo | undefined>)> {
   const autoConnectPreferences = await getPreferences();
   const {
@@ -48,12 +51,11 @@ export async function loadAutoConnectInfo(
   return async (): Promise<ConnectionInfo | undefined> => {
     if (file) {
       const fileContents = await fs.readFile(file, 'utf8');
-      const connections: ConnectionInfo[] = [];
-      await importConnections(fileContents, {
-        trackingProps: { context: 'Autoconnect' },
-        passphrase,
-        saveConnections(infos: ConnectionInfo[]) {
-          connections.push(...infos);
+      const connections = await deserializeConnections({
+        content: fileContents,
+        options: {
+          trackingProps: { context: 'Autoconnect' },
+          passphrase,
         },
       });
       let id: string | undefined;

@@ -204,7 +204,6 @@
     "@mongodb-js/compass-serverstats": "^16.11.0",
     "@mongodb-js/compass-shell": "^3.11.0",
     "@mongodb-js/compass-sidebar": "^5.11.0",
-    "@mongodb-js/compass-utils": "^0.3.2",
     "@mongodb-js/connection-storage": "^0.2.0",
     "@mongodb-js/eslint-config-compass": "^1.0.7",
     "@mongodb-js/get-os-info": "^0.3.13",

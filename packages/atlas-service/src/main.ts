@@ -12,7 +12,11 @@ import fetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import type { AIQuery, IntrospectInfo, Token, UserInfo } from './util';
-import { broadcast, ipcExpose } from './util';
+import {
+  broadcast,
+  ipcExpose,
+  throwIfAborted,
+} from '@mongodb-js/compass-utils';
 import {
   createLoggerAndTelemetry,
   mongoLogId,
@@ -335,10 +339,7 @@ export class AtlasService {
   static async isAuthenticated({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
-    if (signal?.aborted) {
-      const err = signal.reason ?? new Error('This operation was aborted.');
-      throw err;
-    }
+    throwIfAborted(signal);
     if (!this.token) {
       return false;
     }
@@ -356,10 +357,7 @@ export class AtlasService {
       return this.signInPromise;
     }
     try {
-      if (signal?.aborted) {
-        const err = signal.reason ?? new Error('This operation was aborted.');
-        throw err;
-      }
+      throwIfAborted(signal);
 
       this.signInPromise = (async () => {
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
@@ -402,10 +400,7 @@ export class AtlasService {
   static async getUserInfo({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<UserInfo> {
-    if (signal?.aborted) {
-      const err = signal.reason ?? new Error('This operation was aborted.');
-      throw err;
-    }
+    throwIfAborted(signal);
     await this.maybeWaitForToken({ signal });
     const res = await this.fetch(`${this.issuer}/v1/userinfo`, {
       headers: {
@@ -421,10 +416,7 @@ export class AtlasService {
   }
 
   static async introspect({ signal }: { signal?: AbortSignal } = {}) {
-    if (signal?.aborted) {
-      const err = signal.reason ?? new Error('This operation was aborted.');
-      throw err;
-    }
+    throwIfAborted(signal);
 
     const url = new URL(`${this.issuer}/v1/introspect`);
     url.searchParams.set('client_id', this.clientId);
@@ -463,10 +455,7 @@ export class AtlasService {
     sampleDocuments?: Document[];
     signal?: AbortSignal;
   }) {
-    if (signal?.aborted) {
-      const err = signal.reason ?? new Error('This operation was aborted.');
-      throw err;
-    }
+    throwIfAborted(signal);
 
     let msgBody = JSON.stringify({
       userInput,

@@ -19,8 +19,7 @@ import { AtlasService } from '@mongodb-js/atlas-service/main';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
-import { ConnectionStorage } from '@mongodb-js/connection-storage';
-import { getStoragePaths } from '@mongodb-js/compass-utils';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/main';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
@@ -86,6 +85,9 @@ class CompassApplication {
       return;
     }
 
+    // ConnectionStorage offers import/export which is used via CLI as well.
+    ConnectionStorage.init();
+
     if (mode === 'CLI') {
       return;
     }
@@ -142,9 +144,7 @@ class CompassApplication {
     track('Application Launched', async () => {
       let hasLegacyConnections: boolean;
       try {
-        hasLegacyConnections = await new ConnectionStorage(
-          getStoragePaths()?.basepath
-        ).hasLegacyConnections();
+        hasLegacyConnections = await ConnectionStorage.hasLegacyConnections();
       } catch (e) {
         debug('Failed to check legacy connections', e);
         hasLegacyConnections = false;

@@ -4,7 +4,7 @@ import {
   validateConnectionOptionsErrors,
   validateConnectionOptionsWarnings,
 } from './validation';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 describe('validation', function () {
   describe('Form Validation Errors', function () {

@@ -1,6 +1,5 @@
-import { ConnectionStorage } from '@mongodb-js/connection-storage';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-SIDEBAR');
 
@@ -23,7 +22,7 @@ export const INITIAL_STATE = {
       connectionString: 'mongodb://localhost:27017',
     },
   },
-  connectionStorage: new ConnectionStorage(getStoragePaths()?.basepath),
+  connectionStorage: ConnectionStorage,
 };
 
 async function saveConnectionInfo(connectionInfo, connectionStorage) {
