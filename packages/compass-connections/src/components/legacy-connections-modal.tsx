@@ -59,7 +59,7 @@ const useLegacyModel = (connectionStorage: typeof ConnectionStorage) => {
 export const LegacyConnectionsModal = ({
   connectionStorage,
 }: {
-  connectionStorage: ConnectionStorage;
+  connectionStorage: typeof ConnectionStorage;
 }) => {
   const [isHideModalChecked, setIsHideModalChecked] = useState(false);
   const { hideModal, hideModalPermanently, isOpen } =
