@@ -19,16 +19,6 @@ export function lenientlyFixQuery(query: string): [string, CursorPlacement] {
     return ['{}', 1];
   }
 
-  if (query.startsWith('{}')) {
-    query = query.substring(2);
-    modified = true;
-  }
-
-  if (query.endsWith('{}')) {
-    query = query.substring(0, query.length - 2);
-    modified = true;
-  }
-
   const isValid = _isValidQuery(query);
 
   if (!isValid) {

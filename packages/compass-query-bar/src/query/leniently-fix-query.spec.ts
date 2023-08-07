@@ -28,24 +28,6 @@ describe('lenientlyFixQuery [Utils]', function () {
     });
   });
 
-  describe('when has a trailing empty object', function () {
-    it('returns a a fixed query removing the trailing left empty object', function () {
-      const validQuery = '{ query: 1 }';
-      const [newQuery, position] = lenientlyFixQuery(`{}${validQuery}`);
-
-      expect(newQuery).to.equal(validQuery);
-      expect(position).to.equal(11);
-    });
-
-    it('returns a a fixed query removing the trailing right empty object', function () {
-      const validQuery = '{ query: 1 }';
-      const [newQuery, position] = lenientlyFixQuery(`${validQuery}{}`);
-
-      expect(newQuery).to.equal(validQuery);
-      expect(position).to.equal(11);
-    });
-  });
-
   describe('when an existing query was pasted with duplicated braces on the ends', function () {
     it('returns a fixed query with removed duplicated braces', function () {
       const invalidQuery = '{{ query: 1 }}';
