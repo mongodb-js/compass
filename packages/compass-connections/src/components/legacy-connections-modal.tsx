@@ -11,20 +11,32 @@ import {
   ModalFooter,
   Checkbox,
   Body,
+  Banner,
 } from '@mongodb-js/compass-components';
 
 import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 const LEGACY_MODAL_STORAGE_KEY = 'hide_legacy_connections_modal';
 
-const listStyle = css({
-  listStyle: 'decimal',
-  paddingLeft: spacing[5],
-});
+const listStyle = (type: 'decimal' | 'disc') =>
+  css({
+    listStyle: type,
+    paddingLeft: spacing[5],
+  });
 
 const bodyStyles = css({
   paddingTop: spacing[3],
   paddingBottom: 0,
+});
+
+const bannerStyles = css({
+  marginTop: spacing[2],
+  marginBottom: spacing[2],
+});
+
+const bannerContentStyles = css({
+  maxHeight: spacing[6] * 2,
+  overflowY: 'scroll',
 });
 
 const footerStyles = css({
@@ -33,7 +45,7 @@ const footerStyles = css({
 });
 
 const useLegacyModel = (connectionStorage: typeof ConnectionStorage) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [connections, setConnections] = useState<{ name: string }[]>([]);
 
   const [isModalHiddenByUser, setIsModalHiddenByUser] = usePersistedState(
     LEGACY_MODAL_STORAGE_KEY,
@@ -42,16 +54,17 @@ const useLegacyModel = (connectionStorage: typeof ConnectionStorage) => {
 
   useEffect(() => {
     void connectionStorage
-      .hasLegacyConnections()
-      .then((hasLegacyConnections) => setIsModalOpen(hasLegacyConnections));
+      .getLegacyConnections()
+      .then((connections) => setConnections(connections));
   }, []);
 
   return {
-    isOpen: isModalOpen && !isModalHiddenByUser,
-    hideModal: () => setIsModalOpen(false),
+    isOpen: connections.length > 0 && !isModalHiddenByUser,
+    connections,
+    hideModal: () => setConnections([]),
     hideModalPermanently: () => {
       setIsModalHiddenByUser(true);
-      setIsModalOpen(false);
+      setConnections([]);
     },
   };
 };
@@ -62,7 +75,7 @@ export const LegacyConnectionsModal = ({
   connectionStorage: typeof ConnectionStorage;
 }) => {
   const [isHideModalChecked, setIsHideModalChecked] = useState(false);
-  const { hideModal, hideModalPermanently, isOpen } =
+  const { hideModal, hideModalPermanently, isOpen, connections } =
     useLegacyModel(connectionStorage);
 
   const onCloseModal = useCallback(() => {
@@ -83,9 +96,19 @@ export const LegacyConnectionsModal = ({
       <ModalBody className={bodyStyles}>
         <Body>
           Compass has identified legacy connections that are no longer supported
-          beyond v1.39.0. To migrate these connections:
+          beyond v1.39.0.
         </Body>
-        <ol className={listStyle}>
+        <Banner className={bannerStyles}>
+          <div className={bannerContentStyles}>
+            <ul className={listStyle('disc')}>
+              {connections.map(({ name }, index) => (
+                <li key={index}>{name}</li>
+              ))}
+            </ul>
+          </div>
+        </Banner>
+        <Body weight="medium">To migrate these connections:</Body>
+        <ol className={listStyle('decimal')}>
           <li>
             <Body>
               Install{' '}

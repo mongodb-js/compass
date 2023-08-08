@@ -350,15 +350,15 @@ describe('ConnectionStorage', function () {
     });
   });
 
-  describe('hasLegacyConnections', function () {
+  describe('getLegacyConnections', function () {
     it('returns false if there are no legacy connections', async function () {
       const connectionInfo = getConnectionInfo();
       writeFakeConnection(tmpDir, {
         connectionInfo,
       });
-      const hasLegacyConnections =
-        await ConnectionStorage.hasLegacyConnections();
-      expect(hasLegacyConnections).to.be.false;
+      const getLegacyConnections =
+        await ConnectionStorage.getLegacyConnections();
+      expect(getLegacyConnections).to.have.lengthOf(0);
     });
 
     it('returns false if there are no favorite legacy connections', async function () {
@@ -377,9 +377,9 @@ describe('ConnectionStorage', function () {
         })
       );
 
-      const hasLegacyConnections =
-        await ConnectionStorage.hasLegacyConnections();
-      expect(hasLegacyConnections).to.be.false;
+      const getLegacyConnections =
+        await ConnectionStorage.getLegacyConnections();
+      expect(getLegacyConnections).to.have.lengthOf(0);
     });
 
     it('returns true if there are favorite legacy connections', async function () {
@@ -392,6 +392,7 @@ describe('ConnectionStorage', function () {
         JSON.stringify({
           _id,
           isFavorite: true,
+          name: 'Local 1',
           hosts: [{ host: 'localhost', port: 27017 }],
           readPreference: 'primary',
           port: 27017,
@@ -399,9 +400,9 @@ describe('ConnectionStorage', function () {
         })
       );
 
-      const hasLegacyConnections =
-        await ConnectionStorage.hasLegacyConnections();
-      expect(hasLegacyConnections).to.be.true;
+      const getLegacyConnections =
+        await ConnectionStorage.getLegacyConnections();
+      expect(getLegacyConnections).to.deep.equal([{ name: 'Local 1' }]);
     });
   });
 

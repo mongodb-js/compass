@@ -144,7 +144,8 @@ class CompassApplication {
     track('Application Launched', async () => {
       let hasLegacyConnections: boolean;
       try {
-        hasLegacyConnections = await ConnectionStorage.hasLegacyConnections();
+        hasLegacyConnections =
+          (await ConnectionStorage.getLegacyConnections()).length > 0;
       } catch (e) {
         debug('Failed to check legacy connections', e);
         hasLegacyConnections = false;
