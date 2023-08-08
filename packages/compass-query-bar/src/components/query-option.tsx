@@ -10,14 +10,13 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { openToast } from '@mongodb-js/compass-components';
-
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
 import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
+import { EditorView } from '@mongodb-js/compass-editor';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -83,11 +82,6 @@ type QueryOptionProps = {
   value?: string;
   hasError: boolean;
   onChange: (name: QueryProperty, value: string) => void;
-  onFocus?(
-    name: QueryProperty,
-    context: EditorEventCallbackContext,
-    content: string
-  ): void;
   placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
@@ -136,38 +130,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
       return onChange(name, newVal);
     },
     [name, onChange]
-  );
-
-  const onFocusCallback = useCallback(
-    (view: EditorView, text: string) => {
-      openToast('onFocusCallback', {
-        title: 'XXXXX',
-        description: 'CALLED',
-        dismissible: true,
-        timeout: 4000,
-      });
-
-      if (text.trim() === '') {
-        onValueChange('{}');
-        view.dispatch({ selection: { head: 1, anchor: 1 } });
-      }
-    },
-    [onValueChange]
-  );
-
-  const onPasteCallback = useCallback(
-    (
-      view: EditorView,
-      clipboard: string,
-      previous: string,
-      current: string
-    ) => {
-      if (current.trim() === '') {
-        onValueChange('{}');
-        view.dispatch({ selection: { head: 1, anchor: 1 } });
-      }
-    },
-    [onValueChange]
   );
 
   return (
