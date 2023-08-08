@@ -11,7 +11,7 @@ import { configureStore } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import type { EditorView } from '@codemirror/view';
 
-async function wait(ms = 10): Promise<void> {
+async function wait(ms = 50): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
