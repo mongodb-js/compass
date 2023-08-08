@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-indexes",
   "productName": "Compass Indexes plugin",
   "description": "Collection index management for Compass",
-  "version": "5.11.0",
+  "version": "5.11.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -61,7 +61,7 @@
     "@mongodb-js/compass-logging": "^1.1.7",
     "@mongodb-js/mongodb-redux-common": "^2.0.9",
     "bson": "^5.2.0",
-    "compass-preferences-model": "^2.11.0",
+    "compass-preferences-model": "^2.11.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -82,7 +82,7 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^5.6.0",
-    "mongodb-data-service": "^22.9.0",
+    "mongodb-data-service": "^22.9.1",
     "mongodb-query-parser": "^2.5.0",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
@@ -102,6 +102,6 @@
     "@mongodb-js/compass-logging": "^1.1.7",
     "@mongodb-js/mongodb-redux-common": "^2.0.9",
     "bson": "^5.2.0",
-    "compass-preferences-model": "^2.11.0"
+    "compass-preferences-model": "^2.11.1"
   }
 }

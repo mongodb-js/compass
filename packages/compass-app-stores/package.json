@@ -12,7 +12,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -77,9 +77,9 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "mongodb-instance-model": "^12.9.0"
+    "mongodb-instance-model": "^12.9.1"
   },
   "peerDependencies": {
-    "mongodb-instance-model": "^12.9.0"
+    "mongodb-instance-model": "^12.9.1"
   }
 }
