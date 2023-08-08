@@ -97,7 +97,7 @@
     "chai-as-promised": "^7.1.1",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^23.3.9",
+    "electron": "^23.3.12",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.7",
     "lodash": "^4.17.21",
