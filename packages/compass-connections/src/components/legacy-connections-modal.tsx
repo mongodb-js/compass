@@ -13,7 +13,7 @@ import {
   Body,
 } from '@mongodb-js/compass-components';
 
-import type { ConnectionStorage } from '@mongodb-js/connection-storage';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 const LEGACY_MODAL_STORAGE_KEY = 'hide_legacy_connections_modal';
 
@@ -32,7 +32,7 @@ const footerStyles = css({
   justifyContent: 'space-between',
 });
 
-const useLegacyModel = (connectionStorage: ConnectionStorage) => {
+const useLegacyModel = (connectionStorage: typeof ConnectionStorage) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [isModalHiddenByUser, setIsModalHiddenByUser] = usePersistedState(
@@ -59,7 +59,7 @@ const useLegacyModel = (connectionStorage: ConnectionStorage) => {
 export const LegacyConnectionsModal = ({
   connectionStorage,
 }: {
-  connectionStorage: ConnectionStorage;
+  connectionStorage: typeof ConnectionStorage;
 }) => {
   const [isHideModalChecked, setIsHideModalChecked] = useState(false);
   const { hideModal, hideModalPermanently, isOpen } =

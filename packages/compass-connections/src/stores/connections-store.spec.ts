@@ -5,7 +5,7 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
 
 import { useConnections } from './connections-store';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 const noop = (): any => {
   /* no-op */

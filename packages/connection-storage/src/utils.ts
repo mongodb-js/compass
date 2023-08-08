@@ -2,6 +2,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 import type { ConnectionInfo } from './connection-info';
+import type { ConnectionSecrets } from './connection-secrets';
 
 export function getKeytarServiceName() {
   const { appName } = getStoragePaths() ?? {};
@@ -38,3 +39,13 @@ export function deleteCompassAppNameParam(
     },
   };
 }
+
+export const parseStoredPassword = (
+  password: string
+): ConnectionSecrets | undefined => {
+  try {
+    return JSON.parse(password).secrets;
+  } catch (e) {
+    return undefined;
+  }
+};

@@ -3,7 +3,6 @@ import sinon from 'sinon';
 import {
   useImportExportConnectionsCommon,
   COMMON_INITIAL_STATE,
-  makeConnectionInfoFilter,
   useOpenModalThroughIpc,
 } from './common';
 import { renderHook, act } from '@testing-library/react-hooks';
@@ -53,18 +52,6 @@ describe('common utilities', function () {
         result.current[1].onChangePassphrase('s3cr3t');
       });
       expect(result.current[0].passphrase).to.equal('s3cr3t');
-    });
-  });
-
-  describe('makeConnectionInfoFilter', function () {
-    it('creates a filter function from a list of selected connections', function () {
-      const filter = makeConnectionInfoFilter([
-        { id: 'id1', name: 'name1', selected: true },
-        { id: 'id2', name: 'name2', selected: false },
-      ]);
-      expect(filter({ id: 'id1' })).to.equal(true);
-      expect(filter({ id: 'id2' })).to.equal(false);
-      expect(filter({ id: 'none' })).to.equal(false);
     });
   });
 

@@ -159,11 +159,10 @@ describe('useExportConnections', function () {
     expect(await fs.readFile(filename, 'utf8')).to.equal(fileContents);
     expect(exportConnections).to.have.been.calledOnce;
     const arg = exportConnections.firstCall.args[0];
-    expect(arg.passphrase).to.equal('s3cr3t');
-    expect(arg.filter({ id: 'id1' })).to.equal(false);
-    expect(arg.filter({ id: 'id2' })).to.equal(true);
-    expect(arg.trackingProps).to.deep.equal({ context: 'Tests' });
-    expect(arg.removeSecrets).to.equal(false);
+    expect(arg.options.passphrase).to.equal('s3cr3t');
+    expect(arg.options.filterConnectionIds).to.deep.equal(['id2']);
+    expect(arg.options.trackingProps).to.deep.equal({ context: 'Tests' });
+    expect(arg.options.removeSecrets).to.equal(false);
   });
 
   it('resets errors if filename changes', async function () {
