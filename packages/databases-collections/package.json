@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-databases-collections",
   "productName": "Compass Databases and Collections Plugin",
   "description": "Plugin for viewing the list of, creating, and dropping databases and collections",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "license": "SSPL",
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
@@ -50,8 +50,8 @@
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-editor": "^0.10.0",
     "@mongodb-js/compass-logging": "^1.1.7",
-    "@mongodb-js/databases-collections-list": "^1.11.0",
-    "compass-preferences-model": "^2.11.0",
+    "@mongodb-js/databases-collections-list": "^1.11.1",
+    "compass-preferences-model": "^2.11.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -67,15 +67,15 @@
     "depcheck": "^1.4.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.9.0",
+    "hadron-app": "^5.9.1",
     "hadron-app-registry": "^9.0.8",
     "hadron-ipc": "^3.1.4",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^5.6.0",
-    "mongodb-collection-model": "^5.9.0",
-    "mongodb-data-service": "^22.9.0",
-    "mongodb-instance-model": "^12.9.0",
+    "mongodb-collection-model": "^5.9.1",
+    "mongodb-data-service": "^22.9.1",
+    "mongodb-instance-model": "^12.9.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.5.0",
     "nyc": "^15.1.0",
@@ -91,7 +91,7 @@
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-editor": "^0.10.0",
     "@mongodb-js/compass-logging": "^1.1.7",
-    "@mongodb-js/databases-collections-list": "^1.11.0",
-    "compass-preferences-model": "^2.11.0"
+    "@mongodb-js/databases-collections-list": "^1.11.1",
+    "compass-preferences-model": "^2.11.1"
   }
 }
