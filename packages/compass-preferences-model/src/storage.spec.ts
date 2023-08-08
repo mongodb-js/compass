@@ -1,9 +1,17 @@
-import { mkdtempSync, rmdirSync, existsSync, readFileSync } from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import { UserStorage, StoragePreferences, type User } from './storage';
 import { expect } from 'chai';
 import type { UserPreferences } from './preferences';
+
+const getPreferencesFolder = (tmpDir: string) => {
+  return path.join(tmpDir, 'AppPreferences');
+};
+
+const getPreferencesFile = (tmpDir: string) => {
+  return path.join(getPreferencesFolder(tmpDir), 'General.json');
+};
 
 describe('storage', function () {
   let tmpDir: string;
@@ -11,12 +19,12 @@ describe('storage', function () {
     let storedUser: User;
     let userStorage: UserStorage;
     before(async function () {
-      tmpDir = mkdtempSync(path.join(os.tmpdir()));
+      tmpDir = await fs.mkdtemp(path.join(os.tmpdir()));
       userStorage = new UserStorage(tmpDir);
       storedUser = await userStorage.getOrCreate('');
     });
-    after(function () {
-      rmdirSync(tmpDir, { recursive: true });
+    after(async function () {
+      await fs.rmdir(tmpDir, { recursive: true });
     });
 
     it('creates a new user if user does not exist', async function () {
@@ -47,12 +55,12 @@ describe('storage', function () {
     const defaultPreferences = {
       showedNetworkOptIn: true,
     } as unknown as UserPreferences;
-    beforeEach(function () {
-      tmpDir = mkdtempSync(path.join(os.tmpdir()));
+    beforeEach(async function () {
+      tmpDir = await fs.mkdtemp(path.join(os.tmpdir()));
     });
 
-    afterEach(function () {
-      rmdirSync(tmpDir, { recursive: true });
+    afterEach(async function () {
+      await fs.rmdir(tmpDir, { recursive: true });
     });
 
     it('sets up the storage', async function () {
@@ -61,22 +69,19 @@ describe('storage', function () {
 
       const storage = new StoragePreferences(defaultPreferences, tmpDir);
 
-      const preferencesDir = path.join(tmpDir, 'AppPreferences');
-      const preferencesFile = path.join(
-        tmpDir,
-        'AppPreferences',
-        'General.json'
-      );
+      const preferencesDir = getPreferencesFolder(tmpDir);
+      const preferencesFile = getPreferencesFile(tmpDir);
 
-      expect(existsSync(preferencesDir)).to.be.false;
-      expect(existsSync(preferencesFile)).to.be.false;
+      expect(async () => await fs.access(preferencesDir)).to.throw;
+      expect(async () => await fs.access(preferencesFile)).to.throw;
 
       await storage.setup();
 
-      expect(existsSync(preferencesDir)).to.be.true;
-      expect(existsSync(preferencesFile)).to.be.true;
+      expect(async () => await fs.access(preferencesDir)).to.not.throw;
+      expect(async () => await fs.access(preferencesFile)).to.not.throw;
+
       expect(
-        JSON.parse(readFileSync(preferencesFile).toString())
+        JSON.parse((await fs.readFile(preferencesFile)).toString())
       ).to.deep.equal(defaultPreferences);
     });
 
@@ -89,6 +94,27 @@ describe('storage', function () {
       const newPreferences = storage.getPreferences();
 
       expect(newPreferences).to.deep.equal({
+        ...defaultPreferences,
+        currentUserId: '123456789',
+      });
+    });
+
+    it('returns default preference values if its not stored on disk', async function () {
+      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+
+      // manually setup the file with no content
+      await fs.mkdir(getPreferencesFolder(tmpDir));
+      await fs.writeFile(
+        getPreferencesFile(tmpDir),
+        JSON.stringify({}),
+        'utf-8'
+      );
+
+      await storage.updatePreferences({
+        currentUserId: '123456789',
+      });
+
+      expect(storage.getPreferences()).to.deep.equal({
         ...defaultPreferences,
         currentUserId: '123456789',
       });
