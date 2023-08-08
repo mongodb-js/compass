@@ -49,6 +49,7 @@ const initiateFilterBarWithText = async (text: string) => {
   editorView.dispatch({
     changes: { from: 0, to: editorView.state.doc.length, insert: text },
   });
+
   await waitUntilEditorIsReady(editorView);
 };
 
@@ -67,6 +68,27 @@ const getFilterInputEventHandler = () => {
 const clickOnFilterInputContent = () => {
   userEvent.click(getFilterInputEventHandler());
 };
+
+async function eventuallyExpectFilterEditorToContain(
+  text: string,
+  timeout = 5,
+  times = 10
+) {
+  let result = '';
+
+  for (let i = 0; i < times; i++) {
+    await waitUntilEditorIsReady(getFilterInputEditorView());
+
+    result = await getFilterInputContent();
+    if (result.includes(text)) {
+      break;
+    }
+
+    await wait(timeout);
+  }
+
+  expect(result).to.contain(text);
+}
 
 const renderQueryBar = ({
   expanded = false,
@@ -113,7 +135,7 @@ describe('QueryBar Component', function () {
     describe('empty state', function () {
       it('fills the filter input when clicked with an empty object "{}"', async function () {
         clickOnFilterInputContent();
-        expect(await getFilterInputContent()).to.contain('{}');
+        await eventuallyExpectFilterEditorToContain('{}');
       });
     });
 
@@ -123,7 +145,7 @@ describe('QueryBar Component', function () {
 
         await initiateFilterBarWithText(QUERY);
         clickOnFilterInputContent();
-        expect(await getFilterInputContent()).to.contain(QUERY);
+        await eventuallyExpectFilterEditorToContain(QUERY);
       });
     });
 

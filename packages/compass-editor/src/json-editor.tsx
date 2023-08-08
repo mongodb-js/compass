@@ -825,7 +825,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   }, []);
 
   const setContent = useCallback(
-    () => (content: string, position: number | undefined) => {
+    (content: string, position: number | undefined) => {
       if (editorViewRef.current) {
         const transaction: TransactionSpec = {
           changes: {
