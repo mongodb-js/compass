@@ -9,6 +9,23 @@ import QueryBar from './query-bar';
 import { Provider } from 'react-redux';
 import { configureStore } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import type { EditorView } from '@codemirror/view';
+
+async function wait(ms: number = 10): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function waitUntilEditorIsReady(
+  editorView: EditorView
+): Promise<boolean> {
+  do {
+    await wait();
+  } while ((editorView as any).updateState !== 0);
+
+  return true;
+}
 
 const noop = () => {
   /* no op */
@@ -17,6 +34,39 @@ const noop = () => {
 const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history';
+
+const getFilterInputEditorView = () => {
+  const filterInput = screen.getByTestId(
+    'query-bar-option-filter-input'
+  ) as any;
+  return filterInput._cm as EditorView;
+};
+
+const initiateFilterBarWithText = async (text: string) => {
+  const editorView = getFilterInputEditorView();
+  await waitUntilEditorIsReady(editorView);
+
+  editorView.dispatch({
+    changes: { from: 0, to: editorView.state.doc.length, insert: text },
+  });
+  await waitUntilEditorIsReady(editorView);
+};
+
+const getFilterInputContent = async () => {
+  const editorView = getFilterInputEditorView();
+  await waitUntilEditorIsReady(editorView);
+
+  return editorView.state.doc.sliceString(0) ?? '';
+};
+
+const getFilterInputEventHandler = () => {
+  const editorView = getFilterInputEditorView() as any;
+  return editorView.docView.dom as HTMLElement;
+};
+
+const clickOnFilterInputContent = () => {
+  userEvent.click(getFilterInputEventHandler());
+};
 
 const renderQueryBar = ({
   expanded = false,
@@ -43,10 +93,12 @@ const renderQueryBar = ({
 describe('QueryBar Component', function () {
   let onApplySpy: SinonSpy;
   let onResetSpy: SinonSpy;
+
   beforeEach(function () {
     onApplySpy = sinon.spy();
     onResetSpy = sinon.spy();
   });
+
   afterEach(cleanup);
 
   describe('when rendered', function () {
@@ -55,6 +107,23 @@ describe('QueryBar Component', function () {
         onApply: onApplySpy,
         onReset: onResetSpy,
         showExportToLanguageButton: true,
+      });
+    });
+
+    describe('empty state', function () {
+      it('fills the filter input when clicked with an empty object "{}"', async function () {
+        clickOnFilterInputContent();
+        expect(await getFilterInputContent()).to.contain('{}');
+      });
+    });
+
+    describe('non empty state', function () {
+      it('does nothing when clicked', async function () {
+        const QUERY = '{a: 1}';
+
+        await initiateFilterBarWithText(QUERY);
+        clickOnFilterInputContent();
+        expect(await getFilterInputContent()).to.contain(QUERY);
       });
     });
 
