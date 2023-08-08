@@ -824,23 +824,26 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     });
   }, []);
 
-  const setContent = (content: string, position: number | undefined) => {
-    if (editorViewRef.current) {
-      const transaction: TransactionSpec = {
-        changes: {
-          from: 0,
-          // Replace all the content
-          to: editorViewRef.current.state.doc.length,
-          insert: content,
-        },
-      };
+  const setContent = useCallback(
+    () => (content: string, position: number | undefined) => {
+      if (editorViewRef.current) {
+        const transaction: TransactionSpec = {
+          changes: {
+            from: 0,
+            // Replace all the content
+            to: editorViewRef.current.state.doc.length,
+            insert: content,
+          },
+        };
 
-      if (position !== undefined) {
-        transaction.selection = { head: position, anchor: position };
+        if (position !== undefined) {
+          transaction.selection = { head: position, anchor: position };
+        }
+        void scheduleDispatch(editorViewRef.current, transaction);
       }
-      void scheduleDispatch(editorViewRef.current, transaction);
-    }
-  };
+    },
+    [editorViewRef]
+  );
 
   useLayoutEffect(() => {
     if (!editorContainerRef.current) {
@@ -999,6 +1002,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     placeholderExtension,
     commandsExtension,
     updateEditorContentHeight,
+    setContent,
   ]);
 
   useEffect(() => {
@@ -1073,7 +1077,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         scrollHeight;
       containerRef.current.style.height = `${height}px`;
     }
-  }, [maxLines, contentHeight, hasScroll, lineHeight, showScroll]);
+  }, [maxLines, contentHeight, hasScroll, lineHeight, showScroll, setContent]);
 
   return (
     <div
