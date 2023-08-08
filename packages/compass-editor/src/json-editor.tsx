@@ -491,16 +491,13 @@ async function waitUntilEditorIsReady(
   return true;
 }
 
-function callWhenEditorIsReady(
+async function callWhenEditorIsReady(
   editorView: EditorView,
   callback: () => void
-): void {
+): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  setTimeout(async () => {
-    await waitUntilEditorIsReady(editorView);
-    callback();
-    return;
-  });
+  await waitUntilEditorIsReady(editorView);
+  callback();
 }
 /**
  * Codemirror editor throws when the state update is being applied while another
@@ -921,7 +918,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
             const isReplace =
               selection.anchor === 0 && selection.head === initialState.length;
 
-            callWhenEditorIsReady(view, () => {
+            void callWhenEditorIsReady(view, () => {
               if (isReplace) {
                 onReplaceRef.current?.(
                   { editorView: view, setContent },
