@@ -20,6 +20,7 @@ import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
+import type { EditorEventCallbackContext } from '@mongodb-js/compass-editor';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -146,7 +147,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const onFocus = (editorView: EditorEventCallbackContext, content: string) => {
     if (hasAutofix && content === '') {
       editorView.setContent('{}', 1);
-      onChange('{}');
+      value = '{}';
     }
   };
 
@@ -158,7 +159,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     if (hasAutofix) {
       const [fixedQuery, caretPosition] = lenientlyFixQuery(finalText);
       editorView.setContent(fixedQuery, caretPosition);
-      onChange(fixedQuery);
+      value = fixedQuery;
     }
   };
 
@@ -171,7 +172,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     if (hasAutofix && initialText === '{}') {
       const [fixedQuery, caretPosition] = lenientlyFixQuery(finalText);
       editorView.setContent(fixedQuery, caretPosition);
-      onChange(fixedQuery);
+      value = fixedQuery;
     }
   };
 
