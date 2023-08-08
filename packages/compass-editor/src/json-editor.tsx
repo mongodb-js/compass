@@ -499,6 +499,14 @@ async function callWhenEditorIsReady(
   await waitUntilEditorIsReady(editorView);
   callback();
 }
+
+/**
+ * To avoid coupling with CodeMirror other components upwards in the component
+ * hierarchy, we will expose a SetContent function that will allows us replace
+ * the contents in CodeMirror and position the caret whenever we need.
+ */
+export type SetContent = (content: string, caret: number | undefined) => void;
+
 /**
  * Codemirror editor throws when the state update is being applied while another
  * one is in progress and doesn't give us a way to schedule updates otherwise.
@@ -509,7 +517,6 @@ async function callWhenEditorIsReady(
  *
  * [0]: https://discuss.codemirror.net/t/should-dispatched-transactions-be-added-to-a-queue/4610/4
  */
-export type SetContent = (content: string, caret: number | undefined) => void;
 async function sheduleDispatch(
   editorView: EditorView,
   transactions: TransactionSpec | TransactionSpec[],
