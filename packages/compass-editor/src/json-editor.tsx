@@ -516,7 +516,7 @@ export type SetContent = (content: string, caret: number | undefined) => void;
  *
  * [0]: https://discuss.codemirror.net/t/should-dispatched-transactions-be-added-to-a-queue/4610/4
  */
-async function sheduleDispatch(
+async function scheduleDispatch(
   editorView: EditorView,
   transactions: TransactionSpec | TransactionSpec[],
   signal?: AbortSignal
@@ -557,7 +557,7 @@ function useCodemirrorExtensionCompartment<T>(
 
     const controller = new AbortController();
 
-    void sheduleDispatch(
+    void scheduleDispatch(
       editorViewRef.current,
       {
         effects: compartmentRef.current?.reconfigure(
@@ -838,7 +838,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       if (position !== undefined) {
         transaction.selection = { head: position, anchor: position };
       }
-      void sheduleDispatch(editorViewRef.current, transaction);
+      void scheduleDispatch(editorViewRef.current, transaction);
     }
   };
 
@@ -1017,7 +1017,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     ) {
       const controller = new AbortController();
 
-      void sheduleDispatch(
+      void scheduleDispatch(
         editorViewRef.current,
         {
           changes: {
@@ -1043,7 +1043,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
     const controller = new AbortController();
 
-    void sheduleDispatch(
+    void scheduleDispatch(
       editorViewRef.current,
       {
         effects: setDiagnosticsEffect.of(annotations ?? []),
@@ -1156,7 +1156,7 @@ const foldAll: Command = (editor) => {
     },
   });
   if (foldableProperties.length > 0) {
-    void sheduleDispatch(editor, {
+    void scheduleDispatch(editor, {
       effects: foldableProperties.map((range) => {
         return foldEffect.of(range);
       }),
@@ -1181,7 +1181,7 @@ const prettify: Command = (editorView) => {
   try {
     const formatted = _prettify(doc, language);
     if (formatted !== doc) {
-      void sheduleDispatch(editorView, {
+      void scheduleDispatch(editorView, {
         changes: {
           from: 0,
           to: editorView.state.doc.length,
@@ -1437,7 +1437,7 @@ async function setCodemirrorEditorValue(
     throw new Error('Cannot find editor container');
   }
   const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
-  await sheduleDispatch(editorView, {
+  await scheduleDispatch(editorView, {
     changes: {
       from: 0,
       to: editorView.state.doc.length,
