@@ -16,7 +16,6 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
-import { EditorView } from '@mongodb-js/compass-editor';
 
 const queryOptionStyles = css({
   display: 'flex',
