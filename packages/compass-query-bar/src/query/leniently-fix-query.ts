@@ -2,9 +2,10 @@ import detect from 'mongodb-query-parser';
 
 export type CursorPlacement = number | undefined;
 
+const _detect = detect as unknown as (query: string) => boolean;
 function _isValidQuery(query: string): boolean {
   try {
-    return !!detect(query);
+    return !!_detect(query);
   } catch (ex) {
     return false;
   }
