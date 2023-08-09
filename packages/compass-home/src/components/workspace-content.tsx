@@ -5,6 +5,7 @@ import {
   useAppRegistryComponent,
 } from '../contexts/app-registry-context';
 import type Namespace from '../types/namespace';
+import { HadronPlugin } from 'hadron-app-registry';
 
 const EmptyComponent: React.FunctionComponent = () => null;
 
@@ -17,9 +18,6 @@ const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
   const Database =
     useAppRegistryComponent(AppRegistryComponents.DATABASE_WORKSPACE) ??
     EmptyComponent;
-  const Instance =
-    useAppRegistryComponent(AppRegistryComponents.INSTANCE_WORKSPACE) ??
-    EmptyComponent;
 
   if (namespace.collection) {
     return <Collection></Collection>;
@@ -29,7 +27,7 @@ const WorkspaceContent: React.FunctionComponent<{ namespace: Namespace }> = ({
     return <Database></Database>;
   }
 
-  return <Instance></Instance>;
+  return <HadronPlugin name="InstanceWorkspace"></HadronPlugin>;
 };
 
 export default WorkspaceContent;

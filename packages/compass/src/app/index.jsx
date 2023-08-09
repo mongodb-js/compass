@@ -44,6 +44,8 @@ import async from 'async';
 import * as webvitals from 'web-vitals';
 
 import User from 'compass-user-model';
+import { GlobalAppRegistryProvider } from 'hadron-app-registry';
+import HomePlugin from '@mongodb-js/compass-home';
 
 import './menu-renderer';
 marky.mark('Migrations');
@@ -172,32 +174,17 @@ const Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
-    const AutoUpdatesComponent =
-      app.appRegistry.getRole('App.AutoUpdate')?.[0].component;
-
-    if (AutoUpdatesComponent) {
-      ReactDOM.render(
-        <React.StrictMode>
-          <AutoUpdatesComponent></AutoUpdatesComponent>
-        </React.StrictMode>,
-        this.queryByHook('auto-update')
-      );
-    }
-
-    const HomeComponent = app.appRegistry.getComponent('Home.Home');
-
-    if (HomeComponent) {
-      ReactDOM.render(
-        <React.StrictMode>
-          <HomeComponent
-            appRegistry={app.appRegistry}
+    ReactDOM.render(
+      <React.StrictMode>
+        <GlobalAppRegistryProvider>
+          <HomePlugin
             appName={remote.app.getName()}
             getAutoConnectInfo={getAutoConnectInfo}
-          ></HomeComponent>
-        </React.StrictMode>,
-        this.queryByHook('layout-container')
-      );
-    }
+          ></HomePlugin>
+        </GlobalAppRegistryProvider>
+      </React.StrictMode>,
+      this.queryByHook('layout-container')
+    );
 
     document.querySelector('#loading-placeholder')?.remove();
   },

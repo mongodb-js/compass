@@ -9,7 +9,6 @@ import { TAB_NAME } from './constants/plugin';
 const ROLE = {
   component: CompassSchemaPlugin,
   name: TAB_NAME,
-  hasQueryHistory: true,
   order: 3,
   configureStore: configureStore,
   configureActions: configureActions,

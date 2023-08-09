@@ -23,6 +23,10 @@ function getTopologyDescription(topologyDescription) {
 
 const store = createStore(reducer);
 
+store.getInstance = () => {
+  return store.getState().instance;
+};
+
 store.refreshInstance = async (globalAppRegistry, refreshOptions) => {
   const { instance, dataService } = store.getState();
 

@@ -1,9 +1,7 @@
-import React from 'react';
-import { Provider, connect } from 'react-redux';
+import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
-import store from './stores';
 import type { RootState } from './stores';
 import { InstanceComponent } from './components/instance';
 
@@ -22,12 +20,4 @@ const ConnectedInstanceComponent = connect((state: RootState) => state, {
   },
 })(InstanceComponent);
 
-function InstancePlugin() {
-  return (
-    <Provider store={store}>
-      <ConnectedInstanceComponent />
-    </Provider>
-  );
-}
-
-export default InstancePlugin;
+export default ConnectedInstanceComponent;

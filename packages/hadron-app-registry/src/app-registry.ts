@@ -45,6 +45,24 @@ export class AppRegistry {
   roles: Record<string, Role[]>;
   storeMisses: Record<string, number>;
 
+  private pluginUsage = new Map<string, number>();
+
+  onPluginActivated(name: string) {
+    const usageCount = (this.pluginUsage.get(name) ?? 0) + 1;
+    this.pluginUsage.set(name, usageCount);
+    return usageCount;
+  }
+
+  onPluginDeactivated(name: string) {
+    const usageCount = (this.pluginUsage.get(name) ?? 0) - 1;
+    this.pluginUsage.set(name, usageCount);
+    return usageCount;
+  }
+
+  getPluginUsage(name: string) {
+    return this.pluginUsage.get(name) ?? 0;
+  }
+
   /**
    * Instantiate the registry.
    */

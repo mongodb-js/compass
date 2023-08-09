@@ -67,7 +67,9 @@ function InstanceComponent({
   const activeTab = filteredTabs[activeTabId];
 
   useEffect(() => {
-    track('Screen', { name: trackingIdForTabName(activeTab) });
+    if (activeTab) {
+      track('Screen', { name: trackingIdForTabName(activeTab) });
+    }
   }, [activeTab]);
 
   if (status === 'error') {

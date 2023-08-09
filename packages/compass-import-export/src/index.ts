@@ -5,6 +5,7 @@ import exportStore from './stores/export-store';
 import importStore from './stores/import-store';
 
 import type AppRegistry from 'hadron-app-registry';
+// import { registerGlobalAppRegistryEventEmitter } from 'hadron-app-registry';
 
 /**
  * The import plugin.
@@ -43,6 +44,13 @@ function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('Global.Modal', IMPORT_ROLE);
   appRegistry.deregisterStore('ImportModal.Store');
 }
+
+// export const openImport = registerGlobalAppRegistryEventEmitter<{ namespace: string }>(
+//   ({ namespace }) => {
+//     console.log(namespace);
+//     store.dispatch()
+//   }
+// );
 
 export default Plugin;
 export { activate, deactivate, ImportPlugin, ExportPlugin };
