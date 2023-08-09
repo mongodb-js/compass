@@ -95,8 +95,7 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
        */}
       {chosenFeedbackOption !== 'none' && (
         <LGGuideCue
-          className={guideCueStyles}
-          cueId="ai-query-feedback"
+          tooltipClassName={guideCueStyles}
           refEl={
             chosenFeedbackOption === 'positive'
               ? feedbackPositiveButtonRef
@@ -106,6 +105,7 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
           setOpen={() => setChosenFeedbackOption('none')}
           numberOfSteps={1}
           currentStep={1}
+          title=""
           tooltipAlign="bottom"
           onPrimaryButtonClick={() =>
             onFeedback(chosenFeedbackOption, feedbackText)
