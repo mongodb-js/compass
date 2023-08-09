@@ -2,13 +2,17 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import os from 'os';
 import Sinon from 'sinon';
+
 import configureStore from './query-bar-store';
 import type { QueryBarStoreOptions } from './query-bar-store';
 import {
   AIQueryActionTypes,
   cancelAIQuery,
   runAIQuery,
+  submitFeedback,
 } from './ai-query-reducer';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { mapQueryToFormFields } from '../utils/query';
 
 describe('aiQueryReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -107,6 +111,7 @@ describe('aiQueryReducer', function () {
           status: 'ready',
           aiPromptText: '',
           errorMessage: undefined,
+          didSubmitFeedback: false,
           isInputVisible: false,
           aiQueryFetchId: -1,
         });
@@ -131,6 +136,41 @@ describe('aiQueryReducer', function () {
 
       expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
       expect(store.getState().aiQuery.status).to.equal('ready');
+    });
+  });
+
+  describe('submitFeedback', function () {
+    it('should log a telemetry event and set didSubmitFeedback true', async function () {
+      const store = createStore();
+      expect(store.getState().aiQuery.didSubmitFeedback).to.equal(false);
+
+      // Note: This is coupling this test with internals of the logger and telemetry.
+      // We're doing this as this is a unique case where we're using telemetry
+      // for feedback. Avoid repeating this elsewhere.
+      const trackingLogs: any[] = [];
+      process.on('compass:track', (event) => trackingLogs.push(event));
+
+      store.dispatch(submitFeedback('positive'));
+      expect(store.getState().aiQuery.didSubmitFeedback).to.equal(true);
+
+      // Let the track event occur.
+      await new Promise((resolve) => setTimeout(resolve, 6));
+
+      expect(trackingLogs).to.deep.equal([
+        {
+          event: 'AIQuery Feedback',
+          properties: {
+            feedback: 'positive',
+          },
+        },
+      ]);
+
+      // Check reset.
+      store.dispatch({
+        type: AIQueryActionTypes.AIQuerySucceeded,
+        fields: mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+      });
+      expect(store.getState().aiQuery.didSubmitFeedback).to.equal(false);
     });
   });
 });

@@ -10,6 +10,7 @@ import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
 import LeafyGreenCode, { Language } from '@leafygreen-ui/code';
 import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
+import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
 import IconButton from '@leafygreen-ui/icon-button';
@@ -102,6 +103,10 @@ export {
   Icon,
   IconButton,
   Language,
+  // We export the GuideCue as LGGuideCue as we have our own wrapped
+  // GuideCue implementation in Compass. LGGuideCue is only to be
+  // used in situations where Compass' GuideCue is not intended for use.
+  LGGuideCue,
   Menu,
   MenuItem,
   MenuSeparator,
