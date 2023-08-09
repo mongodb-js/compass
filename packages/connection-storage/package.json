@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -22,20 +22,18 @@
     "dist"
   ],
   "license": "SSPL",
-  "main": "dist/index.js",
-  "compass:main": "src/index.ts",
   "exports": {
-    "import": "./dist/.esm-wrapper.mjs",
-    "require": "./dist/index.js"
+    "./main": "./main.js",
+    "./renderer": "./renderer.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    "./main": "./src/main.ts",
+    "./renderer": "./src/renderer.ts"
   },
-  "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "compile": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -50,12 +48,12 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "devDependencies": {
-    "@mongodb-js/compass-logging": "^1.1.6",
-    "@mongodb-js/compass-utils": "^0.3.1",
-    "@mongodb-js/eslint-config-compass": "^1.0.6",
-    "@mongodb-js/mocha-config-compass": "^1.2.0",
-    "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/tsconfig-compass": "^1.0.2",
+    "@mongodb-js/compass-logging": "^1.1.7",
+    "@mongodb-js/compass-utils": "^0.3.3",
+    "@mongodb-js/eslint-config-compass": "^1.0.7",
+    "@mongodb-js/mocha-config-compass": "^1.2.1",
+    "@mongodb-js/prettier-config-compass": "^1.0.1",
+    "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
@@ -63,13 +61,12 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "gen-esm-wrapper": "^1.1.0",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^5.7.0",
     "mongodb-connection-string-url": "^2.6.0",
-    "mongodb-data-service": "^22.8.0",
+    "mongodb-data-service": "^22.9.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",

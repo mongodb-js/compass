@@ -12,8 +12,8 @@ import {
 import ConnectionForm from '@mongodb-js/connection-form';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
-import { ConnectionStorage } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type AppRegistry from 'hadron-app-registry';
 
@@ -22,7 +22,6 @@ import Connecting from './connecting/connecting';
 import { useConnections } from '../stores/connections-store';
 import { cloneDeep } from 'lodash';
 import ConnectionList from './connection-list/connection-list';
-import { getStoragePaths } from '@mongodb-js/compass-utils';
 import { LegacyConnectionsModal } from './legacy-connections-modal';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
@@ -61,7 +60,7 @@ function Connections({
   appRegistry,
   onConnected,
   isConnected,
-  connectionStorage = new ConnectionStorage(getStoragePaths()?.basepath),
+  connectionStorage = ConnectionStorage,
   appName,
   getAutoConnectInfo,
   connectFn = connect,
@@ -72,7 +71,7 @@ function Connections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
-  connectionStorage?: ConnectionStorage;
+  connectionStorage?: typeof ConnectionStorage;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: ConnectFn;

@@ -20,8 +20,8 @@ import type {
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
-import { getConnectionTitle } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
 import toNS from 'mongodb-ns';
 import React, {
   useCallback,

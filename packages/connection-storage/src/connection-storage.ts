@@ -10,28 +10,66 @@ import {
   mergeSecrets,
   extractSecrets,
 } from './connection-secrets';
-import { getKeytarServiceName, deleteCompassAppNameParam } from './utils';
+import {
+  deleteCompassAppNameParam,
+  getKeytarServiceName,
+  parseStoredPassword,
+} from './utils';
+import {
+  getStoragePaths,
+  ipcExpose,
+  throwIfAborted,
+} from '@mongodb-js/compass-utils';
+import {
+  serializeConnections,
+  deserializeConnections,
+} from './import-export-connection';
+import type {
+  ImportConnectionOptions,
+  ExportConnectionOptions,
+} from './import-export-connection';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 export class ConnectionStorage {
-  private readonly folder = 'Connections';
-  private readonly keytarServiceName: string;
-  private readonly maxAllowedRecentConnections = 10;
+  private static calledOnce: boolean;
+  private static path: string;
 
-  constructor(protected readonly path: string = '') {
-    this.keytarServiceName = getKeytarServiceName();
+  private static readonly folder = 'Connections';
+  private static readonly maxAllowedRecentConnections = 10;
+  private static readonly keytarServiceName = getKeytarServiceName();
+
+  private constructor() {
+    // singleton
   }
 
-  private getFolderPath() {
+  static init(path = getStoragePaths()?.basepath ?? '') {
+    if (this.calledOnce) {
+      return;
+    }
+    this.path = path;
+    ipcExpose('ConnectionStorage', this, [
+      'loadAll',
+      'load',
+      'hasLegacyConnections',
+      'save',
+      'delete',
+      'deserializeConnections',
+      'exportConnections',
+      'importConnections',
+    ]);
+    this.calledOnce = true;
+  }
+
+  private static getFolderPath() {
     return join(this.path, this.folder);
   }
 
-  private getFilePath(id: string) {
+  private static getFilePath(id: string) {
     return join(this.getFolderPath(), `${id}.json`);
   }
 
-  private mapStoredConnectionToConnectionInfo(
+  private static mapStoredConnectionToConnectionInfo(
     storedConnectionInfo: ConnectionInfo,
     secrets?: ConnectionSecrets
   ): ConnectionInfo {
@@ -42,7 +80,7 @@ export class ConnectionStorage {
     return deleteCompassAppNameParam(connectionInfo);
   }
 
-  private async getKeytarCredentials() {
+  private static async getKeytarCredentials() {
     if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
       return {};
     }
@@ -51,7 +89,7 @@ export class ConnectionStorage {
       return Object.fromEntries(
         credentials.map(({ account, password }) => [
           account,
-          JSON.parse(password).secrets ?? {},
+          parseStoredPassword(password),
         ])
       ) as Record<string, ConnectionSecrets>;
     } catch (e) {
@@ -65,7 +103,7 @@ export class ConnectionStorage {
     }
   }
 
-  private async getConnections(): Promise<any[]> {
+  private static async getConnections(): Promise<any[]> {
     const connectionIds = (await fs.readdir(this.getFolderPath()))
       .filter((file) => file.endsWith('.json'))
       .map((file) => file.replace('.json', ''));
@@ -95,7 +133,12 @@ export class ConnectionStorage {
    * connection.connectionInfo  -> new connection
    * connection.isFavorite      -> legacy favorite connection
    */
-  async hasLegacyConnections() {
+  static async hasLegacyConnections({
+    signal,
+  }: {
+    signal?: AbortSignal;
+  } = {}): Promise<boolean> {
+    throwIfAborted(signal);
     try {
       return (
         (await this.getConnections()).filter(
@@ -107,7 +150,12 @@ export class ConnectionStorage {
     }
   }
 
-  async loadAll(): Promise<ConnectionInfo[]> {
+  static async loadAll({
+    signal,
+  }: {
+    signal?: AbortSignal;
+  } = {}): Promise<ConnectionInfo[]> {
+    throwIfAborted(signal);
     // Ensure folder exists
     await fs.mkdir(this.getFolderPath(), { recursive: true });
 
@@ -141,7 +189,14 @@ export class ConnectionStorage {
     }
   }
 
-  async save(connectionInfo: ConnectionInfo): Promise<void> {
+  static async save({
+    connectionInfo,
+    signal,
+  }: {
+    signal?: AbortSignal;
+    connectionInfo: ConnectionInfo;
+  }): Promise<void> {
+    throwIfAborted(signal);
     try {
       if (!connectionInfo.id) {
         throw new Error('id is required');
@@ -204,7 +259,14 @@ export class ConnectionStorage {
     }
   }
 
-  async delete(id?: string): Promise<void> {
+  static async delete({
+    id,
+    signal,
+  }: {
+    id?: string;
+    signal?: AbortSignal;
+  }): Promise<void> {
+    throwIfAborted(signal);
     if (!id) {
       return;
     }
@@ -236,7 +298,14 @@ export class ConnectionStorage {
     }
   }
 
-  async load(id?: string): Promise<ConnectionInfo | undefined> {
+  static async load({
+    id,
+    signal,
+  }: {
+    id?: string;
+    signal?: AbortSignal;
+  }): Promise<ConnectionInfo | undefined> {
+    throwIfAborted(signal);
     if (!id) {
       return undefined;
     }
@@ -244,7 +313,7 @@ export class ConnectionStorage {
     return connections.find((connection) => id === connection.id);
   }
 
-  private async afterConnectionHasBeenSaved(
+  private static async afterConnectionHasBeenSaved(
     savedConnection: ConnectionInfo
   ): Promise<void> {
     if (savedConnection.favorite) {
@@ -261,7 +330,88 @@ export class ConnectionStorage {
       });
 
     if (recentConnections.length >= this.maxAllowedRecentConnections) {
-      void this.delete(recentConnections[recentConnections.length - 1].id);
+      await this.delete({
+        id: recentConnections[recentConnections.length - 1].id,
+      });
     }
+  }
+
+  static async deserializeConnections({
+    content,
+    options = {},
+    signal,
+  }: {
+    content: string;
+    options: ImportConnectionOptions;
+    signal?: AbortSignal;
+  }): Promise<ConnectionInfo[]> {
+    throwIfAborted(signal);
+
+    const { passphrase, trackingProps, filterConnectionIds } = options;
+    const connections = await deserializeConnections(content, {
+      passphrase,
+      trackingProps,
+    });
+    return filterConnectionIds
+      ? connections.filter((x) => filterConnectionIds.includes(x.id))
+      : connections;
+  }
+
+  static async importConnections({
+    content,
+    options = {},
+    signal,
+  }: {
+    content: string;
+    options?: ImportConnectionOptions;
+    signal?: AbortSignal;
+  }): Promise<void> {
+    throwIfAborted(signal);
+
+    const connections = await this.deserializeConnections({
+      content,
+      options,
+      signal,
+    });
+
+    log.info(
+      mongoLogId(1_001_000_149),
+      'Connection Import',
+      'Starting connection import',
+      {
+        count: connections.length,
+      }
+    );
+
+    await Promise.all(
+      connections.map((connectionInfo) => this.save({ connectionInfo, signal }))
+    );
+
+    log.info(
+      mongoLogId(1_001_000_150),
+      'Connection Import',
+      'Connection import complete',
+      {
+        count: connections.length,
+      }
+    );
+  }
+
+  static async exportConnections({
+    options = {},
+    signal,
+  }: {
+    options?: ExportConnectionOptions;
+    signal?: AbortSignal;
+  } = {}): Promise<string> {
+    throwIfAborted(signal);
+
+    const { filterConnectionIds, ...restOfOptions } = options;
+    const connections = await this.loadAll({ signal });
+    const exportConnections = filterConnectionIds
+      ? connections.filter((x) => filterConnectionIds.includes(x.id))
+      : connections.filter((x) => x.favorite?.name);
+
+    return serializeConnections(exportConnections, restOfOptions);
   }
 }

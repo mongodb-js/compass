@@ -12,7 +12,7 @@ import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
   ConnectionStorage,
-} from '@mongodb-js/connection-storage';
+} from '@mongodb-js/connection-storage/renderer';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
 
@@ -214,11 +214,11 @@ describe('Connections Component', function () {
 
       it('should call to save the connection with the connection config', function () {
         expect(saveConnectionSpy.callCount).to.equal(1);
-        expect(saveConnectionSpy.firstCall.args[0].id).to.equal(
+        expect(saveConnectionSpy.firstCall.args[0].connectionInfo.id).to.equal(
           savedConnectionId
         );
         expect(
-          saveConnectionSpy.firstCall.args[0].connectionOptions
+          saveConnectionSpy.firstCall.args[0].connectionInfo.connectionOptions
         ).to.deep.equal({
           connectionString:
             'mongodb://localhost:27018/?readPreference=primary&ssl=false',
@@ -227,9 +227,9 @@ describe('Connections Component', function () {
 
       it('should call to save the connection with a new lastUsed time', function () {
         expect(saveConnectionSpy.callCount).to.equal(1);
-        expect(saveConnectionSpy.firstCall.args[0].lastUsed.getTime()).to.equal(
-          0
-        );
+        expect(
+          saveConnectionSpy.firstCall.args[0].connectionInfo.lastUsed.getTime()
+        ).to.equal(0);
       });
 
       it('should emit the connection configuration used to connect', function () {

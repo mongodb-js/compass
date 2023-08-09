@@ -1,20 +1,71 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { loadAutoConnectInfo } from './auto-connect';
-import { exportConnections } from '@mongodb-js/connection-storage';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import {
+  ConnectionStorage,
+  type ExportConnectionOptions,
+} from '@mongodb-js/connection-storage/main';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { ipcRenderer } from 'hadron-ipc';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
+
+const loadAutoConnectWithConnection = async (
+  connectPreferences: Record<string, unknown> = {},
+  connections: ConnectionInfo[] = [],
+  exportOptions: ExportConnectionOptions = {}
+) => {
+  const tmpDir = await fs.mkdtemp(
+    path.join(os.tmpdir(), 'connection-storage-tests')
+  );
+  try {
+    await fs.mkdir(path.join(tmpDir, 'Connections'));
+
+    ConnectionStorage['path'] = tmpDir;
+    await Promise.all(
+      connections.map((connectionInfo) =>
+        ConnectionStorage.save({ connectionInfo })
+      )
+    );
+
+    const fileContents = await ConnectionStorage.exportConnections({
+      options: exportOptions,
+    });
+
+    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
+    const deserializeConnections =
+      ConnectionStorage.deserializeConnections.bind(ConnectionStorage);
+
+    const fn = await loadAutoConnectInfo(
+      sinon.stub().resolves(connectPreferences),
+      fakeFs,
+      deserializeConnections
+    );
+    return fn;
+  } finally {
+    ConnectionStorage['path'] = null;
+    void fs.rmdir(tmpDir, { recursive: true });
+  }
+};
 
 describe('auto connection argument parsing', function () {
   let sandbox: sinon.SinonSandbox;
+  const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
 
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     sandbox.stub(ipcRenderer, 'call').resolves(true);
+    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
   afterEach(function () {
     sandbox.restore();
+    if (initialKeytarEnvValue) {
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
+    } else {
+      delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+    }
   });
 
   it('skips connecting if shouldAutoConnect is false', async function () {
@@ -47,15 +98,9 @@ describe('auto connection argument parsing', function () {
       },
       favorite: { name: 'foo' },
     };
-    const fileContents = await exportConnections({
-      loadConnections(): ConnectionInfo[] {
-        return [connectionInfo];
-      },
-    });
-    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({ shouldAutoConnect: true, file: 'filename' }),
-      fakeFs
+    const fn = await loadAutoConnectWithConnection(
+      { shouldAutoConnect: true, file: 'filename' },
+      [connectionInfo]
     );
     const info = await fn?.();
     expect(info).to.deep.equal(connectionInfo);
@@ -68,18 +113,12 @@ describe('auto connection argument parsing', function () {
       },
       favorite: { name: 'foo' },
     };
-    const fileContents = await exportConnections({
-      loadConnections(): ConnectionInfo[] {
-        return [
-          { ...connectionInfo, id: 'b4148ca4-a8e2-42c8-a838-9890169f7e7d' },
-          { ...connectionInfo, id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9' },
-        ];
-      },
-    });
-    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({ shouldAutoConnect: true, file: 'filename' }),
-      fakeFs
+    const fn = await loadAutoConnectWithConnection(
+      { shouldAutoConnect: true, file: 'filename' },
+      [
+        { ...connectionInfo, id: 'b4148ca4-a8e2-42c8-a838-9890169f7e7d' },
+        { ...connectionInfo, id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9' },
+      ]
     );
     try {
       await fn?.();
@@ -98,22 +137,16 @@ describe('auto connection argument parsing', function () {
       },
       favorite: { name: 'foo' },
     };
-    const fileContents = await exportConnections({
-      loadConnections(): ConnectionInfo[] {
-        return [
-          { ...connectionInfo, id: 'b4148ca4-a8e2-42c8-a838-9890169f7e7d' },
-          { ...connectionInfo, id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9' },
-        ];
-      },
-    });
-    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({
+    const fn = await loadAutoConnectWithConnection(
+      {
         shouldAutoConnect: true,
         file: 'filename',
         positionalArguments: ['0000000-0000-0000-0000-000000000000'],
-      }),
-      fakeFs
+      },
+      [
+        { ...connectionInfo, id: 'b4148ca4-a8e2-42c8-a838-9890169f7e7d' },
+        { ...connectionInfo, id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9' },
+      ]
     );
     try {
       await fn?.();
@@ -132,22 +165,16 @@ describe('auto connection argument parsing', function () {
       },
       favorite: { name: 'foo' },
     };
-    const fileContents = await exportConnections({
-      loadConnections(): ConnectionInfo[] {
-        return [
-          { ...connectionInfo, id: 'b4148ca4-a8e2-42c8-a838-9890169f7e7d' },
-          { ...connectionInfo, id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9' },
-        ];
-      },
-    });
-    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({
+    const fn = await loadAutoConnectWithConnection(
+      {
         shouldAutoConnect: true,
         file: 'filename',
         positionalArguments: ['9036dd5f-719b-46d1-b812-7e6348e1e9c9'],
-      }),
-      fakeFs
+      },
+      [
+        { ...connectionInfo, id: 'b4148ca4-a8e2-42c8-a838-9890169f7e7d' },
+        { ...connectionInfo, id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9' },
+      ]
     );
     const info = await fn?.();
     expect(info).to.deep.equal({
@@ -157,16 +184,10 @@ describe('auto connection argument parsing', function () {
   });
 
   it('rejects an empty file even if an id has been specified', async function () {
-    const fileContents = await exportConnections({
-      loadConnections(): ConnectionInfo[] {
-        return [];
-      },
+    const fn = await loadAutoConnectWithConnection({
+      shouldAutoConnect: true,
+      file: 'filename',
     });
-    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({ shouldAutoConnect: true, file: 'filename' }),
-      fakeFs
-    );
     try {
       await fn?.();
       expect.fail('missed exception');
@@ -185,16 +206,10 @@ describe('auto connection argument parsing', function () {
       },
       favorite: { name: 'foo' },
     };
-    const fileContents = await exportConnections({
-      loadConnections(): ConnectionInfo[] {
-        return [connectionInfo];
-      },
-      passphrase: 'p4ssw0rd',
-    });
-    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({ shouldAutoConnect: true, file: 'filename' }),
-      fakeFs
+    const fn = await loadAutoConnectWithConnection(
+      { shouldAutoConnect: true, file: 'filename' },
+      [connectionInfo],
+      { passphrase: 'p4ssw0rd' }
     );
     try {
       await fn?.();
@@ -214,20 +229,13 @@ describe('auto connection argument parsing', function () {
       },
       favorite: { name: 'foo' },
     };
-    const fileContents = await exportConnections({
-      loadConnections(): ConnectionInfo[] {
-        return [connectionInfo];
-      },
-      passphrase: 'p4ssw0rd',
-    });
-    const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = await loadAutoConnectInfo(
-      sandbox.stub().resolves({
+    const fn = await loadAutoConnectWithConnection(
+      {
         shouldAutoConnect: true,
         file: 'filename',
         passphrase: 'p4ssw0rd',
-      }),
-      fakeFs
+      },
+      [connectionInfo]
     );
     const info = await fn?.();
     expect(info).to.deep.equal(connectionInfo);

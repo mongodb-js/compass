@@ -1,5 +1,5 @@
 import type { DataService } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
