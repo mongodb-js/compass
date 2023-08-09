@@ -7,7 +7,6 @@ import {
   palette,
   spacing,
   SignalPopover,
-  openToast,
 } from '@mongodb-js/compass-components';
 import type {
   Command,
