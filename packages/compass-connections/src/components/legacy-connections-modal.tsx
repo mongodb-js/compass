@@ -18,20 +18,19 @@ import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer'
 
 const LEGACY_MODAL_STORAGE_KEY = 'hide_legacy_connections_modal';
 
-const listStyle = (type: 'decimal' | 'disc') =>
-  css({
-    listStyle: type,
-    paddingLeft: spacing[4],
-  });
-
-const bodyStyles = css({
-  paddingTop: spacing[3],
-  paddingBottom: 0,
+const listStyle = css({
+  listStyle: 'decimal',
+  paddingLeft: spacing[5],
+  li: {
+    marginTop: spacing[1],
+    marginBottom: spacing[1],
+  },
 });
 
-const bannerStyles = css({
-  marginTop: spacing[2],
-  marginBottom: spacing[2],
+const bodyStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
 });
 
 const bannerContentStyles = css({
@@ -98,17 +97,17 @@ export const LegacyConnectionsModal = ({
           Compass has identified legacy connections that are no longer supported
           beyond v1.39.0.
         </Body>
-        <Banner className={bannerStyles}>
+        <Banner>
           <div className={bannerContentStyles}>
-            <ul className={listStyle('disc')}>
+            <ul>
               {connections.map(({ name }, index) => (
                 <li key={index}>{name}</li>
               ))}
             </ul>
           </div>
         </Banner>
-        <Body weight="medium">To migrate these connections:</Body>
-        <ol className={listStyle('decimal')}>
+        <strong>To migrate these connections:</strong>
+        <ol className={listStyle}>
           <li>
             <Body>
               Install{' '}
