@@ -1,7 +1,7 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import { promisify } from 'util';
-import { ipcExpose, ipcInvoke, ControllerMap } from './util';
+import { ipcExpose, ipcInvoke, ControllerMap } from './ipc';
 
 const wait = promisify(setTimeout);
 

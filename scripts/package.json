@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -37,7 +37,7 @@
     "prettier": "^2.7.1"
   },
   "dependencies": {
-    "@mongodb-js/connection-storage": "^0.2.0",
+    "@mongodb-js/connection-storage": "^0.2.1",
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
     "@mongodb-js/monorepo-tools": "^1.1.1",
     "@mongodb-js/webpack-config-compass": "^1.1.1",

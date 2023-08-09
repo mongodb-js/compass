@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { v4 as uuid } from 'uuid';
+import { sortBy } from 'lodash';
 
 import { ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
@@ -42,30 +43,32 @@ const maxAllowedConnections = 10;
 
 describe('ConnectionStorage', function () {
   let tmpDir: string;
-  let connectionStorage: ConnectionStorage;
   beforeEach(function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connection-storage-tests'));
     fs.mkdirSync(path.join(tmpDir, 'Connections'));
-    connectionStorage = new ConnectionStorage(tmpDir);
+    // ConnectionStorage is a static singleton class. During init,
+    // we setup the ipc and set path. Avoiding that in unit tests
+    // and setting path directly here.
+    ConnectionStorage['path'] = tmpDir;
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
   afterEach(function () {
     fs.rmdirSync(tmpDir, { recursive: true });
-    Sinon.restore();
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
+    Sinon.restore();
   });
 
   describe('loadAll', function () {
     it('should load an empty array with no connections', async function () {
-      const connections = await connectionStorage.loadAll();
+      const connections = await ConnectionStorage.loadAll();
       expect(connections).to.deep.equal([]);
     });
 
     it('should return an array of saved connections', async function () {
       const connectionInfo = getConnectionInfo({ lastUsed: new Date() });
       writeFakeConnection(tmpDir, { connectionInfo });
-      const connections = await connectionStorage.loadAll();
+      const connections = await ConnectionStorage.loadAll();
       expect(connections).to.deep.equal([connectionInfo]);
     });
 
@@ -84,7 +87,7 @@ describe('ConnectionStorage', function () {
       writeFakeConnection(tmpDir, {
         connectionInfo: connectionInfo2,
       });
-      const connections = await connectionStorage.loadAll();
+      const connections = await ConnectionStorage.loadAll();
       expect(connections).to.deep.equal([connectionInfo2]);
     });
 
@@ -95,19 +98,21 @@ describe('ConnectionStorage', function () {
         connectionInfo,
       });
 
-      const connections = await connectionStorage.loadAll();
+      const connections = await ConnectionStorage.loadAll();
       expect(connections[0].lastUsed).to.deep.equal(lastUsed);
     });
   });
 
   describe('load', function () {
     it('should return undefined if id is undefined', async function () {
-      expect(await connectionStorage.load(undefined)).to.be.undefined;
-      expect(await connectionStorage.load('')).to.be.undefined;
+      expect(await ConnectionStorage.load({ id: undefined })).to.be.undefined;
+      expect(await ConnectionStorage.load({ id: '' })).to.be.undefined;
     });
 
     it('should return undefined if a connection does not exist', async function () {
-      const connection = await connectionStorage.load('note-exis-stin-gone');
+      const connection = await ConnectionStorage.load({
+        id: 'note-exis-stin-gone',
+      });
       expect(connection).to.be.undefined;
     });
 
@@ -116,7 +121,9 @@ describe('ConnectionStorage', function () {
       writeFakeConnection(tmpDir, {
         connectionInfo,
       });
-      const connection = await connectionStorage.load(connectionInfo.id);
+      const connection = await ConnectionStorage.load({
+        id: connectionInfo.id,
+      });
       expect(connection).to.deep.equal(connectionInfo);
     });
 
@@ -127,7 +134,9 @@ describe('ConnectionStorage', function () {
       });
       writeFakeConnection(tmpDir, { connectionInfo });
 
-      const connection = await connectionStorage.load(connectionInfo.id);
+      const connection = await ConnectionStorage.load({
+        id: connectionInfo.id,
+      });
       expect(connection!.lastUsed).to.deep.equal(lastUsed);
     });
 
@@ -141,7 +150,9 @@ describe('ConnectionStorage', function () {
         });
         writeFakeConnection(tmpDir, { connectionInfo });
 
-        const connection = await connectionStorage.load(connectionInfo.id);
+        const connection = await ConnectionStorage.load({
+          id: connectionInfo.id,
+        });
         expect(connection!.connectionOptions.connectionString).to.deep.equal(
           'mongodb://localhost:27017/admin'
         );
@@ -156,7 +167,9 @@ describe('ConnectionStorage', function () {
         });
         writeFakeConnection(tmpDir, { connectionInfo });
 
-        const connection = await connectionStorage.load(connectionInfo.id);
+        const connection = await ConnectionStorage.load({
+          id: connectionInfo.id,
+        });
         expect(connection!.connectionOptions.connectionString).to.deep.equal(
           'mongodb://localhost:27017/admin?appName=Something+Else'
         );
@@ -169,10 +182,12 @@ describe('ConnectionStorage', function () {
       const id: string = uuid();
       expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
 
-      await connectionStorage.save({
-        id,
-        connectionOptions: {
-          connectionString: 'mongodb://root:password@localhost:27017',
+      await ConnectionStorage.save({
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://root:password@localhost:27017',
+          },
         },
       });
 
@@ -184,10 +199,13 @@ describe('ConnectionStorage', function () {
 
     it('saves a connection with arbitrary authMechanism', async function () {
       const id: string = uuid();
-      await connectionStorage.save({
-        id,
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017/?authMechanism=FAKEAUTH',
+      await ConnectionStorage.save({
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?authMechanism=FAKEAUTH',
+          },
         },
       });
 
@@ -198,40 +216,40 @@ describe('ConnectionStorage', function () {
     });
 
     it('requires id to be set', async function () {
-      const error = await connectionStorage
-        .save({
+      const error = await ConnectionStorage.save({
+        connectionInfo: {
           id: '',
           connectionOptions: {
             connectionString: 'mongodb://localhost:27017',
           },
-        })
-        .catch((err) => err);
+        },
+      }).catch((err) => err);
 
       expect(error.message).to.be.equal('id is required');
     });
 
     it('requires id to be a uuid', async function () {
-      const error = await connectionStorage
-        .save({
+      const error = await ConnectionStorage.save({
+        connectionInfo: {
           id: 'someid',
           connectionOptions: {
             connectionString: 'mongodb://localhost:27017',
           },
-        })
-        .catch((err) => err);
+        },
+      }).catch((err) => err);
 
       expect(error.message).to.be.equal('id must be a uuid');
     });
 
     it('requires connection string to be set', async function () {
-      const error = await connectionStorage
-        .save({
+      const error = await ConnectionStorage.save({
+        connectionInfo: {
           id: uuid(),
           connectionOptions: {
             connectionString: '',
           },
-        })
-        .catch((err) => err);
+        },
+      }).catch((err) => err);
 
       expect(error.message).to.be.equal('Connection string is required.');
     });
@@ -257,7 +275,7 @@ describe('ConnectionStorage', function () {
           },
         },
       };
-      await connectionStorage.save(connectionInfo);
+      await ConnectionStorage.save({ connectionInfo });
 
       const { connectionInfo: expectedConnectionInfo } = JSON.parse(
         fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
@@ -284,30 +302,30 @@ describe('ConnectionStorage', function () {
           maxAllowedConnections
         );
 
-        const deleteSpy = Sinon.spy(connectionStorage, 'delete');
+        const deleteSpy = Sinon.spy(ConnectionStorage, 'delete');
 
         // Save another connection
-        await connectionStorage.save(getConnectionInfo());
+        await ConnectionStorage.save({ connectionInfo: getConnectionInfo() });
 
-        const numConnections = (await connectionStorage.loadAll()).length;
+        const numConnections = (await ConnectionStorage.loadAll()).length;
         expect(numConnections).to.equal(maxAllowedConnections);
 
         expect(
-          deleteSpy.calledOnceWithExactly(
-            connectionInfos[connectionInfos.length - 1].id
-          )
+          deleteSpy.calledOnceWithExactly({
+            id: connectionInfos[connectionInfos.length - 1].id,
+          })
         ).to.be.true;
       });
 
       it('does not remove recent if recent connections are less then max allowed connections', async function () {
         createNumberOfConnections(maxAllowedConnections - 1);
 
-        const deleteSpy = Sinon.spy(connectionStorage, 'delete');
+        const deleteSpy = Sinon.spy(ConnectionStorage, 'delete');
 
         // Save another connection
-        await connectionStorage.save(getConnectionInfo());
+        await ConnectionStorage.save({ connectionInfo: getConnectionInfo() });
 
-        const numConnections = (await connectionStorage.loadAll()).length;
+        const numConnections = (await ConnectionStorage.loadAll()).length;
         expect(numConnections).to.equal(maxAllowedConnections);
 
         expect(deleteSpy.called).to.be.false;
@@ -325,7 +343,7 @@ describe('ConnectionStorage', function () {
       expect(fs.existsSync(getConnectionFilePath(tmpDir, connectionInfo.id))).to
         .be.true;
 
-      await connectionStorage.delete(connectionInfo.id);
+      await ConnectionStorage.delete({ id: connectionInfo.id });
 
       const filePath = getConnectionFilePath(tmpDir, connectionInfo.id);
       expect(fs.existsSync(filePath)).to.be.false;
@@ -339,7 +357,7 @@ describe('ConnectionStorage', function () {
         connectionInfo,
       });
       const hasLegacyConnections =
-        await connectionStorage.hasLegacyConnections();
+        await ConnectionStorage.hasLegacyConnections();
       expect(hasLegacyConnections).to.be.false;
     });
 
@@ -360,7 +378,7 @@ describe('ConnectionStorage', function () {
       );
 
       const hasLegacyConnections =
-        await connectionStorage.hasLegacyConnections();
+        await ConnectionStorage.hasLegacyConnections();
       expect(hasLegacyConnections).to.be.false;
     });
 
@@ -382,8 +400,98 @@ describe('ConnectionStorage', function () {
       );
 
       const hasLegacyConnections =
-        await connectionStorage.hasLegacyConnections();
+        await ConnectionStorage.hasLegacyConnections();
       expect(hasLegacyConnections).to.be.true;
+    });
+  });
+
+  describe('import/export connections', function () {
+    // By default we only export favorite connections
+    const CONNECTIONS = [
+      getConnectionInfo({
+        favorite: {
+          name: 'Connection 1',
+        },
+      }),
+      getConnectionInfo({
+        favorite: {
+          name: 'Connection 2',
+        },
+      }),
+    ];
+
+    beforeEach(function () {
+      CONNECTIONS.map((connectionInfo) =>
+        writeFakeConnection(tmpDir, { connectionInfo })
+      );
+    });
+
+    it('exports connections with default options', async function () {
+      const exportedConnections = await ConnectionStorage.exportConnections();
+      const parsedConnections = JSON.parse(exportedConnections);
+
+      const connectionNames = parsedConnections.connections.map(
+        (x: ConnectionInfo) => x.favorite?.name
+      );
+
+      expect(parsedConnections.connections).to.have.lengthOf(2);
+      expect(connectionNames.includes('Connection 1')).to.be.true;
+      expect(connectionNames.includes('Connection 2')).to.be.true;
+    });
+
+    it('exports connections with filter', async function () {
+      const exportedConnections = await ConnectionStorage.exportConnections({
+        options: {
+          filterConnectionIds: [CONNECTIONS[1].id],
+        },
+      });
+      const parsedConnections = JSON.parse(exportedConnections);
+
+      const connectionNames = parsedConnections.connections.map(
+        (x: ConnectionInfo) => x.favorite?.name
+      );
+
+      expect(parsedConnections.connections).to.have.lengthOf(1);
+      expect(connectionNames.includes('Connection 1')).to.be.false;
+      expect(connectionNames.includes('Connection 2')).to.be.true;
+    });
+
+    it('imports connections with default options', async function () {
+      const exportedConnections = await ConnectionStorage.exportConnections();
+
+      // now remove connections
+      await Promise.all(
+        CONNECTIONS.map(({ id }) => ConnectionStorage.delete({ id }))
+      );
+
+      await ConnectionStorage.importConnections({
+        content: exportedConnections,
+      });
+
+      const expectedConnections = await ConnectionStorage.loadAll();
+
+      expect(sortBy(expectedConnections, 'id')).to.deep.equal(
+        sortBy(CONNECTIONS, 'id')
+      );
+    });
+
+    it('imports connections with filter', async function () {
+      const exportedConnections = await ConnectionStorage.exportConnections();
+
+      // now remove connections
+      await Promise.all(
+        CONNECTIONS.map(({ id }) => ConnectionStorage.delete({ id }))
+      );
+
+      await ConnectionStorage.importConnections({
+        content: exportedConnections,
+        options: {
+          filterConnectionIds: [CONNECTIONS[1].id],
+        },
+      });
+
+      const expectedConnections = await ConnectionStorage.loadAll();
+      expect(expectedConnections).to.deep.equal([CONNECTIONS[1]]);
     });
   });
 });

@@ -1,5 +1,5 @@
 import type { AtlasService as AtlasServiceMain } from './main';
-import { ipcInvoke } from './util';
+import { ipcInvoke } from '@mongodb-js/compass-utils';
 import {
   signInWithModalPrompt,
   tokenRefreshFailed,

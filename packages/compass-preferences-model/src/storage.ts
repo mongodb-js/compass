@@ -75,7 +75,10 @@ export class StoragePreferences extends BasePreferencesStorage {
   }
 
   getPreferences() {
-    return this.preferences;
+    return {
+      ...this.defaultPreferences,
+      ...this.preferences,
+    };
   }
 
   async updatePreferences(attributes: Partial<UserPreferences>) {

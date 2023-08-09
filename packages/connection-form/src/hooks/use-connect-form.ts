@@ -1,7 +1,7 @@
 import type { Dispatch } from 'react';
 import React, { useCallback, useEffect, useReducer } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type { MongoClientOptions, ProxyOptions } from 'mongodb';
 import { cloneDeep, isEqual } from 'lodash';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
