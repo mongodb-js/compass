@@ -21,6 +21,15 @@ function getElectronApp() {
   return app;
 }
 
+export function getAppName(): string | undefined {
+  return getElectronApp()?.getName();
+}
+
+export function getAppPath(): string | undefined {
+  return getElectronApp()?.getPath('userData');
+}
+
+// todo: remove this and rename the file
 export function getStoragePaths(): StoragePaths | undefined {
   const app = getElectronApp();
   if (!app) return undefined;

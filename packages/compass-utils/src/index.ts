@@ -11,3 +11,4 @@ export {
   throwIfAborted,
 } from './cancellable-promise';
 export { broadcast, ipcExpose, ipcInvoke } from './ipc';
+export { Filesystem } from './filesystem';
