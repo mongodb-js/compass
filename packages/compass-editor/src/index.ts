@@ -9,7 +9,6 @@ export {
   clickOnCodemirrorHandler,
 } from './json-editor';
 export type {
-  EditorEventCallbackContext,
   EditorView,
   Command,
   Annotation,

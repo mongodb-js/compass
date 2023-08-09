@@ -424,7 +424,7 @@ type EditorProps = {
 ) &
   Pick<
     React.HTMLProps<HTMLDivElement>,
-    'id' | 'onFocus' | 'onPaste' | 'className' | 'onBlur'
+    'id' | 'className' | 'onFocus' | 'onPaste' | 'onBlur'
   >;
 
 function createFoldGutterExtension() {
