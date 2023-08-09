@@ -21,7 +21,7 @@ const LEGACY_MODAL_STORAGE_KEY = 'hide_legacy_connections_modal';
 const listStyle = (type: 'decimal' | 'disc') =>
   css({
     listStyle: type,
-    paddingLeft: spacing[5],
+    paddingLeft: spacing[4],
   });
 
 const bodyStyles = css({
