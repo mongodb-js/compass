@@ -66,7 +66,7 @@ describe('QueryBar Component', function () {
     });
 
     describe('empty state', function () {
-      it.only('fills the filter input when clicked with an empty object "{}"', async function () {
+      it('fills the filter input when clicked with an empty object "{}"', async function () {
         const filterInput = await screen.findByTestId(
           'query-bar-option-filter-input'
         );
