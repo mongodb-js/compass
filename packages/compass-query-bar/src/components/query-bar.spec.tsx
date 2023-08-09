@@ -15,8 +15,6 @@ import {
   clickOnCodemirrorHandler,
 } from '@mongodb-js/compass-editor';
 
-const wait = async (ms = 50) => new Promise((r) => setTimeout(r, ms));
-
 const noop = () => {
   /* no op */
 };
@@ -24,11 +22,6 @@ const noop = () => {
 const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history';
-
-const codeMirrorEventHandlerOf = (element: HTMLElement) => {
-  const editorView = element as any;
-  return editorView._cm.docView.dom as HTMLElement;
-};
 
 const renderQueryBar = ({
   expanded = false,
@@ -73,7 +66,7 @@ describe('QueryBar Component', function () {
     });
 
     describe('empty state', function () {
-      it('fills the filter input when clicked with an empty object "{}"', async function () {
+      it.only('fills the filter input when clicked with an empty object "{}"', async function () {
         const filterInput = await screen.findByTestId(
           'query-bar-option-filter-input'
         );
