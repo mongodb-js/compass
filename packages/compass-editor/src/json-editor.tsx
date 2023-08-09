@@ -398,25 +398,9 @@ export type Annotation = Pick<
   'from' | 'to' | 'severity' | 'message'
 >;
 
-export type EditorEventCallbackContext = {
-  editorView: EditorView;
-  setContent: SetContent;
-};
-
 type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
-  onPaste?: (
-    context: EditorEventCallbackContext,
-    clipboardContents: string,
-    initialText: string,
-    finalText: string
-  ) => void;
-  onReplace?: (
-    context: EditorEventCallbackContext,
-    initialText: string,
-    finalText: string
-  ) => void;
   onLoad?: (editor: EditorView) => void;
   darkMode?: boolean;
   showLineNumbers?: boolean;
@@ -492,21 +476,6 @@ async function waitUntilEditorIsReady(
 
   return true;
 }
-
-async function callWhenEditorIsReady(
-  editorView: EditorView,
-  callback: () => void
-): Promise<void> {
-  await waitUntilEditorIsReady(editorView);
-  callback();
-}
-
-/**
- * To avoid coupling with CodeMirror other components upwards in the component
- * hierarchy, we will expose a SetContent function that will allows us replace
- * the contents in CodeMirror and position the caret whenever we need.
- */
-export type SetContent = (content: string, caret: number | undefined) => void;
 
 /**
  * Codemirror editor throws when the state update is being applied while another
@@ -825,27 +794,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     });
   }, []);
 
-  const setContent = useCallback(
-    (content: string, position: number | undefined) => {
-      if (editorViewRef.current) {
-        const transaction: TransactionSpec = {
-          changes: {
-            from: 0,
-            // Replace all the content
-            to: editorViewRef.current.state.doc.length,
-            insert: content,
-          },
-        };
-
-        if (position !== undefined) {
-          transaction.selection = { head: position, anchor: position };
-        }
-        void scheduleDispatch(editorViewRef.current, transaction);
-      }
-    },
-    [editorViewRef]
-  );
-
   useLayoutEffect(() => {
     if (!editorContainerRef.current) {
       throw new Error("Can't mount editor: DOM node is missing");
@@ -970,7 +918,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     placeholderExtension,
     commandsExtension,
     updateEditorContentHeight,
-    setContent,
   ]);
 
   useEffect(() => {
@@ -1045,7 +992,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         scrollHeight;
       containerRef.current.style.height = `${height}px`;
     }
-  }, [maxLines, contentHeight, hasScroll, lineHeight, showScroll, setContent]);
+  }, [maxLines, contentHeight, hasScroll, lineHeight, showScroll]);
 
   return (
     <div
