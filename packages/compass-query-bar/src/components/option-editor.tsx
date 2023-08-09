@@ -147,7 +147,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     });
   }, [schemaFields, serverVersion]);
 
-  const onFocus = (event: FocusEvent) => {
+  const onFocus = (event: React.FocusEvent<HTMLDivElement>) => {
     if (hasAutofix && editorRef.current) {
       if (editorRef.current.getEditorContents() === '') {
         editorRef.current.applySnippet(`{\${}}`);
@@ -156,10 +156,10 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     }
   };
 
-  const onPaste = (event: ClipboardEvent) => {
+  const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
     if (hasAutofix && editorRef.current) {
       const editorContents = editorRef.current.getEditorContents();
-      const snippet = lenientlyFixQuery(editorContents);
+      const snippet = lenientlyFixQuery(editorContents || '');
       if (snippet) {
         editorRef.current.applySnippet(snippet);
         event.preventDefault();
