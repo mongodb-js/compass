@@ -150,7 +150,9 @@ describe('aiQueryReducer', function () {
       const trackingLogs: any[] = [];
       process.on('compass:track', (event) => trackingLogs.push(event));
 
-      store.dispatch(submitFeedback('positive'));
+      store.dispatch(
+        submitFeedback('positive', 'this is the query I was looking for')
+      );
       expect(store.getState().aiQuery.didSubmitFeedback).to.equal(true);
 
       // Let the track event occur.
@@ -161,6 +163,7 @@ describe('aiQueryReducer', function () {
           event: 'AIQuery Feedback',
           properties: {
             feedback: 'positive',
+            text: 'this is the query I was looking for',
           },
         },
       ]);

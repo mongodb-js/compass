@@ -79,7 +79,6 @@ type HideInputAction = {
 
 type SubmitFeedbackAction = {
   type: AIQueryActionTypes.SubmitFeedback;
-  feedback: 'positive' | 'negative';
 };
 
 type ChangeAIPromptTextAction = {
@@ -257,18 +256,22 @@ export const runAIQuery = (
   };
 };
 
-export const submitFeedback = (feedback: 'positive' | 'negative') => {
+export const submitFeedback = (
+  feedback: 'positive' | 'negative',
+  text: string
+): SubmitFeedbackAction => {
   log.info(mongoLogId(1_001_000_221), 'AIQuery', 'AI query feedback', {
     feedback,
+    text,
   });
 
   track('AIQuery Feedback', () => ({
     feedback,
+    text,
   }));
 
   return {
     type: AIQueryActionTypes.SubmitFeedback,
-    feedback,
   };
 };
 

@@ -49,7 +49,7 @@ const buttonActiveNegativeStyles = css({
 });
 
 type AITextInputProps = {
-  onFeedback: (feedback: 'positive' | 'negative') => void;
+  onFeedback: (feedback: 'positive' | 'negative', text: string) => void;
 };
 
 function QueryFeedback({ onFeedback }: AITextInputProps) {
@@ -107,7 +107,9 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
           numberOfSteps={1}
           currentStep={1}
           tooltipAlign="bottom"
-          onPrimaryButtonClick={() => onFeedback(chosenFeedbackOption)}
+          onPrimaryButtonClick={() =>
+            onFeedback(chosenFeedbackOption, feedbackText)
+          }
           buttonText="Submit"
         >
           <TextArea
