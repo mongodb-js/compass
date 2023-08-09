@@ -11,13 +11,12 @@ function _isValidQuery(query: string): boolean {
   }
 }
 
-export function lenientlyFixQuery(query: string): [string, CursorPlacement] {
+export function lenientlyFixQuery(query: string): string | false {
   query = query.trim();
   let modified = false;
-  let positioning: CursorPlacement = undefined;
 
   if (query === '') {
-    return ['{}', 1];
+    return '{${}}';
   }
 
   const isValid = _isValidQuery(query);
@@ -40,8 +39,13 @@ export function lenientlyFixQuery(query: string): [string, CursorPlacement] {
   }
 
   if (modified) {
-    positioning = query.lastIndexOf('}');
+    const caretPosition = query.lastIndexOf('}');
+    query =
+      query.substring(0, caretPosition) +
+      '${}' +
+      query.substring(caretPosition);
+    return query;
   }
 
-  return [query, positioning];
+  return false;
 }

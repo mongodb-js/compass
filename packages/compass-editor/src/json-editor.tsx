@@ -406,7 +406,6 @@ export type EditorEventCallbackContext = {
 type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
-  onFocus?: (context: EditorEventCallbackContext, text: string) => void;
   onPaste?: (
     context: EditorEventCallbackContext,
     clipboardContents: string,
@@ -439,7 +438,10 @@ type EditorProps = {
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
 ) &
-  Pick<React.HTMLProps<HTMLDivElement>, 'id' | 'className' | 'onBlur'>;
+  Pick<
+    React.HTMLProps<HTMLDivElement>,
+    'id' | 'onFocus' | 'onPaste' | 'className' | 'onBlur'
+  >;
 
 function createFoldGutterExtension() {
   return foldGutter({
@@ -581,6 +583,7 @@ export type EditorRef = {
   prettify: () => boolean;
   applySnippet: (template: string) => boolean;
   focus: () => boolean;
+  getEditorContents: (from?: number, to?: number) => string | false;
   readonly editor: EditorView | null;
 };
 
@@ -589,9 +592,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     initialText: _initialText,
     text,
     onChangeText,
-    onFocus,
-    onPaste,
-    onReplace,
     language = 'json',
     showLineNumbers = true,
     showFoldGutter = true,
@@ -618,9 +618,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 ) {
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
-  const onFocusRef = useRef(onFocus);
-  const onPasteRef = useRef(onPaste);
-  const onReplaceRef = useRef(onReplace);
   const onLoadRef = useRef(onLoad);
   const initialTextProvided = useRef(!!_initialText);
   const initialText = useRef(_initialText ?? text);
@@ -637,9 +634,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
-  onFocusRef.current = onFocus;
-  onPasteRef.current = onPaste;
-  onReplaceRef.current = onReplace;
 
   useImperativeHandle(
     ref,
@@ -681,6 +675,13 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           }
           editorViewRef.current.focus();
           return true;
+        },
+        getEditorContents(from?: number, to?: number) {
+          if (!editorViewRef.current) {
+            return false;
+          }
+
+          return getEditorContents(editorViewRef.current, from, to);
         },
         get editor() {
           return editorViewRef.current ?? null;
@@ -908,42 +909,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           updateEditorContentHeight();
           const editorText = editor.state.sliceDoc() ?? '';
 
-          if (update.focusChanged && editorViewRef.current?.hasFocus) {
-            const editorView = editorViewRef.current;
-
-            onFocusRef.current?.({ editorView, setContent }, editorText);
-          }
-
           if (update.docChanged) {
             onChangeTextRef.current?.(editorText, update);
           }
-        }),
-        EditorView.domEventHandlers({
-          paste(event, view) {
-            const initialState = view.state.sliceDoc() ?? '';
-            const clipboardContents =
-              event.clipboardData?.getData('text/plain') ?? '';
-            const selection = view.state.selection.main;
-            const isReplace =
-              selection.anchor === 0 && selection.head === initialState.length;
-
-            void callWhenEditorIsReady(view, () => {
-              if (isReplace) {
-                onReplaceRef.current?.(
-                  { editorView: view, setContent },
-                  initialState,
-                  view.state.sliceDoc() ?? ''
-                );
-              } else {
-                onPasteRef.current?.(
-                  { editorView: view, setContent },
-                  clipboardContents,
-                  initialState,
-                  view.state.sliceDoc() ?? ''
-                );
-              }
-            });
-          },
         }),
       ],
       parent: domNode,
@@ -1133,6 +1101,14 @@ const applySnippet = (editor: EditorView, template: string): boolean => {
   } else {
     return false;
   }
+};
+
+const getEditorContents = (
+  editor: EditorView,
+  from?: number,
+  to?: number
+): string => {
+  return editor.state.sliceDoc(from, to) ?? '';
 };
 
 const foldAll: Command = (editor) => {
@@ -1450,8 +1426,55 @@ async function setCodemirrorEditorValue(
   });
 }
 
+/**
+ * Retrieves the contents of an editor, use this with RTL like this:
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * getCodemirrorEditorValue(screen.getByTestId('editor-test-id'));
+ * ```
+ */
+async function getCodemirrorEditorValue(
+  element: HTMLElement | string | null
+): Promise<string> {
+  if (typeof element === 'string') {
+    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
+  }
+  if (!element || !element.hasAttribute('data-codemirror')) {
+    throw new Error('Cannot find editor container');
+  }
+  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
+  await waitUntilEditorIsReady(editorView);
+
+  return editorView.state.sliceDoc() ?? '';
+}
+
+/**
+ * Clicks on an editor, use this with RTL like this:
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * clickOnCodemirrorHandler(screen.getByTestId('editor-test-id'));
+ * ```
+ */
+async function clickOnCodemirrorHandler(
+  element: HTMLElement | string | null
+): Promise<void> {
+  if (typeof element === 'string') {
+    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
+  }
+  if (!element || !element.hasAttribute('data-codemirror')) {
+    throw new Error('Cannot find editor container');
+  }
+  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
+  editorView.focus();
+  await waitUntilEditorIsReady(editorView);
+}
+
 export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };
+export { getCodemirrorEditorValue };
+export { clickOnCodemirrorHandler };
 export type { CompletionSource as Completer };

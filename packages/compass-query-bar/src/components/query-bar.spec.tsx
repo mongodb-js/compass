@@ -9,23 +9,13 @@ import QueryBar from './query-bar';
 import { Provider } from 'react-redux';
 import { configureStore } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import type { EditorView } from '@codemirror/view';
+import {
+  setCodemirrorEditorValue,
+  getCodemirrorEditorValue,
+  clickOnCodemirrorHandler,
+} from '@mongodb-js/compass-editor';
 
-async function wait(ms = 50): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
-async function waitUntilEditorIsReady(
-  editorView: EditorView
-): Promise<boolean> {
-  do {
-    await wait();
-  } while ((editorView as any).updateState !== 0);
-
-  return true;
-}
+const wait = async (ms = 50) => new Promise((r) => setTimeout(r, ms));
 
 const noop = () => {
   /* no op */
@@ -35,60 +25,10 @@ const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history';
 
-const getFilterInputEditorView = () => {
-  const filterInput = screen.getByTestId(
-    'query-bar-option-filter-input'
-  ) as any;
-  return filterInput._cm as EditorView;
+const codeMirrorEventHandlerOf = (element: HTMLElement) => {
+  const editorView = element as any;
+  return editorView._cm.docView.dom as HTMLElement;
 };
-
-const initiateFilterBarWithText = async (text: string) => {
-  const editorView = getFilterInputEditorView();
-  await waitUntilEditorIsReady(editorView);
-
-  editorView.dispatch({
-    changes: { from: 0, to: editorView.state.doc.length, insert: text },
-  });
-
-  await waitUntilEditorIsReady(editorView);
-};
-
-const getFilterInputContent = async () => {
-  const editorView = getFilterInputEditorView();
-  await waitUntilEditorIsReady(editorView);
-
-  return editorView.state.doc.sliceString(0) ?? '';
-};
-
-const getFilterInputEventHandler = () => {
-  const editorView = getFilterInputEditorView() as any;
-  return editorView.docView.dom as HTMLElement;
-};
-
-const clickOnFilterInputContent = () => {
-  userEvent.click(getFilterInputEventHandler());
-};
-
-async function eventuallyExpectFilterEditorToContain(
-  text: string,
-  timeout = 5,
-  times = 10
-) {
-  let result = '';
-
-  for (let i = 0; i < times; i++) {
-    await waitUntilEditorIsReady(getFilterInputEditorView());
-
-    result = await getFilterInputContent();
-    if (result.includes(text)) {
-      break;
-    }
-
-    await wait(timeout);
-  }
-
-  expect(result).to.contain(text);
-}
 
 const renderQueryBar = ({
   expanded = false,
@@ -134,18 +74,27 @@ describe('QueryBar Component', function () {
 
     describe('empty state', function () {
       it('fills the filter input when clicked with an empty object "{}"', async function () {
-        clickOnFilterInputContent();
-        await eventuallyExpectFilterEditorToContain('{}');
+        const filterInput = await screen.findByTestId(
+          'query-bar-option-filter-input'
+        );
+
+        await clickOnCodemirrorHandler(filterInput);
+        const editorValue = await getCodemirrorEditorValue(filterInput);
+        expect(editorValue).to.equal('{}');
       });
     });
 
     describe('non empty state', function () {
       it('does nothing when clicked', async function () {
-        const QUERY = '{a: 1}';
+        const query = '{a: 1}';
+        const filterInput = await screen.findByTestId(
+          'query-bar-option-filter-input'
+        );
 
-        await initiateFilterBarWithText(QUERY);
-        clickOnFilterInputContent();
-        await eventuallyExpectFilterEditorToContain(QUERY);
+        await setCodemirrorEditorValue(filterInput, query);
+        await clickOnCodemirrorHandler(filterInput);
+        const editorValue = await getCodemirrorEditorValue(filterInput);
+        expect(editorValue).to.equal(query);
       });
     });
 

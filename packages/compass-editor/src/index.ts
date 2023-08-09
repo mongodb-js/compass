@@ -5,6 +5,8 @@ export {
   CodemirrorInlineEditor,
   CodemirrorMultilineEditor,
   setCodemirrorEditorValue,
+  getCodemirrorEditorValue,
+  clickOnCodemirrorHandler,
 } from './json-editor';
 export type {
   EditorEventCallbackContext,

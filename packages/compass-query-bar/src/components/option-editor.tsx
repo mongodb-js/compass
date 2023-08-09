@@ -7,10 +7,12 @@ import {
   palette,
   spacing,
   SignalPopover,
+  openToast,
 } from '@mongodb-js/compass-components';
 import type {
   Command,
   CompletionWithServerInfo,
+  EditorRef,
 } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
@@ -20,7 +22,6 @@ import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
-import type { EditorEventCallbackContext } from '@mongodb-js/compass-editor';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -107,6 +108,8 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 }) => {
   const showInsights = usePreference('showInsights', React);
   const editorContainerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<EditorRef>(null);
+
   const focusRingProps = useFocusRing({
     outer: true,
     focusWithin: true,
@@ -144,35 +147,23 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     });
   }, [schemaFields, serverVersion]);
 
-  const onFocus = (editorView: EditorEventCallbackContext, content: string) => {
-    if (hasAutofix && content === '') {
-      editorView.setContent('{}', 1);
-      value = '{}';
+  const onFocus = (event: FocusEvent) => {
+    if (hasAutofix && editorRef.current) {
+      if (editorRef.current.getEditorContents() === '') {
+        editorRef.current.applySnippet(`{\${}}`);
+        event.preventDefault();
+      }
     }
   };
 
-  const onReplace = (
-    editorView: EditorEventCallbackContext,
-    initialText: string,
-    finalText: string
-  ) => {
-    if (hasAutofix) {
-      const [fixedQuery, caretPosition] = lenientlyFixQuery(finalText);
-      editorView.setContent(fixedQuery, caretPosition);
-      value = fixedQuery;
-    }
-  };
-
-  const onPaste = (
-    editorView: EditorEventCallbackContext,
-    clipboard: string,
-    initialText: string,
-    finalText: string
-  ) => {
-    if (hasAutofix && initialText === '{}') {
-      const [fixedQuery, caretPosition] = lenientlyFixQuery(finalText);
-      editorView.setContent(fixedQuery, caretPosition);
-      value = fixedQuery;
+  const onPaste = (event: ClipboardEvent) => {
+    if (hasAutofix && editorRef.current) {
+      const editorContents = editorRef.current.getEditorContents();
+      const snippet = lenientlyFixQuery(editorContents);
+      if (snippet) {
+        editorRef.current.applySnippet(snippet);
+        event.preventDefault();
+      }
     }
   };
 
@@ -186,6 +177,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       ref={editorContainerRef}
     >
       <InlineEditor
+        ref={editorRef}
         id={id}
         text={value}
         onChangeText={onChange}
@@ -194,7 +186,6 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         commands={commands}
         data-testid={dataTestId}
         onFocus={onFocus}
-        onReplace={onReplace}
         onPaste={onPaste}
       />
       {showInsights && insights && (
