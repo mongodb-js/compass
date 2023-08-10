@@ -10,7 +10,6 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
@@ -173,6 +172,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
             insights={insights}
+            hasAutofix={name === 'filter'}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>
