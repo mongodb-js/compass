@@ -1289,7 +1289,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
             return editorRef.current?.applySnippet(template) ?? false;
           },
           get editorContents() {
-            return editorRef.current?.getEditorContents() ?? false;
+            return editorRef.current?.editorContents ?? false;
           },
           get editor() {
             return editorRef.current?.editor ?? null;
