@@ -7,6 +7,7 @@ import {
   palette,
   spacing,
   SignalPopover,
+  rafraf,
 } from '@mongodb-js/compass-components';
 import type {
   Command,
@@ -149,7 +150,9 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const onFocus = () => {
     if (hasAutofix && editorRef.current) {
       if (editorRef.current.editorContents === '') {
-        editorRef.current.applySnippet('\\{${}}');
+        rafraf(() => {
+          editorRef.current?.applySnippet('\\{${}}');
+        });
       }
     }
   };

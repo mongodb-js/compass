@@ -402,6 +402,9 @@ type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
   onLoad?: (editor: EditorView) => void;
+  onFocus?: (event: React.FocusEvent<HTMLDivElement>) => void;
+  onBlur?: (editor: React.FocusEvent<HTMLDivElement>) => void;
+  onPaste?: (editor: React.ClipboardEvent<HTMLDivElement>) => void;
   darkMode?: boolean;
   showLineNumbers?: boolean;
   showFoldGutter?: boolean;
@@ -575,6 +578,15 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     onLoad = () => {
       /**/
     },
+    onFocus = () => {
+      /**/
+    },
+    onBlur = () => {
+      /**/
+    },
+    onPaste = () => {
+      /**/
+    },
     minLines,
     maxLines,
     lineHeight = 16,
@@ -588,6 +600,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
   const onLoadRef = useRef(onLoad);
+  const onFocusRef = useRef(onFocus);
+  const onBlurRef = useRef(onBlur);
+  const onPasteRef = useRef(onPaste);
   const initialTextProvided = useRef(!!_initialText);
   const initialText = useRef(_initialText ?? text);
   const initialLanguage = useRef(language);
@@ -603,6 +618,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
+  onFocusRef.current = onFocus;
+  onBlurRef.current = onBlur;
+  onPasteRef.current = onPaste;
 
   useImperativeHandle(
     ref,
@@ -860,6 +878,29 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           if (update.docChanged) {
             onChangeTextRef.current?.(editorText, update);
           }
+        }),
+        /**
+         * EditorView.domEventHandlers use real DOM events. However,
+         * we want to bubble these events up to our React components
+         * properly. We will be casting them to React synthetic events,
+         * as for our use case, they should behave identical.
+         */
+        EditorView.domEventHandlers({
+          focus(event: FocusEvent) {
+            onFocusRef.current?.(
+              event as unknown as React.FocusEvent<HTMLDivElement>
+            );
+          },
+          blur(event: FocusEvent) {
+            onBlurRef.current?.(
+              event as unknown as React.FocusEvent<HTMLDivElement>
+            );
+          },
+          paste(event: ClipboardEvent) {
+            onPasteRef.current?.(
+              event as unknown as React.ClipboardEvent<HTMLDivElement>
+            );
+          },
         }),
       ],
       parent: domNode,
@@ -1399,9 +1440,34 @@ async function getCodemirrorEditorValue(
   return editorView.state.sliceDoc() ?? '';
 }
 
+/**
+ * Clicks on the codemirror editor and waits for all events to be processed.
+ * This shouldn't be necessary, but it seems that focus events are a bit special
+ * on Codemirror.
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * clickOnCodemirrorHandler(screen.getByTestId('editor-test-id'));
+ * ```
+ */
+async function clickOnCodemirrorHandler(
+  element: HTMLElement | string | null
+): Promise<void> {
+  if (typeof element === 'string') {
+    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
+  }
+  if (!element || !element.hasAttribute('data-codemirror')) {
+    throw new Error('Cannot find editor container');
+  }
+  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
+  editorView.focus();
+  await waitUntilEditorIsReady(editorView);
+}
+
 export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };
 export { getCodemirrorEditorValue };
+export { clickOnCodemirrorHandler };
 export type { CompletionSource as Completer };

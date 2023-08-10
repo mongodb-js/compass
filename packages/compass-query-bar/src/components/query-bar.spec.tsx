@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -12,6 +12,7 @@ import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import {
   setCodemirrorEditorValue,
   getCodemirrorEditorValue,
+  clickOnCodemirrorHandler,
 } from '@mongodb-js/compass-editor';
 
 const skipIfElectron = function (message: string) {
@@ -82,9 +83,11 @@ describe('QueryBar Component', function () {
           'query-bar-option-filter-input'
         );
 
-        userEvent.click(filterInput);
-        const editorValue = await getCodemirrorEditorValue(filterInput);
-        expect(editorValue).to.equal('{}');
+        await clickOnCodemirrorHandler(filterInput);
+        await waitFor(async () => {
+          const editorValue = await getCodemirrorEditorValue(filterInput);
+          expect(editorValue).to.equal('{}');
+        });
       });
     });
 
@@ -98,7 +101,7 @@ describe('QueryBar Component', function () {
         );
 
         await setCodemirrorEditorValue(filterInput, query);
-        userEvent.click(filterInput);
+        await clickOnCodemirrorHandler(filterInput);
         const editorValue = await getCodemirrorEditorValue(filterInput);
         expect(editorValue).to.equal(query);
       });
