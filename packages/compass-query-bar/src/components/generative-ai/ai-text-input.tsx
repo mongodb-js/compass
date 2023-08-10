@@ -34,7 +34,7 @@ const containerStyles = css({
 
 const inputBarContainerStyles = css({
   paddingTop: spacing[2],
-  gap: spacing[1],
+  gap: spacing[2],
   flexGrow: 1,
   display: 'flex',
 });

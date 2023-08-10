@@ -1,8 +1,7 @@
 import {
   Button,
   Icon,
-  LGGuideCue,
-  TextArea,
+  FeedbackPopover,
   css,
   spacing,
   cx,
@@ -17,11 +16,7 @@ import { submitFeedback } from '../../stores/ai-query-reducer';
 const suggestionActionButtonStyles = css({
   flexShrink: 0,
   display: 'flex',
-  gap: spacing[1],
-});
-
-const guideCueStyles = css({
-  minWidth: spacing[7] * 4,
+  gap: spacing[2],
 });
 
 const feedbackButtonLightStyles = css({
@@ -58,7 +53,6 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
   const feedbackPositiveButtonRef = useRef<HTMLInputElement>(null);
   const feedbackNegativeButtonRef = useRef<HTMLInputElement>(null);
 
-  const [feedbackText, setFeedbackText] = useState('');
   const [chosenFeedbackOption, setChosenFeedbackOption] = useState<
     'none' | 'positive' | 'negative'
   >('none');
@@ -94,8 +88,7 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
        * this usage isn't the typical show-one-time guide cue.
        */}
       {chosenFeedbackOption !== 'none' && (
-        <LGGuideCue
-          tooltipClassName={guideCueStyles}
+        <FeedbackPopover
           refEl={
             chosenFeedbackOption === 'positive'
               ? feedbackPositiveButtonRef
@@ -103,28 +96,16 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
           }
           open
           setOpen={() => setChosenFeedbackOption('none')}
-          numberOfSteps={1}
-          currentStep={1}
-          title=""
-          tooltipAlign="bottom"
-          onPrimaryButtonClick={() =>
+          onFeedback={(feedbackText: string) =>
             onFeedback(chosenFeedbackOption, feedbackText)
           }
-          buttonText="Submit"
-        >
-          <TextArea
-            label="Provide Feedback"
-            placeholder={
-              chosenFeedbackOption === 'positive'
-                ? 'What do you like about the generated query?'
-                : 'What could be better about the generated query?'
-            }
-            value={feedbackText}
-            onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setFeedbackText(event.target.value)
-            }
-          />
-        </LGGuideCue>
+          label="Provide Feedback"
+          placeholder={
+            chosenFeedbackOption === 'positive'
+              ? 'What do you like about the generated query?'
+              : 'What could be better about the generated query?'
+          }
+        />
       )}
     </div>
   );
