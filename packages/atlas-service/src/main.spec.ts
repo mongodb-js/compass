@@ -496,7 +496,7 @@ describe('AtlasServiceMain', function () {
         mockOidcPlugin.logger as EventEmitter
       );
       // Checking that multiple events while we are refreshing don't cause
-      // multiple calls to REFRESH_TOKEN_CALLBACK
+      // multiple calls to REQUEST_TOKEN_CALLBACK
       mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-succeeded');
       mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-succeeded');
       mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-succeeded');
@@ -513,7 +513,7 @@ describe('AtlasServiceMain', function () {
       );
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REFRESH_TOKEN_CALLBACK
+          .REQUEST_TOKEN_CALLBACK
       ).to.have.been.calledOnce;
       expect(AtlasService).to.have.property(
         'oidcPluginSyncedFromLoggerState',
@@ -521,7 +521,7 @@ describe('AtlasServiceMain', function () {
       );
       expect(AtlasService)
         .to.have.property('token')
-        .deep.eq({ accessToken: '4321' });
+        .deep.eq({ accessToken: '1234' });
       // Checking that we cleaned up all listeners
       expect(getListenerCount(mockOidcPlugin.logger as EventEmitter)).to.eq(
         initialListenerCount
