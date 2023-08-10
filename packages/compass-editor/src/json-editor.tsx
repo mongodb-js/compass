@@ -1399,32 +1399,9 @@ async function getCodemirrorEditorValue(
   return editorView.state.sliceDoc() ?? '';
 }
 
-/**
- * Clicks on an editor, use this with RTL like this:
- *
- * ```
- * render(<Editor data-testid='my-editor' />);
- * clickOnCodemirrorHandler(screen.getByTestId('editor-test-id'));
- * ```
- */
-async function clickOnCodemirrorHandler(
-  element: HTMLElement | string | null
-): Promise<void> {
-  if (typeof element === 'string') {
-    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
-  }
-  if (!element || !element.hasAttribute('data-codemirror')) {
-    throw new Error('Cannot find editor container');
-  }
-  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
-  editorView.focus();
-  await waitUntilEditorIsReady(editorView);
-}
-
 export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };
 export { getCodemirrorEditorValue };
-export { clickOnCodemirrorHandler };
 export type { CompletionSource as Completer };

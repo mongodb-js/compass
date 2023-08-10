@@ -6,7 +6,6 @@ export {
   CodemirrorMultilineEditor,
   setCodemirrorEditorValue,
   getCodemirrorEditorValue,
-  clickOnCodemirrorHandler,
 } from './json-editor';
 export type {
   EditorView,
