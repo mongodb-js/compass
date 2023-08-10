@@ -5,14 +5,14 @@ describe('lenientlyFixQuery [Utils]', function () {
   describe('when the value is empty', function () {
     it('returns a fix action with the wrapping braces', function () {
       const query = lenientlyFixQuery(' ');
-      expect(query).to.equal('{${}}');
+      expect(query).to.equal('\\{${}}');
     });
   });
 
   describe('when the value might be a valid query', function () {
     it('should wrap the valid query between braces', function () {
       const query = lenientlyFixQuery('a: 1');
-      expect(query).to.equal('{a: 1${}}');
+      expect(query).to.equal('\\{a: 1${}}');
     });
   });
 
@@ -28,7 +28,7 @@ describe('lenientlyFixQuery [Utils]', function () {
     it('returns a fixed query with removed duplicated braces', function () {
       const query = lenientlyFixQuery('{{ query: 1 }}');
 
-      expect(query).to.equal('{ query: 1 ${}}');
+      expect(query).to.equal('\\{ query: 1 ${}}');
     });
   });
 });

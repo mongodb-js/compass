@@ -16,7 +16,7 @@ export function lenientlyFixQuery(query: string): string | false {
   let modified = false;
 
   if (query === '') {
-    return '{${}}';
+    return '\\{${}}';
   }
 
   const isValid = _isValidQuery(query);
@@ -39,7 +39,9 @@ export function lenientlyFixQuery(query: string): string | false {
   }
 
   if (modified) {
+    query = query.replaceAll('{', '\\{');
     const caretPosition = query.lastIndexOf('}');
+
     query =
       query.substring(0, caretPosition) +
       '${}' +

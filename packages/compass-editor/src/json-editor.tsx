@@ -552,7 +552,7 @@ export type EditorRef = {
   prettify: () => boolean;
   applySnippet: (template: string) => boolean;
   focus: () => boolean;
-  getEditorContents: (from?: number, to?: number) => string | false;
+  readonly editorContents: string | false;
   readonly editor: EditorView | null;
 };
 
@@ -645,12 +645,12 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           editorViewRef.current.focus();
           return true;
         },
-        getEditorContents(from?: number, to?: number) {
+        get editorContents() {
           if (!editorViewRef.current) {
             return false;
           }
 
-          return getEditorContents(editorViewRef.current, from, to);
+          return getEditorContents(editorViewRef.current);
         },
         get editor() {
           return editorViewRef.current ?? null;
@@ -1247,8 +1247,8 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           applySnippet(template: string) {
             return editorRef.current?.applySnippet(template) ?? false;
           },
-          getEditorContents(from?: number, to?: number) {
-            return editorRef.current?.getEditorContents(from, to) ?? false;
+          get editorContents() {
+            return editorRef.current?.getEditorContents() ?? false;
           },
           get editor() {
             return editorRef.current?.editor ?? null;
