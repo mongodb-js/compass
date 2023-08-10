@@ -56,12 +56,13 @@ class GlobalToastState implements ToastActions {
     };
     this.toasts.set(id, toastProps);
     if (toastProps.timeout) {
-      this.timeouts.set(
-        id,
-        setTimeout(() => {
-          this.closeToast(id);
-        }, toastProps.timeout)
-      );
+      const timeoutId = setTimeout(() => {
+        this.closeToast(id);
+      }, toastProps.timeout);
+      this.timeouts.set(id, timeoutId);
+      // If we are in the node environment, unref the timeout to allow process
+      // to exit (this is mostly needed for test environments)
+      timeoutId.unref?.();
     }
     this.onToastsChange('push', { id, ...toastProps }, this.toasts);
   }

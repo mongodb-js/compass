@@ -12,6 +12,7 @@ import {
   useDefaultAction,
   SignalPopover,
   GuideCue,
+  PerformanceSignals,
 } from '@mongodb-js/compass-components';
 import { usePreference, withPreferences } from 'compass-preferences-model';
 import toNS from 'mongodb-ns';
@@ -159,14 +160,7 @@ export function NavigationItem<Actions extends string>({
         {showInsights && isExpanded && showTooManyCollectionsInsight && (
           <div className={signalContainerStyles}>
             <SignalPopover
-              signals={{
-                id: 'too-many-collections',
-                title: 'Databases with too many collections',
-                description:
-                  "An excessive number of collections and their associated indexes can drain resources and impact your database's performance. In general, try to limit your replica set to 10,000 collections.",
-                learnMoreLink:
-                  'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#large-number-of-collections',
-              }}
+              signals={PerformanceSignals.get('too-many-collections')}
             ></SignalPopover>
           </div>
         )}

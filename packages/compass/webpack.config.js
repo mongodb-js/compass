@@ -90,6 +90,10 @@ module.exports = (_env, args) => {
     HADRON_ISOLATED: String(target.isolated),
     HADRON_CHANNEL: target.channel,
     HADRON_AUTO_UPDATE_ENDPOINT: target.autoUpdateBaseUrl,
+    // Atlas service configuration
+    COMPASS_ATLAS_SERVICE_BASE_URL: 'https://compass.mongodb.com',
+    COMPASS_CLIENT_ID: '0oajzdcznmE8GEyio297',
+    COMPASS_OIDC_ISSUER: 'https://auth.mongodb.com/oauth2/default',
     // Optional env variables that will be set only by Evergreen CI for publicly
     // published releases
     HADRON_METRICS_INTERCOM_APP_ID: null,

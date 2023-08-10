@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import assert from 'assert';
 import path from 'path';
 import { expect } from 'chai';

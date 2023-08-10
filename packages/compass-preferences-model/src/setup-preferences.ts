@@ -11,7 +11,6 @@ import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 import type { PreferencesAccess } from '.';
-const { basepath } = getStoragePaths() || {};
 
 let preferencesSingleton: Preferences | undefined;
 
@@ -23,11 +22,11 @@ export async function setupPreferences(
   }
 
   const preferences = (preferencesSingleton = new Preferences(
-    basepath,
+    getStoragePaths()?.basepath,
     globalPreferences
   ));
 
-  await preferences.fetchPreferences();
+  await preferences.setupStorage();
 
   const { ipcMain } = hadronIpc;
   preferences.onPreferencesChanged(
@@ -85,6 +84,7 @@ const makePreferenceMain = (preferences: () => Preferences | undefined) => ({
   async ensureDefaultConfigurableUserPreferences(): Promise<void> {
     return preferences()?.ensureDefaultConfigurableUserPreferences?.();
   },
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     return (
       preferences()?.getConfigurableUserPreferences?.() ??

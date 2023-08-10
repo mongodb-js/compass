@@ -39,5 +39,6 @@ async function getDirectorySize(dirPath: string): Promise<number> {
     );
   }
 
+  // eslint-disable-next-line no-console
   console.info(`bundled app size ok: ${sizeMB}MB.`);
 })();

@@ -17,11 +17,11 @@ import Settings from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
 import ipc from 'hadron-ipc';
 import type {
-  ConnectionInfo,
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
-import { getConnectionTitle } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
 import toNS from 'mongodb-ns';
 import React, {
   useCallback,
@@ -38,6 +38,7 @@ import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
+import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -503,6 +504,7 @@ function ThemedHome(
               </ToastArea>
             </ConfirmationModalArea>
           </div>
+          <AtlasSignIn></AtlasSignIn>
         </Body>
       </GuideCueProvider>
     </LeafyGreenProvider>

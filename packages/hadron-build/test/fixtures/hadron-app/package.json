@@ -67,7 +67,6 @@
     "hadron-build": "^0.1.9",
     "mongodb-js-fmt": "^0.0.3",
     "mongodb-js-precommit": "^0.2.8",
-    "mongodb-runner": "^4.10.0",
     "spectron": "^0.34.1",
     "xvfb-maybe": "^0.1.3"
   },

@@ -63,6 +63,7 @@ export class GuideCueService extends EventTarget {
     }
     const cueIndex = this.getCueIndex(cue.cueId, cue.groupId);
     if (cueIndex !== -1) {
+      // eslint-disable-next-line no-console
       console.warn(`The Cue ${cue.cueId} is already added.`);
       return;
     }

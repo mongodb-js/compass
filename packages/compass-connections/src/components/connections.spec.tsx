@@ -5,31 +5,31 @@ import {
   screen,
   waitFor,
   fireEvent,
+  within,
 } from '@testing-library/react';
 import { expect } from 'chai';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
-  ConnectionOptions,
   ConnectionStorage,
-} from 'mongodb-data-service';
+} from '@mongodb-js/connection-storage/renderer';
 import { v4 as uuid } from 'uuid';
 import sinon from 'sinon';
 
 import Connections from './connections';
 import { ToastArea } from '@mongodb-js/compass-components';
 
-function getMockConnectionStorage(
-  mockConnections: ConnectionInfo[]
-): ConnectionStorage {
+function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
   return {
     loadAll: () => {
       return Promise.resolve(mockConnections);
     },
+    hasLegacyConnections: () => Promise.resolve(false),
     save: () => Promise.resolve(),
     delete: () => Promise.resolve(),
     load: (id: string) =>
       Promise.resolve(mockConnections.find((conn) => conn.id === id)),
-  };
+  } as unknown as ConnectionStorage;
 }
 
 async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
@@ -214,11 +214,11 @@ describe('Connections Component', function () {
 
       it('should call to save the connection with the connection config', function () {
         expect(saveConnectionSpy.callCount).to.equal(1);
-        expect(saveConnectionSpy.firstCall.args[0].id).to.equal(
+        expect(saveConnectionSpy.firstCall.args[0].connectionInfo.id).to.equal(
           savedConnectionId
         );
         expect(
-          saveConnectionSpy.firstCall.args[0].connectionOptions
+          saveConnectionSpy.firstCall.args[0].connectionInfo.connectionOptions
         ).to.deep.equal({
           connectionString:
             'mongodb://localhost:27018/?readPreference=primary&ssl=false',
@@ -227,9 +227,9 @@ describe('Connections Component', function () {
 
       it('should call to save the connection with a new lastUsed time', function () {
         expect(saveConnectionSpy.callCount).to.equal(1);
-        expect(saveConnectionSpy.firstCall.args[0].lastUsed.getTime()).to.equal(
-          0
-        );
+        expect(
+          saveConnectionSpy.firstCall.args[0].connectionInfo.lastUsed.getTime()
+        ).to.equal(0);
       });
 
       it('should emit the connection configuration used to connect', function () {
@@ -442,6 +442,69 @@ describe('Connections Component', function () {
           );
         });
       });
+    });
+  });
+
+  context('when user has any legacy connection', function () {
+    it('shows modal', async function () {
+      const mockStorage = getMockConnectionStorage([]);
+      sinon.stub(mockStorage, 'hasLegacyConnections').resolves(true);
+      render(
+        <ToastArea>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </ToastArea>
+      );
+      await waitFor(
+        () => expect(screen.getByTestId('legacy-connections-modal')).to.exist
+      );
+    });
+
+    it('does not show modal when user hides it', async function () {
+      const mockStorage = getMockConnectionStorage([]);
+      sinon.stub(mockStorage, 'hasLegacyConnections').resolves(true);
+      const { rerender } = render(
+        <ToastArea>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </ToastArea>
+      );
+
+      await waitFor(() => screen.getByTestId('legacy-connections-modal'));
+
+      const modal = screen.getByTestId('legacy-connections-modal');
+
+      const storageSpy = sinon.spy(Storage.prototype, 'setItem');
+
+      // Click the don't show again checkbox and close the modal
+      fireEvent.click(within(modal).getByText(/don't show this again/i));
+      fireEvent.click(within(modal).getByText(/close/i));
+
+      rerender(
+        <ToastArea>
+          <Connections
+            onConnected={onConnectedSpy}
+            connectionStorage={mockStorage}
+            appName="Test App Name"
+          />
+        </ToastArea>
+      );
+
+      // Saves data in storage
+      expect(storageSpy.firstCall.args).to.deep.equal([
+        'hide_legacy_connections_modal',
+        'true',
+      ]);
+
+      expect(() => {
+        screen.getByTestId('legacy-connections-modal');
+      }).to.throw;
     });
   });
 });

@@ -319,6 +319,11 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   );
 };
 
+type OwnProps = {
+  onApply?(query: unknown): void;
+  onReset?(query: unknown): void;
+};
+
 export default connect(
   ({ queryBar: { expanded, fields, applyId }, aiQuery }: RootState) => {
     return {
@@ -329,10 +334,7 @@ export default connect(
       isAIInputVisible: aiQuery.isInputVisible,
     };
   },
-  (
-    dispatch: QueryBarThunkDispatch,
-    ownProps: { onApply?(query: unknown): void; onReset?(query: unknown): void }
-  ) => {
+  (dispatch: QueryBarThunkDispatch, ownProps: OwnProps) => {
     return {
       onExplain: () => {
         dispatch(explainQuery());
@@ -355,7 +357,7 @@ export default connect(
         ownProps.onReset?.(reset);
       },
       onShowAIInputClick: () => {
-        dispatch(showInput());
+        void dispatch(showInput());
       },
       onHideAIInputClick: () => {
         dispatch(hideInput());

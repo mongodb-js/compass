@@ -106,7 +106,6 @@ const renderIndexList = (
       onDeleteIndex={() => {}}
       onHideIndex={() => {}}
       onUnhideIndex={() => {}}
-      scrollHeight={400}
       {...props}
     />
   );

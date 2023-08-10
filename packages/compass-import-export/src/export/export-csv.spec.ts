@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import _ from 'lodash';
 import assert from 'assert';
 import fs from 'fs';
@@ -27,18 +28,20 @@ import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('exportCSV', function () {
+  const cluster = mochaTestServer();
   let dataService: DataService;
 
   beforeEach(async function () {
     dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27019/local',
+        connectionString: cluster().connectionString,
       },
     });
 

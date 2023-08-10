@@ -1,6 +1,20 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.12.0
-ignore: {}
+version: v1.25.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-SEMVER-3247795:
+    - '*':
+        reason: >-
+          Security patches released for semver 5.x (5.7.2) and 6.x (6.3.1) are
+          not yet known to Snyk which is why we would like to ignore this
+          vulnerability until the mentioned expiry.
+        expires: 2023-08-11T09:00:55.553Z
+        created: 2023-07-12T09:00:55.557Z
+  SNYK-JS-AGGRIDCOMMUNITY-1932011:
+    - '*':
+        reason: None Given
+        expires: 2023-08-18T09:51:32.172Z
+        created: 2023-07-19T09:51:32.175Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':

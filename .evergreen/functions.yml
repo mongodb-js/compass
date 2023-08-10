@@ -72,6 +72,7 @@ variables:
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
     EVERGREEN_BUCKET_NAME: mciuploads
     EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
+    MONGODB_RUNNER_LOG_DIR: ${workdir}/src/.testserver/
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -168,6 +169,14 @@ functions:
           set -e
           eval $(.evergreen/print-compass-env.sh)
 
+          # Pre-built binaries for keytar do not support older RHEL versions.
+          # Since we have started importing keytar from top-level scripts in packages,
+          # re-built keytar before the bootstrap process so that it is always usable.
+          if [[ "$IS_RHEL" == "true" ]]; then
+            echo "Rebuilding packages for rhel"
+            npm run node-rebuild
+          fi
+
           # Prepare workspaces in provided scope
           npx lerna run bootstrap \
             --stream \
@@ -199,7 +208,7 @@ functions:
           <<: *compass-env
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
         script: |
           set -e
 
@@ -225,7 +234,7 @@ functions:
           <<: *compass-env
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
         script: |
           set -e
 
@@ -352,7 +361,7 @@ functions:
           <<: *compass-env
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
         script: |
           set -e
           # Load environment variables
@@ -376,20 +385,14 @@ functions:
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           source .evergreen/start-docker-envs.sh
 
-          MONGODB_TYPE="community";
-
-          if [[ "$MONGODB_USE_ENTERPRISE" == "yes" ]]; then
-            MONGODB_TYPE="enterprise"
-          fi
-
-          echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION ($MONGODB_TYPE)..."
+          echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION..."
 
           if [[ "$IS_OSX" == "true" ]]; then
             echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/BUILD-14458)"
@@ -554,7 +557,7 @@ functions:
             npm config list
             echo "Publishing packages as $(npm whoami)"
             git update-index --assume-unchanged .npmrc
-            npm run publish-packages-next
+            bash ".evergreen/retry-with-backoff.sh" npm run publish-packages-next
           fi
 
   generate-vulnerability-report:

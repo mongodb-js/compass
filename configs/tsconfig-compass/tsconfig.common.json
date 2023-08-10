@@ -1,18 +1,3 @@
 {
-  "compilerOptions": {
-    "allowJs": false,
-    "esModuleInterop": true,
-    "downlevelIteration": true,
-    "declaration": true,
-    "declarationMap": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["dom", "ES2021"],
-    "module": "commonjs",
-    "removeComments": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "ES2021"
-  }
+  "extends": "@mongodb-js/tsconfig-devtools/tsconfig.common.json"
 }

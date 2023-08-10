@@ -5,26 +5,11 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
 
 import { useConnections } from './connections-store';
-import type { ConnectionInfo, ConnectionStorage } from 'mongodb-data-service';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 
 const noop = (): any => {
   /* no-op */
 };
-
-function createMockRecents(num: number): ConnectionInfo[] {
-  const mockRecents: ConnectionInfo[] = [];
-  for (let i = 0; i < num; i++) {
-    mockRecents.push({
-      id: `${i}`,
-      lastUsed: new Date(1647023468898 - i),
-      connectionOptions: {
-        connectionString: 'mongodb://localhost',
-      },
-    });
-  }
-
-  return mockRecents;
-}
 
 const mockConnections = [
   {
@@ -157,8 +142,6 @@ describe('use-connections hook', function () {
   });
 
   describe('#connect', function () {
-    const maxRecents = 10;
-
     it(`calls onConnected`, async function () {
       const onConnected = sinon.spy();
       const { result } = renderHook(() =>
@@ -181,74 +164,6 @@ describe('use-connections hook', function () {
         expect(onConnected).to.have.been.called;
       });
       expect(saveSpy).to.have.been.calledOnce;
-    });
-
-    it(`truncates recents to ${maxRecents}`, async function () {
-      const mockRecents = createMockRecents(maxRecents);
-
-      mockConnectionStorage.loadAll = () => Promise.resolve(mockRecents);
-
-      const { result } = renderHook(() =>
-        useConnections({
-          onConnected: noop,
-          connectionStorage: mockConnectionStorage,
-          connectFn: () => Promise.resolve({} as any),
-          appName: 'Test App Name',
-        })
-      );
-
-      // Wait for the async loading of connections to complete.
-      await waitFor(() =>
-        expect(result.current.state.connections.length).to.equal(
-          mockRecents.length
-        )
-      );
-
-      await result.current.connect({
-        id: 'new',
-        connectionOptions: {
-          connectionString: 'mongodb://new-recent',
-        },
-      });
-
-      await waitFor(() => {
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        expect(mockConnectionStorage.delete).to.have.been.calledWith(
-          mockRecents[mockRecents.length - 1]
-        );
-      });
-    });
-
-    it(`does not remove recent if there are less then ${maxRecents}`, async function () {
-      const mockRecents = createMockRecents(maxRecents - 1);
-
-      mockConnectionStorage.loadAll = () => Promise.resolve(mockRecents);
-
-      const onConnected = sinon.spy();
-      const { result } = renderHook(() =>
-        useConnections({
-          onConnected,
-          connectionStorage: mockConnectionStorage,
-          connectFn: () => Promise.resolve({} as any),
-          appName: 'Test App Name',
-        })
-      );
-
-      await result.current.connect({
-        id: 'new',
-        connectionOptions: {
-          connectionString: 'mongodb://new-recent',
-        },
-      });
-
-      // this may cause a false negative, but there is no other reliable way to
-      // test this case. It would fail eventually if the functionality is broken.
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(mockConnectionStorage.delete).not.to.have.been.calledWith(
-        mockRecents[mockRecents.length - 1]
-      );
     });
 
     it('allows connecting to a dynamically provided connection info object', async function () {

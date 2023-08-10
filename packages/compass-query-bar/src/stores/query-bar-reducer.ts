@@ -1,7 +1,6 @@
 import type { Reducer } from 'redux';
 import { cloneDeep, isEqual } from 'lodash';
 import _ from 'lodash';
-import { UUID } from 'bson';
 import type { Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -23,6 +22,7 @@ import {
   isQueryFieldsValid,
   validateField,
   isEqualDefaultQuery,
+  doesQueryHaveExtraOptionsSet,
 } from '../utils/query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
@@ -33,8 +33,6 @@ import {
   isAction,
 } from '../utils';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
-
-const TOTAL_RECENTS_ALLOWED = 30;
 
 type QueryBarState = {
   fields: QueryFormFields;
@@ -380,22 +378,11 @@ const saveRecentQuery = (
         return;
       }
 
-      // Keep length of each recent list to TOTAL_RECENTS_ALLOWED
-      if (recentQueries.length >= TOTAL_RECENTS_ALLOWED) {
-        const lastRecent = recentQueries[recentQueries.length - 1];
-        await recentQueryStorage.delete(lastRecent._id);
-      }
-
-      const _id = new UUID().toString();
-      const recentQuery: RecentQuery = {
+      await recentQueryStorage.saveQuery({
         ...queryAttributes,
-        _id,
-        _lastExecuted: new Date(),
         _ns: namespace,
         _host: host ?? '',
-      };
-
-      await recentQueryStorage.updateAttributes(_id, recentQuery);
+      });
     } catch (e) {
       debug('Failed to save recent query', e);
     }
@@ -473,14 +460,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (
-    isAction<ApplyFromHistoryAction>(
-      action,
-      QueryBarActions.ApplyFromHistory
-    ) ||
-    isAction<AIQuerySucceededAction>(
-      action,
-      AIQueryActionTypes.AIQuerySucceeded
-    )
+    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
   ) {
     return {
       ...state,
@@ -488,6 +468,19 @@ export const queryBarReducer: Reducer<QueryBarState> = (
         ...DEFAULT_FIELD_VALUES,
         ...(action.query ?? {}),
       }),
+    };
+  }
+
+  if (
+    isAction<AIQuerySucceededAction>(
+      action,
+      AIQueryActionTypes.AIQuerySucceeded
+    )
+  ) {
+    return {
+      ...state,
+      expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
+      fields: action.fields,
     };
   }
 

@@ -4,14 +4,8 @@ import os from 'os';
 import { join } from 'path';
 import { EJSON, UUID } from 'bson';
 
-import { QueryStorage } from './query-storage';
-
-// Testing base class here
-class QueryHistoryStorage extends QueryStorage {
-  constructor(basepath: string) {
-    super(basepath);
-  }
-}
+import { RecentQueryStorage, type RecentQuery } from './query-storage';
+import Sinon from 'sinon';
 
 const queries = [
   {
@@ -29,29 +23,41 @@ const queries = [
   },
 ];
 
+const writeQuery = (tmpDir: string, query: RecentQuery) => {
+  const path = join(tmpDir, 'RecentQueries');
+  fs.mkdirSync(path, { recursive: true });
+  fs.writeFileSync(join(path, `${query._id}.json`), EJSON.stringify(query));
+};
+
+const createNumberOfQueries = (tmpDir: string, num: number) => {
+  const queries = Array.from({ length: num }, (v, i) => ({
+    _id: new UUID().toString(),
+    _ns: 'airbnb.users',
+    _lastExecuted: new Date(1690876213077 - (i + 1) * 1000), // Difference of 1 sec
+  }));
+  queries.forEach((query) => writeQuery(tmpDir, query));
+  return queries;
+};
+
+const maxAllowedRecentQueries = 30;
+
 describe('QueryStorage', function () {
-  let basedir: string;
-  let queryHistoryStorage: QueryHistoryStorage;
+  let tmpDir: string;
+  let queryHistoryStorage: RecentQueryStorage;
 
-  before(function () {
-    basedir = fs.mkdtempSync(os.tmpdir());
-    const folder = join(basedir, 'Queries');
-    fs.mkdirSync(folder);
-    queries.forEach((query) => {
-      fs.writeFileSync(
-        join(folder, `${query._id}.json`),
-        EJSON.stringify(query)
-      );
-    });
-
-    queryHistoryStorage = new QueryHistoryStorage(folder);
+  beforeEach(function () {
+    tmpDir = fs.mkdtempSync(os.tmpdir());
+    queryHistoryStorage = new RecentQueryStorage(tmpDir);
   });
 
-  after(function () {
-    fs.rmdirSync(basedir, { recursive: true });
+  afterEach(function () {
+    fs.rmdirSync(tmpDir, { recursive: true });
+    Sinon.restore();
   });
 
   it('loads files from storage', async function () {
+    queries.forEach((query) => writeQuery(tmpDir, query));
+
     const data = await queryHistoryStorage.loadAll();
     expect(data).to.have.lengthOf(2);
 
@@ -64,6 +70,8 @@ describe('QueryStorage', function () {
   });
 
   it('updates data in storage if files exists', async function () {
+    queries.forEach((query) => writeQuery(tmpDir, query));
+
     const query = queries[0];
     await queryHistoryStorage.updateAttributes(query._id, {
       _host: 'localhost',
@@ -77,6 +85,8 @@ describe('QueryStorage', function () {
   });
 
   it('creates item in storage if files does not exist', async function () {
+    queries.forEach((query) => writeQuery(tmpDir, query));
+
     const query = {
       sort: { name: 1 },
       _id: new UUID().toString(),
@@ -96,10 +106,52 @@ describe('QueryStorage', function () {
   });
 
   it('deletes file from storage', async function () {
+    queries.forEach((query) => writeQuery(tmpDir, query));
+
     await queryHistoryStorage.delete(queries[0]._id);
     expect(await queryHistoryStorage.loadAll()).to.have.lengthOf(1);
 
     await queryHistoryStorage.delete(queries[1]._id);
     expect(await queryHistoryStorage.loadAll()).to.have.lengthOf(0);
   });
+
+  context(
+    `limits saved recent queries to ${maxAllowedRecentQueries}`,
+    function () {
+      it('truncates recents queries to max allowed queries', async function () {
+        const queries = createNumberOfQueries(tmpDir, maxAllowedRecentQueries);
+
+        const deleteSpy = Sinon.spy(queryHistoryStorage, 'delete');
+
+        // Save another query
+        await queryHistoryStorage.saveQuery({
+          _ns: 'airbnb.users',
+          filter: {},
+        });
+
+        const numQueries = (await queryHistoryStorage.loadAll()).length;
+        expect(numQueries).to.equal(maxAllowedRecentQueries);
+
+        expect(deleteSpy.calledOnceWithExactly(queries[queries.length - 1]._id))
+          .to.be.true;
+      });
+
+      it('does not remove recent query if recents are less then max allowed queries', async function () {
+        createNumberOfQueries(tmpDir, maxAllowedRecentQueries - 1);
+
+        const deleteSpy = Sinon.spy(queryHistoryStorage, 'delete');
+
+        // Save another query
+        await queryHistoryStorage.saveQuery({
+          _ns: 'airbnb.users',
+          filter: {},
+        });
+
+        const numQueries = (await queryHistoryStorage.loadAll()).length;
+        expect(numQueries).to.equal(maxAllowedRecentQueries);
+
+        expect(deleteSpy.called).to.be.false;
+      });
+    }
+  );
 });

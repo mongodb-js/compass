@@ -4,6 +4,7 @@ import type { DataService, DataServiceImpl } from './data-service';
 import type { AutoEncryptionOptions, MongoClient } from 'mongodb';
 import type { Binary } from 'bson';
 import connect from './connect';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 describe('CSFLECollectionTracker', function () {
   const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
@@ -19,6 +20,15 @@ describe('CSFLECollectionTracker', function () {
       return this.skip();
     }
     dbName = `test-${Date.now()}-${(Math.random() * 10000) | 0}`;
+  });
+
+  const cluster = mochaTestServer({
+    topology: 'replset',
+    secondaries: 0,
+    version: '>= 7.0.0-rc5',
+    downloadOptions: {
+      enterprise: true,
+    },
   });
 
   afterEach(async function () {
@@ -45,7 +55,7 @@ describe('CSFLECollectionTracker', function () {
 
     const dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27021',
+        connectionString: cluster().connectionString,
         fleOptions: {
           storeCredentials: false,
           autoEncryption: {
@@ -499,7 +509,7 @@ describe('CSFLECollectionTracker', function () {
           .db(dbName)
           .collection('test4')
           .findOne();
-        expect(result.a).to.equal(2);
+        expect(result?.a).to.equal(2);
       });
     });
   });

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   Button,
   MoreOptionsToggle,
+  PerformanceSignals,
   SignalPopover,
   css,
   spacing,
@@ -80,19 +81,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         <div>
           <SignalPopover
             signals={{
-              id: 'aggregation-executed-without-index',
-              title: 'Aggregation executed without index',
-              description: (
-                <>
-                  This aggregation ran without an index. If you plan on using
-                  this query <strong>heavily</strong> in your application, you
-                  should create an index that covers this aggregation.
-                </>
-              ),
-              learnMoreLink:
-                'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
-              primaryActionButtonLabel: 'Create index',
-              primaryActionButtonIcon: 'Plus',
+              ...PerformanceSignals.get('aggregation-executed-without-index'),
               onPrimaryActionButtonClick:
                 onCollectionScanInsightActionButtonClick,
             }}

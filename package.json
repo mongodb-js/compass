@@ -43,7 +43,7 @@
     "where": "monorepo-where",
     "create-workspace": "node ./scripts/create-workspace.js",
     "update-evergreen-config": "node .evergreen/template-yml.js",
-    "publish-packages-next": "npx lerna publish \"0.0.0-next-$(git rev-parse HEAD)\" --force-publish --exact --no-git-tag-version --no-private --dist-tag next --pre-dist-tag next --no-verify-access --no-git-reset --yes",
+    "publish-packages-next": "npx lerna publish from-package \"0.0.0-next-$(git rev-parse HEAD)\" --force-publish --exact --no-git-tag-version --no-private --dist-tag next --pre-dist-tag next --no-verify-access --no-git-reset --yes",
     "prepare": "husky install",
     "snyk-test": "node scripts/snyk-test.js",
     "pregenerate-vulnerability-report": "npm run compile -w packages/compass && npm run snyk-test",

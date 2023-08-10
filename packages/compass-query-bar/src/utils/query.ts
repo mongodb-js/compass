@@ -30,10 +30,34 @@ export function mapFormFieldsToQuery(fields: QueryFormFields): BaseQuery {
   };
 }
 
+// Returns true if any fields that aren't filter have non-default values.
+export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
+  if (!fields) {
+    return false;
+  }
+
+  for (const property of QUERY_PROPERTIES) {
+    if (property === 'filter') {
+      continue;
+    }
+
+    if (
+      !isEqual(fields[property].value, DEFAULT_QUERY_VALUES[property]) &&
+      !isEqual(fields[property].value, DEFAULT_FIELD_VALUES[property])
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
  * Map query document to the query fields state only preserving valid values
  */
-export function mapQueryToFormFields(query?: BaseQuery, onlyValid = true) {
+export function mapQueryToFormFields(
+  query?: BaseQuery,
+  onlyValid = true
+): QueryFormFields {
   return Object.fromEntries(
     Object.entries(query ?? {})
       .map(([key, _value]) => {

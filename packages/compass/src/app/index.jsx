@@ -2,7 +2,7 @@ import dns from 'dns';
 import ipc from 'hadron-ipc';
 import * as remote from '@electron/remote';
 
-import preferences from 'compass-preferences-model';
+import preferences, { getActiveUser } from 'compass-preferences-model';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -53,12 +53,7 @@ import View from 'ampersand-view';
 import async from 'async';
 import * as webvitals from 'web-vitals';
 
-import User from 'compass-user-model';
-
 import './menu-renderer';
-marky.mark('Migrations');
-import migrateApp from './migrations';
-marky.stop('Migrations');
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -69,8 +64,7 @@ import { setupTheme } from './theme';
 import { setupIntercom } from './intercom';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { log, mongoLogId, debug, track } =
-  createLoggerAndTelemetry('COMPASS-APP');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 /**
  * The top-level application singleton that brings everything together!
@@ -91,12 +85,6 @@ const Application = View.extend({
   },
   session: {
     /**
-     *
-     * The connection details for the MongoDB Instance we want to/are currently connected to.
-     * @see mongodb-connection-model.js
-     */
-    connection: 'state',
-    /**
      * Details of the MongoDB Instance we're currently connected to.
      */
     instance: 'state',
@@ -111,9 +99,6 @@ const Application = View.extend({
       type: 'string',
       default: '0.0.0',
     },
-  },
-  children: {
-    user: User,
   },
   initialize: function () {
     /**
@@ -211,21 +196,10 @@ const Application = View.extend({
 
     document.querySelector('#loading-placeholder')?.remove();
   },
-  fetchUser: async function () {
-    debug('getting user preferences');
-    const { telemetryAnonymousId, lastKnownVersion } =
-      preferences.getPreferences();
-
-    // The main process ensured that `telemetryAnonymousId` contains the id of the User model.
-    const user = await User.getOrCreate(telemetryAnonymousId);
-
-    this.user.set(user.serialize());
-    this.user.trigger('sync');
-    debug('user fetch successful', user.serialize());
-
+  updateAppVersion: async function () {
+    const { lastKnownVersion } = preferences.getPreferences();
     this.previousVersion = lastKnownVersion || '0.0.0';
     await preferences.savePreferences({ lastKnownVersion: APP_VERSION });
-    return user;
   },
 });
 
@@ -236,52 +210,45 @@ app.extend({
   init: async function () {
     await preferences.refreshPreferences();
 
-    async.series(
-      [
-        // Check if migrations are required.
-        migrateApp.bind(state),
-        // Get user.
-        state.fetchUser.bind(state),
-      ],
-      function (err) {
-        if (err) {
-          throw err;
-        }
-
-        // Get theme from the preferences and set accordingly.
-        setupTheme();
-
-        Action.pluginActivationCompleted.listen(() => {
-          state.preRender();
-          global.hadronApp.appRegistry.onActivated();
-          global.hadronApp.appRegistry.emit(
-            'application-initialized',
-            APP_VERSION,
-            process.env.HADRON_PRODUCT_NAME
-          );
-          setupIntercom(state.user);
-          // Catch a data refresh coming from window-manager.
-          ipc.on('app:refresh-data', () =>
-            global.hadronApp.appRegistry.emit('refresh-data')
-          );
-          // Catch a toggle sidebar coming from window-manager.
-          ipc.on('app:toggle-sidebar', () =>
-            global.hadronApp.appRegistry.emit('toggle-sidebar')
-          );
-          // As soon as dom is ready, render and set up the rest.
-          state.render();
-          marky.stop('Time to Connect rendered');
-          state.postRender();
-          marky.stop('Time to user can Click Connect');
-          if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
-            queueMicrotask(() => {
-              throw new Error('fake exception');
-            });
-          }
-        });
-        require('./setup-plugin-manager');
+    async.series([state.updateAppVersion.bind(state)], function (err) {
+      if (err) {
+        throw err;
       }
-    );
+
+      // Get theme from the preferences and set accordingly.
+      setupTheme();
+
+      Action.pluginActivationCompleted.listen(async () => {
+        state.preRender();
+        global.hadronApp.appRegistry.onActivated();
+        global.hadronApp.appRegistry.emit(
+          'application-initialized',
+          APP_VERSION,
+          process.env.HADRON_PRODUCT_NAME
+        );
+        const user = await getActiveUser();
+        setupIntercom(user);
+        // Catch a data refresh coming from window-manager.
+        ipc.on('app:refresh-data', () =>
+          global.hadronApp.appRegistry.emit('refresh-data')
+        );
+        // Catch a toggle sidebar coming from window-manager.
+        ipc.on('app:toggle-sidebar', () =>
+          global.hadronApp.appRegistry.emit('toggle-sidebar')
+        );
+        // As soon as dom is ready, render and set up the rest.
+        state.render();
+        marky.stop('Time to Connect rendered');
+        state.postRender();
+        marky.stop('Time to user can Click Connect');
+        if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {
+          queueMicrotask(() => {
+            throw new Error('fake exception');
+          });
+        }
+      });
+      require('./setup-plugin-manager');
+    });
   },
 });
 
@@ -300,21 +267,9 @@ Object.defineProperty(app, 'instance', {
   },
 });
 
-Object.defineProperty(app, 'connection', {
-  get: function () {
-    return state.connection;
-  },
-});
-
 Object.defineProperty(app, 'router', {
   get: function () {
     return state.router;
-  },
-});
-
-Object.defineProperty(app, 'user', {
-  get: function () {
-    return state.user;
   },
 });
 

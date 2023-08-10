@@ -238,6 +238,7 @@ function comparePaths(result: string[], expectedResult: string[]) {
   try {
     expect(result).to.deep.equal(expectedResult);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log(JSON.stringify(result, null, 2));
     throw err;
   }
@@ -252,6 +253,7 @@ function comparePaths(result: string[], expectedResult: string[]) {
   try {
     expect(uniq).to.deep.equal(uniqAdjacent);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.log({ uniq, uniqAdjacent });
     throw err;
   }

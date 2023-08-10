@@ -1,7 +1,6 @@
 import util from 'util';
-import Connection from 'mongodb-connection-model';
 import type { DataService } from 'mongodb-data-service';
-import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
+import { connect } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
 import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
@@ -15,17 +14,11 @@ import configureStore, {
 } from './crud-store';
 import configureActions from '../actions';
 import { Int32 } from 'bson';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 chai.use(chaiAsPromised);
 
 const TEST_TIMESERIES = false; // TODO: base this off an env var once we have it
-
-const CONNECTION = new Connection({
-  hostname: '127.0.0.1',
-  port: 27022,
-  ns: 'compass-crud',
-  mongodb_database_name: 'admin',
-});
 
 const delay = util.promisify(setTimeout);
 
@@ -119,6 +112,7 @@ function waitForState(store, cb, timeout) {
 describe('store', function () {
   this.timeout(5000);
 
+  const cluster = mochaTestServer();
   let dataService: DataService;
 
   const localAppRegistry = new AppRegistry();
@@ -127,9 +121,10 @@ describe('store', function () {
   globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
   before(async function () {
-    const info = convertConnectionModelToInfo(CONNECTION);
     dataService = await connect({
-      connectionOptions: info.connectionOptions,
+      connectionOptions: {
+        connectionString: cluster().connectionString,
+      },
     });
 
     // Add some validation so that we can test what happens when insert/update

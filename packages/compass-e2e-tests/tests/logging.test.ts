@@ -224,7 +224,7 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Connection 0',
           msg: 'Server description changed',
           attr: {
-            address: 'localhost:27091',
+            address: '127.0.0.1:27091',
             error: null,
             newType: 'RSPrimary',
             previousType: 'Unknown',
@@ -233,14 +233,14 @@ describe('Logging and Telemetry integration', function () {
         {
           s: 'I',
           c: 'COMPASS-DATA-SERVICE',
-          ctx: 'Connection 0',
           id: 1_001_000_021,
+          ctx: 'Connection 0',
           msg: 'Topology description changed',
-          attr: {
-            isMongos: false,
-            isWritable: true,
-            newType: 'ReplicaSetWithPrimary',
-            previousType: 'Unknown',
+          attr: (actual: any) => {
+            expect(actual.isMongos).to.be.a('boolean');
+            expect(actual.isWritable).to.be.a('boolean');
+            expect(actual.newType).to.be.a('string');
+            expect(actual.previousType).to.equal('Unknown');
           },
         },
         {
@@ -339,7 +339,7 @@ describe('Logging and Telemetry integration', function () {
           // Timestamps vary between each execution
           delete actualWithoutAttr.t;
 
-          expect(expectedWithoutAttr).to.deep.equal(actualWithoutAttr);
+          expect(actualWithoutAttr).to.deep.equal(expectedWithoutAttr);
 
           // we already know this would fail the expectation
           if (
@@ -355,7 +355,7 @@ describe('Logging and Telemetry integration', function () {
           if (typeof expectedAttr === 'function') {
             expectedAttr.call(null, actualAttr);
           } else {
-            expect(expectedAttr).to.deep.equal(actualAttr);
+            expect(actualAttr).to.deep.equal(expectedAttr);
           }
         });
       });

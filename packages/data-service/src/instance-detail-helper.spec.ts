@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import type { ConnectionOptions } from './connection-options';
 import type { InstanceDetails } from './instance-detail-helper';
 import {
   configuredKMSProviders,
@@ -12,20 +11,20 @@ import {
 
 import * as fixtures from '../test/fixtures';
 import { createMongoClientMock } from '../test/helpers';
-
-const connectionOptions: ConnectionOptions = {
-  connectionString: 'mongodb://localhost:27021/data-service',
-};
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
+import type { MongoCluster } from '@mongodb-js/compass-test-server';
 
 describe('instance-detail-helper', function () {
+  const cluster = mochaTestServer();
+
   describe('#getInstance', function () {
     context('with local', function () {
+      let mongoCluster: MongoCluster;
       let mongoClient: MongoClient;
 
       before(async function () {
-        mongoClient = await MongoClient.connect(
-          connectionOptions.connectionString
-        );
+        mongoCluster = cluster();
+        mongoClient = await MongoClient.connect(mongoCluster.connectionString);
       });
 
       after(async function () {
@@ -39,10 +38,13 @@ describe('instance-detail-helper', function () {
       });
 
       describe('instance details', function () {
-        let instanceDetails: InstanceDetails;
+        let instanceDetails: Omit<InstanceDetails, 'csfleMode'>;
 
         before(async function () {
-          instanceDetails = await getInstance(mongoClient);
+          instanceDetails = await getInstance(
+            mongoClient,
+            mongoCluster.connectionString
+          );
         });
 
         it('should have auth info', function () {
@@ -109,10 +111,10 @@ describe('instance-detail-helper', function () {
     context('with mocked client', function () {
       context('when errors returned from commands', function () {
         it('should throw if buildInfo was not available', async function () {
-          const client = createMongoClientMock();
+          const { client, connectionString } = createMongoClientMock();
 
           try {
-            await getInstance(client);
+            await getInstance(client, connectionString);
           } catch (e) {
             expect(e).to.be.instanceof(Error);
             return;
@@ -122,19 +124,19 @@ describe('instance-detail-helper', function () {
         });
 
         it('should handle auth errors gracefully on any command except buildInfo', async function () {
-          const client = createMongoClientMock({
+          const { client, connectionString } = createMongoClientMock({
             commands: {
               buildInfo: {},
             },
           });
 
-          await getInstance(client);
+          await getInstance(client, connectionString);
         });
 
         it(`should throw if server returned an unexpected error on hostInfo command`, async function () {
           const randomError = new Error('Whoops');
 
-          const client = createMongoClientMock({
+          const { client, connectionString } = createMongoClientMock({
             commands: {
               buildInfo: {},
               hostInfo: randomError,
@@ -142,7 +144,7 @@ describe('instance-detail-helper', function () {
           });
 
           try {
-            await getInstance(client);
+            await getInstance(client, connectionString);
           } catch (e) {
             expect(e).to.eq(randomError);
             return;
@@ -154,25 +156,25 @@ describe('instance-detail-helper', function () {
         it('should ignore all errors returned from getParameter command', async function () {
           const randomError = new Error('Whoops');
 
-          const client = createMongoClientMock({
+          const { client, connectionString } = createMongoClientMock({
             commands: {
               buildInfo: {},
               getParameter: randomError,
             },
           });
 
-          await getInstance(client);
+          await getInstance(client, connectionString);
         });
       });
 
       it('should parse build info', async function () {
-        const client = createMongoClientMock({
+        const { client, connectionString } = createMongoClientMock({
           commands: {
             buildInfo: fixtures.BUILD_INFO_4_2,
           },
         });
 
-        const instanceDetails = await getInstance(client);
+        const instanceDetails = await getInstance(client, connectionString);
 
         expect(instanceDetails).to.have.nested.property(
           'build.version',
@@ -185,13 +187,13 @@ describe('instance-detail-helper', function () {
       });
 
       it('should detect data lake', async function () {
-        const client = createMongoClientMock({
+        const { client, connectionString } = createMongoClientMock({
           commands: {
             buildInfo: fixtures.BUILD_INFO_DATA_LAKE,
           },
         });
 
-        const instanceDetails = await getInstance(client);
+        const instanceDetails = await getInstance(client, connectionString);
 
         expect(instanceDetails).to.have.nested.property(
           'dataLake.isDataLake',
@@ -200,13 +202,13 @@ describe('instance-detail-helper', function () {
       });
 
       it('should detect if using genuine mongodb instance', async function () {
-        const client = createMongoClientMock({
+        const { client, connectionString } = createMongoClientMock({
           commands: {
             buildInfo: fixtures.BUILD_INFO_4_2,
           },
         });
 
-        const instanceDetails = await getInstance(client);
+        const instanceDetails = await getInstance(client, connectionString);
 
         expect(instanceDetails).to.have.nested.property(
           'genuineMongoDB.isGenuine',
@@ -215,14 +217,23 @@ describe('instance-detail-helper', function () {
       });
 
       it('should detect cosmosdb', async function () {
-        const client = createMongoClientMock({
+        const { client, connectionString } = createMongoClientMock({
+          hosts: [
+            {
+              host: 'compass-vcore.mongocluster.cosmos.azure.com',
+              port: 27017,
+            },
+          ],
+          // Note: buildInfo and cmdLineOpts are not required to detect fake
+          // mongodb deployment Here we are simply stubbing the calls for these
+          // commands
           commands: {
-            buildInfo: fixtures.COSMOSDB_BUILD_INFO,
+            buildInfo: {},
             getCmdLineOpts: fixtures.CMD_LINE_OPTS,
           },
         });
 
-        const instanceDetails = await getInstance(client);
+        const instanceDetails = await getInstance(client, connectionString);
 
         expect(instanceDetails).to.have.nested.property(
           'genuineMongoDB.isGenuine',
@@ -236,14 +247,23 @@ describe('instance-detail-helper', function () {
       });
 
       it('should detect documentdb', async function () {
-        const client = createMongoClientMock({
+        const { client, connectionString } = createMongoClientMock({
+          hosts: [
+            {
+              host: 'elastic-docdb-123456789.eu-central-1.docdb-elastic.amazonaws.com',
+              port: 27017,
+            },
+          ],
+          // Note: buildInfo and cmdLineOpts are not required to detect fake
+          // mongodb deployment Here we are simply stubbing the calls for these
+          // commands
           commands: {
             buildInfo: {},
-            getCmdLineOpts: fixtures.DOCUMENTDB_CMD_LINE_OPTS,
+            getCmdLineOpts: fixtures.CMD_LINE_OPTS,
           },
         });
 
-        const instanceDetails = await getInstance(client);
+        const instanceDetails = await getInstance(client, connectionString);
 
         expect(instanceDetails).to.have.nested.property(
           'genuineMongoDB.isGenuine',
@@ -258,7 +278,7 @@ describe('instance-detail-helper', function () {
       it(`should be identified as atlas with hostname correct hostnames`, function () {
         ['myserver.mongodb.net', 'myserver.mongodb-dev.net'].map(
           async (hostname) => {
-            const client = createMongoClientMock({
+            const { client, connectionString } = createMongoClientMock({
               hosts: [{ host: hostname, port: 9999 }],
               commands: {
                 buildInfo: {},
@@ -266,7 +286,7 @@ describe('instance-detail-helper', function () {
               },
             });
 
-            const instanceDetails = await getInstance(client);
+            const instanceDetails = await getInstance(client, connectionString);
 
             expect(instanceDetails).to.have.property('isAtlas', true);
           }
@@ -274,7 +294,7 @@ describe('instance-detail-helper', function () {
       });
 
       it(`should be identified as atlas when atlasVersion command is present`, async function () {
-        const client = createMongoClientMock({
+        const { client, connectionString } = createMongoClientMock({
           hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
           commands: {
             atlasVersion: { atlasVersion: '1.1.1', gitVersion: '1.2.3' },
@@ -283,13 +303,13 @@ describe('instance-detail-helper', function () {
           },
         });
 
-        const instanceDetails = await getInstance(client);
+        const instanceDetails = await getInstance(client, connectionString);
 
         expect(instanceDetails).to.have.property('isAtlas', true);
       });
 
       it(`should not be identified as atlas when atlasVersion command is missing`, async function () {
-        const client = createMongoClientMock({
+        const { client, connectionString } = createMongoClientMock({
           hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
           commands: {
             atlasVersion: new Error('command not found'),
@@ -298,7 +318,7 @@ describe('instance-detail-helper', function () {
           },
         });
 
-        const instanceDetails = await getInstance(client);
+        const instanceDetails = await getInstance(client, connectionString);
 
         expect(instanceDetails).to.have.property('isAtlas', false);
       });

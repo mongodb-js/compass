@@ -5,8 +5,9 @@ import yaml from 'js-yaml';
 import type { Options as YargsOptions } from 'yargs-parser';
 import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
-import type { AmpersandType, AllPreferences } from './preferences';
+import type { AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
+import type { Types as JoiTypes } from 'joi';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
@@ -91,11 +92,11 @@ async function loadGlobalPreferences(
 const cliProps = Object.entries(allPreferencesProps).filter(
   ([, definition]) => definition.cli
 );
-function getCliPropNamesByType(type: AmpersandType<any>): string[] {
+function getCliPropNamesByType(type: JoiTypes): string[] {
   return [
     ...new Set(
       cliProps
-        .filter(([, definition]) => definition.type === type)
+        .filter(([, definition]) => definition.validator.type === type)
         .flatMap(([key]) => [key, kebabCase(key)])
     ),
   ];
@@ -170,30 +171,15 @@ function validatePreferences(
     // as an option value, e.g. an object into an array of key-value pairs
     const process = allPreferencesProps[key].customPostProcess;
     const value = process ? process(rawValue, error) : rawValue;
-    // `typeof` + `isArray` is good enough for everything we need right now, but we can of course expand this check over time
-    if (
-      (Array.isArray(value) ? 'array' : typeof value) !==
-      allPreferencesProps[key].type
-    ) {
-      error(
-        `Type for option "${key}" mismatches: expected ${
-          allPreferencesProps[key].type
-        }, received ${typeof value}`
-      );
+
+    const validationResults =
+      allPreferencesProps[key].validator.validate(value);
+    if (validationResults.error) {
+      error(`${key}: ${validationResults.error.message}`);
       continue;
     }
-    if (
-      allPreferencesProps[key].values &&
-      !(allPreferencesProps[key].values as unknown[])?.includes(value)
-    ) {
-      error(
-        `Value for option "${key}" is not allowed: expected one of [${String(
-          allPreferencesProps[key].values?.join(', ')
-        )}], received ${String(value)}`
-      );
-      continue;
-    }
-    obj[key] = value as any;
+
+    obj[key] = validationResults.value as any;
   }
   return [obj, errors];
 }

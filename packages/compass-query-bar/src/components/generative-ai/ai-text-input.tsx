@@ -8,15 +8,20 @@ import {
   TextInput,
   css,
   cx,
+  focusRing,
   palette,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
-import { RobotSVG } from './robot-svg';
+import { DEFAULT_ROBOT_SIZE, RobotSVG } from './robot-svg';
 import type { RootState } from '../../stores/query-bar-store';
-import { cancelAIQuery, runAIQuery } from '../../stores/ai-query-reducer';
+import {
+  cancelAIQuery,
+  changeAIPromptText,
+  runAIQuery,
+} from '../../stores/ai-query-reducer';
 
 const containerStyles = css({
   display: 'flex',
@@ -95,6 +100,30 @@ const buttonHighlightLightModeStyles = css({
   color: palette.gray.dark1,
 });
 
+const loaderContainerStyles = css({
+  padding: spacing[1],
+  display: 'inline-flex',
+  width: DEFAULT_ROBOT_SIZE + spacing[2],
+  justifyContent: 'space-around',
+});
+
+const buttonResetStyles = css({
+  margin: 0,
+  padding: 0,
+  border: 'none',
+  background: 'none',
+  cursor: 'pointer',
+});
+
+const closeAIButtonStyles = css(
+  buttonResetStyles,
+  {
+    padding: spacing[1],
+    display: 'inline-flex',
+  },
+  focusRing
+);
+
 const closeText = 'Close AI Query';
 
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
@@ -122,25 +151,28 @@ const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
 );
 
 type AITextInputProps = {
+  aiPromptText: string;
   onCancelAIQuery: () => void;
   isFetching?: boolean;
   didSucceed: boolean;
   errorMessage?: string;
   show: boolean;
+  onChangeAIPromptText: (text: string) => void;
   onClose: () => void;
   onSubmitText: (text: string) => void;
 };
 
 function AITextInput({
+  aiPromptText,
   onCancelAIQuery,
   isFetching,
   didSucceed,
   errorMessage,
   show,
   onClose,
+  onChangeAIPromptText,
   onSubmitText,
 }: AITextInputProps) {
-  const [text, setText] = useState('');
   const promptTextInputRef = useRef<HTMLInputElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const darkMode = useDarkMode();
@@ -149,12 +181,12 @@ function AITextInput({
     (evt: React.KeyboardEvent<HTMLInputElement>) => {
       if (evt.key === 'Enter') {
         evt.preventDefault();
-        onSubmitText(text);
+        onSubmitText(aiPromptText);
       } else if (evt.key === 'Escape') {
         isFetching ? onCancelAIQuery() : onClose();
       }
     },
-    [text, onClose, onSubmitText, isFetching, onCancelAIQuery]
+    [aiPromptText, onClose, onSubmitText, isFetching, onCancelAIQuery]
   );
 
   useEffect(() => {
@@ -196,23 +228,21 @@ function AITextInput({
           sizeVariant="small"
           aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
           placeholder="Tell Compass what documents to find (e.g. how many users signed up last month)"
-          value={text}
+          value={aiPromptText}
           onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-            setText(evt.currentTarget.value)
+            onChangeAIPromptText(evt.currentTarget.value)
           }
           onKeyDown={onTextInputKeyDown}
         />
         <div className={floatingButtonsContainerStyles}>
-          {isFetching && <SpinLoader />}
-          {showSuccess && (
-            <Icon
-              className={
-                darkMode
-                  ? successIndicatorDarkModeStyles
-                  : successIndicatorLightModeStyles
-              }
-              glyph="CheckmarkWithCircle"
-            />
+          {aiPromptText && (
+            <IconButton
+              aria-label="Clear query prompt"
+              onClick={() => onChangeAIPromptText('')}
+              data-testid="ai-text-clear-prompt"
+            >
+              <Icon glyph="X" />
+            </IconButton>
           )}
           <Button
             size="small"
@@ -221,7 +251,7 @@ function AITextInput({
               !darkMode && generateButtonLightModeStyles
             )}
             onClick={() =>
-              isFetching ? onCancelAIQuery() : onSubmitText(text)
+              isFetching ? onCancelAIQuery() : onSubmitText(aiPromptText)
             }
           >
             {isFetching ? (
@@ -245,13 +275,32 @@ function AITextInput({
               </>
             )}
           </Button>
-          <IconButton
-            aria-label={closeText}
-            title={closeText}
-            onClick={() => onClose()}
-          >
-            <RobotSVG />
-          </IconButton>
+          {isFetching ? (
+            <div className={loaderContainerStyles}>
+              <SpinLoader />
+            </div>
+          ) : showSuccess ? (
+            <div className={loaderContainerStyles}>
+              <Icon
+                className={
+                  darkMode
+                    ? successIndicatorDarkModeStyles
+                    : successIndicatorLightModeStyles
+                }
+                glyph="CheckmarkWithCircle"
+              />
+            </div>
+          ) : (
+            <button
+              className={closeAIButtonStyles}
+              data-testid="close-ai-query-button"
+              aria-label={closeText}
+              title={closeText}
+              onClick={() => onClose()}
+            >
+              {isFetching ? <SpinLoader /> : <RobotSVG />}
+            </button>
+          )}
         </div>
       </div>
       {errorMessage && (
@@ -266,12 +315,14 @@ function AITextInput({
 const ConnectedAITextInput = connect(
   (state: RootState) => {
     return {
+      aiPromptText: state.aiQuery.aiPromptText,
       isFetching: state.aiQuery.status === 'fetching',
       didSucceed: state.aiQuery.status === 'success',
       errorMessage: state.aiQuery.errorMessage,
     };
   },
   {
+    onChangeAIPromptText: changeAIPromptText,
     onCancelAIQuery: cancelAIQuery,
     onSubmitText: runAIQuery,
   }

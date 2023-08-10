@@ -123,6 +123,7 @@ type SignalPopoverProps = {
   signals: Signal | Signal[];
   darkMode?: boolean;
   onPopoverOpenChange?: (open: boolean) => void;
+  className?: string;
 };
 
 const signalCardContentStyles = css({
@@ -439,6 +440,7 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
   signals: _signals,
   darkMode: _darkMode,
   onPopoverOpenChange: _onPopoverOpenChange,
+  className,
 }) => {
   const hooks = useContext(TrackingHooksContext);
   const darkMode = useDarkMode(_darkMode);
@@ -582,7 +584,8 @@ const SignalPopover: React.FunctionComponent<SignalPopoverProps> = ({
                       : [
                           badgeLightModeStyles,
                           isActive && badgeHoveredLightModeStyles,
-                        ])
+                        ]),
+                    className
                   ),
                   style: { width: isActive ? activeBadgeWidth : 18 },
                   ref: triggerRef,

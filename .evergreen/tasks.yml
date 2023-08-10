@@ -187,8 +187,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: '4.0.x'
-          mongodb_use_enterprise: 'yes'
+          mongodb_version: '4.0.x-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
@@ -228,8 +227,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: '4.2.x'
-          mongodb_use_enterprise: 'yes'
+          mongodb_version: '4.2.x-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
@@ -269,8 +267,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: '4.4.x'
-          mongodb_use_enterprise: 'yes'
+          mongodb_version: '4.4.x-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
@@ -310,8 +307,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: '5.x.x'
-          mongodb_use_enterprise: 'yes'
+          mongodb_version: '5.x.x-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
@@ -351,8 +347,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: '6.0.x'
-          mongodb_use_enterprise: 'yes'
+          mongodb_version: '6.0.x-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
@@ -372,7 +367,6 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars: 
-          mongodb_version: 'latest-alpha'
-          mongodb_use_enterprise: 'yes'
+          mongodb_version: 'latest-alpha-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'

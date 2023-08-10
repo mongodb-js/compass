@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable mocha/max-top-level-suites */
 import _ from 'lodash';
 import assert from 'assert';
@@ -25,6 +26,7 @@ import {
 } from './gather-fields';
 
 import allTypesDoc from '../../test/docs/all-bson-types';
+import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -33,12 +35,13 @@ chai.use(chaiAsPromised);
 const testNS = 'gather-fields-test.test-col';
 
 describe('gatherFields', function () {
+  const cluster = mochaTestServer();
   let dataService: DataService;
 
   beforeEach(async function () {
     dataService = await connect({
       connectionOptions: {
-        connectionString: 'mongodb://localhost:27019/local',
+        connectionString: cluster().connectionString,
       },
     });
 

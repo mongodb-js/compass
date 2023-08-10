@@ -1,17 +1,17 @@
-import storageMixin from 'storage-mixin';
-import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
-import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
-
+import {
+  SandboxPreferences,
+  StoragePreferences,
+  type BasePreferencesStorage,
+} from './storage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
+import Joi from 'joi';
+import { pick } from 'lodash';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Model = require('ampersand-model');
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
@@ -52,12 +52,11 @@ export type InternalUserPreferences = {
   showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
   lastKnownVersion: string;
-  currentUserId: string;
+  currentUserId?: string;
   telemetryAnonymousId: string;
 };
 
-// UserPreferences contains all preferences stored to disk in the
-// per-user preferences model (currently the Ampersand model).
+// UserPreferences contains all preferences stored to disk.
 export type UserPreferences = UserConfigurablePreferences &
   InternalUserPreferences;
 
@@ -87,46 +86,12 @@ type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<AllPreferences>
 ) => void;
 
-declare class PreferencesAmpersandModel {
-  fetch: () => void;
-  save: (
-    attributes?: AmpersandMethodOptions<void>,
-    options?: AmpersandMethodOptions<void>
-  ) => void;
-  getAttributes: (options?: {
-    props?: boolean;
-    derived?: boolean;
-  }) => UserPreferences;
-}
-
-export type AmpersandType<T> = T extends string
-  ? 'string'
-  : T extends boolean
-  ? 'boolean'
-  : T extends number
-  ? 'number'
-  : T extends any[]
-  ? 'array'
-  : T extends Date
-  ? 'date'
-  : T extends object
-  ? 'object'
-  : never;
-
 type PostProcessFunction<T> = (
   input: unknown,
   error: (message: string) => void
 ) => T;
 
 type PreferenceDefinition<K extends keyof AllPreferences> = {
-  /** The type of the preference value, in Ampersand naming */
-  type: AmpersandType<AllPreferences[K]>;
-  /** An optional default value for the preference */
-  default?: AllPreferences[K];
-  /** Whether the preference is required in the Ampersand model */
-  required: boolean;
-  /** An exhaustive list of possible values for this preference (also an Ampersand feature) */
-  values?: readonly AllPreferences[K][];
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
@@ -156,6 +121,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
       ? boolean
       : false
     : boolean;
+  validator: Joi.Schema<AllPreferences[K]>;
 };
 
 type DeriveValueFunction<T> = (
@@ -214,9 +180,6 @@ function featureFlagToPreferenceDefinition(
   featureFlag: FeatureFlagDefinition
 ): PreferenceDefinition<keyof FeatureFlags> {
   return {
-    type: 'boolean',
-    required: false,
-    default: false,
     cli: true,
     global: true,
     ui: true,
@@ -227,6 +190,7 @@ function featureFlagToPreferenceDefinition(
       featureFlag.stage === 'released'
         ? () => ({ value: true, state: 'hardcoded' })
         : undefined,
+    validator: Joi.boolean().default(false),
   };
 }
 
@@ -246,9 +210,6 @@ const allFeatureFlagsProps: Required<{
 }> = {
   /** Meta-feature-flag! Whether to show the dev flags of the feature flag settings modal */
   showDevFeatureFlags: {
-    type: 'boolean',
-    required: false,
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -256,6 +217,7 @@ const allFeatureFlagsProps: Required<{
     description: {
       short: 'Show Developer Feature Flags',
     },
+    validator: Joi.boolean().optional(),
   },
 
   /**
@@ -264,75 +226,66 @@ const allFeatureFlagsProps: Required<{
    * officially support the CSFLE schemaMap property.
    */
   enableDebugUseCsfleSchemaMap: {
-    type: 'boolean',
-    required: false,
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
     description: {
       short: 'CSFLE Schema Map Debugging',
     },
+    validator: Joi.boolean().optional(),
   },
 
   ...featureFlagsProps,
 };
 
-const modelPreferencesProps: Required<{
+const storedUserPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
   /**
    * String identifier for this set of preferences. Default is `General`.
    */
   id: {
-    type: 'string',
-    default: 'General',
-    required: true,
     ui: false,
     cli: false,
     global: false,
     description: null,
+    validator: Joi.string().default('General'),
   },
   /**
    * Stores the last version compass was run as, e.g. `1.0.5`.
    */
   lastKnownVersion: {
-    type: 'string',
-    required: false,
-    default: '0.0.0',
     ui: false,
     cli: false,
     global: false,
     description: null,
+    validator: Joi.string().default('0.0.0'),
   },
   /**
    * Stores whether or not the network opt-in screen has been shown to
    * the user already.
    */
   showedNetworkOptIn: {
-    type: 'boolean',
-    required: true,
-    default: false,
     ui: false,
     cli: true,
     global: false,
     description: null,
     omitFromHelp: true,
+    validator: Joi.boolean().default(false),
   },
   /**
    * Stores the theme preference for the user.
    */
   theme: {
-    type: 'string',
-    required: true,
-    default: 'LIGHT',
-    values: THEMES_VALUES,
     ui: true,
     cli: true,
     global: true,
     description: {
       short: 'Compass UI Theme',
     },
+    validator: Joi.string<THEMES>()
+      .valid(...THEMES_VALUES)
+      .default('LIGHT'),
   },
   /**
    * Stores a unique MongoDB ID for the current user.
@@ -341,24 +294,21 @@ const modelPreferencesProps: Required<{
    * The telemetryAnonymousId should be used instead.
    */
   currentUserId: {
-    type: 'string',
-    required: false,
     ui: false,
     cli: false,
     global: false,
     description: null,
+    validator: Joi.string().optional(),
   },
   /**
    * Stores a unique telemetry anonymous ID (uuid) for the current user.
    */
   telemetryAnonymousId: {
-    type: 'string',
-    required: true,
-    default: '',
     ui: false,
     cli: false,
     global: false,
     description: null,
+    validator: Joi.string().uuid(),
   },
   /**
    * Master switch to disable all network traffic
@@ -367,23 +317,18 @@ const modelPreferencesProps: Required<{
    * (which includes maps, telemetry, auto-updates).
    */
   networkTraffic: {
-    type: 'boolean',
-    required: true,
-    default: true,
     ui: true,
     cli: true,
     global: true,
     description: {
       short: 'Enable network traffic other than to the MongoDB database',
     },
+    validator: Joi.boolean().default(true),
   },
   /**
    * Removes features that write to the database from the UI.
    */
   readOnly: {
-    type: 'boolean',
-    required: true,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -391,14 +336,12 @@ const modelPreferencesProps: Required<{
       short: 'Set Read-Only Mode',
       long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
     },
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable/disable the embedded shell.
    */
   enableShell: {
-    type: 'boolean',
-    required: true,
-    default: true,
     ui: true,
     cli: true,
     global: true,
@@ -407,14 +350,12 @@ const modelPreferencesProps: Required<{
       long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
+    validator: Joi.boolean().default(true),
   },
   /**
    * Switch to enable/disable maps rendering.
    */
   enableMaps: {
-    type: 'boolean',
-    required: true,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -423,14 +364,12 @@ const modelPreferencesProps: Required<{
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
    */
   enableFeedbackPanel: {
-    type: 'boolean',
-    required: true,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -439,15 +378,13 @@ const modelPreferencesProps: Required<{
       long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableFeedbackPanel'),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable/disable usage statistics collection
    * (renamed from `googleAnalytics`).
    */
   trackUsageStatistics: {
-    type: 'boolean',
-    required: true,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -456,14 +393,12 @@ const modelPreferencesProps: Required<{
       long: 'Allow Compass to send anonymous usage statistics.',
     },
     deriveValue: deriveNetworkTrafficOptionState('trackUsageStatistics'),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable/disable automatic updates.
    */
   autoUpdates: {
-    type: 'boolean',
-    required: true,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -472,14 +407,12 @@ const modelPreferencesProps: Required<{
       long: 'Allow Compass to periodically check for new updates.',
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to hide credentials in connection strings from users.
    */
   protectConnectionStrings: {
-    type: 'boolean',
-    required: false,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -487,14 +420,12 @@ const modelPreferencesProps: Required<{
       short: 'Protect Connection String Secrets',
       long: 'Hide credentials in connection strings from users.',
     },
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to enable DevTools in Electron.
    */
   enableDevTools: {
-    type: 'boolean',
-    required: false,
-    default: process.env.APP_ENV === 'webdriverio',
     ui: true,
     cli: true,
     global: true,
@@ -503,14 +434,12 @@ const modelPreferencesProps: Required<{
       long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
     },
     deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
+    validator: Joi.boolean().default(process.env.APP_ENV === 'webdriverio'),
   },
   /**
    * Switch to show the Kerberos password field in the connection form.
    */
   showKerberosPasswordField: {
-    type: 'boolean',
-    required: false,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -518,14 +447,12 @@ const modelPreferencesProps: Required<{
       short: 'Show Kerberos Password Field',
       long: 'Show a password field for Kerberos authentication. Typically only useful when attempting to authenticate as another user than the current system user.',
     },
+    validator: Joi.boolean().default(false),
   },
   /**
    * Switch to show the OIDC device auth flow option in the connection form.
    */
   showOIDCDeviceAuthFlow: {
-    type: 'boolean',
-    required: false,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -533,14 +460,12 @@ const modelPreferencesProps: Required<{
       short: 'Show Device Auth Flow Checkbox',
       long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
     },
+    validator: Joi.boolean().default(false),
   },
   /**
    * Input to change the browser command used for OIDC authentication.
    */
   browserCommandForOIDCAuth: {
-    type: 'string',
-    required: false,
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -548,14 +473,12 @@ const modelPreferencesProps: Required<{
       short: 'Browser command to use for OIDC Authentication',
       long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default browser.',
     },
+    validator: Joi.string().optional(),
   },
   /**
    * Input to change the browser command used for OIDC authentication.
    */
   persistOIDCTokens: {
-    type: 'boolean',
-    required: false,
-    default: true,
     ui: true,
     cli: true,
     global: true,
@@ -563,14 +486,12 @@ const modelPreferencesProps: Required<{
       short: 'Stay logged in with OIDC',
       long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism. Access tokens are encrypted using the system keychain before being stored.',
     },
+    validator: Joi.boolean().default(true),
   },
   /**
    * Override certain connection string properties.
    */
   forceConnectionOptions: {
-    type: 'array',
-    required: false,
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
@@ -579,28 +500,26 @@ const modelPreferencesProps: Required<{
       long: 'Force connection string properties to take specific values',
     },
     customPostProcess: parseRecord,
+    validator: Joi.array()
+      .items(Joi.array().length(2).items(Joi.string()))
+      .optional(),
   },
   /**
    * Set an upper limit for maxTimeMS for operations started by Compass.
    */
   maxTimeMS: {
-    type: 'number',
-    required: false,
-    default: undefined,
     ui: true,
     cli: true,
     global: true,
     description: {
       short: 'Upper Limit for maxTimeMS for Compass Database Operations',
     },
+    validator: Joi.number().optional(),
   },
   /**
    * Do not handle mongodb:// and mongodb+srv:// URLs via Compass
    */
   installURLHandlers: {
-    type: 'boolean',
-    required: true,
-    default: true,
     ui: true,
     cli: true,
     global: true,
@@ -608,15 +527,13 @@ const modelPreferencesProps: Required<{
       short: 'Install Compass as URL Protocol Handler',
       long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
     },
+    validator: Joi.boolean().default(true),
   },
   /**
    * Determines if the toggle to edit connection string for new connections
    * should be in the off state or in the on state by default
    */
   protectConnectionStringsForNewConnections: {
-    type: 'boolean',
-    required: false,
-    default: false,
     ui: true,
     cli: true,
     global: true,
@@ -624,6 +541,7 @@ const modelPreferencesProps: Required<{
       short:
         'If true, "Edit connection string" is disabled for new connections by default',
     },
+    validator: Joi.boolean().default(false),
   },
   ...allFeatureFlagsProps,
 };
@@ -632,8 +550,6 @@ const cliOnlyPreferencesProps: Required<{
   [K in keyof CliOnlyPreferences]: PreferenceDefinition<K>;
 }> = {
   exportConnections: {
-    type: 'string',
-    required: false,
     ui: false,
     cli: true,
     global: false,
@@ -641,10 +557,9 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Export Favorite Connections',
       long: 'Export Compass favorite connections. Can be used with --passphrase.',
     },
+    validator: Joi.string().optional(),
   },
   importConnections: {
-    type: 'string',
-    required: false,
     ui: false,
     cli: true,
     global: false,
@@ -652,10 +567,9 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Import Favorite Connections',
       long: 'Import Compass favorite connections. Can be used with --passphrase.',
     },
+    validator: Joi.string().optional(),
   },
   passphrase: {
-    type: 'string',
-    required: false,
     ui: false,
     cli: true,
     global: false,
@@ -663,36 +577,34 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Connection Export/Import Passphrase',
       long: 'Specify a passphrase for encrypting/decrypting secrets.',
     },
+    validator: Joi.string().optional(),
   },
   help: {
-    type: 'boolean',
-    required: false,
     ui: false,
     cli: true,
     global: false,
     description: {
       short: 'Show Compass Options',
     },
+    validator: Joi.boolean().optional(),
   },
   version: {
-    type: 'boolean',
-    required: false,
     ui: false,
     cli: true,
     global: false,
     description: {
       short: 'Show Compass Version',
     },
+    validator: Joi.boolean().optional(),
   },
   showExampleConfig: {
-    type: 'boolean',
-    required: false,
     ui: false,
     cli: true,
     global: false,
     description: {
       short: 'Show Example Config File',
     },
+    validator: Joi.boolean().optional(),
   },
 };
 
@@ -700,9 +612,6 @@ const nonUserPreferences: Required<{
   [K in keyof NonUserPreferences]: PreferenceDefinition<K>;
 }> = {
   ignoreAdditionalCommandLineFlags: {
-    type: 'boolean',
-    required: false,
-    default: false,
     ui: false,
     cli: true,
     global: true,
@@ -710,10 +619,9 @@ const nonUserPreferences: Required<{
       short: 'Allow Additional CLI Flags',
       long: 'Allow specifying command-line flags that Compass does not understand, e.g. Electron or Chromium flags',
     },
+    validator: Joi.boolean().default(false),
   },
   positionalArguments: {
-    type: 'array',
-    required: false,
     ui: false,
     cli: true,
     global: false,
@@ -722,43 +630,41 @@ const nonUserPreferences: Required<{
         'Specify a Connection String or Connection ID to Automatically Connect',
     },
     omitFromHelp: true,
+    validator: Joi.array().items(Joi.string()).optional(),
   },
   file: {
-    type: 'string',
-    required: false,
     ui: false,
     cli: true,
     global: true,
     description: {
       short: 'Specify a List of Connections for Automatically Connecting',
     },
+    validator: Joi.string().optional(),
   },
   username: {
-    type: 'string',
-    required: false,
     ui: false,
     cli: true,
     global: true,
     description: {
       short: 'Specify a Username for Automatically Connecting',
     },
+    validator: Joi.string().optional(),
   },
   password: {
-    type: 'string',
-    required: false,
     ui: false,
     cli: true,
     global: true,
     description: {
       short: 'Specify a Password for Automatically Connecting',
     },
+    validator: Joi.string().optional(),
   },
 };
 
 export const allPreferencesProps: Required<{
   [K in keyof AllPreferences]: PreferenceDefinition<K>;
 }> = {
-  ...modelPreferencesProps,
+  ...storedUserPreferencesProps,
   ...cliOnlyPreferencesProps,
   ...nonUserPreferences,
 };
@@ -767,11 +673,14 @@ export function getSettingDescription<
   Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
 >(
   name: Name
-): Pick<PreferenceDefinition<Name>, 'description' | 'type' | 'required'> {
-  const { description, type, required } = allPreferencesProps[
+): Pick<PreferenceDefinition<Name>, 'description'> & { type: unknown } {
+  const { description, validator } = allPreferencesProps[
     name
   ] as PreferenceDefinition<Name>;
-  return { description, type, required };
+  return {
+    description,
+    type: validator.type,
+  };
 }
 
 /* Identifies a source from which the preference was set */
@@ -795,7 +704,7 @@ type PreferenceSandboxPropertiesImpl = {
 
 export class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
-  private _userPreferencesModel: PreferencesAmpersandModel;
+  private _preferencesStorage: BasePreferencesStorage;
   private _globalPreferences: {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
@@ -807,28 +716,21 @@ export class Preferences {
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
     isSandbox?: boolean
   ) {
-    const ampersandModelDefinition = {
-      props: modelPreferencesProps,
-      extraProperties: 'ignore',
-      idAttribute: 'id',
-    };
-    // User preferences are stored to disk via the Ampersand model,
-    // or not stored externally at all if that was requested.
-    const PreferencesModel = Model.extend(storageMixin, {
-      ...ampersandModelDefinition,
-      namespace: 'AppPreferences',
-      storage: isSandbox
-        ? {
-            backend: 'null',
-          }
-        : {
-            backend: 'disk',
-            basepath,
-          },
-    });
+    const defaultPreferences = Object.fromEntries(
+      Object.entries(storedUserPreferencesProps)
+        .map(([key, value]) => [
+          key,
+          value.validator.validate(undefined)?.value,
+        ])
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .filter(([key, value]) => value !== undefined)
+    ) as UserPreferences;
+
+    this._preferencesStorage = isSandbox
+      ? new SandboxPreferences(defaultPreferences)
+      : new StoragePreferences(defaultPreferences, basepath);
 
     this._onPreferencesChangedCallbacks = [];
-    this._userPreferencesModel = new PreferencesModel();
     this._globalPreferences = {
       cli: {},
       global: {},
@@ -846,10 +748,14 @@ export class Preferences {
     }
   }
 
+  setupStorage() {
+    return this._preferencesStorage.setup();
+  }
+
   // Returns a value that can be passed to Preferences.CreateSandbox()
-  getPreferenceSandboxProperties(): Promise<PreferenceSandboxProperties> {
+  async getPreferenceSandboxProperties(): Promise<PreferenceSandboxProperties> {
     const value: PreferenceSandboxPropertiesImpl = {
-      user: this._getUserPreferenceModelValues(),
+      user: this._getUserPreferenceValues(),
       global: this._globalPreferences,
     };
     return Promise.resolve(JSON.stringify(value));
@@ -868,40 +774,6 @@ export class Preferences {
   }
 
   /**
-   * Load preferences from the user preference storage.
-   * The return value also accounts for preferences set from other sources.
-   *
-   * @returns The currently active set of preferences.
-   */
-  async fetchPreferences(): Promise<AllPreferences> {
-    const originalPreferences = this.getPreferences();
-    const userPreferencesModel = this._userPreferencesModel;
-
-    // Fetch user preferences from the Ampersand model.
-    const fetchUserPreferences = promisifyAmpersandMethod(
-      userPreferencesModel.fetch.bind(userPreferencesModel)
-    );
-
-    try {
-      await fetchUserPreferences();
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_156),
-        'preferences',
-        'Failed to load preferences, error while fetching models',
-        {
-          error: (err as Error).message,
-        }
-      );
-    }
-
-    const newPreferences = this.getPreferences();
-    this._afterPreferencesUpdate(originalPreferences, newPreferences);
-
-    return newPreferences;
-  }
-
-  /**
    * Change preferences in the user's preference storage.
    * This method validates that the preference is one that is stored in the
    * underlying storage model. It does *not* validate that the preference
@@ -917,12 +789,12 @@ export class Preferences {
     attributes: Partial<UserPreferences> = {}
   ): Promise<AllPreferences> {
     const keys = Object.keys(attributes) as (keyof UserPreferences)[];
-    const originalPreferences = await this.fetchPreferences();
+    const originalPreferences = this.getPreferences();
     if (keys.length === 0) {
       return originalPreferences;
     }
 
-    const invalidKey = keys.find((key) => !modelPreferencesProps[key]);
+    const invalidKey = keys.find((key) => !storedUserPreferencesProps[key]);
     if (invalidKey !== undefined) {
       // Guard against accidentally saving non-model settings here.
       throw new Error(
@@ -930,17 +802,17 @@ export class Preferences {
       );
     }
 
-    const userPreferencesModel = this._userPreferencesModel;
-
-    // Save user preferences to the Ampersand model.
-    const saveUserPreferences: (
-      attributes: Partial<UserPreferences>
-    ) => Promise<void> = promisifyAmpersandMethod(
-      userPreferencesModel.save.bind(userPreferencesModel)
-    );
+    for (const key of keys) {
+      const { error } = storedUserPreferencesProps[key].validator.validate(
+        attributes[key]
+      );
+      if (error) {
+        throw error;
+      }
+    }
 
     try {
-      await saveUserPreferences(attributes);
+      await this._preferencesStorage.updatePreferences(attributes);
     } catch (err) {
       log.error(
         mongoLogId(1_001_000_157),
@@ -982,16 +854,18 @@ export class Preferences {
     return this._computePreferenceValuesAndStates().values;
   }
 
-  private _getUserPreferenceModelValues(): UserPreferences {
-    return this._userPreferencesModel.getAttributes({
-      props: true,
-      derived: true,
-    });
+  private _getUserPreferenceValues(): UserPreferences {
+    const storePreferences = this._preferencesStorage.getPreferences();
+    // Exclude old and renamed preferences or any unknown property
+    return pick(
+      storePreferences,
+      Object.keys(storedUserPreferencesProps)
+    ) as UserPreferences;
   }
 
   private _getStoredValues(): AllPreferences {
     return {
-      ...this._getUserPreferenceModelValues(),
+      ...this._getUserPreferenceValues(),
       ...this._globalPreferences.cli,
       ...this._globalPreferences.global,
       ...this._globalPreferences.hardcoded,
@@ -1054,7 +928,7 @@ export class Preferences {
    */
   async ensureDefaultConfigurableUserPreferences(): Promise<void> {
     // Set the defaults and also update showedNetworkOptIn flag.
-    const { showedNetworkOptIn } = await this.fetchPreferences();
+    const { showedNetworkOptIn } = this.getPreferences();
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
@@ -1072,8 +946,8 @@ export class Preferences {
    *
    * @returns The currently active set of UI-modifiable preferences.
    */
-  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
-    const preferences = await this.fetchPreferences();
+  getConfigurableUserPreferences(): UserConfigurablePreferences {
+    const preferences = this.getPreferences();
     return Object.fromEntries(
       Object.entries(preferences).filter(
         ([key]) =>
