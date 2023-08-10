@@ -1,3 +1,6 @@
+import path from 'path';
+import { app } from 'electron';
+
 /**
  * All these variables below are used by Compass and its plugins in one way or
  * another. These process.env vars are inlined in the code durng the build
@@ -27,3 +30,38 @@ const env = Object.fromEntries(
 );
 
 Object.assign(process.env, env);
+
+if (
+  // type `browser` indicates that we are in the main electron process
+  process.type === 'browser'
+) {
+  // Name and version are setup outside of Application and before anything else
+  // so that if uncaught exception happens we already show correct name and
+  // version
+  app.setName(process.env.HADRON_PRODUCT_NAME);
+
+  // For webdriverio env we are changing appName so that keychain records do not
+  // overlap with anything else. Only appName should be changed for the
+  // webdriverio environment that is running tests, all relevant paths are
+  // configured from the test runner.
+  if (process.env.APP_ENV === 'webdriverio') {
+    app.setName(`${app.getName()} Webdriverio`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error setVersion is not a public method
+  app.setVersion(process.env.HADRON_APP_VERSION);
+
+  // When NODE_ENV is dev, we are probably running the app unpackaged directly
+  // with Electron binary which causes user dirs to be just `Electron` instead
+  // of app name that we want here
+  if (process.env.NODE_ENV === 'development') {
+    app.setPath('userData', path.join(app.getPath('appData'), app.getName()));
+
+    // @ts-expect-error this seems to work but not exposed as public path and so
+    // is not available in d.ts files. As this is a dev-only path change and
+    // seemingly nothing is using this path anyway, we probably can ignore an
+    // error here
+    app.setPath('userCache', path.join(app.getPath('cache'), app.getName()));
+  }
+}
