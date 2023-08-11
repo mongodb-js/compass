@@ -1,4 +1,4 @@
-import { shell } from 'electron';
+import { ipcMain, shell } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { EventEmitter, once } from 'events';
 import keytar from 'keytar';
@@ -84,7 +84,7 @@ type AtlasServiceAuthState =
   // Token expired (and being refreshed at the moment)
   | 'expired'
   // Encountered an error while requesting token (either on sign in or refresh)
-  | 'error';
+  | 'unauthenticated';
 
 type SecretStore = {
   getItem(key: string): Promise<string | undefined>;
@@ -131,6 +131,47 @@ export class AtlasService {
 
   private static initPromise: Promise<void> | null = null;
 
+  /**
+   * oidc-plugin logger event flow for plugin creation and token request / refresh:
+   *
+   *        createPlugin
+   *             ↓
+   * serialized state provided? → no → no event
+   *             ↓
+   *            yes → failed to deserialize? → no → no event
+   *                             ↓
+   *                           yes → `plugin:deserialization-failed`
+   *
+   *
+   *
+   *              requestToken
+   *                   ↓
+   *             token expired?
+   *                   │
+   *              no ←─┴─→ yes ─→ trying refresh
+   *              │                ↓
+   *              │       `plugin:refresh-started`
+   *              │                ↓
+   *              │               got token from issuer? → no ─┐
+   *              │                ↓                           │
+   *              │               yes                          │
+   *              │                ↓                           │
+   *              │       `plugin:refresh-succeeded`           │
+   *              │                ↓                           │
+   *              │               start state update           │
+   *              │                ↓                           │
+   *              │               state update failed → yes ───┴→ `plugin:refresh-failed`     ┌────────────────────────────────────────────┐
+   *              │                ↓                                         ↓                │ `plugin:auth-attempt-started`              │
+   *              │               no                            for flow in getAllowedFlows → │        ↓                                   │
+   *              ↓                ↓                                                          │ is attempt successfull? → no               │
+   * `plugin:skip-auth-attempt` ← `plugin:state-updated`                                      │        ↓                  ↓                │
+   *              ↓                                                                           │       yes     `plugin:auth-attempt-failed` │
+   *    `plugin:auth-succeeded` ←─────── yes ←──────── do we have a new token set in state? ← │        ↓                                   │
+   *                                                                 ↓                        │ `plugin:auth-attempt-succeeded`            │
+   *                                                                 no                       └────────────────────────────────────────────┘
+   *                                                                 ↓
+   *                                                        `plugin:auth-failed`
+   */
   private static oidcPluginLogger: MongoDBOIDCPluginLogger & {
     on(evt: 'atlas-service-token-refreshed', fn: () => void): void;
     on(evt: 'atlas-service-token-refresh-failed', fn: () => void): void;
@@ -151,40 +192,39 @@ export class AtlasService {
 
   private static secretStore: SecretStore = defaultSecretStore;
 
+  private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
+
   private static refreshing = false;
 
   private static get clientId() {
     const clientId =
       process.env.COMPASS_CLIENT_ID_OVERRIDE || process.env.COMPASS_CLIENT_ID;
-
     if (!clientId) {
       throw new Error('COMPASS_CLIENT_ID is required');
     }
-    return process.env.COMPASS_CLIENT_ID;
+    return clientId;
   }
 
   private static get issuer() {
     const issuer =
       process.env.COMPASS_OIDC_ISSUER_OVERRIDE ||
       process.env.COMPASS_OIDC_ISSUER;
-
     if (!issuer) {
       throw new Error('COMPASS_OIDC_ISSUER is required');
     }
-    return process.env.COMPASS_OIDC_ISSUER;
+    return issuer;
   }
 
   private static get apiBaseUrl() {
     const apiBaseUrl =
       process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE ||
       process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
-
     if (!apiBaseUrl) {
       throw new Error(
         'No AI Query endpoint to fetch. Please set the environment variable `COMPASS_ATLAS_SERVICE_BASE_URL`'
       );
     }
-    return process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
+    return apiBaseUrl;
   }
 
   // We use `allowedFlows` plugin option to control whether or not plugin is
@@ -203,17 +243,19 @@ export class AtlasService {
   }
 
   static init(): Promise<void> {
-    if (this.initPromise) {
-      return this.initPromise;
-    }
-    this.initPromise = (async () => {
-      ipcExpose('AtlasService', this, [
-        'getUserInfo',
-        'introspect',
-        'isAuthenticated',
-        'signIn',
-        'getQueryFromUserInput',
-      ]);
+    return (this.initPromise ??= (async () => {
+      ipcExpose(
+        'AtlasService',
+        this,
+        [
+          'getUserInfo',
+          'introspect',
+          'isAuthenticated',
+          'signIn',
+          'getQueryFromUserInput',
+        ],
+        this.ipcMain
+      );
       this.attachOidcPluginLoggerEvents();
       log.info(
         mongoLogId(1_001_000_210),
@@ -245,27 +287,25 @@ export class AtlasService {
         logger: this.oidcPluginLogger,
         serializedState,
       });
-      // If we got serialisedState from store, we will try to refresh the token
-      // right away to sync token state from the oidc-plugin to AtlasService
-      if (serializedState) {
-        await this.refreshToken({
-          // In case where we refresh token after plugin state deserialisation
-          // happened we don't expect plugin refresh events to be emitted, and
-          // so we skip waiting for them. Everything else in this flow is
-          // exactly as if we were handling refresh-success event from
-          // oidc-plugin
-          waitForOIDCPluginStateUpdateEvents: false,
-        });
-      } else {
-        // If no serialised state was found, set service back to initial state
-        // so that the sign in flow is allowed again
-        this.oidcPluginSyncedFromLoggerState = 'initial';
-      }
-    })();
-    return this.initPromise;
+      // Whether or not we got the state, try refreshing the token. If there was
+      // no serialized state returned, this will just put the service in
+      // `unauthenticated` state quickly. If there was some state, we need to
+      // refresh the token and get the value back from the oidc-plugin to make
+      // sure the state between atlas-service and oidc-plugin is in sync
+      await this.refreshToken({
+        // In case where we refresh token after plugin state deserialisation
+        // happened we don't expect plugin refresh events to be emitted, and
+        // so we skip waiting for them. Everything else in this flow is
+        // exactly as if we were handling refresh-success event from
+        // oidc-plugin
+        waitForOIDCPluginStateUpdateEvents: false,
+      });
+    })());
   }
 
-  private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
+  private static async requestOAuthToken({
+    signal,
+  }: { signal?: AbortSignal } = {}) {
     return this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
       { clientId: this.clientId, issuer: this.issuer },
       {
@@ -290,33 +330,6 @@ export class AtlasService {
         'Token refresh started by oidc-plugin'
       );
       this.oidcPluginSyncedFromLoggerState = 'expired';
-    });
-    this.oidcPluginLogger.on(
-      'mongodb-oidc-plugin:refresh-failed',
-      ({ error }) => {
-        log.error(
-          mongoLogId(1_001_000_212),
-          'AtlasService',
-          'Oidc-plugin failed to refresh token',
-          { error }
-        );
-        this.token = null;
-        this.oidcPluginSyncedFromLoggerState = 'error';
-        this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
-      }
-    );
-    // NB: oidc-plugin only has a logger interface to listen to state updates,
-    // it also doesn't expose renewed tokens or any other state in any usable
-    // way from those events or otherwise, so to get the renewed token we listen
-    // to the refresh-succeeded event and then kick off the "refresh"
-    // programmatically to be able to get the actual tokens back and sync them
-    // to the service state
-    this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-succeeded', () => {
-      log.info(
-        mongoLogId(1_001_000_213),
-        'AtlasService',
-        'Oidc-plugin refreshed token successfully'
-      );
       void this.refreshToken();
     });
     this.oidcPluginLogger.on('atlas-service-token-refresh-failed', () => {
@@ -337,6 +350,11 @@ export class AtlasService {
       return;
     }
     this.refreshing = true;
+    const onRefreshFailed = () => {
+      this.token = null;
+      this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
+      this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
+    };
     log.info(
       mongoLogId(1_001_000_214),
       'AtlasService',
@@ -348,25 +366,23 @@ export class AtlasService {
         // that never fired we are setting up an abort controller
         const listenerController = new AbortController();
         try {
+          // When oidc-plugin starts internal token refresh, we will wait
+          // first for the auth flow to either succeed to fail and then
+          // proceed by requesting token once again from the plugin to sync
+          // token back to the atlas service state
           await Promise.race([
-            // When oidc-plugin logged that token was refreshed, the token is
-            // not actually refreshed yet in the plugin state and so calling
-            // `REFRESH_TOKEN_CALLBACK` causes weird behavior that actually
-            // opens the browser again, to work around that we wait for the
-            // state update event in addition. We can't guarantee that this
-            // event will be emitted for our particular state as this is not
-            // something oidc-plugin exposes, but we can ignore this for now as
-            // only one auth state is created in this instance of oidc-plugin
-            once(this.oidcPluginLogger, 'mongodb-oidc-plugin:state-updated', {
+            // NB: While `auth-{succeeded,failed}` events can also fire when one
+            // of the actual sign in flows is activated (see logger event
+            // diagram), we make sure that only token refresh is allowed during
+            // this process by providing an empty array of allowedFlows to the
+            // plugin through the `getAllowedFlows` method
+            once(this.oidcPluginLogger, 'mongodb-oidc-plugin:auth-succeeded', {
               signal: listenerController.signal,
             }),
-            // At the same time refresh can still fail at this stage, so to
-            // avoid refresh being stuck, we also wait for refresh-failed event
-            // and throw if it happens to avoid calling `REFRESH_TOKEN_CALLBACK`
-            once(this.oidcPluginLogger, 'mongodb-oidc-plugin:refresh-failed', {
+            once(this.oidcPluginLogger, 'mongodb-oidc-plugin:auth-failed', {
               signal: listenerController.signal,
             }).then(() => {
-              throw new Error('Refresh failed');
+              throw new Error('Token refresh failed');
             }),
           ]);
         } finally {
@@ -398,14 +414,16 @@ export class AtlasService {
           'Oidc-plugin failed to return refreshed token',
           { error: (err as Error).stack }
         );
-        // REFRESH_TOKEN_CALLBACK call failed for some reason
-        this.token = null;
-        this.oidcPluginSyncedFromLoggerState = 'error';
-        this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
+        onRefreshFailed();
       }
-    } catch {
-      // encountered 'mongodb-oidc-plugin:refresh-failed' event, do nothing, we
-      // already have a listener for this event
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_222),
+        'AtlasService',
+        'Oidc-plugin failed to refresh token',
+        { error: (err as Error).stack }
+      );
+      onRefreshFailed();
     } finally {
       this.refreshing = false;
     }
@@ -417,9 +435,12 @@ export class AtlasService {
     if (signal?.aborted) {
       return;
     }
-    // In cases where we ended up in expired state, we know that oidc-plugin is
-    // trying to refresh the token automatically, we can wait for this process
-    // to finish before proceeding with a request
+    // There are two cases where it makes sense to wait for token refresh before
+    // proceeding with running atlas service commands:
+    //  - In case where we ended up in `expired` state, we know that oidc-plugin
+    //    is trying to refresh the token automatically at the moment
+    //  - In case of `restoring` saved auth state, we will try to refresh the
+    //    token right after restore happened
     if (
       ['expired', 'restoring'].includes(this.oidcPluginSyncedFromLoggerState)
     ) {
@@ -428,9 +449,9 @@ export class AtlasService {
       const listenerController = new AbortController();
       try {
         await Promise.race([
-          // We are using our own events here and not oidc plugin ones because
-          // after plugin logged that token was refreshed, we still need to run
-          // REFRESH_TOKEN_CALLBACK to get the actual token value in the state
+          // We are using our own events here and not oidc-plugin ones because
+          // after plugin logged that token was refreshed, we still need to do
+          // some additional work to get token from the oidc-plugin
           once(this.oidcPluginLogger, 'atlas-service-token-refreshed', {
             signal: listenerController.signal,
           }),
@@ -475,7 +496,10 @@ export class AtlasService {
 
       this.signInPromise = (async () => {
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
+
+        // We might be refreshing token or restoring state at the moment
         await this.maybeWaitForToken({ signal });
+
         try {
           this.token = await this.requestOAuthToken({ signal });
           this.oidcPluginSyncedFromLoggerState = 'authenticated';
@@ -492,7 +516,7 @@ export class AtlasService {
             'Failed to sign in',
             { error: (err as Error).stack }
           );
-          this.oidcPluginSyncedFromLoggerState = 'error';
+          this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
           throw err;
         }
       })();
@@ -506,7 +530,9 @@ export class AtlasService {
     signal,
   }: { signal?: AbortSignal } = {}): Promise<UserInfo> {
     throwIfAborted(signal);
+
     await this.maybeWaitForToken({ signal });
+
     const res = await this.fetch(`${this.issuer}/v1/userinfo`, {
       headers: {
         Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
@@ -607,6 +633,10 @@ export class AtlasService {
   }
 
   static async onExit() {
+    // Haven't even c the oidc-plugin yet, nothing to store
+    if (!this.plugin) {
+      return;
+    }
     try {
       await this.secretStore.setItem(
         SECRET_STORE_KEY,
