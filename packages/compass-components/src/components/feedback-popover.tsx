@@ -14,13 +14,13 @@ export type FeedbackPopoverProps = Omit<
   LGGuideCueProps,
   'currentStep' | 'numberOfSteps' | 'children' | 'title'
 > & {
-  onSubmit: (text: string) => void;
+  onSubmitFeedback: (text: string) => void;
   placeholder: string;
   label: string;
 };
 
 export const FeedbackPopover = ({
-  onSubmit,
+  onSubmitFeedback,
   label,
   placeholder,
   ...props
@@ -34,7 +34,7 @@ export const FeedbackPopover = ({
       currentStep={1}
       title=""
       tooltipAlign="bottom"
-      onPrimaryButtonClick={() => onSubmit(feedbackText)}
+      onPrimaryButtonClick={() => onSubmitFeedback(feedbackText)}
       buttonText="Submit"
       {...props}
     >

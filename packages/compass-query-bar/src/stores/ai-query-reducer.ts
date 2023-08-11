@@ -326,7 +326,6 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     return {
       ...state,
       status: 'success',
-      didSubmitFeedback: false,
       aiQueryFetchId: -1,
     };
   }
@@ -364,15 +363,6 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       // Reset the status after a successful run when the user change's the text.
       status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
-    };
-  }
-
-  if (
-    isAction<SubmitFeedbackAction>(action, AIQueryActionTypes.SubmitFeedback)
-  ) {
-    return {
-      ...state,
-      didSubmitFeedback: true,
     };
   }
 

@@ -10,7 +10,7 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
@@ -21,17 +21,35 @@ const suggestionActionButtonStyles = css({
   gap: spacing[2],
 });
 
+const fadeOutAnimationTimeMS = 2000;
+
 const fadeOutWidthAnimation = keyframes({
-  from: {
-    width: 'fit-content',
+  '0%': {
+    width: spacing[7],
   },
-  to: {
+  '90%': {
+    width: spacing[7],
+  },
+  '100%': {
     width: 0,
   },
 });
 
 const feedbackSubmittedStyles = css({
-  animation: `${fadeOutWidthAnimation} 2s ease-in`,
+  overflow: 'hidden',
+  animation: `${fadeOutWidthAnimation} ${fadeOutAnimationTimeMS}ms ease-in`,
+  width: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-around',
+});
+
+const submittedDarkStyles = css({
+  color: palette.green.light1,
+});
+
+const submittedLightStyles = css({
+  color: palette.green.dark1,
 });
 
 const feedbackButtonLightStyles = css({
@@ -69,8 +87,10 @@ function QueryFeedback() {
   >('none');
 
   const [didSubmit, setDidSubmit] = useState(false);
+  const [enableShowFeedbackSuccess, setEnableShowFeedbackSuccess] =
+    useState(true);
 
-  const onSubmit = (text: string) => {
+  const onSubmitFeedback = (text: string) => {
     log.info(mongoLogId(1_001_000_221), 'AIQuery', 'AI query feedback', {
       feedback: chosenFeedbackOption,
       text,
@@ -83,10 +103,29 @@ function QueryFeedback() {
     setDidSubmit(true);
   };
 
+  useEffect(() => {
+    if (didSubmit) {
+      const timeoutId = setTimeout(() => {
+        setEnableShowFeedbackSuccess(false);
+      }, fadeOutAnimationTimeMS);
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [didSubmit]);
+
   if (didSubmit) {
+    if (!enableShowFeedbackSuccess) {
+      return null;
+    }
+
     return (
       <div className={feedbackSubmittedStyles}>
-        <Disclaimer>Success!</Disclaimer>
+        <Disclaimer
+          className={darkMode ? submittedDarkStyles : submittedLightStyles}
+        >
+          Success!
+        </Disclaimer>
       </div>
     );
   }
@@ -100,6 +139,7 @@ function QueryFeedback() {
         )}
         onClick={() => setChosenFeedbackOption('positive')}
         size="small"
+        data-testid="ai-query-feedback-thumbs-up"
         ref={feedbackPositiveButtonRef}
       >
         <Icon glyph="ThumbsUp" />
@@ -130,7 +170,7 @@ function QueryFeedback() {
           }
           open
           setOpen={() => setChosenFeedbackOption('none')}
-          onSubmit={onSubmit}
+          onSubmitFeedback={onSubmitFeedback}
           label="Provide Feedback"
           placeholder={
             chosenFeedbackOption === 'positive'

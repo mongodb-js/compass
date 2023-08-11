@@ -25,7 +25,7 @@ function FeedbackPopoverRenderer(
         refEl={buttonRef}
         open={open}
         setOpen={setOpen}
-        onFeedback={() => {
+        onSubmitFeedback={() => {
           /* no-op */
         }}
         {...props}
@@ -48,7 +48,7 @@ describe('FeedbackPopover', function () {
   it('renders the popover and passes feedback when submitted', async function () {
     let feedbackText = '';
     renderFeedbackPopover({
-      onFeedback: (text: string) => {
+      onSubmitFeedback: (text: string) => {
         feedbackText = text;
       },
     });

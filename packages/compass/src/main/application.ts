@@ -69,8 +69,6 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    this.setupUserDirectory();
-    // need to happen after setupUserDirectory
     await setupPreferencesAndUser(globalPreferences);
     await this.setupLogging();
     // need to happen after setupPreferencesAndUser
@@ -188,22 +186,6 @@ class CompassApplication {
     ipcMain.handle('compass:appName', () => {
       return app.getName();
     });
-  }
-
-  private static setupUserDirectory(): void {
-    if (process.env.NODE_ENV === 'development') {
-      const appName = app.getName();
-      // When NODE_ENV is dev, we are probably running the app unpackaged
-      // directly with Electron binary which causes user dirs to be just
-      // `Electron` instead of app name that we want here
-      app.setPath('userData', path.join(app.getPath('appData'), appName));
-
-      // @ts-expect-error this seems to work but not exposed as public path and
-      // so is not available in d.ts files. As this is a dev-only path and
-      // seemingly nothing is using this path anyway, we probably can ignore an
-      // error here
-      app.setPath('userCache', path.join(app.getPath('cache'), appName));
-    }
   }
 
   private static async setupLogging(): Promise<void> {

@@ -37,7 +37,6 @@ export class ConnectionStorage {
 
   private static readonly folder = 'Connections';
   private static readonly maxAllowedRecentConnections = 10;
-  private static readonly keytarServiceName = getKeytarServiceName();
 
   private constructor() {
     // singleton
@@ -85,7 +84,7 @@ export class ConnectionStorage {
       return {};
     }
     try {
-      const credentials = await keytar.findCredentials(this.keytarServiceName);
+      const credentials = await keytar.findCredentials(getKeytarServiceName());
       return Object.fromEntries(
         credentials.map(({ account, password }) => [
           account,
@@ -233,7 +232,7 @@ export class ConnectionStorage {
         );
         try {
           await keytar.setPassword(
-            this.keytarServiceName,
+            getKeytarServiceName(),
             connectionInfo.id,
             JSON.stringify({ secrets }, null, 2)
           );
@@ -277,7 +276,7 @@ export class ConnectionStorage {
         return;
       }
       try {
-        await keytar.deletePassword(this.keytarServiceName, id);
+        await keytar.deletePassword(getKeytarServiceName(), id);
       } catch (e) {
         log.error(
           mongoLogId(1_001_000_203),
