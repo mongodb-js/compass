@@ -12,7 +12,7 @@ import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
 
-const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
+const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -22,7 +22,6 @@ export type AIQueryState = {
   aiPromptText: string;
   status: AIQueryStatus;
   aiQueryFetchId: number; // Maps to the AbortController of the current fetch (or -1).
-  didSubmitFeedback: boolean;
 };
 
 export const initialState: AIQueryState = {
@@ -31,7 +30,6 @@ export const initialState: AIQueryState = {
   errorMessage: undefined,
   isInputVisible: false,
   aiQueryFetchId: -1,
-  didSubmitFeedback: false,
 };
 
 export const enum AIQueryActionTypes {
@@ -43,7 +41,6 @@ export const enum AIQueryActionTypes {
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
   ChangeAIPromptText = 'compass-query-bar/ai-query/ChangeAIPromptText',
-  SubmitFeedback = 'compass-query-bar/ai-query/SubmitFeedback',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -75,10 +72,6 @@ type ShowInputAction = {
 
 type HideInputAction = {
   type: AIQueryActionTypes.HideInput;
-};
-
-type SubmitFeedbackAction = {
-  type: AIQueryActionTypes.SubmitFeedback;
 };
 
 type ChangeAIPromptTextAction = {
@@ -253,25 +246,6 @@ export const runAIQuery = (
       type: AIQueryActionTypes.AIQuerySucceeded,
       fields,
     });
-  };
-};
-
-export const submitFeedback = (
-  feedback: 'positive' | 'negative',
-  text: string
-): SubmitFeedbackAction => {
-  log.info(mongoLogId(1_001_000_221), 'AIQuery', 'AI query feedback', {
-    feedback,
-    text,
-  });
-
-  track('AIQuery Feedback', () => ({
-    feedback,
-    text,
-  }));
-
-  return {
-    type: AIQueryActionTypes.SubmitFeedback,
   };
 };
 

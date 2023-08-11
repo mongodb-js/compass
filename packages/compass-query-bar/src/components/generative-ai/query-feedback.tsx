@@ -1,17 +1,19 @@
 import {
   Button,
-  Icon,
+  Disclaimer,
   FeedbackPopover,
+  Icon,
   css,
   spacing,
   cx,
+  keyframes,
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import React, { useRef, useState } from 'react';
-import { connect } from 'react-redux';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-import { submitFeedback } from '../../stores/ai-query-reducer';
+const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 
 const suggestionActionButtonStyles = css({
   flexShrink: 0,
@@ -19,15 +21,28 @@ const suggestionActionButtonStyles = css({
   gap: spacing[2],
 });
 
+const fadeOutWidthAnimation = keyframes({
+  from: {
+    width: 'fit-content',
+  },
+  to: {
+    width: 0,
+  },
+});
+
+const feedbackSubmittedStyles = css({
+  animation: `${fadeOutWidthAnimation} 2s ease-in`,
+});
+
 const feedbackButtonLightStyles = css({
-  // We fill the icon colors here as there is a bug with the
-  // LeafyGreen ThumbsUp and ThumbsDown icons.
+  // TODO(LG-3497): We fill the icon colors here as there is a bug
+  // with the LeafyGreen ThumbsUp and ThumbsDown icon fills.
   fill: palette.gray.dark1,
 });
 
 const feedbackButtonDarkStyles = css({
-  // We fill the icon colors here as there is a bug with the
-  // LeafyGreen ThumbsUp and ThumbsDown icons.
+  // TODO(LG-3497): We fill the icon colors here as there is a bug
+  // with the LeafyGreen ThumbsUp and ThumbsDown icon fills.
   fill: palette.gray.light1,
 });
 
@@ -43,11 +58,7 @@ const buttonActiveNegativeStyles = css({
   fill: palette.red.dark2,
 });
 
-type AITextInputProps = {
-  onFeedback: (feedback: 'positive' | 'negative', text: string) => void;
-};
-
-function QueryFeedback({ onFeedback }: AITextInputProps) {
+function QueryFeedback() {
   const darkMode = useDarkMode();
 
   const feedbackPositiveButtonRef = useRef<HTMLInputElement>(null);
@@ -56,6 +67,29 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
   const [chosenFeedbackOption, setChosenFeedbackOption] = useState<
     'none' | 'positive' | 'negative'
   >('none');
+
+  const [didSubmit, setDidSubmit] = useState(false);
+
+  const onSubmit = (text: string) => {
+    log.info(mongoLogId(1_001_000_221), 'AIQuery', 'AI query feedback', {
+      feedback: chosenFeedbackOption,
+      text,
+    });
+
+    track('AIQuery Feedback', () => ({
+      feedback: chosenFeedbackOption,
+      text,
+    }));
+    setDidSubmit(true);
+  };
+
+  if (didSubmit) {
+    return (
+      <div className={feedbackSubmittedStyles}>
+        <Disclaimer>Success!</Disclaimer>
+      </div>
+    );
+  }
 
   return (
     <div className={suggestionActionButtonStyles}>
@@ -96,9 +130,7 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
           }
           open
           setOpen={() => setChosenFeedbackOption('none')}
-          onFeedback={(feedbackText: string) =>
-            onFeedback(chosenFeedbackOption, feedbackText)
-          }
+          onSubmit={onSubmit}
           label="Provide Feedback"
           placeholder={
             chosenFeedbackOption === 'positive'
@@ -111,8 +143,4 @@ function QueryFeedback({ onFeedback }: AITextInputProps) {
   );
 }
 
-const ConnectedQueryFeedback = connect(null, {
-  onFeedback: submitFeedback,
-})(QueryFeedback);
-
-export { ConnectedQueryFeedback as QueryFeedback };
+export { QueryFeedback };

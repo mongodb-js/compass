@@ -161,7 +161,6 @@ type AITextInputProps = {
   aiPromptText: string;
   didSucceed: boolean;
   errorMessage?: string;
-  didSubmitFeedback: boolean;
   isFetching?: boolean;
   show: boolean;
   onCancelAIQuery: () => void;
@@ -174,7 +173,6 @@ function AITextInput({
   aiPromptText,
   didSucceed,
   errorMessage,
-  didSubmitFeedback,
   isFetching,
   show,
   onCancelAIQuery,
@@ -313,7 +311,7 @@ function AITextInput({
             )}
           </div>
         </div>
-        {didSucceed && !didSubmitFeedback && <QueryFeedback />}
+        {didSucceed && <QueryFeedback />}
       </div>
       {errorMessage && (
         <div className={errorSummaryContainer}>
@@ -331,7 +329,6 @@ const ConnectedAITextInput = connect(
       isFetching: state.aiQuery.status === 'fetching',
       didSucceed: state.aiQuery.status === 'success',
       errorMessage: state.aiQuery.errorMessage,
-      didSubmitFeedback: state.aiQuery.didSubmitFeedback,
     };
   },
   {
