@@ -227,7 +227,7 @@ function AITextInput({
           ref={promptTextInputRef}
           sizeVariant="small"
           aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
-          placeholder="Tell Compass what documents to find (e.g. how many users signed up last month)"
+          placeholder="Tell Compass what documents to find (e.g. which movies were released in 2000)"
           value={aiPromptText}
           onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
             onChangeAIPromptText(evt.currentTarget.value)
