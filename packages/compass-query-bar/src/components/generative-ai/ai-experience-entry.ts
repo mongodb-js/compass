@@ -91,11 +91,20 @@ function createAIPlaceholderHTMLPlaceholder({
   containerEl.appendChild(placeholderTextEl);
 
   const aiButtonEl = document.createElement('button');
-  aiButtonEl.onclick = (e) => {
+  // By default placeholder container will have pointer events disabled
+  aiButtonEl.style.pointerEvents = 'auto';
+  // We stop mousedown from propagating and preventing default behavior to avoid
+  // input getting focused on placeholder click (that's the event that
+  // codemirror uses internally to set focus to the input)
+  aiButtonEl.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  aiButtonEl.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
     onClickAI();
-  };
+  });
 
   aiButtonEl.className = cx(
     aiQueryEntryStyles,
