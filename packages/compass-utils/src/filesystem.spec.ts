@@ -78,18 +78,9 @@ describe('filesystem', function () {
   });
 
   context('Filesystem.readOne', function () {
-    it('does not throw if the subdir does not exist and returns undefined', async function () {
-      const filesystem = new Filesystem({
-        subdir: 'something/non-existant',
-      });
-      const data = await filesystem.readOne('');
-      expect(data).to.be.undefined;
-    });
-
-    it('does not throw if the file does not exist and returns undefined', async function () {
+    it('throws if the file does not exist', function () {
       const filesystem = new Filesystem();
-      const data = await filesystem.readOne('something.json');
-      expect(data).to.be.undefined;
+      expect(async () => await filesystem.readOne('something.json')).to.throw;
     });
 
     it('reads the file', async function () {
