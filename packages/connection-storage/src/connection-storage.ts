@@ -1,6 +1,4 @@
-import { join } from 'path';
 import { validate as uuidValidate } from 'uuid';
-import fs from 'fs/promises';
 import keytar from 'keytar';
 
 import type { ConnectionInfo } from './connection-info';
@@ -16,9 +14,9 @@ import {
   parseStoredPassword,
 } from './utils';
 import {
-  getStoragePaths,
   ipcExpose,
   throwIfAborted,
+  Filesystem,
 } from '@mongodb-js/compass-utils';
 import {
   serializeConnections,
@@ -31,22 +29,29 @@ import type {
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
+type ConnectionWithLegacyProps = {
+  connectionInfo: ConnectionInfo;
+  // Legacy props
+  isFavorite?: boolean;
+  name?: string;
+};
+
 export class ConnectionStorage {
   private static calledOnce: boolean;
-  private static path: string;
 
-  private static readonly folder = 'Connections';
   private static readonly maxAllowedRecentConnections = 10;
+  private static readonly fs = new Filesystem<ConnectionWithLegacyProps>({
+    subdir: 'Connections',
+  });
 
   private constructor() {
     // singleton
   }
 
-  static init(path = getStoragePaths()?.basepath ?? '') {
+  static init() {
     if (this.calledOnce) {
       return;
     }
-    this.path = path;
     ipcExpose('ConnectionStorage', this, [
       'loadAll',
       'load',
@@ -60,12 +65,8 @@ export class ConnectionStorage {
     this.calledOnce = true;
   }
 
-  private static getFolderPath() {
-    return join(this.path, this.folder);
-  }
-
-  private static getFilePath(id: string) {
-    return join(this.getFolderPath(), `${id}.json`);
+  private static getFileName(id: string) {
+    return `${id}.json`;
   }
 
   private static mapStoredConnectionToConnectionInfo(
@@ -102,27 +103,8 @@ export class ConnectionStorage {
     }
   }
 
-  private static async getConnections(): Promise<any[]> {
-    const connectionIds = (await fs.readdir(this.getFolderPath()))
-      .filter((file) => file.endsWith('.json'))
-      .map((file) => file.replace('.json', ''));
-
-    const data = await Promise.all(
-      connectionIds.map(async (id) => {
-        try {
-          return JSON.parse(await fs.readFile(this.getFilePath(id), 'utf8'));
-        } catch (e) {
-          log.error(
-            mongoLogId(1_001_000_200),
-            'Connection Storage',
-            'Failed to parse connection',
-            { message: (e as Error).message, connectionId: id }
-          );
-          return undefined;
-        }
-      })
-    );
-    return data.filter(Boolean);
+  private static async getConnections(): Promise<ConnectionWithLegacyProps[]> {
+    return await this.fs.readAll('*.json');
   }
 
   /**
@@ -143,7 +125,7 @@ export class ConnectionStorage {
         (x) => !x.connectionInfo && x.isFavorite
       );
       return legacyConnections.map((x) => ({
-        name: x.name,
+        name: x.name!,
       }));
     } catch (e) {
       return [];
@@ -156,9 +138,6 @@ export class ConnectionStorage {
     signal?: AbortSignal;
   } = {}): Promise<ConnectionInfo[]> {
     throwIfAborted(signal);
-    // Ensure folder exists
-    await fs.mkdir(this.getFolderPath(), { recursive: true });
-
     try {
       const [connections, secrets] = await Promise.all([
         this.getConnections(),
@@ -167,11 +146,8 @@ export class ConnectionStorage {
       return (
         connections
           // Ignore legacy connections and make sure connection has a connection string.
-          .filter(
-            (x: { connectionInfo?: ConnectionInfo }) =>
-              x.connectionInfo?.connectionOptions?.connectionString
-          )
-          .map(({ connectionInfo }: { connectionInfo: ConnectionInfo }) =>
+          .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
+          .map(({ connectionInfo }) =>
             this.mapStoredConnectionToConnectionInfo(
               connectionInfo,
               secrets[connectionInfo.id]
@@ -212,25 +188,15 @@ export class ConnectionStorage {
 
       // While testing, we don't use keychain to store secrets
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        await fs.writeFile(
-          this.getFilePath(connectionInfo.id),
-          JSON.stringify({ connectionInfo }, null, 2),
-          'utf-8'
-        );
+        await this.fs.write(this.getFileName(connectionInfo.id), {
+          connectionInfo,
+        });
       } else {
         const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
           extractSecrets(connectionInfo);
-        await fs.writeFile(
-          this.getFilePath(connectionInfo.id),
-          JSON.stringify(
-            {
-              connectionInfo: connectionInfoWithoutSecrets,
-            },
-            null,
-            2
-          ),
-          'utf-8'
-        );
+        await this.fs.write(this.getFileName(connectionInfo.id), {
+          connectionInfo: connectionInfoWithoutSecrets,
+        });
         try {
           await keytar.setPassword(
             getKeytarServiceName(),
@@ -272,7 +238,7 @@ export class ConnectionStorage {
     }
 
     try {
-      await fs.unlink(this.getFilePath(id));
+      await this.fs.delete(this.getFileName(id));
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         return;
       }
