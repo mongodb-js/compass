@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import { promises as fs, createWriteStream } from 'fs';
 import path from 'path';
 import { glob } from 'glob';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -101,6 +101,11 @@ export class Filesystem<T> {
   async readOne(filepath: string): Promise<T | undefined> {
     const absolutePath = await this.getFileAbsolutePath(filepath);
     return await this.readAndParseFile(absolutePath);
+  }
+
+  async createWriteStream(filepath: string) {
+    const absolutePath = await this.getFileAbsolutePath(filepath);
+    return createWriteStream(absolutePath);
   }
 
   async write(filepath: string, content: T): Promise<boolean> {

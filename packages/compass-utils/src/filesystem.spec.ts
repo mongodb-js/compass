@@ -1,6 +1,8 @@
 import fs from 'fs/promises';
 import os from 'os';
+import { Writable } from 'stream';
 import path from 'path';
+import { promisify } from 'util';
 import { expect } from 'chai';
 import { Filesystem } from './filesystem';
 
@@ -102,6 +104,28 @@ describe('filesystem', function () {
         const data = await filesystem.readOne('data2.json');
         expect(data).to.deep.equal({ b: 2 });
       }
+    });
+  });
+
+  context('Filesystem.createWriteStream', function () {
+    it('does not throw if the subdir does not exist and returns a writable', async function () {
+      const filesystem = new Filesystem({
+        subdir: 'something/non-existant',
+      });
+      const data = await filesystem.createWriteStream('log.txt');
+      expect(data).to.be.instanceOf(Writable);
+    });
+
+    it('creates a writable stream and writes to it', async function () {
+      const filesystem = new Filesystem();
+      const writable = await filesystem.createWriteStream('log.txt');
+
+      await (
+        promisify(writable.write.bind(writable)) as any
+      )(JSON.stringify('hello'));
+
+      const contents = await filesystem.readOne('log.txt');
+      expect(contents).to.equal('hello');
     });
   });
 

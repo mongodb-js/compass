@@ -38,7 +38,6 @@ import { analyzeCSVFields } from '../import/analyze-csv-fields';
 import type { AnalyzeCSVFieldsResult } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
-import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
 import {
   showBloatedDocumentSignalToast,
   showUnboundArraySignalToast,
@@ -50,6 +49,7 @@ import {
   showStartingToast,
 } from '../components/import-toast';
 import { DATA_SERVICE_DISCONNECTED } from './compass/data-service';
+import { Filesystem } from '@mongodb-js/compass-utils';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -188,17 +188,6 @@ const onFileSelectError = (error: Error) => ({
   error,
 });
 
-async function getErrorLogPath(fileName: string) {
-  // Create the error log output file.
-  const userDataPath = getUserDataFolderPath();
-  const importErrorLogsPath = path.join(userDataPath, 'ImportErrorLogs');
-  await fs.promises.mkdir(importErrorLogsPath, { recursive: true });
-
-  const errorLogFileName = `import-${path.basename(fileName)}.log`;
-
-  return path.join(importErrorLogsPath, errorLogFileName);
-}
-
 export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
   return async (
     dispatch: ImportThunkDispatch<AnyAction>,
@@ -240,11 +229,11 @@ export const startImport = (): ImportThunkAction<Promise<void>, AnyAction> => {
     let errorLogFilePath;
     let errorLogWriteStream: fs.WriteStream | undefined;
     try {
-      errorLogFilePath = await getErrorLogPath(fileName);
-
-      errorLogWriteStream = errorLogFilePath
-        ? fs.createWriteStream(errorLogFilePath)
-        : undefined;
+      const fs = new Filesystem({
+        subdir: 'ImportErrorLogs',
+      });
+      const errorLogFileName = `import-${path.basename(fileName)}.log`;
+      errorLogWriteStream = await fs.createWriteStream(errorLogFileName);
     } catch (err: any) {
       (err as Error).message = `unable to create import error log file: ${
         (err as Error).message
