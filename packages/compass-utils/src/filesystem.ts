@@ -1,11 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { promisify } from 'util';
-import { glob as globCb } from 'glob';
+import { glob } from 'glob';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getAppPath } from './get-storage-paths';
-
-const glob = promisify(globCb);
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-UTILS');
 
@@ -31,6 +28,9 @@ export class Filesystem<T> {
   }
 
   private getStorageBasePath(): string {
+    if (process.env.COMPASS_TESTS_STORAGE_BASE_PATH) {
+      return process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
+    }
     const basepath = getAppPath();
     if (!basepath) {
       throw new Error('The storage path is not defined.');

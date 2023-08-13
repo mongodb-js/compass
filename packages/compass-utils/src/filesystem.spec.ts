@@ -2,34 +2,30 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import * as Sinon from 'sinon';
-import * as getStoragePaths from './get-storage-paths';
 import { Filesystem } from './filesystem';
 
-const getAbsolutePath = (tmpDir: string, filename: string) => {
-  return path.join(tmpDir, filename);
-};
-
-const writeFileToStorage = async (filepath: string, contents: string) => {
-  // At this point, getStoragePaths is already mocked and returns a tmpDir
-  const absolutePath = getAbsolutePath(getStoragePaths.getAppPath()!, filepath);
-  await fs.writeFile(absolutePath, contents, 'utf-8');
-};
-
 describe('filesystem', function () {
+  const initialBaseStoragePath = process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
   let tmpDir: string;
-  let sandbox: Sinon.SinonSandbox;
 
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'filesystem-tests'));
-    sandbox = Sinon.createSandbox();
-    sandbox.stub(getStoragePaths, 'getAppPath').returns(tmpDir);
+    process.env.COMPASS_TESTS_STORAGE_BASE_PATH = tmpDir;
   });
 
   afterEach(async function () {
     await fs.rm(tmpDir, { recursive: true });
-    sandbox.restore();
+    if (initialBaseStoragePath) {
+      process.env.COMPASS_TESTS_STORAGE_BASE_PATH = initialBaseStoragePath;
+    } else {
+      delete process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
+    }
   });
+
+  const writeFileToStorage = async (filepath: string, contents: string) => {
+    const absolutePath = path.join(tmpDir, filepath);
+    await fs.writeFile(absolutePath, contents, 'utf-8');
+  };
 
   context('Filesystem.readAll', function () {
     it('does not throw if the subdir does not exist and returns an empty list', async function () {
@@ -44,12 +40,14 @@ describe('filesystem', function () {
       await Promise.all(
         [
           ['data1.json', JSON.stringify({ a: 1 })],
-          ['data2.json', JSON.stringify({ b: 2 })],
+          ['data2.json', JSON.stringify({ a: 2 })],
         ].map(([filepath, data]) => writeFileToStorage(filepath, data))
       );
 
       const data = await new Filesystem().readAll();
-      expect(data).to.deep.equal([{ a: 1 }, { b: 2 }]);
+      // sort
+      data.sort((first: any, second: any) => first.a - second.a);
+      expect(data).to.deep.equal([{ a: 1 }, { a: 2 }]);
     });
 
     it('filters files based on the pattern', async function () {
@@ -174,7 +172,7 @@ describe('filesystem', function () {
       });
 
       const filename = 'data.json';
-      const absolutePath = getAbsolutePath(tmpDir, filename);
+      const absolutePath = path.join(tmpDir, filename);
 
       await filesystem.write('data.json', 'something');
 
@@ -190,7 +188,7 @@ describe('filesystem', function () {
       });
 
       const filename = 'data.json';
-      const absolutePath = getAbsolutePath(tmpDir, filename);
+      const absolutePath = path.join(tmpDir, filename);
 
       // write nothing and when filesystem reads and deserializes it,
       // it should return pong

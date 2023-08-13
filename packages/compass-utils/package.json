@@ -71,5 +71,13 @@
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@mongodb-js/compass-logging": "^1.1.7",
+    "glob": "^10.3.3"
+  },
+  "peerDependencies": {
+    "@mongodb-js/compass-logging": "^1.1.7",
+    "glob": "^10.3.3"
   }
 }
