@@ -38,9 +38,9 @@ const FAVORITE_QUERY = {
   ...BASE_QUERY,
 };
 
-function createStore(basepath?: string) {
-  const favoriteQueryStorage = new FavoriteQueryStorage(basepath);
-  const recentQueryStorage = new RecentQueryStorage(basepath);
+function createStore() {
+  const favoriteQueryStorage = new FavoriteQueryStorage();
+  const recentQueryStorage = new RecentQueryStorage();
 
   const store = configureStore({
     namespace: 'airbnb.listings',
@@ -65,8 +65,8 @@ function createStore(basepath?: string) {
   };
 }
 
-const renderQueryHistory = (basepath?: string) => {
-  const data = createStore(basepath);
+const renderQueryHistory = () => {
+  const data = createStore();
   render(
     <Provider store={data.store}>
       <QueryHistory />
@@ -76,13 +76,20 @@ const renderQueryHistory = (basepath?: string) => {
 };
 
 describe('query-history', function () {
+  const initialBaseStoragePath = process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
   let tmpDir: string;
   before(function () {
     tmpDir = fs.mkdtempSync(os.tmpdir());
+    process.env.COMPASS_TESTS_STORAGE_BASE_PATH = tmpDir;
   });
 
   after(function () {
     fs.rmdirSync(tmpDir, { recursive: true });
+    if (initialBaseStoragePath) {
+      process.env.COMPASS_TESTS_STORAGE_BASE_PATH = initialBaseStoragePath;
+    } else {
+      delete process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
+    }
   });
 
   context('zero state', function () {
@@ -189,7 +196,7 @@ describe('query-history', function () {
 
   it('saves recent query as favorite', async function () {
     const { store, recentQueryStorage, favoriteQueryStorage } =
-      renderQueryHistory(tmpDir);
+      renderQueryHistory();
     Sinon.stub(recentQueryStorage, 'loadAll').returns(
       Promise.resolve([RECENT_QUERY] as any)
     );
