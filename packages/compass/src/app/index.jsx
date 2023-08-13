@@ -1,3 +1,6 @@
+// THIS IMPORT SHOULD ALWAYS BE THE FIRST ONE FOR THE APPLICATION ENTRY POINT
+import '../setup-hadron-distribution';
+
 import dns from 'dns';
 import ipc from 'hadron-ipc';
 import * as remote from '@electron/remote';
@@ -25,7 +28,6 @@ window.addEventListener('error', (event) => {
 });
 
 import './index.less';
-import '../setup-hadron-distribution';
 import 'source-code-pro/source-code-pro.css';
 
 import * as marky from 'marky';

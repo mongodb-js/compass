@@ -115,7 +115,7 @@ describe('aiQueryReducer', function () {
   });
 
   describe('cancelAIQuery', function () {
-    it('should unset the fetching id on the store', function () {
+    it('should unset the fetching id and set the status on the store', function () {
       const store = createStore();
       expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
 
@@ -124,9 +124,13 @@ describe('aiQueryReducer', function () {
         fetchId: 1,
       });
 
+      expect(store.getState().aiQuery.status).to.equal('fetching');
       expect(store.getState().aiQuery.aiQueryFetchId).to.equal(1);
+
       store.dispatch(cancelAIQuery());
+
       expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
+      expect(store.getState().aiQuery.status).to.equal('ready');
     });
   });
 });
