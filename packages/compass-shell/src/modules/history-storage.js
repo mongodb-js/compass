@@ -1,13 +1,11 @@
-import fs from 'fs';
-import path from 'path';
+import { Filesystem, getAppName } from '@mongodb-js/compass-utils';
 
-/**
- * Persists and retrieves history to / from disk
- */
 export class HistoryStorage {
-  constructor(filePath) {
-    this.filePath = filePath;
-  }
+  fileName = 'shell-history.json';
+  fs = new Filesystem({
+    // Todo: https://jira.mongodb.org/browse/COMPASS-7080
+    subdir: getAppName(),
+  });
 
   /**
    * Saves the history to disk, it creates the directory and the file if
@@ -17,40 +15,21 @@ export class HistoryStorage {
    * newest to oldest.
    */
   async save(history) {
-    const targetDir = path.dirname(this.filePath);
-    try {
-      await fs.promises.mkdir(targetDir, { recursive: true });
-    } catch (error) {
-      if (error.code !== 'EEXIST') {
-        throw error;
-      }
-    }
-
-    await fs.promises.writeFile(this.filePath, JSON.stringify(history));
+    await this.fs.write(this.fileName, history);
   }
 
   /**
    * Loads the history from disk. Returns an empty array if the file does
    * not exist or cannot be accessed.
    *
-   * @returns {string[]} An array of history entries sorted from
+   * @returns {Promise<string[]>} An array of history entries sorted from
    * newest to oldest.
    */
   async load() {
-    if (!(await this._canAccess(this.filePath))) {
-      return [];
-    }
-
-    const content = await fs.promises.readFile(this.filePath, 'utf-8');
-    return JSON.parse(content);
-  }
-
-  async _canAccess(filePath) {
     try {
-      await fs.promises.access(filePath);
-      return true;
+      return await this.fs.readOne(this.fileName);
     } catch (e) {
-      return false;
+      return [];
     }
   }
 }
