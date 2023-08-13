@@ -22,20 +22,25 @@ const setupPreferences = async (
 };
 
 describe('Preferences class', function () {
-  let tmpdir: string;
-  let i = 0;
+  const initialBaseStoragePath = process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
+  let tmpDir: string;
 
   beforeEach(async function () {
-    tmpdir = path.join(os.tmpdir(), `preferences-test-${Date.now()}-${i++}`);
-    await fs.mkdir(tmpdir, { recursive: true });
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'preferences-test'));
+    process.env.COMPASS_TESTS_STORAGE_BASE_PATH = tmpDir;
   });
 
   afterEach(async function () {
-    await fs.rm(tmpdir, { recursive: true });
+    await fs.rm(tmpDir, { recursive: true });
+    if (initialBaseStoragePath) {
+      process.env.COMPASS_TESTS_STORAGE_BASE_PATH = initialBaseStoragePath;
+    } else {
+      delete process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
+    }
   });
 
   it('allows providing default preferences', async function () {
-    const preferences = await setupPreferences(tmpdir);
+    const preferences = await setupPreferences();
     const result = preferences.getPreferences();
     expect(result.id).to.equal('General');
     expect(result.enableMaps).to.equal(false);
@@ -43,7 +48,7 @@ describe('Preferences class', function () {
   });
 
   it('allows saving preferences', async function () {
-    const preferences = await setupPreferences(tmpdir);
+    const preferences = await setupPreferences();
     await preferences.savePreferences({ enableMaps: true });
     const result = preferences.getPreferences();
     expect(result.id).to.equal('General');
@@ -51,7 +56,7 @@ describe('Preferences class', function () {
   });
 
   it('will strip unknown saved preferences', async function () {
-    const preferences = await setupPreferences(tmpdir);
+    const preferences = await setupPreferences();
     // Save any unknown preference. We validate everything in preferences class
     // and do not validate anything in storage. As we are calling updatePreferences
     // directly here, it should save this unknown prop.
@@ -64,7 +69,7 @@ describe('Preferences class', function () {
   });
 
   it('throws when saving invalid data', async function () {
-    const preferences = await setupPreferences(tmpdir);
+    const preferences = await setupPreferences();
     expect(
       async () =>
         await preferences.savePreferences({
@@ -74,7 +79,7 @@ describe('Preferences class', function () {
   });
 
   it('forbids saving non-model preferences', async function () {
-    const preferences = await setupPreferences(tmpdir);
+    const preferences = await setupPreferences();
     try {
       // @ts-expect-error That this doesn't work is part of the test
       await preferences.savePreferences({ help: true });
@@ -87,16 +92,16 @@ describe('Preferences class', function () {
   });
 
   it('stores preferences across instances', async function () {
-    const preferences1 = await setupPreferences(tmpdir);
+    const preferences1 = await setupPreferences();
     await preferences1.savePreferences({ enableMaps: true });
-    const preferences2 = await setupPreferences(tmpdir);
+    const preferences2 = await setupPreferences();
     const result = preferences2.getPreferences();
     expect(result.id).to.equal('General');
     expect(result.enableMaps).to.equal(true);
   });
 
   it('notifies callers of preferences changes after savePreferences', async function () {
-    const preferences = await setupPreferences(tmpdir);
+    const preferences = await setupPreferences();
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
     await preferences.savePreferences({ enableMaps: true });
@@ -104,7 +109,7 @@ describe('Preferences class', function () {
   });
 
   it('can return user-configurable preferences after setting their defaults', async function () {
-    const preferences = await setupPreferences(tmpdir);
+    const preferences = await setupPreferences();
     await preferences.ensureDefaultConfigurableUserPreferences();
     const result = preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
@@ -113,7 +118,7 @@ describe('Preferences class', function () {
   });
 
   it('allows providing cli- and global-config-provided options', async function () {
-    const preferences = await setupPreferences(tmpdir, {
+    const preferences = await setupPreferences({
       cli: {
         enableMaps: false,
         trackUsageStatistics: true,
@@ -138,7 +143,7 @@ describe('Preferences class', function () {
   });
 
   it('allows providing true options that influence the values of other options', async function () {
-    const preferences = await setupPreferences(tmpdir, {
+    const preferences = await setupPreferences({
       cli: {
         enableMaps: true,
         enableShell: true,
@@ -172,7 +177,7 @@ describe('Preferences class', function () {
   });
 
   it('allows providing false options that should not influence the values of other options', async function () {
-    const preferences = await setupPreferences(tmpdir, {
+    const preferences = await setupPreferences({
       global: {
         readOnly: false,
       },
@@ -190,7 +195,7 @@ describe('Preferences class', function () {
   });
 
   it('accounts for derived preference values in save calls', async function () {
-    const preferences = await setupPreferences(tmpdir, {
+    const preferences = await setupPreferences({
       global: {
         networkTraffic: false,
       },
@@ -204,13 +209,13 @@ describe('Preferences class', function () {
     expect(saveResult.autoUpdates).to.equal(false); // (!)
     expect(calls).to.have.lengthOf(0); // no updates, networkTraffic overrides change
 
-    const preferences2 = await setupPreferences(tmpdir);
+    const preferences2 = await setupPreferences();
     const fetchResult2 = preferences2.getPreferences();
     expect(fetchResult2.autoUpdates).to.equal(true); // (!)
   });
 
   it('includes changes to derived preference values in change listeners', async function () {
-    const preferences = await setupPreferences(tmpdir);
+    const preferences = await setupPreferences();
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
     await preferences.ensureDefaultConfigurableUserPreferences();
@@ -240,7 +245,7 @@ describe('Preferences class', function () {
   });
 
   it('allows hardcoding some options and derive other option values based on that', async function () {
-    const preferences = await setupPreferences(tmpdir, {
+    const preferences = await setupPreferences({
       cli: {
         enableMaps: true,
       },
@@ -270,7 +275,7 @@ describe('Preferences class', function () {
   });
 
   it('can create sandbox preferences instances that do not affect the main preference instance', async function () {
-    const mainPreferences = await setupPreferences(tmpdir, {
+    const mainPreferences = await setupPreferences({
       cli: {
         enableMaps: true,
       },

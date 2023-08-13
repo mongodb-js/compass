@@ -75,7 +75,7 @@ export class Filesystem<T> {
         path: absolutePath,
         error: (error as Error).message,
       });
-      return undefined;
+      throw error;
     }
 
     try {

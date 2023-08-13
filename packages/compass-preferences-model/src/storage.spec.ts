@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import { UserStorage, StoragePreferences, type User } from './storage';
+import { UserStorage, StoragePreferences } from './storage';
 import { expect } from 'chai';
 import type { UserPreferences } from './preferences';
 
@@ -14,18 +14,25 @@ const getPreferencesFile = (tmpDir: string) => {
 };
 
 describe('storage', function () {
+  const initialBaseStoragePath = process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
   let tmpDir: string;
+
+  beforeEach(async function () {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir()));
+    process.env.COMPASS_TESTS_STORAGE_BASE_PATH = tmpDir;
+  });
+
+  afterEach(async function () {
+    if (initialBaseStoragePath) {
+      process.env.COMPASS_TESTS_STORAGE_BASE_PATH = initialBaseStoragePath;
+    } else {
+      delete process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
+    }
+    await fs.rmdir(tmpDir, { recursive: true });
+  });
+
   describe('UserStorage', function () {
-    let storedUser: User;
-    let userStorage: UserStorage;
-    before(async function () {
-      tmpDir = await fs.mkdtemp(path.join(os.tmpdir()));
-      userStorage = new UserStorage(tmpDir);
-      storedUser = await userStorage.getOrCreate('');
-    });
-    after(async function () {
-      await fs.rmdir(tmpDir, { recursive: true });
-    });
+    const userStorage = new UserStorage();
 
     it('creates a new user if user does not exist', async function () {
       const nonExistantUserId = '12345678';
@@ -34,12 +41,14 @@ describe('storage', function () {
     });
 
     it('gets an existing user if it exists', async function () {
+      const storedUser = await userStorage.getOrCreate('');
       const user = await userStorage.getOrCreate(storedUser.id);
       expect(user).to.deep.equal(storedUser);
     });
 
     it('updates a user', async function () {
       const lastUsed = new Date();
+      const storedUser = await userStorage.getOrCreate('');
       const updatedUser = await userStorage.updateUser(storedUser.id, {
         lastUsed,
       });
@@ -55,19 +64,12 @@ describe('storage', function () {
     const defaultPreferences = {
       showedNetworkOptIn: true,
     } as unknown as UserPreferences;
-    beforeEach(async function () {
-      tmpDir = await fs.mkdtemp(path.join(os.tmpdir()));
-    });
-
-    afterEach(async function () {
-      await fs.rmdir(tmpDir, { recursive: true });
-    });
 
     it('sets up the storage', async function () {
       // When user starts compass first time, it creates AppPreferences folder with
       // General.json to store default preferences.
 
-      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+      const storage = new StoragePreferences(defaultPreferences);
 
       const preferencesDir = getPreferencesFolder(tmpDir);
       const preferencesFile = getPreferencesFile(tmpDir);
@@ -86,7 +88,7 @@ describe('storage', function () {
     });
 
     it('updates preferences', async function () {
-      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+      const storage = new StoragePreferences(defaultPreferences);
       await storage.setup();
 
       await storage.updatePreferences({ currentUserId: '123456789' });
@@ -100,7 +102,7 @@ describe('storage', function () {
     });
 
     it('returns default preference values if its not stored on disk', async function () {
-      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+      const storage = new StoragePreferences(defaultPreferences);
 
       // manually setup the file with no content
       await fs.mkdir(getPreferencesFolder(tmpDir));

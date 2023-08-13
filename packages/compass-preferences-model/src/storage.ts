@@ -1,7 +1,6 @@
 import { UUID } from 'bson';
-import { promises as fs } from 'fs';
-import { join } from 'path';
 import type { UserPreferences } from './preferences';
+import { Filesystem } from '@mongodb-js/compass-utils';
 
 export abstract class BasePreferencesStorage {
   abstract setup(): Promise<void>;
@@ -34,27 +33,19 @@ export class SandboxPreferences extends BasePreferencesStorage {
 }
 
 export class StoragePreferences extends BasePreferencesStorage {
-  private readonly folder = 'AppPreferences';
   private readonly file = 'General.json';
   private readonly defaultPreferences: UserPreferences;
 
-  constructor(private preferences: UserPreferences, private basepath?: string) {
+  private readonly fs = new Filesystem<UserPreferences>({
+    subdir: 'AppPreferences',
+  });
+
+  constructor(private preferences: UserPreferences) {
     super();
     this.defaultPreferences = preferences;
   }
 
-  private getFolderPath() {
-    return join(this.basepath ?? '', this.folder);
-  }
-
-  private getFilePath() {
-    return join(this.getFolderPath(), this.file);
-  }
-
   async setup() {
-    // Ensure folder exists
-    await fs.mkdir(this.getFolderPath(), { recursive: true });
-
     try {
       this.preferences = await this.readPreferences();
     } catch (e) {
@@ -62,16 +53,13 @@ export class StoragePreferences extends BasePreferencesStorage {
         throw e;
       }
       // Create the file for the first time
-      await fs.writeFile(
-        this.getFilePath(),
-        JSON.stringify(this.defaultPreferences, null, 2),
-        'utf-8'
-      );
+      await this.fs.write(this.file, this.defaultPreferences);
     }
   }
 
   private async readPreferences(): Promise<UserPreferences> {
-    return JSON.parse(await fs.readFile(this.getFilePath(), 'utf8'));
+    const storedPreferences = await this.fs.readOne(this.file);
+    return storedPreferences ?? this.defaultPreferences;
   }
 
   getPreferences() {
@@ -86,12 +74,7 @@ export class StoragePreferences extends BasePreferencesStorage {
       ...(await this.readPreferences()),
       ...attributes,
     };
-    await fs.writeFile(
-      this.getFilePath(),
-      JSON.stringify(newPreferences, null, 2),
-      'utf-8'
-    );
-
+    await this.fs.write(this.file, newPreferences);
     this.preferences = newPreferences;
   }
 }
@@ -103,21 +86,15 @@ export type User = {
 };
 
 export class UserStorage {
-  private readonly folder = 'Users';
-  constructor(private readonly basepath: string = '') {}
+  private readonly fs = new Filesystem<User>({
+    subdir: 'Users',
+  });
 
-  private getFolderPath() {
-    return join(this.basepath, this.folder);
-  }
-
-  private getFilePath(id: string) {
-    return join(this.getFolderPath(), `${id}.json`);
+  private getFileName(id: string) {
+    return `${id}.json`;
   }
 
   async getOrCreate(id: string): Promise<User> {
-    // Ensure folder exists
-    await fs.mkdir(this.getFolderPath(), { recursive: true });
-
     if (!id) {
       return this.createUser();
     }
@@ -133,7 +110,10 @@ export class UserStorage {
   }
 
   async getUser(id: string): Promise<User> {
-    const user = JSON.parse(await fs.readFile(this.getFilePath(id), 'utf-8'));
+    const user = await this.fs.readOne(this.getFileName(id));
+    if (!user) {
+      throw new Error('User does not exist');
+    }
     return {
       id: user.id,
       createdAt: new Date(user.createdAt),
@@ -161,11 +141,7 @@ export class UserStorage {
   }
 
   private async writeUser(user: User): Promise<User> {
-    await fs.writeFile(
-      this.getFilePath(user.id),
-      JSON.stringify(user, null, 2),
-      'utf-8'
-    );
+    await this.fs.write(this.getFileName(user.id), user);
     return this.getUser(user.id);
   }
 }
