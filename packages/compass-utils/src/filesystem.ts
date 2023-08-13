@@ -2,7 +2,7 @@ import { promises as fs, createWriteStream } from 'fs';
 import path from 'path';
 import { glob } from 'glob';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { getAppPath } from './get-storage-paths';
+import { getAppPath } from './electron';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-UTILS');
 

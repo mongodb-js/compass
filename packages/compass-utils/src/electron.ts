@@ -1,8 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-export interface StoragePaths {
-  appName: string;
-  basepath: string;
-}
 
 function getElectronApp() {
   let app;
@@ -27,15 +23,4 @@ export function getAppName(): string | undefined {
 
 export function getAppPath(): string | undefined {
   return getElectronApp()?.getPath('userData');
-}
-
-// todo: remove this and rename the file
-export function getStoragePaths(): StoragePaths | undefined {
-  const app = getElectronApp();
-  if (!app) return undefined;
-
-  const appName = app.getName();
-  const basepath = app.getPath('userData');
-
-  return { appName, basepath };
 }
