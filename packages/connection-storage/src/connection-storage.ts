@@ -50,7 +50,7 @@ export class ConnectionStorage {
     ipcExpose('ConnectionStorage', this, [
       'loadAll',
       'load',
-      'hasLegacyConnections',
+      'getLegacyConnections',
       'save',
       'delete',
       'deserializeConnections',
@@ -132,20 +132,21 @@ export class ConnectionStorage {
    * connection.connectionInfo  -> new connection
    * connection.isFavorite      -> legacy favorite connection
    */
-  static async hasLegacyConnections({
+  static async getLegacyConnections({
     signal,
   }: {
     signal?: AbortSignal;
-  } = {}): Promise<boolean> {
+  } = {}): Promise<{ name: string }[]> {
     throwIfAborted(signal);
     try {
-      return (
-        (await this.getConnections()).filter(
-          (x) => !x.connectionInfo && x.isFavorite
-        ).length > 0
+      const legacyConnections = (await this.getConnections()).filter(
+        (x) => !x.connectionInfo && x.isFavorite
       );
+      return legacyConnections.map((x) => ({
+        name: x.name,
+      }));
     } catch (e) {
-      return false;
+      return [];
     }
   }
 
