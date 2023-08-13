@@ -29,7 +29,10 @@ export class Filesystem<T> {
 
   private getStorageBasePath(): string {
     if (process.env.COMPASS_TESTS_STORAGE_BASE_PATH) {
-      return process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
+      return path.join(
+        process.env.COMPASS_TESTS_STORAGE_BASE_PATH,
+        this.subdir
+      );
     }
     const basepath = getAppPath();
     if (!basepath) {
