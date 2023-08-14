@@ -105,7 +105,7 @@ const defaultSecretStore: SecretStore = {
       }
       return (await keytar.getPassword(appName, key)) ?? undefined;
     } catch {
-      return Promise.resolve(undefined);
+      return undefined;
     }
   },
   async setItem(key: string, value: string) {
@@ -119,7 +119,7 @@ const defaultSecretStore: SecretStore = {
       }
       return await keytar.setPassword(appName, key, value);
     } catch {
-      return Promise.resolve();
+      return;
     }
   },
 };
