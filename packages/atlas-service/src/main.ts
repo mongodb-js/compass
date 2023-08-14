@@ -138,7 +138,7 @@ export class AtlasService {
    *             ↓
    * serialized state provided? → no → no event
    *             ↓
-   *            yes → failed to deserialize? → no → no event
+   *            yes → failed to deserialize? → no → `plugin:state-updated`
    *                             ↓
    *                           yes → `plugin:deserialization-failed`
    *
@@ -166,9 +166,9 @@ export class AtlasService {
    *              ↓                ↓                                                          │        ↓                  ↓                │
    * `plugin:skip-auth-attempt` ← `plugin:state-updated`                                      │       yes     `plugin:auth-attempt-failed` │
    *              ↓                                                                           │        ↓                                   │
-   *    `plugin:auth-succeeded` ←─────── yes ←──────── do we have a new token set in state? ← │ `plugin:auth-attempt-succeeded`            │
+   *    `plugin:auth-succeeded` ←─────── yes ←──────── do we have a new token set in state? ← │ `plugin:state-updated`                     │
    *                                                                 ↓                        │        ↓                                   │
-   *                                                                 no                       │ `plugin:state-updated`                     │
+   *                                                                 no                       │ `plugin:auth-attempt-succeeded`            │
    *                                                                 ↓                        └────────────────────────────────────────────┘
    *                                                        `plugin:auth-failed`
    */
