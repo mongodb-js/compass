@@ -234,6 +234,7 @@ function AITextInput({
             className={textInputStyles}
             ref={promptTextInputRef}
             sizeVariant="small"
+            data-testid="ai-query-user-text-input"
             aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
             placeholder="Tell Compass what documents to find (e.g. which movies were released in 2000)"
             value={aiPromptText}
@@ -258,6 +259,7 @@ function AITextInput({
                 generateButtonStyles,
                 !darkMode && generateButtonLightModeStyles
               )}
+              data-testid="ai-query-generate-button"
               onClick={() =>
                 isFetching ? onCancelAIQuery() : onSubmitText(aiPromptText)
               }

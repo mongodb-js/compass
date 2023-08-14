@@ -1035,6 +1035,15 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
+export const QueryBarAskAIButton =
+  '[data-testid="open-ai-query-ask-ai-button"]';
+export const QueryBarAITextInput = '[data-testid="ai-query-user-text-input"]';
+export const QueryBarAIGenerateQueryButton =
+  '[data-testid="ai-query-generate-button"]';
+
+// Atlas service
+export const AtlasSignInModalButton =
+  '[data-testid="atlas-signin-modal-button"]';
 
 // Workspace tabs at the top
 export const SelectedWorkspaceTabButton =

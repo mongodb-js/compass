@@ -296,6 +296,13 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
       reject,
     } = getAttempt(getState().currentAttemptId);
     dispatch({ type: AtlasSignInActions.Start });
+
+    if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN === 'true') {
+      dispatch({ type: AtlasSignInActions.Success });
+      resolve();
+      return;
+    }
+
     try {
       if ((await atlasService.isAuthenticated({ signal })) === false) {
         await atlasService.signIn({ signal });

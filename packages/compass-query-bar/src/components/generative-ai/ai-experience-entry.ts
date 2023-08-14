@@ -91,6 +91,7 @@ function createAIPlaceholderHTMLPlaceholder({
   containerEl.appendChild(placeholderTextEl);
 
   const aiButtonEl = document.createElement('button');
+  aiButtonEl.setAttribute('data-testid', 'open-ai-query-ask-ai-button');
   // By default placeholder container will have pointer events disabled
   aiButtonEl.style.pointerEvents = 'auto';
   // We stop mousedown from propagating and preventing default behavior to avoid

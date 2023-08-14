@@ -623,6 +623,7 @@ export class AtlasService {
       }
     }
 
+    // TODO: Skip this in e2e.
     await this.maybeWaitForToken({ signal });
 
     const res = await this.fetch(`${this.apiBaseUrl}/ai/api/v1/mql-query`, {
