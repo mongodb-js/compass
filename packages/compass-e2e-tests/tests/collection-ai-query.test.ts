@@ -104,13 +104,13 @@ describe('Collection ai query', function () {
       await browser.clickVisible(Selectors.QueryBarAIGenerateQueryButton);
 
       // Wait for the ipc events to succeed.
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Make sure the query bar was updated.
-      const queryBarFilterContent = await browser.getCodemirrorEditorText(
-        Selectors.queryBarOptionInputFilter('Documents')
-      );
-      expect(queryBarFilterContent).to.equal('{i: {$gt: 50}}');
+      await browser.waitUntil(async function () {
+        // Make sure the query bar was updated.
+        const queryBarFilterContent = await browser.getCodemirrorEditorText(
+          Selectors.queryBarOptionInputFilter('Documents')
+        );
+        return queryBarFilterContent === '{i: {$gt: 50}}';
+      });
 
       // Check that the request was made with the correct parameters.
       const requests = getRequests();
