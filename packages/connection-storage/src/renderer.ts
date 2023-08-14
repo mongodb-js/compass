@@ -9,7 +9,7 @@ export class ConnectionStorage {
     typeof ConnectionStorageMain,
     | 'loadAll'
     | 'load'
-    | 'hasLegacyConnections'
+    | 'getLegacyConnections'
     | 'save'
     | 'delete'
     | 'deserializeConnections'
@@ -18,7 +18,7 @@ export class ConnectionStorage {
   >('ConnectionStorage', [
     'loadAll',
     'load',
-    'hasLegacyConnections',
+    'getLegacyConnections',
     'save',
     'delete',
     'deserializeConnections',
@@ -28,7 +28,7 @@ export class ConnectionStorage {
 
   static loadAll = this.ipc.loadAll;
   static load = this.ipc.load;
-  static hasLegacyConnections = this.ipc.hasLegacyConnections;
+  static getLegacyConnections = this.ipc.getLegacyConnections;
   static save = this.ipc.save;
   static delete = this.ipc.delete;
   static deserializeConnections = this.ipc.deserializeConnections;

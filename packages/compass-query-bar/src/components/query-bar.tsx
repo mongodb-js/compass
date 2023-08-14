@@ -75,11 +75,6 @@ const moreOptionsContainerStyles = css({
 const filterContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
-
-  // Override codemirror styles to make the `Ask AI` button clickable.
-  '& .cm-placeholder': {
-    pointerEvents: 'auto !important' as any, // Cast to any as !important errors ts.
-  },
 });
 
 const filterLabelStyles = css({
