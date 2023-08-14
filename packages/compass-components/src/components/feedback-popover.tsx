@@ -24,6 +24,7 @@ export const FeedbackPopover = ({
   label,
   placeholder,
   setOpen,
+  refEl,
   open,
   ...props
 }: FeedbackPopoverProps) => {
@@ -42,8 +43,11 @@ export const FeedbackPopover = ({
         return;
       }
 
-      // Clicked within popover.
-      if (event.composedPath().includes(popover)) {
+      // Clicked within popover or the trigger.
+      if (
+        event.composedPath().includes(popover) ||
+        event.composedPath().includes(refEl.current!)
+      ) {
         return;
       }
 
@@ -77,6 +81,7 @@ export const FeedbackPopover = ({
       data-popoverid={`feedback-popover-${feedbackPopoverId}`}
       title=""
       tooltipAlign="bottom"
+      refEl={refEl}
       onPrimaryButtonClick={() => onSubmitFeedback(feedbackText)}
       buttonText="Submit"
       setOpen={setOpen}
