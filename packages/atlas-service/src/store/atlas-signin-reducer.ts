@@ -296,7 +296,6 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
       reject,
     } = getAttempt(getState().currentAttemptId);
     dispatch({ type: AtlasSignInActions.Start });
-
     try {
       if ((await atlasService.isAuthenticated({ signal })) === false) {
         await atlasService.signIn({ signal });
