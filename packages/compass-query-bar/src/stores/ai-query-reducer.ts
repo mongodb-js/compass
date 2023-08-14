@@ -327,7 +327,6 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       ...state,
       status: 'success',
       aiQueryFetchId: -1,
-      didSucceed: true,
     };
   }
 
@@ -361,6 +360,8 @@ const aiQueryReducer: Reducer<AIQueryState> = (
   ) {
     return {
       ...state,
+      // Reset the status after a successful run when the user change's the text.
+      status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
     };
   }

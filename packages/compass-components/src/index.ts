@@ -135,6 +135,7 @@ export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { EmptyContent } from './components/empty-content';
 export { ErrorBoundary } from './components/error-boundary';
+export { FeedbackPopover } from './components/feedback-popover';
 export { StoreConnector } from './components/store-connector';
 export { TabNavBar } from './components/tab-nav-bar';
 export { WorkspaceContainer } from './components/workspace-container';
