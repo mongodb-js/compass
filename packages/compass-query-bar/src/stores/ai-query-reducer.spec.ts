@@ -108,7 +108,6 @@ describe('aiQueryReducer', function () {
           status: 'ready',
           aiPromptText: '',
           errorMessage: undefined,
-          didSubmitFeedback: false,
           isInputVisible: false,
           aiQueryFetchId: -1,
         });
