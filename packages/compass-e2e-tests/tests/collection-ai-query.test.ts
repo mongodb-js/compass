@@ -120,14 +120,14 @@ describe('Collection ai query', function () {
       expect(requests[0].content.databaseName).to.equal('test');
       expect(requests[0].content.schema).to.exist;
 
-      // Run it and check documents where shown.
+      // Run it and check that the correct documents are shown.
       await browser.runFind('Documents', true);
       const modifiedResult = await getFirstListDocument(browser);
       expect(modifiedResult.i).to.be.equal('51');
     });
   });
 
-  describe('when the atlas service request errors', function () {
+  describe('when the Atlas service request errors', function () {
     beforeEach(function () {
       setMockAtlasServerResponse({
         status: 500,
