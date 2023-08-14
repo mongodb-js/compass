@@ -50,6 +50,10 @@ import {
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
+export {
+  GenerativeAIInput,
+  createAIPlaceholderHTMLPlaceholder,
+} from './components/generative-ai';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';
 export {
