@@ -402,6 +402,9 @@ type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
   onLoad?: (editor: EditorView) => void;
+  onFocus?: (event: React.FocusEvent<HTMLDivElement>) => void;
+  onBlur?: (editor: React.FocusEvent<HTMLDivElement>) => void;
+  onPaste?: (editor: React.ClipboardEvent<HTMLDivElement>) => void;
   darkMode?: boolean;
   showLineNumbers?: boolean;
   showFoldGutter?: boolean;
@@ -424,7 +427,7 @@ type EditorProps = {
 ) &
   Pick<
     React.HTMLProps<HTMLDivElement>,
-    'id' | 'className' | 'onFocus' | 'onBlur'
+    'id' | 'className' | 'onFocus' | 'onPaste' | 'onBlur'
   >;
 
 function createFoldGutterExtension() {
@@ -463,6 +466,20 @@ async function wait(ms?: number): Promise<void> {
   });
 }
 
+async function waitUntilEditorIsReady(
+  editorView: EditorView,
+  signal?: AbortSignal
+): Promise<boolean> {
+  while ((editorView as any).updateState !== 0) {
+    if (signal?.aborted) {
+      return false;
+    }
+    await wait();
+  }
+
+  return true;
+}
+
 /**
  * Codemirror editor throws when the state update is being applied while another
  * one is in progress and doesn't give us a way to schedule updates otherwise.
@@ -473,17 +490,12 @@ async function wait(ms?: number): Promise<void> {
  *
  * [0]: https://discuss.codemirror.net/t/should-dispatched-transactions-be-added-to-a-queue/4610/4
  */
-async function sheduleDispatch(
+async function scheduleDispatch(
   editorView: EditorView,
   transactions: TransactionSpec | TransactionSpec[],
   signal?: AbortSignal
 ): Promise<boolean> {
-  while ((editorView as any).updateState !== 0) {
-    if (signal?.aborted) {
-      return false;
-    }
-    await wait();
-  }
+  await waitUntilEditorIsReady(editorView, signal);
   transactions = Array.isArray(transactions) ? transactions : [transactions];
   editorView.dispatch(...transactions);
   return true;
@@ -519,7 +531,7 @@ function useCodemirrorExtensionCompartment<T>(
 
     const controller = new AbortController();
 
-    void sheduleDispatch(
+    void scheduleDispatch(
       editorViewRef.current,
       {
         effects: compartmentRef.current?.reconfigure(
@@ -543,6 +555,7 @@ export type EditorRef = {
   prettify: () => boolean;
   applySnippet: (template: string) => boolean;
   focus: () => boolean;
+  readonly editorContents: string | false;
   readonly editor: EditorView | null;
 };
 
@@ -565,6 +578,15 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     onLoad = () => {
       /**/
     },
+    onFocus = () => {
+      /**/
+    },
+    onBlur = () => {
+      /**/
+    },
+    onPaste = () => {
+      /**/
+    },
     minLines,
     maxLines,
     lineHeight = 16,
@@ -578,6 +600,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
   const onLoadRef = useRef(onLoad);
+  const onFocusRef = useRef(onFocus);
+  const onBlurRef = useRef(onBlur);
+  const onPasteRef = useRef(onPaste);
   const initialTextProvided = useRef(!!_initialText);
   const initialText = useRef(_initialText ?? text);
   const initialLanguage = useRef(language);
@@ -593,6 +618,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
   onLoadRef.current = onLoad;
+  onFocusRef.current = onFocus;
+  onBlurRef.current = onBlur;
+  onPasteRef.current = onPaste;
 
   useImperativeHandle(
     ref,
@@ -634,6 +662,13 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           }
           editorViewRef.current.focus();
           return true;
+        },
+        get editorContents() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+
+          return getEditorContents(editorViewRef.current);
         },
         get editor() {
           return editorViewRef.current ?? null;
@@ -838,10 +873,34 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
           updateEditorContentHeight();
+          const editorText = editor.state.sliceDoc() ?? '';
+
           if (update.docChanged) {
-            const text = editor.state.sliceDoc() ?? '';
-            onChangeTextRef.current?.(text, update);
+            onChangeTextRef.current?.(editorText, update);
           }
+        }),
+        /**
+         * EditorView.domEventHandlers use real DOM events. However,
+         * we want to bubble these events up to our React components
+         * properly. We will be casting them to React synthetic events,
+         * as for our use case, they should behave identical.
+         */
+        EditorView.domEventHandlers({
+          focus(event: FocusEvent) {
+            onFocusRef.current?.(
+              event as unknown as React.FocusEvent<HTMLDivElement>
+            );
+          },
+          blur(event: FocusEvent) {
+            onBlurRef.current?.(
+              event as unknown as React.FocusEvent<HTMLDivElement>
+            );
+          },
+          paste(event: ClipboardEvent) {
+            onPasteRef.current?.(
+              event as unknown as React.ClipboardEvent<HTMLDivElement>
+            );
+          },
         }),
       ],
       parent: domNode,
@@ -918,7 +977,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     ) {
       const controller = new AbortController();
 
-      void sheduleDispatch(
+      void scheduleDispatch(
         editorViewRef.current,
         {
           changes: {
@@ -944,7 +1003,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
     const controller = new AbortController();
 
-    void sheduleDispatch(
+    void scheduleDispatch(
       editorViewRef.current,
       {
         effects: setDiagnosticsEffect.of(annotations ?? []),
@@ -1032,6 +1091,14 @@ const applySnippet = (editor: EditorView, template: string): boolean => {
   }
 };
 
+const getEditorContents = (
+  editor: EditorView,
+  from?: number,
+  to?: number
+): string => {
+  return editor.state.sliceDoc(from, to) ?? '';
+};
+
 const foldAll: Command = (editor) => {
   const foldableProperties: { from: number; to: number }[] = [];
   syntaxTree(editor.state).iterate({
@@ -1057,7 +1124,7 @@ const foldAll: Command = (editor) => {
     },
   });
   if (foldableProperties.length > 0) {
-    void sheduleDispatch(editor, {
+    void scheduleDispatch(editor, {
       effects: foldableProperties.map((range) => {
         return foldEffect.of(range);
       }),
@@ -1082,7 +1149,7 @@ const prettify: Command = (editorView) => {
   try {
     const formatted = _prettify(doc, language);
     if (formatted !== doc) {
-      void sheduleDispatch(editorView, {
+      void scheduleDispatch(editorView, {
         changes: {
           from: 0,
           to: editorView.state.doc.length,
@@ -1221,6 +1288,9 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           applySnippet(template: string) {
             return editorRef.current?.applySnippet(template) ?? false;
           },
+          get editorContents() {
+            return editorRef.current?.editorContents ?? false;
+          },
           get editor() {
             return editorRef.current?.editor ?? null;
           },
@@ -1338,7 +1408,7 @@ async function setCodemirrorEditorValue(
     throw new Error('Cannot find editor container');
   }
   const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
-  await sheduleDispatch(editorView, {
+  await scheduleDispatch(editorView, {
     changes: {
       from: 0,
       to: editorView.state.doc.length,
@@ -1347,8 +1417,57 @@ async function setCodemirrorEditorValue(
   });
 }
 
+/**
+ * Retrieves the contents of an editor, use this with RTL like this:
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * getCodemirrorEditorValue(screen.getByTestId('editor-test-id'));
+ * ```
+ */
+async function getCodemirrorEditorValue(
+  element: HTMLElement | string | null
+): Promise<string> {
+  if (typeof element === 'string') {
+    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
+  }
+  if (!element || !element.hasAttribute('data-codemirror')) {
+    throw new Error('Cannot find editor container');
+  }
+  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
+  await waitUntilEditorIsReady(editorView);
+
+  return editorView.state.sliceDoc() ?? '';
+}
+
+/**
+ * Clicks on the codemirror editor and waits for all events to be processed.
+ * This shouldn't be necessary, but it seems that focus events are a bit special
+ * on Codemirror.
+ *
+ * ```
+ * render(<Editor data-testid='my-editor' />);
+ * clickOnCodemirrorHandler(screen.getByTestId('editor-test-id'));
+ * ```
+ */
+async function clickOnCodemirrorHandler(
+  element: HTMLElement | string | null
+): Promise<void> {
+  if (typeof element === 'string') {
+    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
+  }
+  if (!element || !element.hasAttribute('data-codemirror')) {
+    throw new Error('Cannot find editor container');
+  }
+  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
+  editorView.focus();
+  await waitUntilEditorIsReady(editorView);
+}
+
 export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };
+export { getCodemirrorEditorValue };
+export { clickOnCodemirrorHandler };
 export type { CompletionSource as Completer };

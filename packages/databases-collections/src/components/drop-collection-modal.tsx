@@ -54,6 +54,7 @@ function DropCollectionModal({
   const onFormSubmit = useCallback(() => {
     if (name === nameConfirmation) {
       dropCollection();
+      changeCollectionNameConfirmation('');
     }
   }, [name, nameConfirmation, dropCollection]);
 

@@ -334,6 +334,7 @@ const aiQueryReducer: Reducer<AIQueryState> = (
   if (isAction<CancelAIQueryAction>(action, AIQueryActionTypes.CancelAIQuery)) {
     return {
       ...state,
+      status: 'ready',
       aiQueryFetchId: -1,
     };
   }
