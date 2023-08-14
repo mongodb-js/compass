@@ -90,8 +90,7 @@ class CompassApplication {
       return;
     }
 
-    AtlasService.init();
-
+    void this.setupAtlasService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
     setupTheme();
@@ -107,6 +106,13 @@ class CompassApplication {
     globalPreferences: ParsedGlobalPreferencesResult
   ): Promise<void> {
     return (this.initPromise ??= this._init(mode, globalPreferences));
+  }
+
+  private static async setupAtlasService() {
+    await AtlasService.init();
+    this.addExitHandler(() => {
+      return AtlasService.onExit();
+    });
   }
 
   private static setupJavaScriptArguments(): void {
@@ -142,7 +148,8 @@ class CompassApplication {
     track('Application Launched', async () => {
       let hasLegacyConnections: boolean;
       try {
-        hasLegacyConnections = await ConnectionStorage.hasLegacyConnections();
+        hasLegacyConnections =
+          (await ConnectionStorage.getLegacyConnections()).length > 0;
       } catch (e) {
         debug('Failed to check legacy connections', e);
         hasLegacyConnections = false;

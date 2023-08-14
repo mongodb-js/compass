@@ -22,6 +22,7 @@ import {
   changeAIPromptText,
   runAIQuery,
 } from '../../stores/ai-query-reducer';
+import { QueryFeedback } from './query-feedback';
 
 const containerStyles = css({
   display: 'flex',
@@ -31,14 +32,21 @@ const containerStyles = css({
   marginTop: '2px',
 });
 
+const inputBarContainerStyles = css({
+  paddingTop: spacing[2],
+  gap: spacing[2],
+  flexGrow: 1,
+  display: 'flex',
+});
+
 const inputContainerStyles = css({
   display: 'flex',
+  flexGrow: 1,
   position: 'relative',
-  paddingTop: spacing[2],
 });
 
 const textInputStyles = css({
-  width: '100%',
+  flexGrow: 1,
 });
 
 const errorSummaryContainer = css({
@@ -47,7 +55,6 @@ const errorSummaryContainer = css({
 
 const floatingButtonsContainerStyles = css({
   position: 'absolute',
-  top: spacing[2],
   right: spacing[1],
   display: 'flex',
   gap: spacing[2],
@@ -152,11 +159,11 @@ const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
 
 type AITextInputProps = {
   aiPromptText: string;
-  onCancelAIQuery: () => void;
-  isFetching?: boolean;
   didSucceed: boolean;
   errorMessage?: string;
+  isFetching?: boolean;
   show: boolean;
+  onCancelAIQuery: () => void;
   onChangeAIPromptText: (text: string) => void;
   onClose: () => void;
   onSubmitText: (text: string) => void;
@@ -164,11 +171,11 @@ type AITextInputProps = {
 
 function AITextInput({
   aiPromptText,
-  onCancelAIQuery,
-  isFetching,
   didSucceed,
   errorMessage,
+  isFetching,
   show,
+  onCancelAIQuery,
   onClose,
   onChangeAIPromptText,
   onSubmitText,
@@ -221,87 +228,90 @@ function AITextInput({
 
   return (
     <div className={containerStyles}>
-      <div className={inputContainerStyles}>
-        <TextInput
-          className={textInputStyles}
-          ref={promptTextInputRef}
-          sizeVariant="small"
-          aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
-          placeholder="Tell Compass what documents to find (e.g. which movies were released in 2000)"
-          value={aiPromptText}
-          onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-            onChangeAIPromptText(evt.currentTarget.value)
-          }
-          onKeyDown={onTextInputKeyDown}
-        />
-        <div className={floatingButtonsContainerStyles}>
-          {aiPromptText && (
-            <IconButton
-              aria-label="Clear query prompt"
-              onClick={() => onChangeAIPromptText('')}
-              data-testid="ai-text-clear-prompt"
-            >
-              <Icon glyph="X" />
-            </IconButton>
-          )}
-          <Button
-            size="small"
-            className={cx(
-              generateButtonStyles,
-              !darkMode && generateButtonLightModeStyles
-            )}
-            onClick={() =>
-              isFetching ? onCancelAIQuery() : onSubmitText(aiPromptText)
+      <div className={inputBarContainerStyles}>
+        <div className={inputContainerStyles}>
+          <TextInput
+            className={textInputStyles}
+            ref={promptTextInputRef}
+            sizeVariant="small"
+            aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
+            placeholder="Tell Compass what documents to find (e.g. which movies were released in 2000)"
+            value={aiPromptText}
+            onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+              onChangeAIPromptText(evt.currentTarget.value)
             }
-          >
-            {isFetching ? (
-              <>
-                <div>Cancel</div>
-                <span
-                  className={cx(
-                    buttonHighlightStyles,
-                    darkMode
-                      ? buttonHighlightDarkModeStyles
-                      : buttonHighlightLightModeStyles
-                  )}
-                >
-                  esc
-                </span>
-              </>
-            ) : (
-              <>
-                <div>Generate</div>
-                <SubmitArrowSVG darkMode={darkMode} />
-              </>
+            onKeyDown={onTextInputKeyDown}
+          />
+          <div className={floatingButtonsContainerStyles}>
+            {aiPromptText && (
+              <IconButton
+                aria-label="Clear query prompt"
+                onClick={() => onChangeAIPromptText('')}
+                data-testid="ai-text-clear-prompt"
+              >
+                <Icon glyph="X" />
+              </IconButton>
             )}
-          </Button>
-          {isFetching ? (
-            <div className={loaderContainerStyles}>
-              <SpinLoader />
-            </div>
-          ) : showSuccess ? (
-            <div className={loaderContainerStyles}>
-              <Icon
-                className={
-                  darkMode
-                    ? successIndicatorDarkModeStyles
-                    : successIndicatorLightModeStyles
-                }
-                glyph="CheckmarkWithCircle"
-              />
-            </div>
-          ) : (
-            <button
-              className={closeAIButtonStyles}
-              data-testid="close-ai-query-button"
-              aria-label={closeText}
-              title={closeText}
-              onClick={() => onClose()}
+            <Button
+              size="small"
+              className={cx(
+                generateButtonStyles,
+                !darkMode && generateButtonLightModeStyles
+              )}
+              onClick={() =>
+                isFetching ? onCancelAIQuery() : onSubmitText(aiPromptText)
+              }
             >
-              {isFetching ? <SpinLoader /> : <RobotSVG />}
-            </button>
-          )}
+              {isFetching ? (
+                <>
+                  <div>Cancel</div>
+                  <span
+                    className={cx(
+                      buttonHighlightStyles,
+                      darkMode
+                        ? buttonHighlightDarkModeStyles
+                        : buttonHighlightLightModeStyles
+                    )}
+                  >
+                    esc
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div>Generate</div>
+                  <SubmitArrowSVG darkMode={darkMode} />
+                </>
+              )}
+            </Button>
+            {isFetching ? (
+              <div className={loaderContainerStyles}>
+                <SpinLoader />
+              </div>
+            ) : showSuccess ? (
+              <div className={loaderContainerStyles}>
+                <Icon
+                  className={
+                    darkMode
+                      ? successIndicatorDarkModeStyles
+                      : successIndicatorLightModeStyles
+                  }
+                  glyph="CheckmarkWithCircle"
+                />
+              </div>
+            ) : (
+              <button
+                className={closeAIButtonStyles}
+                data-testid="close-ai-query-button"
+                aria-label={closeText}
+                title={closeText}
+                onClick={() => onClose()}
+              >
+                {isFetching ? <SpinLoader /> : <RobotSVG />}
+              </button>
+            )}
+          </div>
         </div>
+        {didSucceed && <QueryFeedback />}
       </div>
       {errorMessage && (
         <div className={errorSummaryContainer}>

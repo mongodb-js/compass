@@ -24,7 +24,7 @@ function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
     loadAll: () => {
       return Promise.resolve(mockConnections);
     },
-    hasLegacyConnections: () => Promise.resolve(false),
+    getLegacyConnections: () => Promise.resolve([]),
     save: () => Promise.resolve(),
     delete: () => Promise.resolve(),
     load: (id: string) =>
@@ -448,7 +448,9 @@ describe('Connections Component', function () {
   context('when user has any legacy connection', function () {
     it('shows modal', async function () {
       const mockStorage = getMockConnectionStorage([]);
-      sinon.stub(mockStorage, 'hasLegacyConnections').resolves(true);
+      sinon
+        .stub(mockStorage, 'getLegacyConnections')
+        .resolves([{ name: 'Connection1' }]);
       render(
         <ToastArea>
           <Connections
@@ -458,14 +460,20 @@ describe('Connections Component', function () {
           />
         </ToastArea>
       );
+
       await waitFor(
         () => expect(screen.getByTestId('legacy-connections-modal')).to.exist
       );
+
+      const modal = screen.getByTestId('legacy-connections-modal');
+      expect(within(modal).getByText('Connection1')).to.exist;
     });
 
     it('does not show modal when user hides it', async function () {
       const mockStorage = getMockConnectionStorage([]);
-      sinon.stub(mockStorage, 'hasLegacyConnections').resolves(true);
+      sinon
+        .stub(mockStorage, 'getLegacyConnections')
+        .resolves([{ name: 'Connection2' }]);
       const { rerender } = render(
         <ToastArea>
           <Connections
