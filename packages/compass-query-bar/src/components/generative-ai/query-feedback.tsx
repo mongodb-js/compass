@@ -91,7 +91,7 @@ function QueryFeedback() {
     useState(true);
 
   const onSubmitFeedback = (text: string) => {
-    log.info(mongoLogId(1_001_000_221), 'AIQuery', 'AI query feedback', {
+    log.info(mongoLogId(1_001_000_223), 'AIQuery', 'AI query feedback', {
       feedback: chosenFeedbackOption,
       text,
     });
