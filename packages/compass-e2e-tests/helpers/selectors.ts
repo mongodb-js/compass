@@ -376,9 +376,6 @@ export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
-// Query bar (Find, Schema)
-export const QueryBarMenuActions = '#query-bar-menu-actions';
-
 // Instance screen
 export const InstanceTabs = '[data-testid="instance-tabs"]';
 export const InstanceTab = '.test-tab-nav-bar-tab';
@@ -1040,10 +1037,8 @@ export const QueryBarAskAIButton =
 export const QueryBarAITextInput = '[data-testid="ai-query-user-text-input"]';
 export const QueryBarAIGenerateQueryButton =
   '[data-testid="ai-query-generate-button"]';
-
-// Atlas service
-export const AtlasSignInModalButton =
-  '[data-testid="atlas-signin-modal-button"]';
+export const QueryBarAIErrorMessageBanner =
+  '[data-testid="ai-query-error-msg"]';
 
 // Workspace tabs at the top
 export const SelectedWorkspaceTabButton =

@@ -317,7 +317,9 @@ function AITextInput({
       </div>
       {errorMessage && (
         <div className={errorSummaryContainer}>
-          <ErrorSummary errors={errorMessage}>{errorMessage}</ErrorSummary>
+          <ErrorSummary data-testid="ai-query-error-msg" errors={errorMessage}>
+            {errorMessage}
+          </ErrorSummary>
         </div>
       )}
     </div>

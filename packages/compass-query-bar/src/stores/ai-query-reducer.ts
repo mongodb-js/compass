@@ -270,7 +270,9 @@ export const cancelAIQuery = (): QueryBarThunkAction<
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
     try {
-      await atlasService.signIn({ promptType: 'ai-promo-modal' });
+      if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+        await atlasService.signIn({ promptType: 'ai-promo-modal' });
+      }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {
       // if sign in failed / user canceled we just don't show the input

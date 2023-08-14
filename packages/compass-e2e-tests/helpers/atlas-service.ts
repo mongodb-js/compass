@@ -2,33 +2,23 @@ import http from 'http';
 import { once } from 'events';
 import type { AddressInfo } from 'net';
 
-export const TEST_TOKEN = 'test_token';
-export const TEST_AUTH_PASSWORD = 'testpass';
-
-// Throws if doesn't match.
-function checkReqAuth(req: http.IncomingMessage) {
-  const authHeader = req.headers.authorization ?? '';
-
-  if (authHeader !== TEST_TOKEN) {
-    throw new Error('no match');
-  }
-}
+export type MockAtlasServerResponse = {
+  status: number;
+  body: any;
+};
 
 export async function startMockAtlasServiceServer(
   {
-    response,
+    response: _response,
   }: {
-    response: {
-      status: number;
-      body: any;
-    };
+    response: MockAtlasServerResponse;
   } = {
     response: {
       status: 200,
       body: {
         content: {
           query: {
-            find: {
+            filter: {
               test: 'pineapple',
             },
           },
@@ -37,28 +27,23 @@ export async function startMockAtlasServiceServer(
     },
   }
 ): Promise<{
+  clearRequests: () => void;
   getRequests: () => {
     content: any;
     req: any;
   }[];
+  setMockAtlasServerResponse: (response: MockAtlasServerResponse) => void;
   endpoint: string;
   server: http.Server;
   stop: () => Promise<void>;
 }> {
-  const requests: {
+  let requests: {
     content: any;
     req: any;
   }[] = [];
+  let response = _response;
   const server = http
     .createServer((req, res) => {
-      try {
-        checkReqAuth(req);
-      } catch (err) {
-        res.writeHead(401);
-        res.end('Not authorized.');
-        return;
-      }
-
       let body = '';
       req
         .setEncoding('utf8')
@@ -92,14 +77,24 @@ export async function startMockAtlasServiceServer(
     await once(server, 'close');
   }
 
+  function clearRequests() {
+    requests = [];
+  }
+
   function getRequests() {
     return requests;
   }
 
+  function setMockAtlasServerResponse(newResponse: MockAtlasServerResponse) {
+    response = newResponse;
+  }
+
   return {
+    clearRequests,
     getRequests,
     endpoint,
     server,
+    setMockAtlasServerResponse,
     stop,
   };
 }
