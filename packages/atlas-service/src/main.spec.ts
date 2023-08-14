@@ -58,6 +58,7 @@ describe('AtlasServiceMain', function () {
     AtlasService['fetch'] = fetch;
     AtlasService['ipcMain'] = ipcMain;
     AtlasService['token'] = null;
+    AtlasService['initPromise'] = null;
     AtlasService['oidcPluginSyncedFromLoggerState'] = 'initial';
 
     sandbox.resetHistory();
@@ -516,14 +517,38 @@ describe('AtlasServiceMain', function () {
   });
 
   describe('init', function () {
-    describe('with no stored auth state', function () {
-      it('should set service to unauthenticated state', function () {});
+    it('should set service to unauthenticated state if requesting token throws', async function () {
+      mockOidcPlugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK =
+        sandbox
+          .stub()
+          .rejects(new Error('Could not retrieve valid access token'));
+      const createPlugin = () => mockOidcPlugin;
+      const initPromise = AtlasService.init(createPlugin);
+      expect(AtlasService).to.have.property(
+        'oidcPluginSyncedFromLoggerState',
+        'restoring'
+      );
+      await initPromise;
+      expect(AtlasService).to.have.property(
+        'oidcPluginSyncedFromLoggerState',
+        'unauthenticated'
+      );
     });
 
-    describe('with stored auth state', function () {
-      it('should set service to unauthenticated state if token expired', function () {});
-
-      it('should set service to autenticated state if token can be refreshed', function () {});
+    it('should set service to autenticated state if token was returned', async function () {
+      mockOidcPlugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK =
+        sandbox.stub().resolves({ accessToken: 'token' });
+      const createPlugin = () => mockOidcPlugin;
+      const initPromise = AtlasService.init(createPlugin);
+      expect(AtlasService).to.have.property(
+        'oidcPluginSyncedFromLoggerState',
+        'restoring'
+      );
+      await initPromise;
+      expect(AtlasService).to.have.property(
+        'oidcPluginSyncedFromLoggerState',
+        'authenticated'
+      );
     });
   });
 });

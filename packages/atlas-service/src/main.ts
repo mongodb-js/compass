@@ -159,17 +159,17 @@ export class AtlasService {
    *              │       `plugin:refresh-succeeded`           │
    *              │                ↓                           │
    *              │               start state update           │
-   *              │                ↓                           │
-   *              │               state update failed → yes ───┴→ `plugin:refresh-failed`     ┌────────────────────────────────────────────┐
-   *              │                ↓                                         ↓                │ `plugin:auth-attempt-started`              │
-   *              │               no                            for flow in getAllowedFlows → │        ↓                                   │
-   *              ↓                ↓                                                          │ is attempt successfull? → no               │
-   * `plugin:skip-auth-attempt` ← `plugin:state-updated`                                      │        ↓                  ↓                │
-   *              ↓                                                                           │       yes     `plugin:auth-attempt-failed` │
-   *    `plugin:auth-succeeded` ←─────── yes ←──────── do we have a new token set in state? ← │        ↓                                   │
-   *                                                                 ↓                        │ `plugin:auth-attempt-succeeded`            │
-   *                                                                 no                       └────────────────────────────────────────────┘
-   *                                                                 ↓
+   *              │                ↓                           │                              ┌────────────────────────────────────────────┐
+   *              │               state update failed → yes ───┴→ `plugin:refresh-failed`     │ `plugin:auth-attempt-started`              │
+   *              │                ↓                                         ↓                │        ↓                                   │
+   *              │               no                            for flow in getAllowedFlows → │ is attempt successfull? → no               │
+   *              ↓                ↓                                                          │        ↓                  ↓                │
+   * `plugin:skip-auth-attempt` ← `plugin:state-updated`                                      │       yes     `plugin:auth-attempt-failed` │
+   *              ↓                                                                           │        ↓                                   │
+   *    `plugin:auth-succeeded` ←─────── yes ←──────── do we have a new token set in state? ← │ `plugin:auth-attempt-succeeded`            │
+   *                                                                 ↓                        │        ↓                                   │
+   *                                                                 no                       │ `plugin:state-updated`                     │
+   *                                                                 ↓                        └────────────────────────────────────────────┘
    *                                                        `plugin:auth-failed`
    */
   private static oidcPluginLogger: MongoDBOIDCPluginLogger & {
@@ -182,7 +182,7 @@ export class AtlasService {
   private static oidcPluginSyncedFromLoggerState: AtlasServiceAuthState =
     'initial';
 
-  private static plugin: MongoDBOIDCPlugin;
+  private static plugin: MongoDBOIDCPlugin | null = null;
 
   private static token: Token | null = null;
 
@@ -242,7 +242,9 @@ export class AtlasService {
       : ['auth-code'];
   }
 
-  static init(): Promise<void> {
+  static init(
+    _createMongoDBOIDCPlugin = createMongoDBOIDCPlugin
+  ): Promise<void> {
     return (this.initPromise ??= (async () => {
       ipcExpose(
         'AtlasService',
@@ -264,7 +266,7 @@ export class AtlasService {
       );
       this.oidcPluginSyncedFromLoggerState = 'restoring';
       const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
-      this.plugin = createMongoDBOIDCPlugin({
+      this.plugin = _createMongoDBOIDCPlugin({
         redirectServerRequestHandler(data) {
           if (data.result === 'redirecting') {
             const { res, status, location } = data;
@@ -306,6 +308,12 @@ export class AtlasService {
   private static async requestOAuthToken({
     signal,
   }: { signal?: AbortSignal } = {}) {
+    if (!this.plugin) {
+      throw new Error(
+        'Trying to use the oidc-plugin before service is initialised'
+      );
+    }
+
     return this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
       { clientId: this.clientId, issuer: this.issuer },
       {
@@ -371,11 +379,11 @@ export class AtlasService {
           // proceed by requesting token once again from the plugin to sync
           // token back to the atlas service state
           await Promise.race([
-            // NB: While `auth-{succeeded,failed}` events can also fire when one
-            // of the actual sign in flows is activated (see logger event
-            // diagram), we make sure that only token refresh is allowed during
-            // this process by providing an empty array of allowedFlows to the
-            // plugin through the `getAllowedFlows` method
+            // We are not using `refresh-succeeded` / `refresh-failed` events
+            // here because those happen BEFORE `allowedFlows` method is called
+            // (see oidc-plugin flow diagram) meaning that we need to wait until
+            // the whole request token flow went through to make sure that sign
+            // in flow is not allowed while we are refreshing the token
             once(this.oidcPluginLogger, 'mongodb-oidc-plugin:auth-succeeded', {
               signal: listenerController.signal,
             }),
@@ -633,7 +641,7 @@ export class AtlasService {
   }
 
   static async onExit() {
-    // Haven't even c the oidc-plugin yet, nothing to store
+    // Haven't even created the oidc-plugin yet, nothing to store
     if (!this.plugin) {
       return;
     }
