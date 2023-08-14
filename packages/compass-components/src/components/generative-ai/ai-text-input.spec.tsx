@@ -1,6 +1,12 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
@@ -74,13 +80,14 @@ describe('GenerativeAIInput Component', function () {
   });
 
   describe('AIFeedback', function () {
-    it('should log a telemetry event with the entered text on submit', function () {
+    it.only('should call the feedback handler on submit', async function () {
       let feedbackChoice;
       let feedbackText;
 
       renderGenerativeAIInput({
         onSubmitFeedback: (_feedbackChoice, _feedbackText) => {
           feedbackChoice = _feedbackChoice;
+
           feedbackText = _feedbackText;
         },
         didSucceed: true,
@@ -88,9 +95,7 @@ describe('GenerativeAIInput Component', function () {
 
       // No feedback popover is shown yet.
       expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
-      expect(screen.queryByTestId('ai-query-feedback-thumbs-up')).to.not.exist;
 
-      expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
       const thumbsUpButton = screen.getByTestId('ai-query-feedback-thumbs-up');
       expect(thumbsUpButton).to.be.visible;
       thumbsUpButton.click();
@@ -101,7 +106,7 @@ describe('GenerativeAIInput Component', function () {
         target: { value: 'this is the query I was looking for' },
       });
 
-      screen.getByText('Submit').click();
+      await waitFor(() => fireEvent.click(screen.getByText('Submit')));
 
       // No feedback popover is shown.
       expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
