@@ -32,8 +32,8 @@ export const INITIAL_STATE: State = {
 };
 
 export enum ActionTypes {
-  // TODO: based on usage, `fetched` and `synced` should be two different groups
-  // of actions, not one
+  // TODO(COMPASS-7098): based on usage, `fetched` and `synced` should be two
+  // different groups of actions, not one
   SettingsFetchedStart = 'compass-settings/SettingsFetchedStart',
   SettingsFetched = 'compass-settings/settingsFetched',
   FieldUpdated = 'compass-settings/settingsFieldUpdated',
