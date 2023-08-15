@@ -80,7 +80,7 @@ describe('GenerativeAIInput Component', function () {
   });
 
   describe('AIFeedback', function () {
-    it.only('should call the feedback handler on submit', async function () {
+    it('should call the feedback handler on submit', async function () {
       let feedbackChoice;
       let feedbackText;
 
