@@ -16,9 +16,9 @@ const privacyFields = [
 type PrivacyFields = typeof privacyFields[number];
 type PrivacySettingsProps = Omit<SettingsListProps<PrivacyFields>, 'fields'>;
 
-export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
-  ...props
-}) => {
+export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = (
+  props
+) => {
   return (
     <div data-testid="privacy-settings">
       <div>
@@ -46,7 +46,7 @@ const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
 });
 
 const mapDispatch = {
-  handleChange: changeFieldValue,
+  onChange: changeFieldValue,
 };
 
 export default connect(mapState, mapDispatch)(PrivacySettings);

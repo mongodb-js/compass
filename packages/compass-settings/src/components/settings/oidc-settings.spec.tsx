@@ -8,13 +8,13 @@ import { OIDCSettings } from './oidc-settings';
 
 describe('OIDCSettings', function () {
   let container: HTMLElement;
-  let handleChangeSpy: sinon.SinonSpy;
+  let onChangeSpy: sinon.SinonSpy;
 
   beforeEach(function () {
-    handleChangeSpy = spy();
+    onChangeSpy = spy();
     render(
       <OIDCSettings
-        handleChange={handleChangeSpy}
+        onChange={onChangeSpy}
         preferenceStates={{}}
         currentValues={{} as any}
       />
@@ -26,13 +26,13 @@ describe('OIDCSettings', function () {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
-    it(`calls handleChange when ${option} is changed`, function () {
-      expect(handleChangeSpy.calledOnce).to.be.false;
+    it(`calls onChange when ${option} is changed`, function () {
+      expect(onChangeSpy.calledOnce).to.be.false;
       const checkbox = within(container).getByTestId(option);
       userEvent.click(checkbox, undefined, {
         skipPointerEventsCheck: true,
       });
-      expect(handleChangeSpy.calledWith(option, true)).to.be.true;
+      expect(onChangeSpy.calledWith(option, true)).to.be.true;
     });
   });
 });

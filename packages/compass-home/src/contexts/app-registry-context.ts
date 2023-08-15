@@ -10,8 +10,6 @@ export default AppRegistryContext;
 
 export enum AppRegistryRoles {
   APPLICATION_CONNECT = 'Application.Connect',
-  FIND_IN_PAGE = 'Find',
-  GLOBAL_MODAL = 'Global.Modal',
 }
 
 export enum AppRegistryComponents {
@@ -43,10 +41,7 @@ export const useAppRegistryComponent = (
 };
 
 export function useAppRegistryRole(
-  roleName:
-    | AppRegistryRoles.APPLICATION_CONNECT
-    | AppRegistryRoles.FIND_IN_PAGE
-    | AppRegistryRoles.GLOBAL_MODAL
+  roleName: AppRegistryRoles.APPLICATION_CONNECT
 ):
   | {
       component: React.JSXElementConstructor<unknown>;

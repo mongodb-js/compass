@@ -13,7 +13,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Cue, GroupCue } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
-import Settings from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
 import ipc from 'hadron-ipc';
 import type {
@@ -26,6 +25,7 @@ import toNS from 'mongodb-ns';
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useReducer,
   useRef,
@@ -369,15 +369,10 @@ function getCurrentTheme(): Theme {
 }
 
 function ThemedHome(
-  props: React.ComponentProps<typeof Home> & {
-    showWelcomeModal?: boolean;
-  }
+  props: React.ComponentProps<typeof Home>
 ): ReturnType<typeof Home> {
   const [scrollbarsContainerRef, setScrollbarsContainerRef] =
     useState<HTMLDivElement | null>(null);
-  const {
-    showWelcomeModal = !preferences.getPreferences().showedNetworkOptIn,
-  } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
@@ -411,45 +406,31 @@ function ThemedHome(
     };
   }, [appRegistry]);
 
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
 
-  function showSettingsModal() {
-    async function show() {
-      await preferences.ensureDefaultConfigurableUserPreferences();
-      setIsSettingsOpen(true);
+  useLayoutEffect(() => {
+    // If we haven't showed welcome modal that points users to network opt in
+    // yet, show the modal and update preferences with default values to reflect
+    // that
+    if (preferences.getPreferences().showedNetworkOptIn === false) {
+      setIsWelcomeOpen(true);
+      void preferences.ensureDefaultConfigurableUserPreferences();
     }
-
-    void show();
-  }
-
-  useEffect(() => {
-    ipc.ipcRenderer?.on('window:show-settings', showSettingsModal);
-    appRegistry.on('open-compass-settings', showSettingsModal);
-    return function cleanup() {
-      ipc.ipcRenderer?.off('window:show-settings', showSettingsModal);
-      appRegistry.removeListener('open-compass-settings', showSettingsModal);
-    };
-  }, [appRegistry]);
+  }, []);
 
   const closeWelcomeModal = useCallback(
     (showSettings?: boolean) => {
-      async function close() {
-        await preferences.ensureDefaultConfigurableUserPreferences();
+      function close() {
         setIsWelcomeOpen(false);
         if (showSettings) {
-          setIsSettingsOpen(true);
+          appRegistry.emit('open-compass-settings');
         }
       }
 
       void close();
     },
-    [setIsWelcomeOpen]
+    [setIsWelcomeOpen, appRegistry]
   );
-
-  const closeSettingsModal = useCallback(() => {
-    setIsSettingsOpen(false);
-  }, [setIsSettingsOpen]);
 
   const onGuideCueNext = useCallback((cue: Cue) => {
     track('Guide Cue Dismissed', {
@@ -486,10 +467,7 @@ function ThemedHome(
             className={getScrollbarStyles(darkMode)}
             ref={setScrollbarsContainerRef}
           >
-            {showWelcomeModal && (
-              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-            )}
-            <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
             <ConfirmationModalArea>
               <ToastArea>
                 <div

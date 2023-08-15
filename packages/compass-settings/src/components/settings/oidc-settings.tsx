@@ -15,9 +15,9 @@ const oidcFields = [
 type OIDCFields = typeof oidcFields[number];
 type OIDCSettingsProps = Omit<SettingsListProps<OIDCFields>, 'fields'>;
 
-export const OIDCSettings: React.FunctionComponent<OIDCSettingsProps> = ({
-  ...props
-}) => {
+export const OIDCSettings: React.FunctionComponent<OIDCSettingsProps> = (
+  props
+) => {
   return (
     <div data-testid="oidc-settings">
       <div>
@@ -34,7 +34,7 @@ const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
 });
 
 const mapDispatch = {
-  handleChange: changeFieldValue,
+  onChange: changeFieldValue,
 };
 
 export default connect(mapState, mapDispatch)(OIDCSettings);

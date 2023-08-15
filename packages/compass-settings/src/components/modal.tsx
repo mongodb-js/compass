@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -16,7 +16,7 @@ import FeaturePreviewSettings, {
   useShouldShowFeaturePreviewSettings,
 } from './settings/feature-preview';
 import Sidebar from './sidebar';
-import { saveSettings, fetchSettings } from '../stores/settings';
+import { saveSettings, closeModal } from '../stores/settings';
 import type { RootState } from '../stores';
 
 type Settings = {
@@ -27,10 +27,8 @@ type Settings = {
 type SettingsModalProps = {
   isOpen: boolean;
   isOIDCEnabled: boolean;
-  closeModal: () => void;
+  onClose: () => void;
   onSave: () => void;
-  fetchSettings: () => Promise<void>;
-  loadingState: 'loading' | 'ready';
   hasChangedSettings: boolean;
 };
 
@@ -56,11 +54,9 @@ const settingsStyles = css(
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,
-  closeModal,
+  onClose,
   onSave,
-  fetchSettings,
   isOIDCEnabled,
-  loadingState,
   hasChangedSettings,
 }) => {
   const settings: Settings[] = [
@@ -85,23 +81,8 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
 
-  useEffect(() => {
-    if (isOpen) {
-      void fetchSettings();
-    }
-  }, [isOpen, fetchSettings]);
-
   const SettingComponent =
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
-
-  const saveSettings = () => {
-    onSave();
-    closeModal();
-  };
-
-  if (loadingState !== 'ready') {
-    return null;
-  }
 
   return (
     <FormModal
@@ -109,9 +90,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       title="Settings"
       open={isOpen}
       submitButtonText="Save"
-      onSubmit={saveSettings}
+      onSubmit={onSave}
       submitDisabled={!hasChangedSettings}
-      onCancel={closeModal}
+      onCancel={onClose}
       data-testid="settings-modal"
       minBodyHeight={spacing[6] * 2}
     >
@@ -141,13 +122,14 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 export default connect(
   (state: RootState) => {
     return {
-      loadingState: state.settings.loadingState,
+      isOpen:
+        state.settings.isModalOpen && state.settings.loadingState === 'ready',
       isOIDCEnabled: !!state.settings.settings.enableOidc,
       hasChangedSettings: state.settings.updatedFields.length > 0,
     };
   },
   {
+    onClose: closeModal,
     onSave: saveSettings,
-    fetchSettings,
   }
 )(SettingsModal);
