@@ -33,8 +33,11 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-import { useAppRegistryContext } from '../contexts/app-registry-context';
+import {
+  AppRegistryRoles,
+  useAppRegistryContext,
+  useAppRegistryRole,
+} from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
@@ -319,6 +322,8 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
+  const globalModals = useAppRegistryRole(AppRegistryRoles.GLOBAL_MODAL);
+
   return (
     <SignalHooksProvider
       onSignalMount={(id) => {
@@ -357,6 +362,9 @@ function Home({
           />
         </div>
       </div>
+      {globalModals?.map(({ name, component: GlobalModalComponent }) => {
+        return <GlobalModalComponent key={name}></GlobalModalComponent>;
+      })}
     </SignalHooksProvider>
   );
 }

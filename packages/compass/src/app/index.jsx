@@ -170,7 +170,6 @@ const Application = View.extend({
     this.renderWithTemplate(this);
 
     const HomeComponent = app.appRegistry.getComponent('Home.Home');
-    const GlobalModalRoles = app.appRegistry.getRole('Global.Modal');
 
     if (!HomeComponent) {
       throw new Error("Can't find Home plugin in appRegistry");
@@ -183,9 +182,6 @@ const Application = View.extend({
           appName={remote.app.getName()}
           getAutoConnectInfo={getAutoConnectInfo}
         ></HomeComponent>
-        {GlobalModalRoles.map(({ name, component: GlobalModalComponent }) => {
-          return <GlobalModalComponent key={name}></GlobalModalComponent>;
-        })}
       </React.StrictMode>,
       this.queryByHook('layout-container')
     );
