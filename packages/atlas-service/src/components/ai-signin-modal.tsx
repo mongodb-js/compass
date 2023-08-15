@@ -93,6 +93,7 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
           <Button
             variant="primary"
             onClick={onSignInClick}
+            data-testid="atlas-signin-modal-button"
             className={buttonStyles}
             disabled={isSignInInProgress}
             // TODO: will have to update leafygreen for that
