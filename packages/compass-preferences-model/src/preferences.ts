@@ -285,6 +285,8 @@ const storedUserPreferencesProps: Required<{
     },
     validator: Joi.string<THEMES>()
       .valid(...THEMES_VALUES)
+      .uppercase() // allow lowercase and convert it to uppercase
+      .empty('') // allow empty string and its defaulted to LIGHT
       .default('LIGHT'),
   },
   /**
@@ -639,7 +641,7 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a List of Connections for Automatically Connecting',
     },
-    validator: Joi.string().optional(),
+    validator: Joi.string().optional().allow(''),
   },
   username: {
     ui: false,
@@ -648,7 +650,7 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a Username for Automatically Connecting',
     },
-    validator: Joi.string().optional(),
+    validator: Joi.string().optional().allow(''),
   },
   password: {
     ui: false,
@@ -657,7 +659,7 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a Password for Automatically Connecting',
     },
-    validator: Joi.string().optional(),
+    validator: Joi.string().optional().allow(''),
   },
 };
 
