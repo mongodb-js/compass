@@ -9,11 +9,17 @@ import {
   InteractivePopover,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { usePreference } from 'compass-preferences-model';
 
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
 import SavedPipelines from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
+import {
+  hideInput as hideAIInput,
+  showInput as showAIInput,
+} from '../../../modules/pipeline-builder/pipeline-ai';
+import { PipelineAI } from './pipeline-ai';
 
 const containerStyles = css({
   display: 'flex',
@@ -65,7 +71,10 @@ type PipelineHeaderProps = {
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
+  onHideAIInputClick?: () => void;
+  onShowAIInputClick?: () => void;
   onToggleOptions: () => void;
+  isAIInputVisible?: boolean;
   isOpenPipelineVisible: boolean;
 };
 
@@ -112,39 +121,65 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   showRunButton,
   showExportButton,
   showExplainButton,
+  onHideAIInputClick,
+  onShowAIInputClick,
   onToggleOptions,
+  isAIInputVisible = false,
   isOptionsVisible,
   isOpenPipelineVisible,
 }) => {
+  const enableAIQuery = usePreference('enableAIExperience', React);
+
   return (
-    <div className={containerStyles} data-testid="pipeline-header">
-      {isOpenPipelineVisible && (
-        <div
-          data-testid="saved-pipelines-popover"
-          className={pipelineTextAndOpenStyles}
-        >
-          <Body weight="medium">Pipeline</Body>
-          <SavedPipelinesButton></SavedPipelinesButton>
+    <div>
+      <div className={containerStyles} data-testid="pipeline-header">
+        {isOpenPipelineVisible && (
+          <div
+            data-testid="saved-pipelines-popover"
+            className={pipelineTextAndOpenStyles}
+          >
+            <Body weight="medium">Pipeline</Body>
+            <SavedPipelinesButton></SavedPipelinesButton>
+          </div>
+        )}
+        <div className={pipelineStagesStyles}>
+          <PipelineStages />
         </div>
-      )}
-      <div className={pipelineStagesStyles}>
-        <PipelineStages />
+        <button onClick={onShowAIInputClick}>
+          {/* TODO */}
+          show ai
+        </button>
+        <div className={pipelineActionStyles}>
+          <PipelineActions
+            onToggleOptions={onToggleOptions}
+            isOptionsVisible={isOptionsVisible}
+            showRunButton={showRunButton}
+            showExportButton={showExportButton}
+            showExplainButton={showExplainButton}
+          />
+        </div>
       </div>
-      <div className={pipelineActionStyles}>
-        <PipelineActions
-          onToggleOptions={onToggleOptions}
-          isOptionsVisible={isOptionsVisible}
-          showRunButton={showRunButton}
-          showExportButton={showExportButton}
-          showExplainButton={showExplainButton}
+      {enableAIQuery && (
+        <PipelineAI
+          onClose={() => {
+            onHideAIInputClick?.();
+          }}
+          show={isAIInputVisible}
         />
-      </div>
+      )}
     </div>
   );
 };
 
-export default connect((state: RootState) => {
-  return {
-    isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
-  };
-})(PipelineHeader);
+export default connect(
+  (state: RootState) => {
+    return {
+      isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
+      isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
+    };
+  },
+  {
+    onHideAIInputClick: hideAIInput,
+    onShowAIInputClick: showAIInput,
+  }
+)(PipelineHeader);

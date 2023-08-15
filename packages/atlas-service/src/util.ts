@@ -11,6 +11,12 @@ export type IntrospectInfo = { active: boolean };
 
 export type Token = plugin.IdPServerResponse;
 
+export type AIAggregation = {
+  content?: {
+    pipeline?: unknown;
+  };
+};
+
 export type AIQuery = {
   content?: {
     query?: unknown;
