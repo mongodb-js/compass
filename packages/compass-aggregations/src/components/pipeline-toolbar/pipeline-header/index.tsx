@@ -15,10 +15,7 @@ import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
 import SavedPipelines from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
-import {
-  hideInput as hideAIInput,
-  showInput as showAIInput,
-} from '../../../modules/pipeline-builder/pipeline-ai';
+import { hideInput as hideAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 import { PipelineAI } from './pipeline-ai';
 
 const containerStyles = css({
@@ -72,7 +69,6 @@ type PipelineHeaderProps = {
   showExportButton: boolean;
   showExplainButton: boolean;
   onHideAIInputClick?: () => void;
-  onShowAIInputClick?: () => void;
   onToggleOptions: () => void;
   isAIInputVisible?: boolean;
   isOpenPipelineVisible: boolean;
@@ -122,7 +118,6 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   showExportButton,
   showExplainButton,
   onHideAIInputClick,
-  onShowAIInputClick,
   onToggleOptions,
   isAIInputVisible = false,
   isOptionsVisible,
@@ -145,10 +140,6 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
         <div className={pipelineStagesStyles}>
           <PipelineStages />
         </div>
-        <button onClick={onShowAIInputClick}>
-          {/* TODO */}
-          show ai
-        </button>
         <div className={pipelineActionStyles}>
           <PipelineActions
             onToggleOptions={onToggleOptions}
@@ -180,6 +171,5 @@ export default connect(
   },
   {
     onHideAIInputClick: hideAIInput,
-    onShowAIInputClick: showAIInput,
   }
 )(PipelineHeader);

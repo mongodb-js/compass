@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
+  AIExperienceEntry,
   Pipeline,
   Stage,
   Description,
@@ -11,12 +12,14 @@ import {
   Button,
   Icon,
 } from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model';
 
 import type { RootState } from '../../../modules';
 import { editPipeline } from '../../../modules/workspace';
 import type { Workspace } from '../../../modules/workspace';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { addStage } from '../../../modules/pipeline-builder/stage-editor';
+import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 
 const containerStyles = css({
   display: 'flex',
@@ -44,6 +47,7 @@ type PipelineStagesProps = {
   showAddNewStage: boolean;
   onAddStageClick: () => void;
   onEditPipelineClick: (workspace: Workspace) => void;
+  onShowAIInputClick?: () => void;
 };
 
 const nbsp = '\u00a0';
@@ -54,13 +58,21 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   showAddNewStage,
   onAddStageClick,
   onEditPipelineClick,
+  onShowAIInputClick,
 }) => {
+  const enableAIQuery = usePreference('enableAIExperience', React);
+
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
       {stages.length === 0 ? (
         <Description className={cx(descriptionStyles)}>
           Your pipeline is currently empty.
-          {showAddNewStage && (
+          {showAddNewStage && enableAIQuery ? (
+            <>
+              &nbsp;Need help getting started?&nbsp;
+              <AIExperienceEntry onClick={onShowAIInputClick} />
+            </>
+          ) : (
             <>
               {nbsp}To get started add the{nbsp}
               <Link
@@ -111,5 +123,6 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onAddStageClick: addStage,
   onEditPipelineClick: editPipeline,
+  onShowAIInputClick: showAIInput,
 };
 export default connect(mapState, mapDispatch)(React.memo(PipelineStages));

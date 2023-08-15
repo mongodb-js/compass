@@ -8,7 +8,8 @@ import { openToast } from '@mongodb-js/compass-components';
 
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
-import type Stage from './stage';
+import { changeEditorValue } from './text-editor-pipeline';
+import { changePipelineMode } from './pipeline-mode';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
@@ -95,7 +96,6 @@ type AIPipelineFailedAction = {
 
 export type AIPipelineSucceededAction = {
   type: AIPipelineActionTypes.AIPipelineSucceeded;
-  stages: Stage[];
 };
 
 function logFailed(errorMessage: string) {
@@ -167,6 +167,7 @@ export const runAIPipeline = (
         schema,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
+      console.log('aaa response', jsonResponse);
     } catch (err: any) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
@@ -206,13 +207,15 @@ export const runAIPipeline = (
 
     let pipeline;
     try {
-      if (!jsonResponse?.content?.pipeline) {
+      if (!jsonResponse?.content?.aggregation?.pipeline) {
         throw new Error(
           'No pipeline returned. Please try again with a different prompt.'
         );
       }
 
-      pipeline = EJSON.deserialize(jsonResponse?.content?.pipeline);
+      pipeline = EJSON.deserialize(
+        jsonResponse?.content?.aggregation?.pipeline
+      );
     } catch (err: any) {
       logFailed(err?.message);
       dispatch({
@@ -245,8 +248,11 @@ export const runAIPipeline = (
 
     dispatch({
       type: AIPipelineActionTypes.AIPipelineSucceeded,
-      stages: pipeline,
     });
+
+    // We swap the view to the editor view and update the content.
+    dispatch(changePipelineMode('as-text'));
+    dispatch(changeEditorValue(JSON.stringify(pipeline, null, 2)));
   };
 };
 
@@ -272,7 +278,11 @@ export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
-        await atlasService.signIn({ promptType: 'ai-promo-modal' });
+        // TODO
+        // TODO
+        // NOTE: We skip sign in currently as there is a bug locally where
+        // it infinite spins, need to investigate
+        // await atlasService.signIn({ promptType: 'ai-promo-modal' });
       }
       dispatch({ type: AIPipelineActionTypes.ShowInput });
     } catch {

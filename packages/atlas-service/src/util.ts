@@ -13,7 +13,9 @@ export type Token = plugin.IdPServerResponse;
 
 export type AIAggregation = {
   content?: {
-    pipeline?: unknown;
+    aggregation: {
+      pipeline?: unknown;
+    };
   };
 };
 
