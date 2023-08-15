@@ -4,6 +4,7 @@ import {
   Icon,
   MoreOptionsToggle,
   css,
+  createAIPlaceholderHTMLPlaceholder,
   cx,
   spacing,
   palette,
@@ -16,7 +17,10 @@ import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model';
 import type { Signal } from '@mongodb-js/compass-components';
 
-import { type QueryOption } from '../constants/query-option-definition';
+import {
+  OPTION_DEFINITION,
+  type QueryOption,
+} from '../constants/query-option-definition';
 import QueryOptionComponent, {
   documentEditorLabelContainerStyles,
 } from './query-option';
@@ -31,12 +35,11 @@ import {
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
 import type { QueryProperty } from '../constants/query-properties';
-import { AITextInput } from './generative-ai/ai-text-input';
+import { QueryAI } from './query-ai';
 import type {
   QueryBarThunkDispatch,
   RootState,
 } from '../stores/query-bar-store';
-import { createAIPlaceholderHTMLPlaceholder } from './generative-ai/ai-experience-entry';
 import { hideInput, showInput } from '../stores/ai-query-reducer';
 
 const queryBarFormStyles = css({
@@ -180,6 +183,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             onShowAIInputClick?.();
           },
           darkMode,
+          placeholderText: OPTION_DEFINITION.filter.placeholder,
         })
       : placeholders?.filter;
   }, [
@@ -303,7 +307,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           </div>
         )}
       {enableAIQuery && (
-        <AITextInput
+        <QueryAI
           onClose={() => {
             onHideAIInputClick?.();
           }}

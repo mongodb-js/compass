@@ -1,18 +1,14 @@
-import {
-  css,
-  cx,
-  focusRing,
-  spacing,
-  palette,
-} from '@mongodb-js/compass-components';
+import { palette } from '@leafygreen-ui/palette';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
 
-import { OPTION_DEFINITION } from '../../constants/query-option-definition';
 import {
   getRobotSVGString,
   robotSVGDarkModeStyles,
   robotSVGLightModeStyles,
   robotSVGStyles,
 } from './robot-svg';
+import { focusRing } from '../../hooks/use-focus-ring';
 
 const aiQueryEntryStyles = css(
   {
@@ -80,13 +76,14 @@ const aiQueryEntryLightModeStyles = css(
 function createAIPlaceholderHTMLPlaceholder({
   onClickAI,
   darkMode,
+  placeholderText,
 }: {
   onClickAI: () => void;
   darkMode?: boolean;
+  placeholderText: string;
 }): HTMLElement {
   const containerEl = document.createElement('div');
 
-  const placeholderText = OPTION_DEFINITION.filter.placeholder;
   const placeholderTextEl = document.createTextNode(`${placeholderText} or `);
   containerEl.appendChild(placeholderTextEl);
 
