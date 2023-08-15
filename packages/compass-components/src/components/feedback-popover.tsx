@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
+import { useId } from '@react-aria/utils';
 
-import { TextArea, css, spacing, useId } from '..';
+import { TextArea } from './leafygreen';
 
 const guideCueStyles = css({
   minWidth: spacing[7] * 4,

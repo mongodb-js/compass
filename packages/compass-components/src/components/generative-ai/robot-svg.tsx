@@ -1,5 +1,6 @@
-import { css, cx, palette } from '@mongodb-js/compass-components';
 import React from 'react';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { palette } from '@leafygreen-ui/palette';
 
 export const robotSVGStyles = css({
   rect: {

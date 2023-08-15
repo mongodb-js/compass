@@ -6,27 +6,27 @@ import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { Provider } from 'react-redux';
 
-import { AITextInput } from './ai-text-input';
-import { configureStore } from '../../stores/query-bar-store';
+import { QueryAI } from './query-ai';
+import { configureStore } from '../stores/query-bar-store';
 import {
   AIQueryActionTypes,
   changeAIPromptText,
-} from '../../stores/ai-query-reducer';
-import { DEFAULT_FIELD_VALUES } from '../../constants/query-bar-store';
-import { mapQueryToFormFields } from '../../utils/query';
+} from '../stores/ai-query-reducer';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
+import { mapQueryToFormFields } from '../utils/query';
 
 const noop = () => {
   /* no op */
 };
 
-const renderAITextInput = ({
+const renderQueryAI = ({
   ...props
-}: Partial<ComponentProps<typeof AITextInput>> = {}) => {
+}: Partial<ComponentProps<typeof QueryAI>> = {}) => {
   const store = configureStore();
 
   render(
     <Provider store={store}>
-      <AITextInput onClose={noop} show {...props} />
+      <QueryAI onClose={noop} show {...props} />
     </Provider>
   );
   return store;
@@ -34,17 +34,15 @@ const renderAITextInput = ({
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 
-describe('QueryBar Component', function () {
+describe('QueryAI Component', function () {
   let store: ReturnType<typeof configureStore>;
-  let onCloseSpy: SinonSpy;
-  beforeEach(function () {
-    onCloseSpy = sinon.spy();
-  });
   afterEach(cleanup);
 
   describe('when rendered', function () {
+    let onCloseSpy: SinonSpy;
     beforeEach(function () {
-      store = renderAITextInput({
+      onCloseSpy = sinon.spy();
+      store = renderQueryAI({
         onClose: onCloseSpy,
       });
     });
@@ -60,9 +58,7 @@ describe('QueryBar Component', function () {
 
   describe('when rendered with text', function () {
     beforeEach(function () {
-      store = renderAITextInput({
-        onClose: onCloseSpy,
-      });
+      store = renderQueryAI();
       store.dispatch(changeAIPromptText('test'));
     });
 
@@ -77,11 +73,9 @@ describe('QueryBar Component', function () {
     });
   });
 
-  describe('QueryFeedback', function () {
+  describe('Query AI Feedback', function () {
     beforeEach(function () {
-      store = renderAITextInput({
-        onClose: onCloseSpy,
-      });
+      store = renderQueryAI();
     });
 
     it('should log a telemetry event with the entered text on submit', async function () {
