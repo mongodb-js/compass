@@ -62,7 +62,7 @@ type HandleChange<PreferenceName extends SupportedPreferences> = <
 
 export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
   fields: readonly PreferenceName[];
-  handleChange: HandleChange<PreferenceName>;
+  onChange: HandleChange<PreferenceName>;
   preferenceStates: PreferenceStateInformation;
   currentValues: Partial<Pick<UserConfigurablePreferences, PreferenceName>>;
 };
@@ -86,20 +86,20 @@ function SettingLabel({ name }: { name: SupportedPreferences }) {
 
 function BooleanSetting<PreferenceName extends BooleanPreferences>({
   name,
-  handleChange,
+  onChange,
   value,
   disabled,
 }: {
   name: PreferenceName;
-  handleChange: HandleChange<PreferenceName>;
+  onChange: HandleChange<PreferenceName>;
   value: boolean;
   disabled: boolean;
 }) {
   const handleCheckboxChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      handleChange(name, event.target.checked);
+      onChange(name, event.target.checked);
     },
-    [name, handleChange]
+    [name, onChange]
   );
 
   return (
@@ -118,23 +118,23 @@ function BooleanSetting<PreferenceName extends BooleanPreferences>({
 }
 function NumericSetting<PreferenceName extends NumericPreferences>({
   name,
-  handleChange,
+  onChange,
   value,
   disabled,
   required,
 }: {
   name: PreferenceName;
-  handleChange: HandleChange<PreferenceName>;
+  onChange: HandleChange<PreferenceName>;
   value: number | undefined;
   disabled: boolean;
   required: boolean;
 }) {
-  const handleChangeEvent = useCallback(
+  const onChangeEvent = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target;
-      handleChange(name, value === '' ? (required ? 0 : undefined) : +value);
+      onChange(name, value === '' ? (required ? 0 : undefined) : +value);
     },
-    [name, handleChange, required]
+    [name, onChange, required]
   );
 
   return (
@@ -148,7 +148,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
         data-testid={name}
         type="number"
         value={value === undefined ? (required ? '0' : '') : `${value}`}
-        onChange={handleChangeEvent}
+        onChange={onChangeEvent}
         disabled={disabled}
         optional={!required}
       />
@@ -157,21 +157,21 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
 }
 function StringSetting<PreferenceName extends StringPreferences>({
   name,
-  handleChange,
+  onChange,
   value,
   disabled,
   required,
 }: {
   name: PreferenceName;
-  handleChange: HandleChange<PreferenceName>;
+  onChange: HandleChange<PreferenceName>;
   value: string | undefined;
   disabled: boolean;
   required: boolean;
 }) {
-  const handleChangeEvent = useCallback(
+  const onChangeEvent = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target;
-      handleChange(
+      onChange(
         name,
         (value === ''
           ? required
@@ -180,7 +180,7 @@ function StringSetting<PreferenceName extends StringPreferences>({
           : value) as UserConfigurablePreferences[PreferenceName]
       );
     },
-    [name, handleChange, required]
+    [name, onChange, required]
   );
 
   return (
@@ -193,7 +193,7 @@ function StringSetting<PreferenceName extends StringPreferences>({
         name={name}
         data-testid={name}
         value={value === undefined ? '' : `${value}`}
-        onChange={handleChangeEvent}
+        onChange={onChangeEvent}
         disabled={disabled}
         optional={!required}
       />
@@ -204,7 +204,7 @@ function StringSetting<PreferenceName extends StringPreferences>({
 export function SettingsList<PreferenceName extends SupportedPreferences>({
   fields,
   preferenceStates,
-  handleChange,
+  onChange,
   currentValues,
 }: SettingsListProps<PreferenceName>) {
   return (
@@ -224,14 +224,14 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
               {type === 'boolean' ? (
                 <BooleanSetting
                   name={name as BooleanPreferences & PreferenceName}
-                  handleChange={handleChange}
+                  onChange={onChange}
                   value={!!currentValues[name]}
                   disabled={!!preferenceStates[name]}
                 />
               ) : type === 'number' ? (
                 <NumericSetting
                   name={name as NumericPreferences}
-                  handleChange={handleChange}
+                  onChange={onChange}
                   value={
                     currentValues[name as NumericPreferences & PreferenceName]
                   }
@@ -241,7 +241,7 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
               ) : type === 'string' ? (
                 <StringSetting
                   name={name as StringPreferences}
-                  handleChange={handleChange}
+                  onChange={onChange}
                   value={
                     currentValues[name as StringPreferences & PreferenceName]
                   }

@@ -8,21 +8,21 @@ import { GeneralSettings } from './general';
 
 describe('GeneralsSettings', function () {
   let container: HTMLElement;
-  let handleChangeSpy: sinon.SinonStub;
+  let onChangeSpy: sinon.SinonStub;
   let currentValues: any;
 
   beforeEach(function () {
     currentValues = {};
-    handleChangeSpy = stub();
+    onChangeSpy = stub();
     const component = () => (
       <GeneralSettings
-        handleChange={handleChangeSpy}
+        onChange={onChangeSpy}
         preferenceStates={{}}
         currentValues={currentValues}
       />
     );
     const { rerender } = render(component());
-    handleChangeSpy.callsFake((option, value) => {
+    onChangeSpy.callsFake((option, value) => {
       currentValues[option] = value;
       rerender(component());
     });
@@ -38,13 +38,13 @@ describe('GeneralsSettings', function () {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
-    it(`calls handleChange when ${option} is changed`, function () {
-      expect(handleChangeSpy).to.not.have.been.called;
+    it(`calls onChange when ${option} is changed`, function () {
+      expect(onChangeSpy).to.not.have.been.called;
       const checkbox = within(container).getByTestId(option);
       userEvent.click(checkbox, undefined, {
         skipPointerEventsCheck: true,
       });
-      expect(handleChangeSpy).to.have.been.calledOnceWithExactly(option, true);
+      expect(onChangeSpy).to.have.been.calledOnceWithExactly(option, true);
       expect(currentValues[option]).to.equal(true);
     });
   });
@@ -53,14 +53,14 @@ describe('GeneralsSettings', function () {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
-    it(`calls handleChange when ${option} is changed`, function () {
-      expect(handleChangeSpy).to.not.have.been.called;
+    it(`calls onChange when ${option} is changed`, function () {
+      expect(onChangeSpy).to.not.have.been.called;
       const field = within(container).getByTestId(option);
       userEvent.type(field, '42');
-      expect(handleChangeSpy).to.have.been.calledWithExactly(option, 42);
+      expect(onChangeSpy).to.have.been.calledWithExactly(option, 42);
       expect(currentValues[option]).to.equal(42);
       userEvent.clear(field);
-      expect(handleChangeSpy).to.have.been.calledWithExactly(option, undefined);
+      expect(onChangeSpy).to.have.been.calledWithExactly(option, undefined);
       expect(currentValues[option]).to.equal(undefined);
     });
   });

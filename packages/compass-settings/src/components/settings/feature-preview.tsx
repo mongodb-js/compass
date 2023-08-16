@@ -93,7 +93,7 @@ const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
 });
 
 const mapDispatch = {
-  handleChange: changeFieldValue,
+  onChange: changeFieldValue,
 };
 
 export default connect(mapState, mapDispatch)(FeaturePreviewSettings);
