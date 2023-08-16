@@ -7,7 +7,6 @@ import {
   Description,
   Link,
   css,
-  cx,
   spacing,
   Button,
   Icon,
@@ -45,9 +44,10 @@ type PipelineStagesProps = {
   isResultsMode: boolean;
   stages: string[];
   showAddNewStage: boolean;
+  showAIEntry: boolean;
   onAddStageClick: () => void;
   onEditPipelineClick: (workspace: Workspace) => void;
-  onShowAIInputClick?: () => void;
+  onShowAIInputClick: () => void;
 };
 
 const nbsp = '\u00a0';
@@ -56,6 +56,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   isResultsMode,
   stages,
   showAddNewStage,
+  showAIEntry,
   onAddStageClick,
   onEditPipelineClick,
   onShowAIInputClick,
@@ -65,25 +66,29 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
       {stages.length === 0 ? (
-        <Description className={cx(descriptionStyles)}>
+        <Description className={descriptionStyles}>
           Your pipeline is currently empty.
-          {showAddNewStage && enableAIQuery ? (
+          {showAddNewStage && (
             <>
-              &nbsp;Need help getting started?&nbsp;
-              <AIExperienceEntry onClick={onShowAIInputClick} />
-            </>
-          ) : (
-            <>
-              {nbsp}To get started add the{nbsp}
-              <Link
-                className={addStageStyles}
-                as="button"
-                onClick={() => onAddStageClick()}
-                hideExternalIcon
-                data-testid="pipeline-toolbar-add-stage-button"
-              >
-                first stage.
-              </Link>
+              {enableAIQuery && showAIEntry ? (
+                <>
+                  {nbsp}Need help getting started?{nbsp}
+                  <AIExperienceEntry onClick={onShowAIInputClick} />
+                </>
+              ) : (
+                <>
+                  {nbsp}To get started add the{nbsp}
+                  <Link
+                    className={addStageStyles}
+                    as="button"
+                    onClick={() => onAddStageClick()}
+                    hideExternalIcon
+                    data-testid="pipeline-toolbar-add-stage-button"
+                  >
+                    first stage.
+                  </Link>
+                </>
+              )}
             </>
           )}
         </Description>
@@ -114,8 +119,14 @@ const mapState = (state: RootState) => {
   const isResultsMode = state.workspace === 'results';
   const isStageMode = state.pipelineBuilder.pipelineMode === 'builder-ui';
   return {
+    showAIEntry:
+      !state.pipelineBuilder.aiPipeline.isInputVisible && stages.length === 0,
     stages: stages.filter(Boolean) as string[],
-    showAddNewStage: !isResultsMode && isStageMode && stages.length === 0,
+    showAddNewStage:
+      !state.pipelineBuilder.aiPipeline.isInputVisible &&
+      !isResultsMode &&
+      isStageMode &&
+      stages.length === 0,
     isResultsMode,
   };
 };

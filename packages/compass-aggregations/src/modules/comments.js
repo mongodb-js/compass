@@ -1,4 +1,5 @@
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import { APPLY_SETTINGS } from './settings';
 
@@ -19,7 +20,10 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === APPLY_SETTINGS) {
     return action.settings.isCommentMode ?? state;
   }
-  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
+  if (
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
+    action.type === AIPipelineActionTypes.LoadNewPipeline
+  ) {
     return INITIAL_STATE;
   }
   if (action.type === RESTORE_PIPELINE) {

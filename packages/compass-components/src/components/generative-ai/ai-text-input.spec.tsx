@@ -52,7 +52,7 @@ describe('GenerativeAIInput Component', function () {
 
     it('calls to close robot button is clicked', function () {
       expect(onCloseSpy.called).to.be.false;
-      const closeButton = screen.getByTestId('close-ai-query-button');
+      const closeButton = screen.getByTestId('close-ai-button');
       expect(closeButton).to.be.visible;
       closeButton.click();
       expect(onCloseSpy.calledOnce).to.be.true;
@@ -96,7 +96,7 @@ describe('GenerativeAIInput Component', function () {
       // No feedback popover is shown yet.
       expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
 
-      const thumbsUpButton = screen.getByTestId('ai-query-feedback-thumbs-up');
+      const thumbsUpButton = screen.getByTestId('ai-feedback-thumbs-up');
       expect(thumbsUpButton).to.be.visible;
       thumbsUpButton.click();
 

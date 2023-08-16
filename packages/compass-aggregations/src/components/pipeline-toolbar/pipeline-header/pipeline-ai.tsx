@@ -10,7 +10,7 @@ import {
 } from '../../../modules/pipeline-builder/pipeline-ai';
 import type { RootState } from '../../../modules';
 
-const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
 const onSubmitFeedback = (feedback: 'positive' | 'negative', text: string) => {
   log.info(mongoLogId(1_001_000_229), 'PipelineAI', 'AI pipeline feedback', {
@@ -30,7 +30,13 @@ type PipelineAIProps = Omit<
 >;
 
 function PipelineAI(props: PipelineAIProps) {
-  return <GenerativeAIInput onSubmitFeedback={onSubmitFeedback} {...props} />;
+  return (
+    <GenerativeAIInput
+      onSubmitFeedback={onSubmitFeedback}
+      placeholder="Tell Compass what aggregation to build (e.g. how many movies were made each year)"
+      {...props}
+    />
+  );
 }
 
 const ConnectedPipelineAI = connect(

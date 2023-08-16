@@ -12,6 +12,8 @@ import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { gotoOutResults } from '../out-results-fn';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
+import { AIPipelineActionTypes } from './pipeline-ai';
+import type { LoadNewPipelineAction } from './pipeline-ai';
 
 const enum OutputStageActionTypes {
   FetchStarted = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchStarted',
@@ -53,6 +55,10 @@ const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
     isAction<PipelineModeToggledAction>(
       action,
       PipelineModeActionTypes.PipelineModeToggled
+    ) ||
+    isAction<LoadNewPipelineAction>(
+      action,
+      AIPipelineActionTypes.LoadNewPipeline
     ) ||
     action.type === RESTORE_PIPELINE ||
     action.type === ConfirmNewPipelineActions.NewPipelineConfirmed

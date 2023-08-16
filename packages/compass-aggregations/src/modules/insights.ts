@@ -6,6 +6,7 @@ import { cancellableWait } from '@mongodb-js/compass-utils';
 import type { PipelineBuilderThunkAction } from '.';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';
+import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 
 const FETCH_EXPLAIN_PLAN_SUCCESS =
   'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS';
@@ -22,10 +23,11 @@ const reducer: Reducer<{ isCollectionScan: boolean }> = (
       isCollectionScan: action.explainPlan.isCollectionScan,
     };
   }
-  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
-    return { ...INITIAL_STATE };
-  }
-  if (action.type === RESTORE_PIPELINE) {
+  if (
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
+    action.type === AIPipelineActionTypes.LoadNewPipeline ||
+    action.type === RESTORE_PIPELINE
+  ) {
     return { ...INITIAL_STATE };
   }
   return state;

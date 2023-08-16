@@ -119,7 +119,7 @@ const closeAIButtonStyles = css(
   focusRing
 );
 
-const closeText = 'Close AI Query';
+const closeText = 'Close AI Helper';
 
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
   <svg
@@ -150,6 +150,7 @@ type GenerativeAIInputProps = {
   didSucceed: boolean;
   errorMessage?: string;
   isFetching?: boolean;
+  placeholder?: string;
   show: boolean;
   onCancelRequest: () => void;
   onChangeAIPromptText: (text: string) => void;
@@ -162,6 +163,7 @@ function GenerativeAIInput({
   didSucceed,
   errorMessage,
   isFetching,
+  placeholder = 'Tell Compass what documents to find (e.g. which movies were released in 2000)',
   show,
   onCancelRequest,
   onClose,
@@ -223,9 +225,9 @@ function GenerativeAIInput({
             className={textInputStyles}
             ref={promptTextInputRef}
             sizeVariant="small"
-            data-testid="ai-query-user-text-input"
+            data-testid="ai-user-text-input"
             aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
-            placeholder="Tell Compass what documents to find (e.g. which movies were released in 2000)"
+            placeholder={placeholder}
             value={aiPromptText}
             onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
               onChangeAIPromptText(evt.currentTarget.value)
@@ -235,7 +237,7 @@ function GenerativeAIInput({
           <div className={floatingButtonsContainerStyles}>
             {aiPromptText && (
               <IconButton
-                aria-label="Clear query prompt"
+                aria-label="Clear prompt"
                 onClick={() => onChangeAIPromptText('')}
                 data-testid="ai-text-clear-prompt"
               >
@@ -248,7 +250,7 @@ function GenerativeAIInput({
                 generateButtonStyles,
                 !darkMode && generateButtonLightModeStyles
               )}
-              data-testid="ai-query-generate-button"
+              data-testid="ai-generate-button"
               onClick={() =>
                 isFetching ? onCancelRequest() : onSubmitText(aiPromptText)
               }
@@ -292,7 +294,7 @@ function GenerativeAIInput({
             ) : (
               <button
                 className={closeAIButtonStyles}
-                data-testid="close-ai-query-button"
+                data-testid="close-ai-button"
                 aria-label={closeText}
                 title={closeText}
                 onClick={() => onClose()}
@@ -306,7 +308,7 @@ function GenerativeAIInput({
       </div>
       {errorMessage && (
         <div className={errorSummaryContainer}>
-          <ErrorSummary data-testid="ai-query-error-msg" errors={errorMessage}>
+          <ErrorSummary data-testid="ai-error-msg" errors={errorMessage}>
             {errorMessage}
           </ErrorSummary>
         </div>

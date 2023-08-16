@@ -1034,11 +1034,10 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
 };
 export const QueryBarAskAIButton =
   '[data-testid="open-ai-query-ask-ai-button"]';
-export const QueryBarAITextInput = '[data-testid="ai-query-user-text-input"]';
+export const QueryBarAITextInput = '[data-testid="ai-user-text-input"]';
 export const QueryBarAIGenerateQueryButton =
-  '[data-testid="ai-query-generate-button"]';
-export const QueryBarAIErrorMessageBanner =
-  '[data-testid="ai-query-error-msg"]';
+  '[data-testid="ai-generate-button"]';
+export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs at the top
 export const SelectedWorkspaceTabButton =
