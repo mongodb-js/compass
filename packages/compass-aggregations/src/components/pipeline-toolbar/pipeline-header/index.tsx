@@ -123,7 +123,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   isOptionsVisible,
   isOpenPipelineVisible,
 }) => {
-  const enableAIQuery = usePreference('enableAIExperience', React);
+  const enableAIExperience = usePreference('enableAIExperience', React);
 
   return (
     <div>
@@ -150,7 +150,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           />
         </div>
       </div>
-      {enableAIQuery && (
+      {enableAIExperience && (
         <PipelineAI
           onClose={() => {
             onHideAIInputClick?.();

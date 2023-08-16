@@ -61,7 +61,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   onEditPipelineClick,
   onShowAIInputClick,
 }) => {
-  const enableAIQuery = usePreference('enableAIExperience', React);
+  const enableAIExperience = usePreference('enableAIExperience', React);
 
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
@@ -70,11 +70,8 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
           Your pipeline is currently empty.
           {showAddNewStage && (
             <>
-              {enableAIQuery && showAIEntry ? (
-                <>
-                  {nbsp}Need help getting started?{nbsp}
-                  <AIExperienceEntry onClick={onShowAIInputClick} />
-                </>
+              {enableAIExperience && showAIEntry ? (
+                <>{nbsp}Need help getting started?</>
               ) : (
                 <>
                   {nbsp}To get started add the{nbsp}
@@ -89,6 +86,12 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
                   </Link>
                 </>
               )}
+            </>
+          )}
+          {enableAIExperience && showAIEntry && (
+            <>
+              {nbsp}
+              <AIExperienceEntry onClick={onShowAIInputClick} />
             </>
           )}
         </Description>
@@ -119,8 +122,7 @@ const mapState = (state: RootState) => {
   const isResultsMode = state.workspace === 'results';
   const isStageMode = state.pipelineBuilder.pipelineMode === 'builder-ui';
   return {
-    showAIEntry:
-      !state.pipelineBuilder.aiPipeline.isInputVisible && stages.length === 0,
+    showAIEntry: !state.pipelineBuilder.aiPipeline.isInputVisible,
     stages: stages.filter(Boolean) as string[],
     showAddNewStage:
       !state.pipelineBuilder.aiPipeline.isInputVisible &&

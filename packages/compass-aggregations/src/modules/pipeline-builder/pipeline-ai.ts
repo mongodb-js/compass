@@ -153,7 +153,6 @@ export const runAIPipeline = (
 
     let jsonResponse;
     try {
-      // TODO: Can we take the sample docs from the aggregation preview?
       const sampleDocuments =
         (await dataService?.sample?.(
           namespace,

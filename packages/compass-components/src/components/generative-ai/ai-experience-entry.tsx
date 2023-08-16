@@ -13,7 +13,7 @@ import {
 import { focusRing } from '../../hooks/use-focus-ring';
 import { useDarkMode } from '../../hooks/use-theme';
 
-const aiQueryEntryStyles = css(
+const aiEntryStyles = css(
   {
     // Reset button styles.
     border: 'none',
@@ -48,7 +48,7 @@ const aiQueryEntryStyles = css(
   robotSVGStyles
 );
 
-const aiQueryEntryDarkModeStyles = css(
+const aiEntryDarkModeStyles = css(
   {
     color: palette.green.dark1,
     '&:hover': {
@@ -61,7 +61,7 @@ const aiQueryEntryDarkModeStyles = css(
   robotSVGDarkModeStyles
 );
 
-const aiQueryEntryLightModeStyles = css(
+const aiEntryLightModeStyles = css(
   {
     color: palette.green.dark2,
     '&:hover': {
@@ -80,8 +80,8 @@ function AIExperienceEntry({ onClick }: { onClick: () => void }) {
   return (
     <button
       className={cx(
-        aiQueryEntryStyles,
-        darkMode ? aiQueryEntryDarkModeStyles : aiQueryEntryLightModeStyles
+        aiEntryStyles,
+        darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
       )}
       onClick={onClick}
     >
@@ -125,8 +125,8 @@ function createAIPlaceholderHTMLPlaceholder({
   });
 
   aiButtonEl.className = cx(
-    aiQueryEntryStyles,
-    darkMode ? aiQueryEntryDarkModeStyles : aiQueryEntryLightModeStyles
+    aiEntryStyles,
+    darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
   );
 
   const robotIconSVG = `<span>Ask AI</span>
