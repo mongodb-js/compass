@@ -1,10 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import type { RootState } from '../../stores';
-import { changeFieldValue } from '../../stores/settings';
-import type { SettingsListProps } from './settings-list';
-import { SettingsList } from './settings-list';
-import { pick } from '../../utils/pick';
+import SettingsList from './settings-list';
 
 const generalFields = [
   'readOnly',
@@ -17,30 +12,17 @@ const generalFields = [
     ? (['installURLHandlers'] as const)
     : []),
 ] as const;
-type GeneralFields = typeof generalFields[number];
-type GeneralSettingsProps = Omit<SettingsListProps<GeneralFields>, 'fields'>;
 
-export const GeneralSettings: React.FunctionComponent<GeneralSettingsProps> = (
-  props
-) => {
+export const GeneralSettings: React.FunctionComponent = () => {
   return (
     <div data-testid="general-settings">
       <div>
         To enhance the user experience, Compass can enable or disable particular
         features. Please choose from the settings below:
       </div>
-      <SettingsList fields={generalFields} {...props} />
+      <SettingsList fields={generalFields} />
     </div>
   );
 };
 
-const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
-  currentValues: pick(settings, generalFields),
-  preferenceStates: pick(preferenceStates, generalFields),
-});
-
-const mapDispatch = {
-  onChange: changeFieldValue,
-};
-
-export default connect(mapState, mapDispatch)(GeneralSettings);
+export default GeneralSettings;

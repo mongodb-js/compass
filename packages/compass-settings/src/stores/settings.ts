@@ -36,6 +36,7 @@ export enum ActionTypes {
   // different groups of actions, not one
   SettingsFetchedStart = 'compass-settings/SettingsFetchedStart',
   SettingsFetched = 'compass-settings/settingsFetched',
+  ChangeFieldValue = 'compass-settings/ChangeFieldValue',
   FieldUpdated = 'compass-settings/settingsFieldUpdated',
   SettingsSaved = 'compass-settings/settingsUpdated',
   OpenSettingsModal = 'compass-settings/OpenSettingsModal',
@@ -73,6 +74,14 @@ export const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         isModalOpen: false,
+      };
+    case ActionTypes.ChangeFieldValue:
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          [action.field]: action.value,
+        },
       };
     case ActionTypes.SettingsFetched:
       return {
@@ -143,7 +152,25 @@ export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
     if (loadingState === 'loading') {
       throw new Error("Can't change preferences while sandbox is being set up");
     }
-    await sandbox.updateField(field, value);
+    // User input component should always be in sync with user input while user
+    // is typing, otherwise it can cause unexpected behavior of the DOM input
+    // node and React component. We make sure value is in sync by first updating
+    // state with whatever user typed with a `ChangeFieldValue` action ...
+    dispatch({ type: ActionTypes.ChangeFieldValue, field, value });
+    try {
+      // ... we then follow up by updating field value in the preferences. This
+      // can fail if user input doesn't pass validation.
+      await sandbox.updateField(field, value);
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_223),
+        'Settings',
+        'Failed to change settings value',
+        { error: (err as Error).stack }
+      );
+    }
+    // Sync state from sandbox whether or not update failed so that we are back
+    // to the actual preferences state input instead of whatever user has typed
     await dispatch(syncSandboxStateToStore());
   };
 };
