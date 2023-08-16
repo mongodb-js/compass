@@ -11,7 +11,11 @@ import {
 } from '../modules/compass/data-service';
 import { rootExportReducer, openExport } from '../modules/export';
 
-const _store = createStore(rootExportReducer, applyMiddleware(thunk));
+export function configureStore() {
+  return createStore(rootExportReducer, applyMiddleware(thunk));
+}
+
+const _store = configureStore();
 
 type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
 
