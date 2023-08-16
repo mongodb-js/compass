@@ -15,7 +15,7 @@ export type {
   AllPreferences,
   Preferences,
 };
-import { preferencesMain } from './setup-preferences';
+import { preferencesMain, setupPreferences } from './setup-preferences';
 import { preferencesIpc } from './renderer-ipc';
 export {
   parseAndValidateGlobalPreferences,
@@ -46,7 +46,7 @@ export interface PreferencesAccess {
   ): () => void;
   createSandbox(): Promise<PreferencesAccess>;
 }
-
+export { setupPreferences };
 export const preferencesAccess: PreferencesAccess =
   preferencesIpc ?? preferencesMain;
 export default preferencesAccess;

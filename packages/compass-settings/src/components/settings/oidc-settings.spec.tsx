@@ -1,38 +1,47 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { spy } from 'sinon';
 import { expect } from 'chai';
-
+import { Provider } from 'react-redux';
 import { OIDCSettings } from './oidc-settings';
+import { configureStore } from '../../stores';
+import { fetchSettings } from '../../stores/settings';
 
 describe('OIDCSettings', function () {
   let container: HTMLElement;
-  let onChangeSpy: sinon.SinonSpy;
+  let store: ReturnType<typeof configureStore>;
 
-  beforeEach(function () {
-    onChangeSpy = spy();
-    render(
-      <OIDCSettings
-        onChange={onChangeSpy}
-        preferenceStates={{}}
-        currentValues={{} as any}
-      />
+  function getSettings() {
+    return store.getState().settings.settings;
+  }
+
+  beforeEach(async function () {
+    store = configureStore();
+    await store.dispatch(fetchSettings());
+    const component = () => (
+      <Provider store={store}>
+        <OIDCSettings />
+      </Provider>
     );
+    render(component());
     container = screen.getByTestId('oidc-settings');
   });
 
-  ['showOIDCDeviceAuthFlow'].forEach((option) => {
+  afterEach(function () {
+    cleanup();
+  });
+
+  ['showOIDCDeviceAuthFlow', 'persistOIDCTokens'].forEach((option) => {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
-    it(`calls onChange when ${option} is changed`, function () {
-      expect(onChangeSpy.calledOnce).to.be.false;
+    it(`changed ${option} value when option is clicked`, function () {
       const checkbox = within(container).getByTestId(option);
+      const initialValue = getSettings()[option];
       userEvent.click(checkbox, undefined, {
         skipPointerEventsCheck: true,
       });
-      expect(onChangeSpy.calledWith(option, true)).to.be.true;
+      expect(getSettings()).to.have.property(option, !initialValue);
     });
   });
 });

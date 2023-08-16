@@ -9,12 +9,6 @@ describe('PreferencesSandbox', function () {
   let preferencesAccess: Sinon.SinonSpiedInstance<typeof preferences>;
 
   beforeEach(async function () {
-    // These tests will not work in mocha-electron because preferences ipc is
-    // not set up and we are testing against a real thing
-    if ((process as any).type === 'renderer') {
-      this.skip();
-    }
-
     preferencesAccess = sinonSandbox.spy(await preferences.createSandbox());
   });
 
