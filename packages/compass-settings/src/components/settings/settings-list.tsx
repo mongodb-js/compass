@@ -1,8 +1,5 @@
 import React, { useCallback } from 'react';
-import type {
-  PreferenceStateInformation,
-  UserConfigurablePreferences,
-} from 'compass-preferences-model';
+import type { UserConfigurablePreferences } from 'compass-preferences-model';
 import { getSettingDescription, featureFlags } from 'compass-preferences-model';
 import { settingStateLabels } from './state-labels';
 import {
@@ -15,6 +12,9 @@ import {
   FormFieldContainer,
   Badge,
 } from '@mongodb-js/compass-components';
+import { changeFieldValue } from '../../stores/settings';
+import type { RootState } from '../../stores';
+import { connect } from 'react-redux';
 
 type KeysMatching<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: P;
@@ -62,9 +62,6 @@ type HandleChange<PreferenceName extends SupportedPreferences> = <
 
 export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
   fields: readonly PreferenceName[];
-  onChange: HandleChange<PreferenceName>;
-  preferenceStates: PreferenceStateInformation;
-  currentValues: Partial<Pick<UserConfigurablePreferences, PreferenceName>>;
 };
 
 function SettingLabel({ name }: { name: SupportedPreferences }) {
@@ -116,6 +113,7 @@ function BooleanSetting<PreferenceName extends BooleanPreferences>({
     />
   );
 }
+
 function NumericSetting<PreferenceName extends NumericPreferences>({
   name,
   onChange,
@@ -155,6 +153,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
     </>
   );
 }
+
 function StringSetting<PreferenceName extends StringPreferences>({
   name,
   onChange,
@@ -201,59 +200,135 @@ function StringSetting<PreferenceName extends StringPreferences>({
   );
 }
 
+type AnySetting = {
+  name: string;
+  type: unknown;
+  value?: unknown;
+  onChange(field: string, value: unknown): void;
+};
+
+type SettingsInputProps = AnySetting & {
+  stateLabel?: React.ReactNode;
+  disabled?: boolean;
+  required?: boolean;
+};
+
+function isSupported(props: AnySetting): props is
+  | {
+      name: StringPreferences;
+      type: 'string';
+      value?: string;
+      onChange: HandleChange<StringPreferences>;
+    }
+  | {
+      name: NumericPreferences;
+      type: 'number';
+      value?: number;
+      onChange: HandleChange<NumericPreferences>;
+    }
+  | {
+      name: BooleanPreferences;
+      type: 'boolean';
+      value?: boolean;
+      onChange: HandleChange<BooleanPreferences>;
+    } {
+  return ['number', 'string', 'boolean'].includes(props.type as string);
+}
+
+function SettingsInput({
+  stateLabel = '',
+  disabled = false,
+  required = false,
+  ...props
+}: SettingsInputProps): React.ReactElement {
+  if (!isSupported(props)) {
+    throw new Error(
+      `Do not know how to render type ${props.type} for preference ${props.name}`
+    );
+  }
+
+  let input = null;
+
+  const { name, type, onChange, value } = props;
+
+  if (type === 'boolean') {
+    input = (
+      <BooleanSetting
+        name={name}
+        onChange={onChange}
+        value={!!value}
+        disabled={!!disabled}
+      />
+    );
+  }
+
+  if (type === 'number') {
+    input = (
+      <NumericSetting
+        name={name}
+        onChange={onChange}
+        value={value}
+        required={!!required}
+        disabled={!!disabled}
+      />
+    );
+  }
+
+  if (type === 'string') {
+    input = (
+      <StringSetting
+        name={name}
+        onChange={onChange}
+        value={value}
+        required={!!required}
+        disabled={!!disabled}
+      />
+    );
+  }
+
+  return (
+    <div data-testid={`setting-${name}`}>
+      <FormFieldContainer className={fieldContainerStyles}>
+        {input}
+        {stateLabel ?? ''}
+      </FormFieldContainer>
+    </div>
+  );
+}
+
+const ConnectedSettingsInput = connect(
+  (state: RootState, ownProps: { name: SupportedPreferences }) => {
+    const {
+      settings: { settings, preferenceStates },
+    } = state;
+    const { name } = ownProps;
+    const { type } = getSettingDescription(name);
+
+    return {
+      value: settings[name],
+      type: type,
+      disabled: !!preferenceStates[name],
+      stateLabel: settingStateLabels[preferenceStates[name] ?? ''],
+    };
+  },
+  { onChange: changeFieldValue }
+)(SettingsInput);
+
 export function SettingsList<PreferenceName extends SupportedPreferences>({
   fields,
-  preferenceStates,
-  onChange,
-  currentValues,
 }: SettingsListProps<PreferenceName>) {
   return (
     <>
       {fields.map((name) => {
-        const { type } = getSettingDescription(name);
-        if (type !== 'boolean' && type !== 'number' && type !== 'string') {
-          throw new Error(
-            `do not know how to render type ${
-              type as string
-            } for preference ${name}`
-          );
-        }
         return (
-          <div data-testid={`setting-${name}`} key={`setting-${name}`}>
-            <FormFieldContainer className={fieldContainerStyles}>
-              {type === 'boolean' ? (
-                <BooleanSetting
-                  name={name as BooleanPreferences & PreferenceName}
-                  onChange={onChange}
-                  value={!!currentValues[name]}
-                  disabled={!!preferenceStates[name]}
-                />
-              ) : type === 'number' ? (
-                <NumericSetting
-                  name={name as NumericPreferences}
-                  onChange={onChange}
-                  value={
-                    currentValues[name as NumericPreferences & PreferenceName]
-                  }
-                  required={false}
-                  disabled={!!preferenceStates[name]}
-                />
-              ) : type === 'string' ? (
-                <StringSetting
-                  name={name as StringPreferences}
-                  onChange={onChange}
-                  value={
-                    currentValues[name as StringPreferences & PreferenceName]
-                  }
-                  required={false}
-                  disabled={!!preferenceStates[name]}
-                />
-              ) : null}
-              {settingStateLabels[preferenceStates[name] ?? '']}
-            </FormFieldContainer>
-          </div>
+          <ConnectedSettingsInput
+            key={name}
+            name={name}
+          ></ConnectedSettingsInput>
         );
       })}
     </>
   );
 }
+
+export default React.memo(SettingsList);
