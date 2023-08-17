@@ -401,7 +401,7 @@ export class AtlasService {
         // flow, we wait for a certain event sequence before we can safely
         // request new token from the plugin
         await Promise.race([
-          // The events we are waiting for are emitted syncronously, so we are
+          // The events we are waiting for are emitted synchronously, so we are
           // subscribing to both at once, even though we can't check the order
           // that way, at least we can guarantee that both expected events
           // happened before we proceed
