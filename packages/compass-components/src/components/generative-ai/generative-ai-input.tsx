@@ -35,6 +35,10 @@ const inputContainerStyles = css({
 
 const textInputStyles = css({
   flexGrow: 1,
+  // Override LeafyGreen input's padding to space for our robot.
+  input: {
+    paddingLeft: spacing[5],
+  },
 });
 
 const errorSummaryContainer = css({
@@ -110,14 +114,10 @@ const buttonResetStyles = css({
   cursor: 'pointer',
 });
 
-const closeAIButtonStyles = css(
-  buttonResetStyles,
-  {
-    padding: spacing[1],
-    display: 'inline-flex',
-  },
-  focusRing
-);
+const closeAIButtonStyles = css(buttonResetStyles, focusRing, {
+  padding: spacing[1],
+  position: 'absolute',
+});
 
 const closeText = 'Close AI Query';
 
@@ -232,15 +232,43 @@ function GenerativeAIInput({
             }
             onKeyDown={onTextInputKeyDown}
           />
+          <button
+            className={closeAIButtonStyles}
+            data-testid="close-ai-query-button"
+            aria-label={closeText}
+            title={closeText}
+            onClick={() => onClose()}
+          >
+            <RobotSVG />
+          </button>
           <div className={floatingButtonsContainerStyles}>
-            {aiPromptText && (
-              <IconButton
-                aria-label="Clear query prompt"
-                onClick={() => onChangeAIPromptText('')}
-                data-testid="ai-text-clear-prompt"
-              >
-                <Icon glyph="X" />
-              </IconButton>
+            {isFetching ? (
+              <div className={loaderContainerStyles}>
+                <SpinLoader />
+              </div>
+            ) : showSuccess ? (
+              <div className={loaderContainerStyles}>
+                <Icon
+                  className={
+                    darkMode
+                      ? successIndicatorDarkModeStyles
+                      : successIndicatorLightModeStyles
+                  }
+                  glyph="CheckmarkWithCircle"
+                />
+              </div>
+            ) : (
+              <>
+                {aiPromptText && (
+                  <IconButton
+                    aria-label="Clear query prompt"
+                    onClick={() => onChangeAIPromptText('')}
+                    data-testid="ai-text-clear-prompt"
+                  >
+                    <Icon glyph="X" />
+                  </IconButton>
+                )}
+              </>
             )}
             <Button
               size="small"
@@ -248,6 +276,7 @@ function GenerativeAIInput({
                 generateButtonStyles,
                 !darkMode && generateButtonLightModeStyles
               )}
+              disabled={!aiPromptText}
               data-testid="ai-query-generate-button"
               onClick={() =>
                 isFetching ? onCancelRequest() : onSubmitText(aiPromptText)
@@ -274,32 +303,6 @@ function GenerativeAIInput({
                 </>
               )}
             </Button>
-            {isFetching ? (
-              <div className={loaderContainerStyles}>
-                <SpinLoader />
-              </div>
-            ) : showSuccess ? (
-              <div className={loaderContainerStyles}>
-                <Icon
-                  className={
-                    darkMode
-                      ? successIndicatorDarkModeStyles
-                      : successIndicatorLightModeStyles
-                  }
-                  glyph="CheckmarkWithCircle"
-                />
-              </div>
-            ) : (
-              <button
-                className={closeAIButtonStyles}
-                data-testid="close-ai-query-button"
-                aria-label={closeText}
-                title={closeText}
-                onClick={() => onClose()}
-              >
-                {isFetching ? <SpinLoader /> : <RobotSVG />}
-              </button>
-            )}
           </div>
         </div>
         {didSucceed && <AIFeedback onSubmitFeedback={onSubmitFeedback} />}
