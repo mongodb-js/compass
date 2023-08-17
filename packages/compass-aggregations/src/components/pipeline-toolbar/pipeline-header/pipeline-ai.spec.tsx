@@ -1,10 +1,17 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { Provider } from 'react-redux';
+import preferencesAccess from 'compass-preferences-model';
 
 import { PipelineAI } from './pipeline-ai';
 import configureStore from '../../../../test/configure-store';
@@ -76,8 +83,18 @@ describe('PipelineAI Component', function () {
   });
 
   describe('Query AI Feedback', function () {
-    beforeEach(function () {
+    let trackUsageStatistics: boolean | undefined;
+
+    beforeEach(async function () {
       store = renderPipelineAI();
+      trackUsageStatistics =
+        preferencesAccess.getPreferences().trackUsageStatistics;
+      // 'compass:track' will only emit if tracking is enabled.
+      await preferencesAccess.savePreferences({ trackUsageStatistics: true });
+    });
+
+    afterEach(async function () {
+      await preferencesAccess.savePreferences({ trackUsageStatistics });
     });
 
     it('should log a telemetry event with the entered text on submit', async function () {
@@ -108,21 +125,22 @@ describe('PipelineAI Component', function () {
 
       screen.getByText('Submit').click();
 
-      // Let the track event occur.
-      await new Promise((resolve) => setTimeout(resolve, 6));
-
-      // No feedback popover is shown.
-      expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
-
-      expect(trackingLogs).to.deep.equal([
-        {
-          event: 'PipelineAI Feedback',
-          properties: {
-            feedback: 'positive',
-            text: 'this is the pipeline I was looking for',
-          },
+      await waitFor(
+        () => {
+          // No feedback popover is shown.
+          expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
+          expect(trackingLogs).to.deep.equal([
+            {
+              event: 'PipelineAI Feedback',
+              properties: {
+                feedback: 'positive',
+                text: 'this is the pipeline I was looking for',
+              },
+            },
+          ]);
         },
-      ]);
+        { interval: 10 }
+      );
     });
   });
 });
