@@ -166,6 +166,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
           <OptionEditor
             hasError={hasError}
             id={id}
+            name={name}
             onChange={onValueChange}
             placeholder={placeholder}
             value={value}

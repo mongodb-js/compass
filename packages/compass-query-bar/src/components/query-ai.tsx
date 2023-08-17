@@ -18,7 +18,7 @@ const onSubmitFeedback = (feedback: 'positive' | 'negative', text: string) => {
     text,
   });
 
-  track('AIQuery Feedback', () => ({
+  track('AI Query Feedback', () => ({
     feedback,
     text,
   }));

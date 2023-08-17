@@ -84,6 +84,7 @@ const insightsBadgeStyles = css({
 type OptionEditorProps = {
   hasError: boolean;
   id: string;
+  name: string;
   hasAutofix?: boolean;
   onChange: (value: string) => void;
   onApply?(): void;
@@ -98,6 +99,7 @@ type OptionEditorProps = {
 const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   hasError,
   id,
+  name,
   hasAutofix,
   onChange,
   onApply,
@@ -176,7 +178,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       !!editorCurrentRef.current &&
       editorCurrentRef.current.editorContents !== editorInitialValueRef.current
     ) {
-      track('Query Edited', { id });
+      track('Query Edited', { option_name: name });
       editorInitialValueRef.current = editorCurrentRef.current.editorContents;
     }
   }, [editorInitialValueRef, id]);
