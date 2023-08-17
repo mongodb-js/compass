@@ -3,7 +3,6 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import preferences from 'compass-preferences-model';
-import { EJSON } from 'bson';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 
@@ -14,6 +13,9 @@ import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-PIPELINE-UI');
+
+const emptyPipelineError =
+  'No pipeline was returned. Please try again with a different prompt.';
 
 type AIPipelineStatus = 'ready' | 'fetching' | 'success';
 
@@ -217,20 +219,18 @@ export const runAIPipeline = (
       return;
     }
 
-    let pipeline;
+    let pipelineText;
     try {
-      if (!jsonResponse?.content?.aggregation?.pipeline) {
-        throw new Error(
-          'No pipeline returned. Please try again with a different prompt.'
-        );
+      // Error when the response is empty or there is nothing to map.
+      if (!jsonResponse?.content?.aggregation) {
+        throw new Error(emptyPipelineError);
       }
 
-      // TODO(COMPASS-7105): Update the format the backend/ai model
-      // returns the pipeline in and remove the JSON parsing
-      // and stringifying.
-      pipeline = EJSON.deserialize(
-        jsonResponse?.content?.aggregation?.pipeline
-      );
+      pipelineText = String(jsonResponse?.content?.aggregation);
+
+      if (!pipelineText || !pipelineText?.length) {
+        throw new Error(emptyPipelineError);
+      }
     } catch (err: any) {
       logFailed(err?.message);
       dispatch({
@@ -240,28 +240,14 @@ export const runAIPipeline = (
       return;
     }
 
-    // Error when the response is empty or there is nothing to map.
-    if (!pipeline || !pipeline?.length) {
-      const msg =
-        'No pipeline was returned from the ai. Consider re-wording your prompt.';
-      logFailed(msg);
-      dispatch({
-        type: AIPipelineActionTypes.AIPipelineFailed,
-        errorMessage: msg,
-      });
-      return;
-    }
-
     log.info(
       mongoLogId(1_001_000_228),
       'AIPipeline',
       'AI pipeline request succeeded',
       {
-        pipeline,
+        pipelineText,
       }
     );
-
-    const pipelineText = JSON.stringify(pipeline, null, 2);
 
     dispatch({
       type: AIPipelineActionTypes.AIPipelineSucceeded,
