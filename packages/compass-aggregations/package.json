@@ -38,6 +38,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@mongodb-js/atlas-service": "^0.2.1",
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-crud": "^13.11.1",
     "@mongodb-js/compass-editor": "^0.10.0",
@@ -97,6 +98,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/atlas-service": "^0.2.1",
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-crud": "^13.11.1",
     "@mongodb-js/compass-editor": "^0.10.0",

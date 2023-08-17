@@ -222,11 +222,11 @@ export const runAIPipeline = (
     let pipelineText;
     try {
       // Error when the response is empty or there is nothing to map.
-      if (!jsonResponse?.content?.aggregation) {
+      if (!jsonResponse?.content?.aggregation?.pipeline) {
         throw new Error(emptyPipelineError);
       }
 
-      pipelineText = String(jsonResponse?.content?.aggregation);
+      pipelineText = String(jsonResponse?.content?.aggregation?.pipeline);
 
       if (!pipelineText || !pipelineText?.length) {
         throw new Error(emptyPipelineError);
