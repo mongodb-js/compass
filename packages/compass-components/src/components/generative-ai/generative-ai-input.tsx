@@ -177,6 +177,9 @@ function GenerativeAIInput({
     (evt: React.KeyboardEvent<HTMLInputElement>) => {
       if (evt.key === 'Enter') {
         evt.preventDefault();
+        if (!aiPromptText) {
+          return;
+        }
         onSubmitText(aiPromptText);
       } else if (evt.key === 'Escape') {
         isFetching ? onCancelRequest() : onClose();
