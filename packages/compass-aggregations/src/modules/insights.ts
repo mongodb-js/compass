@@ -25,7 +25,7 @@ const reducer: Reducer<{ isCollectionScan: boolean }> = (
   }
   if (
     action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
-    action.type === AIPipelineActionTypes.LoadNewPipeline ||
+    action.type === AIPipelineActionTypes.LoadGeneratedPipeline ||
     action.type === RESTORE_PIPELINE
   ) {
     return { ...INITIAL_STATE };

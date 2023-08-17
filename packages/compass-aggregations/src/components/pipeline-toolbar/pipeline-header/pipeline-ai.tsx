@@ -5,8 +5,8 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import {
   changeAIPromptText,
-  cancelAIPipeline,
-  runAIPipeline,
+  cancelAIPipelineGeneration,
+  runAIPipelineGeneration,
 } from '../../../modules/pipeline-builder/pipeline-ai';
 import type { RootState } from '../../../modules';
 
@@ -50,8 +50,8 @@ const ConnectedPipelineAI = connect(
   },
   {
     onChangeAIPromptText: changeAIPromptText,
-    onCancelRequest: cancelAIPipeline,
-    onSubmitText: runAIPipeline,
+    onCancelRequest: cancelAIPipelineGeneration,
+    onSubmitText: runAIPipelineGeneration,
   }
 )(PipelineAI);
 

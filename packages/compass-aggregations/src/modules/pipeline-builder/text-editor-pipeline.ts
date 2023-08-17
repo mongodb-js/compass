@@ -16,7 +16,7 @@ import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
-import type { LoadNewPipelineAction } from './pipeline-ai';
+import type { LoadGeneratedPipelineAction } from './pipeline-ai';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
@@ -80,9 +80,9 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       action,
       PipelineModeActionTypes.PipelineModeToggled
     ) ||
-    isAction<LoadNewPipelineAction>(
+    isAction<LoadGeneratedPipelineAction>(
       action,
-      AIPipelineActionTypes.LoadNewPipeline
+      AIPipelineActionTypes.LoadGeneratedPipeline
     ) ||
     action.type === RESTORE_PIPELINE ||
     action.type === ConfirmNewPipelineActions.NewPipelineConfirmed

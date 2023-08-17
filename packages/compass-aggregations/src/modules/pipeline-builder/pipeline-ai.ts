@@ -40,11 +40,11 @@ export const enum AIPipelineActionTypes {
   AIPipelineCancelled = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',
   AIPipelineFailed = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineFailed',
   AIPipelineSucceeded = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineSucceeded',
-  CancelAIPipeline = 'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipeline',
+  CancelAIPipelineGeneration = 'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipelineGeneration',
   ShowInput = 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
   HideInput = 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
   ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
-  LoadNewPipeline = 'compass-aggregations/LoadNewPipeline',
+  LoadGeneratedPipeline = 'compass-aggregations/LoadGeneratedPipeline',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -88,8 +88,8 @@ export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
   text,
 });
 
-export type LoadNewPipelineAction = {
-  type: AIPipelineActionTypes.LoadNewPipeline;
+export type LoadGeneratedPipelineAction = {
+  type: AIPipelineActionTypes.LoadGeneratedPipeline;
   pipelineText: string;
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
@@ -122,14 +122,14 @@ function logFailed(errorMessage: string) {
   );
 }
 
-export const runAIPipeline = (
+export const runAIPipelineGeneration = (
   userInput: string
 ): PipelineBuilderThunkAction<
   Promise<void>,
   | AIPipelineStartedAction
   | AIPipelineFailedAction
   | AIPipelineSucceededAction
-  | LoadNewPipelineAction
+  | LoadGeneratedPipelineAction
 > => {
   return async (dispatch, getState, { atlasService, pipelineBuilder }) => {
     const {
@@ -256,7 +256,7 @@ export const runAIPipeline = (
     pipelineBuilder.reset(pipelineText);
 
     dispatch({
-      type: AIPipelineActionTypes.LoadNewPipeline,
+      type: AIPipelineActionTypes.LoadGeneratedPipeline,
       stages: pipelineBuilder.stages,
       pipelineText: pipelineBuilder.source,
       pipeline: pipelineBuilder.pipeline,
@@ -267,20 +267,20 @@ export const runAIPipeline = (
   };
 };
 
-type CancelAIPipelineAction = {
-  type: AIPipelineActionTypes.CancelAIPipeline;
+type CancelAIPipelineGenerationAction = {
+  type: AIPipelineActionTypes.CancelAIPipelineGeneration;
 };
 
-export const cancelAIPipeline = (): PipelineBuilderThunkAction<
+export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
   void,
-  CancelAIPipelineAction
+  CancelAIPipelineGenerationAction
 > => {
   return (dispatch, getState) => {
     // Abort any ongoing op.
     abort(getState().pipelineBuilder.aiPipeline.aiPipelineFetchId);
 
     dispatch({
-      type: AIPipelineActionTypes.CancelAIPipeline,
+      type: AIPipelineActionTypes.CancelAIPipelineGeneration,
     });
   };
 };
@@ -304,7 +304,7 @@ export const hideInput = (): PipelineBuilderThunkAction<
 > => {
   return (dispatch) => {
     // Cancel any ongoing op when we hide.
-    dispatch(cancelAIPipeline());
+    dispatch(cancelAIPipelineGeneration());
     dispatch({ type: AIPipelineActionTypes.HideInput });
   };
 };
@@ -362,9 +362,9 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   }
 
   if (
-    isAction<CancelAIPipelineAction>(
+    isAction<CancelAIPipelineGenerationAction>(
       action,
-      AIPipelineActionTypes.CancelAIPipeline
+      AIPipelineActionTypes.CancelAIPipelineGeneration
     )
   ) {
     return {

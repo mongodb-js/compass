@@ -8,7 +8,7 @@ import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
 import {
   mapQueryToFormFields,
-  parseQueryStringsToFormFields,
+  parseQueryAttributesToFormFields,
 } from '../utils/query';
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
@@ -210,7 +210,7 @@ export const runAIQuery = (
 
       fields = {
         ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
-        ...parseQueryStringsToFormFields(query ?? {}),
+        ...parseQueryAttributesToFormFields(query ?? {}),
       };
     } catch (err: any) {
       logFailed(err?.message);

@@ -51,7 +51,7 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
   return false;
 }
 
-export function parseQueryStringsToFormFields(query?: {
+export function parseQueryAttributesToFormFields(query?: {
   filter?: string;
   project?: string;
   collation?: string;

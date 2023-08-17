@@ -4,8 +4,8 @@ import Sinon from 'sinon';
 import configureStore from '../../../test/configure-store';
 import {
   AIPipelineActionTypes,
-  cancelAIPipeline,
-  runAIPipeline,
+  cancelAIPipelineGeneration,
+  runAIPipelineGeneration,
 } from './pipeline-ai';
 import type { ConfigureStoreOptions } from '../../stores/store';
 import { toggleAutoPreview } from '../auto-preview';
@@ -23,7 +23,7 @@ describe('AIPipelineReducer', function () {
     });
   }
 
-  describe('runAIPipeline', function () {
+  describe('runAIPipelineGeneration', function () {
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasService = {
@@ -51,7 +51,7 @@ describe('AIPipelineReducer', function () {
           'ready'
         );
 
-        await store.dispatch(runAIPipeline('testing prompt'));
+        await store.dispatch(runAIPipelineGeneration('testing prompt'));
 
         expect(mockAtlasService.getAggregationFromUserInput).to.have.been
           .calledOnce;
@@ -93,7 +93,7 @@ describe('AIPipelineReducer', function () {
         expect(
           store.getState().pipelineBuilder.aiPipeline.errorMessage
         ).to.equal(undefined);
-        await store.dispatch(runAIPipeline('testing prompt') as any);
+        await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
         expect(
           store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
         ).to.equal(-1);
@@ -112,7 +112,7 @@ describe('AIPipelineReducer', function () {
           getAggregationFromUserInput: sandbox.stub().rejects(authError),
         };
         const store = createStore({ atlasService: mockAtlasService as any });
-        await store.dispatch(runAIPipeline('testing prompt') as any);
+        await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
         expect(store.getState().pipelineBuilder.aiPipeline).to.deep.eq({
           status: 'ready',
           aiPromptText: '',
@@ -124,7 +124,7 @@ describe('AIPipelineReducer', function () {
     });
   });
 
-  describe('cancelAIPipeline', function () {
+  describe('cancelAIPipelineGeneration', function () {
     it('should unset the fetching id and set the status on the store', function () {
       const store = createStore();
       expect(
@@ -143,7 +143,7 @@ describe('AIPipelineReducer', function () {
         store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
       ).to.equal(1);
 
-      store.dispatch(cancelAIPipeline());
+      store.dispatch(cancelAIPipelineGeneration());
 
       expect(
         store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId

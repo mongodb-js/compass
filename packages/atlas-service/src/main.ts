@@ -647,7 +647,6 @@ export class AtlasService {
         schema,
         sampleDocuments: sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS),
       });
-      // Why this is not happening on the backend?
       if (msgBody.length > AI_MAX_REQUEST_SIZE) {
         throw new Error(
           'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
@@ -711,7 +710,6 @@ export class AtlasService {
         schema,
         sampleDocuments: sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS),
       });
-      // Why this is not happening on the backend?
       if (msgBody.length > AI_MAX_REQUEST_SIZE) {
         throw new Error(
           'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
