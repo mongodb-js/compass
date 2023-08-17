@@ -1,18 +1,66 @@
+import { ipcRenderer } from 'hadron-ipc';
+import type AppRegistry from 'hadron-app-registry';
+import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
-import type { Store, AnyAction } from 'redux';
+import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
+import { openModal, reducer as settingsReducer } from './settings';
+import { PreferencesSandbox } from './preferences-sandbox';
 
-import { reducer as settingsReducer } from './settings';
-const store = createStore(
-  combineReducers({
-    settings: settingsReducer,
-  }),
-  applyMiddleware(thunk)
-);
+export function configureStore({
+  preferencesSandbox,
+}: {
+  preferencesSandbox?: Pick<
+    PreferencesSandbox,
+    | 'setupSandbox'
+    | 'updateField'
+    | 'getSandboxState'
+    | 'applySandboxChangesToPreferences'
+  >;
+} = {}) {
+  return createStore(
+    combineReducers({
+      settings: settingsReducer,
+    }) as Reducer<{ settings: ReturnType<typeof settingsReducer> }>, // combineReducers CombinedState return type is broken, have to remove the EmptyObject from the union that it returns
+    applyMiddleware(
+      thunk.withExtraArgument({
+        preferencesSandbox: preferencesSandbox ?? new PreferencesSandbox(),
+      })
+    )
+  );
+}
 
-type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
-type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
-export type RootActions = StoreActions<typeof store>;
-export type RootState = StoreState<typeof store>;
+const store = configureStore();
 
-export default store;
+export type RootState = ReturnType<typeof store['getState']>;
+
+export type SettingsThunkAction<
+  R,
+  A extends AnyAction = AnyAction
+> = ThunkAction<
+  R,
+  RootState,
+  {
+    preferencesSandbox: Pick<
+      PreferencesSandbox,
+      | 'setupSandbox'
+      | 'updateField'
+      | 'getSandboxState'
+      | 'applySandboxChangesToPreferences'
+    >;
+  },
+  A
+>;
+
+(store as any).onActivated = (appRegistry: AppRegistry) => {
+  appRegistry.on('open-compass-settings', () => {
+    void store.dispatch(openModal());
+  });
+  ipcRenderer?.on('window:show-settings', () => {
+    void store.dispatch(openModal());
+  });
+};
+
+export default store as typeof store & {
+  onActivated(appRegistry: AppRegistry): void;
+};
