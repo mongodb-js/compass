@@ -113,7 +113,7 @@ export type AIPipelineSucceededAction = {
 
 function logFailed(errorMessage: string) {
   log.info(
-    mongoLogId(1_001_000_226),
+    mongoLogId(1_001_000_230),
     'AIPipeline',
     'AI pipeline request failed',
     {
@@ -212,7 +212,7 @@ export const runAIPipelineGeneration = (
 
     if (signal.aborted) {
       log.info(
-        mongoLogId(1_001_000_227),
+        mongoLogId(1_001_000_231),
         'AIPipeline',
         'Cancelled ai pipeline request'
       );
