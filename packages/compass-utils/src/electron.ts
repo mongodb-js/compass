@@ -21,6 +21,10 @@ export function getAppName(): string | undefined {
   return getElectronApp()?.getName();
 }
 
-export function getAppPath(): string | undefined {
-  return getElectronApp()?.getPath('userData');
+export function getStoragePath() {
+  const basepath = getElectronApp()?.getPath('userData');
+  if (!basepath) {
+    throw new Error('The storage path is not defined.');
+  }
+  return basepath as string;
 }

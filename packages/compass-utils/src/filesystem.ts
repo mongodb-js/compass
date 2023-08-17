@@ -2,7 +2,7 @@ import { promises as fs, createWriteStream } from 'fs';
 import path from 'path';
 import { glob } from 'glob';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { getAppPath } from './electron';
+import { getStoragePath } from './electron';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-UTILS');
 
@@ -18,7 +18,7 @@ export class Filesystem<T> {
   private readonly onDeserialize: FilesystemOptions<T>['onDeserialize'];
 
   constructor({
-    subdir = '/',
+    subdir = '',
     onSerialize = (content: T) => JSON.stringify(content, null, 2),
     onDeserialize = JSON.parse,
   }: Partial<FilesystemOptions<T>> = {}) {
@@ -28,16 +28,9 @@ export class Filesystem<T> {
   }
 
   private getStorageBasePath(): string {
-    if (process.env.COMPASS_TESTS_STORAGE_BASE_PATH) {
-      return path.join(
-        process.env.COMPASS_TESTS_STORAGE_BASE_PATH,
-        this.subdir
-      );
-    }
-    const basepath = getAppPath();
-    if (!basepath) {
-      throw new Error('The storage path is not defined.');
-    }
+    const basepath = process.env.COMPASS_TESTS_STORAGE_BASE_PATH
+      ? process.env.COMPASS_TESTS_STORAGE_BASE_PATH
+      : getStoragePath();
     return path.join(basepath, this.subdir);
   }
 
@@ -69,7 +62,7 @@ export class Filesystem<T> {
   private async readAndParseFile(absolutePath: string): Promise<T | undefined> {
     let data: string;
     try {
-      data = (await fs.readFile(absolutePath, 'utf-8')).toString();
+      data = await fs.readFile(absolutePath, 'utf-8');
     } catch (error) {
       log.error(mongoLogId(1_001_000_224), 'Filesystem', 'Error reading file', {
         path: absolutePath,
