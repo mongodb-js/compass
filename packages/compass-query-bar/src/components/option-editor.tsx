@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useCallback } from 'react';
 import type { Signal } from '@mongodb-js/compass-components';
 import {
   css,
@@ -22,6 +22,8 @@ import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -108,7 +110,8 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 }) => {
   const showInsights = usePreference('showInsights', React);
   const editorContainerRef = useRef<HTMLDivElement>(null);
-  const editorRef = useRef<EditorRef>(null);
+  const editorInitialValueRef = useRef<string | false>(false);
+  const editorCurrentRef = useRef<EditorRef>(null);
 
   const focusRingProps = useFocusRing({
     outer: true,
@@ -148,25 +151,35 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   }, [schemaFields, serverVersion]);
 
   const onFocus = () => {
-    if (hasAutofix && editorRef.current) {
-      if (editorRef.current.editorContents === '') {
+    if (hasAutofix && editorCurrentRef.current) {
+      if (editorCurrentRef.current.editorContents === '') {
         rafraf(() => {
-          editorRef.current?.applySnippet('\\{${}}');
+          editorCurrentRef.current?.applySnippet('\\{${}}');
         });
       }
     }
   };
 
   const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    if (hasAutofix && editorRef.current) {
-      const editorContents = editorRef.current.editorContents;
+    if (hasAutofix && editorCurrentRef.current) {
+      const editorContents = editorCurrentRef.current.editorContents;
       const snippet = lenientlyFixQuery(editorContents || '');
       if (snippet) {
-        editorRef.current.applySnippet(snippet);
+        editorCurrentRef.current.applySnippet(snippet);
         event.preventDefault();
       }
     }
   };
+
+  const onBlurEditor = useCallback(() => {
+    if (
+      !!editorCurrentRef.current &&
+      editorCurrentRef.current.editorContents !== editorInitialValueRef.current
+    ) {
+      track('Query Edited', { id });
+      editorInitialValueRef.current = editorCurrentRef.current.editorContents;
+    }
+  }, [editorInitialValueRef, id]);
 
   return (
     <div
@@ -178,7 +191,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       ref={editorContainerRef}
     >
       <InlineEditor
-        ref={editorRef}
+        ref={editorCurrentRef}
         id={id}
         text={value}
         onChangeText={onChange}
@@ -188,6 +201,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         data-testid={dataTestId}
         onFocus={onFocus}
         onPaste={onPaste}
+        onBlur={onBlurEditor}
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>
