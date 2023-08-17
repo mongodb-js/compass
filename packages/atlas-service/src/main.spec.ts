@@ -181,17 +181,17 @@ describe('AtlasServiceMain', function () {
           return Promise.resolve({ active: true });
         },
       }) as any;
-      AtlasService['oidcPluginSyncedFromLoggerState'] = 'expired';
+      AtlasService['oidcPluginLogger'].emit(
+        'mongodb-oidc-plugin:refresh-started'
+      );
       const [authenticated] = await Promise.all([
         AtlasService.isAuthenticated(),
-        (async () => {
-          await wait(20);
+        (() => {
           AtlasService['oidcPluginLogger'].emit(
-            'mongodb-oidc-plugin:refresh-started'
+            'mongodb-oidc-plugin:refresh-succeeded'
           );
           AtlasService['oidcPluginLogger'].emit(
-            'mongodb-oidc-plugin:auth-succeeded',
-            {} as any
+            'mongodb-oidc-plugin:state-updated'
           );
         })(),
       ]);
@@ -341,7 +341,9 @@ describe('AtlasServiceMain', function () {
           return Promise.resolve({ test: 1 });
         },
       }) as any;
-      AtlasService['oidcPluginSyncedFromLoggerState'] = 'expired';
+      AtlasService['oidcPluginLogger'].emit(
+        'mongodb-oidc-plugin:refresh-started'
+      );
       const [query] = await Promise.all([
         AtlasService.getQueryFromUserInput({
           userInput: 'test',
@@ -349,14 +351,12 @@ describe('AtlasServiceMain', function () {
           databaseName: 'test',
           sampleDocuments: [],
         }),
-        (async () => {
-          await wait(20);
+        (() => {
           AtlasService['oidcPluginLogger'].emit(
-            'mongodb-oidc-plugin:refresh-started'
+            'mongodb-oidc-plugin:refresh-succeeded'
           );
           AtlasService['oidcPluginLogger'].emit(
-            'mongodb-oidc-plugin:auth-succeeded',
-            {} as any
+            'mongodb-oidc-plugin:state-updated'
           );
         })(),
       ]);
@@ -477,42 +477,45 @@ describe('AtlasServiceMain', function () {
   });
 
   describe('oidcPluginLogger', function () {
-    it('should set AtlasService state to expired on `mongodb-oidc-plugin:refresh-started` event', function () {
-      AtlasService['oidcPluginLogger'].emit(
-        'mongodb-oidc-plugin:refresh-started'
-      );
-      expect(AtlasService).to.have.property(
-        'oidcPluginSyncedFromLoggerState',
-        'expired'
-      );
-    });
+    describe('on `mongodb-oidc-plugin:refresh-started` event', function () {
+      it('should skip refresh attempt when in restoring state', function () {
+        AtlasService['oidcPluginSyncedFromLoggerState'] = 'restoring';
+        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
+        expect(
+          mockOidcPlugin.mongoClientOptions.authMechanismProperties
+            .REQUEST_TOKEN_CALLBACK
+        ).not.to.have.been.called;
+      });
 
-    it('should refresh token in atlas service state on `mongodb-oidc-plugin:refresh-started` event', async function () {
-      // Checking that multiple events while we are refreshing don't cause
-      // multiple calls to REQUEST_TOKEN_CALLBACK
-      mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
-      mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
-      mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
-      // Make it look like oidc-plugin successfully updated
-      mockOidcPlugin.logger.emit(
-        'mongodb-oidc-plugin:auth-succeeded',
-        {} as any
-      );
-      await once(
-        AtlasService['oidcPluginLogger'],
-        'atlas-service-token-refreshed'
-      );
-      expect(
-        mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REQUEST_TOKEN_CALLBACK
-      ).to.have.been.calledOnce;
-      expect(AtlasService).to.have.property(
-        'oidcPluginSyncedFromLoggerState',
-        'authenticated'
-      );
-      expect(AtlasService)
-        .to.have.property('token')
-        .deep.eq({ accessToken: '1234' });
+      it('should refresh token in atlas service state', async function () {
+        // Checking that multiple events while we are refreshing don't cause
+        // multiple calls to REQUEST_TOKEN_CALLBACK
+        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
+        expect(AtlasService).to.have.property(
+          'oidcPluginSyncedFromLoggerState',
+          'expired'
+        );
+        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
+        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
+        // Make it look like oidc-plugin successfully updated
+        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:state-updated');
+        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-succeeded');
+        await once(
+          AtlasService['oidcPluginLogger'],
+          'atlas-service-token-refreshed'
+        );
+        expect(
+          mockOidcPlugin.mongoClientOptions.authMechanismProperties
+            .REQUEST_TOKEN_CALLBACK
+        ).to.have.been.calledOnce;
+        expect(AtlasService).to.have.property(
+          'oidcPluginSyncedFromLoggerState',
+          'authenticated'
+        );
+        expect(AtlasService)
+          .to.have.property('token')
+          .deep.eq({ accessToken: '1234' });
+      });
     });
   });
 
