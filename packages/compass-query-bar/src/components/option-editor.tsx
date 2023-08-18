@@ -176,7 +176,10 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const onBlurEditor = useCallback(() => {
     if (
       !!editorCurrentRef.current &&
-      editorCurrentRef.current.editorContents !== editorInitialValueRef.current
+      editorCurrentRef.current.editorContents !==
+        editorInitialValueRef.current &&
+      (editorInitialValueRef.current ||
+        editorCurrentRef.current.editorContents !== '{}')
     ) {
       track('Query Edited', { option_name: name });
       editorInitialValueRef.current = editorCurrentRef.current.editorContents;

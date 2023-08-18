@@ -114,8 +114,7 @@ export const runAIQuery = (
 > => {
   track('AI Prompt Submitted', () => ({
     editor_view_type: 'find',
-    // One token generally corresponds to ~4 characters of text for common English text.
-    num_tokens: userInput.length / 4,
+    user_input_length: userInput.length,
   }));
 
   return async (dispatch, getState, { dataService, atlasService }) => {
