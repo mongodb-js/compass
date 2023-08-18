@@ -183,11 +183,14 @@ export class AtlasService {
   private static oidcPluginLogger: MongoDBOIDCPluginLogger & {
     on(evt: 'atlas-service-token-refreshed', fn: () => void): void;
     on(evt: 'atlas-service-token-refresh-failed', fn: () => void): void;
+    on(evt: 'atlas-service-signed-out', fn: () => void): void;
     once(evt: 'atlas-service-token-refreshed', fn: () => void): void;
     once(evt: 'atlas-service-token-refresh-failed', fn: () => void): void;
+    once(evt: 'atlas-service-signed-out', fn: () => void): void;
     emit(evt: 'atlas-service-token-refreshed'): void;
     emit(evt: 'atlas-service-token-refresh-failed'): void;
-  } = new EventEmitter();
+    emit(evt: 'atlas-service-signed-out'): void;
+  } & Pick<EventEmitter, 'removeAllListeners'> = new EventEmitter();
 
   private static oidcPluginSyncedFromLoggerState: AtlasServiceAuthState =
     'initial';
@@ -250,9 +253,40 @@ export class AtlasService {
       : ['auth-code'];
   }
 
-  static init(
-    _createMongoDBOIDCPlugin = createMongoDBOIDCPlugin
-  ): Promise<void> {
+  private static createMongoDBOIDCPlugin = createMongoDBOIDCPlugin;
+
+  private static setupPlugin(serializedState?: string) {
+    this.plugin = this.createMongoDBOIDCPlugin({
+      redirectServerRequestHandler(data) {
+        if (data.result === 'redirecting') {
+          const { res, status, location } = data;
+          res.statusCode = status;
+          const redirectUrl = new URL(
+            'https://account.mongodb.com/account/login'
+          );
+          redirectUrl.searchParams.set('fromURI', location);
+          res.setHeader('Location', redirectUrl.toString());
+          res.end();
+          return;
+        }
+
+        redirectRequestHandler(data);
+      },
+      async openBrowser({ url }) {
+        await shell.openExternal(url);
+      },
+      allowedFlows: this.getAllowedAuthFlows.bind(this),
+      logger: this.oidcPluginLogger,
+      serializedState,
+    });
+    oidcPluginHookLoggerToMongoLogWriter(
+      this.oidcPluginLogger,
+      log.unbound,
+      'AtlasService'
+    );
+  }
+
+  static init(): Promise<void> {
     return (this.initPromise ??= (async () => {
       ipcExpose(
         'AtlasService',
@@ -262,6 +296,7 @@ export class AtlasService {
           'introspect',
           'isAuthenticated',
           'signIn',
+          'signOut',
           'getQueryFromUserInput',
         ],
         this.ipcMain
@@ -274,34 +309,7 @@ export class AtlasService {
       );
       this.oidcPluginSyncedFromLoggerState = 'restoring';
       const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
-      this.plugin = _createMongoDBOIDCPlugin({
-        redirectServerRequestHandler(data) {
-          if (data.result === 'redirecting') {
-            const { res, status, location } = data;
-            res.statusCode = status;
-            const redirectUrl = new URL(
-              'https://account.mongodb.com/account/login'
-            );
-            redirectUrl.searchParams.set('fromURI', location);
-            res.setHeader('Location', redirectUrl.toString());
-            res.end();
-            return;
-          }
-
-          redirectRequestHandler(data);
-        },
-        async openBrowser({ url }) {
-          await shell.openExternal(url);
-        },
-        allowedFlows: this.getAllowedAuthFlows.bind(this),
-        logger: this.oidcPluginLogger,
-        serializedState,
-      });
-      oidcPluginHookLoggerToMongoLogWriter(
-        this.oidcPluginLogger,
-        log.unbound,
-        'AtlasService'
-      );
+      this.setupPlugin(serializedState);
       // Whether or not we got the state, try refreshing the token. If there was
       // no serialized state returned, this will just put the service in
       // `unauthenticated` state quickly. If there was some state, we need to
@@ -367,6 +375,9 @@ export class AtlasService {
     });
     this.oidcPluginLogger.on('atlas-service-token-refreshed', () => {
       broadcast('atlas-service-token-refreshed');
+    });
+    this.oidcPluginLogger.on('atlas-service-signed-out', () => {
+      broadcast('atlas-service-signed-out');
     });
   }
 
@@ -559,6 +570,29 @@ export class AtlasService {
     }
   }
 
+  static async signOut(): Promise<void> {
+    // Reset and recreate event emitter first so that we don't accidentally
+    // react on any old plugin instance events
+    this.oidcPluginLogger.removeAllListeners();
+    this.oidcPluginLogger = new EventEmitter();
+    this.attachOidcPluginLoggerEvents();
+    // Destroy old plugin and setup new one
+    await this.plugin?.destroy();
+    this.setupPlugin();
+    // Revoke tokens. Revoking refresh token will also revoke associated access
+    // tokens
+    // https://developer.okta.com/docs/guides/revoke-tokens/main/#revoke-an-access-token-or-a-refresh-token
+    await this.revoke({ tokenType: 'refresh_token' });
+    // Reset service state
+    this.token = null;
+    this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
+    this.oidcPluginLogger.emit('atlas-service-signed-out');
+    // Open Atlas sign out page to end the browser session created for sign in
+    void shell.openExternal(
+      'https://account.mongodb.com/account/login?signedOut=true'
+    );
+  }
+
   static async getUserInfo({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<UserInfo> {
@@ -579,7 +613,13 @@ export class AtlasService {
     return res.json();
   }
 
-  static async introspect({ signal }: { signal?: AbortSignal } = {}) {
+  static async introspect({
+    signal,
+    tokenType,
+  }: {
+    signal?: AbortSignal;
+    tokenType?: 'access_token' | 'refresh_token';
+  } = {}) {
     throwIfAborted(signal);
 
     const url = new URL(`${this.issuer}/v1/introspect`);
@@ -587,11 +627,18 @@ export class AtlasService {
 
     await this.maybeWaitForToken({ signal });
 
+    tokenType ??= 'access_token';
+
     const res = await this.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
-        ['token', this.token?.accessToken ?? ''],
-        ['token_hint', 'access_token'],
+        [
+          'token',
+          (tokenType === 'access_token'
+            ? this.token?.accessToken
+            : this.token?.refreshToken) ?? '',
+        ],
+        ['token_type_hint', tokenType],
       ]),
       headers: {
         Accept: 'application/json',
@@ -602,6 +649,44 @@ export class AtlasService {
     await throwIfNotOk(res);
 
     return res.json() as Promise<IntrospectInfo>;
+  }
+
+  static async revoke({
+    signal,
+    tokenType,
+  }: {
+    signal?: AbortSignal;
+    tokenType?: 'access_token' | 'refresh_token';
+  } = {}): Promise<void> {
+    throwIfAborted(signal);
+
+    const url = new URL(`${this.issuer}/v1/revoke`);
+    url.searchParams.set('client_id', this.clientId);
+
+    await this.maybeWaitForToken({ signal });
+
+    tokenType ??= 'access_token';
+
+    const body = new URLSearchParams([
+      [
+        'token',
+        (tokenType === 'access_token'
+          ? this.token?.accessToken
+          : this.token?.refreshToken) ?? '',
+      ],
+      ['token_type_hint', tokenType],
+    ]);
+
+    const res = await this.fetch(url.toString(), {
+      method: 'POST',
+      body,
+      headers: {
+        Accept: 'application/json',
+      },
+      signal: signal as NodeFetchAbortSignal | undefined,
+    });
+
+    await throwIfNotOk(res);
   }
 
   static async getQueryFromUserInput({
