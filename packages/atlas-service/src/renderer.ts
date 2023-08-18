@@ -16,18 +16,21 @@ export class AtlasService {
     | 'introspect'
     | 'isAuthenticated'
     | 'signIn'
+    | 'getAggregationFromUserInput'
     | 'getQueryFromUserInput'
   >('AtlasService', [
     'getUserInfo',
     'introspect',
     'isAuthenticated',
     'signIn',
+    'getAggregationFromUserInput',
     'getQueryFromUserInput',
   ]);
 
   getUserInfo = this.ipc.getUserInfo;
   introspect = this.ipc.introspect;
   isAuthenticated = this.ipc.isAuthenticated;
+  getAggregationFromUserInput = this.ipc.getAggregationFromUserInput;
   getQueryFromUserInput = this.ipc.getQueryFromUserInput;
 
   async signIn(

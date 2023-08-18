@@ -51,6 +51,35 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
   return false;
 }
 
+export function parseQueryAttributesToFormFields(query?: {
+  filter?: string;
+  project?: string;
+  collation?: string;
+  sort?: string;
+  skip?: string;
+  limit?: string;
+  maxTimeMS?: string;
+}): QueryFormFields {
+  return Object.fromEntries(
+    Object.entries(query ?? {})
+      .map(([key, valueString]) => {
+        if (!isQueryProperty(key) || typeof valueString === 'undefined') {
+          return null;
+        }
+
+        const value = validateField(key, valueString);
+        const valid: boolean = value !== false;
+        return [
+          key,
+          { string: valueString, value: valid ? value : null, valid },
+        ] as const;
+      })
+      .filter((value) => {
+        return value !== null;
+      }) as [string, unknown][]
+  ) as QueryFormFields;
+}
+
 /**
  * Map query document to the query fields state only preserving valid values
  */

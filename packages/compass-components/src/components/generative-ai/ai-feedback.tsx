@@ -134,7 +134,7 @@ function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
         )}
         onClick={() => setChosenFeedbackOption('positive')}
         size="small"
-        data-testid="ai-query-feedback-thumbs-up"
+        data-testid="ai-feedback-thumbs-up"
         ref={feedbackPositiveButtonRef}
       >
         <Icon glyph="ThumbsUp" />

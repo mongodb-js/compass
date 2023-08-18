@@ -13,6 +13,20 @@ function getListenerCount(emitter: EventEmitter) {
   }, 0);
 }
 
+const atlasAIServiceTests: {
+  functionName: 'getQueryFromUserInput' | 'getAggregationFromUserInput';
+  aiEndpoint: string;
+}[] = [
+  {
+    functionName: 'getQueryFromUserInput',
+    aiEndpoint: 'mql-query',
+  },
+  {
+    functionName: 'getAggregationFromUserInput',
+    aiEndpoint: 'mql-aggregation',
+  },
+];
+
 describe('AtlasServiceMain', function () {
   const sandbox = Sinon.createSandbox();
 
@@ -199,170 +213,172 @@ describe('AtlasServiceMain', function () {
     });
   });
 
-  describe('getQueryFromUserInput', function () {
-    it('makes a post request with the user input to the endpoint in the environment', async function () {
-      AtlasService['fetch'] = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({
-            content: { query: { find: { test: 'pineapple' } } },
+  for (const { functionName, aiEndpoint } of atlasAIServiceTests) {
+    describe(functionName, function () {
+      it('makes a post request with the user input to the endpoint in the environment', async function () {
+        AtlasService['fetch'] = sandbox.stub().resolves({
+          ok: true,
+          json() {
+            return Promise.resolve({
+              content: { query: { filter: "{ test: 'pineapple' }" } },
+            });
+          },
+        }) as any;
+
+        const res = await AtlasService[functionName]({
+          userInput: 'test',
+          signal: new AbortController().signal,
+          collectionName: 'jam',
+          databaseName: 'peanut',
+          schema: { _id: { types: [{ bsonType: 'ObjectId' }] } },
+          sampleDocuments: [{ _id: 1234 }],
+        });
+
+        const { args } = (
+          AtlasService['fetch'] as unknown as Sinon.SinonStub
+        ).getCall(0);
+
+        expect(AtlasService['fetch']).to.have.been.calledOnce;
+        expect(args[0]).to.eq(`http://example.com/ai/api/v1/${aiEndpoint}`);
+        expect(args[1].body).to.eq(
+          '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
+        );
+        expect(res).to.have.nested.property(
+          'content.query.filter',
+          "{ test: 'pineapple' }"
+        );
+      });
+
+      it('uses the abort signal in the fetch request', async function () {
+        const c = new AbortController();
+        c.abort();
+        try {
+          await AtlasService[functionName]({
+            signal: c.signal,
+            userInput: 'test',
+            collectionName: 'test',
+            databaseName: 'peanut',
           });
-        },
-      }) as any;
-
-      const res = await AtlasService.getQueryFromUserInput({
-        userInput: 'test',
-        signal: new AbortController().signal,
-        collectionName: 'jam',
-        databaseName: 'peanut',
-        schema: { _id: { types: [{ bsonType: 'ObjectId' }] } },
-        sampleDocuments: [{ _id: 1234 }],
+          expect.fail(`Expected ${functionName} to throw`);
+        } catch (err) {
+          expect(err).to.have.property('message', 'This operation was aborted');
+        }
       });
 
-      const { args } = (
-        AtlasService['fetch'] as unknown as Sinon.SinonStub
-      ).getCall(0);
-
-      expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq('http://example.com/ai/api/v1/mql-query');
-      expect(args[1].body).to.eq(
-        '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
-      );
-      expect(res).to.have.nested.property(
-        'content.query.find.test',
-        'pineapple'
-      );
-    });
-
-    it('uses the abort signal in the fetch request', async function () {
-      const c = new AbortController();
-      c.abort();
-      try {
-        await AtlasService.getQueryFromUserInput({
-          signal: c.signal,
-          userInput: 'test',
-          collectionName: 'test',
-          databaseName: 'peanut',
-        });
-        expect.fail('Expected getQueryFromUserInput to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', 'This operation was aborted');
-      }
-    });
-
-    it('throws if the request would be too much for the ai', async function () {
-      try {
-        await AtlasService.getQueryFromUserInput({
-          userInput: 'test',
-          collectionName: 'test',
-          databaseName: 'peanut',
-          sampleDocuments: [{ test: '4'.repeat(60000) }],
-        });
-        expect.fail('Expected getQueryFromUserInput to throw');
-      } catch (err) {
-        expect(err).to.have.property(
-          'message',
-          'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
-        );
-      }
-    });
-
-    it('passes fewer documents if the request would be too much for the ai with all of the documents', async function () {
-      AtlasService['fetch'] = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({});
-        },
-      }) as any;
-
-      await AtlasService.getQueryFromUserInput({
-        userInput: 'test',
-        collectionName: 'test.test',
-        databaseName: 'peanut',
-        sampleDocuments: [
-          { a: '1' },
-          { a: '2' },
-          { a: '3' },
-          { a: '4'.repeat(50000) },
-        ],
+      it('throws if the request would be too much for the ai', async function () {
+        try {
+          await AtlasService[functionName]({
+            userInput: 'test',
+            collectionName: 'test',
+            databaseName: 'peanut',
+            sampleDocuments: [{ test: '4'.repeat(60000) }],
+          });
+          expect.fail(`Expected ${functionName} to throw`);
+        } catch (err) {
+          expect(err).to.have.property(
+            'message',
+            'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+          );
+        }
       });
 
-      const { args } = (
-        AtlasService['fetch'] as unknown as Sinon.SinonStub
-      ).getCall(0);
+      it('passes fewer documents if the request would be too much for the ai with all of the documents', async function () {
+        AtlasService['fetch'] = sandbox.stub().resolves({
+          ok: true,
+          json() {
+            return Promise.resolve({});
+          },
+        }) as any;
 
-      expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[1].body).to.eq(
-        '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
-      );
-    });
-
-    it('throws the error', async function () {
-      AtlasService['fetch'] = sandbox.stub().resolves({
-        ok: false,
-        status: 500,
-        statusText: 'Internal Server Error',
-      }) as any;
-
-      try {
-        await AtlasService.getQueryFromUserInput({
+        await AtlasService[functionName]({
           userInput: 'test',
           collectionName: 'test.test',
           databaseName: 'peanut',
+          sampleDocuments: [
+            { a: '1' },
+            { a: '2' },
+            { a: '3' },
+            { a: '4'.repeat(50000) },
+          ],
         });
-        expect.fail('Expected getQueryFromUserInput to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', '500 Internal Server Error');
-      }
-    });
 
-    it('should throw if COMPASS_ATLAS_SERVICE_BASE_URL is not set', async function () {
-      delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
+        const { args } = (
+          AtlasService['fetch'] as unknown as Sinon.SinonStub
+        ).getCall(0);
 
-      try {
-        await AtlasService.getQueryFromUserInput({
-          userInput: 'test',
-          collectionName: 'test.test',
-          databaseName: 'peanut',
-        });
-        expect.fail('Expected AtlasService.signIn() to throw');
-      } catch (err) {
-        expect(err).to.have.property(
-          'message',
-          'No AI Query endpoint to fetch. Please set the environment variable `COMPASS_ATLAS_SERVICE_BASE_URL`'
+        expect(AtlasService['fetch']).to.have.been.calledOnce;
+        expect(args[1].body).to.eq(
+          '{"userInput":"test","collectionName":"test.test","databaseName":"peanut","sampleDocuments":[{"a":"1"}]}'
         );
-      }
-    });
+      });
 
-    it('should wait for token refresh if called when expired', async function () {
-      AtlasService['fetch'] = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({ test: 1 });
-        },
-      }) as any;
-      AtlasService['oidcPluginLogger'].emit(
-        'mongodb-oidc-plugin:refresh-started'
-      );
-      const [query] = await Promise.all([
-        AtlasService.getQueryFromUserInput({
-          userInput: 'test',
-          collectionName: 'test',
-          databaseName: 'test',
-          sampleDocuments: [],
-        }),
-        (() => {
-          AtlasService['oidcPluginLogger'].emit(
-            'mongodb-oidc-plugin:refresh-succeeded'
+      it('throws the error', async function () {
+        AtlasService['fetch'] = sandbox.stub().resolves({
+          ok: false,
+          status: 500,
+          statusText: 'Internal Server Error',
+        }) as any;
+
+        try {
+          await AtlasService[functionName]({
+            userInput: 'test',
+            collectionName: 'test.test',
+            databaseName: 'peanut',
+          });
+          expect.fail(`Expected ${functionName} to throw`);
+        } catch (err) {
+          expect(err).to.have.property('message', '500 Internal Server Error');
+        }
+      });
+
+      it('should throw if COMPASS_ATLAS_SERVICE_BASE_URL is not set', async function () {
+        delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
+
+        try {
+          await AtlasService[functionName]({
+            userInput: 'test',
+            collectionName: 'test.test',
+            databaseName: 'peanut',
+          });
+          expect.fail('Expected AtlasService.signIn() to throw');
+        } catch (err) {
+          expect(err).to.have.property(
+            'message',
+            'No AI Query endpoint to fetch. Please set the environment variable `COMPASS_ATLAS_SERVICE_BASE_URL`'
           );
-          AtlasService['oidcPluginLogger'].emit(
-            'mongodb-oidc-plugin:state-updated'
-          );
-        })(),
-      ]);
-      expect(query).to.deep.eq({ test: 1 });
+        }
+      });
+
+      it('should wait for token refresh if called when expired', async function () {
+        AtlasService['fetch'] = sandbox.stub().resolves({
+          ok: true,
+          json() {
+            return Promise.resolve({ test: 1 });
+          },
+        }) as any;
+        AtlasService['oidcPluginLogger'].emit(
+          'mongodb-oidc-plugin:refresh-started'
+        );
+        const [query] = await Promise.all([
+          AtlasService[functionName]({
+            userInput: 'test',
+            collectionName: 'test',
+            databaseName: 'test',
+            sampleDocuments: [],
+          }),
+          (() => {
+            AtlasService['oidcPluginLogger'].emit(
+              'mongodb-oidc-plugin:refresh-succeeded'
+            );
+            AtlasService['oidcPluginLogger'].emit(
+              'mongodb-oidc-plugin:state-updated'
+            );
+          })(),
+        ]);
+        expect(query).to.deep.eq({ test: 1 });
+      });
     });
-  });
+  }
 
   describe('throwIfNotOk', function () {
     it('should not throw if res is ok', async function () {

@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import type { DataService } from 'mongodb-data-service';
 import thunk from 'redux-thunk';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 
 import reducer from '..';
 import { getPipelineStageOperatorsFromBuilderState } from './builder-helpers';
@@ -32,6 +33,7 @@ function createStore(pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`) {
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        atlasService: new AtlasService(),
         pipelineBuilder,
         pipelineStorage: new PipelineStorage(),
       })

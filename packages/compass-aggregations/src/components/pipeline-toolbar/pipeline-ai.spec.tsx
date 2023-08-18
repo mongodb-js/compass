@@ -11,29 +11,27 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { Provider } from 'react-redux';
-
-import { QueryAI } from './query-ai';
-import { configureStore } from '../stores/query-bar-store';
-import {
-  AIQueryActionTypes,
-  changeAIPromptText,
-} from '../stores/ai-query-reducer';
-import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { mapQueryToFormFields } from '../utils/query';
 import preferencesAccess from 'compass-preferences-model';
+
+import { PipelineAI } from './pipeline-ai';
+import configureStore from '../../../test/configure-store';
+import {
+  AIPipelineActionTypes,
+  changeAIPromptText,
+} from '../../modules/pipeline-builder/pipeline-ai';
 
 const noop = () => {
   /* no op */
 };
 
-const renderQueryAI = ({
+const renderPipelineAI = ({
   ...props
-}: Partial<ComponentProps<typeof QueryAI>> = {}) => {
+}: Partial<ComponentProps<typeof PipelineAI>> = {}) => {
   const store = configureStore();
 
   render(
     <Provider store={store}>
-      <QueryAI onClose={noop} show {...props} />
+      <PipelineAI onClose={noop} show {...props} />
     </Provider>
   );
   return store;
@@ -41,7 +39,7 @@ const renderQueryAI = ({
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 
-describe('QueryAI Component', function () {
+describe('PipelineAI Component', function () {
   let store: ReturnType<typeof configureStore>;
   afterEach(cleanup);
 
@@ -49,7 +47,7 @@ describe('QueryAI Component', function () {
     let onCloseSpy: SinonSpy;
     beforeEach(function () {
       onCloseSpy = sinon.spy();
-      store = renderQueryAI({
+      store = renderPipelineAI({
         onClose: onCloseSpy,
       });
     });
@@ -65,29 +63,33 @@ describe('QueryAI Component', function () {
 
   describe('when rendered with text', function () {
     beforeEach(function () {
-      store = renderQueryAI();
+      store = renderPipelineAI();
       store.dispatch(changeAIPromptText('test'));
     });
 
     it('calls to clear the text when the X is clicked', function () {
-      expect(store.getState().aiQuery.aiPromptText).to.equal('test');
+      expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
+        'test'
+      );
 
       const clearTextButton = screen.getByTestId('ai-text-clear-prompt');
       expect(clearTextButton).to.be.visible;
       clearTextButton.click();
 
-      expect(store.getState().aiQuery.aiPromptText).to.equal('');
+      expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
+        ''
+      );
     });
   });
 
-  describe('Query AI Feedback', function () {
+  describe('Pipeline AI Feedback', function () {
     let trackUsageStatistics: boolean | undefined;
 
     beforeEach(async function () {
-      store = renderQueryAI();
+      store = renderPipelineAI();
       trackUsageStatistics =
         preferencesAccess.getPreferences().trackUsageStatistics;
-      // 'compass:track' will only emit if tracking is enabled
+      // 'compass:track' will only emit if tracking is enabled.
       await preferencesAccess.savePreferences({ trackUsageStatistics: true });
     });
 
@@ -107,8 +109,7 @@ describe('QueryAI Component', function () {
       expect(screen.queryByTestId('ai-feedback-thumbs-up')).to.not.exist;
 
       store.dispatch({
-        type: AIQueryActionTypes.AIQuerySucceeded,
-        fields: mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+        type: AIPipelineActionTypes.AIPipelineSucceeded,
       });
 
       expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
@@ -119,7 +120,7 @@ describe('QueryAI Component', function () {
       const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
       expect(textArea).to.be.visible;
       fireEvent.change(textArea, {
-        target: { value: 'this is the query I was looking for' },
+        target: { value: 'this is the pipeline I was looking for' },
       });
 
       screen.getByText('Submit').click();
@@ -130,10 +131,10 @@ describe('QueryAI Component', function () {
           expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
           expect(trackingLogs).to.deep.equal([
             {
-              event: 'AI Query Feedback',
+              event: 'PipelineAI Feedback',
               properties: {
                 feedback: 'positive',
-                text: 'this is the query I was looking for',
+                text: 'this is the pipeline I was looking for',
               },
             },
           ]);

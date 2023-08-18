@@ -3,16 +3,18 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import preferences from 'compass-preferences-model';
-import { EJSON } from 'bson';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
-import { mapQueryToFormFields } from '../utils/query';
+import {
+  mapQueryToFormFields,
+  parseQueryAttributesToFormFields,
+} from '../utils/query';
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -112,6 +114,11 @@ export const runAIQuery = (
   Promise<void>,
   AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
+  track('AI Prompt Submitted', () => ({
+    editor_view_type: 'find',
+    user_input_length: userInput.length,
+  }));
+
   return async (dispatch, getState, { dataService, atlasService }) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
@@ -204,12 +211,12 @@ export const runAIQuery = (
         );
       }
 
-      const query = EJSON.deserialize(jsonResponse?.content?.query);
+      const query = jsonResponse?.content?.query;
 
-      fields = mapQueryToFormFields({
-        ...DEFAULT_FIELD_VALUES,
-        ...(query ?? {}),
-      });
+      fields = {
+        ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+        ...parseQueryAttributesToFormFields(query ?? {}),
+      };
     } catch (err: any) {
       logFailed(err?.message);
       dispatch({
