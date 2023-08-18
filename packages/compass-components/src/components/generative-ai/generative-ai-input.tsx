@@ -36,6 +36,7 @@ const textInputStyles = css({
   // Override LeafyGreen input's padding to space for our robot.
   input: {
     paddingLeft: spacing[5],
+    paddingRight: spacing[6] * 2 + spacing[2],
   },
 });
 
