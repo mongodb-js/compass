@@ -16,8 +16,6 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[1],
-  margin: `0px ${spacing[2]}px`,
-  marginTop: '2px',
 });
 
 const inputBarContainerStyles = css({

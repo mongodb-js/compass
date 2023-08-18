@@ -14,11 +14,11 @@ import { Provider } from 'react-redux';
 import preferencesAccess from 'compass-preferences-model';
 
 import { PipelineAI } from './pipeline-ai';
-import configureStore from '../../../../test/configure-store';
+import configureStore from '../../../test/configure-store';
 import {
   AIPipelineActionTypes,
   changeAIPromptText,
-} from '../../../modules/pipeline-builder/pipeline-ai';
+} from '../../modules/pipeline-builder/pipeline-ai';
 
 const noop = () => {
   /* no op */
@@ -82,7 +82,7 @@ describe('PipelineAI Component', function () {
     });
   });
 
-  describe('Query AI Feedback', function () {
+  describe('Pipeline AI Feedback', function () {
     let trackUsageStatistics: boolean | undefined;
 
     beforeEach(async function () {

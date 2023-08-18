@@ -7,13 +7,13 @@ import {
   changeAIPromptText,
   cancelAIPipelineGeneration,
   runAIPipelineGeneration,
-} from '../../../modules/pipeline-builder/pipeline-ai';
-import type { RootState } from '../../../modules';
+} from '../../modules/pipeline-builder/pipeline-ai';
+import type { RootState } from '../../modules';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
 const onSubmitFeedback = (feedback: 'positive' | 'negative', text: string) => {
-  log.info(mongoLogId(1_001_000_229), 'PipelineAI', 'AI pipeline feedback', {
+  log.info(mongoLogId(1_001_000_232), 'PipelineAI', 'AI pipeline feedback', {
     feedback,
     text,
   });

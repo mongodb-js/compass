@@ -9,14 +9,11 @@ import {
   InteractivePopover,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
 
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
 import SavedPipelines from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
-import { hideInput as hideAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
-import { PipelineAI } from './pipeline-ai';
 
 const containerStyles = css({
   display: 'flex',
@@ -68,9 +65,7 @@ type PipelineHeaderProps = {
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
-  onHideAIInputClick?: () => void;
   onToggleOptions: () => void;
-  isAIInputVisible?: boolean;
   isOpenPipelineVisible: boolean;
 };
 
@@ -117,14 +112,10 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   showRunButton,
   showExportButton,
   showExplainButton,
-  onHideAIInputClick,
   onToggleOptions,
-  isAIInputVisible = false,
   isOptionsVisible,
   isOpenPipelineVisible,
 }) => {
-  const enableAIExperience = usePreference('enableAIExperience', React);
-
   return (
     <div>
       <div className={containerStyles} data-testid="pipeline-header">
@@ -150,26 +141,12 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           />
         </div>
       </div>
-      {enableAIExperience && (
-        <PipelineAI
-          onClose={() => {
-            onHideAIInputClick?.();
-          }}
-          show={isAIInputVisible}
-        />
-      )}
     </div>
   );
 };
 
-export default connect(
-  (state: RootState) => {
-    return {
-      isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
-      isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
-    };
-  },
-  {
-    onHideAIInputClick: hideAIInput,
-  }
-)(PipelineHeader);
+export default connect((state: RootState) => {
+  return {
+    isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
+  };
+})(PipelineHeader);

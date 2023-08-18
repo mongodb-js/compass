@@ -92,6 +92,11 @@ const queryOptionsContainerStyles = css({
   gap: spacing[2],
 });
 
+const queryAIContainerStyles = css({
+  margin: `0px ${spacing[2]}px`,
+  marginTop: '2px',
+});
+
 const queryBarDocumentationLink =
   'https://docs.mongodb.com/compass/current/query/filter/';
 
@@ -307,12 +312,14 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           </div>
         )}
       {enableAIQuery && (
-        <QueryAI
-          onClose={() => {
-            onHideAIInputClick?.();
-          }}
-          show={isAIInputVisible}
-        />
+        <div className={queryAIContainerStyles}>
+          <QueryAI
+            onClose={() => {
+              onHideAIInputClick?.();
+            }}
+            show={isAIInputVisible}
+          />
+        </div>
       )}
     </form>
   );
