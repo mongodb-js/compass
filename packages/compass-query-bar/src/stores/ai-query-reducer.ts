@@ -12,7 +12,7 @@ import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -112,6 +112,11 @@ export const runAIQuery = (
   Promise<void>,
   AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
+  track('AI Prompt Submitted', () => ({
+    editor_view_type: 'find',
+    user_input_length: userInput.length,
+  }));
+
   return async (dispatch, getState, { dataService, atlasService }) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
