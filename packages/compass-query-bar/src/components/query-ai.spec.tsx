@@ -130,7 +130,7 @@ describe('QueryAI Component', function () {
           expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
           expect(trackingLogs).to.deep.equal([
             {
-              event: 'AIQuery Feedback',
+              event: 'AI Query Feedback',
               properties: {
                 feedback: 'positive',
                 text: 'this is the query I was looking for',
