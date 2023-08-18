@@ -1,16 +1,19 @@
+import React from 'react';
 import { palette } from '@leafygreen-ui/palette';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import {
+  RobotSVG,
   getRobotSVGString,
   robotSVGDarkModeStyles,
   robotSVGLightModeStyles,
   robotSVGStyles,
 } from './robot-svg';
 import { focusRing } from '../../hooks/use-focus-ring';
+import { useDarkMode } from '../../hooks/use-theme';
 
-const aiQueryEntryStyles = css(
+const aiEntryStyles = css(
   {
     // Reset button styles.
     border: 'none',
@@ -45,7 +48,7 @@ const aiQueryEntryStyles = css(
   robotSVGStyles
 );
 
-const aiQueryEntryDarkModeStyles = css(
+const aiEntryDarkModeStyles = css(
   {
     color: palette.green.dark1,
     '&:hover': {
@@ -58,7 +61,7 @@ const aiQueryEntryDarkModeStyles = css(
   robotSVGDarkModeStyles
 );
 
-const aiQueryEntryLightModeStyles = css(
+const aiEntryLightModeStyles = css(
   {
     color: palette.green.dark2,
     '&:hover': {
@@ -70,6 +73,23 @@ const aiQueryEntryLightModeStyles = css(
   },
   robotSVGLightModeStyles
 );
+
+function AIExperienceEntry({ onClick }: { onClick: () => void }) {
+  const darkMode = useDarkMode();
+
+  return (
+    <button
+      className={cx(
+        aiEntryStyles,
+        darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
+      )}
+      onClick={onClick}
+    >
+      Ask AI
+      <RobotSVG />
+    </button>
+  );
+}
 
 // We build the AI Placeholder with html elements as our
 // codemirror placeholder extension accepts `HTMLElement`s.
@@ -105,8 +125,8 @@ function createAIPlaceholderHTMLPlaceholder({
   });
 
   aiButtonEl.className = cx(
-    aiQueryEntryStyles,
-    darkMode ? aiQueryEntryDarkModeStyles : aiQueryEntryLightModeStyles
+    aiEntryStyles,
+    darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
   );
 
   const robotIconSVG = `<span>Ask AI</span>
@@ -118,4 +138,4 @@ ${getRobotSVGString()}`;
   return containerEl;
 }
 
-export { createAIPlaceholderHTMLPlaceholder };
+export { AIExperienceEntry, createAIPlaceholderHTMLPlaceholder };

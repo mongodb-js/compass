@@ -51,6 +51,7 @@ export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
 export {
+  AIExperienceEntry,
   GenerativeAIInput,
   createAIPlaceholderHTMLPlaceholder,
 } from './components/generative-ai';
