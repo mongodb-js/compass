@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  AIExperienceEntry,
   Button,
   Icon,
   MoreOptionsToggle,
@@ -76,8 +77,11 @@ const moreOptionsContainerStyles = css({
 });
 
 const filterContainerStyles = css({
+  display: 'flex',
   position: 'relative',
   flexGrow: 1,
+  alignItems: 'center',
+  gap: spacing[2],
 });
 
 const filterLabelStyles = css({
@@ -128,6 +132,7 @@ type QueryBarProps = {
    * clicked or not
    */
   applyId: number;
+  filterHasContent: boolean;
   showExplainButton?: boolean;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
@@ -155,6 +160,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   queryChanged,
   resultId,
   applyId,
+  filterHasContent,
   showExplainButton = false,
   showExportToLanguageButton = true,
   showQueryHistoryButton = true,
@@ -199,6 +205,15 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     onShowAIInputClick,
   ]);
 
+  const showAskAIButton = useMemo(() => {
+    if (!enableAIQuery || isAIInputVisible) {
+      return false;
+    }
+
+    // See if there is content in the filter.
+    return filterHasContent;
+  }, [enableAIQuery, isAIInputVisible, filterHasContent]);
+
   return (
     <form
       className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
@@ -229,6 +244,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             placeholder={filterPlaceholder}
             insights={insights}
           />
+          {showAskAIButton && (
+            <AIExperienceEntry
+              data-testid="ai-experience-ask-ai-button"
+              onClick={onShowAIInputClick}
+            />
+          )}
         </div>
         {showExplainButton && newExplainPlan && (
           <GuideCue
@@ -335,6 +356,7 @@ export default connect(
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
+      filterHasContent: fields.filter.string !== '',
       valid: isQueryValid(fields),
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
