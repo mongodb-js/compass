@@ -68,4 +68,11 @@ export class AtlasService {
 
 export { AtlasSignIn } from './components/atlas-signin';
 
-export type { UserInfo, IntrospectInfo, Token } from './util';
+export type {
+  UserInfo,
+  IntrospectInfo,
+  Token,
+  AtlasServiceNetworkError,
+  AIQuery,
+  AIAggregation,
+} from './util';

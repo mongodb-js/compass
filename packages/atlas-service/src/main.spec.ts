@@ -13,20 +13,6 @@ function getListenerCount(emitter: EventEmitter) {
   }, 0);
 }
 
-const atlasAIServiceTests: {
-  functionName: 'getQueryFromUserInput' | 'getAggregationFromUserInput';
-  aiEndpoint: string;
-}[] = [
-  {
-    functionName: 'getQueryFromUserInput',
-    aiEndpoint: 'mql-query',
-  },
-  {
-    functionName: 'getAggregationFromUserInput',
-    aiEndpoint: 'mql-aggregation',
-  },
-];
-
 describe('AtlasServiceMain', function () {
   const sandbox = Sinon.createSandbox();
 
@@ -213,15 +199,46 @@ describe('AtlasServiceMain', function () {
     });
   });
 
-  for (const { functionName, aiEndpoint } of atlasAIServiceTests) {
+  const atlasAIServiceTests = [
+    {
+      functionName: 'getQueryFromUserInput',
+      aiEndpoint: 'mql-query',
+      responses: {
+        success: {
+          content: { query: { filter: "{ test: 'pineapple' }" } },
+        },
+        invalid: [
+          {},
+          { countent: {} },
+          { content: { qooery: {} } },
+          { content: { query: { filter: { foo: 1 } } } },
+        ],
+      },
+    },
+    {
+      functionName: 'getAggregationFromUserInput',
+      aiEndpoint: 'mql-aggregation',
+      responses: {
+        success: {
+          content: { aggregation: { pipeline: "[{ test: 'pineapple' }]" } },
+        },
+        invalid: [
+          {},
+          { content: { aggregation: {} } },
+          { content: { aggrogation: {} } },
+          { content: { aggregation: { pipeline: true } } },
+        ],
+      },
+    },
+  ] as const;
+
+  for (const { functionName, aiEndpoint, responses } of atlasAIServiceTests) {
     describe(functionName, function () {
       it('makes a post request with the user input to the endpoint in the environment', async function () {
         AtlasService['fetch'] = sandbox.stub().resolves({
           ok: true,
           json() {
-            return Promise.resolve({
-              content: { query: { filter: "{ test: 'pineapple' }" } },
-            });
+            return Promise.resolve(responses.success);
           },
         }) as any;
 
@@ -243,10 +260,28 @@ describe('AtlasServiceMain', function () {
         expect(args[1].body).to.eq(
           '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
         );
-        expect(res).to.have.nested.property(
-          'content.query.filter',
-          "{ test: 'pineapple' }"
-        );
+        expect(res).to.deep.eq(responses.success);
+      });
+
+      it('should fail when response is not matching expectec schema', async function () {
+        for (const res of responses.invalid) {
+          AtlasService['fetch'] = sandbox.stub().resolves({
+            ok: true,
+            json() {
+              return Promise.resolve(res);
+            },
+          }) as any;
+          try {
+            await AtlasService[functionName]({
+              userInput: 'test',
+              collectionName: 'test',
+              databaseName: 'peanut',
+            });
+            expect.fail(`Expected ${functionName} to throw`);
+          } catch (err) {
+            expect((err as Error).message).to.match(/Unexpected.+?response/);
+          }
+        }
       });
 
       it('uses the abort signal in the fetch request', async function () {
@@ -286,7 +321,7 @@ describe('AtlasServiceMain', function () {
         AtlasService['fetch'] = sandbox.stub().resolves({
           ok: true,
           json() {
-            return Promise.resolve({});
+            return Promise.resolve(responses.success);
           },
         }) as any;
 
@@ -353,13 +388,13 @@ describe('AtlasServiceMain', function () {
         AtlasService['fetch'] = sandbox.stub().resolves({
           ok: true,
           json() {
-            return Promise.resolve({ test: 1 });
+            return Promise.resolve(responses.success);
           },
         }) as any;
         AtlasService['oidcPluginLogger'].emit(
           'mongodb-oidc-plugin:refresh-started'
         );
-        const [query] = await Promise.all([
+        const [res] = await Promise.all([
           AtlasService[functionName]({
             userInput: 'test',
             collectionName: 'test',
@@ -375,7 +410,7 @@ describe('AtlasServiceMain', function () {
             );
           })(),
         ]);
-        expect(query).to.deep.eq({ test: 1 });
+        expect(res).to.deep.eq(responses.success);
       });
     });
   }
