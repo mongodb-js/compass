@@ -23,7 +23,8 @@ export async function setupPreferences(
 
   const preferences = (preferencesSingleton = new Preferences(
     getStoragePaths()?.basepath,
-    globalPreferences
+    globalPreferences,
+    process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX === 'true'
   ));
 
   await preferences.setupStorage();

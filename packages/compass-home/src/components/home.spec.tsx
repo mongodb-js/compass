@@ -46,7 +46,7 @@ describe('Home [Component]', function () {
       testAppRegistry.registerComponent(name, getComponent(name))
     );
 
-    ['Find', 'Global.Modal', 'Application.Connect'].forEach((name) =>
+    ['Global.Modal', 'Application.Connect'].forEach((name) =>
       testAppRegistry.registerRole(name, {
         name,
         component: getComponent(name),
@@ -62,7 +62,7 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" showWelcomeModal={false} />
+          <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
     });
@@ -83,7 +83,7 @@ describe('Home [Component]', function () {
     ) {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" showWelcomeModal={false} />
+          <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
       testAppRegistry.emit('data-service-connected', null, dataService, {
@@ -160,7 +160,7 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" showWelcomeModal={false} />
+          <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
     });
@@ -186,7 +186,7 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       const { unmount } = render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" showWelcomeModal={false} />
+          <Home appName="home-testing" />
         </AppRegistryContext.Provider>
       );
       unmount();

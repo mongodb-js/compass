@@ -1,11 +1,6 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Link } from '@mongodb-js/compass-components';
-import type { RootState } from '../../stores';
-import { changeFieldValue } from '../../stores/settings';
-import type { SettingsListProps } from './settings-list';
-import { SettingsList } from './settings-list';
-import { pick } from '../../utils/pick';
+import SettingsList from './settings-list';
 
 const privacyFields = [
   'autoUpdates',
@@ -13,12 +8,8 @@ const privacyFields = [
   'trackUsageStatistics',
   'enableFeedbackPanel',
 ] as const;
-type PrivacyFields = typeof privacyFields[number];
-type PrivacySettingsProps = Omit<SettingsListProps<PrivacyFields>, 'fields'>;
 
-export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
-  ...props
-}) => {
+export const PrivacySettings: React.FunctionComponent = () => {
   return (
     <div data-testid="privacy-settings">
       <div>
@@ -26,7 +17,7 @@ export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
         services, which requires external network requests. Please choose from
         the settings below:
       </div>
-      <SettingsList fields={privacyFields} {...props} />
+      <SettingsList fields={privacyFields} />
       <div>
         With any of these options, none of your personal information or stored
         data will be submitted.
@@ -40,13 +31,4 @@ export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   );
 };
 
-const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
-  currentValues: pick(settings, privacyFields),
-  preferenceStates: pick(preferenceStates, privacyFields),
-});
-
-const mapDispatch = {
-  handleChange: changeFieldValue,
-};
-
-export default connect(mapState, mapDispatch)(PrivacySettings);
+export default PrivacySettings;

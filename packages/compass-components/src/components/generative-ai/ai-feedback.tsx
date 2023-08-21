@@ -1,19 +1,11 @@
-import {
-  Button,
-  Disclaimer,
-  FeedbackPopover,
-  Icon,
-  css,
-  spacing,
-  cx,
-  keyframes,
-  palette,
-  useDarkMode,
-} from '@mongodb-js/compass-components';
-import React, { useEffect, useRef, useState } from 'react';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { css, cx, keyframes } from '@leafygreen-ui/emotion';
+import { palette } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
 
-const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
+import { Button, Disclaimer, Icon } from '../leafygreen';
+import { FeedbackPopover } from '../feedback-popover';
+import { useDarkMode } from '../../hooks/use-theme';
 
 const suggestionActionButtonStyles = css({
   flexShrink: 0,
@@ -76,7 +68,11 @@ const buttonActiveNegativeStyles = css({
   fill: palette.red.dark2,
 });
 
-function QueryFeedback() {
+export type AIFeedbackProps = {
+  onSubmitFeedback: (feedback: 'positive' | 'negative', text: string) => void;
+};
+
+function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
   const darkMode = useDarkMode();
 
   const feedbackPositiveButtonRef = useRef<HTMLInputElement>(null);
@@ -90,18 +86,17 @@ function QueryFeedback() {
   const [enableShowFeedbackSuccess, setEnableShowFeedbackSuccess] =
     useState(true);
 
-  const onSubmitFeedback = (text: string) => {
-    log.info(mongoLogId(1_001_000_223), 'AIQuery', 'AI query feedback', {
-      feedback: chosenFeedbackOption,
-      text,
-    });
+  const _onSubmitFeedback = useCallback(
+    (text: string) => {
+      if (chosenFeedbackOption === 'none') {
+        return;
+      }
 
-    track('AIQuery Feedback', () => ({
-      feedback: chosenFeedbackOption,
-      text,
-    }));
-    setDidSubmit(true);
-  };
+      onSubmitFeedback(chosenFeedbackOption, text);
+      setDidSubmit(true);
+    },
+    [chosenFeedbackOption, onSubmitFeedback, setDidSubmit]
+  );
 
   useEffect(() => {
     if (didSubmit) {
@@ -139,7 +134,7 @@ function QueryFeedback() {
         )}
         onClick={() => setChosenFeedbackOption('positive')}
         size="small"
-        data-testid="ai-query-feedback-thumbs-up"
+        data-testid="ai-feedback-thumbs-up"
         ref={feedbackPositiveButtonRef}
       >
         <Icon glyph="ThumbsUp" />
@@ -170,7 +165,7 @@ function QueryFeedback() {
           }
           open
           setOpen={() => setChosenFeedbackOption('none')}
-          onSubmitFeedback={onSubmitFeedback}
+          onSubmitFeedback={_onSubmitFeedback}
           label="Provide Feedback"
           placeholder={
             chosenFeedbackOption === 'positive'
@@ -183,4 +178,4 @@ function QueryFeedback() {
   );
 }
 
-export { QueryFeedback };
+export { AIFeedback };

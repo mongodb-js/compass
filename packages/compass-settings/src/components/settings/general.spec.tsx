@@ -1,32 +1,34 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { stub } from 'sinon';
 import { expect } from 'chai';
-
+import { Provider } from 'react-redux';
 import { GeneralSettings } from './general';
+import { configureStore } from '../../stores';
+import { fetchSettings } from '../../stores/settings';
 
-describe('GeneralsSettings', function () {
+describe('GeneralSettings', function () {
   let container: HTMLElement;
-  let handleChangeSpy: sinon.SinonStub;
-  let currentValues: any;
+  let store: ReturnType<typeof configureStore>;
 
-  beforeEach(function () {
-    currentValues = {};
-    handleChangeSpy = stub();
+  function getSettings() {
+    return store.getState().settings.settings;
+  }
+
+  beforeEach(async function () {
+    store = configureStore();
+    await store.dispatch(fetchSettings());
     const component = () => (
-      <GeneralSettings
-        handleChange={handleChangeSpy}
-        preferenceStates={{}}
-        currentValues={currentValues}
-      />
+      <Provider store={store}>
+        <GeneralSettings />
+      </Provider>
     );
-    const { rerender } = render(component());
-    handleChangeSpy.callsFake((option, value) => {
-      currentValues[option] = value;
-      rerender(component());
-    });
+    render(component());
     container = screen.getByTestId('general-settings');
+  });
+
+  afterEach(function () {
+    cleanup();
   });
 
   [
@@ -38,14 +40,13 @@ describe('GeneralsSettings', function () {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
-    it(`calls handleChange when ${option} is changed`, function () {
-      expect(handleChangeSpy).to.not.have.been.called;
+    it(`changes ${option} value when option is clicked`, function () {
       const checkbox = within(container).getByTestId(option);
+      const initialValue = getSettings()[option];
       userEvent.click(checkbox, undefined, {
         skipPointerEventsCheck: true,
       });
-      expect(handleChangeSpy).to.have.been.calledOnceWithExactly(option, true);
-      expect(currentValues[option]).to.equal(true);
+      expect(getSettings()).to.have.property(option, !initialValue);
     });
   });
 
@@ -53,15 +54,12 @@ describe('GeneralsSettings', function () {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
-    it(`calls handleChange when ${option} is changed`, function () {
-      expect(handleChangeSpy).to.not.have.been.called;
+    it(`changes ${option} value when typing in the input`, function () {
       const field = within(container).getByTestId(option);
       userEvent.type(field, '42');
-      expect(handleChangeSpy).to.have.been.calledWithExactly(option, 42);
-      expect(currentValues[option]).to.equal(42);
+      expect(getSettings()).to.have.property(option, 42);
       userEvent.clear(field);
-      expect(handleChangeSpy).to.have.been.calledWithExactly(option, undefined);
-      expect(currentValues[option]).to.equal(undefined);
+      expect(getSettings()).to.have.property(option, undefined);
     });
   });
 });

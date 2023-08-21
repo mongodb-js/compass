@@ -7,7 +7,10 @@ import type {
   MongoDBOIDCPlugin,
   MongoDBOIDCPluginOptions,
 } from '@mongodb-js/oidc-plugin';
-import { createMongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
+import {
+  createMongoDBOIDCPlugin,
+  hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
+} from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
 // TODO(https://github.com/node-fetch/node-fetch/issues/1652): Remove this when
 // node-fetch types match the built in AbortSignal from node.
@@ -16,7 +19,13 @@ import type { Response } from 'node-fetch';
 import fetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
-import type { AIQuery, IntrospectInfo, Token, UserInfo } from './util';
+import type {
+  AIAggregation,
+  AIQuery,
+  IntrospectInfo,
+  Token,
+  UserInfo,
+} from './util';
 import {
   broadcast,
   getStoragePaths,
@@ -140,41 +149,48 @@ export class AtlasService {
    *             ↓
    *            yes → failed to deserialize? → no → `plugin:state-updated`
    *                             ↓
-   *                           yes → `plugin:deserialization-failed`
-   *
+   *                            yes → `plugin:deserialization-failed`
    *
    *
    *              requestToken
    *                   ↓
    *             token expired?
    *                   │
-   *              no ←─┴─→ yes ─→ trying refresh
-   *              │                ↓
-   *              │       `plugin:refresh-started`
-   *              │                ↓
-   *              │               got token from issuer? → no ─┐
-   *              │                ↓                           │
-   *              │               yes                          │
-   *              │                ↓                           │
-   *              │       `plugin:refresh-succeeded`           │
-   *              │                ↓                           │
-   *              │               start state update           │
-   *              │                ↓                           │                              ┌────────────────────────────────────────────┐
-   *              │               state update failed → yes ───┴→ `plugin:refresh-failed`     │ `plugin:auth-attempt-started`              │
-   *              │                ↓                                         ↓                │        ↓                                   │
-   *              │               no                            for flow in getAllowedFlows → │ is attempt successfull? → no               │
-   *              ↓                ↓                                                          │        ↓                  ↓                │
-   * `plugin:skip-auth-attempt` ← `plugin:state-updated`                                      │       yes     `plugin:auth-attempt-failed` │
-   *              ↓                                                                           │        ↓                                   │
-   *    `plugin:auth-succeeded` ←─────── yes ←──────── do we have a new token set in state? ← │ `plugin:state-updated`                     │
-   *                                                                 ↓                        │        ↓                                   │
-   *                                                                 no                       │ `plugin:auth-attempt-succeeded`            │
-   *                                                                 ↓                        └────────────────────────────────────────────┘
-   *                                                        `plugin:auth-failed`
+   *              no ←─┴─→ yes ───┐
+   *              │               ↓  `tryRefresh` flow can also trigger separately on timeout
+   *              │  ┌────────────────────────────────────────┐
+   *              │  │        tryRefresh                      │
+   *              │  │            ↓                           │
+   *              │  │ `plugin:refresh-started`               │
+   *              │  │            ↓                           │
+   *              │  │  got token from issuer? → no ─┐        │
+   *              │  │            ↓                  │        │
+   *              │  │           yes                 │        │
+   *              │  │            ↓                  │        │
+   *              │  │`plugin:refresh-succeeded`     │        │
+   *              │  │            ↓                  │        │
+   *              │  │    start state update         │        │
+   *              │  │            ↓                  │        │
+   *              │  │    state update failed → yes ─┤        │
+   *              │  │            ↓                  ↓        │
+   *              │  │            no  `plugin:refresh-failed` │─┐            ┌────────────────────────────────────────────┐
+   *              │  │            ↓                           │ │            │ `plugin:auth-attempt-started`              │
+   *              │  │  `plugin:state-updated`                │ │            │        ↓                                   │
+   *              │  └────────────────────────────────────────┘ │            │ is attempt successfull? → no               │
+   *              ↓               │                             ↓            │        ↓                  ↓                │
+   * `plugin:skip-auth-attempt` ←─┘            for flow in getAllowedFlows → │       yes     `plugin:auth-attempt-failed` │
+   *              ↓                                                          │        ↓                                   │
+   *    `plugin:auth-succeeded` ← yes ← do we have new token set in state? ← │ `plugin:state-updated`                     │
+   *                                                 ↓                       │        ↓                                   │
+   *                                                 no                      │ `plugin:auth-attempt-succeeded`            │
+   *                                                 ↓                       └────────────────────────────────────────────┘
+   *                                         `plugin:auth-failed`
    */
   private static oidcPluginLogger: MongoDBOIDCPluginLogger & {
     on(evt: 'atlas-service-token-refreshed', fn: () => void): void;
     on(evt: 'atlas-service-token-refresh-failed', fn: () => void): void;
+    once(evt: 'atlas-service-token-refreshed', fn: () => void): void;
+    once(evt: 'atlas-service-token-refresh-failed', fn: () => void): void;
     emit(evt: 'atlas-service-token-refreshed'): void;
     emit(evt: 'atlas-service-token-refresh-failed'): void;
   } = new EventEmitter();
@@ -193,8 +209,6 @@ export class AtlasService {
   private static secretStore: SecretStore = defaultSecretStore;
 
   private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
-
-  private static refreshing = false;
 
   private static get clientId() {
     const clientId =
@@ -254,6 +268,7 @@ export class AtlasService {
           'introspect',
           'isAuthenticated',
           'signIn',
+          'getAggregationFromUserInput',
           'getQueryFromUserInput',
         ],
         this.ipcMain
@@ -289,19 +304,34 @@ export class AtlasService {
         logger: this.oidcPluginLogger,
         serializedState,
       });
+      oidcPluginHookLoggerToMongoLogWriter(
+        this.oidcPluginLogger,
+        log.unbound,
+        'AtlasService'
+      );
       // Whether or not we got the state, try refreshing the token. If there was
       // no serialized state returned, this will just put the service in
       // `unauthenticated` state quickly. If there was some state, we need to
       // refresh the token and get the value back from the oidc-plugin to make
       // sure the state between atlas-service and oidc-plugin is in sync
-      await this.refreshToken({
-        // In case where we refresh token after plugin state deserialisation
-        // happened we don't expect plugin refresh events to be emitted, and
-        // so we skip waiting for them. Everything else in this flow is
-        // exactly as if we were handling refresh-success event from
-        // oidc-plugin
-        waitForOIDCPluginStateUpdateEvents: false,
-      });
+      try {
+        log.info(
+          mongoLogId(1_001_000_227),
+          'AtlasService',
+          'Starting token restore attempt'
+        );
+        this.token = await this.requestOAuthToken();
+        log.info(mongoLogId(1_001_000_226), 'AtlasService', 'Token restored');
+        this.oidcPluginSyncedFromLoggerState = 'authenticated';
+      } catch (err) {
+        log.error(
+          mongoLogId(1_001_000_225),
+          'AtlasService',
+          'Failed to restore token',
+          { error: (err as Error).stack }
+        );
+        this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
+      }
     })());
   }
 
@@ -337,7 +367,6 @@ export class AtlasService {
         'AtlasService',
         'Token refresh started by oidc-plugin'
       );
-      this.oidcPluginSyncedFromLoggerState = 'expired';
       void this.refreshToken();
     });
     this.oidcPluginLogger.on('atlas-service-token-refresh-failed', () => {
@@ -348,16 +377,18 @@ export class AtlasService {
     });
   }
 
-  private static async refreshToken({
-    waitForOIDCPluginStateUpdateEvents = true,
-  } = {}) {
+  private static async refreshToken() {
     // In case our call to requestToken started another token refresh instead of
     // just returning token from the plugin state, we short circuit if plugin
-    // logged a refresh-succeeded event and this listener got triggered
-    if (this.refreshing) {
+    // logged a refresh-started event and this listener got triggered. Only one
+    // refresh is allowed to run at a time, and it's either we are refreshing
+    // manually, or this method is running
+    if (
+      ['expired', 'restoring'].includes(this.oidcPluginSyncedFromLoggerState)
+    ) {
       return;
     }
-    this.refreshing = true;
+    this.oidcPluginSyncedFromLoggerState = 'expired';
     const onRefreshFailed = () => {
       this.token = null;
       this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
@@ -369,33 +400,36 @@ export class AtlasService {
       'Start atlas service token refresh'
     );
     try {
-      if (waitForOIDCPluginStateUpdateEvents) {
-        // We expect only one promise below to resolve, to clean up listeners
-        // that never fired we are setting up an abort controller
-        const listenerController = new AbortController();
-        try {
-          // When oidc-plugin starts internal token refresh, we will wait
-          // first for the auth flow to either succeed to fail and then
-          // proceed by requesting token once again from the plugin to sync
-          // token back to the atlas service state
-          await Promise.race([
-            // We are not using `refresh-succeeded` / `refresh-failed` events
-            // here because those happen BEFORE `allowedFlows` method is called
-            // (see oidc-plugin flow diagram) meaning that we need to wait until
-            // the whole request token flow went through to make sure that sign
-            // in flow is not allowed while we are refreshing the token
-            once(this.oidcPluginLogger, 'mongodb-oidc-plugin:auth-succeeded', {
+      // We expect only one promise below to resolve, to clean up listeners
+      // that never fired we are setting up an abort controller
+      const listenerController = new AbortController();
+      try {
+        // When oidc-plugin starts internal token refresh with the tryRefresh
+        // flow, we wait for a certain event sequence before we can safely
+        // request new token from the plugin
+        await Promise.race([
+          // The events we are waiting for are emitted synchronously, so we are
+          // subscribing to both at once, even though we can't check the order
+          // that way, at least we can guarantee that both expected events
+          // happened before we proceed
+          Promise.all([
+            once(
+              this.oidcPluginLogger,
+              'mongodb-oidc-plugin:refresh-succeeded',
+              { signal: listenerController.signal }
+            ),
+            once(this.oidcPluginLogger, 'mongodb-oidc-plugin:state-updated', {
               signal: listenerController.signal,
             }),
-            once(this.oidcPluginLogger, 'mongodb-oidc-plugin:auth-failed', {
-              signal: listenerController.signal,
-            }).then(() => {
-              throw new Error('Token refresh failed');
-            }),
-          ]);
-        } finally {
-          listenerController.abort();
-        }
+          ]),
+          once(this.oidcPluginLogger, 'mongodb-oidc-plugin:refresh-failed', {
+            signal: listenerController.signal,
+          }).then(() => {
+            throw new Error('Token refresh failed');
+          }),
+        ]);
+      } finally {
+        listenerController.abort();
       }
       try {
         log.info(
@@ -432,8 +466,6 @@ export class AtlasService {
         { error: (err as Error).stack }
       );
       onRefreshFailed();
-    } finally {
-      this.refreshing = false;
     }
   }
 
@@ -579,6 +611,69 @@ export class AtlasService {
     return res.json() as Promise<IntrospectInfo>;
   }
 
+  static async getAggregationFromUserInput({
+    signal,
+    userInput,
+    collectionName,
+    databaseName,
+    schema,
+    sampleDocuments,
+  }: {
+    userInput: string;
+    collectionName: string;
+    databaseName: string;
+    schema?: SimplifiedSchema;
+    sampleDocuments?: Document[];
+    signal?: AbortSignal;
+  }) {
+    throwIfAborted(signal);
+
+    let msgBody = JSON.stringify({
+      userInput,
+      collectionName,
+      databaseName,
+      schema,
+      sampleDocuments,
+    });
+    if (msgBody.length > AI_MAX_REQUEST_SIZE) {
+      // When the message body is over the max size, we try
+      // to see if with fewer sample documents we can still perform the request.
+      // If that fails we throw an error indicating this collection's
+      // documents are too large to send to the ai.
+      msgBody = JSON.stringify({
+        userInput,
+        collectionName,
+        databaseName,
+        schema,
+        sampleDocuments: sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS),
+      });
+      if (msgBody.length > AI_MAX_REQUEST_SIZE) {
+        throw new Error(
+          'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+        );
+      }
+    }
+
+    await this.maybeWaitForToken({ signal });
+
+    const res = await this.fetch(
+      `${this.apiBaseUrl}/ai/api/v1/mql-aggregation`,
+      {
+        signal: signal as NodeFetchAbortSignal | undefined,
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
+          'Content-Type': 'application/json',
+        },
+        body: msgBody,
+      }
+    );
+
+    await throwIfNotOk(res);
+
+    return res.json() as Promise<AIAggregation>;
+  }
+
   static async getQueryFromUserInput({
     signal,
     userInput,
@@ -615,7 +710,6 @@ export class AtlasService {
         schema,
         sampleDocuments: sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS),
       });
-      // Why this is not happening on the backend?
       if (msgBody.length > AI_MAX_REQUEST_SIZE) {
         throw new Error(
           'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'

@@ -11,7 +11,7 @@ import store from '../stores';
 import { SettingsModal } from './modal';
 
 describe('SettingsModal', function () {
-  let closeModalSpy: SinonSpy;
+  let onCloseSpy: SinonSpy;
   let fetchSettingsSpy: SinonSpy;
   let onSaveSpy: SinonSpy;
   let renderSettingsModal: (
@@ -19,7 +19,7 @@ describe('SettingsModal', function () {
   ) => void;
 
   beforeEach(function () {
-    closeModalSpy = spy();
+    onCloseSpy = spy();
     fetchSettingsSpy = stub().resolves();
     onSaveSpy = spy();
 
@@ -30,7 +30,7 @@ describe('SettingsModal', function () {
         <Provider store={store}>
           <SettingsModal
             isOpen={false}
-            closeModal={closeModalSpy}
+            onClose={onCloseSpy}
             fetchSettings={fetchSettingsSpy}
             onSave={onSaveSpy}
             loadingState="ready"
@@ -43,22 +43,11 @@ describe('SettingsModal', function () {
   });
 
   it('renders nothing until it is open and loaded', function () {
-    renderSettingsModal({ loadingState: 'loading' });
+    renderSettingsModal({ isOpen: false });
 
     expect(fetchSettingsSpy.called).to.be.false;
     const container = screen.queryByTestId('settings-modal');
     expect(container).to.not.exist;
-  });
-
-  it('renders eventually once open and loaded', async function () {
-    renderSettingsModal({ isOpen: true });
-
-    expect(fetchSettingsSpy.calledOnce).to.be.true;
-    await waitFor(() => {
-      const container = screen.getByTestId('settings-modal');
-      expect(container).to.exist;
-      expect(within(container).getByTestId('modal-title')).to.exist;
-    });
   });
 
   it('modal footer actions', async function () {

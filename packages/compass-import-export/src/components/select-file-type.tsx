@@ -41,19 +41,12 @@ function SelectFileType({
         data-testid="select-file-type"
         id={radioBoxGroupId}
         onChange={onFileTypeChanged}
+        value={fileType}
       >
-        <RadioBox
-          data-testid="select-file-type-json"
-          value="json"
-          checked={fileType === 'json'}
-        >
+        <RadioBox data-testid="select-file-type-json" value="json">
           JSON
         </RadioBox>
-        <RadioBox
-          data-testid="select-file-type-csv"
-          value="csv"
-          checked={fileType === 'csv'}
-        >
+        <RadioBox data-testid="select-file-type-csv" value="csv">
           CSV
         </RadioBox>
       </RadioBoxGroup>

@@ -85,6 +85,7 @@ type OptionEditorProps = {
   hasAutofix?: boolean;
   onChange: (value: string) => void;
   onApply?(): void;
+  onBlur?(): void;
   placeholder?: string | HTMLElement;
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
@@ -99,6 +100,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   hasAutofix,
   onChange,
   onApply,
+  onBlur,
   placeholder,
   schemaFields = [],
   serverVersion = '3.6.0',
@@ -188,6 +190,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         data-testid={dataTestId}
         onFocus={onFocus}
         onPaste={onPaste}
+        onBlur={onBlur}
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>

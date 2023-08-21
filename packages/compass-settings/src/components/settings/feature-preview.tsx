@@ -1,10 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import type { RootState } from '../../stores';
-import { changeFieldValue } from '../../stores/settings';
-import type { SettingsListProps } from './settings-list';
-import { SettingsList } from './settings-list';
-import { pick } from '../../utils/pick';
+import SettingsList from './settings-list';
 import preferences, {
   usePreference,
   featureFlags,
@@ -21,12 +16,6 @@ const previewFeatureFlagFields = featureFlagFields.filter(
 const developmentFeatureFlagFields = featureFlagFields.filter(
   (k: keyof typeof featureFlags) => featureFlags[k].stage === 'development'
 );
-
-type FeatureFlagFields = typeof featureFlagFields[number];
-type FeaturePreviewSettingsProps = Omit<
-  SettingsListProps<FeatureFlagFields>,
-  'fields'
->;
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
 (globalThis as any).setShowDevFeatureFlags = async (
@@ -63,9 +52,7 @@ export function useShouldShowFeaturePreviewSettings(): boolean {
   return showPreviewFeatures || showDevFeatures;
 }
 
-export const FeaturePreviewSettings: React.FunctionComponent<
-  FeaturePreviewSettingsProps
-> = ({ ...props }) => {
+export const FeaturePreviewSettings: React.FunctionComponent = () => {
   const showPreviewFeatures = useShouldShowPreviewFeatures();
   const showDevFeatures = useShouldShowDevFeatures();
 
@@ -77,23 +64,14 @@ export const FeaturePreviewSettings: React.FunctionComponent<
       </div>
 
       {showPreviewFeatures && (
-        <SettingsList fields={previewFeatureFlagFields} {...props} />
+        <SettingsList fields={previewFeatureFlagFields} />
       )}
 
       {showDevFeatures && (
-        <SettingsList fields={developmentFeatureFlagFields} {...props} />
+        <SettingsList fields={developmentFeatureFlagFields} />
       )}
     </div>
   );
 };
 
-const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
-  currentValues: pick(settings, featureFlagFields),
-  preferenceStates: pick(preferenceStates, featureFlagFields),
-});
-
-const mapDispatch = {
-  handleChange: changeFieldValue,
-};
-
-export default connect(mapState, mapDispatch)(FeaturePreviewSettings);
+export default FeaturePreviewSettings;
