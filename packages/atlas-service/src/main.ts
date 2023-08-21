@@ -36,6 +36,7 @@ import {
   createLoggerAndTelemetry,
   mongoLogId,
 } from '@mongodb-js/compass-logging';
+import preferences from 'compass-preferences-model';
 
 const { log } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -49,6 +50,12 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
  */
 function isServerError(err: any): err is { errorCode: string; detail: string } {
   return Boolean(err.errorCode && err.detail);
+}
+
+function throwIfNetworkTrafficDisabled() {
+  if (!preferences.getPreferences().networkTraffic) {
+    throw new Error('Network traffic is not allowed');
+  }
 }
 
 export async function throwIfNotOk(
@@ -346,6 +353,9 @@ export class AtlasService {
   private static async requestOAuthToken({
     signal,
   }: { signal?: AbortSignal } = {}) {
+    throwIfAborted(signal);
+    throwIfNetworkTrafficDisabled();
+
     if (!this.plugin) {
       throw new Error(
         'Trying to use the oidc-plugin before service is initialised'
@@ -544,6 +554,7 @@ export class AtlasService {
     }
     try {
       throwIfAborted(signal);
+      throwIfNetworkTrafficDisabled();
 
       this.signInPromise = (async () => {
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
@@ -613,6 +624,7 @@ export class AtlasService {
     signal,
   }: { signal?: AbortSignal } = {}): Promise<UserInfo> {
     throwIfAborted(signal);
+    throwIfNetworkTrafficDisabled();
 
     await this.maybeWaitForToken({ signal });
 
@@ -637,6 +649,7 @@ export class AtlasService {
     tokenType?: 'access_token' | 'refresh_token';
   } = {}) {
     throwIfAborted(signal);
+    throwIfNetworkTrafficDisabled();
 
     const url = new URL(`${this.issuer}/v1/introspect`);
     url.searchParams.set('client_id', this.clientId);
@@ -675,6 +688,7 @@ export class AtlasService {
     tokenType?: 'access_token' | 'refresh_token';
   } = {}): Promise<void> {
     throwIfAborted(signal);
+    throwIfNetworkTrafficDisabled();
 
     const url = new URL(`${this.issuer}/v1/revoke`);
     url.searchParams.set('client_id', this.clientId);
@@ -721,6 +735,7 @@ export class AtlasService {
     signal?: AbortSignal;
   }) {
     throwIfAborted(signal);
+    throwIfNetworkTrafficDisabled();
 
     let msgBody = JSON.stringify({
       userInput,
@@ -784,6 +799,7 @@ export class AtlasService {
     signal?: AbortSignal;
   }) {
     throwIfAborted(signal);
+    throwIfNetworkTrafficDisabled();
 
     let msgBody = JSON.stringify({
       userInput,

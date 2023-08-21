@@ -4,6 +4,7 @@ import { AtlasService, throwIfNotOk } from './main';
 import { promisify } from 'util';
 import type { EventEmitter } from 'events';
 import { once } from 'events';
+import preferencesAccess from 'compass-preferences-model';
 
 const wait = promisify(setTimeout);
 
@@ -573,5 +574,39 @@ describe('AtlasServiceMain', function () {
         'authenticated'
       );
     });
+  });
+
+  describe('with networkTraffic turned off', function () {
+    const networkTraffic = preferencesAccess.getPreferences().networkTraffic;
+
+    before(async function () {
+      await preferencesAccess.savePreferences({ networkTraffic: false });
+    });
+
+    after(async function () {
+      await preferencesAccess.savePreferences({ networkTraffic });
+    });
+
+    for (const methodName of [
+      'requestOAuthToken',
+      'signIn',
+      'getUserInfo',
+      'introspect',
+      'revoke',
+      'getAggregationFromUserInput',
+      'getQueryFromUserInput',
+    ]) {
+      it(`${methodName} should throw`, async function () {
+        try {
+          await (AtlasService as any)[methodName]({});
+          expect.fail(`Expected ${methodName} to throw`);
+        } catch (err) {
+          expect(err).to.have.property(
+            'message',
+            'Network traffic is not allowed'
+          );
+        }
+      });
+    }
   });
 });
