@@ -263,7 +263,7 @@ describe('AtlasServiceMain', function () {
         expect(res).to.deep.eq(responses.success);
       });
 
-      it('should fail when response is not matching expectec schema', async function () {
+      it('should fail when response is not matching expected schema', async function () {
         for (const res of responses.invalid) {
           AtlasService['fetch'] = sandbox.stub().resolves({
             ok: true,

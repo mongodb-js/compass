@@ -13,7 +13,7 @@ export type Token = plugin.IdPServerResponse;
 
 function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
   return (
-    Object.keys(obj).filter((key) => !expectedKeys.includes(key)).length > 0
+    Object.keys(obj).some((key) => !expectedKeys.includes(key))
   );
 }
 
