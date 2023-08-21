@@ -31,6 +31,7 @@ export class AtlasService implements AtlasServiceEmitter {
     | 'isAuthenticated'
     | 'signIn'
     | 'signOut'
+    | 'getAggregationFromUserInput'
     | 'getQueryFromUserInput'
   >('AtlasService', [
     'getUserInfo',
@@ -38,12 +39,14 @@ export class AtlasService implements AtlasServiceEmitter {
     'isAuthenticated',
     'signIn',
     'signOut',
+    'getAggregationFromUserInput',
     'getQueryFromUserInput',
   ]);
 
   getUserInfo = this.ipc.getUserInfo;
   introspect = this.ipc.introspect;
   isAuthenticated = this.ipc.isAuthenticated;
+  getAggregationFromUserInput = this.ipc.getAggregationFromUserInput;
   getQueryFromUserInput = this.ipc.getQueryFromUserInput;
   signOut = this.ipc.signOut;
 

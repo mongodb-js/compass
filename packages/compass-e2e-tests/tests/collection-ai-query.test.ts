@@ -76,11 +76,7 @@ describe('Collection ai query', function () {
         body: {
           content: {
             query: {
-              filter: {
-                i: {
-                  $gt: 50,
-                },
-              },
+              filter: '{i: {$gt: 50}}',
             },
           },
         },

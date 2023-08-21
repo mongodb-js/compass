@@ -19,7 +19,13 @@ import type { Response } from 'node-fetch';
 import fetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
-import type { AIQuery, IntrospectInfo, Token, UserInfo } from './util';
+import type {
+  AIAggregation,
+  AIQuery,
+  IntrospectInfo,
+  Token,
+  UserInfo,
+} from './util';
 import {
   broadcast,
   getStoragePaths,
@@ -297,6 +303,7 @@ export class AtlasService {
           'isAuthenticated',
           'signIn',
           'signOut',
+          'getAggregationFromUserInput',
           'getQueryFromUserInput',
         ],
         this.ipcMain
@@ -689,6 +696,69 @@ export class AtlasService {
     await throwIfNotOk(res);
   }
 
+  static async getAggregationFromUserInput({
+    signal,
+    userInput,
+    collectionName,
+    databaseName,
+    schema,
+    sampleDocuments,
+  }: {
+    userInput: string;
+    collectionName: string;
+    databaseName: string;
+    schema?: SimplifiedSchema;
+    sampleDocuments?: Document[];
+    signal?: AbortSignal;
+  }) {
+    throwIfAborted(signal);
+
+    let msgBody = JSON.stringify({
+      userInput,
+      collectionName,
+      databaseName,
+      schema,
+      sampleDocuments,
+    });
+    if (msgBody.length > AI_MAX_REQUEST_SIZE) {
+      // When the message body is over the max size, we try
+      // to see if with fewer sample documents we can still perform the request.
+      // If that fails we throw an error indicating this collection's
+      // documents are too large to send to the ai.
+      msgBody = JSON.stringify({
+        userInput,
+        collectionName,
+        databaseName,
+        schema,
+        sampleDocuments: sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS),
+      });
+      if (msgBody.length > AI_MAX_REQUEST_SIZE) {
+        throw new Error(
+          'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+        );
+      }
+    }
+
+    await this.maybeWaitForToken({ signal });
+
+    const res = await this.fetch(
+      `${this.apiBaseUrl}/ai/api/v1/mql-aggregation`,
+      {
+        signal: signal as NodeFetchAbortSignal | undefined,
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
+          'Content-Type': 'application/json',
+        },
+        body: msgBody,
+      }
+    );
+
+    await throwIfNotOk(res);
+
+    return res.json() as Promise<AIAggregation>;
+  }
+
   static async getQueryFromUserInput({
     signal,
     userInput,
@@ -725,7 +795,6 @@ export class AtlasService {
         schema,
         sampleDocuments: sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS),
       });
-      // Why this is not happening on the backend?
       if (msgBody.length > AI_MAX_REQUEST_SIZE) {
         throw new Error(
           'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'

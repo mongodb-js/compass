@@ -33,7 +33,7 @@ export const featureFlags: Required<{
     stage: 'development',
     description: {
       short: 'AI Query Generator',
-      long: 'Use AI to generate queries with a natural language text input on the query bar.',
+      long: 'Use AI to generate queries with a natural language text input on the query bar. Do not use this feature with sensitive data.',
     },
   },
 
