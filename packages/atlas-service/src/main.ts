@@ -589,7 +589,16 @@ export class AtlasService {
     // Revoke tokens. Revoking refresh token will also revoke associated access
     // tokens
     // https://developer.okta.com/docs/guides/revoke-tokens/main/#revoke-an-access-token-or-a-refresh-token
-    await this.revoke({ tokenType: 'refresh_token' });
+    try {
+      await this.revoke({ tokenType: 'refresh_token' });
+    } catch (err) {
+      if (!(err as any).statusCode) {
+        throw err;
+      }
+      // Not much we can do if revoking failed with a network error, practically
+      // this is not a failed state for the app, we already cleaned up token
+      // from everywhere, so we just ignore this
+    }
     // Reset service state
     this.token = null;
     this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
