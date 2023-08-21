@@ -36,6 +36,7 @@ const renderGenerativeAIInput = ({
 };
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
+const thumbsUpId = 'ai-feedback-thumbs-up';
 
 describe('GenerativeAIInput Component', function () {
   afterEach(cleanup);
@@ -80,39 +81,62 @@ describe('GenerativeAIInput Component', function () {
   });
 
   describe('AIFeedback', function () {
-    it('should call the feedback handler on submit', async function () {
-      let feedbackChoice;
-      let feedbackText;
+    describe('when onSubmitFeedback is passed', function () {
+      let feedbackChoice: 'negative' | 'positive' | 'dismissed' | undefined;
+      let feedbackText: string | undefined;
 
-      renderGenerativeAIInput({
-        onSubmitFeedback: (_feedbackChoice, _feedbackText) => {
-          feedbackChoice = _feedbackChoice;
+      beforeEach(function () {
+        feedbackChoice = undefined;
+        feedbackText = undefined;
 
-          feedbackText = _feedbackText;
-        },
-        didSucceed: true,
+        renderGenerativeAIInput({
+          onSubmitFeedback: (_feedbackChoice, _feedbackText) => {
+            feedbackChoice = _feedbackChoice;
+
+            feedbackText = _feedbackText;
+          },
+          didSucceed: true,
+        });
       });
 
-      // No feedback popover is shown yet.
-      expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
+      it('should have feedback options and call the feedback handler on submit', async function () {
+        // No feedback popover is shown yet.
+        expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
 
-      const thumbsUpButton = screen.getByTestId('ai-feedback-thumbs-up');
-      expect(thumbsUpButton).to.be.visible;
-      thumbsUpButton.click();
+        const thumbsUpButton = screen.getByTestId(thumbsUpId);
+        expect(thumbsUpButton).to.be.visible;
+        thumbsUpButton.click();
 
-      const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
-      expect(textArea).to.be.visible;
-      fireEvent.change(textArea, {
-        target: { value: 'this is the query I was looking for' },
+        const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
+        expect(textArea).to.be.visible;
+        fireEvent.change(textArea, {
+          target: { value: 'this is the query I was looking for' },
+        });
+
+        await waitFor(() => fireEvent.click(screen.getByText('Submit')));
+
+        // No feedback popover is shown.
+        expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
+
+        expect(feedbackChoice).to.equal('positive');
+        expect(feedbackText).to.equal('this is the query I was looking for');
+      });
+    });
+
+    describe('when onSubmitFeedback is not passed', function () {
+      beforeEach(function () {
+        renderGenerativeAIInput({
+          onSubmitFeedback: undefined,
+          didSucceed: true,
+        });
       });
 
-      await waitFor(() => fireEvent.click(screen.getByText('Submit')));
+      it('should not have feedback options', function () {
+        expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
 
-      // No feedback popover is shown.
-      expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
-
-      expect(feedbackChoice).to.equal('positive');
-      expect(feedbackText).to.equal('this is the query I was looking for');
+        const thumbsUpButton = screen.queryByTestId(thumbsUpId);
+        expect(thumbsUpButton).to.not.exist;
+      });
     });
   });
 });
