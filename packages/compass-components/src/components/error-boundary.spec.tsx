@@ -14,6 +14,12 @@ function ComponentThatThrowsError(): React.ReactElement {
 describe('ErrorBoundary', function () {
   let onErrorSpy: sinon.SinonSpy;
 
+  before(function () {
+    if (process.env.COMPASS_DISABLE_ERROR_BOUNDARY === 'true') {
+      this.skip();
+    }
+  });
+
   beforeEach(function () {
     onErrorSpy = sinon.spy();
   });

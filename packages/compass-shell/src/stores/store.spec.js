@@ -59,13 +59,13 @@ describe('CompassShellStore [Store]', function () {
       let runtimeState = getRuntimeState();
 
       expect(runtimeState.error).to.equal(null);
-      expect(runtimeState.runtime).to.equal(null);
+      expect(runtimeState.runtime).to.be.instanceOf(WorkerRuntime);
 
-      store.onEnableShellChanged(true);
+      store.onEnableShellChanged(false);
       runtimeState = getRuntimeState();
 
       expect(runtimeState.error).to.equal(null);
-      expect(runtimeState.runtime).to.be.instanceOf(WorkerRuntime);
+      expect(runtimeState.runtime).to.equal(null);
     });
 
     it('emits mongosh events to the appRegistry', async function () {
