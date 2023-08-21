@@ -1,4 +1,5 @@
 import type * as plugin from '@mongodb-js/oidc-plugin';
+import util from 'util';
 
 export type UserInfo = {
   firstName: string;
@@ -12,9 +13,7 @@ export type IntrospectInfo = { active: boolean };
 export type Token = plugin.IdPServerResponse;
 
 function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
-  return (
-    Object.keys(obj).some((key) => !expectedKeys.includes(key))
-  );
+  return Object.keys(obj).some((key) => !expectedKeys.includes(key));
 }
 
 export type AIAggregation = {
@@ -104,7 +103,7 @@ export function validateAIQueryResponse(
   ]) {
     if (query[field] && typeof query[field] !== 'string') {
       throw new Error(
-        `Unexpected response: expected field ${field} to be a string, got ${String(
+        `Unexpected response: expected field ${field} to be a string, got ${util.inspect(
           query[field]
         )}`
       );
@@ -113,7 +112,7 @@ export function validateAIQueryResponse(
 
   if (query.aggregation && typeof query.aggregation.pipeline !== 'string') {
     throw new Error(
-      `Unexpected response: expected aggregation pipeline to be a string, got ${String(
+      `Unexpected response: expected aggregation pipeline to be a string, got ${util.inspect(
         query.aggregation
       )}`
     );
