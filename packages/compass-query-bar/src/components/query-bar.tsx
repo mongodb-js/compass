@@ -142,8 +142,8 @@ type QueryBarProps = {
   onExplain?: () => void;
   insights?: Signal | Signal[];
   isAIInputVisible?: boolean;
-  onShowAIInputClick?: () => void;
-  onHideAIInputClick?: () => void;
+  onShowAIInputClick: () => void;
+  onHideAIInputClick: () => void;
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -191,7 +191,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     return enableAIQuery && !isAIInputVisible
       ? createAIPlaceholderHTMLPlaceholder({
           onClickAI: () => {
-            onShowAIInputClick?.();
+            onShowAIInputClick();
           },
           darkMode,
           placeholderText: OPTION_DEFINITION.filter.placeholder,
