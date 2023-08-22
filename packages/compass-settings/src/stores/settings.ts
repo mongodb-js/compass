@@ -1,35 +1,31 @@
 import type { Reducer } from 'redux';
-import type { RootState } from '.';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { SettingsThunkAction } from '.';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
-  PreferencesAccess,
 } from 'compass-preferences-model';
-import preferences from 'compass-preferences-model';
-import { pick } from '../utils/pick';
+import { cancelAtlasLoginAttempt } from './atlas-login';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
-export type State =
+export type State = { isModalOpen: boolean } & (
   | {
       loadingState: 'loading';
-      sandbox: null;
       settings: Record<string, never>;
       preferenceStates: Record<string, never>;
       updatedFields: never[];
     }
   | {
       loadingState: 'ready';
-      sandbox: PreferencesAccess;
       settings: UserConfigurablePreferences;
       preferenceStates: PreferenceStateInformation;
       updatedFields: (keyof UserConfigurablePreferences)[];
-    };
+    }
+);
 
 export const INITIAL_STATE: State = {
-  sandbox: null,
+  isModalOpen: false,
   settings: {},
   preferenceStates: {},
   updatedFields: [],
@@ -37,14 +33,19 @@ export const INITIAL_STATE: State = {
 };
 
 export enum ActionTypes {
+  // TODO(COMPASS-7098): based on usage, `fetched` and `synced` should be two
+  // different groups of actions, not one
+  SettingsFetchedStart = 'compass-settings/SettingsFetchedStart',
   SettingsFetched = 'compass-settings/settingsFetched',
+  ChangeFieldValue = 'compass-settings/ChangeFieldValue',
   FieldUpdated = 'compass-settings/settingsFieldUpdated',
   SettingsSaved = 'compass-settings/settingsUpdated',
+  OpenSettingsModal = 'compass-settings/OpenSettingsModal',
+  CloseSettingsModal = 'compass-settings/CloseSettingsModal',
 }
 
 type SettingsFetchedAction = {
   type: ActionTypes.SettingsFetched;
-  sandbox: PreferencesAccess;
   settings: UserConfigurablePreferences;
   preferenceStates: PreferenceStateInformation;
   updatedFields: (keyof UserConfigurablePreferences)[];
@@ -56,15 +57,37 @@ type SaveSettingsAction = {
 
 export type Actions = SettingsFetchedAction | SaveSettingsAction;
 
-export const reducer: Reducer<State, Actions> = (
-  state = INITIAL_STATE,
-  action
-) => {
+export const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case ActionTypes.SettingsFetchedStart:
+      return {
+        // Updating settings to loading state that is the same as initial one
+        ...INITIAL_STATE,
+        // ... and preserving current modal state
+        isModalOpen: state.isModalOpen,
+      };
+    case ActionTypes.OpenSettingsModal:
+      return {
+        ...state,
+        isModalOpen: true,
+      };
+    case ActionTypes.CloseSettingsModal:
+      return {
+        ...state,
+        isModalOpen: false,
+      };
+    case ActionTypes.ChangeFieldValue:
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          [action.field]: action.value,
+        },
+      };
     case ActionTypes.SettingsFetched:
       return {
+        ...state,
         loadingState: 'ready',
-        sandbox: action.sandbox,
         settings: action.settings,
         preferenceStates: action.preferenceStates,
         updatedFields: action.updatedFields,
@@ -72,48 +95,40 @@ export const reducer: Reducer<State, Actions> = (
     case ActionTypes.SettingsSaved:
       return {
         ...state,
-        updatedFields: [],
+        isModalOpen: false,
       };
     default:
       return state;
   }
 };
 
-async function dispatchSandboxUpdate(
-  dispatch: ThunkDispatch<{ settings: State }, void, Actions>,
-  sandbox: PreferencesAccess
-): Promise<void> {
-  const [settings, preferenceStates] = await Promise.all([
-    sandbox.getConfigurableUserPreferences(),
-    sandbox.getPreferenceStates(),
-  ]);
-  const updatedFields = (
-    Object.keys(settings) as (keyof typeof settings)[]
-  ).filter(
-    (k) =>
-      settings[k] !== preferences.getPreferences()[k] &&
-      preferenceStates[k] === undefined
-  );
+const syncSandboxStateToStore = (): SettingsThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, { preferencesSandbox: sandbox }) => {
+    const {
+      userPreferences: settings,
+      preferenceStates,
+      updatedFields,
+    } = await sandbox.getSandboxState();
 
-  dispatch({
-    type: ActionTypes.SettingsFetched,
-    sandbox,
-    settings,
-    preferenceStates,
-    updatedFields,
-  });
-}
+    dispatch({
+      type: ActionTypes.SettingsFetched,
+      settings,
+      preferenceStates,
+      updatedFields,
+    });
+  };
+};
 
-export const fetchSettings = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
-  return async (dispatch): Promise<void> => {
+export const fetchSettings = (): SettingsThunkAction<Promise<void>> => {
+  return async (
+    dispatch,
+    _getState,
+    { preferencesSandbox: sandbox }
+  ): Promise<void> => {
     try {
-      const sandbox = await preferences.createSandbox();
-      await dispatchSandboxUpdate(dispatch, sandbox);
+      dispatch({ type: ActionTypes.SettingsFetchedStart });
+      await sandbox.setupSandbox();
+      await dispatch(syncSandboxStateToStore());
     } catch (e) {
       log.warn(
         mongoLogId(1_001_000_145),
@@ -128,27 +143,67 @@ export const fetchSettings = (): ThunkAction<
 export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
   field: K,
   value: UserConfigurablePreferences[K]
-): ThunkAction<Promise<void>, RootState, void, Actions> => {
-  return async (dispatch, getState): Promise<void> => {
-    const { loadingState, sandbox } = getState().settings;
-    if (loadingState === 'loading') return;
-    await sandbox.savePreferences({ [field]: value });
-    await dispatchSandboxUpdate(dispatch, sandbox);
+): SettingsThunkAction<Promise<void>> => {
+  return async (
+    dispatch,
+    getState,
+    { preferencesSandbox: sandbox }
+  ): Promise<void> => {
+    const { loadingState } = getState().settings;
+    if (loadingState === 'loading') {
+      throw new Error("Can't change preferences while sandbox is being set up");
+    }
+    // User input component should always be in sync with user input while user
+    // is typing, otherwise it can cause unexpected behavior of the DOM input
+    // node and React component. We make sure value is in sync by first updating
+    // state with whatever user typed with a `ChangeFieldValue` action ...
+    dispatch({ type: ActionTypes.ChangeFieldValue, field, value });
+    try {
+      // ... we then follow up by updating field value in the preferences. This
+      // can fail if user input doesn't pass validation.
+      await sandbox.updateField(field, value);
+    } catch (err) {
+      log.error(
+        mongoLogId(1_001_000_223),
+        'Settings',
+        'Failed to change settings value',
+        { error: (err as Error).stack }
+      );
+    }
+    // Sync state from sandbox whether or not update failed so that we are back
+    // to the actual preferences state input instead of whatever user has typed
+    await dispatch(syncSandboxStateToStore());
   };
 };
 
-export const saveSettings = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
-  return async (dispatch, getState): Promise<void> => {
-    const { loadingState, sandbox, updatedFields } = getState().settings;
-    if (loadingState === 'loading') return;
+export const openModal = (): SettingsThunkAction<Promise<void>> => {
+  return async (dispatch) => {
+    dispatch({ type: ActionTypes.OpenSettingsModal });
+    await dispatch(fetchSettings());
+  };
+};
+
+export const closeModal = (): SettingsThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(cancelAtlasLoginAttempt());
+    dispatch({ type: ActionTypes.CloseSettingsModal });
+  };
+};
+
+export const saveSettings = (): SettingsThunkAction<Promise<void>> => {
+  return async (
+    dispatch,
+    getState,
+    { preferencesSandbox: sandbox }
+  ): Promise<void> => {
+    const { loadingState } = getState().settings;
+    if (loadingState === 'loading') {
+      throw new Error(
+        "Can't update user settings while sandbox is being set up"
+      );
+    }
     try {
-      const values = await sandbox.getConfigurableUserPreferences();
-      await preferences.savePreferences(pick(values, updatedFields));
+      await sandbox.applySandboxChangesToPreferences();
       dispatch({
         type: ActionTypes.SettingsSaved,
       });

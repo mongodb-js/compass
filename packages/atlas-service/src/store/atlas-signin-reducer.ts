@@ -36,16 +36,18 @@ export const enum AtlasSignInActions {
   RestoringStart = 'atlas-service/atlas-signin/StartRestoring',
   RestoringFailed = 'atlas-service/atlas-signin/RestoringFailed',
   RestoringSuccess = 'atlas-service/atlas-signin/RestoringSuccess',
+  AttemptStart = 'atlas-service/atlas-signin/AttemptStart',
+  AttemptEnd = 'atlas-service/atlas-signin/AttemptEnd',
   Start = 'atlas-service/atlas-signin/AtlasSignInStart',
   Success = 'atlas-service/atlas-signin/AtlasSignInSuccess',
   Error = 'atlas-service/atlas-signin/AtlasSignInError',
   Cancel = 'atlas-service/atlas-signin/AtlasSignInCancel',
   TokenRefreshFailed = 'atlas-service/atlas-signin/TokenRefreshFailed',
+  SignedOut = 'atlas-service/atlas-signin/SignedOut',
 }
 
 export type AtlasSignInOpenModalAction = {
   type: AtlasSignInActions.OpenSignInModal;
-  id: number;
 };
 
 export type AtlasSignInCloseModalAction = {
@@ -54,7 +56,6 @@ export type AtlasSignInCloseModalAction = {
 
 export type AtlasSignInRestoringStartAction = {
   type: AtlasSignInActions.RestoringStart;
-  id: number;
 };
 
 export type AtlasSignInRestoringFailedAction = {
@@ -65,9 +66,18 @@ export type AtlasSignInRestoringSuccessAction = {
   type: AtlasSignInActions.RestoringSuccess;
 };
 
+export type AtlasSignInAttemptStartAction = {
+  type: AtlasSignInActions.AttemptStart;
+  id: number;
+};
+
+export type AtlasSignInAttemptEndAction = {
+  type: AtlasSignInActions.AttemptEnd;
+  id: number;
+};
+
 export type AtlasSignInStartAction = {
   type: AtlasSignInActions.Start;
-  id: number;
 };
 
 export type AtlasSignInSuccessAction = {
@@ -81,6 +91,10 @@ export type AtlasSignInErrorAction = {
 
 export type AtlasSignInTokenRefreshFailedAction = {
   type: AtlasSignInActions.TokenRefreshFailed;
+};
+
+export type AtlasSignInSignedOutAction = {
+  type: AtlasSignInActions.SignedOut;
 };
 
 export type AtlasSignInCancelAction = { type: AtlasSignInActions.Cancel };
@@ -173,6 +187,27 @@ const reducer: Reducer<AtlasSignInState> = (
     return { ...state, state: 'unauthenticated' };
   }
 
+  if (
+    isAction<AtlasSignInAttemptStartAction>(
+      action,
+      AtlasSignInActions.AttemptStart
+    )
+  ) {
+    return {
+      ...state,
+      currentAttemptId: action.id,
+    };
+  }
+
+  if (
+    isAction<AtlasSignInAttemptEndAction>(action, AtlasSignInActions.AttemptEnd)
+  ) {
+    return {
+      ...state,
+      currentAttemptId: null,
+    };
+  }
+
   if (isAction<AtlasSignInStartAction>(action, AtlasSignInActions.Start)) {
     return { ...state, state: 'in-progress' };
   }
@@ -183,7 +218,6 @@ const reducer: Reducer<AtlasSignInState> = (
       isModalOpen: false,
       state: 'success',
       error: null,
-      currentAttemptId: null,
     };
   }
 
@@ -193,7 +227,6 @@ const reducer: Reducer<AtlasSignInState> = (
       isModalOpen: false,
       state: 'error',
       error: action.error,
-      currentAttemptId: null,
     };
   }
 
@@ -207,7 +240,7 @@ const reducer: Reducer<AtlasSignInState> = (
       AtlasSignInActions.OpenSignInModal
     )
   ) {
-    return { ...state, currentAttemptId: action.id, isModalOpen: true };
+    return { ...state, isModalOpen: true };
   }
 
   if (
@@ -235,6 +268,12 @@ const reducer: Reducer<AtlasSignInState> = (
     return { ...INITIAL_STATE, state: 'error' };
   }
 
+  if (
+    isAction<AtlasSignInSignedOutAction>(action, AtlasSignInActions.SignedOut)
+  ) {
+    return { ...INITIAL_STATE };
+  }
+
   return state;
 };
 
@@ -259,6 +298,28 @@ export const restoreSignInState = (): AtlasSignInThunkAction<Promise<void>> => {
   };
 };
 
+const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
+  return (dispatch, getState) => {
+    if (getState().currentAttemptId) {
+      throw new Error(
+        "Can't start sign in with prompt while another sign in attempt is in progress"
+      );
+    }
+    const attempt = getAttempt();
+    dispatch({ type: AtlasSignInActions.AttemptStart, id: attempt.id });
+    attempt.promise
+      .finally(() => {
+        dispatch({ type: AtlasSignInActions.AttemptEnd, id: attempt.id });
+      })
+      .catch(() => {
+        // noop for the promise created by `finally`, original promise rejection
+        // should be handled by the service user
+      });
+    fn();
+    return attempt;
+  };
+};
+
 export const signInWithModalPrompt = ({
   signal,
 }: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<Promise<void>> => {
@@ -267,22 +328,40 @@ export const signInWithModalPrompt = ({
     if (getState().state === 'success') {
       return;
     }
-    const attempt = getAttempt(getState().currentAttemptId);
-    // Listen to the external signal if provided and stop sign in process when
-    // aborted
+    const attempt = dispatch(
+      startAttempt(() => {
+        dispatch(openSignInModal());
+      })
+    );
     signal?.addEventListener('abort', () => {
       dispatch(closeSignInModal(signal.reason));
     });
-    dispatch(openSignInModal(attempt.id));
     return attempt.promise;
   };
 };
 
-export const openSignInModal = (id: number) => {
-  return {
-    type: AtlasSignInActions.OpenSignInModal,
-    id,
+export const signInWithoutPrompt = ({
+  signal,
+}: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
+    // Nothing to do if we already signed in
+    if (getState().state === 'success') {
+      return;
+    }
+    const attempt = dispatch(
+      startAttempt(() => {
+        void dispatch(signIn());
+      })
+    );
+    signal?.addEventListener('abort', () => {
+      dispatch(cancelSignIn(signal.reason));
+    });
+    return attempt.promise;
   };
+};
+
+export const openSignInModal = () => {
+  return { type: AtlasSignInActions.OpenSignInModal };
 };
 
 /**
@@ -307,6 +386,7 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
         timeout: 10_000,
       });
       dispatch({ type: AtlasSignInActions.Success });
+      atlasService.emit('signed-in');
       resolve();
     } catch (err) {
       // Only handle error if sign in wasn't aborted by the user, otherwise it
@@ -337,10 +417,6 @@ export const closeSignInModal = (
   };
 };
 
-export const tokenRefreshFailed = () => {
-  return { type: AtlasSignInActions.TokenRefreshFailed };
-};
-
 export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
   return (dispatch, getState) => {
     // Can't cancel sign in after the flow was finished indicated by current
@@ -352,6 +428,20 @@ export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);
     dispatch({ type: AtlasSignInActions.Cancel });
+  };
+};
+
+export const tokenRefreshFailed = (): AtlasSignInThunkAction<void> => {
+  return (dispatch, _getState, { atlasService }) => {
+    dispatch({ type: AtlasSignInActions.TokenRefreshFailed });
+    atlasService.emit('token-refresh-failed');
+  };
+};
+
+export const signedOut = (): AtlasSignInThunkAction<void> => {
+  return (dispatch, _getState, { atlasService }) => {
+    dispatch({ type: AtlasSignInActions.SignedOut });
+    atlasService.emit('signed-out');
   };
 };
 

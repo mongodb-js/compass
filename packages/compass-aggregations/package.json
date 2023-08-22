@@ -38,6 +38,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "@mongodb-js/atlas-service": "^0.2.1",
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-crud": "^13.11.1",
     "@mongodb-js/compass-editor": "^0.10.0",
@@ -83,6 +84,7 @@
     "mongodb-data-service": "^22.9.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^3.1.2",
+    "mongodb-schema": "^11.2.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "prop-types": "^15.7.2",
@@ -97,6 +99,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/atlas-service": "^0.2.1",
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-crud": "^13.11.1",
     "@mongodb-js/compass-editor": "^0.10.0",

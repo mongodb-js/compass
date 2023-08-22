@@ -75,6 +75,7 @@ describe('atlasSignInReducer', function () {
           .onSecondCall()
           .resolves(true),
         getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasService: mockAtlasService as any,
@@ -99,6 +100,7 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(true),
         signIn: sandbox.stub().resolves(),
         getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasService: mockAtlasService as any,
@@ -115,6 +117,7 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves(),
         getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasService: mockAtlasService as any,
@@ -187,6 +190,7 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves(),
         getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasService: mockAtlasService as any,
@@ -204,6 +208,7 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().rejects(new Error('Whoops!')),
         getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasService: mockAtlasService as any,
@@ -227,6 +232,7 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves(),
         getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasService: mockAtlasService as any,
@@ -250,6 +256,7 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves(),
         getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasService: mockAtlasService as any,

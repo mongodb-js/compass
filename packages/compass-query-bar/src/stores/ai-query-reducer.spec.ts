@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import os from 'os';
 import Sinon from 'sinon';
+
 import configureStore from './query-bar-store';
 import type { QueryBarStoreOptions } from './query-bar-store';
 import {

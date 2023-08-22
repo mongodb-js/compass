@@ -7,10 +7,12 @@ import {
   palette,
   spacing,
   SignalPopover,
+  rafraf,
 } from '@mongodb-js/compass-components';
 import type {
   Command,
   CompletionWithServerInfo,
+  EditorRef,
 } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
@@ -18,7 +20,7 @@ import {
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model';
-
+import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 
 const editorContainerStyles = css({
@@ -80,8 +82,10 @@ const insightsBadgeStyles = css({
 type OptionEditorProps = {
   hasError: boolean;
   id: string;
+  hasAutofix?: boolean;
   onChange: (value: string) => void;
   onApply?(): void;
+  onBlur?(): void;
   placeholder?: string | HTMLElement;
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
@@ -93,8 +97,10 @@ type OptionEditorProps = {
 const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   hasError,
   id,
+  hasAutofix,
   onChange,
   onApply,
+  onBlur,
   placeholder,
   schemaFields = [],
   serverVersion = '3.6.0',
@@ -103,8 +109,8 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   insights,
 }) => {
   const showInsights = usePreference('showInsights', React);
-
   const editorContainerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<EditorRef>(null);
 
   const focusRingProps = useFocusRing({
     outer: true,
@@ -143,6 +149,27 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     });
   }, [schemaFields, serverVersion]);
 
+  const onFocus = () => {
+    if (hasAutofix && editorRef.current) {
+      if (editorRef.current.editorContents === '') {
+        rafraf(() => {
+          editorRef.current?.applySnippet('\\{${}}');
+        });
+      }
+    }
+  };
+
+  const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+    if (hasAutofix && editorRef.current) {
+      const editorContents = editorRef.current.editorContents;
+      const snippet = lenientlyFixQuery(editorContents || '');
+      if (snippet) {
+        editorRef.current.applySnippet(snippet);
+        event.preventDefault();
+      }
+    }
+  };
+
   return (
     <div
       className={cx(
@@ -153,6 +180,7 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       ref={editorContainerRef}
     >
       <InlineEditor
+        ref={editorRef}
         id={id}
         text={value}
         onChangeText={onChange}
@@ -160,6 +188,9 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         completer={completer}
         commands={commands}
         data-testid={dataTestId}
+        onFocus={onFocus}
+        onPaste={onPaste}
+        onBlur={onBlur}
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>

@@ -117,27 +117,29 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   isOpenPipelineVisible,
 }) => {
   return (
-    <div className={containerStyles} data-testid="pipeline-header">
-      {isOpenPipelineVisible && (
-        <div
-          data-testid="saved-pipelines-popover"
-          className={pipelineTextAndOpenStyles}
-        >
-          <Body weight="medium">Pipeline</Body>
-          <SavedPipelinesButton></SavedPipelinesButton>
+    <div>
+      <div className={containerStyles} data-testid="pipeline-header">
+        {isOpenPipelineVisible && (
+          <div
+            data-testid="saved-pipelines-popover"
+            className={pipelineTextAndOpenStyles}
+          >
+            <Body weight="medium">Pipeline</Body>
+            <SavedPipelinesButton></SavedPipelinesButton>
+          </div>
+        )}
+        <div className={pipelineStagesStyles}>
+          <PipelineStages />
         </div>
-      )}
-      <div className={pipelineStagesStyles}>
-        <PipelineStages />
-      </div>
-      <div className={pipelineActionStyles}>
-        <PipelineActions
-          onToggleOptions={onToggleOptions}
-          isOptionsVisible={isOptionsVisible}
-          showRunButton={showRunButton}
-          showExportButton={showExportButton}
-          showExplainButton={showExplainButton}
-        />
+        <div className={pipelineActionStyles}>
+          <PipelineActions
+            onToggleOptions={onToggleOptions}
+            isOptionsVisible={isOptionsVisible}
+            showRunButton={showRunButton}
+            showExportButton={showExportButton}
+            showExplainButton={showExplainButton}
+          />
+        </div>
       </div>
     </div>
   );

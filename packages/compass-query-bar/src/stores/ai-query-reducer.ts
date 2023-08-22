@@ -3,16 +3,19 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import preferences from 'compass-preferences-model';
-import { EJSON } from 'bson';
 
 import type { QueryBarThunkAction } from './query-bar-store';
 import { isAction } from '../utils';
-import { mapQueryToFormFields } from '../utils/query';
+import {
+  mapQueryToFormFields,
+  parseQueryAttributesToFormFields,
+} from '../utils/query';
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
+import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('AI-QUERY-UI');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -112,6 +115,11 @@ export const runAIQuery = (
   Promise<void>,
   AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
+  track('AI Prompt Submitted', () => ({
+    editor_view_type: 'find',
+    user_input_length: userInput.length,
+  }));
+
   return async (dispatch, getState, { dataService, atlasService }) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
@@ -159,15 +167,15 @@ export const runAIQuery = (
         schema,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
-    } catch (err: any) {
+    } catch (err) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed(err?.message);
+      logFailed((err as AtlasServiceNetworkError).message);
       // We're going to reset input state with this error, show the error in the
       // toast instead
-      if (err.statusCode === 401) {
+      if ((err as AtlasServiceNetworkError).statusCode === 401) {
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',
@@ -177,8 +185,8 @@ export const runAIQuery = (
       }
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
-        errorMessage: err?.message,
-        networkErrorCode: err.statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+        networkErrorCode: (err as AtlasServiceNetworkError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -198,18 +206,10 @@ export const runAIQuery = (
 
     let fields;
     try {
-      if (!jsonResponse?.content?.query) {
-        throw new Error(
-          'No query returned. Please try again with a different prompt.'
-        );
-      }
-
-      const query = EJSON.deserialize(jsonResponse?.content?.query);
-
-      fields = mapQueryToFormFields({
-        ...DEFAULT_FIELD_VALUES,
-        ...(query ?? {}),
-      });
+      fields = {
+        ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+        ...parseQueryAttributesToFormFields(jsonResponse.content.query),
+      };
     } catch (err: any) {
       logFailed(err?.message);
       dispatch({
@@ -270,7 +270,9 @@ export const cancelAIQuery = (): QueryBarThunkAction<
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
     try {
-      await atlasService.signIn({ promptType: 'ai-promo-modal' });
+      if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
+        await atlasService.signIn({ promptType: 'ai-promo-modal' });
+      }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {
       // if sign in failed / user canceled we just don't show the input
@@ -327,7 +329,6 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       ...state,
       status: 'success',
       aiQueryFetchId: -1,
-      didSucceed: true,
     };
   }
 
@@ -361,6 +362,8 @@ const aiQueryReducer: Reducer<AIQueryState> = (
   ) {
     return {
       ...state,
+      // Reset the status after a successful run when the user change's the text.
+      status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
     };
   }

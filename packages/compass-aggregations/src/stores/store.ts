@@ -3,6 +3,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import reducer from '../modules';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
@@ -122,6 +123,10 @@ export type ConfigureStoreOptions = {
    * the stage wizard to populate the dropdown for $lookup use-case.
    */
   collections: CollectionInfo[];
+  /**
+   * Service for making ai requests.
+   */
+  atlasService: AtlasService;
 }>;
 
 const configureStore = (options: ConfigureStoreOptions) => {
@@ -218,6 +223,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       thunk.withExtraArgument({
         pipelineBuilder,
         pipelineStorage,
+        atlasService: options.atlasService ?? new AtlasService(),
       })
     )
   );

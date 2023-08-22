@@ -1,9 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  AIExperienceEntry,
   Button,
   Icon,
   MoreOptionsToggle,
   css,
+  createAIPlaceholderHTMLPlaceholder,
   cx,
   spacing,
   palette,
@@ -16,7 +18,10 @@ import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model';
 import type { Signal } from '@mongodb-js/compass-components';
 
-import { type QueryOption } from '../constants/query-option-definition';
+import {
+  OPTION_DEFINITION,
+  type QueryOption,
+} from '../constants/query-option-definition';
 import QueryOptionComponent, {
   documentEditorLabelContainerStyles,
 } from './query-option';
@@ -31,12 +36,11 @@ import {
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
 import type { QueryProperty } from '../constants/query-properties';
-import { AITextInput } from './generative-ai/ai-text-input';
+import { QueryAI } from './query-ai';
 import type {
   QueryBarThunkDispatch,
   RootState,
 } from '../stores/query-bar-store';
-import { createAIPlaceholderHTMLPlaceholder } from './generative-ai/ai-experience-entry';
 import { hideInput, showInput } from '../stores/ai-query-reducer';
 
 const queryBarFormStyles = css({
@@ -73,13 +77,11 @@ const moreOptionsContainerStyles = css({
 });
 
 const filterContainerStyles = css({
+  display: 'flex',
   position: 'relative',
   flexGrow: 1,
-
-  // Override codemirror styles to make the `Ask AI` button clickable.
-  '& .cm-placeholder': {
-    pointerEvents: 'auto !important' as any, // Cast to any as !important errors ts.
-  },
+  alignItems: 'center',
+  gap: spacing[2],
 });
 
 const filterLabelStyles = css({
@@ -92,6 +94,11 @@ const queryOptionsContainerStyles = css({
   marginTop: spacing[2],
   padding: `0 ${spacing[2]}px`,
   gap: spacing[2],
+});
+
+const queryAIContainerStyles = css({
+  margin: `0px ${spacing[2]}px`,
+  marginTop: '2px',
 });
 
 const queryBarDocumentationLink =
@@ -125,6 +132,7 @@ type QueryBarProps = {
    * clicked or not
    */
   applyId: number;
+  filterHasContent: boolean;
   showExplainButton?: boolean;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
@@ -134,8 +142,8 @@ type QueryBarProps = {
   onExplain?: () => void;
   insights?: Signal | Signal[];
   isAIInputVisible?: boolean;
-  onShowAIInputClick?: () => void;
-  onHideAIInputClick?: () => void;
+  onShowAIInputClick: () => void;
+  onHideAIInputClick: () => void;
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -152,6 +160,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   queryChanged,
   resultId,
   applyId,
+  filterHasContent,
   showExplainButton = false,
   showExportToLanguageButton = true,
   showQueryHistoryButton = true,
@@ -182,9 +191,10 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     return enableAIQuery && !isAIInputVisible
       ? createAIPlaceholderHTMLPlaceholder({
           onClickAI: () => {
-            onShowAIInputClick?.();
+            onShowAIInputClick();
           },
           darkMode,
+          placeholderText: OPTION_DEFINITION.filter.placeholder,
         })
       : placeholders?.filter;
   }, [
@@ -194,6 +204,15 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     placeholders?.filter,
     onShowAIInputClick,
   ]);
+
+  const showAskAIButton = useMemo(() => {
+    if (!enableAIQuery || isAIInputVisible) {
+      return false;
+    }
+
+    // See if there is content in the filter.
+    return filterHasContent;
+  }, [enableAIQuery, isAIInputVisible, filterHasContent]);
 
   return (
     <form
@@ -225,6 +244,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             placeholder={filterPlaceholder}
             insights={insights}
           />
+          {showAskAIButton && (
+            <AIExperienceEntry
+              data-testid="ai-experience-ask-ai-button"
+              onClick={onShowAIInputClick}
+            />
+          )}
         </div>
         {showExplainButton && newExplainPlan && (
           <GuideCue
@@ -308,12 +333,14 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           </div>
         )}
       {enableAIQuery && (
-        <AITextInput
-          onClose={() => {
-            onHideAIInputClick?.();
-          }}
-          show={isAIInputVisible}
-        />
+        <div className={queryAIContainerStyles}>
+          <QueryAI
+            onClose={() => {
+              onHideAIInputClick?.();
+            }}
+            show={isAIInputVisible}
+          />
+        </div>
       )}
     </form>
   );
@@ -329,6 +356,7 @@ export default connect(
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
+      filterHasContent: fields.filter.string !== '',
       valid: isQueryValid(fields),
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,

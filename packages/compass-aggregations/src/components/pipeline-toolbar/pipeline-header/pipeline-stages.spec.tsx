@@ -14,10 +14,12 @@ const renderPipelineStages = (
   render(
     <PipelineStages
       isResultsMode={false}
+      showAIEntry={false}
       stages={[]}
       showAddNewStage={true}
       onAddStageClick={() => {}}
       onEditPipelineClick={() => {}}
+      onShowAIInputClick={() => {}}
       {...props}
     />
   );

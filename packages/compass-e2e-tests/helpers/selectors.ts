@@ -376,9 +376,6 @@ export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
-// Query bar (Find, Schema)
-export const QueryBarMenuActions = '#query-bar-menu-actions';
-
 // Instance screen
 export const InstanceTabs = '[data-testid="instance-tabs"]';
 export const InstanceTab = '.test-tab-nav-bar-tab';
@@ -1035,6 +1032,12 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
+export const QueryBarAskAIButton =
+  '[data-testid="open-ai-query-ask-ai-button"]';
+export const QueryBarAITextInput = '[data-testid="ai-user-text-input"]';
+export const QueryBarAIGenerateQueryButton =
+  '[data-testid="ai-generate-button"]';
+export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs at the top
 export const SelectedWorkspaceTabButton =
