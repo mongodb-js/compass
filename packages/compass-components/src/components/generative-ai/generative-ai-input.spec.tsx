@@ -1,15 +1,10 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
+import userEvent from '@testing-library/user-event';
 
 import { GenerativeAIInput } from './generative-ai-input';
 
@@ -109,11 +104,9 @@ describe('GenerativeAIInput Component', function () {
 
         const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
         expect(textArea).to.be.visible;
-        fireEvent.change(textArea, {
-          target: { value: 'this is the query I was looking for' },
-        });
+        userEvent.type(textArea, 'this is the query I was looking for');
 
-        await waitFor(() => fireEvent.click(screen.getByText('Submit')));
+        await waitFor(() => userEvent.click(screen.getByText('Submit')));
 
         // No feedback popover is shown.
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;

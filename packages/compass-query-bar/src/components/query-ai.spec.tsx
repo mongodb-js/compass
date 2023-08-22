@@ -1,16 +1,11 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { Provider } from 'react-redux';
+import userEvent from '@testing-library/user-event';
 
 import { QueryAI } from './query-ai';
 import { configureStore } from '../stores/query-bar-store';
@@ -131,9 +126,7 @@ describe('QueryAI Component', function () {
 
         const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
         expect(textArea).to.be.visible;
-        fireEvent.change(textArea, {
-          target: { value: 'this is the query I was looking for' },
-        });
+        userEvent.type(textArea, 'this is the query I was looking for');
 
         screen.getByText('Submit').click();
 

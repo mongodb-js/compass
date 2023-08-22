@@ -1,17 +1,12 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { Provider } from 'react-redux';
 import preferencesAccess from 'compass-preferences-model';
+import userEvent from '@testing-library/user-event';
 
 import { PipelineAI } from './pipeline-ai';
 import configureStore from '../../../test/configure-store';
@@ -132,9 +127,7 @@ describe('PipelineAI Component', function () {
 
         const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
         expect(textArea).to.be.visible;
-        fireEvent.change(textArea, {
-          target: { value: 'this is the pipeline I was looking for' },
-        });
+        userEvent.type(textArea, 'this is the pipeline I was looking for');
 
         screen.getByText('Submit').click();
 
