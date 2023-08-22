@@ -87,10 +87,8 @@ export function mapQueryToFormFields(
         if (!isQueryProperty(key)) {
           return null;
         }
-        const valueAsString: any =
-          typeof _value === 'undefined' ? '' : stringify(_value);
-        // TODO: types
-        // typeof _value === 'undefined' ? '' : stringify(_value) || '';
+        const valueAsString =
+          typeof _value === 'undefined' ? '' : stringify(_value) || '';
         const value = validateField(key, valueAsString);
         const valid: boolean = value !== false;
         if (onlyValid && !valid) {
