@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -18,6 +18,7 @@ import FeaturePreviewSettings, {
 import Sidebar from './sidebar';
 import { saveSettings, closeModal } from '../stores/settings';
 import type { RootState } from '../stores';
+import { getUserInfo } from '../stores/atlas-login';
 
 type Settings = {
   name: string;
@@ -27,6 +28,7 @@ type Settings = {
 type SettingsModalProps = {
   isOpen: boolean;
   isOIDCEnabled: boolean;
+  onMount?: () => void;
   onClose: () => void;
   onSave: () => void;
   hasChangedSettings: boolean;
@@ -54,11 +56,18 @@ const settingsStyles = css(
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,
+  onMount,
   onClose,
   onSave,
   isOIDCEnabled,
   hasChangedSettings,
 }) => {
+  const onMountRef = useRef(onMount);
+
+  useEffect(() => {
+    onMountRef.current?.();
+  }, []);
+
   const settings: Settings[] = [
     { name: 'General', component: GeneralSettings },
     { name: 'Theme', component: ThemeSettings },
@@ -129,6 +138,7 @@ export default connect(
     };
   },
   {
+    onMount: getUserInfo,
     onClose: closeModal,
     onSave: saveSettings,
   }

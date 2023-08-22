@@ -14,7 +14,7 @@ export const QUERY_PROPERTIES = [
 export type QueryProperty = typeof QUERY_PROPERTIES[number];
 
 // How each query property is represented in the UI state.
-type FormField<T> = {
+export type FormField<T> = {
   value: T;
   string: string;
   valid: boolean;
@@ -30,6 +30,10 @@ export type QueryFormFields = {
   limit: FormField<number>;
   maxTimeMS: FormField<number>;
 };
+
+export type QueryFormFieldEntries = {
+  [field in keyof QueryFormFields]: [field, QueryFormFields[field]];
+}[keyof QueryFormFields][];
 
 // The runnable query (its actually run and saved)
 export type BaseQuery = Partial<{

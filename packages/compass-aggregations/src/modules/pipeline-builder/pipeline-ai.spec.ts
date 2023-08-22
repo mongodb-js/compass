@@ -28,7 +28,7 @@ describe('AIPipelineReducer', function () {
       it('should succeed', async function () {
         const mockAtlasService = {
           getAggregationFromUserInput: sandbox.stub().resolves({
-            content: { aggregation: { pipeline: [{ $match: { _id: 1 } }] } },
+            content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
           }),
         };
 

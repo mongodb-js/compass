@@ -13,6 +13,7 @@ import {
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
+import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -166,15 +167,15 @@ export const runAIQuery = (
         schema,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
-    } catch (err: any) {
+    } catch (err) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed(err?.message);
+      logFailed((err as AtlasServiceNetworkError).message);
       // We're going to reset input state with this error, show the error in the
       // toast instead
-      if (err.statusCode === 401) {
+      if ((err as AtlasServiceNetworkError).statusCode === 401) {
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',
@@ -184,8 +185,8 @@ export const runAIQuery = (
       }
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
-        errorMessage: err?.message,
-        networkErrorCode: err.statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+        networkErrorCode: (err as AtlasServiceNetworkError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -205,17 +206,9 @@ export const runAIQuery = (
 
     let fields;
     try {
-      if (!jsonResponse?.content?.query) {
-        throw new Error(
-          'No query returned. Please try again with a different prompt.'
-        );
-      }
-
-      const query = jsonResponse?.content?.query;
-
       fields = {
         ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
-        ...parseQueryAttributesToFormFields(query ?? {}),
+        ...parseQueryAttributesToFormFields(jsonResponse.content.query),
       };
     } catch (err: any) {
       logFailed(err?.message);

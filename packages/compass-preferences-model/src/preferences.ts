@@ -217,7 +217,9 @@ const allFeatureFlagsProps: Required<{
     description: {
       short: 'Show Developer Feature Flags',
     },
-    validator: Joi.boolean().optional(),
+    validator: Joi.boolean()
+      .optional()
+      .default(process.env.HADRON_CHANNEL === 'dev'),
   },
 
   /**

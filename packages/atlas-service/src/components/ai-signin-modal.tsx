@@ -109,7 +109,9 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
           </Button>
           <Button
             variant="primaryOutline"
-            onClick={onSignInModalClose}
+            onClick={() => {
+              onSignInModalClose?.();
+            }}
             className={cx(buttonStyles, maybeLaterButtonStyles)}
           >
             Maybe later

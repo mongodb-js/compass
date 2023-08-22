@@ -5,6 +5,7 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
+import { cancelAtlasLoginAttempt } from './atlas-login';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
@@ -182,8 +183,11 @@ export const openModal = (): SettingsThunkAction<Promise<void>> => {
   };
 };
 
-export const closeModal = () => {
-  return { type: ActionTypes.CloseSettingsModal };
+export const closeModal = (): SettingsThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(cancelAtlasLoginAttempt());
+    dispatch({ type: ActionTypes.CloseSettingsModal });
+  };
 };
 
 export const saveSettings = (): SettingsThunkAction<Promise<void>> => {

@@ -4,6 +4,7 @@ import { AtlasService, throwIfNotOk } from './main';
 import { promisify } from 'util';
 import type { EventEmitter } from 'events';
 import { once } from 'events';
+import preferencesAccess from 'compass-preferences-model';
 
 const wait = promisify(setTimeout);
 
@@ -12,20 +13,6 @@ function getListenerCount(emitter: EventEmitter) {
     return acc + emitter.listenerCount(name);
   }, 0);
 }
-
-const atlasAIServiceTests: {
-  functionName: 'getQueryFromUserInput' | 'getAggregationFromUserInput';
-  aiEndpoint: string;
-}[] = [
-  {
-    functionName: 'getQueryFromUserInput',
-    aiEndpoint: 'mql-query',
-  },
-  {
-    functionName: 'getAggregationFromUserInput',
-    aiEndpoint: 'mql-aggregation',
-  },
-];
 
 describe('AtlasServiceMain', function () {
   const sandbox = Sinon.createSandbox();
@@ -52,6 +39,7 @@ describe('AtlasServiceMain', function () {
 
   const fetch = AtlasService['fetch'];
   const ipcMain = AtlasService['ipcMain'];
+  const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
   const apiBaseUrl = process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
   const issuer = process.env.COMPASS_OIDC_ISSUER;
   const clientId = process.env.COMPASS_CLIENT_ID;
@@ -74,6 +62,7 @@ describe('AtlasServiceMain', function () {
     AtlasService['token'] = null;
     AtlasService['initPromise'] = null;
     AtlasService['oidcPluginSyncedFromLoggerState'] = 'initial';
+    AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
 
     sandbox.resetHistory();
   });
@@ -213,15 +202,46 @@ describe('AtlasServiceMain', function () {
     });
   });
 
-  for (const { functionName, aiEndpoint } of atlasAIServiceTests) {
+  const atlasAIServiceTests = [
+    {
+      functionName: 'getQueryFromUserInput',
+      aiEndpoint: 'mql-query',
+      responses: {
+        success: {
+          content: { query: { filter: "{ test: 'pineapple' }" } },
+        },
+        invalid: [
+          {},
+          { countent: {} },
+          { content: { qooery: {} } },
+          { content: { query: { filter: { foo: 1 } } } },
+        ],
+      },
+    },
+    {
+      functionName: 'getAggregationFromUserInput',
+      aiEndpoint: 'mql-aggregation',
+      responses: {
+        success: {
+          content: { aggregation: { pipeline: "[{ test: 'pineapple' }]" } },
+        },
+        invalid: [
+          {},
+          { content: { aggregation: {} } },
+          { content: { aggrogation: {} } },
+          { content: { aggregation: { pipeline: true } } },
+        ],
+      },
+    },
+  ] as const;
+
+  for (const { functionName, aiEndpoint, responses } of atlasAIServiceTests) {
     describe(functionName, function () {
       it('makes a post request with the user input to the endpoint in the environment', async function () {
         AtlasService['fetch'] = sandbox.stub().resolves({
           ok: true,
           json() {
-            return Promise.resolve({
-              content: { query: { filter: "{ test: 'pineapple' }" } },
-            });
+            return Promise.resolve(responses.success);
           },
         }) as any;
 
@@ -243,10 +263,28 @@ describe('AtlasServiceMain', function () {
         expect(args[1].body).to.eq(
           '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
         );
-        expect(res).to.have.nested.property(
-          'content.query.filter',
-          "{ test: 'pineapple' }"
-        );
+        expect(res).to.deep.eq(responses.success);
+      });
+
+      it('should fail when response is not matching expected schema', async function () {
+        for (const res of responses.invalid) {
+          AtlasService['fetch'] = sandbox.stub().resolves({
+            ok: true,
+            json() {
+              return Promise.resolve(res);
+            },
+          }) as any;
+          try {
+            await AtlasService[functionName]({
+              userInput: 'test',
+              collectionName: 'test',
+              databaseName: 'peanut',
+            });
+            expect.fail(`Expected ${functionName} to throw`);
+          } catch (err) {
+            expect((err as Error).message).to.match(/Unexpected.+?response/);
+          }
+        }
       });
 
       it('uses the abort signal in the fetch request', async function () {
@@ -286,7 +324,7 @@ describe('AtlasServiceMain', function () {
         AtlasService['fetch'] = sandbox.stub().resolves({
           ok: true,
           json() {
-            return Promise.resolve({});
+            return Promise.resolve(responses.success);
           },
         }) as any;
 
@@ -353,13 +391,13 @@ describe('AtlasServiceMain', function () {
         AtlasService['fetch'] = sandbox.stub().resolves({
           ok: true,
           json() {
-            return Promise.resolve({ test: 1 });
+            return Promise.resolve(responses.success);
           },
         }) as any;
         AtlasService['oidcPluginLogger'].emit(
           'mongodb-oidc-plugin:refresh-started'
         );
-        const [query] = await Promise.all([
+        const [res] = await Promise.all([
           AtlasService[functionName]({
             userInput: 'test',
             collectionName: 'test',
@@ -375,7 +413,7 @@ describe('AtlasServiceMain', function () {
             );
           })(),
         ]);
-        expect(query).to.deep.eq({ test: 1 });
+        expect(res).to.deep.eq(responses.success);
       });
     });
   }
@@ -542,7 +580,8 @@ describe('AtlasServiceMain', function () {
           .stub()
           .rejects(new Error('Could not retrieve valid access token'));
       const createPlugin = () => mockOidcPlugin;
-      const initPromise = AtlasService.init(createPlugin);
+      AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
+      const initPromise = AtlasService.init();
       expect(AtlasService).to.have.property(
         'oidcPluginSyncedFromLoggerState',
         'restoring'
@@ -558,7 +597,8 @@ describe('AtlasServiceMain', function () {
       mockOidcPlugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK =
         sandbox.stub().resolves({ accessToken: 'token' });
       const createPlugin = () => mockOidcPlugin;
-      const initPromise = AtlasService.init(createPlugin);
+      AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
+      const initPromise = AtlasService.init();
       expect(AtlasService).to.have.property(
         'oidcPluginSyncedFromLoggerState',
         'restoring'
@@ -569,5 +609,39 @@ describe('AtlasServiceMain', function () {
         'authenticated'
       );
     });
+  });
+
+  describe('with networkTraffic turned off', function () {
+    const networkTraffic = preferencesAccess.getPreferences().networkTraffic;
+
+    before(async function () {
+      await preferencesAccess.savePreferences({ networkTraffic: false });
+    });
+
+    after(async function () {
+      await preferencesAccess.savePreferences({ networkTraffic });
+    });
+
+    for (const methodName of [
+      'requestOAuthToken',
+      'signIn',
+      'getUserInfo',
+      'introspect',
+      'revoke',
+      'getAggregationFromUserInput',
+      'getQueryFromUserInput',
+    ]) {
+      it(`${methodName} should throw`, async function () {
+        try {
+          await (AtlasService as any)[methodName]({});
+          expect.fail(`Expected ${methodName} to throw`);
+        } catch (err) {
+          expect(err).to.have.property(
+            'message',
+            'Network traffic is not allowed'
+          );
+        }
+      });
+    }
   });
 });

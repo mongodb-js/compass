@@ -30,6 +30,16 @@ export async function setupPreferences(
   await preferences.setupStorage();
 
   const { ipcMain } = hadronIpc;
+
+  if (!ipcMain) {
+    // Ignore missing ipc if COMPASS_TEST_ env is set, this means that we are in
+    // a test environment where it's expected not to have ipc
+    if (process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX === 'true') {
+      return;
+    }
+    throw new Error('Trying to setup preferences in unsupported environments');
+  }
+
   preferences.onPreferencesChanged(
     (changedPreferencesValues: Partial<AllPreferences>) => {
       ipcMain.broadcast(
