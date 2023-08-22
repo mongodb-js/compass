@@ -11,6 +11,7 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
+import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
@@ -182,15 +183,15 @@ export const runAIPipelineGeneration = (
         schema,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
-    } catch (err: any) {
+    } catch (err) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed(err?.message);
+      logFailed((err as AtlasServiceNetworkError).message);
       // We're going to reset input state with this error, show the error in the
       // toast instead
-      if (err.statusCode === 401) {
+      if ((err as AtlasServiceNetworkError).statusCode === 401) {
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',
@@ -200,8 +201,8 @@ export const runAIPipelineGeneration = (
       }
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
-        errorMessage: err?.message,
-        networkErrorCode: err.statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+        networkErrorCode: (err as AtlasServiceNetworkError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -219,23 +220,16 @@ export const runAIPipelineGeneration = (
       return;
     }
 
-    let pipelineText;
+    const pipelineText = jsonResponse.content.aggregation?.pipeline;
     try {
-      // Error when the response is empty or there is nothing to map.
-      if (!jsonResponse?.content?.aggregation?.pipeline) {
+      if (!pipelineText) {
         throw new Error(emptyPipelineError);
       }
-
-      pipelineText = String(jsonResponse?.content?.aggregation?.pipeline);
-
-      if (!pipelineText || !pipelineText?.length) {
-        throw new Error(emptyPipelineError);
-      }
-    } catch (err: any) {
-      logFailed(err?.message);
+    } catch (err) {
+      logFailed((err as Error).message);
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
-        errorMessage: err?.message,
+        errorMessage: (err as Error).message,
       });
       return;
     }

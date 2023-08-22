@@ -19,12 +19,14 @@ import type { Response } from 'node-fetch';
 import fetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
-import type {
-  AIAggregation,
-  AIQuery,
-  IntrospectInfo,
-  Token,
-  UserInfo,
+import {
+  validateAIQueryResponse,
+  type AIAggregation,
+  type AIQuery,
+  type IntrospectInfo,
+  type Token,
+  type UserInfo,
+  validateAIAggregationResponse,
 } from './util';
 import {
   broadcast,
@@ -733,7 +735,7 @@ export class AtlasService {
     schema?: SimplifiedSchema;
     sampleDocuments?: Document[];
     signal?: AbortSignal;
-  }) {
+  }): Promise<AIAggregation> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
 
@@ -780,7 +782,11 @@ export class AtlasService {
 
     await throwIfNotOk(res);
 
-    return res.json() as Promise<AIAggregation>;
+    const body = await res.json();
+
+    validateAIAggregationResponse(body);
+
+    return body;
   }
 
   static async getQueryFromUserInput({
@@ -797,7 +803,7 @@ export class AtlasService {
     schema?: SimplifiedSchema;
     sampleDocuments?: Document[];
     signal?: AbortSignal;
-  }) {
+  }): Promise<AIQuery> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
 
@@ -841,7 +847,11 @@ export class AtlasService {
 
     await throwIfNotOk(res);
 
-    return res.json() as Promise<AIQuery>;
+    const body = await res.json();
+
+    validateAIQueryResponse(body);
+
+    return body;
   }
 
   static async onExit() {
