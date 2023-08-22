@@ -2,6 +2,7 @@ import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasService } from '../renderer';
+import { throwIfAborted } from '@mongodb-js/compass-utils';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -315,7 +316,9 @@ const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
         // noop for the promise created by `finally`, original promise rejection
         // should be handled by the service user
       });
-    fn();
+    setImmediate(function () {
+      fn();
+    });
     return attempt;
   };
 };
@@ -376,6 +379,7 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
     } = getAttempt(getState().currentAttemptId);
     dispatch({ type: AtlasSignInActions.Start });
     try {
+      throwIfAborted(signal);
       if ((await atlasService.isAuthenticated({ signal })) === false) {
         await atlasService.signIn({ signal });
       }

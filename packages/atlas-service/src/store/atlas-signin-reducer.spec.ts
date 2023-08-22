@@ -7,6 +7,7 @@ import {
   AttemptStateMap,
   signInWithModalPrompt,
   closeSignInModal,
+  signInWithoutPrompt,
 } from './atlas-signin-reducer';
 import { expect } from 'chai';
 import { configureStore } from './atlas-signin-store';
@@ -275,6 +276,65 @@ describe('atlasSignInReducer', function () {
         expect(err).to.have.property('message', 'Aborted from outside');
       }
 
+      expect(store.getState()).to.have.property('state', 'canceled');
+    });
+  });
+
+  describe('signInWithoutPrompt', function () {
+    it('should resolve when sign in flow finishes', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().resolves(),
+        getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
+      };
+      const store = configureStore({
+        atlasService: mockAtlasService as any,
+      });
+      await store.dispatch(signInWithoutPrompt());
+      expect(store.getState()).to.have.property('state', 'success');
+    });
+
+    it('should reject if sign in fails', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().rejects(new Error('Sign in failed')),
+        getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
+      };
+      const store = configureStore({
+        atlasService: mockAtlasService as any,
+      });
+      try {
+        await store.dispatch(signInWithoutPrompt());
+        expect.fail('Expected signInWithoutPrompt action to throw');
+      } catch (err) {
+        expect(err).to.have.property('message', 'Sign in failed');
+      }
+      expect(store.getState()).to.have.property('state', 'error');
+    });
+
+    it('should reject if provided signal was aborted', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().resolves(),
+        getUserInfo: sandbox.stub().resolves({}),
+        emit: sandbox.stub(),
+      };
+      const store = configureStore({
+        atlasService: mockAtlasService as any,
+      });
+      const c = new AbortController();
+      const signInPromise = store.dispatch(
+        signInWithoutPrompt({ signal: c.signal })
+      );
+      c.abort(new Error('Aborted from outside'));
+      try {
+        await signInPromise;
+        throw new Error('Expected signInPromise to throw');
+      } catch (err) {
+        expect(err).to.have.property('message', 'Aborted from outside');
+      }
       expect(store.getState()).to.have.property('state', 'canceled');
     });
   });

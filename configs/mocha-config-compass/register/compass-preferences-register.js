@@ -1,3 +1,5 @@
+let setupPreferencesPromise;
+
 module.exports = {
   mochaHooks: {
     async beforeAll() {
@@ -11,8 +13,12 @@ module.exports = {
       // preferences used by a lot of packages in the monorepo
       process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX =
         process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX ?? 'true';
+      // Make sure we only do this once so that --watch mode doesn't try to set
+      // up preferences again on re-run
+      setupPreferencesPromise ??=
+        require('compass-preferences-model').setupPreferences();
       // NB: Not adding this as a dep in package.json to avoid circular dependency
-      await require('compass-preferences-model').setupPreferences();
+      await setupPreferencesPromise;
     },
   },
 };

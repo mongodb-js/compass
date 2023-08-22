@@ -13,18 +13,14 @@ import atlasLoginReducer, {
   atlasServiceTokenRefreshFailed,
 } from './atlas-login';
 
+export type Public<T> = { [K in keyof T]: T[K] };
+
 export function configureStore({
   preferencesSandbox,
   atlasService,
 }: {
-  preferencesSandbox?: Pick<
-    PreferencesSandbox,
-    | 'setupSandbox'
-    | 'updateField'
-    | 'getSandboxState'
-    | 'applySandboxChangesToPreferences'
-  >;
-  atlasService?: AtlasService;
+  preferencesSandbox?: Public<PreferencesSandbox>;
+  atlasService?: Public<AtlasService>;
 } = {}) {
   preferencesSandbox ??= new PreferencesSandbox();
   atlasService ??= new AtlasService();
@@ -68,14 +64,8 @@ export type SettingsThunkAction<
   R,
   RootState,
   {
-    preferencesSandbox: Pick<
-      PreferencesSandbox,
-      | 'setupSandbox'
-      | 'updateField'
-      | 'getSandboxState'
-      | 'applySandboxChangesToPreferences'
-    >;
-    atlasService: AtlasService;
+    preferencesSandbox: Public<PreferencesSandbox>;
+    atlasService: Public<AtlasService>;
   },
   A
 >;

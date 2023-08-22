@@ -253,6 +253,10 @@ export class AtlasService {
     return apiBaseUrl;
   }
 
+  private static openExternal(...args: Parameters<typeof shell.openExternal>) {
+    return shell?.openExternal(...args);
+  }
+
   // We use `allowedFlows` plugin option to control whether or not plugin is
   // allowed to start sign in flow or just try refresh and fail if refresh is
   // not possible.
@@ -287,8 +291,8 @@ export class AtlasService {
 
         redirectRequestHandler(data);
       },
-      async openBrowser({ url }) {
-        await shell.openExternal(url);
+      openBrowser: async ({ url }) => {
+        await this.openExternal(url);
       },
       allowedFlows: this.getAllowedAuthFlows.bind(this),
       logger: this.oidcPluginLogger,
@@ -617,7 +621,7 @@ export class AtlasService {
     this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
     this.oidcPluginLogger.emit('atlas-service-signed-out');
     // Open Atlas sign out page to end the browser session created for sign in
-    void shell.openExternal(
+    void this.openExternal(
       'https://account.mongodb.com/account/login?signedOut=true'
     );
   }
