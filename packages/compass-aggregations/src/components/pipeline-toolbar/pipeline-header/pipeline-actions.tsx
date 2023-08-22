@@ -166,6 +166,7 @@ const mapState = (state: RootState) => {
   const lastStage = resultPipeline[resultPipeline.length - 1];
   const isMergeOrOutPipeline = isOutputStage(lastStage);
   const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
+  const isResultsMode = state.workspace === 'results';
 
   return {
     isRunButtonDisabled: hasSyntaxErrors,
@@ -173,7 +174,8 @@ const mapState = (state: RootState) => {
     isExportButtonDisabled: isMergeOrOutPipeline || hasSyntaxErrors,
     showAIEntry:
       !state.pipelineBuilder.aiPipeline.isInputVisible &&
-      resultPipeline.length > 0,
+      resultPipeline.length > 0 &&
+      !isResultsMode,
     showUpdateViewButton: Boolean(state.editViewName),
     isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors,
     isAtlasDeployed: state.isAtlasDeployed,

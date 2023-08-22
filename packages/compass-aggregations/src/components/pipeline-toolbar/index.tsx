@@ -57,6 +57,7 @@ const optionsStyles = css({
 type PipelineToolbarProps = {
   isAIInputVisible?: boolean;
   isBuilderView: boolean;
+  isResultsMode: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
@@ -68,6 +69,7 @@ type PipelineToolbarProps = {
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isAIInputVisible = false,
   isBuilderView,
+  isResultsMode,
   showRunButton,
   showExportButton,
   showExplainButton,
@@ -101,7 +103,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
-        {enableAIExperience && (
+        {enableAIExperience && !isResultsMode && (
           <PipelineAI
             onClose={() => {
               onHideAIInputClick?.();
@@ -127,8 +129,9 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 };
 
 const mapState = (state: RootState) => ({
-  isBuilderView: state.workspace === 'builder',
   isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
+  isBuilderView: state.workspace === 'builder',
+  isResultsMode: state.workspace === 'results',
 });
 export default connect(mapState, {
   onHideAIInputClick: hideAIInput,
