@@ -20,7 +20,7 @@ import type {
 import { settingStateLabels } from './state-labels';
 
 type ThemeSettingsProps = {
-  handleChange: (field: 'theme', value: THEMES) => void;
+  onChange: (field: 'theme', value: THEMES) => void;
   preferenceStates: PreferenceStateInformation;
   themeValue: THEMES;
 };
@@ -88,19 +88,19 @@ const ThemeIcon: React.FunctionComponent<{ theme: 'DARK' | 'LIGHT' }> = ({
 export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
   themeValue,
   preferenceStates,
-  handleChange,
+  onChange,
 }) => {
   const handleOSCheckboxChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      handleChange('theme', event.target.checked ? 'OS_THEME' : 'LIGHT');
+      onChange('theme', event.target.checked ? 'OS_THEME' : 'LIGHT');
     },
-    [handleChange]
+    [onChange]
   );
   const handleSelectorChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      handleChange('theme', event.target.value as THEMES);
+      onChange('theme', event.target.value as THEMES);
     },
-    [handleChange]
+    [onChange]
   );
 
   return (
@@ -167,7 +167,7 @@ const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
 });
 
 const mapDispatch = {
-  handleChange: changeFieldValue,
+  onChange: changeFieldValue,
 };
 
 export default connect(mapState, mapDispatch)(ThemeSettings);

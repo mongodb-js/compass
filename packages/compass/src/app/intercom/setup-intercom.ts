@@ -2,14 +2,9 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
 
-import preferences from 'compass-preferences-model';
+import preferences, { type User } from 'compass-preferences-model';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
-
-type User = {
-  id: string;
-  createdAt: Date;
-};
 
 export async function setupIntercom(
   user: User,

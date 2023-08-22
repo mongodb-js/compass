@@ -27,6 +27,7 @@ describe('PipelineActions', function () {
       render(
         <PipelineActions
           isOptionsVisible={true}
+          showAIEntry={false}
           showRunButton={true}
           showExportButton={true}
           showExplainButton={true}
@@ -37,6 +38,7 @@ describe('PipelineActions', function () {
           onExplainAggregation={onExplainAggregationSpy}
           onUpdateView={() => {}}
           onCollectionScanInsightActionButtonClick={() => {}}
+          onShowAIInputClick={() => {}}
         />
       );
     });
@@ -93,6 +95,7 @@ describe('PipelineActions', function () {
       render(
         <PipelineActions
           isOptionsVisible={false}
+          showAIEntry={false}
           showRunButton={true}
           showExportButton={true}
           showExplainButton={true}
@@ -103,6 +106,7 @@ describe('PipelineActions', function () {
           onExplainAggregation={() => {}}
           isAtlasDeployed={false}
           onCollectionScanInsightActionButtonClick={() => {}}
+          onShowAIInputClick={() => {}}
         />
       );
     });
@@ -130,6 +134,7 @@ describe('PipelineActions', function () {
       render(
         <PipelineActions
           isOptionsVisible={false}
+          showAIEntry={false}
           showRunButton={true}
           showExportButton={true}
           showExplainButton={true}
@@ -140,6 +145,7 @@ describe('PipelineActions', function () {
           onExplainAggregation={() => {}}
           isAtlasDeployed={true}
           onCollectionScanInsightActionButtonClick={() => {}}
+          onShowAIInputClick={() => {}}
         />
       );
     });
@@ -165,6 +171,7 @@ describe('PipelineActions', function () {
           isExportButtonDisabled={true}
           isRunButtonDisabled={true}
           isOptionsVisible={true}
+          showAIEntry={false}
           showRunButton={true}
           showExportButton={true}
           showExplainButton={true}
@@ -174,6 +181,7 @@ describe('PipelineActions', function () {
           onExplainAggregation={onExplainAggregationSpy}
           onUpdateView={() => {}}
           onCollectionScanInsightActionButtonClick={() => {}}
+          onShowAIInputClick={() => {}}
         />
       );
     });

@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ConnectionInfo } from 'mongodb-data-service';
-import { importConnections as dataServiceImportConnections } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import { promises as fs } from 'fs';
 import {
   COMMON_INITIAL_STATE,
-  makeConnectionInfoFilter,
   useImportExportConnectionsCommon,
 } from './common';
 import type {
@@ -36,7 +35,7 @@ async function loadFile(
   }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
     favoriteConnectionIds: string[];
   },
-  importConnections: typeof dataServiceImportConnections
+  deserializeConnections: typeof ConnectionStorage['deserializeConnections']
 ): Promise<Partial<ImportConnectionsState>> {
   if (!filename) {
     return INITIAL_STATE;
@@ -44,22 +43,25 @@ async function loadFile(
   try {
     const fileContents = await fs.readFile(filename, 'utf8');
     const connectionList: ConnectionImportInfo[] = [];
-    await importConnections(fileContents, {
-      passphrase,
-      saveConnections(list: ConnectionInfo[]) {
-        for (const info of list) {
-          if (info.favorite?.name) {
-            const isExistingFavorite = favoriteConnectionIds.includes(info.id);
-            connectionList.push({
-              name: info.favorite.name,
-              id: info.id,
-              selected: !isExistingFavorite,
-              isExistingFavorite,
-            });
-          }
-        }
+    const connections = await deserializeConnections({
+      content: fileContents,
+      options: {
+        passphrase,
       },
     });
+
+    for (const info of connections) {
+      if (info.favorite?.name) {
+        const isExistingFavorite = favoriteConnectionIds.includes(info.id);
+        connectionList.push({
+          name: info.favorite.name,
+          id: info.id,
+          selected: !isExistingFavorite,
+          isExistingFavorite,
+        });
+      }
+    }
+
     if (connectionList.length === 0) {
       throw new Error('File does not contain any connections');
     }
@@ -90,7 +92,12 @@ export function useImportConnections(
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
-  importConnections = dataServiceImportConnections
+  importConnections = ConnectionStorage.importConnections.bind(
+    ConnectionStorage
+  ),
+  deserializeConnections = ConnectionStorage.deserializeConnections.bind(
+    ConnectionStorage
+  )
 ): {
   onCancel: () => void;
   onSubmit: () => void;
@@ -122,12 +129,17 @@ export function useImportConnections(
   const onSubmit = useCallback(() => {
     setState((prevState) => ({ ...prevState, inProgress: true }));
     void (async () => {
-      const filter = makeConnectionInfoFilter(connectionList);
+      const filterConnectionIds = connectionList
+        .filter((x) => x.selected)
+        .map((x) => x.id);
       try {
-        await importConnections(fileContents, {
-          passphrase,
-          filter,
-          trackingProps,
+        await importConnections({
+          content: fileContents,
+          options: {
+            passphrase,
+            filterConnectionIds,
+            trackingProps,
+          },
         });
       } catch (err: any) {
         setState((prevState) => {
@@ -150,7 +162,7 @@ export function useImportConnections(
       timer = undefined;
       void loadFile(
         { filename, passphrase, favoriteConnectionIds },
-        importConnections
+        deserializeConnections
       ).then((stateUpdate) => {
         setState((prevState) => {
           if (

@@ -15,7 +15,6 @@ import toNS from 'mongodb-ns';
 import type {
   AtlasVersionInfo,
   BuildInfo,
-  CmdLineOpts,
   CollectionInfo,
   CollectionInfoNameOnly,
   ConnectionStatusWithPrivileges,
@@ -108,12 +107,12 @@ export type InstanceDetails = {
 };
 
 export async function getInstance(
-  client: MongoClient
+  client: MongoClient,
+  uri: string
 ): Promise<Omit<InstanceDetails, 'csfleMode'>> {
   const adminDb = client.db('admin');
   const [
     connectionStatus,
-    getCmdLineOptsResult,
     hostInfoResult,
     buildInfoResult,
     getParameterResult,
@@ -122,16 +121,6 @@ export async function getInstance(
     runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
       ignoreNotAuthorized(null)
     ),
-
-    runCommand(adminDb, { getCmdLineOpts: 1 }).catch((err) => {
-      /**
-       * This is something that mongodb-build-info uses to detect some
-       * "non-genuine" mongodb instances like cosmosdb or documentdb
-       *
-       * @see https://github.com/mongodb-js/mongodb-build-info/blob/a8b4c22b46e271dfcb0a620d19afc5a7c7df3d8f/index.js#L64-L70
-       */
-      return { errmsg: err.message };
-    }),
     runCommand(adminDb, { hostInfo: 1 }).catch(ignoreNotAuthorized({})),
     // This command should always pass, if it throws, somethings is really off.
     // This is why it's the only one where we are not ignoring any types of
@@ -154,10 +143,7 @@ export async function getInstance(
     auth: adaptAuthInfo(connectionStatus),
     build: adaptBuildInfo(buildInfoResult),
     host: adaptHostInfo(hostInfoResult),
-    genuineMongoDB: buildGenuineMongoDBInfo(
-      buildInfoResult,
-      getCmdLineOptsResult
-    ),
+    genuineMongoDB: buildGenuineMongoDBInfo(uri),
     dataLake: buildDataLakeInfo(buildInfoResult),
     featureCompatibilityVersion:
       getParameterResult?.featureCompatibilityVersion.version ?? null,
@@ -195,11 +181,8 @@ export function configuredKMSProviders(
     .map(([kmsProviderName]) => kmsProviderName as any);
 }
 
-function buildGenuineMongoDBInfo(
-  buildInfo: Partial<BuildInfo>,
-  cmdLineOpts: Partial<CmdLineOpts & { errmsg: string }>
-): GenuineMongoDBDetails {
-  const { isGenuine, serverName } = getGenuineMongoDB(buildInfo, cmdLineOpts);
+function buildGenuineMongoDBInfo(uri: string): GenuineMongoDBDetails {
+  const { isGenuine, serverName } = getGenuineMongoDB(uri);
 
   return {
     isGenuine,

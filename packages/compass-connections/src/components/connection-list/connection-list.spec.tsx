@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { ConnectionInfo } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 import ConnectionList from './connection-list';
 

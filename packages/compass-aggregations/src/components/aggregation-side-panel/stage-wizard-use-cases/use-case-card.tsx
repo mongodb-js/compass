@@ -39,13 +39,10 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
   ref: React.ForwardedRef<HTMLDivElement>
 ) {
   return (
-    <KeylineCard
-      ref={ref}
-      data-testid={`use-case-${id}`}
-      className={cardStyles}
-      {...props}
-    >
-      <Body className={cardTitleStyles}>{title}</Body>
+    <KeylineCard ref={ref} className={cardStyles} {...props}>
+      <Body data-testid={`use-case-${id}`} className={cardTitleStyles}>
+        {title}
+      </Body>
       <Link
         target="_blank"
         onClick={(e) => e.stopPropagation()}

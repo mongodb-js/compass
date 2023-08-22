@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
-import { getConnectionTitle } from 'mongodb-data-service';
-import type { ConnectionInfo } from 'mongodb-data-service';
+import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import {
   css,

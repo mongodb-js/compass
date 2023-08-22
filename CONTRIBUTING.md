@@ -138,6 +138,6 @@ The root cause is native modules compiled for a different version of the runtime
 1. Modules have to be recompiled for the runtime they will be used in
 1. Due to npm workspaces hoisting all shared dependencies to the very root of the monorepo, all packages use the same modules imported from the same location
 
-This means that if you e.g., start Compass application locally it will recompile all native modules to work in Electron runtime, if you would try to run tests for `mongodb-connection-model` library right after that, tests would fail due to `keytar` library not being compatible with Node.js environment that the tests are running in.
+This means that if you e.g., start Compass application locally it will recompile all native modules to work in Electron runtime, if you would try to run tests for `@mongodb-js/connection-storage` library right after that, tests would fail due to `keytar` library not being compatible with Node.js environment that the tests are running in.
 
 If you run into this issue, make sure that native modules are rebuilt for whatever runtime you are planning to use at the moment. To help with that we provide two npm scripts: `npm run electron-rebuild` will recompile native modules to work with Electron and `npm run node-rebuild` will recompile them to work with Node.js.

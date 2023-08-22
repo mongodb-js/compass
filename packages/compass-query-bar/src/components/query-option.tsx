@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import type { Signal } from '@mongodb-js/compass-components';
 import {
   Label,
@@ -10,13 +10,14 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
 import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -118,6 +119,9 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   insights,
 }) => {
   const darkMode = useDarkMode();
+  const editorInitialValueRef = useRef<string | undefined>(value);
+  const editorCurrentValueRef = useRef<string | undefined>(value);
+  editorCurrentValueRef.current = value;
 
   const optionDefinition = OPTION_DEFINITION[name];
   const isDocumentEditor = optionDefinition.type === 'document';
@@ -131,6 +135,17 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     },
     [name, onChange]
   );
+
+  const onBlurEditor = useCallback(() => {
+    if (
+      !!editorCurrentValueRef.current &&
+      editorCurrentValueRef.current !== editorInitialValueRef.current &&
+      (editorInitialValueRef.current || editorCurrentValueRef.current !== '{}')
+    ) {
+      track('Query Edited', { option_name: name });
+      editorInitialValueRef.current = editorCurrentValueRef.current;
+    }
+  }, [name, editorInitialValueRef]);
 
   return (
     <div
@@ -168,11 +183,13 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             hasError={hasError}
             id={id}
             onChange={onValueChange}
+            onBlur={onBlurEditor}
             placeholder={placeholder}
             value={value}
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
             insights={insights}
+            hasAutofix={name === 'filter'}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>
@@ -194,6 +211,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                 onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
                   onValueChange(evt.currentTarget.value)
                 }
+                onBlur={onBlurEditor}
                 placeholder={placeholder as string}
                 {...props}
               />

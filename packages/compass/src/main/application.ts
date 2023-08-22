@@ -10,13 +10,16 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
-import { setupPreferencesAndUserModel } from './setup-preferences-and-user-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
-import preferences from 'compass-preferences-model';
+import preferences, {
+  setupPreferencesAndUser,
+} from 'compass-preferences-model';
+import { AtlasService } from '@mongodb-js/atlas-service/main';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
+import { ConnectionStorage } from '@mongodb-js/connection-storage/main';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
@@ -66,11 +69,9 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    this.setupUserDirectory();
-    // need to happen after setupUserDirectory
-    await setupPreferencesAndUserModel(globalPreferences);
+    await setupPreferencesAndUser(globalPreferences);
     await this.setupLogging();
-    // need to happen after setupPreferencesAndUserModel
+    // need to happen after setupPreferencesAndUser
     await this.setupTelemetry();
     await setupProtocolHandlers(
       process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install'
@@ -82,11 +83,15 @@ class CompassApplication {
       return;
     }
 
+    // ConnectionStorage offers import/export which is used via CLI as well.
+    ConnectionStorage.init();
+
     if (mode === 'CLI') {
       return;
     }
 
-    await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
+    void this.setupAtlasService();
+    this.setupAutoUpdate();
     await setupCSFLELibrary();
     setupTheme();
     this.setupJavaScriptArguments();
@@ -103,10 +108,11 @@ class CompassApplication {
     return (this.initPromise ??= this._init(mode, globalPreferences));
   }
 
-  private static async setupSecureStore(): Promise<void> {
-    // importing storage-mixin attaches secure-store ipc listeners to handle
-    // keychain requests from the renderer processes
-    await import('storage-mixin');
+  private static async setupAtlasService() {
+    await AtlasService.init();
+    this.addExitHandler(() => {
+      return AtlasService.onExit();
+    });
   }
 
   private static setupJavaScriptArguments(): void {
@@ -139,14 +145,25 @@ class CompassApplication {
     } = preferences.getPreferences();
 
     debug('application launched');
-    track('Application Launched', {
-      context: getContext(),
-      launch_connection: getLaunchConnectionSource(file, positionalArguments),
-      protected: protectConnectionStrings,
-      readOnly,
-      maxTimeMS,
-      global_config: hasConfig('global', globalPreferences),
-      cli_args: hasConfig('cli', globalPreferences),
+    track('Application Launched', async () => {
+      let hasLegacyConnections: boolean;
+      try {
+        hasLegacyConnections =
+          (await ConnectionStorage.getLegacyConnections()).length > 0;
+      } catch (e) {
+        debug('Failed to check legacy connections', e);
+        hasLegacyConnections = false;
+      }
+      return {
+        context: getContext(),
+        launch_connection: getLaunchConnectionSource(file, positionalArguments),
+        protected: protectConnectionStrings,
+        readOnly,
+        maxTimeMS,
+        global_config: hasConfig('global', globalPreferences),
+        cli_args: hasConfig('cli', globalPreferences),
+        legacy_connections: hasLegacyConnections,
+      };
     });
   }
 
@@ -176,22 +193,6 @@ class CompassApplication {
     ipcMain.handle('compass:appName', () => {
       return app.getName();
     });
-  }
-
-  private static setupUserDirectory(): void {
-    if (process.env.NODE_ENV === 'development') {
-      const appName = app.getName();
-      // When NODE_ENV is dev, we are probably running the app unpackaged
-      // directly with Electron binary which causes user dirs to be just
-      // `Electron` instead of app name that we want here
-      app.setPath('userData', path.join(app.getPath('appData'), appName));
-
-      // @ts-expect-error this seems to work but not exposed as public path and
-      // so is not available in d.ts files. As this is a dev-only path and
-      // seemingly nothing is using this path anyway, we probably can ignore an
-      // error here
-      app.setPath('userCache', path.join(app.getPath('cache'), appName));
-    }
   }
 
   private static async setupLogging(): Promise<void> {

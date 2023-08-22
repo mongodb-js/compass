@@ -1,11 +1,10 @@
 import React from 'react';
+import type { DataService, connect } from 'mongodb-data-service';
 import type {
   ConnectionInfo,
-  DataService,
   ConnectionStorage,
-  connect,
-} from 'mongodb-data-service';
-import { getConnectionTitle } from 'mongodb-data-service';
+} from '@mongodb-js/connection-storage/renderer';
+import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { cloneDeep, merge } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -219,7 +218,7 @@ async function loadConnections(
     type: 'set-connections';
     connections: ConnectionInfo[];
   }>,
-  connectionStorage: ConnectionStorage
+  connectionStorage: typeof ConnectionStorage
 ) {
   try {
     const loadedConnections = await connectionStorage.loadAll();
@@ -241,8 +240,8 @@ async function loadConnections(
     });
 
     await Promise.all(
-      toBeReSaved.map(async (connection) => {
-        await connectionStorage.save(connection);
+      toBeReSaved.map(async (connectionInfo) => {
+        await connectionStorage.save({ connectionInfo });
       })
     );
   } catch (error) {
@@ -250,7 +249,6 @@ async function loadConnections(
   }
 }
 
-const MAX_RECENT_CONNECTIONS_LENGTH = 10;
 export function useConnections({
   onConnected,
   isConnected,
@@ -264,7 +262,7 @@ export function useConnections({
     dataService: DataService
   ) => void;
   isConnected: boolean;
-  connectionStorage: ConnectionStorage;
+  connectionStorage: typeof ConnectionStorage;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn: ConnectFn;
   appName: string;
@@ -321,7 +319,7 @@ export function useConnections({
       ensureWellFormedConnectionString(
         connectionInfo?.connectionOptions?.connectionString
       );
-      await connectionStorage.save(connectionInfo);
+      await connectionStorage.save({ connectionInfo });
       debug(`saved connection with id ${connectionInfo.id || ''}`);
 
       return true;
@@ -345,7 +343,9 @@ export function useConnections({
   }
 
   async function removeConnection(connectionInfo: ConnectionInfo) {
-    await connectionStorage.delete(connectionInfo);
+    await connectionStorage.delete({
+      id: connectionInfo.id,
+    });
     dispatch({
       type: 'set-connections',
       connections: connections.filter((conn) => conn.id !== connectionInfo.id),
@@ -385,7 +385,8 @@ export function useConnections({
         // if a connection has been saved already we only want to update the lastUsed
         // attribute, otherwise we are going to save the entire connection info.
         const connectionInfoToBeSaved =
-          (await connectionStorage.load(connectionInfo.id)) ?? connectionInfo;
+          (await connectionStorage.load({ id: connectionInfo.id })) ??
+          connectionInfo;
 
         await saveConnectionInfo({
           ...merge(connectionInfoToBeSaved, mergeConnectionInfo),
@@ -408,9 +409,9 @@ export function useConnections({
                 id: connectionInfo.id,
                 mergeConnectionInfo,
               });
-              const currentSavedInfo = await connectionStorage.load(
-                connectionInfo.id
-              );
+              const currentSavedInfo = await connectionStorage.load({
+                id: connectionInfo.id,
+              });
               if (!currentSavedInfo) return;
               await saveConnectionInfo(
                 merge(currentSavedInfo, mergeConnectionInfo)
@@ -425,22 +426,6 @@ export function useConnections({
             }
           })();
         });
-
-        // Remove the oldest recent connection if are adding a new one and
-        // there are already MAX_RECENT_CONNECTIONS_LENGTH recents.
-        // NOTE: there are edge cases that may lead to more than
-        // MAX_RECENT_CONNECTIONS_LENGTH to be saved (ie. concurrent run
-        // of Compass), however we accept it as long as the list of
-        // recent connections won't grow indefinitely.
-        if (
-          !connectionInfoToBeSaved.favorite &&
-          !connectionInfoToBeSaved.lastUsed &&
-          recentConnections.length >= MAX_RECENT_CONNECTIONS_LENGTH
-        ) {
-          await connectionStorage.delete(
-            recentConnections[recentConnections.length - 1]
-          );
-        }
       } catch (err) {
         debug(
           `error occurred connection with id ${connectionInfo.id || ''}: ${
@@ -701,7 +686,7 @@ export function useConnections({
         return !conn.favorite;
       });
       await Promise.all(
-        recentConnections.map((conn) => connectionStorage.delete(conn))
+        recentConnections.map(({ id }) => connectionStorage.delete({ id }))
       );
       dispatch({
         type: 'set-connections',

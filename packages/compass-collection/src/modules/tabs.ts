@@ -4,6 +4,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type { Document } from 'mongodb';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
+import preferences from 'compass-preferences-model';
 
 import createContext from '../stores/context';
 import type { ContextProps } from '../stores/context';
@@ -336,12 +337,19 @@ const doSelectTab = (state: State, action: AnyAction) => {
  */
 const doChangeActiveSubTab = (state: State, action: AnyAction) => {
   return state.map((tab: WorkspaceTabObject) => {
+    const { newExplainPlan } = preferences.getPreferences();
+
+    const explainPlanTabId = tab.tabs.indexOf('Explain Plan');
+    const tabs = tab.tabs.filter((_, id) => {
+      return !newExplainPlan || id !== explainPlanTabId;
+    });
     const subTab =
       action.id === tab.id ? action.activeSubTab : tab.activeSubTab;
+
     return {
       ...tab,
       activeSubTab: subTab,
-      activeSubTabName: tab.tabs[subTab],
+      activeSubTabName: tabs[subTab],
     };
   });
 };
