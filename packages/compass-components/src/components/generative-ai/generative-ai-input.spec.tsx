@@ -106,7 +106,7 @@ describe('GenerativeAIInput Component', function () {
         expect(textArea).to.be.visible;
         userEvent.type(textArea, 'this is the query I was looking for');
 
-        await waitFor(() => userEvent.click(screen.getByText('Submit')));
+        await waitFor(() => screen.getByText('Submit').click());
 
         // No feedback popover is shown.
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
