@@ -7,10 +7,12 @@ import {
   palette,
   spacing,
   SignalPopover,
+  rafraf,
 } from '@mongodb-js/compass-components';
 import type {
   Command,
   CompletionWithServerInfo,
+  EditorRef,
 } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
@@ -18,11 +20,12 @@ import {
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
 import { usePreference } from 'compass-preferences-model';
-
+import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 
-const editorStyles = css({
+const editorContainerStyles = css({
   position: 'relative',
+  display: 'flex',
   width: '100%',
   minWidth: spacing[7],
   // To match codemirror editor with leafygreen inputs.
@@ -53,19 +56,36 @@ const editorWithErrorStyles = css({
 });
 
 const queryBarEditorOptionInsightsStyles = css({
-  position: 'absolute',
-  // Horizontally the insight is in the middle of the first line of the editor:
-  // (input height - insight badge height) / 2 to get the empty space + 1px
-  // because top indicates where element starts, not where padding ends
-  top: `calc((${spacing[4]}px - 18px) / 2 + 1px)`,
-  right: spacing[1],
+  alignSelf: 'flex-start',
+  // To align the icon in the middle of the first line of the editor input
+  // (<input height> - <insight badge height>) / 2
+  paddingTop: 3,
+  paddingBottom: 3,
+  paddingLeft: 3,
+  paddingRight: 3,
+
+  // We make container the size of the collapsed insight to avoid additional
+  // shrinking of the editor content when hoveing over the icon. In this case
+  // it's okay for the content to be hidden by the expanded badge as user is
+  // interacting with the badge
+  width: spacing[4],
+  height: spacing[4],
+  overflow: 'visible',
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
+const insightsBadgeStyles = css({
+  flex: 'none',
 });
 
 type OptionEditorProps = {
   hasError: boolean;
   id: string;
+  hasAutofix?: boolean;
   onChange: (value: string) => void;
   onApply?(): void;
+  onBlur?(): void;
   placeholder?: string | HTMLElement;
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
@@ -77,8 +97,10 @@ type OptionEditorProps = {
 const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   hasError,
   id,
+  hasAutofix,
   onChange,
   onApply,
+  onBlur,
   placeholder,
   schemaFields = [],
   serverVersion = '3.6.0',
@@ -87,8 +109,8 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   insights,
 }) => {
   const showInsights = usePreference('showInsights', React);
-
   const editorContainerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<EditorRef>(null);
 
   const focusRingProps = useFocusRing({
     outer: true,
@@ -127,16 +149,38 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     });
   }, [schemaFields, serverVersion]);
 
+  const onFocus = () => {
+    if (hasAutofix && editorRef.current) {
+      if (editorRef.current.editorContents === '') {
+        rafraf(() => {
+          editorRef.current?.applySnippet('\\{${}}');
+        });
+      }
+    }
+  };
+
+  const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+    if (hasAutofix && editorRef.current) {
+      const editorContents = editorRef.current.editorContents;
+      const snippet = lenientlyFixQuery(editorContents || '');
+      if (snippet) {
+        editorRef.current.applySnippet(snippet);
+        event.preventDefault();
+      }
+    }
+  };
+
   return (
     <div
       className={cx(
-        editorStyles,
+        editorContainerStyles,
         focusRingProps.className,
         hasError && editorWithErrorStyles
       )}
       ref={editorContainerRef}
     >
       <InlineEditor
+        ref={editorRef}
         id={id}
         text={value}
         onChangeText={onChange}
@@ -144,10 +188,16 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         completer={completer}
         commands={commands}
         data-testid={dataTestId}
+        onFocus={onFocus}
+        onPaste={onPaste}
+        onBlur={onBlur}
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>
-          <SignalPopover signals={insights}></SignalPopover>
+          <SignalPopover
+            className={insightsBadgeStyles}
+            signals={insights}
+          ></SignalPopover>
         </div>
       )}
     </div>

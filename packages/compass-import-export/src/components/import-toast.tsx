@@ -89,7 +89,7 @@ const reviewDocumentsCTAStyles = css({
 export function showBloatedDocumentSignalToast({
   onReviewDocumentsClick,
 }: {
-  onReviewDocumentsClick: () => void;
+  onReviewDocumentsClick?: () => void;
 }) {
   openToast(bloatedDocumentSignalToastId, {
     title: 'Possibly bloated documents',
@@ -98,14 +98,49 @@ export function showBloatedDocumentSignalToast({
         <Body as="span">
           The imported documents might exceed a reasonable size for performance.
         </Body>
-        <br />
-        <Body
-          as="strong"
-          onClick={onReviewDocumentsClick}
-          className={reviewDocumentsCTAStyles}
-        >
-          Review Documents
+        {onReviewDocumentsClick && (
+          <>
+            <br />
+            <Body
+              as="strong"
+              onClick={onReviewDocumentsClick}
+              className={reviewDocumentsCTAStyles}
+            >
+              Review Documents
+            </Body>
+          </>
+        )}
+      </>
+    ),
+    variant: 'note',
+  });
+}
+
+export function showUnboundArraySignalToast({
+  onReviewDocumentsClick,
+}: {
+  onReviewDocumentsClick?: () => void;
+}) {
+  openToast(bloatedDocumentSignalToastId, {
+    title: 'Large array detected',
+    description: (
+      <>
+        <Body as="span">
+          Some of the imported documents contained unbounded arrays that may
+          degrade efficiency
         </Body>
+        {onReviewDocumentsClick && (
+          <>
+            <br />
+            <Body
+              as="strong"
+              onClick={onReviewDocumentsClick}
+              className={reviewDocumentsCTAStyles}
+            >
+              Review Documents
+            </Body>
+          </>
+        )}
       </>
     ),
     variant: 'note',

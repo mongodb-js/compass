@@ -11,6 +11,7 @@ import {
   spacing,
   WarningSummary,
   ErrorSummary,
+  PerformanceSignals,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -184,19 +185,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             insights={
               isCollectionScan
                 ? {
-                    id: 'query-executed-without-index',
-                    title: 'Query executed without index',
-                    description: (
-                      <>
-                        This query ran without an index. If you plan on using
-                        this query <strong>heavily</strong> in your application,
-                        you should create an index that covers this query.
-                      </>
-                    ),
-                    learnMoreLink:
-                      'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
-                    primaryActionButtonLabel: 'Create index',
-                    primaryActionButtonIcon: 'Plus',
+                    ...PerformanceSignals.get('query-executed-without-index'),
                     onPrimaryActionButtonClick:
                       onCollectionScanInsightActionButtonClick,
                   }

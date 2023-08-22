@@ -12,6 +12,7 @@ export type ImportResult = {
   docsWritten: number;
   docsProcessed: number;
   biggestDocSize: number;
+  hasUnboundArray: boolean;
 };
 
 export type ErrorJSON = {

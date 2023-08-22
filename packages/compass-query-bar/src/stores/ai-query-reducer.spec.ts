@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { ObjectId } from 'mongodb';
 import { promises as fs } from 'fs';
 import os from 'os';
+import Sinon from 'sinon';
 
 import configureStore from './query-bar-store';
 import type { QueryBarStoreOptions } from './query-bar-store';
@@ -10,33 +10,14 @@ import {
   cancelAIQuery,
   runAIQuery,
 } from './ai-query-reducer';
-import {
-  startMockAIServer,
-  TEST_AUTH_USERNAME,
-  TEST_AUTH_PASSWORD,
-} from '../../test/create-mock-ai-endpoint';
-
-function _createStore(opts: Partial<QueryBarStoreOptions>) {
-  return configureStore({
-    dataProvider: {
-      dataProvider: {
-        getConnectionString: () =>
-          ({
-            hosts: [],
-          } as any),
-        sample: () =>
-          Promise.resolve([
-            {
-              _id: new ObjectId(),
-            },
-          ]),
-      },
-    },
-    ...opts,
-  });
-}
 
 describe('aiQueryReducer', function () {
+  const sandbox = Sinon.createSandbox();
+
+  afterEach(function () {
+    sandbox.reset();
+  });
+
   let tmpDir: string;
 
   before(async function () {
@@ -44,120 +25,53 @@ describe('aiQueryReducer', function () {
   });
 
   function createStore(opts: Partial<QueryBarStoreOptions> = {}) {
-    return _createStore({
+    return configureStore({
       basepath: tmpDir,
       ...opts,
     });
   }
 
   describe('runAIQuery', function () {
-    describe('with a successful server response (mock server)', function () {
-      let stopServer: () => Promise<void>;
-      let getRequests: () => any[];
-
-      beforeEach(async function () {
-        // Start a mock server to pass an ai response.
-        // Set the server endpoint in the env.
-        const {
-          endpoint,
-          getRequests: _getRequests,
-          stop,
-        } = await startMockAIServer();
-
-        stopServer = stop;
-        getRequests = _getRequests;
-        process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
-        process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
-        process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
-      });
-
-      afterEach(async function () {
-        await stopServer();
-        delete process.env.DEV_AI_QUERY_ENDPOINT;
-        delete process.env.DEV_AI_USERNAME;
-        delete process.env.DEV_AI_PASSWORD;
-      });
-
+    describe('with a successful server response', function () {
       it('should succeed', async function () {
-        const sampleDocs = [
-          {
-            _id: new ObjectId(),
-            a: {
-              b: 3,
-            },
-          },
-          {
-            _id: new ObjectId(),
-            a: {
-              b: 'a',
-            },
-            c: 'pineapple',
-          },
-        ];
-        const resultSchema = {
-          _id: {
-            types: [
-              {
-                bsonType: 'ObjectId',
-              },
-            ],
-          },
-          a: {
-            types: [
-              {
-                bsonType: 'Document',
-                fields: {
-                  b: {
-                    types: [
-                      {
-                        bsonType: 'Number',
-                      },
-                      {
-                        bsonType: 'String',
-                      },
-                    ],
-                  },
-                },
-              },
-            ],
-          },
-          c: {
-            types: [
-              {
-                bsonType: 'String',
-              },
-            ],
-          },
+        const mockAtlasService = {
+          getQueryFromUserInput: sandbox
+            .stub()
+            .resolves({ content: { query: { _id: 1 } } }),
         };
+
+        const mockDataService = {
+          sample: sandbox.stub().resolves([{ _id: 42 }]),
+          getConnectionString: sandbox.stub().returns({ hosts: [] }),
+        };
+
         const store = createStore({
           namespace: 'database.collection',
           dataProvider: {
-            dataProvider: {
-              getConnectionString: () =>
-                ({
-                  hosts: [],
-                } as any),
-              sample: () => Promise.resolve(sampleDocs),
-            },
+            dataProvider: mockDataService as any,
           },
+          atlasService: mockAtlasService as any,
         });
-        let didSetFetchId = false;
-        store.subscribe(() => {
-          if (store.getState().aiQuery.aiQueryFetchId !== -1) {
-            didSetFetchId = true;
-          }
-        });
+
         expect(store.getState().aiQuery.status).to.equal('ready');
+
         await store.dispatch(runAIQuery('testing prompt'));
 
-        expect(didSetFetchId).to.equal(true);
-        expect(getRequests()[0].content).to.deep.equal({
-          userPrompt: 'testing prompt',
-          schema: resultSchema,
-          // Parse stringify to make _ids stringified for deep check.
-          sampleDocuments: JSON.parse(JSON.stringify(sampleDocs)),
-          collectionName: 'collection',
-        });
+        expect(mockAtlasService.getQueryFromUserInput).to.have.been.calledOnce;
+        expect(
+          mockAtlasService.getQueryFromUserInput.getCall(0)
+        ).to.have.nested.property('args[0].userInput', 'testing prompt');
+        expect(
+          mockAtlasService.getQueryFromUserInput.getCall(0)
+        ).to.have.nested.property('args[0].collectionName', 'collection');
+        expect(
+          mockAtlasService.getQueryFromUserInput.getCall(0)
+        ).to.have.nested.property('args[0].databaseName', 'database');
+        // Sample documents are currently disabled.
+        expect(
+          mockAtlasService.getQueryFromUserInput.getCall(0)
+        ).to.not.have.nested.property('args[0].sampleDocuments');
+
         expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         expect(store.getState().aiQuery.status).to.equal('success');
@@ -165,44 +79,44 @@ describe('aiQueryReducer', function () {
     });
 
     describe('when there is an error', function () {
-      let stopServer: () => Promise<void>;
-
-      beforeEach(async function () {
-        const { endpoint, stop } = await startMockAIServer({
-          response: {
-            status: 500,
-            body: 'test',
-          },
-        });
-
-        stopServer = stop;
-        process.env.DEV_AI_QUERY_ENDPOINT = endpoint;
-        process.env.DEV_AI_USERNAME = TEST_AUTH_USERNAME;
-        process.env.DEV_AI_PASSWORD = TEST_AUTH_PASSWORD;
-      });
-
-      afterEach(async function () {
-        await stopServer();
-        delete process.env.DEV_AI_QUERY_ENDPOINT;
-        delete process.env.DEV_AI_USERNAME;
-        delete process.env.DEV_AI_PASSWORD;
-      });
-
       it('sets the error on the store', async function () {
-        const store = createStore();
+        const mockAtlasService = {
+          getQueryFromUserInput: sandbox
+            .stub()
+            .rejects(new Error('500 Internal Server Error')),
+        };
+
+        const store = createStore({ atlasService: mockAtlasService as any });
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
         expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
         expect(store.getState().aiQuery.errorMessage).to.equal(
-          'Error: 500 Internal Server Error'
+          '500 Internal Server Error'
         );
         expect(store.getState().aiQuery.status).to.equal('ready');
+      });
+
+      it('resets the store if errs was caused by user being unauthorized', async function () {
+        const authError = new Error('Unauthorized');
+        (authError as any).statusCode = 401;
+        const mockAtlasService = {
+          getQueryFromUserInput: sandbox.stub().rejects(authError),
+        };
+        const store = createStore({ atlasService: mockAtlasService as any });
+        await store.dispatch(runAIQuery('testing prompt') as any);
+        expect(store.getState()).to.have.property('aiQuery').deep.eq({
+          status: 'ready',
+          aiPromptText: '',
+          errorMessage: undefined,
+          isInputVisible: false,
+          aiQueryFetchId: -1,
+        });
       });
     });
   });
 
   describe('cancelAIQuery', function () {
-    it('should unset the fetching id on the store', function () {
+    it('should unset the fetching id and set the status on the store', function () {
       const store = createStore();
       expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
 
@@ -211,9 +125,13 @@ describe('aiQueryReducer', function () {
         fetchId: 1,
       });
 
+      expect(store.getState().aiQuery.status).to.equal('fetching');
       expect(store.getState().aiQuery.aiQueryFetchId).to.equal(1);
+
       store.dispatch(cancelAIQuery());
+
       expect(store.getState().aiQuery.aiQueryFetchId).to.equal(-1);
+      expect(store.getState().aiQuery.status).to.equal('ready');
     });
   });
 });

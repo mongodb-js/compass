@@ -9,6 +9,7 @@ import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
 import Joi from 'joi';
+import { pick } from 'lodash';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
@@ -284,6 +285,8 @@ const storedUserPreferencesProps: Required<{
     },
     validator: Joi.string<THEMES>()
       .valid(...THEMES_VALUES)
+      .uppercase() // allow lowercase and convert it to uppercase
+      .empty('') // allow empty string and its defaulted to LIGHT
       .default('LIGHT'),
   },
   /**
@@ -638,7 +641,7 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a List of Connections for Automatically Connecting',
     },
-    validator: Joi.string().optional(),
+    validator: Joi.string().optional().allow(''),
   },
   username: {
     ui: false,
@@ -647,7 +650,7 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a Username for Automatically Connecting',
     },
-    validator: Joi.string().optional(),
+    validator: Joi.string().optional().allow(''),
   },
   password: {
     ui: false,
@@ -656,7 +659,7 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a Password for Automatically Connecting',
     },
-    validator: Joi.string().optional(),
+    validator: Joi.string().optional().allow(''),
   },
 };
 
@@ -854,7 +857,12 @@ export class Preferences {
   }
 
   private _getUserPreferenceValues(): UserPreferences {
-    return this._preferencesStorage.getPreferences();
+    const storePreferences = this._preferencesStorage.getPreferences();
+    // Exclude old and renamed preferences or any unknown property
+    return pick(
+      storePreferences,
+      Object.keys(storedUserPreferencesProps)
+    ) as UserPreferences;
   }
 
   private _getStoredValues(): AllPreferences {

@@ -14,7 +14,7 @@ const ROLE = {
  **/
 function activate(appRegistry: AppRegistry): void {
   // Register the CompassFindInPagePlugin as a role in Compass
-  appRegistry.registerRole('Find', ROLE);
+  appRegistry.registerRole('Global.Modal', ROLE);
   appRegistry.registerStore('FindInPage.Store', CompassFindInPageStore);
 }
 
@@ -23,7 +23,7 @@ function activate(appRegistry: AppRegistry): void {
  * @param {Object} appRegistry - The Hadron appRegistry to deactivate this plugin with.
  **/
 function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Find', ROLE);
+  appRegistry.deregisterRole('Global.Modal', ROLE);
   appRegistry.deregisterStore('FindInPage.Store');
 }
 

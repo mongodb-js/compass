@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import type { DataService } from 'mongodb-data-service';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import { PipelineBuilder } from './pipeline-builder';
 import {
   changeStageOperator,
@@ -109,6 +110,7 @@ function createStore({
     },
     applyMiddleware(
       thunk.withExtraArgument({
+        atlasService: new AtlasService(),
         pipelineBuilder,
         pipelineStorage: new PipelineStorage(),
       })

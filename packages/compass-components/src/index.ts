@@ -50,6 +50,11 @@ import {
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
+export {
+  AIExperienceEntry,
+  GenerativeAIInput,
+  createAIPlaceholderHTMLPlaceholder,
+} from './components/generative-ai';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';
 export {
@@ -135,6 +140,7 @@ export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { EmptyContent } from './components/empty-content';
 export { ErrorBoundary } from './components/error-boundary';
+export { FeedbackPopover } from './components/feedback-popover';
 export { StoreConnector } from './components/store-connector';
 export { TabNavBar } from './components/tab-nav-bar';
 export { WorkspaceContainer } from './components/workspace-container';
@@ -174,3 +180,4 @@ export { ComboboxWithCustomOption } from './components/combobox-with-custom-opti
 export { usePersistedState } from './hooks/use-persisted-state';
 export { GuideCue, GuideCueProvider } from './components/guide-cue/guide-cue';
 export type { Cue, GroupCue } from './components/guide-cue/guide-cue';
+export { PerformanceSignals } from './components/signals';

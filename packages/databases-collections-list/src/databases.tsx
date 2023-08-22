@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { spacing } from '@mongodb-js/compass-components';
+import { PerformanceSignals, spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
@@ -80,14 +80,7 @@ const DatabasesList: React.FunctionComponent<{
                 value: compactNumber(db.collectionsLength),
                 insights:
                   db.collectionsLength >= 10_000
-                    ? {
-                        id: 'too-many-collections',
-                        title: 'Databases with too many collections',
-                        description:
-                          "An excessive number of collections and their associated indexes can drain resources and impact your database's performance. In general, try to limit your replica set to 10,000 collections.",
-                        learnMoreLink:
-                          'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#large-number-of-collections',
-                      }
+                    ? PerformanceSignals.get('too-many-collections')
                     : undefined,
               },
               {

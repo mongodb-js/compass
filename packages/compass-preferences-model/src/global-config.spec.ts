@@ -130,7 +130,7 @@ forceConnectionOptions:
       globalConfigPaths: [],
       argv: ['--enable-maps=true', '--theme'],
     });
-    expect(result.cli).to.deep.equal({ enableMaps: true });
+    expect(result.cli).to.deep.equal({ enableMaps: true, theme: 'LIGHT' });
   });
 
   it('knows the expected types of cli options when followed by an extra positional argument', async function () {
@@ -225,5 +225,29 @@ forceConnectionOptions:
     expect(helpText).to.include(
       'See the MongoDB Compass documentation for more details.'
     );
+  });
+
+  it('allows empty theme option and defaults to LIGHT', async function () {
+    const result = await parseAndValidateGlobalPreferences({
+      globalConfigPaths: [],
+      argv: ['--theme='],
+    });
+    expect(result.cli).to.deep.equal({ theme: 'LIGHT' });
+  });
+
+  it('allows lowercase theme value', async function () {
+    const result = await parseAndValidateGlobalPreferences({
+      globalConfigPaths: [],
+      argv: ['--theme=dark'],
+    });
+    expect(result.cli).to.deep.equal({ theme: 'DARK' });
+  });
+
+  it('allows empty optional string value', async function () {
+    const result = await parseAndValidateGlobalPreferences({
+      globalConfigPaths: [],
+      argv: ['--username', '--password'],
+    });
+    expect(result.cli).to.deep.equal({ username: '', password: '' });
   });
 });

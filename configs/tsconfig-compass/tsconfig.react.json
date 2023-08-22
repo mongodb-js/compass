@@ -1,7 +1,3 @@
 {
-  "extends": "./tsconfig.common.json",
-  "compilerOptions": {
-    // "exactOptionalPropertyTypes": true,
-    "jsx": "react"
-  }
+  "extends": "@mongodb-js/tsconfig-devtools/tsconfig.react.json"
 }

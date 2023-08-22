@@ -15,9 +15,8 @@ export type {
   AllPreferences,
   Preferences,
 };
-import { setupPreferences, preferencesMain } from './setup-preferences';
+import { preferencesMain, setupPreferences } from './setup-preferences';
 import { preferencesIpc } from './renderer-ipc';
-export { setupPreferences };
 export {
   parseAndValidateGlobalPreferences,
   getHelpText,
@@ -25,7 +24,12 @@ export {
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
 export { usePreference, withPreferences } from './react';
-export { capMaxTimeMSAtPreferenceLimit } from './utils';
+export {
+  capMaxTimeMSAtPreferenceLimit,
+  setupPreferencesAndUser,
+  getActiveUser,
+} from './utils';
+export type { User } from './storage';
 
 export interface PreferencesAccess {
   savePreferences(
@@ -42,7 +46,7 @@ export interface PreferencesAccess {
   ): () => void;
   createSandbox(): Promise<PreferencesAccess>;
 }
-
+export { setupPreferences };
 export const preferencesAccess: PreferencesAccess =
   preferencesIpc ?? preferencesMain;
 export default preferencesAccess;

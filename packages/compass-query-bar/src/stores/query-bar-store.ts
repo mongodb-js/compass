@@ -8,7 +8,6 @@ import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
-
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { BaseQuery } from '../constants/query-properties';
 import { mapFormFieldsToQuery, mapQueryToFormFields } from '../utils/query';
@@ -26,13 +25,10 @@ import {
   getQueryAttributes,
 } from '../utils';
 import { getStoragePaths } from '@mongodb-js/compass-utils';
-const { basepath } = getStoragePaths() || {};
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 
 // Partial of DataService that mms shares with Compass.
-type DataProvider = {
-  getConnectionString: DataService['getConnectionString'];
-  sample: DataService['sample'];
-};
+type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
 
 export type QueryBarStoreOptions = {
   serverVersion: string;
@@ -41,11 +37,14 @@ export type QueryBarStoreOptions = {
   query: BaseQuery;
   namespace: string;
   dataProvider: {
-    dataProvider?: DataProvider;
+    dataProvider?: QueryBarDataService;
   };
+  atlasService: AtlasService;
 
   // For testing.
   basepath?: string;
+  favoriteQueryStorage?: FavoriteQueryStorage;
+  recentQueryStorage?: RecentQueryStorage;
 };
 
 export const rootQueryBarReducer = combineReducers({
@@ -60,9 +59,8 @@ export type QueryBarExtraArgs = {
   localAppRegistry?: AppRegistry;
   favoriteQueryStorage: FavoriteQueryStorage;
   recentQueryStorage: RecentQueryStorage;
-  dataProvider: {
-    sample: DataProvider['sample'];
-  };
+  dataService: Pick<QueryBarDataService, 'sample'>;
+  atlasService: AtlasService;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -81,16 +79,16 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     query,
     namespace,
     dataProvider,
+    atlasService = new AtlasService(),
+    recentQueryStorage = new RecentQueryStorage(
+      options.basepath ?? getStoragePaths()?.basepath,
+      namespace
+    ),
+    favoriteQueryStorage = new FavoriteQueryStorage(
+      options.basepath ?? getStoragePaths()?.basepath,
+      namespace
+    ),
   } = options;
-
-  const recentQueryStorage = new RecentQueryStorage(
-    options.basepath ?? basepath,
-    namespace
-  );
-  const favoriteQueryStorage = new FavoriteQueryStorage(
-    options.basepath ?? basepath,
-    namespace
-  );
 
   return _createStore(
     rootQueryBarReducer,
@@ -108,9 +106,9 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     },
     applyMiddleware(
       thunk.withExtraArgument({
-        dataProvider: dataProvider?.dataProvider ?? {
+        dataService: dataProvider?.dataProvider ?? {
           sample: () => {
-            /* no-op for unsupported environments. */
+            /* no-op for environments where dataService is not provided at all. */
             return Promise.resolve([]);
           },
         },
@@ -118,6 +116,7 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
         globalAppRegistry,
         recentQueryStorage,
         favoriteQueryStorage,
+        atlasService,
       })
     )
   );

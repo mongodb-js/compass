@@ -1,8 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
+  AIExperienceEntry,
   Button,
   MoreOptionsToggle,
+  PerformanceSignals,
   SignalPopover,
   css,
   spacing,
@@ -21,6 +23,7 @@ import {
 import { isOutputStage } from '../../../utils/stage';
 import { openCreateIndexModal } from '../../../modules/insights';
 import { usePreference } from 'compass-preferences-model';
+import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 
 const containerStyles = css({
   display: 'flex',
@@ -50,6 +53,9 @@ type PipelineActionsProps = {
 
   isAtlasDeployed?: boolean;
 
+  showAIEntry: boolean;
+  onShowAIInputClick: () => void;
+
   showCollectionScanInsight?: boolean;
   onCollectionScanInsightActionButtonClick: () => void;
 };
@@ -64,6 +70,8 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isUpdateViewButtonDisabled,
   isExplainButtonDisabled,
   showExplainButton,
+  showAIEntry,
+  onShowAIInputClick,
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
@@ -74,25 +82,18 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onCollectionScanInsightActionButtonClick,
 }) => {
   const showInsights = usePreference('showInsights', React);
+  const enableAIExperience = usePreference('enableAIExperience', React);
+
   return (
     <div className={containerStyles}>
+      {enableAIExperience && showAIEntry && (
+        <AIExperienceEntry onClick={onShowAIInputClick} />
+      )}
       {showInsights && showCollectionScanInsight && (
         <div>
           <SignalPopover
             signals={{
-              id: 'aggregation-executed-without-index',
-              title: 'Aggregation executed without index',
-              description: (
-                <>
-                  This aggregation ran without an index. If you plan on using
-                  this query <strong>heavily</strong> in your application, you
-                  should create an index that covers this aggregation.
-                </>
-              ),
-              learnMoreLink:
-                'https://www.mongodb.com/docs/v6.0/core/data-model-operations/#indexes',
-              primaryActionButtonLabel: 'Create index',
-              primaryActionButtonIcon: 'Plus',
+              ...PerformanceSignals.get('aggregation-executed-without-index'),
               onPrimaryActionButtonClick:
                 onCollectionScanInsightActionButtonClick,
             }}
@@ -170,6 +171,9 @@ const mapState = (state: RootState) => {
     isRunButtonDisabled: hasSyntaxErrors,
     isExplainButtonDisabled: hasSyntaxErrors,
     isExportButtonDisabled: isMergeOrOutPipeline || hasSyntaxErrors,
+    showAIEntry:
+      !state.pipelineBuilder.aiPipeline.isInputVisible &&
+      resultPipeline.length > 0,
     showUpdateViewButton: Boolean(state.editViewName),
     isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors,
     isAtlasDeployed: state.isAtlasDeployed,
@@ -183,6 +187,7 @@ const mapDispatch = {
   onExportAggregationResults: exportAggregationResults,
   onExplainAggregation: explainAggregation,
   onCollectionScanInsightActionButtonClick: openCreateIndexModal,
+  onShowAIInputClick: showAIInput,
 };
 
 export default connect(mapState, mapDispatch)(React.memo(PipelineActions));

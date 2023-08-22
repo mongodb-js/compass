@@ -5,9 +5,7 @@ import WorkspaceContent from './workspace-content';
 import type Namespace from '../types/namespace';
 import {
   AppRegistryComponents,
-  AppRegistryRoles,
   useAppRegistryComponent,
-  useAppRegistryRole,
 } from '../contexts/app-registry-context';
 
 const verticalSplitStyles = css({
@@ -43,12 +41,9 @@ export default function Workspace({
   const SidebarComponent = useAppRegistryComponent(
     AppRegistryComponents.SIDEBAR_COMPONENT
   );
-  const globalModals = useAppRegistryRole(AppRegistryRoles.GLOBAL_MODAL);
   const GlobalShellComponent = useAppRegistryComponent(
     AppRegistryComponents.SHELL_COMPONENT
   );
-  const findInPageRole = useAppRegistryRole(AppRegistryRoles.FIND_IN_PAGE);
-  const FindInPage = findInPageRole ? findInPageRole[0].component : null;
 
   return (
     <>
@@ -63,14 +58,6 @@ export default function Workspace({
         </div>
         <div>{GlobalShellComponent && <GlobalShellComponent />}</div>
       </div>
-
-      {FindInPage && <FindInPage />}
-
-      {globalModals &&
-        globalModals.map((globalModal, index) => {
-          const GlobalModal = globalModal.component;
-          return <GlobalModal key={index} />;
-        })}
     </>
   );
 }

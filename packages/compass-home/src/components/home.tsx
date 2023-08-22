@@ -13,19 +13,19 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Cue, GroupCue } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
-import Settings from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
 import ipc from 'hadron-ipc';
 import type {
-  ConnectionInfo,
   DataService,
   ReauthenticationHandler,
 } from 'mongodb-data-service';
-import { getConnectionTitle } from 'mongodb-data-service';
+import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
+import { getConnectionTitle } from '@mongodb-js/connection-storage/renderer';
 import toNS from 'mongodb-ns';
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useReducer,
   useRef,
@@ -33,11 +33,15 @@ import React, {
 } from 'react';
 import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-import { useAppRegistryContext } from '../contexts/app-registry-context';
+import {
+  AppRegistryRoles,
+  useAppRegistryContext,
+  useAppRegistryRole,
+} from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
+import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -318,6 +322,8 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
+  const globalModals = useAppRegistryRole(AppRegistryRoles.GLOBAL_MODAL);
+
   return (
     <SignalHooksProvider
       onSignalMount={(id) => {
@@ -356,6 +362,9 @@ function Home({
           />
         </div>
       </div>
+      {globalModals?.map(({ name, component: GlobalModalComponent }) => {
+        return <GlobalModalComponent key={name}></GlobalModalComponent>;
+      })}
     </SignalHooksProvider>
   );
 }
@@ -368,15 +377,10 @@ function getCurrentTheme(): Theme {
 }
 
 function ThemedHome(
-  props: React.ComponentProps<typeof Home> & {
-    showWelcomeModal?: boolean;
-  }
+  props: React.ComponentProps<typeof Home>
 ): ReturnType<typeof Home> {
   const [scrollbarsContainerRef, setScrollbarsContainerRef] =
     useState<HTMLDivElement | null>(null);
-  const {
-    showWelcomeModal = !preferences.getPreferences().showedNetworkOptIn,
-  } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
@@ -410,45 +414,31 @@ function ThemedHome(
     };
   }, [appRegistry]);
 
-  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
 
-  function showSettingsModal() {
-    async function show() {
-      await preferences.ensureDefaultConfigurableUserPreferences();
-      setIsSettingsOpen(true);
+  useLayoutEffect(() => {
+    // If we haven't showed welcome modal that points users to network opt in
+    // yet, show the modal and update preferences with default values to reflect
+    // that
+    if (preferences.getPreferences().showedNetworkOptIn === false) {
+      setIsWelcomeOpen(true);
+      void preferences.ensureDefaultConfigurableUserPreferences();
     }
-
-    void show();
-  }
-
-  useEffect(() => {
-    ipc.ipcRenderer?.on('window:show-settings', showSettingsModal);
-    appRegistry.on('open-compass-settings', showSettingsModal);
-    return function cleanup() {
-      ipc.ipcRenderer?.off('window:show-settings', showSettingsModal);
-      appRegistry.removeListener('open-compass-settings', showSettingsModal);
-    };
-  }, [appRegistry]);
+  }, []);
 
   const closeWelcomeModal = useCallback(
     (showSettings?: boolean) => {
-      async function close() {
-        await preferences.ensureDefaultConfigurableUserPreferences();
+      function close() {
         setIsWelcomeOpen(false);
         if (showSettings) {
-          setIsSettingsOpen(true);
+          appRegistry.emit('open-compass-settings');
         }
       }
 
       void close();
     },
-    [setIsWelcomeOpen]
+    [setIsWelcomeOpen, appRegistry]
   );
-
-  const closeSettingsModal = useCallback(() => {
-    setIsSettingsOpen(false);
-  }, [setIsSettingsOpen]);
 
   const onGuideCueNext = useCallback((cue: Cue) => {
     track('Guide Cue Dismissed', {
@@ -485,10 +475,7 @@ function ThemedHome(
             className={getScrollbarStyles(darkMode)}
             ref={setScrollbarsContainerRef}
           >
-            {showWelcomeModal && (
-              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-            )}
-            <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
             <ConfirmationModalArea>
               <ToastArea>
                 <div
@@ -503,6 +490,7 @@ function ThemedHome(
               </ToastArea>
             </ConfirmationModalArea>
           </div>
+          <AtlasSignIn></AtlasSignIn>
         </Body>
       </GuideCueProvider>
     </LeafyGreenProvider>
