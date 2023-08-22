@@ -59,6 +59,7 @@
     "react": "^17.0.2"
   },
   "dependencies": {
+    "@mongodb-js/atlas-service": "^0.2.1",
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-logging": "^1.1.7",
     "compass-preferences-model": "^2.11.1",

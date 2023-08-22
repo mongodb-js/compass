@@ -1,9 +1,14 @@
 import React from 'react';
 import SettingsList from './settings-list';
-import preferences, {
+import {
   usePreference,
   featureFlags,
+  withPreferences,
 } from 'compass-preferences-model';
+import { connect } from 'react-redux';
+import type { RootState } from '../../stores';
+import { ConnectedAtlasLoginSettings } from './atlas-login';
+import { css, spacing } from '@mongodb-js/compass-components';
 
 const featureFlagFields = Object.keys(
   featureFlags
@@ -17,24 +22,11 @@ const developmentFeatureFlagFields = featureFlagFields.filter(
   (k: keyof typeof featureFlags) => featureFlags[k].stage === 'development'
 );
 
-// Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
-(globalThis as any).setShowDevFeatureFlags = async (
-  showDevFeatureFlags = true
-) => {
-  await preferences.savePreferences({ showDevFeatureFlags });
-};
-
 function useShouldShowDevFeatures(): boolean {
   const showDevFeatureFlags =
     usePreference('showDevFeatureFlags', React) ?? false;
 
-  // Dev feature flags are always shown as preview settings
-  // in local development and in Compass Dev
-  const isDevEnvironment = process.env.HADRON_CHANNEL === 'dev';
-  return (
-    (isDevEnvironment || showDevFeatureFlags) &&
-    developmentFeatureFlagFields.length > 0
-  );
+  return showDevFeatureFlags && developmentFeatureFlagFields.length > 0;
 }
 
 function useShouldShowPreviewFeatures(): boolean {
@@ -47,12 +39,20 @@ export function useShouldShowFeaturePreviewSettings(): boolean {
   // - or if:
   //   - we are in a development environment or 'showDevFeatureFlags' is explicitly enabled
   //   - and there are feature flags in 'development' stage.
+  //   - AI feature flag is enabled
+  const enableAIExperience = usePreference('enableAIExperience', React);
   const showDevFeatures = useShouldShowDevFeatures();
   const showPreviewFeatures = useShouldShowPreviewFeatures();
-  return showPreviewFeatures || showDevFeatures;
+  return enableAIExperience || showPreviewFeatures || showDevFeatures;
 }
 
-export const FeaturePreviewSettings: React.FunctionComponent = () => {
+const atlasSettingsContainerStyles = css({
+  marginTop: spacing[3],
+});
+
+export const FeaturePreviewSettings: React.FunctionComponent<{
+  showAtlasLoginSettings?: boolean;
+}> = ({ showAtlasLoginSettings }) => {
   const showPreviewFeatures = useShouldShowPreviewFeatures();
   const showDevFeatures = useShouldShowDevFeatures();
 
@@ -63,15 +63,34 @@ export const FeaturePreviewSettings: React.FunctionComponent = () => {
         your own risk!
       </div>
 
-      {showPreviewFeatures && (
-        <SettingsList fields={previewFeatureFlagFields} />
+      {showAtlasLoginSettings && (
+        <div className={atlasSettingsContainerStyles}>
+          <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
+        </div>
       )}
 
-      {showDevFeatures && (
-        <SettingsList fields={developmentFeatureFlagFields} />
-      )}
+      <div>
+        {showPreviewFeatures && (
+          <SettingsList fields={previewFeatureFlagFields} />
+        )}
+
+        {showDevFeatures && (
+          <SettingsList fields={developmentFeatureFlagFields} />
+        )}
+      </div>
     </div>
   );
 };
 
-export default FeaturePreviewSettings;
+export default withPreferences(
+  connect((state: RootState, ownProps: { enableAIExperience?: boolean }) => {
+    return {
+      showAtlasLoginSettings:
+        state.settings.settings.enableAIExperience ||
+        ['authenticated', 'in-progress'].includes(state.atlasLogin.status) ||
+        ownProps.enableAIExperience,
+    };
+  })(FeaturePreviewSettings),
+  ['enableAIExperience'],
+  React
+);

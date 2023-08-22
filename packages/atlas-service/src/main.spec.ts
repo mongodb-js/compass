@@ -4,6 +4,7 @@ import { AtlasService, throwIfNotOk } from './main';
 import { promisify } from 'util';
 import type { EventEmitter } from 'events';
 import { once } from 'events';
+import preferencesAccess from 'compass-preferences-model';
 
 const wait = promisify(setTimeout);
 
@@ -52,6 +53,7 @@ describe('AtlasServiceMain', function () {
 
   const fetch = AtlasService['fetch'];
   const ipcMain = AtlasService['ipcMain'];
+  const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
   const apiBaseUrl = process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
   const issuer = process.env.COMPASS_OIDC_ISSUER;
   const clientId = process.env.COMPASS_CLIENT_ID;
@@ -74,6 +76,7 @@ describe('AtlasServiceMain', function () {
     AtlasService['token'] = null;
     AtlasService['initPromise'] = null;
     AtlasService['oidcPluginSyncedFromLoggerState'] = 'initial';
+    AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
 
     sandbox.resetHistory();
   });
@@ -542,7 +545,8 @@ describe('AtlasServiceMain', function () {
           .stub()
           .rejects(new Error('Could not retrieve valid access token'));
       const createPlugin = () => mockOidcPlugin;
-      const initPromise = AtlasService.init(createPlugin);
+      AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
+      const initPromise = AtlasService.init();
       expect(AtlasService).to.have.property(
         'oidcPluginSyncedFromLoggerState',
         'restoring'
@@ -558,7 +562,8 @@ describe('AtlasServiceMain', function () {
       mockOidcPlugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK =
         sandbox.stub().resolves({ accessToken: 'token' });
       const createPlugin = () => mockOidcPlugin;
-      const initPromise = AtlasService.init(createPlugin);
+      AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
+      const initPromise = AtlasService.init();
       expect(AtlasService).to.have.property(
         'oidcPluginSyncedFromLoggerState',
         'restoring'
@@ -569,5 +574,39 @@ describe('AtlasServiceMain', function () {
         'authenticated'
       );
     });
+  });
+
+  describe('with networkTraffic turned off', function () {
+    const networkTraffic = preferencesAccess.getPreferences().networkTraffic;
+
+    before(async function () {
+      await preferencesAccess.savePreferences({ networkTraffic: false });
+    });
+
+    after(async function () {
+      await preferencesAccess.savePreferences({ networkTraffic });
+    });
+
+    for (const methodName of [
+      'requestOAuthToken',
+      'signIn',
+      'getUserInfo',
+      'introspect',
+      'revoke',
+      'getAggregationFromUserInput',
+      'getQueryFromUserInput',
+    ]) {
+      it(`${methodName} should throw`, async function () {
+        try {
+          await (AtlasService as any)[methodName]({});
+          expect.fail(`Expected ${methodName} to throw`);
+        } catch (err) {
+          expect(err).to.have.property(
+            'message',
+            'Network traffic is not allowed'
+          );
+        }
+      });
+    }
   });
 });

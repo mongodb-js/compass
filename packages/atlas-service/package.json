@@ -72,6 +72,7 @@
     "@mongodb-js/compass-utils": "^0.3.3",
     "@mongodb-js/devtools-connect": "^2.4.0",
     "@mongodb-js/oidc-plugin": "^0.3.0",
+    "compass-preferences-model": "^2.11.1",
     "electron": "^23.3.12",
     "keytar": "^7.9.0",
     "node-fetch": "^2.6.7",
