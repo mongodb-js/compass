@@ -37,7 +37,7 @@ describe('aiQueryReducer', function () {
         const mockAtlasService = {
           getQueryFromUserInput: sandbox
             .stub()
-            .resolves({ content: { query: { _id: 1 } } }),
+            .resolves({ content: { query: { filter: '{_id: 1}' } } }),
         };
 
         const mockDataService = {

@@ -103,10 +103,27 @@ export type AIQuerySucceededAction = {
   fields: QueryFormFields;
 };
 
-function logFailed(errorMessage: string) {
-  log.info(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+type FailedResponseTrackMessage = {
+  errorCode?: number;
+  errorName: string;
+  errorMessage: string;
+};
+
+function trackAndLogFailed({
+  errorCode,
+  errorName,
+  errorMessage,
+}: FailedResponseTrackMessage) {
+  log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+    errorCode,
     errorMessage,
+    errorName,
   });
+  track('AI Response Failed', () => ({
+    editor_view_type: 'find',
+    error_name: errorName,
+    error_code: errorCode,
+  }));
 }
 
 export const runAIQuery = (
@@ -172,7 +189,11 @@ export const runAIQuery = (
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed((err as AtlasServiceNetworkError).message);
+      trackAndLogFailed({
+        errorName: 'request_error',
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+      });
       // We're going to reset input state with this error, show the error in the
       // toast instead
       if ((err as AtlasServiceNetworkError).statusCode === 401) {
@@ -204,14 +225,17 @@ export const runAIQuery = (
       return;
     }
 
-    let fields;
+    let generatedFields: QueryFormFields;
     try {
-      fields = {
-        ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
-        ...parseQueryAttributesToFormFields(jsonResponse.content.query),
-      };
+      generatedFields = parseQueryAttributesToFormFields(
+        jsonResponse.content.query
+      );
     } catch (err: any) {
-      logFailed(err?.message);
+      trackAndLogFailed({
+        errorName: 'could_not_parse_fields',
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: err?.message,
+      });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
@@ -220,10 +244,13 @@ export const runAIQuery = (
     }
 
     // Error when the response is empty or there is nothing to map.
-    if (!fields || Object.keys(fields).length === 0) {
+    if (!generatedFields || Object.keys(generatedFields).length === 0) {
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
-      logFailed(msg);
+      trackAndLogFailed({
+        errorName: 'no_usable_query_from_ai',
+        errorMessage: msg,
+      });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: msg,
@@ -231,20 +258,29 @@ export const runAIQuery = (
       return;
     }
 
+    const queryFields = {
+      ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+      ...generatedFields,
+    };
+
     log.info(
       mongoLogId(1_001_000_199),
       'AIQuery',
       'AI query request succeeded',
       {
         query: {
-          ...fields,
+          ...queryFields,
         },
       }
     );
+    track('AI Prompt Generated', () => ({
+      editor_view_type: 'find',
+      query_shape: Object.keys(generatedFields),
+    }));
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
-      fields,
+      fields: queryFields,
     });
   };
 };
