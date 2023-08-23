@@ -13,8 +13,8 @@ ignore:
   SNYK-JS-AGGRIDCOMMUNITY-1932011:
     - '*':
         reason: None Given
-        expires: 2023-08-18T09:51:32.172Z
-        created: 2023-07-19T09:51:32.175Z
+        expires: 2024-01-10T00:00:00.000Z
+        created: 2023-08-23T16:17:24.728Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
