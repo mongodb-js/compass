@@ -287,7 +287,6 @@ export const runAIPipelineGeneration = (
       editor_view_type,
       syntax_errors: true,
       query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
-      // user_input_length: userInput.length,
     }));
 
     dispatch({
