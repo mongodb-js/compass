@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { expect } from 'chai';
@@ -20,6 +20,10 @@ describe('ThemeSettings', function () {
       />
     );
     container = screen.getByTestId('theme-settings');
+  });
+
+  afterEach(function () {
+    cleanup();
   });
 
   it('calls onChange when choosing the OS sync checkbox', function () {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { expect } from 'chai';
@@ -7,6 +7,10 @@ import { expect } from 'chai';
 import Sidebar from './sidebar';
 
 describe('Sidebar', function () {
+  afterEach(function () {
+    cleanup();
+  });
+
   it('renders sidebar with menu items', function () {
     render(
       <Sidebar

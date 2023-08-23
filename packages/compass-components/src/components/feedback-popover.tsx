@@ -61,7 +61,7 @@ export const FeedbackPopover = ({
     return () => {
       document.removeEventListener('mousedown', listener);
     };
-  }, [feedbackPopoverId, open, setOpen]);
+  }, [feedbackPopoverId, open, setOpen, refEl]);
 
   const onTextAreaKeyDown = useCallback(
     (evt: React.KeyboardEvent<HTMLTextAreaElement>) => {

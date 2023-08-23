@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { expect } from 'chai';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, cleanup } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { FeedbackPopover } from './feedback-popover';
 
@@ -59,9 +60,7 @@ describe('FeedbackPopover', function () {
 
     const textArea = screen.getByTestId('feedback-popover-textarea');
     expect(textArea).to.be.visible;
-    fireEvent.change(textArea, {
-      target: { value: 'pineapple' },
-    });
+    userEvent.type(textArea, 'pineapple');
 
     screen.getByText('Submit').click();
     // Wait for the event to go through.

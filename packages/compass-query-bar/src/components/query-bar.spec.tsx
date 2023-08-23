@@ -8,12 +8,14 @@ import type { SinonSpy } from 'sinon';
 import QueryBar from './query-bar';
 import { Provider } from 'react-redux';
 import { configureStore } from '../stores/query-bar-store';
+import type { QueryBarStoreOptions } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import {
   setCodemirrorEditorValue,
   getCodemirrorEditorValue,
   clickOnCodemirrorHandler,
 } from '@mongodb-js/compass-editor';
+import preferencesAccess from 'compass-preferences-model';
 
 const skipIfElectron = function (message: string) {
   beforeEach(function () {
@@ -33,11 +35,14 @@ const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history';
 
-const renderQueryBar = ({
-  expanded = false,
-  ...props
-}: Partial<ComponentProps<typeof QueryBar>> & { expanded?: boolean } = {}) => {
-  const store = configureStore();
+const renderQueryBar = (
+  {
+    expanded = false,
+    ...props
+  }: Partial<ComponentProps<typeof QueryBar>> & { expanded?: boolean } = {},
+  storeOptions: Partial<QueryBarStoreOptions> = {}
+) => {
+  const store = configureStore(storeOptions);
   store.dispatch(toggleQueryOptions(expanded));
 
   render(
@@ -158,6 +163,77 @@ describe('QueryBar Component', function () {
     it('renders the expanded inputs', function () {
       const queryInputs = screen.getAllByRole('textbox');
       expect(queryInputs.length).to.equal(2);
+    });
+  });
+
+  describe('with ai enabled', function () {
+    let sandbox: sinon.SinonSandbox;
+
+    beforeEach(function () {
+      sandbox = sinon.createSandbox();
+      sandbox
+        .stub(preferencesAccess, 'getPreferences')
+        .returns({ enableAIExperience: true } as any);
+    });
+
+    afterEach(function () {
+      return sandbox.restore();
+    });
+
+    describe('with filter content supplied', function () {
+      beforeEach(function () {
+        renderQueryBar(
+          {
+            queryOptionsLayout: ['filter'],
+          },
+          {
+            query: {
+              filter: { a: 2 },
+            },
+          }
+        );
+      });
+
+      it('renders the ask ai button', function () {
+        expect(screen.getByText('Ask AI')).to.exist;
+        expect(screen.getByTestId('ai-experience-ask-ai-button')).to.exist;
+      });
+    });
+
+    describe('without filter content supplied', function () {
+      beforeEach(function () {
+        renderQueryBar({
+          queryOptionsLayout: ['filter'],
+        });
+      });
+
+      it('does not render the ask ai button, but renders the placeholder', function () {
+        expect(screen.getByText('Ask AI')).to.exist;
+        expect(screen.queryByTestId('ai-experience-ask-ai-button')).to.not
+          .exist;
+      });
+    });
+  });
+
+  describe('with ai disabled', function () {
+    let sandbox: sinon.SinonSandbox;
+
+    beforeEach(function () {
+      sandbox = sinon.createSandbox();
+      sandbox
+        .stub(preferencesAccess, 'getPreferences')
+        .returns({ enableAIExperience: false } as any);
+      renderQueryBar({
+        queryOptionsLayout: ['filter'],
+      });
+    });
+
+    afterEach(function () {
+      return sandbox.restore();
+    });
+
+    it('does not render the ask ai button', function () {
+      expect(screen.queryByText('Ask AI')).to.not.exist;
     });
   });
 

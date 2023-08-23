@@ -2,6 +2,7 @@ import React from 'react';
 import { GenerativeAIInput } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { usePreference } from 'compass-preferences-model';
 
 import type { RootState } from '../stores/query-bar-store';
 import {
@@ -30,7 +31,15 @@ type QueryAIProps = Omit<
 >;
 
 function QueryAI(props: QueryAIProps) {
-  return <GenerativeAIInput onSubmitFeedback={onSubmitFeedback} {...props} />;
+  // Don't show the feedback options if telemetry is disabled.
+  const enableTelemetry = usePreference('trackUsageStatistics', React);
+
+  return (
+    <GenerativeAIInput
+      onSubmitFeedback={enableTelemetry ? onSubmitFeedback : undefined}
+      {...props}
+    />
+  );
 }
 
 const ConnectedQueryAI = connect(
