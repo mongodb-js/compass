@@ -101,7 +101,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
-        {enableAIExperience && (
+        {enableAIExperience && isBuilderView && (
           <PipelineAI
             onClose={() => {
               onHideAIInputClick?.();
@@ -127,8 +127,8 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 };
 
 const mapState = (state: RootState) => ({
-  isBuilderView: state.workspace === 'builder',
   isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
+  isBuilderView: state.workspace === 'builder',
 });
 export default connect(mapState, {
   onHideAIInputClick: hideAIInput,
