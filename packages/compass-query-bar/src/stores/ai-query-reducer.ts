@@ -260,7 +260,7 @@ export const runAIQuery = (
 
     const queryFields = {
       ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
-      generatedFields,
+      ...generatedFields,
     };
 
     log.info(
