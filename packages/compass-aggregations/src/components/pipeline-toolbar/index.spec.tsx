@@ -19,7 +19,6 @@ describe('PipelineToolbar', function () {
             onChangePipelineOutputOption={() => {}}
             pipelineOutputOption="collapse"
             isBuilderView
-            isResultsMode={false}
             showExportButton
             showRunButton
             showExplainButton
@@ -131,7 +130,6 @@ describe('PipelineToolbar', function () {
         <Provider store={configureStore()}>
           <PipelineToolbar
             onChangePipelineOutputOption={() => {}}
-            isResultsMode={false}
             pipelineOutputOption="collapse"
             isBuilderView
             showExplainButton
