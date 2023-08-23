@@ -114,8 +114,10 @@ function trackAndLogFailed({
   errorName,
   errorMessage,
 }: FailedResponseTrackMessage) {
-  log.info(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+  log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+    errorCode,
     errorMessage,
+    errorName,
   });
   track('AI Response Failed', () => ({
     editor_view_type: 'find',

@@ -125,12 +125,14 @@ function trackAndLogFailed({
   errorMessage,
   errorName,
 }: FailedResponseTrackMessage) {
-  log.info(
+  log.warn(
     mongoLogId(1_001_000_230),
     'AIPipeline',
     'AI pipeline request failed',
     {
+      errorCode,
       errorMessage,
+      errorName,
     }
   );
   track('AI Response Failed', () => ({
