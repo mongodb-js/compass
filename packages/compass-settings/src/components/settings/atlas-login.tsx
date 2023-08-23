@@ -74,7 +74,7 @@ const atlasLoginToggleControlLabelStyles = css({
   fontWeight: 'normal',
 });
 
-const AtlasLoginSettings: React.FunctionComponent<{
+export const AtlasLoginSettings: React.FunctionComponent<{
   isSignInInProgress: boolean;
   userLogin: string | null;
   onSignInClick(): void;
@@ -170,12 +170,11 @@ const AtlasLoginSettings: React.FunctionComponent<{
     </KeylineCard>
   );
 };
+
 export const ConnectedAtlasLoginSettings = connect(
   (state: RootState) => {
     return {
-      isSignInInProgress: ['initial', 'in-progress'].includes(
-        state.atlasLogin.status
-      ),
+      isSignInInProgress: state.atlasLogin.status === 'in-progress',
       userLogin: state.atlasLogin.userInfo?.login ?? null,
     };
   },

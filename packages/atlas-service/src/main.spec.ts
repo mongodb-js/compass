@@ -2,7 +2,7 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { AtlasService, throwIfNotOk } from './main';
 import { promisify } from 'util';
-import type { EventEmitter } from 'events';
+import { EventEmitter } from 'events';
 import { once } from 'events';
 import preferencesAccess from 'compass-preferences-model';
 
@@ -612,9 +612,10 @@ describe('AtlasServiceMain', function () {
   });
 
   describe('with networkTraffic turned off', function () {
-    const networkTraffic = preferencesAccess.getPreferences().networkTraffic;
+    let networkTraffic: boolean;
 
     before(async function () {
+      networkTraffic = preferencesAccess.getPreferences().networkTraffic;
       await preferencesAccess.savePreferences({ networkTraffic: false });
     });
 
@@ -643,5 +644,34 @@ describe('AtlasServiceMain', function () {
         }
       });
     }
+  });
+
+  describe('signOut', function () {
+    it('should reset service state, revoke tokens, and destroy plugin', async function () {
+      const logger = new EventEmitter();
+      const plugin = {
+        destroy: sandbox.stub().resolves(),
+      };
+      AtlasService['openExternal'] = sandbox.stub().resolves();
+      AtlasService['token'] = { accessToken: '1234' };
+      AtlasService['createMongoDBOIDCPlugin'] = (() => {
+        return plugin;
+      }) as any;
+      AtlasService['fetch'] = sandbox.stub().resolves({ ok: true }) as any;
+      AtlasService['oidcPluginLogger'] = logger;
+
+      await AtlasService.init();
+      expect(getListenerCount(logger)).to.eq(25);
+
+      await AtlasService.signOut();
+      expect(getListenerCount(logger)).to.eq(0);
+      expect(logger).to.not.eq(AtlasService['oidcPluginLogger']);
+      expect(plugin.destroy).to.have.been.calledOnce;
+      expect(AtlasService['fetch']).to.have.been.calledOnceWith(
+        'http://example.com/v1/revoke?client_id=1234abcd'
+      );
+      expect(AtlasService['token']).to.eq(null);
+      expect(AtlasService['openExternal']).to.have.been.calledOnce;
+    });
   });
 });
