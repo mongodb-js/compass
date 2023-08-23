@@ -13,7 +13,7 @@ import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
 import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('AI-PIPELINE-UI');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';
@@ -112,7 +112,19 @@ export type AIPipelineSucceededAction = {
   type: AIPipelineActionTypes.AIPipelineSucceeded;
 };
 
-function logFailed(errorMessage: string) {
+type FailedResponseTrackMessage = {
+  editor_view_type: 'stages' | 'text';
+  errorCode?: number;
+  errorMessage: string;
+  errorName: string;
+};
+
+function trackAndLogFailed({
+  editor_view_type,
+  errorCode,
+  errorMessage,
+  errorName,
+}: FailedResponseTrackMessage) {
   log.info(
     mongoLogId(1_001_000_230),
     'AIPipeline',
@@ -121,6 +133,11 @@ function logFailed(errorMessage: string) {
       errorMessage,
     }
   );
+  track('AI Response Failed', () => ({
+    editor_view_type,
+    error_code: errorCode,
+    error_name: errorName,
+  }));
 }
 
 export const runAIPipelineGeneration = (
@@ -136,10 +153,17 @@ export const runAIPipelineGeneration = (
     const {
       pipelineBuilder: {
         aiPipeline: { aiPipelineFetchId: existingFetchId },
+        pipelineMode,
       },
       namespace,
       dataService: { dataService },
     } = getState();
+
+    const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
+    track('AI Prompt Submitted', () => ({
+      editor_view_type,
+      user_input_length: userInput.length,
+    }));
 
     if (aiPipelineFetchId !== -1) {
       // Cancel the active request as this one will override.
@@ -188,7 +212,12 @@ export const runAIPipelineGeneration = (
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed((err as AtlasServiceNetworkError).message);
+      trackAndLogFailed({
+        editor_view_type,
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+        errorName: 'request_error',
+      });
       // We're going to reset input state with this error, show the error in the
       // toast instead
       if ((err as AtlasServiceNetworkError).statusCode === 401) {
@@ -226,7 +255,12 @@ export const runAIPipelineGeneration = (
         throw new Error(emptyPipelineError);
       }
     } catch (err) {
-      logFailed((err as Error).message);
+      trackAndLogFailed({
+        editor_view_type,
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as Error).message,
+        errorName: 'empty_pipeline_error',
+      });
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
         errorMessage: (err as Error).message,
@@ -248,6 +282,13 @@ export const runAIPipelineGeneration = (
     });
 
     pipelineBuilder.reset(pipelineText);
+
+    track('AI Prompt Generated', () => ({
+      editor_view_type,
+      syntax_errors: true,
+      query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
+      // user_input_length: userInput.length,
+    }));
 
     dispatch({
       type: AIPipelineActionTypes.LoadGeneratedPipeline,
