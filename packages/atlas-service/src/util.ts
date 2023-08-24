@@ -1,12 +1,13 @@
 import type * as plugin from '@mongodb-js/oidc-plugin';
 import util from 'util';
 
-export type UserInfo = {
+export type AtlasUserInfo = {
+  sub: string;
   firstName: string;
   lastName: string;
   primaryEmail: string;
   login: string;
-};
+} & AtlasUserConfig;
 
 export type IntrospectInfo = { active: boolean };
 
@@ -14,6 +15,28 @@ export type Token = plugin.IdPServerResponse;
 
 function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
   return Object.keys(obj).some((key) => !expectedKeys.includes(key));
+}
+
+export type AtlasUserConfig = {
+  enabledAIFeature: boolean;
+};
+
+export function assertAtlasUserConfig(
+  config: any
+): asserts config is AtlasUserConfig {
+  if (typeof config !== 'object' || config === null) {
+    throw new Error('Expected AtlasUserConfig to be an object');
+  }
+
+  if (typeof config.enabledAIFeature === 'undefined') {
+    config.enabledAIFeature = false;
+  }
+
+  if (typeof config.enabledAIFeature !== 'boolean') {
+    throw new Error(
+      'Unexpected values in AtlasUserConfig: expected `enabledAIFeature` to be `boolean`'
+    );
+  }
 }
 
 export type AIAggregation = {
