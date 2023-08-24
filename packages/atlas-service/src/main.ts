@@ -30,7 +30,7 @@ import {
 } from './util';
 import {
   broadcast,
-  getStoragePaths,
+  getAppName,
   ipcExpose,
   throwIfAborted,
 } from '@mongodb-js/compass-utils';
@@ -114,7 +114,7 @@ const SECRET_STORE_KEY = 'AtlasLoginOIDCPluginState';
 const defaultSecretStore: SecretStore = {
   async getItem(key: string) {
     try {
-      const { appName } = getStoragePaths() ?? {};
+      const appName = getAppName();
       if (
         process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true' ||
         !appName
@@ -128,7 +128,7 @@ const defaultSecretStore: SecretStore = {
   },
   async setItem(key: string, value: string) {
     try {
-      const { appName } = getStoragePaths() ?? {};
+      const appName = getAppName();
       if (
         process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true' ||
         !appName

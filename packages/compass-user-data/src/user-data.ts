@@ -72,7 +72,7 @@ export class UserData<T> {
     try {
       data = await fs.readFile(absolutePath, 'utf-8');
     } catch (error) {
-      log.error(mongoLogId(1_001_000_224), 'Filesystem', 'Error reading file', {
+      log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
         path: absolutePath,
         error: (error as Error).message,
       });
@@ -85,7 +85,7 @@ export class UserData<T> {
     try {
       return this.onDeserialize(data);
     } catch (error) {
-      log.error(mongoLogId(1_001_000_223), 'Filesystem', 'Error parsing data', {
+      log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
         path: absolutePath,
         error: (error as Error).message,
       });
@@ -157,7 +157,7 @@ export class UserData<T> {
       });
       return true;
     } catch (error) {
-      log.error(mongoLogId(1_001_000_221), 'Filesystem', 'Error writing file', {
+      log.error(mongoLogId(1_001_000_233), 'Filesystem', 'Error writing file', {
         path: absolutePath,
         error: (error as Error).message,
       });
@@ -172,7 +172,7 @@ export class UserData<T> {
       return true;
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_222),
+        mongoLogId(1_001_000_236),
         'Filesystem',
         'Error deleting file',
         {
