@@ -1,20 +1,19 @@
-import {
-  css,
-  cx,
-  focusRing,
-  spacing,
-  palette,
-} from '@mongodb-js/compass-components';
+import React from 'react';
+import { palette } from '@leafygreen-ui/palette';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
 
-import { OPTION_DEFINITION } from '../../constants/query-option-definition';
 import {
+  RobotSVG,
   getRobotSVGString,
   robotSVGDarkModeStyles,
   robotSVGLightModeStyles,
   robotSVGStyles,
 } from './robot-svg';
+import { focusRing } from '../../hooks/use-focus-ring';
+import { useDarkMode } from '../../hooks/use-theme';
 
-const aiQueryEntryStyles = css(
+const aiEntryStyles = css(
   {
     // Reset button styles.
     border: 'none',
@@ -49,7 +48,7 @@ const aiQueryEntryStyles = css(
   robotSVGStyles
 );
 
-const aiQueryEntryDarkModeStyles = css(
+const aiEntryDarkModeStyles = css(
   {
     color: palette.green.dark1,
     '&:hover': {
@@ -62,7 +61,7 @@ const aiQueryEntryDarkModeStyles = css(
   robotSVGDarkModeStyles
 );
 
-const aiQueryEntryLightModeStyles = css(
+const aiEntryLightModeStyles = css(
   {
     color: palette.green.dark2,
     '&:hover': {
@@ -75,22 +74,48 @@ const aiQueryEntryLightModeStyles = css(
   robotSVGLightModeStyles
 );
 
+function AIExperienceEntry({
+  'data-testid': dataTestId,
+  onClick,
+}: {
+  ['data-testid']?: string;
+  onClick: () => void;
+}) {
+  const darkMode = useDarkMode();
+
+  return (
+    <button
+      className={cx(
+        aiEntryStyles,
+        darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
+      )}
+      onClick={onClick}
+      data-testid={dataTestId}
+    >
+      Ask AI
+      <RobotSVG />
+    </button>
+  );
+}
+
 // We build the AI Placeholder with html elements as our
 // codemirror placeholder extension accepts `HTMLElement`s.
 function createAIPlaceholderHTMLPlaceholder({
   onClickAI,
   darkMode,
+  placeholderText,
 }: {
   onClickAI: () => void;
   darkMode?: boolean;
+  placeholderText: string;
 }): HTMLElement {
   const containerEl = document.createElement('div');
 
-  const placeholderText = OPTION_DEFINITION.filter.placeholder;
   const placeholderTextEl = document.createTextNode(`${placeholderText} or `);
   containerEl.appendChild(placeholderTextEl);
 
   const aiButtonEl = document.createElement('button');
+  aiButtonEl.setAttribute('data-testid', 'open-ai-query-ask-ai-button');
   // By default placeholder container will have pointer events disabled
   aiButtonEl.style.pointerEvents = 'auto';
   // We stop mousedown from propagating and preventing default behavior to avoid
@@ -107,8 +132,8 @@ function createAIPlaceholderHTMLPlaceholder({
   });
 
   aiButtonEl.className = cx(
-    aiQueryEntryStyles,
-    darkMode ? aiQueryEntryDarkModeStyles : aiQueryEntryLightModeStyles
+    aiEntryStyles,
+    darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
   );
 
   const robotIconSVG = `<span>Ask AI</span>
@@ -120,4 +145,4 @@ ${getRobotSVGString()}`;
   return containerEl;
 }
 
-export { createAIPlaceholderHTMLPlaceholder };
+export { AIExperienceEntry, createAIPlaceholderHTMLPlaceholder };

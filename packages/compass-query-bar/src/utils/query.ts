@@ -7,6 +7,7 @@ import {
 } from '../constants/query-bar-store';
 import type {
   BaseQuery,
+  QueryFormFieldEntries,
   QueryFormFields,
   QueryProperty,
 } from '../constants/query-properties';
@@ -51,6 +52,28 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
   return false;
 }
 
+export function parseQueryAttributesToFormFields(
+  query: Record<string, unknown>
+): QueryFormFields {
+  return Object.fromEntries(
+    Object.entries(query)
+      .map(([key, valueString]) => {
+        if (!isQueryProperty(key) || typeof valueString !== 'string') {
+          return null;
+        }
+        const value = validateField(key, valueString);
+        const valid = value !== false;
+        return [
+          key,
+          { string: valueString, value: valid ? value : null, valid },
+        ];
+      })
+      .filter((entry): entry is QueryFormFieldEntries[number] => {
+        return entry !== null;
+      })
+  );
+}
+
 /**
  * Map query document to the query fields state only preserving valid values
  */
@@ -76,10 +99,10 @@ export function mapQueryToFormFields(
           { string: valueAsString, value: valid ? value : null, valid },
         ] as const;
       })
-      .filter((value) => {
-        return value !== null;
-      }) as [string, unknown][]
-  ) as QueryFormFields;
+      .filter((entry): entry is QueryFormFieldEntries[number] => {
+        return entry !== null;
+      })
+  );
 }
 
 export function isQueryValid(fields: QueryFormFields) {

@@ -68,6 +68,11 @@ import { setupIntercom } from './intercom';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
+// Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
+window.setShowDevFeatureFlags = async (showDevFeatureFlags = true) => {
+  await preferences.savePreferences({ showDevFeatureFlags });
+};
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -169,32 +174,22 @@ const Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
-    const AutoUpdatesComponent =
-      app.appRegistry.getRole('App.AutoUpdate')?.[0].component;
-
-    if (AutoUpdatesComponent) {
-      ReactDOM.render(
-        <React.StrictMode>
-          <AutoUpdatesComponent></AutoUpdatesComponent>
-        </React.StrictMode>,
-        this.queryByHook('auto-update')
-      );
-    }
-
     const HomeComponent = app.appRegistry.getComponent('Home.Home');
 
-    if (HomeComponent) {
-      ReactDOM.render(
-        <React.StrictMode>
-          <HomeComponent
-            appRegistry={app.appRegistry}
-            appName={remote.app.getName()}
-            getAutoConnectInfo={getAutoConnectInfo}
-          ></HomeComponent>
-        </React.StrictMode>,
-        this.queryByHook('layout-container')
-      );
+    if (!HomeComponent) {
+      throw new Error("Can't find Home plugin in appRegistry");
     }
+
+    ReactDOM.render(
+      <React.StrictMode>
+        <HomeComponent
+          appRegistry={app.appRegistry}
+          appName={remote.app.getName()}
+          getAutoConnectInfo={getAutoConnectInfo}
+        ></HomeComponent>
+      </React.StrictMode>,
+      this.queryByHook('layout-container')
+    );
 
     document.querySelector('#loading-placeholder')?.remove();
   },

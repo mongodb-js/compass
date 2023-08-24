@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import os from 'os';
 import Sinon from 'sinon';
+
 import configureStore from './query-bar-store';
 import type { QueryBarStoreOptions } from './query-bar-store';
 import {
@@ -36,7 +37,7 @@ describe('aiQueryReducer', function () {
         const mockAtlasService = {
           getQueryFromUserInput: sandbox
             .stub()
-            .resolves({ content: { query: { _id: 1 } } }),
+            .resolves({ content: { query: { filter: '{_id: 1}' } } }),
         };
 
         const mockDataService = {

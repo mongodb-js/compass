@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -47,6 +52,7 @@ function useExport(): [
       fieldsToExportOption: FieldsToExportOption
     ) => void;
     setJSONFormatVariant: (jsonFormatVariant: ExportJSONFormat) => void;
+    resetExportFormState: () => void;
   }
 ] {
   const [fileType, setFileType] = useState<ExportFileTypes>('json');
@@ -54,6 +60,12 @@ function useExport(): [
     useState<FieldsToExportOption>('all-fields');
   const [jsonFormatVariant, setJSONFormatVariant] =
     useState<ExportJSONFormat>('default');
+
+  const resetExportFormState = useCallback(() => {
+    setFileType('json');
+    setFieldsToExportOption('all-fields');
+    setJSONFormatVariant('default');
+  }, []);
 
   return [
     {
@@ -65,6 +77,7 @@ function useExport(): [
       setFileType,
       setFieldsToExportOption,
       setJSONFormatVariant,
+      resetExportFormState,
     },
   ];
 }
@@ -120,9 +133,16 @@ function ExportModal({
   backToSelectFieldOptions,
   backToSelectFieldsToExport,
 }: ExportModalProps) {
+  // TODO: this state depends on redux store too much and should be part of
+  // redux store and not UI
   const [
     { fileType, jsonFormatVariant, fieldsToExportOption },
-    { setFileType, setJSONFormatVariant, setFieldsToExportOption },
+    {
+      setFileType,
+      setJSONFormatVariant,
+      setFieldsToExportOption,
+      resetExportFormState,
+    },
   ] = useExport();
 
   useTrackOnChange(
@@ -217,6 +237,12 @@ function ExportModal({
       };
     }
   }, [isOpen, onSelectExportFileNameEvent]);
+
+  useLayoutEffect(() => {
+    if (isOpen) {
+      resetExportFormState();
+    }
+  }, [isOpen, resetExportFormState]);
 
   return (
     <Modal open={isOpen} setOpen={closeExport} data-testid="export-modal">

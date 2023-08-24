@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
+  AIExperienceEntry,
   Button,
   MoreOptionsToggle,
   PerformanceSignals,
@@ -22,6 +23,7 @@ import {
 import { isOutputStage } from '../../../utils/stage';
 import { openCreateIndexModal } from '../../../modules/insights';
 import { usePreference } from 'compass-preferences-model';
+import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 
 const containerStyles = css({
   display: 'flex',
@@ -51,6 +53,9 @@ type PipelineActionsProps = {
 
   isAtlasDeployed?: boolean;
 
+  showAIEntry: boolean;
+  onShowAIInputClick: () => void;
+
   showCollectionScanInsight?: boolean;
   onCollectionScanInsightActionButtonClick: () => void;
 };
@@ -65,6 +70,8 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   isUpdateViewButtonDisabled,
   isExplainButtonDisabled,
   showExplainButton,
+  showAIEntry,
+  onShowAIInputClick,
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
@@ -75,8 +82,13 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onCollectionScanInsightActionButtonClick,
 }) => {
   const showInsights = usePreference('showInsights', React);
+  const enableAIExperience = usePreference('enableAIExperience', React);
+
   return (
     <div className={containerStyles}>
+      {enableAIExperience && showAIEntry && (
+        <AIExperienceEntry onClick={onShowAIInputClick} />
+      )}
       {showInsights && showCollectionScanInsight && (
         <div>
           <SignalPopover
@@ -154,11 +166,16 @@ const mapState = (state: RootState) => {
   const lastStage = resultPipeline[resultPipeline.length - 1];
   const isMergeOrOutPipeline = isOutputStage(lastStage);
   const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
+  const isBuilderView = state.workspace === 'builder';
 
   return {
     isRunButtonDisabled: hasSyntaxErrors,
     isExplainButtonDisabled: hasSyntaxErrors,
     isExportButtonDisabled: isMergeOrOutPipeline || hasSyntaxErrors,
+    showAIEntry:
+      !state.pipelineBuilder.aiPipeline.isInputVisible &&
+      resultPipeline.length > 0 &&
+      isBuilderView,
     showUpdateViewButton: Boolean(state.editViewName),
     isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors,
     isAtlasDeployed: state.isAtlasDeployed,
@@ -172,6 +189,7 @@ const mapDispatch = {
   onExportAggregationResults: exportAggregationResults,
   onExplainAggregation: explainAggregation,
   onCollectionScanInsightActionButtonClick: openCreateIndexModal,
+  onShowAIInputClick: showAIInput,
 };
 
 export default connect(mapState, mapDispatch)(React.memo(PipelineActions));

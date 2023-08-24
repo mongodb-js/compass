@@ -26,12 +26,15 @@ import { UserData } from '@mongodb-js/compass-user-data';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
-type ConnectionWithLegacyProps = {
-  connectionInfo: ConnectionInfo;
-  // Legacy props
+type ConnectionLegacyProps = {
+  _id: string;
   isFavorite?: boolean;
   name?: string;
 };
+
+type ConnectionWithLegacyProps = {
+  connectionInfo: ConnectionInfo;
+} & ConnectionLegacyProps;
 
 export class ConnectionStorage {
   private static calledOnce: boolean;
@@ -183,17 +186,25 @@ export class ConnectionStorage {
         throw new Error('Connection string is required.');
       }
 
+      // While saving connections, we also save `_id` property
+      // in order to support the downgrade of Compass to a version
+      // where we use storage-mixin. storage-mixin uses this prop
+      // to map keytar credentials to the stored connection.
+
       // While testing, we don't use keychain to store secrets
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         await this.userData.write(this.getFileName(connectionInfo.id), {
           connectionInfo,
+          _id: connectionInfo.id,
         });
       } else {
         const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
           extractSecrets(connectionInfo);
         await this.userData.write(this.getFileName(connectionInfo.id), {
           connectionInfo: connectionInfoWithoutSecrets,
+          _id: connectionInfo.id,
         });
+
         try {
           await keytar.setPassword(
             getKeytarServiceName(),

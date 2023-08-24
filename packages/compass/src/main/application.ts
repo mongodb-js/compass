@@ -90,8 +90,7 @@ class CompassApplication {
       return;
     }
 
-    AtlasService.init();
-
+    void this.setupAtlasService();
     this.setupAutoUpdate();
     await setupCSFLELibrary();
     setupTheme();
@@ -107,6 +106,13 @@ class CompassApplication {
     globalPreferences: ParsedGlobalPreferencesResult
   ): Promise<void> {
     return (this.initPromise ??= this._init(mode, globalPreferences));
+  }
+
+  private static async setupAtlasService() {
+    await AtlasService.init();
+    this.addExitHandler(() => {
+      return AtlasService.onExit();
+    });
   }
 
   private static setupJavaScriptArguments(): void {

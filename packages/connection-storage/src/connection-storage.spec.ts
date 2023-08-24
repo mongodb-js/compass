@@ -294,6 +294,34 @@ describe('ConnectionStorage', function () {
       expect(expectedConnectionInfo).to.deep.equal(connectionInfo);
     });
 
+    it('saves a connection with _id', async function () {
+      const id: string = uuid();
+      expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
+
+      await ConnectionStorage.save({
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://root:password@localhost:27017',
+          },
+        },
+      });
+
+      const savedConnection = JSON.parse(
+        fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+      );
+
+      expect(savedConnection).to.deep.equal({
+        connectionInfo: {
+          id,
+          connectionOptions: {
+            connectionString: 'mongodb://root:password@localhost:27017',
+          },
+        },
+        _id: id,
+      });
+    });
+
     context(`max allowed connections ${maxAllowedConnections}`, function () {
       const createNumberOfConnections = async (num: number) => {
         const connectionInfos = Array.from({ length: num }, (v, i) =>

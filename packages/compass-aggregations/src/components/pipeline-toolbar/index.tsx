@@ -7,10 +7,13 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { usePreference } from 'compass-preferences-model';
 
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';
 import PipelineSettings from './pipeline-settings';
+import { PipelineAI } from './pipeline-ai';
+import { hideInput as hideAIInput } from '../../modules/pipeline-builder/pipeline-ai';
 
 import type { RootState } from '../../modules';
 import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
@@ -52,23 +55,28 @@ const optionsStyles = css({
 });
 
 type PipelineToolbarProps = {
+  isAIInputVisible?: boolean;
   isBuilderView: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
   onChangePipelineOutputOption: (val: PipelineOutputOption) => void;
+  onHideAIInputClick?: () => void;
   pipelineOutputOption: PipelineOutputOption;
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
+  isAIInputVisible = false,
   isBuilderView,
   showRunButton,
   showExportButton,
   showExplainButton,
   onChangePipelineOutputOption,
+  onHideAIInputClick,
   pipelineOutputOption,
 }) => {
   const darkMode = useDarkMode();
+  const enableAIExperience = usePreference('enableAIExperience', React);
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <div
@@ -93,6 +101,14 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
+        {enableAIExperience && isBuilderView && (
+          <PipelineAI
+            onClose={() => {
+              onHideAIInputClick?.();
+            }}
+            show={isAIInputVisible}
+          />
+        )}
       </div>
       {isBuilderView ? (
         <div className={settingsRowStyles}>
@@ -110,7 +126,10 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   );
 };
 
-const mapState = ({ workspace }: RootState) => ({
-  isBuilderView: workspace === 'builder',
+const mapState = (state: RootState) => ({
+  isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
+  isBuilderView: state.workspace === 'builder',
 });
-export default connect(mapState)(PipelineToolbar);
+export default connect(mapState, {
+  onHideAIInputClick: hideAIInput,
+})(PipelineToolbar);

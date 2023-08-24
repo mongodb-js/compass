@@ -1,5 +1,6 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
+import type { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import dataService from './data-service';
 import fields from './fields';
 import editViewName from './edit-view-name';
@@ -89,6 +90,7 @@ export type RootState = ReturnType<typeof rootReducer>;
 export type PipelineBuilderExtraArgs = {
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
+  atlasService: AtlasService;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

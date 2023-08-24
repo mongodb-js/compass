@@ -27,6 +27,11 @@ if (isElectronRenderer) {
           'console-call',
           k,
           args.map((arg) => {
+            if (
+              ['string', 'number', 'boolean', 'undefined'].includes(typeof arg)
+            ) {
+              return arg;
+            }
             return inspect(arg);
           })
         );
