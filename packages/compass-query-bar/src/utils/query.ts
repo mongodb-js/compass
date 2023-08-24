@@ -1,4 +1,4 @@
-import queryParser from 'mongodb-query-parser';
+import { stringify, validate } from 'mongodb-query-parser';
 import preferences from 'compass-preferences-model';
 import { isEqual } from 'lodash';
 import {
@@ -88,7 +88,7 @@ export function mapQueryToFormFields(
           return null;
         }
         const valueAsString =
-          typeof _value === 'undefined' ? '' : queryParser.stringify(_value);
+          typeof _value === 'undefined' ? '' : stringify(_value) || '';
         const value = validateField(key, valueAsString);
         const valid: boolean = value !== false;
         if (onlyValid && !valid) {
@@ -116,7 +116,7 @@ function isQueryProperty(field: string): field is QueryProperty {
 }
 
 export function validateField(field: string, value: string) {
-  const validated = queryParser.validate(field, value, { validate: false });
+  const validated = validate(field, value);
   if (field === 'filter' && validated === '') {
     // TODO(COMPASS-5205): Things like { i: $} confuses queryParser and
     // ultimately it sets filter to '' whereas it has to be a {} (if valid) or

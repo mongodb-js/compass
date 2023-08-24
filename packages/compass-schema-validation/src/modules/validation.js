@@ -1,5 +1,5 @@
 import { EJSON } from 'bson';
-import queryParser from 'mongodb-query-parser';
+import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { clearSampleDocuments } from './sample-documents';
@@ -80,7 +80,7 @@ export const checkValidator = (validator) => {
     };
   } else {
     try {
-      validation.validator = queryParser.parseFilter(validator);
+      validation.validator = parseFilter(validator);
     } catch (error) {
       validation.syntaxError = error;
     }
