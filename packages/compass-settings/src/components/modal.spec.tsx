@@ -1,6 +1,12 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, within, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  within,
+  waitFor,
+  cleanup,
+} from '@testing-library/react';
 import { spy, stub } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { expect } from 'chai';
@@ -40,6 +46,10 @@ describe('SettingsModal', function () {
         </Provider>
       );
     };
+  });
+
+  afterEach(function () {
+    cleanup();
   });
 
   it('renders nothing until it is open and loaded', function () {

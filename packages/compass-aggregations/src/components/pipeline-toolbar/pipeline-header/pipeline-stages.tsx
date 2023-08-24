@@ -122,7 +122,8 @@ const mapState = (state: RootState) => {
   const isResultsMode = state.workspace === 'results';
   const isStageMode = state.pipelineBuilder.pipelineMode === 'builder-ui';
   return {
-    showAIEntry: !state.pipelineBuilder.aiPipeline.isInputVisible,
+    showAIEntry:
+      !state.pipelineBuilder.aiPipeline.isInputVisible && !isResultsMode,
     stages: stages.filter(Boolean) as string[],
     showAddNewStage:
       !state.pipelineBuilder.aiPipeline.isInputVisible &&

@@ -107,7 +107,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
-        {enableAIExperience && (
+        {enableAIExperience && isBuilderView && (
           <PipelineAI
             onClose={() => {
               onHideAIInputClick?.();
@@ -144,6 +144,7 @@ const mapState = (state: RootState) => {
     guideCueDescription: state.pipelineBuilder.aiPipeline.guideCueDescription,
   };
 };
+
 export default connect(mapState, {
   onHideAIInputClick: hideAIInput,
 })(PipelineToolbar);

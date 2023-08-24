@@ -11,8 +11,9 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
+import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('AI-PIPELINE-UI');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';
@@ -156,15 +157,34 @@ export type AIPipelineCreatedFromQueryAction = {
   text: string;
 };
 
-function logFailed(errorMessage: string) {
-  log.info(
+type FailedResponseTrackMessage = {
+  editor_view_type: 'stages' | 'text';
+  errorCode?: number;
+  errorMessage: string;
+  errorName: string;
+};
+
+function trackAndLogFailed({
+  editor_view_type,
+  errorCode,
+  errorMessage,
+  errorName,
+}: FailedResponseTrackMessage) {
+  log.warn(
     mongoLogId(1_001_000_230),
     'AIPipeline',
     'AI pipeline request failed',
     {
+      errorCode,
       errorMessage,
+      errorName,
     }
   );
+  track('AI Response Failed', () => ({
+    editor_view_type,
+    error_code: errorCode,
+    error_name: errorName,
+  }));
 }
 
 export const runAIPipelineGeneration = (
@@ -180,10 +200,17 @@ export const runAIPipelineGeneration = (
     const {
       pipelineBuilder: {
         aiPipeline: { aiPipelineFetchId: existingFetchId },
+        pipelineMode,
       },
       namespace,
       dataService: { dataService },
     } = getState();
+
+    const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
+    track('AI Prompt Submitted', () => ({
+      editor_view_type,
+      user_input_length: userInput.length,
+    }));
 
     if (aiPipelineFetchId !== -1) {
       // Cancel the active request as this one will override.
@@ -227,15 +254,20 @@ export const runAIPipelineGeneration = (
         schema,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
-    } catch (err: any) {
+    } catch (err) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed(err?.message);
+      trackAndLogFailed({
+        editor_view_type,
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+        errorName: 'request_error',
+      });
       // We're going to reset input state with this error, show the error in the
       // toast instead
-      if (err.statusCode === 401) {
+      if ((err as AtlasServiceNetworkError).statusCode === 401) {
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',
@@ -245,8 +277,8 @@ export const runAIPipelineGeneration = (
       }
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
-        errorMessage: err?.message,
-        networkErrorCode: err.statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+        networkErrorCode: (err as AtlasServiceNetworkError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -264,23 +296,21 @@ export const runAIPipelineGeneration = (
       return;
     }
 
-    let pipelineText;
+    const pipelineText = String(jsonResponse.content?.aggregation?.pipeline);
     try {
-      // Error when the response is empty or there is nothing to map.
-      if (!jsonResponse?.content?.aggregation?.pipeline) {
+      if (!pipelineText) {
         throw new Error(emptyPipelineError);
       }
-
-      pipelineText = String(jsonResponse?.content?.aggregation?.pipeline);
-
-      if (!pipelineText || !pipelineText?.length) {
-        throw new Error(emptyPipelineError);
-      }
-    } catch (err: any) {
-      logFailed(err?.message);
+    } catch (err) {
+      trackAndLogFailed({
+        editor_view_type,
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as Error).message,
+        errorName: 'empty_pipeline_error',
+      });
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
-        errorMessage: err?.message,
+        errorMessage: (err as Error).message,
       });
       return;
     }
@@ -299,6 +329,12 @@ export const runAIPipelineGeneration = (
     });
 
     pipelineBuilder.reset(pipelineText);
+
+    track('AI Prompt Generated', () => ({
+      editor_view_type,
+      syntax_errors: true,
+      query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
+    }));
 
     dispatch({
       type: AIPipelineActionTypes.LoadAIPipeline,

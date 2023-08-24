@@ -10,7 +10,6 @@ import { ErrorSummary } from '../error-warning-summary';
 import { SpinLoader } from '../loader';
 import { DEFAULT_ROBOT_SIZE, RobotSVG } from './robot-svg';
 import { AIFeedback } from './ai-feedback';
-import type { AIFeedbackProps } from './ai-feedback';
 import { focusRing } from '../../hooks/use-focus-ring';
 
 const containerStyles = css({
@@ -155,12 +154,16 @@ type GenerativeAIInputProps = {
   showGuideCue?: boolean;
   guideCueTitle?: string;
   guideCueDescription?: string;
+  onHideGuideCue?: () => void;
   onCancelRequest: () => void;
   onChangeAIPromptText: (text: string) => void;
   onClose: () => void;
   onSubmitText: (text: string) => void;
-  onHideGuideCue?: () => void;
-} & AIFeedbackProps;
+  onSubmitFeedback?: (
+    feedback: 'positive' | 'negative',
+    feedbackText: string
+  ) => void;
+};
 
 function GenerativeAIInput({
   aiPromptText,
@@ -331,7 +334,9 @@ function GenerativeAIInput({
             </Button>
           </div>
         </div>
-        {didSucceed && <AIFeedback onSubmitFeedback={onSubmitFeedback} />}
+        {didSucceed && onSubmitFeedback && (
+          <AIFeedback onSubmitFeedback={onSubmitFeedback} />
+        )}
       </div>
       {errorMessage && (
         <div className={errorSummaryContainer}>

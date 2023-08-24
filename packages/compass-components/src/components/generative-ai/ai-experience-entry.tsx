@@ -74,7 +74,13 @@ const aiEntryLightModeStyles = css(
   robotSVGLightModeStyles
 );
 
-function AIExperienceEntry({ onClick }: { onClick: () => void }) {
+function AIExperienceEntry({
+  'data-testid': dataTestId,
+  onClick,
+}: {
+  ['data-testid']?: string;
+  onClick: () => void;
+}) {
   const darkMode = useDarkMode();
 
   return (
@@ -84,6 +90,7 @@ function AIExperienceEntry({ onClick }: { onClick: () => void }) {
         darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
       )}
       onClick={onClick}
+      data-testid={dataTestId}
     >
       Ask AI
       <RobotSVG />

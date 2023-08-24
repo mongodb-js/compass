@@ -13,6 +13,7 @@ import {
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
+import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -107,10 +108,27 @@ export type AIQueryReturnedAggregationAction = {
   type: AIQueryActionTypes.AIQueryReturnedAggregation;
 };
 
-function logFailed(errorMessage: string) {
-  log.info(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+type FailedResponseTrackMessage = {
+  errorCode?: number;
+  errorName: string;
+  errorMessage: string;
+};
+
+function trackAndLogFailed({
+  errorCode,
+  errorName,
+  errorMessage,
+}: FailedResponseTrackMessage) {
+  log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+    errorCode,
     errorMessage,
+    errorName,
   });
+  track('AI Response Failed', () => ({
+    editor_view_type: 'find',
+    error_name: errorName,
+    error_code: errorCode,
+  }));
 }
 
 export const runAIQuery = (
@@ -178,15 +196,19 @@ export const runAIQuery = (
         schema,
         // sampleDocuments, // For now we are not passing sample documents to the ai.
       });
-    } catch (err: any) {
+    } catch (err) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed(err?.message);
+      trackAndLogFailed({
+        errorName: 'request_error',
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+      });
       // We're going to reset input state with this error, show the error in the
       // toast instead
-      if (err.statusCode === 401) {
+      if ((err as AtlasServiceNetworkError).statusCode === 401) {
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',
@@ -196,8 +218,8 @@ export const runAIQuery = (
       }
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
-        errorMessage: err?.message,
-        networkErrorCode: err.statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+        networkErrorCode: (err as AtlasServiceNetworkError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -215,22 +237,17 @@ export const runAIQuery = (
       return;
     }
 
-    let query;
-    let fields;
+    let query: Record<string, unknown>;
+    let generatedFields: QueryFormFields;
     try {
-      if (!jsonResponse?.content?.query) {
-        throw new Error(
-          'No query returned. Please try again with a different prompt.'
-        );
-      }
-
-      query = jsonResponse?.content?.query;
-      fields = {
-        ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
-        ...parseQueryAttributesToFormFields(query ?? {}),
-      };
+      query = jsonResponse?.content?.query as Record<string, unknown>;
+      generatedFields = parseQueryAttributesToFormFields(query);
     } catch (err: any) {
-      logFailed(err?.message);
+      trackAndLogFailed({
+        errorName: 'could_not_parse_fields',
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: err?.message,
+      });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
@@ -244,7 +261,8 @@ export const runAIQuery = (
       return (
         key === 'aggregation' &&
         typeof value === 'object' &&
-        typeof value.pipeline === 'string'
+        value !== null &&
+        typeof (value as any).pipeline === 'string'
       );
     });
 
@@ -255,7 +273,10 @@ export const runAIQuery = (
       });
       const msg =
         'Query requires stages from aggregation framework therefore an aggregation was generated.';
-      logFailed(msg);
+      trackAndLogFailed({
+        errorName: 'ai_generated_aggregation_instead_of_query',
+        errorMessage: msg,
+      });
       dispatch({
         type: AIQueryActionTypes.AIQueryReturnedAggregation,
       });
@@ -263,10 +284,13 @@ export const runAIQuery = (
     }
 
     // Error when the response is empty or there is nothing to map.
-    if (!fields || Object.keys(fields).length === 0) {
+    if (!generatedFields || Object.keys(generatedFields).length === 0) {
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
-      logFailed(msg);
+      trackAndLogFailed({
+        errorName: 'no_usable_query_from_ai',
+        errorMessage: msg,
+      });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: msg,
@@ -274,20 +298,29 @@ export const runAIQuery = (
       return;
     }
 
+    const queryFields = {
+      ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+      ...generatedFields,
+    };
+
     log.info(
       mongoLogId(1_001_000_199),
       'AIQuery',
       'AI query request succeeded',
       {
         query: {
-          ...fields,
+          ...queryFields,
         },
       }
     );
+    track('AI Prompt Generated', () => ({
+      editor_view_type: 'find',
+      query_shape: Object.keys(generatedFields),
+    }));
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
-      fields,
+      fields: queryFields,
     });
   };
 };
