@@ -56,6 +56,7 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-logging": "^1.1.7",
+    "@mongodb-js/compass-user-data": "^0.1.0",
     "@mongodb-js/compass-utils": "^0.3.3",
     "@mongodb-js/mongodb-redux-common": "^2.0.9",
     "@mongosh/node-runtime-worker-thread": "^1.10.0",
@@ -64,6 +65,7 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.11.0",
     "@mongodb-js/compass-logging": "^1.1.7",
+    "@mongodb-js/compass-user-data": "^0.1.0",
     "@mongodb-js/compass-utils": "^0.3.3",
     "@mongodb-js/mongodb-redux-common": "^2.0.9",
     "@mongosh/node-runtime-worker-thread": "^1.10.0",

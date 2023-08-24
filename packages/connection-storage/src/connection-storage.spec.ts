@@ -9,6 +9,7 @@ import { sortBy } from 'lodash';
 import { ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
 import Sinon from 'sinon';
+import { UserData } from '@mongodb-js/compass-user-data';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
@@ -41,14 +42,16 @@ const maxAllowedConnections = 10;
 
 describe('ConnectionStorage', function () {
   const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-  const initialBaseStoragePath = process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
   let tmpDir: string;
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(
       path.join(os.tmpdir(), 'connection-storage-tests')
     );
+    ConnectionStorage['userData'] = new UserData({
+      subdir: 'Connections',
+      basePath: tmpDir,
+    });
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
-    process.env.COMPASS_TESTS_STORAGE_BASE_PATH = tmpDir;
   });
 
   afterEach(async function () {
@@ -59,12 +62,6 @@ describe('ConnectionStorage', function () {
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
     } else {
       delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-    }
-
-    if (initialBaseStoragePath) {
-      process.env.COMPASS_TESTS_STORAGE_BASE_PATH = initialBaseStoragePath;
-    } else {
-      delete process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
     }
   });
 

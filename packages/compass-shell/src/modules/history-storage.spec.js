@@ -6,25 +6,20 @@ import fs from 'fs/promises';
 import { HistoryStorage } from './history-storage';
 
 describe('HistoryStorage', function () {
-  const initialBaseStoragePath = process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
   let tmpDir;
   let historyFilePath;
 
-  const historyStorage = new HistoryStorage();
+  let historyStorage;
 
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'compass-shell-test'));
     historyFilePath = path.join(tmpDir, 'shell-history.json');
-    process.env.COMPASS_TESTS_STORAGE_BASE_PATH = tmpDir;
+
+    historyStorage = new HistoryStorage(tmpDir);
   });
 
   afterEach(async function () {
     await fs.rm(tmpDir, { recursive: true });
-    if (initialBaseStoragePath) {
-      process.env.COMPASS_TESTS_STORAGE_BASE_PATH = initialBaseStoragePath;
-    } else {
-      delete process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
-    }
   });
 
   describe('#save', function () {

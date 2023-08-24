@@ -127,12 +127,18 @@ export class UserData<T> {
     return result;
   }
 
-  async readOne(filepath: string, options: { ignoreErrors: false }): Promise<T>;
   async readOne(
     filepath: string,
-    options: { ignoreErrors: true }
+    options?: { ignoreErrors: false }
+  ): Promise<T>;
+  async readOne(
+    filepath: string,
+    options?: { ignoreErrors: true }
   ): Promise<T | undefined>;
-  async readOne(filepath: string, options: ReadOptions): Promise<T | undefined>;
+  async readOne(
+    filepath: string,
+    options?: ReadOptions
+  ): Promise<T | undefined>;
   async readOne(
     filepath: string,
     options: ReadOptions = {

@@ -13,11 +13,7 @@ import {
   getKeytarServiceName,
   parseStoredPassword,
 } from './utils';
-import {
-  ipcExpose,
-  throwIfAborted,
-  Filesystem,
-} from '@mongodb-js/compass-utils';
+import { ipcExpose, throwIfAborted } from '@mongodb-js/compass-utils';
 import {
   serializeConnections,
   deserializeConnections,
@@ -26,6 +22,7 @@ import type {
   ImportConnectionOptions,
   ExportConnectionOptions,
 } from './import-export-connection';
+import { UserData } from '@mongodb-js/compass-user-data';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
@@ -40,7 +37,7 @@ export class ConnectionStorage {
   private static calledOnce: boolean;
 
   private static readonly maxAllowedRecentConnections = 10;
-  private static readonly fs = new Filesystem<ConnectionWithLegacyProps>({
+  private static userData = new UserData<ConnectionWithLegacyProps>({
     subdir: 'Connections',
   });
 
@@ -104,7 +101,7 @@ export class ConnectionStorage {
   }
 
   private static async getConnections(): Promise<ConnectionWithLegacyProps[]> {
-    return await this.fs.readAll('*.json');
+    return (await this.userData.readAll()).data;
   }
 
   /**
@@ -188,13 +185,13 @@ export class ConnectionStorage {
 
       // While testing, we don't use keychain to store secrets
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        await this.fs.write(this.getFileName(connectionInfo.id), {
+        await this.userData.write(this.getFileName(connectionInfo.id), {
           connectionInfo,
         });
       } else {
         const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
           extractSecrets(connectionInfo);
-        await this.fs.write(this.getFileName(connectionInfo.id), {
+        await this.userData.write(this.getFileName(connectionInfo.id), {
           connectionInfo: connectionInfoWithoutSecrets,
         });
         try {
@@ -238,7 +235,7 @@ export class ConnectionStorage {
     }
 
     try {
-      await this.fs.delete(this.getFileName(id));
+      await this.userData.delete(this.getFileName(id));
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         return;
       }

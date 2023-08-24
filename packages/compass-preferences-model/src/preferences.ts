@@ -712,6 +712,7 @@ export class Preferences {
   };
 
   constructor(
+    basepath?: string,
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
     isSandbox?: boolean
   ) {
@@ -727,7 +728,7 @@ export class Preferences {
 
     this._preferencesStorage = isSandbox
       ? new SandboxPreferences(defaultPreferences)
-      : new StoragePreferences(defaultPreferences);
+      : new StoragePreferences(defaultPreferences, basepath);
 
     this._onPreferencesChangedCallbacks = [];
     this._globalPreferences = {
@@ -767,7 +768,7 @@ export class Preferences {
     const { user, global } = props
       ? (JSON.parse(props) as PreferenceSandboxPropertiesImpl)
       : { user: {}, global: {} };
-    const instance = new Preferences(global, true);
+    const instance = new Preferences(undefined, global, true);
     await instance.savePreferences(user);
     return instance;
   }

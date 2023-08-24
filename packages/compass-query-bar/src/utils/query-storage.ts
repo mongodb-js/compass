@@ -1,7 +1,7 @@
-import { EJSON, UUID } from 'bson';
+import { UUID } from 'bson';
 import { orderBy } from 'lodash';
 import { type BaseQuery } from '../constants/query-properties';
-import { Filesystem } from '@mongodb-js/compass-utils';
+import { UserData } from '@mongodb-js/compass-user-data';
 
 // We do not save maxTimeMS
 export type RecentQuery = Omit<BaseQuery, 'maxTimeMS'> & {
@@ -17,25 +17,29 @@ export type FavoriteQuery = RecentQuery & {
   _dateSaved: Date;
 };
 
+type QueryStorageOptions = {
+  basepath?: string;
+  namespace?: string;
+};
+
 export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
-  private readonly fs: Filesystem<T>;
+  protected readonly userData: UserData<T>;
   constructor(
     protected readonly folder: string,
-    protected readonly namespace: string = ''
+    protected readonly options: QueryStorageOptions
   ) {
-    this.fs = new Filesystem({
+    this.userData = new UserData({
       subdir: folder,
-      onSerialize: (content) => EJSON.stringify(content, undefined, 2),
-      onDeserialize: (content) => EJSON.parse(content),
+      basePath: options.basepath,
     });
   }
 
   async loadAll(): Promise<T[]> {
     try {
-      const data = await this.fs.readAll('*.json');
+      const { data } = await this.userData.readAll();
       const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
-      if (this.namespace) {
-        return sortedData.filter((x) => x._ns === this.namespace);
+      if (this.options.namespace) {
+        return sortedData.filter((x) => x._ns === this.options.namespace);
       }
       return sortedData;
     } catch (e) {
@@ -45,20 +49,20 @@ export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
 
   async updateAttributes(id: string, data: Partial<T>): Promise<T> {
     const fileName = this.getFileName(id);
-    const fileData = (await this.fs.readOne(fileName)) ?? {};
+    const fileData = (await this.userData.readOne(fileName)) ?? {};
     const updated = {
       ...fileData,
       ...data,
     } as T;
-    await this.fs.write(fileName, updated);
+    await this.userData.write(fileName, updated);
     return updated;
   }
 
   async delete(id: string) {
-    return await this.fs.delete(this.getFileName(id));
+    return await this.userData.delete(this.getFileName(id));
   }
 
-  private getFileName(id: string) {
+  protected getFileName(id: string) {
     return `${id}.json`;
   }
 }
@@ -66,8 +70,8 @@ export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
 export class RecentQueryStorage extends QueryStorage<RecentQuery> {
   private readonly maxAllowedQueries = 30;
 
-  constructor(namespace?: string) {
-    super('RecentQueries', namespace);
+  constructor(options: QueryStorageOptions = {}) {
+    super('RecentQueries', options);
   }
 
   async saveQuery(
@@ -81,17 +85,17 @@ export class RecentQueryStorage extends QueryStorage<RecentQuery> {
     }
 
     const _id = new UUID().toString();
-    const recentQuery: RecentQuery = {
+    const recentQuery = {
       ...data,
       _id,
       _lastExecuted: new Date(),
     };
-    await this.updateAttributes(_id, recentQuery);
+    await this.userData.write(this.getFileName(_id), recentQuery);
   }
 }
 
 export class FavoriteQueryStorage extends QueryStorage<FavoriteQuery> {
-  constructor(namespace?: string) {
-    super('FavoriteQueries', namespace);
+  constructor(options: QueryStorageOptions = {}) {
+    super('FavoriteQueries', options);
   }
 }

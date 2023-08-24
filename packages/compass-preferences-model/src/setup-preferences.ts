@@ -21,6 +21,7 @@ export async function setupPreferences(
   }
 
   const preferences = (preferencesSingleton = new Preferences(
+    undefined,
     globalPreferences
   ));
 

@@ -79,8 +79,8 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     namespace,
     dataProvider,
     atlasService = new AtlasService(),
-    recentQueryStorage = new RecentQueryStorage(namespace),
-    favoriteQueryStorage = new FavoriteQueryStorage(namespace),
+    recentQueryStorage = new RecentQueryStorage({ namespace }),
+    favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
   } = options;
 
   return _createStore(

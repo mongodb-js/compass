@@ -26,23 +26,18 @@ const queries = [
 const maxAllowedRecentQueries = 30;
 
 describe('QueryStorage', function () {
-  const initialBaseStoragePath = process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
-  const queryHistoryStorage = new RecentQueryStorage();
+  let queryHistoryStorage: RecentQueryStorage;
 
   let tmpDir: string;
   beforeEach(async function () {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
-    process.env.COMPASS_TESTS_STORAGE_BASE_PATH = tmpDir;
+    queryHistoryStorage = new RecentQueryStorage({
+      basepath: tmpDir,
+    });
   });
 
   afterEach(async function () {
     await fs.rm(tmpDir, { recursive: true });
-    if (initialBaseStoragePath) {
-      process.env.COMPASS_TESTS_STORAGE_BASE_PATH = initialBaseStoragePath;
-    } else {
-      delete process.env.COMPASS_TESTS_STORAGE_BASE_PATH;
-    }
-    Sinon.restore();
   });
 
   const writeQuery = async (query: RecentQuery) => {
