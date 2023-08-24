@@ -237,10 +237,10 @@ export const runAIQuery = (
       return;
     }
 
-    let query: Record<string, unknown>;
+    let query;
     let generatedFields: QueryFormFields;
     try {
-      query = jsonResponse?.content?.query as Record<string, unknown>;
+      query = jsonResponse?.content?.query;
       generatedFields = parseQueryAttributesToFormFields(query);
     } catch (err: any) {
       trackAndLogFailed({
@@ -257,19 +257,10 @@ export const runAIQuery = (
 
     // The query endpoint may return the aggregation property in addition to filter, project, etc..
     // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
-    const aggregation = Object.entries(query ?? {}).find(([key, value]) => {
-      return (
-        key === 'aggregation' &&
-        typeof value === 'object' &&
-        value !== null &&
-        typeof (value as any).pipeline === 'string'
-      );
-    });
-
-    if (aggregation) {
+    if (query.aggregation) {
       localAppRegistry?.emit('open-aggregation-tab', {
         userInput,
-        aggregation: aggregation[1], // { pipeline: string }
+        aggregation: query.aggregation,
       });
       const msg =
         'Query requires stages from aggregation framework therefore an aggregation was generated.';

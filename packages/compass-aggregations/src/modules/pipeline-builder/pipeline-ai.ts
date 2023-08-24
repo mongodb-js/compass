@@ -47,13 +47,13 @@ export const enum AIPipelineActionTypes {
   AIPipelineCancelled = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',
   AIPipelineFailed = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineFailed',
   AIPipelineSucceeded = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineSucceeded',
-  AIPipelineCreatedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCreatedFromQuery',
+  AIPipelineGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineGeneratedFromQuery',
   CancelAIPipelineGeneration = 'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipelineGeneration',
   HideGuideCue = 'compass-aggregations/pipeline-builder/pipeline-ai/HideGuideCue',
   ShowInput = 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
   HideInput = 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
   ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
-  LoadAIPipeline = 'compass-aggregations/LoadAIPipeline',
+  LoadGeneratedPipeline = 'compass-aggregations/LoadGeneratedPipeline',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -97,8 +97,8 @@ export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
   text,
 });
 
-export type LoadAIPipelineAction = {
-  type: AIPipelineActionTypes.LoadAIPipeline;
+export type LoadGeneratedPipelineAction = {
+  type: AIPipelineActionTypes.LoadGeneratedPipeline;
   pipelineText: string;
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
@@ -113,7 +113,7 @@ export const createPipelineFromQuery = ({
   userInput: string;
 }): PipelineBuilderThunkAction<
   void,
-  AIPipelineCreatedFromQueryAction | LoadAIPipelineAction
+  AIPipelineGeneratedFromQueryAction | LoadGeneratedPipelineAction
 > => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const pipelineText = String(aggregation?.pipeline);
@@ -121,12 +121,12 @@ export const createPipelineFromQuery = ({
     pipelineBuilder.reset(pipelineText);
 
     dispatch({
-      type: AIPipelineActionTypes.AIPipelineCreatedFromQuery,
+      type: AIPipelineActionTypes.AIPipelineGeneratedFromQuery,
       text: userInput,
     });
 
     dispatch({
-      type: AIPipelineActionTypes.LoadAIPipeline,
+      type: AIPipelineActionTypes.LoadGeneratedPipeline,
       stages: pipelineBuilder.stages,
       pipelineText: pipelineBuilder.source,
       pipeline: pipelineBuilder.pipeline,
@@ -152,8 +152,8 @@ export type AIPipelineSucceededAction = {
   type: AIPipelineActionTypes.AIPipelineSucceeded;
 };
 
-export type AIPipelineCreatedFromQueryAction = {
-  type: AIPipelineActionTypes.AIPipelineCreatedFromQuery;
+export type AIPipelineGeneratedFromQueryAction = {
+  type: AIPipelineActionTypes.AIPipelineGeneratedFromQuery;
   text: string;
 };
 
@@ -194,7 +194,7 @@ export const runAIPipelineGeneration = (
   | AIPipelineStartedAction
   | AIPipelineFailedAction
   | AIPipelineSucceededAction
-  | LoadAIPipelineAction
+  | LoadGeneratedPipelineAction
 > => {
   return async (dispatch, getState, { atlasService, pipelineBuilder }) => {
     const {
@@ -296,7 +296,7 @@ export const runAIPipelineGeneration = (
       return;
     }
 
-    const pipelineText = String(jsonResponse.content?.aggregation?.pipeline);
+    const pipelineText = jsonResponse.content.aggregation?.pipeline;
     try {
       if (!pipelineText) {
         throw new Error(emptyPipelineError);
@@ -337,7 +337,7 @@ export const runAIPipelineGeneration = (
     }));
 
     dispatch({
-      type: AIPipelineActionTypes.LoadAIPipeline,
+      type: AIPipelineActionTypes.LoadGeneratedPipeline,
       stages: pipelineBuilder.stages,
       pipelineText: pipelineBuilder.source,
       pipeline: pipelineBuilder.pipeline,
@@ -460,9 +460,9 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   }
 
   if (
-    isAction<AIPipelineCreatedFromQueryAction>(
+    isAction<AIPipelineGeneratedFromQueryAction>(
       action,
-      AIPipelineActionTypes.AIPipelineCreatedFromQuery
+      AIPipelineActionTypes.AIPipelineGeneratedFromQuery
     )
   ) {
     return {

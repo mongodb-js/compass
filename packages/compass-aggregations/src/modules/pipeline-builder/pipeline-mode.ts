@@ -12,7 +12,7 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { AIPipelineActionTypes } from './pipeline-ai';
-import type { LoadAIPipelineAction } from './pipeline-ai';
+import type { LoadGeneratedPipelineAction } from './pipeline-ai';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -43,7 +43,10 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   }
   if (
     action.type === RESTORE_PIPELINE ||
-    isAction<LoadAIPipelineAction>(action, AIPipelineActionTypes.LoadAIPipeline)
+    isAction<LoadGeneratedPipelineAction>(
+      action,
+      AIPipelineActionTypes.LoadGeneratedPipeline
+    )
   ) {
     // Force as-text editor mode if loaded pipeline contains syntax errors
     if (action.syntaxErrors.length > 0) {

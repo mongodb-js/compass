@@ -89,7 +89,7 @@ describe('PipelineAI Component', function () {
       );
 
       store.dispatch({
-        type: AIPipelineActionTypes.AIPipelineCreatedFromQuery,
+        type: AIPipelineActionTypes.AIPipelineGeneratedFromQuery,
         text: 'group by price',
       });
 
