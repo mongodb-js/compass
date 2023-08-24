@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
+import { AIGuideCue } from './ai-guide-cue';
 
 import { Button, Icon, IconButton, TextInput } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
@@ -151,10 +152,14 @@ type GenerativeAIInputProps = {
   isFetching?: boolean;
   placeholder?: string;
   show: boolean;
+  showGuideCue?: boolean;
+  guideCueTitle?: string;
+  guideCueDescription?: string;
   onCancelRequest: () => void;
   onChangeAIPromptText: (text: string) => void;
   onClose: () => void;
   onSubmitText: (text: string) => void;
+  onHideGuideCue?: () => void;
 } & AIFeedbackProps;
 
 function GenerativeAIInput({
@@ -164,15 +169,20 @@ function GenerativeAIInput({
   isFetching,
   placeholder = 'Tell Compass what documents to find (e.g. which movies were released in 2000)',
   show,
+  showGuideCue = false,
+  guideCueTitle = '',
+  guideCueDescription = '',
   onCancelRequest,
   onClose,
   onChangeAIPromptText,
   onSubmitFeedback,
   onSubmitText,
+  onHideGuideCue,
 }: GenerativeAIInputProps) {
   const promptTextInputRef = useRef<HTMLInputElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const darkMode = useDarkMode();
+  const guideCueRef = useRef<HTMLInputElement>(null);
 
   const onTextInputKeyDown = useCallback(
     (evt: React.KeyboardEvent<HTMLInputElement>) => {
@@ -215,6 +225,8 @@ function GenerativeAIInput({
     return () => onCancelRequestRef.current?.();
   }, []);
 
+  const [openGuideCue, setOpenGuideCue] = useState(showGuideCue);
+
   if (!show) {
     return null;
   }
@@ -243,7 +255,17 @@ function GenerativeAIInput({
             title={closeText}
             onClick={() => onClose()}
           >
-            <RobotSVG />
+            <AIGuideCue
+              open={openGuideCue}
+              setOpen={setOpenGuideCue}
+              refEl={guideCueRef}
+              onHideGuideCue={onHideGuideCue}
+              title={guideCueTitle}
+              description={guideCueDescription}
+            />
+            <span ref={guideCueRef}>
+              <RobotSVG />
+            </span>
           </button>
           <div className={floatingButtonsContainerStyles}>
             {isFetching ? (

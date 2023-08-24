@@ -140,6 +140,22 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     };
   }, [localAppRegistry, onSubTabClicked, tabs]);
 
+  useEffect(() => {
+    const aggregationsTabId = tabs.indexOf('Aggregations');
+    const onOpenAggregationsEvent = onSubTabClicked.bind(
+      null,
+      aggregationsTabId,
+      tabs[aggregationsTabId]
+    );
+    localAppRegistry.on('open-aggregation-tab', onOpenAggregationsEvent);
+    return () => {
+      localAppRegistry.removeListener(
+        'open-aggregation-tab',
+        onOpenAggregationsEvent
+      );
+    };
+  }, [localAppRegistry, onSubTabClicked, tabs]);
+
   return (
     <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>

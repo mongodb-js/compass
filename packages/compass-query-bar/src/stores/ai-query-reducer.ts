@@ -39,6 +39,7 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
+  AIQueryReturnedAggregation = 'compass-query-bar/ai-query/AIQueryReturnedAggregation',
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
@@ -102,6 +103,10 @@ export type AIQuerySucceededAction = {
   fields: QueryFormFields;
 };
 
+export type AIQueryReturnedAggregationAction = {
+  type: AIQueryActionTypes.AIQueryReturnedAggregation;
+};
+
 function logFailed(errorMessage: string) {
   log.info(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
     errorMessage,
@@ -112,14 +117,21 @@ export const runAIQuery = (
   userInput: string
 ): QueryBarThunkAction<
   Promise<void>,
-  AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
+  | AIQueryStartedAction
+  | AIQueryFailedAction
+  | AIQuerySucceededAction
+  | AIQueryReturnedAggregationAction
 > => {
   track('AI Prompt Submitted', () => ({
     editor_view_type: 'find',
     user_input_length: userInput.length,
   }));
 
-  return async (dispatch, getState, { dataService, atlasService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, atlasService, localAppRegistry }
+  ) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
       queryBar: { namespace },
@@ -203,6 +215,7 @@ export const runAIQuery = (
       return;
     }
 
+    let query;
     let fields;
     try {
       if (!jsonResponse?.content?.query) {
@@ -211,8 +224,7 @@ export const runAIQuery = (
         );
       }
 
-      const query = jsonResponse?.content?.query;
-
+      query = jsonResponse?.content?.query;
       fields = {
         ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
         ...parseQueryAttributesToFormFields(query ?? {}),
@@ -222,6 +234,30 @@ export const runAIQuery = (
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
+      });
+      return;
+    }
+
+    // The query endpoint may return the aggregation property in addition to filter, project, etc..
+    // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
+    const aggregation = Object.entries(query ?? {}).find(([key, value]) => {
+      return (
+        key === 'aggregation' &&
+        typeof value === 'object' &&
+        typeof value.pipeline === 'string'
+      );
+    });
+
+    if (aggregation) {
+      localAppRegistry?.emit('open-aggregation-tab', {
+        userInput,
+        aggregation: aggregation[1], // { pipeline: string }
+      });
+      const msg =
+        'Query requires stages from aggregation framework therefore an aggregation was generated.';
+      logFailed(msg);
+      dispatch({
+        type: AIQueryActionTypes.AIQueryReturnedAggregation,
       });
       return;
     }

@@ -56,6 +56,9 @@ const optionsStyles = css({
 
 type PipelineToolbarProps = {
   isAIInputVisible?: boolean;
+  isAIGuideCueVisible?: boolean;
+  guideCueTitle?: string;
+  guideCueDescription?: string;
   isBuilderView: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
@@ -67,6 +70,9 @@ type PipelineToolbarProps = {
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isAIInputVisible = false,
+  isAIGuideCueVisible = false,
+  guideCueTitle,
+  guideCueDescription,
   isBuilderView,
   showRunButton,
   showExportButton,
@@ -107,6 +113,9 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
               onHideAIInputClick?.();
             }}
             show={isAIInputVisible}
+            showGuideCue={isAIGuideCueVisible}
+            guideCueTitle={guideCueTitle}
+            guideCueDescription={guideCueDescription}
           />
         )}
       </div>
@@ -126,10 +135,15 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   );
 };
 
-const mapState = (state: RootState) => ({
-  isBuilderView: state.workspace === 'builder',
-  isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
-});
+const mapState = (state: RootState) => {
+  return {
+    isBuilderView: state.workspace === 'builder',
+    isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
+    isAIGuideCueVisible: state.pipelineBuilder.aiPipeline.isGuideCueVisible,
+    guideCueTitle: state.pipelineBuilder.aiPipeline.guideCueTitle,
+    guideCueDescription: state.pipelineBuilder.aiPipeline.guideCueDescription,
+  };
+};
 export default connect(mapState, {
   onHideAIInputClick: hideAIInput,
 })(PipelineToolbar);

@@ -217,5 +217,32 @@ describe('Aggregation Store', function () {
         });
       });
     });
+
+    context('when opening aggregation is requested', function () {
+      it('updates the ai store', function (done) {
+        const unsubscribe = store.subscribe(() => {
+          unsubscribe();
+          expect(store.getState().pipelineBuilder.aiPipeline).to.deep.equal({
+            aiPipelineFetchId: -1,
+            aiPromptText: 'group by price',
+            errorMessage: undefined,
+            guideCueDescription:
+              "Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Agaredation Pipeline Builder",
+            guideCueTitle: 'Aggregation generated',
+            isGuideCueVisible: true,
+            isInputVisible: true,
+            status: 'success',
+          });
+          done();
+        });
+
+        localAppRegistry.emit('open-aggregation-tab', {
+          userInput: 'group by price',
+          aggregation: {
+            pipeline: '[{ $group: { _id: "$price" } }]',
+          },
+        });
+      });
+    });
   });
 });

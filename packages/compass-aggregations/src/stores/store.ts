@@ -9,6 +9,7 @@ import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
+import { createPipelineFromQuery } from '../modules/pipeline-builder/pipeline-ai';
 import type { StoredPipeline } from '../utils/pipeline-storage';
 import { PipelineStorage } from '../utils/pipeline-storage';
 import {
@@ -251,6 +252,10 @@ const configureStore = (options: ConfigureStoreOptions) => {
      */
     localAppRegistry.on('fields-changed', (fields) => {
       store.dispatch(fieldsChanged(fields.autocompleteFields));
+    });
+
+    localAppRegistry.on('open-aggregation-tab', (data) => {
+      store.dispatch(createPipelineFromQuery(data));
     });
   }
 

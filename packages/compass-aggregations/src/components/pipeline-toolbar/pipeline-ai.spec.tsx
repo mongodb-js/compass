@@ -82,6 +82,27 @@ describe('PipelineAI Component', function () {
     });
   });
 
+  describe('when a pipeline created from query', function () {
+    beforeEach(function () {
+      store = renderPipelineAI();
+    });
+
+    it('inserts user prompt', function () {
+      expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
+        ''
+      );
+
+      store.dispatch({
+        type: AIPipelineActionTypes.AIPipelineCreatedFromQuery,
+        text: 'group by price',
+      });
+
+      expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
+        'group by price'
+      );
+    });
+  });
+
   describe('Pipeline AI Feedback', function () {
     let trackUsageStatistics: boolean | undefined;
 

@@ -25,6 +25,9 @@ export type AIPipelineState = {
   aiPromptText: string;
   status: AIPipelineStatus;
   aiPipelineFetchId: number; // Maps to the AbortController of the current fetch (or -1).
+  isGuideCueVisible: boolean;
+  guideCueTitle: string | undefined;
+  guideCueDescription: string | undefined;
 };
 
 export const initialState: AIPipelineState = {
@@ -33,6 +36,9 @@ export const initialState: AIPipelineState = {
   errorMessage: undefined,
   isInputVisible: false,
   aiPipelineFetchId: -1,
+  isGuideCueVisible: false,
+  guideCueTitle: undefined,
+  guideCueDescription: undefined,
 };
 
 export const enum AIPipelineActionTypes {
@@ -40,11 +46,13 @@ export const enum AIPipelineActionTypes {
   AIPipelineCancelled = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',
   AIPipelineFailed = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineFailed',
   AIPipelineSucceeded = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineSucceeded',
+  AIPipelineCreatedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCreatedFromQuery',
   CancelAIPipelineGeneration = 'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipelineGeneration',
+  HideGuideCue = 'compass-aggregations/pipeline-builder/pipeline-ai/HideGuideCue',
   ShowInput = 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
   HideInput = 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
   ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
-  LoadGeneratedPipeline = 'compass-aggregations/LoadGeneratedPipeline',
+  LoadAIPipeline = 'compass-aggregations/LoadAIPipeline',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -88,12 +96,44 @@ export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
   text,
 });
 
-export type LoadGeneratedPipelineAction = {
-  type: AIPipelineActionTypes.LoadGeneratedPipeline;
+export type LoadAIPipelineAction = {
+  type: AIPipelineActionTypes.LoadAIPipeline;
   pipelineText: string;
   pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
   stages: Stage[];
+};
+
+export const createPipelineFromQuery = ({
+  aggregation,
+  userInput,
+}: {
+  aggregation: { pipeline: string };
+  userInput: string;
+}): PipelineBuilderThunkAction<
+  void,
+  AIPipelineCreatedFromQueryAction | LoadAIPipelineAction
+> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const pipelineText = String(aggregation?.pipeline);
+
+    pipelineBuilder.reset(pipelineText);
+
+    dispatch({
+      type: AIPipelineActionTypes.AIPipelineCreatedFromQuery,
+      text: userInput,
+    });
+
+    dispatch({
+      type: AIPipelineActionTypes.LoadAIPipeline,
+      stages: pipelineBuilder.stages,
+      pipelineText: pipelineBuilder.source,
+      pipeline: pipelineBuilder.pipeline,
+      syntaxErrors: pipelineBuilder.syntaxError,
+    });
+
+    dispatch(updatePipelinePreview());
+  };
 };
 
 type AIPipelineStartedAction = {
@@ -109,6 +149,11 @@ type AIPipelineFailedAction = {
 
 export type AIPipelineSucceededAction = {
   type: AIPipelineActionTypes.AIPipelineSucceeded;
+};
+
+export type AIPipelineCreatedFromQueryAction = {
+  type: AIPipelineActionTypes.AIPipelineCreatedFromQuery;
+  text: string;
 };
 
 function logFailed(errorMessage: string) {
@@ -129,7 +174,7 @@ export const runAIPipelineGeneration = (
   | AIPipelineStartedAction
   | AIPipelineFailedAction
   | AIPipelineSucceededAction
-  | LoadGeneratedPipelineAction
+  | LoadAIPipelineAction
 > => {
   return async (dispatch, getState, { atlasService, pipelineBuilder }) => {
     const {
@@ -256,7 +301,7 @@ export const runAIPipelineGeneration = (
     pipelineBuilder.reset(pipelineText);
 
     dispatch({
-      type: AIPipelineActionTypes.LoadGeneratedPipeline,
+      type: AIPipelineActionTypes.LoadAIPipeline,
       stages: pipelineBuilder.stages,
       pipelineText: pipelineBuilder.source,
       pipeline: pipelineBuilder.pipeline,
@@ -285,13 +330,30 @@ export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
   };
 };
 
+type HideGuideCueAction = {
+  type: AIPipelineActionTypes.HideGuideCue;
+};
+
+export const hideGuideCue = (): PipelineBuilderThunkAction<
+  void,
+  HideGuideCueAction
+> => {
+  return (dispatch) => {
+    dispatch({
+      type: AIPipelineActionTypes.HideGuideCue,
+    });
+  };
+};
+
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasService.signIn({ promptType: 'ai-promo-modal' });
       }
-      dispatch({ type: AIPipelineActionTypes.ShowInput });
+      dispatch({
+        type: AIPipelineActionTypes.ShowInput,
+      });
     } catch {
       // if sign in failed / user canceled we just don't show the input
     }
@@ -362,6 +424,25 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   }
 
   if (
+    isAction<AIPipelineCreatedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.AIPipelineCreatedFromQuery
+    )
+  ) {
+    return {
+      ...state,
+      status: 'success',
+      aiPipelineFetchId: -1,
+      isInputVisible: true,
+      isGuideCueVisible: true,
+      aiPromptText: action.text,
+      guideCueTitle: 'Aggregation generated',
+      guideCueDescription:
+        "Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Agaredation Pipeline Builder",
+    };
+  }
+
+  if (
     isAction<CancelAIPipelineGenerationAction>(
       action,
       AIPipelineActionTypes.CancelAIPipelineGeneration
@@ -371,6 +452,15 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
       ...state,
       status: 'ready',
       aiPipelineFetchId: -1,
+    };
+  }
+
+  if (
+    isAction<HideGuideCueAction>(action, AIPipelineActionTypes.HideGuideCue)
+  ) {
+    return {
+      ...state,
+      isGuideCueVisible: false,
     };
   }
 
@@ -385,6 +475,7 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     return {
       ...state,
       isInputVisible: false,
+      isGuideCueVisible: false,
     };
   }
 

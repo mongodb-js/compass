@@ -36,6 +36,7 @@ const renderGenerativeAIInput = ({
 };
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
+const aiGuideCueDescriptionSpanId = 'ai-guide-cue-description-span';
 
 describe('GenerativeAIInput Component', function () {
   afterEach(cleanup);
@@ -113,6 +114,25 @@ describe('GenerativeAIInput Component', function () {
 
       expect(feedbackChoice).to.equal('positive');
       expect(feedbackText).to.equal('this is the query I was looking for');
+    });
+  });
+
+  describe('Aggregation created guide cue', function () {
+    it('should call the hide guide cue handler on submit', async function () {
+      let hideGuideCueCalled = false;
+
+      renderGenerativeAIInput({
+        onHideGuideCue: () => {
+          hideGuideCueCalled = true;
+        },
+        showGuideCue: true,
+        guideCueTitle: 'Title',
+        guideCueDescription: 'Description',
+      });
+
+      expect(screen.queryByTestId(aiGuideCueDescriptionSpanId)).to.exist;
+      await waitFor(() => fireEvent.click(screen.getByText('Got it')));
+      expect(hideGuideCueCalled).to.equal(true);
     });
   });
 });

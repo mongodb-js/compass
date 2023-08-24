@@ -22,7 +22,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   }
   if (
     action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
-    action.type === AIPipelineActionTypes.LoadGeneratedPipeline
+    action.type === AIPipelineActionTypes.LoadAIPipeline
   ) {
     return INITIAL_STATE;
   }

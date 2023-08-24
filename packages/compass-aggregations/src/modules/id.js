@@ -26,7 +26,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (
     action.type === CREATE_ID ||
     action.type === CLONE_PIPELINE ||
-    action.type === AIPipelineActionTypes.LoadGeneratedPipeline ||
+    action.type === AIPipelineActionTypes.LoadAIPipeline ||
     action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
   ) {
     return new ObjectId().toHexString();

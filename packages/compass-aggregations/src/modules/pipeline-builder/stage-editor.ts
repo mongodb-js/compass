@@ -26,7 +26,7 @@ import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
 import { fetchExplainForPipeline } from '../insights';
 import { AIPipelineActionTypes } from './pipeline-ai';
-import type { LoadGeneratedPipelineAction } from './pipeline-ai';
+import type { LoadAIPipelineAction } from './pipeline-ai';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
@@ -869,10 +869,7 @@ const reducer: Reducer<StageEditorState> = (
       action,
       PipelineModeActionTypes.PipelineModeToggled
     ) ||
-    isAction<LoadGeneratedPipelineAction>(
-      action,
-      AIPipelineActionTypes.LoadGeneratedPipeline
-    )
+    isAction<LoadAIPipelineAction>(action, AIPipelineActionTypes.LoadAIPipeline)
   ) {
     const stages = action.stages.map((stage: Stage, idx: number) => {
       return mapBuilderStageToStoreStage(stage, idx);
