@@ -19,7 +19,7 @@ import error, {
 import { reset, RESET } from '../reset';
 import { prepareMetrics } from '../metrics';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import queryParser from 'mongodb-query-parser';
+import { parseFilter } from 'mongodb-query-parser';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
 
@@ -109,7 +109,7 @@ export async function handleFLE2Options(ds, options) {
 
   if (options.encryptedFields) {
     try {
-      options.encryptedFields = queryParser(options.encryptedFields);
+      options.encryptedFields = parseFilter(options.encryptedFields);
     } catch (err) {
       throw new Error(`Could not parse encryptedFields config: ${err.message}`);
     }
@@ -121,7 +121,7 @@ export async function handleFLE2Options(ds, options) {
       // generate them as part of the collection creation operation.
       let keyEncryptionKey;
       try {
-        keyEncryptionKey = queryParser(options.keyEncryptionKey || '{}');
+        keyEncryptionKey = parseFilter(options.keyEncryptionKey || '{}');
       } catch (err) {
         throw new Error(`Could not parse keyEncryptionKey: ${err.message}`);
       }

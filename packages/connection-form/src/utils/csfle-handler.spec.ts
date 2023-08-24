@@ -220,7 +220,7 @@ describe('csfle-handler', function () {
         properties: {
           taxid: {
             encrypt: {
-              keyId: [ UUID("a21ddc6a-8806-4384-9fdf-8ba02a767b5f") ],
+              keyId: [ UUID('a21ddc6a-8806-4384-9fdf-8ba02a767b5f') ],
               bsonType: 'string',
               algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Random'
             }

@@ -2,7 +2,7 @@ import { EJSON, ObjectId } from 'bson';
 import { combineReducers } from 'redux';
 import type { Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import queryParser from 'mongodb-query-parser';
+import { isCollationValid } from 'mongodb-query-parser';
 import type { CreateIndexesOptions, IndexSpecification } from 'mongodb';
 
 import dataService from '../data-service';
@@ -135,8 +135,7 @@ export const createIndex = () => {
 
     // Check for collaction errors.
     const collation =
-      queryParser.isCollationValid(stateOptions.collation.value ?? '') ||
-      undefined;
+      isCollationValid(stateOptions.collation.value ?? '') || undefined;
 
     if (stateOptions.collation.enabled && !collation) {
       dispatch(handleError('You must provide a valid collation object'));
