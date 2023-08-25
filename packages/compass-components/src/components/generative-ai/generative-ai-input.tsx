@@ -253,7 +253,6 @@ function GenerativeAIInput({
             onClick={() => onClose()}
           >
             <AIGuideCue
-              spacing={spacing[2]}
               open={isAggregationGeneratedFromQuery}
               setOpen={() => {
                 /* noop because we control guide cue visibility through onResetIsAggregationGeneratedFromQuery */

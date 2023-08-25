@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
+import { spacing } from '@leafygreen-ui/tokens';
 import { useId } from '@react-aria/utils';
 
 type LGGuideCueProps = React.ComponentProps<typeof LGGuideCue>;
@@ -57,6 +58,7 @@ export const AIGuideCue = ({
 
   return (
     <LGGuideCue
+      spacing={spacing[2]}
       open={open}
       setOpen={setOpen}
       refEl={refEl}
