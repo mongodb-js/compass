@@ -262,7 +262,7 @@ function GenerativeAIInput({
                 onResetIsAggregationGeneratedFromQuery
               }
               title="Aggregation generated"
-              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Agaredation Pipeline Builder"
+              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
             />
             <span ref={guideCueRef}>
               <RobotSVG />
