@@ -28,6 +28,7 @@ describe('AIPipelineReducer', function () {
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasService = {
+          on: sandbox.stub(),
           getAggregationFromUserInput: sandbox.stub().resolves({
             content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
           }),
@@ -86,6 +87,7 @@ describe('AIPipelineReducer', function () {
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
         const mockAtlasService = {
+          on: sandbox.stub(),
           getAggregationFromUserInput: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),
@@ -111,6 +113,7 @@ describe('AIPipelineReducer', function () {
         const authError = new Error('Unauthorized');
         (authError as any).statusCode = 401;
         const mockAtlasService = {
+          on: sandbox.stub(),
           getAggregationFromUserInput: sandbox.stub().rejects(authError),
         };
         const store = createStore({ atlasService: mockAtlasService as any });

@@ -47,8 +47,9 @@ export const enum AIPipelineActionTypes {
   ShowInput = 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
   HideInput = 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
   ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
-  LoadGeneratedPipeline = 'compass-aggregations/LoadGeneratedPipeline',
-  PipelineGeneratedFromQuery = 'compass-aggregations/PipelineGeneratedFromQuery',
+  LoadGeneratedPipeline = 'compass-aggregations/pipeline-builder/pipeline-ai/LoadGeneratedPipeline',
+  PipelineGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/PipelineGeneratedFromQuery',
+  AtlasServiceDisableAIFeature = 'compass-aggregations/pipeline-builder/pipeline-ai/AtlasServiceDisableAIFeature',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -364,6 +365,7 @@ export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasService.signIn({ promptType: 'ai-promo-modal' });
+        await atlasService.enableAIFeature();
       }
       dispatch({
         type: AIPipelineActionTypes.ShowInput,
@@ -382,6 +384,17 @@ export const hideInput = (): PipelineBuilderThunkAction<
     // Cancel any ongoing op when we hide.
     dispatch(cancelAIPipelineGeneration());
     dispatch({ type: AIPipelineActionTypes.HideInput });
+  };
+};
+
+type AtlasServiceDisableAIFeatureAction = {
+  type: AIPipelineActionTypes.AtlasServiceDisableAIFeature;
+};
+
+export const disableAIFeature = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(cancelAIPipelineGeneration());
+    dispatch({ type: AIPipelineActionTypes.AtlasServiceDisableAIFeature });
   };
 };
 
@@ -505,6 +518,15 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
       status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
     };
+  }
+
+  if (
+    isAction<AtlasServiceDisableAIFeatureAction>(
+      action,
+      AIPipelineActionTypes.AtlasServiceDisableAIFeature
+    )
+  ) {
+    return { ...initialState };
   }
 
   return state;

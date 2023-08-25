@@ -25,6 +25,7 @@ import {
   setCollections,
 } from '../modules/collections-fields';
 import type { CollectionInfo } from '../modules/collections-fields';
+import { disableAIFeature } from '../modules/pipeline-builder/pipeline-ai';
 
 export type ConfigureStoreOptions = {
   /**
@@ -125,7 +126,11 @@ export type ConfigureStoreOptions = {
    */
   collections: CollectionInfo[];
   /**
-   * Service for making ai requests.
+   * Storage service for saved aggregations
+   */
+  pipelineStorage: PipelineStorage;
+  /**
+   * Service for interacting with Atlas-only features
    */
   atlasService: AtlasService;
 }>;
@@ -162,11 +167,15 @@ const configureStore = (options: ConfigureStoreOptions) => {
     options.dataProvider.dataProvider as DataService,
     initialPipelineSource
   );
-  const pipelineStorage = new PipelineStorage();
+
+  const atlasService = options.atlasService ?? new AtlasService();
+
+  const pipelineStorage = options.pipelineStorage ?? new PipelineStorage();
 
   const stages = pipelineBuilder.stages.map((stage, idx) =>
     mapBuilderStageToStoreStage(stage, idx)
   );
+
   const stagesIdAndType = mapStoreStagesToStageIdAndType(stages);
 
   const store = createStore(
@@ -224,10 +233,16 @@ const configureStore = (options: ConfigureStoreOptions) => {
       thunk.withExtraArgument({
         pipelineBuilder,
         pipelineStorage,
-        atlasService: options.atlasService ?? new AtlasService(),
+        atlasService,
       })
     )
   );
+
+  atlasService.on('user-config-changed', (config) => {
+    if (config.enabledAIFeature === false) {
+      store.dispatch(disableAIFeature());
+    }
+  });
 
   const refreshInput = () => {
     void store.dispatch(refreshInputDocuments());
