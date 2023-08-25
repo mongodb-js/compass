@@ -1,6 +1,5 @@
 {
   "name": "@mongodb-js/compass-user-data",
-  "productName": "compass-user-data Plugin",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
