@@ -162,7 +162,14 @@ describe('AIPipelineReducer', function () {
 
   describe('generateAggregationFromQuery', function () {
     it('should create an aggregation pipeline', function () {
-      const mockAtlasService = {};
+      const mockAtlasService = {
+        on: sandbox.stub(),
+        getAggregationFromUserInput: sandbox.stub().resolves({
+          content: {
+            aggregation: { pipeline: '[{ $group: { _id: "$price" } }]' },
+          },
+        }),
+      };
 
       const mockDataService = {
         sample: sandbox.stub().resolves([{ _id: 42 }]),
