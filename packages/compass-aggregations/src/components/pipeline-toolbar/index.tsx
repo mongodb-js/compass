@@ -56,9 +56,7 @@ const optionsStyles = css({
 
 type PipelineToolbarProps = {
   isAIInputVisible?: boolean;
-  isAIGuideCueVisible?: boolean;
-  guideCueTitle?: string;
-  guideCueDescription?: string;
+  isAggregationGeneratedFromQuery?: boolean;
   isBuilderView: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
@@ -70,9 +68,7 @@ type PipelineToolbarProps = {
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   isAIInputVisible = false,
-  isAIGuideCueVisible = false,
-  guideCueTitle,
-  guideCueDescription,
+  isAggregationGeneratedFromQuery = false,
   isBuilderView,
   showRunButton,
   showExportButton,
@@ -113,9 +109,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
               onHideAIInputClick?.();
             }}
             show={isAIInputVisible}
-            showGuideCue={isAIGuideCueVisible}
-            guideCueTitle={guideCueTitle}
-            guideCueDescription={guideCueDescription}
+            isAggregationGeneratedFromQuery={isAggregationGeneratedFromQuery}
           />
         )}
       </div>
@@ -139,9 +133,8 @@ const mapState = (state: RootState) => {
   return {
     isBuilderView: state.workspace === 'builder',
     isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
-    isAIGuideCueVisible: state.pipelineBuilder.aiPipeline.isGuideCueVisible,
-    guideCueTitle: state.pipelineBuilder.aiPipeline.guideCueTitle,
-    guideCueDescription: state.pipelineBuilder.aiPipeline.guideCueDescription,
+    isAggregationGeneratedFromQuery:
+      state.pipelineBuilder.aiPipeline.isAggregationGeneratedFromQuery,
   };
 };
 

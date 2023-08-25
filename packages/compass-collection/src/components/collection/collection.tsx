@@ -142,16 +142,19 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
 
   useEffect(() => {
     const aggregationsTabId = tabs.indexOf('Aggregations');
-    const onOpenAggregationsEvent = onSubTabClicked.bind(
+    const onGenerateAggregationFromQueryEvent = onSubTabClicked.bind(
       null,
       aggregationsTabId,
       tabs[aggregationsTabId]
     );
-    localAppRegistry.on('open-aggregation-tab', onOpenAggregationsEvent);
+    localAppRegistry.on(
+      'generate-aggregation-from-query',
+      onGenerateAggregationFromQueryEvent
+    );
     return () => {
       localAppRegistry.removeListener(
-        'open-aggregation-tab',
-        onOpenAggregationsEvent
+        'generate-aggregation-from-query',
+        onGenerateAggregationFromQueryEvent
       );
     };
   }, [localAppRegistry, onSubTabClicked, tabs]);

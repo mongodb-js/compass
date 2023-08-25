@@ -26,9 +26,7 @@ export type AIPipelineState = {
   aiPromptText: string;
   status: AIPipelineStatus;
   aiPipelineFetchId: number; // Maps to the AbortController of the current fetch (or -1).
-  isGuideCueVisible: boolean;
-  guideCueTitle: string | undefined;
-  guideCueDescription: string | undefined;
+  isAggregationGeneratedFromQuery: boolean;
 };
 
 export const initialState: AIPipelineState = {
@@ -37,9 +35,7 @@ export const initialState: AIPipelineState = {
   errorMessage: undefined,
   isInputVisible: false,
   aiPipelineFetchId: -1,
-  isGuideCueVisible: false,
-  guideCueTitle: undefined,
-  guideCueDescription: undefined,
+  isAggregationGeneratedFromQuery: false,
 };
 
 export const enum AIPipelineActionTypes {
@@ -105,7 +101,7 @@ export type LoadGeneratedPipelineAction = {
   stages: Stage[];
 };
 
-export const createPipelineFromQuery = ({
+export const generateAggregationFromQuery = ({
   aggregation,
   userInput,
 }: {
@@ -470,11 +466,8 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
       status: 'success',
       aiPipelineFetchId: -1,
       isInputVisible: true,
-      isGuideCueVisible: true,
+      isAggregationGeneratedFromQuery: true,
       aiPromptText: action.text,
-      guideCueTitle: 'Aggregation generated',
-      guideCueDescription:
-        "Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Agaredation Pipeline Builder",
     };
   }
 
@@ -496,7 +489,7 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   ) {
     return {
       ...state,
-      isGuideCueVisible: false,
+      isAggregationGeneratedFromQuery: false,
     };
   }
 
@@ -511,7 +504,7 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     return {
       ...state,
       isInputVisible: false,
-      isGuideCueVisible: false,
+      isAggregationGeneratedFromQuery: false,
     };
   }
 

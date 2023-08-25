@@ -218,7 +218,7 @@ describe('Aggregation Store', function () {
       });
     });
 
-    context('when opening aggregation is requested', function () {
+    context('when an aggregation should be generated from query', function () {
       it('updates the ai store', function (done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
@@ -226,17 +226,14 @@ describe('Aggregation Store', function () {
             aiPipelineFetchId: -1,
             aiPromptText: 'group by price',
             errorMessage: undefined,
-            guideCueDescription:
-              "Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Agaredation Pipeline Builder",
-            guideCueTitle: 'Aggregation generated',
-            isGuideCueVisible: true,
+            isAggregationGeneratedFromQuery: true,
             isInputVisible: true,
             status: 'success',
           });
           done();
         });
 
-        localAppRegistry.emit('open-aggregation-tab', {
+        localAppRegistry.emit('generate-aggregation-from-query', {
           userInput: 'group by price',
           aggregation: {
             pipeline: '[{ $group: { _id: "$price" } }]',

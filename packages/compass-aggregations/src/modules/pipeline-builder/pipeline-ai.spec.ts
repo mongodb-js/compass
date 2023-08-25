@@ -6,7 +6,7 @@ import {
   AIPipelineActionTypes,
   cancelAIPipelineGeneration,
   runAIPipelineGeneration,
-  createPipelineFromQuery,
+  generateAggregationFromQuery,
 } from './pipeline-ai';
 import type { ConfigureStoreOptions } from '../../stores/store';
 import { toggleAutoPreview } from '../auto-preview';
@@ -121,9 +121,7 @@ describe('AIPipelineReducer', function () {
           errorMessage: undefined,
           isInputVisible: false,
           aiPipelineFetchId: -1,
-          isGuideCueVisible: false,
-          guideCueTitle: undefined,
-          guideCueDescription: undefined,
+          isAggregationGeneratedFromQuery: false,
         });
       });
     });
@@ -159,7 +157,7 @@ describe('AIPipelineReducer', function () {
     });
   });
 
-  describe('createPipelineFromQuery', function () {
+  describe('generateAggregationFromQuery', function () {
     it('should create an aggregation pipeline', function () {
       const mockAtlasService = {};
 
@@ -184,7 +182,7 @@ describe('AIPipelineReducer', function () {
       );
 
       store.dispatch(
-        createPipelineFromQuery({
+        generateAggregationFromQuery({
           userInput: 'group by price',
           aggregation: {
             pipeline: '[{ $group: { _id: "$price" } }]',
@@ -208,11 +206,9 @@ describe('AIPipelineReducer', function () {
         store.getState().pipelineBuilder.aiPipeline.isInputVisible
       ).to.equal(true);
       expect(
-        store.getState().pipelineBuilder.aiPipeline.isGuideCueVisible
+        store.getState().pipelineBuilder.aiPipeline
+          .isAggregationGeneratedFromQuery
       ).to.equal(true);
-      expect(
-        store.getState().pipelineBuilder.aiPipeline.guideCueTitle
-      ).to.equal('Aggregation generated');
     });
   });
 });

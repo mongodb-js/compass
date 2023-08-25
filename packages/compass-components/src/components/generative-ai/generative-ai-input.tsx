@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import { AIGuideCue } from './ai-guide-cue';
 
 import { Button, Icon, IconButton, TextInput } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
@@ -10,6 +9,7 @@ import { ErrorSummary } from '../error-warning-summary';
 import { SpinLoader } from '../loader';
 import { DEFAULT_ROBOT_SIZE, RobotSVG } from './robot-svg';
 import { AIFeedback } from './ai-feedback';
+import { AIGuideCue } from './ai-guide-cue';
 import { focusRing } from '../../hooks/use-focus-ring';
 
 const containerStyles = css({
@@ -151,9 +151,7 @@ type GenerativeAIInputProps = {
   isFetching?: boolean;
   placeholder?: string;
   show: boolean;
-  showGuideCue?: boolean;
-  guideCueTitle?: string;
-  guideCueDescription?: string;
+  isAggregationGeneratedFromQuery?: boolean;
   onHideGuideCue?: () => void;
   onCancelRequest: () => void;
   onChangeAIPromptText: (text: string) => void;
@@ -172,9 +170,7 @@ function GenerativeAIInput({
   isFetching,
   placeholder = 'Tell Compass what documents to find (e.g. which movies were released in 2000)',
   show,
-  showGuideCue = false,
-  guideCueTitle = '',
-  guideCueDescription = '',
+  isAggregationGeneratedFromQuery = false,
   onCancelRequest,
   onClose,
   onChangeAIPromptText,
@@ -228,10 +224,16 @@ function GenerativeAIInput({
     return () => onCancelRequestRef.current?.();
   }, []);
 
-  const [openGuideCue, setOpenGuideCue] = useState(showGuideCue);
-
   if (!show) {
     return null;
+  }
+
+  let guideCueTitle;
+  let guideCueDescription;
+  if (isAggregationGeneratedFromQuery) {
+    guideCueTitle = 'Aggregation generated';
+    guideCueDescription =
+      "Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Agaredation Pipeline Builder";
   }
 
   return (
@@ -259,8 +261,8 @@ function GenerativeAIInput({
             onClick={() => onClose()}
           >
             <AIGuideCue
-              open={openGuideCue}
-              setOpen={setOpenGuideCue}
+              open={isAggregationGeneratedFromQuery}
+              setOpen={() => isAggregationGeneratedFromQuery}
               refEl={guideCueRef}
               onHideGuideCue={onHideGuideCue}
               title={guideCueTitle}

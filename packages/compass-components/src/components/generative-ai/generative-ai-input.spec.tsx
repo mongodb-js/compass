@@ -142,9 +142,7 @@ describe('GenerativeAIInput Component', function () {
         onHideGuideCue: () => {
           hideGuideCueCalled = true;
         },
-        showGuideCue: true,
-        guideCueTitle: 'Title',
-        guideCueDescription: 'Description',
+        isAggregationGeneratedFromQuery: true,
       });
 
       expect(screen.queryByTestId(aiGuideCueDescriptionSpanId)).to.exist;
