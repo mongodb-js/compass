@@ -114,6 +114,9 @@ describe('Instance sidebar', function () {
   });
 
   it('can create a database and drop it', async function () {
+    // TODO(COMPASS-7086): flaky test
+    this.retries(5);
+
     const dbName = 'my-sidebar-database';
     const collectionName = 'my-collection';
 
