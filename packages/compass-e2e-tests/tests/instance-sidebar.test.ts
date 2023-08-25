@@ -117,7 +117,7 @@ describe('Instance sidebar', function () {
     // TODO(COMPASS-7086): flaky test
     this.retries(5);
 
-    const dbName = 'my-sidebar-database';
+    const dbName = `my-sidebar-database-${Date.now()}`;
     const collectionName = 'my-collection';
 
     // open the create database modal from the sidebar
