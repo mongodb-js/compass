@@ -2,6 +2,7 @@ import React from 'react';
 import { GenerativeAIInput } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { usePreference } from 'compass-preferences-model';
 
 import {
   changeAIPromptText,
@@ -30,9 +31,12 @@ type PipelineAIProps = Omit<
 >;
 
 function PipelineAI(props: PipelineAIProps) {
+  // Don't show the feedback options if telemetry is disabled.
+  const enableTelemetry = usePreference('trackUsageStatistics', React);
+
   return (
     <GenerativeAIInput
-      onSubmitFeedback={onSubmitFeedback}
+      onSubmitFeedback={enableTelemetry ? onSubmitFeedback : undefined}
       placeholder="Tell Compass what aggregation to build (e.g. how many movies were made each year)"
       {...props}
     />

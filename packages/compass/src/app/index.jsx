@@ -68,6 +68,11 @@ import { setupIntercom } from './intercom';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
+// Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
+window.setShowDevFeatureFlags = async (showDevFeatureFlags = true) => {
+  await preferences.savePreferences({ showDevFeatureFlags });
+};
+
 /**
  * The top-level application singleton that brings everything together!
  */

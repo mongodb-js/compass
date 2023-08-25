@@ -4,30 +4,53 @@ import type { Reducer, AnyAction } from 'redux';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { openModal, reducer as settingsReducer } from './settings';
+import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 import { PreferencesSandbox } from './preferences-sandbox';
+import { openModal, reducer as settingsReducer } from './settings';
+import atlasLoginReducer, {
+  getUserInfo,
+  atlasServiceSignedOut,
+  atlasServiceTokenRefreshFailed,
+} from './atlas-login';
+
+export type Public<T> = { [K in keyof T]: T[K] };
 
 export function configureStore({
   preferencesSandbox,
+  atlasService,
 }: {
-  preferencesSandbox?: Pick<
-    PreferencesSandbox,
-    | 'setupSandbox'
-    | 'updateField'
-    | 'getSandboxState'
-    | 'applySandboxChangesToPreferences'
-  >;
+  preferencesSandbox?: Public<PreferencesSandbox>;
+  atlasService?: Public<AtlasService>;
 } = {}) {
-  return createStore(
+  preferencesSandbox ??= new PreferencesSandbox();
+  atlasService ??= new AtlasService();
+
+  const store = createStore(
     combineReducers({
       settings: settingsReducer,
-    }) as Reducer<{ settings: ReturnType<typeof settingsReducer> }>, // combineReducers CombinedState return type is broken, have to remove the EmptyObject from the union that it returns
+      atlasLogin: atlasLoginReducer,
+    }) as Reducer<{
+      settings: ReturnType<typeof settingsReducer>;
+      atlasLogin: ReturnType<typeof atlasLoginReducer>;
+    }>, // combineReducers CombinedState return type is broken, have to remove the EmptyObject from the union that it returns
     applyMiddleware(
-      thunk.withExtraArgument({
-        preferencesSandbox: preferencesSandbox ?? new PreferencesSandbox(),
-      })
+      thunk.withExtraArgument({ preferencesSandbox, atlasService })
     )
   );
+
+  atlasService.on('signed-in', () => {
+    void store.dispatch(getUserInfo());
+  });
+
+  atlasService.on('signed-out', () => {
+    void store.dispatch(atlasServiceSignedOut());
+  });
+
+  atlasService.on('token-refresh-failed', () => {
+    void store.dispatch(atlasServiceTokenRefreshFailed());
+  });
+
+  return store;
 }
 
 const store = configureStore();
@@ -41,13 +64,8 @@ export type SettingsThunkAction<
   R,
   RootState,
   {
-    preferencesSandbox: Pick<
-      PreferencesSandbox,
-      | 'setupSandbox'
-      | 'updateField'
-      | 'getSandboxState'
-      | 'applySandboxChangesToPreferences'
-    >;
+    preferencesSandbox: Public<PreferencesSandbox>;
+    atlasService: Public<AtlasService>;
   },
   A
 >;

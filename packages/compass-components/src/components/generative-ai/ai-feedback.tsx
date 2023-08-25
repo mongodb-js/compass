@@ -68,7 +68,7 @@ const buttonActiveNegativeStyles = css({
   fill: palette.red.dark2,
 });
 
-export type AIFeedbackProps = {
+type AIFeedbackProps = {
   onSubmitFeedback: (feedback: 'positive' | 'negative', text: string) => void;
 };
 

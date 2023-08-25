@@ -7,6 +7,7 @@ module.exports = {
   require: [
     ...reactConfig.require,
     path.resolve(__dirname, 'register', 'electron-renderer-register.js'),
+    path.resolve(__dirname, 'register', 'compass-preferences-register.js'),
   ],
   // electron-mocha config options (ignored when run with just mocha)
   // https://github.com/jprichardson/electron-mocha

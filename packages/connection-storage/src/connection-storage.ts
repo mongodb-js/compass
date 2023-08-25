@@ -31,6 +31,16 @@ import type {
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
+type ConnectionLegacyProps = {
+  _id: string;
+  isFavorite?: boolean;
+  name: string;
+};
+
+type ConnectionWithLegacyProps = {
+  connectionInfo: ConnectionInfo;
+} & ConnectionLegacyProps;
+
 export class ConnectionStorage {
   private static calledOnce: boolean;
   private static path: string;
@@ -102,7 +112,7 @@ export class ConnectionStorage {
     }
   }
 
-  private static async getConnections(): Promise<any[]> {
+  private static async getConnections(): Promise<ConnectionWithLegacyProps[]> {
     const connectionIds = (await fs.readdir(this.getFolderPath()))
       .filter((file) => file.endsWith('.json'))
       .map((file) => file.replace('.json', ''));
@@ -167,11 +177,8 @@ export class ConnectionStorage {
       return (
         connections
           // Ignore legacy connections and make sure connection has a connection string.
-          .filter(
-            (x: { connectionInfo?: ConnectionInfo }) =>
-              x.connectionInfo?.connectionOptions?.connectionString
-          )
-          .map(({ connectionInfo }: { connectionInfo: ConnectionInfo }) =>
+          .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
+          .map(({ connectionInfo }) =>
             this.mapStoredConnectionToConnectionInfo(
               connectionInfo,
               secrets[connectionInfo.id]
@@ -210,11 +217,16 @@ export class ConnectionStorage {
         throw new Error('Connection string is required.');
       }
 
+      // While saving connections, we also save `_id` property
+      // in order to support the downgrade of Compass to a version
+      // where we use storage-mixin. storage-mixin uses this prop
+      // to map keytar credentials to the stored connection.
+
       // While testing, we don't use keychain to store secrets
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         await fs.writeFile(
           this.getFilePath(connectionInfo.id),
-          JSON.stringify({ connectionInfo }, null, 2),
+          JSON.stringify({ connectionInfo, _id: connectionInfo.id }, null, 2),
           'utf-8'
         );
       } else {
@@ -225,6 +237,7 @@ export class ConnectionStorage {
           JSON.stringify(
             {
               connectionInfo: connectionInfoWithoutSecrets,
+              _id: connectionInfo.id,
             },
             null,
             2

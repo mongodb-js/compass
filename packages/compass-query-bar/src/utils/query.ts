@@ -1,4 +1,4 @@
-import queryParser from 'mongodb-query-parser';
+import { stringify, validate } from 'mongodb-query-parser';
 import preferences from 'compass-preferences-model';
 import { isEqual } from 'lodash';
 import {
@@ -7,6 +7,7 @@ import {
 } from '../constants/query-bar-store';
 import type {
   BaseQuery,
+  QueryFormFieldEntries,
   QueryFormFields,
   QueryProperty,
 } from '../constants/query-properties';
@@ -51,33 +52,26 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
   return false;
 }
 
-export function parseQueryAttributesToFormFields(query?: {
-  filter?: string;
-  project?: string;
-  collation?: string;
-  sort?: string;
-  skip?: string;
-  limit?: string;
-  maxTimeMS?: string;
-}): QueryFormFields {
+export function parseQueryAttributesToFormFields(
+  query: Record<string, unknown>
+): QueryFormFields {
   return Object.fromEntries(
-    Object.entries(query ?? {})
+    Object.entries(query)
       .map(([key, valueString]) => {
-        if (!isQueryProperty(key) || typeof valueString === 'undefined') {
+        if (!isQueryProperty(key) || typeof valueString !== 'string') {
           return null;
         }
-
         const value = validateField(key, valueString);
-        const valid: boolean = value !== false;
+        const valid = value !== false;
         return [
           key,
           { string: valueString, value: valid ? value : null, valid },
-        ] as const;
+        ];
       })
-      .filter((value) => {
-        return value !== null;
-      }) as [string, unknown][]
-  ) as QueryFormFields;
+      .filter((entry): entry is QueryFormFieldEntries[number] => {
+        return entry !== null;
+      })
+  );
 }
 
 /**
@@ -94,7 +88,7 @@ export function mapQueryToFormFields(
           return null;
         }
         const valueAsString =
-          typeof _value === 'undefined' ? '' : queryParser.stringify(_value);
+          typeof _value === 'undefined' ? '' : stringify(_value) || '';
         const value = validateField(key, valueAsString);
         const valid: boolean = value !== false;
         if (onlyValid && !valid) {
@@ -105,10 +99,10 @@ export function mapQueryToFormFields(
           { string: valueAsString, value: valid ? value : null, valid },
         ] as const;
       })
-      .filter((value) => {
-        return value !== null;
-      }) as [string, unknown][]
-  ) as QueryFormFields;
+      .filter((entry): entry is QueryFormFieldEntries[number] => {
+        return entry !== null;
+      })
+  );
 }
 
 export function isQueryValid(fields: QueryFormFields) {
@@ -122,7 +116,7 @@ function isQueryProperty(field: string): field is QueryProperty {
 }
 
 export function validateField(field: string, value: string) {
-  const validated = queryParser.validate(field, value, { validate: false });
+  const validated = validate(field, value);
   if (field === 'filter' && validated === '') {
     // TODO(COMPASS-5205): Things like { i: $} confuses queryParser and
     // ultimately it sets filter to '' whereas it has to be a {} (if valid) or
