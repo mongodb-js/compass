@@ -89,7 +89,11 @@ describe('PipelineAI Component', function () {
       );
 
       store.dispatch({
-        type: AIPipelineActionTypes.AIPipelineGeneratedFromQuery,
+        type: AIPipelineActionTypes.PipelineGeneratedFromQuery,
+        pipelineText: '[{$group: {_id: "$price"}}]',
+        pipeline: [{ $group: { _id: '$price' } }],
+        syntaxErrors: [],
+        stages: [],
         text: 'group by price',
       });
 
@@ -138,7 +142,11 @@ describe('PipelineAI Component', function () {
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
 
         store.dispatch({
-          type: AIPipelineActionTypes.AIPipelineSucceeded,
+          type: AIPipelineActionTypes.LoadGeneratedPipeline,
+          pipelineText: '[{$group: {_id: "$price"}}]',
+          pipeline: [{ $group: { _id: '$price' } }],
+          syntaxErrors: [],
+          stages: [],
         });
 
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
@@ -193,7 +201,11 @@ describe('PipelineAI Component', function () {
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
 
         store.dispatch({
-          type: AIPipelineActionTypes.AIPipelineSucceeded,
+          type: AIPipelineActionTypes.LoadGeneratedPipeline,
+          pipelineText: '[{$group: {_id: "$price"}}]',
+          pipeline: [{ $group: { _id: '$price' } }],
+          syntaxErrors: [],
+          stages: [],
         });
 
         // No feedback popover is shown.

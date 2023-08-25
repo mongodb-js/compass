@@ -8,7 +8,7 @@ import {
   changeAIPromptText,
   cancelAIPipelineGeneration,
   runAIPipelineGeneration,
-  hideGuideCue,
+  resetIsAggregationGeneratedFromQuery,
 } from '../../modules/pipeline-builder/pipeline-ai';
 import type { RootState } from '../../modules';
 
@@ -57,7 +57,8 @@ const ConnectedPipelineAI = connect(
     onChangeAIPromptText: changeAIPromptText,
     onCancelRequest: cancelAIPipelineGeneration,
     onSubmitText: runAIPipelineGeneration,
-    onHideGuideCue: hideGuideCue,
+    onResetIsAggregationGeneratedFromQuery:
+      resetIsAggregationGeneratedFromQuery,
   }
 )(PipelineAI);
 

@@ -42,14 +42,13 @@ export const enum AIPipelineActionTypes {
   AIPipelineStarted = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineStarted',
   AIPipelineCancelled = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',
   AIPipelineFailed = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineFailed',
-  AIPipelineSucceeded = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineSucceeded',
-  AIPipelineGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineGeneratedFromQuery',
   CancelAIPipelineGeneration = 'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipelineGeneration',
-  HideGuideCue = 'compass-aggregations/pipeline-builder/pipeline-ai/HideGuideCue',
+  resetIsAggregationGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/resetIsAggregationGeneratedFromQuery',
   ShowInput = 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
   HideInput = 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
   ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
   LoadGeneratedPipeline = 'compass-aggregations/LoadGeneratedPipeline',
+  PipelineGeneratedFromQuery = 'compass-aggregations/PipelineGeneratedFromQuery',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -107,26 +106,19 @@ export const generateAggregationFromQuery = ({
 }: {
   aggregation: { pipeline: string };
   userInput: string;
-}): PipelineBuilderThunkAction<
-  void,
-  AIPipelineGeneratedFromQueryAction | LoadGeneratedPipelineAction
-> => {
+}): PipelineBuilderThunkAction<void, PipelineGeneratedFromQueryAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const pipelineText = String(aggregation?.pipeline);
 
     pipelineBuilder.reset(pipelineText);
 
     dispatch({
-      type: AIPipelineActionTypes.AIPipelineGeneratedFromQuery,
-      text: userInput,
-    });
-
-    dispatch({
-      type: AIPipelineActionTypes.LoadGeneratedPipeline,
+      type: AIPipelineActionTypes.PipelineGeneratedFromQuery,
       stages: pipelineBuilder.stages,
       pipelineText: pipelineBuilder.source,
       pipeline: pipelineBuilder.pipeline,
       syntaxErrors: pipelineBuilder.syntaxError,
+      text: userInput,
     });
 
     dispatch(updatePipelinePreview());
@@ -144,12 +136,8 @@ type AIPipelineFailedAction = {
   networkErrorCode?: number;
 };
 
-export type AIPipelineSucceededAction = {
-  type: AIPipelineActionTypes.AIPipelineSucceeded;
-};
-
-export type AIPipelineGeneratedFromQueryAction = {
-  type: AIPipelineActionTypes.AIPipelineGeneratedFromQuery;
+export type PipelineGeneratedFromQueryAction = {
+  type: AIPipelineActionTypes.PipelineGeneratedFromQuery;
   text: string;
 };
 
@@ -187,10 +175,7 @@ export const runAIPipelineGeneration = (
   userInput: string
 ): PipelineBuilderThunkAction<
   Promise<void>,
-  | AIPipelineStartedAction
-  | AIPipelineFailedAction
-  | AIPipelineSucceededAction
-  | LoadGeneratedPipelineAction
+  AIPipelineStartedAction | AIPipelineFailedAction | LoadGeneratedPipelineAction
 > => {
   return async (dispatch, getState, { atlasService, pipelineBuilder }) => {
     const {
@@ -320,10 +305,6 @@ export const runAIPipelineGeneration = (
       }
     );
 
-    dispatch({
-      type: AIPipelineActionTypes.AIPipelineSucceeded,
-    });
-
     pipelineBuilder.reset(pipelineText);
 
     track('AI Prompt Generated', () => ({
@@ -362,20 +343,21 @@ export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
   };
 };
 
-type HideGuideCueAction = {
-  type: AIPipelineActionTypes.HideGuideCue;
+type resetIsAggregationGeneratedFromQueryAction = {
+  type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery;
 };
 
-export const hideGuideCue = (): PipelineBuilderThunkAction<
-  void,
-  HideGuideCueAction
-> => {
-  return (dispatch) => {
-    dispatch({
-      type: AIPipelineActionTypes.HideGuideCue,
-    });
+export const resetIsAggregationGeneratedFromQuery =
+  (): PipelineBuilderThunkAction<
+    void,
+    resetIsAggregationGeneratedFromQueryAction
+  > => {
+    return (dispatch) => {
+      dispatch({
+        type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery,
+      });
+    };
   };
-};
 
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
@@ -443,9 +425,9 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   }
 
   if (
-    isAction<AIPipelineSucceededAction>(
+    isAction<LoadGeneratedPipelineAction>(
       action,
-      AIPipelineActionTypes.AIPipelineSucceeded
+      AIPipelineActionTypes.LoadGeneratedPipeline
     )
   ) {
     return {
@@ -456,9 +438,9 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   }
 
   if (
-    isAction<AIPipelineGeneratedFromQueryAction>(
+    isAction<PipelineGeneratedFromQueryAction>(
       action,
-      AIPipelineActionTypes.AIPipelineGeneratedFromQuery
+      AIPipelineActionTypes.PipelineGeneratedFromQuery
     )
   ) {
     return {
@@ -485,7 +467,10 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   }
 
   if (
-    isAction<HideGuideCueAction>(action, AIPipelineActionTypes.HideGuideCue)
+    isAction<resetIsAggregationGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery
+    )
   ) {
     return {
       ...state,

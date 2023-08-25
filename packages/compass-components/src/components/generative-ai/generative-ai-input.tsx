@@ -152,7 +152,7 @@ type GenerativeAIInputProps = {
   placeholder?: string;
   show: boolean;
   isAggregationGeneratedFromQuery?: boolean;
-  onHideGuideCue?: () => void;
+  onResetIsAggregationGeneratedFromQuery?: () => void;
   onCancelRequest: () => void;
   onChangeAIPromptText: (text: string) => void;
   onClose: () => void;
@@ -176,7 +176,7 @@ function GenerativeAIInput({
   onChangeAIPromptText,
   onSubmitFeedback,
   onSubmitText,
-  onHideGuideCue,
+  onResetIsAggregationGeneratedFromQuery,
 }: GenerativeAIInputProps) {
   const promptTextInputRef = useRef<HTMLInputElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -228,14 +228,6 @@ function GenerativeAIInput({
     return null;
   }
 
-  let guideCueTitle;
-  let guideCueDescription;
-  if (isAggregationGeneratedFromQuery) {
-    guideCueTitle = 'Aggregation generated';
-    guideCueDescription =
-      "Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Agaredation Pipeline Builder";
-  }
-
   return (
     <div className={containerStyles}>
       <div className={inputBarContainerStyles}>
@@ -261,12 +253,17 @@ function GenerativeAIInput({
             onClick={() => onClose()}
           >
             <AIGuideCue
+              spacing={spacing[2]}
               open={isAggregationGeneratedFromQuery}
-              setOpen={() => isAggregationGeneratedFromQuery}
+              setOpen={() => {
+                /* noop because we control guide cue visibility through onResetIsAggregationGeneratedFromQuery */
+              }}
               refEl={guideCueRef}
-              onHideGuideCue={onHideGuideCue}
-              title={guideCueTitle}
-              description={guideCueDescription}
+              onResetIsAggregationGeneratedFromQuery={
+                onResetIsAggregationGeneratedFromQuery
+              }
+              title="Aggregation generated"
+              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Agaredation Pipeline Builder"
             />
             <span ref={guideCueRef}>
               <RobotSVG />

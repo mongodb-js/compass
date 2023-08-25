@@ -12,11 +12,11 @@ export type AIGuideCueProps = Omit<
   showGuideCue?: boolean;
   title?: string;
   description?: string;
-  onHideGuideCue?: () => void;
+  onResetIsAggregationGeneratedFromQuery?: () => void;
 };
 
 export const AIGuideCue = ({
-  onHideGuideCue,
+  onResetIsAggregationGeneratedFromQuery,
   title = '',
   description,
   open,
@@ -46,7 +46,7 @@ export const AIGuideCue = ({
       }
 
       setOpen(false);
-      onHideGuideCue?.();
+      onResetIsAggregationGeneratedFromQuery?.();
     };
 
     document.addEventListener('mousedown', listener);
@@ -63,10 +63,10 @@ export const AIGuideCue = ({
       numberOfSteps={1}
       currentStep={1}
       onPrimaryButtonClick={() => {
-        onHideGuideCue?.();
+        onResetIsAggregationGeneratedFromQuery?.();
       }}
       onDismiss={() => {
-        onHideGuideCue?.();
+        onResetIsAggregationGeneratedFromQuery?.();
       }}
       title={title}
       data-popoverid={`ai-guide-cue-description-popover-${aiGuideCuePopoverId}`}

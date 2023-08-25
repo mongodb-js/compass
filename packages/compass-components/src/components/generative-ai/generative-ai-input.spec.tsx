@@ -136,18 +136,18 @@ describe('GenerativeAIInput Component', function () {
 
   describe('Aggregation created guide cue', function () {
     it('should call the hide guide cue handler on submit', async function () {
-      let hideGuideCueCalled = false;
+      let resetIsAggregationGeneratedFromQueryCalled = false;
 
       renderGenerativeAIInput({
-        onHideGuideCue: () => {
-          hideGuideCueCalled = true;
+        onResetIsAggregationGeneratedFromQuery: () => {
+          resetIsAggregationGeneratedFromQueryCalled = true;
         },
         isAggregationGeneratedFromQuery: true,
       });
 
       expect(screen.queryByTestId(aiGuideCueDescriptionSpanId)).to.exist;
       await waitFor(() => screen.getByText('Got it').click());
-      expect(hideGuideCueCalled).to.equal(true);
+      expect(resetIsAggregationGeneratedFromQueryCalled).to.equal(true);
     });
   });
 });
