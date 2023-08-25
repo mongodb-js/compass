@@ -14,7 +14,9 @@ export function configureStore({
   );
 }
 
-let store: ReturnType<typeof configureStore>;
+export type AtlasServiceStore = ReturnType<typeof configureStore>;
+
+let store: AtlasServiceStore;
 
 export function getStore() {
   store ??= configureStore({
@@ -22,7 +24,3 @@ export function getStore() {
   });
   return store;
 }
-
-export const dispatch = (...args: Parameters<typeof store.dispatch>) => {
-  return getStore().dispatch(...args);
-};

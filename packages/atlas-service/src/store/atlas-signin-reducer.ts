@@ -1,8 +1,10 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
+import type { AtlasUserConfig, AtlasUserInfo } from '../util';
 import type { AtlasService } from '../renderer';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
+import { showOptInConfirmation } from '../components/ai-opt-in-confirmation';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -12,19 +14,23 @@ export function isAction<A extends AnyAction>(
 }
 
 export type AtlasSignInState = {
-  state:
-    | 'initial'
-    | 'restoring'
-    | 'unauthenticated'
-    | 'in-progress'
-    | 'success'
-    | 'error'
-    | 'canceled';
   error: string | null;
   isModalOpen: boolean;
-  // For managing attempt state that doesn't beling in the store
+  // For managing attempt state that doesn't belong in the store
   currentAttemptId: number | null;
-};
+} & (
+  | {
+      state:
+        | 'initial'
+        | 'restoring'
+        | 'unauthenticated'
+        | 'in-progress'
+        | 'error'
+        | 'canceled';
+      userInfo: null;
+    }
+  | { state: 'success'; userInfo: AtlasUserInfo }
+);
 
 export type AtlasSignInThunkAction<
   R,
@@ -43,8 +49,11 @@ export const enum AtlasSignInActions {
   Success = 'atlas-service/atlas-signin/AtlasSignInSuccess',
   Error = 'atlas-service/atlas-signin/AtlasSignInError',
   Cancel = 'atlas-service/atlas-signin/AtlasSignInCancel',
+  EnableAIFeature = 'atlas-service/atlas-signin/EnableAIFeature',
+  DisableAIFeature = 'atlas-service/atlas-signin/DisableAIFeature',
   TokenRefreshFailed = 'atlas-service/atlas-signin/TokenRefreshFailed',
   SignedOut = 'atlas-service/atlas-signin/SignedOut',
+  UserConfigChanged = 'atlas-service/atlas-signin/UserConfigChanged',
 }
 
 export type AtlasSignInOpenModalAction = {
@@ -65,6 +74,7 @@ export type AtlasSignInRestoringFailedAction = {
 
 export type AtlasSignInRestoringSuccessAction = {
   type: AtlasSignInActions.RestoringSuccess;
+  userInfo: AtlasUserInfo;
 };
 
 export type AtlasSignInAttemptStartAction = {
@@ -83,6 +93,7 @@ export type AtlasSignInStartAction = {
 
 export type AtlasSignInSuccessAction = {
   type: AtlasSignInActions.Success;
+  userInfo: AtlasUserInfo;
 };
 
 export type AtlasSignInErrorAction = {
@@ -98,10 +109,24 @@ export type AtlasSignInSignedOutAction = {
   type: AtlasSignInActions.SignedOut;
 };
 
+export type AtlasSignInUserConfigChangedAction = {
+  type: AtlasSignInActions.UserConfigChanged;
+  newConfig: AtlasUserConfig;
+};
+
+export type AtlasSignInEnableAIFeatureAction = {
+  type: AtlasSignInActions.EnableAIFeature;
+};
+
+export type AtlasSignInDisableAIFeatureAction = {
+  type: AtlasSignInActions.DisableAIFeature;
+};
+
 export type AtlasSignInCancelAction = { type: AtlasSignInActions.Cancel };
 
 const INITIAL_STATE = {
   state: 'initial' as const,
+  userInfo: null,
   error: null,
   isModalOpen: false,
   currentAttemptId: null,
@@ -110,8 +135,8 @@ const INITIAL_STATE = {
 type AttemptState = {
   id: number;
   controller: AbortController;
-  promise: Promise<void>;
-  resolve: () => void;
+  promise: Promise<AtlasUserInfo>;
+  resolve: (userInfo: AtlasUserInfo) => void;
   reject: (reason?: any) => void;
 };
 
@@ -126,7 +151,7 @@ export function getAttempt(id?: number | null): AttemptState {
     const controller = new AbortController();
     let resolve;
     let reject;
-    const promise = new Promise<void>((res, rej) => {
+    const promise = new Promise<AtlasUserInfo>((res, rej) => {
       resolve = res;
       reject = rej;
     });
@@ -159,7 +184,7 @@ const reducer: Reducer<AtlasSignInState> = (
       AtlasSignInActions.RestoringStart
     )
   ) {
-    return { ...state, state: 'restoring' };
+    return { ...state, userInfo: null, state: 'restoring' };
   }
 
   if (
@@ -173,7 +198,12 @@ const reducer: Reducer<AtlasSignInState> = (
     if (state.state !== 'restoring') {
       return state;
     }
-    return { ...state, state: 'success', error: null };
+    return {
+      ...state,
+      state: 'success',
+      userInfo: action.userInfo,
+      error: null,
+    };
   }
 
   if (
@@ -185,7 +215,7 @@ const reducer: Reducer<AtlasSignInState> = (
     if (state.state !== 'restoring') {
       return state;
     }
-    return { ...state, state: 'unauthenticated' };
+    return { ...state, state: 'unauthenticated', userInfo: null };
   }
 
   if (
@@ -210,24 +240,26 @@ const reducer: Reducer<AtlasSignInState> = (
   }
 
   if (isAction<AtlasSignInStartAction>(action, AtlasSignInActions.Start)) {
-    return { ...state, state: 'in-progress' };
+    return { ...state, state: 'in-progress', userInfo: null };
   }
 
   if (isAction<AtlasSignInSuccessAction>(action, AtlasSignInActions.Success)) {
     return {
       ...state,
-      isModalOpen: false,
       state: 'success',
+      userInfo: action.userInfo,
       error: null,
+      isModalOpen: false,
     };
   }
 
   if (isAction<AtlasSignInErrorAction>(action, AtlasSignInActions.Error)) {
     return {
       ...state,
-      isModalOpen: false,
       state: 'error',
+      userInfo: null,
       error: action.error,
+      isModalOpen: false,
     };
   }
 
@@ -254,6 +286,44 @@ const reducer: Reducer<AtlasSignInState> = (
   }
 
   if (
+    isAction<AtlasSignInEnableAIFeatureAction>(
+      action,
+      AtlasSignInActions.EnableAIFeature
+    )
+  ) {
+    if (state.state !== 'success') {
+      return state;
+    }
+
+    return {
+      ...state,
+      userInfo: {
+        ...state.userInfo,
+        enabledAIFeature: true,
+      },
+    };
+  }
+
+  if (
+    isAction<AtlasSignInDisableAIFeatureAction>(
+      action,
+      AtlasSignInActions.DisableAIFeature
+    )
+  ) {
+    if (state.state !== 'success') {
+      return state;
+    }
+
+    return {
+      ...state,
+      userInfo: {
+        ...state.userInfo,
+        enabledAIFeature: false,
+      },
+    };
+  }
+
+  if (
     isAction<AtlasSignInTokenRefreshFailedAction>(
       action,
       AtlasSignInActions.TokenRefreshFailed
@@ -275,6 +345,18 @@ const reducer: Reducer<AtlasSignInState> = (
     return { ...INITIAL_STATE };
   }
 
+  if (
+    isAction<AtlasSignInUserConfigChangedAction>(
+      action,
+      AtlasSignInActions.UserConfigChanged
+    )
+  ) {
+    if (state.state !== 'success') {
+      return state;
+    }
+    return { ...state, userInfo: { ...state.userInfo, ...action.newConfig } };
+  }
+
   return state;
 };
 
@@ -286,11 +368,12 @@ export const restoreSignInState = (): AtlasSignInThunkAction<Promise<void>> => {
     }
     dispatch({ type: AtlasSignInActions.RestoringStart });
     try {
-      dispatch({
-        type: (await atlasService.isAuthenticated())
-          ? AtlasSignInActions.RestoringSuccess
-          : AtlasSignInActions.RestoringFailed,
-      });
+      if (await atlasService.isAuthenticated()) {
+        const userInfo = await atlasService.getUserInfo();
+        dispatch({ type: AtlasSignInActions.RestoringSuccess, userInfo });
+      } else {
+        dispatch({ type: AtlasSignInActions.RestoringFailed });
+      }
     } catch (err) {
       // For the initial state check if failed to check auth for any reason we
       // will just allow user to sign in again, ignoring the error
@@ -325,11 +408,14 @@ const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
 
 export const signInWithModalPrompt = ({
   signal,
-}: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<Promise<void>> => {
+}: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<
+  Promise<AtlasUserInfo>
+> => {
   return async (dispatch, getState) => {
     // Nothing to do if we already signed in
-    if (getState().state === 'success') {
-      return;
+    const { state, userInfo } = getState();
+    if (state === 'success') {
+      return userInfo;
     }
     const attempt = dispatch(
       startAttempt(() => {
@@ -345,11 +431,14 @@ export const signInWithModalPrompt = ({
 
 export const signInWithoutPrompt = ({
   signal,
-}: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<Promise<void>> => {
+}: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<
+  Promise<AtlasUserInfo>
+> => {
   return async (dispatch, getState) => {
     // Nothing to do if we already signed in
-    if (getState().state === 'success') {
-      return;
+    const { state, userInfo } = getState();
+    if (state === 'success') {
+      return userInfo;
     }
     const attempt = dispatch(
       startAttempt(() => {
@@ -380,18 +469,20 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
     dispatch({ type: AtlasSignInActions.Start });
     try {
       throwIfAborted(signal);
-      if ((await atlasService.isAuthenticated({ signal })) === false) {
-        await atlasService.signIn({ signal });
+      let userInfo;
+      if (await atlasService.isAuthenticated({ signal })) {
+        userInfo = await atlasService.getUserInfo({ signal });
+      } else {
+        userInfo = await atlasService.signIn({ signal });
       }
-      const user = await atlasService.getUserInfo({ signal });
       openToast('atlas-sign-in-success', {
         variant: 'success',
-        title: `Signed in as ${user.login}`,
+        title: `Signed in as ${userInfo.login}`,
         timeout: 10_000,
       });
-      dispatch({ type: AtlasSignInActions.Success });
+      dispatch({ type: AtlasSignInActions.Success, userInfo });
       atlasService.emit('signed-in');
-      resolve();
+      resolve(userInfo);
     } catch (err) {
       // Only handle error if sign in wasn't aborted by the user, otherwise it
       // was already handled in `cancelSignIn` action
@@ -435,6 +526,48 @@ export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
   };
 };
 
+export const enableAIFeature = (): AtlasSignInThunkAction<Promise<boolean>> => {
+  return async (dispatch, getState, { atlasService }) => {
+    const { userInfo, state } = getState();
+
+    if (state !== 'success') {
+      throw new Error("Can't enable AI feature when signed out");
+    }
+
+    if (userInfo.enabledAIFeature) {
+      return true;
+    }
+
+    const confirmed = await showOptInConfirmation();
+
+    if (confirmed) {
+      dispatch({ type: AtlasSignInActions.EnableAIFeature });
+    }
+
+    await atlasService.updateAtlasUserConfig({
+      config: { enabledAIFeature: confirmed },
+    });
+
+    return confirmed;
+  };
+};
+
+export const disableAIFeature = (): AtlasSignInThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { atlasService }) => {
+    const { userInfo, state } = getState();
+
+    if (state !== 'success' || !userInfo) {
+      throw new Error("Can't disable AI feature when signed out");
+    }
+
+    dispatch({ type: AtlasSignInActions.DisableAIFeature });
+
+    await atlasService.updateAtlasUserConfig({
+      config: { enabledAIFeature: false },
+    });
+  };
+};
+
 export const tokenRefreshFailed = (): AtlasSignInThunkAction<void> => {
   return (dispatch, _getState, { atlasService }) => {
     dispatch({ type: AtlasSignInActions.TokenRefreshFailed });
@@ -446,6 +579,15 @@ export const signedOut = (): AtlasSignInThunkAction<void> => {
   return (dispatch, _getState, { atlasService }) => {
     dispatch({ type: AtlasSignInActions.SignedOut });
     atlasService.emit('signed-out');
+  };
+};
+
+export const userConfigChanged = (
+  newConfig: AtlasUserConfig
+): AtlasSignInThunkAction<void> => {
+  return (dispatch, _getState, { atlasService }) => {
+    dispatch({ type: AtlasSignInActions.UserConfigChanged, newConfig });
+    atlasService.emit('user-config-changed', newConfig);
   };
 };
 

@@ -11,6 +11,7 @@ import atlasLoginReducer, {
   getUserInfo,
   atlasServiceSignedOut,
   atlasServiceTokenRefreshFailed,
+  atlasServiceUserConfigChanged,
 } from './atlas-login';
 
 export type Public<T> = { [K in keyof T]: T[K] };
@@ -48,6 +49,10 @@ export function configureStore({
 
   atlasService.on('token-refresh-failed', () => {
     void store.dispatch(atlasServiceTokenRefreshFailed());
+  });
+
+  atlasService.on('user-config-changed', (newConfig) => {
+    void store.dispatch(atlasServiceUserConfigChanged(newConfig));
   });
 
   return store;
