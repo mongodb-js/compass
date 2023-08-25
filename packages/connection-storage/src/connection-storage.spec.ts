@@ -186,7 +186,12 @@ describe('ConnectionStorage', function () {
   describe('save', function () {
     it('saves a valid connection object', async function () {
       const id: string = uuid();
-      expect(() => fs.access(getConnectionFilePath(tmpDir, id))).to.throw;
+      try {
+        await fs.access(getConnectionFilePath(tmpDir, id));
+        expect.fail('Expected connction to not exist');
+      } catch (e) {
+        expect((e as any).code).to.equal('ENOENT');
+      }
       await ConnectionStorage.save({
         connectionInfo: {
           id,
@@ -295,8 +300,12 @@ describe('ConnectionStorage', function () {
     });
 
     it('saves a connection with _id', async function () {
-      const id: string = uuid();
-      expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
+      const id = uuid();
+      try {
+        await fs.access(getConnectionFilePath(tmpDir, id));
+      } catch (e) {
+        expect(e).to.be.instanceOf(Error);
+      }
 
       await ConnectionStorage.save({
         connectionInfo: {
@@ -308,7 +317,7 @@ describe('ConnectionStorage', function () {
       });
 
       const savedConnection = JSON.parse(
-        fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+        await fs.readFile(getConnectionFilePath(tmpDir, id), 'utf-8')
       );
 
       expect(savedConnection).to.deep.equal({
@@ -384,11 +393,16 @@ describe('ConnectionStorage', function () {
 
       const filePath = getConnectionFilePath(tmpDir, connectionInfo.id);
 
-      expect(() => fs.access(filePath)).to.not.throw;
+      await fs.access(filePath);
 
       await ConnectionStorage.delete({ id: connectionInfo.id });
 
-      expect(() => fs.access(filePath)).to.throw;
+      try {
+        await fs.access(filePath);
+        expect.fail('Expected connction to not exist');
+      } catch (e) {
+        expect((e as any).code).to.equal('ENOENT');
+      }
     });
   });
 

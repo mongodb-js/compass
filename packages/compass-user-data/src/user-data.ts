@@ -2,18 +2,17 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
-import { EJSON } from 'bson';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
 
-type OnSerialize<T> = (content: T) => string;
-type OnDeserialize<T> = (content: string) => T;
+type SerializeContent<T> = (content: T) => string;
+type DeserializeContent<T> = (content: string) => T;
 
 type UserDataOptions<T = unknown> = {
   subdir: string;
   basePath?: string;
-  onSerialize?: OnSerialize<T>;
-  onDeserialize?: OnDeserialize<T>;
+  serialize?: SerializeContent<T>;
+  deserialize?: DeserializeContent<T>;
 };
 
 type ReadOptions = {
@@ -23,19 +22,19 @@ type ReadOptions = {
 export class UserData<T> {
   private readonly subdir: string;
   private readonly basePath?: string;
-  private readonly onSerialize: OnSerialize<T>;
-  private readonly onDeserialize: OnDeserialize<T>;
+  private readonly serialize: SerializeContent<T>;
+  private readonly deserialize: DeserializeContent<T>;
 
   constructor({
     subdir,
     basePath,
-    onSerialize = (content: T) => EJSON.stringify(content, undefined, 2),
-    onDeserialize = EJSON.parse,
+    serialize = (content: T) => JSON.stringify(content, null, 2),
+    deserialize = JSON.parse,
   }: UserDataOptions<T>) {
     this.subdir = subdir;
     this.basePath = basePath;
-    this.onDeserialize = onDeserialize;
-    this.onSerialize = onSerialize;
+    this.deserialize = deserialize;
+    this.serialize = serialize;
   }
 
   private async getEnsuredBasePath(): Promise<string> {
@@ -83,7 +82,7 @@ export class UserData<T> {
     }
 
     try {
-      return this.onDeserialize(data);
+      return this.deserialize(data);
     } catch (error) {
       log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
         path: absolutePath,
@@ -152,7 +151,7 @@ export class UserData<T> {
   async write(filepath: string, content: T) {
     const absolutePath = await this.getFileAbsolutePath(filepath);
     try {
-      await fs.writeFile(absolutePath, this.onSerialize(content), {
+      await fs.writeFile(absolutePath, this.serialize(content), {
         encoding: 'utf-8',
       });
       return true;

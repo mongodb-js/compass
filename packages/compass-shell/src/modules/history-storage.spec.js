@@ -59,7 +59,12 @@ describe('HistoryStorage', function () {
     });
 
     it('returns an empty array if the file does not exist', async function () {
-      expect(async () => await fs.access(historyFilePath)).to.throw;
+      try {
+        await fs.access(historyFilePath);
+        expect.fail('Expected file to not exist');
+      } catch (e) {
+        expect(e.code).to.equal('ENOENT');
+      }
       expect(await historyStorage.load()).to.deep.equal([]);
     });
   });

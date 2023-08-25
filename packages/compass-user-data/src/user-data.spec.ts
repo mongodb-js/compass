@@ -151,7 +151,7 @@ describe('user-data', function () {
           ignoreErrors: false,
         });
       } catch (e) {
-        expect(e.code).to.equal('ENOENT');
+        expect((e as any).code).to.equal('ENOENT');
       }
     });
 
@@ -178,7 +178,7 @@ describe('user-data', function () {
           ignoreErrors: false,
         });
       } catch (e) {
-        expect(e.message).to.contain('Unexpected token');
+        expect((e as Error).message).to.contain('Unexpected token');
       }
     });
   });
@@ -245,7 +245,7 @@ describe('user-data', function () {
       const userData = new UserData({
         subdir: 'pipelines',
         basePath: tmpDir,
-        onSerialize: () => {
+        serialize: () => {
           return 'ping';
         },
       });
@@ -263,7 +263,7 @@ describe('user-data', function () {
       const userData = new UserData({
         subdir: 'pipelines',
         basePath: tmpDir,
-        onDeserialize: () => {
+        deserialize: () => {
           return 'pong';
         },
       });

@@ -1,4 +1,4 @@
-import { UUID } from 'bson';
+import { UUID, EJSON } from 'bson';
 import { orderBy } from 'lodash';
 import { type BaseQuery } from '../constants/query-properties';
 import { UserData } from '@mongodb-js/compass-user-data';
@@ -31,6 +31,8 @@ export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
     this.userData = new UserData({
       subdir: folder,
       basePath: options.basepath,
+      serialize: (content) => EJSON.stringify(content, undefined, 2),
+      deserialize: (content) => EJSON.parse(content),
     });
   }
 
