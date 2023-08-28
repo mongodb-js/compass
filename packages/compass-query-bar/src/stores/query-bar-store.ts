@@ -18,7 +18,7 @@ import {
   changeSchemaFields,
   applyFilterChange,
 } from './query-bar-reducer';
-import { aiQueryReducer } from './ai-query-reducer';
+import { aiQueryReducer, disableAIFeature } from './ai-query-reducer';
 import {
   FavoriteQueryStorage,
   RecentQueryStorage,
@@ -71,7 +71,7 @@ export type QueryBarThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, RootState, QueryBarExtraArgs, A>;
 
-function createStore(options: Partial<QueryBarStoreOptions> = {}) {
+export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
   const {
     serverVersion,
     localAppRegistry,
@@ -90,7 +90,7 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
     ),
   } = options;
 
-  return _createStore(
+  const store = _createStore(
     rootQueryBarReducer,
     {
       queryBar: {
@@ -120,12 +120,12 @@ function createStore(options: Partial<QueryBarStoreOptions> = {}) {
       })
     )
   );
-}
 
-export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
-  const { localAppRegistry } = options;
-
-  const store = createStore(options);
+  atlasService.on('user-config-changed', (config) => {
+    if (config.enabledAIFeature === false) {
+      store.dispatch(disableAIFeature());
+    }
+  });
 
   localAppRegistry?.on('fields-changed', (fields) => {
     store.dispatch(changeSchemaFields(fields.autocompleteFields));
@@ -139,7 +139,7 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
     return mapFormFieldsToQuery(store.getState().queryBar.fields);
   };
 
-  return store as ReturnType<typeof createStore> & {
+  return store as typeof store & {
     getCurrentQuery(): unknown;
   };
 }

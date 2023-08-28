@@ -23,6 +23,7 @@ describe('atlasSignInReducer', function () {
     it('should check authentication and set state to success if authenticated', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(true),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
       };
       const store = configureStore({
         atlasService: mockAtlasService as any,
@@ -75,7 +76,7 @@ describe('atlasSignInReducer', function () {
           .returns(promise)
           .onSecondCall()
           .resolves(true),
-        getUserInfo: sandbox.stub().resolves({}),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -99,8 +100,8 @@ describe('atlasSignInReducer', function () {
     it('should check authenticated state and set state to success if already autenticated', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(true),
-        signIn: sandbox.stub().resolves(),
-        getUserInfo: sandbox.stub().resolves({}),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -116,8 +117,8 @@ describe('atlasSignInReducer', function () {
     it('should check authenticated state, start sign in, and set state to success', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves(),
-        getUserInfo: sandbox.stub().resolves({}),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -189,8 +190,8 @@ describe('atlasSignInReducer', function () {
     it('should resolve when user finishes sign in with prompt flow', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves(),
-        getUserInfo: sandbox.stub().resolves({}),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -208,7 +209,7 @@ describe('atlasSignInReducer', function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().rejects(new Error('Whoops!')),
-        getUserInfo: sandbox.stub().resolves({}),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -231,8 +232,8 @@ describe('atlasSignInReducer', function () {
     it('should reject if user dismissed the modal', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves(),
-        getUserInfo: sandbox.stub().resolves({}),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -255,8 +256,8 @@ describe('atlasSignInReducer', function () {
     it('should reject if provided signal was aborted', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves(),
-        getUserInfo: sandbox.stub().resolves({}),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -284,8 +285,8 @@ describe('atlasSignInReducer', function () {
     it('should resolve when sign in flow finishes', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves(),
-        getUserInfo: sandbox.stub().resolves({}),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -299,7 +300,7 @@ describe('atlasSignInReducer', function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().rejects(new Error('Sign in failed')),
-        getUserInfo: sandbox.stub().resolves({}),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({
@@ -317,8 +318,8 @@ describe('atlasSignInReducer', function () {
     it('should reject if provided signal was aborted', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves(),
-        getUserInfo: sandbox.stub().resolves({}),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         emit: sandbox.stub(),
       };
       const store = configureStore({

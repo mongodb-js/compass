@@ -1,12 +1,7 @@
 import { ipcMain, shell } from 'electron';
 import { URL, URLSearchParams } from 'url';
-import { EventEmitter, once } from 'events';
-import keytar from 'keytar';
-import type {
-  AuthFlowType,
-  MongoDBOIDCPlugin,
-  MongoDBOIDCPluginOptions,
-} from '@mongodb-js/oidc-plugin';
+import { once } from 'events';
+import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -19,18 +14,17 @@ import type { Response } from 'node-fetch';
 import fetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
-import {
-  validateAIQueryResponse,
-  type AIAggregation,
-  type AIQuery,
-  type IntrospectInfo,
-  type Token,
-  type UserInfo,
-  validateAIAggregationResponse,
+import type {
+  AtlasUserConfig,
+  AIAggregation,
+  AIQuery,
+  IntrospectInfo,
+  Token,
+  AtlasUserInfo,
 } from './util';
+import { validateAIQueryResponse, validateAIAggregationResponse } from './util';
 import {
   broadcast,
-  getStoragePaths,
   ipcExpose,
   throwIfAborted,
 } from '@mongodb-js/compass-utils';
@@ -39,6 +33,9 @@ import {
   mongoLogId,
 } from '@mongodb-js/compass-logging';
 import preferences from 'compass-preferences-model';
+import { SecretStore, SECRET_STORE_KEY } from './secret-store';
+import { AtlasUserConfigStore } from './user-config-store';
+import { OidcPluginLogger } from './oidc-plugin-logger';
 
 const { log } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -86,11 +83,17 @@ export async function throwIfNotOk(
   throw err;
 }
 
+function throwIfAINotEnabled(userInfo?: AtlasUserInfo | null) {
+  // Only throw if we actually have userInfo / logged in. Otherwise allow
+  // request to fall through so that we can get a proper network error
+  if (userInfo && userInfo.enabledAIFeature === false) {
+    throw new Error("Can't use AI before accepting terms and conditions");
+  }
+}
+
 const AI_MAX_REQUEST_SIZE = 10000;
 
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
-
-type MongoDBOIDCPluginLogger = Required<MongoDBOIDCPluginOptions>['logger'];
 
 type AtlasServiceAuthState =
   // Instance was just created
@@ -104,44 +107,6 @@ type AtlasServiceAuthState =
   // Encountered an error while requesting token (either on sign in or refresh)
   | 'unauthenticated';
 
-type SecretStore = {
-  getItem(key: string): Promise<string | undefined>;
-  setItem(key: string, value: string): Promise<void>;
-};
-
-const SECRET_STORE_KEY = 'AtlasLoginOIDCPluginState';
-
-const defaultSecretStore: SecretStore = {
-  async getItem(key: string) {
-    try {
-      const { appName } = getStoragePaths() ?? {};
-      if (
-        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true' ||
-        !appName
-      ) {
-        throw new Error('Unsupported environment');
-      }
-      return (await keytar.getPassword(appName, key)) ?? undefined;
-    } catch {
-      return undefined;
-    }
-  },
-  async setItem(key: string, value: string) {
-    try {
-      const { appName } = getStoragePaths() ?? {};
-      if (
-        process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true' ||
-        !appName
-      ) {
-        throw new Error('Unsupported environment');
-      }
-      return await keytar.setPassword(appName, key, value);
-    } catch {
-      return;
-    }
-  },
-};
-
 export class AtlasService {
   private constructor() {
     // singleton
@@ -149,63 +114,7 @@ export class AtlasService {
 
   private static initPromise: Promise<void> | null = null;
 
-  /**
-   * oidc-plugin logger event flow for plugin creation and token request / refresh:
-   *
-   *        createPlugin
-   *             ↓
-   * serialized state provided? → no → no event
-   *             ↓
-   *            yes → failed to deserialize? → no → `plugin:state-updated`
-   *                             ↓
-   *                            yes → `plugin:deserialization-failed`
-   *
-   *
-   *              requestToken
-   *                   ↓
-   *             token expired?
-   *                   │
-   *              no ←─┴─→ yes ───┐
-   *              │               ↓  `tryRefresh` flow can also trigger separately on timeout
-   *              │  ┌────────────────────────────────────────┐
-   *              │  │        tryRefresh                      │
-   *              │  │            ↓                           │
-   *              │  │ `plugin:refresh-started`               │
-   *              │  │            ↓                           │
-   *              │  │  got token from issuer? → no ─┐        │
-   *              │  │            ↓                  │        │
-   *              │  │           yes                 │        │
-   *              │  │            ↓                  │        │
-   *              │  │`plugin:refresh-succeeded`     │        │
-   *              │  │            ↓                  │        │
-   *              │  │    start state update         │        │
-   *              │  │            ↓                  │        │
-   *              │  │    state update failed → yes ─┤        │
-   *              │  │            ↓                  ↓        │
-   *              │  │            no  `plugin:refresh-failed` │─┐            ┌────────────────────────────────────────────┐
-   *              │  │            ↓                           │ │            │ `plugin:auth-attempt-started`              │
-   *              │  │  `plugin:state-updated`                │ │            │        ↓                                   │
-   *              │  └────────────────────────────────────────┘ │            │ is attempt successfull? → no               │
-   *              ↓               │                             ↓            │        ↓                  ↓                │
-   * `plugin:skip-auth-attempt` ←─┘            for flow in getAllowedFlows → │       yes     `plugin:auth-attempt-failed` │
-   *              ↓                                                          │        ↓                                   │
-   *    `plugin:auth-succeeded` ← yes ← do we have new token set in state? ← │ `plugin:state-updated`                     │
-   *                                                 ↓                       │        ↓                                   │
-   *                                                 no                      │ `plugin:auth-attempt-succeeded`            │
-   *                                                 ↓                       └────────────────────────────────────────────┘
-   *                                         `plugin:auth-failed`
-   */
-  private static oidcPluginLogger: MongoDBOIDCPluginLogger & {
-    on(evt: 'atlas-service-token-refreshed', fn: () => void): void;
-    on(evt: 'atlas-service-token-refresh-failed', fn: () => void): void;
-    on(evt: 'atlas-service-signed-out', fn: () => void): void;
-    once(evt: 'atlas-service-token-refreshed', fn: () => void): void;
-    once(evt: 'atlas-service-token-refresh-failed', fn: () => void): void;
-    once(evt: 'atlas-service-signed-out', fn: () => void): void;
-    emit(evt: 'atlas-service-token-refreshed'): void;
-    emit(evt: 'atlas-service-token-refresh-failed'): void;
-    emit(evt: 'atlas-service-signed-out'): void;
-  } & Pick<EventEmitter, 'removeAllListeners'> = new EventEmitter();
+  private static oidcPluginLogger = new OidcPluginLogger();
 
   private static oidcPluginSyncedFromLoggerState: AtlasServiceAuthState =
     'initial';
@@ -214,11 +123,15 @@ export class AtlasService {
 
   private static token: Token | null = null;
 
-  private static signInPromise: Promise<Token> | null = null;
+  private static currentUser: AtlasUserInfo | null = null;
+
+  private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
   private static fetch: typeof fetch = fetch;
 
-  private static secretStore: SecretStore = defaultSecretStore;
+  private static secretStore = new SecretStore();
+
+  private static atlasUserConfigStore = new AtlasUserConfigStore();
 
   private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
 
@@ -318,6 +231,7 @@ export class AtlasService {
           'signOut',
           'getAggregationFromUserInput',
           'getQueryFromUserInput',
+          'updateAtlasUserConfig',
         ],
         this.ipcMain
       );
@@ -328,6 +242,11 @@ export class AtlasService {
         'Atlas service initialized'
       );
       this.oidcPluginSyncedFromLoggerState = 'restoring';
+      log.info(
+        mongoLogId(1_001_000_227),
+        'AtlasService',
+        'Starting token restore attempt'
+      );
       const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
       this.setupPlugin(serializedState);
       // Whether or not we got the state, try refreshing the token. If there was
@@ -336,19 +255,14 @@ export class AtlasService {
       // refresh the token and get the value back from the oidc-plugin to make
       // sure the state between atlas-service and oidc-plugin is in sync
       try {
-        log.info(
-          mongoLogId(1_001_000_227),
-          'AtlasService',
-          'Starting token restore attempt'
-        );
         this.token = await this.requestOAuthToken();
-        log.info(mongoLogId(1_001_000_226), 'AtlasService', 'Token restored');
+        log.info(mongoLogId(1_001_000_226), 'AtlasService', 'State restored');
         this.oidcPluginSyncedFromLoggerState = 'authenticated';
       } catch (err) {
         log.error(
           mongoLogId(1_001_000_225),
           'AtlasService',
-          'Failed to restore token',
+          'Failed to restore state',
           { error: (err as Error).stack }
         );
         this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
@@ -402,6 +316,12 @@ export class AtlasService {
     this.oidcPluginLogger.on('atlas-service-signed-out', () => {
       broadcast('atlas-service-signed-out');
     });
+    this.oidcPluginLogger.on(
+      'atlas-service-user-config-changed',
+      (newConfig) => {
+        broadcast('atlas-service-user-config-changed', newConfig);
+      }
+    );
   }
 
   private static async refreshToken() {
@@ -554,15 +474,15 @@ export class AtlasService {
 
   static async signIn({
     signal,
-  }: { signal?: AbortSignal } = {}): Promise<Token> {
+  }: { signal?: AbortSignal } = {}): Promise<AtlasUserInfo> {
     if (this.signInPromise) {
       return this.signInPromise;
     }
     try {
-      throwIfAborted(signal);
-      throwIfNetworkTrafficDisabled();
-
       this.signInPromise = (async () => {
+        throwIfAborted(signal);
+        throwIfNetworkTrafficDisabled();
+
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
         // We might be refreshing token or restoring state at the moment
@@ -576,7 +496,7 @@ export class AtlasService {
             'AtlasService',
             'Signed in successfully'
           );
-          return this.token;
+          return this.getUserInfo({ signal });
         } catch (err) {
           log.error(
             mongoLogId(1_001_000_220),
@@ -598,7 +518,7 @@ export class AtlasService {
     // Reset and recreate event emitter first so that we don't accidentally
     // react on any old plugin instance events
     this.oidcPluginLogger.removeAllListeners();
-    this.oidcPluginLogger = new EventEmitter();
+    this.oidcPluginLogger = new OidcPluginLogger();
     this.attachOidcPluginLoggerEvents();
     // Destroy old plugin and setup new one
     await this.plugin?.destroy();
@@ -617,6 +537,7 @@ export class AtlasService {
       // from everywhere, so we just ignore this
     }
     // Reset service state
+    this.currentUser = null;
     this.token = null;
     this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
     this.oidcPluginLogger.emit('atlas-service-signed-out');
@@ -628,23 +549,50 @@ export class AtlasService {
 
   static async getUserInfo({
     signal,
-  }: { signal?: AbortSignal } = {}): Promise<UserInfo> {
+  }: { signal?: AbortSignal } = {}): Promise<AtlasUserInfo> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
+    this.currentUser ??= await (async () => {
+      await this.maybeWaitForToken({ signal });
 
-    await this.maybeWaitForToken({ signal });
+      const res = await this.fetch(`${this.issuer}/v1/userinfo`, {
+        headers: {
+          Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
+          Accept: 'application/json',
+        },
+        signal: signal as NodeFetchAbortSignal | undefined,
+      });
 
-    const res = await this.fetch(`${this.issuer}/v1/userinfo`, {
-      headers: {
-        Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
-        Accept: 'application/json',
-      },
-      signal: signal as NodeFetchAbortSignal | undefined,
-    });
+      await throwIfNotOk(res);
 
-    await throwIfNotOk(res);
+      const userInfo = (await res.json()) as AtlasUserInfo;
 
-    return res.json();
+      const userConfig = await this.atlasUserConfigStore.getUserConfig(
+        userInfo.sub
+      );
+
+      return { ...userInfo, ...userConfig };
+    })();
+    return this.currentUser;
+  }
+
+  static async updateAtlasUserConfig({
+    config,
+  }: {
+    config: Partial<AtlasUserConfig>;
+  }) {
+    if (!this.currentUser) {
+      throw new Error("Can't update user config when not logged in");
+    }
+    const newConfig = await this.atlasUserConfigStore.updateUserConfig(
+      this.currentUser.sub,
+      config
+    );
+    this.currentUser = {
+      ...this.currentUser,
+      ...newConfig,
+    };
+    this.oidcPluginLogger.emit('atlas-service-user-config-changed', newConfig);
   }
 
   static async introspect({
@@ -742,6 +690,7 @@ export class AtlasService {
   }): Promise<AIAggregation> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
+    throwIfAINotEnabled(this.currentUser);
 
     let msgBody = JSON.stringify({
       userInput,
@@ -810,6 +759,7 @@ export class AtlasService {
   }): Promise<AIQuery> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
+    throwIfAINotEnabled(this.currentUser);
 
     let msgBody = JSON.stringify({
       userInput,
