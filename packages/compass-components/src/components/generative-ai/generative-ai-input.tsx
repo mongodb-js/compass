@@ -170,12 +170,12 @@ function GenerativeAIInput({
   isFetching,
   placeholder = 'Tell Compass what documents to find (e.g. which movies were released in 2000)',
   show,
-  isAggregationGeneratedFromQuery = false,
   onCancelRequest,
   onClose,
   onChangeAIPromptText,
   onSubmitFeedback,
   onSubmitText,
+  isAggregationGeneratedFromQuery = false,
   onResetIsAggregationGeneratedFromQuery,
 }: GenerativeAIInputProps) {
   const promptTextInputRef = useRef<HTMLInputElement>(null);
@@ -253,14 +253,11 @@ function GenerativeAIInput({
             onClick={() => onClose()}
           >
             <AIGuideCue
-              open={isAggregationGeneratedFromQuery}
-              setOpen={() => {
-                /* noop because we control guide cue visibility through onResetIsAggregationGeneratedFromQuery */
+              showGuideCue={isAggregationGeneratedFromQuery}
+              onCloseGuideCue={() => {
+                onResetIsAggregationGeneratedFromQuery?.();
               }}
               refEl={guideCueRef}
-              onResetIsAggregationGeneratedFromQuery={
-                onResetIsAggregationGeneratedFromQuery
-              }
               title="Aggregation generated"
               description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
             />

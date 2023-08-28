@@ -68,10 +68,7 @@ describe('GenerativeAIInput Component', function () {
     });
 
     it('calls to clear the text when the X is clicked', function () {
-      const clearTextButton = screen.getByTestId('ai-text-clear-prompt');
-      expect(clearTextButton).to.be.visible;
-      clearTextButton.click();
-
+      userEvent.click(screen.getByRole('button', { name: 'Clear prompt' }));
       expect(onChangeAIPromptTextSpy).to.be.calledOnceWith('');
     });
   });
@@ -99,21 +96,22 @@ describe('GenerativeAIInput Component', function () {
         // No feedback popover is shown yet.
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
 
-        const thumbsUpButton = screen.getByTestId(thumbsUpId);
-        expect(thumbsUpButton).to.be.visible;
-        thumbsUpButton.click();
+        userEvent.click(
+          screen.getByRole('button', { name: 'Submit positive feedback' })
+        );
 
         const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
         expect(textArea).to.be.visible;
         userEvent.type(textArea, 'this is the query I was looking for');
-
-        await waitFor(() => screen.getByText('Submit').click());
+        userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
         // No feedback popover is shown.
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
 
-        expect(feedbackChoice).to.equal('positive');
-        expect(feedbackText).to.equal('this is the query I was looking for');
+        await waitFor(function () {
+          expect(feedbackChoice).to.equal('positive');
+          expect(feedbackText).to.equal('this is the query I was looking for');
+        });
       });
     });
 
@@ -146,8 +144,10 @@ describe('GenerativeAIInput Component', function () {
       });
 
       expect(screen.queryByTestId(aiGuideCueDescriptionSpanId)).to.exist;
-      await waitFor(() => screen.getByText('Got it').click());
-      expect(resetIsAggregationGeneratedFromQueryCalled).to.equal(true);
+      userEvent.click(screen.getByRole('button', { name: 'Got it' }));
+      await waitFor(function () {
+        expect(resetIsAggregationGeneratedFromQueryCalled).to.equal(true);
+      });
     });
   });
 });

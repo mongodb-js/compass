@@ -136,6 +136,7 @@ function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
         size="small"
         data-testid="ai-feedback-thumbs-up"
         ref={feedbackPositiveButtonRef}
+        aria-label="Submit positive feedback"
       >
         <Icon glyph="ThumbsUp" />
       </Button>
@@ -148,6 +149,7 @@ function AIFeedback({ onSubmitFeedback }: AIFeedbackProps) {
         onClick={() => setChosenFeedbackOption('negative')}
         size="small"
         ref={feedbackNegativeButtonRef}
+        aria-label="Submit negative feedback"
       >
         <Icon glyph="ThumbsDown" />
       </Button>

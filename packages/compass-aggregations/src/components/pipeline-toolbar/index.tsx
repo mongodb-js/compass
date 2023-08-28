@@ -12,8 +12,7 @@ import { usePreference } from 'compass-preferences-model';
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';
 import PipelineSettings from './pipeline-settings';
-import { PipelineAI } from './pipeline-ai';
-import { hideInput as hideAIInput } from '../../modules/pipeline-builder/pipeline-ai';
+import PipelineAI from './pipeline-ai';
 
 import type { RootState } from '../../modules';
 import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
@@ -67,14 +66,11 @@ type PipelineToolbarProps = {
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
-  isAIInputVisible = false,
-  isAggregationGeneratedFromQuery = false,
   isBuilderView,
   showRunButton,
   showExportButton,
   showExplainButton,
   onChangePipelineOutputOption,
-  onHideAIInputClick,
   pipelineOutputOption,
 }) => {
   const darkMode = useDarkMode();
@@ -103,15 +99,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
-        {enableAIExperience && isBuilderView && (
-          <PipelineAI
-            onClose={() => {
-              onHideAIInputClick?.();
-            }}
-            show={isAIInputVisible}
-            isAggregationGeneratedFromQuery={isAggregationGeneratedFromQuery}
-          />
-        )}
+        {enableAIExperience && isBuilderView && <PipelineAI />}
       </div>
       {isBuilderView ? (
         <div className={settingsRowStyles}>
@@ -132,12 +120,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 const mapState = (state: RootState) => {
   return {
     isBuilderView: state.workspace === 'builder',
-    isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
-    isAggregationGeneratedFromQuery:
-      state.pipelineBuilder.aiPipeline.isAggregationGeneratedFromQuery,
   };
 };
 
-export default connect(mapState, {
-  onHideAIInputClick: hideAIInput,
-})(PipelineToolbar);
+export default connect(mapState)(PipelineToolbar);

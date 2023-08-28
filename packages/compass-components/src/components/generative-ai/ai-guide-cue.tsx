@@ -8,28 +8,28 @@ type LGGuideCueProps = React.ComponentProps<typeof LGGuideCue>;
 // Omit the props we are handling.
 export type AIGuideCueProps = Omit<
   LGGuideCueProps,
-  'currentStep' | 'numberOfSteps' | 'children' | 'title'
+  'currentStep' | 'numberOfSteps' | 'children' | 'title' | 'open' | 'setOpen'
 > & {
-  showGuideCue?: boolean;
   title?: string;
   description?: string;
-  onResetIsAggregationGeneratedFromQuery?: () => void;
+  showGuideCue: boolean;
+  onCloseGuideCue(): void;
 };
 
 export const AIGuideCue = ({
-  onResetIsAggregationGeneratedFromQuery,
   title = '',
   description,
-  open,
-  setOpen,
   refEl,
+  showGuideCue,
+  onCloseGuideCue,
 }: AIGuideCueProps) => {
   const aiGuideCuePopoverId = useId();
 
   useEffect(() => {
-    if (!open) {
+    if (!showGuideCue) {
       return;
     }
+
     const listener = (event: MouseEvent) => {
       const popover = document.querySelector(
         `[data-popoverid="ai-guide-cue-description-popover-${aiGuideCuePopoverId}"]`
@@ -46,30 +46,27 @@ export const AIGuideCue = ({
         return;
       }
 
-      setOpen(false);
-      onResetIsAggregationGeneratedFromQuery?.();
+      onCloseGuideCue();
     };
 
     document.addEventListener('mousedown', listener);
     return () => {
       document.removeEventListener('mousedown', listener);
     };
-  }, [aiGuideCuePopoverId, open, setOpen]);
+  }, [aiGuideCuePopoverId, onCloseGuideCue, refEl, showGuideCue]);
 
   return (
     <LGGuideCue
-      spacing={spacing[2]}
-      open={open}
-      setOpen={setOpen}
+      spacing={spacing[3]}
+      open={showGuideCue}
+      setOpen={() => {
+        // noop, we don't allow leafygreen to control visibility of the guide cue
+      }}
       refEl={refEl}
       numberOfSteps={1}
       currentStep={1}
-      onPrimaryButtonClick={() => {
-        onResetIsAggregationGeneratedFromQuery?.();
-      }}
-      onDismiss={() => {
-        onResetIsAggregationGeneratedFromQuery?.();
-      }}
+      onPrimaryButtonClick={onCloseGuideCue}
+      onDismiss={onCloseGuideCue}
       title={title}
       data-popoverid={`ai-guide-cue-description-popover-${aiGuideCuePopoverId}`}
       buttonText="Got it"
