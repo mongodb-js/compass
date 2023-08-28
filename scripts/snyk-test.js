@@ -17,7 +17,7 @@ async function snykTest(cwd) {
       await execFile(
         'npx',
         [
-          'snyk',
+          'snyk@latest',
           'test',
           '--all-projects',
           '--severity-threshold=low',
