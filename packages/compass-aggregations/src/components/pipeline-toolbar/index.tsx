@@ -12,8 +12,7 @@ import { usePreference } from 'compass-preferences-model';
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';
 import PipelineSettings from './pipeline-settings';
-import { PipelineAI } from './pipeline-ai';
-import { hideInput as hideAIInput } from '../../modules/pipeline-builder/pipeline-ai';
+import PipelineAI from './pipeline-ai';
 
 import type { RootState } from '../../modules';
 import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
@@ -56,6 +55,7 @@ const optionsStyles = css({
 
 type PipelineToolbarProps = {
   isAIInputVisible?: boolean;
+  isAggregationGeneratedFromQuery?: boolean;
   isBuilderView: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
@@ -66,13 +66,11 @@ type PipelineToolbarProps = {
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
-  isAIInputVisible = false,
   isBuilderView,
   showRunButton,
   showExportButton,
   showExplainButton,
   onChangePipelineOutputOption,
-  onHideAIInputClick,
   pipelineOutputOption,
 }) => {
   const darkMode = useDarkMode();
@@ -101,14 +99,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
-        {enableAIExperience && (
-          <PipelineAI
-            onClose={() => {
-              onHideAIInputClick?.();
-            }}
-            show={isAIInputVisible}
-          />
-        )}
+        {enableAIExperience && isBuilderView && <PipelineAI />}
       </div>
       {isBuilderView ? (
         <div className={settingsRowStyles}>
@@ -126,10 +117,10 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   );
 };
 
-const mapState = (state: RootState) => ({
-  isBuilderView: state.workspace === 'builder',
-  isAIInputVisible: state.pipelineBuilder.aiPipeline.isInputVisible,
-});
-export default connect(mapState, {
-  onHideAIInputClick: hideAIInput,
-})(PipelineToolbar);
+const mapState = (state: RootState) => {
+  return {
+    isBuilderView: state.workspace === 'builder',
+  };
+};
+
+export default connect(mapState)(PipelineToolbar);

@@ -13,7 +13,7 @@ import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
 import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('AI-PIPELINE-UI');
+const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';
@@ -26,6 +26,7 @@ export type AIPipelineState = {
   aiPromptText: string;
   status: AIPipelineStatus;
   aiPipelineFetchId: number; // Maps to the AbortController of the current fetch (or -1).
+  isAggregationGeneratedFromQuery: boolean;
 };
 
 export const initialState: AIPipelineState = {
@@ -34,18 +35,21 @@ export const initialState: AIPipelineState = {
   errorMessage: undefined,
   isInputVisible: false,
   aiPipelineFetchId: -1,
+  isAggregationGeneratedFromQuery: false,
 };
 
 export const enum AIPipelineActionTypes {
   AIPipelineStarted = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineStarted',
   AIPipelineCancelled = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',
   AIPipelineFailed = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineFailed',
-  AIPipelineSucceeded = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineSucceeded',
   CancelAIPipelineGeneration = 'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipelineGeneration',
+  resetIsAggregationGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/resetIsAggregationGeneratedFromQuery',
   ShowInput = 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
   HideInput = 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
   ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
-  LoadGeneratedPipeline = 'compass-aggregations/LoadGeneratedPipeline',
+  LoadGeneratedPipeline = 'compass-aggregations/pipeline-builder/pipeline-ai/LoadGeneratedPipeline',
+  PipelineGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/PipelineGeneratedFromQuery',
+  AtlasServiceDisableAIFeature = 'compass-aggregations/pipeline-builder/pipeline-ai/AtlasServiceDisableAIFeature',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -97,6 +101,31 @@ export type LoadGeneratedPipelineAction = {
   stages: Stage[];
 };
 
+export const generateAggregationFromQuery = ({
+  aggregation,
+  userInput,
+}: {
+  aggregation: { pipeline: string };
+  userInput: string;
+}): PipelineBuilderThunkAction<void, PipelineGeneratedFromQueryAction> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const pipelineText = String(aggregation?.pipeline);
+
+    pipelineBuilder.reset(pipelineText);
+
+    dispatch({
+      type: AIPipelineActionTypes.PipelineGeneratedFromQuery,
+      stages: pipelineBuilder.stages,
+      pipelineText: pipelineBuilder.source,
+      pipeline: pipelineBuilder.pipeline,
+      syntaxErrors: pipelineBuilder.syntaxError,
+      text: userInput,
+    });
+
+    dispatch(updatePipelinePreview());
+  };
+};
+
 type AIPipelineStartedAction = {
   type: AIPipelineActionTypes.AIPipelineStarted;
   fetchId: number;
@@ -108,38 +137,62 @@ type AIPipelineFailedAction = {
   networkErrorCode?: number;
 };
 
-export type AIPipelineSucceededAction = {
-  type: AIPipelineActionTypes.AIPipelineSucceeded;
+export type PipelineGeneratedFromQueryAction = {
+  type: AIPipelineActionTypes.PipelineGeneratedFromQuery;
+  text: string;
 };
 
-function logFailed(errorMessage: string) {
-  log.info(
+type FailedResponseTrackMessage = {
+  editor_view_type: 'stages' | 'text';
+  errorCode?: number;
+  errorMessage: string;
+  errorName: string;
+};
+
+function trackAndLogFailed({
+  editor_view_type,
+  errorCode,
+  errorMessage,
+  errorName,
+}: FailedResponseTrackMessage) {
+  log.warn(
     mongoLogId(1_001_000_230),
     'AIPipeline',
     'AI pipeline request failed',
     {
+      errorCode,
       errorMessage,
+      errorName,
     }
   );
+  track('AI Response Failed', () => ({
+    editor_view_type,
+    error_code: errorCode,
+    error_name: errorName,
+  }));
 }
 
 export const runAIPipelineGeneration = (
   userInput: string
 ): PipelineBuilderThunkAction<
   Promise<void>,
-  | AIPipelineStartedAction
-  | AIPipelineFailedAction
-  | AIPipelineSucceededAction
-  | LoadGeneratedPipelineAction
+  AIPipelineStartedAction | AIPipelineFailedAction | LoadGeneratedPipelineAction
 > => {
   return async (dispatch, getState, { atlasService, pipelineBuilder }) => {
     const {
       pipelineBuilder: {
         aiPipeline: { aiPipelineFetchId: existingFetchId },
+        pipelineMode,
       },
       namespace,
       dataService: { dataService },
     } = getState();
+
+    const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
+    track('AI Prompt Submitted', () => ({
+      editor_view_type,
+      user_input_length: userInput.length,
+    }));
 
     if (aiPipelineFetchId !== -1) {
       // Cancel the active request as this one will override.
@@ -188,7 +241,12 @@ export const runAIPipelineGeneration = (
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed((err as AtlasServiceNetworkError).message);
+      trackAndLogFailed({
+        editor_view_type,
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+        errorName: 'request_error',
+      });
       // We're going to reset input state with this error, show the error in the
       // toast instead
       if ((err as AtlasServiceNetworkError).statusCode === 401) {
@@ -226,7 +284,12 @@ export const runAIPipelineGeneration = (
         throw new Error(emptyPipelineError);
       }
     } catch (err) {
-      logFailed((err as Error).message);
+      trackAndLogFailed({
+        editor_view_type,
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as Error).message,
+        errorName: 'empty_pipeline_error',
+      });
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
         errorMessage: (err as Error).message,
@@ -243,11 +306,13 @@ export const runAIPipelineGeneration = (
       }
     );
 
-    dispatch({
-      type: AIPipelineActionTypes.AIPipelineSucceeded,
-    });
-
     pipelineBuilder.reset(pipelineText);
+
+    track('AI Prompt Generated', () => ({
+      editor_view_type,
+      syntax_errors: true,
+      query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
+    }));
 
     dispatch({
       type: AIPipelineActionTypes.LoadGeneratedPipeline,
@@ -279,13 +344,32 @@ export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
   };
 };
 
+type resetIsAggregationGeneratedFromQueryAction = {
+  type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery;
+};
+
+export const resetIsAggregationGeneratedFromQuery =
+  (): PipelineBuilderThunkAction<
+    void,
+    resetIsAggregationGeneratedFromQueryAction
+  > => {
+    return (dispatch) => {
+      dispatch({
+        type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery,
+      });
+    };
+  };
+
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasService.signIn({ promptType: 'ai-promo-modal' });
+        await atlasService.enableAIFeature();
       }
-      dispatch({ type: AIPipelineActionTypes.ShowInput });
+      dispatch({
+        type: AIPipelineActionTypes.ShowInput,
+      });
     } catch {
       // if sign in failed / user canceled we just don't show the input
     }
@@ -300,6 +384,17 @@ export const hideInput = (): PipelineBuilderThunkAction<
     // Cancel any ongoing op when we hide.
     dispatch(cancelAIPipelineGeneration());
     dispatch({ type: AIPipelineActionTypes.HideInput });
+  };
+};
+
+type AtlasServiceDisableAIFeatureAction = {
+  type: AIPipelineActionTypes.AtlasServiceDisableAIFeature;
+};
+
+export const disableAIFeature = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(cancelAIPipelineGeneration());
+    dispatch({ type: AIPipelineActionTypes.AtlasServiceDisableAIFeature });
   };
 };
 
@@ -343,15 +438,31 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   }
 
   if (
-    isAction<AIPipelineSucceededAction>(
+    isAction<LoadGeneratedPipelineAction>(
       action,
-      AIPipelineActionTypes.AIPipelineSucceeded
+      AIPipelineActionTypes.LoadGeneratedPipeline
     )
   ) {
     return {
       ...state,
       status: 'success',
       aiPipelineFetchId: -1,
+    };
+  }
+
+  if (
+    isAction<PipelineGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.PipelineGeneratedFromQuery
+    )
+  ) {
+    return {
+      ...state,
+      status: 'success',
+      aiPipelineFetchId: -1,
+      isInputVisible: true,
+      isAggregationGeneratedFromQuery: true,
+      aiPromptText: action.text,
     };
   }
 
@@ -368,6 +479,18 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     };
   }
 
+  if (
+    isAction<resetIsAggregationGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery
+    )
+  ) {
+    return {
+      ...state,
+      isAggregationGeneratedFromQuery: false,
+    };
+  }
+
   if (isAction<ShowInputAction>(action, AIPipelineActionTypes.ShowInput)) {
     return {
       ...state,
@@ -379,6 +502,7 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     return {
       ...state,
       isInputVisible: false,
+      isAggregationGeneratedFromQuery: false,
     };
   }
 
@@ -394,6 +518,15 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
       status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
     };
+  }
+
+  if (
+    isAction<AtlasServiceDisableAIFeatureAction>(
+      action,
+      AIPipelineActionTypes.AtlasServiceDisableAIFeature
+    )
+  ) {
+    return { ...initialState };
   }
 
   return state;

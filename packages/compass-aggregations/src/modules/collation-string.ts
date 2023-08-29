@@ -1,5 +1,5 @@
 import type { CollationOptions } from 'mongodb';
-import queryParser from 'mongodb-query-parser';
+import { isCollationValid } from 'mongodb-query-parser';
 import type { AnyAction } from 'redux';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';
@@ -33,7 +33,7 @@ export const INITIAL_STATE: CollationStringState = {
 export function getCollationStateFromString(
   collationString: string
 ): CollationStringState {
-  const collation = queryParser.isCollationValid(collationString);
+  const collation = isCollationValid(collationString);
   return {
     text: collationString,
     value: collation === false ? null : collation,

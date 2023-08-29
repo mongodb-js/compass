@@ -40,10 +40,12 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
+  AIQueryReturnedAggregation = 'compass-query-bar/ai-query/AIQueryReturnedAggregation',
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
   ChangeAIPromptText = 'compass-query-bar/ai-query/ChangeAIPromptText',
+  AtlasServiceDisableAIFeature = 'compass-query-bar/ai-query/AtlasServiceDisableAIFeature',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -103,24 +105,52 @@ export type AIQuerySucceededAction = {
   fields: QueryFormFields;
 };
 
-function logFailed(errorMessage: string) {
-  log.info(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+export type AIQueryReturnedAggregationAction = {
+  type: AIQueryActionTypes.AIQueryReturnedAggregation;
+};
+
+type FailedResponseTrackMessage = {
+  errorCode?: number;
+  errorName: string;
+  errorMessage: string;
+};
+
+function trackAndLogFailed({
+  errorCode,
+  errorName,
+  errorMessage,
+}: FailedResponseTrackMessage) {
+  log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
+    errorCode,
     errorMessage,
+    errorName,
   });
+  track('AI Response Failed', () => ({
+    editor_view_type: 'find',
+    error_name: errorName,
+    error_code: errorCode,
+  }));
 }
 
 export const runAIQuery = (
   userInput: string
 ): QueryBarThunkAction<
   Promise<void>,
-  AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
+  | AIQueryStartedAction
+  | AIQueryFailedAction
+  | AIQuerySucceededAction
+  | AIQueryReturnedAggregationAction
 > => {
   track('AI Prompt Submitted', () => ({
     editor_view_type: 'find',
     user_input_length: userInput.length,
   }));
 
-  return async (dispatch, getState, { dataService, atlasService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, atlasService, localAppRegistry }
+  ) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
       queryBar: { namespace },
@@ -172,7 +202,11 @@ export const runAIQuery = (
         // If we already aborted so we ignore the error.
         return;
       }
-      logFailed((err as AtlasServiceNetworkError).message);
+      trackAndLogFailed({
+        errorName: 'request_error',
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: (err as AtlasServiceNetworkError).message,
+      });
       // We're going to reset input state with this error, show the error in the
       // toast instead
       if ((err as AtlasServiceNetworkError).statusCode === 401) {
@@ -204,14 +238,17 @@ export const runAIQuery = (
       return;
     }
 
-    let fields;
+    let query;
+    let generatedFields: QueryFormFields;
     try {
-      fields = {
-        ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
-        ...parseQueryAttributesToFormFields(jsonResponse.content.query),
-      };
+      query = jsonResponse?.content?.query;
+      generatedFields = parseQueryAttributesToFormFields(query);
     } catch (err: any) {
-      logFailed(err?.message);
+      trackAndLogFailed({
+        errorName: 'could_not_parse_fields',
+        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorMessage: err?.message,
+      });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: err?.message,
@@ -220,10 +257,32 @@ export const runAIQuery = (
     }
 
     // Error when the response is empty or there is nothing to map.
-    if (!fields || Object.keys(fields).length === 0) {
+    if (!generatedFields || Object.keys(generatedFields).length === 0) {
+      // The query endpoint may return the aggregation property in addition to filter, project, etc..
+      // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
+      if (query.aggregation) {
+        localAppRegistry?.emit('generate-aggregation-from-query', {
+          userInput,
+          aggregation: query.aggregation,
+        });
+        const msg =
+          'Query requires stages from aggregation framework therefore an aggregation was generated.';
+        trackAndLogFailed({
+          errorName: 'ai_generated_aggregation_instead_of_query',
+          errorMessage: msg,
+        });
+        dispatch({
+          type: AIQueryActionTypes.AIQueryReturnedAggregation,
+        });
+        return;
+      }
+
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
-      logFailed(msg);
+      trackAndLogFailed({
+        errorName: 'no_usable_query_from_ai',
+        errorMessage: msg,
+      });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: msg,
@@ -231,20 +290,29 @@ export const runAIQuery = (
       return;
     }
 
+    const queryFields = {
+      ...mapQueryToFormFields(DEFAULT_FIELD_VALUES),
+      ...generatedFields,
+    };
+
     log.info(
       mongoLogId(1_001_000_199),
       'AIQuery',
       'AI query request succeeded',
       {
         query: {
-          ...fields,
+          ...queryFields,
         },
       }
     );
+    track('AI Prompt Generated', () => ({
+      editor_view_type: 'find',
+      query_shape: Object.keys(generatedFields),
+    }));
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
-      fields,
+      fields: queryFields,
     });
   };
 };
@@ -267,11 +335,23 @@ export const cancelAIQuery = (): QueryBarThunkAction<
   };
 };
 
+type AtlasServiceDisableAIFeatureAction = {
+  type: AIQueryActionTypes.AtlasServiceDisableAIFeature;
+};
+
+export const disableAIFeature = (): QueryBarThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(cancelAIQuery());
+    dispatch({ type: AIQueryActionTypes.AtlasServiceDisableAIFeature });
+  };
+};
+
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasService.signIn({ promptType: 'ai-promo-modal' });
+        await atlasService.enableAIFeature();
       }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {
@@ -365,6 +445,17 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       // Reset the status after a successful run when the user change's the text.
       status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
+    };
+  }
+
+  if (
+    isAction<AtlasServiceDisableAIFeatureAction>(
+      action,
+      AIQueryActionTypes.AtlasServiceDisableAIFeature
+    )
+  ) {
+    return {
+      ...initialState,
     };
   }
 

@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import { EventEmitter } from 'events';
 import { once } from 'events';
 import preferencesAccess from 'compass-preferences-model';
+import type { AtlasUserConfigStore } from './user-config-store';
 
 const wait = promisify(setTimeout);
 
@@ -16,6 +17,22 @@ function getListenerCount(emitter: EventEmitter) {
 
 describe('AtlasServiceMain', function () {
   const sandbox = Sinon.createSandbox();
+
+  const mockFetch = sandbox.stub().callsFake((url: string) => {
+    return {
+      'http://example.com/v1/userinfo': {
+        ok: true,
+        json() {
+          return { sub: '1234' };
+        },
+      },
+    }[url];
+  });
+
+  const mockUserConfigStore = {
+    getUserConfig: sandbox.stub().resolves({}),
+    updateUserConfig: sandbox.stub().resolves(),
+  };
 
   const mockOidcPlugin = {
     mongoClientOptions: {
@@ -33,23 +50,27 @@ describe('AtlasServiceMain', function () {
     destroy: sandbox.stub(),
   };
 
-  AtlasService['plugin'] = mockOidcPlugin;
-
-  AtlasService['attachOidcPluginLoggerEvents']();
-
   const fetch = AtlasService['fetch'];
   const ipcMain = AtlasService['ipcMain'];
   const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
+  const userStore = AtlasService['atlasUserConfigStore'];
   const apiBaseUrl = process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
   const issuer = process.env.COMPASS_OIDC_ISSUER;
   const clientId = process.env.COMPASS_CLIENT_ID;
 
   beforeEach(function () {
     AtlasService['ipcMain'] = { handle: sandbox.stub() };
+    AtlasService['fetch'] = mockFetch as any;
+    AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
+    AtlasService['atlasUserConfigStore'] =
+      mockUserConfigStore as unknown as AtlasUserConfigStore;
 
     process.env.COMPASS_ATLAS_SERVICE_BASE_URL = 'http://example.com';
     process.env.COMPASS_OIDC_ISSUER = 'http://example.com';
     process.env.COMPASS_CLIENT_ID = '1234abcd';
+
+    AtlasService['setupPlugin']();
+    AtlasService['attachOidcPluginLoggerEvents']();
   });
 
   afterEach(function () {
@@ -58,11 +79,13 @@ describe('AtlasServiceMain', function () {
     process.env.COMPASS_CLIENT_ID = clientId;
 
     AtlasService['fetch'] = fetch;
+    AtlasService['atlasUserConfigStore'] = userStore;
     AtlasService['ipcMain'] = ipcMain;
     AtlasService['token'] = null;
     AtlasService['initPromise'] = null;
     AtlasService['oidcPluginSyncedFromLoggerState'] = 'initial';
     AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
+    AtlasService['oidcPluginLogger'].removeAllListeners();
 
     sandbox.resetHistory();
   });
@@ -74,7 +97,7 @@ describe('AtlasServiceMain', function () {
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
       ).to.have.been.calledOnce;
-      expect(token).to.have.property('accessToken', '1234');
+      expect(token).to.have.property('sub', '1234');
       expect(AtlasService).to.have.property(
         'oidcPluginSyncedFromLoggerState',
         'authenticated'
@@ -542,13 +565,13 @@ describe('AtlasServiceMain', function () {
       });
 
       it('should refresh token in atlas service state', async function () {
-        // Checking that multiple events while we are refreshing don't cause
-        // multiple calls to REQUEST_TOKEN_CALLBACK
         mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
         expect(AtlasService).to.have.property(
           'oidcPluginSyncedFromLoggerState',
           'expired'
         );
+        // Checking that multiple events while we are refreshing don't cause
+        // multiple calls to REQUEST_TOKEN_CALLBACK
         mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
         mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
         // Make it look like oidc-plugin successfully updated
@@ -661,7 +684,7 @@ describe('AtlasServiceMain', function () {
       AtlasService['oidcPluginLogger'] = logger;
 
       await AtlasService.init();
-      expect(getListenerCount(logger)).to.eq(25);
+      expect(getListenerCount(logger)).to.eq(26);
 
       await AtlasService.signOut();
       expect(getListenerCount(logger)).to.eq(0);

@@ -35,9 +35,10 @@ describe('aiQueryReducer', function () {
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasService = {
+          on: sandbox.stub(),
           getQueryFromUserInput: sandbox
             .stub()
-            .resolves({ content: { query: { _id: 1 } } }),
+            .resolves({ content: { query: { filter: '{_id: 1}' } } }),
         };
 
         const mockDataService = {
@@ -81,6 +82,7 @@ describe('aiQueryReducer', function () {
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
         const mockAtlasService = {
+          on: sandbox.stub(),
           getQueryFromUserInput: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),
@@ -100,6 +102,7 @@ describe('aiQueryReducer', function () {
         const authError = new Error('Unauthorized');
         (authError as any).statusCode = 401;
         const mockAtlasService = {
+          on: sandbox.stub(),
           getQueryFromUserInput: sandbox.stub().rejects(authError),
         };
         const store = createStore({ atlasService: mockAtlasService as any });
