@@ -140,6 +140,25 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     };
   }, [localAppRegistry, onSubTabClicked, tabs]);
 
+  useEffect(() => {
+    const aggregationsTabId = tabs.indexOf('Aggregations');
+    const onGenerateAggregationFromQueryEvent = onSubTabClicked.bind(
+      null,
+      aggregationsTabId,
+      tabs[aggregationsTabId]
+    );
+    localAppRegistry.on(
+      'generate-aggregation-from-query',
+      onGenerateAggregationFromQueryEvent
+    );
+    return () => {
+      localAppRegistry.removeListener(
+        'generate-aggregation-from-query',
+        onGenerateAggregationFromQueryEvent
+      );
+    };
+  }, [localAppRegistry, onSubTabClicked, tabs]);
+
   return (
     <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>

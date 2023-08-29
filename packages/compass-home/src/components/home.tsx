@@ -365,6 +365,7 @@ function Home({
       {globalModals?.map(({ name, component: GlobalModalComponent }) => {
         return <GlobalModalComponent key={name}></GlobalModalComponent>;
       })}
+      <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
 }
@@ -490,7 +491,6 @@ function ThemedHome(
               </ToastArea>
             </ConfirmationModalArea>
           </div>
-          <AtlasSignIn></AtlasSignIn>
         </Body>
       </GuideCueProvider>
     </LeafyGreenProvider>

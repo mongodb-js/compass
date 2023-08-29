@@ -18,7 +18,12 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores';
-import { signIn, signOut } from '../../stores/atlas-login';
+import {
+  disableAIFeature,
+  enableAIFeature,
+  signIn,
+  signOut,
+} from '../../stores/atlas-login';
 
 const atlasLoginKeylineCardStyles = css({
   overflow: 'hidden',
@@ -77,14 +82,20 @@ const atlasLoginToggleControlLabelStyles = css({
 export const AtlasLoginSettings: React.FunctionComponent<{
   isSignInInProgress: boolean;
   userLogin: string | null;
+  isAIFeatureEnabled: boolean;
   onSignInClick(): void;
   onSignOutClick(): void;
-}> = ({ isSignInInProgress, userLogin, onSignInClick, onSignOutClick }) => {
+  onToggleAIFeature(newValue: boolean): void;
+}> = ({
+  isSignInInProgress,
+  userLogin,
+  isAIFeatureEnabled,
+  onSignInClick,
+  onSignOutClick,
+  onToggleAIFeature,
+}) => {
   const darkMode = useDarkMode();
   const isSignedIn = userLogin !== null;
-  // TODO(COMPASS-7097): this is the opt-in state, always on for now
-  // when signed in
-  const hasOptedIn = !!isSignedIn;
 
   return (
     <KeylineCard className={atlasLoginKeylineCardStyles}>
@@ -145,7 +156,8 @@ export const AtlasLoginSettings: React.FunctionComponent<{
           <Toggle
             id="use-ai-toggle"
             disabled={!isSignedIn}
-            checked={hasOptedIn}
+            checked={isAIFeatureEnabled}
+            onChange={onToggleAIFeature}
             aria-labelledby="use-ai-toggle-label"
             size="small"
           ></Toggle>
@@ -158,12 +170,12 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             query bar
           </Label>
         </div>
-        {isSignedIn && !hasOptedIn && (
+        {isSignedIn && !isAIFeatureEnabled && (
           <Banner>
-            When enabling artificial intelligence features for the first time,
-            you will be required to understand and agree to our terms of service
-            and privacy policy regarding how your data is handled by our
-            artificial intelligence partner(s).
+            When enabling artificial intelligence features, you will be required
+            to understand and agree to our terms of service and privacy policy
+            regarding how your data is handled by our artificial intelligence
+            partner(s).
           </Banner>
         )}
       </div>
@@ -176,10 +188,18 @@ export const ConnectedAtlasLoginSettings = connect(
     return {
       isSignInInProgress: state.atlasLogin.status === 'in-progress',
       userLogin: state.atlasLogin.userInfo?.login ?? null,
+      isAIFeatureEnabled: Boolean(state.atlasLogin.userInfo?.enabledAIFeature),
     };
   },
   {
     onSignInClick: signIn,
     onSignOutClick: signOut,
+    onToggleAIFeature(newValue: boolean) {
+      if (newValue === true) {
+        return enableAIFeature();
+      } else {
+        return disableAIFeature();
+      }
+    },
   }
 )(AtlasLoginSettings);

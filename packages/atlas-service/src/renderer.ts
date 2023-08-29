@@ -3,25 +3,27 @@ import { ipcRenderer } from 'electron';
 import { ipcInvoke } from '@mongodb-js/compass-utils';
 import type { AtlasService as AtlasServiceMain } from './main';
 import {
+  disableAIFeature,
+  enableAIFeature,
   signInWithModalPrompt,
   signInWithoutPrompt,
   signedOut,
   tokenRefreshFailed,
+  userConfigChanged,
 } from './store/atlas-signin-reducer';
-import { dispatch } from './store/atlas-signin-store';
+import { getStore } from './store/atlas-signin-store';
+import type { AtlasUserConfig, AtlasUserInfo } from './util';
 
 let atlasServiceInstanceSingleton: AtlasService;
 
-type AtlasServiceEvents = 'signed-in' | 'signed-out' | 'token-refresh-failed';
+type AtlasServiceEvents = {
+  'signed-in': [];
+  'signed-out': [];
+  'token-refresh-failed': [];
+  'user-config-changed': [AtlasUserConfig];
+};
 
-interface AtlasServiceEmitter {
-  emit(evt: AtlasServiceEvents): boolean;
-  on(evt: AtlasServiceEvents, listener: () => void): this;
-  once(evt: AtlasServiceEvents, listener: () => void): this;
-  off(evt: AtlasServiceEvents, listener: () => void): this;
-}
-
-export class AtlasService implements AtlasServiceEmitter {
+export class AtlasService {
   private emitter = new EventEmitter();
 
   private ipc = ipcInvoke<
@@ -33,6 +35,7 @@ export class AtlasService implements AtlasServiceEmitter {
     | 'signOut'
     | 'getAggregationFromUserInput'
     | 'getQueryFromUserInput'
+    | 'updateAtlasUserConfig'
   >('AtlasService', [
     'getUserInfo',
     'introspect',
@@ -41,6 +44,7 @@ export class AtlasService implements AtlasServiceEmitter {
     'signOut',
     'getAggregationFromUserInput',
     'getQueryFromUserInput',
+    'updateAtlasUserConfig',
   ]);
 
   getUserInfo = this.ipc.getUserInfo;
@@ -49,24 +53,41 @@ export class AtlasService implements AtlasServiceEmitter {
   getAggregationFromUserInput = this.ipc.getAggregationFromUserInput;
   getQueryFromUserInput = this.ipc.getQueryFromUserInput;
   signOut = this.ipc.signOut;
+  updateAtlasUserConfig = this.ipc.updateAtlasUserConfig;
 
-  on(evt: AtlasServiceEvents, listener: () => void) {
+  on<T extends keyof AtlasServiceEvents>(
+    evt: T,
+    listener: (...args: AtlasServiceEvents[T]) => void
+  ): this;
+  on(evt: string, listener: (...args: any[]) => void): this {
     this.emitter.on(evt, listener);
     return this;
   }
 
-  once(evt: AtlasServiceEvents, listener: () => void) {
+  once<T extends keyof AtlasServiceEvents>(
+    evt: T,
+    listener: (...args: AtlasServiceEvents[T]) => void
+  ): this;
+  once(evt: string, listener: (...args: any[]) => void): this {
     this.emitter.once(evt, listener);
     return this;
   }
 
-  off(evt: AtlasServiceEvents, listener: () => void) {
+  off<T extends keyof AtlasServiceEvents>(
+    evt: T,
+    listener: (...args: AtlasServiceEvents[T]) => void
+  ): this;
+  off(evt: string, listener: (...args: any[]) => void): this {
     this.emitter.off(evt, listener);
     return this;
   }
 
-  emit(evt: AtlasServiceEvents) {
-    return this.emitter.emit(evt);
+  emit<T extends keyof AtlasServiceEvents>(
+    evt: T,
+    ...args: AtlasServiceEvents[T]
+  ): boolean;
+  emit(evt: string, ...args: any[]): boolean {
+    return this.emitter.emit(evt, ...args);
   }
 
   async signIn({
@@ -75,18 +96,26 @@ export class AtlasService implements AtlasServiceEmitter {
   }: {
     signal?: AbortSignal;
     promptType?: 'none' | 'ai-promo-modal';
-  } = {}) {
+  } = {}): Promise<AtlasUserInfo> {
     switch (promptType) {
       case 'none':
-        await dispatch(signInWithoutPrompt({ signal }));
-        return;
+        return getStore().dispatch(signInWithoutPrompt({ signal }));
       case 'ai-promo-modal':
-        await dispatch(signInWithModalPrompt({ signal }));
-        return;
+        return getStore().dispatch(signInWithModalPrompt({ signal }));
       default:
-        await this.ipc.signIn({ signal });
-        return;
+        return this.ipc.signIn({ signal });
     }
+  }
+
+  async enableAIFeature() {
+    const accepted = await getStore().dispatch(enableAIFeature());
+    if (!accepted) {
+      throw new Error('Terms and conditions were not accepted');
+    }
+  }
+
+  async disableAIFeature() {
+    await getStore().dispatch(disableAIFeature());
   }
 
   constructor() {
@@ -96,12 +125,19 @@ export class AtlasService implements AtlasServiceEmitter {
 
     // We might not be in electorn environment
     ipcRenderer?.on('atlas-service-token-refresh-failed', () => {
-      dispatch(tokenRefreshFailed());
+      getStore().dispatch(tokenRefreshFailed());
     });
 
     ipcRenderer?.on('atlas-service-signed-out', () => {
-      dispatch(signedOut());
+      getStore().dispatch(signedOut());
     });
+
+    ipcRenderer?.on(
+      'atlas-service-user-config-changed',
+      (_evt, newConfig: AtlasUserConfig) => {
+        getStore().dispatch(userConfigChanged(newConfig));
+      }
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     atlasServiceInstanceSingleton = this;
@@ -111,7 +147,8 @@ export class AtlasService implements AtlasServiceEmitter {
 export { AtlasSignIn } from './components/atlas-signin';
 
 export type {
-  UserInfo,
+  AtlasUserInfo,
+  AtlasUserConfig,
   IntrospectInfo,
   Token,
   AtlasServiceNetworkError,

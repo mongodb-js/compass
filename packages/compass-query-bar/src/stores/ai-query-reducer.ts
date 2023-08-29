@@ -40,10 +40,12 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
+  AIQueryReturnedAggregation = 'compass-query-bar/ai-query/AIQueryReturnedAggregation',
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
   ChangeAIPromptText = 'compass-query-bar/ai-query/ChangeAIPromptText',
+  AtlasServiceDisableAIFeature = 'compass-query-bar/ai-query/AtlasServiceDisableAIFeature',
 }
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
@@ -103,6 +105,10 @@ export type AIQuerySucceededAction = {
   fields: QueryFormFields;
 };
 
+export type AIQueryReturnedAggregationAction = {
+  type: AIQueryActionTypes.AIQueryReturnedAggregation;
+};
+
 type FailedResponseTrackMessage = {
   errorCode?: number;
   errorName: string;
@@ -130,14 +136,21 @@ export const runAIQuery = (
   userInput: string
 ): QueryBarThunkAction<
   Promise<void>,
-  AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
+  | AIQueryStartedAction
+  | AIQueryFailedAction
+  | AIQuerySucceededAction
+  | AIQueryReturnedAggregationAction
 > => {
   track('AI Prompt Submitted', () => ({
     editor_view_type: 'find',
     user_input_length: userInput.length,
   }));
 
-  return async (dispatch, getState, { dataService, atlasService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, atlasService, localAppRegistry }
+  ) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
       queryBar: { namespace },
@@ -225,11 +238,11 @@ export const runAIQuery = (
       return;
     }
 
+    let query;
     let generatedFields: QueryFormFields;
     try {
-      generatedFields = parseQueryAttributesToFormFields(
-        jsonResponse.content.query
-      );
+      query = jsonResponse?.content?.query;
+      generatedFields = parseQueryAttributesToFormFields(query);
     } catch (err: any) {
       trackAndLogFailed({
         errorName: 'could_not_parse_fields',
@@ -245,6 +258,25 @@ export const runAIQuery = (
 
     // Error when the response is empty or there is nothing to map.
     if (!generatedFields || Object.keys(generatedFields).length === 0) {
+      // The query endpoint may return the aggregation property in addition to filter, project, etc..
+      // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
+      if (query.aggregation) {
+        localAppRegistry?.emit('generate-aggregation-from-query', {
+          userInput,
+          aggregation: query.aggregation,
+        });
+        const msg =
+          'Query requires stages from aggregation framework therefore an aggregation was generated.';
+        trackAndLogFailed({
+          errorName: 'ai_generated_aggregation_instead_of_query',
+          errorMessage: msg,
+        });
+        dispatch({
+          type: AIQueryActionTypes.AIQueryReturnedAggregation,
+        });
+        return;
+      }
+
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
       trackAndLogFailed({
@@ -303,11 +335,23 @@ export const cancelAIQuery = (): QueryBarThunkAction<
   };
 };
 
+type AtlasServiceDisableAIFeatureAction = {
+  type: AIQueryActionTypes.AtlasServiceDisableAIFeature;
+};
+
+export const disableAIFeature = (): QueryBarThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(cancelAIQuery());
+    dispatch({ type: AIQueryActionTypes.AtlasServiceDisableAIFeature });
+  };
+};
+
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
         await atlasService.signIn({ promptType: 'ai-promo-modal' });
+        await atlasService.enableAIFeature();
       }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {
@@ -401,6 +445,17 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       // Reset the status after a successful run when the user change's the text.
       status: state.status === 'success' ? 'ready' : state.status,
       aiPromptText: action.text,
+    };
+  }
+
+  if (
+    isAction<AtlasServiceDisableAIFeatureAction>(
+      action,
+      AIQueryActionTypes.AtlasServiceDisableAIFeature
+    )
+  ) {
+    return {
+      ...initialState,
     };
   }
 

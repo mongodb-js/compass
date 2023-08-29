@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import TypeChecker from 'hadron-type-checker';
-import queryParser from 'mongodb-query-parser';
+import { toJSString } from 'mongodb-query-parser';
 import { css, spacing } from '@mongodb-js/compass-components';
 import MatchGroupForm, { createGroup } from './match-group-form';
 
@@ -166,7 +166,7 @@ const MatchForm = ({ fields, onChange }: WizardComponentProps) => {
     setMatchGroup(changedGroup);
     try {
       const matchStage = mapMatchFormStateToMatchStage(changedGroup);
-      onChange(queryParser.toJSString(matchStage), null);
+      onChange(toJSString(matchStage) || '', null);
     } catch (error) {
       onChange('{}', error as Error);
     }
