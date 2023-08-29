@@ -138,6 +138,7 @@ const reducer: Reducer<AtlasLoginSettingsState> = (
       ...state,
       status: 'authenticated',
       userInfo: action.userInfo,
+      attemptId: null,
     };
   }
 
