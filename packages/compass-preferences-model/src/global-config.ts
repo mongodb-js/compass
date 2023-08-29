@@ -7,7 +7,7 @@ import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
 import type { AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
-import type { Types as JoiTypes } from 'joi';
+import type { ZodError } from 'zod';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
@@ -92,11 +92,12 @@ async function loadGlobalPreferences(
 const cliProps = Object.entries(allPreferencesProps).filter(
   ([, definition]) => definition.cli
 );
-function getCliPropNamesByType(type: JoiTypes): string[] {
+type CliPropType = typeof cliProps[number][1]['type'];
+function getCliPropNamesByType(type: CliPropType): string[] {
   return [
     ...new Set(
       cliProps
-        .filter(([, definition]) => definition.validator.type === type)
+        .filter(([, definition]) => definition.type === type)
         .flatMap(([key]) => [key, kebabCase(key)])
     ),
   ];
@@ -172,14 +173,12 @@ function validatePreferences(
     const process = allPreferencesProps[key].customPostProcess;
     const value = process ? process(rawValue, error) : rawValue;
 
-    const validationResults =
-      allPreferencesProps[key].validator.validate(value);
-    if (validationResults.error) {
-      error(`${key}: ${validationResults.error.message}`);
-      continue;
+    try {
+      obj[key] = allPreferencesProps[key].validator.parse(value) as any;
+    } catch (e) {
+      // Show the first error
+      error(`${key}: ${(e as ZodError).errors[0].message}`);
     }
-
-    obj[key] = validationResults.value as any;
   }
   return [obj, errors];
 }
