@@ -40,6 +40,7 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
+  AIQueryReturnedAggregation = 'compass-query-bar/ai-query/AIQueryReturnedAggregation',
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
@@ -104,6 +105,10 @@ export type AIQuerySucceededAction = {
   fields: QueryFormFields;
 };
 
+export type AIQueryReturnedAggregationAction = {
+  type: AIQueryActionTypes.AIQueryReturnedAggregation;
+};
+
 type FailedResponseTrackMessage = {
   errorCode?: number;
   errorName: string;
@@ -131,14 +136,21 @@ export const runAIQuery = (
   userInput: string
 ): QueryBarThunkAction<
   Promise<void>,
-  AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
+  | AIQueryStartedAction
+  | AIQueryFailedAction
+  | AIQuerySucceededAction
+  | AIQueryReturnedAggregationAction
 > => {
   track('AI Prompt Submitted', () => ({
     editor_view_type: 'find',
     user_input_length: userInput.length,
   }));
 
-  return async (dispatch, getState, { dataService, atlasService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, atlasService, localAppRegistry }
+  ) => {
     const {
       aiQuery: { aiQueryFetchId: existingFetchId },
       queryBar: { namespace },
@@ -226,11 +238,11 @@ export const runAIQuery = (
       return;
     }
 
+    let query;
     let generatedFields: QueryFormFields;
     try {
-      generatedFields = parseQueryAttributesToFormFields(
-        jsonResponse.content.query
-      );
+      query = jsonResponse?.content?.query;
+      generatedFields = parseQueryAttributesToFormFields(query);
     } catch (err: any) {
       trackAndLogFailed({
         errorName: 'could_not_parse_fields',
@@ -246,6 +258,25 @@ export const runAIQuery = (
 
     // Error when the response is empty or there is nothing to map.
     if (!generatedFields || Object.keys(generatedFields).length === 0) {
+      // The query endpoint may return the aggregation property in addition to filter, project, etc..
+      // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
+      if (query.aggregation) {
+        localAppRegistry?.emit('generate-aggregation-from-query', {
+          userInput,
+          aggregation: query.aggregation,
+        });
+        const msg =
+          'Query requires stages from aggregation framework therefore an aggregation was generated.';
+        trackAndLogFailed({
+          errorName: 'ai_generated_aggregation_instead_of_query',
+          errorMessage: msg,
+        });
+        dispatch({
+          type: AIQueryActionTypes.AIQueryReturnedAggregation,
+        });
+        return;
+      }
+
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
       trackAndLogFailed({

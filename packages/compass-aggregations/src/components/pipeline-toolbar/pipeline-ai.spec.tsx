@@ -1,32 +1,34 @@
 import React from 'react';
-import type { ComponentProps } from 'react';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { SinonSpy } from 'sinon';
 import { Provider } from 'react-redux';
 import preferencesAccess from 'compass-preferences-model';
 import userEvent from '@testing-library/user-event';
-
-import { PipelineAI } from './pipeline-ai';
+import PipelineAI from './pipeline-ai';
 import configureStore from '../../../test/configure-store';
 import {
   AIPipelineActionTypes,
   changeAIPromptText,
+  showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
+import type { ConfigureStoreOptions } from '../../stores/store';
 
-const noop = () => {
-  /* no op */
-};
+const mockAtlasService = {
+  signIn() {
+    return Promise.resolve({});
+  },
+  enableAIFeature() {
+    return Promise.resolve(true);
+  },
+  on() {},
+} as any;
 
-const renderPipelineAI = ({
-  ...props
-}: Partial<ComponentProps<typeof PipelineAI>> = {}) => {
-  const store = configureStore();
-
+const renderPipelineAI = (opts: Partial<ConfigureStoreOptions> = {}) => {
+  const store = configureStore({ atlasService: mockAtlasService, ...opts });
   render(
     <Provider store={store}>
-      <PipelineAI onClose={noop} show {...props} />
+      <PipelineAI />
     </Provider>
   );
   return store;
@@ -37,29 +39,26 @@ const thumbsUpId = 'ai-feedback-thumbs-up';
 
 describe('PipelineAI Component', function () {
   let store: ReturnType<typeof configureStore>;
-  afterEach(cleanup);
+
+  beforeEach(async function () {
+    store = renderPipelineAI();
+    await store.dispatch(showInput());
+  });
+
+  afterEach(function () {
+    (store as any) = null;
+    cleanup();
+  });
 
   describe('when rendered', function () {
-    let onCloseSpy: SinonSpy;
-    beforeEach(function () {
-      onCloseSpy = sinon.spy();
-      store = renderPipelineAI({
-        onClose: onCloseSpy,
-      });
-    });
-
-    it('calls to close robot button is clicked', function () {
-      expect(onCloseSpy.called).to.be.false;
-      const closeButton = screen.getByTestId('close-ai-button');
-      expect(closeButton).to.be.visible;
-      closeButton.click();
-      expect(onCloseSpy.calledOnce).to.be.true;
+    it('closes the input', async function () {
+      userEvent.click(screen.getByRole('button', { name: 'Close AI Helper' }));
+      expect(await screen.queryByTestId('close-ai-button')).to.eq(null);
     });
   });
 
   describe('when rendered with text', function () {
     beforeEach(function () {
-      store = renderPipelineAI();
       store.dispatch(changeAIPromptText('test'));
     });
 
@@ -68,12 +67,31 @@ describe('PipelineAI Component', function () {
         'test'
       );
 
-      const clearTextButton = screen.getByTestId('ai-text-clear-prompt');
-      expect(clearTextButton).to.be.visible;
-      clearTextButton.click();
+      userEvent.click(screen.getByRole('button', { name: 'Clear prompt' }));
 
       expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
         ''
+      );
+    });
+  });
+
+  describe('when a pipeline created from query', function () {
+    it('inserts user prompt', function () {
+      expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
+        ''
+      );
+
+      store.dispatch({
+        type: AIPipelineActionTypes.PipelineGeneratedFromQuery,
+        pipelineText: '[{$group: {_id: "$price"}}]',
+        pipeline: [{ $group: { _id: '$price' } }],
+        syntaxErrors: [],
+        stages: [],
+        text: 'group by price',
+      });
+
+      expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
+        'group by price'
       );
     });
   });
@@ -85,6 +103,7 @@ describe('PipelineAI Component', function () {
     beforeEach(function () {
       sandbox = sinon.createSandbox();
     });
+
     afterEach(function () {
       sandbox.restore();
     });
@@ -98,7 +117,6 @@ describe('PipelineAI Component', function () {
           .returns({ trackUsageStatistics: true } as any);
         // 'compass:track' will only emit if tracking is enabled.
         await preferencesAccess.savePreferences({ trackUsageStatistics: true });
-        store = renderPipelineAI();
       });
 
       afterEach(async function () {
@@ -117,19 +135,25 @@ describe('PipelineAI Component', function () {
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
 
         store.dispatch({
-          type: AIPipelineActionTypes.AIPipelineSucceeded,
+          type: AIPipelineActionTypes.LoadGeneratedPipeline,
+          pipelineText: '[{$group: {_id: "$price"}}]',
+          pipeline: [{ $group: { _id: '$price' } }],
+          syntaxErrors: [],
+          stages: [],
         });
 
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
-        const thumbsUpButton = screen.getByTestId(thumbsUpId);
-        expect(thumbsUpButton).to.be.visible;
-        thumbsUpButton.click();
+
+        userEvent.click(
+          screen.getByRole('button', { name: 'Submit positive feedback' })
+        );
 
         const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
         expect(textArea).to.be.visible;
+
         userEvent.type(textArea, 'this is the pipeline I was looking for');
 
-        screen.getByText('Submit').click();
+        userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
         await waitFor(
           () => {
@@ -172,7 +196,11 @@ describe('PipelineAI Component', function () {
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
 
         store.dispatch({
-          type: AIPipelineActionTypes.AIPipelineSucceeded,
+          type: AIPipelineActionTypes.LoadGeneratedPipeline,
+          pipelineText: '[{$group: {_id: "$price"}}]',
+          pipeline: [{ $group: { _id: '$price' } }],
+          syntaxErrors: [],
+          stages: [],
         });
 
         // No feedback popover is shown.

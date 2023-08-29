@@ -27,6 +27,7 @@ export default function reducer(state = INITIAL_STATE, action) {
     action.type === CREATE_ID ||
     action.type === CLONE_PIPELINE ||
     action.type === AIPipelineActionTypes.LoadGeneratedPipeline ||
+    action.type === AIPipelineActionTypes.PipelineGeneratedFromQuery ||
     action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
   ) {
     return new ObjectId().toHexString();

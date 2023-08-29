@@ -217,5 +217,29 @@ describe('Aggregation Store', function () {
         });
       });
     });
+
+    context('when an aggregation should be generated from query', function () {
+      it('updates the ai store', function (done) {
+        const unsubscribe = store.subscribe(() => {
+          unsubscribe();
+          expect(store.getState().pipelineBuilder.aiPipeline).to.deep.equal({
+            aiPipelineFetchId: -1,
+            aiPromptText: 'group by price',
+            errorMessage: undefined,
+            isAggregationGeneratedFromQuery: true,
+            isInputVisible: true,
+            status: 'success',
+          });
+          done();
+        });
+
+        localAppRegistry.emit('generate-aggregation-from-query', {
+          userInput: 'group by price',
+          aggregation: {
+            pipeline: '[{ $group: { _id: "$price" } }]',
+          },
+        });
+      });
+    });
   });
 });

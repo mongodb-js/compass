@@ -6,6 +6,7 @@ import {
   AIPipelineActionTypes,
   cancelAIPipelineGeneration,
   runAIPipelineGeneration,
+  generateAggregationFromQuery,
 } from './pipeline-ai';
 import type { ConfigureStoreOptions } from '../../stores/store';
 import { toggleAutoPreview } from '../auto-preview';
@@ -45,6 +46,7 @@ describe('AIPipelineReducer', function () {
           },
           atlasService: mockAtlasService as any,
         });
+
         // Set autoPreview false so that it doesn't start the
         // follow up async preview doc requests.
         store.dispatch(toggleAutoPreview(false));
@@ -122,6 +124,7 @@ describe('AIPipelineReducer', function () {
           errorMessage: undefined,
           isInputVisible: false,
           aiPipelineFetchId: -1,
+          isAggregationGeneratedFromQuery: false,
         });
       });
     });
@@ -154,6 +157,68 @@ describe('AIPipelineReducer', function () {
       expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
         'ready'
       );
+    });
+  });
+
+  describe('generateAggregationFromQuery', function () {
+    it('should create an aggregation pipeline', function () {
+      const mockAtlasService = {
+        on: sandbox.stub(),
+        getAggregationFromUserInput: sandbox.stub().resolves({
+          content: {
+            aggregation: { pipeline: '[{ $group: { _id: "$price" } }]' },
+          },
+        }),
+      };
+
+      const mockDataService = {
+        sample: sandbox.stub().resolves([{ _id: 42 }]),
+        getConnectionString: sandbox.stub().returns({ hosts: [] }),
+      };
+
+      const store = createStore({
+        namespace: 'database.collection',
+        dataProvider: {
+          dataProvider: mockDataService as any,
+        },
+        atlasService: mockAtlasService as any,
+      });
+
+      // Set autoPreview false so that it doesn't start the
+      // follow up async preview doc requests.
+      store.dispatch(toggleAutoPreview(false));
+      expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
+        'ready'
+      );
+
+      store.dispatch(
+        generateAggregationFromQuery({
+          userInput: 'group by price',
+          aggregation: {
+            pipeline: '[{ $group: { _id: "$price" } }]',
+          },
+        })
+      );
+
+      expect(
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
+      ).to.equal(-1);
+      expect(store.getState().pipelineBuilder.aiPipeline.errorMessage).to.equal(
+        undefined
+      );
+      expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
+        'success'
+      );
+      expect(store.getState().pipelineBuilder.aiPipeline.aiPromptText).to.equal(
+        'group by price'
+      );
+      expect(
+        store.getState().pipelineBuilder.aiPipeline.isInputVisible
+      ).to.equal(true);
+      expect(
+        store.getState().pipelineBuilder.aiPipeline
+          .isAggregationGeneratedFromQuery
+      ).to.equal(true);
     });
   });
 });
