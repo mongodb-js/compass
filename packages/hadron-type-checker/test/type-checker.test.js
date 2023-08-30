@@ -514,6 +514,12 @@ describe('TypeChecker', function() {
         });
       });
 
+      context('when casting to a string and the string is [object Object] does not return empty', function() {
+        it('returns an empty string', function() {
+          expect(TypeChecker.cast('[object Object]', 'String')).to.equal('[object Object]');
+        });
+      });
+
       context('when casting to an array', function() {
         it('returns an empty array', function() {
           expect(TypeChecker.cast({ test: 'value' }, 'Array')).to.deep.equal([]);
