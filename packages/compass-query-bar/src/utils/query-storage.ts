@@ -74,20 +74,15 @@ export abstract class QueryStorage<T extends z.Schema = z.Schema> {
   }
 
   async updateAttributes(id: string, data: Partial<z.input<T>>) {
-    const fileName = this.getFileName(id);
-    await this.userData.write(fileName, {
-      ...((await this.userData.readOne(fileName)) ?? {}),
+    await this.userData.write(id, {
+      ...((await this.userData.readOne(id)) ?? {}),
       ...data,
     });
-    return await this.userData.readOne(fileName);
+    return await this.userData.readOne(id);
   }
 
   async delete(id: string) {
-    return await this.userData.delete(this.getFileName(id));
-  }
-
-  protected getFileName(id: string) {
-    return `${id}.json`;
+    return await this.userData.delete(id);
   }
 }
 
@@ -114,7 +109,7 @@ export class RecentQueryStorage extends QueryStorage<typeof RecentQuerySchema> {
       _id,
       _lastExecuted: new Date(),
     };
-    await this.userData.write(this.getFileName(_id), recentQuery);
+    await this.userData.write(_id, recentQuery);
   }
 }
 

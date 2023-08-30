@@ -101,10 +101,6 @@ export class ConnectionStorage {
     this.calledOnce = true;
   }
 
-  private static getFileName(id: string) {
-    return `${id}.json`;
-  }
-
   private static mapStoredConnectionToConnectionInfo(
     storedConnectionInfo: ConnectionInfo,
     secrets?: ConnectionSecrets
@@ -214,14 +210,14 @@ export class ConnectionStorage {
 
       // While testing, we don't use keychain to store secrets
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        await this.userData.write(this.getFileName(connectionInfo.id), {
+        await this.userData.write(connectionInfo.id, {
           connectionInfo,
           _id: connectionInfo.id,
         });
       } else {
         const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
           extractSecrets(connectionInfo);
-        await this.userData.write(this.getFileName(connectionInfo.id), {
+        await this.userData.write(connectionInfo.id, {
           connectionInfo: connectionInfoWithoutSecrets,
           _id: connectionInfo.id,
         });
@@ -267,7 +263,7 @@ export class ConnectionStorage {
     }
 
     try {
-      await this.userData.delete(this.getFileName(id));
+      await this.userData.delete(id);
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         return;
       }

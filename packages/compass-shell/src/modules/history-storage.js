@@ -3,7 +3,7 @@ import { UserData } from '@mongodb-js/compass-user-data';
 import { z } from 'zod';
 
 export class HistoryStorage {
-  fileName = 'shell-history.json';
+  fileName = 'shell-history';
   userData;
 
   constructor(basePath) {

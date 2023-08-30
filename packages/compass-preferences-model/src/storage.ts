@@ -60,7 +60,7 @@ export class SandboxPreferences extends BasePreferencesStorage {
 }
 
 export class StoragePreferences extends BasePreferencesStorage {
-  private readonly file = 'General.json';
+  private readonly file = 'General';
   private readonly defaultPreferences = getDefaultPreferences();
   private readonly userData: UserData<
     ReturnType<typeof getPreferencesValidator>
@@ -149,7 +149,7 @@ export class UserStorage {
   }
 
   async getUser(id: string) {
-    return await this.userData.readOne(this.getFileName(id), {
+    return await this.userData.readOne(id, {
       ignoreErrors: false,
     });
   }
@@ -177,11 +177,7 @@ export class UserStorage {
   }
 
   private async writeUser(user: z.input<typeof UserSchema>) {
-    await this.userData.write(this.getFileName(user.id), user);
+    await this.userData.write(user.id, user);
     return this.getUser(user.id);
-  }
-
-  private getFileName(id: string) {
-    return `${id}.json`;
   }
 }
