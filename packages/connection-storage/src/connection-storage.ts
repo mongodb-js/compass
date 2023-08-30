@@ -1,4 +1,5 @@
 import { validate as uuidValidate } from 'uuid';
+import { ipcMain } from 'electron';
 import keytar from 'keytar';
 
 import type { ConnectionInfo } from './connection-info';
@@ -38,30 +39,38 @@ type ConnectionWithLegacyProps = {
 
 export class ConnectionStorage {
   private static calledOnce: boolean;
+  private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
 
   private static readonly maxAllowedRecentConnections = 10;
-  private static userData = new UserData<ConnectionWithLegacyProps>({
-    subdir: 'Connections',
-  });
+  private static userData: UserData<ConnectionWithLegacyProps>;
 
   private constructor() {
     // singleton
   }
 
-  static init() {
+  static init(basePath?: string) {
     if (this.calledOnce) {
       return;
     }
-    ipcExpose('ConnectionStorage', this, [
-      'loadAll',
-      'load',
-      'getLegacyConnections',
-      'save',
-      'delete',
-      'deserializeConnections',
-      'exportConnections',
-      'importConnections',
-    ]);
+    this.userData = new UserData({
+      subdir: 'Connections',
+      basePath,
+    });
+    ipcExpose(
+      'ConnectionStorage',
+      this,
+      [
+        'loadAll',
+        'load',
+        'getLegacyConnections',
+        'save',
+        'delete',
+        'deserializeConnections',
+        'exportConnections',
+        'importConnections',
+      ],
+      this.ipcMain
+    );
     this.calledOnce = true;
   }
 

@@ -19,10 +19,13 @@ const loadAutoConnectWithConnection = async (
   const tmpDir = await fs.mkdtemp(
     path.join(os.tmpdir(), 'connection-storage-tests')
   );
+  const ipcMain = ConnectionStorage['ipcMain'];
+
   try {
     await fs.mkdir(path.join(tmpDir, 'Connections'));
 
-    ConnectionStorage['path'] = tmpDir;
+    ConnectionStorage['ipcMain'] = { handle: sinon.stub() };
+    ConnectionStorage.init(tmpDir);
     await Promise.all(
       connections.map((connectionInfo) =>
         ConnectionStorage.save({ connectionInfo })
@@ -44,7 +47,8 @@ const loadAutoConnectWithConnection = async (
     );
     return fn;
   } finally {
-    ConnectionStorage['path'] = null;
+    ConnectionStorage['calledOnce'] = false;
+    ConnectionStorage['ipcMain'] = ipcMain;
     void fs.rmdir(tmpDir, { recursive: true });
   }
 };
