@@ -2,39 +2,45 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
+import { z } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
 
-type SerializeContent<T> = (content: T) => string;
-type DeserializeContent<T> = (content: string) => T;
+type SerializeContent<I> = (content: I) => string;
+type DeserializeContent = (content: string) => unknown;
 
-type UserDataOptions<T = unknown> = {
+type UserDataOptions<I> = {
   subdir: string;
   basePath?: string;
-  serialize?: SerializeContent<T>;
-  deserialize?: DeserializeContent<T>;
+  serialize?: SerializeContent<I>;
+  deserialize?: DeserializeContent;
 };
 
 type ReadOptions = {
   ignoreErrors: boolean;
 };
 
-export class UserData<T> {
+export class UserData<T extends z.Schema> {
   private readonly subdir: string;
   private readonly basePath?: string;
   private readonly serialize: SerializeContent<T>;
-  private readonly deserialize: DeserializeContent<T>;
+  private readonly deserialize: DeserializeContent;
+  private readonly validator: z.ZodType<T>;
 
-  constructor({
-    subdir,
-    basePath,
-    serialize = (content: T) => JSON.stringify(content, null, 2),
-    deserialize = JSON.parse,
-  }: UserDataOptions<T>) {
+  constructor(
+    getSchemaValidator: () => T,
+    {
+      subdir,
+      basePath,
+      serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
+      deserialize = JSON.parse,
+    }: UserDataOptions<z.input<T>>
+  ) {
     this.subdir = subdir;
     this.basePath = basePath;
     this.deserialize = deserialize;
     this.serialize = serialize;
+    this.validator = getSchemaValidator();
   }
 
   private async getEnsuredBasePath(): Promise<string> {
@@ -82,7 +88,8 @@ export class UserData<T> {
     }
 
     try {
-      return this.deserialize(data);
+      const content = this.deserialize(data);
+      return this.validator.parse(content);
     } catch (error) {
       log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
         path: absolutePath,
@@ -110,7 +117,7 @@ export class UserData<T> {
       data: [],
       errors: [],
     } as {
-      data: T[];
+      data: z.output<T>[];
       errors: Error[];
     };
 
@@ -129,15 +136,15 @@ export class UserData<T> {
   async readOne(
     filepath: string,
     options?: { ignoreErrors: false }
-  ): Promise<T>;
+  ): Promise<z.output<T>>;
   async readOne(
     filepath: string,
     options?: { ignoreErrors: true }
-  ): Promise<T | undefined>;
+  ): Promise<z.output<T> | undefined>;
   async readOne(
     filepath: string,
     options?: ReadOptions
-  ): Promise<T | undefined>;
+  ): Promise<z.output<T> | undefined>;
   async readOne(
     filepath: string,
     options: ReadOptions = {
@@ -148,7 +155,13 @@ export class UserData<T> {
     return await this.readAndParseFile(absolutePath, options);
   }
 
-  async write(filepath: string, content: T) {
+  async write(filepath: string, content: z.input<T>) {
+    // Validate the input. Here we are not saving the parsed content
+    // because after reading we validate the data again and it parses
+    // the read content back to the expected output. This way we ensure
+    // that we exactly save what we want without transforming it.
+    this.validator.parse(content);
+
     const absolutePath = await this.getFileAbsolutePath(filepath);
     try {
       await fs.writeFile(absolutePath, this.serialize(content), {

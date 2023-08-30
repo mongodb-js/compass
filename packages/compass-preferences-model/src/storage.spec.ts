@@ -1,9 +1,13 @@
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import { UserStorage, StoragePreferences, type User } from './storage';
+import {
+  getDefaultPreferences,
+  UserStorage,
+  StoragePreferences,
+  type User,
+} from './storage';
 import { expect } from 'chai';
-import type { UserPreferences } from './preferences';
 
 const getPreferencesFolder = (tmpDir: string) => {
   return path.join(tmpDir, 'AppPreferences');
@@ -49,12 +53,44 @@ describe('storage', function () {
         lastUsed,
       });
     });
+
+    it('throws validation errors', async function () {
+      {
+        try {
+          await userStorage.updateUser(storedUser.id, {
+            lastUsed: 'something-unacceptable',
+          } as any);
+          expect.fail('Expected lastUsed prop to fail due to date validation');
+        } catch (e) {
+          expect(e).to.be.an.instanceOf(Error);
+        }
+      }
+
+      {
+        try {
+          await userStorage.updateUser(storedUser.id, {
+            createdAt: 'something-unacceptable',
+          } as any);
+          expect.fail('Expected createdAt prop to fail due to date validation');
+        } catch (e) {
+          expect(e).to.be.an.instanceOf(Error);
+        }
+      }
+
+      {
+        try {
+          await userStorage.updateUser(storedUser.id, {
+            id: 'something-unacceptable',
+          });
+          expect.fail('Expected id prop to fail due to uuid validation');
+        } catch (e) {
+          expect(e).to.be.an.instanceOf(Error);
+        }
+      }
+    });
   });
 
   describe('StoragePreferences', function () {
-    const defaultPreferences = {
-      showedNetworkOptIn: true,
-    } as unknown as UserPreferences;
     beforeEach(async function () {
       tmpDir = await fs.mkdtemp(path.join(os.tmpdir()));
     });
@@ -67,7 +103,7 @@ describe('storage', function () {
       // When user starts compass first time, it creates AppPreferences folder with
       // General.json to store default preferences.
 
-      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+      const storage = new StoragePreferences(tmpDir);
 
       const preferencesDir = getPreferencesFolder(tmpDir);
       const preferencesFile = getPreferencesFile(tmpDir);
@@ -82,11 +118,11 @@ describe('storage', function () {
 
       expect(
         JSON.parse((await fs.readFile(preferencesFile)).toString())
-      ).to.deep.equal(defaultPreferences);
+      ).to.deep.equal(getDefaultPreferences());
     });
 
     it('updates preferences', async function () {
-      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+      const storage = new StoragePreferences(tmpDir);
       await storage.setup();
 
       await storage.updatePreferences({ currentUserId: '123456789' });
@@ -94,13 +130,13 @@ describe('storage', function () {
       const newPreferences = storage.getPreferences();
 
       expect(newPreferences).to.deep.equal({
-        ...defaultPreferences,
+        ...getDefaultPreferences(),
         currentUserId: '123456789',
       });
     });
 
     it('returns default preference values if its not stored on disk', async function () {
-      const storage = new StoragePreferences(defaultPreferences, tmpDir);
+      const storage = new StoragePreferences(tmpDir);
 
       // manually setup the file with no content
       await fs.mkdir(getPreferencesFolder(tmpDir));
@@ -115,9 +151,36 @@ describe('storage', function () {
       });
 
       expect(storage.getPreferences()).to.deep.equal({
-        ...defaultPreferences,
+        ...getDefaultPreferences(),
         currentUserId: '123456789',
       });
+    });
+
+    it('does not saved random props', async function () {
+      const storage = new StoragePreferences(tmpDir);
+      await storage.setup();
+
+      await storage.updatePreferences({ someThingNotSupported: 'abc' } as any);
+
+      const newPreferences = storage.getPreferences();
+
+      expect(newPreferences).to.deep.equal(getDefaultPreferences());
+    });
+
+    it('strips unknown props when reading from disk', async function () {
+      const storage = new StoragePreferences(tmpDir);
+
+      // manually setup the file with no content
+      await fs.mkdir(getPreferencesFolder(tmpDir));
+      await fs.writeFile(
+        getPreferencesFile(tmpDir),
+        JSON.stringify({ ...getDefaultPreferences(), somethingUnknown: true }),
+        'utf-8'
+      );
+
+      await storage.setup();
+
+      expect(storage.getPreferences()).to.deep.equal(getDefaultPreferences());
     });
   });
 });

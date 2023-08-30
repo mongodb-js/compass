@@ -1,4 +1,4 @@
-import { validate as uuidValidate } from 'uuid';
+import { ipcMain } from 'electron';
 import keytar from 'keytar';
 
 import type { ConnectionInfo } from './connection-info';
@@ -23,45 +23,81 @@ import type {
   ExportConnectionOptions,
 } from './import-export-connection';
 import { UserData } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 type ConnectionLegacyProps = {
-  _id: string;
+  _id?: string;
   isFavorite?: boolean;
   name?: string;
 };
 
 type ConnectionWithLegacyProps = {
-  connectionInfo: ConnectionInfo;
+  connectionInfo?: ConnectionInfo;
 } & ConnectionLegacyProps;
+
+const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
+  .object({
+    _id: z.string().uuid().optional(),
+    isFavorite: z.boolean().optional(),
+    name: z.string().optional(),
+    connectionInfo: z
+      .object({
+        id: z.string().uuid(),
+        lastUsed: z.coerce
+          .date()
+          .optional()
+          .transform((x) => (x ? new Date(x) : x)),
+        favorite: z.any().optional(),
+        connectionOptions: z.object({
+          connectionString: z
+            .string()
+            .nonempty('Connection string is required.'),
+          sshTunnel: z.any().optional(),
+          useSystemCA: z.boolean().optional(),
+          oidc: z.any().optional(),
+          fleOptions: z.any().optional(),
+        }),
+      })
+      .optional(),
+  })
+  .passthrough();
 
 export class ConnectionStorage {
   private static calledOnce: boolean;
+  private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
 
   private static readonly maxAllowedRecentConnections = 10;
-  private static userData = new UserData<ConnectionWithLegacyProps>({
-    subdir: 'Connections',
-  });
+  private static userData: UserData<typeof ConnectionSchema>;
 
   private constructor() {
     // singleton
   }
 
-  static init() {
+  static init(basePath?: string) {
     if (this.calledOnce) {
       return;
     }
-    ipcExpose('ConnectionStorage', this, [
-      'loadAll',
-      'load',
-      'getLegacyConnections',
-      'save',
-      'delete',
-      'deserializeConnections',
-      'exportConnections',
-      'importConnections',
-    ]);
+    this.userData = new UserData(() => ConnectionSchema, {
+      subdir: 'Connections',
+      basePath,
+    });
+    ipcExpose(
+      'ConnectionStorage',
+      this,
+      [
+        'loadAll',
+        'load',
+        'getLegacyConnections',
+        'save',
+        'delete',
+        'deserializeConnections',
+        'exportConnections',
+        'importConnections',
+      ],
+      this.ipcMain
+    );
     this.calledOnce = true;
   }
 
@@ -74,9 +110,6 @@ export class ConnectionStorage {
     secrets?: ConnectionSecrets
   ): ConnectionInfo {
     const connectionInfo = mergeSecrets(storedConnectionInfo, secrets);
-    if (connectionInfo.lastUsed) {
-      connectionInfo.lastUsed = new Date(connectionInfo.lastUsed);
-    }
     return deleteCompassAppNameParam(connectionInfo);
   }
 
@@ -103,7 +136,7 @@ export class ConnectionStorage {
     }
   }
 
-  private static async getConnections(): Promise<ConnectionWithLegacyProps[]> {
+  private static async getConnections() {
     return (await this.userData.readAll()).data;
   }
 
@@ -149,8 +182,8 @@ export class ConnectionStorage {
           .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
           .map(({ connectionInfo }) =>
             this.mapStoredConnectionToConnectionInfo(
-              connectionInfo,
-              secrets[connectionInfo.id]
+              connectionInfo!,
+              secrets[connectionInfo!.id]
             )
           )
       );
@@ -174,18 +207,6 @@ export class ConnectionStorage {
   }): Promise<void> {
     throwIfAborted(signal);
     try {
-      if (!connectionInfo.id) {
-        throw new Error('id is required');
-      }
-
-      if (!uuidValidate(connectionInfo.id)) {
-        throw new Error('id must be a uuid');
-      }
-
-      if (!connectionInfo.connectionOptions.connectionString) {
-        throw new Error('Connection string is required.');
-      }
-
       // While saving connections, we also save `_id` property
       // in order to support the downgrade of Compass to a version
       // where we use storage-mixin. storage-mixin uses this prop
