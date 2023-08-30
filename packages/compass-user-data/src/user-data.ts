@@ -2,18 +2,20 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
 
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
+type GetFileName = (id: string) => string;
 
 type UserDataOptions<I> = {
   subdir: string;
   basePath?: string;
   serialize?: SerializeContent<I>;
   deserialize?: DeserializeContent;
+  getFileName?: GetFileName;
 };
 
 type ReadOptions = {
@@ -26,6 +28,7 @@ export class UserData<T extends z.Schema> {
   private readonly serialize: SerializeContent<T>;
   private readonly deserialize: DeserializeContent;
   private readonly validator: z.ZodType<T>;
+  private readonly getFileName: GetFileName;
 
   constructor(
     getSchemaValidator: () => T,
@@ -34,6 +37,7 @@ export class UserData<T extends z.Schema> {
       basePath,
       serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
       deserialize = JSON.parse,
+      getFileName = (id) => `${id}.json`,
     }: UserDataOptions<z.input<T>>
   ) {
     this.subdir = subdir;
@@ -41,6 +45,7 @@ export class UserData<T extends z.Schema> {
     this.deserialize = deserialize;
     this.serialize = serialize;
     this.validator = getSchemaValidator();
+    this.getFileName = getFileName;
   }
 
   private async getEnsuredBasePath(): Promise<string> {
@@ -110,7 +115,9 @@ export class UserData<T extends z.Schema> {
     const absolutePath = await this.getFileAbsolutePath();
     const filePathList = await fs.readdir(absolutePath);
     const data = await Promise.allSettled(
-      filePathList.map((x) => this.readOne(x, options))
+      filePathList.map((x) =>
+        this.readAndParseFile(path.join(absolutePath, x), options)
+      )
     );
 
     const result = {
@@ -134,34 +141,36 @@ export class UserData<T extends z.Schema> {
   }
 
   async readOne(
-    filepath: string,
+    id: string,
     options?: { ignoreErrors: false }
   ): Promise<z.output<T>>;
   async readOne(
-    filepath: string,
+    id: string,
     options?: { ignoreErrors: true }
   ): Promise<z.output<T> | undefined>;
   async readOne(
-    filepath: string,
+    id: string,
     options?: ReadOptions
   ): Promise<z.output<T> | undefined>;
   async readOne(
-    filepath: string,
+    id: string,
     options: ReadOptions = {
       ignoreErrors: true,
     }
   ) {
+    const filepath = this.getFileName(id);
     const absolutePath = await this.getFileAbsolutePath(filepath);
     return await this.readAndParseFile(absolutePath, options);
   }
 
-  async write(filepath: string, content: z.input<T>) {
+  async write(id: string, content: z.input<T>) {
     // Validate the input. Here we are not saving the parsed content
     // because after reading we validate the data again and it parses
     // the read content back to the expected output. This way we ensure
     // that we exactly save what we want without transforming it.
     this.validator.parse(content);
 
+    const filepath = this.getFileName(id);
     const absolutePath = await this.getFileAbsolutePath(filepath);
     try {
       await fs.writeFile(absolutePath, this.serialize(content), {
@@ -177,7 +186,8 @@ export class UserData<T extends z.Schema> {
     }
   }
 
-  async delete(filepath: string) {
+  async delete(id: string) {
+    const filepath = this.getFileName(id);
     const absolutePath = await this.getFileAbsolutePath(filepath);
     try {
       await fs.unlink(absolutePath);
