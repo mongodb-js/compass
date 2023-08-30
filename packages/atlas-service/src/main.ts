@@ -109,6 +109,8 @@ const TOKEN_TYPE_TO_HINT = {
 
 export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
   return {
+    // AUID is shared Cloud user identificator that can be tracked through
+    // various MongoDB properties
     auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
     email: userInfo.primaryEmail,
   };
