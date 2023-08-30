@@ -1,5 +1,6 @@
 import { ipcMain, shell } from 'electron';
 import { URL, URLSearchParams } from 'url';
+import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
 import {
   createMongoDBOIDCPlugin,
@@ -35,7 +36,7 @@ import { SecretStore, SECRET_STORE_KEY } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 
-const { log } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
+const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',
@@ -105,6 +106,15 @@ const TOKEN_TYPE_TO_HINT = {
   accessToken: 'access_token',
   refreshToken: 'refresh_token',
 } as const;
+
+export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
+  return {
+    // AUID is shared Cloud user identificator that can be tracked through
+    // various MongoDB properties
+    auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
+    email: userInfo.primaryEmail,
+  };
+}
 
 export class AtlasService {
   private constructor() {
@@ -326,8 +336,13 @@ export class AtlasService {
             'AtlasService',
             'Signed in successfully'
           );
-          return this.getUserInfo({ signal });
+          const userInfo = await this.getUserInfo({ signal });
+          track('Atlas Sign In Success', getTrackingUserInfo(userInfo));
+          return userInfo;
         } catch (err) {
+          track('Atlas Sign In Error', {
+            error: (err as Error).message,
+          });
           log.error(
             mongoLogId(1_001_000_220),
             'AtlasService',
@@ -344,6 +359,9 @@ export class AtlasService {
   }
 
   static async signOut(): Promise<void> {
+    if (!this.currentUser) {
+      throw new Error("Can't sign out if not signed in yet");
+    }
     // Reset and recreate event emitter first so that we don't accidentally
     // react on any old plugin instance events
     this.oidcPluginLogger.removeAllListeners();
@@ -365,6 +383,8 @@ export class AtlasService {
       // this is not a failed state for the app, we already cleaned up token
       // from everywhere, so we just ignore this
     }
+    // Keep a copy of current user info for tracking
+    const userInfo = this.currentUser;
     // Reset service state
     this.currentUser = null;
     this.oidcPluginLogger.emit('atlas-service-signed-out');
@@ -372,6 +392,7 @@ export class AtlasService {
     void this.openExternal(
       'https://account.mongodb.com/account/login?signedOut=true'
     );
+    track('Atlas Sign Out', getTrackingUserInfo(userInfo));
   }
 
   // For every case where we request token, if requesting token fails we still

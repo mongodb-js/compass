@@ -1,9 +1,10 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { AtlasService, throwIfNotOk } from './main';
+import { AtlasService, getTrackingUserInfo, throwIfNotOk } from './main';
 import { EventEmitter } from 'events';
 import preferencesAccess from 'compass-preferences-model';
 import type { AtlasUserConfigStore } from './user-config-store';
+import type { AtlasUserInfo } from './util';
 
 function getListenerCount(emitter: EventEmitter) {
   return emitter.eventNames().reduce((acc, name) => {
@@ -21,6 +22,9 @@ describe('AtlasServiceMain', function () {
         json() {
           return { sub: '1234' };
         },
+      },
+      'http://example.com/v1/revoke?client_id=1234abcd': {
+        ok: true,
       },
     }[url];
   });
@@ -468,30 +472,47 @@ describe('AtlasServiceMain', function () {
   describe('signOut', function () {
     it('should reset service state, revoke tokens, and destroy plugin', async function () {
       const logger = new EventEmitter();
-      const plugin = {
-        destroy: sandbox.stub().resolves(),
-      };
       AtlasService['openExternal'] = sandbox.stub().resolves();
-      AtlasService['createMongoDBOIDCPlugin'] = (() => {
-        return plugin;
-      }) as any;
-      AtlasService['fetch'] = sandbox.stub().resolves({ ok: true }) as any;
       AtlasService['oidcPluginLogger'] = logger;
-
       await AtlasService.init();
+      expect(getListenerCount(logger)).to.eq(25);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
-
-      expect(getListenerCount(logger)).to.eq(25);
 
       await AtlasService.signOut();
       expect(getListenerCount(logger)).to.eq(0);
       expect(logger).to.not.eq(AtlasService['oidcPluginLogger']);
-      expect(plugin.destroy).to.have.been.calledOnce;
+      expect(mockOidcPlugin.destroy).to.have.been.calledOnce;
       expect(AtlasService['fetch']).to.have.been.calledOnceWith(
         'http://example.com/v1/revoke?client_id=1234abcd'
       );
       expect(AtlasService['openExternal']).to.have.been.calledOnce;
+    });
+
+    it('should throw when called before sign in', async function () {
+      try {
+        await AtlasService.signOut();
+        expect.fail('Expected signOut to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          "Can't sign out if not signed in yet"
+        );
+      }
+    });
+  });
+
+  describe('getTrackingUserInfo', function () {
+    it('should return required tracking info from user info', function () {
+      expect(
+        getTrackingUserInfo({
+          sub: '1234',
+          primaryEmail: 'test@example.com',
+        } as AtlasUserInfo)
+      ).to.deep.eq({
+        auid: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
+        email: 'test@example.com',
+      });
     });
   });
 });
