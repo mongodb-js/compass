@@ -1,6 +1,5 @@
 import { ipcMain, shell } from 'electron';
 import { URL, URLSearchParams } from 'url';
-import { once } from 'events';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
 import {
   createMongoDBOIDCPlugin,
@@ -19,7 +18,6 @@ import type {
   AIAggregation,
   AIQuery,
   IntrospectInfo,
-  Token,
   AtlasUserInfo,
 } from './util';
 import { validateAIQueryResponse, validateAIAggregationResponse } from './util';
@@ -83,29 +81,30 @@ export async function throwIfNotOk(
   throw err;
 }
 
-function throwIfAINotEnabled(userInfo?: AtlasUserInfo | null) {
+function throwIfAINotEnabled(atlasService: typeof AtlasService) {
   // Only throw if we actually have userInfo / logged in. Otherwise allow
   // request to fall through so that we can get a proper network error
-  if (userInfo && userInfo.enabledAIFeature === false) {
+  if (
+    atlasService['currentUser'] &&
+    atlasService['currentUser'].enabledAIFeature === false
+  ) {
     throw new Error("Can't use AI before accepting terms and conditions");
   }
+}
+
+function throwIfRequiredEnvNotSet(atlasService: typeof AtlasService) {
+  // These class properties will throw on access if missing
+  return void (atlasService['clientId'] && atlasService['issuer']);
 }
 
 const AI_MAX_REQUEST_SIZE = 10000;
 
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
 
-type AtlasServiceAuthState =
-  // Instance was just created
-  | 'initial'
-  // Trying to restore state if it was persisted before
-  | 'restoring'
-  // Successfully got token from oidc-plugin
-  | 'authenticated'
-  // Token expired (and being refreshed at the moment)
-  | 'expired'
-  // Encountered an error while requesting token (either on sign in or refresh)
-  | 'unauthenticated';
+const TOKEN_TYPE_TO_HINT = {
+  accessToken: 'access_token',
+  refreshToken: 'refresh_token',
+} as const;
 
 export class AtlasService {
   private constructor() {
@@ -116,12 +115,7 @@ export class AtlasService {
 
   private static oidcPluginLogger = new OidcPluginLogger();
 
-  private static oidcPluginSyncedFromLoggerState: AtlasServiceAuthState =
-    'initial';
-
   private static plugin: MongoDBOIDCPlugin | null = null;
-
-  private static token: Token | null = null;
 
   private static currentUser: AtlasUserInfo | null = null;
 
@@ -170,19 +164,13 @@ export class AtlasService {
     return shell?.openExternal(...args);
   }
 
-  // We use `allowedFlows` plugin option to control whether or not plugin is
-  // allowed to start sign in flow or just try refresh and fail if refresh is
-  // not possible.
-  //  - If we are authenticated, token expired, or we are restoring state, we
-  //    only allow token refresh
-  //  - Any other state: initial or error, will allow sign in using auth-code
-  //    flow in addition to token refresh
   private static getAllowedAuthFlows(): AuthFlowType[] {
-    return ['restoring', 'authenticated', 'expired'].includes(
-      this.oidcPluginSyncedFromLoggerState
-    )
-      ? []
-      : ['auth-code'];
+    if (!this.signInPromise) {
+      throw new Error(
+        'Auth flows are not allowed when sign in is not triggered by user'
+      );
+    }
+    return ['auth-code'];
   }
 
   private static createMongoDBOIDCPlugin = createMongoDBOIDCPlugin;
@@ -241,23 +229,15 @@ export class AtlasService {
         'AtlasService',
         'Atlas service initialized'
       );
-      this.oidcPluginSyncedFromLoggerState = 'restoring';
-      log.info(
-        mongoLogId(1_001_000_227),
-        'AtlasService',
-        'Starting token restore attempt'
-      );
       const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
       this.setupPlugin(serializedState);
-      // Whether or not we got the state, try refreshing the token. If there was
-      // no serialized state returned, this will just put the service in
-      // `unauthenticated` state quickly. If there was some state, we need to
-      // refresh the token and get the value back from the oidc-plugin to make
-      // sure the state between atlas-service and oidc-plugin is in sync
+      // Whether or not we got the state, try requesting user info. If there was
+      // no serialized state returned, this will just fail quickly. If there was
+      // some state, we will prepare the service state for user interactions by
+      // forcing oidc-plugin to do token refresh if expired and setting user
       try {
-        this.token = await this.requestOAuthToken();
+        await this.getUserInfo();
         log.info(mongoLogId(1_001_000_226), 'AtlasService', 'State restored');
-        this.oidcPluginSyncedFromLoggerState = 'authenticated';
       } catch (err) {
         log.error(
           mongoLogId(1_001_000_225),
@@ -265,7 +245,6 @@ export class AtlasService {
           'Failed to restore state',
           { error: (err as Error).stack }
         );
-        this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
       }
     })());
   }
@@ -275,6 +254,7 @@ export class AtlasService {
   }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
+    throwIfRequiredEnvNotSet(this);
 
     if (!this.plugin) {
       throw new Error(
@@ -295,22 +275,13 @@ export class AtlasService {
   }
 
   private static attachOidcPluginLoggerEvents() {
-    // NB: oidc-plugin will emit these log events for all auth states that it
-    // keeps and it doesn't provide any information for us to distinguish
-    // between them. This is okay to ignore for our case for now as we know that
-    // only one auth state is being part of oidc-plugin state
-    this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-started', () => {
-      log.info(
-        mongoLogId(1_001_000_211),
-        'AtlasService',
-        'Token refresh started by oidc-plugin'
-      );
-      void this.refreshToken();
-    });
-    this.oidcPluginLogger.on('atlas-service-token-refresh-failed', () => {
+    this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-failed', () => {
+      this.currentUser = null;
+      this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
       broadcast('atlas-service-token-refresh-failed');
     });
-    this.oidcPluginLogger.on('atlas-service-token-refreshed', () => {
+    this.oidcPluginLogger.on('mongodb-oidc-plugin:refresh-succeeded', () => {
+      this.oidcPluginLogger.emit('atlas-service-token-refreshed');
       broadcast('atlas-service-token-refreshed');
     });
     this.oidcPluginLogger.on('atlas-service-signed-out', () => {
@@ -324,147 +295,10 @@ export class AtlasService {
     );
   }
 
-  private static async refreshToken() {
-    // In case our call to requestToken started another token refresh instead of
-    // just returning token from the plugin state, we short circuit if plugin
-    // logged a refresh-started event and this listener got triggered. Only one
-    // refresh is allowed to run at a time, and it's either we are refreshing
-    // manually, or this method is running
-    if (
-      ['expired', 'restoring'].includes(this.oidcPluginSyncedFromLoggerState)
-    ) {
-      return;
-    }
-    this.oidcPluginSyncedFromLoggerState = 'expired';
-    const onRefreshFailed = () => {
-      this.token = null;
-      this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
-      this.oidcPluginLogger.emit('atlas-service-token-refresh-failed');
-    };
-    log.info(
-      mongoLogId(1_001_000_214),
-      'AtlasService',
-      'Start atlas service token refresh'
-    );
-    try {
-      // We expect only one promise below to resolve, to clean up listeners
-      // that never fired we are setting up an abort controller
-      const listenerController = new AbortController();
-      try {
-        // When oidc-plugin starts internal token refresh with the tryRefresh
-        // flow, we wait for a certain event sequence before we can safely
-        // request new token from the plugin
-        await Promise.race([
-          // The events we are waiting for are emitted synchronously, so we are
-          // subscribing to both at once, even though we can't check the order
-          // that way, at least we can guarantee that both expected events
-          // happened before we proceed
-          Promise.all([
-            once(
-              this.oidcPluginLogger,
-              'mongodb-oidc-plugin:refresh-succeeded',
-              { signal: listenerController.signal }
-            ),
-            once(this.oidcPluginLogger, 'mongodb-oidc-plugin:state-updated', {
-              signal: listenerController.signal,
-            }),
-          ]),
-          once(this.oidcPluginLogger, 'mongodb-oidc-plugin:refresh-failed', {
-            signal: listenerController.signal,
-          }).then(() => {
-            throw new Error('Token refresh failed');
-          }),
-        ]);
-      } finally {
-        listenerController.abort();
-      }
-      try {
-        log.info(
-          mongoLogId(1_001_000_215),
-          'AtlasService',
-          'Request token refresh from oidc-plugin'
-        );
-        // Request and refresh token are the same methods in oidc-plugin, what
-        // actually controls whether or not sign in flow is allowed is
-        // `allowedFlows` property passed to the plugin
-        const token = await this.requestOAuthToken();
-        log.info(
-          mongoLogId(1_001_000_216),
-          'AtlasService',
-          'Oidc-plugin successfully returned new token'
-        );
-        this.token = token;
-        this.oidcPluginSyncedFromLoggerState = 'authenticated';
-        this.oidcPluginLogger.emit('atlas-service-token-refreshed');
-      } catch (err) {
-        log.error(
-          mongoLogId(1_001_000_217),
-          'AtlasService',
-          'Oidc-plugin failed to return refreshed token',
-          { error: (err as Error).stack }
-        );
-        onRefreshFailed();
-      }
-    } catch (err) {
-      log.error(
-        mongoLogId(1_001_000_222),
-        'AtlasService',
-        'Oidc-plugin failed to refresh token',
-        { error: (err as Error).stack }
-      );
-      onRefreshFailed();
-    }
-  }
-
-  private static async maybeWaitForToken({
-    signal,
-  }: { signal?: AbortSignal } = {}) {
-    if (signal?.aborted) {
-      return;
-    }
-    // There are two cases where it makes sense to wait for token refresh before
-    // proceeding with running atlas service commands:
-    //  - In case where we ended up in `expired` state, we know that oidc-plugin
-    //    is trying to refresh the token automatically at the moment
-    //  - In case of `restoring` saved auth state, we will try to refresh the
-    //    token right after restore happened
-    if (
-      ['expired', 'restoring'].includes(this.oidcPluginSyncedFromLoggerState)
-    ) {
-      // We expect only one promise below to resolve, to clean up listeners that
-      // never fired we are setting up an abort controller
-      const listenerController = new AbortController();
-      try {
-        await Promise.race([
-          // We are using our own events here and not oidc-plugin ones because
-          // after plugin logged that token was refreshed, we still need to do
-          // some additional work to get token from the oidc-plugin
-          once(this.oidcPluginLogger, 'atlas-service-token-refreshed', {
-            signal: listenerController.signal,
-          }),
-          once(this.oidcPluginLogger, 'atlas-service-token-refresh-failed', {
-            signal: listenerController.signal,
-          }),
-          signal
-            ? once(signal, 'abort', { signal: listenerController.signal })
-            : new Promise(() => {
-                // This should just never resolve if no signal was passed to
-                // this method
-              }),
-        ]);
-      } finally {
-        listenerController.abort();
-      }
-    }
-  }
-
   static async isAuthenticated({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
     throwIfAborted(signal);
-    if (!this.token) {
-      return false;
-    }
     try {
       return (await this.introspect({ signal })).active;
     } catch (err) {
@@ -482,15 +316,11 @@ export class AtlasService {
       this.signInPromise = (async () => {
         throwIfAborted(signal);
         throwIfNetworkTrafficDisabled();
+        throwIfRequiredEnvNotSet(this);
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
-        // We might be refreshing token or restoring state at the moment
-        await this.maybeWaitForToken({ signal });
-
         try {
-          this.token = await this.requestOAuthToken({ signal });
-          this.oidcPluginSyncedFromLoggerState = 'authenticated';
           log.info(
             mongoLogId(1_001_000_219),
             'AtlasService',
@@ -504,7 +334,6 @@ export class AtlasService {
             'Failed to sign in',
             { error: (err as Error).stack }
           );
-          this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
           throw err;
         }
       })();
@@ -527,7 +356,7 @@ export class AtlasService {
     // tokens
     // https://developer.okta.com/docs/guides/revoke-tokens/main/#revoke-an-access-token-or-a-refresh-token
     try {
-      await this.revoke({ tokenType: 'refresh_token' });
+      await this.revoke({ tokenType: 'refreshToken' });
     } catch (err) {
       if (!(err as any).statusCode) {
         throw err;
@@ -538,8 +367,6 @@ export class AtlasService {
     }
     // Reset service state
     this.currentUser = null;
-    this.token = null;
-    this.oidcPluginSyncedFromLoggerState = 'unauthenticated';
     this.oidcPluginLogger.emit('atlas-service-signed-out');
     // Open Atlas sign out page to end the browser session created for sign in
     void this.openExternal(
@@ -547,17 +374,38 @@ export class AtlasService {
     );
   }
 
+  // For every case where we request token, if requesting token fails we still
+  // want to send request to the backend to get a properly formatted backend
+  // error instead of oidc-plugin errors
+  private static async maybeGetToken({
+    tokenType,
+    signal,
+  }: {
+    tokenType?: 'accessToken' | 'refreshToken';
+    signal?: AbortSignal;
+  }): Promise<string | undefined> {
+    try {
+      tokenType ??= 'accessToken';
+      const token = await this.requestOAuthToken({ signal });
+      return token[tokenType];
+    } catch {
+      // noop, just return undefined
+    }
+  }
+
   static async getUserInfo({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<AtlasUserInfo> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
+    throwIfRequiredEnvNotSet(this);
+
     this.currentUser ??= await (async () => {
-      await this.maybeWaitForToken({ signal });
+      const token = await this.maybeGetToken({ signal });
 
       const res = await this.fetch(`${this.issuer}/v1/userinfo`, {
         headers: {
-          Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
+          Authorization: `Bearer ${token ?? ''}`,
           Accept: 'application/json',
         },
         signal: signal as NodeFetchAbortSignal | undefined,
@@ -600,28 +448,24 @@ export class AtlasService {
     tokenType,
   }: {
     signal?: AbortSignal;
-    tokenType?: 'access_token' | 'refresh_token';
+    tokenType?: 'accessToken' | 'refreshToken';
   } = {}) {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
+    throwIfRequiredEnvNotSet(this);
 
     const url = new URL(`${this.issuer}/v1/introspect`);
     url.searchParams.set('client_id', this.clientId);
 
-    await this.maybeWaitForToken({ signal });
+    tokenType ??= 'accessToken';
 
-    tokenType ??= 'access_token';
+    const token = await this.maybeGetToken({ signal, tokenType });
 
     const res = await this.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
-        [
-          'token',
-          (tokenType === 'access_token'
-            ? this.token?.accessToken
-            : this.token?.refreshToken) ?? '',
-        ],
-        ['token_type_hint', tokenType],
+        ['token', token ?? ''],
+        ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
       ]),
       headers: {
         Accept: 'application/json',
@@ -639,26 +483,22 @@ export class AtlasService {
     tokenType,
   }: {
     signal?: AbortSignal;
-    tokenType?: 'access_token' | 'refresh_token';
+    tokenType?: 'accessToken' | 'refreshToken';
   } = {}): Promise<void> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
+    throwIfRequiredEnvNotSet(this);
 
     const url = new URL(`${this.issuer}/v1/revoke`);
     url.searchParams.set('client_id', this.clientId);
 
-    await this.maybeWaitForToken({ signal });
+    tokenType ??= 'accessToken';
 
-    tokenType ??= 'access_token';
+    const token = await this.maybeGetToken({ signal, tokenType });
 
     const body = new URLSearchParams([
-      [
-        'token',
-        (tokenType === 'access_token'
-          ? this.token?.accessToken
-          : this.token?.refreshToken) ?? '',
-      ],
-      ['token_type_hint', tokenType],
+      ['token', token ?? ''],
+      ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
     ]);
 
     const res = await this.fetch(url.toString(), {
@@ -690,7 +530,8 @@ export class AtlasService {
   }): Promise<AIAggregation> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
-    throwIfAINotEnabled(this.currentUser);
+    throwIfAINotEnabled(this);
+    throwIfRequiredEnvNotSet(this);
 
     let msgBody = JSON.stringify({
       userInput,
@@ -718,7 +559,7 @@ export class AtlasService {
       }
     }
 
-    await this.maybeWaitForToken({ signal });
+    const token = await this.maybeGetToken({ signal });
 
     const res = await this.fetch(
       `${this.apiBaseUrl}/ai/api/v1/mql-aggregation`,
@@ -726,7 +567,7 @@ export class AtlasService {
         signal: signal as NodeFetchAbortSignal | undefined,
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
+          Authorization: `Bearer ${token ?? ''}`,
           'Content-Type': 'application/json',
         },
         body: msgBody,
@@ -759,7 +600,8 @@ export class AtlasService {
   }): Promise<AIQuery> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
-    throwIfAINotEnabled(this.currentUser);
+    throwIfAINotEnabled(this);
+    throwIfRequiredEnvNotSet(this);
 
     let msgBody = JSON.stringify({
       userInput,
@@ -787,13 +629,13 @@ export class AtlasService {
       }
     }
 
-    await this.maybeWaitForToken({ signal });
+    const token = await this.maybeGetToken({ signal });
 
     const res = await this.fetch(`${this.apiBaseUrl}/ai/api/v1/mql-query`, {
       signal: signal as NodeFetchAbortSignal | undefined,
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${this.token?.accessToken ?? ''}`,
+        Authorization: `Bearer ${token ?? ''}`,
         'Content-Type': 'application/json',
       },
       body: msgBody,
