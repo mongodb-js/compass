@@ -8,6 +8,7 @@ import {
   type User,
 } from './storage';
 import { expect } from 'chai';
+import { ZodError } from 'zod';
 import { users as UserFixtures } from './../test/fixtures';
 
 const getPreferencesFolder = (tmpDir: string) => {
@@ -63,7 +64,7 @@ describe('storage', function () {
           } as any);
           expect.fail('Expected lastUsed prop to fail due to date validation');
         } catch (e) {
-          expect(e).to.be.an.instanceOf(Error);
+          expect(e).to.be.an.instanceOf(ZodError);
         }
       }
 
@@ -74,7 +75,7 @@ describe('storage', function () {
           } as any);
           expect.fail('Expected createdAt prop to fail due to date validation');
         } catch (e) {
-          expect(e).to.be.an.instanceOf(Error);
+          expect(e).to.be.an.instanceOf(ZodError);
         }
       }
 
@@ -85,12 +86,12 @@ describe('storage', function () {
           });
           expect.fail('Expected id prop to fail due to uuid validation');
         } catch (e) {
-          expect(e).to.be.an.instanceOf(Error);
+          expect(e).to.be.an.instanceOf(ZodError);
         }
       }
     });
 
-    UserFixtures.map(({ data: user, version }) => {
+    for (const { data: user, version } of UserFixtures) {
       it(`supports user data from Compass v${version}`, async function () {
         const userPath = path.join(tmpDir, 'Users', `${user.id}.json`);
         await fs.writeFile(userPath, JSON.stringify(user));
@@ -101,7 +102,7 @@ describe('storage', function () {
         expect(expectedUser.createdAt).to.deep.equal(new Date(user.createdAt));
         expect(expectedUser.lastUsed).to.deep.equal(new Date(user.lastUsed));
       });
-    });
+    }
   });
 
   describe('StoragePreferences', function () {
@@ -184,7 +185,7 @@ describe('storage', function () {
     it('strips unknown props when reading from disk', async function () {
       const storage = new StoragePreferences(tmpDir);
 
-      // manually setup the file with no content
+      // manually setup the file with default props and unknown prop
       await fs.mkdir(getPreferencesFolder(tmpDir));
       await fs.writeFile(
         getPreferencesFile(tmpDir),

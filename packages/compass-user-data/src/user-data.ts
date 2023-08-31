@@ -10,10 +10,10 @@ type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
 type GetFileName = (id: string) => string;
 
-type UserDataOptions<I> = {
+type UserDataOptions<Input> = {
   subdir: string;
   basePath?: string;
-  serialize?: SerializeContent<I>;
+  serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
   getFileName?: GetFileName;
 };
@@ -120,12 +120,12 @@ export class UserData<T extends z.Schema> {
       )
     );
 
-    const result = {
-      data: [],
-      errors: [],
-    } as {
+    const result: {
       data: z.output<T>[];
       errors: Error[];
+    } = {
+      data: [],
+      errors: [],
     };
 
     for (const item of data) {

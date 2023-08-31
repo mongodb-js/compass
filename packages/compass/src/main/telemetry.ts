@@ -129,7 +129,7 @@ class CompassTelemetry {
     const { trackUsageStatistics, currentUserId, telemetryAnonymousId } =
       preferences.getPreferences();
     this.currentUserId = currentUserId;
-    this.telemetryAnonymousId = telemetryAnonymousId;
+    this.telemetryAnonymousId = telemetryAnonymousId ?? '';
 
     try {
       this.osInfo = await getOsInfo();

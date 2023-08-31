@@ -3,9 +3,8 @@ import { storedUserPreferencesProps } from './preferences';
 import { UserData } from '@mongodb-js/compass-user-data';
 import { z } from 'zod';
 
-export type StoredPreferences = z.output<
-  ReturnType<typeof getPreferencesValidator>
->;
+type PreferencesValidator = ReturnType<typeof getPreferencesValidator>;
+export type StoredPreferences = z.output<PreferencesValidator>;
 
 export const getDefaultPreferences = (): StoredPreferences => {
   return Object.fromEntries(
@@ -62,9 +61,7 @@ export class SandboxPreferences extends BasePreferencesStorage {
 export class StoragePreferences extends BasePreferencesStorage {
   private readonly file = 'General';
   private readonly defaultPreferences = getDefaultPreferences();
-  private readonly userData: UserData<
-    ReturnType<typeof getPreferencesValidator>
-  >;
+  private readonly userData: UserData<PreferencesValidator>;
   private preferences: StoredPreferences = getDefaultPreferences();
 
   constructor(basePath?: string) {
@@ -87,22 +84,20 @@ export class StoragePreferences extends BasePreferencesStorage {
     }
   }
 
-  private async readPreferences() {
+  private async readPreferences(): Promise<StoredPreferences> {
     return await this.userData.readOne(this.file, {
       ignoreErrors: false,
     });
   }
 
-  getPreferences() {
+  getPreferences(): StoredPreferences {
     return {
       ...this.defaultPreferences,
       ...this.preferences,
     };
   }
 
-  async updatePreferences(
-    attributes: Partial<z.input<ReturnType<typeof getPreferencesValidator>>>
-  ) {
+  async updatePreferences(attributes: Partial<z.input<PreferencesValidator>>) {
     await this.userData.write(this.file, {
       ...(await this.readPreferences()),
       ...attributes,
@@ -133,7 +128,7 @@ export class UserStorage {
     });
   }
 
-  async getOrCreate(id?: string) {
+  async getOrCreate(id?: string): Promise<User> {
     if (!id) {
       return this.createUser();
     }
@@ -148,13 +143,13 @@ export class UserStorage {
     }
   }
 
-  async getUser(id: string) {
+  async getUser(id: string): Promise<User> {
     return await this.userData.readOne(id, {
       ignoreErrors: false,
     });
   }
 
-  private async createUser() {
+  private async createUser(): Promise<User> {
     const id = new UUID().toString();
     const user = {
       id,
@@ -167,7 +162,7 @@ export class UserStorage {
   async updateUser(
     id: string,
     attributes: Partial<z.input<typeof UserSchema>>
-  ) {
+  ): Promise<User> {
     const user = await this.getUser(id);
     const newData = {
       ...user,
@@ -176,7 +171,7 @@ export class UserStorage {
     return this.writeUser(newData);
   }
 
-  private async writeUser(user: z.input<typeof UserSchema>) {
+  private async writeUser(user: z.input<typeof UserSchema>): Promise<User> {
     await this.userData.write(user.id, user);
     return this.getUser(user.id);
   }

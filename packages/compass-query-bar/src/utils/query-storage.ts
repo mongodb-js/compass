@@ -61,7 +61,7 @@ export abstract class QueryStorage<T extends z.Schema = z.Schema> {
     });
   }
 
-  async loadAll() {
+  async loadAll(): Promise<z.output<T>[]> {
     try {
       const { data } = await this.userData.readAll();
       const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
@@ -74,7 +74,10 @@ export abstract class QueryStorage<T extends z.Schema = z.Schema> {
     }
   }
 
-  async updateAttributes(id: string, data: Partial<z.input<T>>) {
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<z.output<T>> {
     await this.userData.write(id, {
       ...((await this.userData.readOne(id)) ?? {}),
       ...data,

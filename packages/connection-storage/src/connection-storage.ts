@@ -132,7 +132,7 @@ export class ConnectionStorage {
     }
   }
 
-  private static async getConnections() {
+  private static async getConnections(): Promise<ConnectionWithLegacyProps[]> {
     return (await this.userData.readAll()).data;
   }
 

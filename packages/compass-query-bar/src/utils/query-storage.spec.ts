@@ -164,7 +164,7 @@ describe('QueryStorage', function () {
     }
   );
 
-  recentQueries.forEach(({ query, version }) => {
+  for (const { query, version } of recentQueries) {
     it(`supports recent query from Compass v${version}`, async function () {
       await writeQuery(query, 'RecentQueries');
       const recentQueryStorage = new RecentQueryStorage({
@@ -178,9 +178,9 @@ describe('QueryStorage', function () {
 
       expect(loadedQuery._lastExecuted).to.be.instanceOf(Date);
     });
-  });
+  }
 
-  favoriteQueries.forEach(({ query, version }) => {
+  for (const { query, version } of favoriteQueries) {
     it(`supports favorite query from Compass v${version}`, async function () {
       await writeQuery(query, 'FavoriteQueries');
       const favoriteQueryStorage = new FavoriteQueryStorage({
@@ -202,5 +202,5 @@ describe('QueryStorage', function () {
         expect(loadedQuery._dateModified).to.be.instanceOf(Date);
       }
     });
-  });
+  }
 });

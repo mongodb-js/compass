@@ -584,7 +584,7 @@ describe('ConnectionStorage', function () {
     });
   });
 
-  describe('supports conenctions from older version of compass', function () {
+  describe('supports connections from older version of compass', function () {
     const storeConnection = async (connection: any) => {
       const connectionFolder = path.join(tmpDir, 'Connections');
       const connectionPath = path.join(
