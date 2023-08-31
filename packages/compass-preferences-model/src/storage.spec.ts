@@ -8,6 +8,7 @@ import {
   type User,
 } from './storage';
 import { expect } from 'chai';
+import { users as UserFixtures } from './../test/fixtures';
 
 const getPreferencesFolder = (tmpDir: string) => {
   return path.join(tmpDir, 'AppPreferences');
@@ -87,6 +88,19 @@ describe('storage', function () {
           expect(e).to.be.an.instanceOf(Error);
         }
       }
+    });
+
+    UserFixtures.map(({ data: user, version }) => {
+      it(`supports user data from Compass v${version}`, async function () {
+        const userPath = path.join(tmpDir, 'Users', `${user.id}.json`);
+        await fs.writeFile(userPath, JSON.stringify(user));
+
+        const expectedUser = await userStorage.getUser(user.id);
+
+        expect(expectedUser.id).to.equal(user.id);
+        expect(expectedUser.createdAt).to.deep.equal(new Date(user.createdAt));
+        expect(expectedUser.lastUsed).to.deep.equal(new Date(user.lastUsed));
+      });
     });
   });
 

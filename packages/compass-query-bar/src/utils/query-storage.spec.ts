@@ -4,8 +4,10 @@ import path from 'path';
 import os from 'os';
 import { EJSON, UUID } from 'bson';
 
-import { RecentQueryStorage, type RecentQuery } from './query-storage';
+import { RecentQueryStorage, FavoriteQueryStorage } from './query-storage';
 import Sinon from 'sinon';
+
+import { recentQueries, favoriteQueries } from './../../test/fixtures';
 
 const queries = [
   {
@@ -40,8 +42,11 @@ describe('QueryStorage', function () {
     await fs.rm(tmpDir, { recursive: true });
   });
 
-  const writeQuery = async (query: RecentQuery) => {
-    const basepath = path.join(tmpDir, 'RecentQueries');
+  const writeQuery = async (
+    query: { _id: string },
+    subDir: 'RecentQueries' | 'FavoriteQueries' = 'RecentQueries'
+  ) => {
+    const basepath = path.join(tmpDir, subDir);
     await fs.mkdir(basepath, { recursive: true });
     await fs.writeFile(
       path.join(basepath, `${query._id}.json`),
@@ -158,4 +163,44 @@ describe('QueryStorage', function () {
       });
     }
   );
+
+  recentQueries.forEach(({ query, version }) => {
+    it(`supports recent query from Compass v${version}`, async function () {
+      await writeQuery(query, 'RecentQueries');
+      const recentQueryStorage = new RecentQueryStorage({
+        basepath: tmpDir,
+      });
+      const [loadedQuery] = await recentQueryStorage.loadAll();
+      expect(loadedQuery._id).to.equal(query._id);
+      expect(Object.keys(loadedQuery).sort()).to.deep.equal(
+        Object.keys(query).sort()
+      );
+
+      expect(loadedQuery._lastExecuted).to.be.instanceOf(Date);
+    });
+  });
+
+  favoriteQueries.forEach(({ query, version }) => {
+    it(`supports favorite query from Compass v${version}`, async function () {
+      await writeQuery(query, 'FavoriteQueries');
+      const favoriteQueryStorage = new FavoriteQueryStorage({
+        basepath: tmpDir,
+      });
+      const [loadedQuery] = await favoriteQueryStorage.loadAll();
+      expect(loadedQuery._id).to.equal(query._id);
+      expect(Object.keys(loadedQuery).sort()).to.deep.equal(
+        Object.keys(query).sort()
+      );
+
+      expect(loadedQuery._lastExecuted).to.be.instanceOf(Date);
+      expect(loadedQuery._dateSaved).to.be.instanceOf(Date);
+
+      // We did not have _dateModified in older version of Compass
+      // and we introduced it in `saved-query-aggregations` project
+      // which was release as part of 1.31.0
+      if (version !== '1.27.0') {
+        expect(loadedQuery._dateModified).to.be.instanceOf(Date);
+      }
+    });
+  });
 });

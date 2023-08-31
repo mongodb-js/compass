@@ -11,6 +11,10 @@ import { ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
 import Sinon from 'sinon';
 
+import connection1270 from './../test/fixtures/favorite_connection_1.27.0.json';
+import connection1310 from './../test/fixtures/favorite_connection_1.31.0.json';
+import connection1380 from './../test/fixtures/favorite_connection_1.38.0.json';
+
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
   const filePath = path.join(connectionsDir, `${id}.json`);
@@ -577,6 +581,64 @@ describe('ConnectionStorage', function () {
 
       const expectedConnections = await ConnectionStorage.loadAll();
       expect(expectedConnections).to.deep.equal([CONNECTIONS[1]]);
+    });
+  });
+
+  describe('supports conenctions from older version of compass', function () {
+    const storeConnection = async (connection: any) => {
+      const connectionFolder = path.join(tmpDir, 'Connections');
+      const connectionPath = path.join(
+        connectionFolder,
+        `${connection._id}.json`
+      );
+      await fs.mkdir(connectionFolder, { recursive: true });
+      await fs.writeFile(connectionPath, JSON.stringify(connection));
+    };
+
+    it('correctly identifies connection as legacy connection', async function () {
+      await storeConnection(connection1270);
+      const expectedConnection = await ConnectionStorage.load({
+        id: connection1270._id,
+      });
+      expect(expectedConnection).to.be.undefined;
+
+      const legacyConnections = await ConnectionStorage.getLegacyConnections();
+      expect(legacyConnections).to.deep.equal([{ name: connection1270.name }]);
+    });
+
+    it(`maps connectons with legacy props and connection info to just connection info`, async function () {
+      const connections = {
+        '1.31.0': connection1310,
+        '1.38.0': connection1380,
+      } as any;
+
+      for (const version in connections) {
+        const connection = connections[version];
+        await storeConnection(connection);
+        const expectedConnection = await ConnectionStorage.load({
+          id: connection._id,
+        });
+
+        expect(expectedConnection, version).to.not.be.undefined;
+
+        // Converts a legacy connection to new connectionInfo
+        expect(Object.keys(expectedConnection!)).to.deep.equal([
+          'id',
+          'lastUsed',
+          'favorite',
+          'connectionOptions',
+        ]);
+        expect(expectedConnection!.id, version).to.equal(connection._id);
+        expect(expectedConnection!.lastUsed, version).to.deep.equal(
+          new Date(connection.lastUsed)
+        );
+        expect(expectedConnection!.favorite?.name, version).to.equal(
+          connection.name
+        );
+        expect(expectedConnection!.favorite?.color, version).to.equal(
+          connection.color
+        );
+      }
     });
   });
 });
