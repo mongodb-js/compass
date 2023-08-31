@@ -60,7 +60,6 @@ describe('ConnectionStorage', function () {
   });
 
   afterEach(async function () {
-    ConnectionStorage['calledOnce'] = false;
     await fs.rm(tmpDir, { recursive: true });
     Sinon.restore();
 
