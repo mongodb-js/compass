@@ -221,7 +221,7 @@ describe('user-data', function () {
       }
     });
 
-    it('strips off unknown props that are unknow to validator by default', async function () {
+    it('strips off unknown props that are unknown to validator by default', async function () {
       await writeFileToStorage(
         'data.json',
         JSON.stringify({
