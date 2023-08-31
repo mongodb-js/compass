@@ -10,8 +10,7 @@ export const getDefaultPreferences = (): StoredPreferences => {
   return Object.fromEntries(
     Object.entries(storedUserPreferencesProps)
       .map(([key, value]) => [key, value.validator.parse(undefined)])
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .filter(([key, value]) => value !== undefined)
+      .filter(([, value]) => value !== undefined)
   );
 };
 

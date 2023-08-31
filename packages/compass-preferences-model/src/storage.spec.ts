@@ -171,7 +171,7 @@ describe('storage', function () {
       });
     });
 
-    it('does not saved random props', async function () {
+    it('does not save random props', async function () {
       const storage = new StoragePreferences(tmpDir);
       await storage.setup();
 
