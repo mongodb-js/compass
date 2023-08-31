@@ -629,6 +629,9 @@ describe('ConnectionStorage', function () {
           'connectionOptions',
         ]);
         expect(expectedConnection!.id, version).to.equal(connection._id);
+        expect(expectedConnection!.connectionOptions, version).to.deep.equal(
+          connection.connectionInfo.connectionOptions
+        );
         expect(expectedConnection!.lastUsed, version).to.deep.equal(
           new Date(connection.lastUsed)
         );

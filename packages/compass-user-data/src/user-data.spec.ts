@@ -128,10 +128,16 @@ describe('user-data', function () {
   });
 
   context('UserData.readOne', function () {
-    it('throws if the file does not exist', function () {
-      expect(
-        async () => await getUserData().readOne('something.json')
-      ).to.throw;
+    it('throws if the file does not exist', async function () {
+      try {
+        await getUserData().readOne('something.json', {
+          ignoreErrors: false,
+        });
+        expect.fail('Failed to read the file');
+      } catch (e) {
+        expect(e).to.be.an.instanceOf(Error);
+        expect((e as any).code).to.equal('ENOENT');
+      }
     });
 
     it('reads the file with default values', async function () {
