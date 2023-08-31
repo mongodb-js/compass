@@ -10,7 +10,7 @@ type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
 type GetFileName = (id: string) => string;
 
-type UserDataOptions<Input> = {
+export type UserDataOptions<Input> = {
   subdir: string;
   basePath?: string;
   serialize?: SerializeContent<Input>;

@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import { UserData } from './user-data';
+import { UserData, type UserDataOptions } from './user-data';
 import { z, type ZodError } from 'zod';
 
 type ValidatorOptions = {
@@ -42,9 +42,7 @@ describe('user-data', function () {
 
   const getUserData = (
     userDataOpts: Partial<
-      ConstructorParameters<
-        typeof UserData<ReturnType<typeof getTestSchema>>
-      >[1]
+      UserDataOptions<z.input<ReturnType<typeof getTestSchema>>>
     > = {},
     validatorOpts: ValidatorOptions = {}
   ) => {
