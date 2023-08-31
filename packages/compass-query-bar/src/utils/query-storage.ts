@@ -49,11 +49,11 @@ type QueryStorageOptions = {
 export abstract class QueryStorage<T extends z.Schema> {
   protected readonly userData: UserData<T>;
   constructor(
-    getValidationSchema: () => T,
+    schemaValidator: T,
     protected readonly folder: string,
     protected readonly options: QueryStorageOptions
   ) {
-    this.userData = new UserData(getValidationSchema, {
+    this.userData = new UserData(schemaValidator, {
       subdir: folder,
       basePath: options.basepath,
       serialize: (content) => EJSON.stringify(content, undefined, 2),
@@ -94,7 +94,7 @@ export class RecentQueryStorage extends QueryStorage<typeof RecentQuerySchema> {
   private readonly maxAllowedQueries = 30;
 
   constructor(options: QueryStorageOptions = {}) {
-    super(() => RecentQuerySchema, 'RecentQueries', options);
+    super(RecentQuerySchema, 'RecentQueries', options);
   }
 
   async saveQuery(
@@ -121,6 +121,6 @@ export class FavoriteQueryStorage extends QueryStorage<
   typeof FavoriteQuerySchema
 > {
   constructor(options: QueryStorageOptions = {}) {
-    super(() => FavoriteQuerySchema, 'FavoriteQueries', options);
+    super(FavoriteQuerySchema, 'FavoriteQueries', options);
   }
 }

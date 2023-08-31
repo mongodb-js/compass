@@ -65,7 +65,7 @@ export class StoragePreferences extends BasePreferencesStorage {
 
   constructor(basePath?: string) {
     super();
-    this.userData = new UserData(getPreferencesValidator, {
+    this.userData = new UserData(getPreferencesValidator(), {
       subdir: 'AppPreferences',
       basePath,
     });
@@ -121,7 +121,7 @@ export type User = z.output<typeof UserSchema>;
 export class UserStorage {
   private readonly userData: UserData<typeof UserSchema>;
   constructor(basePath?: string) {
-    this.userData = new UserData(() => UserSchema, {
+    this.userData = new UserData(UserSchema, {
       subdir: 'Users',
       basePath,
     });

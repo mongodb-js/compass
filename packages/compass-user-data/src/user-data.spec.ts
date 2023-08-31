@@ -48,7 +48,7 @@ describe('user-data', function () {
     > = {},
     validatorOpts: ValidatorOptions = {}
   ) => {
-    return new UserData(() => getTestSchema(validatorOpts), {
+    return new UserData(getTestSchema(validatorOpts), {
       subdir,
       basePath: tmpDir,
       ...userDataOpts,

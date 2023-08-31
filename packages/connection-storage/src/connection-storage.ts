@@ -79,7 +79,7 @@ export class ConnectionStorage {
     if (this.calledOnce) {
       return;
     }
-    this.userData = new UserData(() => ConnectionSchema, {
+    this.userData = new UserData(ConnectionSchema, {
       subdir: 'Connections',
       basePath,
     });

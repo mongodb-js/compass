@@ -27,11 +27,10 @@ export class UserData<T extends z.Schema> {
   private readonly basePath?: string;
   private readonly serialize: SerializeContent<T>;
   private readonly deserialize: DeserializeContent;
-  private readonly validator: z.ZodType<T>;
   private readonly getFileName: GetFileName;
 
   constructor(
-    getSchemaValidator: () => T,
+    private readonly validator: T,
     {
       subdir,
       basePath,
@@ -44,7 +43,6 @@ export class UserData<T extends z.Schema> {
     this.basePath = basePath;
     this.deserialize = deserialize;
     this.serialize = serialize;
-    this.validator = getSchemaValidator();
     this.getFileName = getFileName;
   }
 
