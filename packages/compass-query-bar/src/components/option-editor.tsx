@@ -151,22 +151,11 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
   const onFocus = () => {
     if (hasAutofix && editorRef.current) {
-      if (editorRef.current.editorContents === '') {
-        rafraf(() => {
-          editorRef.current?.applySnippet('\\{${}}');
-        });
-      }
-    }
-  };
-
-  const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    if (hasAutofix && editorRef.current) {
-      const editorContents = editorRef.current.editorContents;
-      const snippet = lenientlyFixQuery(editorContents || '');
-      if (snippet) {
-        editorRef.current.applySnippet(snippet);
-        event.preventDefault();
-      }
+      rafraf(() => {
+        if (editorRef.current?.editorContents === '') {
+          editorRef.current.applySnippet('\\{${}}');
+        }
+      });
     }
   };
 
@@ -189,7 +178,6 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         commands={commands}
         data-testid={dataTestId}
         onFocus={onFocus}
-        onPaste={onPaste}
         onBlur={onBlur}
       />
       {showInsights && insights && (
