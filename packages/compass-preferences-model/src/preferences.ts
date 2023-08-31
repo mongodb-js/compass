@@ -8,7 +8,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
@@ -848,6 +848,9 @@ export class Preferences {
     try {
       await this._preferencesStorage.updatePreferences(attributes);
     } catch (err) {
+      if (err instanceof ZodError) {
+        throw err;
+      }
       log.error(
         mongoLogId(1_001_000_157),
         'preferences',
@@ -856,7 +859,6 @@ export class Preferences {
           error: (err as Error).message,
         }
       );
-      throw err;
     }
 
     const newPreferences = this.getPreferences();
