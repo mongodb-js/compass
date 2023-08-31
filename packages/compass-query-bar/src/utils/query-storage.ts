@@ -46,7 +46,7 @@ type QueryStorageOptions = {
   namespace?: string;
 };
 
-export abstract class QueryStorage<T extends z.Schema = z.Schema> {
+export abstract class QueryStorage<T extends z.Schema> {
   protected readonly userData: UserData<T>;
   constructor(
     getValidationSchema: () => T,
