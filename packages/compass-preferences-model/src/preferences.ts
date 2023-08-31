@@ -848,9 +848,6 @@ export class Preferences {
     try {
       await this._preferencesStorage.updatePreferences(attributes);
     } catch (err) {
-      if (err instanceof ZodError) {
-        throw err;
-      }
       log.error(
         mongoLogId(1_001_000_157),
         'preferences',
@@ -859,6 +856,9 @@ export class Preferences {
           error: (err as Error).message,
         }
       );
+      if (err instanceof ZodError) {
+        throw err;
+      }
     }
 
     const newPreferences = this.getPreferences();
