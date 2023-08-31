@@ -48,7 +48,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
         lastUsed: z.coerce
           .date()
           .optional()
-          .transform((x) => (x ? new Date(x) : x)),
+          .transform((x) => (x !== undefined ? new Date(x) : x)),
         favorite: z.any().optional(),
         connectionOptions: z.object({
           connectionString: z
