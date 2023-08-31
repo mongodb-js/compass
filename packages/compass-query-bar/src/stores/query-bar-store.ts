@@ -24,7 +24,6 @@ import {
   RecentQueryStorage,
   getQueryAttributes,
 } from '../utils';
-import { getStoragePaths } from '@mongodb-js/compass-utils';
 import { AtlasService } from '@mongodb-js/atlas-service/renderer';
 
 // Partial of DataService that mms shares with Compass.
@@ -80,14 +79,8 @@ export function configureStore(options: Partial<QueryBarStoreOptions> = {}) {
     namespace,
     dataProvider,
     atlasService = new AtlasService(),
-    recentQueryStorage = new RecentQueryStorage(
-      options.basepath ?? getStoragePaths()?.basepath,
-      namespace
-    ),
-    favoriteQueryStorage = new FavoriteQueryStorage(
-      options.basepath ?? getStoragePaths()?.basepath,
-      namespace
-    ),
+    recentQueryStorage = new RecentQueryStorage({ namespace }),
+    favoriteQueryStorage = new FavoriteQueryStorage({ namespace }),
   } = options;
 
   const store = _createStore(

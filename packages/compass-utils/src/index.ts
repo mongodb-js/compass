@@ -2,7 +2,7 @@ export {
   AmpersandMethodOptions,
   promisifyAmpersandMethod,
 } from './promisify-ampersand-method';
-export { StoragePaths, getStoragePaths } from './get-storage-paths';
+export { getAppName, getStoragePath } from './electron';
 export {
   raceWithAbort,
   cancellableWait,

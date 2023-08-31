@@ -38,9 +38,9 @@ const FAVORITE_QUERY = {
   ...BASE_QUERY,
 };
 
-function createStore(basepath?: string) {
-  const favoriteQueryStorage = new FavoriteQueryStorage(basepath);
-  const recentQueryStorage = new RecentQueryStorage(basepath);
+function createStore(basepath: string) {
+  const favoriteQueryStorage = new FavoriteQueryStorage({ basepath });
+  const recentQueryStorage = new RecentQueryStorage({ basepath });
 
   const store = configureStore({
     namespace: 'airbnb.listings',
@@ -65,7 +65,7 @@ function createStore(basepath?: string) {
   };
 }
 
-const renderQueryHistory = (basepath?: string) => {
+const renderQueryHistory = (basepath: string) => {
   const data = createStore(basepath);
   render(
     <Provider store={data.store}>
@@ -87,7 +87,7 @@ describe('query-history', function () {
 
   context('zero state', function () {
     it('in recents', function () {
-      renderQueryHistory();
+      renderQueryHistory(tmpDir);
       userEvent.click(screen.getByText(/recents/i));
       expect(
         screen.getByText(/your recent queries will appear here\./i)
@@ -95,7 +95,7 @@ describe('query-history', function () {
     });
 
     it('in favorites', function () {
-      renderQueryHistory();
+      renderQueryHistory(tmpDir);
       userEvent.click(screen.getByText(/favorites/i));
       expect(
         screen.getByText(/your favorite queries will appear here\./i)
@@ -105,7 +105,7 @@ describe('query-history', function () {
 
   context('renders list of queries', function () {
     it('recent', async function () {
-      const { store, recentQueryStorage } = renderQueryHistory();
+      const { store, recentQueryStorage } = renderQueryHistory(tmpDir);
       Sinon.stub(recentQueryStorage, 'loadAll').returns(
         Promise.resolve([RECENT_QUERY] as any)
       );
@@ -122,7 +122,7 @@ describe('query-history', function () {
     });
 
     it('favorite', async function () {
-      const { store, favoriteQueryStorage } = renderQueryHistory();
+      const { store, favoriteQueryStorage } = renderQueryHistory(tmpDir);
       Sinon.stub(favoriteQueryStorage, 'loadAll').returns(
         Promise.resolve([FAVORITE_QUERY] as any)
       );
@@ -142,7 +142,7 @@ describe('query-history', function () {
 
   context('deletes a query', function () {
     it('recent', async function () {
-      const { store, recentQueryStorage } = renderQueryHistory();
+      const { store, recentQueryStorage } = renderQueryHistory(tmpDir);
       Sinon.stub(recentQueryStorage, 'loadAll').returns(
         Promise.resolve([RECENT_QUERY] as any)
       );
@@ -164,7 +164,7 @@ describe('query-history', function () {
     });
 
     it('favorite', async function () {
-      const { store, favoriteQueryStorage } = renderQueryHistory();
+      const { store, favoriteQueryStorage } = renderQueryHistory(tmpDir);
       Sinon.stub(favoriteQueryStorage, 'loadAll').returns(
         Promise.resolve([FAVORITE_QUERY] as any)
       );

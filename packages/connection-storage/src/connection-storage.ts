@@ -1,6 +1,5 @@
-import { join } from 'path';
 import { validate as uuidValidate } from 'uuid';
-import fs from 'fs/promises';
+import { ipcMain } from 'electron';
 import keytar from 'keytar';
 
 import type { ConnectionInfo } from './connection-info';
@@ -15,11 +14,7 @@ import {
   getKeytarServiceName,
   parseStoredPassword,
 } from './utils';
-import {
-  getStoragePaths,
-  ipcExpose,
-  throwIfAborted,
-} from '@mongodb-js/compass-utils';
+import { ipcExpose, throwIfAborted } from '@mongodb-js/compass-utils';
 import {
   serializeConnections,
   deserializeConnections,
@@ -28,13 +23,14 @@ import type {
   ImportConnectionOptions,
   ExportConnectionOptions,
 } from './import-export-connection';
+import { UserData } from '@mongodb-js/compass-user-data';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 type ConnectionLegacyProps = {
   _id: string;
   isFavorite?: boolean;
-  name: string;
+  name?: string;
 };
 
 type ConnectionWithLegacyProps = {
@@ -43,39 +39,43 @@ type ConnectionWithLegacyProps = {
 
 export class ConnectionStorage {
   private static calledOnce: boolean;
-  private static path: string;
+  private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
 
-  private static readonly folder = 'Connections';
   private static readonly maxAllowedRecentConnections = 10;
+  private static userData: UserData<ConnectionWithLegacyProps>;
 
   private constructor() {
     // singleton
   }
 
-  static init(path = getStoragePaths()?.basepath ?? '') {
+  static init(basePath?: string) {
     if (this.calledOnce) {
       return;
     }
-    this.path = path;
-    ipcExpose('ConnectionStorage', this, [
-      'loadAll',
-      'load',
-      'getLegacyConnections',
-      'save',
-      'delete',
-      'deserializeConnections',
-      'exportConnections',
-      'importConnections',
-    ]);
+    this.userData = new UserData({
+      subdir: 'Connections',
+      basePath,
+    });
+    ipcExpose(
+      'ConnectionStorage',
+      this,
+      [
+        'loadAll',
+        'load',
+        'getLegacyConnections',
+        'save',
+        'delete',
+        'deserializeConnections',
+        'exportConnections',
+        'importConnections',
+      ],
+      this.ipcMain
+    );
     this.calledOnce = true;
   }
 
-  private static getFolderPath() {
-    return join(this.path, this.folder);
-  }
-
-  private static getFilePath(id: string) {
-    return join(this.getFolderPath(), `${id}.json`);
+  private static getFileName(id: string) {
+    return `${id}.json`;
   }
 
   private static mapStoredConnectionToConnectionInfo(
@@ -113,26 +113,7 @@ export class ConnectionStorage {
   }
 
   private static async getConnections(): Promise<ConnectionWithLegacyProps[]> {
-    const connectionIds = (await fs.readdir(this.getFolderPath()))
-      .filter((file) => file.endsWith('.json'))
-      .map((file) => file.replace('.json', ''));
-
-    const data = await Promise.all(
-      connectionIds.map(async (id) => {
-        try {
-          return JSON.parse(await fs.readFile(this.getFilePath(id), 'utf8'));
-        } catch (e) {
-          log.error(
-            mongoLogId(1_001_000_200),
-            'Connection Storage',
-            'Failed to parse connection',
-            { message: (e as Error).message, connectionId: id }
-          );
-          return undefined;
-        }
-      })
-    );
-    return data.filter(Boolean);
+    return (await this.userData.readAll()).data;
   }
 
   /**
@@ -153,7 +134,7 @@ export class ConnectionStorage {
         (x) => !x.connectionInfo && x.isFavorite
       );
       return legacyConnections.map((x) => ({
-        name: x.name,
+        name: x.name!,
       }));
     } catch (e) {
       return [];
@@ -166,9 +147,6 @@ export class ConnectionStorage {
     signal?: AbortSignal;
   } = {}): Promise<ConnectionInfo[]> {
     throwIfAborted(signal);
-    // Ensure folder exists
-    await fs.mkdir(this.getFolderPath(), { recursive: true });
-
     try {
       const [connections, secrets] = await Promise.all([
         this.getConnections(),
@@ -224,26 +202,18 @@ export class ConnectionStorage {
 
       // While testing, we don't use keychain to store secrets
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        await fs.writeFile(
-          this.getFilePath(connectionInfo.id),
-          JSON.stringify({ connectionInfo, _id: connectionInfo.id }, null, 2),
-          'utf-8'
-        );
+        await this.userData.write(this.getFileName(connectionInfo.id), {
+          connectionInfo,
+          _id: connectionInfo.id,
+        });
       } else {
         const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
           extractSecrets(connectionInfo);
-        await fs.writeFile(
-          this.getFilePath(connectionInfo.id),
-          JSON.stringify(
-            {
-              connectionInfo: connectionInfoWithoutSecrets,
-              _id: connectionInfo.id,
-            },
-            null,
-            2
-          ),
-          'utf-8'
-        );
+        await this.userData.write(this.getFileName(connectionInfo.id), {
+          connectionInfo: connectionInfoWithoutSecrets,
+          _id: connectionInfo.id,
+        });
+
         try {
           await keytar.setPassword(
             getKeytarServiceName(),
@@ -285,7 +255,7 @@ export class ConnectionStorage {
     }
 
     try {
-      await fs.unlink(this.getFilePath(id));
+      await this.userData.delete(this.getFileName(id));
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         return;
       }

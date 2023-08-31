@@ -60,6 +60,7 @@
     "bson": "^5.4.0",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
+    "electron": "^23.3.12",
     "eslint": "^7.25.0",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
@@ -71,6 +72,7 @@
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "typescript": "^5.0.4",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "@mongodb-js/compass-user-data": "^0.1.0"
   }
 }

@@ -1,10 +1,7 @@
-import { join } from 'path';
-import fs from 'fs/promises';
-import { EJSON, UUID } from 'bson';
+import { UUID, EJSON } from 'bson';
 import { orderBy } from 'lodash';
 import { type BaseQuery } from '../constants/query-properties';
-
-const ENCODING_UTF8 = 'utf8';
+import { UserData } from '@mongodb-js/compass-user-data';
 
 // We do not save maxTimeMS
 export type RecentQuery = Omit<BaseQuery, 'maxTimeMS'> & {
@@ -20,29 +17,32 @@ export type FavoriteQuery = RecentQuery & {
   _dateSaved: Date;
 };
 
+type QueryStorageOptions = {
+  basepath?: string;
+  namespace?: string;
+};
+
 export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
+  protected readonly userData: UserData<T>;
   constructor(
-    protected readonly path: string,
-    protected readonly namespace: string = ''
-  ) {}
+    protected readonly folder: string,
+    protected readonly options: QueryStorageOptions
+  ) {
+    this.userData = new UserData({
+      subdir: folder,
+      basePath: options.basepath,
+      serialize: (content) => EJSON.stringify(content, undefined, 2),
+      deserialize: (content) => EJSON.parse(content),
+    });
+  }
 
   async loadAll(): Promise<T[]> {
     try {
-      const dir = this.path;
-      const files = (await fs.readdir(dir))
-        .filter((file) => file.endsWith('.json'))
-        .map((file) => join(dir, file));
-
-      const data = (
-        await Promise.all(files.map((filePath) => this.getFileData(filePath)))
-      ).filter(Boolean) as T[];
-
+      const { data } = await this.userData.readAll();
       const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
-
-      if (this.namespace) {
-        return sortedData.filter((x) => x._ns === this.namespace);
+      if (this.options.namespace) {
+        return sortedData.filter((x) => x._ns === this.options.namespace);
       }
-
       return sortedData;
     } catch (e) {
       return [];
@@ -50,45 +50,30 @@ export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
   }
 
   async updateAttributes(id: string, data: Partial<T>): Promise<T> {
-    // ensure the folder exists
-    await fs.mkdir(this.path, { recursive: true });
-    const filePath = this.getFilePath(id);
-    const fileData = (await this.getFileData(filePath)) ?? {};
+    const fileName = this.getFileName(id);
+    const fileData = (await this.userData.readOne(fileName)) ?? {};
     const updated = {
       ...fileData,
       ...data,
-    };
-    await fs.writeFile(
-      filePath,
-      EJSON.stringify(updated, undefined, 2),
-      ENCODING_UTF8
-    );
-    return updated as T;
+    } as T;
+    await this.userData.write(fileName, updated);
+    return updated;
   }
 
   async delete(id: string) {
-    return fs.unlink(this.getFilePath(id));
+    return await this.userData.delete(this.getFileName(id));
   }
 
-  private getFilePath(id: string) {
-    return join(this.path, `${id}.json`);
-  }
-
-  private async getFileData(filePath: string): Promise<T | false> {
-    try {
-      const data = await fs.readFile(filePath, ENCODING_UTF8);
-      return EJSON.parse(data);
-    } catch (e) {
-      return false;
-    }
+  protected getFileName(id: string) {
+    return `${id}.json`;
   }
 }
 
 export class RecentQueryStorage extends QueryStorage<RecentQuery> {
   private readonly maxAllowedQueries = 30;
 
-  constructor(path?: string, namespace?: string) {
-    super(join(path ?? '', 'RecentQueries'), namespace);
+  constructor(options: QueryStorageOptions = {}) {
+    super('RecentQueries', options);
   }
 
   async saveQuery(
@@ -102,17 +87,17 @@ export class RecentQueryStorage extends QueryStorage<RecentQuery> {
     }
 
     const _id = new UUID().toString();
-    const recentQuery: RecentQuery = {
+    const recentQuery = {
       ...data,
       _id,
       _lastExecuted: new Date(),
     };
-    await this.updateAttributes(_id, recentQuery);
+    await this.userData.write(this.getFileName(_id), recentQuery);
   }
 }
 
 export class FavoriteQueryStorage extends QueryStorage<FavoriteQuery> {
-  constructor(path?: string, namespace?: string) {
-    super(join(path ?? '', 'FavoriteQueries'), namespace);
+  constructor(options: QueryStorageOptions = {}) {
+    super('FavoriteQueries', options);
   }
 }

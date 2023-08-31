@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import fs from 'fs';
+import fs from 'fs/promises';
+import path from 'path';
 import os from 'os';
-import { join } from 'path';
 import { EJSON, UUID } from 'bson';
 
 import { RecentQueryStorage, type RecentQuery } from './query-storage';
@@ -23,40 +23,44 @@ const queries = [
   },
 ];
 
-const writeQuery = (tmpDir: string, query: RecentQuery) => {
-  const path = join(tmpDir, 'RecentQueries');
-  fs.mkdirSync(path, { recursive: true });
-  fs.writeFileSync(join(path, `${query._id}.json`), EJSON.stringify(query));
-};
-
-const createNumberOfQueries = (tmpDir: string, num: number) => {
-  const queries = Array.from({ length: num }, (v, i) => ({
-    _id: new UUID().toString(),
-    _ns: 'airbnb.users',
-    _lastExecuted: new Date(1690876213077 - (i + 1) * 1000), // Difference of 1 sec
-  }));
-  queries.forEach((query) => writeQuery(tmpDir, query));
-  return queries;
-};
-
 const maxAllowedRecentQueries = 30;
 
 describe('QueryStorage', function () {
-  let tmpDir: string;
   let queryHistoryStorage: RecentQueryStorage;
 
-  beforeEach(function () {
-    tmpDir = fs.mkdtempSync(os.tmpdir());
-    queryHistoryStorage = new RecentQueryStorage(tmpDir);
+  let tmpDir: string;
+  beforeEach(async function () {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'query-storage-tests'));
+    queryHistoryStorage = new RecentQueryStorage({
+      basepath: tmpDir,
+    });
   });
 
-  afterEach(function () {
-    fs.rmdirSync(tmpDir, { recursive: true });
-    Sinon.restore();
+  afterEach(async function () {
+    await fs.rm(tmpDir, { recursive: true });
   });
+
+  const writeQuery = async (query: RecentQuery) => {
+    const basepath = path.join(tmpDir, 'RecentQueries');
+    await fs.mkdir(basepath, { recursive: true });
+    await fs.writeFile(
+      path.join(basepath, `${query._id}.json`),
+      EJSON.stringify(query)
+    );
+  };
+
+  const createNumberOfQueries = async (num: number) => {
+    const queries = Array.from({ length: num }, (v, i) => ({
+      _id: new UUID().toString(),
+      _ns: 'airbnb.users',
+      _lastExecuted: new Date(1690876213077 - (i + 1) * 1000), // Difference of 1 sec
+    }));
+    await Promise.all(queries.map((query) => writeQuery(query)));
+    return queries;
+  };
 
   it('loads files from storage', async function () {
-    queries.forEach((query) => writeQuery(tmpDir, query));
+    await Promise.all(queries.map((query) => writeQuery(query)));
 
     const data = await queryHistoryStorage.loadAll();
     expect(data).to.have.lengthOf(2);
@@ -70,7 +74,7 @@ describe('QueryStorage', function () {
   });
 
   it('updates data in storage if files exists', async function () {
-    queries.forEach((query) => writeQuery(tmpDir, query));
+    await Promise.all(queries.map((query) => writeQuery(query)));
 
     const query = queries[0];
     await queryHistoryStorage.updateAttributes(query._id, {
@@ -85,7 +89,7 @@ describe('QueryStorage', function () {
   });
 
   it('creates item in storage if files does not exist', async function () {
-    queries.forEach((query) => writeQuery(tmpDir, query));
+    await Promise.all(queries.map((query) => writeQuery(query)));
 
     const query = {
       sort: { name: 1 },
@@ -106,7 +110,7 @@ describe('QueryStorage', function () {
   });
 
   it('deletes file from storage', async function () {
-    queries.forEach((query) => writeQuery(tmpDir, query));
+    await Promise.all(queries.map((query) => writeQuery(query)));
 
     await queryHistoryStorage.delete(queries[0]._id);
     expect(await queryHistoryStorage.loadAll()).to.have.lengthOf(1);
@@ -119,7 +123,7 @@ describe('QueryStorage', function () {
     `limits saved recent queries to ${maxAllowedRecentQueries}`,
     function () {
       it('truncates recents queries to max allowed queries', async function () {
-        const queries = createNumberOfQueries(tmpDir, maxAllowedRecentQueries);
+        const queries = await createNumberOfQueries(maxAllowedRecentQueries);
 
         const deleteSpy = Sinon.spy(queryHistoryStorage, 'delete');
 
@@ -137,7 +141,7 @@ describe('QueryStorage', function () {
       });
 
       it('does not remove recent query if recents are less then max allowed queries', async function () {
-        createNumberOfQueries(tmpDir, maxAllowedRecentQueries - 1);
+        await createNumberOfQueries(maxAllowedRecentQueries - 1);
 
         const deleteSpy = Sinon.spy(queryHistoryStorage, 'delete');
 

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import { v4 as uuid } from 'uuid';
@@ -27,36 +27,45 @@ function getConnectionInfo(props: Partial<ConnectionInfo> = {}) {
   };
 }
 
-function writeFakeConnection(
+async function writeFakeConnection(
   tmpDir: string,
   connection: { connectionInfo: ConnectionInfo }
 ) {
   const filePath = getConnectionFilePath(tmpDir, connection.connectionInfo.id);
   const connectionsDir = path.dirname(filePath);
-  fs.mkdirSync(connectionsDir, { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(connection));
+  await fs.mkdir(connectionsDir, { recursive: true });
+  await fs.writeFile(filePath, JSON.stringify(connection));
 }
-
-const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
 
 const maxAllowedConnections = 10;
 
 describe('ConnectionStorage', function () {
+  const initialKeytarEnvValue = process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+  const ipcMain = ConnectionStorage['ipcMain'];
+
   let tmpDir: string;
-  beforeEach(function () {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connection-storage-tests'));
-    fs.mkdirSync(path.join(tmpDir, 'Connections'));
-    // ConnectionStorage is a static singleton class. During init,
-    // we setup the ipc and set path. Avoiding that in unit tests
-    // and setting path directly here.
-    ConnectionStorage['path'] = tmpDir;
+  beforeEach(async function () {
+    tmpDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'connection-storage-tests')
+    );
+    ConnectionStorage['ipcMain'] = { handle: Sinon.stub() };
+    ConnectionStorage.init(tmpDir);
+
     process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
   });
 
-  afterEach(function () {
-    fs.rmdirSync(tmpDir, { recursive: true });
-    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
+  afterEach(async function () {
+    await fs.rm(tmpDir, { recursive: true });
     Sinon.restore();
+
+    ConnectionStorage['calledOnce'] = false;
+    ConnectionStorage['ipcMain'] = ipcMain;
+
+    if (initialKeytarEnvValue) {
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = initialKeytarEnvValue;
+    } else {
+      delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+    }
   });
 
   describe('loadAll', function () {
@@ -67,7 +76,7 @@ describe('ConnectionStorage', function () {
 
     it('should return an array of saved connections', async function () {
       const connectionInfo = getConnectionInfo({ lastUsed: new Date() });
-      writeFakeConnection(tmpDir, { connectionInfo });
+      await writeFakeConnection(tmpDir, { connectionInfo });
       const connections = await ConnectionStorage.loadAll();
       expect(connections).to.deep.equal([connectionInfo]);
     });
@@ -80,11 +89,11 @@ describe('ConnectionStorage', function () {
         },
       });
       const connectionInfo2 = getConnectionInfo();
-      writeFakeConnection(tmpDir, {
+      await writeFakeConnection(tmpDir, {
         connectionInfo: connectionInfo1,
       });
 
-      writeFakeConnection(tmpDir, {
+      await writeFakeConnection(tmpDir, {
         connectionInfo: connectionInfo2,
       });
       const connections = await ConnectionStorage.loadAll();
@@ -94,7 +103,7 @@ describe('ConnectionStorage', function () {
     it('should convert lastUsed', async function () {
       const lastUsed = new Date('2021-10-26T13:51:27.585Z');
       const connectionInfo = getConnectionInfo({ lastUsed });
-      writeFakeConnection(tmpDir, {
+      await writeFakeConnection(tmpDir, {
         connectionInfo,
       });
 
@@ -118,7 +127,7 @@ describe('ConnectionStorage', function () {
 
     it('should return an existing connection', async function () {
       const connectionInfo = getConnectionInfo();
-      writeFakeConnection(tmpDir, {
+      await writeFakeConnection(tmpDir, {
         connectionInfo,
       });
       const connection = await ConnectionStorage.load({
@@ -132,7 +141,7 @@ describe('ConnectionStorage', function () {
       const connectionInfo = getConnectionInfo({
         lastUsed,
       });
-      writeFakeConnection(tmpDir, { connectionInfo });
+      await writeFakeConnection(tmpDir, { connectionInfo });
 
       const connection = await ConnectionStorage.load({
         id: connectionInfo.id,
@@ -148,7 +157,7 @@ describe('ConnectionStorage', function () {
               'mongodb://localhost:27017/admin?appName=MongoDB+Compass',
           },
         });
-        writeFakeConnection(tmpDir, { connectionInfo });
+        await writeFakeConnection(tmpDir, { connectionInfo });
 
         const connection = await ConnectionStorage.load({
           id: connectionInfo.id,
@@ -165,7 +174,7 @@ describe('ConnectionStorage', function () {
               'mongodb://localhost:27017/admin?appName=Something+Else',
           },
         });
-        writeFakeConnection(tmpDir, { connectionInfo });
+        await writeFakeConnection(tmpDir, { connectionInfo });
 
         const connection = await ConnectionStorage.load({
           id: connectionInfo.id,
@@ -180,8 +189,12 @@ describe('ConnectionStorage', function () {
   describe('save', function () {
     it('saves a valid connection object', async function () {
       const id: string = uuid();
-      expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
-
+      try {
+        await fs.access(getConnectionFilePath(tmpDir, id));
+        expect.fail('Expected connction to not exist');
+      } catch (e) {
+        expect((e as any).code).to.equal('ENOENT');
+      }
       await ConnectionStorage.save({
         connectionInfo: {
           id,
@@ -191,10 +204,11 @@ describe('ConnectionStorage', function () {
         },
       });
 
-      expect(
-        JSON.parse(fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8'))
-          .connectionInfo.id
-      ).to.be.equal(id);
+      const content = await fs.readFile(
+        getConnectionFilePath(tmpDir, id),
+        'utf-8'
+      );
+      expect(JSON.parse(content).connectionInfo.id).to.be.equal(id);
     });
 
     it('saves a connection with arbitrary authMechanism', async function () {
@@ -209,9 +223,12 @@ describe('ConnectionStorage', function () {
         },
       });
 
+      const content = await fs.readFile(
+        getConnectionFilePath(tmpDir, id),
+        'utf-8'
+      );
       expect(
-        JSON.parse(fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8'))
-          .connectionInfo?.connectionOptions?.connectionString
+        JSON.parse(content).connectionInfo?.connectionOptions?.connectionString
       ).to.be.equal('mongodb://localhost:27017/?authMechanism=FAKEAUTH');
     });
 
@@ -277,15 +294,21 @@ describe('ConnectionStorage', function () {
       };
       await ConnectionStorage.save({ connectionInfo });
 
-      const { connectionInfo: expectedConnectionInfo } = JSON.parse(
-        fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+      const content = await fs.readFile(
+        getConnectionFilePath(tmpDir, id),
+        'utf-8'
       );
+      const { connectionInfo: expectedConnectionInfo } = JSON.parse(content);
       expect(expectedConnectionInfo).to.deep.equal(connectionInfo);
     });
 
     it('saves a connection with _id', async function () {
-      const id: string = uuid();
-      expect(fs.existsSync(getConnectionFilePath(tmpDir, id))).to.be.false;
+      const id = uuid();
+      try {
+        await fs.access(getConnectionFilePath(tmpDir, id));
+      } catch (e) {
+        expect(e).to.be.instanceOf(Error);
+      }
 
       await ConnectionStorage.save({
         connectionInfo: {
@@ -297,7 +320,7 @@ describe('ConnectionStorage', function () {
       });
 
       const savedConnection = JSON.parse(
-        fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+        await fs.readFile(getConnectionFilePath(tmpDir, id), 'utf-8')
       );
 
       expect(savedConnection).to.deep.equal({
@@ -312,21 +335,24 @@ describe('ConnectionStorage', function () {
     });
 
     context(`max allowed connections ${maxAllowedConnections}`, function () {
-      const createNumberOfConnections = (num: number) => {
+      const createNumberOfConnections = async (num: number) => {
         const connectionInfos = Array.from({ length: num }, (v, i) =>
           getConnectionInfo({
             lastUsed: new Date(1690876213077 - (i + 1) * 1000), // Difference of 1 sec
           })
         );
-        connectionInfos.forEach((connectionInfo) =>
-          writeFakeConnection(tmpDir, { connectionInfo })
+
+        await Promise.all(
+          connectionInfos.map((connectionInfo) =>
+            writeFakeConnection(tmpDir, { connectionInfo })
+          )
         );
 
         return connectionInfos;
       };
 
       it('truncates recents to max allowed connections', async function () {
-        const connectionInfos = createNumberOfConnections(
+        const connectionInfos = await createNumberOfConnections(
           maxAllowedConnections
         );
 
@@ -346,7 +372,7 @@ describe('ConnectionStorage', function () {
       });
 
       it('does not remove recent if recent connections are less then max allowed connections', async function () {
-        createNumberOfConnections(maxAllowedConnections - 1);
+        await createNumberOfConnections(maxAllowedConnections - 1);
 
         const deleteSpy = Sinon.spy(ConnectionStorage, 'delete');
 
@@ -364,24 +390,29 @@ describe('ConnectionStorage', function () {
   describe('destroy', function () {
     it('removes a connection', async function () {
       const connectionInfo = getConnectionInfo();
-      writeFakeConnection(tmpDir, {
+      await writeFakeConnection(tmpDir, {
         connectionInfo,
       });
 
-      expect(fs.existsSync(getConnectionFilePath(tmpDir, connectionInfo.id))).to
-        .be.true;
+      const filePath = getConnectionFilePath(tmpDir, connectionInfo.id);
+
+      await fs.access(filePath);
 
       await ConnectionStorage.delete({ id: connectionInfo.id });
 
-      const filePath = getConnectionFilePath(tmpDir, connectionInfo.id);
-      expect(fs.existsSync(filePath)).to.be.false;
+      try {
+        await fs.access(filePath);
+        expect.fail('Expected connction to not exist');
+      } catch (e) {
+        expect((e as any).code).to.equal('ENOENT');
+      }
     });
   });
 
   describe('getLegacyConnections', function () {
     it('returns false if there are no legacy connections', async function () {
       const connectionInfo = getConnectionInfo();
-      writeFakeConnection(tmpDir, {
+      await writeFakeConnection(tmpDir, {
         connectionInfo,
       });
       const getLegacyConnections =
@@ -394,7 +425,11 @@ describe('ConnectionStorage', function () {
 
       // Save a legacy connection (connection without connectionInfo, which is not favorite)
       const filePath = getConnectionFilePath(tmpDir, _id);
-      fs.writeFileSync(
+      // As we are saving a legacy connection here, we can not use Storage.save as
+      // it requries connectionInfo. And the internals of fs ensure the subdir exists,
+      // here we are creating it manually.
+      await fs.mkdir(path.join(tmpDir, 'Connections'), { recursive: true });
+      await fs.writeFile(
         filePath,
         JSON.stringify({
           _id,
@@ -415,7 +450,11 @@ describe('ConnectionStorage', function () {
 
       // Save a legacy connection (connection without connectionInfo)
       const filePath = getConnectionFilePath(tmpDir, _id);
-      fs.writeFileSync(
+      // As we are saving a legacy connection here, we can not use Storage.save as
+      // it requries connectionInfo. And the internals of fs ensure the subdir exists,
+      // here we are creating it manually.
+      await fs.mkdir(path.join(tmpDir, 'Connections'), { recursive: true });
+      await fs.writeFile(
         filePath,
         JSON.stringify({
           _id,
@@ -449,9 +488,11 @@ describe('ConnectionStorage', function () {
       }),
     ];
 
-    beforeEach(function () {
-      CONNECTIONS.map((connectionInfo) =>
-        writeFakeConnection(tmpDir, { connectionInfo })
+    beforeEach(async function () {
+      await Promise.all(
+        CONNECTIONS.map((connectionInfo) =>
+          writeFakeConnection(tmpDir, { connectionInfo })
+        )
       );
     });
 
