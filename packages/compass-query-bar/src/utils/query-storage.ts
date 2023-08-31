@@ -31,7 +31,7 @@ const FavoriteQuerySchema = RecentQuerySchema.and(
     _dateModified: z
       .union([z.coerce.date(), z.number()])
       .optional()
-      .transform((x) => (x ? new Date(x) : x)),
+      .transform((x) => (x !== undefined ? new Date(x) : x)),
     _dateSaved: z
       .union([z.coerce.date(), z.number()])
       .transform((x) => new Date(x)),
