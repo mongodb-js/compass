@@ -2,33 +2,58 @@ import { UUID, EJSON } from 'bson';
 import { orderBy } from 'lodash';
 import { type BaseQuery } from '../constants/query-properties';
 import { UserData } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 
 // We do not save maxTimeMS
-export type RecentQuery = Omit<BaseQuery, 'maxTimeMS'> & {
-  _id: string;
-  _lastExecuted: Date;
-  _ns: string;
-  _host?: string;
-};
+const BaseQuerySchema: z.Schema<Omit<BaseQuery, 'maxTimeMS'>> = z.object({
+  filter: z.any().optional(),
+  project: z.any().optional(),
+  collation: z.any().optional(),
+  sort: z.any().optional(),
+  skip: z.number().optional(),
+  limit: z.number().optional(),
+});
 
-export type FavoriteQuery = RecentQuery & {
-  _name: string;
-  _dateModified: Date;
-  _dateSaved: Date;
-};
+const RecentQuerySchema = BaseQuerySchema.and(
+  z.object({
+    _id: z.string().uuid(),
+    _lastExecuted: z
+      .union([z.coerce.date(), z.number()])
+      .transform((x) => new Date(x)),
+    _ns: z.string(),
+    _host: z.string().optional(),
+  })
+);
+
+const FavoriteQuerySchema = RecentQuerySchema.and(
+  z.object({
+    _name: z.string().nonempty(),
+    _dateModified: z
+      .union([z.coerce.date(), z.number()])
+      .optional()
+      .transform((x) => (x !== undefined ? new Date(x) : x)),
+    _dateSaved: z
+      .union([z.coerce.date(), z.number()])
+      .transform((x) => new Date(x)),
+  })
+);
+
+export type RecentQuery = z.output<typeof RecentQuerySchema>;
+export type FavoriteQuery = z.output<typeof FavoriteQuerySchema>;
 
 type QueryStorageOptions = {
   basepath?: string;
   namespace?: string;
 };
 
-export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
+export abstract class QueryStorage<T extends z.Schema> {
   protected readonly userData: UserData<T>;
   constructor(
+    schemaValidator: T,
     protected readonly folder: string,
     protected readonly options: QueryStorageOptions
   ) {
-    this.userData = new UserData({
+    this.userData = new UserData(schemaValidator, {
       subdir: folder,
       basePath: options.basepath,
       serialize: (content) => EJSON.stringify(content, undefined, 2),
@@ -36,7 +61,7 @@ export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
     });
   }
 
-  async loadAll(): Promise<T[]> {
+  async loadAll(): Promise<z.output<T>[]> {
     try {
       const { data } = await this.userData.readAll();
       const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
@@ -49,35 +74,31 @@ export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
     }
   }
 
-  async updateAttributes(id: string, data: Partial<T>): Promise<T> {
-    const fileName = this.getFileName(id);
-    const fileData = (await this.userData.readOne(fileName)) ?? {};
-    const updated = {
-      ...fileData,
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<z.output<T>> {
+    await this.userData.write(id, {
+      ...((await this.userData.readOne(id)) ?? {}),
       ...data,
-    } as T;
-    await this.userData.write(fileName, updated);
-    return updated;
+    });
+    return await this.userData.readOne(id);
   }
 
   async delete(id: string) {
-    return await this.userData.delete(this.getFileName(id));
-  }
-
-  protected getFileName(id: string) {
-    return `${id}.json`;
+    return await this.userData.delete(id);
   }
 }
 
-export class RecentQueryStorage extends QueryStorage<RecentQuery> {
+export class RecentQueryStorage extends QueryStorage<typeof RecentQuerySchema> {
   private readonly maxAllowedQueries = 30;
 
   constructor(options: QueryStorageOptions = {}) {
-    super('RecentQueries', options);
+    super(RecentQuerySchema, 'RecentQueries', options);
   }
 
   async saveQuery(
-    data: Omit<RecentQuery, '_id' | '_lastExecuted'>
+    data: Omit<z.input<typeof RecentQuerySchema>, '_id' | '_lastExecuted'>
   ): Promise<void> {
     const recentQueries = await this.loadAll();
 
@@ -92,12 +113,14 @@ export class RecentQueryStorage extends QueryStorage<RecentQuery> {
       _id,
       _lastExecuted: new Date(),
     };
-    await this.userData.write(this.getFileName(_id), recentQuery);
+    await this.userData.write(_id, recentQuery);
   }
 }
 
-export class FavoriteQueryStorage extends QueryStorage<FavoriteQuery> {
+export class FavoriteQueryStorage extends QueryStorage<
+  typeof FavoriteQuerySchema
+> {
   constructor(options: QueryStorageOptions = {}) {
-    super('FavoriteQueries', options);
+    super(FavoriteQuerySchema, 'FavoriteQueries', options);
   }
 }

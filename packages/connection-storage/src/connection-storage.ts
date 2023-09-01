@@ -1,4 +1,3 @@
-import { validate as uuidValidate } from 'uuid';
 import { ipcMain } from 'electron';
 import keytar from 'keytar';
 
@@ -24,25 +23,53 @@ import type {
   ExportConnectionOptions,
 } from './import-export-connection';
 import { UserData } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 type ConnectionLegacyProps = {
-  _id: string;
+  _id?: string;
   isFavorite?: boolean;
   name?: string;
 };
 
 type ConnectionWithLegacyProps = {
-  connectionInfo: ConnectionInfo;
+  connectionInfo?: ConnectionInfo;
 } & ConnectionLegacyProps;
+
+const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
+  .object({
+    _id: z.string().uuid().optional(),
+    isFavorite: z.boolean().optional(),
+    name: z.string().optional(),
+    connectionInfo: z
+      .object({
+        id: z.string().uuid(),
+        lastUsed: z.coerce
+          .date()
+          .optional()
+          .transform((x) => (x !== undefined ? new Date(x) : x)),
+        favorite: z.any().optional(),
+        connectionOptions: z.object({
+          connectionString: z
+            .string()
+            .nonempty('Connection string is required.'),
+          sshTunnel: z.any().optional(),
+          useSystemCA: z.boolean().optional(),
+          oidc: z.any().optional(),
+          fleOptions: z.any().optional(),
+        }),
+      })
+      .optional(),
+  })
+  .passthrough();
 
 export class ConnectionStorage {
   private static calledOnce: boolean;
   private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
 
   private static readonly maxAllowedRecentConnections = 10;
-  private static userData: UserData<ConnectionWithLegacyProps>;
+  private static userData: UserData<typeof ConnectionSchema>;
 
   private constructor() {
     // singleton
@@ -52,7 +79,7 @@ export class ConnectionStorage {
     if (this.calledOnce) {
       return;
     }
-    this.userData = new UserData({
+    this.userData = new UserData(ConnectionSchema, {
       subdir: 'Connections',
       basePath,
     });
@@ -74,18 +101,11 @@ export class ConnectionStorage {
     this.calledOnce = true;
   }
 
-  private static getFileName(id: string) {
-    return `${id}.json`;
-  }
-
   private static mapStoredConnectionToConnectionInfo(
     storedConnectionInfo: ConnectionInfo,
     secrets?: ConnectionSecrets
   ): ConnectionInfo {
     const connectionInfo = mergeSecrets(storedConnectionInfo, secrets);
-    if (connectionInfo.lastUsed) {
-      connectionInfo.lastUsed = new Date(connectionInfo.lastUsed);
-    }
     return deleteCompassAppNameParam(connectionInfo);
   }
 
@@ -158,8 +178,8 @@ export class ConnectionStorage {
           .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
           .map(({ connectionInfo }) =>
             this.mapStoredConnectionToConnectionInfo(
-              connectionInfo,
-              secrets[connectionInfo.id]
+              connectionInfo!,
+              secrets[connectionInfo!.id]
             )
           )
       );
@@ -183,18 +203,6 @@ export class ConnectionStorage {
   }): Promise<void> {
     throwIfAborted(signal);
     try {
-      if (!connectionInfo.id) {
-        throw new Error('id is required');
-      }
-
-      if (!uuidValidate(connectionInfo.id)) {
-        throw new Error('id must be a uuid');
-      }
-
-      if (!connectionInfo.connectionOptions.connectionString) {
-        throw new Error('Connection string is required.');
-      }
-
       // While saving connections, we also save `_id` property
       // in order to support the downgrade of Compass to a version
       // where we use storage-mixin. storage-mixin uses this prop
@@ -202,14 +210,14 @@ export class ConnectionStorage {
 
       // While testing, we don't use keychain to store secrets
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        await this.userData.write(this.getFileName(connectionInfo.id), {
+        await this.userData.write(connectionInfo.id, {
           connectionInfo,
           _id: connectionInfo.id,
         });
       } else {
         const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
           extractSecrets(connectionInfo);
-        await this.userData.write(this.getFileName(connectionInfo.id), {
+        await this.userData.write(connectionInfo.id, {
           connectionInfo: connectionInfoWithoutSecrets,
           _id: connectionInfo.id,
         });
@@ -255,7 +263,7 @@ export class ConnectionStorage {
     }
 
     try {
-      await this.userData.delete(this.getFileName(id));
+      await this.userData.delete(id);
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         return;
       }

@@ -2,7 +2,32 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import { UserData } from './user-data';
+import { UserData, type UserDataOptions } from './user-data';
+import { z, type ZodError } from 'zod';
+
+type ValidatorOptions = {
+  allowUnknownProps?: boolean;
+};
+const getTestSchema = (
+  options: ValidatorOptions = {
+    allowUnknownProps: false,
+  }
+) => {
+  const validator = z.object({
+    name: z.string().default('Compass'),
+    hasDarkMode: z.boolean().default(true),
+    hasWebSupport: z.boolean().default(false),
+  });
+
+  if (options.allowUnknownProps) {
+    return validator.passthrough();
+  }
+
+  return validator;
+};
+
+const defaultValues = () => getTestSchema().parse({});
+const subdir = 'test-dir';
 
 describe('user-data', function () {
   let tmpDir: string;
@@ -15,44 +40,58 @@ describe('user-data', function () {
     await fs.rm(tmpDir, { recursive: true });
   });
 
-  const writeFileToStorage = async (
-    basedir: string,
-    filepath: string,
-    contents: string
+  const getUserData = (
+    userDataOpts: Partial<
+      UserDataOptions<z.input<ReturnType<typeof getTestSchema>>>
+    > = {},
+    validatorOpts: ValidatorOptions = {}
   ) => {
-    const absolutePath = path.join(tmpDir, basedir, filepath);
+    return new UserData(getTestSchema(validatorOpts), {
+      subdir,
+      basePath: tmpDir,
+      ...userDataOpts,
+    });
+  };
+
+  const writeFileToStorage = async (filepath: string, contents: string) => {
+    const absolutePath = path.join(tmpDir, subdir, filepath);
     await fs.mkdir(path.dirname(absolutePath), { recursive: true });
     await fs.writeFile(absolutePath, contents, 'utf-8');
   };
 
   context('UserData.readAll', function () {
     it('does not throw if the subdir does not exist and returns an empty list', async function () {
-      const userData = new UserData({
+      const userData = getUserData({
         subdir: 'something/non-existant',
-        basePath: tmpDir,
       });
       const result = await userData.readAll();
       expect(result.data).to.have.lengthOf(0);
       expect(result.errors).to.have.lengthOf(0);
     });
 
-    it('reads all files from the folder', async function () {
+    it('reads all files from the folder with defaults', async function () {
       await Promise.all(
         [
-          ['data1.json', JSON.stringify({ a: 1 })],
-          ['data2.json', JSON.stringify({ a: 2 })],
-        ].map(([filepath, data]) =>
-          writeFileToStorage('pipelines', filepath, data)
-        )
+          ['data1.json', JSON.stringify({ name: 'VSCode' })],
+          ['data2.json', JSON.stringify({ name: 'Mongosh' })],
+        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
       );
 
-      const result = await new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      }).readAll();
+      const result = await getUserData().readAll();
       // sort
-      result.data.sort((first: any, second: any) => first.a - second.a);
-      expect(result.data).to.deep.equal([{ a: 1 }, { a: 2 }]);
+      result.data.sort((first, second) =>
+        first.name.localeCompare(second.name)
+      );
+      expect(result.data).to.deep.equal([
+        {
+          ...defaultValues(),
+          name: 'Mongosh',
+        },
+        {
+          ...defaultValues(),
+          name: 'VSCode',
+        },
+      ]);
     });
 
     it('ignores parse errors', async function () {
@@ -60,15 +99,10 @@ describe('user-data', function () {
         [
           ['data1.json', '{ a: }'],
           ['data2.json', '{ a: }'],
-        ].map(([filepath, data]) =>
-          writeFileToStorage('pipelines', filepath, data)
-        )
+        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
       );
 
-      const result = await new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      }).readAll({
+      const result = await getUserData().readAll({
         ignoreErrors: true,
       });
       expect(result.data).to.have.lengthOf(0);
@@ -80,15 +114,10 @@ describe('user-data', function () {
         [
           ['data1.json', '{ a: }'],
           ['data2.json', '{ a: }'],
-        ].map(([filepath, data]) =>
-          writeFileToStorage('pipelines', filepath, data)
-        )
+        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
       );
 
-      const result = await new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      }).readAll({
+      const result = await getUserData().readAll({
         ignoreErrors: false,
       });
       expect(result.data).to.have.lengthOf(0);
@@ -97,55 +126,48 @@ describe('user-data', function () {
   });
 
   context('UserData.readOne', function () {
-    it('throws if the file does not exist', function () {
-      const userData = new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      });
-      expect(async () => await userData.readOne('something.json')).to.throw;
+    it('throws if the file does not exist', async function () {
+      try {
+        await getUserData().readOne('something.json', {
+          ignoreErrors: false,
+        });
+        expect.fail('Failed to read the file');
+      } catch (e) {
+        expect(e).to.be.an.instanceOf(Error);
+        expect((e as any).code).to.equal('ENOENT');
+      }
     });
 
-    it('reads the file', async function () {
+    it('reads the file with default values', async function () {
       await Promise.all(
         [
-          ['data1.json', JSON.stringify({ a: 1 })],
-          ['data2.json', JSON.stringify({ b: 2 })],
-        ].map(([filepath, data]) =>
-          writeFileToStorage('pipelines', filepath, data)
-        )
+          ['data1.json', JSON.stringify({ name: 'Compass' })],
+          ['data2.json', JSON.stringify({ name: 'Mongosh' })],
+        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
       );
 
-      const userData = new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      });
+      const userData = getUserData();
 
       {
-        const data = await userData.readOne('data1.json');
-        expect(data).to.deep.equal({ a: 1 });
+        const data = await userData.readOne('data1');
+        expect(data).to.deep.equal({ ...defaultValues(), name: 'Compass' });
       }
 
       {
-        const data = await userData.readOne('data2.json');
-        expect(data).to.deep.equal({ b: 2 });
+        const data = await userData.readOne('data2');
+        expect(data).to.deep.equal({ ...defaultValues(), name: 'Mongosh' });
       }
     });
 
     it('ignores read error', async function () {
-      const result = await new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      }).readOne('something.json', {
+      const result = await getUserData().readOne('something', {
         ignoreErrors: true,
       });
       expect(result).to.be.undefined;
     });
 
     it('throws read error', async function () {
-      const storage = new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      });
+      const storage = getUserData();
       try {
         await storage.readOne('something.json', {
           ignoreErrors: false,
@@ -156,80 +178,131 @@ describe('user-data', function () {
     });
 
     it('ignores parse error', async function () {
-      await writeFileToStorage('pipelines', 'data.json', '{a: b}');
-      const result = await new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      }).readOne('data.json', {
+      await writeFileToStorage('data.json', '{a: b}');
+      const result = await getUserData().readOne('data', {
         ignoreErrors: true,
       });
       expect(result).to.be.undefined;
     });
 
     it('throws parse errors', async function () {
-      await writeFileToStorage('pipelines', 'data.json', '{a: b}');
+      await writeFileToStorage('data.json', '{a: b}');
 
-      const storage = new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      });
+      const storage = getUserData();
       try {
-        await storage.readOne('data.json', {
+        await storage.readOne('data', {
           ignoreErrors: false,
         });
       } catch (e) {
         expect((e as Error).message).to.contain('Unexpected token');
       }
     });
+
+    it('throws if data is parsable, but invalid', async function () {
+      await writeFileToStorage(
+        'data.json',
+        JSON.stringify({
+          name: 'Compass',
+          hasDarkMode: 'something',
+        })
+      );
+
+      try {
+        await getUserData().readOne('data', {
+          ignoreErrors: false,
+        });
+      } catch (e) {
+        const errors = (e as ZodError).errors;
+        expect(errors[0].message).to.contain(
+          'Expected boolean, received string'
+        );
+      }
+    });
+
+    it('strips off unknown props that are unknown to validator by default', async function () {
+      await writeFileToStorage(
+        'data.json',
+        JSON.stringify({
+          name: 'Mongosh',
+          company: 'MongoDB',
+        })
+      );
+
+      const data = await getUserData().readOne('data', {
+        ignoreErrors: false,
+      });
+
+      expect(data).to.deep.equal({
+        ...defaultValues(),
+        name: 'Mongosh',
+      });
+    });
+
+    it('does not strip off unknown props that are unknow to validator when specified', async function () {
+      await writeFileToStorage(
+        'data.json',
+        JSON.stringify({
+          name: 'Mongosh',
+          company: 'MongoDB',
+        })
+      );
+
+      const data = await getUserData(
+        {},
+        {
+          allowUnknownProps: true,
+        }
+      ).readOne('data', {
+        ignoreErrors: false,
+      });
+
+      expect(data).to.deep.equal({
+        ...defaultValues(),
+        name: 'Mongosh',
+        company: 'MongoDB',
+      });
+    });
   });
 
   context('UserData.write', function () {
     it('does not throw if the subdir does not exist', async function () {
-      const userData = new UserData({
+      const userData = getUserData({
         subdir: 'something/non-existant',
-        basePath: tmpDir,
       });
-      const isWritten = await userData.write('data.json', { w: 1 });
+      const isWritten = await userData.write('data', { w: 1 });
       expect(isWritten).to.be.true;
     });
 
     it('writes file to the storage with content', async function () {
-      const userData = new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      });
-      await userData.write('data.json', { w: 2 });
+      const userData = getUserData();
+      await userData.write('data', { name: 'VSCode' });
 
-      const data = await userData.readOne('data.json');
-      expect(data).to.deep.equal({ w: 2 });
+      const data = await userData.readOne('data');
+      expect(data).to.deep.equal({ ...defaultValues(), name: 'VSCode' });
     });
   });
 
   context('UserData.delete', function () {
     it('does not throw if the subdir does not exist', async function () {
-      const userData = new UserData({
+      const userData = getUserData({
         subdir: 'something/non-existant',
-        basePath: tmpDir,
       });
       const isDeleted = await userData.delete('data.json');
       expect(isDeleted).to.be.false;
     });
 
     it('deletes a file', async function () {
-      const userData = new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-      });
+      const userData = getUserData();
 
-      const filename = 'data.json';
-      const absolutePath = path.join(tmpDir, 'pipelines', filename);
+      const fileId = 'data';
+      const absolutePath = path.join(tmpDir, subdir, `${fileId}.json`);
 
-      await userData.write(filename, { d: 2 });
+      await userData.write(fileId, { name: 'Compass' });
 
       // verify file exists in fs
       await fs.access(absolutePath);
 
-      const isDeleted = await userData.delete(filename);
+      const isDeleted = await userData.delete(fileId);
       expect(isDeleted).to.be.true;
 
       try {
@@ -242,40 +315,44 @@ describe('user-data', function () {
 
   context('UserData.serialization', function () {
     it('supports custom serializer', async function () {
-      const userData = new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-        serialize: () => {
-          return 'ping';
+      const data = {
+        name: 'Serializer',
+      };
+
+      const userData = getUserData({
+        serialize: (x) => {
+          expect(x).to.deep.equal(data);
+          return JSON.stringify(x);
         },
       });
 
-      const filename = 'data.json';
-      const absolutePath = path.join(tmpDir, 'pipelines', filename);
+      await userData.write('serialized', data);
 
-      await userData.write('data.json', 'something');
+      const absolutePath = path.join(tmpDir, subdir, 'serialized.json');
 
-      const writtenData = (await fs.readFile(absolutePath)).toString();
-      expect(writtenData).to.equal('ping');
+      const writtenData = JSON.parse(
+        (await fs.readFile(absolutePath)).toString()
+      );
+      expect(writtenData).to.deep.equal(data);
     });
 
     it('supports custom deserializer', async function () {
-      const userData = new UserData({
-        subdir: 'pipelines',
-        basePath: tmpDir,
-        deserialize: () => {
-          return 'pong';
+      const userData = getUserData({
+        deserialize: (x) => {
+          expect(x).to.equal('{}');
+          return JSON.parse(x);
         },
       });
 
-      const filename = 'data.json';
+      const fileId = 'deserialized';
 
-      // write nothing and when userData reads and deserializes it,
-      // it should return pong
-      await writeFileToStorage('pipelines', filename, '');
+      await writeFileToStorage(`${fileId}.json`, '{}');
 
-      const data = await userData.readOne(filename);
-      expect(data).to.equal('pong');
+      const data = await userData.readOne(fileId);
+      expect(data).to.deep.equal({
+        ...defaultValues(),
+        ...data,
+      });
     });
   });
 });

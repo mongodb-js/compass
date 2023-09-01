@@ -1,17 +1,42 @@
 import { UUID } from 'bson';
-import type { UserPreferences } from './preferences';
+import { storedUserPreferencesProps } from './preferences';
 import { UserData } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 
+type PreferencesValidator = ReturnType<typeof getPreferencesValidator>;
+export type StoredPreferences = z.output<PreferencesValidator>;
+
+export const getDefaultPreferences = (): StoredPreferences => {
+  return Object.fromEntries(
+    Object.entries(storedUserPreferencesProps)
+      .map(([key, value]) => [key, value.validator.parse(undefined)])
+      .filter(([, value]) => value !== undefined)
+  );
+};
+
+const getPreferencesValidator = () => {
+  const preferencesPropsValidator = Object.fromEntries(
+    Object.entries(storedUserPreferencesProps).map(([key, { validator }]) => [
+      key,
+      validator,
+    ])
+  ) as {
+    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
+  };
+
+  return z.object(preferencesPropsValidator);
+};
 export abstract class BasePreferencesStorage {
   abstract setup(): Promise<void>;
-  abstract getPreferences(): UserPreferences;
+  abstract getPreferences(): StoredPreferences;
   abstract updatePreferences(
-    attributes: Partial<UserPreferences>
+    attributes: Partial<StoredPreferences>
   ): Promise<void>;
 }
 
 export class SandboxPreferences extends BasePreferencesStorage {
-  constructor(private preferences: UserPreferences) {
+  private preferences = getDefaultPreferences();
+  constructor() {
     super();
   }
 
@@ -20,7 +45,7 @@ export class SandboxPreferences extends BasePreferencesStorage {
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  async updatePreferences(attributes: Partial<UserPreferences>) {
+  async updatePreferences(attributes: Partial<StoredPreferences>) {
     this.preferences = {
       ...this.preferences,
       ...attributes,
@@ -33,14 +58,14 @@ export class SandboxPreferences extends BasePreferencesStorage {
 }
 
 export class StoragePreferences extends BasePreferencesStorage {
-  private readonly file = 'General.json';
-  private readonly defaultPreferences: UserPreferences;
-  private readonly userData: UserData<UserPreferences>;
+  private readonly file = 'General';
+  private readonly defaultPreferences = getDefaultPreferences();
+  private readonly userData: UserData<PreferencesValidator>;
+  private preferences: StoredPreferences = getDefaultPreferences();
 
-  constructor(private preferences: UserPreferences, private basePath?: string) {
+  constructor(basePath?: string) {
     super();
-    this.defaultPreferences = preferences;
-    this.userData = new UserData({
+    this.userData = new UserData(getPreferencesValidator(), {
       subdir: 'AppPreferences',
       basePath,
     });
@@ -58,46 +83,51 @@ export class StoragePreferences extends BasePreferencesStorage {
     }
   }
 
-  private async readPreferences() {
+  private async readPreferences(): Promise<StoredPreferences> {
     return await this.userData.readOne(this.file, {
       ignoreErrors: false,
     });
   }
 
-  getPreferences() {
+  getPreferences(): StoredPreferences {
     return {
       ...this.defaultPreferences,
       ...this.preferences,
     };
   }
 
-  async updatePreferences(attributes: Partial<UserPreferences>) {
-    const newPreferences = {
+  async updatePreferences(attributes: Partial<z.input<PreferencesValidator>>) {
+    await this.userData.write(this.file, {
       ...(await this.readPreferences()),
       ...attributes,
-    };
-    await this.userData.write(this.file, newPreferences);
+    });
 
-    this.preferences = newPreferences;
+    this.preferences = await this.readPreferences();
   }
 }
 
-export type User = {
-  id: string;
-  createdAt: Date;
-  lastUsed: Date;
-};
+const UserSchema = z.object({
+  id: z.string().uuid(),
+  createdAt: z
+    .union([z.coerce.date(), z.number()])
+    .transform((x) => new Date(x)),
+  lastUsed: z
+    .union([z.coerce.date(), z.number()])
+    .transform((x) => new Date(x)),
+});
+
+export type User = z.output<typeof UserSchema>;
 
 export class UserStorage {
-  private readonly userData: UserData<User>;
+  private readonly userData: UserData<typeof UserSchema>;
   constructor(basePath?: string) {
-    this.userData = new UserData({
+    this.userData = new UserData(UserSchema, {
       subdir: 'Users',
       basePath,
     });
   }
 
-  async getOrCreate(id: string): Promise<User> {
+  async getOrCreate(id?: string): Promise<User> {
     if (!id) {
       return this.createUser();
     }
@@ -113,14 +143,9 @@ export class UserStorage {
   }
 
   async getUser(id: string): Promise<User> {
-    const user = await this.userData.readOne(this.getFileName(id), {
+    return await this.userData.readOne(id, {
       ignoreErrors: false,
     });
-    return {
-      id: user.id,
-      createdAt: new Date(user.createdAt),
-      lastUsed: new Date(user.lastUsed),
-    };
   }
 
   private async createUser(): Promise<User> {
@@ -133,7 +158,10 @@ export class UserStorage {
     return this.writeUser(user);
   }
 
-  async updateUser(id: string, attributes: Partial<User>): Promise<User> {
+  async updateUser(
+    id: string,
+    attributes: Partial<z.input<typeof UserSchema>>
+  ): Promise<User> {
     const user = await this.getUser(id);
     const newData = {
       ...user,
@@ -142,8 +170,8 @@ export class UserStorage {
     return this.writeUser(newData);
   }
 
-  private async writeUser(user: User): Promise<User> {
-    await this.userData.write(this.getFileName(user.id), user);
+  private async writeUser(user: z.input<typeof UserSchema>): Promise<User> {
+    await this.userData.write(user.id, user);
     return this.getUser(user.id);
   }
 

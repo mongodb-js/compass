@@ -94,7 +94,8 @@
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.1",
     "sinon": "^9.2.3",
-    "xvfb-maybe": "^0.2.1"
+    "xvfb-maybe": "^0.2.1",
+    "zod": "^3.22.2"
   },
   "dependencies": {
     "@mongodb-js/atlas-service": "^0.3.0",

@@ -1,0 +1,8 @@
+{
+  "_id": "b71b3eea-685c-40d5-b206-8e977d7bd5f3",
+  "filter": { "beds": 3, "description": { "$regex": "ber", "$options": "i" } },
+  "_lastExecuted": { "$date": "2023-08-30T19:04:03.928Z" },
+  "_ns": "self_airbnb.listings",
+  "_name": "beds in ber",
+  "_dateSaved": { "$date": "2023-08-30T19:04:36.119Z" }
+}

@@ -1,0 +1,30 @@
+{
+  "connectionInfo": {
+    "id": "61363d63-6e0f-4b58-bf16-e8cfa2b43f63",
+    "connectionOptions": {
+      "connectionString": "mongodb://localhost:27019/",
+      "oidc": {
+        "serializedState": "eyJvaWRjUGx1Z2luU3RhdGVWZXJzaW9uIjowLCJzdGF0ZSI6W119"
+      }
+    },
+    "favorite": { "name": "Fav - 1.38.0" },
+    "lastUsed": "2023-08-30T19:30:56.150Z"
+  },
+  "isSrvRecord": false,
+  "hostname": "localhost",
+  "port": 27019,
+  "hosts": [{ "host": "localhost", "port": 27019 }],
+  "extraOptions": {},
+  "connectionType": "NODE_DRIVER",
+  "authStrategy": "NONE",
+  "readPreference": "primary",
+  "directConnection": true,
+  "kerberosCanonicalizeHostname": false,
+  "sslMethod": "SYSTEMCA",
+  "sshTunnel": "NONE",
+  "sshTunnelPort": 22,
+  "_id": "61363d63-6e0f-4b58-bf16-e8cfa2b43f63",
+  "lastUsed": 1693423856150,
+  "isFavorite": true,
+  "name": "Fav - 1.38.0"
+}

@@ -3,12 +3,17 @@ import { expect } from 'chai';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import { v4 as uuid } from 'uuid';
+import { UUID } from 'bson';
 import { sortBy } from 'lodash';
+import type { ZodError } from 'zod';
 
 import { ConnectionStorage } from './connection-storage';
 import type { ConnectionInfo } from './connection-info';
 import Sinon from 'sinon';
+
+import connection1270 from './../test/fixtures/favorite_connection_1.27.0.json';
+import connection1310 from './../test/fixtures/favorite_connection_1.31.0.json';
+import connection1380 from './../test/fixtures/favorite_connection_1.38.0.json';
 
 function getConnectionFilePath(tmpDir: string, id: string): string {
   const connectionsDir = path.join(tmpDir, 'Connections');
@@ -18,7 +23,7 @@ function getConnectionFilePath(tmpDir: string, id: string): string {
 
 function getConnectionInfo(props: Partial<ConnectionInfo> = {}) {
   return {
-    id: uuid(),
+    id: new UUID().toString(),
     connectionOptions: {
       connectionString:
         'mongodb://localhost:27017/?readPreference=primary&ssl=false&directConnection=true',
@@ -188,7 +193,7 @@ describe('ConnectionStorage', function () {
 
   describe('save', function () {
     it('saves a valid connection object', async function () {
-      const id: string = uuid();
+      const id = new UUID().toString();
       try {
         await fs.access(getConnectionFilePath(tmpDir, id));
         expect.fail('Expected connction to not exist');
@@ -212,7 +217,7 @@ describe('ConnectionStorage', function () {
     });
 
     it('saves a connection with arbitrary authMechanism', async function () {
-      const id: string = uuid();
+      const id = new UUID().toString();
       await ConnectionStorage.save({
         connectionInfo: {
           id,
@@ -233,48 +238,61 @@ describe('ConnectionStorage', function () {
     });
 
     it('requires id to be set', async function () {
-      const error = await ConnectionStorage.save({
-        connectionInfo: {
-          id: '',
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017',
+      try {
+        await ConnectionStorage.save({
+          connectionInfo: {
+            id: '',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
           },
-        },
-      }).catch((err) => err);
-
-      expect(error.message).to.be.equal('id is required');
+        });
+      } catch (e) {
+        const errors = (e as ZodError).errors;
+        const message = errors[0].message;
+        expect(message).to.be.equal('Invalid uuid');
+      }
     });
 
     it('requires id to be a uuid', async function () {
-      const error = await ConnectionStorage.save({
-        connectionInfo: {
-          id: 'someid',
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017',
+      try {
+        await ConnectionStorage.save({
+          connectionInfo: {
+            id: 'someid',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
           },
-        },
-      }).catch((err) => err);
-
-      expect(error.message).to.be.equal('id must be a uuid');
+        });
+      } catch (e) {
+        const errors = (e as ZodError).errors;
+        const message = errors[0].message;
+        expect(message).to.be.equal('Invalid uuid');
+      }
     });
 
     it('requires connection string to be set', async function () {
-      const error = await ConnectionStorage.save({
-        connectionInfo: {
-          id: uuid(),
-          connectionOptions: {
-            connectionString: '',
+      try {
+        await ConnectionStorage.save({
+          connectionInfo: {
+            id: new UUID().toString(),
+            connectionOptions: {
+              connectionString: '',
+            },
           },
-        },
-      }).catch((err) => err);
-
-      expect(error.message).to.be.equal('Connection string is required.');
+        });
+        expect.fail('Expected connection string to be required.');
+      } catch (e) {
+        const errors = (e as ZodError).errors;
+        const message = errors[0].message;
+        expect(message).to.be.equal('Connection string is required.');
+      }
     });
 
     // In tests we can not use keytar and have it disabled. When saving any data,
     // its completely stored on disk without anything removed.
     it('it stores all the fleOptions on disk', async function () {
-      const id = uuid();
+      const id = new UUID().toString();
       const connectionInfo = {
         id,
         connectionOptions: {
@@ -303,7 +321,7 @@ describe('ConnectionStorage', function () {
     });
 
     it('saves a connection with _id', async function () {
-      const id = uuid();
+      const id = new UUID().toString();
       try {
         await fs.access(getConnectionFilePath(tmpDir, id));
       } catch (e) {
@@ -421,7 +439,7 @@ describe('ConnectionStorage', function () {
     });
 
     it('returns false if there are no favorite legacy connections', async function () {
-      const _id = uuid();
+      const _id = new UUID().toString();
 
       // Save a legacy connection (connection without connectionInfo, which is not favorite)
       const filePath = getConnectionFilePath(tmpDir, _id);
@@ -446,7 +464,7 @@ describe('ConnectionStorage', function () {
     });
 
     it('returns true if there are favorite legacy connections', async function () {
-      const _id = uuid();
+      const _id = new UUID().toString();
 
       // Save a legacy connection (connection without connectionInfo)
       const filePath = getConnectionFilePath(tmpDir, _id);
@@ -562,6 +580,67 @@ describe('ConnectionStorage', function () {
 
       const expectedConnections = await ConnectionStorage.loadAll();
       expect(expectedConnections).to.deep.equal([CONNECTIONS[1]]);
+    });
+  });
+
+  describe('supports connections from older version of compass', function () {
+    const storeConnection = async (connection: any) => {
+      const connectionFolder = path.join(tmpDir, 'Connections');
+      const connectionPath = path.join(
+        connectionFolder,
+        `${connection._id}.json`
+      );
+      await fs.mkdir(connectionFolder, { recursive: true });
+      await fs.writeFile(connectionPath, JSON.stringify(connection));
+    };
+
+    it('correctly identifies connection as legacy connection', async function () {
+      await storeConnection(connection1270);
+      const expectedConnection = await ConnectionStorage.load({
+        id: connection1270._id,
+      });
+      expect(expectedConnection).to.be.undefined;
+
+      const legacyConnections = await ConnectionStorage.getLegacyConnections();
+      expect(legacyConnections).to.deep.equal([{ name: connection1270.name }]);
+    });
+
+    it(`maps connectons with legacy props and connection info to just connection info`, async function () {
+      const connections = {
+        '1.31.0': connection1310,
+        '1.38.0': connection1380,
+      } as any;
+
+      for (const version in connections) {
+        const connection = connections[version];
+        await storeConnection(connection);
+        const expectedConnection = await ConnectionStorage.load({
+          id: connection._id,
+        });
+
+        expect(expectedConnection, version).to.not.be.undefined;
+
+        // Converts a legacy connection to new connectionInfo
+        expect(Object.keys(expectedConnection!)).to.deep.equal([
+          'id',
+          'lastUsed',
+          'favorite',
+          'connectionOptions',
+        ]);
+        expect(expectedConnection!.id, version).to.equal(connection._id);
+        expect(expectedConnection!.connectionOptions, version).to.deep.equal(
+          connection.connectionInfo.connectionOptions
+        );
+        expect(expectedConnection!.lastUsed, version).to.deep.equal(
+          new Date(connection.lastUsed)
+        );
+        expect(expectedConnection!.favorite?.name, version).to.equal(
+          connection.name
+        );
+        expect(expectedConnection!.favorite?.color, version).to.equal(
+          connection.color
+        );
+      }
     });
   });
 });

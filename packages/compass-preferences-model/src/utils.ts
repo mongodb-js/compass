@@ -23,7 +23,11 @@ function getActiveUserId() {
 
 export async function getActiveUser() {
   const userStorage = new UserStorage();
-  return userStorage.getUser(getActiveUserId());
+  const userId = getActiveUserId();
+  if (!userId) {
+    throw new Error('User not setup.');
+  }
+  return userStorage.getUser(userId);
 }
 
 export function capMaxTimeMSAtPreferenceLimit<T>(value: T): T | number {

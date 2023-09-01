@@ -15,6 +15,7 @@ import QueryHistory from '.';
 import { FavoriteQueryStorage, RecentQueryStorage } from '../../utils';
 import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
 import configureStore from '../../stores/query-bar-store';
+import { UUID } from 'bson';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },
@@ -26,13 +27,14 @@ const BASE_QUERY = {
 };
 
 const RECENT_QUERY = {
-  _id: 'one',
+  _id: new UUID().toString(),
+  _ns: 'sample.airbnb',
   _lastExecuted: new Date(),
   ...BASE_QUERY,
 };
 
 const FAVORITE_QUERY = {
-  _id: 'two',
+  _id: new UUID().toString(),
   _name: 'Best query',
   _lastExecuted: new Date(),
   ...BASE_QUERY,

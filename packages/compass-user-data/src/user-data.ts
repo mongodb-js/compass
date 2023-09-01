@@ -2,39 +2,48 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
+import type { z } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
 
-type SerializeContent<T> = (content: T) => string;
-type DeserializeContent<T> = (content: string) => T;
+type SerializeContent<I> = (content: I) => string;
+type DeserializeContent = (content: string) => unknown;
+type GetFileName = (id: string) => string;
 
-type UserDataOptions<T = unknown> = {
+export type UserDataOptions<Input> = {
   subdir: string;
   basePath?: string;
-  serialize?: SerializeContent<T>;
-  deserialize?: DeserializeContent<T>;
+  serialize?: SerializeContent<Input>;
+  deserialize?: DeserializeContent;
+  getFileName?: GetFileName;
 };
 
 type ReadOptions = {
   ignoreErrors: boolean;
 };
 
-export class UserData<T> {
+export class UserData<T extends z.Schema> {
   private readonly subdir: string;
   private readonly basePath?: string;
   private readonly serialize: SerializeContent<T>;
-  private readonly deserialize: DeserializeContent<T>;
+  private readonly deserialize: DeserializeContent;
+  private readonly getFileName: GetFileName;
 
-  constructor({
-    subdir,
-    basePath,
-    serialize = (content: T) => JSON.stringify(content, null, 2),
-    deserialize = JSON.parse,
-  }: UserDataOptions<T>) {
+  constructor(
+    private readonly validator: T,
+    {
+      subdir,
+      basePath,
+      serialize = (content: z.input<T>) => JSON.stringify(content, null, 2),
+      deserialize = JSON.parse,
+      getFileName = (id) => `${id}.json`,
+    }: UserDataOptions<z.input<T>>
+  ) {
     this.subdir = subdir;
     this.basePath = basePath;
     this.deserialize = deserialize;
     this.serialize = serialize;
+    this.getFileName = getFileName;
   }
 
   private async getEnsuredBasePath(): Promise<string> {
@@ -82,7 +91,8 @@ export class UserData<T> {
     }
 
     try {
-      return this.deserialize(data);
+      const content = this.deserialize(data);
+      return this.validator.parse(content);
     } catch (error) {
       log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
         path: absolutePath,
@@ -103,15 +113,17 @@ export class UserData<T> {
     const absolutePath = await this.getFileAbsolutePath();
     const filePathList = await fs.readdir(absolutePath);
     const data = await Promise.allSettled(
-      filePathList.map((x) => this.readOne(x, options))
+      filePathList.map((x) =>
+        this.readAndParseFile(path.join(absolutePath, x), options)
+      )
     );
 
-    const result = {
+    const result: {
+      data: z.output<T>[];
+      errors: Error[];
+    } = {
       data: [],
       errors: [],
-    } as {
-      data: T[];
-      errors: Error[];
     };
 
     for (const item of data) {
@@ -127,28 +139,36 @@ export class UserData<T> {
   }
 
   async readOne(
-    filepath: string,
+    id: string,
     options?: { ignoreErrors: false }
-  ): Promise<T>;
+  ): Promise<z.output<T>>;
   async readOne(
-    filepath: string,
+    id: string,
     options?: { ignoreErrors: true }
-  ): Promise<T | undefined>;
+  ): Promise<z.output<T> | undefined>;
   async readOne(
-    filepath: string,
+    id: string,
     options?: ReadOptions
-  ): Promise<T | undefined>;
+  ): Promise<z.output<T> | undefined>;
   async readOne(
-    filepath: string,
+    id: string,
     options: ReadOptions = {
       ignoreErrors: true,
     }
   ) {
+    const filepath = this.getFileName(id);
     const absolutePath = await this.getFileAbsolutePath(filepath);
     return await this.readAndParseFile(absolutePath, options);
   }
 
-  async write(filepath: string, content: T) {
+  async write(id: string, content: z.input<T>) {
+    // Validate the input. Here we are not saving the parsed content
+    // because after reading we validate the data again and it parses
+    // the read content back to the expected output. This way we ensure
+    // that we exactly save what we want without transforming it.
+    this.validator.parse(content);
+
+    const filepath = this.getFileName(id);
     const absolutePath = await this.getFileAbsolutePath(filepath);
     try {
       await fs.writeFile(absolutePath, this.serialize(content), {
@@ -164,7 +184,8 @@ export class UserData<T> {
     }
   }
 
-  async delete(filepath: string) {
+  async delete(id: string) {
+    const filepath = this.getFileName(id);
     const absolutePath = await this.getFileAbsolutePath(filepath);
     try {
       await fs.unlink(absolutePath);

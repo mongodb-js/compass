@@ -1,0 +1,9 @@
+{
+  "_id": "b35571b7-95eb-430f-bfba-f0b9fe2c3e42",
+  "filter": {
+    "name": { "$regularExpression": { "pattern": "cario", "options": "i" } }
+  },
+  "_lastExecuted": { "$date": "2023-08-30T19:33:15.065Z" },
+  "_ns": "self_airbnb.listings",
+  "_host": "localhost:27019"
+}

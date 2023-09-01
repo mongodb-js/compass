@@ -57,6 +57,7 @@
     "@mongodb-js/compass-user-data": "^0.1.0",
     "@mongodb-js/compass-components": "^1.12.0",
     "@mongodb-js/compass-logging": "^1.1.8",
+    "@mongodb-js/compass-user-data": "^0.1.0",
     "@mongodb-js/compass-utils": "^0.3.4",
     "@mongodb-js/mongodb-redux-common": "^2.0.10",
     "@mongosh/node-runtime-worker-thread": "^1.10.0",
@@ -66,6 +67,7 @@
     "@mongodb-js/compass-user-data": "^0.1.0",
     "@mongodb-js/compass-components": "^1.12.0",
     "@mongodb-js/compass-logging": "^1.1.8",
+    "@mongodb-js/compass-user-data": "^0.1.0",
     "@mongodb-js/compass-utils": "^0.3.4",
     "@mongodb-js/mongodb-redux-common": "^2.0.10",
     "@mongosh/node-runtime-worker-thread": "^1.10.0",
@@ -93,6 +95,7 @@
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",
     "redux": "^4.2.1",
-    "sinon": "^9.2.3"
+    "sinon": "^9.2.3",
+    "zod": "^3.22.2"
   }
 }

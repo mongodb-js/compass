@@ -8,8 +8,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
-import { z } from 'zod';
-import { pick } from 'lodash';
+import { z, ZodError } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
@@ -53,7 +52,7 @@ export type InternalUserPreferences = {
   id: string;
   lastKnownVersion: string;
   currentUserId?: string;
-  telemetryAnonymousId: string;
+  telemetryAnonymousId?: string;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -263,7 +262,7 @@ const allFeatureFlagsProps: Required<{
   ...featureFlagsProps,
 };
 
-const storedUserPreferencesProps: Required<{
+export const storedUserPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
   /**
@@ -343,7 +342,7 @@ const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: z.string().uuid(),
+    validator: z.string().uuid().optional(),
     type: 'string',
   },
   /**
@@ -778,25 +777,9 @@ export class Preferences {
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
     isSandbox?: boolean
   ) {
-    const defaultPreferences = Object.fromEntries(
-      Object.entries(storedUserPreferencesProps)
-        .map(([key, value]) => [
-          key,
-          (() => {
-            try {
-              return value.validator.parse(undefined);
-            } catch (e) {
-              // noop
-            }
-          })(),
-        ])
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .filter(([key, value]) => value !== undefined)
-    ) as UserPreferences;
-
     this._preferencesStorage = isSandbox
-      ? new SandboxPreferences(defaultPreferences)
-      : new StoragePreferences(defaultPreferences, basepath);
+      ? new SandboxPreferences()
+      : new StoragePreferences(basepath);
 
     this._onPreferencesChangedCallbacks = [];
     this._globalPreferences = {
@@ -862,18 +845,6 @@ export class Preferences {
       return originalPreferences;
     }
 
-    const invalidKey = keys.find((key) => !storedUserPreferencesProps[key]);
-    if (invalidKey !== undefined) {
-      // Guard against accidentally saving non-model settings here.
-      throw new Error(
-        `Setting "${invalidKey}" is not part of the preferences model`
-      );
-    }
-
-    for (const key of keys) {
-      storedUserPreferencesProps[key].validator.parse(attributes[key]);
-    }
-
     try {
       await this._preferencesStorage.updatePreferences(attributes);
     } catch (err) {
@@ -885,6 +856,9 @@ export class Preferences {
           error: (err as Error).message,
         }
       );
+      if (err instanceof ZodError) {
+        throw err;
+      }
     }
 
     const newPreferences = this.getPreferences();
@@ -917,13 +891,8 @@ export class Preferences {
     return this._computePreferenceValuesAndStates().values;
   }
 
-  private _getUserPreferenceValues(): UserPreferences {
-    const storePreferences = this._preferencesStorage.getPreferences();
-    // Exclude old and renamed preferences or any unknown property
-    return pick(
-      storePreferences,
-      Object.keys(storedUserPreferencesProps)
-    ) as UserPreferences;
+  private _getUserPreferenceValues() {
+    return this._preferencesStorage.getPreferences();
   }
 
   private _getStoredValues(): AllPreferences {

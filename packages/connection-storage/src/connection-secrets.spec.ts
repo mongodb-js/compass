@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import type { ConnectionInfo } from './connection-info';
 import type { ConnectionSecrets } from './connection-secrets';
 import { mergeSecrets, extractSecrets } from './connection-secrets';
-import { v4 as uuid } from 'uuid';
+import { UUID } from 'bson';
 
 describe('connection secrets', function () {
   describe('mergeSecrets', function () {
@@ -396,7 +396,7 @@ describe('connection secrets', function () {
 
     context('extracts fle secrets', function () {
       it('does not extract fle secrets if fleOptions.storeCredentials is false', function () {
-        const id = uuid();
+        const id = new UUID().toString();
         const connectionInfo = {
           id,
           connectionOptions: {
@@ -419,7 +419,7 @@ describe('connection secrets', function () {
         expect(secrets).to.deep.equal({});
       });
       it('extracts fle secrets if fleOptions.storeCredentials is true', function () {
-        const id = uuid();
+        const id = new UUID().toString();
         const connectionInfo = {
           id,
           connectionOptions: {
