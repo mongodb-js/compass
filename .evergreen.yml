@@ -1,5 +1,6 @@
 stepback: false
 exec_timeout_secs: 5400
+unset_function_vars: true
 ignore:
   - AUTHORS
   - THIRD-PARTY-NOTICES.md

@@ -352,6 +352,7 @@ export const runStage = (
       };
       // We are not handling cancelling, just supporting `aggregatePipeline` interface
       const { signal } = new AbortController();
+      console.log('aggregatePipeline via runStage', new Error().stack);
       const result = await aggregatePipeline({
         dataService,
         signal,

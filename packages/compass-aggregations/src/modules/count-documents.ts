@@ -107,6 +107,7 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
         collation: collation ?? undefined,
       };
 
+      console.log('aggregatePipeline via countDocuments', new Error().stack);
       const [{ count }] = await aggregatePipeline({
         dataService,
         signal,

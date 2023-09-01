@@ -294,6 +294,10 @@ const fetchAggregationData = (
         getStageOperator(lastStage) ?? ''
       );
 
+      console.log(
+        'aggregatePipeline via fetchAggregationData',
+        new Error().stack
+      );
       const documents = await aggregatePipeline({
         dataService,
         signal,

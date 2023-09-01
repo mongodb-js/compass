@@ -99,15 +99,21 @@ export class PipelinePreviewManager {
       await cancellableWait(options.debounceMs ?? 700, controller.signal);
     }
     this.lastPipeline.set(idx, pipeline);
+    const previewPipeline = createPreviewAggregation(pipeline, {
+      sampleSize,
+      previewSize,
+      totalDocumentCount,
+    });
+    console.log(
+      'aggregatePipeline via getPreviewForStage',
+      previewPipeline,
+      new Error().stack
+    );
     const result = await aggregatePipeline({
       dataService: this.dataService,
       signal: controller.signal,
       namespace,
-      pipeline: createPreviewAggregation(pipeline, {
-        sampleSize,
-        previewSize,
-        totalDocumentCount,
-      }),
+      pipeline: previewPipeline,
       options,
     });
     this.queue.delete(idx);
