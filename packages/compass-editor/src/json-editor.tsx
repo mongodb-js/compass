@@ -555,7 +555,7 @@ export type EditorRef = {
   prettify: () => boolean;
   applySnippet: (template: string) => boolean;
   focus: () => boolean;
-  readonly editorContents: string | false;
+  readonly editorContents: string | null;
   readonly editor: EditorView | null;
 };
 
@@ -665,7 +665,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         },
         get editorContents() {
           if (!editorViewRef.current) {
-            return false;
+            return null;
           }
 
           return getEditorContents(editorViewRef.current);
@@ -1289,7 +1289,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
             return editorRef.current?.applySnippet(template) ?? false;
           },
           get editorContents() {
-            return editorRef.current?.editorContents ?? false;
+            return editorRef.current?.editorContents ?? null;
           },
           get editor() {
             return editorRef.current?.editor ?? null;
@@ -1425,43 +1425,17 @@ async function setCodemirrorEditorValue(
  * getCodemirrorEditorValue(screen.getByTestId('editor-test-id'));
  * ```
  */
-async function getCodemirrorEditorValue(
+function getCodemirrorEditorValue(
   element: HTMLElement | string | null
-): Promise<string> {
+): string {
   if (typeof element === 'string') {
     element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
   }
-  if (!element || !element.hasAttribute('data-codemirror')) {
+  const editorView = (element as any)?._cm ?? (element as any)?.cmView?.view;
+  if (!editorView) {
     throw new Error('Cannot find editor container');
   }
-  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
-  await waitUntilEditorIsReady(editorView);
-
-  return editorView.state.sliceDoc() ?? '';
-}
-
-/**
- * Clicks on the codemirror editor and waits for all events to be processed.
- * This shouldn't be necessary, but it seems that focus events are a bit special
- * on Codemirror.
- *
- * ```
- * render(<Editor data-testid='my-editor' />);
- * clickOnCodemirrorHandler(screen.getByTestId('editor-test-id'));
- * ```
- */
-async function clickOnCodemirrorHandler(
-  element: HTMLElement | string | null
-): Promise<void> {
-  if (typeof element === 'string') {
-    element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
-  }
-  if (!element || !element.hasAttribute('data-codemirror')) {
-    throw new Error('Cannot find editor container');
-  }
-  const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
-  editorView.focus();
-  await waitUntilEditorIsReady(editorView);
+  return getEditorContents(editorView);
 }
 
 export { BaseEditor };
@@ -1469,5 +1443,4 @@ export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };
 export { getCodemirrorEditorValue };
-export { clickOnCodemirrorHandler };
 export type { CompletionSource as Completer };

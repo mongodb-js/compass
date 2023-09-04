@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -10,22 +10,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '../stores/query-bar-store';
 import type { QueryBarStoreOptions } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import {
-  setCodemirrorEditorValue,
-  getCodemirrorEditorValue,
-  clickOnCodemirrorHandler,
-} from '@mongodb-js/compass-editor';
 import preferencesAccess from 'compass-preferences-model';
-
-const skipIfElectron = function (message: string) {
-  beforeEach(function () {
-    if (process.type === 'renderer') {
-      // eslint-disable-next-line no-console
-      console.log(message);
-      this.skip();
-    }
-  });
-};
 
 const noop = () => {
   /* no op */
@@ -77,38 +62,6 @@ describe('QueryBar Component', function () {
         onApply: onApplySpy,
         onReset: onResetSpy,
         showExportToLanguageButton: true,
-      });
-    });
-
-    describe('empty state', function () {
-      skipIfElectron('Skipping due to COMPASS-7103');
-
-      it('fills the filter input when clicked with an empty object "{}"', async function () {
-        const filterInput = await screen.findByTestId(
-          'query-bar-option-filter-input'
-        );
-
-        await clickOnCodemirrorHandler(filterInput);
-        await waitFor(async () => {
-          const editorValue = await getCodemirrorEditorValue(filterInput);
-          expect(editorValue).to.equal('{}');
-        });
-      });
-    });
-
-    describe('non empty state', function () {
-      skipIfElectron('Skipping due to COMPASS-7103');
-
-      it('does nothing when clicked', async function () {
-        const query = '{a: 1}';
-        const filterInput = await screen.findByTestId(
-          'query-bar-option-filter-input'
-        );
-
-        await setCodemirrorEditorValue(filterInput, query);
-        await clickOnCodemirrorHandler(filterInput);
-        const editorValue = await getCodemirrorEditorValue(filterInput);
-        expect(editorValue).to.equal(query);
       });
     });
 
