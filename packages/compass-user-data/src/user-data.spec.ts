@@ -17,6 +17,7 @@ const getTestSchema = (
     name: z.string().default('Compass'),
     hasDarkMode: z.boolean().default(true),
     hasWebSupport: z.boolean().default(false),
+    ctimeMs: z.number().optional(),
   });
 
   if (options.allowUnknownProps) {
@@ -122,6 +123,31 @@ describe('user-data', function () {
       });
       expect(result.data).to.have.lengthOf(0);
       expect(result.errors).to.have.lengthOf(2);
+    });
+
+    it('return file stats when specified', async function () {
+      await Promise.all(
+        [
+          ['data1.json', JSON.stringify({ name: 'VSCode' })],
+          ['data2.json', JSON.stringify({ name: 'Mongosh' })],
+        ].map(([filepath, data]) => writeFileToStorage(filepath, data))
+      );
+
+      const { data } = await getUserData().readAll({
+        ignoreErrors: true,
+        readFileStats: true,
+        mergeStats(input, stats) {
+          return {
+            ...input,
+            ctimeMs: Number(stats.ctimeMs),
+          };
+        },
+      });
+      for (const item of data) {
+        expect(Object.keys(item).sort()).to.deep.equal(
+          ['ctimeMs', 'hasDarkMode', 'hasWebSupport', 'name'].sort()
+        );
+      }
     });
   });
 
@@ -261,6 +287,30 @@ describe('user-data', function () {
         name: 'Mongosh',
         company: 'MongoDB',
       });
+    });
+
+    it('return file stats when specified', async function () {
+      await writeFileToStorage(
+        'data.json',
+        JSON.stringify({
+          name: 'Mongosh',
+          company: 'MongoDB',
+        })
+      );
+
+      const data = await getUserData().readOne('data', {
+        ignoreErrors: false,
+        readFileStats: true,
+        mergeStats(input: any, stats: any) {
+          return {
+            ...input,
+            ctimeMs: Number(stats.ctimeMs),
+          };
+        },
+      });
+      expect(Object.keys(data!).sort()).to.deep.equal(
+        ['ctimeMs', 'hasDarkMode', 'hasWebSupport', 'name'].sort()
+      );
     });
   });
 

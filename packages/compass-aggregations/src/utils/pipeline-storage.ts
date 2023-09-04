@@ -1,25 +1,9 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { z } from 'zod';
+import { UserData } from '@mongodb-js/compass-user-data';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { getDirectory } from './get-directory';
 import { prettify } from '../modules/pipeline-builder/pipeline-parser/utils';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
-
-const ENCODING_UTF8 = 'utf8';
-
-export type StoredPipeline = {
-  id: string;
-  name: string;
-  namespace: string;
-  comments?: boolean;
-  autoPreview?: boolean;
-  collationString?: string;
-  pipeline?: { stageOperator: string; isEnabled: boolean; stage: string }[];
-  host?: string | null;
-  pipelineText: string;
-  lastModified: number;
-};
 
 function stageToString(
   operator: string,
@@ -40,7 +24,7 @@ function stageToString(
     .join('\n');
 }
 
-function savedPipelineToText(pipeline: StoredPipeline['pipeline']): string {
+function savedPipelineToText(pipeline?: any[]): string {
   const stages =
     pipeline?.map(({ stageOperator, isEnabled, stage }) =>
       stageToString(stageOperator, stage, !isEnabled)
@@ -57,88 +41,84 @@ function savedPipelineToText(pipeline: StoredPipeline['pipeline']): string {
   }
 }
 
-function hasAllRequiredKeys(pipeline?: any): pipeline is StoredPipeline {
-  return (
-    pipeline &&
-    typeof pipeline === 'object' &&
-    ['id', 'name', 'namespace'].every((key) => key in pipeline)
-  );
-}
+const PipelineSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    namespace: z.string(),
+    comments: z.boolean().optional(),
+    autoPreview: z.boolean().optional(),
+    collationString: z.string().optional(),
+    pipeline: z
+      .array(
+        z.object({
+          stageOperator: z.string(),
+          isEnabled: z.boolean(),
+          stage: z.string(),
+        })
+      )
+      .optional()
+      .describe('Legacy property to stored pipeline. Use pipelineText.'),
+    host: z.string().nullable().optional(),
+    pipelineText: z.string().optional(),
+    lastModified: z
+      .number()
+      .transform((x) => new Date(x))
+      .optional(),
+  })
+  .transform((input) => {
+    const {
+      pipeline: legacyPipelineArray,
+      pipelineText,
+      ...restOfInput
+    } = input;
+    return {
+      ...restOfInput,
+      pipelineText: pipelineText ?? savedPipelineToText(legacyPipelineArray),
+    };
+  });
+
+export type StoredPipeline = z.output<typeof PipelineSchema>;
+
+type SaveablePipeline = Omit<z.input<typeof PipelineSchema>, 'pipeline'>;
 
 export class PipelineStorage {
+  private readonly userData: UserData<typeof PipelineSchema>;
+  constructor(basePath?: string) {
+    this.userData = new UserData(PipelineSchema, {
+      subdir: 'SavedPipelines',
+      basePath,
+    });
+  }
   async loadAll(): Promise<StoredPipeline[]> {
     try {
-      const dir = getDirectory();
-      const files = (await fs.readdir(dir))
-        .filter((file) => file.endsWith('.json'))
-        .map((file) => path.join(dir, file));
-
-      return (
-        await Promise.all(files.map((filePath) => this._loadOne(filePath)))
-      ).filter(Boolean) as StoredPipeline[];
+      const { data } = await this.userData.readAll({
+        ignoreErrors: false,
+        readFileStats: true,
+        mergeStats(input, stats) {
+          return {
+            ...input,
+            lastModified: Number(stats.mtimeMs),
+          };
+        },
+      });
+      return data;
     } catch (e) {
+      debug('Failed to read saved pipelines.', e);
       return [];
     }
   }
 
-  async load(id: string): Promise<StoredPipeline | null> {
-    return this._loadOne(path.join(getDirectory(), `${id}.json`));
-  }
-
-  async _loadOne(filePath: string): Promise<StoredPipeline | null> {
-    try {
-      const [data, stats] = await Promise.all([
-        this._getFileData(filePath),
-        fs.stat(filePath),
-      ]);
-      if (!hasAllRequiredKeys(data)) {
-        return null;
-      }
-      return {
-        ...data,
-        lastModified: stats.mtimeMs,
-        pipelineText: data.pipelineText ?? savedPipelineToText(data.pipeline),
-      };
-    } catch (err) {
-      debug(`Failed to load pipeline ${path.basename(filePath)}`, err);
-      return null;
-    }
-  }
-
-  async _getFileData(filePath: string): Promise<unknown> {
-    const data = await fs.readFile(filePath, ENCODING_UTF8);
-    return JSON.parse(data);
-  }
-
-  /**
-   * Updates attributes of an pipeline.
-   */
-  async updateAttributes(id: string, attributes: Partial<StoredPipeline>) {
-    if (!id) {
-      throw new Error('pipelineId is required');
-    }
-    const dir = getDirectory();
-    // If we are creating a new item and none were created before this directory
-    // might be missing
-    await fs.mkdir(dir, { recursive: true });
-    const filePath = path.join(dir, `${id}.json`);
-    // lastModified is generated on file load, we don't want to store it
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { lastModified, ...data } = (await this._loadOne(filePath)) ?? {};
-    const updated = {
-      ...data,
+  async updateAttributes(id: string, attributes: Partial<SaveablePipeline>) {
+    await this.userData.write(id, {
+      ...((await this.userData.readOne(id)) ?? {}),
+      lastModified: Date.now(),
       ...attributes,
-    };
-    await fs.writeFile(
-      filePath,
-      JSON.stringify(updated, null, 2),
-      ENCODING_UTF8
-    );
-    return updated;
+    });
+    return await this.userData.readOne(id);
   }
 
   async delete(id: string) {
-    const file = path.join(getDirectory(), `${id}.json`);
-    return fs.unlink(file);
+    await this.userData.delete(id);
   }
 }

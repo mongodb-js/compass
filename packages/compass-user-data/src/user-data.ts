@@ -7,26 +7,37 @@ import type { z } from 'zod';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
 
 type SerializeContent<I> = (content: I) => string;
-type DeserializeContent = (content: string) => unknown;
+type DeserializeContent<I> = (content: string) => I;
 type GetFileName = (id: string) => string;
+
+type FileStats = Awaited<ReturnType<typeof fs.stat>>;
 
 export type UserDataOptions<Input> = {
   subdir: string;
   basePath?: string;
   serialize?: SerializeContent<Input>;
-  deserialize?: DeserializeContent;
+  deserialize?: DeserializeContent<Input>;
   getFileName?: GetFileName;
 };
 
-type ReadOptions = {
+type ReadStatsOptions<T> =
+  | {
+      readFileStats?: false;
+    }
+  | {
+      readFileStats: true;
+      mergeStats: (input: T, stats: FileStats) => T;
+    };
+
+type ReadOptions<T> = ReadStatsOptions<T> & {
   ignoreErrors: boolean;
 };
 
 export class UserData<T extends z.Schema> {
   private readonly subdir: string;
   private readonly basePath?: string;
-  private readonly serialize: SerializeContent<T>;
-  private readonly deserialize: DeserializeContent;
+  private readonly serialize: SerializeContent<z.input<T>>;
+  private readonly deserialize: DeserializeContent<z.input<T>>;
   private readonly getFileName: GetFileName;
 
   constructor(
@@ -75,10 +86,17 @@ export class UserData<T extends z.Schema> {
     return path.resolve(root, pathRelativeToRoot);
   }
 
-  private async readAndParseFile(absolutePath: string, options: ReadOptions) {
+  private async readAndParseFile(
+    absolutePath: string,
+    options: ReadOptions<z.input<T>>
+  ) {
     let data: string;
+    let stats: FileStats | null = null;
     try {
-      data = await fs.readFile(absolutePath, 'utf-8');
+      [data, stats] = await Promise.all([
+        fs.readFile(absolutePath, 'utf-8'),
+        options.readFileStats ? fs.stat(absolutePath) : null,
+      ]);
     } catch (error) {
       log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
         path: absolutePath,
@@ -91,7 +109,10 @@ export class UserData<T extends z.Schema> {
     }
 
     try {
-      const content = this.deserialize(data);
+      let content = this.deserialize(data);
+      if (options.readFileStats && stats) {
+        content = options.mergeStats(content, stats);
+      }
       return this.validator.parse(content);
     } catch (error) {
       log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
@@ -106,7 +127,7 @@ export class UserData<T extends z.Schema> {
   }
 
   async readAll(
-    options: ReadOptions = {
+    options: ReadOptions<z.input<T>> = {
       ignoreErrors: true,
     }
   ) {
@@ -148,11 +169,11 @@ export class UserData<T extends z.Schema> {
   ): Promise<z.output<T> | undefined>;
   async readOne(
     id: string,
-    options?: ReadOptions
+    options?: ReadOptions<z.input<T>>
   ): Promise<z.output<T> | undefined>;
   async readOne(
     id: string,
-    options: ReadOptions = {
+    options: ReadOptions<z.input<T>> = {
       ignoreErrors: true,
     }
   ) {
