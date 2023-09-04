@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-
+import { pipelines as PipelineFixtures } from '../../test/fixtures';
 import { PipelineStorage } from './pipeline-storage';
 
 const getEnsuredFilePath = async (tmpDir: string, fileId: string) => {
@@ -188,4 +188,22 @@ describe('PipelineStorage', function () {
     aggregations = await pipelineStorage.loadAll();
     expect(aggregations).to.have.length(0);
   });
+
+  for (const { version, data: pipeline } of PipelineFixtures) {
+    it(`supports saved pipelines from Compass v${version}`, async function () {
+      await createPipeline(tmpDir, pipeline);
+
+      const savedPipeline = (await pipelineStorage.loadAll()).find(
+        (x) => x.id === pipeline.id
+      );
+
+      expect(savedPipeline).to.exist;
+
+      expect(savedPipeline!.name).to.equal(pipeline.name);
+      expect(savedPipeline!.namespace).to.equal(pipeline.namespace);
+
+      expect(savedPipeline).to.not.have.property('pipeline');
+      expect(savedPipeline).to.have.property('pipelineText');
+    });
+  }
 });

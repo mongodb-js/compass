@@ -1,0 +1,30 @@
+{
+  "namespace": "self_airbnb.listings",
+  "env": "on-prem",
+  "pipeline": [
+    {
+      "id": "64ef92c821ef4685b2f399a0",
+      "stageOperator": "$match",
+      "stage": "/**\n * query: The query in MQL.\n */\n{\n  description: /ber/i,\n  bedrooms: {\n    $gt: 2\n  }\n}",
+      "isValid": true,
+      "isEnabled": true,
+      "isExpanded": true,
+      "isLoading": false,
+      "isComplete": true,
+      "previewDocuments": [],
+      "syntaxError": null,
+      "error": null,
+      "projections": [],
+      "snippet": "/**\n * query: The query in MQL.\n */\n{\n  ${1:query}\n}",
+      "fromStageOperators": false,
+      "executor": { "$match": { "description": {}, "bedrooms": { "$gt": 2 } } }
+    }
+  ],
+  "name": "two bedrooms in ber",
+  "id": "64ef935521ef4685b2f399a5",
+  "comments": true,
+  "sample": true,
+  "autoPreview": true,
+  "collation": null,
+  "collationString": ""
+}
