@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import type { Stats } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
@@ -9,8 +10,6 @@ const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent<I> = (content: string) => I;
 type GetFileName = (id: string) => string;
-
-type FileStats = Awaited<ReturnType<typeof fs.stat>>;
 
 export type UserDataOptions<Input> = {
   subdir: string;
@@ -26,7 +25,7 @@ type ReadStatsOptions<T> =
     }
   | {
       readFileStats: true;
-      mergeStats: (input: T, stats: FileStats) => T;
+      mergeStats: (input: T, stats: Stats) => T;
     };
 
 type ReadOptions<T> = ReadStatsOptions<T> & {
@@ -91,7 +90,7 @@ export class UserData<T extends z.Schema> {
     options: ReadOptions<z.input<T>>
   ) {
     let data: string;
-    let stats: FileStats | null = null;
+    let stats: Stats | null = null;
     try {
       [data, stats] = await Promise.all([
         fs.readFile(absolutePath, 'utf-8'),
