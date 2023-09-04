@@ -223,8 +223,13 @@ app.extend({
           APP_VERSION,
           process.env.HADRON_PRODUCT_NAME
         );
-        const user = await getActiveUser();
-        setupIntercom(user);
+
+        try {
+          const user = await getActiveUser();
+          setupIntercom(user);
+        } catch (e) {
+          // noop
+        }
         // Catch a data refresh coming from window-manager.
         ipc.on('app:refresh-data', () =>
           global.hadronApp.appRegistry.emit('refresh-data')

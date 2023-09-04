@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Provider } from 'react-redux';
 import CompassShellStore from './stores';
-import { getUserDataFilePath } from './modules/get-user-data-file-path';
 import { HistoryStorage } from './modules/history-storage';
 
 function createPlugin() {
@@ -12,10 +11,7 @@ function createPlugin() {
     const historyStorage = useRef(null);
 
     if (!historyStorage.current) {
-      const historyFilePath = getUserDataFilePath('shell-history.json');
-      if (historyFilePath) {
-        historyStorage.current = new HistoryStorage(historyFilePath);
-      }
+      historyStorage.current = new HistoryStorage();
     }
 
     useEffect(() => {

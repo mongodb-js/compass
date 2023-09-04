@@ -1,13 +1,12 @@
 import ConnectionString from 'mongodb-connection-string-url';
-import { getStoragePaths } from '@mongodb-js/compass-utils';
+import { getAppName } from '@mongodb-js/compass-utils';
 
 import type { ConnectionInfo } from './connection-info';
 import type { ConnectionSecrets } from './connection-secrets';
 
 export function getKeytarServiceName() {
-  const { appName } = getStoragePaths() ?? {};
   const namespace = 'Connections';
-  return `${appName}/${namespace}`;
+  return `${getAppName()}/${namespace}`;
 }
 
 export function deleteCompassAppNameParam(

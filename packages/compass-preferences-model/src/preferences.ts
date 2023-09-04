@@ -8,8 +8,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
-import Joi from 'joi';
-import { pick } from 'lodash';
+import { z, ZodError } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
@@ -53,7 +52,7 @@ export type InternalUserPreferences = {
   id: string;
   lastKnownVersion: string;
   currentUserId?: string;
-  telemetryAnonymousId: string;
+  telemetryAnonymousId?: string;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -91,6 +90,20 @@ type PostProcessFunction<T> = (
   error: (message: string) => void
 ) => T;
 
+type PreferenceType<T> = T extends string
+  ? 'string'
+  : T extends boolean
+  ? 'boolean'
+  : T extends number
+  ? 'number'
+  : T extends unknown[]
+  ? 'array'
+  : T extends Date
+  ? 'date'
+  : T extends object
+  ? 'object'
+  : never;
+
 type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
@@ -121,7 +134,12 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
       ? boolean
       : false
     : boolean;
-  validator: Joi.Schema<AllPreferences[K]>;
+  validator: z.Schema<
+    AllPreferences[K],
+    z.ZodTypeDef,
+    AllPreferences[K] | undefined
+  >;
+  type: PreferenceType<AllPreferences[K]>;
 };
 
 type DeriveValueFunction<T> = (
@@ -190,7 +208,8 @@ function featureFlagToPreferenceDefinition(
       featureFlag.stage === 'released'
         ? () => ({ value: true, state: 'hardcoded' })
         : undefined,
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   };
 }
 
@@ -217,9 +236,11 @@ const allFeatureFlagsProps: Required<{
     description: {
       short: 'Show Developer Feature Flags',
     },
-    validator: Joi.boolean()
+    validator: z
+      .boolean()
       .optional()
       .default(process.env.HADRON_CHANNEL === 'dev'),
+    type: 'boolean',
   },
 
   /**
@@ -234,13 +255,14 @@ const allFeatureFlagsProps: Required<{
     description: {
       short: 'CSFLE Schema Map Debugging',
     },
-    validator: Joi.boolean().optional(),
+    validator: z.boolean().optional(),
+    type: 'boolean',
   },
 
   ...featureFlagsProps,
 };
 
-const storedUserPreferencesProps: Required<{
+export const storedUserPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
   /**
@@ -251,7 +273,8 @@ const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: Joi.string().default('General'),
+    validator: z.string().default('General'),
+    type: 'string',
   },
   /**
    * Stores the last version compass was run as, e.g. `1.0.5`.
@@ -261,7 +284,8 @@ const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: Joi.string().default('0.0.0'),
+    validator: z.string().default('0.0.0'),
+    type: 'string',
   },
   /**
    * Stores whether or not the network opt-in screen has been shown to
@@ -273,7 +297,8 @@ const storedUserPreferencesProps: Required<{
     global: false,
     description: null,
     omitFromHelp: true,
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Stores the theme preference for the user.
@@ -285,11 +310,15 @@ const storedUserPreferencesProps: Required<{
     description: {
       short: 'Compass UI Theme',
     },
-    validator: Joi.string<THEMES>()
-      .valid(...THEMES_VALUES)
-      .uppercase() // allow lowercase and convert it to uppercase
-      .empty('') // allow empty string and its defaulted to LIGHT
+    validator: z
+      .effect(z.enum(THEMES_VALUES), {
+        type: 'preprocess',
+        transform: (val) =>
+          typeof val !== 'string' ? val : (val || 'light').toUpperCase(),
+      })
+      .optional()
       .default('LIGHT'),
+    type: 'string',
   },
   /**
    * Stores a unique MongoDB ID for the current user.
@@ -302,7 +331,8 @@ const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: Joi.string().optional(),
+    validator: z.string().optional(),
+    type: 'string',
   },
   /**
    * Stores a unique telemetry anonymous ID (uuid) for the current user.
@@ -312,7 +342,8 @@ const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: Joi.string().uuid(),
+    validator: z.string().uuid().optional(),
+    type: 'string',
   },
   /**
    * Master switch to disable all network traffic
@@ -327,7 +358,8 @@ const storedUserPreferencesProps: Required<{
     description: {
       short: 'Enable network traffic other than to the MongoDB database',
     },
-    validator: Joi.boolean().default(true),
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
   /**
    * Removes features that write to the database from the UI.
@@ -340,7 +372,8 @@ const storedUserPreferencesProps: Required<{
       short: 'Set Read-Only Mode',
       long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
     },
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Switch to enable/disable the embedded shell.
@@ -354,7 +387,8 @@ const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
-    validator: Joi.boolean().default(true),
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
   /**
    * Switch to enable/disable maps rendering.
@@ -368,7 +402,8 @@ const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
@@ -382,7 +417,8 @@ const storedUserPreferencesProps: Required<{
       long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableFeedbackPanel'),
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Switch to enable/disable usage statistics collection
@@ -397,7 +433,8 @@ const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to send anonymous usage statistics.',
     },
     deriveValue: deriveNetworkTrafficOptionState('trackUsageStatistics'),
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Switch to enable/disable automatic updates.
@@ -411,7 +448,8 @@ const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to periodically check for new updates.',
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Switch to hide credentials in connection strings from users.
@@ -424,7 +462,8 @@ const storedUserPreferencesProps: Required<{
       short: 'Protect Connection String Secrets',
       long: 'Hide credentials in connection strings from users.',
     },
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Switch to enable DevTools in Electron.
@@ -438,7 +477,8 @@ const storedUserPreferencesProps: Required<{
       long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
     },
     deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
-    validator: Joi.boolean().default(process.env.APP_ENV === 'webdriverio'),
+    validator: z.boolean().default(process.env.APP_ENV === 'webdriverio'),
+    type: 'boolean',
   },
   /**
    * Switch to show the Kerberos password field in the connection form.
@@ -451,7 +491,8 @@ const storedUserPreferencesProps: Required<{
       short: 'Show Kerberos Password Field',
       long: 'Show a password field for Kerberos authentication. Typically only useful when attempting to authenticate as another user than the current system user.',
     },
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Switch to show the OIDC device auth flow option in the connection form.
@@ -464,7 +505,8 @@ const storedUserPreferencesProps: Required<{
       short: 'Show Device Auth Flow Checkbox',
       long: 'Show a checkbox on the connection form to enable device auth flow authentication. This enables a less secure authentication flow that can be used as a fallback when browser-based authentication is unavailable.',
     },
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   /**
    * Input to change the browser command used for OIDC authentication.
@@ -477,7 +519,8 @@ const storedUserPreferencesProps: Required<{
       short: 'Browser command to use for OIDC Authentication',
       long: 'Specify a shell command that is run to start the browser for authenticating with the OIDC identity provider. Leave this empty for default browser.',
     },
-    validator: Joi.string().optional(),
+    validator: z.string().optional(),
+    type: 'string',
   },
   /**
    * Input to change the browser command used for OIDC authentication.
@@ -490,7 +533,8 @@ const storedUserPreferencesProps: Required<{
       short: 'Stay logged in with OIDC',
       long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism. Access tokens are encrypted using the system keychain before being stored.',
     },
-    validator: Joi.boolean().default(true),
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
   /**
    * Override certain connection string properties.
@@ -504,9 +548,8 @@ const storedUserPreferencesProps: Required<{
       long: 'Force connection string properties to take specific values',
     },
     customPostProcess: parseRecord,
-    validator: Joi.array()
-      .items(Joi.array().length(2).items(Joi.string()))
-      .optional(),
+    validator: z.array(z.tuple([z.string(), z.string()])).optional(),
+    type: 'array',
   },
   /**
    * Set an upper limit for maxTimeMS for operations started by Compass.
@@ -518,7 +561,8 @@ const storedUserPreferencesProps: Required<{
     description: {
       short: 'Upper Limit for maxTimeMS for Compass Database Operations',
     },
-    validator: Joi.number().optional(),
+    validator: z.number().optional(),
+    type: 'number',
   },
   /**
    * Do not handle mongodb:// and mongodb+srv:// URLs via Compass
@@ -531,7 +575,8 @@ const storedUserPreferencesProps: Required<{
       short: 'Install Compass as URL Protocol Handler',
       long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
     },
-    validator: Joi.boolean().default(true),
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
   /**
    * Determines if the toggle to edit connection string for new connections
@@ -545,7 +590,8 @@ const storedUserPreferencesProps: Required<{
       short:
         'If true, "Edit connection string" is disabled for new connections by default',
     },
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   ...allFeatureFlagsProps,
 };
@@ -561,7 +607,8 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Export Favorite Connections',
       long: 'Export Compass favorite connections. Can be used with --passphrase.',
     },
-    validator: Joi.string().optional(),
+    validator: z.string().optional(),
+    type: 'string',
   },
   importConnections: {
     ui: false,
@@ -571,7 +618,8 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Import Favorite Connections',
       long: 'Import Compass favorite connections. Can be used with --passphrase.',
     },
-    validator: Joi.string().optional(),
+    validator: z.string().optional(),
+    type: 'string',
   },
   passphrase: {
     ui: false,
@@ -581,7 +629,8 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Connection Export/Import Passphrase',
       long: 'Specify a passphrase for encrypting/decrypting secrets.',
     },
-    validator: Joi.string().optional(),
+    validator: z.string().optional(),
+    type: 'string',
   },
   help: {
     ui: false,
@@ -590,7 +639,8 @@ const cliOnlyPreferencesProps: Required<{
     description: {
       short: 'Show Compass Options',
     },
-    validator: Joi.boolean().optional(),
+    validator: z.boolean().optional(),
+    type: 'boolean',
   },
   version: {
     ui: false,
@@ -599,7 +649,8 @@ const cliOnlyPreferencesProps: Required<{
     description: {
       short: 'Show Compass Version',
     },
-    validator: Joi.boolean().optional(),
+    validator: z.boolean().optional(),
+    type: 'boolean',
   },
   showExampleConfig: {
     ui: false,
@@ -608,7 +659,8 @@ const cliOnlyPreferencesProps: Required<{
     description: {
       short: 'Show Example Config File',
     },
-    validator: Joi.boolean().optional(),
+    validator: z.boolean().optional(),
+    type: 'boolean',
   },
 };
 
@@ -623,7 +675,8 @@ const nonUserPreferences: Required<{
       short: 'Allow Additional CLI Flags',
       long: 'Allow specifying command-line flags that Compass does not understand, e.g. Electron or Chromium flags',
     },
-    validator: Joi.boolean().default(false),
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
   positionalArguments: {
     ui: false,
@@ -634,7 +687,8 @@ const nonUserPreferences: Required<{
         'Specify a Connection String or Connection ID to Automatically Connect',
     },
     omitFromHelp: true,
-    validator: Joi.array().items(Joi.string()).optional(),
+    validator: z.array(z.string()).optional(),
+    type: 'array',
   },
   file: {
     ui: false,
@@ -643,7 +697,8 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a List of Connections for Automatically Connecting',
     },
-    validator: Joi.string().optional().allow(''),
+    validator: z.string().optional(),
+    type: 'string',
   },
   username: {
     ui: false,
@@ -652,7 +707,8 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a Username for Automatically Connecting',
     },
-    validator: Joi.string().optional().allow(''),
+    validator: z.string().optional(),
+    type: 'string',
   },
   password: {
     ui: false,
@@ -661,7 +717,8 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Specify a Password for Automatically Connecting',
     },
-    validator: Joi.string().optional().allow(''),
+    validator: z.string().optional(),
+    type: 'string',
   },
 };
 
@@ -678,12 +735,12 @@ export function getSettingDescription<
 >(
   name: Name
 ): Pick<PreferenceDefinition<Name>, 'description'> & { type: unknown } {
-  const { description, validator } = allPreferencesProps[
+  const { description, type } = allPreferencesProps[
     name
   ] as PreferenceDefinition<Name>;
   return {
     description,
-    type: validator.type,
+    type,
   };
 }
 
@@ -720,19 +777,9 @@ export class Preferences {
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
     isSandbox?: boolean
   ) {
-    const defaultPreferences = Object.fromEntries(
-      Object.entries(storedUserPreferencesProps)
-        .map(([key, value]) => [
-          key,
-          value.validator.validate(undefined)?.value,
-        ])
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .filter(([key, value]) => value !== undefined)
-    ) as UserPreferences;
-
     this._preferencesStorage = isSandbox
-      ? new SandboxPreferences(defaultPreferences)
-      : new StoragePreferences(defaultPreferences, basepath);
+      ? new SandboxPreferences()
+      : new StoragePreferences(basepath);
 
     this._onPreferencesChangedCallbacks = [];
     this._globalPreferences = {
@@ -798,23 +845,6 @@ export class Preferences {
       return originalPreferences;
     }
 
-    const invalidKey = keys.find((key) => !storedUserPreferencesProps[key]);
-    if (invalidKey !== undefined) {
-      // Guard against accidentally saving non-model settings here.
-      throw new Error(
-        `Setting "${invalidKey}" is not part of the preferences model`
-      );
-    }
-
-    for (const key of keys) {
-      const { error } = storedUserPreferencesProps[key].validator.validate(
-        attributes[key]
-      );
-      if (error) {
-        throw error;
-      }
-    }
-
     try {
       await this._preferencesStorage.updatePreferences(attributes);
     } catch (err) {
@@ -826,6 +856,9 @@ export class Preferences {
           error: (err as Error).message,
         }
       );
+      if (err instanceof ZodError) {
+        throw err;
+      }
     }
 
     const newPreferences = this.getPreferences();
@@ -858,13 +891,8 @@ export class Preferences {
     return this._computePreferenceValuesAndStates().values;
   }
 
-  private _getUserPreferenceValues(): UserPreferences {
-    const storePreferences = this._preferencesStorage.getPreferences();
-    // Exclude old and renamed preferences or any unknown property
-    return pick(
-      storePreferences,
-      Object.keys(storedUserPreferencesProps)
-    ) as UserPreferences;
+  private _getUserPreferenceValues() {
+    return this._preferencesStorage.getPreferences();
   }
 
   private _getStoredValues(): AllPreferences {

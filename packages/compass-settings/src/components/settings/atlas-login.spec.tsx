@@ -9,7 +9,7 @@ import { expect } from 'chai';
 import type { Public } from '../../stores';
 import { configureStore } from '../../stores';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
-import { signIn } from '../../stores/atlas-login';
+import { cancelAtlasLoginAttempt, signIn } from '../../stores/atlas-login';
 import { closeModal } from '../../stores/settings';
 
 describe('AtlasLoginSettings', function () {
@@ -277,5 +277,31 @@ describe('AtlasLoginSettings', function () {
         screen.getByRole('switch', { name: /Use AI to generate queries/ })
       ).to.have.attribute('aria-checked', 'false');
     });
+  });
+
+  it('should not reset sign in state if there is no sign in attempt in progress', async function () {
+    const atlasService = {
+      on: sandbox.stub(),
+      signIn: sandbox
+        .stub()
+        .resolves({ login: 'user@mongodb.com', enabledAIFeature: false }),
+      enableAIFeature: sandbox.stub().resolves(),
+    };
+
+    const { store } = renderAtlasLoginSettings(atlasService);
+
+    await store.dispatch(signIn());
+
+    expect(store.getState()).to.have.nested.property(
+      'atlasLogin.status',
+      'authenticated'
+    );
+
+    store.dispatch(cancelAtlasLoginAttempt());
+
+    expect(store.getState()).to.have.nested.property(
+      'atlasLogin.status',
+      'authenticated'
+    );
   });
 });

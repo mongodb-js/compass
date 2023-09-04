@@ -2,14 +2,14 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
   Badge,
-  Button,
+  Icon,
   Link,
-  Modal,
+  MarketingModal,
   SpinLoader,
-  Subtitle,
   css,
   cx,
   spacing,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { AISignInImageBanner } from './ai-signin-banner-image';
 import type { AtlasSignInState } from '../store/atlas-signin-reducer';
@@ -22,33 +22,40 @@ type SignInModalProps = {
   onSignInClick?: () => void;
 };
 
-const modalContentStyles = css({
-  width: 400,
-  overflow: 'hidden',
-});
-
-const containerStyles = css({
-  padding: spacing[4],
-});
-
 const titleStyles = css({
-  display: 'flex',
-  alignItems: 'center',
+  marginBottom: spacing[3],
 });
 
-const descriptionStyles = css({});
-
-const controlsStyles = css({
-  display: 'flex',
+// For whatever reason leafygreen marketing modal doesn't have the same spacing
+// between image and title in dark mode
+const titleDarkModeStyles = css({
+  marginTop: spacing[4],
 });
 
-const buttonStyles = css({
-  flex: 'none',
+const descriptionStyles = css({
+  textAlign: 'start',
 });
 
-const maybeLaterButtonStyles = css({
-  marginLeft: 'auto',
-  borderColor: 'transparent !important',
+const descriptionDarkModeStyles = css({
+  // Same as above, adjusting dark mode that is for no good reason is different
+  // from light mode
+  marginLeft: -10,
+  marginRight: -10,
+});
+
+const paragraphStyles = css({
+  margin: 0,
+  '&:not(:last-child)': {
+    marginBottom: spacing[3],
+  },
+});
+
+const badgeStyles = css({
+  verticalAlign: 'super',
+});
+
+const linkStyles = css({
+  display: 'inline',
 });
 
 const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
@@ -57,68 +64,71 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
   onSignInModalClose,
   onSignInClick,
 }) => {
+  const darkMode = useDarkMode();
+
   return (
-    <Modal
+    <MarketingModal
+      darkMode={darkMode}
+      graphic={<AISignInImageBanner></AISignInImageBanner>}
+      // @ts-expect-error leafygreen only allows strings, but we need to pass
+      // badge component
+      title={
+        <div className={cx(titleStyles, darkMode && titleDarkModeStyles)}>
+          Build faster with AI&nbsp;
+          <Badge className={badgeStyles} variant="blue">
+            Experimental
+          </Badge>
+        </div>
+      }
       open={isSignInModalVisible}
-      setOpen={(open) => {
-        if (open === false) {
-          onSignInModalClose?.();
+      onClose={onSignInModalClose}
+      // @ts-expect-error leafygreen only allows strings, but we need to pass
+      // icons
+      buttonText={
+        <>
+          <Icon glyph="LogIn"></Icon>&nbsp;Log in to Atlas to enable
+          {isSignInInProgress && (
+            <>
+              &nbsp;
+              <SpinLoader
+                // Marketing modal button is always bright, spin loader in dark mode gets lost
+                darkMode={false}
+              ></SpinLoader>
+            </>
+          )}
+        </>
+      }
+      onButtonClick={() => {
+        // We can't control buttons in marketing modal, so instead we just do
+        // nothing when button is clicked and sign in is in progress
+        if (isSignInInProgress) {
+          return;
         }
+        onSignInClick?.();
       }}
-      contentClassName={modalContentStyles}
+      linkText="Not now"
+      onLinkClick={onSignInModalClose}
     >
-      <AISignInImageBanner></AISignInImageBanner>
-      <div className={containerStyles}>
-        <Subtitle className={titleStyles}>
-          Build faster with AI&nbsp;<Badge>Experimental</Badge>
-        </Subtitle>
-        <div className={descriptionStyles}>
-          <p>
-            Atlas users can now quickly generate queries and aggregations with
-            MongoDB’s AI-powered features, available today in Compass.
-          </p>
-          <p>
-            This is an experimental feature and may give inaccurate responses.
-            You can help make it better by leaving feedback.
-          </p>
-          <p>
-            To understand how your data is used with AI partners,{' '}
-            <Link href="https://www.mongodb.com/docs/compass/current/faq/#how-do-i-view-and-modify-my-privacy-settings-">
-              learn more in the docs
-            </Link>
-            .
-          </p>
-        </div>
-        <div className={controlsStyles}>
-          <Button
-            variant="primary"
-            onClick={onSignInClick}
-            data-testid="atlas-signin-modal-button"
-            className={buttonStyles}
-            disabled={isSignInInProgress}
-            // TODO: will have to update leafygreen for that
-            // https://jira.mongodb.org/browse/COMPASS-7046
-            // isLoading={isSignInInProgress}
+      <div
+        className={cx(descriptionStyles, darkMode && descriptionDarkModeStyles)}
+      >
+        <p className={paragraphStyles}>
+          Atlas users can now quickly generate queries and aggregations with
+          MongoDB’s AI-powered features, available today in Compass.
+        </p>
+        <p className={paragraphStyles}>
+          To understand how your data is used with AI partners,{' '}
+          <Link
+            className={linkStyles}
+            href="https://www.mongodb.com/docs/compass/current/faq/#how-do-i-view-and-modify-my-privacy-settings-"
+            hideExternalIcon={true}
           >
-            Log in to enable AI
-            {isSignInInProgress && (
-              <>
-                &nbsp;<SpinLoader></SpinLoader>
-              </>
-            )}
-          </Button>
-          <Button
-            variant="primaryOutline"
-            onClick={() => {
-              onSignInModalClose?.();
-            }}
-            className={cx(buttonStyles, maybeLaterButtonStyles)}
-          >
-            Maybe later
-          </Button>
-        </div>
+            learn more in the docs
+          </Link>
+          .
+        </p>
       </div>
-    </Modal>
+    </MarketingModal>
   );
 };
 

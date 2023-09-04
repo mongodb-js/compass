@@ -18,7 +18,8 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   }
   if (
     action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
-    action.type === AIPipelineActionTypes.LoadGeneratedPipeline
+    action.type === AIPipelineActionTypes.LoadGeneratedPipeline ||
+    action.type === AIPipelineActionTypes.PipelineGeneratedFromQuery
   ) {
     return INITIAL_STATE;
   }

@@ -1,0 +1,6 @@
+{
+  "_id": "0f92b5fa-19fe-4200-a4bb-d25765bce8a2",
+  "filter": { "beds": { "$gt": 3 } },
+  "_lastExecuted": { "$date": "2023-08-30T19:03:19.336Z" },
+  "_ns": "self_airbnb.listings"
+}

@@ -1,18 +1,42 @@
 import { UUID } from 'bson';
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import type { UserPreferences } from './preferences';
+import { storedUserPreferencesProps } from './preferences';
+import { UserData } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 
+type PreferencesValidator = ReturnType<typeof getPreferencesValidator>;
+export type StoredPreferences = z.output<PreferencesValidator>;
+
+export const getDefaultPreferences = (): StoredPreferences => {
+  return Object.fromEntries(
+    Object.entries(storedUserPreferencesProps)
+      .map(([key, value]) => [key, value.validator.parse(undefined)])
+      .filter(([, value]) => value !== undefined)
+  );
+};
+
+const getPreferencesValidator = () => {
+  const preferencesPropsValidator = Object.fromEntries(
+    Object.entries(storedUserPreferencesProps).map(([key, { validator }]) => [
+      key,
+      validator,
+    ])
+  ) as {
+    [K in keyof typeof storedUserPreferencesProps]: typeof storedUserPreferencesProps[K]['validator'];
+  };
+
+  return z.object(preferencesPropsValidator);
+};
 export abstract class BasePreferencesStorage {
   abstract setup(): Promise<void>;
-  abstract getPreferences(): UserPreferences;
+  abstract getPreferences(): StoredPreferences;
   abstract updatePreferences(
-    attributes: Partial<UserPreferences>
+    attributes: Partial<StoredPreferences>
   ): Promise<void>;
 }
 
 export class SandboxPreferences extends BasePreferencesStorage {
-  constructor(private preferences: UserPreferences) {
+  private preferences = getDefaultPreferences();
+  constructor() {
     super();
   }
 
@@ -21,7 +45,7 @@ export class SandboxPreferences extends BasePreferencesStorage {
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  async updatePreferences(attributes: Partial<UserPreferences>) {
+  async updatePreferences(attributes: Partial<StoredPreferences>) {
     this.preferences = {
       ...this.preferences,
       ...attributes,
@@ -34,27 +58,20 @@ export class SandboxPreferences extends BasePreferencesStorage {
 }
 
 export class StoragePreferences extends BasePreferencesStorage {
-  private readonly folder = 'AppPreferences';
-  private readonly file = 'General.json';
-  private readonly defaultPreferences: UserPreferences;
+  private readonly file = 'General';
+  private readonly defaultPreferences = getDefaultPreferences();
+  private readonly userData: UserData<PreferencesValidator>;
+  private preferences: StoredPreferences = getDefaultPreferences();
 
-  constructor(private preferences: UserPreferences, private basepath?: string) {
+  constructor(basePath?: string) {
     super();
-    this.defaultPreferences = preferences;
-  }
-
-  private getFolderPath() {
-    return join(this.basepath ?? '', this.folder);
-  }
-
-  private getFilePath() {
-    return join(this.getFolderPath(), this.file);
+    this.userData = new UserData(getPreferencesValidator(), {
+      subdir: 'AppPreferences',
+      basePath,
+    });
   }
 
   async setup() {
-    // Ensure folder exists
-    await fs.mkdir(this.getFolderPath(), { recursive: true });
-
     try {
       this.preferences = await this.readPreferences();
     } catch (e) {
@@ -62,62 +79,55 @@ export class StoragePreferences extends BasePreferencesStorage {
         throw e;
       }
       // Create the file for the first time
-      await fs.writeFile(
-        this.getFilePath(),
-        JSON.stringify(this.defaultPreferences, null, 2),
-        'utf-8'
-      );
+      await this.userData.write(this.file, this.defaultPreferences);
     }
   }
 
-  private async readPreferences(): Promise<UserPreferences> {
-    return JSON.parse(await fs.readFile(this.getFilePath(), 'utf8'));
+  private async readPreferences(): Promise<StoredPreferences> {
+    return await this.userData.readOne(this.file, {
+      ignoreErrors: false,
+    });
   }
 
-  getPreferences() {
+  getPreferences(): StoredPreferences {
     return {
       ...this.defaultPreferences,
       ...this.preferences,
     };
   }
 
-  async updatePreferences(attributes: Partial<UserPreferences>) {
-    const newPreferences = {
+  async updatePreferences(attributes: Partial<z.input<PreferencesValidator>>) {
+    await this.userData.write(this.file, {
       ...(await this.readPreferences()),
       ...attributes,
-    };
-    await fs.writeFile(
-      this.getFilePath(),
-      JSON.stringify(newPreferences, null, 2),
-      'utf-8'
-    );
+    });
 
-    this.preferences = newPreferences;
+    this.preferences = await this.readPreferences();
   }
 }
 
-export type User = {
-  id: string;
-  createdAt: Date;
-  lastUsed: Date;
-};
+const UserSchema = z.object({
+  id: z.string().uuid(),
+  createdAt: z
+    .union([z.coerce.date(), z.number()])
+    .transform((x) => new Date(x)),
+  lastUsed: z
+    .union([z.coerce.date(), z.number()])
+    .transform((x) => new Date(x)),
+});
+
+export type User = z.output<typeof UserSchema>;
 
 export class UserStorage {
-  private readonly folder = 'Users';
-  constructor(private readonly basepath: string = '') {}
-
-  private getFolderPath() {
-    return join(this.basepath, this.folder);
+  private readonly userData: UserData<typeof UserSchema>;
+  constructor(basePath?: string) {
+    this.userData = new UserData(UserSchema, {
+      subdir: 'Users',
+      basePath,
+    });
   }
 
-  private getFilePath(id: string) {
-    return join(this.getFolderPath(), `${id}.json`);
-  }
-
-  async getOrCreate(id: string): Promise<User> {
-    // Ensure folder exists
-    await fs.mkdir(this.getFolderPath(), { recursive: true });
-
+  async getOrCreate(id?: string): Promise<User> {
     if (!id) {
       return this.createUser();
     }
@@ -128,17 +138,14 @@ export class UserStorage {
       if ((e as any).code !== 'ENOENT') {
         throw e;
       }
-      return this.createUser();
+      return await this.createUser();
     }
   }
 
   async getUser(id: string): Promise<User> {
-    const user = JSON.parse(await fs.readFile(this.getFilePath(id), 'utf-8'));
-    return {
-      id: user.id,
-      createdAt: new Date(user.createdAt),
-      lastUsed: new Date(user.lastUsed),
-    };
+    return await this.userData.readOne(id, {
+      ignoreErrors: false,
+    });
   }
 
   private async createUser(): Promise<User> {
@@ -151,7 +158,10 @@ export class UserStorage {
     return this.writeUser(user);
   }
 
-  async updateUser(id: string, attributes: Partial<User>): Promise<User> {
+  async updateUser(
+    id: string,
+    attributes: Partial<z.input<typeof UserSchema>>
+  ): Promise<User> {
     const user = await this.getUser(id);
     const newData = {
       ...user,
@@ -160,12 +170,12 @@ export class UserStorage {
     return this.writeUser(newData);
   }
 
-  private async writeUser(user: User): Promise<User> {
-    await fs.writeFile(
-      this.getFilePath(user.id),
-      JSON.stringify(user, null, 2),
-      'utf-8'
-    );
+  private async writeUser(user: z.input<typeof UserSchema>): Promise<User> {
+    await this.userData.write(user.id, user);
     return this.getUser(user.id);
+  }
+
+  private getFileName(id: string) {
+    return `${id}.json`;
   }
 }

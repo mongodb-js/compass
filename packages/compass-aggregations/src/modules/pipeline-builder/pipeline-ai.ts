@@ -26,6 +26,7 @@ export type AIPipelineState = {
   aiPromptText: string;
   status: AIPipelineStatus;
   aiPipelineFetchId: number; // Maps to the AbortController of the current fetch (or -1).
+  isAggregationGeneratedFromQuery: boolean;
 };
 
 export const initialState: AIPipelineState = {
@@ -34,18 +35,20 @@ export const initialState: AIPipelineState = {
   errorMessage: undefined,
   isInputVisible: false,
   aiPipelineFetchId: -1,
+  isAggregationGeneratedFromQuery: false,
 };
 
 export const enum AIPipelineActionTypes {
   AIPipelineStarted = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineStarted',
   AIPipelineCancelled = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineCancelled',
   AIPipelineFailed = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineFailed',
-  AIPipelineSucceeded = 'compass-aggregations/pipeline-builder/pipeline-ai/AIPipelineSucceeded',
   CancelAIPipelineGeneration = 'compass-aggregations/pipeline-builder/pipeline-ai/CancelAIPipelineGeneration',
+  resetIsAggregationGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/resetIsAggregationGeneratedFromQuery',
   ShowInput = 'compass-aggregations/pipeline-builder/pipeline-ai/ShowInput',
   HideInput = 'compass-aggregations/pipeline-builder/pipeline-ai/HideInput',
   ChangeAIPromptText = 'compass-aggregations/pipeline-builder/pipeline-ai/ChangeAIPromptText',
   LoadGeneratedPipeline = 'compass-aggregations/pipeline-builder/pipeline-ai/LoadGeneratedPipeline',
+  PipelineGeneratedFromQuery = 'compass-aggregations/pipeline-builder/pipeline-ai/PipelineGeneratedFromQuery',
   AtlasServiceDisableAIFeature = 'compass-aggregations/pipeline-builder/pipeline-ai/AtlasServiceDisableAIFeature',
 }
 
@@ -98,6 +101,31 @@ export type LoadGeneratedPipelineAction = {
   stages: Stage[];
 };
 
+export const generateAggregationFromQuery = ({
+  aggregation,
+  userInput,
+}: {
+  aggregation: { pipeline: string };
+  userInput: string;
+}): PipelineBuilderThunkAction<void, PipelineGeneratedFromQueryAction> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const pipelineText = String(aggregation?.pipeline);
+
+    pipelineBuilder.reset(pipelineText);
+
+    dispatch({
+      type: AIPipelineActionTypes.PipelineGeneratedFromQuery,
+      stages: pipelineBuilder.stages,
+      pipelineText: pipelineBuilder.source,
+      pipeline: pipelineBuilder.pipeline,
+      syntaxErrors: pipelineBuilder.syntaxError,
+      text: userInput,
+    });
+
+    dispatch(updatePipelinePreview());
+  };
+};
+
 type AIPipelineStartedAction = {
   type: AIPipelineActionTypes.AIPipelineStarted;
   fetchId: number;
@@ -109,8 +137,9 @@ type AIPipelineFailedAction = {
   networkErrorCode?: number;
 };
 
-export type AIPipelineSucceededAction = {
-  type: AIPipelineActionTypes.AIPipelineSucceeded;
+export type PipelineGeneratedFromQueryAction = {
+  type: AIPipelineActionTypes.PipelineGeneratedFromQuery;
+  text: string;
 };
 
 type FailedResponseTrackMessage = {
@@ -147,10 +176,7 @@ export const runAIPipelineGeneration = (
   userInput: string
 ): PipelineBuilderThunkAction<
   Promise<void>,
-  | AIPipelineStartedAction
-  | AIPipelineFailedAction
-  | AIPipelineSucceededAction
-  | LoadGeneratedPipelineAction
+  AIPipelineStartedAction | AIPipelineFailedAction | LoadGeneratedPipelineAction
 > => {
   return async (dispatch, getState, { atlasService, pipelineBuilder }) => {
     const {
@@ -280,10 +306,6 @@ export const runAIPipelineGeneration = (
       }
     );
 
-    dispatch({
-      type: AIPipelineActionTypes.AIPipelineSucceeded,
-    });
-
     pipelineBuilder.reset(pipelineText);
 
     track('AI Prompt Generated', () => ({
@@ -322,6 +344,22 @@ export const cancelAIPipelineGeneration = (): PipelineBuilderThunkAction<
   };
 };
 
+type resetIsAggregationGeneratedFromQueryAction = {
+  type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery;
+};
+
+export const resetIsAggregationGeneratedFromQuery =
+  (): PipelineBuilderThunkAction<
+    void,
+    resetIsAggregationGeneratedFromQueryAction
+  > => {
+    return (dispatch) => {
+      dispatch({
+        type: AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery,
+      });
+    };
+  };
+
 export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, _getState, { atlasService }) => {
     try {
@@ -329,7 +367,9 @@ export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
         await atlasService.signIn({ promptType: 'ai-promo-modal' });
         await atlasService.enableAIFeature();
       }
-      dispatch({ type: AIPipelineActionTypes.ShowInput });
+      dispatch({
+        type: AIPipelineActionTypes.ShowInput,
+      });
     } catch {
       // if sign in failed / user canceled we just don't show the input
     }
@@ -398,15 +438,31 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
   }
 
   if (
-    isAction<AIPipelineSucceededAction>(
+    isAction<LoadGeneratedPipelineAction>(
       action,
-      AIPipelineActionTypes.AIPipelineSucceeded
+      AIPipelineActionTypes.LoadGeneratedPipeline
     )
   ) {
     return {
       ...state,
       status: 'success',
       aiPipelineFetchId: -1,
+    };
+  }
+
+  if (
+    isAction<PipelineGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.PipelineGeneratedFromQuery
+    )
+  ) {
+    return {
+      ...state,
+      status: 'success',
+      aiPipelineFetchId: -1,
+      isInputVisible: true,
+      isAggregationGeneratedFromQuery: true,
+      aiPromptText: action.text,
     };
   }
 
@@ -423,6 +479,18 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     };
   }
 
+  if (
+    isAction<resetIsAggregationGeneratedFromQueryAction>(
+      action,
+      AIPipelineActionTypes.resetIsAggregationGeneratedFromQuery
+    )
+  ) {
+    return {
+      ...state,
+      isAggregationGeneratedFromQuery: false,
+    };
+  }
+
   if (isAction<ShowInputAction>(action, AIPipelineActionTypes.ShowInput)) {
     return {
       ...state,
@@ -434,6 +502,7 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     return {
       ...state,
       isInputVisible: false,
+      isAggregationGeneratedFromQuery: false,
     };
   }
 
