@@ -85,22 +85,14 @@ export async function importCSV({
         }
 
         parsedHeader = {};
-        for (const [index, name] of headerFields.entries()) {
-          try {
-            parsedHeader[name] = parseCSVHeaderName(name);
-          } catch (err: unknown) {
-            // rethrow with the row and column indexes appended to aid debugging
-            (err as Error).message = `${
-              (err as Error).message
-            } [Col ${index}][Row 0]`;
-            debug('parseCSVHeaderName error', (err as Error).message);
-
-            // If this fails, the whole file will stop processing regardless of
-            // the value of stopOnErrors because it is not recoverable if we
-            // can't make sense of the header row.
-            return callback(err as Error);
-          }
+        for (const name of headerFields) {
+          parsedHeader[name] = parseCSVHeaderName(name);
         }
+
+        // TODO(COMPASS-7158): make sure array indexes start at 0 and have no
+        // gaps, otherwise clean them up (ie. treat those parts as part of the
+        // field name). So that you can't have a foo[1000000]
+        // edge case.
       }
 
       // Call progress and increase the number processed even if it errors
