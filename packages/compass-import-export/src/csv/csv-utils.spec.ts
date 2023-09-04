@@ -859,17 +859,81 @@ describe('parseCSVHeaderName', function () {
       { type: 'index', index: 3 },
       { type: 'field', name: '' },
     ]);
+
+    expect(parseCSVHeaderName('....')).to.deep.equal([
+      { type: 'field', name: '' },
+      { type: 'field', name: '' },
+      { type: 'field', name: '' },
+      { type: 'field', name: '' },
+      { type: 'field', name: '' },
+    ]);
   });
 
-  it('throws if an array index is not a number', function () {
-    expect(() => parseCSVHeaderName('[foo]')).to.throw('"foo" is not a number');
-    expect(() => parseCSVHeaderName('[foo')).to.throw('"foo" is not a number');
-    expect(() => parseCSVHeaderName('["foo"]')).to.throw(
-      '""foo"" is not a number'
-    );
-    expect(() => parseCSVHeaderName("['foo']")).to.throw(
-      '"\'foo\'" is not a number'
-    );
+  it('ignores array indexes that are not numbers', function () {
+    expect(parseCSVHeaderName('[foo]')).to.deep.equal([
+      { type: 'field', name: '[foo]' },
+    ]);
+    expect(parseCSVHeaderName('[foo')).to.deep.equal([
+      { type: 'field', name: '[foo' },
+    ]);
+    expect(parseCSVHeaderName('["foo"]')).to.deep.equal([
+      { type: 'field', name: '["foo"]' },
+    ]);
+    expect(parseCSVHeaderName("['foo']")).to.deep.equal([
+      { type: 'field', name: "['foo']" },
+    ]);
+
+    expect(parseCSVHeaderName('Size [m]')).to.deep.equal([
+      { type: 'field', name: 'Size [m]' },
+    ]);
+    expect(parseCSVHeaderName('Size [m][0]')).to.deep.equal([
+      { type: 'field', name: 'Size [m]' },
+      { type: 'index', index: 0 },
+    ]);
+
+    expect(parseCSVHeaderName('Size [m].foo')).to.deep.equal([
+      { type: 'field', name: 'Size [m]' },
+      { type: 'field', name: 'foo' },
+    ]);
+
+    expect(parseCSVHeaderName('Size [s][m][l].foo')).to.deep.equal([
+      { type: 'field', name: 'Size [s][m][l]' },
+      { type: 'field', name: 'foo' },
+    ]);
+    expect(parseCSVHeaderName('Size [m].[0]')).to.deep.equal([
+      { type: 'field', name: 'Size [m]' },
+      { type: 'field', name: '' },
+      { type: 'index', index: 0 },
+    ]);
+    expect(parseCSVHeaderName('Size [m].foo[0]')).to.deep.equal([
+      { type: 'field', name: 'Size [m]' },
+      { type: 'field', name: 'foo' },
+      { type: 'index', index: 0 },
+    ]);
+    expect(parseCSVHeaderName('Size [m].[0')).to.deep.equal([
+      { type: 'field', name: 'Size [m]' },
+      { type: 'field', name: '' },
+      { type: 'index', index: 0 },
+    ]);
+
+    expect(parseCSVHeaderName('Size [m][1000]')).to.deep.equal([
+      { type: 'field', name: 'Size [m]' },
+      { type: 'index', index: 1000 },
+    ]);
+
+    expect(parseCSVHeaderName('Size [m][0][1]')).to.deep.equal([
+      { type: 'field', name: 'Size [m]' },
+      { type: 'index', index: 0 },
+      { type: 'index', index: 1 },
+    ]);
+
+    expect(parseCSVHeaderName('[][][][][]')).to.deep.equal([
+      { type: 'field', name: '[][][][][]' },
+    ]);
+
+    expect(parseCSVHeaderName('Size [.foo')).to.deep.equal([
+      { type: 'field', name: 'Size [.foo' },
+    ]);
   });
 });
 
