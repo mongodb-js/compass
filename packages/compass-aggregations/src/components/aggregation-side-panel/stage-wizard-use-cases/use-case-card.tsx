@@ -25,8 +25,11 @@ type UseCaseCardLayoutProps = DraggedUseCase & {
 };
 
 const cardStyles = css({
-  cursor: 'pointer',
+  cursor: 'grab',
   padding: spacing[3],
+  ':active': {
+    cursor: 'grabbing',
+  },
 });
 
 const cardTitleStyles = css({
