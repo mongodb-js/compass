@@ -68,8 +68,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     'enableAtlasSearchIndexManagement',
     React
   );
-  const isAtlasSearchOptionEnabled =
-    isSearchManagementActive && isAtlasSearchAvailable;
 
   const showInsights = usePreference('showInsights', React) && !errorMessage;
   const onClickCreateIndex = useCallback(() => {
@@ -108,8 +106,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     )}
                   >
                     <CreateIndexButton
+                      isSearchManagementActive={isSearchManagementActive}
                       isAtlasSearchAvailable={isAtlasSearchAvailable}
-                      isAtlasSearchOptionEnabled={isAtlasSearchOptionEnabled}
                       isWritable={isWritable}
                       onClickCreateIndex={onClickCreateIndex}
                       onClickCreateAtlasSearchIndex={
@@ -156,8 +154,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
 };
 
 type CreateIndexButtonProps = {
+  isSearchManagementActive: boolean;
   isAtlasSearchAvailable: boolean;
-  isAtlasSearchOptionEnabled: boolean;
   isWritable: boolean;
   onClickCreateIndex: () => void;
   onClickCreateAtlasSearchIndex: () => void;
@@ -166,42 +164,42 @@ type CreateIndexButtonProps = {
 export const CreateIndexButton: React.FunctionComponent<
   CreateIndexButtonProps
 > = ({
+  isSearchManagementActive,
   isAtlasSearchAvailable,
-  isAtlasSearchOptionEnabled,
   isWritable,
   onClickCreateIndex,
   onClickCreateAtlasSearchIndex,
 }) => {
-  if (!isAtlasSearchAvailable) {
+  if (isAtlasSearchAvailable && isSearchManagementActive) {
     return (
-      <Button
-        data-testid="open-create-index-modal-button"
-        disabled={!isWritable}
-        onClick={onClickCreateIndex}
+      <SplitButton
+        label="Create"
         variant="primary"
-        size="small"
-      >
-        Create Index
-      </Button>
+        menuItems={[
+          <MenuItem key="0" disabled={!isWritable} onClick={onClickCreateIndex}>
+            Index
+          </MenuItem>,
+          <MenuItem
+            key="1"
+            disabled={!isWritable}
+            onClick={onClickCreateAtlasSearchIndex}
+          >
+            Search Index
+          </MenuItem>,
+        ]}
+      ></SplitButton>
     );
   }
 
   return (
-    <SplitButton
-      label="Create"
+    <Button
+      data-testid="open-create-index-modal-button"
+      disabled={!isWritable}
+      onClick={onClickCreateIndex}
       variant="primary"
-      menuItems={[
-        <MenuItem key="0" disabled={!isWritable} onClick={onClickCreateIndex}>
-          Index
-        </MenuItem>,
-        <MenuItem
-          key="1"
-          disabled={!isWritable || !isAtlasSearchOptionEnabled}
-          onClick={onClickCreateAtlasSearchIndex}
-        >
-          Search Index
-        </MenuItem>,
-      ]}
-    ></SplitButton>
+      size="small"
+    >
+      Create Index
+    </Button>
   );
 };
