@@ -20,6 +20,7 @@ export type FeatureFlags = {
   enableStageWizard: boolean;
   newExplainPlan: boolean;
   showInsights: boolean;
+  enableAtlasSearchIndexManagement: boolean;
 };
 
 export const featureFlags: Required<{
@@ -86,6 +87,18 @@ export const featureFlags: Required<{
     description: {
       short: 'Show performance insights',
       long: 'Surface visual signals in the Compass interface to highlight potential performance issues and anti-patterns.',
+    },
+  },
+
+  /**
+   * Feature flag for Atlas Search Index Management.
+   * Epic: COMPASS-6599
+   */
+  enableAtlasSearchIndexManagement: {
+    stage: 'development',
+    description: {
+      short: 'Enables Atlas Search Index management.',
+      long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',
     },
   },
 };

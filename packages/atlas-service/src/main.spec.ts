@@ -1,12 +1,10 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { AtlasService, throwIfNotOk } from './main';
-import { promisify } from 'util';
+import { AtlasService, getTrackingUserInfo, throwIfNotOk } from './main';
 import { EventEmitter } from 'events';
-import { once } from 'events';
 import preferencesAccess from 'compass-preferences-model';
-
-const wait = promisify(setTimeout);
+import type { AtlasUserConfigStore } from './user-config-store';
+import type { AtlasUserInfo } from './util';
 
 function getListenerCount(emitter: EventEmitter) {
   return emitter.eventNames().reduce((acc, name) => {
@@ -16,6 +14,25 @@ function getListenerCount(emitter: EventEmitter) {
 
 describe('AtlasServiceMain', function () {
   const sandbox = Sinon.createSandbox();
+
+  const mockFetch = sandbox.stub().callsFake((url: string) => {
+    return {
+      'http://example.com/v1/userinfo': {
+        ok: true,
+        json() {
+          return { sub: '1234' };
+        },
+      },
+      'http://example.com/v1/revoke?client_id=1234abcd': {
+        ok: true,
+      },
+    }[url];
+  });
+
+  const mockUserConfigStore = {
+    getUserConfig: sandbox.stub().resolves({}),
+    updateUserConfig: sandbox.stub().resolves(),
+  };
 
   const mockOidcPlugin = {
     mongoClientOptions: {
@@ -33,23 +50,27 @@ describe('AtlasServiceMain', function () {
     destroy: sandbox.stub(),
   };
 
-  AtlasService['plugin'] = mockOidcPlugin;
-
-  AtlasService['attachOidcPluginLoggerEvents']();
-
   const fetch = AtlasService['fetch'];
   const ipcMain = AtlasService['ipcMain'];
   const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
+  const userStore = AtlasService['atlasUserConfigStore'];
   const apiBaseUrl = process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
   const issuer = process.env.COMPASS_OIDC_ISSUER;
   const clientId = process.env.COMPASS_CLIENT_ID;
 
   beforeEach(function () {
     AtlasService['ipcMain'] = { handle: sandbox.stub() };
+    AtlasService['fetch'] = mockFetch as any;
+    AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
+    AtlasService['atlasUserConfigStore'] =
+      mockUserConfigStore as unknown as AtlasUserConfigStore;
 
     process.env.COMPASS_ATLAS_SERVICE_BASE_URL = 'http://example.com';
     process.env.COMPASS_OIDC_ISSUER = 'http://example.com';
     process.env.COMPASS_CLIENT_ID = '1234abcd';
+
+    AtlasService['setupPlugin']();
+    AtlasService['attachOidcPluginLoggerEvents']();
   });
 
   afterEach(function () {
@@ -58,27 +79,25 @@ describe('AtlasServiceMain', function () {
     process.env.COMPASS_CLIENT_ID = clientId;
 
     AtlasService['fetch'] = fetch;
+    AtlasService['atlasUserConfigStore'] = userStore;
     AtlasService['ipcMain'] = ipcMain;
-    AtlasService['token'] = null;
     AtlasService['initPromise'] = null;
-    AtlasService['oidcPluginSyncedFromLoggerState'] = 'initial';
     AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
+    AtlasService['oidcPluginLogger'].removeAllListeners();
+    AtlasService['signInPromise'] = null;
+    AtlasService['currentUser'] = null;
 
     sandbox.resetHistory();
   });
 
   describe('signIn', function () {
     it('should sign in using oidc plugin', async function () {
-      const token = await AtlasService.signIn();
+      const userInfo = await AtlasService.signIn();
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
       ).to.have.been.calledOnce;
-      expect(token).to.have.property('accessToken', '1234');
-      expect(AtlasService).to.have.property(
-        'oidcPluginSyncedFromLoggerState',
-        'authenticated'
-      );
+      expect(userInfo).to.have.property('sub', '1234');
     });
 
     it('should debounce inflight sign in requests', async function () {
@@ -126,7 +145,6 @@ describe('AtlasServiceMain', function () {
 
   describe('isAuthenticated', function () {
     it('should return true if token is active', async function () {
-      AtlasService['token'] = { accessToken: '1234' };
       AtlasService['fetch'] = sandbox.stub().resolves({
         ok: true,
         json() {
@@ -138,7 +156,6 @@ describe('AtlasServiceMain', function () {
     });
 
     it('should return false if token is inactive', async function () {
-      AtlasService['token'] = { accessToken: '1234' };
       AtlasService['fetch'] = sandbox.stub().resolves({
         ok: true,
         json() {
@@ -149,14 +166,7 @@ describe('AtlasServiceMain', function () {
       expect(await AtlasService.isAuthenticated()).to.eq(false);
     });
 
-    it('should return false if there is no token', async function () {
-      AtlasService['token'] = null;
-
-      expect(await AtlasService.isAuthenticated()).to.eq(false);
-    });
-
     it('should return false if checking token fails', async function () {
-      AtlasService['token'] = { accessToken: '1234' };
       AtlasService['fetch'] = sandbox
         .stub()
         .resolves({ ok: false, status: 500 }) as any;
@@ -165,7 +175,6 @@ describe('AtlasServiceMain', function () {
     });
 
     it('should throw if aborted signal is passed', async function () {
-      AtlasService['token'] = { accessToken: '1234' };
       const c = new AbortController();
       c.abort(new Error('Aborted'));
       try {
@@ -174,31 +183,6 @@ describe('AtlasServiceMain', function () {
       } catch (err) {
         expect(err).to.have.property('message', 'Aborted');
       }
-    });
-
-    it('should wait for token refresh if called when expired', async function () {
-      AtlasService['token'] = { accessToken: '1234' };
-      AtlasService['fetch'] = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({ active: true });
-        },
-      }) as any;
-      AtlasService['oidcPluginLogger'].emit(
-        'mongodb-oidc-plugin:refresh-started'
-      );
-      const [authenticated] = await Promise.all([
-        AtlasService.isAuthenticated(),
-        (() => {
-          AtlasService['oidcPluginLogger'].emit(
-            'mongodb-oidc-plugin:refresh-succeeded'
-          );
-          AtlasService['oidcPluginLogger'].emit(
-            'mongodb-oidc-plugin:state-updated'
-          );
-        })(),
-      ]);
-      expect(authenticated).to.eq(true);
     });
   });
 
@@ -386,35 +370,6 @@ describe('AtlasServiceMain', function () {
           );
         }
       });
-
-      it('should wait for token refresh if called when expired', async function () {
-        AtlasService['fetch'] = sandbox.stub().resolves({
-          ok: true,
-          json() {
-            return Promise.resolve(responses.success);
-          },
-        }) as any;
-        AtlasService['oidcPluginLogger'].emit(
-          'mongodb-oidc-plugin:refresh-started'
-        );
-        const [res] = await Promise.all([
-          AtlasService[functionName]({
-            userInput: 'test',
-            collectionName: 'test',
-            databaseName: 'test',
-            sampleDocuments: [],
-          }),
-          (() => {
-            AtlasService['oidcPluginLogger'].emit(
-              'mongodb-oidc-plugin:refresh-succeeded'
-            );
-            AtlasService['oidcPluginLogger'].emit(
-              'mongodb-oidc-plugin:state-updated'
-            );
-          })(),
-        ]);
-        expect(res).to.deep.eq(responses.success);
-      });
     });
   }
 
@@ -468,146 +423,14 @@ describe('AtlasServiceMain', function () {
     });
   });
 
-  describe('maybeWaitForToken', function () {
-    // This test suite should pass by promises resolving quicky, instead of
-    // `expect` calls, we are just setting a relatively small timeout to check
-    // that
-    this.timeout(200);
-
-    it('should resolve without waiting for any events from the oidc-plugin if token is not expired', async function () {
-      await AtlasService['maybeWaitForToken']();
-    });
-
-    describe('when in the expired state', function () {
-      it('should resolve when provided signal aborts', async function () {
-        AtlasService['oidcPluginSyncedFromLoggerState'] = 'expired';
-        const c = new AbortController();
-        await Promise.all([
-          AtlasService['maybeWaitForToken']({ signal: c.signal }),
-          (async () => {
-            await wait(20);
-            c.abort();
-          })(),
-        ]);
-      });
-
-      it('should wait for the token refresh success event when in the expired state', async function () {
-        await Promise.all([
-          AtlasService['maybeWaitForToken'](),
-          (async () => {
-            await wait(20);
-            AtlasService['oidcPluginLogger'].emit(
-              'atlas-service-token-refreshed'
-            );
-          })(),
-        ]);
-      });
-
-      it('should wait for the token refresh error event when in the expired state', async function () {
-        await Promise.all([
-          AtlasService['maybeWaitForToken'](),
-          (async () => {
-            await wait(20);
-            AtlasService['oidcPluginLogger'].emit(
-              'atlas-service-token-refresh-failed'
-            );
-          })(),
-        ]);
-      });
-
-      it('should clean up listeners', async function () {
-        const logger = AtlasService['oidcPluginLogger'] as EventEmitter;
-        const initialCount = getListenerCount(logger);
-        AtlasService['oidcPluginSyncedFromLoggerState'] = 'expired';
-        const promise = AtlasService['maybeWaitForToken']();
-        const inflightCount = getListenerCount(logger);
-        // Sanity check, we added a bunch of listeners
-        expect(inflightCount > initialCount).to.eq(true);
-        logger.emit('atlas-service-token-refreshed');
-        await promise;
-        expect(getListenerCount(logger)).to.eq(initialCount);
-      });
-    });
-  });
-
-  describe('oidcPluginLogger', function () {
-    describe('on `mongodb-oidc-plugin:refresh-started` event', function () {
-      it('should skip refresh attempt when in restoring state', function () {
-        AtlasService['oidcPluginSyncedFromLoggerState'] = 'restoring';
-        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
-        expect(
-          mockOidcPlugin.mongoClientOptions.authMechanismProperties
-            .REQUEST_TOKEN_CALLBACK
-        ).not.to.have.been.called;
-      });
-
-      it('should refresh token in atlas service state', async function () {
-        // Checking that multiple events while we are refreshing don't cause
-        // multiple calls to REQUEST_TOKEN_CALLBACK
-        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
-        expect(AtlasService).to.have.property(
-          'oidcPluginSyncedFromLoggerState',
-          'expired'
-        );
-        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
-        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-started');
-        // Make it look like oidc-plugin successfully updated
-        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:state-updated');
-        mockOidcPlugin.logger.emit('mongodb-oidc-plugin:refresh-succeeded');
-        await once(
-          AtlasService['oidcPluginLogger'],
-          'atlas-service-token-refreshed'
-        );
-        expect(
-          mockOidcPlugin.mongoClientOptions.authMechanismProperties
-            .REQUEST_TOKEN_CALLBACK
-        ).to.have.been.calledOnce;
-        expect(AtlasService).to.have.property(
-          'oidcPluginSyncedFromLoggerState',
-          'authenticated'
-        );
-        expect(AtlasService)
-          .to.have.property('token')
-          .deep.eq({ accessToken: '1234' });
-      });
-    });
-  });
-
   describe('init', function () {
-    it('should set service to unauthenticated state if requesting token throws', async function () {
-      mockOidcPlugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK =
-        sandbox
-          .stub()
-          .rejects(new Error('Could not retrieve valid access token'));
-      const createPlugin = () => mockOidcPlugin;
-      AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
-      const initPromise = AtlasService.init();
-      expect(AtlasService).to.have.property(
-        'oidcPluginSyncedFromLoggerState',
-        'restoring'
-      );
-      await initPromise;
-      expect(AtlasService).to.have.property(
-        'oidcPluginSyncedFromLoggerState',
-        'unauthenticated'
-      );
-    });
-
-    it('should set service to autenticated state if token was returned', async function () {
-      mockOidcPlugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK =
-        sandbox.stub().resolves({ accessToken: 'token' });
-      const createPlugin = () => mockOidcPlugin;
-      AtlasService['createMongoDBOIDCPlugin'] = createPlugin;
-      const initPromise = AtlasService.init();
-      expect(AtlasService).to.have.property(
-        'oidcPluginSyncedFromLoggerState',
-        'restoring'
-      );
-      await initPromise;
-      expect(AtlasService).to.have.property(
-        'oidcPluginSyncedFromLoggerState',
-        'authenticated'
-      );
+    it('should try to restore service state by fetching user info', async function () {
+      await AtlasService.init();
+      expect(
+        mockOidcPlugin.mongoClientOptions.authMechanismProperties
+          .REQUEST_TOKEN_CALLBACK
+      ).to.have.been.calledOnce;
+      expect(AtlasService['currentUser']).to.have.property('sub', '1234');
     });
   });
 
@@ -649,29 +472,46 @@ describe('AtlasServiceMain', function () {
   describe('signOut', function () {
     it('should reset service state, revoke tokens, and destroy plugin', async function () {
       const logger = new EventEmitter();
-      const plugin = {
-        destroy: sandbox.stub().resolves(),
-      };
       AtlasService['openExternal'] = sandbox.stub().resolves();
-      AtlasService['token'] = { accessToken: '1234' };
-      AtlasService['createMongoDBOIDCPlugin'] = (() => {
-        return plugin;
-      }) as any;
-      AtlasService['fetch'] = sandbox.stub().resolves({ ok: true }) as any;
       AtlasService['oidcPluginLogger'] = logger;
-
       await AtlasService.init();
       expect(getListenerCount(logger)).to.eq(25);
+      // We did all preparations, reset sinon history for easier assertions
+      sandbox.resetHistory();
 
       await AtlasService.signOut();
       expect(getListenerCount(logger)).to.eq(0);
       expect(logger).to.not.eq(AtlasService['oidcPluginLogger']);
-      expect(plugin.destroy).to.have.been.calledOnce;
+      expect(mockOidcPlugin.destroy).to.have.been.calledOnce;
       expect(AtlasService['fetch']).to.have.been.calledOnceWith(
         'http://example.com/v1/revoke?client_id=1234abcd'
       );
-      expect(AtlasService['token']).to.eq(null);
       expect(AtlasService['openExternal']).to.have.been.calledOnce;
+    });
+
+    it('should throw when called before sign in', async function () {
+      try {
+        await AtlasService.signOut();
+        expect.fail('Expected signOut to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          "Can't sign out if not signed in yet"
+        );
+      }
+    });
+  });
+
+  describe('getTrackingUserInfo', function () {
+    it('should return required tracking info from user info', function () {
+      expect(
+        getTrackingUserInfo({
+          sub: '1234',
+          primaryEmail: 'test@example.com',
+        } as AtlasUserInfo)
+      ).to.deep.eq({
+        auid: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
+      });
     });
   });
 });

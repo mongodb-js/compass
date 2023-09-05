@@ -9,6 +9,7 @@ import { ErrorSummary } from '../error-warning-summary';
 import { SpinLoader } from '../loader';
 import { DEFAULT_ROBOT_SIZE, RobotSVG } from './robot-svg';
 import { AIFeedback } from './ai-feedback';
+import { AIGuideCue } from './ai-guide-cue';
 import { focusRing } from '../../hooks/use-focus-ring';
 
 const containerStyles = css({
@@ -150,6 +151,8 @@ type GenerativeAIInputProps = {
   isFetching?: boolean;
   placeholder?: string;
   show: boolean;
+  isAggregationGeneratedFromQuery?: boolean;
+  onResetIsAggregationGeneratedFromQuery?: () => void;
   onCancelRequest: () => void;
   onChangeAIPromptText: (text: string) => void;
   onClose: () => void;
@@ -172,10 +175,13 @@ function GenerativeAIInput({
   onChangeAIPromptText,
   onSubmitFeedback,
   onSubmitText,
+  isAggregationGeneratedFromQuery = false,
+  onResetIsAggregationGeneratedFromQuery,
 }: GenerativeAIInputProps) {
   const promptTextInputRef = useRef<HTMLInputElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const darkMode = useDarkMode();
+  const guideCueRef = useRef<HTMLInputElement>(null);
 
   const onTextInputKeyDown = useCallback(
     (evt: React.KeyboardEvent<HTMLInputElement>) => {
@@ -246,7 +252,18 @@ function GenerativeAIInput({
             title={closeText}
             onClick={() => onClose()}
           >
-            <RobotSVG />
+            <AIGuideCue
+              showGuideCue={isAggregationGeneratedFromQuery}
+              onCloseGuideCue={() => {
+                onResetIsAggregationGeneratedFromQuery?.();
+              }}
+              refEl={guideCueRef}
+              title="Aggregation generated"
+              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
+            />
+            <span ref={guideCueRef}>
+              <RobotSVG />
+            </span>
           </button>
           <div className={floatingButtonsContainerStyles}>
             {isFetching ? (

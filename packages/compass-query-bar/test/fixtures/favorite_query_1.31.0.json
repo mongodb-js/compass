@@ -1,0 +1,12 @@
+{
+  "_id": "64641fb6-8980-45ec-a9b5-8b70769e6317",
+  "filter": {
+    "name": { "$regularExpression": { "pattern": "berlin", "options": "i" } },
+    "bedrooms": 2
+  },
+  "_lastExecuted": { "$date": "2023-08-30T19:22:39.232Z" },
+  "_ns": "self_airbnb.listings",
+  "_name": "Two bedroom places in Berlin",
+  "_dateSaved": { "$date": "2023-08-30T19:23:32.740Z" },
+  "_dateModified": { "$date": "2023-08-30T19:23:32.740Z" }
+}

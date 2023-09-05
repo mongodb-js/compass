@@ -1,0 +1,22 @@
+{
+  "isSrvRecord": false,
+  "hostname": "localhost",
+  "port": 27019,
+  "hosts": [{ "host": "localhost", "port": 27017 }],
+  "extraOptions": {},
+  "connectionType": "NODE_DRIVER",
+  "authStrategy": "NONE",
+  "compression": null,
+  "readPreference": "primary",
+  "authMechanismProperties": null,
+  "appname": "MongoDB Compass",
+  "kerberosCanonicalizeHostname": false,
+  "sslMethod": "NONE",
+  "sshTunnel": "NONE",
+  "sshTunnelPort": 22,
+  "_id": "19c99bb4-d70d-48fa-8f6a-0219b926c4c6",
+  "lastUsed": 1693422009809,
+  "isFavorite": true,
+  "name": "Fav - 1.27.0",
+  "color": "#d4366e"
+}

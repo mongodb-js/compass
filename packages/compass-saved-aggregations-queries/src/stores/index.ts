@@ -15,12 +15,9 @@ import appRegistryReducer, { setAppRegistry } from './app-registry';
 
 import { FavoriteQueryStorage } from '@mongodb-js/compass-query-bar';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
-import { getStoragePaths } from '@mongodb-js/compass-utils';
 
 // Exporting so that they can be stubed/spied in tests
-export const queryStorage = new FavoriteQueryStorage(
-  getStoragePaths()?.basepath
-);
+export const queryStorage = new FavoriteQueryStorage();
 export const pipelineStorage = new PipelineStorage();
 
 const _store = createStore(

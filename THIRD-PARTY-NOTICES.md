@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Aug 24 2023.
+This document was automatically generated on Tue Sep 05 2023.
 
 ## List of dependencies
 
@@ -70,7 +70,7 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                 | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                             | 7.0.2        | MIT                                 |
 | **[@dnd-kit/utilities](#5c1b45075a016b1605974d8314078eaff1a193cb964f113c2e3730cbe9603ae0)**                            | 3.2.1        | MIT                                 |
-| **[@electron/remote](#19f4d60a913b1d7513f550c15e674dbf4a0807f8971da243c65221f077402be5)**                              | 2.0.10       | MIT                                 |
+| **[@electron/remote](#f86d0e2a6ee0c0c0428790bb3fe747eaa34fdc564b6738501a349cb6db3911e1)**                              | 2.0.11       | MIT                                 |
 | **[@emotion/cache](#abefd7c5ed45552ff224f27f625ade54ec500c18f3ee5f4c4578fc9870b954d6)**                                | 11.7.1       | MIT                                 |
 | **[@emotion/css](#834e3b5222a0a64c5b9671e61fad63e65365217575992afa291597bdeca63792)**                                  | 11.7.1       | MIT                                 |
 | **[@emotion/hash](#28d888fd2b55ad544152d8e1106f9fb67ebaf8e8ab3bf63836ce4f513f8a4fd6)**                                 | 0.8.0        | MIT                                 |
@@ -81,8 +81,6 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[@emotion/unitless](#33c90c27ba47755f07747bb9ca066ce37fc3622fd4aa8c03303d05afa45ff355)**                             | 0.7.5        | MIT                                 |
 | **[@emotion/utils](#e92e387e8f90010a7c06c18458513b76d4952e56d48b33a3cae3099bb822e8d4)**                                | 1.1.0        | MIT                                 |
 | **[@emotion/weak-memoize](#fe4943b1984d0fa6afec91f0a6f279a514f9bb02ad3f95aa3b8e13c1e2883086)**                         | 0.2.5        | MIT                                 |
-| **[@hapi/hoek](#7f05d0070d349a5d0b227054688e17afdd73fd7eb990eddee829e87a76e88dc7)**                                    | 9.2.0        | BSD-3-Clause                        |
-| **[@hapi/topo](#dcf7d236517a0e70a3be3a60756ee2aef1b1e6a2862b23278e094b9155f6ef43)**                                    | 5.0.0        | BSD-3-Clause                        |
 | **[@jridgewell/gen-mapping](#1f753c22041ca3b4767dd5698736a25ac366ca64e8982d5ee9109b161d5cd9fe)**                       | 0.3.2        | MIT                                 |
 | **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**                       | 3.1.0        | MIT                                 |
 | **[@jridgewell/set-array](#232e4103104ec42da9c01a923eaca648b9b4d8fd3ebbc13897ef8513f7c6fa73)**                         | 1.1.2        | MIT                                 |
@@ -104,9 +102,6 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[@react-stately/tooltip](#22379f22c16f0626e3d9f5098af8424f2aa0ab38c3ade03066b342fcc5a8d482)**                        | 3.1.1        | Apache-2.0                          |
 | **[@react-stately/utils](#0827474019c352ac03e04eb7fc65f7fe2eba2af1f14f05cc36bb74a504d893f5)**                          | 3.5.0        | Apache-2.0                          |
 | **[@segment/loosely-validate-event](#810756b8c6f5fccccb562b3f88fe577e4c63e3208772c72146304ac9cf53a94a)**               | 2.0.0        | MIT                                 |
-| **[@sideway/address](#a69b04dfb91e7ed9dfebde8978885fa6cb71380f90c4a6910b4468ef22006656)**                              | 4.1.4        | BSD-3-Clause                        |
-| **[@sideway/formula](#6c070cae39d9ee3e7d72f59431fa5a20be4660757c11799c0c4d0feadffc4239)**                              | 3.0.1        | BSD-3-Clause                        |
-| **[@sideway/pinpoint](#d100d8e40cb7a7e3f131fc99c670ab9346bcb117d901182b698a0c36009f2aab)**                             | 2.0.0        | BSD-3-Clause                        |
 | **[@smithy/config-resolver](#aaea00456fbfbe31d6cd7c11bd717abd1ea821c2a03d254aabc2e0d127c44f32)**                       | 1.0.2        | Apache-2.0                          |
 | **[@smithy/credential-provider-imds](#53202486721a45d0f2c05e00069b0b804fbb560513a414e61f972d67c70efdd2)**              | 1.0.2        | Apache-2.0                          |
 | **[@smithy/eventstream-codec](#796d6c7bf50c8a0a6202aeeb07b34d07cc61f94ff10984bfc94faa8e6b78d2f5)**                     | 1.0.2        | Apache-2.0                          |
@@ -243,7 +238,7 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[ejson-shell-parser](#1631f0de6379453a982f36795884ff37a225e331bbd8a7d141fbce378c691810)**                            | 1.2.4        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                   | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                     | 1.0.0        | Apache-2.0                          |
-| **[electron](#f1c3a2750fa3288cb09f1092d54b785c6fa663b050e93180009705095990d00d)**                                      | 23.3.12      | MIT                                 |
+| **[electron](#86250a13291601a57eb40ee5a3872214e16c7d6c651b4524114289b11fb443ba)**                                      | 24.8.2       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                     | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                 | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                  | 3.0.1        | MIT                                 |
@@ -327,7 +322,6 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[isarray](#dd5060a7691a8157c413dadfba4ff4c1de7480dcfd6d34af69a9696558358cec)**                                       | 1.0.0        | MIT                                 |
 | **[isexe](#2f62e711a6921973ef3f9650fd3e06585fd3842e34078c8fa959481738600405)**                                         | 2.0.0        | ISC                                 |
 | **[javascript-stringify](#e0d27d21a288d227e51243715c044b3933d9fc0fb025dc16ec79c78af35f85a7)**                          | 2.1.0        | MIT                                 |
-| **[joi](#c8e9d34c7c58edce21a3f3c0f54cf1502cfd889ec7b2625651d8139d5b068cea)**                                           | 17.9.2       | BSD-3-Clause                        |
 | **[join-component](#e3b7c74ebe2a0ad1c2f2cabfde196da4dc350a8c6cd6016f884d316a85a58d6b)**                                | 1.1.0        | MIT                                 |
 | **[jose](#1c9a4e6acd63a2e0d5844777470f9d4ce80d639d2851eff1f301a7ad967b9787)**                                          | 4.14.4       | MIT                                 |
 | **[js-beautify](#dd973d91f66bccebf0e1bbdc59b9dd48c24160efc326d0c2e4c7fec33a2749c7)**                                   | 1.14.7       | MIT                                 |
@@ -444,7 +438,7 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[mongodb-query-parser](#e76b97f8b563e3ff94c5fecb84c4dbc02b0034b3183a6899bf7f91e951af32a2)**                          | 3.1.3        | Apache-2.0                          |
 | **[mongodb-redact](#00a2cfed57df1e8b912b751b08bee4de24ad0189840c99820ebc00c1b219a421)**                                | 0.2.2        | Apache-2.0                          |
 | **[mongodb-schema](#51b48b1d63ceb84206cf38237d271f70e4afe080402284a50dfadb74460a96d2)**                                | 11.2.1       | Apache-2.0                          |
-| **[mongodb](#57a36c29c4257cc17c77d07542a08f31d2de23b7b5af86bb888e3ba97972bc72)**                                       | 5.7.0        | Apache-2.0                          |
+| **[mongodb](#a55485c99119ddc79f184947a61bb2de1b20282e29bf0d4d4ab8b4737eb5b210)**                                       | 5.8.1        | Apache-2.0                          |
 | **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**                                            | 2.0.0        | MIT                                 |
 | **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**                                            | 2.1.2        | MIT                                 |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                            | 2.1.3        | MIT                                 |
@@ -452,7 +446,7 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[mustache](#9e574ae3fa6282e512b5f57e7b1b1e9463c95d0301c65e2684cb120df415c5ee)**                                      | 4.2.0        | MIT                                 |
 | **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**                              | 1.0.2        | MIT                                 |
 | **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**                                    | 0.6.3        | MIT                                 |
-| **[node-abi](#2d7483a3f47b68fffbb061f81ee160f6865de0d967e463083b4ed1b838cb1143)**                                      | 3.45.0       | MIT                                 |
+| **[node-abi](#216f948f27d3a668071c3d9ce3261c62600749fa1873b8546dc776bc798cb3b0)**                                      | 3.47.0       | MIT                                 |
 | **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**                                | 4.3.0        | MIT                                 |
 | **[node-fetch](#ae6aab546df323cd6f4923b0c8f2d5d7119e13c5d5715a9a4983dccb054acf30)**                                    | 2.6.11       | MIT                                 |
 | **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**                                    | 2.6.7        | MIT                                 |
@@ -519,7 +513,6 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**                                   | 5.1.2        | MIT                                 |
 | **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**                                   | 5.2.1        | MIT                                 |
 | **[safer-buffer](#2fb14d3728e4ebf313be4634b146bd90cd3ad3559157baec03b64eec0878a0ba)**                                  | 2.1.2        | MIT                                 |
-| **[saslprep](#650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25)**                                      | 1.0.4        | MIT                                 |
 | **[scheduler](#950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f)**                                     | 0.20.2       | MIT                                 |
 | **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**                                        | 1.1.2        | MIT                                 |
 | **[semver](#130ff131d535cf175f11d330a68bae2ca388d0e168139f383a353ced45a36f0a)**                                        | 5.7.2        | ISC                                 |
@@ -602,6 +595,7 @@ This document was automatically generated on Thu Aug 24 2023.
 | **[yallist](#63b110ffd18712146937e9f182800c6f2b5783e76d1659a0bd4b457789b0df07)**                                       | 3.1.1        | ISC                                 |
 | **[yallist](#d400799c4e1f58dbbbe68b4d9c1b6e80e023f744bd7d16da491005fd8439200f)**                                       | 4.0.0        | ISC                                 |
 | **[yargs-parser](#617a7401008b7639df8cebae61c9c009bf04ca762c652da0975da4533bf33690)**                                  | 21.1.1       | ISC                                 |
+| **[zod](#bc3e322be86f81e300eded764cd6c4c1939a176cd0a666a4dbb1484cc61bc731)**                                           | 3.22.2       | MIT                                 |
 
 ## Package details
 
@@ -7204,9 +7198,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="19f4d60a913b1d7513f550c15e674dbf4a0807f8971da243c65221f077402be5"></a>
+<a id="f86d0e2a6ee0c0c0428790bb3fe747eaa34fdc564b6738501a349cb6db3911e1"></a>
 
-### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.0.10)
+### [@electron/remote](https://www.npmjs.com/package/@electron/remote) (version 2.0.11)
 
 License tags: MIT
 
@@ -7554,50 +7548,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
-
-<a id="7f05d0070d349a5d0b227054688e17afdd73fd7eb990eddee829e87a76e88dc7"></a>
-
-### [@hapi/hoek](https://www.npmjs.com/package/@hapi/hoek) (version 9.2.0)
-
-License tags: BSD-3-Clause
-
-License files:
-
-- LICENSE.md:
-
-      Copyright (c) 2011-2020, Sideway Inc, and project contributors
-      Copyright (c) 2011-2014, Walmart
-      Copyright (c) 2011, Yahoo Inc.
-
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS OFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-<a id="dcf7d236517a0e70a3be3a60756ee2aef1b1e6a2862b23278e094b9155f6ef43"></a>
-
-### [@hapi/topo](https://www.npmjs.com/package/@hapi/topo) (version 5.0.0)
-
-License tags: BSD-3-Clause
-
-License files:
-
-- LICENSE.md:
-
-      Copyright (c) 2012-2020, Sideway Inc, and project contributors
-      Copyright (c) 2012-2014, Walmart.
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS OFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <a id="1f753c22041ca3b4767dd5698736a25ac366ca64e8982d5ee9109b161d5cd9fe"></a>
 
@@ -9876,67 +9826,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
-
-<a id="a69b04dfb91e7ed9dfebde8978885fa6cb71380f90c4a6910b4468ef22006656"></a>
-
-### [@sideway/address](https://www.npmjs.com/package/@sideway/address) (version 4.1.4)
-
-License tags: BSD-3-Clause
-
-License files:
-
-- LICENSE.md:
-
-      Copyright (c) 2019-2020, Sideway, Inc. and Project contributors
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-       * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-       * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-       * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-<a id="6c070cae39d9ee3e7d72f59431fa5a20be4660757c11799c0c4d0feadffc4239"></a>
-
-### [@sideway/formula](https://www.npmjs.com/package/@sideway/formula) (version 3.0.1)
-
-License tags: BSD-3-Clause
-
-License files:
-
-- LICENSE.md:
-
-      Copyright (c) 2019-2020, Sideway. Inc, and project contributors
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-       * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-       * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-       * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-<a id="d100d8e40cb7a7e3f131fc99c670ab9346bcb117d901182b698a0c36009f2aab"></a>
-
-### [@sideway/pinpoint](https://www.npmjs.com/package/@sideway/pinpoint) (version 2.0.0)
-
-License tags: BSD-3-Clause
-
-License files:
-
-- LICENSE.md:
-
-      Copyright (c) 2019-2020, Sideway. Inc, and project contributors
-
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS OFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <a id="aaea00456fbfbe31d6cd7c11bd717abd1ea821c2a03d254aabc2e0d127c44f32"></a>
 
@@ -20467,9 +20356,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="f1c3a2750fa3288cb09f1092d54b785c6fa663b050e93180009705095990d00d"></a>
+<a id="86250a13291601a57eb40ee5a3872214e16c7d6c651b4524114289b11fb443ba"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 23.3.12)
+### [electron](https://www.npmjs.com/package/electron) (version 24.8.2)
 
 License tags: MIT
 
@@ -23489,28 +23378,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
-
-<a id="c8e9d34c7c58edce21a3f3c0f54cf1502cfd889ec7b2625651d8139d5b068cea"></a>
-
-### [joi](https://www.npmjs.com/package/joi) (version 17.9.2)
-
-License tags: BSD-3-Clause
-
-License files:
-
-- LICENSE.md:
-
-      Copyright (c) 2012-2022, Project contributors.
-      Copyright (c) 2012-2022, Sideway. Inc.
-      Copyright (c) 2012-2014, Walmart.
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-      * The names of any contributors may not be used to endorse or promote products derived from this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS AND CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <a id="e3b7c74ebe2a0ad1c2f2cabfde196da4dc350a8c6cd6016f884d316a85a58d6b"></a>
 
@@ -29275,9 +29142,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="57a36c29c4257cc17c77d07542a08f31d2de23b7b5af86bb888e3ba97972bc72"></a>
+<a id="a55485c99119ddc79f184947a61bb2de1b20282e29bf0d4d4ab8b4737eb5b210"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.7.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 5.8.1)
 
 License tags: Apache-2.0
 
@@ -29678,9 +29545,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="2d7483a3f47b68fffbb061f81ee160f6865de0d967e463083b4ed1b838cb1143"></a>
+<a id="216f948f27d3a668071c3d9ce3261c62600749fa1873b8546dc776bc798cb3b0"></a>
 
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.45.0)
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.47.0)
 
 License tags: MIT
 
@@ -38144,39 +38011,6 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="650475af3b2a0c96fc8e5d09155f96dccd1a6b720da0197b0ea1121968883b25"></a>
-
-### [saslprep](https://www.npmjs.com/package/saslprep) (version 1.0.4)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright (c) 2014 Dmitry Tsvettsikh
-
-      Permission is hereby granted, free of charge, to any person
-      obtaining a copy of this software and associated documentation
-      files (the "Software"), to deal in the Software without
-      restriction, including without limitation the rights to use,
-      copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the
-      Software is furnished to do so, subject to the following
-      conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-      OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-      HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-      WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-      OTHER DEALINGS IN THE SOFTWARE.
-
 <a id="950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f"></a>
 
 ### [scheduler](https://www.npmjs.com/package/scheduler) (version 0.20.2)
@@ -41131,3 +40965,35 @@ License files:
       OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
       WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
       ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+<a id="bc3e322be86f81e300eded764cd6c4c1939a176cd0a666a4dbb1484cc61bc731"></a>
+
+### [zod](https://www.npmjs.com/package/zod) (version 3.22.2)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2020 Colin McDonnell
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.

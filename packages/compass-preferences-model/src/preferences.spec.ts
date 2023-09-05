@@ -73,19 +73,6 @@ describe('Preferences class', function () {
     ).to.throw;
   });
 
-  it('forbids saving non-model preferences', async function () {
-    const preferences = await setupPreferences(tmpdir);
-    try {
-      // @ts-expect-error That this doesn't work is part of the test
-      await preferences.savePreferences({ help: true });
-      expect.fail('missed exception');
-    } catch (err: any) {
-      expect(err.message).to.equal(
-        'Setting "help" is not part of the preferences model'
-      );
-    }
-  });
-
   it('stores preferences across instances', async function () {
     const preferences1 = await setupPreferences(tmpdir);
     await preferences1.savePreferences({ enableMaps: true });

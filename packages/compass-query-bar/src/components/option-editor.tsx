@@ -80,8 +80,8 @@ const insightsBadgeStyles = css({
 });
 
 type OptionEditorProps = {
-  hasError: boolean;
-  id: string;
+  id?: string;
+  hasError?: boolean;
   hasAutofix?: boolean;
   onChange: (value: string) => void;
   onApply?(): void;
@@ -94,10 +94,10 @@ type OptionEditorProps = {
   insights?: Signal | Signal[];
 };
 
-const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
-  hasError,
+export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   id,
-  hasAutofix,
+  hasError = false,
+  hasAutofix = false,
   onChange,
   onApply,
   onBlur,
@@ -150,22 +150,35 @@ const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   }, [schemaFields, serverVersion]);
 
   const onFocus = () => {
-    if (hasAutofix && editorRef.current) {
-      if (editorRef.current.editorContents === '') {
-        rafraf(() => {
+    if (hasAutofix) {
+      rafraf(() => {
+        if (editorRef.current?.editorContents === '') {
           editorRef.current?.applySnippet('\\{${}}');
-        });
-      }
+        }
+      });
     }
   };
 
   const onPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
     if (hasAutofix && editorRef.current) {
-      const editorContents = editorRef.current.editorContents;
-      const snippet = lenientlyFixQuery(editorContents || '');
-      if (snippet) {
-        editorRef.current.applySnippet(snippet);
-        event.preventDefault();
+      const { main: currentSelection } =
+        editorRef.current.editor?.state.selection ?? {};
+      const currentContents = editorRef.current.editorContents;
+      // Only try to fix user paste if we are handling editor state similar to
+      // what happens after we auto-inserted empty brackets on initial focus, do
+      // not mess with user input in any other case
+      if (
+        currentContents === '{}' &&
+        currentSelection &&
+        currentSelection.from === 1 &&
+        currentSelection.to === 1
+      ) {
+        const pasteContents = event.clipboardData.getData('text');
+        const snippet = lenientlyFixQuery(`{${pasteContents}}`);
+        if (snippet) {
+          event.preventDefault();
+          editorRef.current.applySnippet(snippet);
+        }
       }
     }
   };

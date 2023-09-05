@@ -1,8 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-export interface StoragePaths {
-  appName: string;
-  basepath: string;
-}
 
 function getElectronApp() {
   let app;
@@ -21,12 +17,14 @@ function getElectronApp() {
   return app;
 }
 
-export function getStoragePaths(): StoragePaths | undefined {
-  const app = getElectronApp();
-  if (!app) return undefined;
+export function getAppName(): string | undefined {
+  return getElectronApp()?.getName();
+}
 
-  const appName = app.getName();
-  const basepath = app.getPath('userData');
-
-  return { appName, basepath };
+export function getStoragePath() {
+  const basepath = getElectronApp()?.getPath('userData');
+  if (!basepath) {
+    throw new Error('The storage path is not defined.');
+  }
+  return basepath as string;
 }

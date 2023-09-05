@@ -1,3 +1,4 @@
+unset_function_vars: true
 stepback: false
 exec_timeout_secs: 5400
 ignore:

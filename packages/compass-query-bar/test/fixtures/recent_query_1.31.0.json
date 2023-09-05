@@ -1,0 +1,8 @@
+{
+  "_id": "a88e188c-ee17-43bf-85e9-9edec8b4e70f",
+  "filter": {
+    "name": { "$regularExpression": { "pattern": "berlin", "options": "i" } }
+  },
+  "_lastExecuted": { "$date": "2023-08-30T19:22:30.273Z" },
+  "_ns": "self_airbnb.listings"
+}

@@ -9,7 +9,6 @@ import type {
 } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
-import { getStoragePaths } from '@mongodb-js/compass-utils';
 import type { PreferencesAccess } from '.';
 
 let preferencesSingleton: Preferences | undefined;
@@ -22,7 +21,7 @@ export async function setupPreferences(
   }
 
   const preferences = (preferencesSingleton = new Preferences(
-    getStoragePaths()?.basepath,
+    undefined,
     globalPreferences,
     process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX === 'true'
   ));

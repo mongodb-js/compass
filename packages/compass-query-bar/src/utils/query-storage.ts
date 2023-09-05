@@ -1,98 +1,104 @@
-import { join } from 'path';
-import fs from 'fs/promises';
-import { EJSON, UUID } from 'bson';
+import { UUID, EJSON } from 'bson';
 import { orderBy } from 'lodash';
 import { type BaseQuery } from '../constants/query-properties';
-
-const ENCODING_UTF8 = 'utf8';
+import { UserData } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 
 // We do not save maxTimeMS
-export type RecentQuery = Omit<BaseQuery, 'maxTimeMS'> & {
-  _id: string;
-  _lastExecuted: Date;
-  _ns: string;
-  _host?: string;
+const BaseQuerySchema: z.Schema<Omit<BaseQuery, 'maxTimeMS'>> = z.object({
+  filter: z.any().optional(),
+  project: z.any().optional(),
+  collation: z.any().optional(),
+  sort: z.any().optional(),
+  skip: z.number().optional(),
+  limit: z.number().optional(),
+});
+
+const RecentQuerySchema = BaseQuerySchema.and(
+  z.object({
+    _id: z.string().uuid(),
+    _lastExecuted: z
+      .union([z.coerce.date(), z.number()])
+      .transform((x) => new Date(x)),
+    _ns: z.string(),
+    _host: z.string().optional(),
+  })
+);
+
+const FavoriteQuerySchema = RecentQuerySchema.and(
+  z.object({
+    _name: z.string().nonempty(),
+    _dateModified: z
+      .union([z.coerce.date(), z.number()])
+      .optional()
+      .transform((x) => (x !== undefined ? new Date(x) : x)),
+    _dateSaved: z
+      .union([z.coerce.date(), z.number()])
+      .transform((x) => new Date(x)),
+  })
+);
+
+export type RecentQuery = z.output<typeof RecentQuerySchema>;
+export type FavoriteQuery = z.output<typeof FavoriteQuerySchema>;
+
+type QueryStorageOptions = {
+  basepath?: string;
+  namespace?: string;
 };
 
-export type FavoriteQuery = RecentQuery & {
-  _name: string;
-  _dateModified: Date;
-  _dateSaved: Date;
-};
-
-export abstract class QueryStorage<T extends RecentQuery = RecentQuery> {
+export abstract class QueryStorage<T extends z.Schema> {
+  protected readonly userData: UserData<T>;
   constructor(
-    protected readonly path: string,
-    protected readonly namespace: string = ''
-  ) {}
+    schemaValidator: T,
+    protected readonly folder: string,
+    protected readonly options: QueryStorageOptions
+  ) {
+    this.userData = new UserData(schemaValidator, {
+      subdir: folder,
+      basePath: options.basepath,
+      serialize: (content) => EJSON.stringify(content, undefined, 2),
+      deserialize: (content) => EJSON.parse(content),
+    });
+  }
 
-  async loadAll(): Promise<T[]> {
+  async loadAll(): Promise<z.output<T>[]> {
     try {
-      const dir = this.path;
-      const files = (await fs.readdir(dir))
-        .filter((file) => file.endsWith('.json'))
-        .map((file) => join(dir, file));
-
-      const data = (
-        await Promise.all(files.map((filePath) => this.getFileData(filePath)))
-      ).filter(Boolean) as T[];
-
+      const { data } = await this.userData.readAll();
       const sortedData = orderBy(data, (query) => query._lastExecuted, 'desc');
-
-      if (this.namespace) {
-        return sortedData.filter((x) => x._ns === this.namespace);
+      if (this.options.namespace) {
+        return sortedData.filter((x) => x._ns === this.options.namespace);
       }
-
       return sortedData;
     } catch (e) {
       return [];
     }
   }
 
-  async updateAttributes(id: string, data: Partial<T>): Promise<T> {
-    // ensure the folder exists
-    await fs.mkdir(this.path, { recursive: true });
-    const filePath = this.getFilePath(id);
-    const fileData = (await this.getFileData(filePath)) ?? {};
-    const updated = {
-      ...fileData,
+  async updateAttributes(
+    id: string,
+    data: Partial<z.input<T>>
+  ): Promise<z.output<T>> {
+    await this.userData.write(id, {
+      ...((await this.userData.readOne(id)) ?? {}),
       ...data,
-    };
-    await fs.writeFile(
-      filePath,
-      EJSON.stringify(updated, undefined, 2),
-      ENCODING_UTF8
-    );
-    return updated as T;
+    });
+    return await this.userData.readOne(id);
   }
 
   async delete(id: string) {
-    return fs.unlink(this.getFilePath(id));
-  }
-
-  private getFilePath(id: string) {
-    return join(this.path, `${id}.json`);
-  }
-
-  private async getFileData(filePath: string): Promise<T | false> {
-    try {
-      const data = await fs.readFile(filePath, ENCODING_UTF8);
-      return EJSON.parse(data);
-    } catch (e) {
-      return false;
-    }
+    return await this.userData.delete(id);
   }
 }
 
-export class RecentQueryStorage extends QueryStorage<RecentQuery> {
+export class RecentQueryStorage extends QueryStorage<typeof RecentQuerySchema> {
   private readonly maxAllowedQueries = 30;
 
-  constructor(path?: string, namespace?: string) {
-    super(join(path ?? '', 'RecentQueries'), namespace);
+  constructor(options: QueryStorageOptions = {}) {
+    super(RecentQuerySchema, 'RecentQueries', options);
   }
 
   async saveQuery(
-    data: Omit<RecentQuery, '_id' | '_lastExecuted'>
+    data: Omit<z.input<typeof RecentQuerySchema>, '_id' | '_lastExecuted'>
   ): Promise<void> {
     const recentQueries = await this.loadAll();
 
@@ -102,17 +108,19 @@ export class RecentQueryStorage extends QueryStorage<RecentQuery> {
     }
 
     const _id = new UUID().toString();
-    const recentQuery: RecentQuery = {
+    const recentQuery = {
       ...data,
       _id,
       _lastExecuted: new Date(),
     };
-    await this.updateAttributes(_id, recentQuery);
+    await this.userData.write(_id, recentQuery);
   }
 }
 
-export class FavoriteQueryStorage extends QueryStorage<FavoriteQuery> {
-  constructor(path?: string, namespace?: string) {
-    super(join(path ?? '', 'FavoriteQueries'), namespace);
+export class FavoriteQueryStorage extends QueryStorage<
+  typeof FavoriteQuerySchema
+> {
+  constructor(options: QueryStorageOptions = {}) {
+    super(FavoriteQuerySchema, 'FavoriteQueries', options);
   }
 }

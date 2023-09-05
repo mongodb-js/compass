@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/mocha-config-compass",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Shared mocha mocha configuration for Compass packages",
   "license": "SSPL",
   "main": "index.js",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@mongodb-js/mocha-config-devtools": "^1.0.0",
-    "@electron/remote": "^2.0.10",
+    "@electron/remote": "^2.0.11",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "chai": "^4.3.4",
     "chai-dom": "^1.9.0",

@@ -1,6 +1,4 @@
-import { join } from 'path';
-import { validate as uuidValidate } from 'uuid';
-import fs from 'fs/promises';
+import { ipcMain } from 'electron';
 import keytar from 'keytar';
 
 import type { ConnectionInfo } from './connection-info';
@@ -15,11 +13,7 @@ import {
   getKeytarServiceName,
   parseStoredPassword,
 } from './utils';
-import {
-  getStoragePaths,
-  ipcExpose,
-  throwIfAborted,
-} from '@mongodb-js/compass-utils';
+import { ipcExpose, throwIfAborted } from '@mongodb-js/compass-utils';
 import {
   serializeConnections,
   deserializeConnections,
@@ -28,54 +22,83 @@ import type {
   ImportConnectionOptions,
   ExportConnectionOptions,
 } from './import-export-connection';
+import { UserData } from '@mongodb-js/compass-user-data';
+import { z } from 'zod';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('CONNECTION-STORAGE');
 
 type ConnectionLegacyProps = {
-  _id: string;
+  _id?: string;
   isFavorite?: boolean;
-  name: string;
+  name?: string;
 };
 
 type ConnectionWithLegacyProps = {
-  connectionInfo: ConnectionInfo;
+  connectionInfo?: ConnectionInfo;
 } & ConnectionLegacyProps;
+
+const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
+  .object({
+    _id: z.string().uuid().optional(),
+    isFavorite: z.boolean().optional(),
+    name: z.string().optional(),
+    connectionInfo: z
+      .object({
+        id: z.string().uuid(),
+        lastUsed: z.coerce
+          .date()
+          .optional()
+          .transform((x) => (x !== undefined ? new Date(x) : x)),
+        favorite: z.any().optional(),
+        connectionOptions: z.object({
+          connectionString: z
+            .string()
+            .nonempty('Connection string is required.'),
+          sshTunnel: z.any().optional(),
+          useSystemCA: z.boolean().optional(),
+          oidc: z.any().optional(),
+          fleOptions: z.any().optional(),
+        }),
+      })
+      .optional(),
+  })
+  .passthrough();
 
 export class ConnectionStorage {
   private static calledOnce: boolean;
-  private static path: string;
+  private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
 
-  private static readonly folder = 'Connections';
   private static readonly maxAllowedRecentConnections = 10;
+  private static userData: UserData<typeof ConnectionSchema>;
 
   private constructor() {
     // singleton
   }
 
-  static init(path = getStoragePaths()?.basepath ?? '') {
+  static init(basePath?: string) {
     if (this.calledOnce) {
       return;
     }
-    this.path = path;
-    ipcExpose('ConnectionStorage', this, [
-      'loadAll',
-      'load',
-      'getLegacyConnections',
-      'save',
-      'delete',
-      'deserializeConnections',
-      'exportConnections',
-      'importConnections',
-    ]);
+    this.userData = new UserData(ConnectionSchema, {
+      subdir: 'Connections',
+      basePath,
+    });
+    ipcExpose(
+      'ConnectionStorage',
+      this,
+      [
+        'loadAll',
+        'load',
+        'getLegacyConnections',
+        'save',
+        'delete',
+        'deserializeConnections',
+        'exportConnections',
+        'importConnections',
+      ],
+      this.ipcMain
+    );
     this.calledOnce = true;
-  }
-
-  private static getFolderPath() {
-    return join(this.path, this.folder);
-  }
-
-  private static getFilePath(id: string) {
-    return join(this.getFolderPath(), `${id}.json`);
   }
 
   private static mapStoredConnectionToConnectionInfo(
@@ -83,9 +106,6 @@ export class ConnectionStorage {
     secrets?: ConnectionSecrets
   ): ConnectionInfo {
     const connectionInfo = mergeSecrets(storedConnectionInfo, secrets);
-    if (connectionInfo.lastUsed) {
-      connectionInfo.lastUsed = new Date(connectionInfo.lastUsed);
-    }
     return deleteCompassAppNameParam(connectionInfo);
   }
 
@@ -113,26 +133,7 @@ export class ConnectionStorage {
   }
 
   private static async getConnections(): Promise<ConnectionWithLegacyProps[]> {
-    const connectionIds = (await fs.readdir(this.getFolderPath()))
-      .filter((file) => file.endsWith('.json'))
-      .map((file) => file.replace('.json', ''));
-
-    const data = await Promise.all(
-      connectionIds.map(async (id) => {
-        try {
-          return JSON.parse(await fs.readFile(this.getFilePath(id), 'utf8'));
-        } catch (e) {
-          log.error(
-            mongoLogId(1_001_000_200),
-            'Connection Storage',
-            'Failed to parse connection',
-            { message: (e as Error).message, connectionId: id }
-          );
-          return undefined;
-        }
-      })
-    );
-    return data.filter(Boolean);
+    return (await this.userData.readAll()).data;
   }
 
   /**
@@ -153,7 +154,7 @@ export class ConnectionStorage {
         (x) => !x.connectionInfo && x.isFavorite
       );
       return legacyConnections.map((x) => ({
-        name: x.name,
+        name: x.name!,
       }));
     } catch (e) {
       return [];
@@ -166,9 +167,6 @@ export class ConnectionStorage {
     signal?: AbortSignal;
   } = {}): Promise<ConnectionInfo[]> {
     throwIfAborted(signal);
-    // Ensure folder exists
-    await fs.mkdir(this.getFolderPath(), { recursive: true });
-
     try {
       const [connections, secrets] = await Promise.all([
         this.getConnections(),
@@ -180,8 +178,8 @@ export class ConnectionStorage {
           .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
           .map(({ connectionInfo }) =>
             this.mapStoredConnectionToConnectionInfo(
-              connectionInfo,
-              secrets[connectionInfo.id]
+              connectionInfo!,
+              secrets[connectionInfo!.id]
             )
           )
       );
@@ -205,18 +203,6 @@ export class ConnectionStorage {
   }): Promise<void> {
     throwIfAborted(signal);
     try {
-      if (!connectionInfo.id) {
-        throw new Error('id is required');
-      }
-
-      if (!uuidValidate(connectionInfo.id)) {
-        throw new Error('id must be a uuid');
-      }
-
-      if (!connectionInfo.connectionOptions.connectionString) {
-        throw new Error('Connection string is required.');
-      }
-
       // While saving connections, we also save `_id` property
       // in order to support the downgrade of Compass to a version
       // where we use storage-mixin. storage-mixin uses this prop
@@ -224,26 +210,18 @@ export class ConnectionStorage {
 
       // While testing, we don't use keychain to store secrets
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
-        await fs.writeFile(
-          this.getFilePath(connectionInfo.id),
-          JSON.stringify({ connectionInfo, _id: connectionInfo.id }, null, 2),
-          'utf-8'
-        );
+        await this.userData.write(connectionInfo.id, {
+          connectionInfo,
+          _id: connectionInfo.id,
+        });
       } else {
         const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
           extractSecrets(connectionInfo);
-        await fs.writeFile(
-          this.getFilePath(connectionInfo.id),
-          JSON.stringify(
-            {
-              connectionInfo: connectionInfoWithoutSecrets,
-              _id: connectionInfo.id,
-            },
-            null,
-            2
-          ),
-          'utf-8'
-        );
+        await this.userData.write(connectionInfo.id, {
+          connectionInfo: connectionInfoWithoutSecrets,
+          _id: connectionInfo.id,
+        });
+
         try {
           await keytar.setPassword(
             getKeytarServiceName(),
@@ -285,7 +263,7 @@ export class ConnectionStorage {
     }
 
     try {
-      await fs.unlink(this.getFilePath(id));
+      await this.userData.delete(id);
       if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true') {
         return;
       }

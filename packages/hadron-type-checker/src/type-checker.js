@@ -322,7 +322,7 @@ class TypeChecker {
     if (caster) {
       result = caster(object);
     }
-    return result === OBJECT_TYPE ? EMPTY : result;
+    return result === OBJECT_TYPE && result !== object ? EMPTY : result;
   }
 
   /**
