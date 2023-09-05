@@ -36,7 +36,6 @@ export const setDataProvider = (store, error, provider) => {
 };
 
 const configureStore = (options = {}) => {
-  console.log({ options });
   const store = createStore(reducer, applyMiddleware(thunk));
 
   // Set the app registry if preset. This must happen first.
@@ -96,8 +95,7 @@ const configureStore = (options = {}) => {
   }
 
   if (options.isReadonly) {
-    const isReadonlyView = options.isReadonly;
-    store.dispatch(readonlyViewChanged(isReadonlyView));
+    store.dispatch(readonlyViewChanged(options.isReadonly));
   }
 
   if (options.dataProvider) {

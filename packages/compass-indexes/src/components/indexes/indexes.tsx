@@ -32,7 +32,6 @@ const containerStyles = css({
 type IndexesProps = {
   indexes: IndexDefinition[];
   isWritable: boolean;
-  isReadonly: boolean;
   isReadonlyView: boolean;
   description?: string;
   error: string | null;
@@ -54,7 +53,6 @@ const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
   indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,
@@ -79,7 +77,6 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
     <div className={containerStyles}>
       <IndexesToolbar
         isWritable={isWritable}
-        isReadonly={isReadonly}
         isReadonlyView={isReadonlyView}
         readOnly={readOnly}
         errorMessage={error}
@@ -93,7 +90,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         <IndexesTable
           indexes={indexes}
           serverVersion={serverVersion}
-          canModifyIndex={isWritable && !isReadonly && !readOnly}
+          canModifyIndex={isWritable && !readOnly}
           onSortTable={sortIndexes}
           onDeleteIndex={deleteIndex}
           onHideIndex={onHideIndex}
@@ -106,7 +103,6 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
 
 const mapState = ({
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,
@@ -116,7 +112,6 @@ const mapState = ({
 }: RootState) => ({
   indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,

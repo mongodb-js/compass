@@ -13,7 +13,6 @@ const renderIndexes = (
     <Indexes
       indexes={[]}
       isWritable={true}
-      isReadonly={false}
       isReadonlyView={false}
       readOnly={false}
       description={undefined}

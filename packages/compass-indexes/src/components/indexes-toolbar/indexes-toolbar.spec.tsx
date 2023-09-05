@@ -16,7 +16,6 @@ const renderIndexesToolbar = (
     <IndexesToolbar
       hasTooManyIndexes={false}
       errorMessage={null}
-      isReadonly={false}
       isReadonlyView={false}
       readOnly={false}
       isWritable={true}
@@ -64,18 +63,6 @@ describe('IndexesToolbar Component', function () {
     it('should render a warning', function () {
       expect(screen.getByText('Readonly views may not contain indexes.')).to.be
         .visible;
-    });
-  });
-
-  describe('when it is readonly', function () {
-    beforeEach(function () {
-      renderIndexesToolbar({
-        isReadonly: true,
-      });
-    });
-
-    it('should not render the create index button', function () {
-      expect(screen.queryByText('Create Index')).to.not.exist;
     });
   });
 
