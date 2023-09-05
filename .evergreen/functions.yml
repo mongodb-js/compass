@@ -40,7 +40,7 @@ variables:
     # WARN: This version is behind our electron runtime, but updating it will
     # drop support for some older linux platforms, so we are keeping them out of
     # sync for now
-    # TODO: https://jira.mongodb.org/browse/COMPASS-7188
+    # TODO: https://jira.mongodb.org/browse/COMPASS-6915 
     NODE_JS_VERSION: '16.17.0'
     NPM_VERSION: '8.19.4'
     # secrets
