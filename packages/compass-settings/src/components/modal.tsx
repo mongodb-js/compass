@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import { withPreferences } from 'compass-preferences-model';
+
 import {
   FormModal,
   css,
@@ -19,7 +19,6 @@ import Sidebar from './sidebar';
 import { saveSettings, closeModal } from '../stores/settings';
 import type { RootState } from '../stores';
 import { getUserInfo } from '../stores/atlas-login';
-import { ConnectedAtlasLoginSettings } from './settings/atlas-login';
 
 type Settings = {
   name: string;
@@ -27,7 +26,6 @@ type Settings = {
 };
 
 type SettingsModalProps = {
-  isAIEnabled: boolean;
   isOpen: boolean;
   isOIDCEnabled: boolean;
   onMount?: () => void;
@@ -61,7 +59,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onMount,
   onClose,
   onSave,
-  isAIEnabled,
   isOIDCEnabled,
   hasChangedSettings,
 }) => {
@@ -88,13 +85,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     settings.push({
       name: 'Feature Preview',
       component: FeaturePreviewSettings,
-    });
-  }
-
-  if (isAIEnabled) {
-    settings.push({
-      name: 'Atlas (Preview)',
-      component: ConnectedAtlasLoginSettings,
     });
   }
 
@@ -138,27 +128,18 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   );
 };
 
-export default withPreferences(
-  connect(
-    (state: RootState, ownProps: { enableAI?: boolean }) => {
-      return {
-        isOpen:
-          state.settings.isModalOpen && state.settings.loadingState === 'ready',
-        isAIEnabled: !!state.settings.settings.enableAI,
-        showAtlasLoginSettings:
-          state.settings.settings.enableAI ||
-          ['authenticated', 'in-progress'].includes(state.atlasLogin.status) ||
-          ownProps.enableAI,
-        isOIDCEnabled: !!state.settings.settings.enableOidc,
-        hasChangedSettings: state.settings.updatedFields.length > 0,
-      };
-    },
-    {
-      onMount: getUserInfo,
-      onClose: closeModal,
-      onSave: saveSettings,
-    }
-  )(SettingsModal),
-  ['enableAI'],
-  React
-);
+export default connect(
+  (state: RootState) => {
+    return {
+      isOpen:
+        state.settings.isModalOpen && state.settings.loadingState === 'ready',
+      isOIDCEnabled: !!state.settings.settings.enableOidc,
+      hasChangedSettings: state.settings.updatedFields.length > 0,
+    };
+  },
+  {
+    onMount: getUserInfo,
+    onClose: closeModal,
+    onSave: saveSettings,
+  }
+)(SettingsModal);

@@ -110,7 +110,7 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             color={darkMode ? 'white' : 'black'}
             height={18}
           ></MongoDBLogoMark>
-          <span>AI Query</span>
+          <span>AI Query and Aggregation</span>
           <Badge variant="blue">Preview</Badge>
         </Subtitle>
         <div className={atlasLoginControlsStyles}>
@@ -167,7 +167,7 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             className={atlasLoginToggleControlLabelStyles}
           >
             Use AI to generate queries and aggregations with a natural language
-            text input on the query bar and aggregation page
+            text input on the query bar and aggregation page.
           </Label>
         </div>
         {isSignedIn && !isAIFeatureEnabled && (
