@@ -9,7 +9,7 @@ import { writeStateChanged } from '../modules/is-writable';
 import { readonlyViewChanged } from '../modules/is-readonly-view';
 import { getDescription } from '../modules/description';
 import { dataServiceConnected } from '../modules/data-service';
-import { fetchIndexes } from '../modules/indexes';
+import { fetchIndexes } from '../modules/regular-indexes';
 import { handleError } from '../modules/error';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
@@ -17,7 +17,7 @@ import {
   inProgressIndexAdded,
   inProgressIndexRemoved,
   inProgressIndexFailed,
-} from '../modules/in-progress-indexes';
+} from '../modules/regular-indexes';
 
 /**
  * Handle setting up the data provider.
@@ -36,6 +36,7 @@ export const setDataProvider = (store, error, provider) => {
 };
 
 const configureStore = (options = {}) => {
+  console.log({ options });
   const store = createStore(reducer, applyMiddleware(thunk));
 
   // Set the app registry if preset. This must happen first.

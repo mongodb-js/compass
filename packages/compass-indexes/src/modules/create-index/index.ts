@@ -16,7 +16,7 @@ import fields from '../create-index/fields';
 import type { IndexField } from '../create-index/fields';
 import namespace from '../namespace';
 import serverVersion from '../server-version';
-import type { InProgressIndex } from '../in-progress-indexes';
+import type { InProgressIndex } from '../regular-indexes';
 
 import schemaFields from '../create-index/schema-fields';
 import { resetForm } from '../reset-form';

@@ -9,16 +9,16 @@ import {
   dropFailedIndex,
   hideIndex,
   unhideIndex,
-} from '../../modules/indexes';
+  refreshIndexes,
+} from '../../modules/regular-indexes';
 import type {
   IndexDefinition,
   SortColumn,
   SortDirection,
-} from '../../modules/indexes';
+} from '../../modules/regular-indexes';
 
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
-import { refreshIndexes } from '../../modules/is-refreshing';
 import type { RootState } from '../../modules';
 
 const containerStyles = css({
@@ -105,15 +105,14 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
 };
 
 const mapState = ({
-  indexes,
   isWritable,
   isReadonly,
   isReadonlyView,
   description,
   error,
-  isRefreshing,
   serverVersion,
   appRegistry,
+  regularIndexes: { indexes, isRefreshing },
 }: RootState) => ({
   indexes,
   isWritable,
