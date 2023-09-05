@@ -1483,5 +1483,27 @@ describe('DataService', function () {
         expect(dataService['_crudClient']).to.equal(fakeClonedClient);
       });
     });
+
+    describe('#isListSearchIndexesSupported', function () {
+      it('resolves to true if listSearchIndexes succeeds');
+      it('resolves to false if listSearchIndexes fails');
+    });
+
+    describe('#getSearchIndexes', function () {
+      it('returns the search indexes');
+      it('cancels a long running operation');
+    });
+
+    describe('#createSearchIndex', function () {
+      it('creates a search index');
+    });
+
+    describe('#updateSearchIndex', function () {
+      it('updates a search index');
+    });
+
+    describe('#dropSearchIndex', function () {
+      it('drops a search index');
+    });
   });
 });

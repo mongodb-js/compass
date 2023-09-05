@@ -91,6 +91,7 @@ import type {
   IndexInfo,
 } from './index-detail-helper';
 import { createIndexDefinition } from './index-detail-helper';
+import type { SearchIndex } from './search-index-detail-helper';
 import type {
   BoundLogger,
   DataServiceImplLogger,
@@ -423,6 +424,29 @@ export interface DataService {
    * @param name - The index name.
    */
   dropIndex(ns: string, name: string): Promise<Document>;
+
+  /*** SearchIndexes ***/
+
+  isListSearchIndexesSupported(ns: string): Promise<boolean>;
+
+  getSearchIndexes(
+    ns: string,
+    executionOptions?: ExecutionOptions
+  ): Promise<SearchIndex[]>;
+
+  createSearchIndex(
+    ns: string,
+    name: string,
+    definition: Document
+  ): Promise<string>;
+
+  updateSearchIndex(
+    ns: string,
+    name: string,
+    definition: Document
+  ): Promise<void>;
+
+  dropSearchIndex(ns: string, name: string): Promise<void>;
 
   /*** Aggregation ***/
 
@@ -1511,6 +1535,68 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async dropIndex(ns: string, name: string): Promise<Document> {
     const coll = this._collection(ns, 'CRUD');
     return await coll.dropIndex(name);
+  }
+
+  // TODO: @op
+  async isListSearchIndexesSupported(ns: string): Promise<boolean> {
+    try {
+      const coll = this._collection(ns, 'CRUD');
+      const cursor = coll.listSearchIndexes();
+      // It doesn't matter if hasNext() resolves to true/false - we just want to
+      // execute the $listSearchIndexes aggregation and see if it succeeds
+      await cursor.hasNext();
+      await cursor.close();
+    } catch (err) {
+      return false;
+    }
+    return true;
+  }
+
+  // TODO: @op
+  async getSearchIndexes(
+    ns: string,
+    executionOptions?: ExecutionOptions
+  ): Promise<SearchIndex[]> {
+    const coll = this._collection(ns, 'CRUD');
+    const indexes = await this._cancellableOperation(
+      async (session) => {
+        const cursor = coll.listSearchIndexes({
+          session,
+        });
+        const result = await cursor.toArray();
+        void cursor.close();
+        return result;
+      },
+      (session) => session.endSession(),
+      executionOptions?.abortSignal
+    );
+    return indexes as SearchIndex[];
+  }
+
+  // TODO: @op
+  createSearchIndex(
+    ns: string,
+    name: string,
+    definition: Document
+  ): Promise<string> {
+    const coll = this._collection(ns, 'CRUD');
+    return coll.createSearchIndex({ name, definition });
+  }
+
+  // TODO: @op
+  async updateSearchIndex(
+    ns: string,
+    name: string,
+    definition: Document
+  ): Promise<void> {
+    const coll = this._collection(ns, 'CRUD');
+    return coll.updateSearchIndex(name, definition);
+  }
+
+  // TODO: @op
+  async dropSearchIndex(ns: string, name: string): Promise<void> {
+    const coll = this._collection(ns, 'CRUD');
+    return coll.dropSearchIndex(name);
   }
 
   @op(mongoLogId(1_001_000_041), ([ns, pipeline]) => {
