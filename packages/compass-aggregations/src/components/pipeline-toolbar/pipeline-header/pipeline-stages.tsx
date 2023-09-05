@@ -61,7 +61,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   onEditPipelineClick,
   onShowAIInputClick,
 }) => {
-  const enableAIExperience = usePreference('enableAIExperience', React);
+  const enableAIExperience = usePreference('enableAI', React);
 
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">

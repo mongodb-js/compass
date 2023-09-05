@@ -74,7 +74,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   pipelineOutputOption,
 }) => {
   const darkMode = useDarkMode();
-  const enableAIExperience = usePreference('enableAIExperience', React);
+  const enableAIExperience = usePreference('enableAI', React);
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <div

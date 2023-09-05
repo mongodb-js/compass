@@ -82,7 +82,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onCollectionScanInsightActionButtonClick,
 }) => {
   const showInsights = usePreference('showInsights', React);
-  const enableAIExperience = usePreference('enableAIExperience', React);
+  const enableAIExperience = usePreference('enableAI', React);
 
   return (
     <div className={containerStyles}>

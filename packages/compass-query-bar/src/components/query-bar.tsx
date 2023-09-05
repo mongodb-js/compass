@@ -175,7 +175,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
-  const enableAIQuery = usePreference('enableAIExperience', React);
+  const enableAIQuery = usePreference('enableAI', React);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {

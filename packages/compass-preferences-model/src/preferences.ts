@@ -27,6 +27,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // User-facing preferences
     autoUpdates: boolean;
     enableMaps: boolean;
+    enableAI: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
     networkTraffic: boolean;
@@ -403,6 +404,21 @@ export const storedUserPreferencesProps: Required<{
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
     validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  /**
+   * Switch to enable/disable the ai services and Atlas login.
+   */
+  enableAI: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable AI Features',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. Please note these features are currently experimental and offered as a preview.',
+    },
+    deriveValue: deriveNetworkTrafficOptionState('enableAI'),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -965,6 +981,7 @@ export class Preferences {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
+        enableAI: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,
