@@ -80,9 +80,11 @@ async function getLatestElectronVersionThatSatisfies(electronRange) {
 }
 
 async function main() {
-  const electronVersionRange = `${
-    semver.minVersion(require('electron/package.json').version).major
-  }.x`;
+  const majorVersion =
+    process.argv.slice(2)[1] ??
+    semver.minVersion(require('electron/package.json').version).major;
+
+  const electronVersionRange = `${majorVersion}.x`;
 
   const latestElectronVersion = await getLatestElectronVersionThatSatisfies(
     electronVersionRange

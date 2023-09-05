@@ -82,7 +82,7 @@
     "chai-as-promised": "^7.1.1",
     "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
-    "electron": "^23.3.12",
+    "electron": "^24.8.2",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app": "^5.9.2",
