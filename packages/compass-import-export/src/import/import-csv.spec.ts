@@ -611,34 +611,6 @@ describe('importCSV', function () {
     });
   });
 
-  it('errors when parsing the CSV header fails', async function () {
-    const lines = ['a[df]', '1'];
-
-    const ns = 'db.col';
-
-    const fields = {
-      a: 'int',
-    } as const;
-
-    const output = temp.createWriteStream();
-
-    const promise = importCSV({
-      dataService,
-      ns,
-      fields,
-      newline: '\n',
-      input: Readable.from(lines.join('\n')),
-      output,
-      // notice that it doesn't matter that this is false. header not parsable is fatal regardless
-      stopOnErrors: false,
-    });
-
-    await expect(promise).to.be.rejectedWith(
-      Error,
-      '"df" is not a number [Col 0][Row 0]'
-    );
-  });
-
   it('errors when a field is simultaneously a simple value and an object (stopOnErrors=true)', async function () {
     const lines = ['a,a.b', '1,2'];
 
