@@ -76,7 +76,7 @@
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^23.3.13",
+    "electron": "^24.8.2",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.9",
     "mocha": "^10.2.0",
