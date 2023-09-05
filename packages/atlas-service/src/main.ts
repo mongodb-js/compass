@@ -169,14 +169,14 @@ export class AtlasService {
     return apiBaseUrl;
   }
 
-  private static get authPortalBaseUrl() {
-    const authPortalBaseUrl =
-      process.env.COMPASS_ATLAS_AUTH_PORTAL_BASE_URL_OVERRIDE ||
-      process.env.COMPASS_ATLAS_AUTH_PORTAL_BASE_URL;
-    if (!authPortalBaseUrl) {
-      throw new Error('COMPASS_ATLAS_AUTH_PORTAL_BASE_URL is required');
+  private static get authPortalUrl() {
+    const authPortalUrl =
+      process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE ||
+      process.env.COMPASS_ATLAS_AUTH_PORTAL_URL;
+    if (!authPortalUrl) {
+      throw new Error('COMPASS_ATLAS_AUTH_PORTAL_URL is required');
     }
-    return authPortalBaseUrl;
+    return authPortalUrl;
   }
 
   private static openExternal(...args: Parameters<typeof shell.openExternal>) {
@@ -200,9 +200,7 @@ export class AtlasService {
         if (data.result === 'redirecting') {
           const { res, status, location } = data;
           res.statusCode = status;
-          const redirectUrl = new URL(
-            `${this.authPortalBaseUrl}/account/login`
-          );
+          const redirectUrl = new URL(this.authPortalUrl);
           redirectUrl.searchParams.set('fromURI', location);
           res.setHeader('Location', redirectUrl.toString());
           res.end();

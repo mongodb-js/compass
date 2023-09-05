@@ -94,7 +94,7 @@ module.exports = (_env, args) => {
     COMPASS_ATLAS_SERVICE_BASE_URL: 'https://compass.mongodb.com',
     COMPASS_CLIENT_ID: '0oajzdcznmE8GEyio297',
     COMPASS_OIDC_ISSUER: 'https://auth.mongodb.com/oauth2/default',
-    COMPASS_ATLAS_AUTH_PORTAL_BASE_URL: 'https://account.mongodb.com',
+    COMPASS_ATLAS_AUTH_PORTAL_URL: 'https://account.mongodb.com/account/login',
     // Optional env variables that will be set only by Evergreen CI for publicly
     // published releases
     HADRON_METRICS_INTERCOM_APP_ID: null,
