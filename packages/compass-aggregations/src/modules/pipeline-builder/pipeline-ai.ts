@@ -310,7 +310,7 @@ export const runAIPipelineGeneration = (
 
     track('AI Prompt Generated', () => ({
       editor_view_type,
-      syntax_errors: true,
+      syntax_errors: !!(pipelineBuilder.syntaxError?.length > 0),
       query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
     }));
 
