@@ -26,6 +26,8 @@ const env = Object.fromEntries(
     COMPASS_ATLAS_SERVICE_BASE_URL: process.env.COMPASS_ATLAS_SERVICE_BASE_URL,
     COMPASS_CLIENT_ID: process.env.COMPASS_CLIENT_ID,
     COMPASS_OIDC_ISSUER: process.env.COMPASS_OIDC_ISSUER,
+    COMPASS_ATLAS_AUTH_PORTAL_BASE_URL:
+      process.env.COMPASS_ATLAS_AUTH_PORTAL_BASE_URL,
   }).filter(([, val]) => !!val)
 );
 

@@ -68,6 +68,7 @@ describe('AtlasServiceMain', function () {
     process.env.COMPASS_ATLAS_SERVICE_BASE_URL = 'http://example.com';
     process.env.COMPASS_OIDC_ISSUER = 'http://example.com';
     process.env.COMPASS_CLIENT_ID = '1234abcd';
+    process.env.COMPASS_ATLAS_AUTH_PORTAL_BASE_URL = 'http://example.com';
 
     AtlasService['setupPlugin']();
     AtlasService['attachOidcPluginLoggerEvents']();

@@ -169,6 +169,16 @@ export class AtlasService {
     return apiBaseUrl;
   }
 
+  private static get authPortalBaseUrl() {
+    const authPortalBaseUrl =
+      process.env.COMPASS_ATLAS_AUTH_PORTAL_BASE_URL_OVERRIDE ||
+      process.env.COMPASS_ATLAS_AUTH_PORTAL_BASE_URL;
+    if (!authPortalBaseUrl) {
+      throw new Error('COMPASS_ATLAS_AUTH_PORTAL_BASE_URL is required');
+    }
+    return authPortalBaseUrl;
+  }
+
   private static openExternal(...args: Parameters<typeof shell.openExternal>) {
     return shell?.openExternal(...args);
   }
@@ -186,12 +196,12 @@ export class AtlasService {
 
   private static setupPlugin(serializedState?: string) {
     this.plugin = this.createMongoDBOIDCPlugin({
-      redirectServerRequestHandler(data) {
+      redirectServerRequestHandler: (data) => {
         if (data.result === 'redirecting') {
           const { res, status, location } = data;
           res.statusCode = status;
           const redirectUrl = new URL(
-            'https://account.mongodb.com/account/login'
+            `${this.authPortalBaseUrl}/account/login`
           );
           redirectUrl.searchParams.set('fromURI', location);
           res.setHeader('Location', redirectUrl.toString());
