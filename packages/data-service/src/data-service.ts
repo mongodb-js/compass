@@ -1,5 +1,6 @@
 import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import { EventEmitter } from 'events';
+import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
   AggregateOptions,
   AggregationCursor,
@@ -8,7 +9,6 @@ import type {
   BulkWriteResult,
   ClientSession,
   Collection,
-  CollStats,
   CommandFailedEvent,
   CommandSucceededEvent,
   CountDocumentsOptions,
@@ -43,6 +43,8 @@ import type {
   CollectionInfo,
   UpdateOptions,
   ReplaceOptions,
+  ClientEncryptionDataKeyProvider,
+  ClientEncryptionCreateDataKeyProviderOptions,
 } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import parseNamespace from 'mongodb-ns';
@@ -78,8 +80,6 @@ import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
-import * as mongodb from 'mongodb';
-import type { ClientEncryption as ClientEncryptionType } from 'mongodb-client-encryption';
 import {
   raceWithAbort,
   createCancelError,
@@ -103,22 +103,6 @@ import type {
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
 import { omit } from 'lodash';
-
-// TODO: remove try/catch and refactor encryption related types
-// when the Node bundles native binding distributions
-// https://jira.mongodb.org/browse/WRITING-10274
-let ClientEncryption: typeof ClientEncryptionType;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { extension } = require('mongodb-client-encryption');
-
-  // mongodb-client-encryption only works properly in a packaged
-  // environment with dependency injection
-  ClientEncryption = extension(mongodb).ClientEncryption;
-} catch (e) {
-  // eslint-disable-next-line no-console
-  console.warn(e);
-}
 
 function uniqueBy<T extends Record<string, unknown>>(
   values: T[],
@@ -144,7 +128,7 @@ export type ExecutionOptions = {
 };
 
 export type ExplainExecuteOptions = ExecutionOptions & {
-  explainVerbosity?: keyof typeof mongodb.ExplainVerbosity;
+  explainVerbosity?: keyof typeof ExplainVerbosity;
 };
 
 export interface DataServiceEventMap {
@@ -1591,7 +1575,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     options: FindOneAndReplaceOptions
   ): Promise<Document | null> {
     const coll = this._collection(ns, 'CRUD');
-    return (await coll.findOneAndReplace(filter, replacement, options)).value;
+    return await coll.findOneAndReplace(filter, replacement, options);
   }
 
   @op(mongoLogId(1_001_000_045))
@@ -1602,7 +1586,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     options: FindOneAndUpdateOptions
   ): Promise<Document | null> {
     const coll = this._collection(ns, 'CRUD');
-    return (await coll.findOneAndUpdate(filter, update, options)).value;
+    return await coll.findOneAndUpdate(filter, update, options);
   }
 
   @op(mongoLogId(1_001_000_183))
@@ -1632,7 +1616,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       ns,
       verbosity:
         executionOptions?.explainVerbosity ||
-        mongodb.ExplainVerbosity.allPlansExecution,
+        ExplainVerbosity.allPlansExecution,
     };
   })
   explainFind(
@@ -1642,8 +1626,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExplainExecuteOptions
   ): Promise<Document> {
     const verbosity =
-      executionOptions?.explainVerbosity ||
-      mongodb.ExplainVerbosity.allPlansExecution;
+      executionOptions?.explainVerbosity || ExplainVerbosity.allPlansExecution;
 
     let cursor: FindCursor;
     return this._cancellableOperation(
@@ -1666,7 +1649,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       ns,
       verbosity:
         executionOptions?.explainVerbosity ||
-        mongodb.ExplainVerbosity.allPlansExecution,
+        ExplainVerbosity.allPlansExecution,
     };
   })
   explainAggregate(
@@ -1676,8 +1659,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExplainExecuteOptions
   ): Promise<Document> {
     const verbosity =
-      executionOptions?.explainVerbosity ||
-      mongodb.ExplainVerbosity.queryPlanner;
+      executionOptions?.explainVerbosity || ExplainVerbosity.queryPlanner;
 
     let cursor: AggregationCursor;
     return this._cancellableOperation(
@@ -1724,7 +1706,25 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   private async _indexSizes(ns: string): Promise<Record<string, number>> {
     try {
-      return (await this._collection(ns, 'META').stats()).indexSizes;
+      const coll = this._collection(ns, 'CRUD');
+      const aggResult = (await coll
+        .aggregate([
+          { $collStats: { storageStats: {} } },
+          {
+            $project: {
+              indexSizes: { $objectToArray: '$storageStats.indexSizes' },
+            },
+          },
+          { $unwind: '$indexSizes' },
+          {
+            $group: {
+              _id: '$indexSizes.k',
+              size: { $sum: { $toDouble: '$indexSizes.v' } },
+            },
+          },
+        ])
+        .toArray()) as { _id: string; size: number }[];
+      return Object.fromEntries(aggResult.map(({ _id, size }) => [_id, size]));
     } catch (err) {
       if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
         return {};
@@ -2221,7 +2221,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _buildCollectionStats(
     databaseName: string,
     collectionName: string,
-    data: Partial<CollStats>
+    data: Document
   ): CollectionStats {
     return {
       ns: databaseName + '.' + collectionName,
@@ -2350,20 +2350,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return { provider };
   })
   async createDataKey(
-    provider: any /* ClientEncryptionDataKeyProvider */,
-    options?: any /* ClientEncryptionCreateDataKeyProviderOptions */
+    provider: ClientEncryptionDataKeyProvider,
+    options?: ClientEncryptionCreateDataKeyProviderOptions
   ): Promise<Document> {
     const clientEncryption = this._getClientEncryption();
     return await clientEncryption.createDataKey(provider, options ?? {});
   }
 
-  private _getClientEncryption() {
-    if (!ClientEncryption) {
-      throw new Error(
-        'Cannot get client encryption, because the optional mongodb-client-encryption dependency is not installed'
-      );
-    }
-
+  private _getClientEncryption(): ClientEncryption {
     const crudClient = this._initializedClient('CRUD');
     const autoEncryptionOptions = crudClient.options.autoEncryption;
     const { proxyHost, proxyPort, proxyUsername, proxyPassword } =

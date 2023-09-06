@@ -239,7 +239,10 @@ export default class PipelineParser {
 }
 
 function getLineOnlySourceLocation(line: number) {
-  return { start: { line, column: 0 }, end: { line, column: 0 } };
+  return {
+    start: { line, column: 0 },
+    end: { line, column: 0 },
+  } as t.SourceLocation;
 }
 
 function adjustStageLoc(stage: t.Node, line: number) {

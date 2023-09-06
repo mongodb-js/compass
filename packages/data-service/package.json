@@ -48,7 +48,7 @@
     "reformat": "npm run prettier -- --write . && npm run eslint . --fix"
   },
   "peerDependencies": {
-    "mongodb": "^5.8.1"
+    "mongodb": "^6.0.0"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.1.8",
@@ -60,6 +60,7 @@
     "mongodb-build-info": "^1.6.2",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-ns": "^2.4.0",
+    "socks": "^2.7.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -72,19 +73,19 @@
     "@types/lodash": "^4.14.188",
     "@types/uuid": "^8.3.1",
     "@types/whatwg-url": "^8.2.1",
-    "bson": "^5.2.0",
+    "bson": "^6.0.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "kerberos": "^2.0.0",
+    "kerberos": "^2.0.1",
     "mocha": "^10.2.0",
-    "mongodb": "^5.8.1",
+    "mongodb": "^6.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "typescript": "^5.0.4"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^2.8.0"
+    "mongodb-client-encryption": "^6.0.0"
   }
 }

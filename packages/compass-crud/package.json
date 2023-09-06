@@ -60,7 +60,7 @@
     "@mongodb-js/compass-editor": "^0.11.0",
     "@mongodb-js/compass-logging": "^1.1.8",
     "@mongodb-js/explain-plan-helper": "^1.1.1",
-    "bson": "^5.2.0",
+    "bson": "^6.0.0",
     "compass-preferences-model": "^2.12.0",
     "hadron-document": "^8.3.1",
     "hadron-type-checker": "^7.0.3",
@@ -106,7 +106,7 @@
     "@mongodb-js/compass-editor": "^0.11.0",
     "@mongodb-js/compass-logging": "^1.1.8",
     "@mongodb-js/explain-plan-helper": "^1.1.1",
-    "bson": "^5.2.0",
+    "bson": "^6.0.0",
     "compass-preferences-model": "^2.12.0",
     "hadron-document": "^8.3.1",
     "hadron-type-checker": "^7.0.3"
