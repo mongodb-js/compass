@@ -21,7 +21,7 @@ import type {
   IndexDefinition,
   SortColumn,
   SortDirection,
-} from '../../modules/indexes';
+} from '../../modules/regular-indexes';
 import IndexActions from './index-actions';
 
 // When row is hovered, we show the delete button

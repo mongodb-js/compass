@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { dropIndex } from '../drop-index';
-import { ActionTypes as ErrorActionTypes } from '../error';
+import { ActionTypes as ErrorActionTypes } from './error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET_FORM } from '../reset-form';
@@ -91,7 +91,7 @@ describe('drop index module', function () {
           case ErrorActionTypes.HandleError:
             expect(res).to.deep.equal({
               type: ErrorActionTypes.HandleError,
-              error: { message: 'test err' },
+              error: 'test err',
             });
             errorSpy();
             break;

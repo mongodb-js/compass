@@ -1,7 +1,8 @@
 import { Badge } from '@mongodb-js/compass-components';
 import React from 'react';
-import type { AnyAction, Reducer } from 'redux';
+import type { Reducer } from 'redux';
 import { RESET_FORM } from '../reset-form';
+import { isAction } from '../../utils/is-action';
 
 export const UNSUPPORTED_COLUMNSTORE_INDEX_OPTIONS: OptionNames[] = [
   'sparse',
@@ -133,13 +134,6 @@ export const INITIAL_STATE = Object.fromEntries(
     ];
   })
 ) as State;
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
 
 const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   if (isAction<ChangeOptionAction>(action, Actions.ChangeOption)) {

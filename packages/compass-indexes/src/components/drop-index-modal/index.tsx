@@ -15,7 +15,7 @@ import {
 import { toggleIsVisible } from '../../modules/is-visible';
 import { nameChanged } from '../../modules/drop-index/name';
 import { changeConfirmName } from '../../modules/drop-index/confirm-name';
-import { handleError, clearError } from '../../modules/error';
+import { handleError, clearError } from '../../modules/drop-index/error';
 import { dropIndex } from '../../modules/drop-index';
 import { resetForm } from '../../modules/reset-form';
 

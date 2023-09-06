@@ -1,4 +1,4 @@
-import { ipcMain, shell } from 'electron';
+import { ipcMain, shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
@@ -10,8 +10,8 @@ import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
 // TODO(https://github.com/node-fetch/node-fetch/issues/1652): Remove this when
 // node-fetch types match the built in AbortSignal from node.
 import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
-import type { Response } from 'node-fetch';
-import fetch from 'node-fetch';
+import type { RequestInfo, RequestInit, Response } from 'node-fetch';
+import nodeFetch from 'node-fetch';
 import type { SimplifiedSchema } from 'mongodb-schema';
 import type { Document } from 'mongodb';
 import type {
@@ -130,7 +130,18 @@ export class AtlasService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
-  private static fetch: typeof fetch = fetch;
+  private static fetch = (
+    url: RequestInfo,
+    init: RequestInit = {}
+  ): Promise<Response> => {
+    return nodeFetch(url, {
+      ...init,
+      headers: {
+        ...init.headers,
+        'User-Agent': `${app.getName()}/${app.getVersion()}`,
+      },
+    });
+  };
 
   private static secretStore = new SecretStore();
 
@@ -169,6 +180,16 @@ export class AtlasService {
     return apiBaseUrl;
   }
 
+  private static get authPortalUrl() {
+    const authPortalUrl =
+      process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE ||
+      process.env.COMPASS_ATLAS_AUTH_PORTAL_URL;
+    if (!authPortalUrl) {
+      throw new Error('COMPASS_ATLAS_AUTH_PORTAL_URL is required');
+    }
+    return authPortalUrl;
+  }
+
   private static openExternal(...args: Parameters<typeof shell.openExternal>) {
     return shell?.openExternal(...args);
   }
@@ -186,13 +207,11 @@ export class AtlasService {
 
   private static setupPlugin(serializedState?: string) {
     this.plugin = this.createMongoDBOIDCPlugin({
-      redirectServerRequestHandler(data) {
+      redirectServerRequestHandler: (data) => {
         if (data.result === 'redirecting') {
           const { res, status, location } = data;
           res.statusCode = status;
-          const redirectUrl = new URL(
-            'https://account.mongodb.com/account/login'
-          );
+          const redirectUrl = new URL(this.authPortalUrl);
           redirectUrl.searchParams.set('fromURI', location);
           res.setHeader('Location', redirectUrl.toString());
           res.end();

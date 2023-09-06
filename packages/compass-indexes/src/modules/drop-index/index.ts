@@ -10,7 +10,7 @@ import error, {
   clearError,
   handleError,
   INITIAL_STATE as ERROR_INITIAL_STATE,
-} from '../error';
+} from './error';
 import inProgress, {
   toggleInProgress,
   INITIAL_STATE as IN_PROGRESS_INITIAL_STATE,

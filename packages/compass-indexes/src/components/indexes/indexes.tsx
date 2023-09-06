@@ -9,16 +9,16 @@ import {
   dropFailedIndex,
   hideIndex,
   unhideIndex,
-} from '../../modules/indexes';
+  refreshIndexes,
+} from '../../modules/regular-indexes';
 import type {
   IndexDefinition,
   SortColumn,
   SortDirection,
-} from '../../modules/indexes';
+} from '../../modules/regular-indexes';
 
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
-import { refreshIndexes } from '../../modules/is-refreshing';
 import type { RootState } from '../../modules';
 
 const containerStyles = css({
@@ -32,7 +32,6 @@ const containerStyles = css({
 type IndexesProps = {
   indexes: IndexDefinition[];
   isWritable: boolean;
-  isReadonly: boolean;
   isReadonlyView: boolean;
   description?: string;
   error: string | null;
@@ -54,7 +53,6 @@ const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
   indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,
@@ -75,11 +73,11 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
 
     return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
   };
+
   return (
     <div className={containerStyles}>
       <IndexesToolbar
         isWritable={isWritable}
-        isReadonly={isReadonly}
         isReadonlyView={isReadonlyView}
         readOnly={readOnly}
         errorMessage={error}
@@ -87,13 +85,14 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isRefreshing={isRefreshing}
         writeStateDescription={description}
         hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
+        isAtlasSearchSupported={true}
         onRefreshIndexes={refreshIndexes}
       />
       {!isReadonlyView && !error && (
         <IndexesTable
           indexes={indexes}
           serverVersion={serverVersion}
-          canModifyIndex={isWritable && !isReadonly && !readOnly}
+          canModifyIndex={isWritable && !readOnly}
           onSortTable={sortIndexes}
           onDeleteIndex={deleteIndex}
           onHideIndex={onHideIndex}
@@ -105,19 +104,15 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
 };
 
 const mapState = ({
-  indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
-  error,
-  isRefreshing,
   serverVersion,
   appRegistry,
+  regularIndexes: { indexes, isRefreshing, error },
 }: RootState) => ({
   indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,

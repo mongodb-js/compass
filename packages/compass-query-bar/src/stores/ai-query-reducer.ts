@@ -305,7 +305,7 @@ export const runAIQuery = (
         },
       }
     );
-    track('AI Prompt Generated', () => ({
+    track('AI Response Generated', () => ({
       editor_view_type: 'find',
       query_shape: Object.keys(generatedFields),
     }));
