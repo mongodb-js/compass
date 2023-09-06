@@ -1554,7 +1554,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   @op(mongoLogId(1_001_000_239))
-  createSearchIndex(
+  async createSearchIndex(
     ns: string,
     name: string,
     definition: Document
