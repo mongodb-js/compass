@@ -9,11 +9,11 @@ import { writeStateChanged } from '../modules/is-writable';
 import { readonlyViewChanged } from '../modules/is-readonly-view';
 import { getDescription } from '../modules/description';
 import { dataServiceConnected } from '../modules/data-service';
-import { fetchIndexes } from '../modules/regular-indexes';
-import { handleError } from '../modules/error';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
 import {
+  fetchIndexes,
+  setError,
   inProgressIndexAdded,
   inProgressIndexRemoved,
   inProgressIndexFailed,
@@ -28,7 +28,7 @@ import {
  */
 export const setDataProvider = (store, error, provider) => {
   if (error !== null) {
-    store.dispatch(handleError(error));
+    store.dispatch(setError(error));
   } else {
     store.dispatch(dataServiceConnected(provider));
     store.dispatch(fetchIndexes());

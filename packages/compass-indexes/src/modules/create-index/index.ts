@@ -9,7 +9,7 @@ import dataService from '../data-service';
 import appRegistry, {
   localAppRegistryEmit,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-import error, { clearError, handleError } from '../error';
+import error, { clearError, handleError } from './error';
 import inProgress, { toggleInProgress } from '../in-progress';
 import isVisible, { toggleIsVisible } from '../is-visible';
 import fields from '../create-index/fields';

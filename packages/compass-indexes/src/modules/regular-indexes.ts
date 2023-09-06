@@ -13,8 +13,7 @@ import {
   hideModalDescription,
   unhideModalDescription,
 } from '../utils/modal-descriptions';
-import { handleError } from './error';
-import type { IndexesError, HandleErrorAction } from './error';
+import { type IndexesError, parseError } from '../utils/parse-error';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INDEXES');
 
@@ -59,6 +58,7 @@ export enum ActionTypes {
   IndexesSorted = 'indexes/regular-indexes/IndexesSorted',
 
   SetIsRefreshing = 'indexes/regular-indexes/SetIsRefreshing',
+  SetError = 'indexes/regular-indexes/SetError',
 
   InProgressIndexAdded = 'indexes/regular-indexes/InProgressIndexAdded',
   InProgressIndexRemoved = 'indexes/regular-indexes/InProgressIndexRemoved',
@@ -80,6 +80,11 @@ type IndexesSortedAction = {
 type SetIsRefreshingAction = {
   type: ActionTypes.SetIsRefreshing;
   isRefreshing: boolean;
+};
+
+type SetErrorAction = {
+  type: ActionTypes.SetError;
+  error: string | null;
 };
 
 type InProgressIndexAddedAction = {
@@ -104,6 +109,7 @@ export type State = {
   sortColumn: SortColumn;
   isRefreshing: boolean;
   inProgressIndexes: InProgressIndex[];
+  error: string | null;
 };
 
 export const INITIAL_STATE: State = {
@@ -112,6 +118,7 @@ export const INITIAL_STATE: State = {
   sortColumn: 'Name and Definition',
   inProgressIndexes: [],
   isRefreshing: false,
+  error: null,
 };
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
@@ -135,6 +142,13 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
     return {
       ...state,
       isRefreshing: action.isRefreshing,
+    };
+  }
+
+  if (isAction<SetErrorAction>(action, ActionTypes.SetError)) {
+    return {
+      ...state,
+      error: action.error,
     };
   }
 
@@ -201,6 +215,11 @@ const setIsRefreshing = (isRefreshing: boolean): SetIsRefreshingAction => ({
   isRefreshing,
 });
 
+export const setError = (error: IndexesError | null): SetErrorAction => ({
+  type: ActionTypes.SetError,
+  error: error ? parseError(error) : null,
+});
+
 const _handleIndexesChanged = (
   dispatch: ThunkDispatch<
     RootState,
@@ -218,7 +237,7 @@ export const fetchIndexes = (): ThunkAction<
   Promise<void>,
   RootState,
   void,
-  IndexesAddedAction | SetIsRefreshingAction | HandleErrorAction
+  IndexesAddedAction | SetIsRefreshingAction | SetErrorAction
 > => {
   return async (dispatch, getState) => {
     const {
@@ -239,6 +258,7 @@ export const fetchIndexes = (): ThunkAction<
     }
 
     try {
+      dispatch(setError(null));
       const indexes = await dataService.indexes(namespace);
       const allIndexes = _mergeInProgressIndexes(
         indexes,
@@ -247,7 +267,7 @@ export const fetchIndexes = (): ThunkAction<
 
       _handleIndexesChanged(dispatch, allIndexes);
     } catch (err) {
-      dispatch(handleError(err as IndexesError));
+      dispatch(setError(err as IndexesError));
       _handleIndexesChanged(dispatch, []);
     }
   };

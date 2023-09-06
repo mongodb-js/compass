@@ -6,7 +6,7 @@ import {
   localAppRegistryActivated,
   globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { handleError } from '../modules/error';
+import { handleError } from '../modules/drop-index/error';
 import { toggleIsVisible } from '../modules/is-visible';
 import { nameChanged } from '../modules/drop-index/name';
 import { namespaceChanged } from '../modules/namespace';

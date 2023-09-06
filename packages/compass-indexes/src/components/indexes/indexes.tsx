@@ -105,10 +105,9 @@ const mapState = ({
   isWritable,
   isReadonlyView,
   description,
-  error,
   serverVersion,
   appRegistry,
-  regularIndexes: { indexes, isRefreshing },
+  regularIndexes: { indexes, isRefreshing, error },
 }: RootState) => ({
   indexes,
   isWritable,

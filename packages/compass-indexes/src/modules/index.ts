@@ -15,7 +15,6 @@ import description, {
 import regularIndexes, {
   INITIAL_STATE as REGULAR_INDEXES_INITIAL_STATE,
 } from './regular-indexes';
-import error, { INITIAL_STATE as ERROR_INITIAL_STATE } from './error';
 import serverVersion, {
   INITIAL_STATE as SV_INITIAL_STATE,
 } from './server-version';
@@ -29,7 +28,6 @@ const reducer = combineReducers({
   description,
   appRegistry,
   dataService,
-  error,
   serverVersion,
   namespace,
   regularIndexes,
@@ -45,7 +43,6 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
       isReadonlyView: READONLY_VIEW_INITIAL_STATE,
       description: DESCRIPTION_INITIAL_STATE,
       serverVersion: SV_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE,
       namespace: NAMESPACE_INITIAL_STATE,
       regularIndexes: REGULAR_INDEXES_INITIAL_STATE,
     };

@@ -154,7 +154,7 @@ describe('regular-indexes module', function () {
 
       const state = store.getState().regularIndexes;
       expect(state.indexes).to.deep.equal([]);
-      expect(store.getState().error).to.equal(error.message);
+      expect(state.error).to.equal(error.message);
       expect(state.isRefreshing).to.equal(false);
     });
 
@@ -174,7 +174,7 @@ describe('regular-indexes module', function () {
 
       const state = store.getState().regularIndexes;
       expect(state.indexes).to.deep.eq(defaultSortedIndexes);
-      expect(store.getState().error).to.be.null;
+      expect(state.error).to.be.null;
       expect(state.isRefreshing).to.equal(false);
     });
 
@@ -195,7 +195,7 @@ describe('regular-indexes module', function () {
 
       const state = store.getState().regularIndexes;
       expect(state.indexes).to.deep.eq(usageSortedDesc);
-      expect(store.getState().error).to.be.null;
+      expect(state.error).to.be.null;
       expect(state.isRefreshing).to.equal(false);
     });
 
@@ -250,7 +250,7 @@ describe('regular-indexes module', function () {
 
       expect(indexes).to.deep.equal(inProgressIndexes);
 
-      expect(store.getState().error).to.be.null;
+      expect(state.error).to.be.null;
       expect(state.isRefreshing).to.equal(false);
     });
   });
