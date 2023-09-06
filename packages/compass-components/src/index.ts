@@ -181,5 +181,3 @@ export { usePersistedState } from './hooks/use-persisted-state';
 export { GuideCue, GuideCueProvider } from './components/guide-cue/guide-cue';
 export type { Cue, GroupCue } from './components/guide-cue/guide-cue';
 export { PerformanceSignals } from './components/signals';
-
-export { SplitButton } from '@leafygreen-ui/split-button';
