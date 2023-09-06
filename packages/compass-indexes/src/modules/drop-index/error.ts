@@ -1,7 +1,6 @@
 import type { AnyAction } from 'redux';
 import { RESET_FORM } from './../reset-form';
 import { isAction } from '../../utils/is-action';
-import { type IndexesError, parseError } from '../../utils/parse-error';
 
 export enum ActionTypes {
   HandleError = 'indexes/create-index/HandleError',
@@ -37,9 +36,9 @@ export default function reducer(
   return state;
 }
 
-export const handleError = (error: IndexesError): HandleErrorAction => ({
+export const handleError = (error: string): HandleErrorAction => ({
   type: ActionTypes.HandleError,
-  error: parseError(error),
+  error,
 });
 
 export const clearError = (): ClearErrorAction => ({

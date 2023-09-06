@@ -15,7 +15,7 @@ import {
   updateFieldName,
 } from '../../modules/create-index/fields';
 import { changeSchemaFields } from '../../modules/create-index/schema-fields';
-import { clearError, handleError } from '../../modules/create-index/error';
+import { clearError } from '../../modules/create-index/error';
 import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
@@ -106,7 +106,6 @@ const mapState = ({
 const mapDispatch = {
   changeSchemaFields,
   clearError,
-  handleError,
   createIndex,
   closeCreateIndexModal,
   addField,

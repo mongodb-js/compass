@@ -24,7 +24,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
  */
 export const setDataProvider = (store, error, provider) => {
   if (error !== null) {
-    store.dispatch(handleError(error));
+    store.dispatch(handleError(error.message));
   } else {
     store.dispatch(dataServiceConnected(provider));
   }

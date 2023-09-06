@@ -20,7 +20,7 @@ import { namespaceChanged } from '../modules/namespace';
  */
 export const setDataProvider = (store, error, provider) => {
   if (error !== null) {
-    store.dispatch(handleError(error));
+    store.dispatch(handleError(error.message));
   } else {
     store.dispatch(dataServiceConnected(provider));
   }
