@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 
 import { IndexesTable } from './indexes-table';
-import type { IndexDefinition } from '../../modules/indexes';
+import type { IndexDefinition } from '../../modules/regular-indexes';
 
 const indexes = [
   {

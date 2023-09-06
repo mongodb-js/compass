@@ -2,7 +2,7 @@ import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
 import { Tooltip, Body } from '@mongodb-js/compass-components';
 
-import type { IndexDefinition } from '../../modules/indexes';
+import type { IndexDefinition } from '../../modules/regular-indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
 
 export const canRenderTooltip = (type: IndexDefinition['type']) => {

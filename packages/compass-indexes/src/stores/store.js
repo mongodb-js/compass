@@ -9,15 +9,15 @@ import { writeStateChanged } from '../modules/is-writable';
 import { readonlyViewChanged } from '../modules/is-readonly-view';
 import { getDescription } from '../modules/description';
 import { dataServiceConnected } from '../modules/data-service';
-import { fetchIndexes } from '../modules/indexes';
-import { handleError } from '../modules/error';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
 import {
+  fetchIndexes,
+  setError,
   inProgressIndexAdded,
   inProgressIndexRemoved,
   inProgressIndexFailed,
-} from '../modules/in-progress-indexes';
+} from '../modules/regular-indexes';
 
 /**
  * Handle setting up the data provider.
@@ -28,7 +28,7 @@ import {
  */
 export const setDataProvider = (store, error, provider) => {
   if (error !== null) {
-    store.dispatch(handleError(error));
+    store.dispatch(setError(error));
   } else {
     store.dispatch(dataServiceConnected(provider));
     store.dispatch(fetchIndexes());
@@ -95,8 +95,7 @@ const configureStore = (options = {}) => {
   }
 
   if (options.isReadonly) {
-    const isReadonlyView = options.isReadonly;
-    store.dispatch(readonlyViewChanged(isReadonlyView));
+    store.dispatch(readonlyViewChanged(options.isReadonly));
   }
 
   if (options.dataProvider) {

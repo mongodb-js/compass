@@ -38,7 +38,6 @@ const createIndexButtonContainerStyles = css({
 
 type IndexesToolbarProps = {
   errorMessage: string | null;
-  isReadonly: boolean;
   isReadonlyView: boolean;
   isWritable: boolean;
   hasTooManyIndexes: boolean;
@@ -52,7 +51,6 @@ type IndexesToolbarProps = {
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   errorMessage,
-  isReadonly,
   isReadonlyView,
   isWritable,
   localAppRegistry,
@@ -75,8 +73,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const onClickCreateAtlasSearchIndex = useCallback(() => {
     localAppRegistry.emit('open-create-search-index-modal');
   }, [localAppRegistry]);
-  const showCreateIndexButton =
-    !isReadonly && !isReadonlyView && !readOnly && !errorMessage;
+  const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
