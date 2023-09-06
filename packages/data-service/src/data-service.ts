@@ -429,10 +429,7 @@ export interface DataService {
 
   isListSearchIndexesSupported(ns: string): Promise<boolean>;
 
-  getSearchIndexes(
-    ns: string,
-    executionOptions?: ExecutionOptions
-  ): Promise<SearchIndex[]>;
+  getSearchIndexes(ns: string): Promise<SearchIndex[]>;
 
   createSearchIndex(
     ns: string,
@@ -1540,12 +1537,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   // TODO: @op
   async isListSearchIndexesSupported(ns: string): Promise<boolean> {
     try {
-      const coll = this._collection(ns, 'CRUD');
-      const cursor = coll.listSearchIndexes();
-      // It doesn't matter if hasNext() resolves to true/false - we just want to
-      // execute the $listSearchIndexes aggregation and see if it succeeds
-      await cursor.hasNext();
-      await cursor.close();
+      await this.getSearchIndexes(ns);
     } catch (err) {
       return false;
     }
@@ -1553,23 +1545,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   // TODO: @op
-  async getSearchIndexes(
-    ns: string,
-    executionOptions?: ExecutionOptions
-  ): Promise<SearchIndex[]> {
+  async getSearchIndexes(ns: string): Promise<SearchIndex[]> {
     const coll = this._collection(ns, 'CRUD');
-    const indexes = await this._cancellableOperation(
-      async (session) => {
-        const cursor = coll.listSearchIndexes({
-          session,
-        });
-        const result = await cursor.toArray();
-        void cursor.close();
-        return result;
-      },
-      (session) => session.endSession(),
-      executionOptions?.abortSignal
-    );
+    const cursor = coll.listSearchIndexes();
+    const indexes = await cursor.toArray();
+    void cursor.close();
     return indexes as SearchIndex[];
   }
 

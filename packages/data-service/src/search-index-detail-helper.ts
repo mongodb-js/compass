@@ -1,3 +1,5 @@
+import type { Document } from 'mongodb';
+
 export type SearchIndex = {
   id: string;
   name: string;
