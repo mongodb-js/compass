@@ -1534,7 +1534,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return await coll.dropIndex(name);
   }
 
-  // TODO: @op
+  @op(mongoLogId(1_001_000_237))
   async isListSearchIndexesSupported(ns: string): Promise<boolean> {
     try {
       await this.getSearchIndexes(ns);
@@ -1544,7 +1544,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return true;
   }
 
-  // TODO: @op
+  @op(mongoLogId(1_001_000_238))
   async getSearchIndexes(ns: string): Promise<SearchIndex[]> {
     const coll = this._collection(ns, 'CRUD');
     const cursor = coll.listSearchIndexes();
@@ -1553,7 +1553,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return indexes as SearchIndex[];
   }
 
-  // TODO: @op
+  @op(mongoLogId(1_001_000_239))
   createSearchIndex(
     ns: string,
     name: string,
@@ -1563,7 +1563,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return coll.createSearchIndex({ name, definition });
   }
 
-  // TODO: @op
+  @op(mongoLogId(1_001_000_240))
   async updateSearchIndex(
     ns: string,
     name: string,
@@ -1573,7 +1573,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return coll.updateSearchIndex(name, definition);
   }
 
-  // TODO: @op
+  @op(mongoLogId(1_001_000_241))
   async dropSearchIndex(ns: string, name: string): Promise<void> {
     const coll = this._collection(ns, 'CRUD');
     return coll.dropSearchIndex(name);
