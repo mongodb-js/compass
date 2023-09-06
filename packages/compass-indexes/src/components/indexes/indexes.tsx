@@ -75,6 +75,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
 
     return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
   };
+
   return (
     <div className={containerStyles}>
       <IndexesToolbar
@@ -87,6 +88,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isRefreshing={isRefreshing}
         writeStateDescription={description}
         hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
+        isAtlasSearchSupported={true}
         onRefreshIndexes={refreshIndexes}
       />
       {!isReadonlyView && !error && (

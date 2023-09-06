@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import sinon from 'sinon';
+import preferencesAccess from 'compass-preferences-model';
 
 import { IndexesToolbar } from './indexes-toolbar';
 
@@ -23,6 +24,7 @@ const renderIndexesToolbar = (
       localAppRegistry={appRegistry}
       writeStateDescription={undefined}
       onRefreshIndexes={() => {}}
+      isAtlasSearchSupported={false}
       isRefreshing={false}
       {...props}
     />
@@ -34,14 +36,87 @@ describe('IndexesToolbar Component', function () {
   afterEach(cleanup);
 
   describe('when rendered', function () {
-    beforeEach(function () {
-      renderIndexesToolbar();
+    describe('with atlas search index management is disabled', function () {
+      let sandbox: sinon.SinonSandbox;
+
+      afterEach(function () {
+        return sandbox.restore();
+      });
+
+      beforeEach(function () {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(preferencesAccess, 'getPreferences').returns({
+          enableAtlasSearchIndexManagement: false,
+          showInsights: true,
+        } as any);
+
+        renderIndexesToolbar({});
+      });
+
+      it('should render the create index button enabled', function () {
+        expect(
+          screen.getByText('Create Index').closest('button')
+        ).to.not.have.attr('disabled');
+      });
     });
 
-    it('should render the create index button enabled', function () {
-      expect(
-        screen.getByText('Create Index').closest('button')
-      ).to.not.have.attr('disabled');
+    describe('with atlas search index management is enabled', function () {
+      describe('when cluster has Atlas Search available', function () {
+        let sandbox: sinon.SinonSandbox;
+
+        afterEach(function () {
+          return sandbox.restore();
+        });
+
+        beforeEach(function () {
+          sandbox = sinon.createSandbox();
+          sandbox.stub(preferencesAccess, 'getPreferences').returns({
+            enableAtlasSearchIndexManagement: true,
+            showInsights: true,
+          } as any);
+
+          renderIndexesToolbar({ isAtlasSearchSupported: true });
+        });
+
+        it('should render the create index dropdown button enabled', async function () {
+          const createSplitDropdown = screen.getByTestId(
+            'multiple-index-types-creation-dropdown-show-actions'
+          );
+          expect(createSplitDropdown).to.exist;
+          expect(createSplitDropdown).to.not.have.attr('disabled');
+
+          userEvent.click(createSplitDropdown);
+
+          expect((await screen.findByText('Index')).closest('button')).to.be
+            .visible;
+          expect((await screen.findByText('Search Index')).closest('button')).to
+            .be.visible;
+        });
+      });
+
+      describe('when cluster does not support Atlas Search', function () {
+        let sandbox: sinon.SinonSandbox;
+
+        afterEach(function () {
+          return sandbox.restore();
+        });
+
+        beforeEach(function () {
+          sandbox = sinon.createSandbox();
+          sandbox.stub(preferencesAccess, 'getPreferences').returns({
+            enableAtlasSearchIndexManagement: true,
+            showInsights: true,
+          } as any);
+
+          renderIndexesToolbar({ isAtlasSearchSupported: false });
+        });
+
+        it('should render the create index button only', function () {
+          expect(
+            screen.getByText('Create Index').closest('button')
+          ).to.not.have.attr('disabled');
+        });
+      });
     });
 
     it('should not render a warning', function () {
