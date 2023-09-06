@@ -35,6 +35,7 @@ declare module 'process' {
         COMPASS_ATLAS_SERVICE_BASE_URL?: string;
         COMPASS_CLIENT_ID?: string;
         COMPASS_OIDC_ISSUER?: string;
+        COMPASS_ATLAS_AUTH_PORTAL_URL?: string;
       }
     }
   }
