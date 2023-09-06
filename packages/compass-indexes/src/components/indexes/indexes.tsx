@@ -88,7 +88,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isRefreshing={isRefreshing}
         writeStateDescription={description}
         hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
-        isAtlasSearchAvailable={true}
+        isAtlasSearchSupported={true}
         onRefreshIndexes={refreshIndexes}
       />
       {!isReadonlyView && !error && (

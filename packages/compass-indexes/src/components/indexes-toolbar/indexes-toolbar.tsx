@@ -11,8 +11,7 @@ import {
   SpinLoader,
   SignalPopover,
   PerformanceSignals,
-  MenuItem,
-  SplitButton,
+  DropdownMenuButton,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 import { usePreference } from 'compass-preferences-model';
@@ -46,7 +45,7 @@ type IndexesToolbarProps = {
   localAppRegistry: AppRegistry;
   isRefreshing: boolean;
   writeStateDescription?: string;
-  isAtlasSearchAvailable: boolean;
+  isAtlasSearchSupported: boolean;
   onRefreshIndexes: () => void;
   readOnly?: boolean;
 };
@@ -60,7 +59,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   isRefreshing,
   writeStateDescription,
   hasTooManyIndexes,
-  isAtlasSearchAvailable,
+  isAtlasSearchSupported,
   onRefreshIndexes,
   readOnly, // preferences readOnly.
 }) => {
@@ -107,7 +106,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                   >
                     <CreateIndexButton
                       isSearchManagementActive={isSearchManagementActive}
-                      isAtlasSearchAvailable={isAtlasSearchAvailable}
+                      isAtlasSearchSupported={isAtlasSearchSupported}
                       isWritable={isWritable}
                       onClickCreateIndex={onClickCreateIndex}
                       onClickCreateAtlasSearchIndex={
@@ -155,39 +154,51 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
 
 type CreateIndexButtonProps = {
   isSearchManagementActive: boolean;
-  isAtlasSearchAvailable: boolean;
+  isAtlasSearchSupported: boolean;
   isWritable: boolean;
   onClickCreateIndex: () => void;
   onClickCreateAtlasSearchIndex: () => void;
 };
 
+type CreateIndexActions = 'createRegularIndex' | 'createSearchIndex';
+
 export const CreateIndexButton: React.FunctionComponent<
   CreateIndexButtonProps
 > = ({
   isSearchManagementActive,
-  isAtlasSearchAvailable,
+  isAtlasSearchSupported,
   isWritable,
   onClickCreateIndex,
   onClickCreateAtlasSearchIndex,
 }) => {
-  if (isAtlasSearchAvailable && isSearchManagementActive) {
+  const onActionDispatch = useCallback(
+    (action: CreateIndexActions) => {
+      switch (action) {
+        case 'createRegularIndex':
+          return onClickCreateIndex();
+        case 'createSearchIndex':
+          return onClickCreateAtlasSearchIndex();
+      }
+    },
+    [onClickCreateIndex, onClickCreateAtlasSearchIndex]
+  );
+
+  if (isAtlasSearchSupported && isSearchManagementActive) {
     return (
-      <SplitButton
-        label="Create"
-        variant="primary"
-        menuItems={[
-          <MenuItem key="0" disabled={!isWritable} onClick={onClickCreateIndex}>
-            Index
-          </MenuItem>,
-          <MenuItem
-            key="1"
-            disabled={!isWritable}
-            onClick={onClickCreateAtlasSearchIndex}
-          >
-            Search Index
-          </MenuItem>,
+      <DropdownMenuButton
+        data-testid="multiple-index-types-creation-dropdown"
+        buttonText="Create"
+        buttonProps={{
+          size: 'small',
+          variant: 'primary',
+          disabled: !isWritable,
+        }}
+        actions={[
+          { action: 'createRegularIndex', label: 'Index' },
+          { action: 'createSearchIndex', label: 'Search Index' },
         ]}
-      ></SplitButton>
+        onAction={onActionDispatch}
+      />
     );
   }
 

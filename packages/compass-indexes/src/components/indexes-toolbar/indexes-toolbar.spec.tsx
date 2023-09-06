@@ -24,7 +24,7 @@ const renderIndexesToolbar = (
       localAppRegistry={appRegistry}
       writeStateDescription={undefined}
       onRefreshIndexes={() => {}}
-      isAtlasSearchAvailable={false}
+      isAtlasSearchSupported={false}
       isRefreshing={false}
       {...props}
     />
@@ -44,13 +44,13 @@ describe('IndexesToolbar Component', function () {
       });
 
       beforeEach(function () {
-        renderIndexesToolbar({});
-
         sandbox = sinon.createSandbox();
         sandbox.stub(preferencesAccess, 'getPreferences').returns({
           enableAtlasSearchIndexManagement: false,
           showInsights: true,
         } as any);
+
+        renderIndexesToolbar({});
       });
 
       it('should render the create index button enabled', function () {
@@ -69,21 +69,23 @@ describe('IndexesToolbar Component', function () {
         });
 
         beforeEach(function () {
-          renderIndexesToolbar({ isAtlasSearchAvailable: true });
-
           sandbox = sinon.createSandbox();
           sandbox.stub(preferencesAccess, 'getPreferences').returns({
             enableAtlasSearchIndexManagement: true,
             showInsights: true,
           } as any);
+
+          renderIndexesToolbar({ isAtlasSearchSupported: true });
         });
 
-        it('should render the create index split button enabled', async function () {
-          const createSplitButton = screen.getByLabelText('More options');
-          expect(createSplitButton).to.exist;
-          expect(createSplitButton).to.not.have.attr('disabled');
+        it('should render the create index dropdown button enabled', async function () {
+          const createSplitDropdown = screen.getByTestId(
+            'multiple-index-types-creation-dropdown-show-actions'
+          );
+          expect(createSplitDropdown).to.exist;
+          expect(createSplitDropdown).to.not.have.attr('disabled');
 
-          userEvent.click(createSplitButton);
+          userEvent.click(createSplitDropdown);
 
           expect((await screen.findByText('Index')).closest('button')).to.be
             .visible;
@@ -92,7 +94,7 @@ describe('IndexesToolbar Component', function () {
         });
       });
 
-      describe('when cluster does not have Atlas Search available', function () {
+      describe('when cluster does not support Atlas Search', function () {
         let sandbox: sinon.SinonSandbox;
 
         afterEach(function () {
@@ -100,13 +102,13 @@ describe('IndexesToolbar Component', function () {
         });
 
         beforeEach(function () {
-          renderIndexesToolbar({ isAtlasSearchAvailable: false });
-
           sandbox = sinon.createSandbox();
           sandbox.stub(preferencesAccess, 'getPreferences').returns({
             enableAtlasSearchIndexManagement: true,
             showInsights: true,
           } as any);
+
+          renderIndexesToolbar({ isAtlasSearchSupported: false });
         });
 
         it('should render the create index button only', function () {
