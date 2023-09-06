@@ -65,12 +65,21 @@ class PluginManager {
         })
       );
     } catch (e) {
-      log.warn(
-        mongoLogId(1_001_000_142),
-        'Hadron Plugin Manager',
-        'Failed to load plugins',
-        { path: userPluginPath, message: e.message }
-      );
+      if (e?.code === 'ENOENT') {
+        log.info(
+          mongoLogId(1_001_000_237),
+          'Hadron Plugin Manager',
+          'Plugin folder does not exist, no plugins loaded.',
+          { path: userPluginPath }
+        );
+      } else {
+        log.warn(
+          mongoLogId(1_001_000_142),
+          'Hadron Plugin Manager',
+          'Failed to load plugins',
+          { path: userPluginPath, message: e.message }
+        );
+      }
     }
     return [];
   }
