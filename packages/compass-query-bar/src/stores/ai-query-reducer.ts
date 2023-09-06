@@ -256,27 +256,30 @@ export const runAIQuery = (
       return;
     }
 
+    // The query endpoint may return the aggregation property in addition to filter, project, etc..
+    // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
+    if (
+      query?.aggregation?.pipeline &&
+      query?.aggregation?.pipeline?.length > 0
+    ) {
+      localAppRegistry?.emit('generate-aggregation-from-query', {
+        userInput,
+        aggregation: query.aggregation,
+      });
+      const msg =
+        'Query requires stages from aggregation framework therefore an aggregation was generated.';
+      trackAndLogFailed({
+        errorName: 'ai_generated_aggregation_instead_of_query',
+        errorMessage: msg,
+      });
+      dispatch({
+        type: AIQueryActionTypes.AIQueryReturnedAggregation,
+      });
+      return;
+    }
+
     // Error when the response is empty or there is nothing to map.
     if (!generatedFields || Object.keys(generatedFields).length === 0) {
-      // The query endpoint may return the aggregation property in addition to filter, project, etc..
-      // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
-      if (query.aggregation) {
-        localAppRegistry?.emit('generate-aggregation-from-query', {
-          userInput,
-          aggregation: query.aggregation,
-        });
-        const msg =
-          'Query requires stages from aggregation framework therefore an aggregation was generated.';
-        trackAndLogFailed({
-          errorName: 'ai_generated_aggregation_instead_of_query',
-          errorMessage: msg,
-        });
-        dispatch({
-          type: AIQueryActionTypes.AIQueryReturnedAggregation,
-        });
-        return;
-      }
-
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
       trackAndLogFailed({
