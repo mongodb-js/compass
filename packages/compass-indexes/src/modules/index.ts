@@ -15,6 +15,9 @@ import description, {
 import regularIndexes, {
   INITIAL_STATE as REGULAR_INDEXES_INITIAL_STATE,
 } from './regular-indexes';
+import searchIndexes, {
+  INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
+} from './search-indexes';
 import serverVersion, {
   INITIAL_STATE as SV_INITIAL_STATE,
 } from './server-version';
@@ -31,6 +34,7 @@ const reducer = combineReducers({
   serverVersion,
   namespace,
   regularIndexes,
+  searchIndexes,
 });
 
 export type RootState = ReturnType<typeof reducer>;
@@ -45,6 +49,7 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
       serverVersion: SV_INITIAL_STATE,
       namespace: NAMESPACE_INITIAL_STATE,
       regularIndexes: REGULAR_INDEXES_INITIAL_STATE,
+      searchIndexes: SEARCH_INDEXES_INITIAL_STATE,
     };
   }
   return reducer(state, action);

@@ -18,6 +18,10 @@ import {
   inProgressIndexRemoved,
   inProgressIndexFailed,
 } from '../modules/regular-indexes';
+import {
+  setStatus as setSearchIndexesStatus,
+  SearchIndexesStatuses,
+} from '../modules/search-indexes';
 
 /**
  * Handle setting up the data provider.
@@ -105,6 +109,14 @@ const configureStore = (options = {}) => {
       options.dataProvider.dataProvider
     );
   }
+
+  store.dispatch(
+    setSearchIndexesStatus(
+      options.isSearchIndexesSupported
+        ? SearchIndexesStatuses.PENDING
+        : SearchIndexesStatuses.NOT_AVAILABLE
+    )
+  );
 
   return store;
 };

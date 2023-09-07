@@ -139,6 +139,9 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     free_storage_size: 'number',
     index_count: 'number',
     index_size: 'number',
+
+    // Other standalone props
+    isSearchIndexesSupported: 'boolean',
   },
   derived: {
     ns: {
@@ -257,6 +260,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   /**
    * Fetches collection info and returns a special format of collection metadata
    * that events like open-in-new-tab, select-namespace, edit-view require
+   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
    */
   async fetchMetadata({ dataService }) {
     try {
@@ -291,6 +295,20 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         sourcePipeline: this.pipeline,
       });
     }
+
+    if (this.isSearchIndexesSupported === undefined) {
+      try {
+        const isSearchIndexesSupported = await dataService.isListSearchIndexesSupported(this.ns);
+        this.set({ isSearchIndexesSupported });
+      } catch (e) {
+        this.set({ isSearchIndexesSupported: false });
+      }
+    }
+
+    Object.assign(collectionMetadata, {
+      isSearchIndexesSupported: this.isSearchIndexesSupported,
+    });
+
     return collectionMetadata;
   },
 
