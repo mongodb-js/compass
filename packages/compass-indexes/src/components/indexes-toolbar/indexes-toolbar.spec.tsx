@@ -25,6 +25,7 @@ const renderIndexesToolbar = (
       onRefreshIndexes={() => {}}
       isAtlasSearchSupported={false}
       isRefreshing={false}
+      onChangeIndexView={() => {}}
       {...props}
     />
   );
