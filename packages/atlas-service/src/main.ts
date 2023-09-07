@@ -50,7 +50,7 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
 function isServerError(
   err: any
 ): err is { error: number; errorCode: string; detail: string } {
-  return Boolean(err.errorCode && err.detail);
+  return Boolean(err.error && err.errorCode && err.detail);
 }
 
 function throwIfNetworkTrafficDisabled() {
@@ -67,7 +67,6 @@ export async function throwIfNotOk(
   }
 
   let serverErrorName = 'NetworkError';
-  let serverStatusCode = res.status;
   let serverErrorMessage = `${res.status} ${res.statusText}`;
   // We try to parse the response to see if the server returned any information
   // we can show a user.
@@ -75,7 +74,6 @@ export async function throwIfNotOk(
     const messageJSON = await res.json();
     if (isServerError(messageJSON)) {
       serverErrorName = 'ServerError';
-      serverStatusCode = messageJSON.error;
       serverErrorMessage = `${messageJSON.errorCode}: ${messageJSON.detail}`;
     }
   } catch (err) {
@@ -84,7 +82,7 @@ export async function throwIfNotOk(
 
   const err = new Error(serverErrorMessage);
   err.name = serverErrorName;
-  (err as AtlasServiceError).statusCode = serverStatusCode;
+  (err as AtlasServiceError).statusCode = res.status;
   throw err;
 }
 
