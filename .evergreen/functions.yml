@@ -560,7 +560,11 @@ functions:
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
             npm config list
             echo "Publishing packages as $(npm whoami)"
-            git update-index --assume-unchanged .npmrc
+            npm run version-packages-next
+            # unstage after lerna staged version
+            git reset
+            # mark files as unchanged so that lerna can publish
+            git update-index --assume-unchanged $(git diff --name-only HEAD)
             bash ".evergreen/retry-with-backoff.sh" npm run publish-packages-next
           fi
 
