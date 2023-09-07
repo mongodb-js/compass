@@ -89,7 +89,6 @@ export interface WorkspaceTabObject {
   sourceReadonly?: boolean;
   sourceViewOn?: string;
   localAppRegistry: AppRegistry;
-  isSearchIndexesSupported: boolean;
 }
 
 /**
@@ -149,7 +148,6 @@ const doSelectNamespace = (state: State, action: AnyAction) => {
         sourceReadonly: action.sourceReadonly,
         sourceViewOn: action.sourceViewOn,
         localAppRegistry: action.context.localAppRegistry,
-        isSearchIndexesSupported: action.isSearchIndexesSupported,
       });
     } else {
       newState.push({ ...tab });
@@ -199,7 +197,6 @@ const doCreateTab = (state: State, action: AnyAction) => {
     sourceReadonly: action.sourceReadonly,
     sourceViewOn: action.sourceViewOn,
     localAppRegistry: action.context.localAppRegistry,
-    isSearchIndexesSupported: action.isSearchIndexesSupported,
   });
   return newState;
 };
@@ -416,7 +413,6 @@ export const createTab = ({
   sourceViewOn,
   query,
   aggregation,
-  isSearchIndexesSupported,
 }: Pick<
   WorkspaceTabObject,
   | 'id'
@@ -429,7 +425,6 @@ export const createTab = ({
   | 'editViewName'
   | 'sourceReadonly'
   | 'sourceViewOn'
-  | 'isSearchIndexesSupported'
 > & {
   context: ContextProps;
   query?: any; // TODO(COMPASS-6162): type query.
@@ -449,7 +444,6 @@ export const createTab = ({
   sourceViewOn,
   query,
   aggregation,
-  isSearchIndexesSupported,
 });
 
 /**
@@ -481,7 +475,6 @@ export const selectNamespace = ({
   context,
   sourceReadonly,
   sourceViewOn,
-  isSearchIndexesSupported,
 }: Pick<
   WorkspaceTabObject,
   | 'id'
@@ -494,7 +487,6 @@ export const selectNamespace = ({
   | 'editViewName'
   | 'sourceReadonly'
   | 'sourceViewOn'
-  | 'isSearchIndexesSupported'
 > & {
   context: ContextProps;
 }): AnyAction => ({
@@ -510,7 +502,6 @@ export const selectNamespace = ({
   context,
   sourceReadonly,
   sourceViewOn,
-  isSearchIndexesSupported,
 });
 
 /**
@@ -671,7 +662,6 @@ export const selectOrCreateTab = ({
   sourceReadonly,
   sourceViewOn,
   sourcePipeline,
-  isSearchIndexesSupported,
 }: Pick<
   WorkspaceTabObject,
   | 'namespace'
@@ -683,7 +673,6 @@ export const selectOrCreateTab = ({
   | 'editViewName'
   | 'sourceReadonly'
   | 'sourceViewOn'
-  | 'isSearchIndexesSupported'
 > & {
   sourcePipeline: Document[];
 }): ThunkAction<void, RootState, void, AnyAction> => {
@@ -705,7 +694,6 @@ export const selectOrCreateTab = ({
           sourceReadonly,
           sourceViewOn,
           sourcePipeline,
-          isSearchIndexesSupported,
         })
       );
     } else {
@@ -728,7 +716,6 @@ export const selectOrCreateTab = ({
             sourceReadonly,
             sourceViewOn,
             sourcePipeline,
-            isSearchIndexesSupported,
           })
         );
         // Clear the stats of the closed tab's namespace if it's the last one in use.
@@ -764,7 +751,6 @@ export const createNewTab = ({
   sourcePipeline,
   query,
   aggregation,
-  isSearchIndexesSupported,
 }: Pick<
   WorkspaceTabObject,
   | 'namespace'
@@ -776,7 +762,6 @@ export const createNewTab = ({
   | 'editViewName'
   | 'sourceReadonly'
   | 'sourceViewOn'
-  | 'isSearchIndexesSupported'
 > & {
   sourcePipeline?: Document[];
   query?: any; // TODO(COMPASS-6162): type query.
@@ -797,7 +782,6 @@ export const createNewTab = ({
       sourcePipeline,
       query,
       aggregation,
-      isSearchIndexesSupported,
     });
     dispatch(
       createTab({
@@ -814,7 +798,6 @@ export const createNewTab = ({
         sourceViewOn,
         query,
         aggregation,
-        isSearchIndexesSupported,
       })
     );
     showCollectionSubmenu({ isReadOnly: isReadonly });
@@ -838,7 +821,6 @@ export const replaceTabContent = ({
   sourceReadonly,
   sourceViewOn,
   sourcePipeline,
-  isSearchIndexesSupported,
 }: Pick<
   WorkspaceTabObject,
   | 'namespace'
@@ -850,7 +832,6 @@ export const replaceTabContent = ({
   | 'editViewName'
   | 'sourceReadonly'
   | 'sourceViewOn'
-  | 'isSearchIndexesSupported'
 > & {
   sourcePipeline?: Document[];
 }): ThunkAction<void, RootState, void, AnyAction> => {
@@ -867,7 +848,6 @@ export const replaceTabContent = ({
       sourceName,
       editViewName,
       sourcePipeline,
-      isSearchIndexesSupported,
     });
     dispatch(
       selectNamespace({
@@ -882,7 +862,6 @@ export const replaceTabContent = ({
         context,
         sourceReadonly: !!sourceReadonly,
         sourceViewOn,
-        isSearchIndexesSupported,
       })
     );
     showCollectionSubmenu({ isReadOnly: isReadonly });

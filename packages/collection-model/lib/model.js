@@ -139,9 +139,6 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     free_storage_size: 'number',
     index_count: 'number',
     index_size: 'number',
-
-    // Other standalone props
-    isSearchIndexesSupported: 'boolean',
   },
   derived: {
     ns: {
@@ -272,6 +269,23 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       // We don't care if it fails to get stats from server for any reason
     }
 
+    /**
+     * The support for search indexes is a feature of a server not a collection.
+     * As this check can only be performed currently by running $listSearchIndexes
+     * aggregation stage against a collection, so we run it from the collection model.
+     * With this setup, when a user opens the first collection, we set this property
+     * on the instance model and then from there its value is read avoiding call to server.
+     */
+    try {
+      await getParentByType(this, 'Instance')
+        .fetchIsSearchSupported({
+          dataService,
+          ns: this.ns,
+        });
+    } catch (e) {
+      // noop
+    }
+
     const collectionMetadata = {
       namespace: this.ns,
       isReadonly: this.readonly,
@@ -295,19 +309,6 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         sourcePipeline: this.pipeline,
       });
     }
-
-    if (this.isSearchIndexesSupported === undefined) {
-      try {
-        const isSearchIndexesSupported = await dataService.isListSearchIndexesSupported(this.ns);
-        this.set({ isSearchIndexesSupported });
-      } catch (e) {
-        this.set({ isSearchIndexesSupported: false });
-      }
-    }
-
-    Object.assign(collectionMetadata, {
-      isSearchIndexesSupported: this.isSearchIndexesSupported,
-    });
 
     return collectionMetadata;
   },

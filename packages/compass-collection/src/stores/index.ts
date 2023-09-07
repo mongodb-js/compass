@@ -224,7 +224,6 @@ store.onActivated = (appRegistry: AppRegistry) => {
         sourcePipeline: metadata.sourcePipeline,
         query: metadata.query,
         aggregation: metadata.aggregation,
-        isSearchIndexesSupported: metadata.isSearchIndexesSupported,
       })
     );
   });
@@ -269,7 +268,6 @@ store.onActivated = (appRegistry: AppRegistry) => {
         sourceReadonly: metadata.sourceReadonly,
         sourceViewOn: metadata.sourceViewOn,
         sourcePipeline: metadata.sourcePipeline,
-        isSearchIndexesSupported: metadata.isSearchIndexesSupported,
       })
     );
   });

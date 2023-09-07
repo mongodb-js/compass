@@ -35,7 +35,6 @@ interface Collection {
   sourceId: string | null;
   source: Collection;
   properties: { name: string; options?: unknown }[];
-  isSearchIndexesSupported: boolean;
   fetch(opts: {
     dataService: DataService;
     fetchInfo?: boolean;
@@ -51,7 +50,6 @@ interface Collection {
     sourceReadonly?: boolean;
     sourceViewon?: string;
     sourcePipeline?: unknown[];
-    isSearchIndexesSupported: boolean;
   }>;
   toJSON(opts?: { derived: boolean }): this;
 }
