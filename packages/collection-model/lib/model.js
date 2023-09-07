@@ -309,7 +309,6 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
         sourcePipeline: this.pipeline,
       });
     }
-
     return collectionMetadata;
   },
 
