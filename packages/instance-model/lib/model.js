@@ -273,13 +273,8 @@ const InstanceModel = AmpersandModel.extend(
       force = false
     }) {
       if (this.isSearchIndexesSupported === undefined || force) {
-        try {
-          const isSearchIndexesSupported = await dataService.isListSearchIndexesSupported(ns);
-          this.set({ isSearchIndexesSupported });
-        } catch (e) {
-          this.set({ isSearchIndexesSupported: false });
-        }
-        return;
+        const isSearchIndexesSupported = await dataService.isListSearchIndexesSupported(ns);
+        this.set({ isSearchIndexesSupported });
       }
       return this.isListSearchIndexesSupported;
     },

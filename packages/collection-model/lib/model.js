@@ -269,7 +269,6 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       // We don't care if it fails to get stats from server for any reason
     }
 
-    let isSearchIndexesSupported = false;
     /**
      * The support for search indexes is a feature of a server not a collection.
      * As this check can only be performed currently by running $listSearchIndexes
@@ -277,15 +276,11 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
      * With this setup, when a user opens the first collection, we set this property
      * on the instance model and then from there its value is read avoiding call to server.
      */
-    try {
-      isSearchIndexesSupported = await getParentByType(this, 'Instance')
-        .getIsSearchSupported({
-          dataService,
-          ns: this.ns,
-        });
-    } catch (e) {
-      // noop
-    }
+    const isSearchIndexesSupported = await getParentByType(this, 'Instance')
+      .getIsSearchSupported({
+        dataService,
+        ns: this.ns,
+      });
 
     const collectionMetadata = {
       namespace: this.ns,
