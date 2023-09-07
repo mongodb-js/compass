@@ -67,7 +67,7 @@ class PluginManager {
     } catch (e) {
       if (e?.code === 'ENOENT') {
         log.info(
-          mongoLogId(1_001_000_237),
+          mongoLogId(1_001_000_242),
           'Hadron Plugin Manager',
           'Plugin folder does not exist, no plugins loaded.',
           { path: userPluginPath }
