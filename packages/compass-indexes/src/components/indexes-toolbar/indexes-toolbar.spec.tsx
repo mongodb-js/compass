@@ -30,7 +30,7 @@ const renderIndexesToolbar = (
   );
 };
 
-describe.only('IndexesToolbar Component', function () {
+describe('IndexesToolbar Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
