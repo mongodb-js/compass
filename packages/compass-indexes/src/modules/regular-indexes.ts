@@ -227,7 +227,7 @@ export const setError = (error: string | null): SetErrorAction => ({
   error,
 });
 
-export const _handleIndexesChanged = (
+const _handleIndexesChanged = (
   indexes: IndexDefinition[]
 ): IndexesThunkAction<void> => {
   return (dispatch) => {
