@@ -6,13 +6,12 @@
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
   },
-  "private": true,
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.3.1",
+  "version": "9.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -77,5 +76,8 @@
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
