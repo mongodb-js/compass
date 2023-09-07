@@ -1,6 +1,8 @@
 import type { MongoClient } from 'mongodb';
 import { ConnectionString } from 'mongodb-connection-string-url';
 
+import type { SearchIndex } from '../src/search-index-detail-helper';
+
 export type ClientMockOptions = {
   hosts: [{ host: string; port: number }];
   commands: Partial<{
@@ -14,6 +16,7 @@ export type ClientMockOptions = {
     collMod: unknown;
   }>;
   collections: Record<string, string[] | Error>;
+  searchIndexes: Record<string, Record<string, SearchIndex[] | Error>>;
   clientOptions: Record<string, unknown>;
 };
 
@@ -21,6 +24,7 @@ export function createMongoClientMock({
   hosts = [{ host: 'localhost', port: 9999 }],
   commands = {},
   collections = {},
+  searchIndexes = {},
   clientOptions = {},
 }: Partial<ClientMockOptions> = {}): {
   client: MongoClient;
@@ -82,6 +86,34 @@ export function createMongoClientMock({
               return Promise.resolve(
                 colls.map((name) => ({ name, type: 'collection' }))
               );
+            },
+          };
+        },
+        collection(collectionName: string) {
+          return {
+            listSearchIndexes() {
+              return {
+                toArray() {
+                  const indexes =
+                    searchIndexes[databaseName][collectionName] ?? [];
+                  if (indexes instanceof Error) {
+                    return Promise.reject(indexes);
+                  }
+                  return Promise.resolve(indexes);
+                },
+                close() {
+                  /* ignore */
+                },
+              };
+            },
+            createSearchIndex({ name }: { name: string }) {
+              return Promise.resolve(name);
+            },
+            updateSearchIndex() {
+              return Promise.resolve();
+            },
+            dropSearchIndex() {
+              return Promise.resolve();
             },
           };
         },
