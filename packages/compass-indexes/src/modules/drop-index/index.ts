@@ -91,7 +91,7 @@ export const dropIndex = (indexName: string) => {
       dispatch(toggleIsVisible(false));
     } catch (err) {
       dispatch(toggleInProgress(false));
-      dispatch(handleError(err as Error));
+      dispatch(handleError((err as Error).message));
     }
   };
 };

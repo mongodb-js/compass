@@ -13,7 +13,6 @@ import {
   hideModalDescription,
   unhideModalDescription,
 } from '../utils/modal-descriptions';
-import { type IndexesError, parseError } from '../utils/parse-error';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INDEXES');
 
@@ -215,9 +214,9 @@ const setIsRefreshing = (isRefreshing: boolean): SetIsRefreshingAction => ({
   isRefreshing,
 });
 
-export const setError = (error: IndexesError | null): SetErrorAction => ({
+export const setError = (error: string | null): SetErrorAction => ({
   type: ActionTypes.SetError,
-  error: error ? parseError(error) : null,
+  error,
 });
 
 const _handleIndexesChanged = (
@@ -267,7 +266,7 @@ export const fetchIndexes = (): ThunkAction<
 
       _handleIndexesChanged(dispatch, allIndexes);
     } catch (err) {
-      dispatch(setError(err as IndexesError));
+      dispatch(setError((err as Error).message));
       _handleIndexesChanged(dispatch, []);
     }
   };

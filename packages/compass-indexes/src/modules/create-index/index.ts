@@ -259,7 +259,7 @@ export const createIndex = () => {
       dispatch(localAppRegistryEmit('refresh-data'));
     } catch (err) {
       dispatch(toggleInProgress(false));
-      dispatch(handleError(err as Error));
+      dispatch(handleError((err as Error).message));
       dispatch(
         localAppRegistryEmit('in-progress-indexes-failed', {
           inProgressIndexId: inProgressIndex.id,
