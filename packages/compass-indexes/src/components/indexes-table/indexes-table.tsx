@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import type { Document } from 'mongodb';
 import {
   css,
   Table,
@@ -66,17 +65,17 @@ const spaceProviderStyles = css({
   overflow: 'hidden',
 });
 
-export type IndexesTableProps = {
+export type IndexesTableProps<Shape> = {
   columns: JSX.Element[];
-  children: (args: { datum: Document; index: number }) => JSX.Element;
-  data: Document[];
+  children: (args: { datum: Shape; index: number }) => JSX.Element;
+  data: Shape[];
 };
 
-export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
+export function IndexesTable<Shape>({
   columns,
   children,
   data,
-}) => {
+}: IndexesTableProps<Shape>) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rectProps, { height: availableHeightInContainer }] = useDOMRect();
 
@@ -118,7 +117,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   return (
     <div className={spaceProviderStyles} {...rectProps}>
       <KeylineCard ref={cardRef} data-testid="indexes" className={cardStyles}>
-        <Table
+        <Table<Shape>
           className={tableStyles}
           data={data}
           columns={columns}
@@ -130,4 +129,4 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
       </KeylineCard>
     </div>
   );
-};
+}

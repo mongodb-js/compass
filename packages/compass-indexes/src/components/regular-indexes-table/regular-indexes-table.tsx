@@ -79,9 +79,8 @@ export const RegularIndexesTable: React.FunctionComponent<
   }, [canModifyIndex, onSortTable]);
 
   return (
-    <IndexesTable columns={columns} data={indexes}>
-      {({ datum }) => {
-        const index = datum as IndexDefinition; // TODO: how on earth do I pass the type parameter down to Table as Shape?
+    <IndexesTable<IndexDefinition> columns={columns} data={indexes}>
+      {({ datum: index }) => {
         return (
           <Row
             key={index.name}
