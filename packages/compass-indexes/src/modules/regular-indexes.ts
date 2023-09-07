@@ -1,6 +1,5 @@
 import type { IndexDefinition as _IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -8,7 +7,7 @@ import { cloneDeep } from 'lodash';
 
 import { isAction } from './../utils/is-action';
 import type { CreateIndexSpec } from './create-index';
-import type { RootState } from '.';
+import type { IndexesThunkAction } from '.';
 import {
   hideModalDescription,
   unhideModalDescription,
@@ -101,6 +100,15 @@ type InProgressIndexFailedAction = {
   id: string;
   error: string;
 };
+
+type RegularIndexesActions =
+  | IndexesAddedAction
+  | IndexesSortedAction
+  | SetIsRefreshingAction
+  | SetErrorAction
+  | InProgressIndexAddedAction
+  | InProgressIndexRemovedAction
+  | InProgressIndexFailedAction;
 
 export type State = {
   indexes: IndexDefinition[];
@@ -219,24 +227,19 @@ export const setError = (error: string | null): SetErrorAction => ({
   error,
 });
 
-const _handleIndexesChanged = (
-  dispatch: ThunkDispatch<
-    RootState,
-    void,
-    SetIsRefreshingAction | IndexesAddedAction
-  >,
+export const _handleIndexesChanged = (
   indexes: IndexDefinition[]
-) => {
-  dispatch(setIndexes(indexes));
-  dispatch(setIsRefreshing(false));
-  dispatch(localAppRegistryEmit('indexes-changed', indexes));
+): IndexesThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(setIndexes(indexes));
+    dispatch(setIsRefreshing(false));
+    dispatch(localAppRegistryEmit('indexes-changed', indexes));
+  };
 };
 
-export const fetchIndexes = (): ThunkAction<
+export const fetchIndexes = (): IndexesThunkAction<
   Promise<void>,
-  RootState,
-  void,
-  IndexesAddedAction | SetIsRefreshingAction | SetErrorAction
+  RegularIndexesActions
 > => {
   return async (dispatch, getState) => {
     const {
@@ -247,7 +250,8 @@ export const fetchIndexes = (): ThunkAction<
     } = getState();
 
     if (isReadonlyView) {
-      return _handleIndexesChanged(dispatch, []);
+      dispatch(_handleIndexesChanged([]));
+      return;
     }
 
     if (!dataService || !dataService.isConnected()) {
@@ -261,13 +265,12 @@ export const fetchIndexes = (): ThunkAction<
       const indexes = await dataService.indexes(namespace);
       const allIndexes = _mergeInProgressIndexes(
         indexes,
-        cloneDeep(inProgressIndexes) as InProgressIndex[]
+        cloneDeep(inProgressIndexes)
       ).sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
-
-      _handleIndexesChanged(dispatch, allIndexes);
+      dispatch(_handleIndexesChanged(allIndexes));
     } catch (err) {
       dispatch(setError((err as Error).message));
-      _handleIndexesChanged(dispatch, []);
+      dispatch(_handleIndexesChanged([]));
     }
   };
 };
@@ -275,7 +278,7 @@ export const fetchIndexes = (): ThunkAction<
 export const sortIndexes = (
   column: SortColumn,
   order: SortDirection
-): ThunkAction<void, RootState, void, IndexesSortedAction> => {
+): IndexesThunkAction<void, IndexesSortedAction> => {
   return (dispatch, getState) => {
     const {
       regularIndexes: { indexes },
@@ -294,12 +297,7 @@ export const sortIndexes = (
   };
 };
 
-export const refreshIndexes = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  AnyAction
-> => {
+export const refreshIndexes = (): IndexesThunkAction<void> => {
   return (dispatch) => {
     dispatch(setIsRefreshing(true));
     void dispatch(fetchIndexes());
@@ -332,9 +330,7 @@ export const inProgressIndexFailed = ({
   error,
 });
 
-export const dropFailedIndex = (
-  id: string
-): ThunkAction<void, RootState, void, AnyAction> => {
+export const dropFailedIndex = (id: string): IndexesThunkAction<void> => {
   return (dispatch) => {
     dispatch(inProgressIndexRemoved(id));
     void dispatch(fetchIndexes());
@@ -343,7 +339,7 @@ export const dropFailedIndex = (
 
 export const hideIndex = (
   indexName: string
-): ThunkAction<Promise<void>, RootState, void, AnyAction> => {
+): IndexesThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const { dataService, namespace } = getState();
     const confirmed = await showConfirmation({
@@ -377,7 +373,7 @@ export const hideIndex = (
 
 export const unhideIndex = (
   indexName: string
-): ThunkAction<Promise<void>, RootState, void, AnyAction> => {
+): IndexesThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const { namespace, dataService } = getState();
     const confirmed = await showConfirmation({

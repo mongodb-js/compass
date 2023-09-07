@@ -28,7 +28,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @param {Boolean} isReadonlyView - Is the view readonly.
  *
- * @returns {Object} The readonly view changed action.
+ * @returns {import('redux').AnyAction} The readonly view changed action.
  */
 export const readonlyViewChanged = (isReadonlyView) => ({
   type: READONLY_VIEW_CHANGED,
