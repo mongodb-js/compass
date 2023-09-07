@@ -41,7 +41,7 @@ variables:
     # drop support for some older linux platforms, so we are keeping them out of
     # sync for now
     # TODO: https://jira.mongodb.org/browse/COMPASS-6915 
-    NODE_JS_VERSION: '16.17.0'
+    NODE_JS_VERSION: '16.20.2'
     NPM_VERSION: '8.19.4'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
