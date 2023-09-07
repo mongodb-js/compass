@@ -269,6 +269,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       // We don't care if it fails to get stats from server for any reason
     }
 
+    let isSearchIndexesSupported = false;
     /**
      * The support for search indexes is a feature of a server not a collection.
      * As this check can only be performed currently by running $listSearchIndexes
@@ -277,8 +278,8 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
      * on the instance model and then from there its value is read avoiding call to server.
      */
     try {
-      await getParentByType(this, 'Instance')
-        .fetchIsSearchSupported({
+      isSearchIndexesSupported = await getParentByType(this, 'Instance')
+        .getIsSearchSupported({
           dataService,
           ns: this.ns,
         });
@@ -292,6 +293,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       isTimeSeries: this.isTimeSeries,
       isClustered: this.clustered,
       isFLE: this.fle2,
+      isSearchIndexesSupported,
     };
     if (this.sourceId) {
       try {

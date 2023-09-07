@@ -85,20 +85,6 @@ const configureStore = (options = {}) => {
       store.dispatch(getDescription(instance.description));
     });
 
-    const setSearchStatus = (isSearchIndexesSupported) => {
-      store.dispatch(
-        setSearchIndexesStatus(
-          isSearchIndexesSupported
-            ? SearchIndexesStatuses.PENDING
-            : SearchIndexesStatuses.NOT_AVAILABLE
-        )
-      );
-    };
-    setSearchStatus(instance.setSearchStatus);
-    instance.on('change:isSearchIndexesSupported', () => {
-      setSearchStatus(instance.setSearchStatus);
-    });
-
     globalAppRegistry.on('refresh-data', () => {
       store.dispatch(fetchIndexes());
     });
@@ -123,6 +109,14 @@ const configureStore = (options = {}) => {
       options.dataProvider.dataProvider
     );
   }
+
+  store.dispatch(
+    setSearchIndexesStatus(
+      options.isSearchIndexesSupported
+        ? SearchIndexesStatuses.PENDING
+        : SearchIndexesStatuses.NOT_AVAILABLE
+    )
+  );
 
   return store;
 };

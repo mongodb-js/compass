@@ -264,11 +264,10 @@ const InstanceModel = AmpersandModel.extend(
      * this check for a namespace and then save it on the model itself and then
      * use that value throughout.
      * 
-     * @param {{ ns: string }} ns
-     * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
-     * @returns {Promise<void>}
+     * @param {{ ns: string, dataService: import('mongodb-data-service').DataService }} dataService
+     * @returns {Promise<boolean>}
      */
-    async fetchIsSearchSupported({
+    async getIsSearchSupported({
       ns,
       dataService,
       force = false
@@ -282,7 +281,7 @@ const InstanceModel = AmpersandModel.extend(
         }
         return;
       }
-      this.set({ isSearchIndexesSupported: false });
+      return this.isListSearchIndexesSupported;
     },
 
     async refresh({
