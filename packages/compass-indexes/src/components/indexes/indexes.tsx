@@ -19,7 +19,7 @@ import type {
 
 import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
-import { IndexesTable } from '../indexes-table/indexes-table';
+import { RegularIndexesTable } from '../regular-indexes-table/regular-indexes-table';
 import type { RootState } from '../../modules';
 
 const containerStyles = css({
@@ -96,7 +96,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
       {!isReadonlyView &&
         !error &&
         currentIndexesView === 'regular-indexes' && (
-          <IndexesTable
+          <RegularIndexesTable
             indexes={indexes}
             serverVersion={serverVersion}
             canModifyIndex={isWritable && !readOnly}
