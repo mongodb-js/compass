@@ -30,7 +30,7 @@ const toolbarButtonsContainer = css({
   alignItems: 'center',
 });
 
-const alignSelfEnd = css({
+const alignSelfEndStyles = css({
   marginLeft: 'auto',
 });
 
@@ -153,7 +153,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             {isSearchManagementActive && (
               <SegmentedControl
                 onChange={onChangeIndexesSegment}
-                className={alignSelfEnd}
+                className={alignSelfEndStyles}
                 label="Viewing"
                 defaultValue="regular-indexes"
               >
