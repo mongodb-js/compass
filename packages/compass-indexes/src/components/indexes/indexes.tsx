@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
@@ -17,6 +17,7 @@ import type {
   SortDirection,
 } from '../../modules/regular-indexes';
 
+import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
 import type { RootState } from '../../modules';
@@ -66,6 +67,9 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   onUnhideIndex,
   readOnly, // preferences readOnly.
 }) => {
+  const [currentIndexesView, setCurrentIndexesView] =
+    useState<IndexView>('regular-indexes');
+
   const deleteIndex = (index: IndexDefinition) => {
     if (index.extra.status === 'failed') {
       return dropFailedIndex(String(index.extra.id));
@@ -87,17 +91,24 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
         isAtlasSearchSupported={true}
         onRefreshIndexes={refreshIndexes}
+        onChangeIndexView={setCurrentIndexesView}
       />
-      {!isReadonlyView && !error && (
-        <IndexesTable
-          indexes={indexes}
-          serverVersion={serverVersion}
-          canModifyIndex={isWritable && !readOnly}
-          onSortTable={sortIndexes}
-          onDeleteIndex={deleteIndex}
-          onHideIndex={onHideIndex}
-          onUnhideIndex={onUnhideIndex}
-        />
+      {!isReadonlyView &&
+        !error &&
+        currentIndexesView === 'regular-indexes' && (
+          <IndexesTable
+            indexes={indexes}
+            serverVersion={serverVersion}
+            canModifyIndex={isWritable && !readOnly}
+            onSortTable={sortIndexes}
+            onDeleteIndex={deleteIndex}
+            onHideIndex={onHideIndex}
+            onUnhideIndex={onUnhideIndex}
+          />
+        )}
+
+      {!isReadonlyView && !error && currentIndexesView === 'search-indexes' && (
+        <p style={{ textAlign: 'center' }}>In Progress feature</p>
       )}
     </div>
   );
