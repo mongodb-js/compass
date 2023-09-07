@@ -1,5 +1,5 @@
 import type { CompletionSource } from '@codemirror/autocomplete';
-import type { CompleteOptions } from '../autocompleter';
+import type { CompletionOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
 import {
   createAceCompatAutocompleter,
@@ -11,7 +11,7 @@ import { createQueryAutocompleter } from './query-autocompleter';
 export const createStageAutocompleter = ({
   stageOperator,
   ...options
-}: Pick<CompleteOptions, 'fields' | 'serverVersion'> & {
+}: Pick<CompletionOptions, 'fields' | 'serverVersion'> & {
   stageOperator?: string;
 } = {}): CompletionSource => {
   const queryAutocompleter = createQueryAutocompleter(options);

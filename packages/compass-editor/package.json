@@ -78,7 +78,6 @@
     "@mongodb-js/compass-components": "^1.12.0",
     "@mongodb-js/mongodb-constants": "^0.6.0",
     "polished": "^4.2.2",
-    "prettier": "^2.7.1",
-    "semver": "^7.5.4"
+    "prettier": "^2.7.1"
   }
 }
