@@ -11,7 +11,7 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
-import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-PIPELINE-UI');
 
@@ -243,13 +243,13 @@ export const runAIPipelineGeneration = (
       }
       trackAndLogFailed({
         editor_view_type,
-        errorCode: (err as AtlasServiceNetworkError).statusCode,
-        errorMessage: (err as AtlasServiceNetworkError).message,
+        errorCode: (err as AtlasServiceError).statusCode,
+        errorMessage: (err as AtlasServiceError).message,
         errorName: 'request_error',
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
-      if ((err as AtlasServiceNetworkError).statusCode === 401) {
+      if ((err as AtlasServiceError).statusCode === 401) {
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',
@@ -259,8 +259,8 @@ export const runAIPipelineGeneration = (
       }
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
-        errorMessage: (err as AtlasServiceNetworkError).message,
-        networkErrorCode: (err as AtlasServiceNetworkError).statusCode ?? -1,
+        errorMessage: (err as AtlasServiceError).message,
+        networkErrorCode: (err as AtlasServiceError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -286,7 +286,7 @@ export const runAIPipelineGeneration = (
     } catch (err) {
       trackAndLogFailed({
         editor_view_type,
-        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorCode: (err as AtlasServiceError).statusCode,
         errorMessage: (err as Error).message,
         errorName: 'empty_pipeline_error',
       });

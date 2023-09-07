@@ -2,6 +2,7 @@ import { ipcMain, shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
+import type { AtlasServiceError } from './renderer';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -46,7 +47,9 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
 /**
  * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
  */
-function isServerError(err: any): err is { errorCode: string; detail: string } {
+function isServerError(
+  err: any
+): err is { error: number; errorCode: string; detail: string } {
   return Boolean(err.errorCode && err.detail);
 }
 
@@ -64,6 +67,7 @@ export async function throwIfNotOk(
   }
 
   let serverErrorName = 'NetworkError';
+  let serverStatusCode = res.status;
   let serverErrorMessage = `${res.status} ${res.statusText}`;
   // We try to parse the response to see if the server returned any information
   // we can show a user.
@@ -71,14 +75,16 @@ export async function throwIfNotOk(
     const messageJSON = await res.json();
     if (isServerError(messageJSON)) {
       serverErrorName = 'ServerError';
+      serverStatusCode = messageJSON.error;
       serverErrorMessage = `${messageJSON.errorCode}: ${messageJSON.detail}`;
     }
   } catch (err) {
     // no-op, use the default status and statusText in the message.
   }
+
   const err = new Error(serverErrorMessage);
   err.name = serverErrorName;
-  (err as any).statusCode = res.status;
+  (err as AtlasServiceError).statusCode = serverStatusCode;
   throw err;
 }
 
