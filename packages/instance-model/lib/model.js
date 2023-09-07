@@ -276,7 +276,7 @@ const InstanceModel = AmpersandModel.extend(
         const isSearchIndexesSupported = await dataService.isListSearchIndexesSupported(ns);
         this.set({ isSearchIndexesSupported });
       }
-      return this.isListSearchIndexesSupported;
+      return this.isSearchIndexesSupported;
     },
 
     async refresh({
