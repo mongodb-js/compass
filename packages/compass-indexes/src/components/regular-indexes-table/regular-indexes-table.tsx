@@ -1,12 +1,6 @@
 import React, { useMemo } from 'react';
 
-import {
-  TableHeader,
-  Row,
-  Cell,
-  cx,
-  IndexKeysBadge,
-} from '@mongodb-js/compass-components';
+import { IndexKeysBadge } from '@mongodb-js/compass-components';
 
 import TypeField from './type-field';
 import SizeField from './size-field';
@@ -15,12 +9,12 @@ import PropertyField from './property-field';
 import IndexActions from './index-actions';
 
 import {
-  rowStyles,
-  indexActionsCellStyles,
-  tableHeaderStyles,
-  cellStyles,
-  nestedRowCellStyles,
   IndexesTable,
+  IndexRow,
+  IndexCell,
+  IndexHeader,
+  IndexActionsField,
+  IndexKeys,
 } from '../indexes-table';
 
 import type {
@@ -60,11 +54,10 @@ export const RegularIndexesTable: React.FunctionComponent<
     ];
     const _columns = sortColumns.map((name) => {
       return (
-        <TableHeader
+        <IndexHeader
           data-testid={`index-header-${name}`}
           label={name}
           key={name}
-          className={tableHeaderStyles}
           handleSort={(direction: SortDirection) => {
             onSortTable(name, direction);
           }}
@@ -73,46 +66,43 @@ export const RegularIndexesTable: React.FunctionComponent<
     });
     // Actions column
     if (canModifyIndex) {
-      _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
+      _columns.push(<IndexHeader label={''} />);
     }
     return _columns;
   }, [canModifyIndex, onSortTable]);
 
   return (
-    <IndexesTable<IndexDefinition> columns={columns} data={indexes}>
+    <IndexesTable<IndexDefinition>
+      data-testid="indexes"
+      aria-label="Indexes"
+      columns={columns}
+      data={indexes}
+    >
       {({ datum: index }) => {
         return (
-          <Row
-            key={index.name}
-            data-testid={`index-row-${index.name}`}
-            className={rowStyles}
-          >
-            <Cell data-testid="index-name-field" className={cellStyles}>
-              {index.name}
-            </Cell>
-            <Cell data-testid="index-type-field" className={cellStyles}>
+          <IndexRow key={index.name} data-testid={`index-row-${index.name}`}>
+            <IndexCell data-testid="index-name-field">{index.name}</IndexCell>
+            <IndexCell data-testid="index-type-field">
               <TypeField type={index.type} extra={index.extra} />
-            </Cell>
-            <Cell data-testid="index-size-field" className={cellStyles}>
+            </IndexCell>
+            <IndexCell data-testid="index-size-field">
               <SizeField size={index.size} relativeSize={index.relativeSize} />
-            </Cell>
-            <Cell data-testid="index-usage-field" className={cellStyles}>
+            </IndexCell>
+            <IndexCell data-testid="index-usage-field">
               <UsageField usage={index.usageCount} since={index.usageSince} />
-            </Cell>
-            <Cell data-testid="index-property-field" className={cellStyles}>
+            </IndexCell>
+            <IndexCell data-testid="index-property-field">
               <PropertyField
                 cardinality={index.cardinality}
                 extra={index.extra}
                 properties={index.properties}
               />
-            </Cell>
+            </IndexCell>
             {/* Index actions column is conditional */}
             {canModifyIndex && (
-              <Cell data-testid="index-actions-field" className={cellStyles}>
+              <IndexCell data-testid="index-actions-field">
                 {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
-                  <div
-                    className={cx(indexActionsCellStyles, 'index-actions-cell')}
-                  >
+                  <IndexActionsField>
                     <IndexActions
                       index={index}
                       serverVersion={serverVersion}
@@ -120,19 +110,14 @@ export const RegularIndexesTable: React.FunctionComponent<
                       onHideIndex={onHideIndex}
                       onUnhideIndex={onUnhideIndex}
                     ></IndexActions>
-                  </div>
+                  </IndexActionsField>
                 )}
-              </Cell>
+              </IndexCell>
             )}
-            <Row>
-              <Cell
-                className={cx(nestedRowCellStyles, cellStyles)}
-                colSpan={canModifyIndex ? 6 : 5}
-              >
-                <IndexKeysBadge keys={index.fields} />
-              </Cell>
-            </Row>
-          </Row>
+            <IndexKeys colSpan={canModifyIndex ? 6 : 5}>
+              <IndexKeysBadge keys={index.fields} />
+            </IndexKeys>
+          </IndexRow>
         );
       }}
     </IndexesTable>

@@ -1,50 +1,16 @@
 import React, { useRef, useEffect } from 'react';
 import {
   css,
-  Table,
+  cx,
   spacing,
   palette,
   KeylineCard,
+  Table,
+  TableHeader,
+  Row,
+  Cell,
   useDOMRect,
 } from '@mongodb-js/compass-components';
-
-// When row is hovered, we show the delete button
-export const rowStyles = css({
-  ':hover': {
-    '.index-actions-cell': {
-      button: {
-        opacity: 1,
-      },
-    },
-  },
-});
-
-// When row is not hovered, we hide the delete button
-export const indexActionsCellStyles = css({
-  button: {
-    opacity: 0,
-    '&:focus': {
-      opacity: 1,
-    },
-  },
-  minWidth: spacing[5],
-});
-
-export const tableHeaderStyles = css({
-  borderWidth: 0,
-  borderBottomWidth: 3,
-  '> div': {
-    justifyContent: 'space-between',
-  },
-});
-
-export const cellStyles = css({
-  verticalAlign: 'middle',
-});
-
-export const nestedRowCellStyles = css({
-  padding: 0,
-});
 
 const tableStyles = css({
   thead: {
@@ -66,12 +32,16 @@ const spaceProviderStyles = css({
 });
 
 export type IndexesTableProps<Shape> = {
+  'data-testid': string;
+  'aria-label': string;
   columns: JSX.Element[];
   children: (args: { datum: Shape; index: number }) => JSX.Element;
   data: Shape[];
 };
 
 export function IndexesTable<Shape>({
+  ['data-testid']: dataTestId,
+  ['aria-label']: ariaLabel,
   columns,
   children,
   data,
@@ -116,17 +86,108 @@ export function IndexesTable<Shape>({
 
   return (
     <div className={spaceProviderStyles} {...rectProps}>
-      <KeylineCard ref={cardRef} data-testid="indexes" className={cardStyles}>
+      <KeylineCard
+        ref={cardRef}
+        data-testid={dataTestId}
+        className={cardStyles}
+      >
         <Table<Shape>
           className={tableStyles}
           data={data}
           columns={columns}
-          data-testid="indexes-list"
-          aria-label="Indexes List Table"
+          data-testid={`${dataTestId}-list`}
+          aria-label={`${ariaLabel} List Table`}
         >
           {children}
         </Table>
       </KeylineCard>
     </div>
+  );
+}
+
+// When row is hovered, we show the delete button
+const rowStyles = css({
+  ':hover': {
+    '.index-actions-field': {
+      button: {
+        opacity: 1,
+      },
+    },
+  },
+});
+
+// When row is not hovered, we hide the delete button
+const indexActionsFieldStyles = css({
+  button: {
+    opacity: 0,
+    '&:focus': {
+      opacity: 1,
+    },
+  },
+  minWidth: spacing[5],
+});
+
+const tableHeaderStyles = css({
+  borderWidth: 0,
+  borderBottomWidth: 3,
+  '> div': {
+    justifyContent: 'space-between',
+  },
+});
+
+const cellStyles = css({
+  verticalAlign: 'middle',
+});
+
+const nestedRowCellStyles = css({
+  padding: 0,
+});
+
+export function IndexRow({
+  children,
+  ...props
+}: React.ComponentProps<typeof Row>) {
+  return (
+    <Row {...props} className={rowStyles}>
+      {children}
+    </Row>
+  );
+}
+export function IndexCell({
+  children,
+  ...props
+}: React.ComponentProps<typeof Cell>) {
+  return (
+    <Cell {...props} className={cellStyles}>
+      {children}
+    </Cell>
+  );
+}
+
+export function IndexHeader({
+  ...props
+}: React.ComponentProps<typeof TableHeader>) {
+  return <TableHeader {...props} className={tableHeaderStyles} />;
+}
+export function IndexActionsField({ children }: { children: React.ReactNode }) {
+  return (
+    <div className={cx(indexActionsFieldStyles, 'index-actions-field')}>
+      {children}
+    </div>
+  );
+}
+export function IndexKeys({
+  colSpan,
+  children,
+}: {
+  colSpan: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <Row>
+      <Cell colSpan={colSpan} className={cx(nestedRowCellStyles, cellStyles)}>
+        {children}
+      </Cell>
+    </Row>
   );
 }
