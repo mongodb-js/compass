@@ -142,4 +142,4 @@ export function validateAIQueryResponse(
   }
 }
 
-export type AtlasServiceNetworkError = Error & { statusCode: number };
+export type AtlasServiceError = Error & { statusCode: number };

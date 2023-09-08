@@ -151,7 +151,7 @@ export type {
   AtlasUserConfig,
   IntrospectInfo,
   Token,
-  AtlasServiceNetworkError,
+  AtlasServiceError,
   AIQuery,
   AIAggregation,
 } from './util';
