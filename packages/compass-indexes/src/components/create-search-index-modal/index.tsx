@@ -15,9 +15,19 @@ import {
   Link,
   Icon,
 } from '@mongodb-js/compass-components';
-import type { CreateSearchIndexState } from '../../modules/create-search-index';
+import type { CreateSearchIndexError } from '../../modules/create-search-index';
+import {
+  closeModal,
+  createIndex,
+  type CreateSearchIndexState,
+} from '../../modules/create-search-index';
 import { connect } from 'react-redux';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+
+const ERROR_MAPPINGS: Record<CreateSearchIndexError, string> = {
+  'index-name-is-empty': 'Enter name.',
+  'index-already-exists': 'This name already exists. Choose another name.',
+};
 
 const DEFAULT_INDEX_DEFINITION = `{
   "mappings": {
@@ -36,13 +46,14 @@ const toolbarStyles = css({
 
 type CreateSearchIndexModalProps = {
   isModalOpen: boolean;
+  error?: CreateSearchIndexError;
   createIndex: (indexName: string, indexDefinition: string) => void;
   closeModal: () => void;
 };
 
 export const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
-> = ({ isModalOpen, createIndex, closeModal }) => {
+> = ({ isModalOpen, error, createIndex, closeModal }) => {
   const [indexName, setIndexName] = useState<string>('default');
   const [indexDefinition, setIndexDefinition] = useState<string>(
     DEFAULT_INDEX_DEFINITION
@@ -51,16 +62,15 @@ export const CreateSearchIndexModal: React.FunctionComponent<
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
-        closeModal?.();
+        closeModal();
       }
     },
     [closeModal]
   );
 
   const onCreateIndex = useCallback(() => {
-    createIndex?.(indexName, indexDefinition);
-    onSetOpen(false);
-  }, [indexName, indexDefinition, onSetOpen]);
+    createIndex(indexName, indexDefinition);
+  }, [createIndex, indexName, indexDefinition]);
 
   const onCancel = useCallback(() => {
     onSetOpen(false);
@@ -86,7 +96,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
     >
       <ModalHeader
         title="Create Search Index"
-        subtitle="Give your search index a name for easy deference"
+        subtitle="Give your search index a name for easy reference"
       />
       <ModalBody>
         <div className={bodyGapStyles}>
@@ -95,6 +105,8 @@ export const CreateSearchIndexModal: React.FunctionComponent<
             id="name-of-search-index"
             aria-labelledby="Name of Search Index"
             type="text"
+            state={error ? 'error' : 'none'}
+            errorMessage={error && ERROR_MAPPINGS[error]}
             value={indexName}
             onChange={(evt) => setIndexName(evt.target.value)}
           />
@@ -131,8 +143,14 @@ export const CreateSearchIndexModal: React.FunctionComponent<
   );
 };
 
-const mapState = ({ createSearchIndexReducer }: CreateSearchIndexState) => {
-  return { isModalOpen: createSearchIndexReducer.isModalOpen };
+const mapState = ({ createSearchIndexReducer }: CreateSearchIndexState) => ({
+  isModalOpen: createSearchIndexReducer.isModalOpen,
+  error: createSearchIndexReducer.error,
+});
+
+const mapDispatch = {
+  closeModal,
+  createIndex,
 };
 
-export default connect(mapState, {})(CreateSearchIndexModal);
+export default connect(mapState, mapDispatch)(CreateSearchIndexModal);
