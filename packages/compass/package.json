@@ -242,6 +242,7 @@
     "hadron-build": "^25.3.4",
     "hadron-ipc": "^3.1.4",
     "local-links": "^1.4.0",
+    "lodash": "^4.17.21",
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",
     "mocha": "^10.2.0",
