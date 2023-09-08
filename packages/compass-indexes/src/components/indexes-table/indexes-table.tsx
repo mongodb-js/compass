@@ -89,7 +89,7 @@ export type IndexesTableProps = {
   columns: string[];
   data: IndexInfo[];
   canModifyIndex?: boolean;
-  onSortable: (column: string, direction: SortDirection) => void;
+  onSortTable: (column: string, direction: SortDirection) => void;
 };
 
 export function IndexesTable({
@@ -98,7 +98,7 @@ export function IndexesTable({
   columns: sortColumns,
   canModifyIndex,
   data,
-  onSortable,
+  onSortTable,
 }: IndexesTableProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rectProps, { height: availableHeightInContainer }] = useDOMRect();
@@ -147,7 +147,7 @@ export function IndexesTable({
           key={name}
           className={tableHeaderStyles}
           handleSort={(direction: SortDirection) => {
-            onSortable(name, direction);
+            onSortTable(name, direction);
           }}
         />
       );
@@ -157,7 +157,7 @@ export function IndexesTable({
       _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
     }
     return _columns;
-  }, [canModifyIndex, onSortable, sortColumns]);
+  }, [canModifyIndex, onSortTable, sortColumns]);
 
   return (
     <div className={spaceProviderStyles} {...rectProps}>

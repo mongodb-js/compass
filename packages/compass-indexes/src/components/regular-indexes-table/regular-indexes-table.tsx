@@ -23,7 +23,7 @@ type RegularIndexesTableProps = {
   onDeleteIndex: (index: IndexDefinition) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
-  onSortable: (column: SortColumn, direction: SortDirection) => void;
+  onSortTable: (column: SortColumn, direction: SortDirection) => void;
 };
 
 export const RegularIndexesTable: React.FunctionComponent<
@@ -35,7 +35,7 @@ export const RegularIndexesTable: React.FunctionComponent<
   onDeleteIndex,
   onHideIndex,
   onUnhideIndex,
-  onSortable,
+  onSortTable,
 }) => {
   const columns = [
     'Name and Definition',
@@ -101,8 +101,8 @@ export const RegularIndexesTable: React.FunctionComponent<
       canModifyIndex={canModifyIndex}
       columns={columns}
       data={data}
-      onSortable={(column: string, direction: SortDirection) =>
-        onSortable(column as SortColumn, direction)
+      onSortTable={(column: string, direction: SortDirection) =>
+        onSortTable(column as SortColumn, direction)
       }
     />
   );
