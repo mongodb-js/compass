@@ -15,7 +15,7 @@ import {
 type SortDirection = 'asc' | 'desc';
 
 // When row is hovered, we show the delete button
-export const rowStyles = css({
+const rowStyles = css({
   ':hover': {
     '.index-actions-cell': {
       button: {
@@ -26,7 +26,7 @@ export const rowStyles = css({
 });
 
 // When row is not hovered, we hide the delete button
-export const indexActionsCellStyles = css({
+const indexActionsCellStyles = css({
   button: {
     opacity: 0,
     '&:focus': {
@@ -36,7 +36,7 @@ export const indexActionsCellStyles = css({
   minWidth: spacing[5],
 });
 
-export const tableHeaderStyles = css({
+const tableHeaderStyles = css({
   borderWidth: 0,
   borderBottomWidth: 3,
   '> div': {
@@ -44,11 +44,11 @@ export const tableHeaderStyles = css({
   },
 });
 
-export const cellStyles = css({
+const cellStyles = css({
   verticalAlign: 'middle',
 });
 
-export const nestedRowCellStyles = css({
+const nestedRowCellStyles = css({
   padding: 0,
 });
 
