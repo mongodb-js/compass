@@ -97,11 +97,6 @@ function throwIfAINotEnabled(atlasService: typeof AtlasService) {
   }
 }
 
-function throwIfRequiredEnvNotSet(atlasService: typeof AtlasService) {
-  // These class properties will throw on access if missing
-  return void (atlasService['clientId'] && atlasService['issuer']);
-}
-
 const AI_MAX_REQUEST_SIZE = 10000;
 
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
@@ -118,6 +113,15 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
     auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
   };
 }
+
+export type AtlasServiceConfig = {
+  atlasApiBaseUrl: string;
+  atlasLogin: {
+    clientId: string;
+    issuer: string;
+  };
+  authPortalUrl: string;
+};
 
 export class AtlasService {
   private constructor() {
@@ -153,46 +157,7 @@ export class AtlasService {
 
   private static ipcMain: Pick<typeof ipcMain, 'handle'> = ipcMain;
 
-  private static get clientId() {
-    const clientId =
-      process.env.COMPASS_CLIENT_ID_OVERRIDE || process.env.COMPASS_CLIENT_ID;
-    if (!clientId) {
-      throw new Error('COMPASS_CLIENT_ID is required');
-    }
-    return clientId;
-  }
-
-  private static get issuer() {
-    const issuer =
-      process.env.COMPASS_OIDC_ISSUER_OVERRIDE ||
-      process.env.COMPASS_OIDC_ISSUER;
-    if (!issuer) {
-      throw new Error('COMPASS_OIDC_ISSUER is required');
-    }
-    return issuer;
-  }
-
-  private static get apiBaseUrl() {
-    const apiBaseUrl =
-      process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE ||
-      process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
-    if (!apiBaseUrl) {
-      throw new Error(
-        'No AI Query endpoint to fetch. Please set the environment variable `COMPASS_ATLAS_SERVICE_BASE_URL`'
-      );
-    }
-    return apiBaseUrl;
-  }
-
-  private static get authPortalUrl() {
-    const authPortalUrl =
-      process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE ||
-      process.env.COMPASS_ATLAS_AUTH_PORTAL_URL;
-    if (!authPortalUrl) {
-      throw new Error('COMPASS_ATLAS_AUTH_PORTAL_URL is required');
-    }
-    return authPortalUrl;
-  }
+  private static config: AtlasServiceConfig;
 
   private static openExternal(...args: Parameters<typeof shell.openExternal>) {
     return shell?.openExternal(...args);
@@ -215,7 +180,7 @@ export class AtlasService {
         if (data.result === 'redirecting') {
           const { res, status, location } = data;
           res.statusCode = status;
-          const redirectUrl = new URL(this.authPortalUrl);
+          const redirectUrl = new URL(this.config.authPortalUrl);
           redirectUrl.searchParams.set('fromURI', location);
           res.setHeader('Location', redirectUrl.toString());
           res.end();
@@ -238,7 +203,8 @@ export class AtlasService {
     );
   }
 
-  static init(): Promise<void> {
+  static init(config: AtlasServiceConfig): Promise<void> {
+    this.config = config;
     return (this.initPromise ??= (async () => {
       ipcExpose(
         'AtlasService',
@@ -259,7 +225,8 @@ export class AtlasService {
       log.info(
         mongoLogId(1_001_000_210),
         'AtlasService',
-        'Atlas service initialized'
+        'Atlas service initialized',
+        { config: this.config }
       );
       const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
       this.setupPlugin(serializedState);
@@ -286,7 +253,6 @@ export class AtlasService {
   }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
-    throwIfRequiredEnvNotSet(this);
 
     if (!this.plugin) {
       throw new Error(
@@ -295,7 +261,10 @@ export class AtlasService {
     }
 
     return this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
-      { clientId: this.clientId, issuer: this.issuer },
+      {
+        clientId: this.config.atlasLogin.clientId,
+        issuer: this.config.atlasLogin.issuer,
+      },
       {
         // Required driver specific stuff
         version: 0,
@@ -348,7 +317,6 @@ export class AtlasService {
       this.signInPromise = (async () => {
         throwIfAborted(signal);
         throwIfNetworkTrafficDisabled();
-        throwIfRequiredEnvNotSet(this);
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
@@ -411,9 +379,9 @@ export class AtlasService {
     this.currentUser = null;
     this.oidcPluginLogger.emit('atlas-service-signed-out');
     // Open Atlas sign out page to end the browser session created for sign in
-    void this.openExternal(
-      'https://account.mongodb.com/account/login?signedOut=true'
-    );
+    const signOutUrl = new URL(this.config.authPortalUrl);
+    signOutUrl.searchParams.set('signedOut', 'true');
+    void this.openExternal(signOutUrl.toString());
     track('Atlas Sign Out', getTrackingUserInfo(userInfo));
   }
 
@@ -441,18 +409,20 @@ export class AtlasService {
   }: { signal?: AbortSignal } = {}): Promise<AtlasUserInfo> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
-    throwIfRequiredEnvNotSet(this);
 
     this.currentUser ??= await (async () => {
       const token = await this.maybeGetToken({ signal });
 
-      const res = await this.fetch(`${this.issuer}/v1/userinfo`, {
-        headers: {
-          Authorization: `Bearer ${token ?? ''}`,
-          Accept: 'application/json',
-        },
-        signal: signal as NodeFetchAbortSignal | undefined,
-      });
+      const res = await this.fetch(
+        `${this.config.atlasLogin.issuer}/v1/userinfo`,
+        {
+          headers: {
+            Authorization: `Bearer ${token ?? ''}`,
+            Accept: 'application/json',
+          },
+          signal: signal as NodeFetchAbortSignal | undefined,
+        }
+      );
 
       await throwIfNotOk(res);
 
@@ -495,10 +465,9 @@ export class AtlasService {
   } = {}) {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
-    throwIfRequiredEnvNotSet(this);
 
-    const url = new URL(`${this.issuer}/v1/introspect`);
-    url.searchParams.set('client_id', this.clientId);
+    const url = new URL(`${this.config.atlasLogin.issuer}/v1/introspect`);
+    url.searchParams.set('client_id', this.config.atlasLogin.clientId);
 
     tokenType ??= 'accessToken';
 
@@ -530,10 +499,9 @@ export class AtlasService {
   } = {}): Promise<void> {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
-    throwIfRequiredEnvNotSet(this);
 
-    const url = new URL(`${this.issuer}/v1/revoke`);
-    url.searchParams.set('client_id', this.clientId);
+    const url = new URL(`${this.config.atlasLogin.issuer}/v1/revoke`);
+    url.searchParams.set('client_id', this.config.atlasLogin.clientId);
 
     tokenType ??= 'accessToken';
 
@@ -574,7 +542,6 @@ export class AtlasService {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
     throwIfAINotEnabled(this);
-    throwIfRequiredEnvNotSet(this);
 
     let msgBody = JSON.stringify({
       userInput,
@@ -605,7 +572,7 @@ export class AtlasService {
     const token = await this.maybeGetToken({ signal });
 
     const res = await this.fetch(
-      `${this.apiBaseUrl}/ai/api/v1/mql-aggregation`,
+      `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-aggregation`,
       {
         signal: signal as NodeFetchAbortSignal | undefined,
         method: 'POST',
@@ -644,7 +611,6 @@ export class AtlasService {
     throwIfAborted(signal);
     throwIfNetworkTrafficDisabled();
     throwIfAINotEnabled(this);
-    throwIfRequiredEnvNotSet(this);
 
     let msgBody = JSON.stringify({
       userInput,
@@ -674,15 +640,18 @@ export class AtlasService {
 
     const token = await this.maybeGetToken({ signal });
 
-    const res = await this.fetch(`${this.apiBaseUrl}/ai/api/v1/mql-query`, {
-      signal: signal as NodeFetchAbortSignal | undefined,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token ?? ''}`,
-        'Content-Type': 'application/json',
-      },
-      body: msgBody,
-    });
+    const res = await this.fetch(
+      `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`,
+      {
+        signal: signal as NodeFetchAbortSignal | undefined,
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token ?? ''}`,
+          'Content-Type': 'application/json',
+        },
+        body: msgBody,
+      }
+    );
 
     await throwIfNotOk(res);
 
