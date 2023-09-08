@@ -113,7 +113,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
         </div>
         <HorizontalRule className={bodyGapStyles} />
         <div className={bodyGapStyles}>
-          <Subtitle>JSON Editor</Subtitle>
+          <Subtitle>Index Definition</Subtitle>
           <p className={bodyGapStyles}>
             By default, search indexes will have the following search
             configurations. You can refine this later.

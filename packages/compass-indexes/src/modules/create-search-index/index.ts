@@ -49,6 +49,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   ) {
     return {
       ...state,
+      error: undefined,
       isModalOpen: true,
     };
   } else if (
@@ -59,6 +60,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   ) {
     return {
       ...state,
+      error: undefined,
       isModalOpen: false,
     };
   } else if (
@@ -102,6 +104,7 @@ export const createIndex = (
 ): ThunkAction<Promise<void>, CreateSearchIndexState, void, AnyAction> => {
   return async function (dispatch, getState) {
     const { dataService } = getState();
+    console.log(getState());
 
     if (indexName === '') {
       dispatch(indexNameIsEmpty());
