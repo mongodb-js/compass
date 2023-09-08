@@ -1,11 +1,9 @@
 import { expect } from 'chai';
-import type { Store } from 'redux';
 import { SearchIndexesStatuses, setStatus } from './search-indexes';
-import type { RootState } from '.';
 import { setupStore } from '../../test/setup-store';
 
 describe('search-indexes module', function () {
-  let store: Store<RootState>;
+  let store: ReturnType<typeof setupStore>;
 
   beforeEach(function () {
     store = setupStore();

@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { setTimeout as wait } from 'timers/promises';
 import Sinon from 'sinon';
-import type { Store } from 'redux';
 import {
   ActionTypes,
   fetchIndexes,
@@ -20,13 +19,12 @@ import {
 } from '../../test/fixtures/regular-indexes';
 import { readonlyViewChanged } from './is-readonly-view';
 import { setupStore } from '../../test/setup-store';
-import type { RootState } from '.';
 
 const defaultSortedDesc = [...defaultSortedIndexes].reverse();
 const usageSortedDesc = [...usageSortedIndexes].reverse();
 
 describe('regular-indexes module', function () {
-  let store: Store<RootState>;
+  let store: ReturnType<typeof setupStore>;
 
   beforeEach(function () {
     store = setupStore();
@@ -57,7 +55,7 @@ describe('regular-indexes module', function () {
     store.dispatch(setIndexes(defaultSortedDesc as any));
 
     {
-      store.dispatch(sortIndexes('Name and Definition', 'asc') as any);
+      store.dispatch(sortIndexes('Name and Definition', 'asc'));
       const state = store.getState().regularIndexes;
       expect(state.sortColumn).to.equal('Name and Definition');
       expect(state.sortOrder).to.equal('asc');
@@ -65,7 +63,7 @@ describe('regular-indexes module', function () {
     }
 
     {
-      store.dispatch(sortIndexes('Name and Definition', 'desc') as any);
+      store.dispatch(sortIndexes('Name and Definition', 'desc'));
       const state = store.getState().regularIndexes;
       expect(state.sortColumn).to.equal('Name and Definition');
       expect(state.sortOrder).to.equal('desc');
@@ -73,7 +71,7 @@ describe('regular-indexes module', function () {
     }
 
     {
-      store.dispatch(sortIndexes('Usage', 'asc') as any);
+      store.dispatch(sortIndexes('Usage', 'asc'));
       const state = store.getState().regularIndexes;
       expect(state.sortColumn).to.equal('Usage');
       expect(state.sortOrder).to.equal('asc');
@@ -81,7 +79,7 @@ describe('regular-indexes module', function () {
     }
 
     {
-      store.dispatch(sortIndexes('Usage', 'desc') as any);
+      store.dispatch(sortIndexes('Usage', 'desc'));
       const state = store.getState().regularIndexes;
       expect(state.sortColumn).to.equal('Usage');
       expect(state.sortOrder).to.equal('desc');
@@ -110,7 +108,8 @@ describe('regular-indexes module', function () {
       await store.dispatch(fetchIndexes());
 
       expect(store.getState().regularIndexes.indexes).to.have.lengthOf(0);
-      expect(indexesSpy.callCount).to.equal(0);
+      // One because we also call fetchIndexes when setting up the store.
+      expect(indexesSpy.callCount).to.equal(1);
     });
 
     it('when dataService is not connected, sets refreshing to false', async function () {
@@ -194,7 +193,7 @@ describe('regular-indexes module', function () {
       });
       // Set indexes to empty
       store.dispatch(setIndexes([]));
-      store.dispatch(sortIndexes('Usage', 'desc') as any);
+      store.dispatch(sortIndexes('Usage', 'desc'));
 
       await store.dispatch(fetchIndexes());
 
