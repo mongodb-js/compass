@@ -461,7 +461,7 @@ describe('Collection import', function () {
     await toastElement.waitForDisplayed({ reverse: true });
   });
 
-  it.only('supports CSV files', async function () {
+  it('supports CSV files', async function () {
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
     await browser.navigateToCollectionTab('test', 'csv-file', 'Documents');
