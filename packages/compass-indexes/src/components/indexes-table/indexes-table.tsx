@@ -1,15 +1,21 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import {
   css,
+  cx,
   Table,
+  TableHeader,
+  Row,
+  Cell,
   spacing,
   palette,
   KeylineCard,
   useDOMRect,
 } from '@mongodb-js/compass-components';
 
+type SortDirection = 'asc' | 'desc';
+
 // When row is hovered, we show the delete button
-export const rowStyles = css({
+const rowStyles = css({
   ':hover': {
     '.index-actions-cell': {
       button: {
@@ -20,7 +26,7 @@ export const rowStyles = css({
 });
 
 // When row is not hovered, we hide the delete button
-export const indexActionsCellStyles = css({
+const indexActionsCellStyles = css({
   button: {
     opacity: 0,
     '&:focus': {
@@ -30,7 +36,7 @@ export const indexActionsCellStyles = css({
   minWidth: spacing[5],
 });
 
-export const tableHeaderStyles = css({
+const tableHeaderStyles = css({
   borderWidth: 0,
   borderBottomWidth: 3,
   '> div': {
@@ -38,11 +44,11 @@ export const tableHeaderStyles = css({
   },
 });
 
-export const cellStyles = css({
+const cellStyles = css({
   verticalAlign: 'middle',
 });
 
-export const nestedRowCellStyles = css({
+const nestedRowCellStyles = css({
   padding: 0,
 });
 
@@ -65,21 +71,35 @@ const spaceProviderStyles = css({
   overflow: 'hidden',
 });
 
-export type IndexesTableProps<Shape> = {
-  ['data-testid']: string;
-  ['aria-label']: string;
-  columns: JSX.Element[];
-  children: (args: { datum: Shape; index: number }) => JSX.Element;
-  data: Shape[];
+type IndexInfo = {
+  key: string;
+  'data-testid': string;
+  fields: {
+    key?: string;
+    'data-testid': string;
+    children: React.ReactNode;
+  }[];
+  actions?: React.ReactNode;
+  details?: React.ReactNode;
 };
 
-export function IndexesTable<Shape>({
+export type IndexesTableProps<Column extends string> = {
+  ['data-testid']: string;
+  ['aria-label']: string;
+  columns: readonly Column[];
+  data: IndexInfo[];
+  canModifyIndex?: boolean;
+  onSortTable: (column: Column, direction: SortDirection) => void;
+};
+
+export function IndexesTable<Column extends string>({
   ['data-testid']: dataTestId,
   ['aria-label']: ariaLabel,
-  columns,
-  children,
+  columns: sortColumns,
+  canModifyIndex,
   data,
-}: IndexesTableProps<Shape>) {
+  onSortTable,
+}: IndexesTableProps<Column>) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rectProps, { height: availableHeightInContainer }] = useDOMRect();
 
@@ -118,6 +138,27 @@ export function IndexesTable<Shape>({
     }
   }, [availableHeightInContainer]);
 
+  const columns = useMemo(() => {
+    const _columns = sortColumns.map((name) => {
+      return (
+        <TableHeader
+          data-testid={`index-header-${name}`}
+          label={name}
+          key={name}
+          className={tableHeaderStyles}
+          handleSort={(direction: SortDirection) => {
+            onSortTable(name, direction);
+          }}
+        />
+      );
+    });
+    // Actions column
+    if (canModifyIndex) {
+      _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
+    }
+    return _columns;
+  }, [canModifyIndex, onSortTable, sortColumns]);
+
   return (
     <div className={spaceProviderStyles} {...rectProps}>
       <KeylineCard
@@ -125,14 +166,66 @@ export function IndexesTable<Shape>({
         data-testid={dataTestId}
         className={cardStyles}
       >
-        <Table<Shape>
+        <Table
           className={tableStyles}
-          data={data}
           columns={columns}
+          data={data}
           data-testid={`${dataTestId}-list`}
           aria-label={`${ariaLabel} List Table`}
         >
-          {children}
+          {({ datum: info, index }) => {
+            return (
+              <Row
+                key={info.key}
+                data-testid={info['data-testid']}
+                className={rowStyles}
+              >
+                {info.fields.map((field) => {
+                  return (
+                    <Cell
+                      key={field.key ?? `${info.key}-${index}`}
+                      data-testid={field['data-testid']}
+                      className={cellStyles}
+                    >
+                      {field.children}
+                    </Cell>
+                  );
+                })}
+                {/* Index actions column is conditional */}
+                {canModifyIndex && (
+                  <Cell
+                    data-testid="index-actions-field"
+                    className={cellStyles}
+                  >
+                    {info.actions && (
+                      <div
+                        className={cx(
+                          indexActionsCellStyles,
+                          'index-actions-cell'
+                        )}
+                      >
+                        {info.actions}
+                      </div>
+                    )}
+                  </Cell>
+                )}
+                {info.details && (
+                  <Row>
+                    <Cell
+                      className={cx(nestedRowCellStyles, cellStyles)}
+                      colSpan={
+                        canModifyIndex
+                          ? info.fields.length + 1
+                          : info.fields.length
+                      }
+                    >
+                      {info.details}
+                    </Cell>
+                  </Row>
+                )}
+              </Row>
+            );
+          }}
         </Table>
       </KeylineCard>
     </div>
