@@ -1,31 +1,15 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   css,
   Table,
-  TableHeader,
-  Row,
-  Cell,
-  cx,
   spacing,
   palette,
-  IndexKeysBadge,
   KeylineCard,
   useDOMRect,
 } from '@mongodb-js/compass-components';
 
-import TypeField from './type-field';
-import SizeField from './size-field';
-import UsageField from './usage-field';
-import PropertyField from './property-field';
-import type {
-  IndexDefinition,
-  SortColumn,
-  SortDirection,
-} from '../../modules/regular-indexes';
-import IndexActions from './index-actions';
-
 // When row is hovered, we show the delete button
-const rowStyles = css({
+export const rowStyles = css({
   ':hover': {
     '.index-actions-cell': {
       button: {
@@ -36,7 +20,7 @@ const rowStyles = css({
 });
 
 // When row is not hovered, we hide the delete button
-const indexActionsCellStyles = css({
+export const indexActionsCellStyles = css({
   button: {
     opacity: 0,
     '&:focus': {
@@ -46,7 +30,7 @@ const indexActionsCellStyles = css({
   minWidth: spacing[5],
 });
 
-const tableHeaderStyles = css({
+export const tableHeaderStyles = css({
   borderWidth: 0,
   borderBottomWidth: 3,
   '> div': {
@@ -54,11 +38,11 @@ const tableHeaderStyles = css({
   },
 });
 
-const cellStyles = css({
+export const cellStyles = css({
   verticalAlign: 'middle',
 });
 
-const nestedRowCellStyles = css({
+export const nestedRowCellStyles = css({
   padding: 0,
 });
 
@@ -81,54 +65,23 @@ const spaceProviderStyles = css({
   overflow: 'hidden',
 });
 
-type IndexesTableProps = {
-  indexes: IndexDefinition[];
-  canModifyIndex: boolean;
-  serverVersion: string;
-  onSortTable: (column: SortColumn, direction: SortDirection) => void;
-  onDeleteIndex: (index: IndexDefinition) => void;
-  onHideIndex: (name: string) => void;
-  onUnhideIndex: (name: string) => void;
+export type IndexesTableProps<Shape> = {
+  ['data-testid']: string;
+  ['aria-label']: string;
+  columns: JSX.Element[];
+  children: (args: { datum: Shape; index: number }) => JSX.Element;
+  data: Shape[];
 };
 
-export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
-  indexes,
-  canModifyIndex,
-  serverVersion,
-  onSortTable,
-  onDeleteIndex,
-  onHideIndex,
-  onUnhideIndex,
-}) => {
+export function IndexesTable<Shape>({
+  ['data-testid']: dataTestId,
+  ['aria-label']: ariaLabel,
+  columns,
+  children,
+  data,
+}: IndexesTableProps<Shape>) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rectProps, { height: availableHeightInContainer }] = useDOMRect();
-  const columns = useMemo(() => {
-    const sortColumns: SortColumn[] = [
-      'Name and Definition',
-      'Type',
-      'Size',
-      'Usage',
-      'Properties',
-    ];
-    const _columns = sortColumns.map((name) => {
-      return (
-        <TableHeader
-          data-testid={`index-header-${name}`}
-          label={name}
-          key={name}
-          className={tableHeaderStyles}
-          handleSort={(direction) => {
-            onSortTable(name, direction);
-          }}
-        />
-      );
-    });
-    // Actions column
-    if (canModifyIndex) {
-      _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
-    }
-    return _columns;
-  }, [canModifyIndex, onSortTable]);
 
   useEffect(() => {
     /**
@@ -167,76 +120,21 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
 
   return (
     <div className={spaceProviderStyles} {...rectProps}>
-      <KeylineCard ref={cardRef} data-testid="indexes" className={cardStyles}>
-        <Table
+      <KeylineCard
+        ref={cardRef}
+        data-testid={dataTestId}
+        className={cardStyles}
+      >
+        <Table<Shape>
           className={tableStyles}
-          data={indexes}
+          data={data}
           columns={columns}
-          data-testid="indexes-list"
-          aria-label="Indexes List Table"
+          data-testid={`${dataTestId}-list`}
+          aria-label={`${ariaLabel} List Table`}
         >
-          {({ datum: index }) => (
-            <Row
-              key={index.name}
-              data-testid={`index-row-${index.name}`}
-              className={rowStyles}
-            >
-              <Cell data-testid="index-name-field" className={cellStyles}>
-                {index.name}
-              </Cell>
-              <Cell data-testid="index-type-field" className={cellStyles}>
-                <TypeField type={index.type} extra={index.extra} />
-              </Cell>
-              <Cell data-testid="index-size-field" className={cellStyles}>
-                <SizeField
-                  size={index.size}
-                  relativeSize={index.relativeSize}
-                />
-              </Cell>
-              <Cell data-testid="index-usage-field" className={cellStyles}>
-                <UsageField usage={index.usageCount} since={index.usageSince} />
-              </Cell>
-              <Cell data-testid="index-property-field" className={cellStyles}>
-                <PropertyField
-                  cardinality={index.cardinality}
-                  extra={index.extra}
-                  properties={index.properties}
-                />
-              </Cell>
-              {/* Index actions column is conditional */}
-              {canModifyIndex && (
-                <Cell data-testid="index-actions-field" className={cellStyles}>
-                  {index.name !== '_id_' &&
-                    index.extra.status !== 'inprogress' && (
-                      <div
-                        className={cx(
-                          indexActionsCellStyles,
-                          'index-actions-cell'
-                        )}
-                      >
-                        <IndexActions
-                          index={index}
-                          serverVersion={serverVersion}
-                          onDeleteIndex={onDeleteIndex}
-                          onHideIndex={onHideIndex}
-                          onUnhideIndex={onUnhideIndex}
-                        ></IndexActions>
-                      </div>
-                    )}
-                </Cell>
-              )}
-              <Row>
-                <Cell
-                  className={cx(nestedRowCellStyles, cellStyles)}
-                  colSpan={canModifyIndex ? 6 : 5}
-                >
-                  <IndexKeysBadge keys={index.fields} />
-                </Cell>
-              </Row>
-            </Row>
-          )}
+          {children}
         </Table>
       </KeylineCard>
     </div>
   );
-};
+}
