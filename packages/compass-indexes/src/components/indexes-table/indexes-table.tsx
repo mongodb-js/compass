@@ -83,23 +83,23 @@ type IndexInfo = {
   details?: React.ReactNode;
 };
 
-export type IndexesTableProps = {
+export type IndexesTableProps<Column extends string> = {
   ['data-testid']: string;
   ['aria-label']: string;
-  columns: string[];
+  columns: readonly Column[];
   data: IndexInfo[];
   canModifyIndex?: boolean;
-  onSortTable: (column: string, direction: SortDirection) => void;
+  onSortTable: (column: Column, direction: SortDirection) => void;
 };
 
-export function IndexesTable({
+export function IndexesTable<Column extends string>({
   ['data-testid']: dataTestId,
   ['aria-label']: ariaLabel,
   columns: sortColumns,
   canModifyIndex,
   data,
   onSortTable,
-}: IndexesTableProps) {
+}: IndexesTableProps<Column>) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rectProps, { height: availableHeightInContainer }] = useDOMRect();
 

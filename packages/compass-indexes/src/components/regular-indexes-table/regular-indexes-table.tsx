@@ -43,7 +43,7 @@ export const RegularIndexesTable: React.FunctionComponent<
     'Size',
     'Usage',
     'Properties',
-  ];
+  ] as const;
 
   const data = indexes.map((index) => {
     return {
@@ -101,9 +101,7 @@ export const RegularIndexesTable: React.FunctionComponent<
       canModifyIndex={canModifyIndex}
       columns={columns}
       data={data}
-      onSortTable={(column: string, direction: SortDirection) =>
-        onSortTable(column as SortColumn, direction)
-      }
+      onSortTable={(column, direction) => onSortTable(column, direction)}
     />
   );
 };
