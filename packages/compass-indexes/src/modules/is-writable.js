@@ -34,7 +34,7 @@ export default reducer;
  * Action creator for isWritable events.
  *
  * @param {Boolean} isWritable
- * @returns {Object} The isWritable action.
+ * @returns {import('redux').AnyAction} The isWritable action.
  */
 export const writeStateChanged = (isWritable) => ({
   type: WRITE_STATE_CHANGED,

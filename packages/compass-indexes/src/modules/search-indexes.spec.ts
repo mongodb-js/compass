@@ -1,14 +1,12 @@
 import { expect } from 'chai';
-import type { Store } from 'redux';
 import { SearchIndexesStatuses, setStatus } from './search-indexes';
-import configureStore from '../stores/store';
-import type { RootState } from '.';
+import { setupStore } from '../../test/setup-store';
 
 describe('search-indexes module', function () {
-  let store: Store<RootState>;
+  let store: ReturnType<typeof setupStore>;
 
   beforeEach(function () {
-    store = configureStore({ namespace: 'citibike.trips' });
+    store = setupStore();
   });
 
   it('has not available search indexes state by default', function () {
