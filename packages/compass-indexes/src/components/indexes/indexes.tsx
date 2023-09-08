@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
@@ -9,16 +9,17 @@ import {
   dropFailedIndex,
   hideIndex,
   unhideIndex,
-} from '../../modules/indexes';
+  refreshIndexes,
+} from '../../modules/regular-indexes';
 import type {
   IndexDefinition,
   SortColumn,
   SortDirection,
-} from '../../modules/indexes';
+} from '../../modules/regular-indexes';
 
+import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
-import { refreshIndexes } from '../../modules/is-refreshing';
 import type { RootState } from '../../modules';
 
 const containerStyles = css({
@@ -32,7 +33,6 @@ const containerStyles = css({
 type IndexesProps = {
   indexes: IndexDefinition[];
   isWritable: boolean;
-  isReadonly: boolean;
   isReadonlyView: boolean;
   description?: string;
   error: string | null;
@@ -54,7 +54,6 @@ const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
   indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,
@@ -68,6 +67,9 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   onUnhideIndex,
   readOnly, // preferences readOnly.
 }) => {
+  const [currentIndexesView, setCurrentIndexesView] =
+    useState<IndexView>('regular-indexes');
+
   const deleteIndex = (index: IndexDefinition) => {
     if (index.extra.status === 'failed') {
       return dropFailedIndex(String(index.extra.id));
@@ -80,7 +82,6 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
     <div className={containerStyles}>
       <IndexesToolbar
         isWritable={isWritable}
-        isReadonly={isReadonly}
         isReadonlyView={isReadonlyView}
         readOnly={readOnly}
         errorMessage={error}
@@ -90,36 +91,39 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
         isAtlasSearchSupported={true}
         onRefreshIndexes={refreshIndexes}
+        onChangeIndexView={setCurrentIndexesView}
       />
-      {!isReadonlyView && !error && (
-        <IndexesTable
-          indexes={indexes}
-          serverVersion={serverVersion}
-          canModifyIndex={isWritable && !isReadonly && !readOnly}
-          onSortTable={sortIndexes}
-          onDeleteIndex={deleteIndex}
-          onHideIndex={onHideIndex}
-          onUnhideIndex={onUnhideIndex}
-        />
+      {!isReadonlyView &&
+        !error &&
+        currentIndexesView === 'regular-indexes' && (
+          <IndexesTable
+            indexes={indexes}
+            serverVersion={serverVersion}
+            canModifyIndex={isWritable && !readOnly}
+            onSortTable={sortIndexes}
+            onDeleteIndex={deleteIndex}
+            onHideIndex={onHideIndex}
+            onUnhideIndex={onUnhideIndex}
+          />
+        )}
+
+      {!isReadonlyView && !error && currentIndexesView === 'search-indexes' && (
+        <p style={{ textAlign: 'center' }}>In Progress feature</p>
       )}
     </div>
   );
 };
 
 const mapState = ({
-  indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
-  error,
-  isRefreshing,
   serverVersion,
   appRegistry,
+  regularIndexes: { indexes, isRefreshing, error },
 }: RootState) => ({
   indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,

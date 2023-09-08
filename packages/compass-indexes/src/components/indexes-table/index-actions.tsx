@@ -2,7 +2,7 @@ import semver from 'semver';
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
 import { ItemActionGroup } from '@mongodb-js/compass-components';
-import type { IndexDefinition } from '../../modules/indexes';
+import type { IndexDefinition } from '../../modules/regular-indexes';
 
 type IndexActionsProps = {
   index: IndexDefinition;

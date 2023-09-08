@@ -73,7 +73,6 @@
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.2.0",
-    "debug": "^4.2.0",
     "depcheck": "^1.4.1",
     "electron": "^24.8.2",
     "enzyme": "^3.11.0",

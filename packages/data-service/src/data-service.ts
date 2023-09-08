@@ -91,6 +91,7 @@ import type {
   IndexInfo,
 } from './index-detail-helper';
 import { createIndexDefinition } from './index-detail-helper';
+import type { SearchIndex } from './search-index-detail-helper';
 import type {
   BoundLogger,
   DataServiceImplLogger,
@@ -407,6 +408,26 @@ export interface DataService {
    * @param name - The index name.
    */
   dropIndex(ns: string, name: string): Promise<Document>;
+
+  /*** SearchIndexes ***/
+
+  isListSearchIndexesSupported(ns: string): Promise<boolean>;
+
+  getSearchIndexes(ns: string): Promise<SearchIndex[]>;
+
+  createSearchIndex(
+    ns: string,
+    name: string,
+    definition: Document
+  ): Promise<string>;
+
+  updateSearchIndex(
+    ns: string,
+    name: string,
+    definition: Document
+  ): Promise<void>;
+
+  dropSearchIndex(ns: string, name: string): Promise<void>;
 
   /*** Aggregation ***/
 
@@ -1495,6 +1516,51 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async dropIndex(ns: string, name: string): Promise<Document> {
     const coll = this._collection(ns, 'CRUD');
     return await coll.dropIndex(name);
+  }
+
+  @op(mongoLogId(1_001_000_237))
+  async isListSearchIndexesSupported(ns: string): Promise<boolean> {
+    try {
+      await this.getSearchIndexes(ns);
+    } catch (err) {
+      return false;
+    }
+    return true;
+  }
+
+  @op(mongoLogId(1_001_000_238))
+  async getSearchIndexes(ns: string): Promise<SearchIndex[]> {
+    const coll = this._collection(ns, 'CRUD');
+    const cursor = coll.listSearchIndexes();
+    const indexes = await cursor.toArray();
+    void cursor.close();
+    return indexes as SearchIndex[];
+  }
+
+  @op(mongoLogId(1_001_000_239))
+  async createSearchIndex(
+    ns: string,
+    name: string,
+    definition: Document
+  ): Promise<string> {
+    const coll = this._collection(ns, 'CRUD');
+    return coll.createSearchIndex({ name, definition });
+  }
+
+  @op(mongoLogId(1_001_000_240))
+  async updateSearchIndex(
+    ns: string,
+    name: string,
+    definition: Document
+  ): Promise<void> {
+    const coll = this._collection(ns, 'CRUD');
+    return coll.updateSearchIndex(name, definition);
+  }
+
+  @op(mongoLogId(1_001_000_241))
+  async dropSearchIndex(ns: string, name: string): Promise<void> {
+    const coll = this._collection(ns, 'CRUD');
+    return coll.dropSearchIndex(name);
   }
 
   @op(mongoLogId(1_001_000_041), ([ns, pipeline]) => {

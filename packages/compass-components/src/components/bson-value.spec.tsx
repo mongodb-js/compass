@@ -24,12 +24,15 @@ describe('BSONValue', function () {
   const valuesToRender = [
     {
       type: 'Binary',
-      value: new Binary('test', Binary.SUBTYPE_DEFAULT),
-      expected: "BinData(0, 'dGVzdA==')",
+      value: Binary.createFromBase64('dGVzdA==', Binary.SUBTYPE_DEFAULT),
+      expected: "Binary.createFromBase64('dGVzdA==', 0)",
     },
     {
       type: 'Binary',
-      value: new Binary('encrypted data', Binary.SUBTYPE_ENCRYPTED),
+      value: Binary.createFromBase64(
+        'encrypted data',
+        Binary.SUBTYPE_ENCRYPTED
+      ),
       expected: '*********',
     },
     {
@@ -39,7 +42,7 @@ describe('BSONValue', function () {
     },
     {
       type: 'Binary',
-      value: new Binary('120=', Binary.SUBTYPE_UUID),
+      value: Binary.createFromHexString('3132303d', Binary.SUBTYPE_UUID),
       expected: "UUID('3132303d')",
     },
     {
@@ -131,7 +134,10 @@ describe('BSONValue', function () {
     render(
       <BSONValue
         type="Binary"
-        value={new Binary('encrypted data', Binary.SUBTYPE_ENCRYPTED)}
+        value={Binary.createFromBase64(
+          'encrypted data',
+          Binary.SUBTYPE_ENCRYPTED
+        )}
       />
     );
 

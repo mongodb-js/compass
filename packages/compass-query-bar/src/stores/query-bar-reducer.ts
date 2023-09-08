@@ -1,6 +1,5 @@
 import type { Reducer } from 'redux';
-import { cloneDeep, isEqual } from 'lodash';
-import _ from 'lodash';
+import { cloneDeep, isEmpty } from 'lodash';
 import type { Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -31,6 +30,7 @@ import {
   type FavoriteQuery,
   getQueryAttributes,
   isAction,
+  isQueryEqual,
 } from '../utils';
 const { debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
@@ -103,7 +103,7 @@ const emitOnQueryChange = (): QueryBarThunkAction<void> => {
       queryBar: { lastAppliedQuery, fields },
     } = getState();
     const query = mapFormFieldsToQuery(fields);
-    if (lastAppliedQuery === null || !isEqual(lastAppliedQuery, query)) {
+    if (lastAppliedQuery === null || !isQueryEqual(lastAppliedQuery, query)) {
       localAppRegistry?.emit('query-changed', query);
     }
   };
@@ -356,14 +356,14 @@ const saveRecentQuery = (
 
       const queryAttributes = getQueryAttributes(query);
       // Ignore empty or default queries
-      if (_.isEmpty(queryAttributes)) {
+      if (isEmpty(queryAttributes)) {
         return;
       }
 
       // Ignore duplicate queries
-      const existingQuery = recentQueries.find((recentQuery) =>
-        _.isEqual(getQueryAttributes(recentQuery), queryAttributes)
-      );
+      const existingQuery = recentQueries.find((recentQuery) => {
+        return isQueryEqual(getQueryAttributes(recentQuery), queryAttributes);
+      });
 
       if (existingQuery) {
         // update the existing query's lastExecuted to move it to the top

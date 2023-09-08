@@ -75,6 +75,7 @@
     "@types/whatwg-url": "^8.2.1",
     "bson": "^6.0.0",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "kerberos": "^2.0.1",

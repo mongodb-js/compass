@@ -96,7 +96,7 @@ describe('IndexesStore [Store]', function () {
   context('refresh-data emitted', function () {
     it('dispatches the load indexes action', function () {
       localAppRegistry.emit('refresh-data');
-      expect(store.getState().indexes).to.deep.equal([]);
+      expect(store.getState().regularIndexes.indexes).to.deep.equal([]);
     });
   });
 });

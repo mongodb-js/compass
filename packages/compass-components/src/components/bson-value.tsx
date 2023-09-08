@@ -158,15 +158,10 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
       return { stringifiedValue: `UUID('${uuid}')` };
     }
     return {
-      // The shell displays these values as Binary(Buffer.from(<hex string>, 'hex'), <subtype>).
-      // This would be a bit nicer here, since we want to encourage usage of standard Node.js
-      // driver types, but Buffer.from() is not something that Compass understands (and maybe
-      // shouldn't understand) in text input, and passing a string to Binary() is a legacy
-      // concept as well.
-      stringifiedValue: `BinData(${value.sub_type}, '${truncate(
+      stringifiedValue: `Binary.createFromBase64('${truncate(
         value.toString('base64'),
         100
-      )}')`,
+      )}', ${value.sub_type})`,
     };
   }, [value]);
 

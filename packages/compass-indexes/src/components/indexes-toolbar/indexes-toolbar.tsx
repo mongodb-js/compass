@@ -12,6 +12,8 @@ import {
   SignalPopover,
   PerformanceSignals,
   DropdownMenuButton,
+  SegmentedControl,
+  SegmentedControlOption,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 import { usePreference } from 'compass-preferences-model';
@@ -28,6 +30,10 @@ const toolbarButtonsContainer = css({
   alignItems: 'center',
 });
 
+const alignSelfEndStyles = css({
+  marginLeft: 'auto',
+});
+
 const errorStyles = css({ marginTop: spacing[2] });
 const spinnerStyles = css({ marginRight: spacing[2] });
 
@@ -36,9 +42,10 @@ const createIndexButtonContainerStyles = css({
   width: 'fit-content',
 });
 
+export type IndexView = 'regular-indexes' | 'search-indexes';
+
 type IndexesToolbarProps = {
   errorMessage: string | null;
-  isReadonly: boolean;
   isReadonlyView: boolean;
   isWritable: boolean;
   hasTooManyIndexes: boolean;
@@ -47,12 +54,12 @@ type IndexesToolbarProps = {
   writeStateDescription?: string;
   isAtlasSearchSupported: boolean;
   onRefreshIndexes: () => void;
+  onChangeIndexView: (newView: IndexView) => void;
   readOnly?: boolean;
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   errorMessage,
-  isReadonly,
   isReadonlyView,
   isWritable,
   localAppRegistry,
@@ -61,6 +68,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   hasTooManyIndexes,
   isAtlasSearchSupported,
   onRefreshIndexes,
+  onChangeIndexView,
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference(
@@ -75,8 +83,15 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const onClickCreateAtlasSearchIndex = useCallback(() => {
     localAppRegistry.emit('open-create-search-index-modal');
   }, [localAppRegistry]);
-  const showCreateIndexButton =
-    !isReadonly && !isReadonlyView && !readOnly && !errorMessage;
+  const onChangeIndexesSegment = useCallback(
+    (value: string) => {
+      const newView = value as IndexView;
+      onChangeIndexView(newView);
+    },
+    [onChangeIndexView]
+  );
+
+  const showCreateIndexButton = !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />
@@ -134,6 +149,43 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
               <SignalPopover
                 signals={PerformanceSignals.get('too-many-indexes')}
               />
+            )}
+            {isSearchManagementActive && (
+              <SegmentedControl
+                onChange={onChangeIndexesSegment}
+                className={alignSelfEndStyles}
+                label="Viewing"
+                defaultValue="regular-indexes"
+              >
+                <SegmentedControlOption value="regular-indexes">
+                  Indexes
+                </SegmentedControlOption>
+                {!isAtlasSearchSupported && (
+                  <Tooltip
+                    align="top"
+                    justify="middle"
+                    enabled={true}
+                    delay={500}
+                    trigger={({ children, ...props }) => (
+                      <SegmentedControlOption
+                        {...props}
+                        value="search-indexes"
+                        disabled={true}
+                      >
+                        Search Indexes
+                        {children}
+                      </SegmentedControlOption>
+                    )}
+                  >
+                    Search indexes are unavailable in your current connection.
+                  </Tooltip>
+                )}
+                {isAtlasSearchSupported && (
+                  <SegmentedControlOption value="search-indexes">
+                    Search Indexes
+                  </SegmentedControlOption>
+                )}
+              </SegmentedControl>
             )}
           </div>
         </div>

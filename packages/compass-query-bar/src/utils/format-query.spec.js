@@ -31,7 +31,7 @@ describe('formatQuery [Utils]', function () {
   });
 
   describe('when the property has a binary', function () {
-    const value = new bson.Binary('xxxx');
+    const value = bson.Binary.createFromBase64('xxxx');
     const filter = { field: value };
     const expected = `{\n field: BinData(0, '${value.buffer.toString(
       'base64'

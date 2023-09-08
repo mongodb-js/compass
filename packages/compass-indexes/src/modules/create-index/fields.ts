@@ -1,6 +1,6 @@
 import type { AnyAction, Dispatch } from 'redux';
 
-import { handleError } from '../error';
+import { handleError } from './error';
 
 import type { RootState } from '../create-index';
 import { RESET_FORM } from '../reset-form';
