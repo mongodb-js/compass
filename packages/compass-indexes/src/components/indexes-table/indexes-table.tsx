@@ -66,12 +66,16 @@ const spaceProviderStyles = css({
 });
 
 export type IndexesTableProps<Shape> = {
+  ['data-testid']: string;
+  ['aria-label']: string;
   columns: JSX.Element[];
   children: (args: { datum: Shape; index: number }) => JSX.Element;
   data: Shape[];
 };
 
 export function IndexesTable<Shape>({
+  ['data-testid']: dataTestId,
+  ['aria-label']: ariaLabel,
   columns,
   children,
   data,
@@ -116,13 +120,17 @@ export function IndexesTable<Shape>({
 
   return (
     <div className={spaceProviderStyles} {...rectProps}>
-      <KeylineCard ref={cardRef} data-testid="indexes" className={cardStyles}>
+      <KeylineCard
+        ref={cardRef}
+        data-testid={dataTestId}
+        className={cardStyles}
+      >
         <Table<Shape>
           className={tableStyles}
           data={data}
           columns={columns}
-          data-testid="indexes-list"
-          aria-label="Indexes List Table"
+          data-testid={`${dataTestId}-list`}
+          aria-label={`${ariaLabel} List Table`}
         >
           {children}
         </Table>

@@ -79,7 +79,12 @@ export const RegularIndexesTable: React.FunctionComponent<
   }, [canModifyIndex, onSortTable]);
 
   return (
-    <IndexesTable<IndexDefinition> columns={columns} data={indexes}>
+    <IndexesTable<IndexDefinition>
+      data-testid="indexes"
+      aria-label="Indexes"
+      columns={columns}
+      data={indexes}
+    >
       {({ datum: index }) => {
         return (
           <Row
