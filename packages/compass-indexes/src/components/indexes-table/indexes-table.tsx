@@ -75,6 +75,7 @@ type IndexInfo = {
   key: string;
   'data-testid': string;
   fields: {
+    key?: string;
     'data-testid': string;
     children: React.ReactNode;
   }[];
@@ -172,8 +173,7 @@ export function IndexesTable({
           data-testid={`${dataTestId}-list`}
           aria-label={`${ariaLabel} List Table`}
         >
-          {({ datum: info }) => {
-            console.log(info.fields);
+          {({ datum: info, index }) => {
             return (
               <Row
                 key={info.key}
@@ -181,12 +181,15 @@ export function IndexesTable({
                 className={rowStyles}
               >
                 {info.fields.map((field) => {
-                  <Cell
-                    data-testid={field['data-testid']}
-                    className={cellStyles}
-                  >
-                    {field.children}
-                  </Cell>;
+                  return (
+                    <Cell
+                      key={field.key ?? `${info.key}-${index}`}
+                      data-testid={field['data-testid']}
+                      className={cellStyles}
+                    >
+                      {field.children}
+                    </Cell>
+                  );
                 })}
                 {/* Index actions column is conditional */}
                 {canModifyIndex && (
