@@ -14,6 +14,11 @@ describe('Indexes [Plugin]', function () {
   beforeEach(function (done) {
     store = configureStore({
       localAppRegistry: new AppRegistry(),
+      dataProvider: {
+        dataProvider: {
+          isConnected: () => true,
+        },
+      },
     });
     component = mount(<IndexesPlugin store={store} />);
     done();

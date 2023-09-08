@@ -129,6 +129,7 @@ const InstanceModel = AmpersandModel.extend(
       refreshingStatus: { type: 'string', default: 'initial' },
       refreshingStatusError: { type: 'string', default: null },
       isAtlas: { type: 'boolean', default: false },
+      isSearchIndexesSupported: 'boolean',
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
       topologyDescription: 'state'
@@ -254,6 +255,28 @@ const InstanceModel = AmpersandModel.extend(
         });
         throw err;
       }
+    },
+
+    /**
+     * Check if the namespace supports list search indexes.
+     * This is actually a feature of a cluster and not of a collection.
+     * As $listSearchIndexes aggregation runs against a namespace, we perform
+     * this check for a namespace and then save it on the model itself and then
+     * use that value throughout.
+     * 
+     * @param {{ ns: string, dataService: import('mongodb-data-service').DataService }} dataService
+     * @returns {Promise<boolean>}
+     */
+    async getIsSearchSupported({
+      ns,
+      dataService,
+      force = false
+    }) {
+      if (this.isSearchIndexesSupported === undefined || force) {
+        const isSearchIndexesSupported = await dataService.isListSearchIndexesSupported(ns);
+        this.set({ isSearchIndexesSupported });
+      }
+      return this.isSearchIndexesSupported;
     },
 
     async refresh({

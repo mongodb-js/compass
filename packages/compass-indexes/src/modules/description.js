@@ -32,7 +32,7 @@ export default reducer;
  * Action creator for getDescription events.
  *
  * @param {String} description - The description.
- * @returns {Object} The getDescription action.
+ * @returns {import('redux').AnyAction} The getDescription action.
  */
 export const getDescription = (description) => ({
   type: GET_DESCRIPTION,

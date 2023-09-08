@@ -257,6 +257,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
   /**
    * Fetches collection info and returns a special format of collection metadata
    * that events like open-in-new-tab, select-namespace, edit-view require
+   * @param {{ dataService: import('mongodb-data-service').DataService }} dataService
    */
   async fetchMetadata({ dataService }) {
     try {
@@ -268,12 +269,26 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
       // We don't care if it fails to get stats from server for any reason
     }
 
+    /**
+     * The support for search indexes is a feature of a server not a collection.
+     * As this check can only be performed currently by running $listSearchIndexes
+     * aggregation stage against a collection, so we run it from the collection model.
+     * With this setup, when a user opens the first collection, we set this property
+     * on the instance model and then from there its value is read avoiding call to server.
+     */
+    const isSearchIndexesSupported = await getParentByType(this, 'Instance')
+      .getIsSearchSupported({
+        dataService,
+        ns: this.ns,
+      });
+
     const collectionMetadata = {
       namespace: this.ns,
       isReadonly: this.readonly,
       isTimeSeries: this.isTimeSeries,
       isClustered: this.clustered,
       isFLE: this.fle2,
+      isSearchIndexesSupported,
     };
     if (this.sourceId) {
       try {

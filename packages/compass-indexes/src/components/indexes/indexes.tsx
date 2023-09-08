@@ -21,6 +21,7 @@ import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
 import type { RootState } from '../../modules';
+import { SearchIndexesStatuses } from '../../modules/search-indexes';
 
 const containerStyles = css({
   margin: spacing[3],
@@ -45,6 +46,7 @@ type IndexesProps = {
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
   readOnly?: boolean;
+  isAtlasSearchSupported: boolean;
 };
 
 // This constant is used as a trigger to show an insight whenever number of
@@ -66,6 +68,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   onHideIndex,
   onUnhideIndex,
   readOnly, // preferences readOnly.
+  isAtlasSearchSupported,
 }) => {
   const [currentIndexesView, setCurrentIndexesView] =
     useState<IndexView>('regular-indexes');
@@ -89,7 +92,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isRefreshing={isRefreshing}
         writeStateDescription={description}
         hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
-        isAtlasSearchSupported={true}
+        isAtlasSearchSupported={isAtlasSearchSupported}
         onRefreshIndexes={refreshIndexes}
         onChangeIndexView={setCurrentIndexesView}
       />
@@ -121,6 +124,7 @@ const mapState = ({
   serverVersion,
   appRegistry,
   regularIndexes: { indexes, isRefreshing, error },
+  searchIndexes: { status },
 }: RootState) => ({
   indexes,
   isWritable,
@@ -130,6 +134,7 @@ const mapState = ({
   localAppRegistry: (appRegistry as any).localAppRegistry,
   isRefreshing,
   serverVersion,
+  isAtlasSearchSupported: status !== SearchIndexesStatuses.NOT_AVAILABLE,
 });
 
 const mapDispatch = {

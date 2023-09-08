@@ -80,6 +80,7 @@ export type ContextProps = {
   isDataLake?: boolean;
   scopedModals?: any[];
   connectionString?: string;
+  isSearchIndexesSupported?: boolean;
 };
 
 type ContextWithAppRegistry = ContextProps & {
@@ -123,6 +124,7 @@ const setupStore = ({
   query,
   aggregation,
   connectionString,
+  isSearchIndexesSupported,
 }: ContextWithAppRegistry & { role: Role }) => {
   if (!role.storeName || !role.configureStore) {
     return;
@@ -149,6 +151,7 @@ const setupStore = ({
     query,
     aggregation,
     connectionString,
+    isSearchIndexesSupported,
   });
   localAppRegistry.registerStore(role.storeName, store);
 
@@ -359,6 +362,7 @@ const createContext = ({
   sourcePipeline,
   query,
   aggregation,
+  isSearchIndexesSupported,
 }: ContextProps): ContextProps => {
   const serverVersion = state.serverVersion;
   const localAppRegistry = new AppRegistry();
@@ -405,6 +409,7 @@ const createContext = ({
       sourcePipeline,
       query,
       aggregation,
+      isSearchIndexesSupported,
     });
 
     // Add the tab.
