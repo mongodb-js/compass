@@ -8,7 +8,7 @@ import {
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { changeSchemaFields } from '../modules/create-index/schema-fields';
-import { handleError } from '../modules/error';
+import { handleError } from '../modules/create-index/error';
 import { toggleIsVisible } from '../modules/is-visible';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
@@ -24,7 +24,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
  */
 export const setDataProvider = (store, error, provider) => {
   if (error !== null) {
-    store.dispatch(handleError(error));
+    store.dispatch(handleError(error.message));
   } else {
     store.dispatch(dataServiceConnected(provider));
   }

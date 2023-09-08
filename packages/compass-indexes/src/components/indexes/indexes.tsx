@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
@@ -9,17 +9,19 @@ import {
   dropFailedIndex,
   hideIndex,
   unhideIndex,
-} from '../../modules/indexes';
+  refreshIndexes,
+} from '../../modules/regular-indexes';
 import type {
   IndexDefinition,
   SortColumn,
   SortDirection,
-} from '../../modules/indexes';
+} from '../../modules/regular-indexes';
 
+import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
-import { refreshIndexes } from '../../modules/is-refreshing';
 import type { RootState } from '../../modules';
+import { SearchIndexesStatuses } from '../../modules/search-indexes';
 
 const containerStyles = css({
   margin: spacing[3],
@@ -32,7 +34,6 @@ const containerStyles = css({
 type IndexesProps = {
   indexes: IndexDefinition[];
   isWritable: boolean;
-  isReadonly: boolean;
   isReadonlyView: boolean;
   description?: string;
   error: string | null;
@@ -45,6 +46,7 @@ type IndexesProps = {
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
   readOnly?: boolean;
+  isAtlasSearchSupported: boolean;
 };
 
 // This constant is used as a trigger to show an insight whenever number of
@@ -54,7 +56,6 @@ const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
   indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,
@@ -67,7 +68,11 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   onHideIndex,
   onUnhideIndex,
   readOnly, // preferences readOnly.
+  isAtlasSearchSupported,
 }) => {
+  const [currentIndexesView, setCurrentIndexesView] =
+    useState<IndexView>('regular-indexes');
+
   const deleteIndex = (index: IndexDefinition) => {
     if (index.extra.status === 'failed') {
       return dropFailedIndex(String(index.extra.id));
@@ -75,11 +80,11 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
 
     return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
   };
+
   return (
     <div className={containerStyles}>
       <IndexesToolbar
         isWritable={isWritable}
-        isReadonly={isReadonly}
         isReadonlyView={isReadonlyView}
         readOnly={readOnly}
         errorMessage={error}
@@ -87,43 +92,49 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isRefreshing={isRefreshing}
         writeStateDescription={description}
         hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
+        isAtlasSearchSupported={isAtlasSearchSupported}
         onRefreshIndexes={refreshIndexes}
+        onChangeIndexView={setCurrentIndexesView}
       />
-      {!isReadonlyView && !error && (
-        <IndexesTable
-          indexes={indexes}
-          serverVersion={serverVersion}
-          canModifyIndex={isWritable && !isReadonly && !readOnly}
-          onSortTable={sortIndexes}
-          onDeleteIndex={deleteIndex}
-          onHideIndex={onHideIndex}
-          onUnhideIndex={onUnhideIndex}
-        />
+      {!isReadonlyView &&
+        !error &&
+        currentIndexesView === 'regular-indexes' && (
+          <IndexesTable
+            indexes={indexes}
+            serverVersion={serverVersion}
+            canModifyIndex={isWritable && !readOnly}
+            onSortTable={sortIndexes}
+            onDeleteIndex={deleteIndex}
+            onHideIndex={onHideIndex}
+            onUnhideIndex={onUnhideIndex}
+          />
+        )}
+
+      {!isReadonlyView && !error && currentIndexesView === 'search-indexes' && (
+        <p style={{ textAlign: 'center' }}>In Progress feature</p>
       )}
     </div>
   );
 };
 
 const mapState = ({
-  indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
-  error,
-  isRefreshing,
   serverVersion,
   appRegistry,
+  regularIndexes: { indexes, isRefreshing, error },
+  searchIndexes: { status },
 }: RootState) => ({
   indexes,
   isWritable,
-  isReadonly,
   isReadonlyView,
   description,
   error,
   localAppRegistry: (appRegistry as any).localAppRegistry,
   isRefreshing,
   serverVersion,
+  isAtlasSearchSupported: status !== SearchIndexesStatuses.NOT_AVAILABLE,
 });
 
 const mapDispatch = {

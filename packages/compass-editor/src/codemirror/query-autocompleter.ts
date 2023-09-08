@@ -1,5 +1,5 @@
 import type { CompletionSource } from '@codemirror/autocomplete';
-import type { CompleteOptions } from '../autocompleter';
+import type { CompletionOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
 import {
   createAceCompatAutocompleter,
@@ -12,7 +12,7 @@ import { completeWordsInString } from './utils';
  * appropriate format (either escaped or not) both for javascript and json modes
  */
 export const createQueryAutocompleter = (
-  options: Pick<CompleteOptions, 'fields' | 'serverVersion'> = {}
+  options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {}
 ): CompletionSource => {
   const completions = completer('', {
     meta: ['query', 'bson', 'field:identifier'],

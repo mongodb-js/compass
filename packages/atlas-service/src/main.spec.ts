@@ -50,13 +50,19 @@ describe('AtlasServiceMain', function () {
     destroy: sandbox.stub(),
   };
 
+  const defaultConfig = {
+    atlasApiBaseUrl: 'http://example.com',
+    atlasLogin: {
+      issuer: 'http://example.com',
+      clientId: '1234abcd',
+    },
+    authPortalUrl: 'http://example.com',
+  };
+
   const fetch = AtlasService['fetch'];
   const ipcMain = AtlasService['ipcMain'];
   const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
   const userStore = AtlasService['atlasUserConfigStore'];
-  const apiBaseUrl = process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
-  const issuer = process.env.COMPASS_OIDC_ISSUER;
-  const clientId = process.env.COMPASS_CLIENT_ID;
 
   beforeEach(function () {
     AtlasService['ipcMain'] = { handle: sandbox.stub() };
@@ -65,19 +71,13 @@ describe('AtlasServiceMain', function () {
     AtlasService['atlasUserConfigStore'] =
       mockUserConfigStore as unknown as AtlasUserConfigStore;
 
-    process.env.COMPASS_ATLAS_SERVICE_BASE_URL = 'http://example.com';
-    process.env.COMPASS_OIDC_ISSUER = 'http://example.com';
-    process.env.COMPASS_CLIENT_ID = '1234abcd';
+    AtlasService['config'] = defaultConfig;
 
     AtlasService['setupPlugin']();
     AtlasService['attachOidcPluginLoggerEvents']();
   });
 
   afterEach(function () {
-    process.env.COMPASS_ATLAS_SERVICE_BASE_URL = apiBaseUrl;
-    process.env.COMPASS_OIDC_ISSUER = issuer;
-    process.env.COMPASS_CLIENT_ID = clientId;
-
     AtlasService['fetch'] = fetch;
     AtlasService['atlasUserConfigStore'] = userStore;
     AtlasService['ipcMain'] = ipcMain;
@@ -112,34 +112,6 @@ describe('AtlasServiceMain', function () {
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
       ).to.have.been.calledOnce;
-    });
-
-    it('should throw if COMPASS_OIDC_ISSUER is not set', async function () {
-      delete process.env.COMPASS_OIDC_ISSUER;
-
-      try {
-        await AtlasService.signIn();
-        expect.fail('Expected AtlasService.signIn() to throw');
-      } catch (err) {
-        expect(err).to.have.property(
-          'message',
-          'COMPASS_OIDC_ISSUER is required'
-        );
-      }
-    });
-
-    it('should throw if COMPASS_CLIENT_ID is not set', async function () {
-      delete process.env.COMPASS_CLIENT_ID;
-
-      try {
-        await AtlasService.signIn();
-        expect.fail('Expected AtlasService.signIn() to throw');
-      } catch (err) {
-        expect(err).to.have.property(
-          'message',
-          'COMPASS_CLIENT_ID is required'
-        );
-      }
     });
   });
 
@@ -352,24 +324,6 @@ describe('AtlasServiceMain', function () {
           expect(err).to.have.property('message', '500 Internal Server Error');
         }
       });
-
-      it('should throw if COMPASS_ATLAS_SERVICE_BASE_URL is not set', async function () {
-        delete process.env.COMPASS_ATLAS_SERVICE_BASE_URL;
-
-        try {
-          await AtlasService[functionName]({
-            userInput: 'test',
-            collectionName: 'test.test',
-            databaseName: 'peanut',
-          });
-          expect.fail('Expected AtlasService.signIn() to throw');
-        } catch (err) {
-          expect(err).to.have.property(
-            'message',
-            'No AI Query endpoint to fetch. Please set the environment variable `COMPASS_ATLAS_SERVICE_BASE_URL`'
-          );
-        }
-      });
     });
   }
 
@@ -411,6 +365,7 @@ describe('AtlasServiceMain', function () {
           json() {
             return Promise.resolve({
               errorCode: 'ExampleCode',
+              error: 500,
               detail: 'tortillas',
             });
           },
@@ -425,7 +380,7 @@ describe('AtlasServiceMain', function () {
 
   describe('init', function () {
     it('should try to restore service state by fetching user info', async function () {
-      await AtlasService.init();
+      await AtlasService.init(defaultConfig);
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .REQUEST_TOKEN_CALLBACK
@@ -474,7 +429,7 @@ describe('AtlasServiceMain', function () {
       const logger = new EventEmitter();
       AtlasService['openExternal'] = sandbox.stub().resolves();
       AtlasService['oidcPluginLogger'] = logger;
-      await AtlasService.init();
+      await AtlasService.init(defaultConfig);
       expect(getListenerCount(logger)).to.eq(25);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();

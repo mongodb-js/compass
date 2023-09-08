@@ -10,7 +10,7 @@ import error, {
   clearError,
   handleError,
   INITIAL_STATE as ERROR_INITIAL_STATE,
-} from '../error';
+} from './error';
 import inProgress, {
   toggleInProgress,
   INITIAL_STATE as IN_PROGRESS_INITIAL_STATE,
@@ -91,7 +91,7 @@ export const dropIndex = (indexName: string) => {
       dispatch(toggleIsVisible(false));
     } catch (err) {
       dispatch(toggleInProgress(false));
-      dispatch(handleError(err as Error));
+      dispatch(handleError((err as Error).message));
     }
   };
 };
