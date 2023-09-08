@@ -13,7 +13,7 @@ import {
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
-import type { AtlasServiceNetworkError } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -204,12 +204,12 @@ export const runAIQuery = (
       }
       trackAndLogFailed({
         errorName: 'request_error',
-        errorCode: (err as AtlasServiceNetworkError).statusCode,
-        errorMessage: (err as AtlasServiceNetworkError).message,
+        errorCode: (err as AtlasServiceError).statusCode,
+        errorMessage: (err as AtlasServiceError).message,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
-      if ((err as AtlasServiceNetworkError).statusCode === 401) {
+      if ((err as AtlasServiceError).statusCode === 401) {
         openToast('ai-unauthorized', {
           variant: 'important',
           title: 'Network Error',
@@ -219,8 +219,8 @@ export const runAIQuery = (
       }
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
-        errorMessage: (err as AtlasServiceNetworkError).message,
-        networkErrorCode: (err as AtlasServiceNetworkError).statusCode ?? -1,
+        errorMessage: (err as AtlasServiceError).message,
+        networkErrorCode: (err as AtlasServiceError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -246,7 +246,7 @@ export const runAIQuery = (
     } catch (err: any) {
       trackAndLogFailed({
         errorName: 'could_not_parse_fields',
-        errorCode: (err as AtlasServiceNetworkError).statusCode,
+        errorCode: (err as AtlasServiceError).statusCode,
         errorMessage: err?.message,
       });
       dispatch({

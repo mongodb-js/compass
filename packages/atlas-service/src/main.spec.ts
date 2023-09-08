@@ -412,6 +412,7 @@ describe('AtlasServiceMain', function () {
           json() {
             return Promise.resolve({
               errorCode: 'ExampleCode',
+              error: 500,
               detail: 'tortillas',
             });
           },

@@ -2,6 +2,7 @@ import { ipcMain, shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
+import type { AtlasServiceError } from './renderer';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -46,8 +47,10 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
 /**
  * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
  */
-function isServerError(err: any): err is { errorCode: string; detail: string } {
-  return Boolean(err.errorCode && err.detail);
+function isServerError(
+  err: any
+): err is { error: number; errorCode: string; detail: string } {
+  return Boolean(err.error && err.errorCode && err.detail);
 }
 
 function throwIfNetworkTrafficDisabled() {
@@ -76,9 +79,10 @@ export async function throwIfNotOk(
   } catch (err) {
     // no-op, use the default status and statusText in the message.
   }
+
   const err = new Error(serverErrorMessage);
   err.name = serverErrorName;
-  (err as any).statusCode = res.status;
+  (err as AtlasServiceError).statusCode = res.status;
   throw err;
 }
 
