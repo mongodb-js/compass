@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
 import reducer from '../modules/create-index';
 import { dataServiceConnected } from '../modules/data-service';
@@ -12,6 +12,12 @@ import { handleError } from '../modules/create-index/error';
 import { toggleIsVisible } from '../modules/is-visible';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
+import {
+  closeModal,
+  default as createSearchIndexReducer,
+  openModal,
+} from '../modules/create-search-index';
+import { openToast } from '@mongodb-js/compass-components';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
@@ -31,7 +37,10 @@ export const setDataProvider = (store, error, provider) => {
 };
 
 const configureStore = (options = {}) => {
-  const store = createStore(reducer, applyMiddleware(thunk));
+  const store = createStore(
+    combineReducers({ reducer, createSearchIndexReducer }),
+    applyMiddleware(thunk)
+  );
 
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
@@ -49,6 +58,15 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('open-create-index-modal', () => {
       track('Index Create Opened');
       store.dispatch(toggleIsVisible(true));
+    });
+
+    localAppRegistry.on('open-create-search-index-modal', () => {
+      track('Search Index Create Opened');
+      store.dispatch(openModal());
+    });
+
+    localAppRegistry.on('close-create-search-index-modal', () => {
+      store.dispatch(closeModal());
     });
 
     localAppRegistry.on('data-service-connected', (error, ds) => {

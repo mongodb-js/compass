@@ -6,6 +6,7 @@ import DropIndexPlugin from './drop-index-plugin';
 import configureStore from './stores';
 import configureCreateIndexStore from './stores/create-index';
 import configureDropIndexStore from './stores/drop-index';
+import CreateSearchIndexPlugin from './create-search-index-plugin';
 
 // Compass Plugin role definition.
 const ROLE = {
