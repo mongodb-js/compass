@@ -43,6 +43,10 @@ const configureStore = (options: ConfigureStoreOptions) => {
   const store = createStore(
     reducer,
     {
+      appRegistry: {
+        localAppRegistry: options.localAppRegistry,
+        globalAppRegistry: options.globalAppRegistry,
+      },
       dataService: options.dataProvider.dataProvider,
       namespace: options.namespace,
       serverVersion: options.serverVersion,
