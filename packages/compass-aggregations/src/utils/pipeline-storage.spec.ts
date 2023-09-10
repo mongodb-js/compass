@@ -72,7 +72,7 @@ describe('PipelineStorage', function () {
     );
   });
 
-  it('creates a pipeline if it does not exist', async function () {
+  it('createOrUpdate - creates a pipeline if it does not exist', async function () {
     const data = {
       id: '123456789876',
       name: 'airbnb listings',
@@ -87,7 +87,7 @@ describe('PipelineStorage', function () {
       expect((e as any).code).to.equal('ENOENT');
     }
 
-    const pipeline = await pipelineStorage.updateAttributes(data.id, data);
+    const pipeline = await pipelineStorage.createOrUpdate(data.id, data);
 
     // Verify the file exists
     await fs.access(await getEnsuredFilePath(tmpDir, data.id));
@@ -97,7 +97,28 @@ describe('PipelineStorage', function () {
     expect(pipeline.pipelineText).to.equal(data.pipelineText);
   });
 
-  it('updates a pipeline if it exists', async function () {
+  it('createOrUpdate - updates a pipeline if it exists', async function () {
+    const data = {
+      id: '123456789876',
+      name: 'airbnb listings',
+      namespace: 'airbnb.listings',
+      pipelineText: JSON.stringify([{ $match: { name: 'bas' } }]),
+    };
+
+    await createPipeline(tmpDir, data);
+    await fs.access(await getEnsuredFilePath(tmpDir, data.id));
+
+    const pipeline = await pipelineStorage.createOrUpdate(data.id, {
+      ...data,
+      name: 'modified listings',
+    });
+
+    expect(pipeline.id).to.equal(data.id);
+    expect(pipeline.name).to.equal('modified listings');
+    expect(pipeline.pipelineText).to.equal(data.pipelineText);
+  });
+
+  it('updateAttributes - updates a pipeline if it exists', async function () {
     const data = {
       id: '1234567890',
       name: 'hello',

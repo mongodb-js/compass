@@ -8,27 +8,18 @@ import type { z } from 'zod';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
 
 type SerializeContent<I> = (content: I) => string;
-type DeserializeContent<I> = (content: string) => I;
+type DeserializeContent = (content: string) => unknown;
 type GetFileName = (id: string) => string;
 
 export type UserDataOptions<Input> = {
   subdir: string;
   basePath?: string;
   serialize?: SerializeContent<Input>;
-  deserialize?: DeserializeContent<Input>;
+  deserialize?: DeserializeContent;
   getFileName?: GetFileName;
 };
 
-type ReadStatsOptions<T> =
-  | {
-      readFileStats?: false;
-    }
-  | {
-      readFileStats: true;
-      mergeStats: (input: T, stats: Stats) => T;
-    };
-
-type ReadOptions<T> = ReadStatsOptions<T> & {
+type ReadOptions = {
   ignoreErrors: boolean;
 };
 
@@ -36,7 +27,7 @@ export class UserData<T extends z.Schema> {
   private readonly subdir: string;
   private readonly basePath?: string;
   private readonly serialize: SerializeContent<z.input<T>>;
-  private readonly deserialize: DeserializeContent<z.input<T>>;
+  private readonly deserialize: DeserializeContent;
   private readonly getFileName: GetFileName;
 
   constructor(
@@ -85,17 +76,10 @@ export class UserData<T extends z.Schema> {
     return path.resolve(root, pathRelativeToRoot);
   }
 
-  private async readAndParseFile(
-    absolutePath: string,
-    options: ReadOptions<z.input<T>>
-  ) {
+  private async readAndParseFile(absolutePath: string, options: ReadOptions) {
     let data: string;
-    let stats: Stats | null = null;
     try {
-      [data, stats] = await Promise.all([
-        fs.readFile(absolutePath, 'utf-8'),
-        options.readFileStats ? fs.stat(absolutePath) : null,
-      ]);
+      data = await fs.readFile(absolutePath, 'utf-8');
     } catch (error) {
       log.error(mongoLogId(1_001_000_234), 'Filesystem', 'Error reading file', {
         path: absolutePath,
@@ -108,10 +92,7 @@ export class UserData<T extends z.Schema> {
     }
 
     try {
-      let content = this.deserialize(data);
-      if (options.readFileStats && stats) {
-        content = options.mergeStats(content, stats);
-      }
+      const content = this.deserialize(data);
       return this.validator.parse(content);
     } catch (error) {
       log.error(mongoLogId(1_001_000_235), 'Filesystem', 'Error parsing data', {
@@ -126,7 +107,7 @@ export class UserData<T extends z.Schema> {
   }
 
   async readAll(
-    options: ReadOptions<z.input<T>> = {
+    options: ReadOptions = {
       ignoreErrors: true,
     }
   ) {
@@ -168,11 +149,11 @@ export class UserData<T extends z.Schema> {
   ): Promise<z.output<T> | undefined>;
   async readOne(
     id: string,
-    options?: ReadOptions<z.input<T>>
+    options?: ReadOptions
   ): Promise<z.output<T> | undefined>;
   async readOne(
     id: string,
-    options: ReadOptions<z.input<T>> = {
+    options: ReadOptions = {
       ignoreErrors: true,
     }
   ) {
@@ -222,5 +203,92 @@ export class UserData<T extends z.Schema> {
       );
       return false;
     }
+  }
+
+  private async readAndParseFileWithStats(
+    filepath: string,
+    options: ReadOptions
+  ): Promise<[z.output<T>, Stats] | undefined> {
+    const data = await this.readAndParseFile(filepath, options);
+
+    if (data === undefined) {
+      return undefined;
+    }
+
+    try {
+      const stats = await fs.stat(filepath);
+      return [data, stats];
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_237),
+        'Filesystem',
+        'Error reading stats',
+        {
+          path: filepath,
+          error: (error as Error).message,
+        }
+      );
+      if (options.ignoreErrors) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
+
+  async readAllWithStats(
+    options: ReadOptions = {
+      ignoreErrors: true,
+    }
+  ) {
+    const absolutePath = await this.getFileAbsolutePath();
+    const filePathList = await fs.readdir(absolutePath);
+
+    const data = await Promise.allSettled(
+      filePathList.map((x) =>
+        this.readAndParseFileWithStats(path.join(absolutePath, x), options)
+      )
+    );
+
+    const result: {
+      data: [z.output<T>, Stats][];
+      errors: Error[];
+    } = {
+      data: [],
+      errors: [],
+    };
+
+    for (const item of data) {
+      if (item.status === 'fulfilled' && item.value) {
+        result.data.push(item.value);
+      }
+      if (item.status === 'rejected') {
+        result.errors.push(item.reason);
+      }
+    }
+
+    return result;
+  }
+
+  async readOneWithStats(
+    id: string,
+    options?: { ignoreErrors: false }
+  ): Promise<[z.output<T>, Stats]>;
+  async readOneWithStats(
+    id: string,
+    options?: { ignoreErrors: true }
+  ): Promise<[z.output<T>, Stats] | undefined>;
+  async readOneWithStats(
+    id: string,
+    options?: ReadOptions
+  ): Promise<[z.output<T>, Stats] | undefined>;
+  async readOneWithStats(
+    id: string,
+    options: ReadOptions = {
+      ignoreErrors: true,
+    }
+  ) {
+    const filepath = this.getFileName(id);
+    const absolutePath = await this.getFileAbsolutePath(filepath);
+    return await this.readAndParseFileWithStats(absolutePath, options);
   }
 }

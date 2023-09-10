@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import { Stats } from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
@@ -125,7 +126,7 @@ describe('user-data', function () {
       expect(result.errors).to.have.lengthOf(2);
     });
 
-    it('return file stats when specified', async function () {
+    it('returns file stats', async function () {
       await Promise.all(
         [
           ['data1.json', JSON.stringify({ name: 'VSCode' })],
@@ -133,20 +134,28 @@ describe('user-data', function () {
         ].map(([filepath, data]) => writeFileToStorage(filepath, data))
       );
 
-      const { data } = await getUserData().readAll({
+      const { data } = await getUserData().readAllWithStats({
         ignoreErrors: true,
-        readFileStats: true,
-        mergeStats(input, stats) {
-          return {
-            ...input,
-            ctimeMs: Number(stats.ctimeMs),
-          };
-        },
       });
-      for (const item of data) {
-        expect(Object.keys(item).sort()).to.deep.equal(
-          ['ctimeMs', 'hasDarkMode', 'hasWebSupport', 'name'].sort()
-        );
+
+      {
+        const vscodeData = data.find((x) => x[0].name === 'VSCode');
+        expect(vscodeData?.[0]).to.deep.equal({
+          name: 'VSCode',
+          hasDarkMode: true,
+          hasWebSupport: false,
+        });
+        expect(vscodeData?.[1]).to.be.instanceOf(Stats);
+      }
+
+      {
+        const mongoshData = data.find((x) => x[0].name === 'Mongosh');
+        expect(mongoshData?.[0]).to.deep.equal({
+          name: 'Mongosh',
+          hasDarkMode: true,
+          hasWebSupport: false,
+        });
+        expect(mongoshData?.[1]).to.be.instanceOf(Stats);
       }
     });
   });
@@ -289,7 +298,7 @@ describe('user-data', function () {
       });
     });
 
-    it('return file stats when specified', async function () {
+    it('return file stats', async function () {
       await writeFileToStorage(
         'data.json',
         JSON.stringify({
@@ -298,19 +307,16 @@ describe('user-data', function () {
         })
       );
 
-      const data = await getUserData().readOne('data', {
+      const [data, stats] = await getUserData().readOneWithStats('data', {
         ignoreErrors: false,
-        readFileStats: true,
-        mergeStats(input: any, stats: any) {
-          return {
-            ...input,
-            ctimeMs: Number(stats.ctimeMs),
-          };
-        },
       });
-      expect(Object.keys(data!).sort()).to.deep.equal(
-        ['ctimeMs', 'hasDarkMode', 'hasWebSupport', 'name'].sort()
-      );
+
+      expect(data).to.deep.equal({
+        name: 'Mongosh',
+        hasDarkMode: true,
+        hasWebSupport: false,
+      });
+      expect(stats).to.be.instanceOf(Stats);
     });
   });
 

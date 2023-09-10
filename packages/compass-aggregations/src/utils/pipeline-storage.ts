@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { UserData } from '@mongodb-js/compass-user-data';
+import { UserData, z } from '@mongodb-js/compass-user-data';
+import type { Stats } from 'fs';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { prettify } from '../modules/pipeline-builder/pipeline-parser/utils';
 
@@ -58,7 +58,7 @@ const PipelineSchema = z
         })
       )
       .optional()
-      .describe('Legacy property to stored pipeline. Use pipelineText.'),
+      .describe('Legacy property to store pipeline. Use pipelineText.'),
     host: z.string().nullable().optional(),
     pipelineText: z.string().optional(),
     lastModified: z
@@ -90,32 +90,57 @@ export class PipelineStorage {
       basePath,
     });
   }
+
+  private mergeStats(pipeline: StoredPipeline, stats: Stats): StoredPipeline {
+    return {
+      ...pipeline,
+      lastModified: new Date(stats.ctimeMs),
+    };
+  }
+
   async loadAll(): Promise<StoredPipeline[]> {
     try {
-      const { data } = await this.userData.readAll({
+      const { data } = await this.userData.readAllWithStats({
         ignoreErrors: false,
-        readFileStats: true,
-        mergeStats(input, stats) {
-          return {
-            ...input,
-            lastModified: Number(stats.mtimeMs),
-          };
-        },
       });
-      return data;
+      return data.map(([item, stats]) => this.mergeStats(item, stats));
     } catch (e) {
       debug('Failed to read saved pipelines.', e);
       return [];
     }
   }
 
+  private async loadOne(id: string): Promise<StoredPipeline> {
+    const [item, stats] = await this.userData.readOneWithStats(id);
+    return this.mergeStats(item, stats);
+  }
+
+  async createOrUpdate(id: string, attributes: SaveablePipeline) {
+    const pipelineExists = Boolean(
+      await this.userData.readOne(id, {
+        ignoreErrors: true,
+      })
+    );
+    return await (pipelineExists
+      ? this.updateAttributes(id, attributes)
+      : this.create(attributes));
+  }
+
+  private async create(data: SaveablePipeline) {
+    await this.userData.write(data.id, {
+      ...data,
+      lastModified: Date.now(),
+    });
+    return await this.loadOne(data.id);
+  }
+
   async updateAttributes(id: string, attributes: Partial<SaveablePipeline>) {
     await this.userData.write(id, {
-      ...((await this.userData.readOne(id)) ?? {}),
-      lastModified: Date.now(),
+      ...(await this.loadOne(id)),
       ...attributes,
+      lastModified: Date.now(),
     });
-    return await this.userData.readOne(id);
+    return await this.loadOne(id);
   }
 
   async delete(id: string) {
