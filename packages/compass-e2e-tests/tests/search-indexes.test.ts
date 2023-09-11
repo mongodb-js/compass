@@ -1,23 +1,55 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests } from '../helpers/compass';
+import {
+  beforeTests,
+  afterTests,
+  MONGODB_TEST_SERVER_PORT,
+  Selectors,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
+import type { ConnectFormState } from '../helpers/connect-form-state';
+import { disconnect } from '../helpers/commands';
+import { expect } from 'chai';
 
-const connectionsWithNoSearchSupport = [
+type Connection = {
+  name: string;
+  formState: ConnectFormState;
+};
+
+const connectionsWithNoSearchSupport: Connection[] = [
   {
     name: 'Local Connection',
-    formOptions: {},
+    formState: {
+      // connectionString: 'mongodb://localhost:27019/?readPreference=primary&ssl=false&directConnection=true',
+      connectionString: `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
+    },
   },
   {
     name: 'Atlas Free Cluster',
-    formOptions: {},
+    formState: {
+      scheme: 'MONGODB_SRV',
+      authMethod: 'DEFAULT',
+      hosts: [process.env.E2E_TESTS_ATLAS_HOST ?? ''],
+      defaultUsername: process.env.E2E_TESTS_ATLAS_USERNAME,
+      defaultPassword: process.env.E2E_TESTS_ATLAS_PASSWORD,
+    },
   },
 ];
-const connectionsWithSearchSupport = [
+const connectionsWithSearchSupport: Connection[] = [
   {
     name: 'Atlas Dedicated Cluster',
-    formOptions: {},
+    formState: {
+      scheme: 'MONGODB_SRV',
+      authMethod: 'DEFAULT',
+      hosts: [process.env.E2E_TESTS_ATLAS_HOST ?? ''],
+      defaultUsername: process.env.E2E_TESTS_ATLAS_USERNAME,
+      defaultPassword: process.env.E2E_TESTS_ATLAS_PASSWORD,
+    },
   },
+  // todo: atlas local dev
 ];
+
+const DB_NAME = 'e2e_indexes_test';
+const COLL_NAME = 'numbers';
 
 describe.only('Search Indexes', function () {
   let compass: Compass;
@@ -34,32 +66,60 @@ describe.only('Search Indexes', function () {
     await afterTests(compass, this.currentTest);
   });
 
-  for (const { name, formOptions } of connectionsWithNoSearchSupport) {
+  async function beforeTestRun(formState: ConnectFormState) {
+    await browser.connectWithConnectionForm(formState);
+    await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
+    await browser.addDatabase(DB_NAME, COLL_NAME);
+    await browser.navigateToCollectionTab(DB_NAME, COLL_NAME, 'Indexes');
+  }
+
+  async function afterTestRun() {
+    await browser.hover(Selectors.sidebarDatabase(DB_NAME));
+    await browser.dropDatabaseFromSidebar(DB_NAME);
+    await disconnect(browser);
+  }
+
+  for (const { name, formState } of connectionsWithNoSearchSupport) {
     context(`does not support search indexes in ${name}`, function () {
-      beforeEach(function () {
-        console.log(formOptions);
-        // Connect
+      beforeEach(async function () {
+        await beforeTestRun(formState);
       });
-      afterEach(function () {
-        // Disconnect
+      afterEach(async function () {
+        await afterTestRun();
       });
-      it('allows users to create a regular index');
-      it('renders search indexes tab disabled and shows tooltip');
+      it('allows users to create a regular index', async function () {
+        const indexName = await browser.createIndex({
+          fieldName: 'e2e_tests_index',
+          indexType: 'text',
+        });
+        await browser.dropIndex(indexName);
+      });
+      it('renders search indexes tab disabled', async function () {
+        const searchTab = await browser.$(
+          Selectors.indexesSegmentedTab('search-indexes')
+        );
+        const isTabClickable = await searchTab.isClickable();
+        expect(isTabClickable).to.be.false;
+      });
     });
   }
 
-  for (const { name, formOptions } of connectionsWithSearchSupport) {
+  for (const { name, formState } of connectionsWithSearchSupport) {
     context(`supports search indexes in ${name}`, function () {
-      beforeEach(function () {
-        console.log(formOptions);
-        // Connect
+      beforeEach(async function () {
+        await beforeTestRun(formState);
       });
-      afterEach(function () {
-        // Disconnect
+      afterEach(async function () {
+        await afterTestRun();
       });
-      it('allows users to create a regular indexes from dropdown');
-      it('allows users to create a search indexes from dropdown');
-
+      it('allows users to create a regular indexes', async function () {
+        const indexName = await browser.createIndex({
+          fieldName: 'e2e_tests_index',
+          indexType: 'text',
+        });
+        await browser.dropIndex(indexName);
+      });
+      it('allows users to create a search indexes');
       it('renders search indexes list');
       it('edits a search index');
       it('drops a search index');

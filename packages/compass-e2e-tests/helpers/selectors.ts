@@ -916,6 +916,7 @@ export const explainPlanSummaryStat = (
 };
 
 // Indexes tab
+type IndexesType = 'regular-indexes' | 'search-indexes';
 export const IndexList = '[data-testid="indexes-list"]';
 export const indexComponent = (name: string): string => {
   return `[data-testid="index-row-${name}"]`;
@@ -934,10 +935,21 @@ export const indexOptionInput = (
   return `[data-testid="create-index-modal-${fieldName}-${type}"]`;
 };
 
+export const indexesSegmentedTab = (tab: IndexesType) => {
+  return `[data-testid="indexes-segment-controls"] [data-testid="${tab}"] button`;
+};
+
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
+export const CreateIndexDropdownButton =
+  '[data-testid="multiple-index-types-creation-dropdown-show-actions"]';
+export const createIndexDropdownAction = (type: IndexesType) => {
+  const action =
+    type === 'regular-indexes' ? 'createRegularIndex' : 'createSearchIndex';
+  return `[data-testid="multiple-index-types-creation-dropdown-${action}-action"]`;
+};
 export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };

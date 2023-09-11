@@ -156,8 +156,12 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 className={alignSelfEndStyles}
                 label="Viewing"
                 defaultValue="regular-indexes"
+                data-testid="indexes-segment-controls"
               >
-                <SegmentedControlOption value="regular-indexes">
+                <SegmentedControlOption
+                  data-testid="regular-indexes"
+                  value="regular-indexes"
+                >
                   Indexes
                 </SegmentedControlOption>
                 {!isAtlasSearchSupported && (
@@ -169,6 +173,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     trigger={({ children, ...props }) => (
                       <SegmentedControlOption
                         {...props}
+                        data-testid="search-indexes"
                         value="search-indexes"
                         disabled={true}
                       >
@@ -181,7 +186,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                   </Tooltip>
                 )}
                 {isAtlasSearchSupported && (
-                  <SegmentedControlOption value="search-indexes">
+                  <SegmentedControlOption
+                    data-testid="search-indexes"
+                    value="search-indexes"
+                  >
                     Search Indexes
                   </SegmentedControlOption>
                 )}

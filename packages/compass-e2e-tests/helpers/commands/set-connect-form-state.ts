@@ -30,6 +30,13 @@ export async function setConnectFormState(
 ): Promise<void> {
   await browser.resetConnectForm();
 
+  if (state.connectionString) {
+    await browser.setValueVisible(
+      Selectors.ConnectionStringInput,
+      state.connectionString
+    );
+  }
+
   await browser.expandAccordion(Selectors.ShowConnectionFormButton);
 
   // General
