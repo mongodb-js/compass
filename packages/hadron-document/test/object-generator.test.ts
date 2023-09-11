@@ -188,7 +188,10 @@ describe('ObjectGenerator', function () {
   });
 
   context('with __safeContent__ present', function () {
-    const object = { foo: 'bar', __safeContent__: [new Binary('aaaa')] };
+    const object = {
+      foo: 'bar',
+      __safeContent__: [Binary.createFromBase64('aaaa')],
+    };
     const doc = new Document(object);
 
     it('optionally omits the internal field', function () {

@@ -59,7 +59,7 @@
     "@mongodb-js/compass-logging": "^1.1.8",
     "@mongodb-js/compass-utils": "^0.3.4",
     "@mongodb-js/mongodb-redux-common": "^2.0.10",
-    "@mongosh/node-runtime-worker-thread": "^1.10.0",
+    "@mongosh/node-runtime-worker-thread": "^2.0.0",
     "compass-preferences-model": "^2.12.0"
   },
   "peerDependencies": {
@@ -68,7 +68,7 @@
     "@mongodb-js/compass-logging": "^1.1.8",
     "@mongodb-js/compass-utils": "^0.3.4",
     "@mongodb-js/mongodb-redux-common": "^2.0.10",
-    "@mongosh/node-runtime-worker-thread": "^1.10.0",
+    "@mongosh/node-runtime-worker-thread": "^2.0.0",
     "compass-preferences-model": "^2.12.0",
     "react": "^17.0.2"
   },
@@ -78,8 +78,8 @@
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@mongodb-js/webpack-config-compass": "^1.1.2",
-    "@mongosh/browser-repl": "^1.10.0",
-    "@mongosh/logging": "^1.10.0",
+    "@mongosh/browser-repl": "^2.0.0",
+    "@mongosh/logging": "^2.0.0",
     "chai": "^4.2.0",
     "depcheck": "^1.4.1",
     "electron": "^24.8.2",

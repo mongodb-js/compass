@@ -1,12 +1,10 @@
-import type { CollStats } from 'mongodb';
-
 export interface CollectionStats {
   ns: string;
   name: string;
   database: string;
   is_capped?: boolean;
-  document_count: CollStats['count'];
-  document_size?: CollStats['size'];
+  document_count: number;
+  document_size?: number;
   avg_document_size: number;
   storage_size: number;
   free_storage_size: number;

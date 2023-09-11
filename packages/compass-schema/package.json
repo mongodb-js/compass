@@ -58,7 +58,7 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.12.0",
     "@mongodb-js/compass-logging": "^1.1.8",
-    "bson": "^5.2.0",
+    "bson": "^6.0.0",
     "compass-preferences-model": "^2.12.0",
     "hadron-document": "^8.3.1",
     "hadron-ipc": "^3.1.4",
@@ -88,7 +88,7 @@
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "moment": "^2.29.4",
-    "mongodb": "^5.8.1",
+    "mongodb": "^6.0.0",
     "mongodb-data-service": "^22.9.2",
     "mongodb-ns": "^2.4.0",
     "mongodb-schema": "^11.2.1",
@@ -107,7 +107,7 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.12.0",
     "@mongodb-js/compass-logging": "^1.1.8",
-    "bson": "^5.2.0",
+    "bson": "^6.0.0",
     "compass-preferences-model": "^2.12.0",
     "hadron-document": "^8.3.1",
     "hadron-ipc": "^3.1.4",

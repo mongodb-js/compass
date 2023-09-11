@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
   AutoEncryptionOptions,
-  AutoEncryptionTlsOptions,
+  ClientEncryptionTlsOptions,
   Document,
 } from 'mongodb';
 import type { KMSProviderName } from './csfle-kms-fields';
@@ -38,7 +38,7 @@ export interface UpdateCsfleKmsAction {
 export interface UpdateCsfleKmsTlsAction {
   type: 'update-csfle-kms-tls-param';
   kmsProvider: KMSProviderName;
-  key: keyof AutoEncryptionTlsOptions;
+  key: keyof ClientEncryptionTlsOptions;
   value?: string;
 }
 
