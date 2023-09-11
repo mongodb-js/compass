@@ -14,15 +14,25 @@ import { expect } from 'chai';
 type Connection = {
   name: string;
   formState: ConnectFormState;
+  shouldSkip: boolean;
 };
+
+function shouldSkipAtlasTest() {
+  return (
+    !process.env.E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST &&
+    !process.env.E2E_TESTS_ATLAS_WITH_SEARCH_HOST &&
+    !process.env.E2E_TESTS_ATLAS_SEARCH_USERNAME &&
+    !process.env.E2E_TESTS_ATLAS_SEARCH_PASSWORD
+  );
+}
 
 const connectionsWithNoSearchSupport: Connection[] = [
   {
     name: 'Local Connection',
     formState: {
-      // connectionString: 'mongodb://localhost:27019/?readPreference=primary&ssl=false&directConnection=true',
       connectionString: `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
     },
+    shouldSkip: false,
   },
   {
     name: 'Atlas Free Cluster',
@@ -33,6 +43,7 @@ const connectionsWithNoSearchSupport: Connection[] = [
       defaultUsername: process.env.E2E_TESTS_ATLAS_SEARCH_USERNAME,
       defaultPassword: process.env.E2E_TESTS_ATLAS_SEARCH_PASSWORD,
     },
+    shouldSkip: shouldSkipAtlasTest(),
   },
 ];
 const connectionsWithSearchSupport: Connection[] = [
@@ -45,6 +56,7 @@ const connectionsWithSearchSupport: Connection[] = [
       defaultUsername: process.env.E2E_TESTS_ATLAS_SEARCH_USERNAME,
       defaultPassword: process.env.E2E_TESTS_ATLAS_SEARCH_PASSWORD,
     },
+    shouldSkip: shouldSkipAtlasTest(),
   },
   // todo: atlas local dev
 ];
@@ -79,13 +91,21 @@ describe.only('Search Indexes', function () {
   }
 
   async function afterTestRun() {
-    await browser.hover(Selectors.sidebarDatabase(DB_NAME));
     await browser.dropDatabaseFromSidebar(DB_NAME);
     await disconnect(browser);
   }
 
-  for (const { name, formState } of connectionsWithNoSearchSupport) {
+  for (const {
+    name,
+    formState,
+    shouldSkip,
+  } of connectionsWithNoSearchSupport) {
     context(`does not support search indexes in ${name}`, function () {
+      before(function () {
+        if (shouldSkip) {
+          return this.skip();
+        }
+      });
       beforeEach(async function () {
         await beforeTestRun(formState);
       });
@@ -109,8 +129,13 @@ describe.only('Search Indexes', function () {
     });
   }
 
-  for (const { name, formState } of connectionsWithSearchSupport) {
+  for (const { name, formState, shouldSkip } of connectionsWithSearchSupport) {
     context(`supports search indexes in ${name}`, function () {
+      before(function () {
+        if (shouldSkip) {
+          return this.skip();
+        }
+      });
       beforeEach(async function () {
         await beforeTestRun(formState);
       });
