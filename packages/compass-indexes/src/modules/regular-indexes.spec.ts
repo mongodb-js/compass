@@ -4,9 +4,9 @@ import Sinon from 'sinon';
 import {
   ActionTypes,
   fetchIndexes,
-  setIndexes,
-  sortIndexes,
-  refreshIndexes,
+  setRegularIndexes,
+  sortRegularIndexes,
+  refreshRegularIndexes,
   inProgressIndexAdded,
   inProgressIndexRemoved,
   inProgressIndexFailed,
@@ -30,32 +30,32 @@ describe('regular-indexes module', function () {
     store = setupStore();
   });
 
-  it('#setIndexes action - it only sets indexes and does not sort them', function () {
+  it('#setRegularIndexes action - it only sets indexes and does not sort them', function () {
     {
-      store.dispatch(setIndexes([]));
+      store.dispatch(setRegularIndexes([]));
       expect(store.getState().regularIndexes.indexes).to.deep.equal([]);
     }
 
     {
-      store.dispatch(setIndexes(defaultSortedIndexes as any));
+      store.dispatch(setRegularIndexes(defaultSortedIndexes as any));
       expect(store.getState().regularIndexes.indexes).to.deep.equal(
         defaultSortedIndexes
       );
     }
 
     {
-      store.dispatch(setIndexes(usageSortedDesc as any));
+      store.dispatch(setRegularIndexes(usageSortedDesc as any));
       expect(store.getState().regularIndexes.indexes).to.deep.equal(
         usageSortedDesc
       );
     }
   });
 
-  it('#sortIndexes action - it sorts indexes as defined', function () {
-    store.dispatch(setIndexes(defaultSortedDesc as any));
+  it('#sortRegularIndexes action - it sorts indexes as defined', function () {
+    store.dispatch(setRegularIndexes(defaultSortedDesc as any));
 
     {
-      store.dispatch(sortIndexes('Name and Definition', 'asc'));
+      store.dispatch(sortRegularIndexes('Name and Definition', 'asc'));
       const state = store.getState().regularIndexes;
       expect(state.sortColumn).to.equal('Name and Definition');
       expect(state.sortOrder).to.equal('asc');
@@ -63,7 +63,7 @@ describe('regular-indexes module', function () {
     }
 
     {
-      store.dispatch(sortIndexes('Name and Definition', 'desc'));
+      store.dispatch(sortRegularIndexes('Name and Definition', 'desc'));
       const state = store.getState().regularIndexes;
       expect(state.sortColumn).to.equal('Name and Definition');
       expect(state.sortOrder).to.equal('desc');
@@ -71,7 +71,7 @@ describe('regular-indexes module', function () {
     }
 
     {
-      store.dispatch(sortIndexes('Usage', 'asc'));
+      store.dispatch(sortRegularIndexes('Usage', 'asc'));
       const state = store.getState().regularIndexes;
       expect(state.sortColumn).to.equal('Usage');
       expect(state.sortOrder).to.equal('asc');
@@ -79,7 +79,7 @@ describe('regular-indexes module', function () {
     }
 
     {
-      store.dispatch(sortIndexes('Usage', 'desc'));
+      store.dispatch(sortRegularIndexes('Usage', 'desc'));
       const state = store.getState().regularIndexes;
       expect(state.sortColumn).to.equal('Usage');
       expect(state.sortOrder).to.equal('desc');
@@ -102,7 +102,7 @@ describe('regular-indexes module', function () {
       });
 
       // Add indexes in the store
-      store.dispatch(setIndexes(defaultSortedIndexes as any));
+      store.dispatch(setRegularIndexes(defaultSortedIndexes as any));
       store.dispatch(readonlyViewChanged(true));
 
       await store.dispatch(fetchIndexes());
@@ -171,7 +171,7 @@ describe('regular-indexes module', function () {
         },
       });
       // Set indexes to empty
-      store.dispatch(setIndexes([]));
+      store.dispatch(setRegularIndexes([]));
       await store.dispatch(fetchIndexes());
 
       const state = store.getState().regularIndexes;
@@ -192,8 +192,8 @@ describe('regular-indexes module', function () {
         },
       });
       // Set indexes to empty
-      store.dispatch(setIndexes([]));
-      store.dispatch(sortIndexes('Usage', 'desc'));
+      store.dispatch(setRegularIndexes([]));
+      store.dispatch(sortRegularIndexes('Usage', 'desc'));
 
       await store.dispatch(fetchIndexes());
 
@@ -216,7 +216,7 @@ describe('regular-indexes module', function () {
       });
 
       // Set indexes to empty
-      store.dispatch(setIndexes([]));
+      store.dispatch(setRegularIndexes([]));
       store.dispatch(
         inProgressIndexAdded({
           id: 'citibike.trips.z',
@@ -261,7 +261,7 @@ describe('regular-indexes module', function () {
     });
   });
 
-  describe('#refreshIndexes action', function () {
+  describe('#refreshRegularIndexes action', function () {
     it('sets isRefreshing when indexes are refreshed', async function () {
       const store = setupStore({
         dataProvider: {
@@ -277,7 +277,7 @@ describe('regular-indexes module', function () {
         },
       });
 
-      store.dispatch(refreshIndexes() as any);
+      store.dispatch(refreshRegularIndexes() as any);
       expect(store.getState().regularIndexes.isRefreshing).to.be.true;
 
       await wait(100);

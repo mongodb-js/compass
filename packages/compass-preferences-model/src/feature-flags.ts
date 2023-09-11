@@ -97,7 +97,7 @@ export const featureFlags: Required<{
   enableAtlasSearchIndexManagement: {
     stage: 'development',
     description: {
-      short: 'Enables Atlas Search Index management.',
+      short: 'Enable Atlas Search Index management.',
       long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',
     },
   },

@@ -256,7 +256,7 @@ export const createIndex = () => {
       dispatch(
         localAppRegistryEmit('in-progress-indexes-removed', inProgressIndex.id)
       );
-      dispatch(localAppRegistryEmit('refresh-data'));
+      dispatch(localAppRegistryEmit('refresh-regular-indexes'));
     } catch (err) {
       dispatch(toggleInProgress(false));
       dispatch(handleError((err as Error).message));

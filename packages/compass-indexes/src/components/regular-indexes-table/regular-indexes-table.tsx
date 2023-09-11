@@ -11,19 +11,19 @@ import IndexActions from './index-actions';
 import { IndexesTable } from '../indexes-table';
 
 import type {
-  IndexDefinition,
-  SortColumn,
+  RegularIndex,
+  RegularSortColumn,
   SortDirection,
 } from '../../modules/regular-indexes';
 
 type RegularIndexesTableProps = {
-  indexes: IndexDefinition[];
+  indexes: RegularIndex[];
   canModifyIndex: boolean;
   serverVersion: string;
-  onDeleteIndex: (index: IndexDefinition) => void;
+  onDeleteIndex: (index: RegularIndex) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
-  onSortTable: (column: SortColumn, direction: SortDirection) => void;
+  onSortTable: (column: RegularSortColumn, direction: SortDirection) => void;
 };
 
 export const RegularIndexesTable: React.FunctionComponent<

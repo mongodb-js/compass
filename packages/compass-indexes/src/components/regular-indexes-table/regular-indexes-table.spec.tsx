@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 
 import { RegularIndexesTable } from './regular-indexes-table';
-import type { IndexDefinition } from '../../modules/regular-indexes';
+import type { RegularIndex } from '../../modules/regular-indexes';
 
 const indexes = [
   {
@@ -92,7 +92,7 @@ const indexes = [
     ],
     usageCount: 25,
   },
-] as IndexDefinition[];
+] as RegularIndex[];
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}

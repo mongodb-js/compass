@@ -15,10 +15,10 @@ import {
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INDEXES');
 
-export type SortColumn = keyof typeof sortColumnToProps;
+export type RegularSortColumn = keyof typeof sortColumnToProps;
 export type SortDirection = 'asc' | 'desc';
 type SortField = keyof Pick<
-  IndexDefinition,
+  RegularIndex,
   'name' | 'type' | 'size' | 'usageCount' | 'properties'
 >;
 
@@ -30,7 +30,7 @@ const sortColumnToProps = {
   Properties: 'properties',
 } as const;
 
-export type IndexDefinition = Omit<
+export type RegularIndex = Omit<
   _IndexDefinition,
   'type' | 'cardinality' | 'properties' | 'version'
 > &
@@ -65,14 +65,14 @@ export enum ActionTypes {
 
 type IndexesAddedAction = {
   type: ActionTypes.IndexesAdded;
-  indexes: IndexDefinition[];
+  indexes: RegularIndex[];
 };
 
 type IndexesSortedAction = {
   type: ActionTypes.IndexesSorted;
-  indexes: IndexDefinition[];
+  indexes: RegularIndex[];
   sortOrder: SortDirection;
-  sortColumn: SortColumn;
+  sortColumn: RegularSortColumn;
 };
 
 type SetIsRefreshingAction = {
@@ -111,9 +111,9 @@ type RegularIndexesActions =
   | InProgressIndexFailedAction;
 
 export type State = {
-  indexes: IndexDefinition[];
+  indexes: RegularIndex[];
   sortOrder: SortDirection;
-  sortColumn: SortColumn;
+  sortColumn: RegularSortColumn;
   isRefreshing: boolean;
   inProgressIndexes: InProgressIndex[];
   error: string | null;
@@ -212,7 +212,9 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   return state;
 }
 
-export const setIndexes = (indexes: IndexDefinition[]): IndexesAddedAction => ({
+export const setRegularIndexes = (
+  indexes: RegularIndex[]
+): IndexesAddedAction => ({
   type: ActionTypes.IndexesAdded,
   indexes,
 });
@@ -222,16 +224,16 @@ const setIsRefreshing = (isRefreshing: boolean): SetIsRefreshingAction => ({
   isRefreshing,
 });
 
-export const setError = (error: string | null): SetErrorAction => ({
+const setError = (error: string | null): SetErrorAction => ({
   type: ActionTypes.SetError,
   error,
 });
 
 const _handleIndexesChanged = (
-  indexes: IndexDefinition[]
+  indexes: RegularIndex[]
 ): IndexesThunkAction<void> => {
   return (dispatch) => {
-    dispatch(setIndexes(indexes));
+    dispatch(setRegularIndexes(indexes));
     dispatch(setIsRefreshing(false));
     dispatch(localAppRegistryEmit('indexes-changed', indexes));
   };
@@ -275,8 +277,8 @@ export const fetchIndexes = (): IndexesThunkAction<
   };
 };
 
-export const sortIndexes = (
-  column: SortColumn,
+export const sortRegularIndexes = (
+  column: RegularSortColumn,
   order: SortDirection
 ): IndexesThunkAction<void, IndexesSortedAction> => {
   return (dispatch, getState) => {
@@ -297,7 +299,7 @@ export const sortIndexes = (
   };
 };
 
-export const refreshIndexes = (): IndexesThunkAction<void> => {
+export const refreshRegularIndexes = (): IndexesThunkAction<void> => {
   return (dispatch) => {
     dispatch(setIsRefreshing(true));
     void dispatch(fetchIndexes());
@@ -406,7 +408,7 @@ export const unhideIndex = (
 };
 
 function _mergeInProgressIndexes(
-  _indexes: IndexDefinition[],
+  _indexes: RegularIndex[],
   inProgressIndexes: InProgressIndex[]
 ) {
   const indexes = cloneDeep(_indexes);
@@ -429,7 +431,7 @@ function _mergeInProgressIndexes(
 }
 
 const _getSortFunctionForProperties = (order: 1 | -1) => {
-  return function (a: IndexDefinition, b: IndexDefinition) {
+  return function (a: RegularIndex, b: RegularIndex) {
     const aValue =
       a.cardinality === 'compound' ? 'compound' : a.properties?.[0] || '';
     const bValue =
@@ -449,7 +451,7 @@ const _getSortFunction = (field: SortField, sortOrder: SortDirection) => {
   if (field === 'properties') {
     return _getSortFunctionForProperties(order);
   }
-  return function (a: IndexDefinition, b: IndexDefinition) {
+  return function (a: RegularIndex, b: RegularIndex) {
     if (typeof b[field] === 'undefined') {
       return order;
     }
@@ -466,6 +468,6 @@ const _getSortFunction = (field: SortField, sortOrder: SortDirection) => {
   };
 };
 
-const _mapColumnToProp = (column: SortColumn): SortField => {
+const _mapColumnToProp = (column: RegularSortColumn): SortField => {
   return sortColumnToProps[column];
 };

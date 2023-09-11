@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import type { IndexDefinition } from '../../modules/regular-indexes';
+import type { RegularIndex } from '../../modules/regular-indexes';
 import { Indexes } from './indexes';
 
 const renderIndexes = (
@@ -12,15 +12,18 @@ const renderIndexes = (
   render(
     <Indexes
       indexes={[]}
+      searchIndexes={[]}
       isWritable={true}
       isReadonlyView={false}
       readOnly={false}
       description={undefined}
-      error={null}
+      regularError={null}
+      searchError={null}
       localAppRegistry={appRegistry}
       isRefreshing={false}
       serverVersion="4.4.0"
-      sortIndexes={() => {}}
+      sortRegularIndexes={() => {}}
+      sortSearchIndexes={() => {}}
       refreshIndexes={() => {}}
       dropFailedIndex={() => {}}
       onHideIndex={() => {}}
@@ -49,18 +52,18 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [],
       isReadonlyView: true,
-      error: undefined,
+      regularError: undefined,
     });
     expect(() => {
       screen.getByTestId('indexes-toolbar');
     }).to.throw;
   });
 
-  it('renders indexes toolbar when there is an error', function () {
+  it('renders indexes toolbar when there is an regularError', function () {
     renderIndexes({
       indexes: [],
       isReadonlyView: false,
-      error: 'Some random error',
+      regularError: 'Some random regularError',
     });
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
   });
@@ -69,18 +72,18 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [],
       isReadonlyView: true,
-      error: undefined,
+      regularError: undefined,
     });
     expect(() => {
       screen.getByTestId('indexes-list');
     }).to.throw;
   });
 
-  it('does not render indexes list when there is an error', function () {
+  it('does not render indexes list when there is an regularError', function () {
     renderIndexes({
       indexes: [],
       isReadonlyView: false,
-      error: 'Some random error',
+      regularError: 'Some random regularError',
     });
     expect(() => {
       screen.getByTestId('indexes-list');
@@ -107,9 +110,9 @@ describe('Indexes Component', function () {
           ],
           usageCount: 20,
         },
-      ] as IndexDefinition[],
+      ] as RegularIndex[],
       isReadonlyView: false,
-      error: undefined,
+      regularError: undefined,
     });
 
     const indexesList = screen.getByTestId('indexes-list');
@@ -156,9 +159,9 @@ describe('Indexes Component', function () {
           ],
           usageCount: 0,
         },
-      ] as IndexDefinition[],
+      ] as RegularIndex[],
       isReadonlyView: false,
-      error: undefined,
+      regularError: undefined,
     });
 
     const indexesList = screen.getByTestId('indexes-list');
@@ -204,7 +207,7 @@ describe('Indexes Component', function () {
           type: 'hashed',
           extra: {
             status: 'failed',
-            error: 'Error message',
+            regularError: 'regularError message',
           },
           properties: [],
           fields: [
@@ -215,9 +218,9 @@ describe('Indexes Component', function () {
           ],
           usageCount: 0,
         },
-      ] as IndexDefinition[],
+      ] as RegularIndex[],
       isReadonlyView: false,
-      error: undefined,
+      regularError: undefined,
     });
 
     const indexesList = screen.getByTestId('indexes-list');

@@ -3,23 +3,29 @@ import { css, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
 import { withPreferences } from 'compass-preferences-model';
+import type { SearchIndex } from 'mongodb-data-service';
 
 import {
-  sortIndexes,
+  sortRegularIndexes,
   dropFailedIndex,
   hideIndex,
   unhideIndex,
-  refreshIndexes,
+  refreshRegularIndexes,
 } from '../../modules/regular-indexes';
 import type {
-  IndexDefinition,
-  SortColumn,
+  RegularIndex,
+  RegularSortColumn,
   SortDirection,
 } from '../../modules/regular-indexes';
+
+import { sortSearchIndexes } from '../../modules/search-indexes';
+
+import type { SearchSortColumn } from '../../modules/search-indexes';
 
 import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { RegularIndexesTable } from '../regular-indexes-table/regular-indexes-table';
+import { SearchIndexesTable } from '../search-indexes-table/search-indexes-table';
 import type { RootState } from '../../modules';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 
@@ -32,15 +38,21 @@ const containerStyles = css({
 });
 
 type IndexesProps = {
-  indexes: IndexDefinition[];
+  indexes: RegularIndex[];
+  searchIndexes: SearchIndex[];
   isWritable: boolean;
   isReadonlyView: boolean;
   description?: string;
-  error: string | null;
+  regularError: string | null;
+  searchError: string | null;
   localAppRegistry: AppRegistry;
   isRefreshing: boolean;
   serverVersion: string;
-  sortIndexes: (name: SortColumn, direction: SortDirection) => void;
+  sortRegularIndexes: (
+    name: RegularSortColumn,
+    direction: SortDirection
+  ) => void;
+  sortSearchIndexes: (name: SearchSortColumn, direction: SortDirection) => void;
   refreshIndexes: () => void;
   dropFailedIndex: (id: string) => void;
   onHideIndex: (name: string) => void;
@@ -55,14 +67,17 @@ const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
   indexes,
+  searchIndexes,
   isWritable,
   isReadonlyView,
   description,
-  error,
+  regularError,
+  searchError,
   localAppRegistry,
   isRefreshing,
   serverVersion,
-  sortIndexes,
+  sortRegularIndexes,
+  sortSearchIndexes,
   refreshIndexes,
   dropFailedIndex,
   onHideIndex,
@@ -73,7 +88,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   const [currentIndexesView, setCurrentIndexesView] =
     useState<IndexView>('regular-indexes');
 
-  const deleteIndex = (index: IndexDefinition) => {
+  const deleteIndex = (index: RegularIndex) => {
     if (index.extra.status === 'failed') {
       return dropFailedIndex(String(index.extra.id));
     }
@@ -87,7 +102,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isWritable={isWritable}
         isReadonlyView={isReadonlyView}
         readOnly={readOnly}
-        errorMessage={error}
+        errorMessage={regularError || searchError}
         localAppRegistry={localAppRegistry}
         isRefreshing={isRefreshing}
         writeStateDescription={description}
@@ -97,22 +112,28 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         onChangeIndexView={setCurrentIndexesView}
       />
       {!isReadonlyView &&
-        !error &&
+        !regularError &&
         currentIndexesView === 'regular-indexes' && (
           <RegularIndexesTable
             indexes={indexes}
             serverVersion={serverVersion}
             canModifyIndex={isWritable && !readOnly}
-            onSortTable={sortIndexes}
+            onSortTable={sortRegularIndexes}
             onDeleteIndex={deleteIndex}
             onHideIndex={onHideIndex}
             onUnhideIndex={onUnhideIndex}
           />
         )}
 
-      {!isReadonlyView && !error && currentIndexesView === 'search-indexes' && (
-        <p style={{ textAlign: 'center' }}>In Progress feature</p>
-      )}
+      {!isReadonlyView &&
+        !searchError &&
+        currentIndexesView === 'search-indexes' && (
+          <SearchIndexesTable
+            indexes={searchIndexes}
+            canModifyIndex={isWritable && !readOnly}
+            onSortTable={sortSearchIndexes}
+          />
+        )}
     </div>
   );
 };
@@ -123,23 +144,28 @@ const mapState = ({
   description,
   serverVersion,
   appRegistry,
-  regularIndexes: { indexes, isRefreshing, error },
-  searchIndexes: { status },
+  regularIndexes,
+  searchIndexes,
 }: RootState) => ({
-  indexes,
+  indexes: regularIndexes.indexes,
+  searchIndexes: searchIndexes.searchIndexes,
   isWritable,
   isReadonlyView,
   description,
-  error,
+  regularError: regularIndexes.error,
+  searchError: searchIndexes.error,
   localAppRegistry: (appRegistry as any).localAppRegistry,
-  isRefreshing,
+  isRefreshing:
+    regularIndexes.isRefreshing || searchIndexes.status === 'REFRESHING',
   serverVersion,
-  isAtlasSearchSupported: status !== SearchIndexesStatuses.NOT_AVAILABLE,
+  isAtlasSearchSupported:
+    searchIndexes.status !== SearchIndexesStatuses.NOT_AVAILABLE,
 });
 
 const mapDispatch = {
-  sortIndexes,
-  refreshIndexes,
+  sortRegularIndexes,
+  sortSearchIndexes,
+  refreshRegularIndexes,
   dropFailedIndex,
   onHideIndex: hideIndex,
   onUnhideIndex: unhideIndex,
