@@ -4,6 +4,7 @@ import {
   afterTests,
   MONGODB_TEST_SERVER_PORT,
   Selectors,
+  serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -28,9 +29,9 @@ const connectionsWithNoSearchSupport: Connection[] = [
     formState: {
       scheme: 'MONGODB_SRV',
       authMethod: 'DEFAULT',
-      hosts: [process.env.E2E_TESTS_ATLAS_HOST ?? ''],
-      defaultUsername: process.env.E2E_TESTS_ATLAS_USERNAME,
-      defaultPassword: process.env.E2E_TESTS_ATLAS_PASSWORD,
+      hosts: [process.env.E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST ?? ''],
+      defaultUsername: process.env.E2E_TESTS_ATLAS_SEARCH_USERNAME,
+      defaultPassword: process.env.E2E_TESTS_ATLAS_SEARCH_PASSWORD,
     },
   },
 ];
@@ -40,9 +41,9 @@ const connectionsWithSearchSupport: Connection[] = [
     formState: {
       scheme: 'MONGODB_SRV',
       authMethod: 'DEFAULT',
-      hosts: [process.env.E2E_TESTS_ATLAS_HOST ?? ''],
-      defaultUsername: process.env.E2E_TESTS_ATLAS_USERNAME,
-      defaultPassword: process.env.E2E_TESTS_ATLAS_PASSWORD,
+      hosts: [process.env.E2E_TESTS_ATLAS_WITH_SEARCH_HOST ?? ''],
+      defaultUsername: process.env.E2E_TESTS_ATLAS_SEARCH_USERNAME,
+      defaultPassword: process.env.E2E_TESTS_ATLAS_SEARCH_PASSWORD,
     },
   },
   // todo: atlas local dev
@@ -56,6 +57,10 @@ describe.only('Search Indexes', function () {
   let browser: CompassBrowser;
 
   before(async function () {
+    // $search works with server 4.2 or more
+    if (!serverSatisfies('>= 4.1.11')) {
+      this.skip();
+    }
     compass = await beforeTests({
       extraSpawnArgs: ['--enableAtlasSearchIndexManagement'],
     });
