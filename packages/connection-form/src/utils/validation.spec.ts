@@ -372,16 +372,6 @@ describe('validation', function () {
       });
     });
 
-    it('should return warnings if tlsCertificateFile is set', function () {
-      const result = validateConnectionOptionsWarnings({
-        connectionString: `mongodb://myserver.com?tlsCertificateFile=/path/to/file.pem`,
-      });
-      expect(result[0]).to.deep.equal({
-        message:
-          'tlsCertificateFile is deprecated and will be removed in future versions of Compass, please embed the client key and certificate chain in a single .pem bundle and use tlsCertificateKeyFile instead.',
-      });
-    });
-
     describe('directConnection', function () {
       it('should return warning if mongo+srv and directConnection=true', function () {
         const result = validateConnectionOptionsWarnings({

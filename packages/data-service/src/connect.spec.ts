@@ -541,13 +541,6 @@ describe('connect', function () {
         );
       });
 
-      it('connects with tls (tlsServerAndClientValidationKeyCrt)', async function () {
-        await testConnection(
-          envs.getConnectionOptions('tlsServerAndClientValidationKeyCrt'),
-          { authenticatedUserRoles: [], authenticatedUsers: [] }
-        );
-      });
-
       it('connects with tls (tlsX509)', async function () {
         await testConnection(envs.getConnectionOptions('tlsX509'), {
           authenticatedUserRoles: [
