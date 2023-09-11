@@ -10,7 +10,7 @@ import {
   BadgeVariant,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { IndexDefinition } from '../../modules/indexes';
+import type { IndexDefinition } from '../../modules/regular-indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
 
 const containerStyles = css({

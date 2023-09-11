@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import type { IndexDefinition } from '../../modules/indexes';
+import type { IndexDefinition } from '../../modules/regular-indexes';
 import { Indexes } from './indexes';
 
 const renderIndexes = (
@@ -13,7 +13,6 @@ const renderIndexes = (
     <Indexes
       indexes={[]}
       isWritable={true}
-      isReadonly={false}
       isReadonlyView={false}
       readOnly={false}
       description={undefined}
@@ -26,6 +25,7 @@ const renderIndexes = (
       dropFailedIndex={() => {}}
       onHideIndex={() => {}}
       onUnhideIndex={() => {}}
+      isAtlasSearchSupported={false}
       {...props}
     />
   );

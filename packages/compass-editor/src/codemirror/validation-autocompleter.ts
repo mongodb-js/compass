@@ -1,7 +1,7 @@
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { snippetCompletion } from '@codemirror/autocomplete';
 import { completer } from '../autocompleter';
-import type { CompletionResult, CompleteOptions } from '../autocompleter';
+import type { CompletionResult, CompletionOptions } from '../autocompleter';
 
 import { resolveTokenAtCursor, getAncestryOfToken } from './utils';
 import {
@@ -95,7 +95,7 @@ const filterFieldsByAncestor = (
 };
 
 export const createValidationAutocompleter = (
-  options: Pick<CompleteOptions, 'fields' | 'serverVersion'> = {}
+  options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {}
 ): CompletionSource => {
   const defaultCompletions = completer('', {
     meta: ['json-schema', 'bson', 'query'],

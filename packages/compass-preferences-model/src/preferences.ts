@@ -43,6 +43,10 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     maxTimeMS?: number;
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
+    // This preference is not a great fit for user preferences, but everything
+    // except for user preferences doesn't allow required preferences to be
+    // defined, so we are sticking it here
+    atlasServiceConfigPreset: 'compass-dev' | 'compass' | 'atlas-dev' | 'atlas';
   };
 
 export type InternalUserPreferences = {
@@ -593,6 +597,27 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
+
+  /**
+   * Chooses atlas service backend configuration from preset
+   *  - compas-dev: locally running compass kanopy backend (localhost)
+   *  - compass:    compass kanopy backend (compass.mongodb.com)
+   *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas:      mms backend (cloud.mongodb.com)
+   */
+  atlasServiceConfigPreset: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Configuration used by atlas service',
+    },
+    validator: z
+      .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas'])
+      .default('compass'),
+    type: 'string',
+  },
+
   ...allFeatureFlagsProps,
 };
 

@@ -569,6 +569,7 @@ export function parseCSVHeaderName(value: string): PathPart[] {
   const parts: PathPart[] = [];
 
   let previousType: 'field' | 'index' = 'field';
+  let ignoreBlankField = false;
   let type: 'field' | 'index' = 'field';
   let snippet: string[] = [];
 
@@ -583,11 +584,14 @@ export function parseCSVHeaderName(value: string): PathPart[] {
         } else if (previousType === 'field') {
           // this supports the edge case where the field name is a blank string
           // at the top level that is the name of an array field.
-          parts.push({ type: 'field', name: '' });
+          if (!ignoreBlankField) {
+            parts.push({ type: 'field', name: '' });
+          }
         }
         previousType = type;
         type = 'index';
         snippet = [];
+        ignoreBlankField = false;
         continue;
       }
       if (char === '.') {
@@ -600,25 +604,47 @@ export function parseCSVHeaderName(value: string): PathPart[] {
           // this supports the edge case where the field name is a blank string
           // inside an object or a blank string at the top level that is the
           // name of an object.field.
-          parts.push({ type: 'field', name: '' });
+          if (!ignoreBlankField) {
+            parts.push({ type: 'field', name: '' });
+          }
         }
         snippet = [];
+        ignoreBlankField = false;
         continue;
       }
     } else {
       if (char === ']') {
         const index = +snippet.join('');
-        if (isNaN(index)) {
-          throw new Error(`"${snippet.join('')}" is not a number`);
+        if (isNaN(index) || snippet.length === 0) {
+          // what initially looked like an array actually wasn't, so either
+          // append to the previous part field if there is one or add a new
+          // one
+          const namePart = `[${snippet.join('')}]`;
+          if (parts.length && parts[parts.length - 1].type === 'field') {
+            (parts[parts.length - 1] as { name: string }).name += namePart;
+          } else {
+            parts.push({ type: 'field', name: namePart });
+          }
+          previousType = 'field';
+          // previousType is 'field' and snippet is blank but if the next
+          // character is { or . then we don't want a blank field name to be
+          // appended because the part we just added or appended is the field
+          // name.
+          ignoreBlankField = true;
+          type = 'field';
+          snippet = [];
+          continue;
         }
         parts.push({ type: 'index', index });
         previousType = type;
         type = 'field';
         snippet = [];
+        ignoreBlankField = false;
         continue;
       }
     }
     snippet.push(char);
+    ignoreBlankField = false;
   }
 
   if (snippet.length) {
@@ -631,9 +657,15 @@ export function parseCSVHeaderName(value: string): PathPart[] {
       // after [ but before ].
       const index = +snippet.join('');
       if (isNaN(index)) {
-        throw new Error(`"${snippet.join('')}" is not a number`);
+        const namePart = `[${snippet.join('')}`;
+        if (parts.length && parts[parts.length - 1].type === 'field') {
+          (parts[parts.length - 1] as { name: string }).name += namePart;
+        } else {
+          parts.push({ type: 'field', name: namePart });
+        }
+      } else {
+        parts.push({ type: 'index', index });
       }
-      parts.push({ type: 'index', index });
     }
   } else if (
     parts.length === 0 ||

@@ -4,8 +4,8 @@ import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 
-import { IndexesTable } from './indexes-table';
-import type { IndexDefinition } from '../../modules/indexes';
+import { RegularIndexesTable } from './regular-indexes-table';
+import type { IndexDefinition } from '../../modules/regular-indexes';
 
 const indexes = [
   {
@@ -95,10 +95,10 @@ const indexes = [
 ] as IndexDefinition[];
 
 const renderIndexList = (
-  props: Partial<React.ComponentProps<typeof IndexesTable>> = {}
+  props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
 ) => {
   render(
-    <IndexesTable
+    <RegularIndexesTable
       indexes={[]}
       serverVersion="4.4.0"
       canModifyIndex={true}
@@ -111,7 +111,7 @@ const renderIndexList = (
   );
 };
 
-describe('IndexesTable Component', function () {
+describe('RegularIndexesTable Component', function () {
   before(cleanup);
   afterEach(cleanup);
 

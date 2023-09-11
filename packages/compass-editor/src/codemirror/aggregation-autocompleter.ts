@@ -1,6 +1,6 @@
 import type { EditorState } from '@codemirror/state';
 import { STAGE_OPERATOR_NAMES } from '@mongodb-js/mongodb-constants';
-import type { CompleteOptions } from '../autocompleter';
+import type { CompletionOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
 import type { Token } from './utils';
 import { parents } from './utils';
@@ -37,7 +37,7 @@ function getStageNameForToken(
 }
 
 export function createAggregationAutocompleter(
-  options: Pick<CompleteOptions, 'fields' | 'serverVersion'> = {}
+  options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {}
 ) {
   const stageAutocompletions = completer('', { ...options, meta: ['stage'] });
 
