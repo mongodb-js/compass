@@ -77,6 +77,12 @@ describe.only('Search Indexes', function () {
       extraSpawnArgs: ['--enableAtlasSearchIndexManagement'],
     });
     browser = compass.browser;
+    console.log(
+      `E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST: ${process.env.E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST}`
+    );
+    console.log(
+      `E2E_TESTS_ATLAS_WITH_SEARCH_HOST: ${process.env.E2E_TESTS_ATLAS_WITH_SEARCH_HOST}`
+    );
   });
 
   after(async function () {
