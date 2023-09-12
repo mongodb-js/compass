@@ -76,7 +76,7 @@ describe('schema-analysis', function () {
         sample: () =>
           Promise.resolve([
             { x: 1 },
-            { y: 2, __safeContent__: [new bson.Binary('aaaa')] },
+            { y: 2, __safeContent__: [bson.Binary.createFromBase64('aaaa')] },
           ]),
         isCancelError: () => false,
       };

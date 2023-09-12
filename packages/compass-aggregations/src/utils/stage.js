@@ -90,7 +90,7 @@ export const filterStageOperators = (options) => {
 };
 
 /**
- * @param {unknown} stage
+ * @param {unknown | undefined} stage
  * @returns {string | undefined}
  */
 export function getStageOperator(stage) {
@@ -181,7 +181,7 @@ const ATLAS_ONLY_OPERATOR_NAMES = new Set(
 );
 
 /**
- * @param {string} stageOperator
+ * @param {string | undefined} stageOperator
  * @returns {boolean}
  */
 export function isOutputStage(stageOperator) {
@@ -190,7 +190,7 @@ export function isOutputStage(stageOperator) {
 
 /**
  *
- * @param {string} stageOperator
+ * @param {string | undefined} stageOperator
  * @returns {boolean}
  */
 export function isAtlasOnlyStage(stageOperator) {

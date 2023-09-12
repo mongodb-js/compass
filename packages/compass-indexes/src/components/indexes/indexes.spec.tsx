@@ -25,6 +25,7 @@ const renderIndexes = (
       dropFailedIndex={() => {}}
       onHideIndex={() => {}}
       onUnhideIndex={() => {}}
+      isAtlasSearchSupported={false}
       {...props}
     />
   );

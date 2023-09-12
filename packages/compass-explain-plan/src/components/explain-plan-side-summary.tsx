@@ -10,6 +10,7 @@ import {
   useDarkMode,
   cx,
   IndexBadge,
+  IndexIcon,
   Icon,
   SignalPopover,
   PerformanceSignals,
@@ -47,7 +48,7 @@ const ExplainPlanSummaryStat = <T extends string | boolean | number>({
   value?: T;
   formatter?: (val: T) => string;
   label: ReactNode;
-  definition: string;
+  definition: React.ReactNode;
   ['data-testid']?: string;
 }): ReactElement | null => {
   return React.createElement(
@@ -124,6 +125,10 @@ const indexesSummaryStyles = css({
   flexDirection: 'column',
   alignItems: 'flex-start',
   gap: spacing[2],
+});
+
+const indexIconDescriptionStyles = css({
+  verticalAlign: 'text-top',
 });
 
 export const ExplainPlanSummary: React.FunctionComponent<
@@ -258,7 +263,21 @@ export const ExplainPlanSummary: React.FunctionComponent<
             <ExplainPlanSummaryStat
               as="div"
               label={indexMessageText}
-              definition="The index(es) used to fulfill the query. A value of 1 indicates an ascending index, and a value of -1 indicates a descending index."
+              definition={
+                <>
+                  The index(es) used to fulfill the query. A value of{' '}
+                  <IndexIcon
+                    className={indexIconDescriptionStyles}
+                    direction={1}
+                  />{' '}
+                  indicates an ascending index, and a value of{' '}
+                  <IndexIcon
+                    className={indexIconDescriptionStyles}
+                    direction={-1}
+                  />{' '}
+                  indicates a descending index.
+                </>
+              }
             ></ExplainPlanSummaryStat>
             {indexKeys.map(([field, value]) => {
               return (

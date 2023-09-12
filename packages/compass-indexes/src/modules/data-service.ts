@@ -1,4 +1,4 @@
-import type { DataService } from 'mongodb-data-service';
+import type { IndexesDataService } from '../stores/store';
 
 export enum ActionTypes {
   DataServiceConnected = 'indexes/data-service/DATA_SERVICE_CONNECTED',
@@ -6,10 +6,10 @@ export enum ActionTypes {
 
 type DataServiceConnectedAction = {
   type: ActionTypes.DataServiceConnected;
-  dataService: DataService;
+  dataService: IndexesDataService;
 };
 
-type State = DataService | null;
+type State = IndexesDataService | null;
 
 const INITIAL_STATE: State = null;
 
@@ -23,7 +23,7 @@ export default function reducer(
   return state;
 }
 
-export const dataServiceConnected = (dataService: DataService) => ({
+export const dataServiceConnected = (dataService: IndexesDataService) => ({
   type: ActionTypes.DataServiceConnected,
   dataService,
 });

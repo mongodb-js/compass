@@ -1,26 +1,15 @@
 import { combineReducers } from 'redux';
-import type { AnyAction } from 'redux';
+import type { Action, AnyAction } from 'redux';
 import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import dataService from './data-service';
-import { RESET_FORM } from './reset-form';
-import isWritable, {
-  INITIAL_STATE as WRITABLE_INITIAL_STATE,
-} from './is-writable';
-import isReadonlyView, {
-  INITIAL_STATE as READONLY_VIEW_INITIAL_STATE,
-} from './is-readonly-view';
-import description, {
-  INITIAL_STATE as DESCRIPTION_INITIAL_STATE,
-} from './description';
-import regularIndexes, {
-  INITIAL_STATE as REGULAR_INDEXES_INITIAL_STATE,
-} from './regular-indexes';
-import serverVersion, {
-  INITIAL_STATE as SV_INITIAL_STATE,
-} from './server-version';
-import namespace, {
-  INITIAL_STATE as NAMESPACE_INITIAL_STATE,
-} from './namespace';
+import isWritable from './is-writable';
+import isReadonlyView from './is-readonly-view';
+import description from './description';
+import regularIndexes from './regular-indexes';
+import searchIndexes from './search-indexes';
+import serverVersion from './server-version';
+import namespace from './namespace';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
 const reducer = combineReducers({
   isWritable,
@@ -31,23 +20,20 @@ const reducer = combineReducers({
   serverVersion,
   namespace,
   regularIndexes,
+  searchIndexes,
 });
 
 export type RootState = ReturnType<typeof reducer>;
+export type IndexesThunkDispatch<A extends AnyAction> = ThunkDispatch<
+  RootState,
+  unknown,
+  A
+>;
+export type IndexesThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  RootState,
+  unknown,
+  A
+>;
 
-const rootReducer = (state: RootState, action: AnyAction): RootState => {
-  if (action.type === RESET_FORM) {
-    return {
-      ...state,
-      isWritable: WRITABLE_INITIAL_STATE,
-      isReadonlyView: READONLY_VIEW_INITIAL_STATE,
-      description: DESCRIPTION_INITIAL_STATE,
-      serverVersion: SV_INITIAL_STATE,
-      namespace: NAMESPACE_INITIAL_STATE,
-      regularIndexes: REGULAR_INDEXES_INITIAL_STATE,
-    };
-  }
-  return reducer(state, action);
-};
-
-export default rootReducer;
+export default reducer;

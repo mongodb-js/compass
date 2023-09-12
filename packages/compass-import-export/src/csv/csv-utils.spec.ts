@@ -151,10 +151,15 @@ describe('stringifyCSVValue', function () {
 
   it('stringifies binary', function () {
     expect(
-      stringifyCSVValue(new Binary('c//SZESzTGmQ6OfR38A11A=='), options)
+      stringifyCSVValue(
+        Binary.createFromBase64('Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09'),
+        options
+      )
     ).to.equal('Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09');
 
-    expect(stringifyCSVValue(new Binary('",\n'), options)).to.equal('IiwK');
+    expect(
+      stringifyCSVValue(new Binary(Buffer.from('",\n')), options)
+    ).to.equal('IiwK');
   });
 
   it('stringifies regexp', function () {

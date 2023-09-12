@@ -649,7 +649,7 @@ describe('Element', function () {
       });
 
       context('when the type is binary', function () {
-        const element = new Element('name', new Binary('test'));
+        const element = new Element('name', Binary.createFromBase64('test'));
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);

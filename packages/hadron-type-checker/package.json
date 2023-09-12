@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.0.3",
+  "version": "7.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -27,7 +27,7 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
-    "bson": "^5.2.0",
+    "bson": "^6.0.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
