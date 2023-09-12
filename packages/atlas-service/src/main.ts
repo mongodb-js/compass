@@ -41,6 +41,7 @@ import preferences from 'compass-preferences-model';
 import { SecretStore, SECRET_STORE_KEY } from './secret-store';
 import { AtlasUserConfigStore } from './user-config-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
+import { getActiveUser } from 'compass-preferences-model';
 
 const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
 
@@ -530,13 +531,13 @@ export class AtlasService {
     await throwIfNotOk(res);
   }
 
-  static async checkForAIFeatureEnablement(): Promise<AIFeatureEnablement> {
+  static async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     throwIfNetworkTrafficDisabled();
 
-    const id = 'test';
+    const userId = (await getActiveUser()).id;
 
     const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/hello/${id}`
+      `${this.config.atlasApiBaseUrl}/ai/api/v1/hello/${userId}`
     );
 
     await throwIfNotOk(res);
@@ -558,7 +559,7 @@ export class AtlasService {
     try {
       throwIfNetworkTrafficDisabled();
 
-      const featureResponse = await this.checkForAIFeatureEnablement();
+      const featureResponse = await this.getAIFeatureEnablement();
 
       const isAIFeatureEnabled =
         !!featureResponse.features.GEN_AI_COMPASS?.enabled;
@@ -572,11 +573,15 @@ export class AtlasService {
         }
       );
 
-      await preferences.savePreferences({ enableAI: isAIFeatureEnabled });
+      await preferences.savePreferences({
+        cloudFeatureRolloutAccess: {
+          GEN_AI_COMPASS: isAIFeatureEnabled,
+        },
+      });
     } catch (err) {
       // Default to what's already in Compass when we can't fetch the preference.
       log.error(
-        mongoLogId(1_001_000_228),
+        mongoLogId(1_001_000_232),
         'AtlasService',
         'Failed to load if the AI feature is enabled',
         { error: (err as Error).stack }

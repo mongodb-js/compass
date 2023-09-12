@@ -7,7 +7,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
+import { useIsAIFeatureEnabled } from 'compass-preferences-model';
 
 import PipelineHeader from './pipeline-header';
 import PipelineOptions from './pipeline-options';
@@ -74,8 +74,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   pipelineOutputOption,
 }) => {
   const darkMode = useDarkMode();
-  const enableAIExperience = usePreference('enableAIExperience', React);
-  const isAIFeatureEnabled = usePreference('enableAI', React);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <div
@@ -100,9 +99,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
-        {enableAIExperience && isAIFeatureEnabled && isBuilderView && (
-          <PipelineAI />
-        )}
+        {isAIFeatureEnabled && isBuilderView && <PipelineAI />}
       </div>
       {isBuilderView ? (
         <div className={settingsRowStyles}>

@@ -54,6 +54,9 @@ export type InternalUserPreferences = {
   // by users.
   showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
+  cloudFeatureRolloutAccess?: {
+    GEN_AI_COMPASS?: boolean;
+  };
   lastKnownVersion: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
@@ -348,6 +351,23 @@ export const storedUserPreferencesProps: Required<{
     description: null,
     validator: z.string().uuid().optional(),
     type: 'string',
+  },
+  /**
+   * Enable/disable the AI services. This is currently set
+   * in the atlas-service initialization where we make a request to the
+   * ai endpoint to check what's enabled for the user (incremental rollout).
+   */
+  cloudFeatureRolloutAccess: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z
+      .object({
+        GEN_AI_COMPASS: z.boolean().optional(),
+      })
+      .optional(),
+    type: 'object',
   },
   /**
    * Master switch to disable all network traffic
@@ -699,22 +719,6 @@ const nonUserPreferences: Required<{
     description: {
       short: 'Allow Additional CLI Flags',
       long: 'Allow specifying command-line flags that Compass does not understand, e.g. Electron or Chromium flags',
-    },
-    validator: z.boolean().default(false),
-    type: 'boolean',
-  },
-  /**
-   * Enable/disable the AI services and Atlas login. This is currently set
-   * in the atlas-service initialization where we make a request to the
-   * ai endpoint to see if it's enabled for the user (incremental rollout).
-   */
-  enableAI: {
-    ui: false,
-    cli: false,
-    global: true,
-    description: {
-      short: 'Enable AI Features',
-      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. Please note these features are currently experimental and offered as a preview.',
     },
     validator: z.boolean().default(false),
     type: 'boolean',

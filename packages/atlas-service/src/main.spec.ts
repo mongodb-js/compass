@@ -407,6 +407,7 @@ describe('AtlasServiceMain', function () {
       'getUserInfo',
       'introspect',
       'revoke',
+      'getAIFeatureEnablement',
       'getAggregationFromUserInput',
       'getQueryFromUserInput',
     ]) {

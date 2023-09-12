@@ -15,7 +15,10 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
+import {
+  usePreference,
+  useIsAIFeatureEnabled,
+} from 'compass-preferences-model';
 import type { Signal } from '@mongodb-js/compass-components';
 
 import {
@@ -175,8 +178,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
-  const enableAIQuery = usePreference('enableAIExperience', React);
-  const isAIFeatureEnabled = usePreference('enableAI', React);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -189,7 +191,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const filterQueryOptionId = 'query-bar-option-input-filter';
 
   const filterPlaceholder = useMemo(() => {
-    return enableAIQuery && isAIFeatureEnabled && !isAIInputVisible
+    return isAIFeatureEnabled && !isAIInputVisible
       ? createAIPlaceholderHTMLPlaceholder({
           onClickAI: () => {
             onShowAIInputClick();
@@ -199,7 +201,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         })
       : placeholders?.filter;
   }, [
-    enableAIQuery,
     isAIFeatureEnabled,
     isAIInputVisible,
     darkMode,
@@ -208,13 +209,13 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   ]);
 
   const showAskAIButton = useMemo(() => {
-    if (!enableAIQuery || isAIInputVisible || !isAIFeatureEnabled) {
+    if (isAIInputVisible || !isAIFeatureEnabled) {
       return false;
     }
 
     // See if there is content in the filter.
     return filterHasContent;
-  }, [enableAIQuery, isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
+  }, [isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
 
   return (
     <form
@@ -334,7 +335,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             ))}
           </div>
         )}
-      {enableAIQuery && isAIFeatureEnabled && (
+      {isAIFeatureEnabled && (
         <div className={queryAIContainerStyles}>
           <QueryAI
             onClose={() => {

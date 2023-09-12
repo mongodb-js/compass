@@ -22,7 +22,10 @@ import {
 } from '../../../modules/pipeline-builder/builder-helpers';
 import { isOutputStage } from '../../../utils/stage';
 import { openCreateIndexModal } from '../../../modules/insights';
-import { usePreference } from 'compass-preferences-model';
+import {
+  usePreference,
+  useIsAIFeatureEnabled,
+} from 'compass-preferences-model';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 
 const containerStyles = css({
@@ -82,12 +85,11 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onCollectionScanInsightActionButtonClick,
 }) => {
   const showInsights = usePreference('showInsights', React);
-  const enableAIExperience = usePreference('enableAIExperience', React);
-  const isAIFeatureEnabled = usePreference('enableAI', React);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
 
   return (
     <div className={containerStyles}>
-      {enableAIExperience && showAIEntry && isAIFeatureEnabled && (
+      {isAIFeatureEnabled && showAIEntry && (
         <AIExperienceEntry onClick={onShowAIInputClick} />
       )}
       {showInsights && showCollectionScanInsight && (
