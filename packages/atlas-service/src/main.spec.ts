@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { AtlasService, getTrackingUserInfo, throwIfNotOk } from './main';
 import { EventEmitter } from 'events';
 import preferencesAccess from 'compass-preferences-model';
+import type { UserPreferences } from 'compass-preferences-model';
 import type { AtlasUserConfigStore } from './user-config-store';
 import type { AtlasUserInfo } from './util';
 
@@ -25,6 +26,12 @@ describe('AtlasServiceMain', function () {
       },
       'http://example.com/v1/revoke?client_id=1234abcd': {
         ok: true,
+      },
+      'http://example.com/ai/api/v1/hello/': {
+        ok: true,
+        json() {
+          return { sub: '1234' };
+        },
       },
     }[url];
   });
@@ -63,21 +70,34 @@ describe('AtlasServiceMain', function () {
   const ipcMain = AtlasService['ipcMain'];
   const createPlugin = AtlasService['createMongoDBOIDCPlugin'];
   const userStore = AtlasService['atlasUserConfigStore'];
+  const getActiveCompassUser = AtlasService['getActiveCompassUser'];
 
-  beforeEach(function () {
+  let cloudFeatureRolloutAccess: UserPreferences['cloudFeatureRolloutAccess'];
+
+  beforeEach(async function () {
     AtlasService['ipcMain'] = { handle: sandbox.stub() };
     AtlasService['fetch'] = mockFetch as any;
     AtlasService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
     AtlasService['atlasUserConfigStore'] =
       mockUserConfigStore as unknown as AtlasUserConfigStore;
+    AtlasService['getActiveCompassUser'] = () =>
+      Promise.resolve({
+        id: 'test',
+      });
 
     AtlasService['config'] = defaultConfig;
 
     AtlasService['setupPlugin']();
     AtlasService['attachOidcPluginLoggerEvents']();
+
+    cloudFeatureRolloutAccess =
+      preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+    await preferencesAccess.savePreferences({
+      cloudFeatureRolloutAccess: undefined,
+    });
   });
 
-  afterEach(function () {
+  afterEach(async function () {
     AtlasService['fetch'] = fetch;
     AtlasService['atlasUserConfigStore'] = userStore;
     AtlasService['ipcMain'] = ipcMain;
@@ -86,6 +106,9 @@ describe('AtlasServiceMain', function () {
     AtlasService['oidcPluginLogger'].removeAllListeners();
     AtlasService['signInPromise'] = null;
     AtlasService['currentUser'] = null;
+    AtlasService['getActiveCompassUser'] = getActiveCompassUser;
+
+    await preferencesAccess.savePreferences({ cloudFeatureRolloutAccess });
 
     sandbox.resetHistory();
   });
@@ -468,6 +491,94 @@ describe('AtlasServiceMain', function () {
       ).to.deep.eq({
         auid: '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
       });
+    });
+  });
+
+  describe('setupAIAccess', function () {
+    it('should set the cloudFeatureRolloutAccess true when returned true', async function () {
+      const fetchStub = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({
+            features: {
+              GEN_AI_COMPASS: {
+                enabled: true,
+              },
+            },
+          });
+        },
+      });
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
+        GEN_AI_COMPASS: true,
+      });
+    });
+
+    it('should set the cloudFeatureRolloutAccess false when returned false', async function () {
+      const fetchStub = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({
+            features: {
+              GEN_AI_COMPASS: {
+                enabled: false,
+              },
+            },
+          });
+        },
+      });
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
+        GEN_AI_COMPASS: false,
+      });
+    });
+
+    it('should not set the cloudFeatureRolloutAccess false when returned false', async function () {
+      const fetchStub = sandbox.stub().throws(new Error('error'));
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal(undefined);
     });
   });
 });

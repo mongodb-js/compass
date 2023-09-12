@@ -142,6 +142,8 @@ export class AtlasService {
 
   private static currentUser: AtlasUserInfo | null = null;
 
+  private static getActiveCompassUser: typeof getActiveUser = getActiveUser;
+
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
   private static fetch = (
@@ -534,7 +536,7 @@ export class AtlasService {
   static async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     throwIfNetworkTrafficDisabled();
 
-    const userId = (await getActiveUser()).id;
+    const userId = (await this.getActiveCompassUser()).id;
 
     const res = await this.fetch(
       `${this.config.atlasApiBaseUrl}/ai/api/v1/hello/${userId}`
@@ -581,7 +583,7 @@ export class AtlasService {
     } catch (err) {
       // Default to what's already in Compass when we can't fetch the preference.
       log.error(
-        mongoLogId(1_001_000_232),
+        mongoLogId(1_001_000_243),
         'AtlasService',
         'Failed to load if the AI feature is enabled',
         { error: (err as Error).stack }
