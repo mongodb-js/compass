@@ -26,6 +26,7 @@ const renderIndexesToolbar = (
       isAtlasSearchSupported={false}
       isRefreshing={false}
       onChangeIndexView={() => {}}
+      onClickCreateAtlasSearchIndex={() => {}}
       {...props}
     />
   );

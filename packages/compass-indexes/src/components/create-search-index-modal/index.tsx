@@ -140,7 +140,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
             type="text"
             state={indexName === '' ? 'error' : 'none'}
             errorMessage={
-              indexName === '' && 'Please enter the name of the index.'
+              indexName === '' ? 'Please enter the name of the index.' : ''
             }
             value={indexName}
             onChange={(evt: any) => setIndexName(evt.target.value)}

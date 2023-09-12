@@ -37,6 +37,10 @@ export const setupStore = (options: Partial<ConfigureStoreOptions> = {}) => {
     dropIndex(ns, name) {
       return Promise.resolve({});
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    createSearchIndex(ns, name, definition) {
+      return Promise.resolve('');
+    },
   };
 
   return configureStore({

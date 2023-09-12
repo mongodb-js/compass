@@ -26,6 +26,7 @@ const renderIndexes = (
       onHideIndex={() => {}}
       onUnhideIndex={() => {}}
       isAtlasSearchSupported={false}
+      onClickCreateAtlasSearchIndex={() => {}}
       {...props}
     />
   );

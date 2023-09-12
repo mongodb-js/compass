@@ -17,7 +17,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 import { usePreference } from 'compass-preferences-model';
-import { openModalForCreation } from '../../modules/search-indexes';
 
 const containerStyles = css({
   margin: `${spacing[3]}px 0`,
