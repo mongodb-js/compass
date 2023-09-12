@@ -2,6 +2,7 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import {
   beforeTests,
   afterTests,
+  afterTest,
   MONGODB_TEST_SERVER_PORT,
   Selectors,
   serverSatisfies,
@@ -85,6 +86,7 @@ describe.only('Search Indexes', function () {
       });
       afterEach(async function () {
         await afterTestRun();
+        await afterTest(compass, this.currentTest);
       });
       it('allows users to create a regular index', async function () {
         const indexName = await browser.createIndex({

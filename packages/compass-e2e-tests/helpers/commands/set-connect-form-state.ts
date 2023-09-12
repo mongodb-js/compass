@@ -29,6 +29,7 @@ export async function setConnectFormState(
   state: ConnectFormState
 ): Promise<void> {
   await browser.resetConnectForm();
+
   await browser.expandAccordion(Selectors.ShowConnectionFormButton);
 
   // General
