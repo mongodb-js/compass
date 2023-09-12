@@ -32,6 +32,7 @@ type RegularIndexesTableProps = {
   indexes: RegularIndex[];
   serverVersion: string;
   isWritable?: boolean;
+  isReadonlyView?: boolean;
   dropFailedIndex: (name: string) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
@@ -45,6 +46,7 @@ export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
 > = ({
   isWritable,
+  isReadonlyView,
   readOnly,
   indexes,
   serverVersion,
@@ -54,8 +56,8 @@ export const RegularIndexesTable: React.FunctionComponent<
   error,
   localAppRegistry,
 }) => {
-  if (readOnly) {
-    // TODO: There is no design for a readOnly mode. We simply don't show the table
+  if (isReadonlyView) {
+    // TODO: There is no design for this. We simply don't show the table
     return null;
   }
 
@@ -148,9 +150,11 @@ const mapState = ({
   serverVersion,
   regularIndexes,
   isWritable,
+  isReadonlyView,
   appRegistry,
 }: RootState) => ({
   isWritable,
+  isReadonlyView,
   serverVersion,
   indexes: regularIndexes.indexes,
   error: regularIndexes.error,

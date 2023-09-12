@@ -14,6 +14,7 @@ import { IndexesTable } from '../indexes-table';
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
+  isReadonlyView?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   status: SearchIndexesStatus;
@@ -21,9 +22,16 @@ type SearchIndexesTableProps = {
 
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
-> = ({ indexes, isWritable, readOnly, onSortTable, status }) => {
-  if (readOnly) {
-    // TODO: There is no design for a readOnly mode. We simply don't show the table
+> = ({
+  indexes,
+  isWritable,
+  isReadonlyView,
+  readOnly,
+  onSortTable,
+  status,
+}) => {
+  if (isReadonlyView) {
+    // TODO: There is no design for this. We simply don't show the table
     return null;
   }
 
@@ -35,7 +43,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   }
 
   if (indexes.length === 0) {
-    // TODO: render the zero state
+    // TODO(COMPASS-7204): render the zero state
     return null;
   }
 
@@ -54,11 +62,11 @@ export const SearchIndexesTable: React.FunctionComponent<
         },
         {
           'data-testid': 'index-status-field',
-          children: index.status, // TODO: show some badge
+          children: index.status, // TODO(COMPASS-7205): show some badge, not just text
         },
       ],
 
-      // TODO: details for the nested row
+      // TODO(COMPASS-7206): details for the nested row
     };
   });
 
@@ -74,8 +82,13 @@ export const SearchIndexesTable: React.FunctionComponent<
   );
 };
 
-const mapState = ({ searchIndexes, isWritable }: RootState) => ({
+const mapState = ({
+  searchIndexes,
   isWritable,
+  isReadonlyView,
+}: RootState) => ({
+  isWritable,
+  isReadonlyView,
   indexes: searchIndexes.indexes,
   status: searchIndexes.status,
 });
