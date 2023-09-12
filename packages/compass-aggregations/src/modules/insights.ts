@@ -7,6 +7,7 @@ import type { PipelineBuilderThunkAction } from '.';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
+import { getStageOperator, isOutputStage } from '../utils/stage';
 
 const FETCH_EXPLAIN_PLAN_SUCCESS =
   'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS';
@@ -52,7 +53,18 @@ export const fetchExplainForPipeline = (): PipelineBuilderThunkAction<
     try {
       // Debounce action to allow for user typing to stop
       await cancellableWait(300, abortSignal);
-      const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+      const pipeline = getPipelineFromBuilderState(
+        getState(),
+        pipelineBuilder
+      ).filter((stage) => {
+        // Getting explain plan for a pipeline with an out / merge stage can
+        // cause data corruption issues in non-genuine MongoDB servers, for
+        // example CosmosDB actually executes pipeline and persists data, even
+        // when the stage is not at the end of the pipeline. To avoid
+        // introducing branching logic based on MongoDB genuineness, we just
+        // filter out all output stages here instead
+        return !isOutputStage(getStageOperator(stage));
+      });
       const rawExplainPlan = await dataService.dataService?.explainAggregate?.(
         namespace,
         pipeline,
