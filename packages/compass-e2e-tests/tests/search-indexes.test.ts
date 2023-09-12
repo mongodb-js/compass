@@ -69,7 +69,7 @@ const connectionsWithSearchSupport: Connection[] = [
 const DB_NAME = 'e2e_indexes_test';
 const COLL_NAME = 'numbers';
 
-describe.only('Search Indexes', function () {
+describe('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
