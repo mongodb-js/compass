@@ -14,13 +14,21 @@ import {
   inProgressIndexFailed,
   type InProgressIndex,
 } from '../modules/regular-indexes';
-import { SearchIndexesStatuses } from '../modules/search-indexes';
+import {
+  SearchIndexesStatuses,
+  INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
+} from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
 
 export type IndexesDataService = Pick<
   DataService,
-  'indexes' | 'isConnected' | 'updateCollection' | 'createIndex' | 'dropIndex'
+  | 'indexes'
+  | 'isConnected'
+  | 'updateCollection'
+  | 'createIndex'
+  | 'dropIndex'
+  | 'createSearchIndex'
 >;
 export type ConfigureStoreOptions = {
   dataProvider: {
@@ -52,6 +60,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
       searchIndexes: {
+        ...SEARCH_INDEXES_INITIAL_STATE,
         status: options.isSearchIndexesSupported
           ? SearchIndexesStatuses.PENDING
           : SearchIndexesStatuses.NOT_AVAILABLE,

@@ -2,6 +2,7 @@ import type { AnyAction } from 'redux';
 import { isAction } from './../utils/is-action';
 import type { IndexesThunkAction } from '.';
 import { openToast } from '@mongodb-js/compass-components';
+import type { Document, MongoServerError } from 'mongodb';
 
 export enum SearchIndexesStatuses {
   /**
@@ -24,16 +25,11 @@ export enum SearchIndexesStatuses {
 
 type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 
-export type CreateSearchIndexError =
-  | 'index-name-is-empty'
-  | 'index-already-exists';
-
 export enum ActionTypes {
   SetStatus = 'indexes/search-indexes/SetStatus',
   OpenCreateSearchIndexModal = 'indexes/search-indexes/OpenCreateSearchIndexModal',
   CloseCrudSearchIndexModal = 'indexes/search-indexes/CloseCrudSearchIndexModal',
-  IndexNameIsEmpty = 'indexes/search-indexes/IndexNameIsEmpty',
-  IndexAlreadyExists = 'indexes/search-indexes/IndexAlreadyExists',
+  SetError = 'indexes/search-indexes/SearchError',
 }
 
 type SetStatusAction = {
@@ -49,24 +45,29 @@ type CloseCrudSearchIndexModalAction = {
   type: ActionTypes.CloseCrudSearchIndexModal;
 };
 
-type IndexNameIsEmptyAction = {
-  type: ActionTypes.IndexNameIsEmpty;
+type SetErrorAction = {
+  type: ActionTypes.SetError;
+  error: string | undefined;
 };
 
-type IndexAlreadyExistsAction = {
-  type: ActionTypes.IndexAlreadyExists;
+type CreateSearchIndexState = {
+  isModalOpen: boolean; // false
 };
 
 export type State = {
   status: SearchIndexesStatus;
-  isModalOpen: boolean; // false
+  createIndex: CreateSearchIndexState;
   error?: string;
+  indexes: any[];
 };
 
 export const INITIAL_STATE: State = {
   status: 'NOT_AVAILABLE',
-  isModalOpen: false,
+  createIndex: {
+    isModalOpen: false,
+  },
   error: undefined,
+  indexes: [],
 };
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
@@ -84,7 +85,10 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
     return {
       ...state,
       error: undefined,
-      isModalOpen: true,
+      createIndex: {
+        ...state.createIndex,
+        isModalOpen: true,
+      },
     };
   } else if (
     isAction<CloseCrudSearchIndexModalAction>(
@@ -95,21 +99,15 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
     return {
       ...state,
       error: undefined,
-      isModalOpen: false,
+      createIndex: {
+        ...state.createIndex,
+        isModalOpen: false,
+      },
     };
-  } else if (
-    isAction<IndexAlreadyExistsAction>(action, ActionTypes.IndexAlreadyExists)
-  ) {
+  } else if (isAction<SetErrorAction>(action, ActionTypes.SetError)) {
     return {
       ...state,
-      error: 'index-already-exists',
-    };
-  } else if (
-    isAction<IndexNameIsEmptyAction>(action, ActionTypes.IndexNameIsEmpty)
-  ) {
-    return {
-      ...state,
-      error: 'index-name-is-empty',
+      error: action.error,
     };
   }
 
@@ -129,28 +127,32 @@ export const closeModal = (): CloseCrudSearchIndexModalAction => ({
   type: ActionTypes.CloseCrudSearchIndexModal,
 });
 
-export const indexNameIsEmpty = (): IndexNameIsEmptyAction => ({
-  type: ActionTypes.IndexNameIsEmpty,
-});
-
-export const indexAlreadyExists = (): IndexAlreadyExistsAction => ({
-  type: ActionTypes.IndexAlreadyExists,
+export const setError = (error: string | undefined): SetErrorAction => ({
+  type: ActionTypes.SetError,
+  error,
 });
 
 export const saveIndex = (
   indexName: string,
-  indexDefinition: string
+  indexDefinition: Document
 ): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState) {
     const { namespace, dataService } = getState();
 
+    dispatch(setError(undefined));
     if (indexName === '') {
-      dispatch(indexNameIsEmpty());
+      dispatch(setError('Please enter the name of the index.'));
       return;
     }
 
-    if (false /* index already exists */) {
-      dispatch(indexAlreadyExists());
+    try {
+      await dataService?.createSearchIndex(
+        namespace,
+        indexName,
+        indexDefinition
+      );
+    } catch (ex) {
+      dispatch(setError((ex as MongoServerError).codeName));
       return;
     }
 
