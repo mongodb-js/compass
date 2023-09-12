@@ -38,7 +38,7 @@ export enum SearchIndexesStatuses {
   ERROR = 'ERROR',
 }
 
-type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
+export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 
 export enum ActionTypes {
   SetIsRefreshing = 'indexes/search-indexes/SetIsRefreshing',

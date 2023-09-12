@@ -5,6 +5,7 @@ import { withPreferences } from 'compass-preferences-model';
 
 import type { SearchSortColumn } from '../../modules/search-indexes';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
 import type { SortDirection, RootState } from '../../modules';
 
@@ -15,7 +16,7 @@ type SearchIndexesTableProps = {
   isWritable?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
-  status: SearchIndexesStatuses;
+  status: SearchIndexesStatus;
 };
 
 export const SearchIndexesTable: React.FunctionComponent<
@@ -76,6 +77,7 @@ export const SearchIndexesTable: React.FunctionComponent<
 const mapState = ({ searchIndexes, isWritable }: RootState) => ({
   isWritable,
   indexes: searchIndexes.indexes,
+  status: searchIndexes.status,
 });
 
 const mapDispatch = {

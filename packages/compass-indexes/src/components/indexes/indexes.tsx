@@ -11,6 +11,7 @@ import { refreshSearchIndexes } from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import type { RootState } from '../../modules';
 
 // This constant is used as a trigger to show an insight whenever number of
@@ -35,6 +36,13 @@ type IndexesProps = {
   refreshSearchIndexes: () => void;
 };
 
+function isRefreshingStatus(status: SearchIndexesStatus) {
+  return (
+    status === SearchIndexesStatuses.PENDING ||
+    status === SearchIndexesStatuses.REFRESHING
+  );
+}
+
 export function Indexes({
   regularIndexes,
   searchIndexes,
@@ -56,10 +64,7 @@ export function Indexes({
   const isRefreshing =
     currentIndexesView === 'regular-indexes'
       ? regularIndexes.isRefreshing === true
-      : [
-          SearchIndexesStatuses.PENDING,
-          SearchIndexesStatuses.REFRESHING,
-        ].includes(searchIndexes.status as SearchIndexesStatuses);
+      : isRefreshingStatus(searchIndexes.status);
 
   const onRefreshIndexes =
     currentIndexesView === 'regular-indexes'
