@@ -13,7 +13,7 @@ import { openModalForCreation, setError } from '../../modules/search-indexes';
 import type { IndexesDataService } from '../../stores/store';
 import configureStore from '../../stores/store';
 
-describe.only('Create Search Index Modal', function () {
+describe('Create Search Index Modal', function () {
   let store: ReturnType<typeof configureStore>;
   let dataProvider: IndexesDataService;
 
