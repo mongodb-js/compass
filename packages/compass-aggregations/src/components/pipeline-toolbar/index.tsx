@@ -75,6 +75,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const enableAIExperience = usePreference('enableAIExperience', React);
+  const isAIFeatureEnabled = usePreference('enableAI', React);
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <div
@@ -99,7 +100,9 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
-        {enableAIExperience && isBuilderView && <PipelineAI />}
+        {enableAIExperience && isAIFeatureEnabled && isBuilderView && (
+          <PipelineAI />
+        )}
       </div>
       {isBuilderView ? (
         <div className={settingsRowStyles}>

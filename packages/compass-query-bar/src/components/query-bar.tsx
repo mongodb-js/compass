@@ -176,6 +176,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
   const enableAIQuery = usePreference('enableAIExperience', React);
+  const isAIFeatureEnabled = usePreference('enableAI', React);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -188,7 +189,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const filterQueryOptionId = 'query-bar-option-input-filter';
 
   const filterPlaceholder = useMemo(() => {
-    return enableAIQuery && !isAIInputVisible
+    return enableAIQuery && isAIFeatureEnabled && !isAIInputVisible
       ? createAIPlaceholderHTMLPlaceholder({
           onClickAI: () => {
             onShowAIInputClick();
@@ -199,6 +200,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       : placeholders?.filter;
   }, [
     enableAIQuery,
+    isAIFeatureEnabled,
     isAIInputVisible,
     darkMode,
     placeholders?.filter,
@@ -206,13 +208,13 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   ]);
 
   const showAskAIButton = useMemo(() => {
-    if (!enableAIQuery || isAIInputVisible) {
+    if (!enableAIQuery || isAIInputVisible || !isAIFeatureEnabled) {
       return false;
     }
 
     // See if there is content in the filter.
     return filterHasContent;
-  }, [enableAIQuery, isAIInputVisible, filterHasContent]);
+  }, [enableAIQuery, isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
 
   return (
     <form
@@ -332,7 +334,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             ))}
           </div>
         )}
-      {enableAIQuery && (
+      {enableAIQuery && isAIFeatureEnabled && (
         <div className={queryAIContainerStyles}>
           <QueryAI
             onClose={() => {

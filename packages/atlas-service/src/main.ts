@@ -18,11 +18,16 @@ import type { Document } from 'mongodb';
 import type {
   AtlasUserConfig,
   AIAggregation,
+  AIFeatureEnablement,
   AIQuery,
   IntrospectInfo,
   AtlasUserInfo,
 } from './util';
-import { validateAIQueryResponse, validateAIAggregationResponse } from './util';
+import {
+  validateAIQueryResponse,
+  validateAIAggregationResponse,
+  validateAIFeatureEnablementResponse,
+} from './util';
 import {
   broadcast,
   ipcExpose,
@@ -230,6 +235,7 @@ export class AtlasService {
       );
       const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
       this.setupPlugin(serializedState);
+      void this.setupAIAccess();
       // Whether or not we got the state, try requesting user info. If there was
       // no serialized state returned, this will just fail quickly. If there was
       // some state, we will prepare the service state for user interactions by
@@ -522,6 +528,60 @@ export class AtlasService {
     });
 
     await throwIfNotOk(res);
+  }
+
+  static async checkForAIFeatureEnablement(): Promise<AIFeatureEnablement> {
+    throwIfNetworkTrafficDisabled();
+
+    const id = 'test';
+
+    const res = await this.fetch(
+      `${this.config.atlasApiBaseUrl}/ai/api/v1/hello/${id}`
+    );
+
+    await throwIfNotOk(res);
+
+    const body = await res.json();
+
+    validateAIFeatureEnablementResponse(body);
+
+    return body;
+  }
+
+  static async setupAIAccess(): Promise<void> {
+    log.info(
+      mongoLogId(1_001_000_227),
+      'AtlasService',
+      'Fetching if the AI feature is enabled'
+    );
+
+    try {
+      throwIfNetworkTrafficDisabled();
+
+      const featureResponse = await this.checkForAIFeatureEnablement();
+
+      const isAIFeatureEnabled =
+        !!featureResponse.features.GEN_AI_COMPASS?.enabled;
+
+      log.info(
+        mongoLogId(1_001_000_229),
+        'AtlasService',
+        'Fetched if the AI feature is enabled',
+        {
+          enabled: isAIFeatureEnabled,
+        }
+      );
+
+      await preferences.savePreferences({ enableAI: isAIFeatureEnabled });
+    } catch (err) {
+      // Default to what's already in Compass when we can't fetch the preference.
+      log.error(
+        mongoLogId(1_001_000_228),
+        'AtlasService',
+        'Failed to load if the AI feature is enabled',
+        { error: (err as Error).stack }
+      );
+    }
   }
 
   static async getAggregationFromUserInput({

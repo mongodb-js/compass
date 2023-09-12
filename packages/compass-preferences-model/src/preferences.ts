@@ -703,6 +703,22 @@ const nonUserPreferences: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
+  /**
+   * Enable/disable the AI services and Atlas login. This is currently set
+   * in the atlas-service initialization where we make a request to the
+   * ai endpoint to see if it's enabled for the user (incremental rollout).
+   */
+  enableAI: {
+    ui: false,
+    cli: false,
+    global: true,
+    description: {
+      short: 'Enable AI Features',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. Please note these features are currently experimental and offered as a preview.',
+    },
+    validator: z.boolean().default(false),
+    type: 'boolean',
+  },
   positionalArguments: {
     ui: false,
     cli: true,

@@ -72,6 +72,24 @@ export function validateAIAggregationResponse(
   }
 }
 
+export type AIFeatureEnablement = {
+  features: {
+    [featureName: string]: {
+      enabled: boolean;
+    };
+  };
+};
+
+export function validateAIFeatureEnablementResponse(
+  response: any
+): asserts response is AIFeatureEnablement {
+  const { features } = response;
+
+  if (typeof features !== 'object' || features === null) {
+    throw new Error('Unexpected response: expected features to be an object');
+  }
+}
+
 export type AIQuery = {
   content: {
     query: Record<

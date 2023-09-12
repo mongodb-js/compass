@@ -33,8 +33,8 @@ export const featureFlags: Required<{
   enableAIExperience: {
     stage: 'development',
     description: {
-      short: 'AI Query Generator',
-      long: 'Use AI to generate queries with a natural language text input on the query bar. Do not use this feature with sensitive data.',
+      short: 'Compass AI Features',
+      long: 'Use AI to generate queries and aggregations with a natural language text. Do not use this feature with sensitive data.',
     },
   },
 

@@ -62,6 +62,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   onShowAIInputClick,
 }) => {
   const enableAIExperience = usePreference('enableAIExperience', React);
+  const isAIFeatureEnabled = usePreference('enableAI', React);
 
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
@@ -70,7 +71,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
           Your pipeline is currently empty.
           {showAddNewStage && (
             <>
-              {enableAIExperience && showAIEntry ? (
+              {enableAIExperience && isAIFeatureEnabled && showAIEntry ? (
                 <>{nbsp}Need help getting started?</>
               ) : (
                 <>

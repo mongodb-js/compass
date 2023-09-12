@@ -126,7 +126,7 @@ describe('QueryBar Component', function () {
       sandbox = sinon.createSandbox();
       sandbox
         .stub(preferencesAccess, 'getPreferences')
-        .returns({ enableAIExperience: true } as any);
+        .returns({ enableAIExperience: true, enableAI: true } as any);
     });
 
     afterEach(function () {
@@ -175,7 +175,7 @@ describe('QueryBar Component', function () {
       sandbox = sinon.createSandbox();
       sandbox
         .stub(preferencesAccess, 'getPreferences')
-        .returns({ enableAIExperience: false } as any);
+        .returns({ enableAIExperience: false, enableAI: false } as any);
       renderQueryBar({
         queryOptionsLayout: ['filter'],
       });

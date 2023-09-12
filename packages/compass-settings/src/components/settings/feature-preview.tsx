@@ -88,9 +88,10 @@ export default withPreferences(
       showAtlasLoginSettings:
         state.settings.settings.enableAIExperience ||
         ['authenticated', 'in-progress'].includes(state.atlasLogin.status) ||
-        ownProps.enableAIExperience,
+        ownProps.enableAIExperience ||
+        ownProps.isAIFeatureEnabled,
     };
   })(FeaturePreviewSettings),
-  ['enableAIExperience'],
+  ['enableAIExperience', 'isAIFeatureEnabled'],
   React
 );
