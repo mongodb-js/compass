@@ -18,6 +18,11 @@ type Connection = {
 };
 
 function shouldSkipAtlasTest() {
+  /**
+   * This Atlas user has been created with access to
+   * DB_NAME.COLL_NAME namespace and a custom role to drop
+   * this database.
+   */
   return (
     !process.env.E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST &&
     !process.env.E2E_TESTS_ATLAS_WITH_SEARCH_HOST &&
@@ -77,12 +82,6 @@ describe.only('Search Indexes', function () {
       extraSpawnArgs: ['--enableAtlasSearchIndexManagement'],
     });
     browser = compass.browser;
-    console.log(
-      `E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST: ${process.env.E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST}`
-    );
-    console.log(
-      `E2E_TESTS_ATLAS_WITH_SEARCH_HOST: ${process.env.E2E_TESTS_ATLAS_WITH_SEARCH_HOST}`
-    );
   });
 
   after(async function () {
@@ -91,13 +90,19 @@ describe.only('Search Indexes', function () {
 
   async function beforeTestRun(formState: ConnectFormState) {
     await browser.connectWithConnectionForm(formState);
-    await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
-    await browser.addDatabase(DB_NAME, COLL_NAME);
+    {
+      await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
+      await browser.addDatabase(DB_NAME, COLL_NAME);
+    }
     await browser.navigateToCollectionTab(DB_NAME, COLL_NAME, 'Indexes');
   }
 
   async function afterTestRun() {
-    await browser.dropDatabaseFromSidebar(DB_NAME);
+    {
+      await browser.hover(Selectors.sidebarDatabase(DB_NAME));
+      await browser.clickVisible(Selectors.DropDatabaseButton);
+      await browser.dropDatabase(DB_NAME);
+    }
     await disconnect(browser);
   }
 
