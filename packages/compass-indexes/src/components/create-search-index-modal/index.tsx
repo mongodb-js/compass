@@ -15,12 +15,12 @@ import {
   Link,
   Icon,
 } from '@mongodb-js/compass-components';
-import type { CreateSearchIndexError } from '../../modules/create-search-index';
-import { closeModal, saveIndex } from '../../modules/create-search-index';
+import { closeModal, saveIndex } from '../../modules/search-indexes';
 import { connect } from 'react-redux';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import type { RootState } from '../../modules';
 
-const ERROR_MAPPINGS: Record<CreateSearchIndexError, string> = {
+const ERROR_MAPPINGS: Record<string, string> = {
   'index-name-is-empty': 'Enter name.',
   'index-already-exists': 'This name already exists. Choose another name.',
 };
@@ -42,15 +42,14 @@ const toolbarStyles = css({
 
 type CreateSearchIndexModalProps = {
   isModalOpen: boolean;
-  error?: CreateSearchIndexError;
-  isUpdate: boolean;
-  saveIndex: typeof saveIndex;
+  error?: string;
+  saveIndex: (indexName: string, indexDefinition: string) => void;
   closeModal: () => void;
 };
 
 export const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
-> = ({ isModalOpen, error, isUpdate, saveIndex, closeModal }) => {
+> = ({ isModalOpen, error, saveIndex, closeModal }) => {
   const [indexName, setIndexName] = useState<string>('default');
   const [indexDefinition, setIndexDefinition] = useState<string>(
     DEFAULT_INDEX_DEFINITION
@@ -102,11 +101,10 @@ export const CreateSearchIndexModal: React.FunctionComponent<
             id="name-of-search-index"
             aria-labelledby="Name of Search Index"
             type="text"
-            readOnly={isUpdate}
             state={error ? 'error' : 'none'}
             errorMessage={error && ERROR_MAPPINGS[error]}
             value={indexName}
-            onChange={(evt) => setIndexName(evt.target.value)}
+            onChange={(evt: any) => setIndexName(evt.target.value)}
           />
         </div>
         <HorizontalRule className={bodyGapStyles} />
@@ -131,7 +129,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
 
       <ModalFooter className={toolbarStyles}>
         <Button variant="primary" onClick={onSaveIndex}>
-          {isUpdate ? 'Update' : 'Create'} Search Index
+          Create Search Index
         </Button>
         <Button variant="default" onClick={onCancel}>
           Cancel
@@ -141,10 +139,9 @@ export const CreateSearchIndexModal: React.FunctionComponent<
   );
 };
 
-const mapState = ({ createSearchIndexReducer }: any) => ({
-  isModalOpen: createSearchIndexReducer.isModalOpen,
-  error: createSearchIndexReducer.error,
-  isUpdate: createSearchIndexReducer.isUpdate,
+const mapState = ({ searchIndexes }: RootState) => ({
+  isModalOpen: searchIndexes.isModalOpen,
+  error: searchIndexes.error,
 });
 
 const mapDispatch = {

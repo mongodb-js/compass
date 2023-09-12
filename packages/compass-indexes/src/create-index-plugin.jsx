@@ -19,7 +19,6 @@ class CreateIndexPlugin extends Component {
     return (
       <Provider store={this.props.store}>
         <CreateIndexModal />
-        <CreateSearchIndexModal />
       </Provider>
     );
   }

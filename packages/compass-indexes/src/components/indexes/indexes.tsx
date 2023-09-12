@@ -21,7 +21,11 @@ import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { RegularIndexesTable } from '../regular-indexes-table/regular-indexes-table';
 import type { RootState } from '../../modules';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import {
+  SearchIndexesStatuses,
+  openModalForCreation,
+} from '../../modules/search-indexes';
+import CreateSearchIndexModal from '../create-search-index-modal';
 
 const containerStyles = css({
   margin: spacing[3],
@@ -45,6 +49,7 @@ type IndexesProps = {
   dropFailedIndex: (id: string) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
+  onClickCreateAtlasSearchIndex: () => void;
   readOnly?: boolean;
   isAtlasSearchSupported: boolean;
 };
@@ -67,6 +72,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   dropFailedIndex,
   onHideIndex,
   onUnhideIndex,
+  onClickCreateAtlasSearchIndex,
   readOnly, // preferences readOnly.
   isAtlasSearchSupported,
 }) => {
@@ -95,6 +101,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isAtlasSearchSupported={isAtlasSearchSupported}
         onRefreshIndexes={refreshIndexes}
         onChangeIndexView={setCurrentIndexesView}
+        onClickCreateAtlasSearchIndex={onClickCreateAtlasSearchIndex}
       />
       {!isReadonlyView &&
         !error &&
@@ -113,6 +120,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
       {!isReadonlyView && !error && currentIndexesView === 'search-indexes' && (
         <p style={{ textAlign: 'center' }}>In Progress feature</p>
       )}
+      <CreateSearchIndexModal />
     </div>
   );
 };
@@ -143,6 +151,7 @@ const mapDispatch = {
   dropFailedIndex,
   onHideIndex: hideIndex,
   onUnhideIndex: unhideIndex,
+  onClickCreateAtlasSearchIndex: openModalForCreation,
 };
 
 export default connect(

@@ -17,6 +17,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 import { usePreference } from 'compass-preferences-model';
+import { openModalForCreation } from '../../modules/search-indexes';
 
 const containerStyles = css({
   margin: `${spacing[3]}px 0`,
@@ -55,6 +56,7 @@ type IndexesToolbarProps = {
   isAtlasSearchSupported: boolean;
   onRefreshIndexes: () => void;
   onChangeIndexView: (newView: IndexView) => void;
+  onClickCreateAtlasSearchIndex: () => void;
   readOnly?: boolean;
 };
 
@@ -70,6 +72,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   onChangeIndexView,
   readOnly, // preferences readOnly.
+  onClickCreateAtlasSearchIndex,
 }) => {
   const isSearchManagementActive = usePreference(
     'enableAtlasSearchIndexManagement',
@@ -79,9 +82,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const showInsights = usePreference('showInsights', React) && !errorMessage;
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('open-create-index-modal');
-  }, [localAppRegistry]);
-  const onClickCreateAtlasSearchIndex = useCallback(() => {
-    localAppRegistry.emit('open-create-search-index-modal');
   }, [localAppRegistry]);
   const onChangeIndexesSegment = useCallback(
     (value: string) => {
