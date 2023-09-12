@@ -32,7 +32,7 @@ const renderIndexesToolbar = (
   );
 };
 
-describe('IndexesToolbar Component', function () {
+describe.only('IndexesToolbar Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
@@ -279,10 +279,14 @@ describe('IndexesToolbar Component', function () {
       });
 
       describe('when atlas search is supported in the cluster', function () {
+        let onClickCreateAtlasSearchIndexSpy;
+
         beforeEach(function () {
+          onClickCreateAtlasSearchIndexSpy = sinon.spy();
           renderIndexesToolbar({
             isAtlasSearchSupported: true,
             onChangeIndexView: onChangeViewCallback,
+            onClickCreateAtlasSearchIndex: onClickCreateAtlasSearchIndexSpy,
           });
         });
 
@@ -294,6 +298,22 @@ describe('IndexesToolbar Component', function () {
           expect(onChangeViewCallback.firstCall.args[0]).to.equal(
             'search-indexes'
           );
+        });
+
+        describe('when create search index button is clicked', function () {
+          it('should open the search index popup', async function () {
+            userEvent.click(screen.getByText('Create').closest('button')!);
+
+            const searchIndexButtonWrapper = await screen.findByText(
+              'Search Index'
+            );
+            const searchIndexButton =
+              searchIndexButtonWrapper.closest('button')!;
+
+            userEvent.click(searchIndexButton);
+
+            expect(onClickCreateAtlasSearchIndexSpy).to.have.been.calledOnce;
+          });
         });
       });
 
