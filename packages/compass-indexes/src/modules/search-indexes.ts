@@ -8,7 +8,6 @@ import type { SearchIndex } from 'mongodb-data-service';
 const { debug } = createLoggerAndTelemetry('COMPASS-INDEXES');
 
 export type SearchSortColumn = keyof typeof sortColumnToProps;
-type SortField = keyof Pick<SearchIndex, 'name' | 'status'>;
 
 const sortColumnToProps = {
   'Name and Fields': 'name',
@@ -177,8 +176,8 @@ export const fetchSearchIndexes = (): IndexesThunkAction<
 
     try {
       const indexes = await dataService.getSearchIndexes(namespace);
-      indexes.sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
-      dispatch(setSearchIndexes(indexes));
+      const sortedIndexes = sortIndexes(indexes, sortColumn, sortOrder);
+      dispatch(setSearchIndexes(sortedIndexes));
     } catch (err) {
       dispatch(setError((err as Error).message));
     }
@@ -193,29 +192,33 @@ export const refreshSearchIndexes = (): IndexesThunkAction<void> => {
 
 export const sortSearchIndexes = (
   column: SearchSortColumn,
-  order: SortDirection
+  direction: SortDirection
 ): IndexesThunkAction<void, SearchIndexesSortedAction> => {
   return (dispatch, getState) => {
     const {
       searchIndexes: { indexes },
     } = getState();
 
-    const sortedIndexes = [...indexes].sort(
-      _getSortFunction(_mapColumnToProp(column), order)
-    );
+    const sortedIndexes = sortIndexes(indexes, column, direction);
 
     dispatch({
       type: ActionTypes.SearchIndexesSorted,
       indexes: sortedIndexes,
-      sortOrder: order,
+      sortOrder: direction,
       sortColumn: column,
     });
   };
 };
 
-const _getSortFunction = (field: SortField, sortOrder: SortDirection) => {
-  const order = sortOrder === 'asc' ? 1 : -1;
-  return function (a: SearchIndex, b: SearchIndex) {
+function sortIndexes(
+  indexes: SearchIndex[],
+  column: SearchSortColumn,
+  direction: SortDirection
+) {
+  const order = direction === 'asc' ? 1 : -1;
+  const field = sortColumnToProps[column];
+
+  return [...indexes].sort(function (a: SearchIndex, b: SearchIndex) {
     if (typeof b[field] === 'undefined') {
       return order;
     }
@@ -229,9 +232,5 @@ const _getSortFunction = (field: SortField, sortOrder: SortDirection) => {
       return -order;
     }
     return 0;
-  };
-};
-
-const _mapColumnToProp = (column: SearchSortColumn): SortField => {
-  return sortColumnToProps[column];
-};
+  });
+}
