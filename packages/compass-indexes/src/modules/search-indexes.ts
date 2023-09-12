@@ -1,14 +1,13 @@
 import type { AnyAction } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isAction } from './../utils/is-action';
-import type { IndexesThunkAction } from '.';
+import type { SortDirection, IndexesThunkAction } from '.';
 
 import type { SearchIndex } from 'mongodb-data-service';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INDEXES');
 
 export type SearchSortColumn = keyof typeof sortColumnToProps;
-export type SortDirection = 'asc' | 'desc';
 type SortField = keyof Pick<SearchIndex, 'name' | 'status'>;
 
 const sortColumnToProps = {
@@ -164,7 +163,6 @@ export const fetchSearchIndexes = (): IndexesThunkAction<
     } = getState();
 
     if (isReadonlyView) {
-      // TODO: should we just leave the status at pending?
       return;
     }
 

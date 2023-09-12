@@ -4,10 +4,9 @@ import type { SearchIndex } from 'mongodb-data-service';
 
 import { IndexesTable } from '../indexes-table';
 
-import type {
-  SearchSortColumn,
-  SortDirection,
-} from '../../modules/search-indexes';
+import type { SearchSortColumn } from '../../modules/search-indexes';
+
+import type { SortDirection } from '../../modules';
 
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];

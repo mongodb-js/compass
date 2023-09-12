@@ -13,8 +13,9 @@ import { IndexesTable } from '../indexes-table';
 import type {
   RegularIndex,
   RegularSortColumn,
-  SortDirection,
 } from '../../modules/regular-indexes';
+
+import type { SortDirection } from '../../modules';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];

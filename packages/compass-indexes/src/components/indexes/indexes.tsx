@@ -15,7 +15,6 @@ import {
 import type {
   RegularIndex,
   RegularSortColumn,
-  SortDirection,
 } from '../../modules/regular-indexes';
 
 import { sortSearchIndexes } from '../../modules/search-indexes';
@@ -26,7 +25,7 @@ import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { RegularIndexesTable } from '../regular-indexes-table/regular-indexes-table';
 import { SearchIndexesTable } from '../search-indexes-table/search-indexes-table';
-import type { RootState } from '../../modules';
+import type { RootState, SortDirection } from '../../modules';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 
 const containerStyles = css({

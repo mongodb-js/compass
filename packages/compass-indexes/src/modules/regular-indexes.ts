@@ -7,7 +7,7 @@ import { cloneDeep } from 'lodash';
 
 import { isAction } from './../utils/is-action';
 import type { CreateIndexSpec } from './create-index';
-import type { IndexesThunkAction } from '.';
+import type { SortDirection, IndexesThunkAction } from '.';
 import {
   hideModalDescription,
   unhideModalDescription,
@@ -16,7 +16,6 @@ import {
 const { debug } = createLoggerAndTelemetry('COMPASS-INDEXES');
 
 export type RegularSortColumn = keyof typeof sortColumnToProps;
-export type SortDirection = 'asc' | 'desc';
 type SortField = keyof Pick<
   RegularIndex,
   'name' | 'type' | 'size' | 'usageCount' | 'properties'

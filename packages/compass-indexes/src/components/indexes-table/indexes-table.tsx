@@ -12,7 +12,7 @@ import {
   useDOMRect,
 } from '@mongodb-js/compass-components';
 
-type SortDirection = 'asc' | 'desc';
+import type { SortDirection } from '../../modules';
 
 // When row is hovered, we show the delete button
 const rowStyles = css({
