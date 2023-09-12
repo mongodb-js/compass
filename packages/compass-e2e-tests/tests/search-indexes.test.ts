@@ -7,61 +7,28 @@ import {
   serverSatisfies,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import type { ConnectFormState } from '../helpers/connect-form-state';
 import { disconnect } from '../helpers/commands';
 import { expect } from 'chai';
 
 type Connection = {
   name: string;
-  formState: ConnectFormState;
-  shouldSkip: boolean;
+  connectionString?: string;
 };
-
-function shouldSkipAtlasTest() {
-  /**
-   * This Atlas user has been created with access to
-   * DB_NAME.COLL_NAME namespace and a custom role to drop
-   * this database.
-   */
-  return (
-    !process.env.E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST &&
-    !process.env.E2E_TESTS_ATLAS_WITH_SEARCH_HOST &&
-    !process.env.E2E_TESTS_ATLAS_SEARCH_USERNAME &&
-    !process.env.E2E_TESTS_ATLAS_SEARCH_PASSWORD
-  );
-}
 
 const connectionsWithNoSearchSupport: Connection[] = [
   {
     name: 'Local Connection',
-    formState: {
-      connectionString: `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
-    },
-    shouldSkip: false,
+    connectionString: `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
   },
   {
     name: 'Atlas Free Cluster',
-    formState: {
-      scheme: 'MONGODB_SRV',
-      authMethod: 'DEFAULT',
-      hosts: [process.env.E2E_TESTS_ATLAS_WITHOUT_SEARCH_HOST ?? ''],
-      defaultUsername: process.env.E2E_TESTS_ATLAS_SEARCH_USERNAME,
-      defaultPassword: process.env.E2E_TESTS_ATLAS_SEARCH_PASSWORD,
-    },
-    shouldSkip: shouldSkipAtlasTest(),
+    connectionString: process.env.E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH,
   },
 ];
 const connectionsWithSearchSupport: Connection[] = [
   {
     name: 'Atlas Dedicated Cluster',
-    formState: {
-      scheme: 'MONGODB_SRV',
-      authMethod: 'DEFAULT',
-      hosts: [process.env.E2E_TESTS_ATLAS_WITH_SEARCH_HOST ?? ''],
-      defaultUsername: process.env.E2E_TESTS_ATLAS_SEARCH_USERNAME,
-      defaultPassword: process.env.E2E_TESTS_ATLAS_SEARCH_PASSWORD,
-    },
-    shouldSkip: shouldSkipAtlasTest(),
+    connectionString: process.env.E2E_TESTS_ATLAS_CS_WITH_SEARCH,
   },
   // todo: atlas local dev
 ];
@@ -69,7 +36,7 @@ const connectionsWithSearchSupport: Connection[] = [
 const DB_NAME = 'e2e_indexes_test';
 const COLL_NAME = 'numbers';
 
-describe('Search Indexes', function () {
+describe.only('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -88,8 +55,8 @@ describe('Search Indexes', function () {
     await afterTests(compass, this.currentTest);
   });
 
-  async function beforeTestRun(formState: ConnectFormState) {
-    await browser.connectWithConnectionForm(formState);
+  async function beforeTestRun(connectionString: string) {
+    await browser.connectWithConnectionString(connectionString);
     {
       await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
       await browser.addDatabase(DB_NAME, COLL_NAME);
@@ -106,19 +73,15 @@ describe('Search Indexes', function () {
     await disconnect(browser);
   }
 
-  for (const {
-    name,
-    formState,
-    shouldSkip,
-  } of connectionsWithNoSearchSupport) {
+  for (const { name, connectionString } of connectionsWithNoSearchSupport) {
     context(`does not support search indexes in ${name}`, function () {
       before(function () {
-        if (shouldSkip) {
+        if (!connectionString) {
           return this.skip();
         }
       });
       beforeEach(async function () {
-        await beforeTestRun(formState);
+        await beforeTestRun(connectionString!);
       });
       afterEach(async function () {
         await afterTestRun();
@@ -140,15 +103,15 @@ describe('Search Indexes', function () {
     });
   }
 
-  for (const { name, formState, shouldSkip } of connectionsWithSearchSupport) {
+  for (const { name, connectionString } of connectionsWithSearchSupport) {
     context(`supports search indexes in ${name}`, function () {
       before(function () {
-        if (shouldSkip) {
+        if (!connectionString) {
           return this.skip();
         }
       });
       beforeEach(async function () {
-        await beforeTestRun(formState);
+        await beforeTestRun(connectionString!);
       });
       afterEach(async function () {
         await afterTestRun();
