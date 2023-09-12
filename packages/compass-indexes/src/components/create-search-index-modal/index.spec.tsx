@@ -11,30 +11,20 @@ import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { openModalForCreation, setError } from '../../modules/search-indexes';
 import type { IndexesDataService } from '../../stores/store';
-import configureStore from '../../stores/store';
+import { setupStore } from '../../../test/setup-store';
 
 describe('Create Search Index Modal', function () {
-  let store: ReturnType<typeof configureStore>;
-  let dataProvider: IndexesDataService;
+  let store: ReturnType<typeof setupStore>;
+  let dataProvider: Partial<IndexesDataService>;
 
   beforeEach(function () {
     dataProvider = {
-      indexes: sinon.spy(),
-      isConnected: sinon.spy(),
-      updateCollection: sinon.spy(),
-      createIndex: sinon.spy(),
-      dropIndex: sinon.spy(),
       createSearchIndex: sinon.spy(),
     };
 
-    store = configureStore({
-      dataProvider: { dataProvider },
-      globalAppRegistry: null as any,
-      isReadonly: false,
-      namespace: 'test.test',
-      serverVersion: '7.0.0',
-      localAppRegistry: null as any,
-      isSearchIndexesSupported: true,
+    store = setupStore({
+      options: { namespace: 'test.test' },
+      dataProvider,
     });
 
     store.dispatch(openModalForCreation());
