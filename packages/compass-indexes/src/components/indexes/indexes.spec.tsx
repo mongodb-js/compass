@@ -18,9 +18,7 @@ const renderIndexes = (props: Partial<typeof Store> = {}) => {
     ...props,
   };
 
-  for (const [key, value] of Object.entries(allProps)) {
-    store.getState()[key] = value;
-  }
+  Object.assign(store.getState(), allProps);
 
   render(
     <Provider store={store}>
