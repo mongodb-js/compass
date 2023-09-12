@@ -17,7 +17,6 @@ import {
   default as createSearchIndexReducer,
   openModal,
 } from '../modules/create-search-index';
-import { openToast } from '@mongodb-js/compass-components';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 

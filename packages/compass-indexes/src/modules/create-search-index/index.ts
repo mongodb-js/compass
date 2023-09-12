@@ -10,11 +10,14 @@ export type CreateSearchIndexError =
 export type CreateSearchIndexState = {
   isModalOpen: boolean; // false
   error: CreateSearchIndexError | undefined;
+  isUpdate: boolean;
+  indexName: string;
 };
 
 export enum ActionTypes {
   OpenCreateSearchIndexModal = 'indexes/search-indexes/OpenCreateSearchIndexModal',
-  CloseCreateSearchIndexModal = 'indexes/search-indexes/CloseCreateSearchIndexModal',
+  OpenUpdateSearchIndexModal = 'indexes/search-indexes/OpenUpdateSearchIndexModal',
+  CloseCrudSearchIndexModal = 'indexes/search-indexes/CloseCrudSearchIndexModal',
   IndexNameIsEmpty = 'indexes/search-indexes/IndexNameIsEmpty',
   IndexAlreadyExists = 'indexes/search-indexes/IndexAlreadyExists',
 }
@@ -23,8 +26,13 @@ type OpenCreateSearchIndexModalAction = {
   type: ActionTypes.OpenCreateSearchIndexModal;
 };
 
-type CloseCreateSearchIndexModalAction = {
-  type: ActionTypes.CloseCreateSearchIndexModal;
+type OpenUpdateSearchIndexModalAction = {
+  type: ActionTypes.OpenUpdateSearchIndexModal;
+  indexName: string;
+};
+
+type CloseCrudSearchIndexModalAction = {
+  type: ActionTypes.CloseCrudSearchIndexModal;
 };
 
 type IndexNameIsEmptyAction = {
@@ -38,6 +46,8 @@ type IndexAlreadyExistsAction = {
 export const INITIAL_STATE: CreateSearchIndexState = {
   isModalOpen: false,
   error: undefined,
+  isUpdate: false,
+  indexName: '',
 };
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
@@ -51,11 +61,27 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
       ...state,
       error: undefined,
       isModalOpen: true,
+      isUpdate: false,
+      indexName: 'default',
+    };
+  }
+  if (
+    isAction<OpenUpdateSearchIndexModalAction>(
+      action,
+      ActionTypes.OpenUpdateSearchIndexModal
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
+      isModalOpen: true,
+      isUpdate: true,
+      indexName: action.indexName,
     };
   } else if (
-    isAction<CloseCreateSearchIndexModalAction>(
+    isAction<CloseCrudSearchIndexModalAction>(
       action,
-      ActionTypes.CloseCreateSearchIndexModal
+      ActionTypes.CloseCrudSearchIndexModal
     )
   ) {
     return {
@@ -82,12 +108,19 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   return state;
 }
 
-export const openModal = (): OpenCreateSearchIndexModalAction => ({
+export const openModalForCreation = (): OpenCreateSearchIndexModalAction => ({
   type: ActionTypes.OpenCreateSearchIndexModal,
 });
 
-export const closeModal = (): CloseCreateSearchIndexModalAction => ({
-  type: ActionTypes.CloseCreateSearchIndexModal,
+export const openModalForUpdate = (
+  indexName: string
+): OpenUpdateSearchIndexModalAction => ({
+  type: ActionTypes.OpenUpdateSearchIndexModal,
+  indexName,
+});
+
+export const closeModal = (): CloseCrudSearchIndexModalAction => ({
+  type: ActionTypes.CloseCrudSearchIndexModal,
 });
 
 export const indexNameIsEmpty = (): IndexNameIsEmptyAction => ({
@@ -98,13 +131,12 @@ export const indexAlreadyExists = (): IndexAlreadyExistsAction => ({
   type: ActionTypes.IndexAlreadyExists,
 });
 
-export const createIndex = (
+export const saveIndex = (
   indexName: string,
   indexDefinition: string
 ): ThunkAction<Promise<void>, CreateSearchIndexState, void, AnyAction> => {
   return async function (dispatch, getState) {
-    const { dataService } = getState();
-    console.log(getState());
+    const { namespace, dataService } = getState();
 
     if (indexName === '') {
       dispatch(indexNameIsEmpty());
