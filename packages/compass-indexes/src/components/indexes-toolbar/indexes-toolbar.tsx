@@ -111,7 +111,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   );
 
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="indexes-toolbar-container">
       {!isReadonlyView && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
