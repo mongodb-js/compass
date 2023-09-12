@@ -25,7 +25,7 @@ import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
-export function parseShellBSON(source: string): Document[] {
+function parseShellBSON(source: string): Document[] {
   const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
   if (!parsed || typeof parsed !== 'object') {
     // XXX(COMPASS-5689): We've hit the condition in
@@ -41,7 +41,7 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
     'This index name is already in use. Please choose another one.',
 };
 
-const DEFAULT_INDEX_DEFINITION = `{
+export const DEFAULT_INDEX_DEFINITION = `{
   "mappings": {
     "dynamic": true
   }
@@ -136,6 +136,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
           <Label htmlFor="name-of-search-index">Name of Search Index</Label>
           <TextInput
             id="name-of-search-index"
+            data-testid="name-of-search-index"
             aria-labelledby="Name of Search Index"
             type="text"
             state={indexName === '' ? 'error' : 'none'}
@@ -160,6 +161,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
             <Icon size="small" glyph="OpenNewTab"></Icon>
           </Link>
           <CodemirrorMultilineEditor
+            data-testid="definition-of-search-index"
             text={indexDefinition}
             onChangeText={onSearchIndexDefinitionChanged}
             minLines={16}
@@ -175,7 +177,11 @@ export const CreateSearchIndexModal: React.FunctionComponent<
       </ModalBody>
 
       <ModalFooter className={toolbarStyles}>
-        <Button variant="primary" onClick={onSaveIndex}>
+        <Button
+          data-testid="create-search-index-button"
+          variant="primary"
+          onClick={onSaveIndex}
+        >
           Create Search Index
         </Button>
         <Button variant="default" onClick={onCancel}>
