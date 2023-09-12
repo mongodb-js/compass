@@ -1,36 +1,31 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
 import type { RegularIndex } from '../../modules/regular-indexes';
-import { Indexes } from './indexes';
+import type Store from '../../stores';
+import Indexes from './indexes';
+import { setupStore } from '../../../test/setup-store';
 
-const renderIndexes = (
-  props: Partial<React.ComponentProps<typeof Indexes>> = {}
-) => {
-  const appRegistry = new AppRegistry();
+const renderIndexes = (props: Partial<typeof Store> = {}) => {
+  const store = setupStore();
+
+  const allProps: Partial<typeof Store> = {
+    regularIndexes: { indexes: [], error: null, isRefreshing: false },
+    searchIndexes: { indexes: [], error: null, status: 'PENDING' },
+    refreshRegularIndexes: () => {},
+    refreshSearchIndexes: () => {},
+    ...props,
+  };
+
+  for (const [key, value] of Object.entries(allProps)) {
+    store.getState()[key] = value;
+  }
+
   render(
-    <Indexes
-      indexes={[]}
-      searchIndexes={[]}
-      isWritable={true}
-      isReadonlyView={false}
-      readOnly={false}
-      description={undefined}
-      regularError={null}
-      searchError={null}
-      localAppRegistry={appRegistry}
-      isRefreshing={false}
-      serverVersion="4.4.0"
-      sortRegularIndexes={() => {}}
-      sortSearchIndexes={() => {}}
-      refreshIndexes={() => {}}
-      dropFailedIndex={() => {}}
-      onHideIndex={() => {}}
-      onUnhideIndex={() => {}}
-      isAtlasSearchSupported={false}
-      {...props}
-    />
+    <Provider store={store}>
+      <Indexes />
+    </Provider>
   );
 };
 
@@ -48,71 +43,53 @@ describe('Indexes Component', function () {
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
   });
 
-  it('does not render indexes toolbar when its a readonly view', function () {
+  it('renders indexes toolbar when there is a regular indexes error', function () {
     renderIndexes({
-      indexes: [],
-      isReadonlyView: true,
-      regularError: undefined,
-    });
-    expect(() => {
-      screen.getByTestId('indexes-toolbar');
-    }).to.throw;
-  });
-
-  it('renders indexes toolbar when there is an regularError', function () {
-    renderIndexes({
-      indexes: [],
-      isReadonlyView: false,
-      regularError: 'Some random regularError',
+      regularIndexes: {
+        indexes: [],
+        error: 'Some random error',
+        isRefreshing: false,
+      },
     });
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
   });
 
-  it('does not render indexes list when its a readonly view', function () {
+  it('renders indexes toolbar when there is a search indexes error', function () {
     renderIndexes({
-      indexes: [],
-      isReadonlyView: true,
-      regularError: undefined,
+      searchIndexes: {
+        indexes: [],
+        error: 'Some random error',
+        status: 'ERROR',
+      },
     });
-    expect(() => {
-      screen.getByTestId('indexes-list');
-    }).to.throw;
-  });
-
-  it('does not render indexes list when there is an regularError', function () {
-    renderIndexes({
-      indexes: [],
-      isReadonlyView: false,
-      regularError: 'Some random regularError',
-    });
-    expect(() => {
-      screen.getByTestId('indexes-list');
-    }).to.throw;
+    expect(screen.getByTestId('indexes-toolbar')).to.exist;
   });
 
   it('renders indexes list', function () {
     renderIndexes({
-      indexes: [
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: '_id_',
-          size: 12,
-          relativeSize: 20,
-          type: 'hashed',
-          extra: {},
-          properties: ['unique'],
-          fields: [
-            {
-              field: '_id',
-              value: 1,
-            },
-          ],
-          usageCount: 20,
-        },
-      ] as RegularIndex[],
-      isReadonlyView: false,
-      regularError: undefined,
+      regularIndexes: {
+        indexes: [
+          {
+            ns: 'db.coll',
+            cardinality: 'single',
+            name: '_id_',
+            size: 12,
+            relativeSize: 20,
+            type: 'hashed',
+            extra: {},
+            properties: ['unique'],
+            fields: [
+              {
+                field: '_id',
+                value: 1,
+              },
+            ],
+            usageCount: 20,
+          },
+        ] as RegularIndex[],
+        error: null,
+        isRefreshing: false,
+      },
     });
 
     const indexesList = screen.getByTestId('indexes-list');
@@ -122,46 +99,48 @@ describe('Indexes Component', function () {
 
   it('renders indexes list with in progress index', function () {
     renderIndexes({
-      indexes: [
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: '_id_',
-          size: 12,
-          relativeSize: 20,
-          type: 'hashed',
-          extra: {},
-          properties: ['unique'],
-          fields: [
-            {
-              field: '_id',
-              value: 1,
-            },
-          ],
-          usageCount: 20,
-        },
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: 'item',
-          size: 0,
-          relativeSize: 0,
-          type: 'hashed',
-          extra: {
-            status: 'inprogress',
+      regularIndexes: {
+        indexes: [
+          {
+            ns: 'db.coll',
+            cardinality: 'single',
+            name: '_id_',
+            size: 12,
+            relativeSize: 20,
+            type: 'hashed',
+            extra: {},
+            properties: ['unique'],
+            fields: [
+              {
+                field: '_id',
+                value: 1,
+              },
+            ],
+            usageCount: 20,
           },
-          properties: [],
-          fields: [
-            {
-              field: 'item',
-              value: 1,
+          {
+            ns: 'db.coll',
+            cardinality: 'single',
+            name: 'item',
+            size: 0,
+            relativeSize: 0,
+            type: 'hashed',
+            extra: {
+              status: 'inprogress',
             },
-          ],
-          usageCount: 0,
-        },
-      ] as RegularIndex[],
-      isReadonlyView: false,
-      regularError: undefined,
+            properties: [],
+            fields: [
+              {
+                field: 'item',
+                value: 1,
+              },
+            ],
+            usageCount: 0,
+          },
+        ] as RegularIndex[],
+        error: null,
+        isRefreshing: false,
+      },
     });
 
     const indexesList = screen.getByTestId('indexes-list');
@@ -180,47 +159,49 @@ describe('Indexes Component', function () {
 
   it('renders indexes list with failed index', function () {
     renderIndexes({
-      indexes: [
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: '_id_',
-          size: 12,
-          relativeSize: 20,
-          type: 'hashed',
-          extra: {},
-          properties: ['unique'],
-          fields: [
-            {
-              field: '_id',
-              value: 1,
-            },
-          ],
-          usageCount: 20,
-        },
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: 'item',
-          size: 0,
-          relativeSize: 0,
-          type: 'hashed',
-          extra: {
-            status: 'failed',
-            regularError: 'regularError message',
+      regularIndexes: {
+        indexes: [
+          {
+            ns: 'db.coll',
+            cardinality: 'single',
+            name: '_id_',
+            size: 12,
+            relativeSize: 20,
+            type: 'hashed',
+            extra: {},
+            properties: ['unique'],
+            fields: [
+              {
+                field: '_id',
+                value: 1,
+              },
+            ],
+            usageCount: 20,
           },
-          properties: [],
-          fields: [
-            {
-              field: 'item',
-              value: 1,
+          {
+            ns: 'db.coll',
+            cardinality: 'single',
+            name: 'item',
+            size: 0,
+            relativeSize: 0,
+            type: 'hashed',
+            extra: {
+              status: 'failed',
+              regularError: 'regularError message',
             },
-          ],
-          usageCount: 0,
-        },
-      ] as RegularIndex[],
-      isReadonlyView: false,
-      regularError: undefined,
+            properties: [],
+            fields: [
+              {
+                field: 'item',
+                value: 1,
+              },
+            ],
+            usageCount: 0,
+          },
+        ] as RegularIndex[],
+        error: null,
+        isRefreshing: false,
+      },
     });
 
     const indexesList = screen.getByTestId('indexes-list');

@@ -1,22 +1,45 @@
 import React from 'react';
-
+import { connect } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
+import { withPreferences } from 'compass-preferences-model';
+
+import type { SearchSortColumn } from '../../modules/search-indexes';
+import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import { sortSearchIndexes } from '../../modules/search-indexes';
+import type { SortDirection, RootState } from '../../modules';
 
 import { IndexesTable } from '../indexes-table';
 
-import type { SearchSortColumn } from '../../modules/search-indexes';
-
-import type { SortDirection } from '../../modules';
-
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
-  canModifyIndex: boolean;
+  isWritable?: boolean;
+  readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
+  status: SearchIndexesStatuses;
 };
 
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
-> = ({ indexes, canModifyIndex, onSortTable }) => {
+> = ({ indexes, isWritable, readOnly, onSortTable, status }) => {
+  if (readOnly) {
+    // TODO: There is no design for a readOnly mode. We simply don't show the table
+    return null;
+  }
+
+  if (status !== SearchIndexesStatuses.READY) {
+    // If there's an error or we're refreshing or the search indexes are still
+    // pending or search indexes aren't available, then that's all handled by
+    // the toolbar and we don't render the table.
+    return null;
+  }
+
+  if (indexes.length === 0) {
+    // TODO: render the zero state
+    return null;
+  }
+
+  const canModifyIndex = isWritable && !readOnly;
+
   const columns = ['Name and Fields', 'Status'] as const;
 
   const data = indexes.map((index) => {
@@ -30,9 +53,11 @@ export const SearchIndexesTable: React.FunctionComponent<
         },
         {
           'data-testid': 'index-status-field',
-          children: index.status, // TODO
+          children: index.status, // TODO: show some badge
         },
       ],
+
+      // TODO: details for the nested row
     };
   });
 
@@ -47,3 +72,17 @@ export const SearchIndexesTable: React.FunctionComponent<
     />
   );
 };
+
+const mapState = ({ searchIndexes, isWritable }: RootState) => ({
+  isWritable,
+  indexes: searchIndexes.indexes,
+});
+
+const mapDispatch = {
+  onSortTable: sortSearchIndexes,
+};
+
+export default connect(
+  mapState,
+  mapDispatch
+)(withPreferences(SearchIndexesTable, ['readOnly'], React));

@@ -55,12 +55,12 @@ type SetIsRefreshingAction = {
 
 type SetSearchIndexesAction = {
   type: ActionTypes.SetSearchIndexes;
-  searchIndexes: SearchIndex[];
+  indexes: SearchIndex[];
 };
 
 type SearchIndexesSortedAction = {
   type: ActionTypes.SearchIndexesSorted;
-  searchIndexes: SearchIndex[];
+  indexes: SearchIndex[];
   sortOrder: SortDirection;
   sortColumn: SearchSortColumn;
 };
@@ -78,15 +78,15 @@ type SearchIndexesActions =
 
 export type State = {
   status: SearchIndexesStatus;
-  searchIndexes: SearchIndex[];
+  indexes: SearchIndex[];
   sortOrder: SortDirection;
   sortColumn: SearchSortColumn;
   error: string | null;
 };
 
 export const INITIAL_STATE: State = {
-  status: 'NOT_AVAILABLE',
-  searchIndexes: [],
+  status: SearchIndexesStatuses.NOT_AVAILABLE,
+  indexes: [],
   sortOrder: 'asc',
   sortColumn: 'Name and Fields',
   error: null,
@@ -99,15 +99,16 @@ export default function reducer(
   if (isAction<SetIsRefreshingAction>(action, ActionTypes.SetIsRefreshing)) {
     return {
       ...state,
-      status: 'REFRESHING',
+      status: SearchIndexesStatuses.REFRESHING,
+      error: null,
     };
   }
 
   if (isAction<SetSearchIndexesAction>(action, ActionTypes.SetSearchIndexes)) {
     return {
       ...state,
-      searchIndexes: action.searchIndexes,
-      status: 'READY',
+      indexes: action.indexes,
+      status: SearchIndexesStatuses.READY,
     };
   }
 
@@ -116,7 +117,7 @@ export default function reducer(
   ) {
     return {
       ...state,
-      searchIndexes: action.searchIndexes,
+      indexes: action.indexes,
       sortOrder: action.sortOrder,
       sortColumn: action.sortColumn,
     };
@@ -125,20 +126,18 @@ export default function reducer(
   if (isAction<SetErrorAction>(action, ActionTypes.SetError)) {
     return {
       ...state,
-      searchIndexes: [],
+      indexes: [],
       error: action.error,
-      status: 'ERROR',
+      status: SearchIndexesStatuses.ERROR,
     };
   }
 
   return state;
 }
 
-const setSearchIndexes = (
-  searchIndexes: SearchIndex[]
-): SetSearchIndexesAction => ({
+const setSearchIndexes = (indexes: SearchIndex[]): SetSearchIndexesAction => ({
   type: ActionTypes.SetSearchIndexes,
-  searchIndexes,
+  indexes,
 });
 
 const setError = (error: string | null): SetErrorAction => ({
@@ -166,7 +165,7 @@ export const fetchSearchIndexes = (): IndexesThunkAction<
       return;
     }
 
-    if (status !== 'PENDING') {
+    if (status !== SearchIndexesStatuses.PENDING) {
       // 2nd time onwards set the status to refreshing
       dispatch(setIsRefreshing());
     }
@@ -177,7 +176,6 @@ export const fetchSearchIndexes = (): IndexesThunkAction<
     }
 
     try {
-      dispatch(setError(null));
       const indexes = await dataService.getSearchIndexes(namespace);
       indexes.sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
       dispatch(setSearchIndexes(indexes));
@@ -187,22 +185,28 @@ export const fetchSearchIndexes = (): IndexesThunkAction<
   };
 };
 
+export const refreshSearchIndexes = (): IndexesThunkAction<void> => {
+  return (dispatch) => {
+    void dispatch(fetchSearchIndexes());
+  };
+};
+
 export const sortSearchIndexes = (
   column: SearchSortColumn,
   order: SortDirection
 ): IndexesThunkAction<void, SearchIndexesSortedAction> => {
   return (dispatch, getState) => {
     const {
-      searchIndexes: { searchIndexes },
+      searchIndexes: { indexes },
     } = getState();
 
-    const sortedIndexes = [...searchIndexes].sort(
+    const sortedIndexes = [...indexes].sort(
       _getSortFunction(_mapColumnToProp(column), order)
     );
 
     dispatch({
       type: ActionTypes.SearchIndexesSorted,
-      searchIndexes: sortedIndexes,
+      indexes: sortedIndexes,
       sortOrder: order,
       sortColumn: column,
     });

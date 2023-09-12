@@ -6,6 +6,7 @@ import { spy } from 'sinon';
 
 import { RegularIndexesTable } from './regular-indexes-table';
 import type { RegularIndex } from '../../modules/regular-indexes';
+import type AppRegistry from 'hadron-app-registry';
 
 const indexes = [
   {
@@ -99,11 +100,13 @@ const renderIndexList = (
 ) => {
   render(
     <RegularIndexesTable
+      localAppRegistry={{} as AppRegistry}
       indexes={[]}
       serverVersion="4.4.0"
-      canModifyIndex={true}
+      isWritable={true}
+      readOnly={false}
       onSortTable={() => {}}
-      onDeleteIndex={() => {}}
+      dropFailedIndex={() => {}}
       onHideIndex={() => {}}
       onUnhideIndex={() => {}}
       {...props}
@@ -116,7 +119,7 @@ describe('RegularIndexesTable Component', function () {
   afterEach(cleanup);
 
   it('renders indexes list', function () {
-    renderIndexList({ canModifyIndex: true, indexes: indexes });
+    renderIndexList({ isWritable: true, readOnly: false, indexes: indexes });
 
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
@@ -147,8 +150,29 @@ describe('RegularIndexesTable Component', function () {
     });
   });
 
+  it('does not render if readOnly is true', function () {
+    renderIndexList({ isWritable: true, readOnly: true, indexes: indexes });
+
+    expect(() => {
+      screen.getByTestId('indexes-list');
+    }).to.throw;
+  });
+
+  it('does not render the list if there is an error', function () {
+    renderIndexList({
+      isWritable: true,
+      readOnly: false,
+      indexes: indexes,
+      error: 'moo',
+    });
+
+    expect(() => {
+      screen.getByTestId('indexes-list');
+    }).to.throw;
+  });
+
   it('does not render delete and hide/unhide button when a user can not modify indexes', function () {
-    renderIndexList({ canModifyIndex: false, indexes: indexes });
+    renderIndexList({ isWritable: false, readOnly: false, indexes: indexes });
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
@@ -164,7 +188,8 @@ describe('RegularIndexesTable Component', function () {
       it(`sorts table by ${column}`, function () {
         const onSortTableSpy = spy();
         renderIndexList({
-          canModifyIndex: true,
+          isWritable: true,
+          readOnly: false,
           indexes: indexes,
           onSortTable: onSortTableSpy,
         });

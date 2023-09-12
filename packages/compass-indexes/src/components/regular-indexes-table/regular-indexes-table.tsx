@@ -1,6 +1,12 @@
 import React from 'react';
-
+import { connect } from 'react-redux';
+import type AppRegistry from 'hadron-app-registry';
 import { IndexKeysBadge } from '@mongodb-js/compass-components';
+import { withPreferences } from 'compass-preferences-model';
+
+import type { RootState } from '../../modules';
+
+import { IndexesTable } from '../indexes-table';
 
 import TypeField from './type-field';
 import SizeField from './size-field';
@@ -8,36 +14,67 @@ import UsageField from './usage-field';
 import PropertyField from './property-field';
 import IndexActions from './index-actions';
 
-import { IndexesTable } from '../indexes-table';
+import {
+  sortRegularIndexes,
+  dropFailedIndex,
+  hideIndex,
+  unhideIndex,
+} from '../../modules/regular-indexes';
 
-import type {
-  RegularIndex,
-  RegularSortColumn,
+import {
+  type RegularIndex,
+  type RegularSortColumn,
 } from '../../modules/regular-indexes';
 
 import type { SortDirection } from '../../modules';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];
-  canModifyIndex: boolean;
   serverVersion: string;
-  onDeleteIndex: (index: RegularIndex) => void;
+  isWritable?: boolean;
+  dropFailedIndex: (name: string) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
   onSortTable: (column: RegularSortColumn, direction: SortDirection) => void;
+  localAppRegistry: AppRegistry;
+  readOnly?: boolean;
+  error?: string | null;
 };
 
 export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
 > = ({
+  isWritable,
+  readOnly,
   indexes,
-  canModifyIndex,
   serverVersion,
-  onDeleteIndex,
   onHideIndex,
   onUnhideIndex,
   onSortTable,
+  error,
+  localAppRegistry,
 }) => {
+  if (readOnly) {
+    // TODO: There is no design for a readOnly mode. We simply don't show the table
+    return null;
+  }
+
+  if (error) {
+    // We don't render the table if there is an error. The toolbar takes care of
+    // displaying it.
+    return null;
+  }
+
+  const deleteIndex = (index: RegularIndex) => {
+    if (index.extra.status === 'failed') {
+      return dropFailedIndex(String(index.extra.id));
+    }
+
+    return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
+  };
+
+  const canModifyIndex = isWritable && !readOnly;
+
   const columns = [
     'Name and Definition',
     'Type',
@@ -86,7 +123,7 @@ export const RegularIndexesTable: React.FunctionComponent<
         <IndexActions
           index={index}
           serverVersion={serverVersion}
-          onDeleteIndex={onDeleteIndex}
+          onDeleteIndex={deleteIndex}
           onHideIndex={onHideIndex}
           onUnhideIndex={onUnhideIndex}
         ></IndexActions>
@@ -106,3 +143,28 @@ export const RegularIndexesTable: React.FunctionComponent<
     />
   );
 };
+
+const mapState = ({
+  serverVersion,
+  regularIndexes,
+  isWritable,
+  appRegistry,
+}: RootState) => ({
+  isWritable,
+  serverVersion,
+  indexes: regularIndexes.indexes,
+  error: regularIndexes.error,
+  localAppRegistry: (appRegistry as any).localAppRegistry,
+});
+
+const mapDispatch = {
+  dropFailedIndex,
+  onHideIndex: hideIndex,
+  onUnhideIndex: unhideIndex,
+  onSortTable: sortRegularIndexes,
+};
+
+export default connect(
+  mapState,
+  mapDispatch
+)(withPreferences(RegularIndexesTable, ['readOnly'], React));
