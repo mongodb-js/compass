@@ -15,6 +15,7 @@ import {
   Link,
   Icon,
   WarningSummary,
+  ErrorSummary,
 } from '@mongodb-js/compass-components';
 import { closeModal, saveIndex } from '../../modules/search-indexes';
 import { connect } from 'react-redux';
@@ -22,7 +23,6 @@ import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import type { RootState } from '../../modules';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
-import { ErrorSummary } from '@mongodb-js/compass-components';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 export function parseShellBSON(source: string): Document[] {
@@ -143,7 +143,9 @@ export const CreateSearchIndexModal: React.FunctionComponent<
               indexName === '' ? 'Please enter the name of the index.' : ''
             }
             value={indexName}
-            onChange={(evt: any) => setIndexName(evt.target.value)}
+            onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+              setIndexName(evt.target.value)
+            }
           />
         </div>
         <HorizontalRule className={bodyGapStyles} />
