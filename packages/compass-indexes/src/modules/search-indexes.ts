@@ -164,19 +164,19 @@ export const fetchSearchIndexes = (): IndexesThunkAction<
       return;
     }
 
-    if (status !== SearchIndexesStatuses.PENDING) {
-      // 2nd time onwards set the status to refreshing
-      dispatch(setIsRefreshing());
-    }
-
     if (!dataService || !dataService.isConnected()) {
       debug('warning: trying to load indexes but dataService is disconnected');
       return;
     }
 
+    if (status !== SearchIndexesStatuses.PENDING) {
+      // 2nd time onwards set the status to refreshing
+      dispatch(setIsRefreshing());
+    }
+
     try {
       const indexes = await dataService.getSearchIndexes(namespace);
-      const sortedIndexes = sortIndexes(indexes, sortColumn, sortOrder);
+      const sortedIndexes = _sortIndexes(indexes, sortColumn, sortOrder);
       dispatch(setSearchIndexes(sortedIndexes));
     } catch (err) {
       dispatch(setError((err as Error).message));
@@ -199,7 +199,7 @@ export const sortSearchIndexes = (
       searchIndexes: { indexes },
     } = getState();
 
-    const sortedIndexes = sortIndexes(indexes, column, direction);
+    const sortedIndexes = _sortIndexes(indexes, column, direction);
 
     dispatch({
       type: ActionTypes.SearchIndexesSorted,
@@ -210,7 +210,7 @@ export const sortSearchIndexes = (
   };
 };
 
-function sortIndexes(
+function _sortIndexes(
   indexes: SearchIndex[],
   column: SearchSortColumn,
   direction: SortDirection

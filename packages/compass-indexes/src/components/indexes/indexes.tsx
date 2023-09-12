@@ -27,6 +27,7 @@ const containerStyles = css({
 });
 
 type IndexesProps = {
+  isReadonlyView?: boolean;
   regularIndexes: Pick<
     RegularIndexesState,
     'indexes' | 'error' | 'isRefreshing'
@@ -44,6 +45,7 @@ function isRefreshingStatus(status: SearchIndexesStatus) {
 }
 
 export function Indexes({
+  isReadonlyView,
   regularIndexes,
   searchIndexes,
   refreshRegularIndexes,
@@ -100,13 +102,22 @@ export function Indexes({
         onRefreshIndexes={onRefreshIndexes}
         onChangeIndexView={changeIndexView}
       />
-      {currentIndexesView === 'regular-indexes' && <RegularIndexesTable />}
-      {currentIndexesView === 'search-indexes' && <SearchIndexesTable />}
+      {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
+        <RegularIndexesTable />
+      )}
+      {!isReadonlyView && currentIndexesView === 'search-indexes' && (
+        <SearchIndexesTable />
+      )}
     </div>
   );
 }
 
-const mapState = ({ regularIndexes, searchIndexes }: RootState) => ({
+const mapState = ({
+  isReadonlyView,
+  regularIndexes,
+  searchIndexes,
+}: RootState) => ({
+  isReadonlyView,
   regularIndexes,
   searchIndexes,
 });

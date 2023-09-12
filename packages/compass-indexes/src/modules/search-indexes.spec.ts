@@ -14,4 +14,21 @@ describe('search-indexes module', function () {
       SearchIndexesStatuses.NOT_AVAILABLE
     );
   });
+
+  context('#fetchSearchIndexes action', function () {
+    it('does nothing if isReadonlyView is true');
+    it('leaves the status at PENDING');
+    it('does nothing if there is no dataService');
+    it('sets the status to REFRESHING if the status is READY');
+    it('loads and sorts the indexes');
+    it('takes the existing order into account');
+    it('sets the status to ERROR if loading the indexes fails');
+  });
+
+  context('#sortSearchIndexes action', function () {
+    it('can sort by name ascending');
+    it('can sort by name descending');
+    it('can sort by status ascending');
+    it('can sort by status descending');
+  });
 });

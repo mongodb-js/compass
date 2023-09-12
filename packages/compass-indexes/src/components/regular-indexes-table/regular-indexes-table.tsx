@@ -32,7 +32,6 @@ type RegularIndexesTableProps = {
   indexes: RegularIndex[];
   serverVersion: string;
   isWritable?: boolean;
-  isReadonlyView?: boolean;
   dropFailedIndex: (name: string) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
@@ -46,7 +45,6 @@ export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
 > = ({
   isWritable,
-  isReadonlyView,
   readOnly,
   indexes,
   serverVersion,
@@ -56,11 +54,6 @@ export const RegularIndexesTable: React.FunctionComponent<
   error,
   localAppRegistry,
 }) => {
-  if (isReadonlyView) {
-    // TODO: There is no design for this. We simply don't show the table
-    return null;
-  }
-
   if (error) {
     // We don't render the table if there is an error. The toolbar takes care of
     // displaying it.
@@ -88,30 +81,30 @@ export const RegularIndexesTable: React.FunctionComponent<
   const data = indexes.map((index) => {
     return {
       key: index.name,
-      'data-testid': `index-row-${index.name}`,
+      'data-testid': `row-${index.name}`,
       fields: [
         {
-          'data-testid': 'index-name-field',
+          'data-testid': 'name-field',
           children: index.name,
         },
         {
-          'data-testid': 'index-type-field',
+          'data-testid': 'type-field',
           children: <TypeField type={index.type} extra={index.extra} />,
         },
         {
-          'data-testid': 'index-size-field',
+          'data-testid': 'size-field',
           children: (
             <SizeField size={index.size} relativeSize={index.relativeSize} />
           ),
         },
         {
-          'data-testid': 'index-usage-field',
+          'data-testid': 'usage-field',
           children: (
             <UsageField usage={index.usageCount} since={index.usageSince} />
           ),
         },
         {
-          'data-testid': 'index-property-field',
+          'data-testid': 'property-field',
           children: (
             <PropertyField
               cardinality={index.cardinality}
@@ -150,11 +143,9 @@ const mapState = ({
   serverVersion,
   regularIndexes,
   isWritable,
-  isReadonlyView,
   appRegistry,
 }: RootState) => ({
   isWritable,
-  isReadonlyView,
   serverVersion,
   indexes: regularIndexes.indexes,
   error: regularIndexes.error,

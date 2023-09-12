@@ -126,20 +126,20 @@ describe('RegularIndexesTable Component', function () {
 
     // Renders indexes list (table rows)
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`index-row-${index.name}`);
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(indexRow, 'it renders each index in a row').to.exist;
 
       // Renders index fields (table cells)
       [
-        'index-name-field',
-        'index-type-field',
-        'index-size-field',
-        'index-usage-field',
-        'index-property-field',
-        'index-actions-field',
+        'indexes-name-field',
+        'indexes-type-field',
+        'indexes-size-field',
+        'indexes-usage-field',
+        'indexes-property-field',
+        'indexes-actions-field',
       ].forEach((indexCell) => {
         // For _id index we always hide drop index field
-        if (index.name !== '_id_' && indexCell !== 'index-actions-field') {
+        if (index.name !== '_id_' && indexCell !== 'indexes-actions-field') {
           expect(within(indexRow).getByTestId(indexCell)).to.exist;
         } else {
           expect(() => {
@@ -148,14 +148,6 @@ describe('RegularIndexesTable Component', function () {
         }
       });
     });
-  });
-
-  it('does not render if readOnly is true', function () {
-    renderIndexList({ isWritable: true, readOnly: true, indexes: indexes });
-
-    expect(() => {
-      screen.getByTestId('indexes-list');
-    }).to.throw;
   });
 
   it('does not render the list if there is an error', function () {
@@ -171,14 +163,36 @@ describe('RegularIndexesTable Component', function () {
     }).to.throw;
   });
 
-  it('does not render delete and hide/unhide button when a user can not modify indexes', function () {
+  it('renders the delete and hide/unhide button when a user can modify indexes', function () {
+    renderIndexList({ isWritable: true, readOnly: false, indexes: indexes });
+    const indexesList = screen.getByTestId('indexes-list');
+    expect(indexesList).to.exist;
+    indexes.forEach((index) => {
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      expect(within(indexRow).getByTestId('indexes-actions-field')).to.exist;
+    });
+  });
+
+  it('does not render delete and hide/unhide button when a user can not modify indexes (!isWritable)', function () {
     renderIndexList({ isWritable: false, readOnly: false, indexes: indexes });
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`index-row-${index.name}`);
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(() => {
-        within(indexRow).getByTestId('index-actions-field');
+        within(indexRow).getByTestId('indexes-actions-field');
+      }).to.throw;
+    });
+  });
+
+  it('does not render delete and hide/unhide button when a user can not modify indexes (isWritable, readOnly)', function () {
+    renderIndexList({ isWritable: true, readOnly: true, indexes: indexes });
+    const indexesList = screen.getByTestId('indexes-list');
+    expect(indexesList).to.exist;
+    indexes.forEach((index) => {
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      expect(() => {
+        within(indexRow).getByTestId('indexes-actions-field');
       }).to.throw;
     });
   });
@@ -197,7 +211,7 @@ describe('RegularIndexesTable Component', function () {
         const indexesList = screen.getByTestId('indexes-list');
 
         const columnheader = within(indexesList).getByTestId(
-          `index-header-${column}`
+          `indexes-header-${column}`
         );
         const sortButton = within(columnheader).getByRole('button', {
           name: /sort/i,

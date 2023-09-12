@@ -14,31 +14,25 @@ import { IndexesTable } from '../indexes-table';
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
-  isReadonlyView?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   status: SearchIndexesStatus;
 };
 
+function isReadyStatus(status: SearchIndexesStatus) {
+  return (
+    status === SearchIndexesStatuses.READY ||
+    status === SearchIndexesStatuses.REFRESHING
+  );
+}
+
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
-> = ({
-  indexes,
-  isWritable,
-  isReadonlyView,
-  readOnly,
-  onSortTable,
-  status,
-}) => {
-  if (isReadonlyView) {
-    // TODO: There is no design for this. We simply don't show the table
-    return null;
-  }
-
-  if (status !== SearchIndexesStatuses.READY) {
-    // If there's an error or we're refreshing or the search indexes are still
-    // pending or search indexes aren't available, then that's all handled by
-    // the toolbar and we don't render the table.
+> = ({ indexes, isWritable, readOnly, onSortTable, status }) => {
+  if (!isReadyStatus(status)) {
+    // If there's an error or the search indexes are still pending or search
+    // indexes aren't available, then that's all handled by the toolbar and we
+    // don't render the table.
     return null;
   }
 
@@ -54,14 +48,14 @@ export const SearchIndexesTable: React.FunctionComponent<
   const data = indexes.map((index) => {
     return {
       key: index.name,
-      'data-testid': `index-row-${index.name}`,
+      'data-testid': `row-${index.name}`,
       fields: [
         {
-          'data-testid': 'index-name-field',
+          'data-testid': 'name-field',
           children: index.name,
         },
         {
-          'data-testid': 'index-status-field',
+          'data-testid': 'status-field',
           children: index.status, // TODO(COMPASS-7205): show some badge, not just text
         },
       ],
@@ -82,13 +76,8 @@ export const SearchIndexesTable: React.FunctionComponent<
   );
 };
 
-const mapState = ({
-  searchIndexes,
+const mapState = ({ searchIndexes, isWritable }: RootState) => ({
   isWritable,
-  isReadonlyView,
-}: RootState) => ({
-  isWritable,
-  isReadonlyView,
   indexes: searchIndexes.indexes,
   status: searchIndexes.status,
 });
