@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { css, spacing } from '@mongodb-js/compass-components';
 
@@ -71,6 +71,26 @@ export function Indexes({
       ? refreshRegularIndexes
       : refreshSearchIndexes;
 
+  const loadIndexes = useCallback(() => {
+    if (currentIndexesView === 'regular-indexes') {
+      refreshRegularIndexes();
+    } else {
+      refreshSearchIndexes();
+    }
+  }, [currentIndexesView, refreshRegularIndexes, refreshSearchIndexes]);
+
+  const changeIndexView = useCallback(
+    (view: IndexView) => {
+      setCurrentIndexesView(view);
+      loadIndexes();
+    },
+    [loadIndexes]
+  );
+
+  useEffect(() => {
+    loadIndexes();
+  }, [loadIndexes]);
+
   return (
     <div className={containerStyles}>
       <IndexesToolbar
@@ -78,7 +98,7 @@ export function Indexes({
         hasTooManyIndexes={hasTooManyIndexes}
         isRefreshing={isRefreshing}
         onRefreshIndexes={onRefreshIndexes}
-        onChangeIndexView={setCurrentIndexesView}
+        onChangeIndexView={changeIndexView}
       />
       {currentIndexesView === 'regular-indexes' && <RegularIndexesTable />}
       {currentIndexesView === 'search-indexes' && <SearchIndexesTable />}

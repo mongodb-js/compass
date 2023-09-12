@@ -128,8 +128,6 @@ const configureStore = (options: ConfigureStoreOptions) => {
     }
   }
 
-  void store.dispatch(fetchIndexes());
-
   return store;
 };
 
