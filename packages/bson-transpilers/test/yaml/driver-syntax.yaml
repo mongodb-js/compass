@@ -27,7 +27,7 @@ tests:
 
                     client = MongoClient('mongodb://localhost:27017')
                     result = client['db']['collection'].aggregate({
-                        'x': Int64(0), 
+                        'x': Int64(0),
                         'y': ObjectId()
                     })
                 java: |-
@@ -52,13 +52,12 @@ tests:
                      */
 
                     const agg = {
-                      'x': Long.fromNumber(0), 
+                      'x': Long.fromNumber(0),
                       'y': new ObjectId()
                     };
 
                     const client = await MongoClient.connect(
-                      'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true }
+                      'mongodb://localhost:27017'
                     );
                     const coll = client.db('db').collection('collection');
                     const cursor = coll.aggregate(agg);
@@ -67,7 +66,7 @@ tests:
                 shell: |-
                     mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
                     db.collection.aggregate({
-                      'x': new NumberLong(0), 
+                      'x': new NumberLong(0),
                       'y': new ObjectId()
                     });"
                 php: |-
@@ -211,8 +210,7 @@ tests:
                     };
 
                     const client = await MongoClient.connect(
-                      'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true }
+                      'mongodb://localhost:27017'
                     );
                     const coll = client.db('db').collection('collection');
                     const cursor = coll.find(filter);
@@ -425,8 +423,7 @@ tests:
                     };
 
                     const client = await MongoClient.connect(
-                      'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true }
+                      'mongodb://localhost:27017'
                     );
                     const coll = client.db('db').collection('collection');
                     const cursor = coll.find(filter, { projection, sort, skip, limit, maxTimeMS, collation });
