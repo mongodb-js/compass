@@ -114,7 +114,9 @@ describe('StagePreview', function () {
     });
     expect(screen.getByText('No results found')).to.exist;
     expect(
-      screen.getByText('This may be due to an invalid or missing Search index')
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
     ).to.exist;
   });
   it('renders $search preview docs', function () {

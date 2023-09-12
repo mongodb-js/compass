@@ -165,7 +165,10 @@ function StagePreviewBody({
         >
           No results found
         </Subtitle>
-        <Body>This may be due to an invalid or missing Search index</Body>
+        <Body>
+          This may be because your search has no results or your search index
+          does not exist.
+        </Body>
       </div>
     );
   }
