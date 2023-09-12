@@ -87,14 +87,6 @@ export const CreateSearchIndexModal: React.FunctionComponent<
     },
     [setIndexDefinition, setParsingError]
   );
-  const onSetOpen = useCallback(
-    (open) => {
-      if (!open) {
-        closeModal();
-      }
-    },
-    [closeModal]
-  );
 
   const onSaveIndex = useCallback(() => {
     if (parsingError) {
@@ -104,10 +96,6 @@ export const CreateSearchIndexModal: React.FunctionComponent<
     const indexDefinitionDoc = parseShellBSON(indexDefinition);
     saveIndex(indexName, indexDefinitionDoc);
   }, [saveIndex, parsingError, indexName, indexDefinition]);
-
-  const onCancel = useCallback(() => {
-    onSetOpen(false);
-  }, [onSetOpen]);
 
   useTrackOnChange(
     'COMPASS-SEARCH-INDEXES-UI',
@@ -124,7 +112,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
   return (
     <Modal
       open={isModalOpen}
-      setOpen={onSetOpen}
+      setOpen={closeModal}
       data-testid="create-search-index-modal"
     >
       <ModalHeader
@@ -184,7 +172,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
         >
           Create Search Index
         </Button>
-        <Button variant="default" onClick={onCancel}>
+        <Button variant="default" onClick={closeModal}>
           Cancel
         </Button>
       </ModalFooter>
