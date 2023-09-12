@@ -4,31 +4,36 @@ import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import type { IndexDefinition } from '../../modules/regular-indexes';
 import { Indexes } from './indexes';
+import { setupStore } from '../../../test/setup-store';
+import { Provider } from 'react-redux';
 
 const renderIndexes = (
   props: Partial<React.ComponentProps<typeof Indexes>> = {}
 ) => {
+  const store = setupStore();
   const appRegistry = new AppRegistry();
   render(
-    <Indexes
-      indexes={[]}
-      isWritable={true}
-      isReadonlyView={false}
-      readOnly={false}
-      description={undefined}
-      error={null}
-      localAppRegistry={appRegistry}
-      isRefreshing={false}
-      serverVersion="4.4.0"
-      sortIndexes={() => {}}
-      refreshIndexes={() => {}}
-      dropFailedIndex={() => {}}
-      onHideIndex={() => {}}
-      onUnhideIndex={() => {}}
-      isAtlasSearchSupported={false}
-      onClickCreateAtlasSearchIndex={() => {}}
-      {...props}
-    />
+    <Provider store={store}>
+      <Indexes
+        indexes={[]}
+        isWritable={true}
+        isReadonlyView={false}
+        readOnly={false}
+        description={undefined}
+        error={null}
+        localAppRegistry={appRegistry}
+        isRefreshing={false}
+        serverVersion="4.4.0"
+        sortIndexes={() => {}}
+        refreshIndexes={() => {}}
+        dropFailedIndex={() => {}}
+        onHideIndex={() => {}}
+        onUnhideIndex={() => {}}
+        isAtlasSearchSupported={false}
+        onClickCreateAtlasSearchIndex={() => {}}
+        {...props}
+      />
+    </Provider>
   );
 };
 

@@ -279,7 +279,7 @@ describe('IndexesToolbar Component', function () {
       });
 
       describe('when atlas search is supported in the cluster', function () {
-        let onClickCreateAtlasSearchIndexSpy;
+        let onClickCreateAtlasSearchIndexSpy: () => void;
 
         beforeEach(function () {
           onClickCreateAtlasSearchIndexSpy = sinon.spy();

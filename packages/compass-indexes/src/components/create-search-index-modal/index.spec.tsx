@@ -22,10 +22,7 @@ describe('Create Search Index Modal', function () {
       createSearchIndex: sinon.spy(),
     };
 
-    store = setupStore({
-      options: { namespace: 'test.test' },
-      dataProvider,
-    });
+    store = setupStore({ namespace: 'test.test' }, dataProvider);
 
     store.dispatch(openModalForCreation());
 

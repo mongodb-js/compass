@@ -6,7 +6,7 @@ import type {
 } from '../src/stores/store';
 import configureStore from '../src/stores/store';
 
-const NOOP_DATA_PROVIDER = {
+const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   indexes(ns: string, options: any) {
     return Promise.resolve([]);
@@ -32,13 +32,10 @@ const NOOP_DATA_PROVIDER = {
   },
 };
 
-export const setupStore = ({
-  options = {},
-  dataProvider = NOOP_DATA_PROVIDER,
-}: {
-  options: Partial<ConfigureStoreOptions>;
-  dataProvider: Partial<IndexesDataService>;
-}) => {
+export const setupStore = (
+  options: Partial<ConfigureStoreOptions> = {},
+  dataProvider: Partial<IndexesDataService> = NOOP_DATA_PROVIDER
+) => {
   const localAppRegistry = {
     on: Sinon.spy(),
     emit: Sinon.spy(),

@@ -20,7 +20,7 @@ describe('search-indexes module', function () {
       createSearchIndex: sinon.spy(),
     };
 
-    store = setupStore({ options: {}, dataProvider });
+    store = setupStore({}, dataProvider);
   });
 
   it('has not available search indexes state by default', function () {
@@ -54,8 +54,8 @@ describe('search-indexes module', function () {
     );
   });
 
-  it('creates the index when data is valid', function () {
-    store.dispatch(saveIndex('indexName', {}));
+  it('creates the index when data is valid', async function () {
+    await store.dispatch(saveIndex('indexName', {}));
     expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
     expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
   });
