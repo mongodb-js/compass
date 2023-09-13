@@ -108,8 +108,7 @@ describe('regular-indexes module', function () {
       await store.dispatch(fetchIndexes());
 
       expect(store.getState().regularIndexes.indexes).to.have.lengthOf(0);
-      // One because we also call fetchIndexes when setting up the store.
-      expect(indexesSpy.callCount).to.equal(1);
+      expect(indexesSpy.callCount).to.equal(0);
     });
 
     it('when dataService is not connected, sets refreshing to false', async function () {
