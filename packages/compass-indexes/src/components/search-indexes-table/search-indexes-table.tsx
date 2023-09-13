@@ -6,7 +6,10 @@ import { withPreferences } from 'compass-preferences-model';
 import { EmptyContent, Button, Link } from '@mongodb-js/compass-components';
 
 import type { SearchSortColumn } from '../../modules/search-indexes';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import {
+  SearchIndexesStatuses,
+  openModalForCreation,
+} from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
 import type { SortDirection, RootState } from '../../modules';
@@ -19,6 +22,7 @@ type SearchIndexesTableProps = {
   isWritable?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
+  openCreateModal: () => void;
   status: SearchIndexesStatus;
 };
 
@@ -29,7 +33,7 @@ function isReadyStatus(status: SearchIndexesStatus) {
   );
 }
 
-function ZeroState() {
+function ZeroState({ openCreateModal }: { openCreateModal: () => void }) {
   return (
     <EmptyContent
       icon={ZeroGraphic}
@@ -37,9 +41,7 @@ function ZeroState() {
       subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
       callToAction={
         <Button
-          onClick={() => {
-            /* TODO: openModalForCreation() once that's merged */
-          }}
+          onClick={openCreateModal}
           data-testid="create-atlas-search-index-button"
           variant="primary"
           size="small"
@@ -64,7 +66,14 @@ function ZeroState() {
 
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
-> = ({ indexes, isWritable, readOnly, onSortTable, status }) => {
+> = ({
+  indexes,
+  isWritable,
+  readOnly,
+  onSortTable,
+  openCreateModal,
+  status,
+}) => {
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
     // indexes aren't available, then that's all handled by the toolbar and we
@@ -73,7 +82,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   }
 
   if (indexes.length === 0) {
-    return <ZeroState />;
+    return <ZeroState openCreateModal={openCreateModal} />;
   }
 
   const canModifyIndex = isWritable && !readOnly;
@@ -119,6 +128,7 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
+  openCreateModal: openModalForCreation,
 };
 
 export default connect(
