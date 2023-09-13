@@ -585,7 +585,7 @@ export class AtlasService {
     } catch (err) {
       // Default to what's already in Compass when we can't fetch the preference.
       log.error(
-        mongoLogId(1_001_000_243),
+        mongoLogId(1_001_000_244),
         'AtlasService',
         'Failed to load if the AI feature is enabled',
         { error: (err as Error).stack }
