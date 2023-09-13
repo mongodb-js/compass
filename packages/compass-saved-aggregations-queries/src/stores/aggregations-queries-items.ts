@@ -106,7 +106,9 @@ const mapAggregationToItem = (aggregation: StoredPipeline): Item => {
   const { database, collection } = toNS(aggregation.namespace);
   return {
     id: aggregation.id,
-    lastModified: aggregation.lastModified ?? 0,
+    lastModified: aggregation.lastModified
+      ? aggregation.lastModified.getTime()
+      : 0,
     name: aggregation.name,
     database,
     collection,
