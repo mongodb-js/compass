@@ -1,0 +1,49 @@
+{
+  "namespace": "self_airbnb.listings",
+  "env": "on-prem",
+  "isTimeSeries": false,
+  "isReadonly": false,
+  "sourceName": null,
+  "pipeline": [
+    {
+      "id": "64ef95ad0631a9a5df8581b4",
+      "stageOperator": "$project",
+      "stage": "/**\n * specifications: The fields to\n *   include or exclude.\n */\n{\n  _id: 0,\n  name: 1,\n  bedrooms: 1\n}",
+      "isValid": true,
+      "isEnabled": true,
+      "isExpanded": true,
+      "isLoading": false,
+      "isComplete": true,
+      "previewDocuments": [],
+      "syntaxError": null,
+      "error": null,
+      "projections": [
+        {
+          "name": "name",
+          "value": "name",
+          "score": 1,
+          "meta": "1",
+          "version": "0.0.0"
+        },
+        {
+          "name": "bedrooms",
+          "value": "bedrooms",
+          "score": 1,
+          "meta": "1",
+          "version": "0.0.0"
+        }
+      ],
+      "snippet": "/**\n * specifications: The fields to\n *   include or exclude.\n */\n{\n  ${1:specification(s)}\n}",
+      "fromStageOperators": false,
+      "isMissingAtlasOnlyStageSupport": false,
+      "executor": { "$project": { "_id": 0, "name": 1, "bedrooms": 1 } }
+    }
+  ],
+  "name": "Name and Bedrooms Projection",
+  "id": "64ef97450631a9a5df8581b9",
+  "comments": true,
+  "sample": true,
+  "autoPreview": true,
+  "collation": null,
+  "collationString": ""
+}

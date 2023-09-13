@@ -110,23 +110,6 @@ export const pipelines: Item[] = [
     aggregation: {
       namespace: 'airbnb.listings',
       pipelineText: `[{$match: {\n  "reviews_per_month": 3\n}}, {$limit: /**\n * Provide the number of documents to limit.\n */\n10}, {$project: {\n  "_id": 0,\n  "name": 1,\n  "host_location": 1\n}}]`,
-      pipeline: [
-        {
-          stageOperator: '$match',
-          stage: '{\n  "reviews_per_month": 3\n}',
-          isEnabled: true,
-        },
-        {
-          stageOperator: '$limit',
-          stage: '/**\n * Provide the number of documents to limit.\n */\n10',
-          isEnabled: true,
-        },
-        {
-          stageOperator: '$project',
-          stage: '{\n  "_id": 0,\n  "name": 1,\n  "host_location": 1\n}',
-          isEnabled: true,
-        },
-      ],
       name: 'Demo',
       id: '61b753fdce2a0a1d7a32ae1d',
       comments: true,

@@ -5,6 +5,7 @@ import {
   featureFlags,
   withPreferences,
 } from 'compass-preferences-model';
+import type { UserPreferences } from 'compass-preferences-model';
 import { connect } from 'react-redux';
 import type { RootState } from '../../stores';
 import { ConnectedAtlasLoginSettings } from './atlas-login';
@@ -83,14 +84,23 @@ export const FeaturePreviewSettings: React.FunctionComponent<{
 };
 
 export default withPreferences(
-  connect((state: RootState, ownProps: { enableAIExperience?: boolean }) => {
-    return {
-      showAtlasLoginSettings:
-        state.settings.settings.enableAIExperience ||
-        ['authenticated', 'in-progress'].includes(state.atlasLogin.status) ||
-        ownProps.enableAIExperience,
-    };
-  })(FeaturePreviewSettings),
-  ['enableAIExperience'],
+  connect(
+    (
+      state: RootState,
+      ownProps: {
+        enableAIExperience?: boolean;
+        cloudFeatureRolloutAccess?: UserPreferences['cloudFeatureRolloutAccess'];
+      }
+    ) => {
+      return {
+        showAtlasLoginSettings:
+          state.settings.settings.enableAIExperience ||
+          ['authenticated', 'in-progress'].includes(state.atlasLogin.status) ||
+          ownProps.enableAIExperience ||
+          ownProps.cloudFeatureRolloutAccess?.GEN_AI_COMPASS,
+      };
+    }
+  )(FeaturePreviewSettings),
+  ['enableAIExperience', 'cloudFeatureRolloutAccess'],
   React
 );
