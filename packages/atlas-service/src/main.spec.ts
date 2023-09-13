@@ -30,7 +30,7 @@ describe('AtlasServiceMain', function () {
       'http://example.com/ai/api/v1/hello/': {
         ok: true,
         json() {
-          return { sub: '1234' };
+          return { features: {} };
         },
       },
     }[url];
