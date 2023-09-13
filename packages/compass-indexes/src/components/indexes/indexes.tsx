@@ -1,27 +1,22 @@
-import React, { useState } from 'react';
-import { css, spacing } from '@mongodb-js/compass-components';
+import React, { useState, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
-import type AppRegistry from 'hadron-app-registry';
-import { withPreferences } from 'compass-preferences-model';
-
-import {
-  sortIndexes,
-  dropFailedIndex,
-  hideIndex,
-  unhideIndex,
-  refreshIndexes,
-} from '../../modules/regular-indexes';
-import type {
-  IndexDefinition,
-  SortColumn,
-  SortDirection,
-} from '../../modules/regular-indexes';
+import { css, spacing } from '@mongodb-js/compass-components';
 
 import type { IndexView } from '../indexes-toolbar/indexes-toolbar';
-import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
-import { RegularIndexesTable } from '../regular-indexes-table/regular-indexes-table';
-import type { RootState } from '../../modules';
+import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
+import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
+import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
+import { refreshRegularIndexes } from '../../modules/regular-indexes';
+import { refreshSearchIndexes } from '../../modules/search-indexes';
+import type { State as RegularIndexesState } from '../../modules/regular-indexes';
+import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import type { SearchIndexesStatus } from '../../modules/search-indexes';
+import type { RootState } from '../../modules';
+
+// This constant is used as a trigger to show an insight whenever number of
+// indexes in a collection is more than what is specified here.
+const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
 
 const containerStyles = css({
   margin: spacing[3],
@@ -32,120 +27,104 @@ const containerStyles = css({
 });
 
 type IndexesProps = {
-  indexes: IndexDefinition[];
-  isWritable: boolean;
-  isReadonlyView: boolean;
-  description?: string;
-  error: string | null;
-  localAppRegistry: AppRegistry;
-  isRefreshing: boolean;
-  serverVersion: string;
-  sortIndexes: (name: SortColumn, direction: SortDirection) => void;
-  refreshIndexes: () => void;
-  dropFailedIndex: (id: string) => void;
-  onHideIndex: (name: string) => void;
-  onUnhideIndex: (name: string) => void;
-  readOnly?: boolean;
-  isAtlasSearchSupported: boolean;
+  isReadonlyView?: boolean;
+  regularIndexes: Pick<
+    RegularIndexesState,
+    'indexes' | 'error' | 'isRefreshing'
+  >;
+  searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
+  refreshRegularIndexes: () => void;
+  refreshSearchIndexes: () => void;
 };
 
-// This constant is used as a trigger to show an insight whenever number of
-// indexes in a collection is more than what is specified here.
-const IDEAL_NUMBER_OF_MAX_INDEXES = 10;
+function isRefreshingStatus(status: SearchIndexesStatus) {
+  return (
+    status === SearchIndexesStatuses.PENDING ||
+    status === SearchIndexesStatuses.REFRESHING
+  );
+}
 
-export const Indexes: React.FunctionComponent<IndexesProps> = ({
-  indexes,
-  isWritable,
+export function Indexes({
   isReadonlyView,
-  description,
-  error,
-  localAppRegistry,
-  isRefreshing,
-  serverVersion,
-  sortIndexes,
-  refreshIndexes,
-  dropFailedIndex,
-  onHideIndex,
-  onUnhideIndex,
-  readOnly, // preferences readOnly.
-  isAtlasSearchSupported,
-}) => {
+  regularIndexes,
+  searchIndexes,
+  refreshRegularIndexes,
+  refreshSearchIndexes,
+}: IndexesProps) {
   const [currentIndexesView, setCurrentIndexesView] =
     useState<IndexView>('regular-indexes');
 
-  const deleteIndex = (index: IndexDefinition) => {
-    if (index.extra.status === 'failed') {
-      return dropFailedIndex(String(index.extra.id));
-    }
+  const errorMessage =
+    currentIndexesView === 'regular-indexes'
+      ? regularIndexes.error
+      : searchIndexes.error;
 
-    return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
-  };
+  const hasTooManyIndexes =
+    currentIndexesView === 'regular-indexes' &&
+    regularIndexes.indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES;
+
+  const isRefreshing =
+    currentIndexesView === 'regular-indexes'
+      ? regularIndexes.isRefreshing === true
+      : isRefreshingStatus(searchIndexes.status);
+
+  const onRefreshIndexes =
+    currentIndexesView === 'regular-indexes'
+      ? refreshRegularIndexes
+      : refreshSearchIndexes;
+
+  const loadIndexes = useCallback(() => {
+    if (currentIndexesView === 'regular-indexes') {
+      refreshRegularIndexes();
+    } else {
+      refreshSearchIndexes();
+    }
+  }, [currentIndexesView, refreshRegularIndexes, refreshSearchIndexes]);
+
+  const changeIndexView = useCallback(
+    (view: IndexView) => {
+      setCurrentIndexesView(view);
+      loadIndexes();
+    },
+    [loadIndexes]
+  );
+
+  useEffect(() => {
+    loadIndexes();
+  }, [loadIndexes]);
 
   return (
     <div className={containerStyles}>
       <IndexesToolbar
-        isWritable={isWritable}
-        isReadonlyView={isReadonlyView}
-        readOnly={readOnly}
-        errorMessage={error}
-        localAppRegistry={localAppRegistry}
+        errorMessage={errorMessage}
+        hasTooManyIndexes={hasTooManyIndexes}
         isRefreshing={isRefreshing}
-        writeStateDescription={description}
-        hasTooManyIndexes={indexes.length > IDEAL_NUMBER_OF_MAX_INDEXES}
-        isAtlasSearchSupported={isAtlasSearchSupported}
-        onRefreshIndexes={refreshIndexes}
-        onChangeIndexView={setCurrentIndexesView}
+        onRefreshIndexes={onRefreshIndexes}
+        onChangeIndexView={changeIndexView}
       />
-      {!isReadonlyView &&
-        !error &&
-        currentIndexesView === 'regular-indexes' && (
-          <RegularIndexesTable
-            indexes={indexes}
-            serverVersion={serverVersion}
-            canModifyIndex={isWritable && !readOnly}
-            onSortTable={sortIndexes}
-            onDeleteIndex={deleteIndex}
-            onHideIndex={onHideIndex}
-            onUnhideIndex={onUnhideIndex}
-          />
-        )}
-
-      {!isReadonlyView && !error && currentIndexesView === 'search-indexes' && (
-        <p style={{ textAlign: 'center' }}>In Progress feature</p>
+      {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
+        <RegularIndexesTable />
+      )}
+      {!isReadonlyView && currentIndexesView === 'search-indexes' && (
+        <SearchIndexesTable />
       )}
     </div>
   );
-};
+}
 
 const mapState = ({
-  isWritable,
   isReadonlyView,
-  description,
-  serverVersion,
-  appRegistry,
-  regularIndexes: { indexes, isRefreshing, error },
-  searchIndexes: { status },
+  regularIndexes,
+  searchIndexes,
 }: RootState) => ({
-  indexes,
-  isWritable,
   isReadonlyView,
-  description,
-  error,
-  localAppRegistry: (appRegistry as any).localAppRegistry,
-  isRefreshing,
-  serverVersion,
-  isAtlasSearchSupported: status !== SearchIndexesStatuses.NOT_AVAILABLE,
+  regularIndexes,
+  searchIndexes,
 });
 
 const mapDispatch = {
-  sortIndexes,
-  refreshIndexes,
-  dropFailedIndex,
-  onHideIndex: hideIndex,
-  onUnhideIndex: unhideIndex,
+  refreshRegularIndexes,
+  refreshSearchIndexes,
 };
 
-export default connect(
-  mapState,
-  mapDispatch
-)(withPreferences(Indexes, ['readOnly'], React));
+export default connect(mapState, mapDispatch)(Indexes);

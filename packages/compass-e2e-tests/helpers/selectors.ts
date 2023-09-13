@@ -918,10 +918,10 @@ export const explainPlanSummaryStat = (
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
 export const indexComponent = (name: string): string => {
-  return `[data-testid="index-row-${name}"]`;
+  return `[data-testid="indexes-row-${name}"]`;
 };
-export const IndexFieldName = '[data-testid="index-name-field"]';
-export const IndexFieldType = '[data-testid="index-type-field"]';
+export const IndexFieldName = '[data-testid="indexes-name-field"]';
+export const IndexFieldType = '[data-testid="indexes-type-field"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
 export const indexToggleOption = (fieldName: string) => {
