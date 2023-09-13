@@ -73,7 +73,6 @@ export const SearchIndexesTable: React.FunctionComponent<
   }
 
   if (indexes.length === 0) {
-    // TODO(COMPASS-7204): render the zero state
     return <ZeroState />;
   }
 
