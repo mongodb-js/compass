@@ -15,8 +15,9 @@ import {
   type InProgressIndex,
 } from '../modules/regular-indexes';
 import {
-  SearchIndexesStatuses,
   INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
+  fetchSearchIndexes,
+  SearchIndexesStatuses,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
@@ -28,8 +29,12 @@ export type IndexesDataService = Pick<
   | 'updateCollection'
   | 'createIndex'
   | 'dropIndex'
+  | 'getSearchIndexes'
   | 'createSearchIndex'
+  | 'updateSearchIndex'
+  | 'dropSearchIndex'
 >;
+
 export type ConfigureStoreOptions = {
   dataProvider: {
     dataProvider?: IndexesDataService;
@@ -74,7 +79,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
     const localAppRegistry = options.localAppRegistry;
     store.dispatch(localAppRegistryActivated(localAppRegistry));
 
-    localAppRegistry.on('refresh-data', () => {
+    localAppRegistry.on('refresh-regular-indexes', () => {
       void store.dispatch(fetchIndexes());
     });
 
@@ -103,6 +108,7 @@ const configureStore = (options: ConfigureStoreOptions) => {
 
     globalAppRegistry.on('refresh-data', () => {
       void store.dispatch(fetchIndexes());
+      void store.dispatch(fetchSearchIndexes());
     });
 
     const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
@@ -122,7 +128,6 @@ const configureStore = (options: ConfigureStoreOptions) => {
     }
   }
 
-  void store.dispatch(fetchIndexes());
   return store;
 };
 

@@ -27,8 +27,20 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
     return Promise.resolve({});
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createSearchIndex(ns, name, definition) {
-    return Promise.resolve('');
+  getSearchIndexes(ns: string) {
+    return Promise.resolve([]);
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  createSearchIndex(ns: string, name: string, spec: any) {
+    return Promise.resolve('new-id');
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  updateSearchIndex(ns: string, name: string, spec: any) {
+    return Promise.resolve();
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  dropSearchIndex(ns: string, name: string) {
+    return Promise.resolve();
   },
 };
 
