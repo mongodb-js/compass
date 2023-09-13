@@ -12,7 +12,9 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import preferencesAccess from 'compass-preferences-model';
 import type { RegularIndex } from '../../modules/regular-indexes';
+import type { SearchIndex } from 'mongodb-data-service';
 import type Store from '../../stores';
+import type { IndexesDataService } from '../../stores/store';
 import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 
@@ -22,8 +24,6 @@ const renderIndexes = (props: Partial<typeof Store> = {}) => {
   const allProps: Partial<typeof Store> = {
     regularIndexes: { indexes: [], error: null, isRefreshing: false },
     searchIndexes: { indexes: [], error: null, status: 'PENDING' },
-    refreshRegularIndexes: () => {},
-    refreshSearchIndexes: () => {},
     ...props,
   };
 
@@ -269,8 +269,62 @@ describe('Indexes Component', function () {
   });
 
   context('search indexes', function () {
-    it(
-      'renders the search indexes table if the current view changes to search indexes'
-    );
+    it('renders the search indexes table if the current view changes to search indexes', async function () {
+      const store = renderIndexes();
+
+      const indexes: SearchIndex[] = [
+        {
+          id: '1',
+          name: 'default',
+          status: 'READY',
+          queryable: true,
+          latestDefinition: {},
+        },
+        {
+          id: '2',
+          name: 'another',
+          status: 'READY',
+          queryable: true,
+          latestDefinition: {},
+        },
+      ];
+
+      store.getState()!.dataService!.getSearchIndexes = function () {
+        return Promise.resolve(indexes);
+      };
+
+      // switch to the Search Indexes tab
+      const toolbar = screen.getByTestId('indexes-toolbar');
+      const button = within(toolbar).getByText('Search Indexes');
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('search-indexes-list')).to.exist;
+      });
+    });
+
+    it('refreshes the search indexes if the search indexes view is active', async function () {
+      const store = renderIndexes();
+
+      const spy = sinon.spy(
+        store.getState()?.dataService as IndexesDataService,
+        'getSearchIndexes'
+      );
+
+      // switch to the Search Indexes tab
+      const toolbar = screen.getByTestId('indexes-toolbar');
+      fireEvent.click(within(toolbar).getByText('Search Indexes'));
+
+      expect(spy.callCount).to.equal(1);
+
+      // click the refresh button
+      const refreshButton = within(toolbar).getByText('Refresh');
+      await waitFor(
+        () => expect(refreshButton.getAttribute('disabled')).to.be.null
+      );
+      fireEvent.click(refreshButton);
+
+      expect(spy.callCount).to.equal(2);
+    });
   });
 });
