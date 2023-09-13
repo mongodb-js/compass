@@ -43,7 +43,7 @@ describe('Collection ai query', function () {
 
     telemetry = await startTelemetryServer();
     compass = await beforeTests({
-      extraSpawnArgs: ['--enableAIExperience', '--enableAI'],
+      extraSpawnArgs: ['--enableAIExperience'],
     });
     browser = compass.browser;
   });
