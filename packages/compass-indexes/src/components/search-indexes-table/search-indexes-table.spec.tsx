@@ -85,7 +85,7 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  it('does not render the table if there are no indexes', function () {
+  it('renders the zero state rather than the table if there are no indexes', function () {
     renderIndexList({
       indexes: [],
     });
@@ -93,6 +93,8 @@ describe('SearchIndexesTable Component', function () {
     expect(() => {
       screen.getByTestId('search-indexes-list');
     }).to.throw;
+
+    expect(screen.getByTestId('create-atlas-search-index-button')).to.exist;
   });
 
   for (const column of ['Name and Fields', 'Status']) {
