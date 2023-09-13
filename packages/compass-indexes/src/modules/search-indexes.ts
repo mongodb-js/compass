@@ -34,9 +34,10 @@ type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 export enum ActionTypes {
   SetStatus = 'indexes/search-indexes/SetStatus',
   OpenCreateSearchIndexModal = 'indexes/search-indexes/OpenCreateSearchIndexModal',
-  CloseCrudSearchIndexModal = 'indexes/search-indexes/CloseCrudSearchIndexModal',
-  SetError = 'indexes/search-indexes/SearchError',
-  SetBusy = 'indexes/search-indexes/SetBusy',
+  CreateSearchIndexStarted = 'indexes/search-indexes/CreateSearchIndexStarted',
+  CreateSearchIndexFailed = 'indexes/search-indexes/CreateSearchIndexFailed',
+  CreateSearchIndexSucceeded = 'indexes/search-indexes/CreateSearchIndexSucceed',
+  CreateSearchIndexCancelled = 'indexes/search-indexes/CreateSearchIndexCancelled',
 }
 
 type SetStatusAction = {
@@ -48,18 +49,21 @@ type OpenCreateSearchIndexModalAction = {
   type: ActionTypes.OpenCreateSearchIndexModal;
 };
 
-type CloseCrudSearchIndexModalAction = {
-  type: ActionTypes.CloseCrudSearchIndexModal;
+type CreateSearchIndexStartedAction = {
+  type: ActionTypes.CreateSearchIndexStarted;
 };
 
-type SetErrorAction = {
-  type: ActionTypes.SetError;
-  error: string | undefined;
+type CreateSearchIndexFailedAction = {
+  type: ActionTypes.CreateSearchIndexFailed;
+  error: string;
 };
 
-type SetBusyAction = {
-  type: ActionTypes.SetBusy;
-  busy: boolean;
+type CreateSearchIndexSucceededAction = {
+  type: ActionTypes.CreateSearchIndexSucceeded;
+};
+
+type CreateSearchIndexCancelledAction = {
+  type: ActionTypes.CreateSearchIndexCancelled;
 };
 
 type CreateSearchIndexState = {
@@ -106,9 +110,9 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
       },
     };
   } else if (
-    isAction<CloseCrudSearchIndexModalAction>(
+    isAction<CreateSearchIndexCancelledAction>(
       action,
-      ActionTypes.CloseCrudSearchIndexModal
+      ActionTypes.CreateSearchIndexCancelled
     )
   ) {
     return {
@@ -120,20 +124,48 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
         isBusy: false,
       },
     };
-  } else if (isAction<SetBusyAction>(action, ActionTypes.SetBusy)) {
+  } else if (
+    isAction<CreateSearchIndexStartedAction>(
+      action,
+      ActionTypes.CreateSearchIndexStarted
+    )
+  ) {
     return {
       ...state,
+      error: undefined,
       createIndex: {
         ...state.createIndex,
-        isBusy: action.busy,
+        isBusy: true,
       },
     };
-  } else if (isAction<SetErrorAction>(action, ActionTypes.SetError)) {
+  } else if (
+    isAction<CreateSearchIndexFailedAction>(
+      action,
+      ActionTypes.CreateSearchIndexFailed
+    )
+  ) {
     return {
       ...state,
-      error: action.error
-        ? ATLAS_SEARCH_SERVER_ERRORS[action.error] || action.error
-        : action.error,
+      error: action.error,
+      createIndex: {
+        ...state.createIndex,
+        isBusy: false,
+      },
+    };
+  } else if (
+    isAction<CreateSearchIndexSucceededAction>(
+      action,
+      ActionTypes.CreateSearchIndexSucceeded
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
+      createIndex: {
+        ...state.createIndex,
+        isModalOpen: false,
+        isBusy: false,
+      },
     };
   }
 
@@ -149,18 +181,23 @@ export const openModalForCreation = (): OpenCreateSearchIndexModalAction => ({
   type: ActionTypes.OpenCreateSearchIndexModal,
 });
 
-export const closeModal = (): CloseCrudSearchIndexModalAction => ({
-  type: ActionTypes.CloseCrudSearchIndexModal,
+export const closeModal = (): CreateSearchIndexCancelledAction => ({
+  type: ActionTypes.CreateSearchIndexCancelled,
 });
 
-export const setError = (error: string | undefined): SetErrorAction => ({
-  type: ActionTypes.SetError,
-  error,
+export const createIndexStarted = (): CreateSearchIndexStartedAction => ({
+  type: ActionTypes.CreateSearchIndexStarted,
 });
 
-export const setBusy = (busy: boolean): SetBusyAction => ({
-  type: ActionTypes.SetBusy,
-  busy,
+export const createIndexFailed = (
+  error: string
+): CreateSearchIndexFailedAction => ({
+  type: ActionTypes.CreateSearchIndexFailed,
+  error: ATLAS_SEARCH_SERVER_ERRORS[error] || error,
+});
+
+export const createIndexSucceeded = (): CreateSearchIndexSucceededAction => ({
+  type: ActionTypes.CreateSearchIndexSucceeded,
 });
 
 export const saveIndex = (
@@ -170,12 +207,10 @@ export const saveIndex = (
   return async function (dispatch, getState) {
     const { namespace, dataService } = getState();
 
-    dispatch(setError(undefined));
-    dispatch(setBusy(true));
+    dispatch(createIndexStarted());
 
     if (indexName === '') {
-      dispatch(setError('Please enter the name of the index.'));
-      dispatch(setBusy(false));
+      dispatch(createIndexFailed('Please enter the name of the index.'));
       return;
     }
 
@@ -186,12 +221,15 @@ export const saveIndex = (
         indexDefinition
       );
     } catch (ex) {
-      dispatch(setError((ex as MongoServerError).codeName));
-      dispatch(setBusy(false));
+      dispatch(
+        createIndexFailed(
+          (ex as MongoServerError).codeName || (ex as Error).message
+        )
+      );
       return;
     }
 
-    dispatch(closeModal());
+    dispatch(createIndexSucceeded());
     openToast('index-creation-in-progress', {
       title: `Your index ${indexName} is in progress.`,
       dismissible: true,

@@ -4,7 +4,6 @@ import {
   closeModal,
   openModalForCreation,
   saveIndex,
-  setError,
   setStatus,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
@@ -45,13 +44,6 @@ describe('search-indexes module', function () {
     store.dispatch(openModalForCreation());
     store.dispatch(closeModal());
     expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
-  });
-
-  it('sets server errors', function () {
-    store.dispatch(setError('Something funny happened.'));
-    expect(store.getState().searchIndexes.error).to.equal(
-      'Something funny happened.'
-    );
   });
 
   it('creates the index when data is valid', async function () {
