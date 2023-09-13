@@ -285,7 +285,6 @@ const mapState = ({
   appRegistry,
   searchIndexes,
 }: RootState) => ({
-  searchIndexes: searchIndexes.indexes,
   isWritable,
   isReadonlyView,
   writeStateDescription: description,
