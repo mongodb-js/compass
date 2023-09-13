@@ -38,10 +38,8 @@ export async function createIndex(
     .$(Selectors.CreateIndexDropdownButton)
     .isExisting();
   if (!isWithCreateDropdown) {
-    console.log('Creating index using normal create button');
     await browser.clickVisible(Selectors.CreateIndexButton);
   } else {
-    console.log('Creating index using dropdown create button');
     await browser.waitUntil(async () => {
       await browser.clickVisible(Selectors.CreateIndexDropdownButton);
       return await browser

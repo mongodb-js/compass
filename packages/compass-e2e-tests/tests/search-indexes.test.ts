@@ -10,6 +10,7 @@ import {
 import type { Compass } from '../helpers/compass';
 import { disconnect } from '../helpers/commands';
 import { expect } from 'chai';
+import type { Test as CurrentTest } from 'mocha';
 
 type Connection = {
   name: string;
@@ -35,7 +36,52 @@ const connectionsWithSearchSupport: Connection[] = [
 ];
 
 const DB_NAME = 'e2e_indexes_test';
-const COLL_NAME = 'numbers';
+const COLL_NAME = 'e2e_coll_numbers';
+
+async function isNamespaceExisting(browser: CompassBrowser): Promise<boolean> {
+  // Wait for sidebar
+  await browser.waitForAnimations(Selectors.SidebarDatabaseAndCollectionList);
+
+  // Search for the db
+  const dbInput = await browser.$(Selectors.SidebarFilterInput);
+  await dbInput.setValue(DB_NAME);
+
+  // Get the db element
+  const sidebarDb = await browser.$(Selectors.sidebarDatabase(DB_NAME));
+
+  // Check if db exists
+  const dbExists = await sidebarDb.isExisting();
+  if (!dbExists) {
+    return false;
+  }
+
+  // Db exists and select it (to open collections)
+  await browser.clickVisible(Selectors.sidebarDatabase(DB_NAME));
+  await browser.waitForAnimations(Selectors.sidebarDatabase(DB_NAME));
+
+  const sidebarColl = await browser.$(
+    Selectors.sidebarCollection(DB_NAME, COLL_NAME)
+  );
+  return await sidebarColl.isExisting();
+}
+
+async function ensureNamespaceExists(
+  browser: CompassBrowser,
+  screenshotName: string
+) {
+  const namespaceExists = await isNamespaceExisting(browser);
+  if (namespaceExists) {
+    return;
+  }
+  await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
+  await browser.addDatabase(DB_NAME, COLL_NAME, undefined, screenshotName);
+}
+
+async function dropNamespace(browser: CompassBrowser) {
+  await browser.hover(Selectors.sidebarDatabase(DB_NAME));
+  await browser.clickVisible(Selectors.DropDatabaseButton);
+  await browser.dropDatabase(DB_NAME);
+}
 
 describe.only('Search Indexes', function () {
   let compass: Compass;
@@ -56,22 +102,19 @@ describe.only('Search Indexes', function () {
     await afterTests(compass, this.currentTest);
   });
 
-  async function beforeTestRun(connectionString: string) {
+  async function beforeTestRun(
+    connectionString: string,
+    currentTest?: CurrentTest
+  ) {
     await browser.connectWithConnectionString(connectionString);
-    {
-      await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
-      await browser.addDatabase(DB_NAME, COLL_NAME);
-    }
+    await ensureNamespaceExists(browser, `${currentTest?.title}.png`);
     await browser.navigateToCollectionTab(DB_NAME, COLL_NAME, 'Indexes');
   }
 
-  async function afterTestRun() {
-    {
-      await browser.hover(Selectors.sidebarDatabase(DB_NAME));
-      await browser.clickVisible(Selectors.DropDatabaseButton);
-      await browser.dropDatabase(DB_NAME);
-    }
+  async function afterTestRun(currentTest?: CurrentTest) {
+    await dropNamespace(browser);
     await disconnect(browser);
+    await afterTest(compass, currentTest);
   }
 
   for (const { name, connectionString } of connectionsWithNoSearchSupport) {
@@ -82,11 +125,10 @@ describe.only('Search Indexes', function () {
         }
       });
       beforeEach(async function () {
-        await beforeTestRun(connectionString!);
+        await beforeTestRun(connectionString!, this.currentTest);
       });
       afterEach(async function () {
-        await afterTestRun();
-        await afterTest(compass, this.currentTest);
+        await afterTestRun(this.currentTest);
       });
       it('allows users to create a regular index', async function () {
         const indexName = await browser.createIndex({
@@ -116,7 +158,7 @@ describe.only('Search Indexes', function () {
         await beforeTestRun(connectionString!);
       });
       afterEach(async function () {
-        await afterTestRun();
+        await afterTestRun(this.currentTest);
       });
       it('allows users to create a regular indexes', async function () {
         const indexName = await browser.createIndex({
