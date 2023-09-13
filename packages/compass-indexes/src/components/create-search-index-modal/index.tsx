@@ -35,12 +35,6 @@ function parseShellBSON(source: string): Document[] {
   return parsed;
 }
 
-const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
-  InvalidIndexSpecificationOption: 'Invalid index definition.',
-  IndexAlreadyExists:
-    'This index name is already in use. Please choose another one.',
-};
-
 export const DEFAULT_INDEX_DEFINITION = `{
   "mappings": {
     "dynamic": true
@@ -58,6 +52,7 @@ const toolbarStyles = css({
 
 type CreateSearchIndexModalProps = {
   isModalOpen: boolean;
+  isBusy: boolean;
   error?: string;
   saveIndex: (indexName: string, indexDefinition: Document) => void;
   closeModal: () => void;
@@ -65,7 +60,7 @@ type CreateSearchIndexModalProps = {
 
 export const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
-> = ({ isModalOpen, error, saveIndex, closeModal }) => {
+> = ({ isModalOpen, isBusy, error, saveIndex, closeModal }) => {
   const [indexName, setIndexName] = useState<string>('default');
   const [indexDefinition, setIndexDefinition] = useState<string>(
     DEFAULT_INDEX_DEFINITION
@@ -156,11 +151,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
             className={bodyGapStyles}
           />
           {parsingError && <WarningSummary warnings={[parsingError]} />}
-          {error && (
-            <ErrorSummary
-              errors={[ATLAS_SEARCH_SERVER_ERRORS[error] || error]}
-            />
-          )}
+          {error && <ErrorSummary errors={[error]} />}
         </div>
       </ModalBody>
 
@@ -169,6 +160,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
           data-testid="create-search-index-button"
           variant="primary"
           onClick={onSaveIndex}
+          disabled={isBusy}
         >
           Create Search Index
         </Button>
@@ -182,6 +174,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
 
 const mapState = ({ searchIndexes }: RootState) => ({
   isModalOpen: searchIndexes.createIndex.isModalOpen,
+  isBusy: searchIndexes.createIndex.isBusy,
   error: searchIndexes.error,
 });
 

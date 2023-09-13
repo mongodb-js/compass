@@ -4,6 +4,12 @@ import type { IndexesThunkAction } from '.';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document, MongoServerError } from 'mongodb';
 
+const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
+  InvalidIndexSpecificationOption: 'Invalid index definition.',
+  IndexAlreadyExists:
+    'This index name is already in use. Please choose another one.',
+};
+
 export enum SearchIndexesStatuses {
   /**
    * No support. Default status.
@@ -30,6 +36,7 @@ export enum ActionTypes {
   OpenCreateSearchIndexModal = 'indexes/search-indexes/OpenCreateSearchIndexModal',
   CloseCrudSearchIndexModal = 'indexes/search-indexes/CloseCrudSearchIndexModal',
   SetError = 'indexes/search-indexes/SearchError',
+  SetBusy = 'indexes/search-indexes/SetBusy',
 }
 
 type SetStatusAction = {
@@ -50,8 +57,14 @@ type SetErrorAction = {
   error: string | undefined;
 };
 
+type SetBusyAction = {
+  type: ActionTypes.SetBusy;
+  busy: boolean;
+};
+
 type CreateSearchIndexState = {
-  isModalOpen: boolean; // false
+  isModalOpen: boolean;
+  isBusy: boolean;
 };
 
 export type State = {
@@ -65,6 +78,7 @@ export const INITIAL_STATE: State = {
   status: 'NOT_AVAILABLE',
   createIndex: {
     isModalOpen: false,
+    isBusy: false,
   },
   error: undefined,
   indexes: [],
@@ -88,6 +102,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
       createIndex: {
         ...state.createIndex,
         isModalOpen: true,
+        isBusy: false,
       },
     };
   } else if (
@@ -102,12 +117,23 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
       createIndex: {
         ...state.createIndex,
         isModalOpen: false,
+        isBusy: false,
+      },
+    };
+  } else if (isAction<SetBusyAction>(action, ActionTypes.SetBusy)) {
+    return {
+      ...state,
+      createIndex: {
+        ...state.createIndex,
+        isBusy: action.busy,
       },
     };
   } else if (isAction<SetErrorAction>(action, ActionTypes.SetError)) {
     return {
       ...state,
-      error: action.error,
+      error: action.error
+        ? ATLAS_SEARCH_SERVER_ERRORS[action.error] || action.error
+        : action.error,
     };
   }
 
@@ -132,6 +158,11 @@ export const setError = (error: string | undefined): SetErrorAction => ({
   error,
 });
 
+export const setBusy = (busy: boolean): SetBusyAction => ({
+  type: ActionTypes.SetBusy,
+  busy,
+});
+
 export const saveIndex = (
   indexName: string,
   indexDefinition: Document
@@ -140,8 +171,11 @@ export const saveIndex = (
     const { namespace, dataService } = getState();
 
     dispatch(setError(undefined));
+    dispatch(setBusy(true));
+
     if (indexName === '') {
       dispatch(setError('Please enter the name of the index.'));
+      dispatch(setBusy(false));
       return;
     }
 
@@ -153,6 +187,7 @@ export const saveIndex = (
       );
     } catch (ex) {
       dispatch(setError((ex as MongoServerError).codeName));
+      dispatch(setBusy(false));
       return;
     }
 
