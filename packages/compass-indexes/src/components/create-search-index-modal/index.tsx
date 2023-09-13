@@ -150,8 +150,8 @@ export const CreateSearchIndexModal: React.FunctionComponent<
             minLines={16}
             className={bodyGapStyles}
           />
-          {parsingError && <WarningSummary warnings={[parsingError]} />}
-          {error && <ErrorSummary errors={[error]} />}
+          {parsingError && <WarningSummary warnings={parsingError} />}
+          {error && <ErrorSummary errors={error} />}
         </div>
       </ModalBody>
 
