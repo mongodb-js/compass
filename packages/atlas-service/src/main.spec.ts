@@ -83,6 +83,8 @@ describe('AtlasServiceMain', function () {
     AtlasService['getActiveCompassUser'] = () =>
       Promise.resolve({
         id: 'test',
+        createdAt: new Date(),
+        lastUsed: new Date(),
       });
 
     AtlasService['config'] = defaultConfig;
