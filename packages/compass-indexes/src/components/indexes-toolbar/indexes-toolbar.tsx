@@ -56,14 +56,13 @@ type IndexesToolbarProps = {
   isRefreshing: boolean;
   onRefreshIndexes: () => void;
   onChangeIndexView: (newView: IndexView) => void;
-
+  onClickCreateAtlasSearchIndex: () => void;
   // connected:
   isReadonlyView: boolean;
   isWritable: boolean;
   localAppRegistry: AppRegistry;
   writeStateDescription?: string;
   isAtlasSearchSupported: boolean;
-
   // via withPreferences:
   readOnly?: boolean;
 };
@@ -80,6 +79,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   onChangeIndexView,
   readOnly, // preferences readOnly.
+  onClickCreateAtlasSearchIndex,
 }) => {
   const isSearchManagementActive = usePreference(
     'enableAtlasSearchIndexManagement',
@@ -90,9 +90,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('open-create-index-modal');
   }, [localAppRegistry]);
-  const onClickCreateAtlasSearchIndex = useCallback(() => {
-    localAppRegistry.emit('open-create-search-index-modal');
-  }, [localAppRegistry]);
+
   const onChangeIndexesSegment = useCallback(
     (value: string) => {
       const newView = value as IndexView;

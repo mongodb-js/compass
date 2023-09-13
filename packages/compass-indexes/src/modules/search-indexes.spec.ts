@@ -1,13 +1,16 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
-import type { SearchIndex } from 'mongodb-data-service';
 import {
   SearchIndexesStatuses,
+  closeModal,
+  openModalForCreation,
+  saveIndex,
   fetchSearchIndexes,
   sortSearchIndexes,
 } from './search-indexes';
-import type { IndexesDataService } from '../stores/store';
 import { setupStore } from '../../test/setup-store';
+import sinon from 'sinon';
+import type { IndexesDataService } from '../stores/store';
+import type { SearchIndex } from 'mongodb-data-service';
 import { readonlyViewChanged } from './is-readonly-view';
 
 const searchIndexes: SearchIndex[] = [
@@ -29,12 +32,20 @@ const searchIndexes: SearchIndex[] = [
 
 describe('search-indexes module', function () {
   let store: ReturnType<typeof setupStore>;
+  let dataProvider: Partial<IndexesDataService>;
   let getSearchIndexesStub: any;
 
   beforeEach(function () {
-    store = setupStore({
-      isSearchIndexesSupported: true,
-    });
+    dataProvider = {
+      createSearchIndex: sinon.spy(),
+    };
+
+    store = setupStore(
+      {
+        isSearchIndexesSupported: true,
+      },
+      dataProvider
+    );
 
     getSearchIndexesStub = sinon
       .stub(
@@ -180,5 +191,22 @@ describe('search-indexes module', function () {
         },
       ]);
     });
+  });
+
+  it('opens the modal for creation', function () {
+    store.dispatch(openModalForCreation());
+    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
+  });
+
+  it('closes an open modal', function () {
+    store.dispatch(openModalForCreation());
+    store.dispatch(closeModal());
+    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
+  });
+
+  it('creates the index when data is valid', async function () {
+    await store.dispatch(saveIndex('indexName', {}));
+    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
+    expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
   });
 });

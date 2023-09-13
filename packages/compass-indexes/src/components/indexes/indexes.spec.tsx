@@ -23,7 +23,14 @@ const renderIndexes = (props: Partial<typeof Store> = {}) => {
 
   const allProps: Partial<typeof Store> = {
     regularIndexes: { indexes: [], error: null, isRefreshing: false },
-    searchIndexes: { indexes: [], error: null, status: 'PENDING' },
+    searchIndexes: {
+      indexes: [],
+      error: null,
+      status: 'PENDING',
+      createIndex: {
+        isModalOpen: false,
+      },
+    },
     ...props,
   };
 

@@ -7,12 +7,16 @@ import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
 import { refreshRegularIndexes } from '../../modules/regular-indexes';
-import { refreshSearchIndexes } from '../../modules/search-indexes';
+import {
+  openModalForCreation as openAtlasSearchModalForCreation,
+  refreshSearchIndexes,
+} from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import type { RootState } from '../../modules';
+import CreateSearchIndexModal from '../create-search-index-modal';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -35,6 +39,7 @@ type IndexesProps = {
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
+  onClickCreateAtlasSearchIndex: () => void;
 };
 
 function isRefreshingStatus(status: SearchIndexesStatus) {
@@ -50,6 +55,7 @@ export function Indexes({
   searchIndexes,
   refreshRegularIndexes,
   refreshSearchIndexes,
+  onClickCreateAtlasSearchIndex,
 }: IndexesProps) {
   const [currentIndexesView, setCurrentIndexesView] =
     useState<IndexView>('regular-indexes');
@@ -96,11 +102,12 @@ export function Indexes({
   return (
     <div className={containerStyles}>
       <IndexesToolbar
-        errorMessage={errorMessage}
+        errorMessage={errorMessage || null}
         hasTooManyIndexes={hasTooManyIndexes}
         isRefreshing={isRefreshing}
         onRefreshIndexes={onRefreshIndexes}
         onChangeIndexView={changeIndexView}
+        onClickCreateAtlasSearchIndex={onClickCreateAtlasSearchIndex}
       />
       {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
         <RegularIndexesTable />
@@ -108,6 +115,7 @@ export function Indexes({
       {!isReadonlyView && currentIndexesView === 'search-indexes' && (
         <SearchIndexesTable />
       )}
+      <CreateSearchIndexModal />
     </div>
   );
 }
@@ -125,6 +133,7 @@ const mapState = ({
 const mapDispatch = {
   refreshRegularIndexes,
   refreshSearchIndexes,
+  onClickCreateAtlasSearchIndex: openAtlasSearchModalForCreation,
 };
 
 export default connect(mapState, mapDispatch)(Indexes);
