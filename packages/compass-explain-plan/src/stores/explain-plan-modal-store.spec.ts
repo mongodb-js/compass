@@ -7,6 +7,7 @@ import {
 } from './explain-plan-modal-store';
 import { expect } from 'chai';
 import type { Document } from 'mongodb';
+import Sinon from 'sinon';
 
 const localAppRegistry = new AppRegistry();
 
@@ -48,31 +49,40 @@ const simplePlan = {
   ok: 1,
 };
 
-function configureStore(explainPlan: Document | Error = simplePlan) {
-  const explain = () => {
-    if ((explainPlan as Error).name) {
-      return Promise.reject(explainPlan);
-    }
-    return Promise.resolve(explainPlan);
-  };
-  const dataProvider: ExplainPlanModalConfigureStoreOptions['dataProvider'] = {
-    dataProvider: {
-      explainAggregate: explain,
-      explainFind: explain,
-      isCancelError() {
-        return false;
-      },
-    },
-  };
-  return _configureStore({
-    localAppRegistry,
-    dataProvider,
-    namespace: 'test.test',
-    isDataLake: false,
-  });
-}
-
 describe('explain plan modal store', function () {
+  const sandbox = Sinon.createSandbox();
+  let dataProvider: ExplainPlanModalConfigureStoreOptions['dataProvider'];
+
+  function configureStore(explainPlan: Document | Error = simplePlan) {
+    const explain = sandbox.stub().callsFake(() => {
+      if ((explainPlan as Error).name) {
+        return Promise.reject(explainPlan);
+      }
+      return Promise.resolve(explainPlan);
+    });
+
+    dataProvider = {
+      dataProvider: {
+        explainAggregate: explain,
+        explainFind: explain,
+        isCancelError() {
+          return false;
+        },
+      },
+    };
+
+    return _configureStore({
+      localAppRegistry,
+      dataProvider,
+      namespace: 'test.test',
+      isDataLake: false,
+    });
+  }
+
+  afterEach(function () {
+    sandbox.resetHistory();
+  });
+
   it('should open modal on `open-explain-plan-modal` event', function () {
     const store = configureStore();
     localAppRegistry.emit('open-explain-plan-modal', {
@@ -121,5 +131,33 @@ describe('explain plan modal store', function () {
     const store = configureStore();
     store.dispatch(closeExplainPlanModal());
     expect(store.getState()).to.have.property('isModalOpen', false);
+  });
+
+  it('should remove $out stage before passing pipeline to explain', async function () {
+    const store = configureStore();
+    await store.dispatch(
+      openExplainPlanModal({
+        aggregation: { pipeline: [{ $match: { foo: 1 } }, { $out: 'test' }] },
+      })
+    );
+    expect(dataProvider?.dataProvider?.explainAggregate).to.be.calledWith(
+      'test.test',
+      [{ $match: { foo: 1 } }]
+    );
+  });
+
+  it('should remove $merge stage before passing pipeline to explain', async function () {
+    const store = configureStore();
+    await store.dispatch(
+      openExplainPlanModal({
+        aggregation: {
+          pipeline: [{ $merge: { into: 'test' } }, { $match: { bar: 2 } }],
+        },
+      })
+    );
+    expect(dataProvider?.dataProvider?.explainAggregate).to.be.calledWith(
+      'test.test',
+      [{ $match: { bar: 2 } }]
+    );
   });
 });
