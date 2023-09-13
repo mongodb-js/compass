@@ -7,7 +7,10 @@ import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
 import { refreshRegularIndexes } from '../../modules/regular-indexes';
-import { refreshSearchIndexes } from '../../modules/search-indexes';
+import {
+  openModalForCreation as openAtlasSearchModalForCreation,
+  refreshSearchIndexes,
+} from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
@@ -37,7 +40,6 @@ type IndexesProps = {
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
   onClickCreateAtlasSearchIndex: () => void;
-  onClickCreateRegularIndex: () => void;
 };
 
 function isRefreshingStatus(status: SearchIndexesStatus) {
@@ -54,7 +56,6 @@ export function Indexes({
   refreshRegularIndexes,
   refreshSearchIndexes,
   onClickCreateAtlasSearchIndex,
-  onClickCreateRegularIndex,
 }: IndexesProps) {
   const [currentIndexesView, setCurrentIndexesView] =
     useState<IndexView>('regular-indexes');
@@ -107,7 +108,6 @@ export function Indexes({
         onRefreshIndexes={onRefreshIndexes}
         onChangeIndexView={changeIndexView}
         onClickCreateAtlasSearchIndex={onClickCreateAtlasSearchIndex}
-        onClickCreateRegularIndex={onClickCreateRegularIndex}
       />
       {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
         <RegularIndexesTable />
@@ -133,8 +133,7 @@ const mapState = ({
 const mapDispatch = {
   refreshRegularIndexes,
   refreshSearchIndexes,
-  onClickCreateAtlasSearchIndex,
-  onClickCreateRegularIndex,
+  onClickCreateAtlasSearchIndex: openAtlasSearchModalForCreation,
 };
 
 export default connect(mapState, mapDispatch)(Indexes);

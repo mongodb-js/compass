@@ -90,6 +90,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('open-create-index-modal');
   }, [localAppRegistry]);
+
   const onChangeIndexesSegment = useCallback(
     (value: string) => {
       const newView = value as IndexView;
