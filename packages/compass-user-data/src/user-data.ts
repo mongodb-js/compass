@@ -220,7 +220,7 @@ export class UserData<T extends z.Schema> {
       return [data, stats];
     } catch (error) {
       log.error(
-        mongoLogId(1_001_000_237),
+        mongoLogId(1_001_000_243),
         'Filesystem',
         'Error reading stats',
         {
