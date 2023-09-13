@@ -93,12 +93,14 @@ export async function throwIfNotOk(
 }
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {
+  if (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS) {
+    throw new Error(
+      "Compass' AI functionality is not currently enabled. Please try again later."
+    );
+  }
   // Only throw if we actually have userInfo / logged in. Otherwise allow
   // request to fall through so that we can get a proper network error
-  if (
-    atlasService['currentUser'] &&
-    atlasService['currentUser'].enabledAIFeature === false
-  ) {
+  if (atlasService['currentUser']?.enabledAIFeature === false) {
     throw new Error("Can't use AI before accepting terms and conditions");
   }
 }
@@ -238,7 +240,7 @@ export class AtlasService {
       );
       const serializedState = await this.secretStore.getItem(SECRET_STORE_KEY);
       this.setupPlugin(serializedState);
-      void this.setupAIAccess();
+      await this.setupAIAccess();
       // Whether or not we got the state, try requesting user info. If there was
       // no serialized state returned, this will just fail quickly. If there was
       // some state, we will prepare the service state for user interactions by

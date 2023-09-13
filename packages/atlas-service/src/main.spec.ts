@@ -95,7 +95,9 @@ describe('AtlasServiceMain', function () {
     cloudFeatureRolloutAccess =
       preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
     await preferencesAccess.savePreferences({
-      cloudFeatureRolloutAccess: undefined,
+      cloudFeatureRolloutAccess: {
+        GEN_AI_COMPASS: true,
+      },
     });
   });
 
@@ -497,6 +499,12 @@ describe('AtlasServiceMain', function () {
   });
 
   describe('setupAIAccess', function () {
+    beforeEach(async function () {
+      await preferencesAccess.savePreferences({
+        cloudFeatureRolloutAccess: undefined,
+      });
+    });
+
     it('should set the cloudFeatureRolloutAccess true when returned true', async function () {
       const fetchStub = sandbox.stub().resolves({
         ok: true,
