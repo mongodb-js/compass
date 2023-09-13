@@ -145,7 +145,11 @@ export const CreateSearchIndexModal: React.FunctionComponent<
             By default, search indexes will have the following search
             configurations. You can refine this later.
           </p>
-          <Link href="/" target="_blank" hideExternalIcon={true}>
+          <Link
+            href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
+            target="_blank"
+            hideExternalIcon={true}
+          >
             View Atlas Search tutorials{' '}
             <Icon size="small" glyph="OpenNewTab"></Icon>
           </Link>
