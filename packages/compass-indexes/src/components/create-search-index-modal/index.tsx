@@ -41,6 +41,12 @@ export const DEFAULT_INDEX_DEFINITION = `{
   }
 }`;
 
+const flexWithGapStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
+});
+
 const bodyGapStyles = css({
   marginTop: spacing[3],
 });
@@ -114,8 +120,8 @@ export const CreateSearchIndexModal: React.FunctionComponent<
         title="Create Search Index"
         subtitle="Give your search index a name for easy reference"
       />
-      <ModalBody>
-        <div className={bodyGapStyles}>
+      <ModalBody className={flexWithGapStyles}>
+        <section>
           <Label htmlFor="name-of-search-index">Name of Search Index</Label>
           <TextInput
             id="name-of-search-index"
@@ -131,9 +137,9 @@ export const CreateSearchIndexModal: React.FunctionComponent<
               setIndexName(evt.target.value)
             }
           />
-        </div>
-        <HorizontalRule className={bodyGapStyles} />
-        <div className={bodyGapStyles}>
+        </section>
+        <HorizontalRule />
+        <section>
           <Subtitle>Index Definition</Subtitle>
           <p className={bodyGapStyles}>
             By default, search indexes will have the following search
@@ -152,7 +158,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
           />
           {parsingError && <WarningSummary warnings={parsingError} />}
           {error && <ErrorSummary errors={error} />}
-        </div>
+        </section>
       </ModalBody>
 
       <ModalFooter className={toolbarStyles}>
