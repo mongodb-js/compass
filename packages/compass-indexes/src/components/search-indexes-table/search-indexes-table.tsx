@@ -51,7 +51,7 @@ function ZeroState() {
         <span>
           Not sure where to start?&nbsp;
           <Link
-            href="https://docs.mongodb.com/compass/master/schema/"
+            href="https://www.mongodb.com/docs/atlas/atlas-search/"
             target="_blank"
           >
             Visit our Docs
