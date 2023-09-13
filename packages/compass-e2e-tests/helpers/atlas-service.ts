@@ -7,6 +7,23 @@ export type MockAtlasServerResponse = {
   body: any;
 };
 
+function aiFeatureEnableResponse(
+  req: http.IncomingMessage,
+  res: http.ServerResponse
+) {
+  // Get request to hello service.
+  res.setHeader('Content-Type', 'application/json');
+  return res.end(
+    JSON.stringify({
+      features: {
+        GEN_AI_COMPASS: {
+          enabled: true,
+        },
+      },
+    })
+  );
+}
+
 export async function startMockAtlasServiceServer(
   {
     response: _response,
@@ -44,6 +61,14 @@ export async function startMockAtlasServiceServer(
   let response = _response;
   const server = http
     .createServer((req, res) => {
+      if (req.method === 'GET') {
+        requests.push({
+          req,
+          content: null,
+        });
+        return aiFeatureEnableResponse(req, res);
+      }
+
       let body = '';
       req
         .setEncoding('utf8')
