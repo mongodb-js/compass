@@ -9,7 +9,10 @@ import userEvent from '@testing-library/user-event';
 
 import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
-import { openModalForCreation, setError } from '../../modules/search-indexes';
+import {
+  openModalForCreation,
+  createIndexFailed,
+} from '../../modules/search-indexes';
 import type { IndexesDataService } from '../../stores/store';
 import { setupStore } from '../../../test/setup-store';
 
@@ -67,10 +70,10 @@ describe('Create Search Index Modal', function () {
     });
 
     it('shows server errors', async function () {
-      store.dispatch(setError('InvalidIndexSpecificationOption'));
+      store.dispatch(createIndexFailed('InvalidIndexSpecificationOption'));
       expect(store.getState().searchIndexes).to.have.property(
         'error',
-        'InvalidIndexSpecificationOption'
+        'Invalid index definition.'
       );
 
       expect(await screen.findByText('Invalid index definition.')).to.exist;
