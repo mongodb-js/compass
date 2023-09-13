@@ -27,9 +27,9 @@ const searchIndexes: SearchIndex[] = [
   },
 ];
 
-describe.only('search-indexes module', function () {
+describe('search-indexes module', function () {
   let store: ReturnType<typeof setupStore>;
-  let getSearchIndexesStub;
+  let getSearchIndexesStub: any;
 
   beforeEach(function () {
     store = setupStore({
