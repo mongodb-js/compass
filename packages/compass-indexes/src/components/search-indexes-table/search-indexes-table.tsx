@@ -4,18 +4,23 @@ import type { SearchIndex } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model';
 
 import type { SearchSortColumn } from '../../modules/search-indexes';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import {
+  SearchIndexesStatuses,
+  showDropSearchIndexModal,
+} from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
 import type { SortDirection, RootState } from '../../modules';
 
 import { IndexesTable } from '../indexes-table';
+import IndexActions from './search-index-actions';
 
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
+  onDropIndex: (name: string) => void;
   status: SearchIndexesStatus;
 };
 
@@ -28,7 +33,7 @@ function isReadyStatus(status: SearchIndexesStatus) {
 
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
-> = ({ indexes, isWritable, readOnly, onSortTable, status }) => {
+> = ({ indexes, isWritable, readOnly, onSortTable, status, onDropIndex }) => {
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
     // indexes aren't available, then that's all handled by the toolbar and we
@@ -59,7 +64,7 @@ export const SearchIndexesTable: React.FunctionComponent<
           children: index.status, // TODO(COMPASS-7205): show some badge, not just text
         },
       ],
-
+      actions: <IndexActions index={index} onDropIndex={onDropIndex} />,
       // TODO(COMPASS-7206): details for the nested row
     };
   });
@@ -84,6 +89,7 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
+  onDropIndex: showDropSearchIndexModal,
 };
 
 export default connect(

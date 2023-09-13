@@ -16,7 +16,10 @@ import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import type { RootState } from '../../modules';
-import CreateSearchIndexModal from '../create-search-index-modal';
+import {
+  CreateSearchIndexModal,
+  DropSearchIndexModal,
+} from '../search-index-modals';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -116,6 +119,7 @@ export function Indexes({
         <SearchIndexesTable />
       )}
       <CreateSearchIndexModal />
+      <DropSearchIndexModal />
     </div>
   );
 }

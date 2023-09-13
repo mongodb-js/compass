@@ -6,29 +6,15 @@ import {
   saveIndex,
   fetchSearchIndexes,
   sortSearchIndexes,
+  showDropSearchIndexModal,
+  closeDropSearchIndexModal,
+  dropSearchIndex,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
+import { searchIndexes } from '../../test/fixtures/search-indexes';
 import sinon from 'sinon';
 import type { IndexesDataService } from '../stores/store';
-import type { SearchIndex } from 'mongodb-data-service';
 import { readonlyViewChanged } from './is-readonly-view';
-
-const searchIndexes: SearchIndex[] = [
-  {
-    id: '1',
-    name: 'default',
-    status: 'READY',
-    queryable: true,
-    latestDefinition: {},
-  },
-  {
-    id: '2',
-    name: 'another',
-    status: 'FAILED',
-    queryable: true,
-    latestDefinition: {},
-  },
-];
 
 describe('search-indexes module', function () {
   let store: ReturnType<typeof setupStore>;
@@ -127,7 +113,7 @@ describe('search-indexes module', function () {
           id: '2',
           name: 'another',
           status: 'FAILED',
-          queryable: true,
+          queryable: false,
           latestDefinition: {},
         },
         {
@@ -186,7 +172,7 @@ describe('search-indexes module', function () {
           id: '2',
           name: 'another',
           status: 'FAILED',
-          queryable: true,
+          queryable: false,
           latestDefinition: {},
         },
       ]);
@@ -208,5 +194,94 @@ describe('search-indexes module', function () {
     await store.dispatch(saveIndex('indexName', {}));
     expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
     expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
+  });
+
+  context('drop search index', function () {
+    let dropSearchIndexStub: sinon.SinonStub;
+    beforeEach(function () {
+      dropSearchIndexStub = sinon.stub(
+        store.getState().dataService as IndexesDataService,
+        'dropSearchIndex'
+      );
+    });
+
+    it('opens the modal for deletion', function () {
+      store.dispatch(showDropSearchIndexModal('index_name'));
+      expect(store.getState().searchIndexes.dropIndex).to.deep.equal({
+        isModalOpen: true,
+        isBusy: false,
+        indexName: 'index_name',
+      });
+    });
+
+    it('closes an open modal', function () {
+      store.dispatch(showDropSearchIndexModal('index_name'));
+      store.dispatch(closeDropSearchIndexModal());
+
+      expect(store.getState().searchIndexes.dropIndex).to.deep.equal({
+        indexName: 'index_name',
+        isModalOpen: false,
+        isBusy: false,
+      });
+    });
+
+    it('does nothing when name is not set', async function () {
+      await store.dispatch(dropSearchIndex());
+      expect(dropSearchIndexStub.callCount).to.equal(0);
+    });
+
+    it('sets error when dropping an index fails', async function () {
+      store.dispatch(showDropSearchIndexModal('index_name'));
+
+      dropSearchIndexStub.rejects(new Error('Invalid index'));
+      await store.dispatch(dropSearchIndex());
+
+      expect(dropSearchIndexStub.firstCall.args).to.deep.equal([
+        'citibike.trips',
+        'index_name',
+      ]);
+      expect(store.getState().searchIndexes.error).to.equal('Invalid index');
+      expect(store.getState().searchIndexes.dropIndex).to.deep.equal({
+        indexName: 'index_name',
+        isModalOpen: true,
+        isBusy: false,
+      });
+    });
+
+    it('sets loading state', function () {
+      store.dispatch(showDropSearchIndexModal('index_name'));
+
+      dropSearchIndexStub.returns(() => new Promise(() => {}));
+      void store.dispatch(dropSearchIndex());
+
+      expect(dropSearchIndexStub.firstCall.args).to.deep.equal([
+        'citibike.trips',
+        'index_name',
+      ]);
+      expect(store.getState().searchIndexes.error).to.be.undefined;
+      expect(store.getState().searchIndexes.dropIndex).to.deep.equal({
+        indexName: 'index_name',
+        isModalOpen: true,
+        isBusy: true,
+      });
+    });
+
+    it('drops index successfully', async function () {
+      store.dispatch(showDropSearchIndexModal('index_name'));
+
+      dropSearchIndexStub.resolves(true);
+      await store.dispatch(dropSearchIndex());
+
+      expect(dropSearchIndexStub.firstCall.args).to.deep.equal([
+        'citibike.trips',
+        'index_name',
+      ]);
+      expect(store.getState().searchIndexes.error).to.be.undefined;
+      expect(store.getState().searchIndexes.dropIndex).to.deep.equal({
+        indexName: 'index_name',
+        isModalOpen: false,
+        isBusy: false,
+      });
+    });
   });
 });

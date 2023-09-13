@@ -5,25 +5,8 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 
 import { SearchIndexesTable } from './search-indexes-table';
-import type { SearchIndex } from 'mongodb-data-service';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
-
-const indexes: SearchIndex[] = [
-  {
-    id: '1',
-    name: 'default',
-    status: 'READY',
-    queryable: true,
-    latestDefinition: {},
-  },
-  {
-    id: '2',
-    name: 'another',
-    status: 'READY',
-    queryable: true,
-    latestDefinition: {},
-  },
-];
+import { searchIndexes as indexes } from './../../../test/fixtures/search-indexes';
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
@@ -35,6 +18,7 @@ const renderIndexList = (
       isWritable={true}
       readOnly={false}
       onSortTable={() => {}}
+      onDropIndex={() => {}}
       {...props}
     />
   );
@@ -122,4 +106,22 @@ describe('SearchIndexesTable Component', function () {
       expect(onSortTableSpy.getCalls()[1].args).to.deep.equal([column, 'asc']);
     });
   }
+
+  context('renders list with action', function () {
+    it('renders drop action and calls onDropIndex', function () {
+      const onDropIndexSpy = spy();
+
+      renderIndexList({ onDropIndex: onDropIndexSpy });
+      const dropIndexActions = screen.getAllByTestId(
+        'search-index-actions-drop-action'
+      );
+
+      expect(dropIndexActions.length).to.equal(indexes.length);
+
+      dropIndexActions[0].click();
+
+      expect(onDropIndexSpy.callCount).to.equal(1);
+      expect(onDropIndexSpy.firstCall.args).to.deep.equal([indexes[0].name]);
+    });
+  });
 });
