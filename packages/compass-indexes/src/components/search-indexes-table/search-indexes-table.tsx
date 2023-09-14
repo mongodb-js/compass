@@ -75,9 +75,9 @@ export const SearchIndexesTable: React.FunctionComponent<
   isWritable,
   readOnly,
   onSortTable,
+  openCreateModal,
   status,
   onDropIndex: onConfirmDropIndex,
-  openCreateModal,
 }) => {
   const onDropIndex = useCallback(
     async (name: string) => {
