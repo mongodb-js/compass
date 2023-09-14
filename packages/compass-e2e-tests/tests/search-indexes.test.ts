@@ -177,21 +177,20 @@ describe.only('Search Indexes', function () {
         });
         await browser.dropIndex(indexName);
       });
-      it('allows users to create and view search indexes', async function () {
+      it('allows users to create, view and drop search indexes', async function () {
         await browser.clickVisible(
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await browser.createSearchIndex(INDEX_NAME, INDEX_DEFINITION);
-        await browser.waitUntil(async () => {
-          return await browser.$(Selectors.CreateSearchIndexToast).isExisting();
-        });
-        // View it
         await browser.waitForAnimations(Selectors.SearchIndexList);
-        await browser.waitUntil(async () => {
-          return await browser
-            .$(Selectors.searchIndexRow(INDEX_NAME))
-            .isExisting();
-        });
+
+        // View it
+        await browser
+          .$(Selectors.searchIndexRow(INDEX_NAME))
+          .waitForDisplayed();
+
+        // Drop it
+        await browser.dropSearchIndex(INDEX_NAME);
       });
 
       it('allows users to update and view search indexes');

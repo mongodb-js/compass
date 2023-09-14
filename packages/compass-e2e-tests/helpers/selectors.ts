@@ -948,10 +948,10 @@ export const CreateSearchIndexDefinition =
   '[data-testid="definition-of-search-index"]';
 export const CreateSearchIndexConfirmButton =
   '[data-testid="create-search-index-button"]';
-export const CreateSearchIndexToast =
-  '[data-testid="index-creation-in-progress"]';
 export const searchIndexRow = (name: string) =>
   `[data-testid="search-indexes-row-${name}"]`;
+export const searchIndexDropButton = (name: string) =>
+  `${searchIndexRow(name)} [data-testid="search-index-actions-drop-action"]`;
 
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
@@ -1116,6 +1116,8 @@ export const ExportToLanguageQueryOutput =
 
 // Confirmation modal
 export const ConfirmationModal = '[data-testid="confirmation-modal"]';
+export const ConfirmationModalInput =
+  '[data-testid="confirmation-modal"] input';
 export const ConfirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
