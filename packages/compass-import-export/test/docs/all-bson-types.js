@@ -44,14 +44,17 @@ export default [
 
     binaries: {
       generic: new Binary(Buffer.from([1, 2, 3]), 0), // 0
-      functionData: new Binary('//8=', 1), // 1
-      binaryOld: new Binary('//8=', 2), // 2
-      uuidOld: new Binary('c//SZESzTGmQ6OfR38A11A==', 3), // 3
+      functionData: new Binary(Buffer.from('//8='), 1), // 1
+      binaryOld: new Binary(Buffer.from('//8='), 2), // 2
+      uuidOld: new Binary(Buffer.from('c//SZESzTGmQ6OfR38A11A=='), 3), // 3
       uuid: new UUID('AAAAAAAA-AAAA-4AAA-AAAA-AAAAAAAAAAAA'), // 4
-      md5: new Binary('c//SZESzTGmQ6OfR38A11A==', 5), // 5
-      encrypted: new Binary('c//SZESzTGmQ6OfR38A11A==', 6), // 6
-      compressedTimeSeries: new Binary('c//SZESzTGmQ6OfR38A11A==', 7), // 7
-      custom: new Binary('//8=', 128), // 128
+      md5: new Binary(Buffer.from('c//SZESzTGmQ6OfR38A11A=='), 5), // 5
+      encrypted: new Binary(Buffer.from('c//SZESzTGmQ6OfR38A11A=='), 6), // 6
+      compressedTimeSeries: new Binary(
+        Buffer.from('c//SZESzTGmQ6OfR38A11A=='),
+        7
+      ), // 7
+      custom: new Binary(Buffer.from('//8='), 128), // 128
     },
 
     dbRef: new DBRef('namespace', new ObjectId('642d76b4b7ebfab15d3c4a78')), // not actually a separate type, just a convention

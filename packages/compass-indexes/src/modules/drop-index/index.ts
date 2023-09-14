@@ -85,7 +85,7 @@ export const dropIndex = (indexName: string) => {
       await state.dataService?.dropIndex(ns, indexName);
       track('Index Dropped');
       dispatch(resetForm());
-      dispatch(localAppRegistryEmit('refresh-data'));
+      dispatch(localAppRegistryEmit('refresh-regular-indexes'));
       dispatch(clearError());
       dispatch(toggleInProgress(false));
       dispatch(toggleIsVisible(false));

@@ -30,11 +30,11 @@ function getDataService({
         }
 
         resolve({
-          nInserted: docs.length,
-          nMatched: 0,
-          nModified: 0,
-          nRemoved: 0,
-          nUpserted: 0,
+          insertedCount: docs.length,
+          matchedCount: 0,
+          modifiedCount: 0,
+          deletedCount: 0,
+          upsertedCount: 0,
           ok: 1,
         });
       });
@@ -149,7 +149,7 @@ describe('collection-stream', function () {
         });
 
         const streamStats = dest.getStats();
-        if (streamStats.nInserted === docs.length) {
+        if (streamStats.insertedCount === docs.length) {
           resolveWrite();
         }
       });
@@ -162,11 +162,11 @@ describe('collection-stream', function () {
 
       expect(stats).to.deep.equal({
         ok: numBatches,
-        nInserted: docs.length,
-        nMatched: 0,
-        nModified: 0,
-        nRemoved: 0,
-        nUpserted: 0,
+        insertedCount: docs.length,
+        matchedCount: 0,
+        modifiedCount: 0,
+        deletedCount: 0,
+        upsertedCount: 0,
         writeErrors: [],
         writeConcernErrors: [],
       });
@@ -259,11 +259,11 @@ describe('collection-stream', function () {
 
         expect(stats).to.deep.equal({
           ok: isFLE ? 1 : 0, // wat?
-          nInserted: 0,
-          nMatched: 0,
-          nModified: 0,
-          nRemoved: 0,
-          nUpserted: 0,
+          insertedCount: 0,
+          matchedCount: 0,
+          modifiedCount: 0,
+          deletedCount: 0,
+          upsertedCount: 0,
           // all the errors are on dest._errors, so only on the progress stats, not on the stream stats
           writeErrors: [],
           writeConcernErrors: [],

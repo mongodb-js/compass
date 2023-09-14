@@ -1,10 +1,4 @@
-import type {
-  Document,
-  Db,
-  RunCommandOptions,
-  ServerSessionId,
-  CollStats,
-} from 'mongodb';
+import type { Document, Db, RunCommandOptions, ServerSessionId } from 'mongodb';
 import { ReadPreference } from 'mongodb';
 import type { Binary } from 'bson';
 
@@ -158,11 +152,6 @@ interface RunDiagnosticsCommand {
   (db: Db, spec: { top: 1 }, options?: RunCommandOptions): Promise<{
     totals: Record<string, unknown>;
   }>;
-  (
-    db: Db,
-    spec: { collStats: string },
-    options?: RunCommandOptions
-  ): Promise<CollStats>;
 }
 
 export type ListDatabasesOptions = {

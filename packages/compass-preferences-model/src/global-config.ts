@@ -7,7 +7,7 @@ import yargsParser from 'yargs-parser';
 import { kebabCase } from 'lodash';
 import type { AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
-import type { ZodError } from 'zod';
+import type { z } from '@mongodb-js/compass-user-data';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
@@ -177,7 +177,7 @@ function validatePreferences(
       obj[key] = allPreferencesProps[key].validator.parse(value) as any;
     } catch (e) {
       // Show the first error
-      error(`${key}: ${(e as ZodError).errors[0].message}`);
+      error(`${key}: ${(e as z.ZodError).errors[0].message}`);
     }
   }
   return [obj, errors];

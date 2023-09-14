@@ -1,4 +1,7 @@
 import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
+import type AppRegistry from 'hadron-app-registry';
+import { withPreferences } from 'compass-preferences-model';
 import {
   Button,
   ErrorSummary,
@@ -15,8 +18,10 @@ import {
   SegmentedControl,
   SegmentedControlOption,
 } from '@mongodb-js/compass-components';
-import type AppRegistry from 'hadron-app-registry';
 import { usePreference } from 'compass-preferences-model';
+
+import type { RootState } from '../../modules';
+import { SearchIndexesStatuses } from '../../modules/search-indexes';
 
 const containerStyles = css({
   margin: `${spacing[3]}px 0`,
@@ -45,16 +50,20 @@ const createIndexButtonContainerStyles = css({
 export type IndexView = 'regular-indexes' | 'search-indexes';
 
 type IndexesToolbarProps = {
+  // passed props:
   errorMessage: string | null;
-  isReadonlyView: boolean;
-  isWritable: boolean;
   hasTooManyIndexes: boolean;
-  localAppRegistry: AppRegistry;
   isRefreshing: boolean;
-  writeStateDescription?: string;
-  isAtlasSearchSupported: boolean;
   onRefreshIndexes: () => void;
   onChangeIndexView: (newView: IndexView) => void;
+  onClickCreateAtlasSearchIndex: () => void;
+  // connected:
+  isReadonlyView: boolean;
+  isWritable: boolean;
+  localAppRegistry: AppRegistry;
+  writeStateDescription?: string;
+  isAtlasSearchSupported: boolean;
+  // via withPreferences:
   readOnly?: boolean;
 };
 
@@ -70,6 +79,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   onChangeIndexView,
   readOnly, // preferences readOnly.
+  onClickCreateAtlasSearchIndex,
 }) => {
   const isSearchManagementActive = usePreference(
     'enableAtlasSearchIndexManagement',
@@ -80,9 +90,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('open-create-index-modal');
   }, [localAppRegistry]);
-  const onClickCreateAtlasSearchIndex = useCallback(() => {
-    localAppRegistry.emit('open-create-search-index-modal');
-  }, [localAppRegistry]);
+
   const onChangeIndexesSegment = useCallback(
     (value: string) => {
       const newView = value as IndexView;
@@ -101,7 +109,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   );
 
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="indexes-toolbar-container">
       {!isReadonlyView && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
@@ -274,3 +282,27 @@ export const CreateIndexButton: React.FunctionComponent<
     </Button>
   );
 };
+
+const mapState = ({
+  isWritable,
+  isReadonlyView,
+  description,
+  serverVersion,
+  appRegistry,
+  searchIndexes,
+}: RootState) => ({
+  isWritable,
+  isReadonlyView,
+  writeStateDescription: description,
+  localAppRegistry: (appRegistry as any).localAppRegistry,
+  serverVersion,
+  isAtlasSearchSupported:
+    searchIndexes.status !== SearchIndexesStatuses.NOT_AVAILABLE,
+});
+
+const mapDispatch = {};
+
+export default connect(
+  mapState,
+  mapDispatch
+)(withPreferences(IndexesToolbar, ['readOnly'], React));

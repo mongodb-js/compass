@@ -10,7 +10,7 @@ import {
   BadgeVariant,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { IndexDefinition } from '../../modules/regular-indexes';
+import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
 
 const containerStyles = css({
@@ -30,7 +30,7 @@ const ttlTooltip = (expireAfterSeconds: number) => {
 
 export const getPropertyTooltip = (
   property: string | undefined,
-  extra: IndexDefinition['extra']
+  extra: RegularIndex['extra']
 ): string | null => {
   return property === 'ttl'
     ? ttlTooltip(extra.expireAfterSeconds as number)
@@ -81,9 +81,9 @@ const ErrorBadgeWithTooltip: React.FunctionComponent<{
 };
 
 type PropertyFieldProps = {
-  extra: IndexDefinition['extra'];
-  properties: IndexDefinition['properties'];
-  cardinality: IndexDefinition['cardinality'];
+  extra: RegularIndex['extra'];
+  properties: RegularIndex['properties'];
+  cardinality: RegularIndex['cardinality'];
 };
 
 const HIDDEN_INDEX_TEXT = 'HIDDEN';

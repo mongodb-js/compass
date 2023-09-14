@@ -17,10 +17,7 @@ describe('InfoModal [Component]', function () {
 
   it('renders the title text', function () {
     const title = component.find('h1').text();
-    const hasVersionZero = title.includes('mongosh v0.');
-    const hasVersionOne = title.includes('mongosh v1.');
-    const titleIsAccurate = hasVersionZero || hasVersionOne;
-    expect(titleIsAccurate).to.equal(true);
+    expect(title).to.match(/^mongosh v2\.\d+\.\d+/);
   });
 
   it('renders the hotkeys key', function () {

@@ -417,7 +417,7 @@ describe('TypeChecker', function() {
 
     context('when the object is a binary', function() {
       context('when casting to a string', function() {
-        var binary = new Binary('test', 0);
+        var binary = new Binary(Buffer.from('test'), 0);
 
         it('returns the binary as a string', function() {
           expect(TypeChecker.cast(binary, 'String')).to.equal('test');
@@ -581,7 +581,7 @@ describe('TypeChecker', function() {
     });
 
     context('when the object is a binary', function() {
-      var binary = new Binary('test', 0);
+      var binary = new Binary(Buffer.from('test'), 0);
 
       it('returns Binary', function() {
         expect(TypeChecker.type(binary)).to.equal('Binary');

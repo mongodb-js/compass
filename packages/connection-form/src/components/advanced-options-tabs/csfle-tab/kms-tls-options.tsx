@@ -1,5 +1,8 @@
 import React, { useCallback } from 'react';
-import type { AutoEncryptionOptions, AutoEncryptionTlsOptions } from 'mongodb';
+import type {
+  AutoEncryptionOptions,
+  ClientEncryptionTlsOptions,
+} from 'mongodb';
 
 import TLSCertificateAuthority from '../tls-ssl-tab/tls-certificate-authority';
 import TLSClientCertificate from '../tls-ssl-tab/tls-client-certificate';
@@ -16,11 +19,11 @@ function KMSTLSOptions({
   kmsProvider: keyof NonNullable<AutoEncryptionOptions['tlsOptions']>;
   clientCertIsOptional?: boolean;
 }): React.ReactElement {
-  const currentOptions: AutoEncryptionTlsOptions =
+  const currentOptions: ClientEncryptionTlsOptions =
     autoEncryptionOptions.tlsOptions?.[kmsProvider] ?? {};
 
   const handleFieldChanged = useCallback(
-    (key: keyof AutoEncryptionTlsOptions, value?: string) => {
+    (key: keyof ClientEncryptionTlsOptions, value?: string) => {
       return updateConnectionFormField({
         type: 'update-csfle-kms-tls-param',
         kmsProvider,

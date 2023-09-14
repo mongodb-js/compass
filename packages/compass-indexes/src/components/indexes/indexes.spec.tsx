@@ -1,39 +1,66 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
-import type { IndexDefinition } from '../../modules/regular-indexes';
-import { Indexes } from './indexes';
+import sinon from 'sinon';
+import preferencesAccess from 'compass-preferences-model';
+import type { RegularIndex } from '../../modules/regular-indexes';
+import type { SearchIndex } from 'mongodb-data-service';
+import type Store from '../../stores';
+import type { IndexesDataService } from '../../stores/store';
+import Indexes from './indexes';
+import { setupStore } from '../../../test/setup-store';
 
-const renderIndexes = (
-  props: Partial<React.ComponentProps<typeof Indexes>> = {}
-) => {
-  const appRegistry = new AppRegistry();
+const renderIndexes = (props: Partial<typeof Store> = {}) => {
+  const store = setupStore();
+
+  const allProps: Partial<typeof Store> = {
+    regularIndexes: { indexes: [], error: null, isRefreshing: false },
+    searchIndexes: {
+      indexes: [],
+      error: null,
+      status: 'PENDING',
+      createIndex: {
+        isModalOpen: false,
+      },
+    },
+    ...props,
+  };
+
+  Object.assign(store.getState(), allProps);
+
   render(
-    <Indexes
-      indexes={[]}
-      isWritable={true}
-      isReadonlyView={false}
-      readOnly={false}
-      description={undefined}
-      error={null}
-      localAppRegistry={appRegistry}
-      isRefreshing={false}
-      serverVersion="4.4.0"
-      sortIndexes={() => {}}
-      refreshIndexes={() => {}}
-      dropFailedIndex={() => {}}
-      onHideIndex={() => {}}
-      onUnhideIndex={() => {}}
-      isAtlasSearchSupported={false}
-      {...props}
-    />
+    <Provider store={store}>
+      <Indexes />
+    </Provider>
   );
+
+  return store;
 };
 
 describe('Indexes Component', function () {
   before(cleanup);
   afterEach(cleanup);
+
+  let sandbox: sinon.SinonSandbox;
+
+  afterEach(function () {
+    return sandbox.restore();
+  });
+
+  beforeEach(function () {
+    sandbox = sinon.createSandbox();
+    sandbox.stub(preferencesAccess, 'getPreferences').returns({
+      enableAtlasSearchIndexManagement: true,
+    } as any);
+  });
 
   it('renders indexes card', function () {
     renderIndexes();
@@ -45,192 +72,266 @@ describe('Indexes Component', function () {
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
   });
 
-  it('does not render indexes toolbar when its a readonly view', function () {
+  it('renders indexes toolbar when there is a regular indexes error', function () {
     renderIndexes({
-      indexes: [],
-      isReadonlyView: true,
-      error: undefined,
-    });
-    expect(() => {
-      screen.getByTestId('indexes-toolbar');
-    }).to.throw;
-  });
-
-  it('renders indexes toolbar when there is an error', function () {
-    renderIndexes({
-      indexes: [],
-      isReadonlyView: false,
-      error: 'Some random error',
+      regularIndexes: {
+        indexes: [],
+        error: 'Some random error',
+        isRefreshing: false,
+      },
     });
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
+    // TODO: actually check for the error
   });
 
-  it('does not render indexes list when its a readonly view', function () {
+  it('renders indexes toolbar when there is a search indexes error', async function () {
+    const store = renderIndexes();
+
+    // the component will load the search indexes the moment we switch to them
+    store.getState()!.dataService!.getSearchIndexes = function () {
+      return Promise.reject(new Error('This is an error.'));
+    };
+
+    const toolbar = screen.getByTestId('indexes-toolbar');
+    expect(toolbar).to.exist;
+
+    // switch to the Search Indexes tab
+    const button = within(toolbar).getByText('Search Indexes');
+    fireEvent.click(button);
+
+    // the error message should show up next to the toolbar
+    const container = screen.getByTestId('indexes-toolbar-container');
+    await waitFor(() => {
+      expect(within(container).getByText('This is an error.')).to.exist;
+    });
+  });
+
+  it('does not render the indexes list if isReadonlyView is true', function () {
     renderIndexes({
-      indexes: [],
+      regularIndexes: {
+        indexes: [],
+      },
       isReadonlyView: true,
-      error: undefined,
     });
+
     expect(() => {
       screen.getByTestId('indexes-list');
     }).to.throw;
   });
 
-  it('does not render indexes list when there is an error', function () {
-    renderIndexes({
-      indexes: [],
-      isReadonlyView: false,
-      error: 'Some random error',
+  context('regular indexes', function () {
+    it('renders indexes list', function () {
+      renderIndexes({
+        regularIndexes: {
+          indexes: [
+            {
+              ns: 'db.coll',
+              cardinality: 'single',
+              name: '_id_',
+              size: 12,
+              relativeSize: 20,
+              type: 'hashed',
+              extra: {},
+              properties: ['unique'],
+              fields: [
+                {
+                  field: '_id',
+                  value: 1,
+                },
+              ],
+              usageCount: 20,
+            },
+          ] as RegularIndex[],
+          error: null,
+          isRefreshing: false,
+        },
+      });
+
+      const indexesList = screen.getByTestId('indexes-list');
+      expect(indexesList).to.exist;
+      expect(within(indexesList).getByTestId('indexes-row-_id_')).to.exist;
     });
-    expect(() => {
-      screen.getByTestId('indexes-list');
-    }).to.throw;
+
+    it('renders indexes list with in progress index', function () {
+      renderIndexes({
+        regularIndexes: {
+          indexes: [
+            {
+              ns: 'db.coll',
+              cardinality: 'single',
+              name: '_id_',
+              size: 12,
+              relativeSize: 20,
+              type: 'hashed',
+              extra: {},
+              properties: ['unique'],
+              fields: [
+                {
+                  field: '_id',
+                  value: 1,
+                },
+              ],
+              usageCount: 20,
+            },
+            {
+              ns: 'db.coll',
+              cardinality: 'single',
+              name: 'item',
+              size: 0,
+              relativeSize: 0,
+              type: 'hashed',
+              extra: {
+                status: 'inprogress',
+              },
+              properties: [],
+              fields: [
+                {
+                  field: 'item',
+                  value: 1,
+                },
+              ],
+              usageCount: 0,
+            },
+          ] as RegularIndex[],
+          error: null,
+          isRefreshing: false,
+        },
+      });
+
+      const indexesList = screen.getByTestId('indexes-list');
+      const inProgressIndex =
+        within(indexesList).getByTestId('indexes-row-item');
+      const indexPropertyField = within(inProgressIndex).getByTestId(
+        'indexes-property-field'
+      );
+
+      expect(indexPropertyField).to.contain.text('In Progress ...');
+
+      const dropIndexButton = within(inProgressIndex).queryByTestId(
+        'index-actions-delete-action'
+      );
+      expect(dropIndexButton).to.not.exist;
+    });
+
+    it('renders indexes list with failed index', function () {
+      renderIndexes({
+        regularIndexes: {
+          indexes: [
+            {
+              ns: 'db.coll',
+              cardinality: 'single',
+              name: '_id_',
+              size: 12,
+              relativeSize: 20,
+              type: 'hashed',
+              extra: {},
+              properties: ['unique'],
+              fields: [
+                {
+                  field: '_id',
+                  value: 1,
+                },
+              ],
+              usageCount: 20,
+            },
+            {
+              ns: 'db.coll',
+              cardinality: 'single',
+              name: 'item',
+              size: 0,
+              relativeSize: 0,
+              type: 'hashed',
+              extra: {
+                status: 'failed',
+                regularError: 'regularError message',
+              },
+              properties: [],
+              fields: [
+                {
+                  field: 'item',
+                  value: 1,
+                },
+              ],
+              usageCount: 0,
+            },
+          ] as RegularIndex[],
+          error: null,
+          isRefreshing: false,
+        },
+      });
+
+      const indexesList = screen.getByTestId('indexes-list');
+      const failedIndex = within(indexesList).getByTestId('indexes-row-item');
+      const indexPropertyField = within(failedIndex).getByTestId(
+        'indexes-property-field'
+      );
+
+      expect(indexPropertyField).to.contain.text('Failed');
+
+      const dropIndexButton = within(failedIndex).getByTestId(
+        'index-actions-delete-action'
+      );
+      expect(dropIndexButton).to.exist;
+    });
   });
 
-  it('renders indexes list', function () {
-    renderIndexes({
-      indexes: [
+  context('search indexes', function () {
+    it('renders the search indexes table if the current view changes to search indexes', async function () {
+      const store = renderIndexes();
+
+      const indexes: SearchIndex[] = [
         {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: '_id_',
-          size: 12,
-          relativeSize: 20,
-          type: 'hashed',
-          extra: {},
-          properties: ['unique'],
-          fields: [
-            {
-              field: '_id',
-              value: 1,
-            },
-          ],
-          usageCount: 20,
+          id: '1',
+          name: 'default',
+          status: 'READY',
+          queryable: true,
+          latestDefinition: {},
         },
-      ] as IndexDefinition[],
-      isReadonlyView: false,
-      error: undefined,
+        {
+          id: '2',
+          name: 'another',
+          status: 'READY',
+          queryable: true,
+          latestDefinition: {},
+        },
+      ];
+
+      store.getState()!.dataService!.getSearchIndexes = function () {
+        return Promise.resolve(indexes);
+      };
+
+      // switch to the Search Indexes tab
+      const toolbar = screen.getByTestId('indexes-toolbar');
+      const button = within(toolbar).getByText('Search Indexes');
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('search-indexes-list')).to.exist;
+      });
     });
 
-    const indexesList = screen.getByTestId('indexes-list');
-    expect(indexesList).to.exist;
-    expect(within(indexesList).getByTestId('index-row-_id_')).to.exist;
-  });
+    it('refreshes the search indexes if the search indexes view is active', async function () {
+      const store = renderIndexes();
 
-  it('renders indexes list with in progress index', function () {
-    renderIndexes({
-      indexes: [
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: '_id_',
-          size: 12,
-          relativeSize: 20,
-          type: 'hashed',
-          extra: {},
-          properties: ['unique'],
-          fields: [
-            {
-              field: '_id',
-              value: 1,
-            },
-          ],
-          usageCount: 20,
-        },
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: 'item',
-          size: 0,
-          relativeSize: 0,
-          type: 'hashed',
-          extra: {
-            status: 'inprogress',
-          },
-          properties: [],
-          fields: [
-            {
-              field: 'item',
-              value: 1,
-            },
-          ],
-          usageCount: 0,
-        },
-      ] as IndexDefinition[],
-      isReadonlyView: false,
-      error: undefined,
+      const spy = sinon.spy(
+        store.getState()?.dataService as IndexesDataService,
+        'getSearchIndexes'
+      );
+
+      // switch to the Search Indexes tab
+      const toolbar = screen.getByTestId('indexes-toolbar');
+      fireEvent.click(within(toolbar).getByText('Search Indexes'));
+
+      expect(spy.callCount).to.equal(1);
+
+      // click the refresh button
+      const refreshButton = within(toolbar).getByText('Refresh');
+      await waitFor(
+        () => expect(refreshButton.getAttribute('disabled')).to.be.null
+      );
+      fireEvent.click(refreshButton);
+
+      expect(spy.callCount).to.equal(2);
     });
-
-    const indexesList = screen.getByTestId('indexes-list');
-    const inProgressIndex = within(indexesList).getByTestId('index-row-item');
-    const indexPropertyField = within(inProgressIndex).getByTestId(
-      'index-property-field'
-    );
-
-    expect(indexPropertyField).to.contain.text('In Progress ...');
-
-    const dropIndexButton = within(inProgressIndex).queryByTestId(
-      'index-actions-delete-action'
-    );
-    expect(dropIndexButton).to.not.exist;
-  });
-
-  it('renders indexes list with failed index', function () {
-    renderIndexes({
-      indexes: [
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: '_id_',
-          size: 12,
-          relativeSize: 20,
-          type: 'hashed',
-          extra: {},
-          properties: ['unique'],
-          fields: [
-            {
-              field: '_id',
-              value: 1,
-            },
-          ],
-          usageCount: 20,
-        },
-        {
-          ns: 'db.coll',
-          cardinality: 'single',
-          name: 'item',
-          size: 0,
-          relativeSize: 0,
-          type: 'hashed',
-          extra: {
-            status: 'failed',
-            error: 'Error message',
-          },
-          properties: [],
-          fields: [
-            {
-              field: 'item',
-              value: 1,
-            },
-          ],
-          usageCount: 0,
-        },
-      ] as IndexDefinition[],
-      isReadonlyView: false,
-      error: undefined,
-    });
-
-    const indexesList = screen.getByTestId('indexes-list');
-    const failedIndex = within(indexesList).getByTestId('index-row-item');
-    const indexPropertyField = within(failedIndex).getByTestId(
-      'index-property-field'
-    );
-
-    expect(indexPropertyField).to.contain.text('Failed');
-
-    const dropIndexButton = within(failedIndex).getByTestId(
-      'index-actions-delete-action'
-    );
-    expect(dropIndexButton).to.exist;
   });
 });
