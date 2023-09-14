@@ -1,7 +1,10 @@
 import type { AnyAction } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isAction } from './../utils/is-action';
-import { openToast } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation as showConfirmationModal,
+} from '@mongodb-js/compass-components';
 import type { Document, MongoServerError } from 'mongodb';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
@@ -168,7 +171,6 @@ export default function reducer(
   if (isAction<SetErrorAction>(action, ActionTypes.SetError)) {
     return {
       ...state,
-      indexes: [],
       error: action.error,
       status: SearchIndexesStatuses.ERROR,
     };
@@ -246,7 +248,6 @@ export default function reducer(
       },
     };
   }
-
   return state;
 }
 
@@ -308,12 +309,13 @@ export const saveIndex = (
     }
 
     dispatch(createIndexSucceeded());
-    openToast('index-creation-in-progress', {
+    openToast('search-index-creation-in-progress', {
       title: `Your index ${indexName} is in progress.`,
       dismissible: true,
       timeout: 5000,
       variant: 'success',
     });
+    void dispatch(fetchSearchIndexes());
   };
 };
 const setError = (error: string | undefined): SetErrorAction => ({
@@ -384,6 +386,51 @@ export const sortSearchIndexes = (
       sortOrder: direction,
       sortColumn: column,
     });
+  };
+};
+
+// Exporting this for test only to stub it and set
+// its value. This enables to test dropSearchIndex action.
+export const showConfirmation = showConfirmationModal;
+export const dropSearchIndex = (
+  name: string
+): IndexesThunkAction<Promise<void>> => {
+  return async function (dispatch, getState) {
+    const { namespace, dataService } = getState();
+    if (!dataService) {
+      return;
+    }
+
+    const isConfirmed = await showConfirmation({
+      title: `Are you sure you want to drop "${name}" from Cluster?`,
+      buttonText: 'Drop Index',
+      variant: 'danger',
+      requiredInputText: name,
+      description:
+        'If you drop default, all queries using it will no longer function',
+    });
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      await dataService.dropSearchIndex(namespace, name);
+      openToast('search-index-delete-in-progress', {
+        title: `Your index ${name} is being deleted.`,
+        dismissible: true,
+        timeout: 5000,
+        variant: 'success',
+      });
+      void dispatch(fetchSearchIndexes());
+    } catch (e) {
+      openToast('search-index-delete-failed', {
+        title: `Failed to drop index.`,
+        description: (e as Error).message,
+        dismissible: true,
+        timeout: 5000,
+        variant: 'warning',
+      });
+    }
   };
 };
 
