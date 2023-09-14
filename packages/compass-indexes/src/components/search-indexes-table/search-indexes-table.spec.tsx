@@ -78,6 +78,13 @@ describe('SearchIndexesTable Component', function () {
         ]) {
           expect(within(indexRow).getByTestId(indexCell)).to.exist;
         }
+
+        // Renders status badges
+        const badge = within(indexRow).getByTestId(
+          `search-indexes-status-${index.name}`
+        );
+        expect(badge).to.exist;
+        expect(badge).to.have.text(index.status);
       }
     });
   }
