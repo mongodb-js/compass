@@ -12,6 +12,7 @@ type ConfirmationProperties = {
   description: React.ReactNode;
   buttonText?: string;
   variant?: ConfirmationModalVariant;
+  requiredInputText?: string;
 };
 type ConfirmationCallback = (value: boolean) => void;
 
@@ -134,6 +135,7 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
         buttonText={confirmationProps.buttonText ?? 'Confirm'}
+        requiredInputText={confirmationProps.requiredInputText ?? undefined}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       >

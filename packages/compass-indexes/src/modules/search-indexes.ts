@@ -58,13 +58,7 @@ export enum ActionTypes {
   SetSearchIndexes = 'indexes/search-indexes/SetSearchIndexes',
   SearchIndexesSorted = 'indexes/search-indexes/SearchIndexesSorted',
   SetError = 'indexes/search-indexes/SetError',
-
-  // Drop Search Index
-  OpenDropSearchIndexModal = 'indexes/search-indexes/OpenDropSearchIndexModal',
-  CloseDropSearchIndexModal = 'indexes/search-indexes/CloseDropSearchIndexModal',
-  DropSearchIndexStarted = 'indexes/search-indexes/DropSearchIndexStarted',
   DropSearchIndexFailed = 'indexes/search-indexes/DropSearchIndexFailed',
-  DropSearchIndexSucceeded = 'indexes/search-indexes/DropSearchIndexSucceed',
 }
 
 type SetIsRefreshingAction = {
@@ -92,22 +86,9 @@ type CreateSearchIndexCancelledAction = {
   type: ActionTypes.CreateSearchIndexCancelled;
 };
 
-type OpenDropSearchIndexModalAction = {
-  type: ActionTypes.OpenDropSearchIndexModal;
-  indexName: string;
-};
-type CloseDropSearchIndexModalAction = {
-  type: ActionTypes.CloseDropSearchIndexModal;
-};
-type DropSearchIndexStartedAction = {
-  type: ActionTypes.DropSearchIndexStarted;
-};
 type DropSearchIndexFailedAction = {
   type: ActionTypes.DropSearchIndexFailed;
   error: string;
-};
-type DropSearchIndexSucceededAction = {
-  type: ActionTypes.DropSearchIndexSucceeded;
 };
 
 type CreateSearchIndexState = {
@@ -115,16 +96,9 @@ type CreateSearchIndexState = {
   isBusy: boolean;
 };
 
-type DropSearchIndexState = {
-  isModalOpen: boolean;
-  isBusy: boolean;
-  indexName?: string;
-};
-
 export type State = {
   status: SearchIndexesStatus;
   createIndex: CreateSearchIndexState;
-  dropIndex: DropSearchIndexState;
   error?: string;
   indexes: SearchIndex[];
   sortOrder: SortDirection;
@@ -157,10 +131,6 @@ type SearchIndexesActions =
 export const INITIAL_STATE: State = {
   status: SearchIndexesStatuses.NOT_AVAILABLE,
   createIndex: {
-    isModalOpen: false,
-    isBusy: false,
-  },
-  dropIndex: {
     isModalOpen: false,
     isBusy: false,
   },
@@ -204,7 +174,6 @@ export default function reducer(
   if (isAction<SetErrorAction>(action, ActionTypes.SetError)) {
     return {
       ...state,
-      indexes: [],
       error: action.error,
       status: SearchIndexesStatuses.ERROR,
     };
@@ -281,69 +250,7 @@ export default function reducer(
         isBusy: false,
       },
     };
-  }
-
-  if (
-    isAction<OpenDropSearchIndexModalAction>(
-      action,
-      ActionTypes.OpenDropSearchIndexModal
-    )
-  ) {
-    return {
-      ...state,
-      dropIndex: {
-        isBusy: false,
-        isModalOpen: true,
-        indexName: action.indexName,
-      },
-    };
-  }
-  if (
-    isAction<CloseDropSearchIndexModalAction>(
-      action,
-      ActionTypes.CloseDropSearchIndexModal
-    )
-  ) {
-    return {
-      ...state,
-      dropIndex: {
-        ...state.dropIndex,
-        isBusy: false,
-        isModalOpen: false,
-      },
-    };
-  }
-  if (
-    isAction<DropSearchIndexStartedAction>(
-      action,
-      ActionTypes.DropSearchIndexStarted
-    )
-  ) {
-    return {
-      ...state,
-      dropIndex: {
-        ...state.dropIndex,
-        isBusy: true,
-      },
-    };
-  }
-  if (
-    isAction<DropSearchIndexSucceededAction>(
-      action,
-      ActionTypes.DropSearchIndexSucceeded
-    )
-  ) {
-    return {
-      ...state,
-      dropIndex: {
-        ...state.dropIndex,
-        isModalOpen: false,
-        isBusy: false,
-      },
-    };
-  }
-
-  if (
+  } else if (
     isAction<DropSearchIndexFailedAction>(
       action,
       ActionTypes.DropSearchIndexFailed
@@ -352,13 +259,8 @@ export default function reducer(
     return {
       ...state,
       error: action.error,
-      dropIndex: {
-        ...state.dropIndex,
-        isBusy: false,
-      },
     };
   }
-
   return state;
 }
 
@@ -499,47 +401,18 @@ export const sortSearchIndexes = (
   };
 };
 
-export const showDropSearchIndexModal = (
-  indexName: string
-): OpenDropSearchIndexModalAction => ({
-  type: ActionTypes.OpenDropSearchIndexModal,
-  indexName,
-});
-
-export const closeDropSearchIndexModal =
-  (): CloseDropSearchIndexModalAction => ({
-    type: ActionTypes.CloseDropSearchIndexModal,
-  });
-
-export const dropSearchIndex = (): IndexesThunkAction<
-  Promise<void>,
-  | DropSearchIndexStartedAction
-  | DropSearchIndexSucceededAction
-  | DropSearchIndexFailedAction
-> => {
+export const dropSearchIndex = (
+  name: string
+): IndexesThunkAction<Promise<void>, DropSearchIndexFailedAction> => {
   return async function (dispatch, getState) {
-    const {
-      namespace,
-      dataService,
-      searchIndexes: {
-        dropIndex: { indexName },
-      },
-    } = getState();
-    if (!dataService || !indexName) {
+    const { namespace, dataService } = getState();
+    if (!dataService) {
       return;
     }
-
-    dispatch({
-      type: ActionTypes.DropSearchIndexStarted,
-    });
-
     try {
-      await dataService.dropSearchIndex(namespace, indexName);
-      dispatch({
-        type: ActionTypes.DropSearchIndexSucceeded,
-      });
+      await dataService.dropSearchIndex(namespace, name);
       openToast('search-index-delete-in-progress', {
-        title: `Your index ${indexName} is being deleted.`,
+        title: `Your index ${name} is being deleted.`,
         dismissible: true,
         timeout: 5000,
         variant: 'success',

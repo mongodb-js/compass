@@ -5,7 +5,7 @@ import type { SearchIndex } from 'mongodb-data-service';
 
 type IndexActionsProps = {
   index: SearchIndex;
-  onDropIndex: (name: string) => void;
+  onDropIndex: (name: string) => Promise<void>;
 };
 
 type SearchIndexAction = 'drop';
@@ -29,7 +29,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const onAction = useCallback(
     (action: SearchIndexAction) => {
       if (action === 'drop') {
-        onDropIndex(index.name);
+        void onDropIndex(index.name);
       }
     },
     [onDropIndex, index]

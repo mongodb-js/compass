@@ -1,9 +1,15 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitForElementToBeRemoved,
+  within,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
-
+import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 import { SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import { searchIndexes as indexes } from './../../../test/fixtures/search-indexes';
@@ -12,15 +18,17 @@ const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
 ) => {
   render(
-    <SearchIndexesTable
-      indexes={indexes}
-      status="READY"
-      isWritable={true}
-      readOnly={false}
-      onSortTable={() => {}}
-      onDropIndex={() => {}}
-      {...props}
-    />
+    <ConfirmationModalArea>
+      <SearchIndexesTable
+        indexes={indexes}
+        status="READY"
+        isWritable={true}
+        readOnly={false}
+        onSortTable={() => {}}
+        onDropIndex={() => {}}
+        {...props}
+      />
+    </ConfirmationModalArea>
   );
 };
 
@@ -54,10 +62,7 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  for (const status of [
-    SearchIndexesStatuses.PENDING,
-    SearchIndexesStatuses.ERROR,
-  ]) {
+  for (const status of [SearchIndexesStatuses.PENDING]) {
     it(`does not render the list if the status is ${status}`, function () {
       renderIndexList({
         status,
@@ -108,7 +113,7 @@ describe('SearchIndexesTable Component', function () {
   }
 
   context('renders list with action', function () {
-    it('renders drop action and calls onDropIndex', function () {
+    it('renders drop action and shows modal when clicked', async function () {
       const onDropIndexSpy = spy();
 
       renderIndexList({ onDropIndex: onDropIndexSpy });
@@ -120,8 +125,40 @@ describe('SearchIndexesTable Component', function () {
 
       dropIndexActions[0].click();
 
-      expect(onDropIndexSpy.callCount).to.equal(1);
-      expect(onDropIndexSpy.firstCall.args).to.deep.equal([indexes[0].name]);
+      const modal = screen.getByTestId('confirmation-modal');
+      expect(modal).to.exist;
+
+      const input = within(modal).getByRole('textbox');
+
+      // When the input does not match index name
+      {
+        userEvent.type(input, 'bla');
+        const button = within(modal).getByRole('button', {
+          name: /drop index/i,
+        });
+        expect(button.getAttribute('disabled')).to.not.be.null;
+        button.click();
+        expect(onDropIndexSpy.callCount).to.equal(0);
+      }
+
+      userEvent.clear(input);
+
+      // When the input matches index name
+      {
+        userEvent.type(input, indexes[0].name);
+        const button = within(modal).getByRole('button', {
+          name: /drop index/i,
+        });
+        expect(button.getAttribute('disabled')).to.be.null;
+        button.click();
+
+        await waitForElementToBeRemoved(() =>
+          screen.getByTestId('confirmation-modal')
+        );
+
+        expect(onDropIndexSpy.callCount).to.equal(1);
+        expect(onDropIndexSpy.firstCall.args).to.deep.equal([indexes[0].name]);
+      }
     });
   });
 });
