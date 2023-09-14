@@ -74,7 +74,13 @@ async function ensureNamespaceExists(
     return;
   }
   await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
-  await browser.addDatabase(DB_NAME, COLL_NAME, undefined, screenshotName);
+  try {
+    await browser.addDatabase(DB_NAME, COLL_NAME, undefined, screenshotName);
+  } catch (err) {
+    console.error();
+    await browser.screenshot('add-database-failed.png');
+    throw err;
+  }
 }
 
 async function dropNamespace(browser: CompassBrowser) {
