@@ -3,14 +3,12 @@ import {
   cleanup,
   render,
   screen,
-  waitForElementToBeRemoved,
   fireEvent,
   within,
 } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
-import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 
 import { SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
@@ -23,18 +21,16 @@ const renderIndexList = (
   const openCreateSpy = sinon.spy();
 
   render(
-    <ConfirmationModalArea>
-      <SearchIndexesTable
-        indexes={indexes}
-        status="READY"
-        isWritable={true}
-        readOnly={false}
-        onSortTable={onSortTableSpy}
-        onDropIndex={() => {}}
-        openCreateModal={openCreateSpy}
-        {...props}
-      />
-    </ConfirmationModalArea>
+    <SearchIndexesTable
+      indexes={indexes}
+      status="READY"
+      isWritable={true}
+      readOnly={false}
+      onSortTable={onSortTableSpy}
+      onDropIndex={() => {}}
+      openCreateModal={openCreateSpy}
+      {...props}
+    />
   );
 
   return { onSortTableSpy, openCreateSpy };
@@ -125,7 +121,7 @@ describe('SearchIndexesTable Component', function () {
   }
 
   context('renders list with action', function () {
-    it('renders drop action and shows modal when clicked', async function () {
+    it('renders drop action and shows modal when clicked', function () {
       const onDropIndexSpy = sinon.spy();
 
       renderIndexList({ onDropIndex: onDropIndexSpy });
@@ -134,43 +130,8 @@ describe('SearchIndexesTable Component', function () {
       );
 
       expect(dropIndexActions.length).to.equal(indexes.length);
-
       dropIndexActions[0].click();
-
-      const modal = screen.getByTestId('confirmation-modal');
-      expect(modal).to.exist;
-
-      const input = within(modal).getByRole('textbox');
-
-      // When the input does not match index name
-      {
-        userEvent.type(input, 'bla');
-        const button = within(modal).getByRole('button', {
-          name: /drop index/i,
-        });
-        expect(button.getAttribute('disabled')).to.not.be.null;
-        button.click();
-        expect(onDropIndexSpy.callCount).to.equal(0);
-      }
-
-      userEvent.clear(input);
-
-      // When the input matches index name
-      {
-        userEvent.type(input, indexes[0].name);
-        const button = within(modal).getByRole('button', {
-          name: /drop index/i,
-        });
-        expect(button.getAttribute('disabled')).to.be.null;
-        button.click();
-
-        await waitForElementToBeRemoved(() =>
-          screen.getByTestId('confirmation-modal')
-        );
-
-        expect(onDropIndexSpy.callCount).to.equal(1);
-        expect(onDropIndexSpy.firstCall.args).to.deep.equal([indexes[0].name]);
-      }
+      expect(onDropIndexSpy.callCount).to.equal(1);
     });
   });
 });

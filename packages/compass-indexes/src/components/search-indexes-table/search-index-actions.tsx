@@ -5,7 +5,7 @@ import type { SearchIndex } from 'mongodb-data-service';
 
 type IndexActionsProps = {
   index: SearchIndex;
-  onDropIndex: (name: string) => Promise<void>;
+  onDropIndex: (name: string) => void;
 };
 
 type SearchIndexAction = 'drop';

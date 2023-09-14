@@ -1,7 +1,10 @@
 import type { AnyAction } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isAction } from './../utils/is-action';
-import { openToast } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation as showConfirmationModal,
+} from '@mongodb-js/compass-components';
 import type { Document, MongoServerError } from 'mongodb';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
@@ -402,6 +405,9 @@ export const sortSearchIndexes = (
   };
 };
 
+// Exporting this for test only to stub it and set
+// its value. This enables to test dropSearchIndex action.
+export const showConfirmation = showConfirmationModal;
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>, DropSearchIndexFailedAction> => {
@@ -410,6 +416,19 @@ export const dropSearchIndex = (
     if (!dataService) {
       return;
     }
+
+    const isConfirmed = await showConfirmation({
+      title: `Are you sure you want to drop "${name}" from Cluster?`,
+      buttonText: 'Drop Index',
+      variant: 'danger',
+      requiredInputText: name,
+      description:
+        'If you drop default, all queries using it will no longer function',
+    });
+    if (!isConfirmed) {
+      return;
+    }
+
     try {
       await dataService.dropSearchIndex(namespace, name);
       openToast('search-index-delete-in-progress', {

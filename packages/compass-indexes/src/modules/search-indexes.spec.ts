@@ -14,6 +14,9 @@ import sinon from 'sinon';
 import type { IndexesDataService } from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
+// Importing this to stub showConfirmation
+import * as searchIndexesSlice from './search-indexes';
+
 describe('search-indexes module', function () {
   let store: ReturnType<typeof setupStore>;
   let dataProvider: Partial<IndexesDataService>;
@@ -196,14 +199,28 @@ describe('search-indexes module', function () {
 
   context('drop search index', function () {
     let dropSearchIndexStub: sinon.SinonStub;
+    let showConfirmationStub: sinon.SinonStub;
     beforeEach(function () {
       dropSearchIndexStub = sinon.stub(
         store.getState().dataService as IndexesDataService,
         'dropSearchIndex'
       );
+      showConfirmationStub = sinon.stub(searchIndexesSlice, 'showConfirmation');
+    });
+
+    afterEach(function () {
+      showConfirmationStub.restore();
+      dropSearchIndexStub.restore();
+    });
+
+    it('does not drop index when user does not confirm', async function () {
+      showConfirmationStub.resolves(false);
+      await store.dispatch(dropSearchIndex('index_name'));
+      expect(dropSearchIndexStub.callCount).to.equal(0);
     });
 
     it('sets error when dropping an index fails', async function () {
+      showConfirmationStub.resolves(true);
       dropSearchIndexStub.rejects(new Error('Invalid index'));
       await store.dispatch(dropSearchIndex('index_name'));
       expect(dropSearchIndexStub.firstCall.args).to.deep.equal([
@@ -214,6 +231,7 @@ describe('search-indexes module', function () {
     });
 
     it('drops index successfully', async function () {
+      showConfirmationStub.resolves(true);
       dropSearchIndexStub.resolves(true);
       await store.dispatch(dropSearchIndex('index_name'));
       expect(dropSearchIndexStub.firstCall.args).to.deep.equal([

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model';
@@ -17,7 +17,6 @@ import type { SortDirection, RootState } from '../../modules';
 
 import { IndexesTable } from '../indexes-table';
 import IndexActions from './search-index-actions';
-import { showConfirmation, Body } from '@mongodb-js/compass-components';
 import { ZeroGraphic } from './zero-graphic';
 
 type SearchIndexesTableProps = {
@@ -77,28 +76,8 @@ export const SearchIndexesTable: React.FunctionComponent<
   onSortTable,
   openCreateModal,
   status,
-  onDropIndex: onConfirmDropIndex,
+  onDropIndex,
 }) => {
-  const onDropIndex = useCallback(
-    async (name: string) => {
-      const isConfirmed = await showConfirmation({
-        title: `Are you sure you want to drop "${name}" from Cluster?`,
-        buttonText: 'Drop Index',
-        variant: 'danger',
-        requiredInputText: name,
-        description: (
-          <Body>
-            If you drop default, all queries using it will no longer function
-          </Body>
-        ),
-      });
-      if (!isConfirmed) {
-        return;
-      }
-      onConfirmDropIndex(name);
-    },
-    [onConfirmDropIndex]
-  );
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
     // indexes aren't available, then that's all handled by the toolbar and we
