@@ -39,6 +39,7 @@ import Workspace from './workspace';
 import { SignalHooksProvider } from '@mongodb-js/compass-components';
 import { AtlasSignIn } from '@mongodb-js/atlas-service/renderer';
 import type { CollectionMetadata } from 'mongodb-collection-model';
+import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 
 const { track } = createLoggerAndTelemetry('COMPASS-HOME-UI');
 
@@ -359,6 +360,7 @@ function Home({
       {globalModals?.map(({ name, component: GlobalModalComponent }) => {
         return <GlobalModalComponent key={name}></GlobalModalComponent>;
       })}
+      <CompassSettingsPlugin></CompassSettingsPlugin>
       <AtlasSignIn></AtlasSignIn>
     </SignalHooksProvider>
   );
