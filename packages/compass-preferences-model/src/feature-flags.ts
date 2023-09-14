@@ -31,10 +31,10 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6866
    */
   enableAIExperience: {
-    stage: 'development',
+    stage: 'preview',
     description: {
-      short: 'AI Query Generator',
-      long: 'Use AI to generate queries with a natural language text input on the query bar. Do not use this feature with sensitive data.',
+      short: 'Compass AI Features',
+      long: 'Use AI to generate queries and aggregations with a natural language text. Do not use this feature with sensitive data.',
     },
   },
 
@@ -97,7 +97,7 @@ export const featureFlags: Required<{
   enableAtlasSearchIndexManagement: {
     stage: 'development',
     description: {
-      short: 'Enables Atlas Search Index management.',
+      short: 'Enable Atlas Search Index management.',
       long: 'Allows listing, creating, updating and deleting Atlas Search indexes.',
     },
   },

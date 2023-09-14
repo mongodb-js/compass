@@ -12,7 +12,7 @@ import {
   useDOMRect,
 } from '@mongodb-js/compass-components';
 
-type SortDirection = 'asc' | 'desc';
+import type { SortDirection } from '../../modules';
 
 // When row is hovered, we show the delete button
 const rowStyles = css({
@@ -142,7 +142,7 @@ export function IndexesTable<Column extends string>({
     const _columns = sortColumns.map((name) => {
       return (
         <TableHeader
-          data-testid={`index-header-${name}`}
+          data-testid={`${dataTestId}-header-${name}`}
           label={name}
           key={name}
           className={tableHeaderStyles}
@@ -177,14 +177,14 @@ export function IndexesTable<Column extends string>({
             return (
               <Row
                 key={info.key}
-                data-testid={info['data-testid']}
+                data-testid={`${dataTestId}-${info['data-testid']}`}
                 className={rowStyles}
               >
                 {info.fields.map((field) => {
                   return (
                     <Cell
                       key={field.key ?? `${info.key}-${index}`}
-                      data-testid={field['data-testid']}
+                      data-testid={`${dataTestId}-${field['data-testid']}`}
                       className={cellStyles}
                     >
                       {field.children}
@@ -194,7 +194,7 @@ export function IndexesTable<Column extends string>({
                 {/* Index actions column is conditional */}
                 {canModifyIndex && (
                   <Cell
-                    data-testid="index-actions-field"
+                    data-testid={`${dataTestId}-actions-field`}
                     className={cellStyles}
                   >
                     {info.actions && (

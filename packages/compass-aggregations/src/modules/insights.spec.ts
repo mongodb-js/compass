@@ -93,4 +93,42 @@ describe('fetchExplainForPipeline', function () {
 
     expect(dataService.explainAggregate).to.be.calledOnce;
   });
+
+  it('should remove $out stage before passing pipeline to explain', async function () {
+    const dataService = {
+      explainAggregate: Sinon.stub().resolves(simpleExplain),
+      isCancelError: Sinon.stub().returns(false),
+    };
+
+    const store = configureStore({
+      namespace: 'test.test',
+      dataProvider: { dataProvider: dataService as any },
+      pipeline: [{ $match: { foo: 1 } }, { $out: 'test' }],
+    });
+
+    await store.dispatch(fetchExplainForPipeline());
+
+    expect(dataService.explainAggregate).to.be.calledWith('test.test', [
+      { $match: { foo: 1 } },
+    ]);
+  });
+
+  it('should remove $merge stage before passing pipeline to explain', async function () {
+    const dataService = {
+      explainAggregate: Sinon.stub().resolves(simpleExplain),
+      isCancelError: Sinon.stub().returns(false),
+    };
+
+    const store = configureStore({
+      namespace: 'test.test',
+      dataProvider: { dataProvider: dataService as any },
+      pipeline: [{ $merge: { into: 'test' } }, { $match: { bar: 2 } }],
+    });
+
+    await store.dispatch(fetchExplainForPipeline());
+
+    expect(dataService.explainAggregate).to.be.calledWith('test.test', [
+      { $match: { bar: 2 } },
+    ]);
+  });
 });

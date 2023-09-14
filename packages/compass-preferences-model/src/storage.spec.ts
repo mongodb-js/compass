@@ -8,7 +8,7 @@ import {
   type User,
 } from './storage';
 import { expect } from 'chai';
-import { ZodError } from 'zod';
+import { z } from '@mongodb-js/compass-user-data';
 import { users as UserFixtures } from './../test/fixtures';
 
 const getPreferencesFolder = (tmpDir: string) => {
@@ -64,7 +64,7 @@ describe('storage', function () {
           } as any);
           expect.fail('Expected lastUsed prop to fail due to date validation');
         } catch (e) {
-          expect(e).to.be.an.instanceOf(ZodError);
+          expect(e).to.be.an.instanceOf(z.ZodError);
         }
       }
 
@@ -75,7 +75,7 @@ describe('storage', function () {
           } as any);
           expect.fail('Expected createdAt prop to fail due to date validation');
         } catch (e) {
-          expect(e).to.be.an.instanceOf(ZodError);
+          expect(e).to.be.an.instanceOf(z.ZodError);
         }
       }
 
@@ -86,7 +86,7 @@ describe('storage', function () {
           });
           expect.fail('Expected id prop to fail due to uuid validation');
         } catch (e) {
-          expect(e).to.be.an.instanceOf(ZodError);
+          expect(e).to.be.an.instanceOf(z.ZodError);
         }
       }
     });
