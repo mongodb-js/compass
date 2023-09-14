@@ -26,6 +26,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
   FeatureFlags & {
     // User-facing preferences
     autoUpdates: boolean;
+    enableAIFeatures: boolean;
     enableMaps: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
@@ -429,6 +430,18 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
+  enableAIFeatures: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable AI Features',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to a limited number of users.',
+    },
+    deriveValue: deriveNetworkTrafficOptionState('enableAIFeatures'),
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
    */
@@ -617,7 +630,6 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
-
   /**
    * Chooses atlas service backend configuration from preset
    *  - compas-dev: locally running compass kanopy backend (localhost)
@@ -1009,6 +1021,7 @@ export class Preferences {
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
+        enableAIFeatures: true,
         enableMaps: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,

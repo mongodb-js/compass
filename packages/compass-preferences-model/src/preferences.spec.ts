@@ -151,6 +151,7 @@ describe('Preferences class', function () {
       enableDevTools: 'set-global',
       networkTraffic: 'set-global',
       trackUsageStatistics: 'set-global',
+      enableAIFeatures: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'set-cli',
       readOnly: 'set-global',
@@ -214,6 +215,7 @@ describe('Preferences class', function () {
       },
       {
         networkTraffic: false,
+        enableAIFeatures: false,
         enableMaps: false,
         enableFeedbackPanel: false,
         trackUsageStatistics: false,
@@ -246,6 +248,7 @@ describe('Preferences class', function () {
 
     const states = preferences.getPreferenceStates();
     expect(states).to.deep.equal({
+      enableAIFeatures: 'hardcoded',
       enableDevTools: 'set-global',
       enableMaps: 'set-cli',
       enableFeedbackPanel: 'hardcoded',

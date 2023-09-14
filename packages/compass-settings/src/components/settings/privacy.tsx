@@ -5,6 +5,7 @@ import SettingsList from './settings-list';
 const privacyFields = [
   'autoUpdates',
   'enableMaps',
+  'enableAIFeatures',
   'trackUsageStatistics',
   'enableFeedbackPanel',
 ] as const;
