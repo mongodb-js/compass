@@ -1,9 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model';
 
-import { EmptyContent, Button, Link } from '@mongodb-js/compass-components';
+import { BadgeVariant } from '@mongodb-js/compass-components';
+import {
+  EmptyContent,
+  Button,
+  Link,
+  Badge,
+} from '@mongodb-js/compass-components';
 
 import type { SearchSortColumn } from '../../modules/search-indexes';
 import {
@@ -67,6 +73,29 @@ function ZeroState({ openCreateModal }: { openCreateModal: () => void }) {
   );
 }
 
+const statusBadgeVariants: Record<SearchIndexStatus, BadgeVariant> = {
+  BUILDING: BadgeVariant.Blue,
+  FAILED: BadgeVariant.Red,
+  PENDING: BadgeVariant.Yellow,
+  READY: BadgeVariant.Green,
+  STALE: BadgeVariant.LightGray,
+};
+
+function IndexStatus({
+  status,
+  'data-testid': dataTestId,
+}: {
+  status: SearchIndexStatus;
+  'data-testid': string;
+}) {
+  const variant = statusBadgeVariants[status];
+  return (
+    <Badge variant={variant} data-testid={dataTestId}>
+      {status}
+    </Badge>
+  );
+}
+
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
 > = ({
@@ -104,7 +133,12 @@ export const SearchIndexesTable: React.FunctionComponent<
         },
         {
           'data-testid': 'status-field',
-          children: index.status, // TODO(COMPASS-7205): show some badge, not just text
+          children: (
+            <IndexStatus
+              status={index.status}
+              data-testid={`search-indexes-status-${index.name}`}
+            />
+          ),
         },
       ],
       actions: <IndexActions index={index} onDropIndex={onDropIndex} />,
