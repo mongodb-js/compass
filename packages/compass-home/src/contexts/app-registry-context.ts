@@ -9,7 +9,6 @@ const AppRegistryContext = createContext(new AppRegistry());
 export default AppRegistryContext;
 
 export enum AppRegistryRoles {
-  APPLICATION_CONNECT = 'Application.Connect',
   GLOBAL_MODAL = 'Global.Modal',
 }
 
@@ -41,9 +40,7 @@ export const useAppRegistryComponent = (
   return component ? component : null;
 };
 
-export function useAppRegistryRole(
-  roleName: AppRegistryRoles.APPLICATION_CONNECT | AppRegistryRoles.GLOBAL_MODAL
-):
+export function useAppRegistryRole(roleName: AppRegistryRoles.GLOBAL_MODAL):
   | {
       component: React.JSXElementConstructor<unknown>;
       name: string;

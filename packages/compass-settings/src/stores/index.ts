@@ -58,9 +58,9 @@ export function configureStore({
   return store;
 }
 
-const store = configureStore();
-
-export type RootState = ReturnType<typeof store['getState']>;
+export type RootState = ReturnType<
+  ReturnType<typeof configureStore>['getState']
+>;
 
 export type SettingsThunkAction<
   R,
@@ -75,15 +75,31 @@ export type SettingsThunkAction<
   A
 >;
 
-(store as any).onActivated = (appRegistry: AppRegistry) => {
-  appRegistry.on('open-compass-settings', () => {
+const onActivated = ({
+  globalAppRegistry,
+}: {
+  globalAppRegistry: AppRegistry;
+}) => {
+  const store = configureStore();
+
+  globalAppRegistry.on('open-compass-settings', () => {
     void store.dispatch(openModal());
   });
+
   ipcRenderer?.on('window:show-settings', () => {
     void store.dispatch(openModal());
   });
+
+  return { store };
 };
 
-export default store as typeof store & {
-  onActivated(appRegistry: AppRegistry): void;
+const onDeactivated = ({
+  globalAppRegistry,
+}: {
+  globalAppRegistry: AppRegistry;
+}) => {
+  globalAppRegistry.removeAllListeners('open-compass-settings');
+  ipcRenderer?.removeAllListeners('window:show-settings');
 };
+
+export { onActivated, onDeactivated };
