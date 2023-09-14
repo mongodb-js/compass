@@ -37,7 +37,7 @@ const connectionsWithSearchSupport: Connection[] = [
   // todo: atlas local dev
 ];
 
-describe.only('Search Indexes', function () {
+describe('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let mongoClient: MongoClient;
