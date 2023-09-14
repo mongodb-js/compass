@@ -436,7 +436,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable AI Features',
-      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to a limited number of users.',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to only a limited number of users.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableAIFeatures'),
     validator: z.boolean().default(true),
