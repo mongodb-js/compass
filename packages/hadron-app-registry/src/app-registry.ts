@@ -9,6 +9,15 @@ import { Actions } from './actions';
  */
 const INT8_MAX = 127;
 
+export type Plugin = {
+  store: unknown;
+  actions?: Record<string, unknown>;
+  onDeactivated(options: {
+    localAppRegistry: AppRegistry;
+    globalAppRegistry: AppRegistry;
+  }): void;
+};
+
 interface Role {
   name: string;
   component: React.ComponentType<any>;
@@ -35,6 +44,7 @@ export class AppRegistry {
   actions: Record<string, unknown>;
   components: Record<string, React.ComponentType<any>>;
   stores: Record<string, Store>;
+  plugins: Record<string, Plugin>;
   roles: Record<string, Role[]>;
   storeMisses: Record<string, number>;
 
@@ -47,6 +57,7 @@ export class AppRegistry {
     this.components = {};
     this.stores = {};
     this.roles = {};
+    this.plugins = {};
     this.storeMisses = {};
   }
 
@@ -114,6 +125,11 @@ export class AppRegistry {
     return this;
   }
 
+  deregisterPlugin(name: string): this {
+    delete this.plugins[name];
+    return this;
+  }
+
   /**
    * Get an action for the name.
    *
@@ -156,6 +172,10 @@ export class AppRegistry {
    */
   getStore(name: string): Store | undefined {
     return this.stores[name];
+  }
+
+  getPlugin(name: string): Plugin | undefined {
+    return this.plugins[name];
   }
 
   /**
@@ -251,6 +271,21 @@ export class AppRegistry {
       Actions.storeRegistered(name);
     }
     return this;
+  }
+
+  registerPlugin(name: string, plugin: Plugin): this {
+    this.plugins[name] = plugin;
+    return this;
+  }
+
+  cleanup() {
+    for (const plugin of Object.values(this.plugins)) {
+      plugin.onDeactivated({
+        localAppRegistry: this,
+        globalAppRegistry: globalAppRegistry,
+      });
+    }
+    // TODO: remove all listeners
   }
 
   /**
