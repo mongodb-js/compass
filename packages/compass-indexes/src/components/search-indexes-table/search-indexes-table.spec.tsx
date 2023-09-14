@@ -9,6 +9,7 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
+import type { Document } from 'mongodb';
 
 import { SearchIndexesTable } from './search-indexes-table';
 import type { SearchIndex } from 'mongodb-data-service';
@@ -85,6 +86,28 @@ describe('SearchIndexesTable Component', function () {
         );
         expect(badge).to.exist;
         expect(badge).to.have.text(index.status);
+
+        // Renders details
+
+        const expandButton = within(indexRow).getByLabelText('Expand row');
+        expect(expandButton).to.exist;
+        fireEvent.click(expandButton);
+
+        const details = screen.getByTestId(
+          `search-indexes-details-${index.name}`
+        );
+        expect(details).to.exist;
+
+        if (index.latestDefinition.mappings?.dynamic) {
+          expect(within(details).getAllByText('Dynamic Mappings')).to.exist;
+        }
+        if (index.latestDefinition.mappings?.fields) {
+          for (const field of Object.keys(
+            index.latestDefinition.mappings.fields as Document
+          )) {
+            expect(within(details).getAllByText(field)).to.exist;
+          }
+        }
       }
     });
   }

@@ -123,7 +123,12 @@ export const RegularIndexesTable: React.FunctionComponent<
           onUnhideIndex={onUnhideIndex}
         ></IndexActions>
       ),
-      details: <IndexKeysBadge keys={index.fields} />,
+      details: (
+        <IndexKeysBadge
+          keys={index.fields}
+          data-testid={`indexes-details-${index.name}`}
+        />
+      ),
     };
   });
 

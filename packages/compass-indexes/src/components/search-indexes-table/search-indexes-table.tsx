@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -9,6 +10,8 @@ import {
   Button,
   Link,
   Badge,
+  css,
+  spacing,
 } from '@mongodb-js/compass-components';
 
 import type { SearchSortColumn } from '../../modules/search-indexes';
@@ -93,6 +96,54 @@ function IndexStatus({
   );
 }
 
+const searchIndexDetailsStyles = css({
+  display: 'inline-flex',
+  gap: spacing[1],
+});
+
+const searchIndexFieldStyles = css({
+  // Override LeafyGreen's uppercase styles as we want to keep the case sensitivity of the key.
+  textTransform: 'none',
+  gap: spacing[1],
+});
+
+function SearchIndexDetails({
+  indexName,
+  definition,
+}: {
+  indexName: string;
+  definition: Document;
+}) {
+  const badges = [];
+  if (definition.mappings?.dynamic) {
+    badges.push({
+      name: 'Dynamic Mappings',
+      className: undefined,
+    });
+  }
+
+  if (definition.mappings?.fields) {
+    badges.push(
+      ...Object.keys(definition.mappings.fields as Document).map((name) => ({
+        name,
+        className: searchIndexFieldStyles,
+      }))
+    );
+  }
+  return (
+    <div
+      className={searchIndexDetailsStyles}
+      data-testid={`search-indexes-details-${indexName}`}
+    >
+      {badges.map((badge) => (
+        <Badge key={badge.name} className={badge.className}>
+          {badge.name}
+        </Badge>
+      ))}
+    </div>
+  );
+}
+
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
 > = ({
@@ -138,7 +189,12 @@ export const SearchIndexesTable: React.FunctionComponent<
         },
       ],
 
-      // TODO(COMPASS-7206): details for the nested row
+      details: (
+        <SearchIndexDetails
+          indexName={index.name}
+          definition={index.latestDefinition}
+        />
+      ),
     };
   });
 
