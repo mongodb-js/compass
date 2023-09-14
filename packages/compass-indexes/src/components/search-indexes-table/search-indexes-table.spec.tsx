@@ -1,8 +1,14 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react';
 import { expect } from 'chai';
+import sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
-import { spy } from 'sinon';
 
 import { SearchIndexesTable } from './search-indexes-table';
 import type { SearchIndex } from 'mongodb-data-service';
@@ -28,16 +34,22 @@ const indexes: SearchIndex[] = [
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
 ) => {
+  const onSortTableSpy = sinon.spy();
+  const openCreateSpy = sinon.spy();
+
   render(
     <SearchIndexesTable
       indexes={indexes}
       status="READY"
       isWritable={true}
       readOnly={false}
-      onSortTable={() => {}}
+      onSortTable={onSortTableSpy}
+      openCreateModal={openCreateSpy}
       {...props}
     />
   );
+
+  return { onSortTableSpy, openCreateSpy };
 };
 
 describe('SearchIndexesTable Component', function () {
@@ -85,22 +97,26 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  it('does not render the table if there are no indexes', function () {
-    renderIndexList({
+  it('renders the zero state rather than the table if there are no indexes', function () {
+    const { openCreateSpy } = renderIndexList({
       indexes: [],
     });
 
     expect(() => {
       screen.getByTestId('search-indexes-list');
     }).to.throw;
+
+    const button = screen.getByTestId('create-atlas-search-index-button');
+    expect(button).to.exist;
+
+    expect(openCreateSpy.callCount).to.equal(0);
+    fireEvent.click(button);
+    expect(openCreateSpy.callCount).to.equal(1);
   });
 
   for (const column of ['Name and Fields', 'Status']) {
     it(`sorts table by ${column}`, function () {
-      const onSortTableSpy = spy();
-      renderIndexList({
-        onSortTable: onSortTableSpy,
-      });
+      const { onSortTableSpy } = renderIndexList();
 
       const indexesList = screen.getByTestId('search-indexes-list');
 
