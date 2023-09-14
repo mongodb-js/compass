@@ -3,13 +3,13 @@ import { type AppRegistry, AppRegistryProvider } from 'hadron-app-registry';
 import Home from './components/home';
 
 function Plugin({
-  appRegistry,
+  localAppRegistry,
   ...homeProps
 }: {
-  appRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
 } & React.ComponentProps<typeof Home>): React.ReactElement {
   return (
-    <AppRegistryProvider value={appRegistry}>
+    <AppRegistryProvider localAppRegistry={localAppRegistry}>
       <Home {...homeProps} />
     </AppRegistryProvider>
   );
