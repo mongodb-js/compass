@@ -219,17 +219,6 @@ describe('search-indexes module', function () {
       expect(dropSearchIndexStub.callCount).to.equal(0);
     });
 
-    it('sets error when dropping an index fails', async function () {
-      showConfirmationStub.resolves(true);
-      dropSearchIndexStub.rejects(new Error('Invalid index'));
-      await store.dispatch(dropSearchIndex('index_name'));
-      expect(dropSearchIndexStub.firstCall.args).to.deep.equal([
-        'citibike.trips',
-        'index_name',
-      ]);
-      expect(store.getState().searchIndexes.error).to.equal('Invalid index');
-    });
-
     it('drops index successfully', async function () {
       showConfirmationStub.resolves(true);
       dropSearchIndexStub.resolves(true);

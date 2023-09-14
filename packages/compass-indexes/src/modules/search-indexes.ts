@@ -61,7 +61,6 @@ export enum ActionTypes {
   SetSearchIndexes = 'indexes/search-indexes/SetSearchIndexes',
   SearchIndexesSorted = 'indexes/search-indexes/SearchIndexesSorted',
   SetError = 'indexes/search-indexes/SetError',
-  DropSearchIndexFailed = 'indexes/search-indexes/DropSearchIndexFailed',
 }
 
 type SetIsRefreshingAction = {
@@ -87,11 +86,6 @@ type CreateSearchIndexSucceededAction = {
 
 type CreateSearchIndexCancelledAction = {
   type: ActionTypes.CreateSearchIndexCancelled;
-};
-
-type DropSearchIndexFailedAction = {
-  type: ActionTypes.DropSearchIndexFailed;
-  error: string;
 };
 
 type CreateSearchIndexState = {
@@ -253,16 +247,6 @@ export default function reducer(
         isBusy: false,
       },
     };
-  } else if (
-    isAction<DropSearchIndexFailedAction>(
-      action,
-      ActionTypes.DropSearchIndexFailed
-    )
-  ) {
-    return {
-      ...state,
-      error: action.error,
-    };
   }
   return state;
 }
@@ -410,7 +394,7 @@ export const sortSearchIndexes = (
 export const showConfirmation = showConfirmationModal;
 export const dropSearchIndex = (
   name: string
-): IndexesThunkAction<Promise<void>, DropSearchIndexFailedAction> => {
+): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState) {
     const { namespace, dataService } = getState();
     if (!dataService) {
@@ -439,9 +423,12 @@ export const dropSearchIndex = (
       });
       void dispatch(fetchSearchIndexes());
     } catch (e) {
-      dispatch({
-        type: ActionTypes.DropSearchIndexFailed,
-        error: (e as Error).message,
+      openToast('search-index-delete-failed', {
+        title: `Failed to drop index.`,
+        description: (e as Error).message,
+        dismissible: true,
+        timeout: 5000,
+        variant: 'warning',
       });
     }
   };
