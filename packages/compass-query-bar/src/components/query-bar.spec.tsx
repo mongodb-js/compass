@@ -126,6 +126,7 @@ describe('QueryBar Component', function () {
       sandbox = sinon.createSandbox();
       sandbox.stub(preferencesAccess, 'getPreferences').returns({
         enableAIExperience: true,
+        enableAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
