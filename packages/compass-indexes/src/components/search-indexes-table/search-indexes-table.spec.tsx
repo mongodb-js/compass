@@ -4,12 +4,14 @@ import {
   render,
   screen,
   waitForElementToBeRemoved,
+  fireEvent,
   within,
 } from '@testing-library/react';
 import { expect } from 'chai';
+import sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
-import { spy } from 'sinon';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
+
 import { SearchIndexesTable } from './search-indexes-table';
 import { SearchIndexesStatuses } from '../../modules/search-indexes';
 import { searchIndexes as indexes } from './../../../test/fixtures/search-indexes';
@@ -17,6 +19,9 @@ import { searchIndexes as indexes } from './../../../test/fixtures/search-indexe
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
 ) => {
+  const onSortTableSpy = sinon.spy();
+  const openCreateSpy = sinon.spy();
+
   render(
     <ConfirmationModalArea>
       <SearchIndexesTable
@@ -26,10 +31,13 @@ const renderIndexList = (
         readOnly={false}
         onSortTable={() => {}}
         onDropIndex={() => {}}
+        openCreateModal={openCreateSpy}
         {...props}
       />
     </ConfirmationModalArea>
   );
+
+  return { onSortTableSpy, openCreateSpy };
 };
 
 describe('SearchIndexesTable Component', function () {
@@ -74,22 +82,26 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  it('does not render the table if there are no indexes', function () {
-    renderIndexList({
+  it('renders the zero state rather than the table if there are no indexes', function () {
+    const { openCreateSpy } = renderIndexList({
       indexes: [],
     });
 
     expect(() => {
       screen.getByTestId('search-indexes-list');
     }).to.throw;
+
+    const button = screen.getByTestId('create-atlas-search-index-button');
+    expect(button).to.exist;
+
+    expect(openCreateSpy.callCount).to.equal(0);
+    fireEvent.click(button);
+    expect(openCreateSpy.callCount).to.equal(1);
   });
 
   for (const column of ['Name and Fields', 'Status']) {
     it(`sorts table by ${column}`, function () {
-      const onSortTableSpy = spy();
-      renderIndexList({
-        onSortTable: onSortTableSpy,
-      });
+      const { onSortTableSpy } = renderIndexList();
 
       const indexesList = screen.getByTestId('search-indexes-list');
 
@@ -114,7 +126,7 @@ describe('SearchIndexesTable Component', function () {
 
   context('renders list with action', function () {
     it('renders drop action and shows modal when clicked', async function () {
-      const onDropIndexSpy = spy();
+      const onDropIndexSpy = sinon.spy();
 
       renderIndexList({ onDropIndex: onDropIndexSpy });
       const dropIndexActions = screen.getAllByTestId(
