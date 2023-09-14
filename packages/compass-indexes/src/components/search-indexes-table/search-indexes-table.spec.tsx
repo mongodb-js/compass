@@ -9,7 +9,6 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import userEvent from '@testing-library/user-event';
-import { spy } from 'sinon';
 
 import { SearchIndexesTable } from './search-indexes-table';
 import type { SearchIndex } from 'mongodb-data-service';
