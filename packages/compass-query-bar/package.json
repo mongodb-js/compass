@@ -61,7 +61,7 @@
     "@mongodb-js/compass-editor": "^0.12.0",
     "@mongodb-js/compass-logging": "^1.1.9",
     "@mongodb-js/compass-user-data": "^0.1.1",
-    "@mongodb-js/mongodb-constants": "^0.6.11",
+    "@mongodb-js/mongodb-constants": "^0.7.1",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.13.0",
     "mongodb-query-util": "^2.1.0",
@@ -103,7 +103,7 @@
     "@mongodb-js/compass-editor": "^0.12.0",
     "@mongodb-js/compass-logging": "^1.1.9",
     "@mongodb-js/compass-user-data": "^0.1.1",
-    "@mongodb-js/mongodb-constants": "^0.6.11",
+    "@mongodb-js/mongodb-constants": "^0.7.1",
     "bson": "^6.0.0",
     "compass-preferences-model": "^2.13.0",
     "mongodb-query-util": "^2.1.0"
