@@ -328,6 +328,7 @@ export const saveIndex = (
       timeout: 5000,
       variant: 'success',
     });
+    void dispatch(fetchSearchIndexes());
   };
 };
 const setError = (error: string | undefined): SetErrorAction => ({
@@ -417,6 +418,7 @@ export const dropSearchIndex = (
         timeout: 5000,
         variant: 'success',
       });
+      void dispatch(fetchSearchIndexes());
     } catch (e) {
       dispatch({
         type: ActionTypes.DropSearchIndexFailed,

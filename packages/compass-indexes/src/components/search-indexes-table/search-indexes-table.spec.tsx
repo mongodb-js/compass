@@ -29,7 +29,7 @@ const renderIndexList = (
         status="READY"
         isWritable={true}
         readOnly={false}
-        onSortTable={() => {}}
+        onSortTable={onSortTableSpy}
         onDropIndex={() => {}}
         openCreateModal={openCreateSpy}
         {...props}
