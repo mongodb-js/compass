@@ -98,7 +98,7 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  it.only('renders the zero state rather than the table if there are no indexes', function () {
+  it('renders the zero state rather than the table if there are no indexes', function () {
     const { openCreateSpy } = renderIndexList({
       indexes: [],
     });
