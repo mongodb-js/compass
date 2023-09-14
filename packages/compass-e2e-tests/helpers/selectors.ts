@@ -939,6 +939,20 @@ export const indexesSegmentedTab = (tab: IndexesType) => {
   return `[data-testid="indexes-segment-controls"] [data-testid="${tab}"] button`;
 };
 
+// Search Index
+export const SearchIndexList = '[data-testid="search-indexes"]';
+export const CreateSearchIndexModal =
+  '[data-testid="create-search-index-modal"]';
+export const CreateSearchIndexName = '[data-testid="name-of-search-index"]';
+export const CreateSearchIndexDefinition =
+  '[data-testid="definition-of-search-index"]';
+export const CreateSearchIndexConfirmButton =
+  '[data-testid="create-search-index-button"]';
+export const CreateSearchIndexToast =
+  '[data-testid="index-creation-in-progress"]';
+export const searchIndexRow = (name: string) =>
+  `[data-testid="search-indexes-row-${name}"]`;
+
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
 export const CreateIndexButton =

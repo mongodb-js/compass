@@ -1,4 +1,5 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
+import { setTimeout as wait } from 'timers/promises';
 import {
   beforeTests,
   afterTests,
@@ -10,6 +11,7 @@ import {
 import type { Compass } from '../helpers/compass';
 import { disconnect } from '../helpers/commands';
 import { expect } from 'chai';
+import { type Db, MongoClient } from 'mongodb';
 import type { Test as CurrentTest } from 'mocha';
 
 type Connection = {
@@ -35,57 +37,14 @@ const connectionsWithSearchSupport: Connection[] = [
   // todo: atlas local dev
 ];
 
-const DB_NAME = 'e2e_indexes_test';
-const COLL_NAME = 'e2e_coll_numbers';
-
-async function isNamespaceExisting(browser: CompassBrowser): Promise<boolean> {
-  // Wait for sidebar
-  await browser.waitForAnimations(Selectors.SidebarDatabaseAndCollectionList);
-
-  // Search for the db
-  const dbInput = await browser.$(Selectors.SidebarFilterInput);
-  await dbInput.setValue(DB_NAME);
-
-  // Get the db element
-  const sidebarDb = await browser.$(Selectors.sidebarDatabase(DB_NAME));
-
-  // Check if db exists
-  const dbExists = await sidebarDb.isExisting();
-  if (!dbExists) {
-    return false;
-  }
-
-  // Db exists and select it (to open collections)
-  await browser.clickVisible(Selectors.sidebarDatabase(DB_NAME));
-  await browser.waitForAnimations(Selectors.sidebarDatabase(DB_NAME));
-
-  const sidebarColl = await browser.$(
-    Selectors.sidebarCollection(DB_NAME, COLL_NAME)
-  );
-  return await sidebarColl.isExisting();
-}
-
-async function ensureNamespaceExists(
-  browser: CompassBrowser,
-  screenshotName: string
-) {
-  const namespaceExists = await isNamespaceExisting(browser);
-  if (namespaceExists) {
-    return;
-  }
-  await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
-  await browser.addDatabase(DB_NAME, COLL_NAME, undefined, screenshotName);
-}
-
-async function dropNamespace(browser: CompassBrowser) {
-  await browser.hover(Selectors.sidebarDatabase(DB_NAME));
-  await browser.clickVisible(Selectors.DropDatabaseButton);
-  await browser.dropDatabase(DB_NAME);
-}
-
 describe.only('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let mongoClient: MongoClient;
+  let dbInstance: Db;
+
+  const DB_NAME = 'e2e_indexes_test';
+  const COLL_NAME = `e2e_coll_numbers_${Math.floor(Math.random() * 2 ** 20)}`;
 
   before(async function () {
     // $search works with server 4.2 or more
@@ -102,17 +61,38 @@ describe.only('Search Indexes', function () {
     await afterTests(compass, this.currentTest);
   });
 
-  async function beforeTestRun(
-    connectionString: string,
-    currentTest?: CurrentTest
-  ) {
+  async function beforeEachTestRun(connectionString: string) {
+    // Ensure namespace exists
+    {
+      mongoClient = new MongoClient(connectionString);
+      await mongoClient.connect();
+      dbInstance = mongoClient.db(DB_NAME);
+
+      // Try to delete a namespace if it exists
+      try {
+        await dbInstance.dropCollection(COLL_NAME);
+      } catch (e) {
+        // noop
+      }
+
+      // Create a namespace
+      await dbInstance.createCollection(COLL_NAME);
+    }
+
     await browser.connectWithConnectionString(connectionString);
-    await ensureNamespaceExists(browser, `${currentTest?.title}.png`);
     await browser.navigateToCollectionTab(DB_NAME, COLL_NAME, 'Indexes');
   }
 
-  async function afterTestRun(currentTest?: CurrentTest) {
-    await dropNamespace(browser);
+  async function afterEachTestRun(currentTest?: CurrentTest) {
+    // Drop the collection
+    {
+      try {
+        await dbInstance.dropCollection(COLL_NAME);
+      } catch (e) {
+        console.log(`Failed to drop collection: ${DB_NAME}.${COLL_NAME}`);
+      }
+    }
+    void mongoClient.close();
     await disconnect(browser);
     await afterTest(compass, currentTest);
   }
@@ -125,10 +105,10 @@ describe.only('Search Indexes', function () {
         }
       });
       beforeEach(async function () {
-        await beforeTestRun(connectionString!, this.currentTest);
+        await beforeEachTestRun(connectionString!);
       });
       afterEach(async function () {
-        await afterTestRun(this.currentTest);
+        await afterEachTestRun(this.currentTest);
       });
       it('allows users to create a regular index', async function () {
         const indexName = await browser.createIndex({
@@ -149,28 +129,72 @@ describe.only('Search Indexes', function () {
 
   for (const { name, connectionString } of connectionsWithSearchSupport) {
     context(`supports search indexes in ${name}`, function () {
+      const INDEX_NAME = 'e2e_search_index';
+      const INDEX_DEFINITION = JSON.stringify({
+        mappings: {
+          dynamic: true,
+        },
+      });
+
       before(function () {
         if (!connectionString) {
           return this.skip();
         }
       });
       beforeEach(async function () {
-        await beforeTestRun(connectionString!);
+        await beforeEachTestRun(connectionString!);
+
+        // Try to drop the existing search indexes. As we started afresh,
+        // the collection should not have any search index. However this
+        // is to just avoid any race condition.
+        {
+          const searchIndexes = await dbInstance
+            .collection(COLL_NAME)
+            .listSearchIndexes()
+            .toArray();
+
+          if (searchIndexes.length > 0) {
+            await Promise.all(
+              searchIndexes.map(({ name }) =>
+                dbInstance.collection(COLL_NAME).dropSearchIndex(name)
+              )
+            );
+            // Wait for a minute to ensure the indexes have been deleted.
+            await wait(60000);
+          }
+        }
       });
       afterEach(async function () {
-        await afterTestRun(this.currentTest);
+        await afterEachTestRun(this.currentTest);
       });
       it('allows users to create a regular indexes', async function () {
+        await browser.clickVisible(
+          Selectors.indexesSegmentedTab('regular-indexes')
+        );
         const indexName = await browser.createIndex({
           fieldName: 'e2e_tests_index',
           indexType: 'text',
         });
         await browser.dropIndex(indexName);
       });
-      it('allows users to create a search indexes');
-      it('renders search indexes list');
-      it('edits a search index');
-      it('drops a search index');
+      it('allows users to create and view search indexes', async function () {
+        await browser.clickVisible(
+          Selectors.indexesSegmentedTab('search-indexes')
+        );
+        await browser.createSearchIndex(INDEX_NAME, INDEX_DEFINITION);
+        await browser.waitUntil(async () => {
+          return await browser.$(Selectors.CreateSearchIndexToast).isExisting();
+        });
+        // View it
+        await browser.waitForAnimations(Selectors.SearchIndexList);
+        await browser.waitUntil(async () => {
+          return await browser
+            .$(Selectors.searchIndexRow(INDEX_NAME))
+            .isExisting();
+        });
+      });
+
+      it('allows users to update and view search indexes');
       it('runs a search aggregation with index name');
     });
   }
