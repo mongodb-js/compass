@@ -7,7 +7,7 @@ import { Button, Icon, IconButton, TextInput } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import { ErrorSummary } from '../error-warning-summary';
 import { SpinLoader } from '../loader';
-import { DEFAULT_ROBOT_SIZE, RobotSVG } from './robot-svg';
+import { DEFAULT_AI_ENTRY_SIZE, AIEntrySVG } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
 import { AIGuideCue } from './ai-guide-cue';
 import { focusRing } from '../../hooks/use-focus-ring';
@@ -101,7 +101,7 @@ const buttonHighlightLightModeStyles = css({
 const loaderContainerStyles = css({
   padding: spacing[1],
   display: 'inline-flex',
-  width: DEFAULT_ROBOT_SIZE + spacing[2],
+  width: DEFAULT_AI_ENTRY_SIZE + spacing[2],
   justifyContent: 'space-around',
 });
 
@@ -262,7 +262,7 @@ function GenerativeAIInput({
               description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
             />
             <span ref={guideCueRef}>
-              <RobotSVG />
+              <AIEntrySVG />
             </span>
           </button>
           <div className={floatingButtonsContainerStyles}>
