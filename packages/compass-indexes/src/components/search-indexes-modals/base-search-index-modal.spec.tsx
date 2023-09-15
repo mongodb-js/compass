@@ -1,45 +1,41 @@
 import { expect } from 'chai';
-import { DEFAULT_INDEX_DEFINITION } from './create-search-index-modal';
-import CreateSearchIndexModal from './create-search-index-modal';
+import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
-import { Provider } from 'react-redux';
 
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
-import {
-  openModalForCreation,
-  createIndexFailed,
-} from '../../modules/search-indexes';
-import type { IndexesDataService } from '../../stores/store';
-import { setupStore } from '../../../test/setup-store';
 
 describe('Create Search Index Modal', function () {
-  let store: ReturnType<typeof setupStore>;
-  let dataProvider: Partial<IndexesDataService>;
+  let submitIndex;
+  let closeModal;
 
   beforeEach(function () {
-    dataProvider = {
-      createSearchIndex: sinon.spy(),
-    };
-
-    store = setupStore({ namespace: 'test.test' }, dataProvider);
-
-    store.dispatch(openModalForCreation());
+    submitIndex = sinon.spy();
+    closeModal = sinon.spy();
 
     render(
-      <Provider store={store}>
-        <CreateSearchIndexModal />
-      </Provider>
+      <BaseSearchIndexModal
+        title={'Default Title'}
+        submitActionName={'Default Submit'}
+        initialIndexName={'default'}
+        initialIndexDefinition={'{}'}
+        isIndexNameReadonly={false}
+        isModalOpen={true}
+        isBusy={false}
+        submitIndex={submitIndex}
+        closeModal={closeModal}
+        error={'Invalid index definition.'}
+      />
     );
   });
 
   afterEach(cleanup);
 
   describe('default behaviour', function () {
-    it('uses "default" as the default index name', function () {
+    it('uses the initial index name as the default index name', function () {
       const inputText: HTMLInputElement = screen.getByTestId(
         'name-of-search-index'
       );
@@ -54,7 +50,7 @@ describe('Create Search Index Modal', function () {
       );
 
       expect(defaultIndexDef).to.not.be.null;
-      expect(defaultIndexDef).to.equal(DEFAULT_INDEX_DEFINITION);
+      expect(defaultIndexDef).to.equal('{}');
     });
   });
 
@@ -70,12 +66,6 @@ describe('Create Search Index Modal', function () {
     });
 
     it('shows server errors', async function () {
-      store.dispatch(createIndexFailed('InvalidIndexSpecificationOption'));
-      expect(store.getState().searchIndexes).to.have.property(
-        'error',
-        'Invalid index definition.'
-      );
-
       expect(await screen.findByText('Invalid index definition.')).to.exist;
     });
   });
@@ -87,8 +77,7 @@ describe('Create Search Index Modal', function () {
         .closest('button')!;
 
       userEvent.click(cancelButton);
-      expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be
-        .false;
+      expect(closeModal).to.have.been.calledOnce;
     });
 
     it('submits the modal on create search index', function () {
@@ -97,11 +86,7 @@ describe('Create Search Index Modal', function () {
         .closest('button')!;
 
       userEvent.click(submitButton);
-      expect(dataProvider.createSearchIndex).to.have.been.calledOnceWithExactly(
-        'test.test',
-        'default',
-        { mappings: { dynamic: true } }
-      );
+      expect(submitIndex).to.have.been.calledOnceWithExactly('default', {});
     });
   });
 });

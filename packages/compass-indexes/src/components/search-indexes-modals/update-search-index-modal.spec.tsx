@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { DEFAULT_INDEX_DEFINITION } from './create-search-index-modal';
-import CreateSearchIndexModal from './create-search-index-modal';
+import UpdateSearchIndexModal from './update-search-index-modal';
 import sinon from 'sinon';
 import { Provider } from 'react-redux';
 
@@ -10,28 +9,28 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import {
-  openModalForCreation,
-  createIndexFailed,
+  openModalForUpdate,
+  updateIndexFailed,
 } from '../../modules/search-indexes';
 import type { IndexesDataService } from '../../stores/store';
 import { setupStore } from '../../../test/setup-store';
 
-describe('Create Search Index Modal', function () {
+describe('Update Search Index Modal', function () {
   let store: ReturnType<typeof setupStore>;
   let dataProvider: Partial<IndexesDataService>;
 
   beforeEach(function () {
     dataProvider = {
-      createSearchIndex: sinon.spy(),
+      updateSearchIndex: sinon.spy(),
     };
 
     store = setupStore({ namespace: 'test.test' }, dataProvider);
 
-    store.dispatch(openModalForCreation());
+    store.dispatch(openModalForUpdate('indexToUpdate', '{}'));
 
     render(
       <Provider store={store}>
-        <CreateSearchIndexModal />
+        <UpdateSearchIndexModal />
       </Provider>
     );
   });
@@ -39,38 +38,28 @@ describe('Create Search Index Modal', function () {
   afterEach(cleanup);
 
   describe('default behaviour', function () {
-    it('uses "default" as the default index name', function () {
+    it('uses the provided name as the index name', function () {
       const inputText: HTMLInputElement = screen.getByTestId(
         'name-of-search-index'
       );
 
       expect(inputText).to.not.be.null;
-      expect(inputText?.value).to.equal('default');
+      expect(inputText?.value).to.equal('indexToUpdate');
     });
 
-    it('uses a dynamic mapping as the default index definition', function () {
+    it('uses the provided index definition', function () {
       const defaultIndexDef = getCodemirrorEditorValue(
         'definition-of-search-index'
       );
 
       expect(defaultIndexDef).to.not.be.null;
-      expect(defaultIndexDef).to.equal(DEFAULT_INDEX_DEFINITION);
+      expect(defaultIndexDef).to.equal('{}');
     });
   });
 
   describe('form validation', function () {
-    it('shows an error when the index name is empty', async function () {
-      const inputText: HTMLInputElement = screen.getByTestId(
-        'name-of-search-index'
-      );
-
-      userEvent.clear(inputText);
-      expect(await screen.findByText('Please enter the name of the index.')).to
-        .exist;
-    });
-
     it('shows server errors', async function () {
-      store.dispatch(createIndexFailed('InvalidIndexSpecificationOption'));
+      store.dispatch(updateIndexFailed('InvalidIndexSpecificationOption'));
       expect(store.getState().searchIndexes).to.have.property(
         'error',
         'Invalid index definition.'
@@ -81,26 +70,34 @@ describe('Create Search Index Modal', function () {
   });
 
   describe('form behaviour', function () {
+    it('disables the input that changes the name of the index', function () {
+      const inputText: HTMLInputElement = screen.getByTestId(
+        'name-of-search-index'
+      );
+
+      expect(inputText).to.have.attr('disabled');
+    });
+
     it('closes the modal on cancel', function () {
       const cancelButton: HTMLButtonElement = screen
         .getByText('Cancel')
         .closest('button')!;
 
       userEvent.click(cancelButton);
-      expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be
+      expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be
         .false;
     });
 
-    it('submits the modal on create search index', function () {
+    it('submits the modal on update search index', function () {
       const submitButton: HTMLButtonElement = screen
         .getByTestId('search-index-submit-button')
         .closest('button')!;
 
       userEvent.click(submitButton);
-      expect(dataProvider.createSearchIndex).to.have.been.calledOnceWithExactly(
+      expect(dataProvider.updateSearchIndex).to.have.been.calledOnceWithExactly(
         'test.test',
-        'default',
-        { mappings: { dynamic: true } }
+        'indexToUpdate',
+        {}
       );
     });
   });

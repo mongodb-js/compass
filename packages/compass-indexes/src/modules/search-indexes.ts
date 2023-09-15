@@ -57,6 +57,11 @@ export enum ActionTypes {
   CreateSearchIndexFailed = 'indexes/search-indexes/CreateSearchIndexFailed',
   CreateSearchIndexSucceeded = 'indexes/search-indexes/CreateSearchIndexSucceed',
   CreateSearchIndexCancelled = 'indexes/search-indexes/CreateSearchIndexCancelled',
+  OpenUpdateSearchIndexModal = 'indexes/search-indexes/OpenUpdateSearchIndexModal',
+  UpdateSearchIndexStarted = 'indexes/search-indexes/UpdateSearchIndexStarted',
+  UpdateSearchIndexFailed = 'indexes/search-indexes/UpdateSearchIndexFailed',
+  UpdateSearchIndexSucceeded = 'indexes/search-indexes/UpdateSearchIndexSucceed',
+  UpdateSearchIndexCancelled = 'indexes/search-indexes/UpdateSearchIndexCancelled',
   SetIsRefreshing = 'indexes/search-indexes/SetIsRefreshing',
   SetSearchIndexes = 'indexes/search-indexes/SetSearchIndexes',
   SearchIndexesSorted = 'indexes/search-indexes/SearchIndexesSorted',
@@ -88,14 +93,45 @@ type CreateSearchIndexCancelledAction = {
   type: ActionTypes.CreateSearchIndexCancelled;
 };
 
+type OpenUpdateSearchIndexModalAction = {
+  type: ActionTypes.OpenUpdateSearchIndexModal;
+  indexName: string;
+  indexDefinition: string;
+};
+
+type UpdateSearchIndexStartedAction = {
+  type: ActionTypes.UpdateSearchIndexStarted;
+};
+
+type UpdateSearchIndexFailedAction = {
+  type: ActionTypes.UpdateSearchIndexFailed;
+  error: string;
+};
+
+type UpdateSearchIndexSucceededAction = {
+  type: ActionTypes.UpdateSearchIndexSucceeded;
+};
+
+type UpdateSearchIndexCancelledAction = {
+  type: ActionTypes.UpdateSearchIndexCancelled;
+};
+
 type CreateSearchIndexState = {
   isModalOpen: boolean;
   isBusy: boolean;
 };
 
+type UpdateSearchIndexState = {
+  isModalOpen: boolean;
+  isBusy: boolean;
+  indexName: string;
+  indexDefinition: string;
+};
+
 export type State = {
   status: SearchIndexesStatus;
   createIndex: CreateSearchIndexState;
+  updateIndex: UpdateSearchIndexState;
   error?: string;
   indexes: SearchIndex[];
   sortOrder: SortDirection;
@@ -130,6 +166,12 @@ export const INITIAL_STATE: State = {
   createIndex: {
     isModalOpen: false,
     isBusy: false,
+  },
+  updateIndex: {
+    isModalOpen: false,
+    isBusy: false,
+    indexName: 'default',
+    indexDefinition: '',
   },
   error: undefined,
   indexes: [],
@@ -247,7 +289,87 @@ export default function reducer(
         isBusy: false,
       },
     };
+  } else if (
+    isAction<OpenUpdateSearchIndexModalAction>(
+      action,
+      ActionTypes.OpenUpdateSearchIndexModal
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
+      updateIndex: {
+        ...state.updateIndex,
+        isModalOpen: true,
+        isBusy: false,
+        indexName: action.indexName,
+        indexDefinition: action.indexDefinition,
+      },
+    };
+  } else if (
+    isAction<UpdateSearchIndexStartedAction>(
+      action,
+      ActionTypes.UpdateSearchIndexStarted
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
+      updateIndex: {
+        ...state.updateIndex,
+        isBusy: true,
+      },
+    };
+  } else if (
+    isAction<UpdateSearchIndexFailedAction>(
+      action,
+      ActionTypes.UpdateSearchIndexFailed
+    )
+  ) {
+    return {
+      ...state,
+      error: action.error,
+      updateIndex: {
+        ...state.updateIndex,
+        isBusy: false,
+      },
+    };
+  } else if (
+    isAction<UpdateSearchIndexSucceededAction>(
+      action,
+      ActionTypes.UpdateSearchIndexSucceeded
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
+      updateIndex: {
+        ...state.updateIndex,
+        isBusy: false,
+        isModalOpen: false,
+        indexDefinition: '',
+        indexName: 'default',
+      },
+    };
+  } else if (
+    isAction<UpdateSearchIndexCancelledAction>(
+      action,
+      ActionTypes.UpdateSearchIndexCancelled
+    )
+  ) {
+    return {
+      ...state,
+      error: undefined,
+      updateIndex: {
+        ...state.updateIndex,
+        isModalOpen: false,
+        isBusy: false,
+        indexDefinition: '',
+        indexName: 'default',
+      },
+    };
   }
+
   return state;
 }
 
@@ -260,8 +382,21 @@ export const openModalForCreation = (): OpenCreateSearchIndexModalAction => ({
   type: ActionTypes.OpenCreateSearchIndexModal,
 });
 
-export const closeModal = (): CreateSearchIndexCancelledAction => ({
+export const openModalForUpdate = (
+  indexName: string,
+  indexDefinition: string
+): OpenUpdateSearchIndexModalAction => ({
+  type: ActionTypes.OpenUpdateSearchIndexModal,
+  indexName,
+  indexDefinition,
+});
+
+export const closeModalForCreation = (): CreateSearchIndexCancelledAction => ({
   type: ActionTypes.CreateSearchIndexCancelled,
+});
+
+export const closeModalForUpdate = (): UpdateSearchIndexCancelledAction => ({
+  type: ActionTypes.UpdateSearchIndexCancelled,
 });
 
 export const createIndexStarted = (): CreateSearchIndexStartedAction => ({
@@ -279,7 +414,22 @@ export const createIndexSucceeded = (): CreateSearchIndexSucceededAction => ({
   type: ActionTypes.CreateSearchIndexSucceeded,
 });
 
-export const saveIndex = (
+export const updateIndexStarted = (): UpdateSearchIndexStartedAction => ({
+  type: ActionTypes.UpdateSearchIndexStarted,
+});
+
+export const updateIndexFailed = (
+  error: string
+): UpdateSearchIndexFailedAction => ({
+  type: ActionTypes.UpdateSearchIndexFailed,
+  error: ATLAS_SEARCH_SERVER_ERRORS[error] || error,
+});
+
+export const updateIndexSucceeded = (): UpdateSearchIndexSucceededAction => ({
+  type: ActionTypes.UpdateSearchIndexSucceeded,
+});
+
+export const createIndex = (
   indexName: string,
   indexDefinition: Document
 ): IndexesThunkAction<Promise<void>> => {
@@ -318,6 +468,42 @@ export const saveIndex = (
     void dispatch(fetchSearchIndexes());
   };
 };
+
+export const updateIndex = (
+  indexName: string,
+  indexDefinition: Document
+): IndexesThunkAction<Promise<void>> => {
+  return async function (dispatch, getState) {
+    const { namespace, dataService } = getState();
+
+    dispatch(updateIndexStarted());
+
+    try {
+      await dataService?.updateSearchIndex(
+        namespace,
+        indexName,
+        indexDefinition
+      );
+    } catch (ex) {
+      dispatch(
+        updateIndexFailed(
+          (ex as MongoServerError).codeName || (ex as Error).message
+        )
+      );
+      return;
+    }
+
+    dispatch(updateIndexSucceeded());
+    openToast('search-index-update-in-progress', {
+      title: `Your index ${indexName} is in progress.`,
+      dismissible: true,
+      timeout: 5000,
+      variant: 'success',
+    });
+    void dispatch(fetchSearchIndexes());
+  };
+};
+
 const setError = (error: string | undefined): SetErrorAction => ({
   type: ActionTypes.SetError,
   error,
