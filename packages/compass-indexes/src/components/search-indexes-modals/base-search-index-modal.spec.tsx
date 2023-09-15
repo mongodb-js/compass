@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
+import type { SinonSpy } from 'sinon';
 
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -9,8 +10,8 @@ import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 
 describe('Create Search Index Modal', function () {
-  let submitIndex;
-  let closeModal;
+  let submitIndex: SinonSpy;
+  let closeModal: SinonSpy;
 
   beforeEach(function () {
     submitIndex = sinon.spy();

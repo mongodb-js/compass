@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import {
   Modal,
   ModalFooter,
