@@ -16,6 +16,7 @@ import {
   SearchIndexesStatuses,
   dropSearchIndex,
   openModalForCreation,
+  openModalForUpdate,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
@@ -31,6 +32,7 @@ type SearchIndexesTableProps = {
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   onDropIndex: (name: string) => void;
+  onEditIndex: (name: string, definition: string) => void;
   openCreateModal: () => void;
   status: SearchIndexesStatus;
 };
@@ -104,6 +106,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   readOnly,
   onSortTable,
   openCreateModal,
+  onEditIndex,
   status,
   onDropIndex,
 }) => {
@@ -141,7 +144,13 @@ export const SearchIndexesTable: React.FunctionComponent<
           ),
         },
       ],
-      actions: <IndexActions index={index} onDropIndex={onDropIndex} />,
+      actions: (
+        <IndexActions
+          index={index}
+          onDropIndex={onDropIndex}
+          onEditIndex={onEditIndex}
+        />
+      ),
       // TODO(COMPASS-7206): details for the nested row
     };
   });
@@ -168,6 +177,7 @@ const mapDispatch = {
   onSortTable: sortSearchIndexes,
   onDropIndex: dropSearchIndex,
   openCreateModal: openModalForCreation,
+  onEditIndex: openModalForUpdate,
 };
 
 export default connect(

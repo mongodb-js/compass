@@ -32,12 +32,6 @@ function parseShellBSON(source: string): Document[] {
   return parsed;
 }
 
-export const DEFAULT_INDEX_DEFINITION = `{
-  "mappings": {
-    "dynamic": true
-  }
-}`;
-
 const flexWithGapStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -82,7 +76,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 }) => {
   const [indexName, setIndexName] = useState<string>(initialIndexName);
   const [indexDefinition, setIndexDefinition] = useState<string>(
-    initialIndexDefinition
+    () => initialIndexDefinition
   );
   const [parsingError, setParsingError] = useState<string | undefined>(
     undefined
