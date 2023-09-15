@@ -37,9 +37,7 @@ export async function createIndex(
   const isWithCreateDropdown = await browser
     .$(Selectors.CreateIndexDropdownButton)
     .isExisting();
-  if (!isWithCreateDropdown) {
-    await browser.clickVisible(Selectors.CreateIndexButton);
-  } else {
+  if (isWithCreateDropdown) {
     await browser.waitUntil(async () => {
       await browser.clickVisible(Selectors.CreateIndexDropdownButton);
       return await browser
@@ -49,6 +47,8 @@ export async function createIndex(
     await browser.clickVisible(
       Selectors.createIndexDropdownAction('regular-indexes')
     );
+  } else {
+    await browser.clickVisible(Selectors.CreateIndexButton);
   }
   const createModal = await browser.$(Selectors.CreateIndexModal);
   await createModal.waitForDisplayed();

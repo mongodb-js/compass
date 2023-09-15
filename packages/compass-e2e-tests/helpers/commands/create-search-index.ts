@@ -7,12 +7,11 @@ export async function createSearchIndex(
   indexDefinition: string,
   screenshotName?: string
 ): Promise<void> {
-  await browser.waitUntil(async () => {
-    await browser.clickVisible(Selectors.CreateIndexDropdownButton);
-    return await browser
-      .$(Selectors.createIndexDropdownAction('search-indexes'))
-      .isExisting();
-  });
+  // Open modal using dropdown
+  await browser.clickVisible(Selectors.CreateIndexDropdownButton);
+  await browser
+    .$(Selectors.createIndexDropdownAction('search-indexes'))
+    .waitForDisplayed();
   await browser.clickVisible(
     Selectors.createIndexDropdownAction('search-indexes')
   );

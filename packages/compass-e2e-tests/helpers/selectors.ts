@@ -935,8 +935,8 @@ export const indexOptionInput = (
   return `[data-testid="create-index-modal-${fieldName}-${type}"]`;
 };
 
-export const indexesSegmentedTab = (tab: IndexesType) => {
-  return `[data-testid="indexes-segment-controls"] [data-testid="${tab}"] button`;
+export const indexesSegmentedTab = (name: IndexesType) => {
+  return `[data-testid="indexes-segment-controls"] [data-testid="${name}-tab"] button`;
 };
 
 // Search Index

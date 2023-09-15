@@ -167,7 +167,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 data-testid="indexes-segment-controls"
               >
                 <SegmentedControlOption
-                  data-testid="regular-indexes"
+                  data-testid="regular-indexes-tab"
                   value="regular-indexes"
                 >
                   Indexes
@@ -181,7 +181,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     trigger={({ children, ...props }) => (
                       <SegmentedControlOption
                         {...props}
-                        data-testid="search-indexes"
+                        data-testid="search-indexes-tab"
                         value="search-indexes"
                         disabled={true}
                       >
@@ -195,7 +195,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 )}
                 {isAtlasSearchSupported && (
                   <SegmentedControlOption
-                    data-testid="search-indexes"
+                    data-testid="search-indexes-tab"
                     value="search-indexes"
                   >
                     Search Indexes
