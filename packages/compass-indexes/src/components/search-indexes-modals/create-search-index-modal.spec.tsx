@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { DEFAULT_INDEX_DEFINITION } from '.';
-import CreateSearchIndexModal from '.';
+import { DEFAULT_INDEX_DEFINITION } from './create-search-index-modal';
+import CreateSearchIndexModal from './create-search-index-modal';
 import sinon from 'sinon';
 import { Provider } from 'react-redux';
 

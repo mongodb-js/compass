@@ -17,6 +17,7 @@ import {
 import type { SearchSortColumn } from '../../modules/search-indexes';
 import {
   SearchIndexesStatuses,
+  dropSearchIndex,
   openModalForCreation,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
@@ -24,6 +25,7 @@ import { sortSearchIndexes } from '../../modules/search-indexes';
 import type { SortDirection, RootState } from '../../modules';
 
 import { IndexesTable } from '../indexes-table';
+import IndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 
 type SearchIndexesTableProps = {
@@ -31,6 +33,7 @@ type SearchIndexesTableProps = {
   isWritable?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
+  onDropIndex: (name: string) => void;
   openCreateModal: () => void;
   status: SearchIndexesStatus;
 };
@@ -153,6 +156,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   onSortTable,
   openCreateModal,
   status,
+  onDropIndex,
 }) => {
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
@@ -188,13 +192,13 @@ export const SearchIndexesTable: React.FunctionComponent<
           ),
         },
       ],
-
       details: (
         <SearchIndexDetails
           indexName={index.name}
           definition={index.latestDefinition}
         />
       ),
+      actions: <IndexActions index={index} onDropIndex={onDropIndex} />,
     };
   });
 
@@ -218,6 +222,7 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
+  onDropIndex: dropSearchIndex,
   openCreateModal: openModalForCreation,
 };
 
