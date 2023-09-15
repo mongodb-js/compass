@@ -23,6 +23,10 @@ function getTopologyDescription(topologyDescription) {
 
 const store = createStore(reducer);
 
+store.getInstance = () => {
+  return store.getState().instance;
+};
+
 store.refreshInstance = async (globalAppRegistry, refreshOptions) => {
   const { instance, dataService } = store.getState();
 
@@ -315,15 +319,18 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('open-instance-workspace', 'Databases');
   });
 
-  appRegistry.on('collections-list-select-collection', async ({ ns }) => {
+  const openCollectionInSameTab = async ({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
-  });
+  };
 
-  appRegistry.on('sidebar-select-collection', async ({ ns }) => {
-    const metadata = await store.fetchCollectionMetadata(ns);
-    appRegistry.emit('select-namespace', metadata);
-  });
+  appRegistry.on('collections-list-select-collection', openCollectionInSameTab);
+  appRegistry.on('sidebar-select-collection', openCollectionInSameTab);
+  appRegistry.on(
+    'collection-workspace-select-namespace',
+    openCollectionInSameTab
+  );
+  appRegistry.on('collection-tab-select-collection', openCollectionInSameTab);
 
   const openCollectionInNewTab = async ({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
@@ -335,8 +342,12 @@ store.onActivated = (appRegistry) => {
     'import-export-open-collection-in-new-tab',
     openCollectionInNewTab
   );
+  appRegistry.on(
+    'collection-workspace-open-collection-in-new-tab',
+    openCollectionInNewTab
+  );
 
-  appRegistry.on('sidebar-modify-view', async ({ ns }) => {
+  const openModifyView = async ({ ns, sameTab }) => {
     const coll = await store.fetchCollectionDetails(ns);
     if (coll.sourceId && coll.pipeline) {
       // `modify-view` is currently implemented in a way where we are basically
@@ -349,13 +360,21 @@ store.onActivated = (appRegistry) => {
       const metadata = await store.fetchCollectionMetadata(coll.sourceId);
       metadata.sourcePipeline = coll.pipeline;
       metadata.editViewName = coll.ns;
-      appRegistry.emit('open-namespace-in-new-tab', metadata);
+      appRegistry.emit(
+        sameTab ? 'select-namespace' : 'open-namespace-in-new-tab',
+        metadata
+      );
     } else {
       debug(
         'Tried to modify the view on a collection with required metadata missing',
         coll.toJSON()
       );
     }
+  };
+
+  appRegistry.on('sidebar-modify-view', openModifyView);
+  appRegistry.on('collection-tab-modify-view', ({ ns }) => {
+    openModifyView({ ns, sameTab: true });
   });
 
   appRegistry.on('sidebar-duplicate-view', async ({ ns }) => {

@@ -1,7 +1,18 @@
 import type toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 
-type Namespace = ReturnType<typeof toNS>;
+type CollectionMetadata = {
+  namespace: string;
+  isReadonly: boolean;
+  isTimeSeries: boolean;
+  isClustered: boolean;
+  isFLE: boolean;
+  isSearchIndexesSupported: boolean;
+  sourceName?: string;
+  sourceReadonly?: boolean;
+  sourceViewon?: string;
+  sourcePipeline?: unknown[];
+};
 
 interface Collection {
   _id: string;
@@ -40,18 +51,9 @@ interface Collection {
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
-  fetchMetadata(opts: { dataService: DataService }): Promise<{
-    namespace: string;
-    isReadonly: boolean;
-    isTimeSeries: boolean;
-    isClustered: boolean;
-    isFLE: boolean;
-    isSearchIndexesSupported: boolean;
-    sourceName?: string;
-    sourceReadonly?: boolean;
-    sourceViewon?: string;
-    sourcePipeline?: unknown[];
-  }>;
+  fetchMetadata(opts: {
+    dataService: DataService;
+  }): Promise<CollectionMetadata>;
   toJSON(opts?: { derived: boolean }): this;
 }
 
@@ -63,4 +65,4 @@ interface CollectionCollection extends Array<Collection> {
 }
 
 export default Collection;
-export { CollectionCollection };
+export { CollectionCollection, CollectionMetadata };

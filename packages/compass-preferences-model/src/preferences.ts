@@ -47,6 +47,11 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
     atlasServiceConfigPreset: 'compass-dev' | 'compass' | 'atlas-dev' | 'atlas';
+    // Features that are enabled by default in Compass, but are disabled in Data
+    // Explorer
+    enableExplainPlan: boolean;
+    enableImportExport: boolean;
+    enableAggregationBuilderRunPipeline: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -616,6 +621,39 @@ export const storedUserPreferencesProps: Required<{
       .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas'])
       .default('compass'),
     type: 'string',
+  },
+
+  enableImportExport: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable import / export feature',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableAggregationBuilderRunPipeline: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable "Run Pipeline" feature in aggregation builder',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableExplainPlan: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable explain plan feature in CRUD and aggregation view',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   ...allFeatureFlagsProps,

@@ -10,6 +10,31 @@ import {
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import reducer from '../modules';
 
+// TODO: replace this with state coming from the right layer.
+// this kind of information should not be derived
+// from dataService as it operates on a lower level,
+// as a consequence here we have to remove the `appName` that only
+// the dataService should be using.
+function getCurrentlyConnectedUri(dataService) {
+  let connectionStringUrl;
+
+  try {
+    connectionStringUrl = dataService.getConnectionString().clone();
+  } catch (e) {
+    return '<uri>';
+  }
+
+  if (
+    /^mongodb compass/i.exec(
+      connectionStringUrl.searchParams.get('appName') || ''
+    )
+  ) {
+    connectionStringUrl.searchParams.delete('appName');
+  }
+
+  return connectionStringUrl.href;
+}
+
 /**
  * Set the namespace in the store.
  *
@@ -79,8 +104,10 @@ const configureStore = (options = {}) => {
     setNamespace(store, options.namespace);
   }
 
-  if (options.connectionString) {
-    store.dispatch(uriChanged(options.connectionString));
+  if (options.dataProvider) {
+    store.dispatch(
+      uriChanged(getCurrentlyConnectedUri(options.dataProvider.dataProvider))
+    );
   }
 
   return store;

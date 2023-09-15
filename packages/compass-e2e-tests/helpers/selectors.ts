@@ -319,8 +319,7 @@ export const CreateCollectionFLE2CheckboxLabel =
   '[data-testid="fle2-fields"] [data-testid="fle2-fields-label"]';
 export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
 export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
-export const CollectionHeaderFLE2Badge =
-  '[data-testid="collection-header-badge-fle2"]';
+export const CollectionHeaderFLE2Badge = '[data-testid="collection-badge-fle"]';
 export const CreateCollectionFLE2EncryptedFields =
   '[data-testid="fle2-encryptedFields"]';
 export const CreateCollectionFLE2KeyEncryptionKey =

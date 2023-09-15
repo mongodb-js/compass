@@ -4,8 +4,9 @@ import { render, screen } from '@testing-library/react';
 import { spy } from 'sinon';
 import type AppRegistry from 'hadron-app-registry';
 
-import { Workspace, getTabType } from './workspace';
+import { Workspace } from './workspace';
 
+// TODO: why was this skipped?
 describe.skip('Workspace [Component]', function () {
   const tabs = [{ isActive: true }, { isActive: false }];
 
@@ -55,19 +56,5 @@ describe.skip('Workspace [Component]', function () {
 
   it('renders the tab div', function () {
     expect(screen.getByTestId('workspace-tabs')).to.exist;
-  });
-
-  describe('#getTabType', function () {
-    it('should return "timeseries" for a timeseries collection', function () {
-      expect(getTabType(true, false)).to.equal('timeseries');
-    });
-
-    it('should return "view" for a view', function () {
-      expect(getTabType(false, true)).to.equal('view');
-    });
-
-    it('should return "collection" when its not time series or readonly', function () {
-      expect(getTabType(false, false)).to.equal('collection');
-    });
   });
 });
