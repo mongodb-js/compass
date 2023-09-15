@@ -541,7 +541,7 @@ export class AtlasService {
     const userId = (await this.getActiveCompassUser()).id;
 
     const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/hello/${userId}`
+      `${this.config.atlasApiBaseUrl}/unauth/ai/api/v1/hello/${userId}`
     );
 
     await throwIfNotOk(res);
@@ -566,7 +566,7 @@ export class AtlasService {
       const featureResponse = await this.getAIFeatureEnablement();
 
       const isAIFeatureEnabled =
-        !!featureResponse.features.GEN_AI_COMPASS?.enabled;
+        !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
 
       log.info(
         mongoLogId(1_001_000_229),
@@ -584,6 +584,7 @@ export class AtlasService {
       });
     } catch (err) {
       // Default to what's already in Compass when we can't fetch the preference.
+      console.log('Jack -> error so disabled');
       log.error(
         mongoLogId(1_001_000_244),
         'AtlasService',
