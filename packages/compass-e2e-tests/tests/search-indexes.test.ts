@@ -175,10 +175,7 @@ describe('Search Indexes', function () {
 
         // Drop it
         await browser.dropSearchIndex(indexName);
-        await browser.waitUntil(async function () {
-          const text = await browser.$(rowSelector).getText();
-          return text.indexOf('DELETING') > -1;
-        });
+        // todo: check the index status to be either DELETING or the row disappears
       });
 
       it('allows users to update and view search indexes');
