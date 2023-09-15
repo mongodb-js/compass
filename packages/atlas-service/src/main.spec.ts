@@ -571,6 +571,35 @@ describe('AtlasServiceMain', function () {
       });
     });
 
+    it('should set the cloudFeatureRolloutAccess false when returned null', async function () {
+      const fetchStub = sandbox.stub().resolves({
+        ok: true,
+        json() {
+          return Promise.resolve({
+            features: null,
+          });
+        },
+      });
+      AtlasService['fetch'] = fetchStub;
+
+      let currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
+
+      await AtlasService.setupAIAccess();
+
+      const { args } = fetchStub.getCall(0);
+
+      expect(AtlasService['fetch']).to.have.been.calledOnce;
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
+
+      currentCloudFeatureRolloutAccess =
+        preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
+      expect(currentCloudFeatureRolloutAccess).to.deep.equal({
+        GEN_AI_COMPASS: false,
+      });
+    });
+
     it('should not set the cloudFeatureRolloutAccess false when returned false', async function () {
       const fetchStub = sandbox.stub().throws(new Error('error'));
       AtlasService['fetch'] = fetchStub;
