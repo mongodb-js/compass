@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTrackOnChange } from '@mongodb-js/compass-logging';
 import {
   Modal,
@@ -74,13 +74,18 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   submitIndex,
   closeModal,
 }) => {
-  const [indexName, setIndexName] = useState<string>(initialIndexName);
+  const [indexName, setIndexName] = useState<string>(() => initialIndexName);
   const [indexDefinition, setIndexDefinition] = useState<string>(
-    () => initialIndexDefinition
+    initialIndexDefinition
   );
   const [parsingError, setParsingError] = useState<string | undefined>(
     undefined
   );
+
+  useEffect(() => {
+    setIndexName(initialIndexName);
+    setIndexDefinition(initialIndexDefinition);
+  }, [initialIndexName, initialIndexDefinition]);
 
   const onSearchIndexDefinitionChanged = useCallback(
     (newDefinition: string) => {
