@@ -114,7 +114,7 @@ function SearchIndexDetails({
   indexName: string;
   definition: Document;
 }) {
-  const badges = [];
+  const badges: { name: string; className?: string }[] = [];
   if (definition.mappings?.dynamic) {
     badges.push({
       name: 'Dynamic Mappings',
