@@ -27,7 +27,7 @@ describe('AtlasServiceMain', function () {
       'http://example.com/v1/revoke?client_id=1234abcd': {
         ok: true,
       },
-      'http://example.com/ai/api/v1/hello/': {
+      'http://example.com/unauth/ai/api/v1/hello/': {
         ok: true,
         json() {
           return { features: {} };
@@ -529,7 +529,7 @@ describe('AtlasServiceMain', function () {
       const { args } = fetchStub.getCall(0);
 
       expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
         preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
@@ -562,7 +562,7 @@ describe('AtlasServiceMain', function () {
       const { args } = fetchStub.getCall(0);
 
       expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
         preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
@@ -584,7 +584,7 @@ describe('AtlasServiceMain', function () {
       const { args } = fetchStub.getCall(0);
 
       expect(AtlasService['fetch']).to.have.been.calledOnce;
-      expect(args[0]).to.eq(`http://example.com/ai/api/v1/hello/test`);
+      expect(args[0]).to.eq(`http://example.com/unauth/ai/api/v1/hello/test`);
 
       currentCloudFeatureRolloutAccess =
         preferencesAccess.getPreferences().cloudFeatureRolloutAccess;
