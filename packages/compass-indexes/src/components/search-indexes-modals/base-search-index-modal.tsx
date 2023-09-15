@@ -110,23 +110,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     submitIndex(indexName, indexDefinitionDoc);
   }, [submitIndex, parsingError, indexName, indexDefinition]);
 
-  useTrackOnChange(
-    'COMPASS-SEARCH-INDEXES-UI',
-    (track) => {
-      if (isModalOpen) {
-        track('Screen', { name: 'create_search_index_modal' });
-      }
-    },
-    [isModalOpen],
-    undefined,
-    React
-  );
-
   return (
     <Modal
       open={isModalOpen}
       setOpen={closeModal}
-      data-testid="create-search-index-modal"
+      data-testid="search-index-modal"
     >
       <ModalHeader
         title={title}
