@@ -80,7 +80,7 @@ function readablePlatformName(arch, platform, fileName = '') {
       name = 'macOS arm64 (M1) (11.0+)';
       break;
     case 'win32-x64':
-      name = 'Windows 64-bit (7+)';
+      name = 'Windows 64-bit (10+)';
       break;
     case 'linux-x64':
       name = fileName.endsWith('.rpm')

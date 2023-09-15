@@ -1,12 +1,15 @@
 import { expect } from 'chai';
 import {
   SearchIndexesStatuses,
-  closeModal,
+  closeModalForCreation,
   openModalForCreation,
-  saveIndex,
+  createIndex,
   fetchSearchIndexes,
   sortSearchIndexes,
   dropSearchIndex,
+  openModalForUpdate,
+  closeModalForUpdate,
+  updateIndex,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
@@ -25,6 +28,7 @@ describe('search-indexes module', function () {
   beforeEach(function () {
     dataProvider = {
       createSearchIndex: sinon.spy(),
+      updateSearchIndex: sinon.spy(),
     };
 
     store = setupStore(
@@ -185,16 +189,30 @@ describe('search-indexes module', function () {
     expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
   });
 
-  it('closes an open modal', function () {
+  it('closes an open modal for creation', function () {
     store.dispatch(openModalForCreation());
-    store.dispatch(closeModal());
+    store.dispatch(closeModalForCreation());
     expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
   });
 
   it('creates the index when data is valid', async function () {
-    await store.dispatch(saveIndex('indexName', {}));
+    await store.dispatch(createIndex('indexName', {}));
     expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
     expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
+  });
+
+  it('closes an open modal for update', function () {
+    store.dispatch(openModalForUpdate('indexName', 'indexDef'));
+    store.dispatch(closeModalForUpdate());
+
+    expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be.false;
+  });
+
+  it('updates the index when data is valid', async function () {
+    await store.dispatch(updateIndex('indexName', {}));
+
+    expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be.false;
+    expect(dataProvider.updateSearchIndex).to.have.been.calledOnce;
   });
 
   context('drop search index', function () {

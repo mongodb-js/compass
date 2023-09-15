@@ -13,19 +13,19 @@
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+)",
+          "name": "Windows 64-bit (10+)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-1.23.0-win32-x64.exe"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (Zip)",
+          "name": "Windows 64-bit (10+) (Zip)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-1.23.0-win32-x64.zip"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (MSI)",
+          "name": "Windows 64-bit (10+) (MSI)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-1.23.0-win32-x64.msi"
         },
         {
@@ -55,19 +55,19 @@
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+)",
+          "name": "Windows 64-bit (10+)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-readonly-1.23.0-win32-x64.exe"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (Zip)",
+          "name": "Windows 64-bit (10+) (Zip)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-readonly-1.23.0-win32-x64.zip"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (MSI)",
+          "name": "Windows 64-bit (10+) (MSI)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-readonly-1.23.0-win32-x64.msi"
         },
         {
@@ -97,19 +97,19 @@
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+)",
+          "name": "Windows 64-bit (10+)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-isolated-1.23.0-win32-x64.exe"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (Zip)",
+          "name": "Windows 64-bit (10+) (Zip)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-isolated-1.23.0-win32-x64.zip"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (MSI)",
+          "name": "Windows 64-bit (10+) (MSI)",
           "download_link": "https://downloads.mongodb.com/compass/mongodb-compass-isolated-1.23.0-win32-x64.msi"
         },
         {
@@ -139,19 +139,19 @@
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+)",
+          "name": "Windows 64-bit (10+)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-1.23.0-beta.4-win32-x64.exe"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (Zip)",
+          "name": "Windows 64-bit (10+) (Zip)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-1.23.0-beta.4-win32-x64.zip"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (MSI)",
+          "name": "Windows 64-bit (10+) (MSI)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-1.23.0-beta.4-win32-x64.msi"
         },
         {
@@ -181,19 +181,19 @@
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+)",
+          "name": "Windows 64-bit (10+)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-readonly-1.23.0-beta.4-win32-x64.exe"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (Zip)",
+          "name": "Windows 64-bit (10+) (Zip)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-readonly-1.23.0-beta.4-win32-x64.zip"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (MSI)",
+          "name": "Windows 64-bit (10+) (MSI)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-readonly-1.23.0-beta.4-win32-x64.msi"
         },
         {
@@ -223,19 +223,19 @@
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+)",
+          "name": "Windows 64-bit (10+)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-isolated-1.23.0-beta.4-win32-x64.exe"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (Zip)",
+          "name": "Windows 64-bit (10+) (Zip)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-isolated-1.23.0-beta.4-win32-x64.zip"
         },
         {
           "arch": "x64",
           "os": "win32",
-          "name": "Windows 64-bit (7+) (MSI)",
+          "name": "Windows 64-bit (10+) (MSI)",
           "download_link": "https://downloads.mongodb.com/compass/beta/mongodb-compass-isolated-1.23.0-beta.4-win32-x64.msi"
         },
         {
