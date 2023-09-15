@@ -584,7 +584,6 @@ export class AtlasService {
       });
     } catch (err) {
       // Default to what's already in Compass when we can't fetch the preference.
-      console.log('Jack -> error so disabled');
       log.error(
         mongoLogId(1_001_000_244),
         'AtlasService',
