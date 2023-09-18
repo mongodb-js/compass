@@ -150,9 +150,9 @@ describe('QueryBar Component', function () {
         );
       });
 
-      it('renders the ask ai button', function () {
-        expect(screen.getByText('Ask AI')).to.exist;
-        expect(screen.getByTestId('ai-experience-ask-ai-button')).to.exist;
+      it('renders the ai entry button', function () {
+        expect(screen.getByText('Generate query')).to.exist;
+        expect(screen.getByTestId('ai-experience-query-entry-button')).to.exist;
       });
     });
 
@@ -163,9 +163,9 @@ describe('QueryBar Component', function () {
         });
       });
 
-      it('does not render the ask ai button, but renders the placeholder', function () {
-        expect(screen.getByText('Ask AI')).to.exist;
-        expect(screen.queryByTestId('ai-experience-ask-ai-button')).to.not
+      it('does not render the ai entry button, but renders the placeholder', function () {
+        expect(screen.getByText('Generate query')).to.exist;
+        expect(screen.queryByTestId('ai-experience-query-entry-button')).to.not
           .exist;
       });
     });
