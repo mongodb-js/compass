@@ -42,6 +42,10 @@ export function capMaxTimeMSAtPreferenceLimit<T>(value: T): T | number {
 }
 
 export function useIsAIFeatureEnabled(React: ReactHooks) {
+  const enableAIWithoutRolloutAccess = usePreference(
+    'enableAIWithoutRolloutAccess',
+    React
+  );
   const enableAIExperience = usePreference('enableAIExperience', React);
   const isAIFeatureEnabled = usePreference(
     'cloudFeatureRolloutAccess',
@@ -49,5 +53,9 @@ export function useIsAIFeatureEnabled(React: ReactHooks) {
   )?.GEN_AI_COMPASS;
   const enableAIFeatures = usePreference('enableAIFeatures', React);
 
-  return enableAIExperience && isAIFeatureEnabled && enableAIFeatures;
+  return (
+    enableAIExperience &&
+    (enableAIWithoutRolloutAccess || isAIFeatureEnabled) &&
+    enableAIFeatures
+  );
 }

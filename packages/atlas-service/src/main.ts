@@ -94,7 +94,8 @@ export async function throwIfNotOk(
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {
   if (
-    !preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS ||
+    (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS &&
+      !preferences.getPreferences().enableAIWithoutRolloutAccess) ||
     !preferences.getPreferences().enableAIFeatures
   ) {
     throw new Error(
