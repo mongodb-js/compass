@@ -103,6 +103,9 @@ export const CreateSearchIndexModal: React.FunctionComponent<
     (track) => {
       if (isModalOpen) {
         track('Screen', { name: 'create_search_index_modal' });
+        track('Index Create Opened', {
+          atlas_search: true,
+        });
       }
     },
     [isModalOpen],

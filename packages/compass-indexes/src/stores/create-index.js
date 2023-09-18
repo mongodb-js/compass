@@ -47,7 +47,9 @@ const configureStore = (options = {}) => {
     });
 
     localAppRegistry.on('open-create-index-modal', () => {
-      track('Index Create Opened');
+      track('Index Create Opened', {
+        atlas_search: false,
+      });
       store.dispatch(toggleIsVisible(true));
     });
 
