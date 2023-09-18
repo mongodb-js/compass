@@ -51,8 +51,11 @@ export function useIsAIFeatureEnabled(React: ReactHooks) {
     'cloudFeatureRolloutAccess',
     React
   )?.GEN_AI_COMPASS;
+  const enableAIFeatures = usePreference('enableAIFeatures', React);
 
   return (
-    enableAIExperience && (enableAIWithoutRolloutAccess || isAIFeatureEnabled)
+    enableAIExperience &&
+    (enableAIWithoutRolloutAccess || isAIFeatureEnabled) &&
+    enableAIFeatures
   );
 }

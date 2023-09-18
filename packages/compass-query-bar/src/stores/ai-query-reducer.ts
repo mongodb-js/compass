@@ -385,8 +385,8 @@ const aiQueryReducer: Reducer<AIQueryState> = (
 
   if (isAction<AIQueryFailedAction>(action, AIQueryActionTypes.AIQueryFailed)) {
     // If fetching query failed due to authentication error, reset the state to
-    // hide the input and show the "Ask AI" button again: this should start the
-    // sign in flow for the user when clicked
+    // hide the input and show the "Generate query" button again: this should start
+    // the sign in flow for the user when clicked
     if (action.networkErrorCode === 401) {
       return { ...initialState };
     }
