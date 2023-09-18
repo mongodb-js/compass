@@ -252,13 +252,10 @@ export const renderTabs = (): CollectionThunkAction<
     dispatch(setupRole('Query.QueryBar'));
 
     return dispatch(setupRole('Collection.Tab')).filter((role) => {
-      if (
+      return !(
         preferencesAccess.getPreferences().newExplainPlan &&
         role.name === 'Explain Plan'
-      ) {
-        return false;
-      }
-      return true;
+      );
     });
   };
 };
