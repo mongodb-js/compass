@@ -82,6 +82,7 @@ const statusBadgeVariants: Record<SearchIndexStatus, BadgeVariant> = {
   PENDING: BadgeVariant.Yellow,
   READY: BadgeVariant.Green,
   STALE: BadgeVariant.LightGray,
+  DELETING: BadgeVariant.Red,
 };
 
 function IndexStatus({
