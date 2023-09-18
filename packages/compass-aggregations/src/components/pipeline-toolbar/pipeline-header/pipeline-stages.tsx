@@ -90,7 +90,6 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
           )}
           {isAIFeatureEnabled && showAIEntry && (
             <>
-              {nbsp}
               <AIExperienceEntry
                 onClick={onShowAIInputClick}
                 type="aggregation"

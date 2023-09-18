@@ -84,7 +84,6 @@ const filterContainerStyles = css({
   position: 'relative',
   flexGrow: 1,
   alignItems: 'flex-start',
-  gap: spacing[2],
 });
 
 const filterLabelStyles = css({
