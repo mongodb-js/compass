@@ -51,6 +51,29 @@ export type CollectionState = {
   editViewName?: string;
 };
 
+export function pickCollectionStats(
+  collection: Collection
+): CollectionState['stats'] {
+  const {
+    document_count,
+    index_count,
+    index_size,
+    status,
+    avg_document_size,
+    storage_size,
+    free_storage_size,
+  } = collection.toJSON();
+  return {
+    document_count,
+    index_count,
+    index_size,
+    status,
+    avg_document_size,
+    storage_size,
+    free_storage_size,
+  };
+}
+
 const initialMetadata: CollectionStateMetadata = {
   namespace: '',
   isReadonly: false,
@@ -80,8 +103,7 @@ const reducer: Reducer<CollectionState> = (
   if (action.type === CollectionActions.CollectionStatsFetched) {
     return {
       ...state,
-      // TODO: pick props
-      stats: action.collection,
+      stats: pickCollectionStats(action.collection),
     };
   }
   if (action.type === CollectionActions.CollectionMetadataFetched) {

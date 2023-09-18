@@ -38,14 +38,14 @@ interface DataLake {
 }
 
 interface Server {
-  type: string
-  address: string
+  type: string;
+  address: string;
 }
 
 interface TopologyDescription {
-  type: string,
-  servers: Server[],
-  setName: string
+  type: string;
+  servers: Server[];
+  setName: string;
 }
 
 declare class MongoDBInstanceProps {
@@ -74,7 +74,7 @@ declare class MongoDBInstanceProps {
   auth: AuthInfo;
   databases: DatabaseCollection;
   csfleMode: 'enabled' | 'disabled' | 'unavailable';
-  topologyDescription: TopologyDescription
+  topologyDescription: TopologyDescription;
 }
 
 declare class MongoDBInstance extends MongoDBInstanceProps {

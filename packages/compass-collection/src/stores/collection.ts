@@ -4,6 +4,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer, {
   collectionStatsFetched,
+  pickCollectionStats,
   selectTab,
 } from '../modules/collection-tab';
 import type Collection from 'mongodb-collection-model';
@@ -56,6 +57,10 @@ export function configureStore(
 
   const { database, collection } = toNs(collectionMetadata.namespace);
 
+  const collectionModel = instance.databases
+    .get(database)
+    ?.collections.get(collection, 'name');
+
   const store = createStore(
     reducer,
     {
@@ -68,10 +73,7 @@ export function configureStore(
         isAtlas: instance.isAtlas,
         serverVersion: instance.build.version,
       },
-      stats:
-        // TODO: pick props
-        instance.databases.get(database)?.collections.get(collection, 'name') ??
-        null,
+      stats: collectionModel ? pickCollectionStats(collectionModel) : null,
       initialQuery: query,
       initialAggregation: aggregation,
       // If aggregation is passed or we opened view to edit source pipeline,
@@ -88,18 +90,11 @@ export function configureStore(
     )
   );
 
-  instance.on(
-    'change:collections.status',
-    (collectionModel: Collection, status: string) => {
-      if (collectionModel.ns !== collectionMetadata.namespace) {
-        return;
-      }
-
-      if (status === 'ready') {
-        store.dispatch(collectionStatsFetched(collectionModel));
-      }
+  collectionModel?.on('change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.dispatch(collectionStatsFetched(model));
     }
-  );
+  });
 
   localAppRegistry.on('open-create-index-modal', () => {
     store.dispatch(selectTab('Indexes'));

@@ -54,6 +54,7 @@ interface Collection {
   fetchMetadata(opts: {
     dataService: DataService;
   }): Promise<CollectionMetadata>;
+  on(evt: string, fn: (...args: any) => void);
   toJSON(opts?: { derived: boolean }): this;
 }
 
