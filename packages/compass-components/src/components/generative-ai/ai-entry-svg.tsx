@@ -1,9 +1,11 @@
 import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
 
 export const aiEntrySVGStyles = css({
   alignSelf: 'center',
+  marginLeft: spacing[1],
   path: {
     transition: 'fill 0.16s ease-in',
   },
