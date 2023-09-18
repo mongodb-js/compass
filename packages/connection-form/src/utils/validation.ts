@@ -346,7 +346,6 @@ export function validateConnectionOptionsWarnings(
 
   return [
     ...validateReadPreferenceWarnings(connectionString),
-    ...validateDeprecatedOptionsWarnings(connectionString),
     ...validateCertificateValidationWarnings(connectionString),
     ...validateDirectConnectionAndSrvWarnings(connectionString),
     ...validateDirectConnectionAndReplicaSetWarnings(connectionString),
@@ -389,19 +388,6 @@ function validateCertificateValidationWarnings(
   if (tlsInsecure || tlsAllowInvalidHostnames || tlsAllowInvalidCertificates) {
     warnings.push({
       message: `TLS/SSL certificate validation is disabled. If possible, enable certificate validation to avoid security vulnerabilities.`,
-    });
-  }
-
-  return warnings;
-}
-function validateDeprecatedOptionsWarnings(
-  connectionString: ConnectionString
-): ConnectionFormWarning[] {
-  const warnings: ConnectionFormWarning[] = [];
-  if (connectionString.searchParams.has('tlsCertificateFile')) {
-    warnings.push({
-      message:
-        'tlsCertificateFile is deprecated and will be removed in future versions of Compass, please embed the client key and certificate chain in a single .pem bundle and use tlsCertificateKeyFile instead.',
     });
   }
 

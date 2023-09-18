@@ -9,11 +9,16 @@ import {
   Body,
   KeylineCard,
   useDarkMode,
+  Subtitle,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
 import type { RootState } from '../../modules';
-import { isMissingAtlasStageSupport, isOutputStage } from '../../utils/stage';
+import {
+  isAtlasOnlyStage,
+  isMissingAtlasStageSupport,
+  isOutputStage,
+} from '../../utils/stage';
 
 import LoadingOverlay from '../loading-overlay';
 import { AtlasStagePreview } from './atlas-stage-preview';
@@ -27,6 +32,7 @@ const centeredContent = css({
   justifyContent: 'center',
   height: '100%',
   padding: spacing[3],
+  flexDirection: 'column',
 });
 
 const emptyStyles = css({
@@ -91,6 +97,14 @@ const documentStyles = css({
   padding: 0,
 });
 
+const missingAtlasIndexLightStyles = css({
+  color: palette.green.dark2,
+});
+
+const missingAtlasIndexDarkStyles = css({
+  color: palette.green.base,
+});
+
 type StagePreviewProps = {
   index: number;
   isLoading: boolean;
@@ -109,6 +123,7 @@ function StagePreviewBody({
   shouldRenderStage,
   isLoading,
 }: StagePreviewProps) {
+  const darkMode = useDarkMode();
   if (!shouldRenderStage) {
     return <EmptyIcon />;
   }
@@ -134,6 +149,26 @@ function StagePreviewBody({
     return (
       <div className={centeredContent}>
         <LoadingOverlay text="Loading Preview Documents..." />
+      </div>
+    );
+  }
+
+  if (isAtlasOnlyStage(stageOperator ?? '') && documents?.length === 0) {
+    return (
+      <div className={centeredContent}>
+        <Subtitle
+          className={css(
+            darkMode
+              ? missingAtlasIndexDarkStyles
+              : missingAtlasIndexLightStyles
+          )}
+        >
+          No results found
+        </Subtitle>
+        <Body>
+          This may be because your search has no results or your search index
+          does not exist.
+        </Body>
       </div>
     );
   }

@@ -557,11 +557,11 @@ class CompassMenu {
 
     debug(`lastFocusedWindow set to WINDOW ${id}`);
 
-    const onFocus = ({ sender }: { sender: BrowserWindow }) => {
-      debug(`WINDOW ${sender.id} focused`);
-      debug(`lastFocusedWindow set to WINDOW ${sender.id}`);
-      this.lastFocusedWindow = sender;
-      this.load(sender);
+    const onFocus = () => {
+      debug(`WINDOW ${id} focused`);
+      debug(`lastFocusedWindow set to WINDOW ${id}`);
+      this.lastFocusedWindow = bw;
+      this.load(bw);
     };
 
     bw.on('focus', onFocus);

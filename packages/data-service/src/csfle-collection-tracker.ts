@@ -1,5 +1,9 @@
-import type { MongoClient, Document, AutoEncryptionOptions } from 'mongodb';
-import type { ClientEncryptionEncryptOptions } from 'mongodb-client-encryption';
+import type {
+  ClientEncryptionEncryptOptions,
+  MongoClient,
+  Document,
+  AutoEncryptionOptions,
+} from 'mongodb';
 import type { DataService } from './data-service';
 import type {
   CollectionInfo,
@@ -244,7 +248,7 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
   ) {
     this._processClientSchemaDefinitions();
 
-    const { autoEncrypter } = this._crudClient.options;
+    const { autoEncrypter } = this._crudClient as any;
     if (autoEncrypter) {
       this._logger?.info(
         'COMPASS-DATA-SERVICE',
@@ -253,8 +257,8 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
         'Hooking AutoEncrypter metaDataClient property'
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (autoEncrypter as any)._metaDataClient = this._createHookedMetadataClient(
-        (autoEncrypter as any)._metaDataClient
+      autoEncrypter._metaDataClient = this._createHookedMetadataClient(
+        autoEncrypter._metaDataClient as MongoClient
       );
     }
   }

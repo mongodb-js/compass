@@ -3,7 +3,7 @@ import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService, ExplainExecuteOptions } from 'mongodb-data-service';
+import type { DataService } from 'mongodb-data-service';
 import type { Action, AnyAction, Reducer } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -198,21 +198,11 @@ function cleanupAbortSignal(id: number) {
   return ExplainPlanAbortControllerMap.delete(id);
 }
 
-const getAggregationExplainVerbosity = (
-  pipeline: unknown[],
-  isDataLake: boolean
-): ExplainExecuteOptions['explainVerbosity'] => {
-  // dataLake does not have $out/$merge operators
-  if (isDataLake) {
-    return 'queryPlannerExtended';
-  }
-  const lastStage = pipeline[pipeline.length - 1] ?? {};
-  const isOutOrMergePipeline =
-    Object.prototype.hasOwnProperty.call(lastStage, '$out') ||
-    Object.prototype.hasOwnProperty.call(lastStage, '$merge');
-  return isOutOrMergePipeline
-    ? 'queryPlanner' // $out & $merge only work with queryPlanner
-    : 'allPlansExecution';
+const isOutputStage = (stage: unknown): boolean => {
+  return (
+    Object.prototype.hasOwnProperty.call(stage, '$out') ||
+    Object.prototype.hasOwnProperty.call(stage, '$merge')
+  );
 };
 
 const DEFAULT_MAX_TIME_MS = 60_000;
@@ -235,11 +225,20 @@ export const openExplainPlanModal = (
 
     try {
       if (event.aggregation) {
-        const { pipeline, collation, maxTimeMS } = event.aggregation;
-        const explainVerbosity = getAggregationExplainVerbosity(
-          pipeline,
-          isDataLake
-        );
+        const { collation, maxTimeMS } = event.aggregation;
+        const explainVerbosity = isDataLake
+          ? 'queryPlannerExtended'
+          : 'allPlansExecution';
+
+        const pipeline = event.aggregation.pipeline.filter((stage) => {
+          // Getting explain plan for a pipeline with an out / merge stage can
+          // cause data corruption issues in non-genuine MongoDB servers, for
+          // example CosmosDB actually executes pipeline and persists data, even
+          // when the stage is not at the end of the pipeline. To avoid
+          // introducing branching logic based on MongoDB genuineness, we just
+          // filter out all output stages here instead
+          return !isOutputStage(stage);
+        });
 
         const explainOptions = {
           maxTimeMS: capMaxTimeMSAtPreferenceLimit(

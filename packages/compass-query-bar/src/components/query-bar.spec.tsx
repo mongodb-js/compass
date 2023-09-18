@@ -124,9 +124,12 @@ describe('QueryBar Component', function () {
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
-      sandbox
-        .stub(preferencesAccess, 'getPreferences')
-        .returns({ enableAIExperience: true } as any);
+      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        enableAIExperience: true,
+        cloudFeatureRolloutAccess: {
+          GEN_AI_COMPASS: true,
+        },
+      } as any);
     });
 
     afterEach(function () {
@@ -173,9 +176,12 @@ describe('QueryBar Component', function () {
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
-      sandbox
-        .stub(preferencesAccess, 'getPreferences')
-        .returns({ enableAIExperience: false } as any);
+      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        enableAIExperience: false,
+        cloudFeatureRolloutAccess: {
+          GEN_AI_COMPASS: true,
+        },
+      } as any);
       renderQueryBar({
         queryOptionsLayout: ['filter'],
       });

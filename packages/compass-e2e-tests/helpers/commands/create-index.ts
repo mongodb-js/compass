@@ -34,7 +34,22 @@ export async function createIndex(
   const indexName = extraOptions?.indexName ?? `${fieldName}_${indexType}`;
 
   // Open the modal
-  await browser.clickVisible(Selectors.CreateIndexButton);
+  const isWithCreateDropdown = await browser
+    .$(Selectors.CreateIndexDropdownButton)
+    .isExisting();
+  if (isWithCreateDropdown) {
+    await browser.waitUntil(async () => {
+      await browser.clickVisible(Selectors.CreateIndexDropdownButton);
+      return await browser
+        .$(Selectors.createIndexDropdownAction('regular-indexes'))
+        .isExisting();
+    });
+    await browser.clickVisible(
+      Selectors.createIndexDropdownAction('regular-indexes')
+    );
+  } else {
+    await browser.clickVisible(Selectors.CreateIndexButton);
+  }
   const createModal = await browser.$(Selectors.CreateIndexModal);
   await createModal.waitForDisplayed();
 
