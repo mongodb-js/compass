@@ -114,8 +114,15 @@ const buttonResetStyles = css({
 });
 
 const closeAIButtonStyles = css(buttonResetStyles, focusRing, {
+  height: spacing[4] + spacing[1],
+  display: 'flex',
+  alignItems: 'center',
   padding: spacing[1],
   position: 'absolute',
+});
+
+const aiEntryContainerStyles = css({
+  display: 'flex',
 });
 
 const closeText = 'Close AI Helper';
@@ -245,26 +252,6 @@ function GenerativeAIInput({
             }
             onKeyDown={onTextInputKeyDown}
           />
-          <button
-            className={closeAIButtonStyles}
-            data-testid="close-ai-button"
-            aria-label={closeText}
-            title={closeText}
-            onClick={() => onClose()}
-          >
-            <AIGuideCue
-              showGuideCue={isAggregationGeneratedFromQuery}
-              onCloseGuideCue={() => {
-                onResetIsAggregationGeneratedFromQuery?.();
-              }}
-              refEl={guideCueRef}
-              title="Aggregation generated"
-              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
-            />
-            <span ref={guideCueRef}>
-              <AIEntrySVG />
-            </span>
-          </button>
           <div className={floatingButtonsContainerStyles}>
             {isFetching ? (
               <div className={loaderContainerStyles}>
@@ -328,6 +315,26 @@ function GenerativeAIInput({
               )}
             </Button>
           </div>
+          <button
+            className={closeAIButtonStyles}
+            data-testid="close-ai-button"
+            aria-label={closeText}
+            title={closeText}
+            onClick={() => onClose()}
+          >
+            <AIGuideCue
+              showGuideCue={isAggregationGeneratedFromQuery}
+              onCloseGuideCue={() => {
+                onResetIsAggregationGeneratedFromQuery?.();
+              }}
+              refEl={guideCueRef}
+              title="Aggregation generated"
+              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
+            />
+            <span className={aiEntryContainerStyles} ref={guideCueRef}>
+              <AIEntrySVG darkMode={darkMode} />
+            </span>
+          </button>
         </div>
         {didSucceed && onSubmitFeedback && (
           <AIFeedback onSubmitFeedback={onSubmitFeedback} />

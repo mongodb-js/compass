@@ -36,8 +36,8 @@ const aiEntryStyles = css(
     gap: `${spacing[1]}px`,
 
     transition: 'color 0.16s ease-in',
-    '#entry-content': {
-      transition: 'fill 0.16s ease-in, stroke 0.16s ease-in',
+    path: {
+      transition: 'fill 0.16s ease-in',
     },
 
     '&:hover': {
@@ -52,9 +52,8 @@ const aiEntryDarkModeStyles = css(
   {
     color: palette.green.dark1,
     '&:hover': {
-      '#entry-content': {
+      path: {
         fill: palette.green.base,
-        stroke: palette.green.base,
       },
       color: palette.green.base,
     },
@@ -66,9 +65,8 @@ const aiEntryLightModeStyles = css(
   {
     color: palette.green.dark2,
     '&:hover': {
-      '#entry-content': {
+      path: {
         fill: palette.green.dark1,
-        stroke: palette.green.dark1,
       },
       color: palette.green.dark1,
     },
@@ -97,7 +95,7 @@ function AIExperienceEntry({
       data-testid={dataTestId}
     >
       Generate {type}
-      <AIEntrySVG />
+      <AIEntrySVG darkMode={darkMode} />
     </button>
   );
 }
