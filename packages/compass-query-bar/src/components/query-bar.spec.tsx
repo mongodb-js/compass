@@ -126,6 +126,7 @@ describe('QueryBar Component', function () {
       sandbox = sinon.createSandbox();
       sandbox.stub(preferencesAccess, 'getPreferences').returns({
         enableAIExperience: true,
+        enableAIFeatures: true,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
@@ -171,13 +172,40 @@ describe('QueryBar Component', function () {
     });
   });
 
-  describe('with ai disabled', function () {
+  describe('with enableAIExperience ai disabled', function () {
     let sandbox: sinon.SinonSandbox;
 
     beforeEach(function () {
       sandbox = sinon.createSandbox();
       sandbox.stub(preferencesAccess, 'getPreferences').returns({
         enableAIExperience: false,
+        enableAIFeatures: true,
+        cloudFeatureRolloutAccess: {
+          GEN_AI_COMPASS: true,
+        },
+      } as any);
+      renderQueryBar({
+        queryOptionsLayout: ['filter'],
+      });
+    });
+
+    afterEach(function () {
+      return sandbox.restore();
+    });
+
+    it('does not render the ask ai button', function () {
+      expect(screen.queryByText('Ask AI')).to.not.exist;
+    });
+  });
+
+  describe('with enableAIFeatures ai disabled', function () {
+    let sandbox: sinon.SinonSandbox;
+
+    beforeEach(function () {
+      sandbox = sinon.createSandbox();
+      sandbox.stub(preferencesAccess, 'getPreferences').returns({
+        enableAIExperience: true,
+        enableAIFeatures: false,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: true,
         },
