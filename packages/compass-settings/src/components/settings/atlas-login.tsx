@@ -110,7 +110,7 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             color={darkMode ? 'white' : 'black'}
             height={18}
           ></MongoDBLogoMark>
-          <span>AI Query and Aggregation</span>
+          <span>Use Generative AI</span>
           <Badge variant="blue">Preview</Badge>
         </Subtitle>
         <div className={atlasLoginControlsStyles}>
