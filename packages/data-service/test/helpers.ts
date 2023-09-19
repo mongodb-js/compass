@@ -10,8 +10,8 @@ const ALLOWED_COMMANDS = [
   'hostInfo',
   'buildInfo',
   'getParameter',
+  'atlasVersion',
   'collMod',
-  'count',
 ] as const;
 
 export type ClientMockOptions = {
@@ -20,6 +20,7 @@ export type ClientMockOptions = {
   collections: Record<string, string[] | Error>;
   searchIndexes: Record<string, Record<string, SearchIndex[] | Error>>;
   clientOptions: Record<string, unknown>;
+  hasAdminDotAtlasCliEntry: boolean;
 };
 
 export function createMongoClientMock({
@@ -28,6 +29,7 @@ export function createMongoClientMock({
   collections = {},
   searchIndexes = {},
   clientOptions = {},
+  hasAdminDotAtlasCliEntry = false,
 }: Partial<ClientMockOptions> = {}): {
   client: MongoClient;
   connectionString: string;
@@ -35,7 +37,7 @@ export function createMongoClientMock({
   const db = {
     command(spec: Document) {
       const cmd = Object.keys(spec).find((key) =>
-        ALLOWED_COMMANDS.includes(key)
+        ALLOWED_COMMANDS.includes(key as typeof ALLOWED_COMMANDS[number])
       );
       if (cmd && commands[cmd]) {
         const command = commands[cmd];
@@ -106,6 +108,14 @@ export function createMongoClientMock({
             },
             dropSearchIndex() {
               return Promise.resolve();
+            },
+            countDocuments(query: Document) {
+              return databaseName === 'admin' &&
+                collectionName === 'atlascli' &&
+                query.managedClusterType === 'atlasCliLocalDevCluster' &&
+                hasAdminDotAtlasCliEntry
+                ? 1
+                : 0;
             },
           };
         },

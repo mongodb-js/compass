@@ -275,87 +275,138 @@ describe('instance-detail-helper', function () {
           'documentdb'
         );
       });
-      it(`should be identified as atlas with hostname correct hostnames`, function () {
-        ['myserver.mongodb.net', 'myserver.mongodb-dev.net'].map(
-          async (hostname) => {
-            const { client, connectionString } = createMongoClientMock({
-              hosts: [{ host: hostname, port: 9999 }],
-              commands: {
-                buildInfo: {},
-                getCmdLineOpts: fixtures.CMD_LINE_OPTS,
-              },
-            });
-
-            const instanceDetails = await getInstance(client, connectionString);
-
-            expect(instanceDetails).to.have.property('isAtlas', true);
-          }
-        );
-      });
 
       context('isAtlas and isLocalAtlas', function () {
-        context('when count of docs is zero', function () {
-          it('should not detect local atlas', async function () {
-            const { client, connectionString } = createMongoClientMock({
-              commands: {
-                buildInfo: {},
-                count: { n: 0 },
-              },
-            });
-            const instanceDetails = await getInstance(client, connectionString);
-            expect(instanceDetails.isLocalAtlas).to.be.false;
-            expect(instanceDetails.isAtlas).to.be.false;
-          });
-
-          it('should not detect local atlas when user is connected to cloud atlas', async function () {
-            const { client, connectionString } = createMongoClientMock({
-              hosts: [
-                {
-                  host: 'analytics-node-test.e06dc.mongodb.net',
-                  port: 17018,
+        it(`should be identified as atlas with hostname correct hostnames`, function () {
+          ['myserver.mongodb.net', 'myserver.mongodb-dev.net'].map(
+            async (hostname) => {
+              const { client, connectionString } = createMongoClientMock({
+                hosts: [{ host: hostname, port: 9999 }],
+                commands: {
+                  buildInfo: {},
+                  getCmdLineOpts: fixtures.CMD_LINE_OPTS,
                 },
-              ],
-              commands: {
-                buildInfo: {},
-                count: { n: 0 },
-              },
-            });
-            const instanceDetails = await getInstance(client, connectionString);
-            expect(instanceDetails.isLocalAtlas).to.be.false;
-            expect(instanceDetails.isAtlas).to.be.true;
-          });
+              });
+
+              const instanceDetails = await getInstance(
+                client,
+                connectionString
+              );
+
+              expect(instanceDetails).to.have.property('isAtlas', true);
+            }
+          );
         });
 
-        context('when count of docs is greater than zero', function () {
-          it('should detect local atlas', async function () {
-            const { client, connectionString } = createMongoClientMock({
-              commands: {
-                buildInfo: {},
-                count: { n: 1 },
-              },
-            });
-            const instanceDetails = await getInstance(client, connectionString);
-            expect(instanceDetails.isLocalAtlas).to.be.true;
-            expect(instanceDetails.isAtlas).to.be.false;
+        it(`should be identified as atlas when atlasVersion command is present`, async function () {
+          const { client, connectionString } = createMongoClientMock({
+            hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
+            commands: {
+              atlasVersion: { atlasVersion: '1.1.1', gitVersion: '1.2.3' },
+              buildInfo: {},
+              getCmdLineOpts: fixtures.CMD_LINE_OPTS,
+            },
           });
-          it('should not detect local atlas when user is connected to cloud atlas', async function () {
-            const { client, connectionString } = createMongoClientMock({
-              hosts: [
-                {
-                  host: 'analytics-node-test.e06dc.mongodb.net',
-                  port: 17018,
-                },
-              ],
-              commands: {
-                buildInfo: {},
-                count: { n: 1 },
-              },
-            });
-            const instanceDetails = await getInstance(client, connectionString);
-            expect(instanceDetails.isLocalAtlas).to.be.false;
-            expect(instanceDetails.isAtlas).to.be.true;
-          });
+
+          const instanceDetails = await getInstance(client, connectionString);
+
+          expect(instanceDetails).to.have.property('isAtlas', true);
         });
+
+        it(`should not be identified as atlas when atlasVersion command is missing`, async function () {
+          const { client, connectionString } = createMongoClientMock({
+            hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
+            commands: {
+              atlasVersion: new Error('command not found'),
+              buildInfo: {},
+              getCmdLineOpts: fixtures.CMD_LINE_OPTS,
+            },
+          });
+
+          const instanceDetails = await getInstance(client, connectionString);
+
+          expect(instanceDetails).to.have.property('isAtlas', false);
+        });
+
+        context(
+          'when atlasCliLocalDevCluster is not stored in admin.atlascli',
+          function () {
+            it('should not detect local atlas', async function () {
+              const { client, connectionString } = createMongoClientMock({
+                commands: {
+                  buildInfo: {},
+                },
+              });
+              const instanceDetails = await getInstance(
+                client,
+                connectionString
+              );
+              expect(instanceDetails.isLocalAtlas).to.be.false;
+              expect(instanceDetails.isAtlas).to.be.false;
+            });
+
+            it('should not detect local atlas when user is connected to cloud atlas', async function () {
+              const { client, connectionString } = createMongoClientMock({
+                hosts: [
+                  {
+                    host: 'analytics-node-test.e06dc.mongodb.net',
+                    port: 17018,
+                  },
+                ],
+                commands: {
+                  buildInfo: {},
+                },
+              });
+              const instanceDetails = await getInstance(
+                client,
+                connectionString
+              );
+              expect(instanceDetails.isLocalAtlas).to.be.false;
+              expect(instanceDetails.isAtlas).to.be.true;
+            });
+          }
+        );
+
+        context(
+          'when atlasCliLocalDevCluster is stored in admin.atlascli',
+          function () {
+            it('should detect local atlas', async function () {
+              const { client, connectionString } = createMongoClientMock({
+                commands: {
+                  buildInfo: {},
+                },
+                hasAdminDotAtlasCliEntry: true,
+              });
+              const instanceDetails = await getInstance(
+                client,
+                connectionString
+              );
+              expect(instanceDetails.isLocalAtlas).to.be.true;
+              expect(instanceDetails.isAtlas).to.be.false;
+            });
+
+            it('should not detect local atlas when user is connected to cloud atlas', async function () {
+              const { client, connectionString } = createMongoClientMock({
+                hosts: [
+                  {
+                    host: 'analytics-node-test.e06dc.mongodb.net',
+                    port: 17018,
+                  },
+                ],
+                commands: {
+                  buildInfo: {},
+                },
+                hasAdminDotAtlasCliEntry: true,
+              });
+              const instanceDetails = await getInstance(
+                client,
+                connectionString
+              );
+              expect(instanceDetails.isLocalAtlas).to.be.false;
+              expect(instanceDetails.isAtlas).to.be.true;
+            });
+          }
+        );
       });
     });
   });

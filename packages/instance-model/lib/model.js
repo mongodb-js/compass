@@ -193,7 +193,7 @@ const InstanceModel = AmpersandModel.extend(
         }
       },
       env: {
-        deps: ['isAtlas', 'dataLake'],
+        deps: ['isAtlas', 'isLocalAtlas', 'dataLake'],
         fn() {
           if (this.isAtlas || this.isLocalAtlas) {
             if (this.dataLake.isDataLake) {
@@ -264,7 +264,7 @@ const InstanceModel = AmpersandModel.extend(
      * As $listSearchIndexes aggregation runs against a namespace, we perform
      * this check for a namespace and then save it on the model itself and then
      * use that value throughout.
-     * 
+     *
      * @param {{ ns: string, dataService: import('mongodb-data-service').DataService }} dataService
      * @returns {Promise<boolean>}
      */

@@ -138,6 +138,11 @@ interface RunDiagnosticsCommand {
     spec: { dbStats: 1; scale?: number },
     options?: RunCommandOptions
   ): Promise<DbStats>;
+  (
+    db: Db,
+    spec: { atlasVersion: 1 },
+    options?: RunCommandOptions
+  ): Promise<AtlasVersionInfo>;
   (db: Db, spec: { ping: 1 }, options?: RunCommandOptions): Promise<unknown>;
   (
     db: Db,
@@ -147,11 +152,6 @@ interface RunDiagnosticsCommand {
   (db: Db, spec: { top: 1 }, options?: RunCommandOptions): Promise<{
     totals: Record<string, unknown>;
   }>;
-  (
-    db: Db,
-    spec: { count: string; query: Document },
-    options?: RunCommandOptions
-  ): Promise<{ n: number; ok: 1 }>;
 }
 
 export type ListDatabasesOptions = {
@@ -212,6 +212,11 @@ export type ListCollectionsOptionsNamesOnly = Omit<
   'nameOnly'
 > & {
   nameOnly: true;
+};
+
+export type AtlasVersionInfo = {
+  atlasVersion: string;
+  gitVersion: string;
 };
 
 export type ListCollectionsResult<CollectionType> = {

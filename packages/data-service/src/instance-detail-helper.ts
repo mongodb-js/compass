@@ -118,6 +118,7 @@ export async function getInstance(
     hostInfoResult,
     buildInfoResult,
     getParameterResult,
+    atlasVersionResult,
     isLocalAtlas,
   ] = await Promise.all([
     runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
@@ -135,18 +136,17 @@ export async function getInstance(
       getParameter: 1,
       featureCompatibilityVersion: 1,
     }).catch(() => null),
+    runCommand(adminDb, { atlasVersion: 1 }).catch(() => {
+      return { atlasVersion: '', gitVersion: '' };
+    }),
     checkIsLocalAtlas(
       async (db: string, collection: string, query: Document) => {
-        const res = await runCommand(client.db(db), {
-          count: collection,
-          query,
-        });
-        return res.n;
+        return await client.db(db).collection(collection).countDocuments(query);
       }
     ),
   ]);
 
-  const isAtlas = checkIsAtlas(uri);
+  const isAtlas = !!atlasVersionResult.atlasVersion || checkIsAtlas(uri);
 
   return {
     auth: adaptAuthInfo(connectionStatus),
