@@ -21,6 +21,7 @@ import {
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
+import { useTrackOnChange } from '@mongodb-js/compass-logging';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -82,6 +83,23 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   );
   const [parsingError, setParsingError] = useState<string | undefined>(
     undefined
+  );
+
+  useTrackOnChange(
+    'COMPASS-SEARCH-INDEXES-UI',
+    (track) => {
+      if (isModalOpen) {
+        track('Screen', { name: `${mode}_search_index_modal` });
+        if (mode === 'create') {
+          track('Index Create Opened', {
+            atlas_search: true,
+          });
+        }
+      }
+    },
+    [isModalOpen, mode],
+    undefined,
+    React
   );
 
   useEffect(() => {

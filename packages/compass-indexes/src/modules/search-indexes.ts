@@ -454,6 +454,9 @@ export const updateIndex = (
         indexDefinition
       );
       dispatch({ type: ActionTypes.UpdateSearchIndexSucceeded });
+      track('Index Edited', {
+        atlas_search: true,
+      });
       openToast('search-index-update-in-progress', {
         title: `Your index ${indexName} is being updated.`,
         dismissible: true,
