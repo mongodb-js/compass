@@ -1,60 +1,58 @@
 import { expect } from 'chai';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { spy } from 'sinon';
-import type AppRegistry from 'hadron-app-registry';
+import { cleanup, render, screen } from '@testing-library/react';
 
 import { Workspace } from './workspace';
 
-// TODO: why was this skipped?
-describe.skip('Workspace [Component]', function () {
-  const tabs = [{ isActive: true }, { isActive: false }];
+function createTab(id: string) {
+  return {
+    id,
+    namespace: id,
+    type: 'collection',
+    selectedSubTabName: 'Documents',
+    localAppRegistry: {} as any,
+    component: <div>Tab {id} content</div>,
+  };
+}
 
-  let prevTabSpy;
-  let nextTabSpy;
+function renderWorkspace(
+  props: Partial<React.ComponentProps<typeof Workspace>> = {}
+) {
+  return render(
+    <Workspace
+      tabs={[createTab('a'), createTab('b'), createTab('c')]}
+      activeTabId="a"
+      onSelectTab={() => {
+        /** noop */
+      }}
+      onSelectNextTab={() => {
+        /** noop */
+      }}
+      onSelectPreviousTab={() => {
+        /** noop */
+      }}
+      onMoveTab={() => {
+        /** noop */
+      }}
+      onCloseTab={() => {
+        /** noop */
+      }}
+      onCreateNewTab={() => {
+        /** noop */
+      }}
+      {...props}
+    ></Workspace>
+  );
+}
 
-  beforeEach(function () {
-    prevTabSpy = spy();
-    nextTabSpy = spy();
+describe('Workspace', function () {
+  afterEach(cleanup);
 
-    render(
-      <Workspace
-        // @ts-expect-error there is way too many errors in this file but also
-        // these tests are skipped so I'm just expecting error here for now
-        tabs={tabs}
-        closeTab={() => ({
-          type: 'type',
-          index: 1,
-        })}
-        moveTab={() => ({
-          type: 'type',
-          fromIndex: 1,
-          toIndex: 2,
-        })}
-        selectTab={() => ({
-          type: 'type',
-          index: 1,
-        })}
-        appRegistry={{} as AppRegistry}
-        prevTab={prevTabSpy}
-        nextTab={nextTabSpy}
-        selectOrCreateTab={() => {}}
-        changeActiveSubTab={() => ({
-          type: 'type',
-          activeSubTab: 1,
-          id: '123',
-        })}
-        createNewTab={() => {}}
-      />
-    );
-  });
-
-  afterEach(function () {
-    prevTabSpy = null;
-    nextTabSpy = null;
-  });
-
-  it('renders the tab div', function () {
-    expect(screen.getByTestId('workspace-tabs')).to.exist;
+  it('renders the tabs', function () {
+    renderWorkspace();
+    expect(screen.getByTitle('a - Documents')).to.exist;
+    expect(screen.getByTitle('b - Documents')).to.exist;
+    expect(screen.getByTitle('c - Documents')).to.exist;
+    expect(screen.getByText('Tab a content')).to.exist;
   });
 });

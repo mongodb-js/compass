@@ -12,9 +12,9 @@ export type CollectionTab = {
   namespace: string;
   type: string;
   selectedSubTabName: string;
-  // TODO: this doesn't belong in the state, but this is how collection tabs
-  // currently work, this will go away when we switch to using new
-  // compass-workspace plugin in combination with registerHadronPlugin
+  // TODO(COMPASS-7020): this doesn't belong in the state, but this is how
+  // collection tabs currently work, this will go away when we switch to using
+  // new compass-workspace plugin in combination with registerHadronPlugin
   localAppRegistry: AppRegistry;
   component: React.ReactElement;
 };
