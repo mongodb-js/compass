@@ -129,6 +129,7 @@ const InstanceModel = AmpersandModel.extend(
       refreshingStatus: { type: 'string', default: 'initial' },
       refreshingStatusError: { type: 'string', default: null },
       isAtlas: { type: 'boolean', default: false },
+      isLocalAtlas: { type: 'boolean', default: false },
       isSearchIndexesSupported: 'boolean',
       atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
@@ -194,7 +195,7 @@ const InstanceModel = AmpersandModel.extend(
       env: {
         deps: ['isAtlas', 'dataLake'],
         fn() {
-          if (this.isAtlas) {
+          if (this.isAtlas || this.isLocalAtlas) {
             if (this.dataLake.isDataLake) {
               return Environment.ADL;
             }

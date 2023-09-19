@@ -1,20 +1,22 @@
-import type { MongoClient } from 'mongodb';
+import type { MongoClient, Document } from 'mongodb';
 import { ConnectionString } from 'mongodb-connection-string-url';
 
 import type { SearchIndex } from '../src/search-index-detail-helper';
 
+const ALLOWED_COMMANDS = [
+  'listDatabases',
+  'connectionStatus',
+  'getCmdLineOpts',
+  'hostInfo',
+  'buildInfo',
+  'getParameter',
+  'collMod',
+  'count',
+] as const;
+
 export type ClientMockOptions = {
   hosts: [{ host: string; port: number }];
-  commands: Partial<{
-    connectionStatus: unknown;
-    getCmdLineOpts: unknown;
-    hostInfo: unknown;
-    buildInfo: unknown;
-    getParameter: unknown;
-    atlasVersion: unknown;
-    listDatabases: unknown;
-    collMod: unknown;
-  }>;
+  commands: Partial<Record<typeof ALLOWED_COMMANDS[number], unknown>>;
   collections: Record<string, string[] | Error>;
   searchIndexes: Record<string, Record<string, SearchIndex[] | Error>>;
   clientOptions: Record<string, unknown>;
@@ -31,20 +33,10 @@ export function createMongoClientMock({
   connectionString: string;
 } {
   const db = {
-    command(spec: any) {
+    command(spec: Document) {
       const cmd = Object.keys(spec).find((key) =>
-        [
-          'listDatabases',
-          'connectionStatus',
-          'getCmdLineOpts',
-          'hostInfo',
-          'buildInfo',
-          'getParameter',
-          'atlasVersion',
-          'collMod',
-        ].includes(key)
+        ALLOWED_COMMANDS.includes(key)
       );
-
       if (cmd && commands[cmd]) {
         const command = commands[cmd];
         const result = typeof command === 'function' ? command(this) : command;

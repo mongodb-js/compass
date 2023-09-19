@@ -9,11 +9,12 @@ import {
   isEnterprise,
   getGenuineMongoDB,
   getDataLake,
+  isAtlas as checkIsAtlas,
+  isLocalAtlas as checkIsLocalAtlas,
 } from 'mongodb-build-info';
 import toNS from 'mongodb-ns';
 
 import type {
-  AtlasVersionInfo,
   BuildInfo,
   CollectionInfo,
   CollectionInfoNameOnly,
@@ -103,6 +104,7 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
+  isLocalAtlas: boolean;
   csfleMode: 'enabled' | 'disabled' | 'unavailable';
 };
 
@@ -116,7 +118,7 @@ export async function getInstance(
     hostInfoResult,
     buildInfoResult,
     getParameterResult,
-    atlasVersionResult,
+    isLocalAtlas,
   ] = await Promise.all([
     runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
       ignoreNotAuthorized(null)
@@ -133,11 +135,18 @@ export async function getInstance(
       getParameter: 1,
       featureCompatibilityVersion: 1,
     }).catch(() => null),
-
-    runCommand(adminDb, { atlasVersion: 1 }).catch(() => {
-      return { atlasVersion: '', gitVersion: '' };
-    }),
+    checkIsLocalAtlas(
+      async (db: string, collection: string, query: Document) => {
+        const res = await runCommand(client.db(db), {
+          count: collection,
+          query,
+        });
+        return res.n;
+      }
+    ),
   ]);
+
+  const isAtlas = checkIsAtlas(uri);
 
   return {
     auth: adaptAuthInfo(connectionStatus),
@@ -147,20 +156,12 @@ export async function getInstance(
     dataLake: buildDataLakeInfo(buildInfoResult),
     featureCompatibilityVersion:
       getParameterResult?.featureCompatibilityVersion.version ?? null,
-    isAtlas: checkIsAtlas(client, atlasVersionResult),
+    isAtlas,
+    // If a user is connected to Cloud Atlas, its possible they can have
+    // admin.atlascli with data that mongo-build-info uses to check for
+    // local atlas. So we set isLocalAtlas to false in such cases.
+    isLocalAtlas: isAtlas ? false : isLocalAtlas,
   };
-}
-
-function checkIsAtlas(
-  client: MongoClient,
-  atlasVersionInfo: AtlasVersionInfo
-): boolean {
-  const firstHost = client.options.hosts[0]?.host || '';
-
-  if (atlasVersionInfo.atlasVersion === '') {
-    return /mongodb(-dev)?\.net$/i.test(firstHost);
-  }
-  return true;
 }
 
 export function checkIsCSFLEConnection(client: {
