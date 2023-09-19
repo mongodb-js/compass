@@ -93,7 +93,11 @@ export async function throwIfNotOk(
 }
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {
-  if (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS) {
+  if (
+    (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS &&
+      !preferences.getPreferences().enableAIWithoutRolloutAccess) ||
+    !preferences.getPreferences().enableAIFeatures
+  ) {
     throw new Error(
       "Compass' AI functionality is not currently enabled. Please try again later."
     );
@@ -541,7 +545,7 @@ export class AtlasService {
     const userId = (await this.getActiveCompassUser()).id;
 
     const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/hello/${userId}`
+      `${this.config.atlasApiBaseUrl}/unauth/ai/api/v1/hello/${userId}`
     );
 
     await throwIfNotOk(res);
@@ -566,7 +570,7 @@ export class AtlasService {
       const featureResponse = await this.getAIFeatureEnablement();
 
       const isAIFeatureEnabled =
-        !!featureResponse.features.GEN_AI_COMPASS?.enabled;
+        !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
 
       log.info(
         mongoLogId(1_001_000_229),

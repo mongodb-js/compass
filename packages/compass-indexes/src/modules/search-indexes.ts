@@ -16,7 +16,7 @@ import type { SortDirection, IndexesThunkAction } from '.';
 
 import type { SearchIndex } from 'mongodb-data-service';
 
-const { debug } = createLoggerAndTelemetry('COMPASS-INDEXES');
+const { debug, track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
 export type SearchSortColumn = keyof typeof sortColumnToProps;
 
@@ -426,6 +426,10 @@ export const createIndex = (
     }
 
     dispatch({ type: ActionTypes.CreateSearchIndexSucceeded });
+    track('Index Created', {
+      atlas_search: true,
+    });
+
     openToast('search-index-creation-in-progress', {
       title: `Your index ${indexName} is in progress.`,
       dismissible: true,
@@ -565,6 +569,9 @@ export const dropSearchIndex = (
 
     try {
       await dataService.dropSearchIndex(namespace, name);
+      track('Index Dropped', {
+        atlas_search: true,
+      });
       openToast('search-index-delete-in-progress', {
         title: `Your index ${name} is being deleted.`,
         dismissible: true,

@@ -83,12 +83,17 @@ const filterContainerStyles = css({
   display: 'flex',
   position: 'relative',
   flexGrow: 1,
-  alignItems: 'center',
-  gap: spacing[2],
+  alignItems: 'flex-start',
 });
 
 const filterLabelStyles = css({
   padding: 0,
+});
+
+const aiEntryContainerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  height: spacing[4] + spacing[1],
 });
 
 const queryOptionsContainerStyles = css({
@@ -208,7 +213,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     onShowAIInputClick,
   ]);
 
-  const showAskAIButton = useMemo(() => {
+  const showAIEntryButton = useMemo(() => {
     if (isAIInputVisible || !isAIFeatureEnabled) {
       return false;
     }
@@ -247,11 +252,14 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             placeholder={filterPlaceholder}
             insights={insights}
           />
-          {showAskAIButton && (
-            <AIExperienceEntry
-              data-testid="ai-experience-ask-ai-button"
-              onClick={onShowAIInputClick}
-            />
+          {showAIEntryButton && (
+            <div className={aiEntryContainerStyles}>
+              <AIExperienceEntry
+                data-testid="ai-experience-query-entry-button"
+                onClick={onShowAIInputClick}
+                type="query"
+              />
+            </div>
           )}
         </div>
         {showExplainButton && newExplainPlan && (

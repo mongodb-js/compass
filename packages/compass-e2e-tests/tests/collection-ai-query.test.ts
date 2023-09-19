@@ -84,8 +84,8 @@ describe('Collection ai query', function () {
     });
 
     it('makes request to the server and updates the query bar with the response', async function () {
-      // Click the ask ai button.
-      await browser.clickVisible(Selectors.QueryBarAskAIButton);
+      // Click the ai entry button.
+      await browser.clickVisible(Selectors.QueryBarAIEntryButton);
 
       // Enter the ai prompt.
       await browser.clickVisible(Selectors.QueryBarAITextInput);
@@ -137,8 +137,8 @@ describe('Collection ai query', function () {
     });
 
     it('the error is shown to the user', async function () {
-      // Click the ask ai button.
-      await browser.clickVisible(Selectors.QueryBarAskAIButton);
+      // Click the ai entry button.
+      await browser.clickVisible(Selectors.QueryBarAIEntryButton);
 
       // Enter the ai prompt.
       await browser.clickVisible(Selectors.QueryBarAITextInput);

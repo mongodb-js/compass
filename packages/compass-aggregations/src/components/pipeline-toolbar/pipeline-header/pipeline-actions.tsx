@@ -90,7 +90,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   return (
     <div className={containerStyles}>
       {isAIFeatureEnabled && showAIEntry && (
-        <AIExperienceEntry onClick={onShowAIInputClick} />
+        <AIExperienceEntry onClick={onShowAIInputClick} type="aggregation" />
       )}
       {showInsights && showCollectionScanInsight && (
         <div>

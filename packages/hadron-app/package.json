@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "5.10.0",
+  "version": "5.11.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -35,7 +35,7 @@
     "hadron-app-registry": "^9.0.10",
     "less": "^3.11.1",
     "mocha": "^10.2.0",
-    "mongodb-data-service": "^22.10.0",
+    "mongodb-data-service": "^22.11.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
@@ -44,7 +44,7 @@
     "babel-register": "^6.26.0",
     "hadron-app-registry": "^9.0.10",
     "less": "^3.11.1",
-    "mongodb-data-service": "^22.10.0",
+    "mongodb-data-service": "^22.11.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2"
   }
