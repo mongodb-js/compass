@@ -40,6 +40,7 @@ describe('Collection ai query', function () {
     setMockAtlasServerResponse = _setMockAtlasServerResponse;
 
     process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE = endpoint;
+    process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE = endpoint;
 
     telemetry = await startTelemetryServer();
     compass = await beforeTests({

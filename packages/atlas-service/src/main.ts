@@ -128,6 +128,7 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
 
 export type AtlasServiceConfig = {
   atlasApiBaseUrl: string;
+  atlasApiUnauthBaseUrl: string;
   atlasLogin: {
     clientId: string;
     issuer: string;
@@ -545,7 +546,7 @@ export class AtlasService {
     const userId = (await this.getActiveCompassUser()).id;
 
     const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/unauth/ai/api/v1/hello/${userId}`
+      `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`
     );
 
     await throwIfNotOk(res);

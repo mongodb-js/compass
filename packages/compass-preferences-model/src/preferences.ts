@@ -632,7 +632,7 @@ export const storedUserPreferencesProps: Required<{
   },
   /**
    * Chooses atlas service backend configuration from preset
-   *  - compas-dev: locally running compass kanopy backend (localhost)
+   *  - compass-dev: locally running compass kanopy backend (localhost)
    *  - compass:    compass kanopy backend (compass.mongodb.com)
    *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
    *  - atlas:      mms backend (cloud.mongodb.com)
@@ -646,7 +646,7 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z
       .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas'])
-      .default('compass'),
+      .default('atlas-dev'),
     type: 'string',
   },
 
