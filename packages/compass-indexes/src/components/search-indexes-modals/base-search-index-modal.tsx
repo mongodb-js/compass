@@ -151,7 +151,9 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     >
       <ModalHeader
         title={
-          mode === 'create' ? 'Create Search Index' : 'Update Search Index'
+          mode === 'create'
+            ? 'Create Search Index'
+            : `Edit "${indexName}" index`
         }
       />
       <ModalBody className={bodyStyles}>
@@ -226,7 +228,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           onClick={onSubmitIndex}
           disabled={isBusy}
         >
-          {mode === 'create' ? 'Create Index' : 'Update Index'}
+          {mode === 'create' ? 'Create Search Index' : 'Save'}
         </Button>
         <Button variant="default" onClick={onClose}>
           Cancel

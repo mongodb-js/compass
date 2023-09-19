@@ -39,6 +39,11 @@ describe('Update Search Index Modal', function () {
   afterEach(cleanup);
 
   describe('default behaviour', function () {
+    it('renders the modal title', async function () {
+      await renderModal('cars_index');
+      expect(screen.getByText('Edit "cars_index" index')).to.exist;
+    });
+
     it('does not show the input that changes the name of the index', async function () {
       await renderModal('default');
       expect(() => screen.getByTestId('name-of-search-index')).to.throw;
@@ -73,7 +78,7 @@ describe('Update Search Index Modal', function () {
         'Invalid index definition.'
       );
 
-      expect(await screen.findByText('Invalid index definition.')).to.exist;
+      expect(screen.getByText('Invalid index definition.')).to.exist;
     });
   });
 

@@ -32,22 +32,28 @@ describe('Create Search Index Modal', function () {
   afterEach(cleanup);
 
   describe('default behaviour', function () {
-    it('uses "default" as the default index name', function () {
+    it('renders correct modal title', function () {
+      renderModal();
+      expect(
+        screen.getByText('Create Search Index', {
+          selector: 'h1',
+        })
+      ).to.exist;
+    });
+
+    it('shows default index name', function () {
       renderModal();
       const inputText: HTMLInputElement = screen.getByTestId(
         'name-of-search-index'
       );
-
-      expect(inputText).to.not.be.null;
-      expect(inputText?.value).to.equal('default');
+      expect(inputText!.value).to.equal('default');
     });
 
-    it('uses a dynamic mapping as the default index definition', function () {
+    it('shows default index definition', function () {
       renderModal();
       const defaultIndexDef = getCodemirrorEditorValue(
         'definition-of-search-index'
       );
-
       expect(defaultIndexDef).to.not.be.null;
       expect(defaultIndexDef).to.equal(DEFAULT_INDEX_DEFINITION);
     });
@@ -56,16 +62,14 @@ describe('Create Search Index Modal', function () {
   describe('form validation', function () {
     it('shows an error when the index name is empty', async function () {
       renderModal();
-      const inputText: HTMLInputElement = screen.getByTestId(
-        'name-of-search-index'
-      );
+      const inputText = screen.getByTestId('name-of-search-index');
 
       userEvent.clear(inputText);
       expect(await screen.findByText('Please enter the name of the index.')).to
         .exist;
     });
 
-    it('shows server errors', async function () {
+    it('shows server errors', function () {
       const store = renderModal(
         sinon.spy(() => {
           throw new Error('Data is invalid');
@@ -78,18 +82,14 @@ describe('Create Search Index Modal', function () {
         'Data is invalid'
       );
 
-      expect(await screen.findByText('Data is invalid')).to.exist;
+      expect(screen.getByText('Data is invalid')).to.exist;
     });
   });
 
   describe('form behaviour', function () {
     it('closes the modal on cancel', function () {
       const store = renderModal();
-      const cancelButton: HTMLButtonElement = screen
-        .getByText('Cancel')
-        .closest('button')!;
-
-      userEvent.click(cancelButton);
+      screen.getByText('Cancel').click();
       expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be
         .false;
     });
@@ -97,11 +97,7 @@ describe('Create Search Index Modal', function () {
     it('submits the modal on create search index', function () {
       const createSearchIndexSpy = sinon.spy();
       renderModal(createSearchIndexSpy);
-      const submitButton: HTMLButtonElement = screen
-        .getByTestId('search-index-submit-button')
-        .closest('button')!;
-
-      userEvent.click(submitButton);
+      screen.getByTestId('search-index-submit-button').click();
       expect(createSearchIndexSpy).to.have.been.calledOnceWithExactly(
         'test.test',
         'default',
