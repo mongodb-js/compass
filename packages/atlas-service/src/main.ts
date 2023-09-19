@@ -93,7 +93,11 @@ export async function throwIfNotOk(
 }
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {
-  if (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS) {
+  if (
+    (!preferences.getPreferences().cloudFeatureRolloutAccess?.GEN_AI_COMPASS &&
+      !preferences.getPreferences().enableAIWithoutRolloutAccess) ||
+    !preferences.getPreferences().enableAIFeatures
+  ) {
     throw new Error(
       "Compass' AI functionality is not currently enabled. Please try again later."
     );
@@ -124,6 +128,7 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
 
 export type AtlasServiceConfig = {
   atlasApiBaseUrl: string;
+  atlasApiUnauthBaseUrl: string;
   atlasLogin: {
     clientId: string;
     issuer: string;
@@ -332,12 +337,12 @@ export class AtlasService {
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
         try {
+          const userInfo = await this.getUserInfo({ signal });
           log.info(
             mongoLogId(1_001_000_219),
             'AtlasService',
             'Signed in successfully'
           );
-          const userInfo = await this.getUserInfo({ signal });
           track('Atlas Sign In Success', getTrackingUserInfo(userInfo));
           return userInfo;
         } catch (err) {
@@ -539,10 +544,16 @@ export class AtlasService {
     throwIfNetworkTrafficDisabled();
 
     const userId = (await this.getActiveCompassUser()).id;
+    const url = `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`;
 
-    const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/hello/${userId}`
+    log.info(
+      mongoLogId(1_001_000_227),
+      'AtlasService',
+      'Fetching if the AI feature is enabled via hello endpoint',
+      { userId, url }
     );
+
+    const res = await this.fetch(url);
 
     await throwIfNotOk(res);
 
@@ -554,19 +565,13 @@ export class AtlasService {
   }
 
   static async setupAIAccess(): Promise<void> {
-    log.info(
-      mongoLogId(1_001_000_227),
-      'AtlasService',
-      'Fetching if the AI feature is enabled'
-    );
-
     try {
       throwIfNetworkTrafficDisabled();
 
       const featureResponse = await this.getAIFeatureEnablement();
 
       const isAIFeatureEnabled =
-        !!featureResponse.features.GEN_AI_COMPASS?.enabled;
+        !!featureResponse?.features?.GEN_AI_COMPASS?.enabled;
 
       log.info(
         mongoLogId(1_001_000_229),
@@ -574,6 +579,7 @@ export class AtlasService {
         'Fetched if the AI feature is enabled',
         {
           enabled: isAIFeatureEnabled,
+          featureResponse,
         }
       );
 
@@ -639,18 +645,30 @@ export class AtlasService {
     }
 
     const token = await this.maybeGetToken({ signal });
+    const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-aggregation`;
 
-    const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-aggregation`,
-      {
-        signal: signal as NodeFetchAbortSignal | undefined,
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token ?? ''}`,
-          'Content-Type': 'application/json',
-        },
-        body: msgBody,
-      }
+    log.info(
+      mongoLogId(1_001_000_247),
+      'AtlasService',
+      'Running aggregation generation request',
+      { url, body: msgBody }
+    );
+
+    const res = await this.fetch(url, {
+      signal: signal as NodeFetchAbortSignal | undefined,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: msgBody,
+    });
+
+    log.info(
+      mongoLogId(1_001_000_248),
+      'AtlasService',
+      'Received aggregation generation response',
+      { status: res.status, statusText: res.statusText }
     );
 
     await throwIfNotOk(res);
@@ -708,18 +726,30 @@ export class AtlasService {
     }
 
     const token = await this.maybeGetToken({ signal });
+    const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`;
 
-    const res = await this.fetch(
-      `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`,
-      {
-        signal: signal as NodeFetchAbortSignal | undefined,
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token ?? ''}`,
-          'Content-Type': 'application/json',
-        },
-        body: msgBody,
-      }
+    log.info(
+      mongoLogId(1_001_000_249),
+      'AtlasService',
+      'Running query generation request',
+      { url, body: msgBody }
+    );
+
+    const res = await this.fetch(url, {
+      signal: signal as NodeFetchAbortSignal | undefined,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: msgBody,
+    });
+
+    log.info(
+      mongoLogId(1_001_000_250),
+      'AtlasService',
+      'Received query generation response',
+      { status: res.status, statusText: res.statusText }
     );
 
     await throwIfNotOk(res);

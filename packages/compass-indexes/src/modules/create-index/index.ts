@@ -241,6 +241,7 @@ export const createIndex = () => {
       geo:
         state.fields.filter(({ type }: { type: string }) => type === '2dsphere')
           .length > 0,
+      atlas_search: false,
     };
 
     try {

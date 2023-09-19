@@ -83,7 +83,9 @@ export const dropIndex = (indexName: string) => {
     dispatch(toggleInProgress(true));
     try {
       await state.dataService?.dropIndex(ns, indexName);
-      track('Index Dropped');
+      track('Index Dropped', {
+        atlas_search: false,
+      });
       dispatch(resetForm());
       dispatch(localAppRegistryEmit('refresh-regular-indexes'));
       dispatch(clearError());
