@@ -84,8 +84,8 @@ describe('Collection ai query', function () {
     });
 
     it('makes request to the server and updates the query bar with the response', async function () {
-      // Click the ask ai button.
-      await browser.clickVisible(Selectors.QueryBarAskAIButton);
+      // Click the ai entry button.
+      await browser.clickVisible(Selectors.QueryBarAIEntryButton);
 
       // Enter the ai prompt.
       await browser.clickVisible(Selectors.QueryBarAITextInput);
@@ -110,11 +110,14 @@ describe('Collection ai query', function () {
 
       // Check that the request was made with the correct parameters.
       const requests = getRequests();
-      expect(requests.length).to.equal(1);
-      expect(requests[0].content.userInput).to.equal(testUserInput);
-      expect(requests[0].content.collectionName).to.equal('numbers');
-      expect(requests[0].content.databaseName).to.equal('test');
-      expect(requests[0].content.schema).to.exist;
+      expect(requests.length).to.equal(2);
+      const lastPathRegex = /[^/]*$/;
+      const userId = lastPathRegex.exec(requests[0].req.url)?.[0];
+      expect((userId?.match(/-/g) || []).length).to.equal(4); // Is uuid like.
+      expect(requests[1].content.userInput).to.equal(testUserInput);
+      expect(requests[1].content.collectionName).to.equal('numbers');
+      expect(requests[1].content.databaseName).to.equal('test');
+      expect(requests[1].content.schema).to.exist;
 
       // Run it and check that the correct documents are shown.
       await browser.runFind('Documents', true);
@@ -134,8 +137,8 @@ describe('Collection ai query', function () {
     });
 
     it('the error is shown to the user', async function () {
-      // Click the ask ai button.
-      await browser.clickVisible(Selectors.QueryBarAskAIButton);
+      // Click the ai entry button.
+      await browser.clickVisible(Selectors.QueryBarAIEntryButton);
 
       // Enter the ai prompt.
       await browser.clickVisible(Selectors.QueryBarAITextInput);

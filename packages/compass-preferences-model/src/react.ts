@@ -1,7 +1,7 @@
 import preferencesAccess from './';
 import type { AllPreferences } from './';
 
-interface ReactHooks {
+export interface ReactHooks {
   useState: <T>(initialValue: T) => [T, (newValue: T) => void];
   useEffect: (
     effectFn: () => () => void,

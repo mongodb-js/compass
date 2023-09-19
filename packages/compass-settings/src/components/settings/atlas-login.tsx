@@ -110,7 +110,7 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             color={darkMode ? 'white' : 'black'}
             height={18}
           ></MongoDBLogoMark>
-          <span>AI Query</span>
+          <span>Use Generative AI</span>
           <Badge variant="blue">Preview</Badge>
         </Subtitle>
         <div className={atlasLoginControlsStyles}>
@@ -166,8 +166,8 @@ export const AtlasLoginSettings: React.FunctionComponent<{
             htmlFor="use-ai-toggle"
             className={atlasLoginToggleControlLabelStyles}
           >
-            Use AI to generate queries with a natural language text input on the
-            query bar
+            Use AI to generate queries and aggregations with a natural language
+            text input on the query bar and aggregation page.
           </Label>
         </div>
         {isSignedIn && !isAIFeatureEnabled && (

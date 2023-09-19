@@ -8,7 +8,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { parseRecord } from './parse-record';
 import type { FeatureFlagDefinition, FeatureFlags } from './feature-flags';
 import { featureFlags } from './feature-flags';
-import { z, ZodError } from 'zod';
+import { z } from '@mongodb-js/compass-user-data';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
@@ -26,6 +26,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
   FeatureFlags & {
     // User-facing preferences
     autoUpdates: boolean;
+    enableAIFeatures: boolean;
     enableMaps: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
@@ -59,6 +60,9 @@ export type InternalUserPreferences = {
   // by users.
   showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
+  cloudFeatureRolloutAccess?: {
+    GEN_AI_COMPASS?: boolean;
+  };
   lastKnownVersion: string;
   currentUserId?: string;
   telemetryAnonymousId?: string;
@@ -355,6 +359,23 @@ export const storedUserPreferencesProps: Required<{
     type: 'string',
   },
   /**
+   * Enable/disable the AI services. This is currently set
+   * in the atlas-service initialization where we make a request to the
+   * ai endpoint to check what's enabled for the user (incremental rollout).
+   */
+  cloudFeatureRolloutAccess: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z
+      .object({
+        GEN_AI_COMPASS: z.boolean().optional(),
+      })
+      .optional(),
+    type: 'object',
+  },
+  /**
    * Master switch to disable all network traffic
    * and make Compass behave like Isolated edition always,
    * i.e. no network traffic other than the one to the db server
@@ -412,6 +433,18 @@ export const storedUserPreferencesProps: Required<{
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
     validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  enableAIFeatures: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable AI Features',
+      long: 'Allow the use of AI features in Compass which make requests to 3rd party services. These features are currently experimental and offered as a preview to only a limited number of users.',
+    },
+    deriveValue: deriveNetworkTrafficOptionState('enableAIFeatures'),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -602,7 +635,6 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
-
   /**
    * Chooses atlas service backend configuration from preset
    *  - compas-dev: locally running compass kanopy backend (localhost)
@@ -919,7 +951,7 @@ export class Preferences {
           error: (err as Error).message,
         }
       );
-      if (err instanceof ZodError) {
+      if (err instanceof z.ZodError) {
         throw err;
       }
     }
@@ -1027,6 +1059,7 @@ export class Preferences {
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
+        enableAIFeatures: true,
         enableMaps: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,

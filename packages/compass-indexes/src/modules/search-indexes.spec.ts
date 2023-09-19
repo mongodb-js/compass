@@ -1,40 +1,38 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
-import type { SearchIndex } from 'mongodb-data-service';
 import {
   SearchIndexesStatuses,
+  closeModal,
+  openModalForCreation,
+  saveIndex,
   fetchSearchIndexes,
   sortSearchIndexes,
+  dropSearchIndex,
 } from './search-indexes';
-import type { IndexesDataService } from '../stores/store';
 import { setupStore } from '../../test/setup-store';
+import { searchIndexes } from '../../test/fixtures/search-indexes';
+import sinon from 'sinon';
+import type { IndexesDataService } from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
-const searchIndexes: SearchIndex[] = [
-  {
-    id: '1',
-    name: 'default',
-    status: 'READY',
-    queryable: true,
-    latestDefinition: {},
-  },
-  {
-    id: '2',
-    name: 'another',
-    status: 'FAILED',
-    queryable: true,
-    latestDefinition: {},
-  },
-];
+// Importing this to stub showConfirmation
+import * as searchIndexesSlice from './search-indexes';
 
 describe('search-indexes module', function () {
   let store: ReturnType<typeof setupStore>;
+  let dataProvider: Partial<IndexesDataService>;
   let getSearchIndexesStub: any;
 
   beforeEach(function () {
-    store = setupStore({
-      isSearchIndexesSupported: true,
-    });
+    dataProvider = {
+      createSearchIndex: sinon.spy(),
+    };
+
+    store = setupStore(
+      {
+        isSearchIndexesSupported: true,
+      },
+      dataProvider
+    );
 
     getSearchIndexesStub = sinon
       .stub(
@@ -116,7 +114,7 @@ describe('search-indexes module', function () {
           id: '2',
           name: 'another',
           status: 'FAILED',
-          queryable: true,
+          queryable: false,
           latestDefinition: {},
         },
         {
@@ -175,10 +173,61 @@ describe('search-indexes module', function () {
           id: '2',
           name: 'another',
           status: 'FAILED',
-          queryable: true,
+          queryable: false,
           latestDefinition: {},
         },
       ]);
+    });
+  });
+
+  it('opens the modal for creation', function () {
+    store.dispatch(openModalForCreation());
+    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
+  });
+
+  it('closes an open modal', function () {
+    store.dispatch(openModalForCreation());
+    store.dispatch(closeModal());
+    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
+  });
+
+  it('creates the index when data is valid', async function () {
+    await store.dispatch(saveIndex('indexName', {}));
+    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
+    expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
+  });
+
+  context('drop search index', function () {
+    let dropSearchIndexStub: sinon.SinonStub;
+    let showConfirmationStub: sinon.SinonStub;
+    beforeEach(function () {
+      dropSearchIndexStub = sinon.stub(
+        store.getState().dataService as IndexesDataService,
+        'dropSearchIndex'
+      );
+      showConfirmationStub = sinon.stub(searchIndexesSlice, 'showConfirmation');
+    });
+
+    afterEach(function () {
+      showConfirmationStub.restore();
+      dropSearchIndexStub.restore();
+    });
+
+    it('does not drop index when user does not confirm', async function () {
+      showConfirmationStub.resolves(false);
+      await store.dispatch(dropSearchIndex('index_name'));
+      expect(dropSearchIndexStub.callCount).to.equal(0);
+    });
+
+    it('drops index successfully', async function () {
+      showConfirmationStub.resolves(true);
+      dropSearchIndexStub.resolves(true);
+      await store.dispatch(dropSearchIndex('index_name'));
+      expect(dropSearchIndexStub.firstCall.args).to.deep.equal([
+        'citibike.trips',
+        'index_name',
+      ]);
+      expect(store.getState().searchIndexes.error).to.be.undefined;
     });
   });
 });

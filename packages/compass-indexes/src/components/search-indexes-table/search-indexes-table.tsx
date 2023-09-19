@@ -1,21 +1,40 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { SearchIndex } from 'mongodb-data-service';
+import type { Document } from 'mongodb';
+import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
 import { withPreferences } from 'compass-preferences-model';
 
+import { BadgeVariant } from '@mongodb-js/compass-components';
+import {
+  EmptyContent,
+  Button,
+  Link,
+  Badge,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
+
 import type { SearchSortColumn } from '../../modules/search-indexes';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import {
+  SearchIndexesStatuses,
+  dropSearchIndex,
+  openModalForCreation,
+} from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
 import type { SortDirection, RootState } from '../../modules';
 
 import { IndexesTable } from '../indexes-table';
+import IndexActions from './search-index-actions';
+import { ZeroGraphic } from './zero-graphic';
 
 type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
+  onDropIndex: (name: string) => void;
+  openCreateModal: () => void;
   status: SearchIndexesStatus;
 };
 
@@ -26,9 +45,120 @@ function isReadyStatus(status: SearchIndexesStatus) {
   );
 }
 
+function ZeroState({ openCreateModal }: { openCreateModal: () => void }) {
+  return (
+    <EmptyContent
+      icon={ZeroGraphic}
+      title="No search indexes yet"
+      subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
+      callToAction={
+        <Button
+          onClick={openCreateModal}
+          data-testid="create-atlas-search-index-button"
+          variant="primary"
+          size="small"
+        >
+          Create Atlas Search Index
+        </Button>
+      }
+      callToActionLink={
+        <span>
+          Not sure where to start?&nbsp;
+          <Link
+            href="https://www.mongodb.com/docs/atlas/atlas-search/"
+            target="_blank"
+          >
+            Visit our Docs
+          </Link>
+        </span>
+      }
+    />
+  );
+}
+
+const statusBadgeVariants: Record<SearchIndexStatus, BadgeVariant> = {
+  BUILDING: BadgeVariant.Blue,
+  FAILED: BadgeVariant.Red,
+  PENDING: BadgeVariant.Yellow,
+  READY: BadgeVariant.Green,
+  STALE: BadgeVariant.LightGray,
+  DELETING: BadgeVariant.Red,
+};
+
+function IndexStatus({
+  status,
+  'data-testid': dataTestId,
+}: {
+  status: SearchIndexStatus;
+  'data-testid': string;
+}) {
+  const variant = statusBadgeVariants[status];
+  return (
+    <Badge variant={variant} data-testid={dataTestId}>
+      {status}
+    </Badge>
+  );
+}
+
+const searchIndexDetailsStyles = css({
+  display: 'inline-flex',
+  gap: spacing[1],
+});
+
+const searchIndexFieldStyles = css({
+  // Override LeafyGreen's uppercase styles as we want to keep the case sensitivity of the key.
+  textTransform: 'none',
+  gap: spacing[1],
+});
+
+function SearchIndexDetails({
+  indexName,
+  definition,
+}: {
+  indexName: string;
+  definition: Document;
+}) {
+  const badges: { name: string; className?: string }[] = [];
+  if (definition.mappings?.dynamic) {
+    badges.push({
+      name: 'Dynamic Mappings',
+      className: undefined,
+    });
+  }
+
+  if (definition.mappings?.fields) {
+    badges.push(
+      ...Object.keys(definition.mappings.fields as Document).map((name) => ({
+        name,
+        className: searchIndexFieldStyles,
+      }))
+    );
+  }
+  return (
+    <div
+      className={searchIndexDetailsStyles}
+      data-testid={`search-indexes-details-${indexName}`}
+    >
+      {badges.map((badge) => (
+        <Badge key={badge.name} className={badge.className}>
+          {badge.name}
+        </Badge>
+      ))}
+    </div>
+  );
+}
+
 export const SearchIndexesTable: React.FunctionComponent<
   SearchIndexesTableProps
-> = ({ indexes, isWritable, readOnly, onSortTable, status }) => {
+> = ({
+  indexes,
+  isWritable,
+  readOnly,
+  onSortTable,
+  openCreateModal,
+  status,
+  onDropIndex,
+}) => {
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
     // indexes aren't available, then that's all handled by the toolbar and we
@@ -37,8 +167,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   }
 
   if (indexes.length === 0) {
-    // TODO(COMPASS-7204): render the zero state
-    return null;
+    return <ZeroState openCreateModal={openCreateModal} />;
   }
 
   const canModifyIndex = isWritable && !readOnly;
@@ -56,11 +185,21 @@ export const SearchIndexesTable: React.FunctionComponent<
         },
         {
           'data-testid': 'status-field',
-          children: index.status, // TODO(COMPASS-7205): show some badge, not just text
+          children: (
+            <IndexStatus
+              status={index.status}
+              data-testid={`search-indexes-status-${index.name}`}
+            />
+          ),
         },
       ],
-
-      // TODO(COMPASS-7206): details for the nested row
+      details: (
+        <SearchIndexDetails
+          indexName={index.name}
+          definition={index.latestDefinition}
+        />
+      ),
+      actions: <IndexActions index={index} onDropIndex={onDropIndex} />,
     };
   });
 
@@ -84,6 +223,8 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
+  onDropIndex: dropSearchIndex,
+  openCreateModal: openModalForCreation,
 };
 
 export default connect(

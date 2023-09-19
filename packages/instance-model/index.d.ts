@@ -59,6 +59,7 @@ declare class MongoDBInstanceProps {
   refreshingStatus: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   refreshingStatusError: string | null;
   isAtlas: boolean;
+  isLocalAtlas: boolean;
   atlasVersion: string;
   isRefreshing: boolean;
   isTopologyWritable: boolean;

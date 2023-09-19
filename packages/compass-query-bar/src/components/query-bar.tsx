@@ -15,7 +15,10 @@ import {
   GuideCue,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model';
+import {
+  usePreference,
+  useIsAIFeatureEnabled,
+} from 'compass-preferences-model';
 import type { Signal } from '@mongodb-js/compass-components';
 
 import {
@@ -80,12 +83,17 @@ const filterContainerStyles = css({
   display: 'flex',
   position: 'relative',
   flexGrow: 1,
-  alignItems: 'center',
-  gap: spacing[2],
+  alignItems: 'flex-start',
 });
 
 const filterLabelStyles = css({
   padding: 0,
+});
+
+const aiEntryContainerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  height: spacing[4] + spacing[1],
 });
 
 const queryOptionsContainerStyles = css({
@@ -175,7 +183,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const newExplainPlan = usePreference('newExplainPlan', React);
-  const enableAIQuery = usePreference('enableAIExperience', React);
+  const isAIFeatureEnabled = useIsAIFeatureEnabled(React);
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -188,7 +196,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const filterQueryOptionId = 'query-bar-option-input-filter';
 
   const filterPlaceholder = useMemo(() => {
-    return enableAIQuery && !isAIInputVisible
+    return isAIFeatureEnabled && !isAIInputVisible
       ? createAIPlaceholderHTMLPlaceholder({
           onClickAI: () => {
             onShowAIInputClick();
@@ -198,21 +206,21 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         })
       : placeholders?.filter;
   }, [
-    enableAIQuery,
+    isAIFeatureEnabled,
     isAIInputVisible,
     darkMode,
     placeholders?.filter,
     onShowAIInputClick,
   ]);
 
-  const showAskAIButton = useMemo(() => {
-    if (!enableAIQuery || isAIInputVisible) {
+  const showAIEntryButton = useMemo(() => {
+    if (isAIInputVisible || !isAIFeatureEnabled) {
       return false;
     }
 
     // See if there is content in the filter.
     return filterHasContent;
-  }, [enableAIQuery, isAIInputVisible, filterHasContent]);
+  }, [isAIFeatureEnabled, isAIInputVisible, filterHasContent]);
 
   return (
     <form
@@ -244,11 +252,14 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             placeholder={filterPlaceholder}
             insights={insights}
           />
-          {showAskAIButton && (
-            <AIExperienceEntry
-              data-testid="ai-experience-ask-ai-button"
-              onClick={onShowAIInputClick}
-            />
+          {showAIEntryButton && (
+            <div className={aiEntryContainerStyles}>
+              <AIExperienceEntry
+                data-testid="ai-experience-query-entry-button"
+                onClick={onShowAIInputClick}
+                type="query"
+              />
+            </div>
           )}
         </div>
         {showExplainButton && newExplainPlan && (
@@ -332,7 +343,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             ))}
           </div>
         )}
-      {enableAIQuery && (
+      {isAIFeatureEnabled && (
         <div className={queryAIContainerStyles}>
           <QueryAI
             onClose={() => {

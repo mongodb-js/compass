@@ -12,18 +12,25 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import preferencesAccess from 'compass-preferences-model';
 import type { RegularIndex } from '../../modules/regular-indexes';
-import type { SearchIndex } from 'mongodb-data-service';
 import type Store from '../../stores';
 import type { IndexesDataService } from '../../stores/store';
 import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
+import { searchIndexes } from '../../../test/fixtures/search-indexes';
 
 const renderIndexes = (props: Partial<typeof Store> = {}) => {
   const store = setupStore();
 
   const allProps: Partial<typeof Store> = {
     regularIndexes: { indexes: [], error: null, isRefreshing: false },
-    searchIndexes: { indexes: [], error: null, status: 'PENDING' },
+    searchIndexes: {
+      indexes: [],
+      error: null,
+      status: 'PENDING',
+      createIndex: {
+        isModalOpen: false,
+      },
+    },
     ...props,
   };
 
@@ -272,25 +279,8 @@ describe('Indexes Component', function () {
     it('renders the search indexes table if the current view changes to search indexes', async function () {
       const store = renderIndexes();
 
-      const indexes: SearchIndex[] = [
-        {
-          id: '1',
-          name: 'default',
-          status: 'READY',
-          queryable: true,
-          latestDefinition: {},
-        },
-        {
-          id: '2',
-          name: 'another',
-          status: 'READY',
-          queryable: true,
-          latestDefinition: {},
-        },
-      ];
-
       store.getState()!.dataService!.getSearchIndexes = function () {
-        return Promise.resolve(indexes);
+        return Promise.resolve(searchIndexes);
       };
 
       // switch to the Search Indexes tab

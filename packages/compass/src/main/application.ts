@@ -1,7 +1,7 @@
 import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
-import type { BrowserWindow } from 'electron';
+import type { BrowserWindow, Event } from 'electron';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { CompassAutoUpdateManager } from './auto-update-manager';
