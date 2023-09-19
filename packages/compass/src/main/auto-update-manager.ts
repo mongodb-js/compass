@@ -579,9 +579,10 @@ class CompassAutoUpdateManager {
       ...options,
     };
 
-    // TODO(COMPASS-7232): There is still a menu item to check for updates and
-    // then if it finds an update but auto-updates aren't supported it will
-    // still display a popup with an Install button that does nothing.
+    // TODO(COMPASS-7232): If auto-updates are not supported, then there is
+    // still a menu item to check for updates and then if it finds an update but
+    // auto-updates aren't supported it will still display a popup with an
+    // Install button that does nothing.
     compassApp.on('check-for-updates', () => {
       this.setState(AutoUpdateManagerState.ManualCheck);
     });
