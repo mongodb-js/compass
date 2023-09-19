@@ -5,7 +5,7 @@ import COMPASS_ICON from './icon';
 import type { FeedURLOptions } from 'electron';
 import { app, dialog, BrowserWindow } from 'electron';
 import { setTimeout as wait } from 'timers/promises';
-import autoUpdater from './auto-updater';
+import autoUpdater, { supportsAutoupdater } from './auto-updater';
 import preferences from 'compass-preferences-model';
 import fetch from 'node-fetch';
 import dl from 'electron-dl';
@@ -579,9 +579,44 @@ class CompassAutoUpdateManager {
       ...options,
     };
 
+    // TODO: does it make sense to still support this? Should the menu item just
+    // be hidden?
+    compassApp.on('check-for-updates', () => {
+      this.setState(AutoUpdateManagerState.ManualCheck);
+    });
+
+    const supported = supportsAutoupdater();
     const enabled = !!preferences.getPreferences().autoUpdates;
 
+    log.info(
+      mongoLogId(1001000133),
+      'AutoUpdateManager',
+      'Setting up updateManager',
+      { ...this.autoUpdateOptions, supported, enabled }
+    );
+
+    if (!supported) {
+      log.info(
+        mongoLogId(1_001_000_247),
+        'AutoUpdateManager',
+        `autoUpdate not supported'}`
+      );
+      this.setState(AutoUpdateManagerState.Disabled);
+      return;
+    }
+
+    // If autoupdate is supported, then enable/disable it depending on preferences
+
     preferences.onPreferenceValueChanged('autoUpdates', (enabled) => {
+      log.info(
+        mongoLogId(1_001_000_248),
+        'AutoUpdateManager',
+        `autoUpdate preference toggled to ${enabled ? 'enabled' : 'disabled'}`,
+        {
+          enabled,
+        }
+      );
+
       if (enabled) {
         track('Autoupdate Enabled');
         this.setState(AutoUpdateManagerState.CheckingForUpdates);
@@ -591,17 +626,9 @@ class CompassAutoUpdateManager {
       }
     });
 
-    compassApp.on('check-for-updates', () => {
-      this.setState(AutoUpdateManagerState.ManualCheck);
-    });
-
-    log.info(
-      mongoLogId(1001000133),
-      'AutoUpdateManager',
-      'Setting up updateManager',
-      { ...this.autoUpdateOptions, enabled }
-    );
-
+    // TODO: this is kinda pointless at the moment because the preferences start
+    // as disabled and then become enabled the moment they are loaded. Which
+    // would immediately kick off the state change.
     if (enabled) {
       // Do not kick off update check immediately, wait a little before that so
       // that we 1) don't waste time checking on the application start 2) don't
