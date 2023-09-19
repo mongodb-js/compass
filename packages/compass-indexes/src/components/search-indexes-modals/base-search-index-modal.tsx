@@ -9,7 +9,6 @@ import {
   spacing,
   css,
   HorizontalRule,
-  Subtitle,
   Button,
   Link,
   Icon,
@@ -47,6 +46,10 @@ const formContainerStyles = css({
   gap: spacing[3],
   overflow: 'auto',
   padding: spacing[1],
+});
+
+const editorStyles = css({
+  marginTop: spacing[2],
 });
 
 const footerStyles = css({
@@ -153,27 +156,35 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       />
       <ModalBody className={bodyStyles}>
         <div className={formContainerStyles}>
+          {mode === 'create' && (
+            <>
+              <section>
+                <Label htmlFor="name-of-search-index">
+                  Name of Search Index
+                </Label>
+                <TextInput
+                  id="name-of-search-index"
+                  data-testid="name-of-search-index"
+                  aria-labelledby="Name of Search Index"
+                  type="text"
+                  state={indexName === '' ? 'error' : 'none'}
+                  errorMessage={
+                    indexName === ''
+                      ? 'Please enter the name of the index.'
+                      : ''
+                  }
+                  value={indexName}
+                  onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+                    setIndexName(evt.target.value)
+                  }
+                />
+              </section>
+              <HorizontalRule />
+            </>
+          )}
           <section>
-            <Label htmlFor="name-of-search-index">Name of Search Index</Label>
-            <TextInput
-              id="name-of-search-index"
-              data-testid="name-of-search-index"
-              aria-labelledby="Name of Search Index"
-              type="text"
-              state={indexName === '' ? 'error' : 'none'}
-              errorMessage={
-                indexName === '' ? 'Please enter the name of the index.' : ''
-              }
-              disabled={mode === 'update'}
-              value={indexName}
-              onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-                setIndexName(evt.target.value)
-              }
-            />
-          </section>
-          <HorizontalRule />
-          <section>
-            <Subtitle>Index Definition</Subtitle>
+            <Label htmlFor="definition-of-search-index">Index Definition</Label>
+            <br />
             {mode === 'create' && (
               <Body>
                 By default, search indexes will have the following search
@@ -189,7 +200,9 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               <Icon size="small" glyph="OpenNewTab"></Icon>
             </Link>
             <CodemirrorMultilineEditor
+              id="definition-of-search-index"
               data-testid="definition-of-search-index"
+              className={editorStyles}
               text={indexDefinition}
               onChangeText={onSearchIndexDefinitionChanged}
               minLines={16}

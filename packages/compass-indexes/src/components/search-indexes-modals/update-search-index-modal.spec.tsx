@@ -39,12 +39,9 @@ describe('Update Search Index Modal', function () {
   afterEach(cleanup);
 
   describe('default behaviour', function () {
-    it('uses the provided name as the index name', async function () {
-      await renderModal('defaultIndex');
-      const inputText: HTMLInputElement = screen.getByTestId(
-        'name-of-search-index'
-      );
-      expect(inputText!.value).to.equal('defaultIndex');
+    it('does not show the input that changes the name of the index', async function () {
+      await renderModal('default');
+      expect(() => screen.getByTestId('name-of-search-index')).to.throw;
     });
 
     it('uses the provided index definition', async function () {
@@ -81,15 +78,6 @@ describe('Update Search Index Modal', function () {
   });
 
   describe('form behaviour', function () {
-    it('disables the input that changes the name of the index', async function () {
-      await renderModal('default');
-      const inputText: HTMLInputElement = screen.getByTestId(
-        'name-of-search-index'
-      );
-
-      expect(inputText).to.have.attr('disabled');
-    });
-
     it('closes the modal on cancel', async function () {
       const store = await renderModal(
         'default',
