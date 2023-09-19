@@ -113,7 +113,7 @@ function createAIPlaceholderHTMLPlaceholder({
 }): HTMLElement {
   const containerEl = document.createElement('div');
 
-  const placeholderTextEl = document.createTextNode(`${placeholderText} or `);
+  const placeholderTextEl = document.createTextNode(`${placeholderText} or`);
   containerEl.appendChild(placeholderTextEl);
 
   const aiButtonEl = document.createElement('button');
