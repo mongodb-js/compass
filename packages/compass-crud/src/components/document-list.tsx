@@ -66,6 +66,9 @@ export type DocumentListProps = {
         | 'isCommentNeeded'
       >
     >;
+  query: {
+    filter: string;
+  };
   status: DOCUMENTS_STATUSES;
   debouncingLoad?: boolean;
   viewChanged: CrudToolbarProps['viewSwitchHandler'];
@@ -228,6 +231,23 @@ class DocumentList extends React.Component<DocumentListProps> {
     }
   }
 
+  renderUpdateModal() {
+    console.log(this.props.query);
+
+    if (!this.props.isEditable) {
+      return;
+    }
+
+    return (
+      <BulkUpdateDialog
+        filter={this.props.query.filter}
+        count={this.props.count}
+        doc={this.props.docs[0]}
+        {...this.props.update}
+      />
+    );
+  }
+
   /**
    * Render EmptyContent view when no documents are present.
    *
@@ -326,6 +346,7 @@ class DocumentList extends React.Component<DocumentListProps> {
           {this.renderZeroState()}
           {this.renderContent()}
           {this.renderInsertModal()}
+          {this.renderUpdateModal()}
         </WorkspaceContainer>
       </div>
     );
@@ -344,6 +365,7 @@ class DocumentList extends React.Component<DocumentListProps> {
     getPage: PropTypes.func,
     error: PropTypes.object,
     insert: PropTypes.object.isRequired,
+    query: PropTypes.object.isRequired,
     insertDocument: PropTypes.func,
     insertMany: PropTypes.func,
     isEditable: PropTypes.bool.isRequired,
@@ -381,6 +403,7 @@ class DocumentList extends React.Component<DocumentListProps> {
     version: '3.4.0',
     isEditable: true,
     insert: {} as any,
+    query: {} as any,
     tz: 'UTC',
   } as const;
 }
@@ -398,6 +421,7 @@ DocumentList.propTypes = {
   getPage: PropTypes.func,
   error: PropTypes.object,
   insert: PropTypes.object,
+  query: PropTypes.object,
   insertDocument: PropTypes.func,
   insertMany: PropTypes.func,
   isEditable: PropTypes.bool.isRequired,
@@ -435,6 +459,7 @@ DocumentList.defaultProps = {
   version: '3.4.0',
   isEditable: true,
   insert: {},
+  query: {},
   tz: 'UTC',
 };
 

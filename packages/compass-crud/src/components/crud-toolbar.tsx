@@ -12,6 +12,8 @@ import {
   WarningSummary,
   ErrorSummary,
   PerformanceSignals,
+  Button,
+  ButtonSize,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -216,6 +218,14 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               leftGlyph: <Icon glyph="Export" />,
             }}
           />
+          {/* TODO: feature flag */}
+          <Button
+            size={ButtonSize.XSmall}
+            data-testid="bulk-update-button"
+            leftGlyph={<Icon glyph="Edit" />}
+          >
+            Update
+          </Button>
         </div>
         <div className={toolbarRightActionStyles}>
           <Body data-testid="crud-document-count-display">
