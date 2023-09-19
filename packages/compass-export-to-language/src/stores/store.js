@@ -10,11 +10,6 @@ import {
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import reducer from '../modules';
 
-// TODO: replace this with state coming from the right layer.
-// this kind of information should not be derived
-// from dataService as it operates on a lower level,
-// as a consequence here we have to remove the `appName` that only
-// the dataService should be using.
 function getCurrentlyConnectedUri(dataService) {
   let connectionStringUrl;
 

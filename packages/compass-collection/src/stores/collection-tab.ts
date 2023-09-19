@@ -12,16 +12,16 @@ import toNs from 'mongodb-ns';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 
-export function configureStore(
-  options: {
-    dataService: DataService;
-    globalAppRegistry: AppRegistry;
-    localAppRegistry: AppRegistry;
-    query?: unknown;
-    aggregation?: unknown;
-    editViewName?: string;
-  } & CollectionMetadata
-) {
+export type CollectionTabOptions = {
+  dataService: DataService;
+  globalAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
+  query?: unknown;
+  aggregation?: unknown;
+  editViewName?: string;
+} & CollectionMetadata;
+
+export function configureStore(options: CollectionTabOptions) {
   const {
     dataService,
     globalAppRegistry,
@@ -66,9 +66,13 @@ export function configureStore(
     {
       metadata: {
         ...collectionMetadata,
-        // It's safe to just read this once here on store creation because
-        // instance is fully instantiated and instance details are fetched at
-        // the point when tab is created
+        // NB: While it's technically possible for these values to change during
+        // MongoDB server lifecycle, we (mostly) never accounted for this in the
+        // scope of collection tab plugin and its children plugins. The cases
+        // where this can happen are rare, so we are okay with just ignoring
+        // this at the moment. If we ever decide to change that, don't forget to
+        // account for that change in all plugins that implement
+        // `Collection.Tab` and `Collection.ScopedModal` roles
         isDataLake: instance.dataLake.isDataLake,
         isAtlas: instance.isAtlas,
         serverVersion: instance.build.version,

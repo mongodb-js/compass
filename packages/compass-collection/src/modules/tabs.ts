@@ -338,9 +338,9 @@ export const openNewTabForCurrentCollection =
       if (!activeTab) {
         throw new Error("Can't create new tab when no tabs are on the screen");
       }
-      // TODO: we can remove this indirection when moving the logic to
-      // compass-workspace plugin and make sure that compass-collection tab is
-      // responsible for getting all required metadata
+      // TODO(COMPASS-7020): we can remove this indirection when moving the
+      // logic to compass-workspace plugin and make sure that compass-collection
+      // tab is responsible for getting all required metadata
       globalAppRegistry.emit(
         'collection-workspace-open-collection-in-new-tab',
         { ns: activeTab.namespace }

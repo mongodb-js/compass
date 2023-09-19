@@ -314,4 +314,19 @@ describe('Collection Tabs Store', function () {
       );
     });
   });
+
+  describe('onActivated', function () {
+    it('should set up listeners on globalAppRegistry', function () {
+      const store = configureStore({ globalAppRegistry, dataService });
+      store.onActivated(globalAppRegistry);
+      expect(globalAppRegistry['_emitter'].eventNames()).to.deep.eq([
+        'open-namespace-in-new-tab',
+        'select-namespace',
+        'collection-dropped',
+        'database-dropped',
+        'data-service-connected',
+        'data-service-disconnected',
+      ]);
+    });
+  });
 });
