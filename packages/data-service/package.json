@@ -57,7 +57,7 @@
     "@mongodb-js/oidc-plugin": "^0.3.0",
     "@mongodb-js/ssh-tunnel": "^2.1.0",
     "lodash": "^4.17.21",
-    "mongodb-build-info": "^1.6.2",
+    "mongodb-build-info": "^1.7.0",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-ns": "^2.4.0",
     "socks": "^2.7.1",

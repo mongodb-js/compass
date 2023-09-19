@@ -7,7 +7,7 @@ import { Button, Icon, IconButton, TextInput } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
 import { ErrorSummary } from '../error-warning-summary';
 import { SpinLoader } from '../loader';
-import { DEFAULT_AI_ENTRY_SIZE, AIEntrySVG } from './ai-entry-svg';
+import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
 import { AIGuideCue } from './ai-guide-cue';
 import { focusRing } from '../../hooks/use-focus-ring';
@@ -117,7 +117,7 @@ const closeAIButtonStyles = css(buttonResetStyles, focusRing, {
   height: spacing[4] + spacing[1],
   display: 'flex',
   alignItems: 'center',
-  padding: spacing[1],
+  padding: `${spacing[1]}px ${spacing[2]}px`,
   position: 'absolute',
 });
 
@@ -332,7 +332,7 @@ function GenerativeAIInput({
               description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
             />
             <span className={aiEntryContainerStyles} ref={guideCueRef}>
-              <AIEntrySVG darkMode={darkMode} />
+              <Icon glyph="Sparkle" />
             </span>
           </button>
         </div>

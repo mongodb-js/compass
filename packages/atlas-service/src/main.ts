@@ -128,6 +128,7 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
 
 export type AtlasServiceConfig = {
   atlasApiBaseUrl: string;
+  atlasApiUnauthBaseUrl: string;
   atlasLogin: {
     clientId: string;
     issuer: string;
@@ -543,7 +544,7 @@ export class AtlasService {
     throwIfNetworkTrafficDisabled();
 
     const userId = (await this.getActiveCompassUser()).id;
-    const url = `${this.config.atlasApiBaseUrl}/unauth/ai/api/v1/hello/${userId}`;
+    const url = `${this.config.atlasApiUnauthBaseUrl}/ai/api/v1/hello/${userId}`;
 
     log.info(
       mongoLogId(1_001_000_227),
