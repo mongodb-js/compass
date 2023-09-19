@@ -579,8 +579,9 @@ class CompassAutoUpdateManager {
       ...options,
     };
 
-    // TODO: does it make sense to still support this? Should the menu item just
-    // be hidden?
+    // TODO(COMPASS-7232): There is still a menu item to check for updates and
+    // then if it finds an update but auto-updates aren't supported it will
+    // still display a popup with an Install button that does nothing.
     compassApp.on('check-for-updates', () => {
       this.setState(AutoUpdateManagerState.ManualCheck);
     });
@@ -596,11 +597,6 @@ class CompassAutoUpdateManager {
     );
 
     if (!supported) {
-      log.info(
-        mongoLogId(1_001_000_247),
-        'AutoUpdateManager',
-        `autoUpdate not supported'}`
-      );
       this.setState(AutoUpdateManagerState.Disabled);
       return;
     }
@@ -609,7 +605,7 @@ class CompassAutoUpdateManager {
 
     preferences.onPreferenceValueChanged('autoUpdates', (enabled) => {
       log.info(
-        mongoLogId(1_001_000_248),
+        mongoLogId(1_001_000_247),
         'AutoUpdateManager',
         `autoUpdate preference toggled to ${enabled ? 'enabled' : 'disabled'}`,
         {
@@ -626,9 +622,9 @@ class CompassAutoUpdateManager {
       }
     });
 
-    // TODO: this is kinda pointless at the moment because the preferences start
-    // as disabled and then become enabled the moment they are loaded. Which
-    // would immediately kick off the state change.
+    // TODO(COMPASS-7233): This is kinda pointless at the moment because the
+    // preferences start as disabled and then become enabled the moment they are
+    // loaded. Which would immediately kick off the state change.
     if (enabled) {
       // Do not kick off update check immediately, wait a little before that so
       // that we 1) don't waste time checking on the application start 2) don't
