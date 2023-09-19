@@ -3,6 +3,7 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import { StageEditorActionTypes } from './pipeline-builder/stage-editor';
 import { EditorActionTypes } from './pipeline-builder/text-editor-pipeline';
 import { SAVED_PIPELINE_ADD } from './saved-pipeline';
+import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 
 /**
  * Reducer function for handle state changes to isModified.
@@ -22,6 +23,8 @@ export default function reducer(state = false, action) {
       StageEditorActionTypes.StageRemoved,
       StageEditorActionTypes.StageValueChange,
       EditorActionTypes.EditorValueChange,
+      AIPipelineActionTypes.PipelineGeneratedFromQuery,
+      AIPipelineActionTypes.LoadGeneratedPipeline,
     ].includes(action.type)
   ) {
     return true;
