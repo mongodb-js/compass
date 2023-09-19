@@ -7,6 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Document, MongoServerError } from 'mongodb';
 import toNS from 'mongodb-ns';
+import { EJSON } from 'bson';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -465,21 +466,24 @@ export const runAggregateSearchIndex = (
     }
 
     const metadata = await coll.fetchMetadata({ dataService });
-
-    globalAppRegistry.emit('open-namespace-in-new-tab', {
-      ...metadata, // todo: get from instance
-      aggregation: `[
-        {
-          $search: {
-            name: ${name},
-            $text: {
-              query: <user_input>,
-              path: <user_input>
-            },
-          }
-        }
-      ]`,
-    });
+    const pipeline = EJSON.stringify([
+      {
+        $search: {
+          name,
+          $text: {
+            query: 'string',
+            path: 'string',
+          },
+        },
+      },
+    ]);
+    const data = {
+      ...metadata,
+      aggregation: {
+        pipelineText: pipeline,
+      },
+    };
+    globalAppRegistry.emit('open-namespace-in-new-tab', data);
   };
 };
 
