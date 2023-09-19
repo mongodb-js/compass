@@ -19,6 +19,7 @@ import {
   SearchIndexesStatuses,
   dropSearchIndex,
   openModalForCreation,
+  runAggregateSearchIndex,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
@@ -34,6 +35,7 @@ type SearchIndexesTableProps = {
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   onDropIndex: (name: string) => void;
+  onRunAggregateIndex: (name: string) => void;
   openCreateModal: () => void;
   status: SearchIndexesStatus;
 };
@@ -158,6 +160,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   openCreateModal,
   status,
   onDropIndex,
+  onRunAggregateIndex,
 }) => {
   if (!isReadyStatus(status)) {
     // If there's an error or the search indexes are still pending or search
@@ -199,7 +202,13 @@ export const SearchIndexesTable: React.FunctionComponent<
           definition={index.latestDefinition}
         />
       ),
-      actions: <IndexActions index={index} onDropIndex={onDropIndex} />,
+      actions: (
+        <IndexActions
+          index={index}
+          onDropIndex={onDropIndex}
+          onRunAggregateIndex={onRunAggregateIndex}
+        />
+      ),
     };
   });
 
@@ -225,6 +234,7 @@ const mapDispatch = {
   onSortTable: sortSearchIndexes,
   onDropIndex: dropSearchIndex,
   openCreateModal: openModalForCreation,
+  onRunAggregateIndex: runAggregateSearchIndex,
 };
 
 export default connect(

@@ -1,17 +1,30 @@
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
-import { ItemActionGroup } from '@mongodb-js/compass-components';
+import {
+  Button,
+  ItemActionGroup,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import type { SearchIndex } from 'mongodb-data-service';
 
 type IndexActionsProps = {
   index: SearchIndex;
+  onRunAggregateIndex: (name: string) => void;
   onDropIndex: (name: string) => void;
 };
 
 type SearchIndexAction = 'drop';
 
+const actionGroupStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+});
+
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
+  onRunAggregateIndex,
   onDropIndex,
 }) => {
   const indexActions: GroupedItemAction<SearchIndexAction>[] = useMemo(() => {
@@ -36,11 +49,16 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   );
 
   return (
-    <ItemActionGroup<SearchIndexAction>
-      data-testid="search-index-actions"
-      actions={indexActions}
-      onAction={onAction}
-    ></ItemActionGroup>
+    <div className={actionGroupStyles}>
+      <Button size="xsmall" onClick={() => onRunAggregateIndex(index.name)}>
+        Aggregate
+      </Button>
+      <ItemActionGroup<SearchIndexAction>
+        data-testid="search-index-actions"
+        actions={indexActions}
+        onAction={onAction}
+      ></ItemActionGroup>
+    </div>
   );
 };
 

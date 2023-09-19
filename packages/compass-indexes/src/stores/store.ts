@@ -21,6 +21,7 @@ import {
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
+import { resetInstance, setInstance } from '../modules/instance';
 
 export type IndexesDataService = Pick<
   DataService,
@@ -109,6 +110,15 @@ const configureStore = (options: ConfigureStoreOptions) => {
     globalAppRegistry.on('refresh-data', () => {
       void store.dispatch(fetchIndexes());
       void store.dispatch(fetchSearchIndexes());
+    });
+
+    // todo: clean up
+    globalAppRegistry.on('instance-created', ({ instance }) => {
+      store.dispatch(setInstance(instance));
+    });
+    // todo: clean up
+    globalAppRegistry.on('instance-destroyed', () => {
+      store.dispatch(resetInstance());
     });
 
     const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');

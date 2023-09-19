@@ -6,6 +6,7 @@ import {
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { Document, MongoServerError } from 'mongodb';
+import toNS from 'mongodb-ns';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -431,6 +432,54 @@ export const dropSearchIndex = (
         variant: 'warning',
       });
     }
+  };
+};
+
+// todo: clean up
+export const runAggregateSearchIndex = (
+  name: string
+): IndexesThunkAction<Promise<void>> => {
+  return async function (dispatch, getState) {
+    const {
+      searchIndexes: { indexes },
+      appRegistry: { globalAppRegistry },
+      dataService,
+      instance,
+      namespace,
+    } = getState();
+    const searchIndex = indexes.find((x) => x.name === name);
+    if (!searchIndex || !instance || !dataService) {
+      return;
+    }
+
+    const { database, collection } = toNS(namespace);
+
+    const coll = await instance.getNamespace({
+      dataService,
+      database,
+      collection,
+    });
+
+    if (!coll) {
+      return;
+    }
+
+    const metadata = await coll.fetchMetadata({ dataService });
+
+    globalAppRegistry.emit('open-namespace-in-new-tab', {
+      ...metadata, // todo: get from instance
+      aggregation: `[
+        {
+          $search: {
+            name: ${name},
+            $text: {
+              query: <user_input>,
+              path: <user_input>
+            },
+          }
+        }
+      ]`,
+    });
   };
 };
 
