@@ -10,24 +10,22 @@ import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 
 describe('Create Search Index Modal', function () {
-  let submitIndex: SinonSpy;
-  let closeModal: SinonSpy;
+  let onSubmitSpy: SinonSpy;
+  let onCloseSpy: SinonSpy;
 
   beforeEach(function () {
-    submitIndex = sinon.spy();
-    closeModal = sinon.spy();
+    onSubmitSpy = sinon.spy();
+    onCloseSpy = sinon.spy();
 
     render(
       <BaseSearchIndexModal
-        title={'Default Title'}
-        submitActionName={'Default Submit'}
+        mode="create"
         initialIndexName={'default'}
         initialIndexDefinition={'{}'}
-        isIndexNameReadonly={false}
         isModalOpen={true}
         isBusy={false}
-        submitIndex={submitIndex}
-        closeModal={closeModal}
+        onSubmit={onSubmitSpy}
+        onClose={onCloseSpy}
         error={'Invalid index definition.'}
       />
     );
@@ -78,7 +76,7 @@ describe('Create Search Index Modal', function () {
         .closest('button')!;
 
       userEvent.click(cancelButton);
-      expect(closeModal).to.have.been.calledOnce;
+      expect(onCloseSpy).to.have.been.calledOnce;
     });
 
     it('submits the modal on create search index', function () {
@@ -87,7 +85,7 @@ describe('Create Search Index Modal', function () {
         .closest('button')!;
 
       userEvent.click(submitButton);
-      expect(submitIndex).to.have.been.calledOnceWithExactly('default', {});
+      expect(onSubmitSpy).to.have.been.calledOnceWithExactly('default', {});
     });
   });
 });

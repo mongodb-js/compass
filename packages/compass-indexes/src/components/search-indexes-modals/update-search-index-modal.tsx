@@ -1,5 +1,5 @@
 import React from 'react';
-import { closeModalForUpdate, updateIndex } from '../../modules/search-indexes';
+import { closeUpdateModal, updateIndex } from '../../modules/search-indexes';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
@@ -11,8 +11,8 @@ type UpdateSearchIndexModalProps = {
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  updateIndex: (indexName: string, indexDefinition: Document) => void;
-  closeModal: () => void;
+  onUpdateIndex: (indexName: string, indexDefinition: Document) => void;
+  onCloseModal: () => void;
 };
 
 export const UpdateSearchIndexModal: React.FunctionComponent<
@@ -23,36 +23,43 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
   isModalOpen,
   isBusy,
   error,
-  updateIndex,
-  closeModal,
+  onUpdateIndex,
+  onCloseModal,
 }) => {
   return (
     <BaseSearchIndexModal
-      title={'Update Search Index'}
-      submitActionName={'Update Search Index'}
+      mode={'update'}
       initialIndexName={indexName}
       initialIndexDefinition={indexDefinition}
-      isIndexNameReadonly={true}
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
-      submitIndex={updateIndex}
-      closeModal={closeModal}
+      onSubmit={onUpdateIndex}
+      onClose={onCloseModal}
     />
   );
 };
 
-const mapState = ({ searchIndexes }: RootState) => ({
-  isModalOpen: searchIndexes.updateIndex.isModalOpen,
-  isBusy: searchIndexes.updateIndex.isBusy,
-  indexName: searchIndexes.updateIndex.indexName,
-  indexDefinition: searchIndexes.updateIndex.indexDefinition,
-  error: searchIndexes.error,
+const mapState = ({
+  searchIndexes: {
+    indexes,
+    updateIndex: { indexName, isBusy, isModalOpen, error },
+  },
+}: RootState) => ({
+  isModalOpen,
+  isBusy,
+  indexName,
+  indexDefinition: JSON.stringify(
+    indexes.find((x) => x.name === indexName)?.latestDefinition,
+    null,
+    2
+  ),
+  error,
 });
 
 const mapDispatch = {
-  closeModal: closeModalForUpdate,
-  updateIndex,
+  onCloseModal: closeUpdateModal,
+  onUpdateIndex: updateIndex,
 };
 
 export default connect(mapState, mapDispatch)(UpdateSearchIndexModal);

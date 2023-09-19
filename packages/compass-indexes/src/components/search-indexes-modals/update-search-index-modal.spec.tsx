@@ -4,63 +4,74 @@ import sinon from 'sinon';
 import { Provider } from 'react-redux';
 
 import { render, screen, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import {
-  openModalForUpdate,
-  updateIndexFailed,
+  fetchSearchIndexes,
+  showUpdateModal,
 } from '../../modules/search-indexes';
-import type { IndexesDataService } from '../../stores/store';
 import { setupStore } from '../../../test/setup-store';
+import { searchIndexes } from '../../../test/fixtures/search-indexes';
+
+const renderModal = async (
+  indexName: string,
+  updateSearchIndexSpy = sinon.spy()
+) => {
+  const store = setupStore(
+    { namespace: 'test.test' },
+    {
+      updateSearchIndex: updateSearchIndexSpy,
+      getSearchIndexes: () => Promise.resolve(searchIndexes),
+    }
+  );
+  await store.dispatch(fetchSearchIndexes());
+  store.dispatch(showUpdateModal(indexName));
+  render(
+    <Provider store={store}>
+      <UpdateSearchIndexModal />
+    </Provider>
+  );
+  return store;
+};
 
 describe('Update Search Index Modal', function () {
-  let store: ReturnType<typeof setupStore>;
-  let dataProvider: Partial<IndexesDataService>;
-
-  beforeEach(function () {
-    dataProvider = {
-      updateSearchIndex: sinon.spy(),
-    };
-
-    store = setupStore({ namespace: 'test.test' }, dataProvider);
-
-    store.dispatch(openModalForUpdate('indexToUpdate', '{}'));
-
-    render(
-      <Provider store={store}>
-        <UpdateSearchIndexModal />
-      </Provider>
-    );
-  });
-
   afterEach(cleanup);
 
   describe('default behaviour', function () {
-    it('uses the provided name as the index name', function () {
+    it('uses the provided name as the index name', async function () {
+      await renderModal('defaultIndex');
       const inputText: HTMLInputElement = screen.getByTestId(
         'name-of-search-index'
       );
-
-      expect(inputText).to.not.be.null;
-      expect(inputText?.value).to.equal('indexToUpdate');
+      expect(inputText!.value).to.equal('defaultIndex');
     });
 
-    it('uses the provided index definition', function () {
+    it('uses the provided index definition', async function () {
+      await renderModal('default');
       const defaultIndexDef = getCodemirrorEditorValue(
         'definition-of-search-index'
       );
-
-      expect(defaultIndexDef).to.not.be.null;
-      expect(defaultIndexDef).to.equal('{}');
+      expect(JSON.parse(defaultIndexDef)).to.deep.equal({
+        mappings: {
+          dynamic: false,
+        },
+      });
     });
   });
 
   describe('form validation', function () {
     it('shows server errors', async function () {
-      store.dispatch(updateIndexFailed('InvalidIndexSpecificationOption'));
-      expect(store.getState().searchIndexes).to.have.property(
+      const store = await renderModal(
+        'default',
+        sinon.spy(() => {
+          throw new Error('InvalidIndexSpecificationOption');
+        })
+      );
+
+      screen.getByTestId('search-index-submit-button').click();
+
+      expect(store.getState().searchIndexes.updateIndex).to.have.property(
         'error',
         'Invalid index definition.'
       );
@@ -70,7 +81,8 @@ describe('Update Search Index Modal', function () {
   });
 
   describe('form behaviour', function () {
-    it('disables the input that changes the name of the index', function () {
+    it('disables the input that changes the name of the index', async function () {
+      await renderModal('default');
       const inputText: HTMLInputElement = screen.getByTestId(
         'name-of-search-index'
       );
@@ -78,26 +90,32 @@ describe('Update Search Index Modal', function () {
       expect(inputText).to.have.attr('disabled');
     });
 
-    it('closes the modal on cancel', function () {
-      const cancelButton: HTMLButtonElement = screen
-        .getByText('Cancel')
-        .closest('button')!;
-
-      userEvent.click(cancelButton);
+    it('closes the modal on cancel', async function () {
+      const store = await renderModal(
+        'default',
+        sinon.spy(() => {
+          throw new Error('InvalidIndexSpecificationOption');
+        })
+      );
+      screen.getByText('Cancel').click();
       expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be
         .false;
     });
 
-    it('submits the modal on update search index', function () {
-      const submitButton: HTMLButtonElement = screen
-        .getByTestId('search-index-submit-button')
-        .closest('button')!;
-
-      userEvent.click(submitButton);
-      expect(dataProvider.updateSearchIndex).to.have.been.calledOnceWithExactly(
+    it('submits the modal on update search index', async function () {
+      const updateSearchIndexSpy = sinon.spy(() => {
+        throw new Error('InvalidIndexSpecificationOption');
+      });
+      await renderModal('default', updateSearchIndexSpy);
+      screen.getByTestId('search-index-submit-button').click();
+      expect(updateSearchIndexSpy).to.have.been.calledOnceWithExactly(
         'test.test',
-        'indexToUpdate',
-        {}
+        'default',
+        {
+          mappings: {
+            dynamic: false,
+          },
+        }
       );
     });
   });

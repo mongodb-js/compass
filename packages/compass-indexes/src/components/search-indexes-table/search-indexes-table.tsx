@@ -18,8 +18,8 @@ import type { SearchSortColumn } from '../../modules/search-indexes';
 import {
   SearchIndexesStatuses,
   dropSearchIndex,
-  openModalForCreation,
-  openModalForUpdate,
+  showCreateModal,
+  showUpdateModal,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { sortSearchIndexes } from '../../modules/search-indexes';
@@ -140,11 +140,13 @@ function SearchIndexDetails({
       className={searchIndexDetailsStyles}
       data-testid={`search-indexes-details-${indexName}`}
     >
-      {badges.map((badge) => (
-        <Badge key={badge.name} className={badge.className}>
-          {badge.name}
-        </Badge>
-      ))}
+      {badges.length === 0
+        ? '[empty]'
+        : badges.map((badge) => (
+            <Badge key={badge.name} className={badge.className}>
+              {badge.name}
+            </Badge>
+          ))}
     </div>
   );
 }
@@ -233,8 +235,8 @@ const mapState = ({ searchIndexes, isWritable }: RootState) => ({
 const mapDispatch = {
   onSortTable: sortSearchIndexes,
   onDropIndex: dropSearchIndex,
-  openCreateModal: openModalForCreation,
-  onEditIndex: openModalForUpdate,
+  openCreateModal: showCreateModal,
+  onEditIndex: showUpdateModal,
 };
 
 export default connect(

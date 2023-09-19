@@ -15,6 +15,8 @@ import {
   Icon,
   WarningSummary,
   ErrorSummary,
+  Body,
+  Banner,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
@@ -31,55 +33,65 @@ function parseShellBSON(source: string): Document[] {
   return parsed;
 }
 
-const flexWithGapStyles = css({
+const bodyStyles = css({
   display: 'flex',
   flexDirection: 'column',
+  overflow: 'hidden',
   gap: spacing[3],
 });
 
-const bodyGapStyles = css({
-  marginTop: spacing[3],
+const formContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[3],
+  overflow: 'auto',
+  padding: spacing[1],
 });
 
-const toolbarStyles = css({
+const footerStyles = css({
   display: 'flex',
   gap: spacing[2],
 });
 
 type BaseSearchIndexModalProps = {
-  title: string;
-  submitActionName: string;
+  mode: 'create' | 'update';
   initialIndexName: string;
   initialIndexDefinition: string;
-  isIndexNameReadonly: boolean;
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  submitIndex: (indexName: string, indexDefinition: Document) => void;
-  closeModal: () => void;
+  onSubmit: (indexName: string, indexDefinition: Document) => void;
+  onClose: () => void;
 };
 
 export const BaseSearchIndexModal: React.FunctionComponent<
   BaseSearchIndexModalProps
 > = ({
-  title,
-  submitActionName,
+  mode,
   initialIndexName,
-  isIndexNameReadonly,
   initialIndexDefinition,
   isModalOpen,
   isBusy,
   error,
-  submitIndex,
-  closeModal,
+  onSubmit,
+  onClose,
 }) => {
-  const [indexName, setIndexName] = useState<string>(() => initialIndexName);
-  const [indexDefinition, setIndexDefinition] = useState<string>(
+  const [indexName, setIndexName] = useState(initialIndexName);
+  const [indexDefinition, setIndexDefinition] = useState(
     initialIndexDefinition
   );
   const [parsingError, setParsingError] = useState<string | undefined>(
     undefined
   );
+
+  useEffect(() => {
+    // Reset the name and definition when modal is closed.
+    if (!isModalOpen) {
+      setIndexName(initialIndexName);
+      setIndexDefinition(initialIndexDefinition);
+      setParsingError(undefined);
+    }
+  }, [isModalOpen]);
 
   useEffect(() => {
     setIndexName(initialIndexName);
@@ -102,79 +114,90 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   const onSubmitIndex = useCallback(() => {
     if (parsingError) {
+      setParsingError('The index definition is invalid.');
       return;
     }
 
     const indexDefinitionDoc = parseShellBSON(indexDefinition);
-    submitIndex(indexName, indexDefinitionDoc);
-  }, [submitIndex, parsingError, indexName, indexDefinition]);
+    onSubmit(indexName, indexDefinitionDoc);
+  }, [onSubmit, parsingError, indexName, indexDefinition]);
 
   return (
     <Modal
       open={isModalOpen}
-      setOpen={closeModal}
+      setOpen={onClose}
       data-testid="search-index-modal"
     >
       <ModalHeader
-        title={title}
-        subtitle="Give your search index a name for easy reference"
+        title={
+          mode === 'create' ? 'Create Search Index' : 'Update Search Index'
+        }
       />
-      <ModalBody className={flexWithGapStyles}>
-        <section>
-          <Label htmlFor="name-of-search-index">Name of Search Index</Label>
-          <TextInput
-            id="name-of-search-index"
-            data-testid="name-of-search-index"
-            aria-labelledby="Name of Search Index"
-            type="text"
-            state={indexName === '' ? 'error' : 'none'}
-            errorMessage={
-              indexName === '' ? 'Please enter the name of the index.' : ''
-            }
-            disabled={isIndexNameReadonly}
-            value={indexName}
-            onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-              setIndexName(evt.target.value)
-            }
-          />
-        </section>
-        <HorizontalRule />
-        <section>
-          <Subtitle>Index Definition</Subtitle>
-          <p className={bodyGapStyles}>
-            By default, search indexes will have the following search
-            configurations. You can refine this later.
-          </p>
-          <Link
-            href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
-            target="_blank"
-            hideExternalIcon={true}
-          >
-            View Atlas Search tutorials{' '}
-            <Icon size="small" glyph="OpenNewTab"></Icon>
-          </Link>
-          <CodemirrorMultilineEditor
-            data-testid="definition-of-search-index"
-            text={indexDefinition}
-            onChangeText={onSearchIndexDefinitionChanged}
-            minLines={16}
-            className={bodyGapStyles}
-          />
-          {parsingError && <WarningSummary warnings={parsingError} />}
-          {error && <ErrorSummary errors={error} />}
-        </section>
+      <ModalBody className={bodyStyles}>
+        <div className={formContainerStyles}>
+          <section>
+            <Label htmlFor="name-of-search-index">Name of Search Index</Label>
+            <TextInput
+              id="name-of-search-index"
+              data-testid="name-of-search-index"
+              aria-labelledby="Name of Search Index"
+              type="text"
+              state={indexName === '' ? 'error' : 'none'}
+              errorMessage={
+                indexName === '' ? 'Please enter the name of the index.' : ''
+              }
+              disabled={mode === 'update'}
+              value={indexName}
+              onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+                setIndexName(evt.target.value)
+              }
+            />
+          </section>
+          <HorizontalRule />
+          <section>
+            <Subtitle>Index Definition</Subtitle>
+            {mode === 'create' && (
+              <Body>
+                By default, search indexes will have the following search
+                configurations. You can refine this later.
+              </Body>
+            )}
+            <Link
+              href="https://www.mongodb.com/docs/atlas/atlas-search/tutorial/"
+              target="_blank"
+              hideExternalIcon={true}
+            >
+              View Atlas Search tutorials{' '}
+              <Icon size="small" glyph="OpenNewTab"></Icon>
+            </Link>
+            <CodemirrorMultilineEditor
+              data-testid="definition-of-search-index"
+              text={indexDefinition}
+              onChangeText={onSearchIndexDefinitionChanged}
+              minLines={16}
+            />
+          </section>
+        </div>
+        {parsingError && <WarningSummary warnings={parsingError} />}
+        {!parsingError && error && <ErrorSummary errors={error} />}
+        {mode === 'update' && (
+          <Banner>
+            Note: Updating the index may slow down your device temporarily due
+            to resource usage. Save indexes only with changes to avoid
+            reindexing.
+          </Banner>
+        )}
       </ModalBody>
-
-      <ModalFooter className={toolbarStyles}>
+      <ModalFooter className={footerStyles}>
         <Button
           data-testid="search-index-submit-button"
           variant="primary"
           onClick={onSubmitIndex}
           disabled={isBusy}
         >
-          {submitActionName}
+          {mode === 'create' ? 'Create Index' : 'Update Index'}
         </Button>
-        <Button variant="default" onClick={closeModal}>
+        <Button variant="default" onClick={onClose}>
           Cancel
         </Button>
       </ModalFooter>

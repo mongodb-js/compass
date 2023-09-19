@@ -8,7 +8,7 @@ import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table'
 import SearchIndexesTable from '../search-indexes-table/search-indexes-table';
 import { refreshRegularIndexes } from '../../modules/regular-indexes';
 import {
-  openModalForCreation as openAtlasSearchModalForCreation,
+  showCreateModal as openAtlasSearchModalForCreation,
   refreshSearchIndexes,
 } from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';

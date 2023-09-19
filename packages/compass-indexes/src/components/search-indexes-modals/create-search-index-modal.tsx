@@ -1,55 +1,54 @@
 import React from 'react';
-import {
-  closeModalForCreation,
-  createIndex,
-} from '../../modules/search-indexes';
+import { closeCreateModal, createIndex } from '../../modules/search-indexes';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 
 export const DEFAULT_INDEX_DEFINITION = `{
-  "mappings": {
-    "dynamic": true
-  }
+  mappings: {
+    dynamic: true,
+  },
 }`;
 
 type CreateSearchIndexModalProps = {
   isModalOpen: boolean;
   isBusy: boolean;
   error: string | undefined;
-  createIndex: (indexName: string, indexDefinition: Document) => void;
-  closeModal: () => void;
+  onCreateIndex: (indexName: string, indexDefinition: Document) => void;
+  onCloseModal: () => void;
 };
 
 export const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
-> = ({ isModalOpen, isBusy, error, createIndex, closeModal }) => {
+> = ({ isModalOpen, isBusy, error, onCreateIndex, onCloseModal }) => {
   return (
     <BaseSearchIndexModal
-      title={'Create Search Index'}
-      submitActionName={'Create Search Index'}
+      mode={'create'}
       initialIndexName={'default'}
       initialIndexDefinition={DEFAULT_INDEX_DEFINITION}
-      isIndexNameReadonly={false}
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
-      submitIndex={createIndex}
-      closeModal={closeModal}
+      onSubmit={onCreateIndex}
+      onClose={onCloseModal}
     />
   );
 };
 
-const mapState = ({ searchIndexes }: RootState) => ({
-  isModalOpen: searchIndexes.createIndex.isModalOpen,
-  isBusy: searchIndexes.createIndex.isBusy,
-  error: searchIndexes.error,
+const mapState = ({
+  searchIndexes: {
+    createIndex: { isBusy, isModalOpen, error },
+  },
+}: RootState) => ({
+  isModalOpen,
+  isBusy,
+  error,
 });
 
 const mapDispatch = {
-  closeModal: closeModalForCreation,
-  createIndex,
+  onCloseModal: closeCreateModal,
+  onCreateIndex: createIndex,
 };
 
 export default connect(mapState, mapDispatch)(CreateSearchIndexModal);

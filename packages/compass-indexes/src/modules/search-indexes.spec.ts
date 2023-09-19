@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import {
   SearchIndexesStatuses,
-  closeModalForCreation,
-  openModalForCreation,
+  closeCreateModal,
+  showCreateModal,
   createIndex,
   fetchSearchIndexes,
   sortSearchIndexes,
   dropSearchIndex,
-  openModalForUpdate,
-  closeModalForUpdate,
+  showUpdateModal,
+  closeUpdateModal,
   updateIndex,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
@@ -126,7 +126,11 @@ describe('search-indexes module', function () {
           name: 'default',
           status: 'READY',
           queryable: true,
-          latestDefinition: {},
+          latestDefinition: {
+            mappings: {
+              dynamic: false,
+            },
+          },
         },
       ]);
       expect(state.searchIndexes.sortColumn).to.equal('Name and Fields');
@@ -171,7 +175,11 @@ describe('search-indexes module', function () {
           name: 'default',
           status: 'READY',
           queryable: true,
-          latestDefinition: {},
+          latestDefinition: {
+            mappings: {
+              dynamic: false,
+            },
+          },
         },
         {
           id: '2',
@@ -185,13 +193,13 @@ describe('search-indexes module', function () {
   });
 
   it('opens the modal for creation', function () {
-    store.dispatch(openModalForCreation());
+    store.dispatch(showCreateModal());
     expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
   });
 
   it('closes an open modal for creation', function () {
-    store.dispatch(openModalForCreation());
-    store.dispatch(closeModalForCreation());
+    store.dispatch(showCreateModal());
+    store.dispatch(closeCreateModal());
     expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
   });
 
@@ -202,8 +210,8 @@ describe('search-indexes module', function () {
   });
 
   it('closes an open modal for update', function () {
-    store.dispatch(openModalForUpdate('indexName', 'indexDef'));
-    store.dispatch(closeModalForUpdate());
+    store.dispatch(showUpdateModal('indexName'));
+    store.dispatch(closeUpdateModal());
 
     expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be.false;
   });
