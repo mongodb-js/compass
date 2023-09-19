@@ -728,7 +728,7 @@ export class AtlasService {
     const url = `${this.config.atlasApiBaseUrl}/ai/api/v1/mql-query`;
 
     log.info(
-      mongoLogId(1_001_000_245),
+      mongoLogId(1_001_000_249),
       'AtlasService',
       'Running query generation request',
       { url, body: msgBody }
@@ -745,7 +745,7 @@ export class AtlasService {
     });
 
     log.info(
-      mongoLogId(1_001_000_246),
+      mongoLogId(1_001_000_250),
       'AtlasService',
       'Received query generation response',
       { status: res.status, statusText: res.statusText }
