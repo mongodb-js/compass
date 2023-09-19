@@ -251,6 +251,20 @@ store.onActivated = (appRegistry) => {
     store.refreshInstance(appRegistry);
   });
 
+  appRegistry.on('database-dropped', async () => {
+    const { instance, dataService } = store.getState();
+    await instance.fetchDatabases({ dataService, force: true });
+  });
+
+  appRegistry.on('collection-dropped', async (namespace) => {
+    const { instance, dataService } = store.getState();
+    const { database } = toNS(namespace);
+    await instance.fetchDatabases({ dataService, force: true });
+    const db = instance.databases.get(database);
+    // If it was last collection, there will be no db returned
+    await db?.fetchCollections({ dataService, force: true });
+  });
+
   // Event emitted when the Databases grid needs to be refreshed
   // We additionally refresh the list of collections as well
   // since there is the side navigation which could be in expanded mode
@@ -272,7 +286,6 @@ store.onActivated = (appRegistry) => {
     if (!instance.databases.get(database)) {
       await instance.fetchDatabases({ dataService, force: true });
     }
-
     const db = instance.databases.get(database);
     if (db) {
       await db.fetchCollectionsDetails({ dataService, force: true });
@@ -301,18 +314,22 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('select-namespace', metadata);
   });
 
-  appRegistry.on('active-collection-dropped', async (ns) => {
-    const { instance, dataService } = store.getState();
-    const { database } = toNS(ns);
-    await store.fetchDatabaseDetails(database);
-    const db = instance.databases.get(database);
-    await db.fetchCollections({ dataService, force: true });
-
-    if (db.collectionsLength) {
-      appRegistry.emit('select-database', database);
-    } else {
-      appRegistry.emit('open-instance-workspace', 'Databases');
-    }
+  appRegistry.on('active-collection-dropped', (ns) => {
+    // This callback will fire after drop collection happened, we force it into
+    // a microtask to allow drop collections event handler to force start
+    // databases and collections list update before we run our check here
+    queueMicrotask(async () => {
+      const { instance, dataService } = store.getState();
+      const { database } = toNS(ns);
+      await instance.fetchDatabases({ dataService });
+      const db = instance.databases.get(database);
+      await db?.fetchCollections({ dataService });
+      if (db?.collectionsLength) {
+        appRegistry.emit('select-database', database);
+      } else {
+        appRegistry.emit('open-instance-workspace', 'Databases');
+      }
+    });
   });
 
   appRegistry.on('active-database-dropped', async () => {
@@ -398,7 +415,6 @@ store.onActivated = (appRegistry) => {
     async function (namespace) {
       // Force-refresh specified namespace to update collections list and get
       // collection info / stats (in case of opening result collection we're
-
       // always assuming the namespace wasn't yet updated)
       await store.refreshNamespace(toNS(namespace));
       // Now we can get the metadata from already fetched collection and open a

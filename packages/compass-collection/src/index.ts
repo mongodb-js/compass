@@ -1,8 +1,8 @@
 import type AppRegistry from 'hadron-app-registry';
-import CollectionPlugin from './plugin';
-import CollectionStore from './stores';
+import CollectionTabsPlugin from './plugin';
+import CollectionTabsStore from './stores/tabs';
 import CollectionTab from './components/collection-tab';
-import { configureStore } from './stores/collection';
+import { configureStore } from './stores/collection-tab';
 
 const COLLECTION_TAB_ROLE = {
   name: 'CollectionTab',
@@ -15,8 +15,8 @@ const COLLECTION_TAB_ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerComponent('Collection.Workspace', CollectionPlugin);
-  appRegistry.registerStore('Collection.Store', CollectionStore);
+  appRegistry.registerComponent('Collection.Workspace', CollectionTabsPlugin);
+  appRegistry.registerStore('Collection.Store', CollectionTabsStore);
   appRegistry.registerRole('CollectionTab.Content', COLLECTION_TAB_ROLE);
 }
 
@@ -30,6 +30,6 @@ function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('CollectionTab.Content', COLLECTION_TAB_ROLE);
 }
 
-export default CollectionPlugin;
+export default CollectionTabsPlugin;
 export { activate, deactivate };
 export { default as metadata } from '../package.json';

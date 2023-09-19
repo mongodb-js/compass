@@ -98,7 +98,7 @@ const reducer: Reducer<CollectionTabsState> = (
     const newActiveTabIndex =
       getActiveTabIndex(state) === 0
         ? state.tabs.length - 1
-        : currentActiveTabIndex;
+        : currentActiveTabIndex - 1;
     const newActiveTab = state.tabs[newActiveTabIndex];
     return {
       ...state,
@@ -116,16 +116,16 @@ const reducer: Reducer<CollectionTabsState> = (
   if (action.type === CollectionTabsActions.CloseTab) {
     const tabToClose = state.tabs[action.index];
     const tabIndex = state.tabs.findIndex((tab) => tab.id === tabToClose.id);
+    const newTabs = [...state.tabs];
+    newTabs.splice(action.index, 1);
     const newActiveTabId =
       tabToClose.id === state.activeTabId
         ? // We follow standard browser behavior with tabs on how we handle
           // which tab gets activated if we close the active tab. If the active
           // tab is the last tab, we activate the one before it, otherwise we
           // activate the next tab.
-          (state.tabs[tabIndex + 1] ?? state.tabs[state.tabs.length - 1]).id
+          (state.tabs[tabIndex + 1] ?? newTabs[newTabs.length - 1])?.id ?? null
         : state.activeTabId;
-    const newTabs = [...state.tabs];
-    newTabs.splice(action.index, 1);
     return {
       activeTabId: newActiveTabId,
       tabs: newTabs,
@@ -251,9 +251,8 @@ export const openCollection = (
   collectionMetadata: CollectionMetadata
 ): CollectionTabsThunkAction<void> => {
   return (dispatch, getState) => {
-    const activeTab = getActiveTab(getState());
     // If current active tab namespace is the same, do nothing
-    if (activeTab?.namespace === collectionMetadata.namespace) {
+    if (getActiveTab(getState())?.namespace === collectionMetadata.namespace) {
       return;
     }
     const tab = dispatch(createNewTab(collectionMetadata));
@@ -310,10 +309,11 @@ export const closeTabAtIndex = (
   index: number
 ): CollectionTabsThunkAction<void> => {
   return (dispatch, getState, { globalAppRegistry }) => {
+    const lastActiveTab = getActiveTab(getState());
     dispatch({ type: CollectionTabsActions.CloseTab, index });
-    // We just removed last tab, open databases list
-    if (getState().tabs.length === 0) {
-      globalAppRegistry.emit('open-instance-workspace', 'Databases');
+    if (lastActiveTab && getState().tabs.length === 0) {
+      const { database } = toNs(lastActiveTab.namespace);
+      globalAppRegistry.emit('select-database', database);
     }
   };
 };
@@ -352,17 +352,15 @@ export const collectionDropped = (
   namespace: string
 ): CollectionTabsThunkAction<void> => {
   return (dispath, getState, { globalAppRegistry }) => {
-    const activeTab = getActiveTab(getState());
-    if (!activeTab) {
-      return;
-    }
+    const lastActiveTab = getActiveTab(getState());
     dispath({ type: CollectionTabsActions.CollectionDropped, namespace });
-    if (activeTab.namespace === namespace) {
-      globalAppRegistry.emit('active-collection-dropped', namespace);
-    }
-    // We just removed last tab, open databases list
-    if (getState().tabs.length === 0) {
-      globalAppRegistry.emit('open-instance-workspace', 'Databases');
+    // We just removed last tab, emit event and let instance store figure out
+    // what to open based on that
+    if (lastActiveTab && getState().tabs.length === 0) {
+      globalAppRegistry.emit(
+        'active-collection-dropped',
+        lastActiveTab.namespace
+      );
     }
   };
 };
@@ -371,19 +369,11 @@ export const databaseDropped = (
   namespace: string
 ): CollectionTabsThunkAction<void> => {
   return (dispath, getState, { globalAppRegistry }) => {
-    const activeTab = getActiveTab(getState());
-    if (!activeTab) {
-      return;
-    }
-    const { database } = toNs(namespace);
-    const { database: activeDatabase } = toNs(activeTab.namespace);
+    const lastActiveTab = getActiveTab(getState());
     dispath({ type: CollectionTabsActions.DatabaseDropped, namespace });
-    if (activeDatabase === database) {
-      globalAppRegistry.emit('active-database-dropped', namespace);
-    }
-    // We just removed last tab, open databases list
-    if (getState().tabs.length === 0) {
-      globalAppRegistry.emit('open-instance-workspace', 'Databases');
+    if (lastActiveTab && getState().tabs.length === 0) {
+      const { database } = toNs(lastActiveTab.namespace);
+      globalAppRegistry.emit('active-database-dropped', database);
     }
   };
 };

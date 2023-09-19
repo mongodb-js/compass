@@ -102,7 +102,6 @@ export const dropCollection = (): ThunkAction<
       await ds.dropCollection(namespace);
       const { appRegistry } = getState();
       appRegistry?.emit('collection-dropped', namespace);
-      appRegistry?.emit('refresh-data');
       dispatch(reset());
     } catch (e) {
       dispatch(toggleIsRunning(false));
