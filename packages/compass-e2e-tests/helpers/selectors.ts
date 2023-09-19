@@ -941,17 +941,22 @@ export const indexesSegmentedTab = (name: IndexesType) => {
 
 // Search Index
 export const SearchIndexList = '[data-testid="search-indexes"]';
-export const CreateSearchIndexModal =
-  '[data-testid="create-search-index-modal"]';
-export const CreateSearchIndexName = '[data-testid="name-of-search-index"]';
-export const CreateSearchIndexDefinition =
+export const SearchIndexModal = '[data-testid="search-index-modal"]';
+export const SearchIndexName = '[data-testid="name-of-search-index"]';
+export const SearchIndexDefinition =
   '[data-testid="definition-of-search-index"]';
-export const CreateSearchIndexConfirmButton =
-  '[data-testid="create-search-index-button"]';
+export const SearchIndexConfirmButton =
+  '[data-testid="search-index-submit-button"]';
 export const searchIndexRow = (name: string) =>
   `[data-testid="search-indexes-row-${name}"]`;
+export const searchIndexExpandButton = (name: string) =>
+  `${searchIndexRow(name)} button:first-child`;
 export const searchIndexDropButton = (name: string) =>
   `${searchIndexRow(name)} [data-testid="search-index-actions-drop-action"]`;
+export const searchIndexEditButton = (name: string) =>
+  `${searchIndexRow(name)} [data-testid="search-index-actions-edit-action"]`;
+export const searchIndexDetails = (name: string) =>
+  `[data-testid="search-indexes-details-${name}"]`;
 
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
