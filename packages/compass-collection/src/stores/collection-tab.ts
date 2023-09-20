@@ -74,7 +74,7 @@ export function configureStore(options: CollectionTabOptions) {
         // account for that change in all plugins that implement
         // `Collection.Tab` and `Collection.ScopedModal` roles
         isDataLake: instance.dataLake.isDataLake,
-        isAtlas: instance.isAtlas,
+        isAtlas: instance.env === 'atlas',
         serverVersion: instance.build.version,
       },
       stats: collectionModel ? pickCollectionStats(collectionModel) : null,
