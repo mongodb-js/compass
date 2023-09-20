@@ -58,6 +58,15 @@ export enum SearchIndexesStatuses {
 
 export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 
+// List of SearchIndex statuses when server should not be called
+// to avoid multiple requests.
+const NOT_FETCHABLE_STATUSES: SearchIndexesStatus[] = [
+  'NOT_AVAILABLE',
+  'FETCHING',
+  'POLLING',
+  'REFRESHING',
+];
+
 export enum ActionTypes {
   SetStatus = 'indexes/search-indexes/SetStatus',
   SetSearchIndexes = 'indexes/search-indexes/SetSearchIndexes',
@@ -501,20 +510,14 @@ const fetchIndexes = (
       return;
     }
 
-    const notFetchableStatuses: SearchIndexesStatus[] = [
-      'NOT_AVAILABLE',
-      'FETCHING',
-      'POLLING',
-      'REFRESHING',
-    ];
-    // If we are currently doing fetching indexes, we will
-    // wait for that
-    if (notFetchableStatuses.indexOf(status) !== -1) {
+    if (!dataService || !dataService.isConnected()) {
+      debug('warning: trying to load indexes but dataService is disconnected');
       return;
     }
 
-    if (!dataService || !dataService.isConnected()) {
-      debug('warning: trying to load indexes but dataService is disconnected');
+    // If we are currently doing fetching indexes, we will
+    // wait for that
+    if (NOT_FETCHABLE_STATUSES.includes(status)) {
       return;
     }
 
