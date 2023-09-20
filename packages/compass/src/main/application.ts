@@ -156,7 +156,7 @@ class CompassApplication {
       },
     } as const;
 
-    const { atlasServiceConfigPreset } = preferences.getPreferences();
+    const { atlasServiceBackendPreset } = preferences.getPreferences();
 
     const atlasServiceConfig = defaultsDeep(
       {
@@ -169,7 +169,7 @@ class CompassApplication {
         },
         authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
       },
-      config[atlasServiceConfigPreset]
+      config[atlasServiceBackendPreset]
     );
 
     await AtlasService.init(atlasServiceConfig);
