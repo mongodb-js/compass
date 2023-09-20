@@ -97,7 +97,7 @@ type AIQueryStartedAction = {
 type AIQueryFailedAction = {
   type: AIQueryActionTypes.AIQueryFailed;
   errorMessage: string;
-  networkErrorCode?: number;
+  statusCode?: number;
 };
 
 export type AIQuerySucceededAction = {
@@ -110,25 +110,25 @@ export type AIQueryReturnedAggregationAction = {
 };
 
 type FailedResponseTrackMessage = {
-  errorCode?: number;
+  statusCode?: number;
   errorName: string;
   errorMessage: string;
 };
 
 function trackAndLogFailed({
-  errorCode,
+  statusCode,
   errorName,
   errorMessage,
 }: FailedResponseTrackMessage) {
   log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
-    errorCode,
+    statusCode,
     errorMessage,
     errorName,
   });
   track('AI Response Failed', () => ({
     editor_view_type: 'find',
     error_name: errorName,
-    error_code: errorCode,
+    error_code: statusCode,
   }));
 }
 
@@ -204,7 +204,7 @@ export const runAIQuery = (
       }
       trackAndLogFailed({
         errorName: 'request_error',
-        errorCode: (err as AtlasServiceError).statusCode,
+        statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: (err as AtlasServiceError).message,
       });
       // We're going to reset input state with this error, show the error in the
@@ -220,7 +220,7 @@ export const runAIQuery = (
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: (err as AtlasServiceError).message,
-        networkErrorCode: (err as AtlasServiceError).statusCode ?? -1,
+        statusCode: (err as AtlasServiceError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -246,7 +246,7 @@ export const runAIQuery = (
     } catch (err: any) {
       trackAndLogFailed({
         errorName: 'could_not_parse_fields',
-        errorCode: (err as AtlasServiceError).statusCode,
+        statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: err?.message,
       });
       dispatch({
@@ -387,7 +387,7 @@ const aiQueryReducer: Reducer<AIQueryState> = (
     // If fetching query failed due to authentication error, reset the state to
     // hide the input and show the "Generate query" button again: this should start
     // the sign in flow for the user when clicked
-    if (action.networkErrorCode === 401) {
+    if (action.statusCode === 401) {
       return { ...initialState };
     }
 

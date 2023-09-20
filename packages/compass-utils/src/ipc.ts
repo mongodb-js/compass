@@ -5,21 +5,18 @@ type SerializedError = { $$error: Error & { statusCode?: number } };
 // We are serializing errors to get a better error shape on the other end, ipc
 // will only preserve message from the original error. See https://github.com/electron/electron/issues/24427
 function serializeErrorForIpc(err: any): SerializedError {
+  const props = Object.getOwnPropertyNames(err);
+  const entries = props.map((p) => [p, err[p]]);
   return {
-    $$error: {
-      name: err.name,
-      message: err.message,
-      statusCode: err.statusCode,
-      stack: err.stack,
-    },
+    $$error: Object.fromEntries(entries),
   };
 }
 
 function deserializeErrorFromIpc({ $$error: err }: SerializedError) {
-  const e = new Error(err.message);
-  e.name = err.name;
-  e.stack = err.stack;
-  (e as any).statusCode = err.statusCode;
+  const { message, ...rest } = err;
+  const e = new Error(message);
+
+  Object.assign(e, rest);
   return e;
 }
 

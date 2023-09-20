@@ -134,7 +134,7 @@ type AIPipelineStartedAction = {
 type AIPipelineFailedAction = {
   type: AIPipelineActionTypes.AIPipelineFailed;
   errorMessage: string;
-  networkErrorCode?: number;
+  statusCode?: number;
 };
 
 export type PipelineGeneratedFromQueryAction = {
@@ -144,14 +144,14 @@ export type PipelineGeneratedFromQueryAction = {
 
 type FailedResponseTrackMessage = {
   editor_view_type: 'stages' | 'text';
-  errorCode?: number;
+  statusCode?: number;
   errorMessage: string;
   errorName: string;
 };
 
 function trackAndLogFailed({
   editor_view_type,
-  errorCode,
+  statusCode,
   errorMessage,
   errorName,
 }: FailedResponseTrackMessage) {
@@ -160,14 +160,14 @@ function trackAndLogFailed({
     'AIPipeline',
     'AI pipeline request failed',
     {
-      errorCode,
+      statusCode,
       errorMessage,
       errorName,
     }
   );
   track('AI Response Failed', () => ({
     editor_view_type,
-    error_code: errorCode,
+    error_code: statusCode,
     error_name: errorName,
   }));
 }
@@ -243,7 +243,7 @@ export const runAIPipelineGeneration = (
       }
       trackAndLogFailed({
         editor_view_type,
-        errorCode: (err as AtlasServiceError).statusCode,
+        statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: (err as AtlasServiceError).message,
         errorName: 'request_error',
       });
@@ -260,7 +260,7 @@ export const runAIPipelineGeneration = (
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
         errorMessage: (err as AtlasServiceError).message,
-        networkErrorCode: (err as AtlasServiceError).statusCode ?? -1,
+        statusCode: (err as AtlasServiceError).statusCode ?? -1,
       });
       return;
     } finally {
@@ -286,7 +286,7 @@ export const runAIPipelineGeneration = (
     } catch (err) {
       trackAndLogFailed({
         editor_view_type,
-        errorCode: (err as AtlasServiceError).statusCode,
+        statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: (err as Error).message,
         errorName: 'empty_pipeline_error',
       });
@@ -425,7 +425,7 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     // If fetching query failed due to authentication error, reset the state to
     // hide the input and show the "Generate aggregation" button again: this should start the
     // sign in flow for the user when clicked
-    if (action.networkErrorCode === 401) {
+    if (action.statusCode === 401) {
       return { ...initialState };
     }
 
