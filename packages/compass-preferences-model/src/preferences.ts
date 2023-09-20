@@ -409,7 +409,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable MongoDB Shell',
-      long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
+      long: 'Allow Compass to interact with MongoDB deployments via the embedded shell.',
     },
     deriveValue: deriveReadOnlyOptionState('enableShell'),
     validator: z.boolean().default(true),
