@@ -8,7 +8,7 @@ import { render, screen, cleanup } from '@testing-library/react';
 import React from 'react';
 import { getCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import {
-  fetchSearchIndexes,
+  refreshSearchIndexes as fetchSearchIndexes,
   showUpdateModal,
 } from '../../modules/search-indexes';
 import { setupStore } from '../../../test/setup-store';
@@ -19,7 +19,7 @@ const renderModal = async (
   updateSearchIndexSpy = sinon.spy()
 ) => {
   const store = setupStore(
-    { namespace: 'test.test' },
+    { namespace: 'test.test', isSearchIndexesSupported: true },
     {
       updateSearchIndex: updateSearchIndexSpy,
       getSearchIndexes: () => Promise.resolve(searchIndexes),
