@@ -300,9 +300,7 @@ export const runAIQuery = (
       'AIQuery',
       'AI query request succeeded',
       {
-        query: {
-          ...queryFields,
-        },
+        shape: Object.keys(generatedFields),
       }
     );
     track('AI Response Generated', () => ({

@@ -297,16 +297,18 @@ export const runAIPipelineGeneration = (
       return;
     }
 
+    pipelineBuilder.reset(pipelineText);
+
     log.info(
       mongoLogId(1_001_000_228),
       'AIPipeline',
       'AI pipeline request succeeded',
       {
-        pipelineText,
+        editorViewType: editor_view_type,
+        syntaxErrors: !!(pipelineBuilder.syntaxError?.length > 0),
+        shape: pipelineBuilder.stages.map((stage) => stage.operator),
       }
     );
-
-    pipelineBuilder.reset(pipelineText);
 
     track('AI Response Generated', () => ({
       editor_view_type,
