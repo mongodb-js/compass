@@ -59,6 +59,7 @@ describe('AtlasServiceMain', function () {
 
   const defaultConfig = {
     atlasApiBaseUrl: 'http://example.com',
+    atlasApiUnauthBaseUrl: 'http://example.com/unauth',
     atlasLogin: {
       issuer: 'http://example.com',
       clientId: '1234abcd',

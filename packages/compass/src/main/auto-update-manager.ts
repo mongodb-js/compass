@@ -257,6 +257,12 @@ const STATE_UPDATE: Partial<
       updateManager,
       updateInfo
     ) {
+      log.info(
+        mongoLogId(1_001_000_246),
+        'AutoUpdateManager',
+        'Downloading update',
+        { releaseVersion: updateInfo.to }
+      );
       track('Autoupdate Accepted', { update_version: updateInfo.to });
 
       this.maybeInterrupt();
@@ -310,6 +316,12 @@ const STATE_UPDATE: Partial<
       void dl.download(BrowserWindow.getAllWindows()[0], url);
     },
     [AutoUpdateManagerState.UpdateDismissed]: (_updateManager, updateInfo) => {
+      log.info(
+        mongoLogId(1_001_000_245),
+        'AutoUpdateManager',
+        'Update dismissed',
+        { releaseVersion: updateInfo.to }
+      );
       track('Autoupdate Dismissed', { update_version: updateInfo.to });
     },
     [AutoUpdateManagerState.Disabled]: disableAutoUpdates,

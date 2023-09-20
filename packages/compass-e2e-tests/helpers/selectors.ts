@@ -1058,8 +1058,8 @@ export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
-export const QueryBarAskAIButton =
-  '[data-testid="open-ai-query-ask-ai-button"]';
+export const QueryBarAIEntryButton =
+  '[data-testid="open-ai-query-entry-button"]';
 export const QueryBarAITextInput = '[data-testid="ai-user-text-input"]';
 export const QueryBarAIGenerateQueryButton =
   '[data-testid="ai-generate-button"]';

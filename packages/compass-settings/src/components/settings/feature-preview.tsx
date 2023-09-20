@@ -41,10 +41,19 @@ export function useShouldShowFeaturePreviewSettings(): boolean {
   //   - we are in a development environment or 'showDevFeatureFlags' is explicitly enabled
   //   - and there are feature flags in 'development' stage.
   //   - AI feature flag is enabled
+  const enableAIWithoutRolloutAccess = usePreference(
+    'enableAIWithoutRolloutAccess',
+    React
+  );
   const enableAIExperience = usePreference('enableAIExperience', React);
   const showDevFeatures = useShouldShowDevFeatures();
   const showPreviewFeatures = useShouldShowPreviewFeatures();
-  return enableAIExperience || showPreviewFeatures || showDevFeatures;
+  return (
+    enableAIWithoutRolloutAccess ||
+    enableAIExperience ||
+    showPreviewFeatures ||
+    showDevFeatures
+  );
 }
 
 const atlasSettingsContainerStyles = css({
@@ -89,6 +98,7 @@ export default withPreferences(
       state: RootState,
       ownProps: {
         enableAIExperience?: boolean;
+        enableAIWithoutRolloutAccess?: boolean;
         cloudFeatureRolloutAccess?: UserPreferences['cloudFeatureRolloutAccess'];
       }
     ) => {
@@ -97,10 +107,15 @@ export default withPreferences(
           state.settings.settings.enableAIExperience ||
           ['authenticated', 'in-progress'].includes(state.atlasLogin.status) ||
           ownProps.enableAIExperience ||
+          ownProps.enableAIWithoutRolloutAccess ||
           ownProps.cloudFeatureRolloutAccess?.GEN_AI_COMPASS,
       };
     }
   )(FeaturePreviewSettings),
-  ['enableAIExperience', 'cloudFeatureRolloutAccess'],
+  [
+    'enableAIExperience',
+    'cloudFeatureRolloutAccess',
+    'enableAIWithoutRolloutAccess',
+  ],
   React
 );

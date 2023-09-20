@@ -26,6 +26,11 @@ const containerStyles = css({
   alignItems: 'center',
 });
 
+const aiExperienceContainerStyles = css({
+  display: 'inline-block',
+  marginLeft: spacing[1],
+});
+
 const descriptionStyles = css({
   padding: 0,
 });
@@ -89,10 +94,12 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
             </>
           )}
           {isAIFeatureEnabled && showAIEntry && (
-            <>
-              {nbsp}
-              <AIExperienceEntry onClick={onShowAIInputClick} />
-            </>
+            <div className={aiExperienceContainerStyles}>
+              <AIExperienceEntry
+                onClick={onShowAIInputClick}
+                type="aggregation"
+              />
+            </div>
           )}
         </Description>
       ) : (
