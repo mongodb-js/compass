@@ -4,7 +4,7 @@ import {
   closeCreateModal,
   showCreateModal,
   createIndex,
-  fetchSearchIndexes,
+  refreshSearchIndexes as fetchSearchIndexes,
   sortSearchIndexes,
   dropSearchIndex,
   showUpdateModal,
@@ -63,7 +63,7 @@ describe('search-indexes module', function () {
       store.dispatch(fetchSearchIndexes);
 
       expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('PENDING');
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
     });
 
     it('does nothing if there is no dataService', function () {
@@ -74,7 +74,7 @@ describe('search-indexes module', function () {
 
     it('fetches the indexes', async function () {
       expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('PENDING');
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
 
       await store.dispatch(fetchSearchIndexes());
 
@@ -84,7 +84,7 @@ describe('search-indexes module', function () {
 
     it('sets the status to REFRESHING if the status is READY', async function () {
       expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('PENDING');
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
 
       await store.dispatch(fetchSearchIndexes());
 

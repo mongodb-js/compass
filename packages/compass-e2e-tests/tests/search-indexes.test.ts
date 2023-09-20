@@ -112,6 +112,10 @@ async function dropSearchIndex(browser: CompassBrowser, indexName: string) {
 
   await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
   await modal.waitForDisplayed({ reverse: true });
+
+  await browser.waitUntil(async () => {
+    return await indexRow.waitForExist({ reverse: true });
+  });
 }
 
 async function verifyIndexDetails(
@@ -257,7 +261,6 @@ describe('Search Indexes', function () {
 
         // Drop it
         await dropSearchIndex(browser, indexName);
-        // todo: check the index status to be either DELETING or the row disappears
       });
 
       it('allows users to update and view search indexes', async function () {
@@ -288,9 +291,6 @@ describe('Search Indexes', function () {
         // As we set the new definition to have no dynamic mappings
         // with no fields, the index details should have '[empty]' value.
         await verifyIndexDetails(browser, indexName, '[empty]');
-
-        // Drop it
-        await dropSearchIndex(browser, indexName);
       });
       it('runs a search aggregation with index name');
     });
