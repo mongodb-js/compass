@@ -10,22 +10,22 @@ describe('CollectionStatsItem [Component]', function () {
 
     beforeEach(function () {
       render(
-        <CollectionStatsItem label="label" value="10kb" dataTestId="test" />
+        <CollectionStatsItem label="label" value="10kb" data-testid="test" />
       );
     });
 
     it('renders the correct root classname', function () {
-      expect(screen.getByTestId('test')).to.exist;
+      expect(screen.getByTestId('test-stats-item')).to.exist;
     });
 
     it('renders the label', function () {
-      const label = screen.getByTestId('test-label');
+      const label = screen.getByTestId('test-count-label');
       expect(label).to.have.text('label');
       expect(label).to.be.visible;
     });
 
     it('renders the value', function () {
-      const value = screen.getByTestId('test-value');
+      const value = screen.getByTestId('test-count-value');
       expect(value).to.have.text('10kb');
       expect(value).to.be.visible;
     });
@@ -36,22 +36,22 @@ describe('CollectionStatsItem [Component]', function () {
 
     beforeEach(function () {
       render(
-        <CollectionStatsItem label="label" value="20kb" dataTestId="test" />
+        <CollectionStatsItem label="label" value="20kb" data-testid="test" />
       );
     });
 
     it('renders the correct root classname', function () {
-      expect(screen.getByTestId('test')).to.exist;
+      expect(screen.getByTestId('test-stats-item')).to.exist;
     });
 
     it('renders the label', function () {
-      const label = screen.getByTestId('test-label');
+      const label = screen.getByTestId('test-count-label');
       expect(label).to.have.text('label');
       expect(label).to.be.visible;
     });
 
     it('renders the value', function () {
-      const value = screen.getByTestId('test-value');
+      const value = screen.getByTestId('test-count-value');
       expect(value).to.have.text('20kb');
       expect(value).to.be.visible;
     });

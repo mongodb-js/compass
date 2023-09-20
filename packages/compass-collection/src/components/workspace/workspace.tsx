@@ -1,26 +1,16 @@
-import type AppRegistry from 'hadron-app-registry';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
+import { WorkspaceTabs, css, useHotkeys } from '@mongodb-js/compass-components';
 import {
-  WorkspaceTabs,
-  css,
-  cx,
-  useHotkeys,
-} from '@mongodb-js/compass-components';
-
-import {
-  createNewTab,
-  selectOrCreateTab,
-  closeTab,
-  prevTab,
-  nextTab,
-  moveTab,
-  selectTab,
-  changeActiveSubTab,
+  selectNextTab,
+  type CollectionTab,
+  type CollectionTabsState,
+  selectPreviousTab,
+  moveTabByIndex,
+  closeTabAtIndex,
+  openNewTabForCurrentCollection,
+  selectTabByIndex,
 } from '../../modules/tabs';
-import type { WorkspaceTabObject } from '../../modules/tabs';
-import type { CollectionStatsMap } from '../../modules/stats';
-import Collection from '../collection';
 
 const workspaceStyles = css({
   width: '100%',
@@ -43,29 +33,6 @@ const workspaceViewTabStyles = css({
   width: '100%',
 });
 
-const workspaceHiddenStyles = css({
-  display: 'none',
-});
-
-function getTabType(isTimeSeries: boolean, isReadonly: boolean): string {
-  if (isTimeSeries) {
-    return 'timeseries';
-  }
-  if (isReadonly) {
-    return 'view';
-  }
-  return 'collection';
-}
-
-const DEFAULT_NEW_TAB = {
-  namespace: '',
-  isReadonly: false,
-  isTimeSeries: false,
-  isClustered: false,
-  isFLE: false,
-  sourceName: '',
-};
-
 function getIconGlyphForCollectionType(type: string) {
   switch (type) {
     case 'timeseries':
@@ -77,145 +44,53 @@ function getIconGlyphForCollectionType(type: string) {
   }
 }
 
-type WorkspaceProps = {
-  tabs: WorkspaceTabObject[];
-  closeTab: (index: number) => void;
-  createNewTab: (props: any) => any;
-  selectOrCreateTab: (props: any) => any;
-  appRegistry: AppRegistry;
-  prevTab: () => void;
-  nextTab: () => void;
-  moveTab: (
-    fromIndex: number,
-    toIndex: number
-  ) => {
-    type: string;
-    fromIndex: number;
-    toIndex: number;
-  };
-  selectTab: (index: number) => {
-    type: string;
-    index: number;
-  };
-  changeActiveSubTab: (activeSubTab: number, id: string) => void;
-  stats: CollectionStatsMap;
-  isAtlas: boolean;
-};
-
-const WorkspaceTab = ({
-  tab,
-  changeActiveSubTab,
-  selectOrCreateTab,
-  globalAppRegistry,
-  localAppRegistry,
-  stats,
-  isAtlas,
-}: {
-  tab: WorkspaceTabObject;
-  changeActiveSubTab: (activeSubTab: number, id: string) => void;
-  selectOrCreateTab: (props: any) => any;
-  globalAppRegistry: AppRegistry;
-  localAppRegistry: AppRegistry;
-  stats: CollectionStatsMap;
-  isAtlas: boolean;
-}) => {
-  return (
-    <div
-      className={cx(
-        workspaceViewTabStyles,
-        !tab.isActive && workspaceHiddenStyles
-      )}
-      id={tab.id}
-      key={`${String(tab.id)}-wrap`}
-    >
-      <Collection
-        key={tab.id}
-        id={tab.id}
-        namespace={tab.namespace}
-        isReadonly={tab.isReadonly}
-        isTimeSeries={tab.isTimeSeries}
-        isClustered={tab.isClustered}
-        isFLE={tab.isFLE}
-        sourceName={tab.sourceName}
-        editViewName={tab.editViewName}
-        sourceReadonly={tab.sourceReadonly}
-        sourceViewOn={tab.sourceViewOn}
-        tabs={tab.tabs}
-        views={tab.views}
-        scopedModals={tab.scopedModals}
-        activeSubTab={tab.activeSubTab}
-        pipeline={tab.pipeline}
-        changeActiveSubTab={changeActiveSubTab}
-        selectOrCreateTab={selectOrCreateTab}
-        globalAppRegistry={globalAppRegistry}
-        localAppRegistry={localAppRegistry}
-        stats={stats}
-        isAtlas={isAtlas}
-      />
-    </div>
-  );
-};
-
 /**
  * The collection workspace contains tabs of multiple collections.
  */
 const Workspace = ({
   tabs,
-  closeTab,
-  createNewTab,
-  selectOrCreateTab,
-  appRegistry,
-  prevTab,
-  nextTab,
-  moveTab,
-  selectTab,
-  changeActiveSubTab,
-  stats,
-  isAtlas,
-}: WorkspaceProps) => {
-  const onCreateNewTab = useCallback(() => {
-    const activeTab = tabs.find((tab: WorkspaceTabObject) => tab.isActive);
-    const newTabProps = activeTab
-      ? {
-          namespace: activeTab.namespace,
-          isReadonly: activeTab.isReadonly,
-          isTimeSeries: activeTab.isTimeSeries,
-          isClustered: activeTab.isClustered,
-          isFLE: activeTab.isFLE,
-          sourceName: activeTab.sourceName,
-          editViewName: activeTab.editViewName,
-          sourceReadonly: activeTab.sourceReadonly,
-          sourceViewOn: activeTab.sourceViewOn,
-          sourcePipeline: activeTab.pipeline,
-        }
-      : DEFAULT_NEW_TAB;
-    createNewTab(newTabProps);
-  }, [tabs, createNewTab]);
-
-  const formatCompassComponentsWorkspaceTabs = useMemo((): any => {
-    return tabs.map((tab: WorkspaceTabObject) => ({
-      title: tab.activeSubTabName,
-      subtitle: tab.namespace,
-      tabContentId: tab.id,
-      iconGlyph: getIconGlyphForCollectionType(
-        getTabType(tab.isTimeSeries, tab.isReadonly)
-      ),
-    }));
+  activeTabId,
+  onSelectTab,
+  onSelectNextTab,
+  onSelectPreviousTab,
+  onMoveTab,
+  onCloseTab,
+  onCreateNewTab,
+}: {
+  tabs: CollectionTab[];
+  activeTabId: string | null;
+  onSelectTab(index: number): void;
+  onSelectNextTab(): void;
+  onSelectPreviousTab(): void;
+  onMoveTab(fromIndex: number, toIndex: number): void;
+  onCloseTab(index: number): void;
+  onCreateNewTab(): void;
+}) => {
+  const tabsForHeader = useMemo(() => {
+    return tabs.map((tab) => {
+      return {
+        title: tab.selectedSubTabName,
+        subtitle: tab.namespace,
+        tabContentId: tab.id,
+        iconGlyph: getIconGlyphForCollectionType(tab.type),
+      } as const;
+    });
   }, [tabs]);
 
-  const selectedTabIndex = useMemo(
-    () => tabs.findIndex((tab: WorkspaceTabObject) => tab.isActive),
-    [tabs]
-  );
+  const selectedTabIndex = useMemo(() => {
+    return tabs.findIndex((tab) => tab.id === activeTabId);
+  }, [tabs, activeTabId]);
 
-  useHotkeys('ctrl + tab', nextTab);
-  useHotkeys('ctrl + shift + tab', prevTab);
-  useHotkeys('mod + shift + ]', nextTab);
-  useHotkeys('mod + shift + [', prevTab);
+  const activeTab = tabs.find((tab) => tab.id === activeTabId);
+
+  useHotkeys('ctrl + tab', onSelectNextTab);
+  useHotkeys('ctrl + shift + tab', onSelectPreviousTab);
+  useHotkeys('mod + shift + ]', onSelectNextTab);
+  useHotkeys('mod + shift + [', onSelectPreviousTab);
   useHotkeys(
     'mod + w',
     (e) => {
-      closeTab(selectedTabIndex);
+      onCloseTab(selectedTabIndex);
       // This prevents the browser from closing the window
       // as this shortcut is used to exit the app.
       e.preventDefault();
@@ -229,58 +104,43 @@ const Workspace = ({
       <WorkspaceTabs
         aria-label="Collection Tabs"
         onCreateNewTab={onCreateNewTab}
-        onMoveTab={moveTab}
-        onSelectTab={selectTab}
-        onCloseTab={closeTab}
-        tabs={formatCompassComponentsWorkspaceTabs}
+        onMoveTab={onMoveTab}
+        onSelectTab={onSelectTab}
+        onCloseTab={onCloseTab}
+        tabs={tabsForHeader}
         selectedTabIndex={selectedTabIndex}
       />
-      <div className={workspaceViewsStyles}>
-        {tabs.map((tab: WorkspaceTabObject) => (
-          <WorkspaceTab
-            key={tab.id}
-            tab={tab}
-            changeActiveSubTab={changeActiveSubTab}
-            selectOrCreateTab={selectOrCreateTab}
-            globalAppRegistry={appRegistry}
-            localAppRegistry={tab.localAppRegistry}
-            stats={stats}
-            isAtlas={isAtlas}
-          />
-        ))}
-      </div>
+      {activeTab && (
+        <div className={workspaceViewsStyles}>
+          <div
+            key={activeTab.id}
+            id={activeTab.id}
+            className={workspaceViewTabStyles}
+          >
+            {activeTab?.component}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-/**
- * Map the store state to properties to pass to the components.
- *
- * @param {Object} state - The store state.
- *
- * @returns {Object} The mapped properties.
- */
-const mapStateToProps = (state: any) => ({
-  tabs: state.tabs,
-  appRegistry: state.appRegistry,
-  stats: state.stats,
-  isAtlas: state.isAtlas,
-});
-
-/**
- * Connect the redux store to the component.
- * (dispatch)
- */
-const MappedWorkspace = connect(mapStateToProps, {
-  createNewTab,
-  selectOrCreateTab,
-  closeTab,
-  prevTab,
-  nextTab,
-  moveTab,
-  selectTab,
-  changeActiveSubTab,
-})(Workspace);
+const MappedWorkspace = connect(
+  (state: CollectionTabsState) => {
+    return {
+      tabs: state.tabs,
+      activeTabId: state.activeTabId,
+    };
+  },
+  {
+    onSelectTab: selectTabByIndex,
+    onSelectNextTab: selectNextTab,
+    onSelectPreviousTab: selectPreviousTab,
+    onMoveTab: moveTabByIndex,
+    onCloseTab: closeTabAtIndex,
+    onCreateNewTab: openNewTabForCurrentCollection,
+  }
+)(Workspace);
 
 export default MappedWorkspace;
-export { Workspace, getTabType };
+export { Workspace };

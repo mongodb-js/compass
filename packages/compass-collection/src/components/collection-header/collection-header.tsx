@@ -1,4 +1,3 @@
-import type AppRegistry from 'hadron-app-registry';
 import {
   css,
   palette,
@@ -11,19 +10,13 @@ import {
   PerformanceSignals,
 } from '@mongodb-js/compass-components';
 import type { Signal } from '@mongodb-js/compass-components';
-import type { Document } from 'mongodb';
 import React, { Component } from 'react';
 import toNS from 'mongodb-ns';
 import { withPreferences } from 'compass-preferences-model';
-
 import CollectionHeaderActions from '../collection-header-actions';
-import ReadOnlyBadge from './read-only-badge';
-import TimeSeriesBadge from './time-series-badge';
-import ViewBadge from './view-badge';
 import CollectionStats from '../collection-stats';
-import type { CollectionStatsObject } from '../../modules/stats';
-import ClusteredBadge from './clustered-badge';
-import FLEBadge from './fle-badge';
+import type { CollectionState } from '../../modules/collection-tab';
+import { CollectionBadge } from './badges';
 
 const collectionHeaderStyles = css({
   paddingTop: spacing[3],
@@ -107,23 +100,22 @@ const collectionHeaderTitleCollectionDarkStyles = css({
 type CollectionHeaderProps = {
   darkMode?: boolean;
   showInsights: boolean;
-  globalAppRegistry: AppRegistry;
+  onSelectDatabaseClick(): void;
+  onEditViewClick(): void;
+  onReturnToViewClick(): void;
   namespace: string;
   isReadonly: boolean;
   isTimeSeries: boolean;
   isClustered: boolean;
   isFLE: boolean;
   isAtlas: boolean;
-  selectOrCreateTab: (options: any) => any;
   sourceName?: string;
-  sourceReadonly?: boolean;
-  sourceViewOn?: string;
   editViewName?: string;
-  pipeline: Document[];
-  stats: CollectionStatsObject;
+  sourcePipeline?: unknown[];
+  stats: CollectionState['stats'];
 };
 
-const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
+const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
   const insights = new Set<Signal>();
   for (const stage of pipeline) {
     if ('$match' in stage) {
@@ -146,40 +138,16 @@ const getInsightsForPipeline = (pipeline: Document[], isAtlas: boolean) => {
 };
 
 class CollectionHeader extends Component<CollectionHeaderProps> {
-  static displayName = 'CollectionHeaderComponent';
-
   onEditViewClicked = (): void => {
-    this.props.selectOrCreateTab({
-      namespace: this.props.sourceName,
-      isReadonly: this.props.sourceReadonly,
-      isTimeSeries: this.props.isTimeSeries,
-      isClustered: this.props.isClustered,
-      isFLE: this.props.isFLE,
-      sourceName: this.props.sourceViewOn,
-      editViewName: this.props.namespace,
-      sourceReadonly: false,
-      sourceViewOn: null,
-      sourcePipeline: this.props.pipeline,
-    });
+    this.props.onEditViewClick();
   };
 
   onReturnToViewClicked = (): void => {
-    this.props.selectOrCreateTab({
-      namespace: this.props.editViewName,
-      isReadonly: true,
-      isTimeSeries: this.props.isTimeSeries,
-      isClustered: this.props.isClustered,
-      isFLE: this.props.isFLE,
-      sourceName: this.props.namespace,
-      editViewName: null,
-      sourceReadonly: this.props.isReadonly,
-      sourceViewOn: this.props.sourceName,
-      sourcePipeline: this.props.pipeline,
-    });
+    this.props.onReturnToViewClick();
   };
 
-  handleDBClick = (db: string): void => {
-    this.props.globalAppRegistry.emit('select-database', db);
+  handleDBClick = (): void => {
+    this.props.onSelectDatabaseClick();
   };
 
   /**
@@ -192,9 +160,10 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
     const database = ns.database;
     const collection = ns.collection;
     const insights =
-      this.props.showInsights && this.props.pipeline?.length
-        ? getInsightsForPipeline(this.props.pipeline, this.props.isAtlas)
+      this.props.showInsights && this.props.sourcePipeline?.length
+        ? getInsightsForPipeline(this.props.sourcePipeline, this.props.isAtlas)
         : [];
+
     return (
       <div
         className={cx(
@@ -222,7 +191,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
                 this.props.darkMode ? dbLinkDarkStyles : dbLinkLightStyles
               )}
               hideExternalIcon={true}
-              onClick={() => this.handleDBClick(database)}
+              onClick={() => this.handleDBClick()}
             >
               <H3
                 className={cx(
@@ -245,11 +214,13 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
               {`.${collection}`}
             </H3>
           </div>
-          {this.props.isReadonly && <ReadOnlyBadge />}
-          {this.props.isTimeSeries && <TimeSeriesBadge />}
-          {this.props.isClustered && <ClusteredBadge />}
-          {this.props.isFLE && <FLEBadge />}
-          {this.props.isReadonly && this.props.sourceName && <ViewBadge />}
+          {this.props.isReadonly && <CollectionBadge type="readonly" />}
+          {this.props.isTimeSeries && <CollectionBadge type="timeseries" />}
+          {this.props.isClustered && <CollectionBadge type="clustered" />}
+          {this.props.isFLE && <CollectionBadge type="fle" />}
+          {this.props.isReadonly && this.props.sourceName && (
+            <CollectionBadge type="view" />
+          )}
           {!!insights.length && <SignalPopover signals={insights} />}
           <CollectionHeaderActions
             editViewName={this.props.editViewName}
@@ -262,7 +233,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
         {!this.props.isReadonly && !this.props.editViewName && (
           <CollectionStats
             isTimeSeries={this.props.isTimeSeries}
-            {...this.props.stats}
+            stats={this.props.stats}
           />
         )}
       </div>

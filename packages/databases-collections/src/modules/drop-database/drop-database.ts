@@ -100,7 +100,6 @@ export const dropDatabase = (): ThunkAction<
       await ds.dropDatabase(dbName);
       const { appRegistry } = getState();
       appRegistry?.emit('database-dropped', dbName);
-      appRegistry?.emit('refresh-data');
       dispatch(reset());
     } catch (e: any) {
       dispatch(toggleIsRunning(false));
