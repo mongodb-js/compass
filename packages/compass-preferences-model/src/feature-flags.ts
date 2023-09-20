@@ -32,7 +32,7 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6866
    */
   enableAIExperience: {
-    stage: 'preview',
+    stage: 'released',
     description: {
       short: 'Compass AI Features',
       long: 'Use AI to generate queries and aggregations with a natural language text. Do not use this feature with sensitive data.',
