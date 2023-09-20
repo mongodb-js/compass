@@ -173,6 +173,36 @@ function getSemanticType(
   return type;
 }
 
+function isArraySchemaType(type: SchemaType): type is ArraySchemaType {
+  return type.name === 'Array';
+}
+
+export function shouldShowUnboundArrayInsight(
+  schemaType: SchemaType | SchemaType[],
+  thresholdLength = 250
+): boolean {
+  if (Array.isArray(schemaType)) {
+    return schemaType.some((type) => {
+      return shouldShowUnboundArrayInsight(type, thresholdLength);
+    });
+  }
+  return (
+    isArraySchemaType(schemaType) &&
+    schemaType.averageLength >= thresholdLength &&
+    schemaType.types.some((type) => {
+      return [
+        'Object',
+        'Document',
+        'ObjectId',
+        'String',
+        'Int32',
+        'Int64',
+        'Long',
+      ].includes(type.bsonType);
+    })
+  );
+}
+
 function Field({
   actions,
   localAppRegistry,
@@ -195,13 +225,6 @@ function Field({
 
   const fieldAccordionButtonId = `${JSON.stringify(path)}.${name}-button`;
   const fieldListRegionId = `${JSON.stringify(path)}.${name}-fields-region`;
-
-  const hasUnboundArray = types.some((type) => {
-    return (
-      type.bsonType === 'Array' &&
-      ((type as { averageLength?: number })?.averageLength ?? 0) > 250
-    );
-  });
 
   return (
     <KeylineCard className={fieldContainerStyles}>
@@ -239,7 +262,7 @@ function Field({
               ) : (
                 <Subtitle className={fieldNameStyles}>{name}</Subtitle>
               )}
-              {hasUnboundArray && (
+              {shouldShowUnboundArrayInsight(types) && (
                 <SignalPopover
                   signals={PerformanceSignals.get('unbound-array')}
                 ></SignalPopover>
