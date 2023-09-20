@@ -336,9 +336,18 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('open-instance-workspace', 'Databases');
   });
 
-  const openCollectionInSameTab = async ({ ns }) => {
+  /**
+   * Opens collection in the current active tab. No-op if currently open tab has
+   * the same namespace. Additional `query` and `agrregation` props can be
+   * passed with the namespace to open tab with initial query or aggregation
+   * pipeline
+   */
+  const openCollectionInSameTab = async ({ ns, ...extraMetadata }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
-    appRegistry.emit('select-namespace', metadata);
+    appRegistry.emit('select-namespace', {
+      ...metadata,
+      ...extraMetadata,
+    });
   };
 
   appRegistry.on('collections-list-select-collection', openCollectionInSameTab);
@@ -349,9 +358,17 @@ store.onActivated = (appRegistry) => {
   );
   appRegistry.on('collection-tab-select-collection', openCollectionInSameTab);
 
-  const openCollectionInNewTab = async ({ ns }) => {
+  /**
+   * Opens collection in a new tab. Additional `query` and `agrregation` props
+   * can be passed with the namespace to open tab with initial query or
+   * aggregation pipeline
+   */
+  const openCollectionInNewTab = async ({ ns, ...extraMetadata }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
-    appRegistry.emit('open-namespace-in-new-tab', metadata);
+    appRegistry.emit('open-namespace-in-new-tab', {
+      ...metadata,
+      ...extraMetadata,
+    });
   };
 
   appRegistry.on('sidebar-open-collection-in-new-tab', openCollectionInNewTab);
@@ -363,6 +380,7 @@ store.onActivated = (appRegistry) => {
     'collection-workspace-open-collection-in-new-tab',
     openCollectionInNewTab
   );
+  appRegistry.on('my-queries-open-saved-item', openCollectionInNewTab);
 
   const openModifyView = async ({ ns, sameTab }) => {
     const coll = await store.fetchCollectionDetails(ns);
