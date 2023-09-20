@@ -72,10 +72,7 @@ export async function throwIfNotOk(
     return;
   }
 
-  const messageJSON: { detail?: string; errorCode?: string } = await res
-    .json()
-    .catch(() => undefined);
-
+  const messageJSON = await res.json().catch(() => undefined);
   if (messageJSON && isServerError(messageJSON)) {
     throw new AtlasServiceError(
       'ServerError',
