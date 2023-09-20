@@ -42,7 +42,6 @@ export const enum AIQueryActionTypes {
   AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
   AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
   AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
-  AIQueryReturnedAggregation = 'compass-query-bar/ai-query/AIQueryReturnedAggregation',
   CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
   ShowInput = 'compass-query-bar/ai-query/ShowInput',
   HideInput = 'compass-query-bar/ai-query/HideInput',
@@ -108,10 +107,6 @@ export type AIQuerySucceededAction = {
   fields: QueryFormFields;
 };
 
-export type AIQueryReturnedAggregationAction = {
-  type: AIQueryActionTypes.AIQueryReturnedAggregation;
-};
-
 type FailedResponseTrackMessage = {
   statusCode?: number;
   errorCode?: string;
@@ -143,10 +138,7 @@ export const runAIQuery = (
   userInput: string
 ): QueryBarThunkAction<
   Promise<void>,
-  | AIQueryStartedAction
-  | AIQueryFailedAction
-  | AIQuerySucceededAction
-  | AIQueryReturnedAggregationAction
+  AIQueryStartedAction | AIQueryFailedAction | AIQuerySucceededAction
 > => {
   track('AI Prompt Submitted', () => ({
     editor_view_type: 'find',
@@ -267,21 +259,20 @@ export const runAIQuery = (
 
     // Error when the response is empty or there is nothing to map.
     if (!generatedFields || Object.keys(generatedFields).length === 0) {
+      const aggregation = jsonResponse?.content?.aggregation;
+
       // The query endpoint may return the aggregation property in addition to filter, project, etc..
       // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
-      if (query.aggregation) {
+      if (aggregation) {
         localAppRegistry?.emit('generate-aggregation-from-query', {
           userInput,
-          aggregation: query.aggregation,
+          aggregation,
         });
         const msg =
           'Query requires stages from aggregation framework therefore an aggregation was generated.';
         trackAndLogFailed({
           errorName: 'ai_generated_aggregation_instead_of_query',
           errorMessage: msg,
-        });
-        dispatch({
-          type: AIQueryActionTypes.AIQueryReturnedAggregation,
         });
         return;
       }
