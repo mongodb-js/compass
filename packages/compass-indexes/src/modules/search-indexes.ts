@@ -7,7 +7,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Document, MongoServerError } from 'mongodb';
 import toNS from 'mongodb-ns';
-import { EJSON } from 'bson';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -447,7 +446,7 @@ export const dropSearchIndex = (
 export const runAggregateSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState) {
+  return async function (_dispatch, getState) {
     const {
       searchIndexes: { indexes },
       appRegistry: { globalAppRegistry },
@@ -473,11 +472,11 @@ export const runAggregateSearchIndex = (
     }
 
     const metadata = await coll.fetchMetadata({ dataService });
-    const pipeline = EJSON.stringify([
+    const pipeline = JSON.stringify([
       {
         $search: {
-          name,
-          $text: {
+          index: name,
+          text: {
             query: 'string',
             path: 'string',
           },
@@ -488,6 +487,11 @@ export const runAggregateSearchIndex = (
       ...metadata,
       aggregation: {
         pipelineText: pipeline,
+        autoPreview: true,
+        name: null,
+        id: null,
+        collationString: null,
+        comments: null,
       },
     };
     globalAppRegistry.emit('open-namespace-in-new-tab', data);
