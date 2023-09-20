@@ -651,7 +651,13 @@ export class AtlasService {
       mongoLogId(1_001_000_247),
       'AtlasService',
       'Running aggregation generation request',
-      { url, body: msgBody }
+      {
+        url,
+        userInput,
+        collectionName,
+        databaseName,
+        messageBodyLength: msgBody.length,
+      }
     );
 
     const res = await this.fetch(url, {
@@ -732,7 +738,13 @@ export class AtlasService {
       mongoLogId(1_001_000_249),
       'AtlasService',
       'Running query generation request',
-      { url, body: msgBody }
+      {
+        url,
+        userInput,
+        collectionName,
+        databaseName,
+        messageBodyLength: msgBody.length,
+      }
     );
 
     const res = await this.fetch(url, {
