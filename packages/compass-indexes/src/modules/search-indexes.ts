@@ -537,12 +537,14 @@ const fetchIndexes = (
 
 export const refreshSearchIndexes = (): IndexesThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
-    const { indexes } = getState().searchIndexes;
+    const { status } = getState().searchIndexes;
 
-    // If we have a list of indexes already, then we are refreshing
-    // or else we are fetching them.
+    // If we are in a READY state, then we have already fetched the data
+    // and are refreshing the list.
     const newStatus: SearchIndexesStatus =
-      indexes.length > 0 ? 'REFRESHING' : 'FETCHING';
+      status === SearchIndexesStatuses.READY
+        ? SearchIndexesStatuses.REFRESHING
+        : SearchIndexesStatuses.FETCHING;
     await dispatch(fetchIndexes(newStatus));
   };
 };
