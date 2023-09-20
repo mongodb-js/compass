@@ -22,6 +22,7 @@ type AIPipelineStatus = 'ready' | 'fetching' | 'success';
 
 export type AIPipelineState = {
   errorMessage: string | undefined;
+  errorCode: string | undefined;
   isInputVisible: boolean;
   aiPromptText: string;
   status: AIPipelineStatus;
@@ -33,6 +34,7 @@ export const initialState: AIPipelineState = {
   status: 'ready',
   aiPromptText: '',
   errorMessage: undefined,
+  errorCode: undefined,
   isInputVisible: false,
   aiPipelineFetchId: -1,
   isAggregationGeneratedFromQuery: false,
@@ -135,6 +137,7 @@ type AIPipelineFailedAction = {
   type: AIPipelineActionTypes.AIPipelineFailed;
   errorMessage: string;
   statusCode?: number;
+  errorCode?: string;
 };
 
 export type PipelineGeneratedFromQueryAction = {
@@ -147,6 +150,7 @@ type FailedResponseTrackMessage = {
   statusCode?: number;
   errorMessage: string;
   errorName: string;
+  errorCode?: string;
 };
 
 function trackAndLogFailed({
@@ -154,6 +158,7 @@ function trackAndLogFailed({
   statusCode,
   errorMessage,
   errorName,
+  errorCode,
 }: FailedResponseTrackMessage) {
   log.warn(
     mongoLogId(1_001_000_230),
@@ -163,11 +168,13 @@ function trackAndLogFailed({
       statusCode,
       errorMessage,
       errorName,
+      errorCode,
     }
   );
   track('AI Response Failed', () => ({
     editor_view_type,
-    error_code: statusCode,
+    error_code: errorCode || '',
+    status_code: statusCode,
     error_name: errorName,
   }));
 }
@@ -244,6 +251,7 @@ export const runAIPipelineGeneration = (
       trackAndLogFailed({
         editor_view_type,
         statusCode: (err as AtlasServiceError).statusCode,
+        errorCode: (err as AtlasServiceError).errorCode,
         errorMessage: (err as AtlasServiceError).message,
         errorName: 'request_error',
       });
@@ -261,6 +269,7 @@ export const runAIPipelineGeneration = (
         type: AIPipelineActionTypes.AIPipelineFailed,
         errorMessage: (err as AtlasServiceError).message,
         statusCode: (err as AtlasServiceError).statusCode ?? -1,
+        errorCode: (err as AtlasServiceError).errorCode,
       });
       return;
     } finally {
@@ -428,12 +437,12 @@ const aiPipelineReducer: Reducer<AIPipelineState> = (
     if (action.statusCode === 401) {
       return { ...initialState };
     }
-
     return {
       ...state,
       status: 'ready',
       aiPipelineFetchId: -1,
       errorMessage: action.errorMessage,
+      errorCode: action.errorCode,
     };
   }
 

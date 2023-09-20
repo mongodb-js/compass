@@ -13,7 +13,7 @@ import {
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
-import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 
@@ -21,6 +21,7 @@ type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
 export type AIQueryState = {
   errorMessage: string | undefined;
+  errorCode: string | undefined;
   isInputVisible: boolean;
   aiPromptText: string;
   status: AIQueryStatus;
@@ -31,6 +32,7 @@ export const initialState: AIQueryState = {
   status: 'ready',
   aiPromptText: '',
   errorMessage: undefined,
+  errorCode: undefined,
   isInputVisible: false,
   aiQueryFetchId: -1,
 };
@@ -98,6 +100,7 @@ type AIQueryFailedAction = {
   type: AIQueryActionTypes.AIQueryFailed;
   errorMessage: string;
   statusCode?: number;
+  errorCode?: string;
 };
 
 export type AIQuerySucceededAction = {
@@ -111,12 +114,14 @@ export type AIQueryReturnedAggregationAction = {
 
 type FailedResponseTrackMessage = {
   statusCode?: number;
+  errorCode?: string;
   errorName: string;
   errorMessage: string;
 };
 
 function trackAndLogFailed({
   statusCode,
+  errorCode,
   errorName,
   errorMessage,
 }: FailedResponseTrackMessage) {
@@ -124,11 +129,13 @@ function trackAndLogFailed({
     statusCode,
     errorMessage,
     errorName,
+    errorCode,
   });
   track('AI Response Failed', () => ({
     editor_view_type: 'find',
     error_name: errorName,
-    error_code: statusCode,
+    status_code: statusCode,
+    error_code: errorCode ?? '',
   }));
 }
 
@@ -205,6 +212,7 @@ export const runAIQuery = (
       trackAndLogFailed({
         errorName: 'request_error',
         statusCode: (err as AtlasServiceError).statusCode,
+        errorCode: (err as AtlasServiceError).errorCode,
         errorMessage: (err as AtlasServiceError).message,
       });
       // We're going to reset input state with this error, show the error in the
@@ -221,6 +229,7 @@ export const runAIQuery = (
         type: AIQueryActionTypes.AIQueryFailed,
         errorMessage: (err as AtlasServiceError).message,
         statusCode: (err as AtlasServiceError).statusCode ?? -1,
+        errorCode: (err as AtlasServiceError).errorCode,
       });
       return;
     } finally {
@@ -396,6 +405,7 @@ const aiQueryReducer: Reducer<AIQueryState> = (
       status: 'ready',
       aiQueryFetchId: -1,
       errorMessage: action.errorMessage,
+      errorCode: action.errorCode,
     };
   }
 

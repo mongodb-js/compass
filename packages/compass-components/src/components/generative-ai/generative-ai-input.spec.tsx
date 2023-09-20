@@ -71,6 +71,74 @@ describe('GenerativeAIInput Component', function () {
       userEvent.click(screen.getByRole('button', { name: 'Clear prompt' }));
       expect(onChangeAIPromptTextSpy).to.be.calledOnceWith('');
     });
+
+    it('does not show an error', function () {
+      expect(screen.queryByTestId('ai-error-msg')).to.be.null;
+    });
+  });
+
+  describe('when rendered with an error', function () {
+    [
+      [
+        'NOT_SUPPORTED',
+        'Sorry, this version of Compass is no longer suitable to generate queries. Please update to the latest version to access all the features.',
+      ],
+      [
+        'USER_INPUT_TOO_LONG',
+        'Looks like your input exceeds the allowed length. Please reduce it and submit your prompt again.',
+      ],
+      [
+        'PROMPT_TOO_LONG',
+        'Sorry, your collections have too many fields to process. Please try using this feature on a collection with smaller documents.',
+      ],
+      [
+        'TOO_MANY_REQUESTS',
+        'Sorry, we are receiving too many requests in a short period of time. Please wait a few minutes and try again.',
+      ],
+      [
+        'GATEWAY_TIMEOUT',
+        'It took too long to generate your query, please check your connection and try again. If the problem persists, contact our support team.',
+      ],
+      [
+        'QUERY_GENERATION_FAILED',
+        'Something went wrong, please try again later. If the error persists, try changing your prompt.',
+      ],
+    ].forEach(([errorCode, expectedText]) => {
+      it(`renders an error for ${errorCode}`, function () {
+        renderGenerativeAIInput({
+          errorMessage: '...',
+          errorCode,
+        });
+
+        const errorMsg = screen.getByTestId('ai-error-msg');
+        expect(errorMsg).to.have.text(expectedText);
+        expect(errorMsg).to.be.visible;
+      });
+    });
+
+    it(`renders errorMessage if errorCode is missing`, function () {
+      renderGenerativeAIInput({
+        errorMessage: 'An error occurred',
+        errorCode: '',
+      });
+
+      const errorMsg = screen.getByTestId('ai-error-msg');
+      expect(errorMsg).to.have.text('An error occurred');
+      expect(errorMsg).to.be.visible;
+    });
+
+    it(`renders a default error if errorCode is unknown`, function () {
+      renderGenerativeAIInput({
+        errorMessage: 'An error occurred',
+        errorCode: 'SOME_UNEXPECTED_ERROR_CODE',
+      });
+
+      const errorMsg = screen.getByTestId('ai-error-msg');
+      expect(errorMsg).to.have.text(
+        'Something went wrong, please try again later. If the error persists, contact our support team.'
+      );
+      expect(errorMsg).to.be.visible;
+    });
   });
 
   describe('AIFeedback', function () {

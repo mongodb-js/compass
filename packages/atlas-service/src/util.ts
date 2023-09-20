@@ -172,7 +172,7 @@ export class AtlasServiceError extends Error {
     detail: string,
     errorCode: string
   ) {
-    super(`${errorCode} ${detail}`);
+    super(`${errorCode}: ${detail}`);
     this.name = name;
     this.statusCode = statusCode;
     this.errorCode = errorCode;
