@@ -114,6 +114,7 @@ type CollectionHeaderProps = {
   isClustered: boolean;
   isFLE: boolean;
   isAtlas: boolean;
+  isSearchIndexesSupported: boolean;
   selectOrCreateTab: (options: any) => any;
   sourceName?: string;
   sourceReadonly?: boolean;
@@ -160,6 +161,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
       sourceReadonly: false,
       sourceViewOn: null,
       sourcePipeline: this.props.pipeline,
+      isSearchIndexesSupported: this.props.isSearchIndexesSupported,
     });
   };
 
@@ -175,6 +177,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
       sourceReadonly: this.props.isReadonly,
       sourceViewOn: this.props.sourceName,
       sourcePipeline: this.props.pipeline,
+      isSearchIndexesSupported: this.props.isSearchIndexesSupported,
     });
   };
 

@@ -46,6 +46,7 @@ type CollectionProps = {
   selectOrCreateTab: (options: any) => any;
   pipeline: Document[];
   sourceName?: string;
+  isSearchIndexesSupported: boolean;
   activeSubTab: number;
   id: string;
   tabs: string[];
@@ -76,6 +77,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   selectOrCreateTab,
   pipeline,
   sourceName,
+  isSearchIndexesSupported,
   activeSubTab,
   id,
   tabs: _tabs,
@@ -176,6 +178,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           selectOrCreateTab={selectOrCreateTab}
           pipeline={pipeline}
           sourceName={sourceName}
+          isSearchIndexesSupported={isSearchIndexesSupported}
           stats={stats[namespace] ?? getCollectionStatsInitialState()}
         />
         <TabNavBar

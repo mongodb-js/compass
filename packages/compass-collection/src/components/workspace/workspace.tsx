@@ -140,6 +140,7 @@ const WorkspaceTab = ({
         editViewName={tab.editViewName}
         sourceReadonly={tab.sourceReadonly}
         sourceViewOn={tab.sourceViewOn}
+        isSearchIndexesSupported={tab.isSearchIndexesSupported}
         tabs={tab.tabs}
         views={tab.views}
         scopedModals={tab.scopedModals}
@@ -187,6 +188,7 @@ const Workspace = ({
           sourceReadonly: activeTab.sourceReadonly,
           sourceViewOn: activeTab.sourceViewOn,
           sourcePipeline: activeTab.pipeline,
+          isSearchIndexesSupported: activeTab.isSearchIndexesSupported,
         }
       : DEFAULT_NEW_TAB;
     createNewTab(newTabProps);
