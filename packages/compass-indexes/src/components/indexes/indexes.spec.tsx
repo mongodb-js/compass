@@ -30,6 +30,9 @@ const renderIndexes = (props: Partial<typeof Store> = {}) => {
       createIndex: {
         isModalOpen: false,
       },
+      updateIndex: {
+        isModalOpen: false,
+      },
     },
     ...props,
   };

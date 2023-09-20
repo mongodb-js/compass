@@ -5,7 +5,11 @@ export const searchIndexes: SearchIndex[] = [
     name: 'default',
     status: 'READY',
     queryable: true,
-    latestDefinition: {},
+    latestDefinition: {
+      mappings: {
+        dynamic: false,
+      },
+    },
   },
   {
     id: '2',

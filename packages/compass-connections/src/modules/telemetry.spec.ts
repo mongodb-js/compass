@@ -25,6 +25,7 @@ const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
         version: 'na',
       },
       isAtlas: false,
+      isLocalAtlas: false,
       featureCompatibilityVersion: null,
     });
   },
@@ -115,6 +116,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
+      is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
       is_genuine: true,
@@ -155,6 +157,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
+      is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
       is_genuine: true,
@@ -175,7 +178,7 @@ describe('connection tracking', function () {
   });
 
   // eslint-disable-next-line mocha/no-setup-in-describe
-  [
+  for (const { url, is_srv, title } of [
     {
       url: 'mongodb://compass-data-sets-shard-00-00.e06dc.mongodb.net',
       is_srv: false,
@@ -186,7 +189,7 @@ describe('connection tracking', function () {
       is_srv: true,
       title: 'is atlas, is srv',
     },
-  ].forEach(({ url, is_srv, title }) => {
+  ]) {
     it(`tracks a new connection event - ${title}`, async function () {
       const trackEvent = once(process, 'compass:track');
       const connectionInfo = {
@@ -207,6 +210,7 @@ describe('connection tracking', function () {
         is_srv: is_srv,
         topology_type: 'Unknown',
         is_atlas: false,
+        is_local_atlas: false,
         is_dataLake: false,
         is_enterprise: false,
         is_genuine: true,
@@ -227,6 +231,75 @@ describe('connection tracking', function () {
 
       expect(properties).to.deep.equal(expected);
     });
+  }
+
+  it('tracks a new connection event - atlas local dev', async function () {
+    const trackEvent = once(process, 'compass:track');
+
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'getCurrentTopologyType'
+    > = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: false,
+            version: 'na',
+          },
+          genuineMongoDB: {
+            dbType: 'na',
+            isGenuine: true,
+          },
+          host: {},
+          build: {
+            isEnterprise: false,
+            version: 'na',
+          },
+          isAtlas: false,
+          isLocalAtlas: true,
+          featureCompatibilityVersion: null,
+        });
+      },
+      getCurrentTopologyType: () => 'Unknown',
+    };
+
+    const connectionInfo = {
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017/',
+      },
+    };
+
+    trackNewConnectionEvent(connectionInfo, mockDataService);
+    const [{ properties }] = await trackEvent;
+
+    const expected = {
+      is_localhost: true,
+      is_public_cloud: false,
+      is_do_url: false,
+      is_atlas_url: false,
+      auth_type: 'NONE',
+      tunnel: 'none',
+      is_srv: false,
+      topology_type: 'Unknown',
+      is_atlas: false,
+      is_local_atlas: true,
+      is_dataLake: false,
+      is_enterprise: false,
+      is_genuine: true,
+      non_genuine_server_name: 'na',
+      server_version: 'na',
+      server_arch: undefined,
+      server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
+    };
+
+    expect(properties).to.deep.equal(expected);
   });
 
   it('tracks a new connection event - public cloud', async function () {
@@ -251,6 +324,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
+      is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
       is_genuine: true,
@@ -291,6 +365,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
+      is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
       is_genuine: true,
@@ -330,6 +405,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
+      is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
       is_genuine: true,
@@ -369,6 +445,7 @@ describe('connection tracking', function () {
       is_srv: true,
       topology_type: 'Unknown',
       is_atlas: false,
+      is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
       is_genuine: true,
@@ -484,6 +561,7 @@ describe('connection tracking', function () {
             version: '4.3.2',
           },
           isAtlas: true,
+          isLocalAtlas: false,
           featureCompatibilityVersion: null,
         });
       },
@@ -499,6 +577,7 @@ describe('connection tracking', function () {
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(true);
+    expect(properties.is_local_atlas).to.equal(false);
     expect(properties.is_dataLake).to.equal(true);
     expect(properties.is_enterprise).to.equal(true);
     expect(properties.is_genuine).to.equal(false);
@@ -532,6 +611,7 @@ describe('connection tracking', function () {
             version: '4.3.9',
           },
           isAtlas: false,
+          isLocalAtlas: false,
           featureCompatibilityVersion: null,
         });
       },
@@ -547,6 +627,7 @@ describe('connection tracking', function () {
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(false);
+    expect(properties.is_local_atlas).to.equal(false);
     expect(properties.is_dataLake).to.equal(false);
     expect(properties.is_enterprise).to.equal(false);
     expect(properties.is_genuine).to.equal(true);
@@ -625,6 +706,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
+      is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
       is_genuine: true,
