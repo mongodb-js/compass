@@ -35,15 +35,9 @@ export function shouldShowUnboundArrayInsight(
       el.elements &&
       el.elements.size >= thresholdLength &&
       el.elements.some((el) => {
-        return [
-          'Object',
-          'Document',
-          'ObjectId',
-          'String',
-          'Int32',
-          'Int64',
-          'Long',
-        ].includes(el.currentType);
+        return ['Object', 'Document', 'ObjectId', 'String'].includes(
+          el.currentType
+        );
       })
     );
   }

@@ -21,13 +21,7 @@ describe('objectContainsRegularExpression', function () {
 
 describe('shouldShowUnboundArrayInsight', function () {
   it('should return true when document matches criteria', function () {
-    const values = [
-      {},
-      new BSON.ObjectId(),
-      '',
-      new BSON.Int32(0),
-      BSON.Long.fromNumber(0),
-    ];
+    const values = [{ a: 1 }, new BSON.ObjectId(), 'a'];
 
     for (const val of values) {
       const doc = new Document({ a: [val] });

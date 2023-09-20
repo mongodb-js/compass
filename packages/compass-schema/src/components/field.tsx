@@ -190,15 +190,9 @@ export function shouldShowUnboundArrayInsight(
     isArraySchemaType(schemaType) &&
     schemaType.averageLength >= thresholdLength &&
     schemaType.types.some((type) => {
-      return [
-        'Object',
-        'Document',
-        'ObjectId',
-        'String',
-        'Int32',
-        'Int64',
-        'Long',
-      ].includes(type.bsonType);
+      return ['Object', 'Document', 'ObjectId', 'String'].includes(
+        type.bsonType
+      );
     })
   );
 }

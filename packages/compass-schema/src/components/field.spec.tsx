@@ -237,13 +237,7 @@ describe('shouldShowUnboundArrayInsight', function () {
 
   it('should return true when document matches criteria', async function () {
     const schemas = await Promise.all(
-      [
-        {},
-        new BSON.ObjectId(),
-        '',
-        new BSON.Int32(0),
-        BSON.Long.fromNumber(0),
-      ].map((val) => {
+      [{ a: 1 }, new BSON.ObjectId(), 'a'].map((val) => {
         return getTypesForValue([val]);
       })
     );
