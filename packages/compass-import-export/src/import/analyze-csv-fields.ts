@@ -12,7 +12,11 @@ import type {
   CSVField,
   CSVFieldTypeInfo,
 } from '../csv/csv-types';
-import { csvHeaderNameToFieldName, detectCSVFieldType } from '../csv/csv-utils';
+import {
+  csvHeaderNameToFieldName,
+  detectCSVFieldType,
+  overrideDetectedFieldType,
+} from '../csv/csv-utils';
 import { Utf8Validator } from '../utils/utf8-validator';
 import { ByteCounter } from '../utils/byte-counter';
 
@@ -97,7 +101,7 @@ function pickFieldType(field: CSVField): CSVParsableFieldType {
     }
 
     // If there's only one detected type, go with that.
-    return types[0] as CSVDetectableFieldType;
+    return overrideDetectedFieldType(types[0] as CSVDetectableFieldType);
   }
 
   if (types.length === 2) {
@@ -106,7 +110,7 @@ function pickFieldType(field: CSVField): CSVParsableFieldType {
       // If there are two detected types and one is undefined (ie. an ignored
       // empty string), go with the non-undefined one because undefined values
       // are special-cased during import.
-      return filtered[0] as CSVDetectableFieldType;
+      return overrideDetectedFieldType(filtered[0] as CSVDetectableFieldType);
     }
   }
 
