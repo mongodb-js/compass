@@ -1,4 +1,5 @@
 import type { AnyAction } from 'redux';
+import { isEqual } from 'lodash';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { isAction } from './../utils/is-action';
 import {
@@ -450,7 +451,20 @@ export const updateIndex = (
   indexDefinition: Document
 ): IndexesThunkAction<Promise<void>> => {
   return async function (dispatch, getState) {
-    const { namespace, dataService } = getState();
+    const {
+      namespace,
+      dataService,
+      searchIndexes: { indexes },
+    } = getState();
+
+    const currentIndexDefinition = indexes.find(
+      (x) => x.name === indexName
+    )?.latestDefinition;
+    if (isEqual(currentIndexDefinition, indexDefinition)) {
+      dispatch(closeUpdateModal());
+      return;
+    }
+
     try {
       dispatch({ type: ActionTypes.UpdateSearchIndexStarted });
       await dataService?.updateSearchIndex(

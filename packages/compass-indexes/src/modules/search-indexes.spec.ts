@@ -33,6 +33,7 @@ describe('search-indexes module', function () {
 
     store = setupStore(
       {
+        namespace: 'citibike.trips',
         isSearchIndexesSupported: true,
       },
       dataProvider
@@ -192,35 +193,74 @@ describe('search-indexes module', function () {
     });
   });
 
-  it('opens the modal for creation', function () {
-    store.dispatch(showCreateModal());
-    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
+  context('create search index', function () {
+    it('opens the modal for creation', function () {
+      store.dispatch(showCreateModal());
+      expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
+    });
+
+    it('closes an open modal for creation', function () {
+      store.dispatch(showCreateModal());
+      store.dispatch(closeCreateModal());
+      expect(
+        store.getState().searchIndexes.createIndex.isModalOpen
+      ).to.be.false;
+    });
+
+    it('creates the index when data is valid', async function () {
+      await store.dispatch(createIndex('indexName', {}));
+      expect(
+        store.getState().searchIndexes.createIndex.isModalOpen
+      ).to.be.false;
+      expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
+    });
   });
 
-  it('closes an open modal for creation', function () {
-    store.dispatch(showCreateModal());
-    store.dispatch(closeCreateModal());
-    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
-  });
+  context('update search index', function () {
+    const UPDATE_INDEX = searchIndexes[0];
+    beforeEach(async function () {
+      await store.dispatch(fetchSearchIndexes());
+      store.dispatch(showUpdateModal(UPDATE_INDEX.name));
+    });
+    it('closes an open modal for update', function () {
+      store.dispatch(closeUpdateModal());
+      expect(
+        store.getState().searchIndexes.updateIndex.isModalOpen
+      ).to.be.false;
+    });
 
-  it('creates the index when data is valid', async function () {
-    await store.dispatch(createIndex('indexName', {}));
-    expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.false;
-    expect(dataProvider.createSearchIndex).to.have.been.calledOnce;
-  });
+    it('updates the index when data is valid and does not match existing definition', async function () {
+      await store.dispatch(
+        updateIndex(UPDATE_INDEX.name, { something: 'else' })
+      );
+      expect(
+        store.getState().searchIndexes.updateIndex.isModalOpen
+      ).to.be.false;
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
+      ).to.equal(1);
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).firstCall.args
+      ).to.deep.equal([
+        'citibike.trips',
+        UPDATE_INDEX.name,
+        {
+          something: 'else',
+        },
+      ]);
+    });
 
-  it('closes an open modal for update', function () {
-    store.dispatch(showUpdateModal('indexName'));
-    store.dispatch(closeUpdateModal());
-
-    expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be.false;
-  });
-
-  it('updates the index when data is valid', async function () {
-    await store.dispatch(updateIndex('indexName', {}));
-
-    expect(store.getState().searchIndexes.updateIndex.isModalOpen).to.be.false;
-    expect(dataProvider.updateSearchIndex).to.have.been.calledOnce;
+    it('does not update the index when data is valid and matches existing definition', async function () {
+      await store.dispatch(
+        updateIndex(UPDATE_INDEX.name, UPDATE_INDEX.latestDefinition)
+      );
+      expect(
+        store.getState().searchIndexes.updateIndex.isModalOpen
+      ).to.be.false;
+      expect(
+        (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
+      ).to.equal(0);
+    });
   });
 
   context('drop search index', function () {
