@@ -5,7 +5,6 @@ import dataService from './data-service';
 import isWritable from './is-writable';
 import isReadonlyView from './is-readonly-view';
 import description from './description';
-import instance from './instance';
 import regularIndexes from './regular-indexes';
 import searchIndexes from './search-indexes';
 import serverVersion from './server-version';
@@ -16,7 +15,6 @@ const reducer = combineReducers({
   isWritable,
   isReadonlyView,
   description,
-  instance,
   appRegistry,
   dataService,
   serverVersion,

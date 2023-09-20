@@ -21,7 +21,6 @@ import {
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
-import { setInstance } from '../modules/instance';
 
 export type IndexesDataService = Pick<
   DataService,
@@ -115,7 +114,6 @@ const configureStore = (options: ConfigureStoreOptions) => {
     const instanceStore: any = globalAppRegistry.getStore('App.InstanceStore');
     if (instanceStore) {
       const instance = instanceStore.getState().instance;
-      store.dispatch(setInstance(instance));
 
       // set the initial values
       store.dispatch(writeStateChanged(instance.isWritable));

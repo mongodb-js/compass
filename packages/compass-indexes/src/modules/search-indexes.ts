@@ -6,7 +6,6 @@ import {
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
-import toNS from 'mongodb-ns';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -600,36 +599,19 @@ export const dropSearchIndex = (
   };
 };
 
-// todo: clean up
 export const runAggregateSearchIndex = (
   name: string
-): IndexesThunkAction<Promise<void>> => {
-  return async function (_dispatch, getState) {
+): IndexesThunkAction<void> => {
+  return function (_dispatch, getState) {
     const {
       searchIndexes: { indexes },
       appRegistry: { globalAppRegistry },
-      dataService,
-      instance,
       namespace,
     } = getState();
     const searchIndex = indexes.find((x) => x.name === name);
-    if (!searchIndex || !instance || !dataService) {
+    if (!searchIndex) {
       return;
     }
-
-    const { database, collection } = toNS(namespace);
-
-    const coll = await instance.getNamespace({
-      dataService,
-      database,
-      collection,
-    });
-
-    if (!coll) {
-      return;
-    }
-
-    const metadata = await coll.fetchMetadata({ dataService });
     const pipeline = JSON.stringify([
       {
         $search: {
@@ -641,8 +623,8 @@ export const runAggregateSearchIndex = (
         },
       },
     ]);
-    const data = {
-      ...metadata,
+    globalAppRegistry.emit('search-indexes-run-aggregate', {
+      ns: namespace,
       aggregation: {
         pipelineText: pipeline,
         autoPreview: true,
@@ -651,8 +633,7 @@ export const runAggregateSearchIndex = (
         collationString: null,
         comments: null,
       },
-    };
-    globalAppRegistry.emit('open-namespace-in-new-tab', data);
+    });
   };
 };
 

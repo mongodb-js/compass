@@ -10,6 +10,7 @@ import {
   showUpdateModal,
   closeUpdateModal,
   updateIndex,
+  runAggregateSearchIndex,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
@@ -255,5 +256,24 @@ describe('search-indexes module', function () {
       ]);
       expect(store.getState().searchIndexes.error).to.be.undefined;
     });
+  });
+
+  it('runs aggreate for a search index', async function () {
+    await store.dispatch(fetchSearchIndexes());
+
+    const emitSpy = sinon.spy();
+    sinon.replace(
+      store.getState().appRegistry.globalAppRegistry,
+      'emit',
+      emitSpy
+    );
+
+    store.dispatch(runAggregateSearchIndex('default'));
+
+    expect(emitSpy.callCount).to.deep.equal(1);
+    const callArgs = emitSpy.firstCall.args;
+    expect(callArgs[0]).to.equal('search-indexes-run-aggregate');
+    expect(callArgs[1]).to.have.property('ns');
+    expect(callArgs[1]).to.have.property('aggregation');
   });
 });
