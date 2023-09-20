@@ -2,7 +2,7 @@ import { ipcMain, shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import { createHash } from 'crypto';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
-import type { AtlasServiceError } from './renderer';
+import { AtlasServiceError } from './util';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
@@ -72,24 +72,25 @@ export async function throwIfNotOk(
     return;
   }
 
-  let serverErrorName = 'NetworkError';
-  let serverErrorMessage = `${res.status} ${res.statusText}`;
-  // We try to parse the response to see if the server returned any information
-  // we can show a user.
-  try {
-    const messageJSON = await res.json();
-    if (isServerError(messageJSON)) {
-      serverErrorName = 'ServerError';
-      serverErrorMessage = `${messageJSON.errorCode}: ${messageJSON.detail}`;
-    }
-  } catch (err) {
-    // no-op, use the default status and statusText in the message.
-  }
+  const messageJSON: { detail?: string; errorCode?: string } = await res
+    .json()
+    .catch(() => undefined);
 
-  const err = new Error(serverErrorMessage);
-  err.name = serverErrorName;
-  (err as AtlasServiceError).statusCode = res.status;
-  throw err;
+  if (messageJSON && isServerError(messageJSON)) {
+    throw new AtlasServiceError(
+      'ServerError',
+      res.status,
+      messageJSON.detail ?? 'Internal server error',
+      messageJSON.errorCode ?? 'INTERNAL_SERVER_ERROR'
+    );
+  } else {
+    throw new AtlasServiceError(
+      'NetworkError',
+      res.status,
+      res.statusText,
+      `${res.status}`
+    );
+  }
 }
 
 function throwIfAINotEnabled(atlasService: typeof AtlasService) {

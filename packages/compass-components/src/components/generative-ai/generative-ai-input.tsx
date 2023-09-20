@@ -3,14 +3,14 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
-import { Button, Icon, IconButton, TextInput } from '../leafygreen';
+import { Banner, Button, Icon, IconButton, TextInput } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
-import { ErrorSummary } from '../error-warning-summary';
 import { SpinLoader } from '../loader';
 import { DEFAULT_AI_ENTRY_SIZE, AIEntrySVG } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
 import { AIGuideCue } from './ai-guide-cue';
 import { focusRing } from '../../hooks/use-focus-ring';
+import { BannerVariant } from '../..';
 
 const containerStyles = css({
   display: 'flex',
@@ -155,6 +155,7 @@ type GenerativeAIInputProps = {
   aiPromptText: string;
   didSucceed: boolean;
   errorMessage?: string;
+  errorCode?: string;
   isFetching?: boolean;
   placeholder?: string;
   show: boolean;
@@ -342,9 +343,9 @@ function GenerativeAIInput({
       </div>
       {errorMessage && (
         <div className={errorSummaryContainer}>
-          <ErrorSummary data-testid="ai-error-msg" errors={errorMessage}>
+          <Banner data-testid="ai-error-msg" variant={BannerVariant.Danger}>
             {errorMessage}
-          </ErrorSummary>
+          </Banner>
         </div>
       )}
     </div>

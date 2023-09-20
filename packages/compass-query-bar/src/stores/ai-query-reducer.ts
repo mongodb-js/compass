@@ -13,7 +13,7 @@ import {
 import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
-import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
+import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry('AI-QUERY-UI');
 

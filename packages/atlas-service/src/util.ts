@@ -160,4 +160,22 @@ export function validateAIQueryResponse(
   }
 }
 
-export type AtlasServiceError = Error & { statusCode: number };
+// See: https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
+export class AtlasServiceError extends Error {
+  statusCode: number;
+  errorCode: string;
+  detail: string;
+
+  constructor(
+    name: 'NetworkError' | 'ServerError',
+    statusCode: number,
+    detail: string,
+    errorCode: string
+  ) {
+    super(`${errorCode} ${detail}`);
+    this.name = name;
+    this.statusCode = statusCode;
+    this.errorCode = errorCode;
+    this.detail = detail;
+  }
+}
