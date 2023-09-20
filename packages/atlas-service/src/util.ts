@@ -85,7 +85,7 @@ export function validateAIFeatureEnablementResponse(
 ): asserts response is AIFeatureEnablement {
   const { features } = response;
 
-  if (typeof features !== 'object') {
+  if (typeof features !== 'object' || features === null) {
     throw new Error('Unexpected response: expected features to be an object');
   }
 }
@@ -95,7 +95,8 @@ export type AIQuery = {
     query: Record<
       'filter' | 'project' | 'collation' | 'sort' | 'skip' | 'limit',
       string
-    > & { aggregation?: { pipeline: string } };
+    >;
+    aggregation?: { pipeline: string };
   };
 };
 
@@ -108,11 +109,13 @@ export function validateAIQueryResponse(
     throw new Error('Unexpected response: expected content to be an object');
   }
 
-  if (hasExtraneousKeys(content, ['query'])) {
-    throw new Error('Unexpected keys in response: expected query');
+  if (hasExtraneousKeys(content, ['query', 'aggregation'])) {
+    throw new Error(
+      'Unexpected keys in response: expected query and aggregation'
+    );
   }
 
-  const { query } = content;
+  const { query, aggregation } = content;
 
   if (typeof query !== 'object' || query === null) {
     throw new Error('Unexpected response: expected query to be an object');
@@ -126,7 +129,6 @@ export function validateAIQueryResponse(
       'sort',
       'skip',
       'limit',
-      'aggregation',
     ])
   ) {
     throw new Error(
@@ -151,10 +153,10 @@ export function validateAIQueryResponse(
     }
   }
 
-  if (query.aggregation && typeof query.aggregation.pipeline !== 'string') {
+  if (aggregation && typeof aggregation.pipeline !== 'string') {
     throw new Error(
       `Unexpected response: expected aggregation pipeline to be a string, got ${util.inspect(
-        query.aggregation
+        aggregation
       )}`
     );
   }

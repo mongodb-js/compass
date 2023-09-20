@@ -162,7 +162,7 @@ class CompassApplication {
         },
         authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
       },
-      config[atlasServiceConfigPreset]
+      config['atlas-dev']
     );
 
     await AtlasService.init(atlasServiceConfig);
