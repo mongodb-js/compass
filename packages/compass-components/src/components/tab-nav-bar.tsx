@@ -42,7 +42,7 @@ type TabNavBarProps = {
   'aria-label': string;
   activeTabIndex: number;
   tabs: string[];
-  views: JSX.Element[];
+  views: React.ReactElement[];
   onTabClicked: (tabIndex: number) => void;
 };
 
@@ -58,7 +58,7 @@ function TabNavBar({
   tabs,
   views,
   onTabClicked,
-}: TabNavBarProps): JSX.Element {
+}: TabNavBarProps): React.ReactElement | null {
   const darkMode = useDarkMode();
 
   return (

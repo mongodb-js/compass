@@ -8,6 +8,20 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
+const statsItemContainerStyles = css({
+  paddingLeft: spacing[1],
+  paddingRight: spacing[1],
+  flexBasis: 'auto',
+  flexGrow: 0,
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'flex-end',
+  marginBottom: 0,
+  '&:last-child': {
+    borderRight: 'none',
+  },
+});
+
 const collectionStatsItemStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -44,7 +58,7 @@ const lightThemeValueStyles = css({
 type CollectionStatsItemProps = {
   label: string;
   value: string;
-  dataTestId: string;
+  ['data-testid']?: string;
 };
 
 /**
@@ -52,23 +66,35 @@ type CollectionStatsItemProps = {
  */
 const CollectionStatsItem: React.FunctionComponent<
   CollectionStatsItemProps
-> = ({ dataTestId, label, value }: CollectionStatsItemProps) => {
+> = ({
+  ['data-testid']: dataTestId,
+  label,
+  value,
+}: CollectionStatsItemProps) => {
   const darkMode = useDarkMode();
 
   return (
-    <div className={collectionStatsItemStyles} data-testid={dataTestId}>
-      <H3
-        className={darkMode ? darkThemeValueStyles : lightThemeValueStyles}
-        data-testid={`${dataTestId}-value`}
+    <div
+      data-testid={`${dataTestId}-stats-item`}
+      className={statsItemContainerStyles}
+    >
+      <div
+        className={collectionStatsItemStyles}
+        data-testid={`${dataTestId}-count`}
       >
-        {value}
-      </H3>
-      <Disclaimer
-        className={darkMode ? darkThemeLabelStyles : lightThemeLabelStyles}
-        data-testid={`${dataTestId}-label`}
-      >
-        {label}
-      </Disclaimer>
+        <H3
+          className={darkMode ? darkThemeValueStyles : lightThemeValueStyles}
+          data-testid={`${dataTestId}-count-value`}
+        >
+          {value}
+        </H3>
+        <Disclaimer
+          className={darkMode ? darkThemeLabelStyles : lightThemeLabelStyles}
+          data-testid={`${dataTestId}-count-label`}
+        >
+          {label}
+        </Disclaimer>
+      </div>
     </div>
   );
 };

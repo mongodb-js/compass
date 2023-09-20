@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Workspace from './components/workspace';
 import { Provider } from 'react-redux';
-import store from './stores';
+import store from './stores/tabs';
 
 class Plugin extends Component {
   static displayName = 'CollectionWorkspacePlugin';

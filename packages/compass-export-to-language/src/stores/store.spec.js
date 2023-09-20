@@ -27,7 +27,17 @@ describe('ExportToLanguage Store', function () {
       localAppRegistry: localAppRegistry,
       globalAppRegistry: globalAppRegistry,
       namespace: 'db.coll',
-      connectionString: 'mongodb://localhost/',
+      dataProvider: {
+        dataProvider: {
+          getConnectionString() {
+            return {
+              clone() {
+                return new URL('mongodb://localhost/');
+              },
+            };
+          },
+        },
+      },
     });
   });
   afterEach(function () {

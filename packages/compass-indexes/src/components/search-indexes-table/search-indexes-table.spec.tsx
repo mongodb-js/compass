@@ -29,6 +29,7 @@ const renderIndexList = (
       readOnly={false}
       onSortTable={onSortTableSpy}
       onDropIndex={() => {}}
+      onEditIndex={() => {}}
       openCreateModal={openCreateSpy}
       {...props}
     />
@@ -162,6 +163,19 @@ describe('SearchIndexesTable Component', function () {
       expect(dropIndexActions.length).to.equal(indexes.length);
       dropIndexActions[0].click();
       expect(onDropIndexSpy.callCount).to.equal(1);
+    });
+
+    it('renders edit action and shows modal when clicked', function () {
+      const onEditIndexSpy = sinon.spy();
+
+      renderIndexList({ onEditIndex: onEditIndexSpy });
+      const editIndexActions = screen.getAllByTestId(
+        'search-index-actions-edit-action'
+      );
+
+      expect(editIndexActions.length).to.equal(indexes.length);
+      editIndexActions[0].click();
+      expect(onEditIndexSpy.callCount).to.equal(1);
     });
   });
 });

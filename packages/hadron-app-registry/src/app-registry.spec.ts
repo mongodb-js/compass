@@ -15,31 +15,8 @@ describe('AppRegistry', function () {
         storeLike = registry.getStore('Test.Store');
       });
 
-      it('does not return undefined', function () {
-        expect(storeLike).to.not.equal(undefined);
-      });
-
-      it('returns a store-like object', function (done) {
-        const unsubscribe = storeLike.listen((value) => {
-          expect(value).to.equal('test');
-          unsubscribe();
-          done();
-        });
-        storeLike.trigger('test');
-      });
-
-      it('flags the non-existant request', function () {
-        expect(registry.storeMisses['Test.Store']).to.equal(1);
-      });
-
-      context('when asking for a missing store more than once', function () {
-        before(function () {
-          registry.getStore('Test.Store');
-        });
-
-        it('updates the miss count', function () {
-          expect(registry.storeMisses['Test.Store']).to.equal(2);
-        });
+      it('returns undefined', function () {
+        expect(storeLike).to.equal(undefined);
       });
     });
   });
