@@ -32,6 +32,7 @@ store.onActivated = (appRegistry) => {
         isWritable: instance.isWritable,
         env: instance.env,
         isAtlas: instance.isAtlas,
+        isLocalAtlas: instance.isLocalAtlas,
       })
     );
   };

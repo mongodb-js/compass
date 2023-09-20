@@ -155,10 +155,10 @@ store.onActivated = (appRegistry: AppRegistry) => {
       }
     );
 
-    instance.on('change:isAtlas', (_model: unknown, value: boolean) => {
-      store.dispatch(isAtlasChanged(value));
+    instance.on('change:env', (_model: unknown, value: string) => {
+      store.dispatch(isAtlasChanged(value === 'atlas'));
     });
-    store.dispatch(isAtlasChanged(instance.isAtlas));
+    store.dispatch(isAtlasChanged(instance.env === 'atlas'));
 
     instance.dataLake.on(
       'change:isDataLake',
