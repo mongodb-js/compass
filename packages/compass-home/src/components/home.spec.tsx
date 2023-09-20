@@ -173,7 +173,6 @@ describe('Home [Component]', function () {
         'select-namespace',
         'open-instance-workspace',
         'open-namespace-in-new-tab',
-        'all-collection-tabs-closed',
       ];
 
       events.forEach((name) => {
@@ -200,7 +199,6 @@ describe('Home [Component]', function () {
         'select-namespace',
         'open-instance-workspace',
         'open-namespace-in-new-tab',
-        'all-collection-tabs-closed',
         'darkmode-enable',
         'darkmode-disable',
       ];

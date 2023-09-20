@@ -1,0 +1,10 @@
+{
+  "id": "64ef99ef4d5d0d65f74b7caa",
+  "name": "At most 3 bedrooms",
+  "namespace": "self_airbnb.listings",
+  "comments": true,
+  "autoPreview": true,
+  "collationString": "",
+  "pipelineText": "[\n  {\n    $match:\n      /**\n       * query: The query in MQL.\n       */\n      {\n        name: /ber/i,\n        bedrooms: {\n          $lt: 3,\n        },\n      },\n  },\n]",
+  "host": "localhost:27019"
+}

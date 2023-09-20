@@ -1,6 +1,12 @@
 import React from 'react';
-
+import { connect } from 'react-redux';
+import type AppRegistry from 'hadron-app-registry';
 import { IndexKeysBadge } from '@mongodb-js/compass-components';
+import { withPreferences } from 'compass-preferences-model';
+
+import type { RootState } from '../../modules';
+
+import { IndexesTable } from '../indexes-table';
 
 import TypeField from './type-field';
 import SizeField from './size-field';
@@ -8,35 +14,62 @@ import UsageField from './usage-field';
 import PropertyField from './property-field';
 import IndexActions from './index-actions';
 
-import { IndexesTable } from '../indexes-table';
-
-import type {
-  IndexDefinition,
-  SortColumn,
-  SortDirection,
+import {
+  sortRegularIndexes,
+  dropFailedIndex,
+  hideIndex,
+  unhideIndex,
 } from '../../modules/regular-indexes';
 
+import {
+  type RegularIndex,
+  type RegularSortColumn,
+} from '../../modules/regular-indexes';
+
+import type { SortDirection } from '../../modules';
+
 type RegularIndexesTableProps = {
-  indexes: IndexDefinition[];
-  canModifyIndex: boolean;
+  indexes: RegularIndex[];
   serverVersion: string;
-  onDeleteIndex: (index: IndexDefinition) => void;
+  isWritable?: boolean;
+  dropFailedIndex: (name: string) => void;
   onHideIndex: (name: string) => void;
   onUnhideIndex: (name: string) => void;
-  onSortTable: (column: SortColumn, direction: SortDirection) => void;
+  onSortTable: (column: RegularSortColumn, direction: SortDirection) => void;
+  localAppRegistry: AppRegistry;
+  readOnly?: boolean;
+  error?: string | null;
 };
 
 export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
 > = ({
+  isWritable,
+  readOnly,
   indexes,
-  canModifyIndex,
   serverVersion,
-  onDeleteIndex,
   onHideIndex,
   onUnhideIndex,
   onSortTable,
+  error,
+  localAppRegistry,
 }) => {
+  if (error) {
+    // We don't render the table if there is an error. The toolbar takes care of
+    // displaying it.
+    return null;
+  }
+
+  const deleteIndex = (index: RegularIndex) => {
+    if (index.extra.status === 'failed') {
+      return dropFailedIndex(String(index.extra.id));
+    }
+
+    return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
+  };
+
+  const canModifyIndex = isWritable && !readOnly;
+
   const columns = [
     'Name and Definition',
     'Type',
@@ -48,30 +81,30 @@ export const RegularIndexesTable: React.FunctionComponent<
   const data = indexes.map((index) => {
     return {
       key: index.name,
-      'data-testid': `index-row-${index.name}`,
+      'data-testid': `row-${index.name}`,
       fields: [
         {
-          'data-testid': 'index-name-field',
+          'data-testid': 'name-field',
           children: index.name,
         },
         {
-          'data-testid': 'index-type-field',
+          'data-testid': 'type-field',
           children: <TypeField type={index.type} extra={index.extra} />,
         },
         {
-          'data-testid': 'index-size-field',
+          'data-testid': 'size-field',
           children: (
             <SizeField size={index.size} relativeSize={index.relativeSize} />
           ),
         },
         {
-          'data-testid': 'index-usage-field',
+          'data-testid': 'usage-field',
           children: (
             <UsageField usage={index.usageCount} since={index.usageSince} />
           ),
         },
         {
-          'data-testid': 'index-property-field',
+          'data-testid': 'property-field',
           children: (
             <PropertyField
               cardinality={index.cardinality}
@@ -85,12 +118,17 @@ export const RegularIndexesTable: React.FunctionComponent<
         <IndexActions
           index={index}
           serverVersion={serverVersion}
-          onDeleteIndex={onDeleteIndex}
+          onDeleteIndex={deleteIndex}
           onHideIndex={onHideIndex}
           onUnhideIndex={onUnhideIndex}
         ></IndexActions>
       ),
-      details: <IndexKeysBadge keys={index.fields} />,
+      details: (
+        <IndexKeysBadge
+          keys={index.fields}
+          data-testid={`indexes-details-${index.name}`}
+        />
+      ),
     };
   });
 
@@ -105,3 +143,28 @@ export const RegularIndexesTable: React.FunctionComponent<
     />
   );
 };
+
+const mapState = ({
+  serverVersion,
+  regularIndexes,
+  isWritable,
+  appRegistry,
+}: RootState) => ({
+  isWritable,
+  serverVersion,
+  indexes: regularIndexes.indexes,
+  error: regularIndexes.error,
+  localAppRegistry: (appRegistry as any).localAppRegistry,
+});
+
+const mapDispatch = {
+  dropFailedIndex,
+  onHideIndex: hideIndex,
+  onUnhideIndex: unhideIndex,
+  onSortTable: sortRegularIndexes,
+};
+
+export default connect(
+  mapState,
+  mapDispatch
+)(withPreferences(RegularIndexesTable, ['readOnly'], React));

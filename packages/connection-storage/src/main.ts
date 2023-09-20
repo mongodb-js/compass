@@ -9,3 +9,4 @@ export {
   ImportConnectionOptions,
 } from './import-export-connection';
 export { ConnectionInfo } from './connection-info';
+export { getConnectionTitle } from './connection-title';

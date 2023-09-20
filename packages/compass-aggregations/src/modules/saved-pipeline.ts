@@ -166,7 +166,7 @@ export const saveCurrentPipeline =
         dataService.dataService?.getConnectionString().hosts.join(',') ?? null,
     };
 
-    await pipelineStorage.updateAttributes(savedPipeline.id, savedPipeline);
+    await pipelineStorage.createOrUpdate(savedPipeline.id, savedPipeline);
 
     const stagesLength = (() => {
       try {

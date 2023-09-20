@@ -6,14 +6,11 @@ import {
   localAppRegistryActivated,
   globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { changeSchemaFields } from '../modules/create-index/schema-fields';
 import { handleError } from '../modules/create-index/error';
 import { toggleIsVisible } from '../modules/is-visible';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
-
-const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
 /**
  * Handle setting up the data provider.
@@ -47,7 +44,6 @@ const configureStore = (options = {}) => {
     });
 
     localAppRegistry.on('open-create-index-modal', () => {
-      track('Index Create Opened');
       store.dispatch(toggleIsVisible(true));
     });
 

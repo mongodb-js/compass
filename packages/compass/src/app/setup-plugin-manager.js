@@ -3,15 +3,12 @@ const remote = require('@electron/remote');
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
-const { AppRegistry } = require('hadron-app-registry');
+const { globalAppRegistry } = require('hadron-app-registry');
 const PluginManager = require('@mongodb-js/hadron-plugin-manager');
 
 const debug = require('debug')('mongodb-compass:setup-plugin-manager');
 
-/**
- * Create a new app registry and prevent modification.
- */
-const appRegistry = Object.freeze(new AppRegistry());
+const appRegistry = globalAppRegistry;
 
 app.appRegistry = appRegistry;
 

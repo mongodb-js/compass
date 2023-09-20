@@ -1,8 +1,7 @@
 import { UUID, EJSON } from 'bson';
 import { orderBy } from 'lodash';
 import { type BaseQuery } from '../constants/query-properties';
-import { UserData } from '@mongodb-js/compass-user-data';
-import { z } from 'zod';
+import { UserData, z } from '@mongodb-js/compass-user-data';
 
 // We do not save maxTimeMS
 const BaseQuerySchema: z.Schema<Omit<BaseQuery, 'maxTimeMS'>> = z.object({

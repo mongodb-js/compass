@@ -1,6 +1,5 @@
 import { getAppName } from '@mongodb-js/compass-utils';
-import { UserData } from '@mongodb-js/compass-user-data';
-import { z } from 'zod';
+import { UserData, z } from '@mongodb-js/compass-user-data';
 
 export class HistoryStorage {
   fileName = 'shell-history';

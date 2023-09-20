@@ -27,6 +27,7 @@ interface Database {
     nameOnly?: boolean;
     force?: boolean;
   }): Promise<void>;
+  on(evt: string, fn: (...args: any) => void);
   toJSON(opts?: { derived: boolean }): this;
 }
 

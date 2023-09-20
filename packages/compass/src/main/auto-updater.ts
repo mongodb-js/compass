@@ -38,7 +38,7 @@ function hasSquirrel() {
   return fs.existsSync(updateExe);
 }
 
-function supportsAutoupdater() {
+export function supportsAutoupdater() {
   if (process.platform === 'linux') {
     return false;
   }

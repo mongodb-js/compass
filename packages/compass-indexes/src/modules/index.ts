@@ -23,6 +23,8 @@ const reducer = combineReducers({
   searchIndexes,
 });
 
+export type SortDirection = 'asc' | 'desc';
+
 export type RootState = ReturnType<typeof reducer>;
 export type IndexesThunkDispatch<A extends AnyAction> = ThunkDispatch<
   RootState,

@@ -1,7 +1,8 @@
-import preferences, { preferencesAccess } from '.';
+import preferences, { preferencesAccess, usePreference } from '.';
 import type { ParsedGlobalPreferencesResult } from '.';
 import { setupPreferences } from './setup-preferences';
 import { UserStorage } from './storage';
+import type { ReactHooks } from './react';
 
 export async function setupPreferencesAndUser(
   globalPreferences: ParsedGlobalPreferencesResult
@@ -38,4 +39,23 @@ export function capMaxTimeMSAtPreferenceLimit<T>(value: T): T | number {
     return preferenceMaxTimeMS;
   }
   return value;
+}
+
+export function useIsAIFeatureEnabled(React: ReactHooks) {
+  const enableAIWithoutRolloutAccess = usePreference(
+    'enableAIWithoutRolloutAccess',
+    React
+  );
+  const enableAIExperience = usePreference('enableAIExperience', React);
+  const isAIFeatureEnabled = usePreference(
+    'cloudFeatureRolloutAccess',
+    React
+  )?.GEN_AI_COMPASS;
+  const enableAIFeatures = usePreference('enableAIFeatures', React);
+
+  return (
+    enableAIExperience &&
+    (enableAIWithoutRolloutAccess || isAIFeatureEnabled) &&
+    enableAIFeatures
+  );
 }

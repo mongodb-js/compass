@@ -4,21 +4,20 @@ import Aggregations from './components/aggregations';
 import { Provider } from 'react-redux';
 import configureStore from './stores/store';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
+import { withPreferences } from 'compass-preferences-model';
 
-class Plugin extends Component {
-  static displayName = 'AggregationsPlugin';
-
+class AggregationsPlugin extends Component {
   static propTypes = {
     store: PropTypes.object.isRequired,
-    showExportButton: PropTypes.bool,
-    showRunButton: PropTypes.bool,
-    showExplainButton: PropTypes.bool,
+    enableImportExport: PropTypes.bool,
+    enableAggregationBuilderRunPipeline: PropTypes.bool,
+    enableExplainPlan: PropTypes.bool,
   };
 
   static defaultProps = {
-    showExportButton: false,
-    showRunButton: false,
-    showExplainButton: false,
+    enableImportExport: false,
+    enableAggregationBuilderRunPipeline: false,
+    enableExplainPlan: false,
   };
 
   /**
@@ -29,15 +28,25 @@ class Plugin extends Component {
       <ConfirmationModalArea>
         <Provider store={this.props.store}>
           <Aggregations
-            showExportButton={this.props.showExportButton}
-            showRunButton={this.props.showRunButton}
-            showExplainButton={this.props.showExplainButton}
+            showExportButton={this.props.enableImportExport}
+            showRunButton={this.props.enableAggregationBuilderRunPipeline}
+            showExplainButton={this.props.enableExplainPlan}
           />
         </Provider>
       </ConfirmationModalArea>
     );
   }
 }
+
+const Plugin = withPreferences(
+  AggregationsPlugin,
+  [
+    'enableImportExport',
+    'enableAggregationBuilderRunPipeline',
+    'enableExplainPlan',
+  ],
+  React
+);
 
 export default Plugin;
 export { Plugin, configureStore };
