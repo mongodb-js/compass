@@ -43,26 +43,30 @@ store.onActivated = (appRegistry) => {
     }
 
     const prevDb = store.instance?.databases.get(databaseName);
-    const nextDb = store.instance?.databases.get(ns);
-
-    if (!nextDb) {
-      throw new Error(`Database ${ns} does not exist`);
-    }
 
     // Clean up listeners from previous database model (if exists) and set up
     // new ones
     prevDb?.off('change:collectionsStatus', onDatabaseCollectionStatusChange);
-    nextDb.on('change:collectionsStatus', onDatabaseCollectionStatusChange);
     prevDb?.off('change:collections.status', onDatabaseCollectionsChange);
-    nextDb.on('change:collections.status', onDatabaseCollectionsChange);
 
     // Cancel any pending collection change handlers as they are definitely from
     // the previous db
     onCollectionsChange.cancel();
-    // Set initial collections based on the current database model state and
-    // update the collections collection status
-    store.dispatch(changeDatabaseName(ns, nextDb.collections.toJSON() ?? []));
-    onDatabaseCollectionStatusChange(nextDb);
+
+    if (ns) {
+      const nextDb = store.instance?.databases.get(ns);
+      if (!nextDb) {
+        throw new Error(`Database ${ns} does not exist`);
+      }
+      nextDb.on('change:collectionsStatus', onDatabaseCollectionStatusChange);
+      nextDb.on('change:collections.status', onDatabaseCollectionsChange);
+      // Set initial collections based on the current database model state and
+      // update the collections collection status
+      store.dispatch(changeDatabaseName(ns, nextDb.collections.toJSON() ?? []));
+      onDatabaseCollectionStatusChange(nextDb);
+    } else {
+      store.dispatch(changeDatabaseName(''));
+    }
   };
 
   appRegistry.on('instance-destroyed', () => {
@@ -95,7 +99,23 @@ store.onActivated = (appRegistry) => {
    *
    * @param {String} ns - The namespace.
    */
-  appRegistry.on('select-database', onSelectDatabase);
+  appRegistry.on('select-database', (dbName) => {
+    onSelectDatabase(dbName);
+  });
+
+  /**
+   * In all other cases reset current database name so that plugin is aware that
+   * it is not active
+   */
+  appRegistry.on('open-instance-workspace', () => {
+    onSelectDatabase();
+  });
+  appRegistry.on('open-namespace-in-new-tab', () => {
+    onSelectDatabase();
+  });
+  appRegistry.on('select-namespace', () => {
+    onSelectDatabase();
+  });
 
   /**
    * Set the data service in the store when connected.
@@ -118,7 +138,6 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('database-dropped', (name) => {
     const currentDatabase = store.getState().databaseName;
-
     if (name === currentDatabase) {
       appRegistry.emit('active-database-dropped', name);
     }

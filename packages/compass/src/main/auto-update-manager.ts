@@ -606,7 +606,7 @@ class CompassAutoUpdateManager {
 
     preferences.onPreferenceValueChanged('autoUpdates', (enabled) => {
       log.info(
-        mongoLogId(1_001_000_247),
+        mongoLogId(1_001_000_251),
         'AutoUpdateManager',
         `autoUpdate preference toggled to ${enabled ? 'enabled' : 'disabled'}`,
         {
