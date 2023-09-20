@@ -35,7 +35,7 @@ type SearchIndexesTableProps = {
   readOnly?: boolean;
   onSortTable: (column: SearchSortColumn, direction: SortDirection) => void;
   onDropIndex: (name: string) => void;
-  onEditIndex: (name: string, definition: string) => void;
+  onEditIndex: (name: string) => void;
   openCreateModal: () => void;
   status: SearchIndexesStatus;
 };

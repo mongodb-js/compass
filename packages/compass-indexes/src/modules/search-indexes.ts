@@ -293,7 +293,8 @@ export default function reducer(
         isBusy: false,
       },
     };
-  } else if (
+  }
+  if (
     isAction<OpenUpdateSearchIndexModalAction>(
       action,
       ActionTypes.OpenUpdateSearchIndexModal
@@ -307,7 +308,8 @@ export default function reducer(
         indexName: action.indexName,
       },
     };
-  } else if (
+  }
+  if (
     isAction<UpdateSearchIndexStartedAction>(
       action,
       ActionTypes.UpdateSearchIndexStarted
@@ -321,7 +323,8 @@ export default function reducer(
         isBusy: true,
       },
     };
-  } else if (
+  }
+  if (
     isAction<UpdateSearchIndexFailedAction>(
       action,
       ActionTypes.UpdateSearchIndexFailed
@@ -335,7 +338,8 @@ export default function reducer(
         isBusy: false,
       },
     };
-  } else if (
+  }
+  if (
     isAction<UpdateSearchIndexSucceededAction>(
       action,
       ActionTypes.UpdateSearchIndexSucceeded
@@ -350,7 +354,8 @@ export default function reducer(
         indexName: '',
       },
     };
-  } else if (
+  }
+  if (
     isAction<UpdateSearchIndexCancelledAction>(
       action,
       ActionTypes.UpdateSearchIndexCancelled

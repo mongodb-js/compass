@@ -6,7 +6,7 @@ import type { SearchIndex } from 'mongodb-data-service';
 type IndexActionsProps = {
   index: SearchIndex;
   onDropIndex: (name: string) => void;
-  onEditIndex: (name: string, definition: string) => void;
+  onEditIndex: (name: string) => void;
 };
 
 type SearchIndexAction = 'drop' | 'edit';
@@ -36,12 +36,9 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const onAction = useCallback(
     (action: SearchIndexAction) => {
       if (action === 'drop') {
-        void onDropIndex(index.name);
+        onDropIndex(index.name);
       } else if (action === 'edit') {
-        void onEditIndex(
-          index.name,
-          JSON.stringify(index.latestDefinition, undefined, 2)
-        );
+        onEditIndex(index.name);
       }
     },
     [onDropIndex, onEditIndex, index]

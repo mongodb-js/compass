@@ -37,6 +37,7 @@ describe('SearchIndexActions Component', function () {
     expect(onDropSpy.callCount).to.equal(0);
     userEvent.click(dropButton);
     expect(onDropSpy.callCount).to.equal(1);
+    expect(onDropSpy.firstCall.args).to.deep.equal(['artist_id_index']);
   });
 
   it('renders edit button', function () {
@@ -49,5 +50,6 @@ describe('SearchIndexActions Component', function () {
     expect(onEditSpy.callCount).to.equal(0);
     userEvent.click(editButton);
     expect(onEditSpy.callCount).to.equal(1);
+    expect(onEditSpy.firstCall.args).to.deep.equal(['artist_id_index']);
   });
 });
