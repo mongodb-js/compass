@@ -298,7 +298,7 @@ describe('AtlasServiceMain', function () {
         } catch (err) {
           expect(err).to.have.property(
             'message',
-            'Error: too large of a request to send to the ai. Please use a smaller prompt or collection with smaller documents.'
+            'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
           );
         }
       });
