@@ -85,7 +85,7 @@ export function validateAIFeatureEnablementResponse(
 ): asserts response is AIFeatureEnablement {
   const { features } = response;
 
-  if (typeof features !== 'object' || features === null) {
+  if (typeof features !== 'object') {
     throw new Error('Unexpected response: expected features to be an object');
   }
 }
